@@ -468,7 +468,6 @@
       var roi = totalCost > 0 ? (profit / totalCost) * 100 : 0;
       return { contribution, breakEvenUnits, breakEvenAmount, revenue, totalCost, profit, profitMargin, roi };
     }
-    }
 
     function updateResults(r, inputs) {
       document.getElementById('resUnits').textContent = r.breakEvenUnits < 0 ? 'غير محققة' : formatNumberAR(r.breakEvenUnits) + ' وحدة';
