@@ -20,7 +20,8 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="assets/site-logo.png" type="image/png" />
   <style>
@@ -607,15 +608,106 @@
     }
 
     function exportPDF() {
-      var element = document.getElementById('resultsArea').parentElement;
-      var opts = {
-        margin: 10,
-        filename: 'bonds-break-even-report.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-      html2pdf().set(opts).from(element).save();
+      var fixed = document.getElementById('fixedCost').value || '0';
+      var price = document.getElementById('unitPrice').value || '0';
+      var varCost = document.getElementById('varCost').value || '0';
+      var qty = document.getElementById('quantity').value || '0';
+      var resUnits = document.getElementById('resUnits').textContent;
+      var resAmount = document.getElementById('resAmount').textContent;
+      var resRevenue = document.getElementById('resRevenue').textContent;
+      var resTotalCost = document.getElementById('resTotalCost').textContent;
+      var resProfit = document.getElementById('resProfit').textContent;
+
+      if (resUnits === '—') {
+        alert('احسب النتائج أولاً قبل تصدير PDF');
+        return;
+      }
+
+      var { jsPDF } = window.jspdf;
+      var doc = new jsPDF({ direction: 'rtl' });
+      var pageW = doc.internal.pageSize.getWidth();
+      var margin = 14;
+
+      // Header
+      doc.setFillColor(10, 15, 26);
+      doc.rect(0, 0, pageW, 40, 'F');
+      doc.setTextColor(212, 168, 83);
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Bonds Global', pageW / 2, 18, { align: 'center' });
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Break-Even Analysis Report', pageW / 2, 28, { align: 'center' });
+      doc.setTextColor(150, 150, 150);
+      doc.setFontSize(9);
+      doc.text(new Date().toLocaleDateString('en-GB'), pageW / 2, 35, { align: 'center' });
+
+      // Inputs table
+      doc.setTextColor(30, 30, 30);
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Input Data', margin, 52);
+
+      doc.autoTable({
+        startY: 56,
+        head: [['Parameter', 'Value']],
+        body: [
+          ['Fixed Costs', formatNumber(parseFloat(fixed)) + ' SAR'],
+          ['Unit Selling Price', formatNumber(parseFloat(price)) + ' SAR'],
+          ['Variable Cost per Unit', formatNumber(parseFloat(varCost)) + ' SAR'],
+          ['Expected Quantity', formatNumber(parseFloat(qty)) + ' units']
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
+        styles: { fontSize: 10, cellPadding: 4, font: 'helvetica' },
+        margin: { left: margin, right: margin }
+      });
+
+      // Results table
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Results', margin, doc.lastAutoTable.finalY + 12);
+
+      var profitColor = resProfit.includes('-') ? [220, 38, 38] : [22, 163, 74];
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 16,
+        head: [['Metric', 'Result']],
+        body: [
+          ['Break-Even (Units)', resUnits],
+          ['Break-Even (Amount)', resAmount],
+          ['Expected Revenue', resRevenue],
+          ['Total Costs', resTotalCost],
+          ['Net Profit / Loss', resProfit]
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
+        styles: { fontSize: 10, cellPadding: 4, font: 'helvetica' },
+        margin: { left: margin, right: margin },
+        didParseCell: function(data) {
+          if (data.row.index === 4 && data.column.index === 1) {
+            data.cell.styles.textColor = profitColor;
+            data.cell.styles.fontStyle = 'bold';
+          }
+        }
+      });
+
+      // Disclaimer
+      doc.setTextColor(100, 100, 100);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'italic');
+      doc.text('This report is for estimation purposes only and does not replace professional financial advice.', margin, doc.lastAutoTable.finalY + 14);
+      doc.text('Generated by bonds-global.com', margin, doc.lastAutoTable.finalY + 18);
+
+      // Footer
+      doc.setFillColor(10, 15, 26);
+      doc.rect(0, doc.internal.pageSize.getHeight() - 12, pageW, 12, 'F');
+      doc.setTextColor(212, 168, 83);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Bonds Global Financial Consulting | bonds-global.com | WhatsApp: +966 56 756 6616', pageW / 2, doc.internal.pageSize.getHeight() - 5, { align: 'center' });
+
+      doc.save('bonds-break-even-report.pdf');
     }
 
     function calculateAll() {
