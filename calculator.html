@@ -401,6 +401,9 @@
     var chart = null;
 
     function formatNumber(n) {
+      return Math.round(n).toLocaleString('en-US');
+    }
+    function formatNumberAR(n) {
       return Math.round(n).toLocaleString('ar-SA');
     }
 
@@ -415,8 +418,17 @@
 
     function calculate(inputs) {
       var contribution = inputs.price - inputs.varCost;
-      var breakEvenUnits = contribution > 0 ? Math.ceil(inputs.fixed / contribution) : 0;
-      var breakEvenAmount = breakEvenUnits * inputs.price;
+      var breakEvenUnits, breakEvenAmount;
+      if (contribution > 0) {
+        breakEvenUnits = Math.ceil(inputs.fixed / contribution);
+        breakEvenAmount = breakEvenUnits * inputs.price;
+      } else if (inputs.fixed === 0 && contribution >= 0) {
+        breakEvenUnits = 0;
+        breakEvenAmount = 0;
+      } else {
+        breakEvenUnits = -1;
+        breakEvenAmount = -1;
+      }
       var revenue = inputs.qty * inputs.price;
       var totalCost = inputs.fixed + (inputs.varCost * inputs.qty);
       var profit = revenue - totalCost;
@@ -424,17 +436,17 @@
     }
 
     function updateResults(r, inputs) {
-      document.getElementById('resUnits').textContent = formatNumber(r.breakEvenUnits) + ' وحدة';
-      document.getElementById('resAmount').textContent = formatNumber(r.breakEvenAmount) + ' ر.س';
-      document.getElementById('resRevenue').textContent = formatNumber(r.revenue) + ' ر.س';
-      document.getElementById('resTotalCost').textContent = formatNumber(r.totalCost) + ' ر.س';
+      document.getElementById('resUnits').textContent = r.breakEvenUnits < 0 ? 'غير محققة' : formatNumberAR(r.breakEvenUnits) + ' وحدة';
+      document.getElementById('resAmount').textContent = r.breakEvenAmount < 0 ? 'غير محققة' : formatNumberAR(r.breakEvenAmount) + ' ر.س';
+      document.getElementById('resRevenue').textContent = formatNumberAR(r.revenue) + ' ر.س';
+      document.getElementById('resTotalCost').textContent = formatNumberAR(r.totalCost) + ' ر.س';
 
       var profitEl = document.getElementById('resProfit');
       if (r.profit > 0) {
-        profitEl.textContent = formatNumber(r.profit) + ' ر.س (ربح)';
+        profitEl.textContent = formatNumberAR(r.profit) + ' ر.س (ربح)';
         profitEl.style.color = '#16a34a';
       } else if (r.profit < 0) {
-        profitEl.textContent = formatNumber(Math.abs(r.profit)) + ' ر.س (خسارة)';
+        profitEl.textContent = formatNumberAR(Math.abs(r.profit)) + ' ر.س (خسارة)';
         profitEl.style.color = '#dc2626';
       } else {
         profitEl.textContent = '0 ر.س (تعادل)';
@@ -449,30 +461,33 @@
       // Steps
       var stepsHTML = '';
       if (r.contribution <= 0) {
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong style="color:#dc2626">⚠️ خطأ:</strong> الهامش المساهم = ' + formatNumber(inputs.price) + ' − ' + formatNumber(inputs.varCost) + ' = ' + formatNumber(r.contribution) + ' ر.س (سالب!)</div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong style="color:#dc2626">⚠️ تنبيه:</strong> الهامش المساهم = ' + formatNumberAR(inputs.price) + ' − ' + formatNumberAR(inputs.varCost) + ' = ' + formatNumberAR(r.contribution) + ' ر.س (صفر أو سالب)</div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الإيرادات =</strong> ' + formatNumberAR(inputs.qty) + ' × ' + formatNumberAR(inputs.price) + ' = <strong>' + formatNumberAR(r.revenue) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>التكاليف =</strong> ' + formatNumberAR(inputs.fixed) + ' + (' + formatNumberAR(inputs.qty) + ' × ' + formatNumberAR(inputs.varCost) + ') = <strong>' + formatNumberAR(r.totalCost) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>صافي الربح/الخسارة =</strong> ' + formatNumberAR(r.revenue) + ' − ' + formatNumberAR(r.totalCost) + ' = <strong>' + formatNumberAR(r.profit) + ' ر.س</strong></div>';
       } else {
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 1:</strong> الهامش المساهم = ' + formatNumber(inputs.price) + ' − ' + formatNumber(inputs.varCost) + ' = <strong>' + formatNumber(r.contribution) + ' ر.س</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 2:</strong> نقطة التعادل = ' + formatNumber(inputs.fixed) + ' ÷ ' + formatNumber(r.contribution) + ' = <strong>' + formatNumber(r.breakEvenUnits) + ' وحدة</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 3:</strong> الإيرادات = ' + formatNumber(inputs.qty) + ' × ' + formatNumber(inputs.price) + ' = <strong>' + formatNumber(r.revenue) + ' ر.س</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 4:</strong> التكاليف = ' + formatNumber(inputs.fixed) + ' + (' + formatNumber(inputs.qty) + ' × ' + formatNumber(inputs.varCost) + ') = <strong>' + formatNumber(r.totalCost) + ' ر.س</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>الخطوة 5:</strong> الربح = ' + formatNumber(r.revenue) + ' − ' + formatNumber(r.totalCost) + ' = <strong>' + formatNumber(r.profit) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 1:</strong> الهامش المساهم = ' + formatNumberAR(inputs.price) + ' − ' + formatNumberAR(inputs.varCost) + ' = <strong>' + formatNumberAR(r.contribution) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 2:</strong> نقطة التعادل = ' + formatNumberAR(inputs.fixed) + ' ÷ ' + formatNumberAR(r.contribution) + ' = <strong>' + formatNumberAR(r.breakEvenUnits) + ' وحدة</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 3:</strong> الإيرادات = ' + formatNumberAR(inputs.qty) + ' × ' + formatNumberAR(inputs.price) + ' = <strong>' + formatNumberAR(r.revenue) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 4:</strong> التكاليف = ' + formatNumberAR(inputs.fixed) + ' + (' + formatNumberAR(inputs.qty) + ' × ' + formatNumberAR(inputs.varCost) + ') = <strong>' + formatNumberAR(r.totalCost) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>الخطوة 5:</strong> الربح = ' + formatNumberAR(r.revenue) + ' − ' + formatNumberAR(r.totalCost) + ' = <strong>' + formatNumberAR(r.profit) + ' ر.س</strong></div>';
       }
       stepsArea.innerHTML = stepsHTML;
 
       if (r.contribution <= 0) {
-        analysisText.innerHTML = '<strong style="color:#dc2626">تحذير:</strong> تكلفة الوحدة المتغيرة أعلى من سعر البيع. المشروع يخسر في كل وحدة تبيعها.';
+        analysisText.innerHTML = '<strong style="color:#dc2626">تحذير:</strong> تكلفة الوحدة المتغيرة أعلى من أو تساوي سعر البيع. نقطة التعادل غير محققة — المشروع يخسر في كل وحدة تبيعها.';
       } else if (inputs.qty >= r.breakEvenUnits) {
         var excess = inputs.qty - r.breakEvenUnits;
-        analysisText.innerHTML = 'أنت تبيع <strong>' + formatNumber(excess) + '</strong> وحدة فوق نقطة التعادل. كل وحدة إضافية تربح <strong>' + formatNumber(r.contribution) + ' ر.س</strong>.';
+        analysisText.innerHTML = 'أنت تبيع <strong>' + formatNumberAR(excess) + '</strong> وحدة فوق نقطة التعادل. كل وحدة إضافية تربح <strong>' + formatNumberAR(r.contribution) + ' ر.س</strong>.';
       } else {
         var needed = r.breakEvenUnits - inputs.qty;
-        analysisText.innerHTML = 'تحتاج تبيع <strong>' + formatNumber(needed) + '</strong> وحدة إضافية لتصل لنقطة التعادل.';
+        analysisText.innerHTML = 'تحتاج تبيع <strong>' + formatNumberAR(needed) + '</strong> وحدة إضافية لتصل لنقطة التعادل.';
       }
     }
 
     function updateChart(inputs, r) {
       var ctx = document.getElementById('breakEvenChart').getContext('2d');
-      var maxQty = Math.max(inputs.qty * 1.5, r.breakEvenUnits * 1.5, 100);
+      var maxQty = Math.max(inputs.qty * 1.5, (r.breakEvenUnits > 0 ? r.breakEvenUnits : 0) * 1.5, 100);
       var labels = [];
       var revenueData = [];
       var costData = [];
@@ -491,7 +506,7 @@
           datasets: [
             { label: 'الإيرادات', data: revenueData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', tension: 0.4, fill: true },
             { label: 'التكاليف', data: costData, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.1)', tension: 0.4, fill: true },
-            { label: 'نقطة التعادل', data: labels.map(function(q) { return q === r.breakEvenUnits ? r.breakEvenAmount : null; }), borderColor: '#d4a853', backgroundColor: '#d4a853', pointRadius: 8, showLine: false }
+            { label: 'نقطة التعادل', data: labels.map(function(q) { return (r.breakEvenUnits > 0 && q === r.breakEvenUnits) ? r.breakEvenAmount : null; }), borderColor: '#d4a853', backgroundColor: '#d4a853', pointRadius: 8, showLine: false }
           ]
         },
         options: {
@@ -503,14 +518,14 @@
             tooltip: {
               callbacks: {
                 label: function(context) {
-                  return context.dataset.label + ': ' + formatNumber(context.raw) + ' ر.س';
+                  return context.dataset.label + ': ' + formatNumberAR(context.raw) + ' ر.س';
                 }
               }
             }
           },
           scales: {
             x: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-            y: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            y: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumberAR(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
           }
         }
       });
@@ -522,11 +537,11 @@
       var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: pessimisticQty });
       var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: optimisticQty });
 
-      document.getElementById('pessimisticProfit').textContent = formatNumber(p.profit) + ' ر.س';
+      document.getElementById('pessimisticProfit').textContent = formatNumberAR(p.profit) + ' ر.س';
       document.getElementById('pessimisticProfit').style.color = p.profit >= 0 ? '#16a34a' : '#dc2626';
-      document.getElementById('expectedProfit').textContent = formatNumber(r.profit) + ' ر.س';
+      document.getElementById('expectedProfit').textContent = formatNumberAR(r.profit) + ' ر.س';
       document.getElementById('expectedProfit').style.color = r.profit >= 0 ? '#16a34a' : '#dc2626';
-      document.getElementById('optimisticProfit').textContent = formatNumber(o.profit) + ' ر.س';
+      document.getElementById('optimisticProfit').textContent = formatNumberAR(o.profit) + ' ر.س';
       document.getElementById('optimisticProfit').style.color = o.profit >= 0 ? '#16a34a' : '#dc2626';
     }
 
@@ -539,12 +554,12 @@
       priceChanges.forEach(function(pc) {
         var row = document.createElement('tr');
         var newPrice = Math.round(inputs.price * pc);
-        row.innerHTML = '<th>' + formatNumber(newPrice) + ' ر.س</th>';
+        row.innerHTML = '<th>' + formatNumberAR(newPrice) + ' ر.س</th>';
         qtyChanges.forEach(function(qc) {
           var newQty = Math.round(inputs.qty * qc);
           var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty });
           var cell = document.createElement('td');
-          cell.textContent = formatNumber(res.profit);
+          cell.textContent = formatNumberAR(res.profit);
           cell.className = res.profit >= 0 ? 'positive' : 'negative';
           row.appendChild(cell);
         });
@@ -579,7 +594,7 @@
       history.forEach(function(item, i) {
         var div = document.createElement('div');
         div.className = 'history-item';
-        div.innerHTML = '<span>' + item.date + '</span><span style="font-weight: 800; color: ' + (item.profit >= 0 ? '#16a34a' : '#dc2626') + '">' + formatNumber(item.profit) + ' ر.س</span>';
+        div.innerHTML = '<span>' + item.date + '</span><span style="font-weight: 800; color: ' + (item.profit >= 0 ? '#16a34a' : '#dc2626') + '">' + formatNumberAR(item.profit) + ' ر.س</span>';
         div.onclick = function() {
           document.getElementById('fixedCost').value = item.fixed;
           document.getElementById('unitPrice').value = item.price;
@@ -608,28 +623,44 @@
     }
 
     function toLatinNums(str) {
-      var map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
-      return str.replace(/[٠-٩]/g, function(c){ return map[c] || c; });
+      var map = {
+        '٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9',
+        '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9',
+        '٬':','
+      };
+      return str.replace(/[٠-٩۰-۹٬]/g, function(c){ return map[c] || c; });
     }
     function cleanForPDF(str) {
-      return toLatinNums(str).replace(/ر\.س/g, 'SAR').replace(/وحدة/g, 'units').replace(/جنيه/g, 'EGP');
+      // إزالة علامات الاتجاه والتشكيل العربي المخفيّة التي تُفسد jsPDF
+      var s = str.replace(/[\u061C\u200E\u200F\u202A-\u202E]/g, '');
+      s = toLatinNums(s).replace(/ر\.س/g, 'SAR').replace(/وحدة/g, 'units').replace(/جنيه/g, 'EGP');
+      s = s.replace(/\(ربح\)/g, '(Profit)').replace(/\(خسارة\)/g, '(Loss)').replace(/\(تعادل\)/g, '(Break-even)');
+      s = s.replace(/غير محققة/g, 'N/A');
+      s = s.replace(/سعر البيع/g, 'Price').replace(/الكمية/g, 'Qty').replace(/المتوقعة/g, 'Expected');
+      s = s.replace(/التشاؤم/g, 'Pessimistic').replace(/الحالة المتوقعة/g, 'Expected').replace(/التفاؤل/g, 'Optimistic');
+      s = s.replace(/صافي الربح/g, 'Net Profit');
+      return s;
     }
 
     function exportPDF() {
-      var fixed = document.getElementById('fixedCost').value || '0';
-      var price = document.getElementById('unitPrice').value || '0';
-      var varCost = document.getElementById('varCost').value || '0';
-      var qty = document.getElementById('quantity').value || '0';
-      var resUnits = cleanForPDF(document.getElementById('resUnits').textContent);
-      var resAmount = cleanForPDF(document.getElementById('resAmount').textContent);
-      var resRevenue = cleanForPDF(document.getElementById('resRevenue').textContent);
-      var resTotalCost = cleanForPDF(document.getElementById('resTotalCost').textContent);
-      var resProfit = cleanForPDF(document.getElementById('resProfit').textContent);
-
-      if (resUnits === '—') {
+      var inputs = getInputs();
+      if (inputs.price <= 0) {
         alert('احسب النتائج أولاً قبل تصدير PDF');
         return;
       }
+      var r = calculate(inputs);
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8) });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2) });
+
+      var resUnits = r.breakEvenUnits < 0 ? 'N/A' : formatNumber(r.breakEvenUnits) + ' units';
+      var resAmount = r.breakEvenAmount < 0 ? 'N/A' : formatNumber(r.breakEvenAmount) + ' SAR';
+      var resRevenue = formatNumber(r.revenue) + ' SAR';
+      var resTotalCost = formatNumber(r.totalCost) + ' SAR';
+      var resProfit;
+      if (r.profit > 0) resProfit = formatNumber(r.profit) + ' SAR (Profit)';
+      else if (r.profit < 0) resProfit = formatNumber(Math.abs(r.profit)) + ' SAR (Loss)';
+      else resProfit = '0 SAR (Break-even)';
+      var profitColor = r.profit < 0 ? [220, 38, 38] : (r.profit === 0 ? [150,150,150] : [22, 163, 74]);
 
       var { jsPDF } = window.jspdf;
       var doc = new jsPDF();
@@ -661,10 +692,10 @@
         startY: 56,
         head: [['Parameter', 'Value']],
         body: [
-          ['Fixed Costs', parseFloat(fixed).toLocaleString('en-US') + ' SAR'],
-          ['Unit Selling Price', parseFloat(price).toLocaleString('en-US') + ' SAR'],
-          ['Variable Cost per Unit', parseFloat(varCost).toLocaleString('en-US') + ' SAR'],
-          ['Expected Quantity', parseFloat(qty).toLocaleString('en-US') + ' units']
+          ['Fixed Costs', parseFloat(inputs.fixed).toLocaleString('en-US') + ' SAR'],
+          ['Unit Selling Price', parseFloat(inputs.price).toLocaleString('en-US') + ' SAR'],
+          ['Variable Cost per Unit', parseFloat(inputs.varCost).toLocaleString('en-US') + ' SAR'],
+          ['Expected Quantity', parseFloat(inputs.qty).toLocaleString('en-US') + ' units']
         ],
         theme: 'striped',
         headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
@@ -677,7 +708,6 @@
       doc.setFont('helvetica', 'bold');
       doc.text('Results', margin, doc.lastAutoTable.finalY + 12);
 
-      var profitColor = resProfit.includes('-') ? [220, 38, 38] : [22, 163, 74];
       doc.autoTable({
         startY: doc.lastAutoTable.finalY + 16,
         head: [['Metric', 'Result']],
@@ -700,12 +730,77 @@
         }
       });
 
+      // Scenarios table
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      var nextY = doc.lastAutoTable.finalY + 12;
+      if (nextY > 250) {
+        doc.addPage();
+        nextY = 20;
+      }
+      doc.text('Scenario Analysis', margin, nextY);
+      
+      doc.autoTable({
+        startY: nextY + 4,
+        head: [['Scenario', 'Net Profit']],
+        body: [
+          ['Pessimistic (-20% quantity)', formatNumber(p.profit) + ' SAR'],
+          ['Expected', formatNumber(r.profit) + ' SAR'],
+          ['Optimistic (+20% quantity)', formatNumber(o.profit) + ' SAR']
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
+        styles: { fontSize: 10, cellPadding: 4, font: 'helvetica' },
+        margin: { left: margin, right: margin }
+      });
+
+      // Sensitivity table
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      var sensY = doc.lastAutoTable.finalY + 12;
+      if (sensY > 230) {
+        doc.addPage();
+        sensY = 20;
+      }
+      doc.text('Sensitivity Analysis', margin, sensY);
+      
+      var sensHead = ['Price \\ Qty', '-30%', '-15%', 'Expected', '+15%', '+30%'];
+      var sensBody = [];
+      var priceChanges = [0.7, 0.85, 1, 1.15, 1.3];
+      var qtyChanges = [0.7, 0.85, 1, 1.15, 1.3];
+      
+      priceChanges.forEach(function(pc) {
+        var newPrice = Math.round(inputs.price * pc);
+        var row = [formatNumber(newPrice) + ' SAR'];
+        qtyChanges.forEach(function(qc) {
+          var newQty = Math.round(inputs.qty * qc);
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty });
+          row.push(formatNumber(res.profit));
+        });
+        sensBody.push(row);
+      });
+      
+      doc.autoTable({
+        startY: sensY + 4,
+        head: [sensHead],
+        body: sensBody,
+        theme: 'striped',
+        headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
+        styles: { fontSize: 9, cellPadding: 3, font: 'helvetica' },
+        margin: { left: margin, right: margin }
+      });
+
       // Disclaimer
+      var disclaimerY = doc.lastAutoTable.finalY + 14;
+      if (disclaimerY > 270) {
+        doc.addPage();
+        disclaimerY = 20;
+      }
       doc.setTextColor(100, 100, 100);
       doc.setFontSize(8);
       doc.setFont('helvetica', 'italic');
-      doc.text('This report is for estimation purposes only and does not replace professional financial advice.', margin, doc.lastAutoTable.finalY + 14);
-      doc.text('Generated by bonds-global.com', margin, doc.lastAutoTable.finalY + 18);
+      doc.text('This report is for estimation purposes only and does not replace professional financial advice.', margin, disclaimerY);
+      doc.text('Generated by bonds-global.com', margin, disclaimerY + 4);
 
       // Footer
       doc.setFillColor(10, 15, 26);
@@ -720,8 +815,12 @@
 
     function calculateAll() {
       var inputs = getInputs();
-      if (inputs.fixed <= 0 || inputs.price <= 0) {
-        alert('أدخل التكاليف الثابتة وسعر البيع');
+      if (inputs.price <= 0) {
+        alert('أدخل سعر البيع');
+        return;
+      }
+      if (inputs.fixed < 0 || inputs.varCost < 0 || inputs.qty < 0) {
+        alert('تأكد من أن جميع القيم المدخلة غير سالبة');
         return;
       }
       var r = calculate(inputs);
@@ -774,7 +873,7 @@
       if (p) document.getElementById('unitPrice').value = p;
       if (v) document.getElementById('varCost').value = v;
       if (q) document.getElementById('quantity').value = q;
-      if (f && p) calculateAll();
+      if (p) calculateAll();
     }
 
     // Auto-save inputs
