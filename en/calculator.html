@@ -480,6 +480,23 @@
         profitEl.style.color = 'var(--text)';
       }
 
+      var marginEl = document.getElementById('resMargin');
+      var roiEl = document.getElementById('resROI');
+      if (r.revenue > 0) {
+        marginEl.textContent = r.profitMargin.toFixed(1) + '%';
+        marginEl.style.color = r.profitMargin >= 0 ? '#16a34a' : '#dc2626';
+      } else {
+        marginEl.textContent = '—';
+        marginEl.style.color = 'var(--text)';
+      }
+      if (r.totalCost > 0) {
+        roiEl.textContent = r.roi.toFixed(1) + '%';
+        roiEl.style.color = r.roi >= 0 ? '#16a34a' : '#dc2626';
+      } else {
+        roiEl.textContent = '—';
+        roiEl.style.color = 'var(--text)';
+      }
+
       var analysisBox = document.getElementById('analysisBox');
       var analysisText = document.getElementById('analysisText');
       var stepsArea = document.getElementById('stepsArea');
@@ -609,7 +626,7 @@
       var r = calculate(inputs);
       var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8) });
       var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2) });
-      var csv = '\uFEFF';
+      var csv = '\uFEFFsep=,\n';
       csv += 'Metric,Value\n';
       csv += 'Fixed Costs,' + formatNumber(inputs.fixed) + '\n';
       csv += 'Unit Selling Price,' + formatNumber(inputs.price) + '\n';
