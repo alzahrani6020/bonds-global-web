@@ -633,25 +633,25 @@
       var r = calculate(inputs);
       var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8) });
       var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2) });
-      var csv = '\uFEFFsep=,\n';
-      csv += 'بند,القيمة\n';
-      csv += 'التكاليف الثابتة,' + formatNumber(inputs.fixed) + '\n';
-      csv += 'سعر البيع,' + formatNumber(inputs.price) + '\n';
-      csv += 'التكلفة المتغيرة للوحدة,' + formatNumber(inputs.varCost) + '\n';
-      csv += 'الكمية المتوقعة,' + formatNumber(inputs.qty) + '\n';
-      csv += 'نقطة التعادل (وحدات),' + (r.breakEvenUnits < 0 ? 'غير محققة' : formatNumber(r.breakEvenUnits)) + '\n';
-      csv += 'نقطة التعادل (مبالغ),' + (r.breakEvenAmount < 0 ? 'غير محققة' : formatNumber(r.breakEvenAmount)) + '\n';
-      csv += 'الإيرادات المتوقعة,' + formatNumber(r.revenue) + '\n';
-      csv += 'إجمالي التكاليف,' + formatNumber(r.totalCost) + '\n';
-      csv += 'صافي الربح,' + formatNumber(r.profit) + '\n';
-      csv += 'نسبة الربح (%),' + r.profitMargin.toFixed(2) + '\n';
-      csv += 'العائد على التكلفة (%),' + r.roi.toFixed(2) + '\n\n';
+      var csv = '\uFEFF';
+      csv += 'بند;القيمة\n';
+      csv += 'التكاليف الثابتة;' + inputs.fixed + '\n';
+      csv += 'سعر البيع;' + inputs.price + '\n';
+      csv += 'التكلفة المتغيرة للوحدة;' + inputs.varCost + '\n';
+      csv += 'الكمية المتوقعة;' + inputs.qty + '\n';
+      csv += 'نقطة التعادل (وحدات);' + (r.breakEvenUnits < 0 ? 'غير محققة' : r.breakEvenUnits) + '\n';
+      csv += 'نقطة التعادل (مبالغ);' + (r.breakEvenAmount < 0 ? 'غير محققة' : r.breakEvenAmount) + '\n';
+      csv += 'الإيرادات المتوقعة;' + r.revenue + '\n';
+      csv += 'إجمالي التكاليف;' + r.totalCost + '\n';
+      csv += 'صافي الربح;' + r.profit + '\n';
+      csv += 'نسبة الربح (%);' + r.profitMargin.toFixed(2) + '\n';
+      csv += 'العائد على التكلفة (%);' + r.roi.toFixed(2) + '\n\n';
       csv += 'مقارنة السيناريوهات\n';
-      csv += 'المؤشر,تشاؤم (-20%),المتوقع,تفاؤل (+20%)\n';
-      csv += 'الكمية,' + formatNumber(Math.round(inputs.qty*0.8)) + ',' + formatNumber(inputs.qty) + ',' + formatNumber(Math.round(inputs.qty*1.2)) + '\n';
-      csv += 'الإيرادات,' + formatNumber(p.revenue) + ',' + formatNumber(r.revenue) + ',' + formatNumber(o.revenue) + '\n';
-      csv += 'التكاليف,' + formatNumber(p.totalCost) + ',' + formatNumber(r.totalCost) + ',' + formatNumber(o.totalCost) + '\n';
-      csv += 'صافي الربح,' + formatNumber(p.profit) + ',' + formatNumber(r.profit) + ',' + formatNumber(o.profit) + '\n';
+      csv += 'المؤشر;تشاؤم (-20%);المتوقع;تفاؤل (+20%)\n';
+      csv += 'الكمية;' + Math.round(inputs.qty*0.8) + ';' + inputs.qty + ';' + Math.round(inputs.qty*1.2) + '\n';
+      csv += 'الإيرادات;' + p.revenue + ';' + r.revenue + ';' + o.revenue + '\n';
+      csv += 'التكاليف;' + p.totalCost + ';' + r.totalCost + ';' + o.totalCost + '\n';
+      csv += 'صافي الربح;' + p.profit + ';' + r.profit + ';' + o.profit + '\n';
       var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       var link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
@@ -1023,15 +1023,18 @@
       var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2) });
 
       var printDiv = document.createElement('div');
-      printDiv.style.position = 'absolute';
-      printDiv.style.left = '-9999px';
+      printDiv.style.position = 'fixed';
       printDiv.style.top = '0';
+      printDiv.style.left = '0';
       printDiv.style.width = '800px';
       printDiv.style.background = '#ffffff';
       printDiv.style.color = '#1a1a1a';
       printDiv.style.padding = '30px';
       printDiv.style.fontFamily = 'Vazirmatn, Arial, sans-serif';
       printDiv.style.direction = 'rtl';
+      printDiv.style.opacity = '0';
+      printDiv.style.pointerEvents = 'none';
+      printDiv.style.zIndex = '-1';
 
       var beText = r.breakEvenUnits < 0 ? 'غير محققة' : formatNumberAR(r.breakEvenUnits) + ' وحدة';
       var beAmount = r.breakEvenAmount < 0 ? 'غير محققة' : formatNumberAR(r.breakEvenAmount) + ' ر.س';
@@ -1137,11 +1140,15 @@
       html2pdf().set({
         margin: 10,
         filename: 'bonds-break-even-report-ar.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 1.5, useCORS: true, logging: false },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       }).from(printDiv).save().then(function() {
         document.body.removeChild(printDiv);
+      }).catch(function(err) {
+        document.body.removeChild(printDiv);
+        console.error('PDF export error:', err);
+        alert('حدث خطأ أثناء تصدير PDF. جرب PDF English بدلاً من ذلك.');
       });
     }
 
