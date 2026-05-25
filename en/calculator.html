@@ -764,6 +764,36 @@
         });
       }
 
+      // Detailed Scenario Comparison
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      var compareY = doc.lastAutoTable.finalY + 12;
+      if (compareY > 230) {
+        doc.addPage();
+        compareY = 20;
+      }
+      doc.text('Scenario Comparison', margin, compareY);
+      
+      var pQty = Math.round(inputs.qty * 0.8);
+      var oQty = Math.round(inputs.qty * 1.2);
+      var pRes = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: pQty });
+      var oRes = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: oQty });
+      
+      doc.autoTable({
+        startY: compareY + 4,
+        head: [['Metric', 'Pessimistic (-20%)', 'Expected', 'Optimistic (+20%)']],
+        body: [
+          ['Quantity (units)', formatNumber(pQty), formatNumber(inputs.qty), formatNumber(oQty)],
+          ['Revenue (SAR)', formatNumber(pRes.revenue), formatNumber(r.revenue), formatNumber(oRes.revenue)],
+          ['Total Costs (SAR)', formatNumber(pRes.totalCost), formatNumber(r.totalCost), formatNumber(oRes.totalCost)],
+          ['Net Profit (SAR)', formatNumber(pRes.profit), formatNumber(r.profit), formatNumber(oRes.profit)]
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
+        styles: { fontSize: 10, cellPadding: 4, font: 'helvetica' },
+        margin: { left: margin, right: margin }
+      });
+
       // Sensitivity table
       var sensTable = document.getElementById('sensitivityTable');
       if (sensTable) {

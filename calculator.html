@@ -770,6 +770,34 @@
         margin: { left: margin, right: margin }
       });
 
+      // Detailed Scenario Comparison
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      var compareY = doc.lastAutoTable.finalY + 12;
+      if (compareY > 230) {
+        doc.addPage();
+        compareY = 20;
+      }
+      doc.text('Scenario Comparison', margin, compareY);
+      
+      var pQty = Math.round(inputs.qty * 0.8);
+      var oQty = Math.round(inputs.qty * 1.2);
+      
+      doc.autoTable({
+        startY: compareY + 4,
+        head: [['Metric', 'Pessimistic (-20%)', 'Expected', 'Optimistic (+20%)']],
+        body: [
+          ['Quantity (units)', formatNumber(pQty), formatNumber(inputs.qty), formatNumber(oQty)],
+          ['Revenue (SAR)', formatNumber(p.revenue), formatNumber(r.revenue), formatNumber(o.revenue)],
+          ['Total Costs (SAR)', formatNumber(p.totalCost), formatNumber(r.totalCost), formatNumber(o.totalCost)],
+          ['Net Profit (SAR)', formatNumber(p.profit), formatNumber(r.profit), formatNumber(o.profit)]
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
+        styles: { fontSize: 10, cellPadding: 4, font: 'helvetica' },
+        margin: { left: margin, right: margin }
+      });
+
       // Sensitivity table
       doc.setFontSize(13);
       doc.setFont('helvetica', 'bold');
