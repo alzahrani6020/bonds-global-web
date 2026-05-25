@@ -607,16 +607,24 @@
       alert('تم نسخ الرابط!');
     }
 
+    function toLatinNums(str) {
+      var map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+      return str.replace(/[٠-٩]/g, function(c){ return map[c] || c; });
+    }
+    function cleanForPDF(str) {
+      return toLatinNums(str).replace(/ر\.س/g, 'SAR').replace(/وحدة/g, 'units').replace(/جنيه/g, 'EGP');
+    }
+
     function exportPDF() {
       var fixed = document.getElementById('fixedCost').value || '0';
       var price = document.getElementById('unitPrice').value || '0';
       var varCost = document.getElementById('varCost').value || '0';
       var qty = document.getElementById('quantity').value || '0';
-      var resUnits = document.getElementById('resUnits').textContent;
-      var resAmount = document.getElementById('resAmount').textContent;
-      var resRevenue = document.getElementById('resRevenue').textContent;
-      var resTotalCost = document.getElementById('resTotalCost').textContent;
-      var resProfit = document.getElementById('resProfit').textContent;
+      var resUnits = cleanForPDF(document.getElementById('resUnits').textContent);
+      var resAmount = cleanForPDF(document.getElementById('resAmount').textContent);
+      var resRevenue = cleanForPDF(document.getElementById('resRevenue').textContent);
+      var resTotalCost = cleanForPDF(document.getElementById('resTotalCost').textContent);
+      var resProfit = cleanForPDF(document.getElementById('resProfit').textContent);
 
       if (resUnits === '—') {
         alert('احسب النتائج أولاً قبل تصدير PDF');
@@ -653,10 +661,10 @@
         startY: 56,
         head: [['Parameter', 'Value']],
         body: [
-          ['Fixed Costs', formatNumber(parseFloat(fixed)) + ' SAR'],
-          ['Unit Selling Price', formatNumber(parseFloat(price)) + ' SAR'],
-          ['Variable Cost per Unit', formatNumber(parseFloat(varCost)) + ' SAR'],
-          ['Expected Quantity', formatNumber(parseFloat(qty)) + ' units']
+          ['Fixed Costs', parseFloat(fixed).toLocaleString('en-US') + ' SAR'],
+          ['Unit Selling Price', parseFloat(price).toLocaleString('en-US') + ' SAR'],
+          ['Variable Cost per Unit', parseFloat(varCost).toLocaleString('en-US') + ' SAR'],
+          ['Expected Quantity', parseFloat(qty).toLocaleString('en-US') + ' units']
         ],
         theme: 'striped',
         headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
