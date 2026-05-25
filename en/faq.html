@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FAQ | Bonds — Financial Consulting</title>
+  <meta name="description" content="Answers to the most common questions about Bonds financial consulting services: pricing, duration, sectors, confidentiality, booking, and more." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" as="style" />
+  <link rel="preload" href="https://fonts.gstatic.com/s/cairo/v28/SLXVc1nY6HkvangtZmpcWmhzfHNZlDcf8Q.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="../assets/site-logo.webp" as="image" type="image/webp" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" rel="stylesheet" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="icon" href="../assets/site-logo.png" type="image/png" />
+  <style>
+    .faq-hero { min-height: 45vh; padding: var(--space-20) 0; }
+    .faq-grid { display: flex; flex-direction: column; gap: var(--space-4); max-width: 880px; margin: 0 auto; }
+    .faq-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: all var(--transition);
+    }
+    .faq-card:hover { border-color: var(--border-hover); }
+    .faq-card summary {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--space-5) var(--space-6);
+      cursor: pointer;
+      font-weight: 700; font-size: 1.05rem; color: var(--text);
+      list-style: none;
+      gap: var(--space-4);
+    }
+    .faq-card summary::-webkit-details-marker { display: none; }
+    .faq-card summary::after {
+      content: "+";
+      font-size: 1.4rem; font-weight: 400;
+      color: var(--gold); line-height: 1;
+      transition: transform var(--transition);
+      flex-shrink: 0;
+    }
+    .faq-card[open] summary::after { content: "−"; }
+    .faq-card .faq-answer {
+      padding: 0 var(--space-6) var(--space-6);
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+    .faq-card .faq-answer strong { color: var(--gold); }
+    .faq-cta {
+      margin-top: var(--space-12);
+      text-align: center;
+    }
+  </style>
+  <!-- Schema.org FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How much does the financial consultation cost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The first consultation is free. After that, we send a custom quote based on the scope of service and your business sector."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does the consultation or project take?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The discovery session takes 30–60 minutes. Financial projects (analysis, budgeting, feasibility) range from two weeks to two months depending on data complexity."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which sectors do you serve?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We serve all sectors: trade, manufacturing, tourism, agriculture, professional services, real estate, technology, and healthcare."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the consultation online or in person?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sessions are held online via Zoom or Google Meet by default. If you are in Cairo or Riyadh, an in-person meeting can be arranged upon request."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my financial data confidential?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. We adhere to strict confidentiality. Your data is protected by non-disclosure agreements and is never shared with any third party."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What payment methods are available?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We accept bank transfers, Vodafone Cash (for clients in Egypt), and Mada/electronic payments (for clients in Saudi Arabia). Installment options are also available depending on project size."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is your refund policy?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "If work has not yet started, you are eligible for a full refund. If analysis has already begun, a 50% refund applies based on the completed stage."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I book my first consultation?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Click 'Book Your Consultation,' fill out the contact form, or reach out to us directly via WhatsApp and we will schedule an appointment within 2–3 business days."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do you guarantee investment returns or financing approval?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. We provide analysis and consulting based on your data; the investment decision and outcomes remain your full responsibility."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body style="font-family:Vazirmatn,system-ui,sans-serif">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <span>Your first consultation is free — Book now</span>
+      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">Quick WhatsApp &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header" id="header">
+    <div class="container main-header__inner">
+      <a href="index.html" class="logo-slot">
+        <img src="../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" />
+        <span class="logo-text">Bonds</span>
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              Services
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="services.html#analysis">Financial Analysis</a>
+              <a href="services.html#cashflow">Cash Flow Management</a>
+              <a href="services.html#feasibility">Feasibility Studies</a>
+              <a href="services.html#risk">Risk Analysis</a>
+              <a href="services.html#research">Surveys &amp; Research</a>
+            </div>
+          </li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="calculator.html">Calculator</a></li>
+          <li><a href="index.html#insights">Insights</a></li>
+          <li><a href="faq.html" class="active">FAQ</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="../faq.html">العربية</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <a href="../faq.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">العربية</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+        <a href="contact.html" class="btn btn-primary hidden-mobile">Book Your Consultation</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero faq-hero">
+    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
+    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+    <div class="container hero__content reveal">
+      <span class="hero__eyebrow">Support</span>
+      <h1 class="hero__title">Frequently Asked <span class="text-gradient">Questions</span></h1>
+      <p class="hero__desc">Clear answers to what our clients most commonly ask about financial consulting and the services we offer.</p>
+    </div>
+  </section>
+
+  <!-- FAQ Accordion -->
+  <section class="section">
+    <div class="container">
+      <div class="faq-grid">
+        <details class="faq-card reveal" open>
+          <summary>How much does the financial consultation cost?</summary>
+          <div class="faq-answer">
+            <strong>The first consultation is free.</strong> After that, we send a custom quote based on the scope of service and your business sector. We prefer transparent pricing tailored to each client individually.
+          </div>
+        </details>
+
+        <details class="faq-card reveal reveal-delay-1">
+          <summary>How long does the consultation or project take?</summary>
+          <div class="faq-answer">
+            The discovery session takes <strong>30–60 minutes</strong>. Financial projects (analysis, budgeting, feasibility) range from <strong>two weeks to two months</strong> depending on data complexity and company size.
+          </div>
+        </details>
+
+        <details class="faq-card reveal reveal-delay-2">
+          <summary>Which sectors do you serve?</summary>
+          <div class="faq-answer">
+            We serve all sectors: trade and retail, manufacturing, tourism and hospitality, agriculture and food, professional services, real estate and construction, technology and software, and healthcare.
+          </div>
+        </details>
+
+        <details class="faq-card reveal reveal-delay-3">
+          <summary>Is the consultation online or in person?</summary>
+          <div class="faq-answer">
+            Sessions are held <strong>online</strong> via Zoom or Google Meet by default. If you are in Cairo or Riyadh, an in-person meeting can be arranged upon coordination.
+          </div>
+        </details>
+
+        <details class="faq-card reveal">
+          <summary>Is my financial data confidential?</summary>
+          <div class="faq-answer">
+            <strong>Yes.</strong> We adhere to strict confidentiality. Your data is protected by non-disclosure agreements and is never shared with any third party. Your business confidentiality is our top priority at every stage.
+          </div>
+        </details>
+
+        <details class="faq-card reveal reveal-delay-1">
+          <summary>What payment methods are available?</summary>
+          <div class="faq-answer">
+            We accept <strong>bank transfers</strong>, Vodafone Cash (for clients in Egypt), and Mada/electronic payments (for clients in Saudi Arabia). Installment options are also available depending on project size.
+          </div>
+        </details>
+
+        <details class="faq-card reveal reveal-delay-2">
+          <summary>What is your refund policy?</summary>
+          <div class="faq-answer">
+            If work has not yet started, you are eligible for a <strong>full refund</strong>. If analysis has already begun, a <strong>50%</strong> refund applies based on the completed stage.
+          </div>
+        </details>
+
+        <details class="faq-card reveal reveal-delay-3">
+          <summary>How do I book my first consultation?</summary>
+          <div class="faq-answer">
+            Click "Book Your Consultation," fill out the <a href="contact.html" style="color: var(--gold); text-decoration: underline; text-underline-offset: 3px;">contact form</a>, or reach out to us directly via WhatsApp and we will schedule an appointment within <strong>2–3 business days</strong>.
+          </div>
+        </details>
+
+        <details class="faq-card reveal">
+          <summary>Do you guarantee investment returns or financing approval?</summary>
+          <div class="faq-answer">
+            <strong>No.</strong> We provide analysis and consulting based on your actual data and information; the investment decision and outcomes remain your full responsibility.
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-cta reveal">
+        <p style="color: var(--text-secondary); margin-bottom: var(--space-4);">Didn't find the answer you were looking for?</p>
+        <a href="contact.html" class="btn btn-primary btn-lg">Contact us directly &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo-slot">
+            <img src="../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" loading="lazy" />
+            <span class="logo-text" style="color: var(--white);">Bonds</span>
+          </div>
+          <p>Financial consulting for business owners and SMEs in Egypt and Saudi Arabia.</p>
+        </div>
+        <div>
+          <h4 class="footer-title">Pages</h4>
+          <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="services.html">Services</a>
+            <a href="about.html">About Us</a>
+            <a href="faq.html">FAQ</a>
+            <a href="contact.html">Contact Us</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Services</h4>
+          <div class="footer-links">
+            <a href="services.html#analysis">Financial Analysis</a>
+            <a href="services.html">Cash Flow</a>
+            <a href="services.html#feasibility">Feasibility Studies</a>
+            <a href="services.html#risk">Risk Analysis</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Commercial Registrations</h4>
+          <div class="footer-links">
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">Egypt: CR 39733</span>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">Saudi Arabia: URN 7042125869</span>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Contact</h4>
+          <div class="footer-links">
+            <a href="https://wa.me/966567566616" target="_blank" rel="noopener">WhatsApp: +966 56 756 6616</a>
+            <a href="mailto:info@bonds-global.com">info@bonds-global.com</a>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">Sheikh Zayed, Giza, Egypt <br>Jeddah, Quraish Street</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; <span id="y">2025</span> Bonds Financial Consulting &mdash; All rights reserved.</span>
+        <div style="display: flex; gap: var(--space-6);">
+          <a href="privacy.html" style="color: var(--text-muted);">Privacy Policy</a>
+          <a href="#" style="color: var(--text-muted);">Disclaimer</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp Float -->
+  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp">💬</a>
+
+  <div class="cookie-banner" id="cookieBanner">
+    <div class="container cookie-banner__inner">
+      <p class="cookie-banner__text">We use cookies to improve your experience and analyze visits. <a href="privacy.html">Privacy Policy</a></p>
+      <div class="cookie-banner__actions">
+        <button class="btn btn-primary" style="font-size:0.8rem;padding:var(--space-2) var(--space-4);" onclick="acceptCookies()">Accept</button>
+        <button class="btn btn-outline" style="font-size:0.8rem;padding:var(--space-2) var(--space-4);" onclick="declineCookies()">Decline</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    function acceptCookies(){localStorage.setItem('cookies','accepted');document.getElementById('cookieBanner').classList.remove('is-visible');}
+    function declineCookies(){localStorage.setItem('cookies','declined');document.getElementById('cookieBanner').classList.remove('is-visible');}
+    if(!localStorage.getItem('cookies')){setTimeout(function(){document.getElementById('cookieBanner').classList.add('is-visible');},1500);}
+  </script>
+  <script src="../script.js" defer></script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);">↑</button>
+  <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
+<!-- Tawk.to Live Chat -->
+<script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/YOUR_PROPERTY_ID/default';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
+</body>
+</html>
