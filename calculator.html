@@ -52,6 +52,14 @@
     .history-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
     .history-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.3s; }
     .history-item:hover { border-color: var(--gold); }
+    @media print {
+      .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
+      .calc-grid { grid-template-columns: 1fr 1fr; }
+      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
+      .section { padding: 0 !important; }
+      canvas { max-height: 280px !important; }
+      a { text-decoration: none; color: #000; }
+    }
   </style>
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
@@ -166,9 +174,17 @@
                 <span style="color: var(--text-secondary); font-size: 0.9rem;">إجمالي التكاليف</span>
                 <span id="resTotalCost" style="font-weight: 800; color: var(--text);">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0;">
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
                 <span style="color: var(--text-secondary); font-size: 0.9rem;">صافي الربح/الخسارة</span>
                 <span id="resProfit" style="font-weight: 800;">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">نسبة الربح (%)</span>
+                <span id="resMargin" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0;">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">العائد على التكلفة (%)</span>
+                <span id="resROI" style="font-weight: 800; color: var(--text);">—</span>
               </div>
             </div>
             <div id="analysisBox" style="margin-top: var(--space-6); padding: var(--space-4); background: rgba(212,168,83,0.05); border: 1px solid var(--border); border-radius: var(--radius); display: none;">
@@ -179,11 +195,13 @@
             <div class="share-bar">
               <input type="text" id="shareLink" readonly placeholder="رابط المشاركة..." />
               <button onclick="copyLink()" class="btn btn-outline" style="font-size: 0.8rem;">نسخ الرابط</button>
-              <select id="pdfLang" style="padding:0.5rem 0.75rem; border-radius:8px; background:var(--bg-card); color:var(--text); border:1px solid var(--border); font-family:inherit; font-size:0.8rem; cursor:pointer;">
+              <button onclick="window.print()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">🖨️ طباعة</button>
+              <button onclick="exportCSV()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📊 Excel</button>
+              <select id="pdfLang" class="hidden-print" style="padding:0.5rem 0.75rem; border-radius:8px; background:var(--bg-card); color:var(--text); border:1px solid var(--border); font-family:inherit; font-size:0.8rem; cursor:pointer;">
                 <option value="ar">PDF عربي</option>
                 <option value="en">PDF English</option>
               </select>
-              <button onclick="exportPDF()" class="btn btn-outline" style="font-size: 0.8rem;">📄 تصدير</button>
+              <button onclick="exportPDF()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📄 تصدير</button>
             </div>
           </div>
 
@@ -195,12 +213,20 @@
         </div>
       </div>
 
-      <!-- Chart -->
+      <!-- Charts -->
       <div class="reveal" style="margin-top: var(--space-12);">
         <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
           <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">رسم بياني: التكاليف vs الإيرادات</h2>
           <div style="position: relative; height: 400px;">
             <canvas id="breakEvenChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" style="margin-top: var(--space-8);">
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
+          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">تركيبة التكاليف (ثابتة vs متغيرة)</h2>
+          <div style="position: relative; height: 320px; max-width: 400px; margin: 0 auto;">
+            <canvas id="costPieChart"></canvas>
           </div>
         </div>
       </div>
@@ -404,6 +430,7 @@
   <script src="script.js" defer></script>
   <script>
     var chart = null;
+    var pieChart = null;
 
     function formatNumber(n) {
       return Math.round(n).toLocaleString('en-US');
@@ -437,7 +464,10 @@
       var revenue = inputs.qty * inputs.price;
       var totalCost = inputs.fixed + (inputs.varCost * inputs.qty);
       var profit = revenue - totalCost;
-      return { contribution, breakEvenUnits, breakEvenAmount, revenue, totalCost, profit };
+      var profitMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
+      var roi = totalCost > 0 ? (profit / totalCost) * 100 : 0;
+      return { contribution, breakEvenUnits, breakEvenAmount, revenue, totalCost, profit, profitMargin, roi };
+    }
     }
 
     function updateResults(r, inputs) {
@@ -534,6 +564,85 @@
           }
         }
       });
+    }
+
+    function updateCostChart(inputs, r) {
+      var ctx = document.getElementById('costPieChart').getContext('2d');
+      var fixedCost = inputs.fixed;
+      var varTotal = inputs.varCost * inputs.qty;
+      if (fixedCost <= 0 && varTotal <= 0) {
+        if (pieChart) pieChart.destroy();
+        return;
+      }
+      if (pieChart) pieChart.destroy();
+      pieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['التكاليف الثابتة', 'التكاليف المتغيرة'],
+          datasets: [{
+            data: [fixedCost, varTotal],
+            backgroundColor: ['#d4a853', '#3b82f6'],
+            borderColor: 'var(--bg-card)',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#e8ecf4', font: { family: 'Vazirmatn', size: 14 }, padding: 20 }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  var total = context.dataset.data.reduce(function(a,b){return a+b;}, 0);
+                  var pct = total > 0 ? ((context.raw / total) * 100).toFixed(1) : 0;
+                  return context.label + ': ' + formatNumberAR(context.raw) + ' ر.س (' + pct + '%)';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function exportCSV() {
+      var inputs = getInputs();
+      if (inputs.price <= 0) {
+        alert('احسب النتائج أولاً قبل التصدير');
+        return;
+      }
+      var r = calculate(inputs);
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8) });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2) });
+      var csv = '\uFEFF';
+      csv += 'بند,القيمة\n';
+      csv += 'التكاليف الثابتة,' + inputs.fixed + '\n';
+      csv += 'سعر البيع,' + inputs.price + '\n';
+      csv += 'التكلفة المتغيرة للوحدة,' + inputs.varCost + '\n';
+      csv += 'الكمية المتوقعة,' + inputs.qty + '\n';
+      csv += 'نقطة التعادل (وحدات),' + (r.breakEvenUnits < 0 ? 'غير محققة' : r.breakEvenUnits) + '\n';
+      csv += 'نقطة التعادل (مبالغ),' + (r.breakEvenAmount < 0 ? 'غير محققة' : r.breakEvenAmount) + '\n';
+      csv += 'الإيرادات المتوقعة,' + r.revenue + '\n';
+      csv += 'إجمالي التكاليف,' + r.totalCost + '\n';
+      csv += 'صافي الربح,' + r.profit + '\n';
+      csv += 'نسبة الربح (%),' + r.profitMargin.toFixed(2) + '\n';
+      csv += 'العائد على التكلفة (%),' + r.roi.toFixed(2) + '\n\n';
+      csv += 'مقارنة السيناريوهات\n';
+      csv += 'المؤشر,تشاؤم (-20%),المتوقع,تفاؤل (+20%)\n';
+      csv += 'الكمية,' + Math.round(inputs.qty*0.8) + ',' + inputs.qty + ',' + Math.round(inputs.qty*1.2) + '\n';
+      csv += 'الإيرادات,' + p.revenue + ',' + r.revenue + ',' + o.revenue + '\n';
+      csv += 'التكاليف,' + p.totalCost + ',' + r.totalCost + ',' + o.totalCost + '\n';
+      csv += 'صافي الربح,' + p.profit + ',' + r.profit + ',' + o.profit + '\n';
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'bonds-break-even.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
     function updateScenarios(inputs, r) {
@@ -730,7 +839,9 @@
           ['Break-Even (Amount)', resAmount],
           ['Expected Revenue', resRevenue],
           ['Total Costs', resTotalCost],
-          ['Net Profit / Loss', resProfit]
+          ['Net Profit / Loss', resProfit],
+          ['Profit Margin (%)', r.profitMargin.toFixed(1) + '%'],
+          ['Return on Cost (%)', r.roi.toFixed(1) + '%']
         ],
         theme: 'striped',
         headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
@@ -744,10 +855,10 @@
         }
       });
 
-      // Chart image
+      // Chart images
       updateChart(inputs, r);
-      var canvas = document.getElementById('breakEvenChart');
       var chartBottomY = doc.lastAutoTable.finalY + 12;
+      var canvas = document.getElementById('breakEvenChart');
       if (canvas && canvas.toDataURL) {
         if (chartBottomY > 180) {
           doc.addPage();
@@ -758,6 +869,20 @@
         var imgH = 90;
         doc.addImage(imgData, 'PNG', margin, chartBottomY, imgW, imgH);
         chartBottomY = chartBottomY + imgH;
+      }
+      // Pie chart
+      var pieCanvas = document.getElementById('costPieChart');
+      if (pieCanvas && pieCanvas.toDataURL) {
+        if (chartBottomY > 180) {
+          doc.addPage();
+          chartBottomY = 20;
+        }
+        var pieData = pieCanvas.toDataURL('image/png');
+        var pieH = 80;
+        var pieW = 80;
+        var pieX = (pageW - pieW) / 2;
+        doc.addImage(pieData, 'PNG', pieX, chartBottomY + 6, pieW, pieH);
+        chartBottomY = chartBottomY + pieH + 6;
       }
 
       // Scenarios table
@@ -944,7 +1069,15 @@
           <tr style="background:#f5f5f5;"><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">الإيرادات المتوقعة</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(r.revenue)} ر.س</td></tr>
           <tr><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">إجمالي التكاليف</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(r.totalCost)} ر.س</td></tr>
           <tr style="background:#f5f5f5;"><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">صافي الربح/الخسارة</td><td style="padding:8px; border:1px solid #ddd; color:${profitColor}; font-weight:bold;">${profitText}</td></tr>
+          <tr><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">نسبة الربح (%)</td><td style="padding:8px; border:1px solid #ddd; color:${r.profitMargin>=0?'#16a34a':'#dc2626'}; font-weight:bold;">${r.profitMargin.toFixed(1)}%</td></tr>
+          <tr style="background:#f5f5f5;"><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">العائد على التكلفة (%)</td><td style="padding:8px; border:1px solid #ddd; color:${r.roi>=0?'#16a34a':'#dc2626'}; font-weight:bold;">${r.roi.toFixed(1)}%</td></tr>
         </table>
+        
+        <div style="text-align:center; margin:20px 0;">
+          <h3 style="color:#d4a853; border-bottom:1px solid #ddd; padding-bottom:5px;">الرسم البياني</h3>
+          <img src="${document.getElementById('breakEvenChart').toDataURL('image/png')}" style="max-width:100%; height:auto; margin-bottom:10px;" />
+          <img src="${document.getElementById('costPieChart').toDataURL('image/png')}" style="max-width:280px; height:auto;" />
+        </div>
         
         <h3 style="color:#d4a853; border-bottom:1px solid #ddd; padding-bottom:5px;">مقارنة السيناريوهات</h3>
         <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:13px;">
@@ -997,6 +1130,7 @@
       var r = calculate(inputs);
       updateResults(r, inputs);
       updateChart(inputs, r);
+      updateCostChart(inputs, r);
       updateScenarios(inputs, r);
       updateSensitivity(inputs, r);
       saveToHistory(inputs, r);
@@ -1021,8 +1155,11 @@
       document.getElementById('resRevenue').textContent = '—';
       document.getElementById('resTotalCost').textContent = '—';
       document.getElementById('resProfit').textContent = '—';
+      document.getElementById('resMargin').textContent = '—';
+      document.getElementById('resROI').textContent = '—';
       document.getElementById('analysisBox').style.display = 'none';
       if (chart) chart.destroy();
+      if (pieChart) pieChart.destroy();
       document.getElementById('pessimisticProfit').textContent = '—';
       document.getElementById('expectedProfit').textContent = '—';
       document.getElementById('optimisticProfit').textContent = '—';
