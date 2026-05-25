@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>آلة حاسبة نقطة التعادل | بوندز — استشارات مالية</title>
+  <meta name="description" content="احسب نقطة التعادل لمشروعك: عدد الوحدات والمبلغ اللي لازم تبيعه لتغطية تكاليفك. أداة مجانية من بوندز." />
+  <meta property="og:title" content="آلة حاسبة التعادل | بوندز" />
+  <meta property="og:description" content="احسب نقطة التعادل لمشروعك: التكاليف الثابتة، المتغيرة، سعر البيع، وحجم المبيعات المتوقع." />
+  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:url" content="https://bonds-global.com/calculator.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="آلة حاسبة التعادل | بوندز" />
+  <meta name="twitter:description" content="احسب نقطة التعادل لمشروعك: التكاليف الثابتة، المتغيرة، سعر البيع، وحجم المبيعات المتوقع." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="assets/site-logo.webp" as="image" type="image/webp" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="assets/site-logo.png" type="image/png" />
+  <style>
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+    .calc-input-group { margin-bottom: 1.5rem; }
+    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .calc-input-group input[type="number"] { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
+    .calc-input-group input[type="number"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
+    .calc-input-group input[type="range"] { width: 100%; margin-top: 0.5rem; accent-color: var(--gold); }
+    .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
+    @media (max-width: 768px) { .scenario-grid { grid-template-columns: 1fr; } }
+    .scenario-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; transition: all 0.3s; }
+    .scenario-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+    .scenario-card.pessimistic { border-top: 3px solid #dc2626; }
+    .scenario-card.expected { border-top: 3px solid var(--gold); }
+    .scenario-card.optimistic { border-top: 3px solid #16a34a; }
+    .scenario-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .scenario-value { font-size: 1.5rem; font-weight: 900; }
+    .sensitivity-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .sensitivity-table th, .sensitivity-table td { padding: 0.75rem 1rem; text-align: center; border: 1px solid var(--border); font-size: 0.85rem; }
+    .sensitivity-table th { background: var(--bg-card); color: var(--gold); font-weight: 700; }
+    .sensitivity-table td.positive { color: #16a34a; font-weight: 700; }
+    .sensitivity-table td.negative { color: #dc2626; font-weight: 700; }
+    .share-bar { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+    .share-bar input { flex: 1; min-width: 200px; }
+    .history-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+    .history-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+    .history-item:hover { border-color: var(--gold); }
+  </style>
+</head>
+<body style="font-family:Vazirmatn,system-ui,sans-serif">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <span>استشارتك الأولى مجانية — احجز الآن</span>
+      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب سريع →</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header" id="header">
+    <div class="container main-header__inner">
+      <a href="index.html" class="logo-slot">
+        <img src="assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" />
+        <span class="logo-text">بوندز</span>
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="index.html">الرئيسية</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              الخدمات
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="services.html#analysis">التحليل المالي</a>
+              <a href="services.html#cashflow">إدارة التدفقات النقدية</a>
+              <a href="services.html#feasibility">دراسات الجدوى</a>
+              <a href="services.html#risk">تحليل المخاطر</a>
+              <a href="services.html#research">الاستبيانات والبحوث</a>
+            </div>
+          </li>
+          <li><a href="pricing.html">الأسعار</a></li>
+          <li><a href="about.html">من نحن</a></li>
+          <li><a href="calculator.html">آلة حاسبة</a></li>
+          <li><a href="index.html#insights">مقالات</a></li>
+          <li><a href="faq.html">الأسئلة الشائعة</a></li>
+          <li><a href="contact.html">تواصل</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
+        <a href="contact.html" class="btn btn-primary hidden-mobile">احجز استشارتك</a>
+        <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" style="min-height: 40vh; padding: var(--space-20) 0;">
+    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
+    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+    <div class="container hero__content reveal">
+      <span class="hero__eyebrow">أداة مجانية</span>
+      <h1 class="hero__title">آلة حاسبة <span class="text-gradient">نقطة التعادل</span></h1>
+      <p class="hero__desc">اعرف كم وحدة لازم تبيع، وكم ريال/جنيه تحتاجه، لتغطية تكاليفك وتبدأ الربح.</p>
+    </div>
+  </section>
+
+  <!-- Calculator -->
+  <section class="section">
+    <div class="container">
+      <div class="calc-grid">
+        <!-- Inputs -->
+        <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
+          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">بيانات مشروعك</h2>
+          <div class="calc-input-group">
+            <label>التكاليف الثابتة (شهرية)</label>
+            <input type="number" id="fixedCost" placeholder="مثلاً: 50000" min="0" />
+          </div>
+          <div class="calc-input-group">
+            <label>سعر بيع الوحدة</label>
+            <input type="number" id="unitPrice" placeholder="مثلاً: 500" min="0" />
+          </div>
+          <div class="calc-input-group">
+            <label>التكلفة المتغيرة للوحدة</label>
+            <input type="number" id="varCost" placeholder="مثلاً: 300" min="0" />
+          </div>
+          <div class="calc-input-group">
+            <label>الكمية المتوقعة (شهرية)</label>
+            <input type="number" id="quantity" placeholder="مثلاً: 200" min="0" />
+          </div>
+          <button onclick="calculateAll()" class="btn btn-primary" style="width: 100%;">احسب النتائج</button>
+          <button onclick="loadExample()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">🧮 جرب مثال توضيحي</button>
+          <button onclick="resetCalc()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">مسح البيانات</button>
+        </div>
+
+        <!-- Results + Chart -->
+        <div class="reveal reveal-delay-1">
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); margin-bottom: var(--space-6);">
+            <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">النتائج</h2>
+            <div id="resultsArea" style="display: flex; flex-direction: column; gap: var(--space-3);">
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">نقطة التعادل (وحدات)</span>
+                <span id="resUnits" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">نقطة التعادل (مبالغ)</span>
+                <span id="resAmount" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">الإيرادات المتوقعة</span>
+                <span id="resRevenue" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">إجمالي التكاليف</span>
+                <span id="resTotalCost" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0;">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">صافي الربح/الخسارة</span>
+                <span id="resProfit" style="font-weight: 800;">—</span>
+              </div>
+            </div>
+            <div id="analysisBox" style="margin-top: var(--space-6); padding: var(--space-4); background: rgba(212,168,83,0.05); border: 1px solid var(--border); border-radius: var(--radius); display: none;">
+              <h4 style="font-size: 1rem; font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">🔍 شرح الحساب خطوة بخطوة</h4>
+              <div id="stepsArea" style="display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4);"></div>
+              <p id="analysisText" style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;"></p>
+            </div>
+            <div class="share-bar">
+              <input type="text" id="shareLink" readonly placeholder="رابط المشاركة..." />
+              <button onclick="copyLink()" class="btn btn-outline" style="font-size: 0.8rem;">نسخ الرابط</button>
+            </div>
+          </div>
+
+          <div style="background: linear-gradient(135deg, var(--navy-900), var(--navy-700)); border-radius: var(--radius-lg); padding: var(--space-8); color: var(--white);">
+            <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3);">ابغى تحليل أعمق؟</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-6);">هذه الأداة تقديرية. لو تبي تحليل دقيق لنماذجك المالية — نحن نقدم استشارة مجانية.</p>
+            <a href="contact.html" class="btn btn-primary">احجز استشارتك المجانية →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="reveal" style="margin-top: var(--space-12);">
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
+          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">رسم بياني: التكاليف vs الإيرادات</h2>
+          <div style="position: relative; height: 400px;">
+            <canvas id="breakEvenChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scenarios -->
+      <div class="reveal" style="margin-top: var(--space-12);">
+        <div class="section-header" style="margin-bottom: var(--space-8);">
+          <span class="section__eyebrow">السيناريوهات</span>
+          <h2 class="section__title">مقارنة السيناريوهات</h2>
+        </div>
+        <div class="scenario-grid" id="scenarioGrid">
+          <div class="scenario-card pessimistic">
+            <div class="scenario-label" style="color: #dc2626;">تشاؤم (-20%)</div>
+            <div class="scenario-value" id="pessimisticProfit">—</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">صافي الربح</div>
+          </div>
+          <div class="scenario-card expected">
+            <div class="scenario-label" style="color: var(--gold);">الحالة المتوقعة</div>
+            <div class="scenario-value" id="expectedProfit">—</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">صافي الربح</div>
+          </div>
+          <div class="scenario-card optimistic">
+            <div class="scenario-label" style="color: #16a34a;">تفاؤل (+20%)</div>
+            <div class="scenario-value" id="optimisticProfit">—</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">صافي الربح</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sensitivity Analysis -->
+      <div class="reveal" style="margin-top: var(--space-12);">
+        <div class="section-header" style="margin-bottom: var(--space-8);">
+          <span class="section__eyebrow">تحليل الحساسية</span>
+          <h2 class="section__title">كيف يتغير الربح بتغيير السعر أو الكمية؟</h2>
+        </div>
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); overflow-x: auto;">
+          <table class="sensitivity-table" id="sensitivityTable">
+            <thead>
+              <tr>
+                <th>سعر البيع \ الكمية</th>
+                <th>-30%</th>
+                <th>-15%</th>
+                <th>المتوقعة</th>
+                <th>+15%</th>
+                <th>+30%</th>
+              </tr>
+            </thead>
+            <tbody id="sensitivityBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="reveal" style="margin-top: var(--space-12);">
+        <div class="section-header" style="margin-bottom: var(--space-8);">
+          <span class="section__eyebrow">السجل</span>
+          <h2 class="section__title">حساباتك السابقة</h2>
+        </div>
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
+          <div class="history-list" id="historyList">
+            <p style="color: var(--text-muted); text-align: center;">لا توجد حسابات سابقة</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section" style="background: var(--bg-secondary);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">الشفافية</span>
+        <h2 class="section__title">كيف تعمل الحاسبة؟</h2>
+        <p class="section__subtitle">نستخدم معادلة نقطة التعادل المعترف بها دولياً في محاسبة التكاليف.</p>
+      </div>
+      <div class="grid-2">
+        <div class="card reveal">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📐 المعادلات الرياضية</h3>
+          <div style="display: flex; flex-direction: column; gap: var(--space-3); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
+            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+              نقطة التعادل (وحدات) = التكاليف الثابتة ÷ (سعر البيع − التكلفة المتغيرة)
+            </div>
+            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+              نقطة التعادل (مبالغ) = نقطة التعادل (وحدات) × سعر البيع
+            </div>
+            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+              صافي الربح = (الكمية × سعر البيع) − التكاليف الثابتة − (الكمية × التكلفة المتغيرة)
+            </div>
+          </div>
+        </div>
+        <div class="card reveal reveal-delay-1">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🧮 اختبر بنفسك</h3>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-4);">اضغط "جرب مثال توضيحي" وتحقق من الحساب يدوياً:</p>
+          <div style="display: flex; flex-direction: column; gap: var(--space-2); font-size: 0.85rem; color: var(--text-secondary);">
+            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+              <span>التكاليف الثابتة</span><strong>10,000 ر.س</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+              <span>سعر البيع</span><strong>500 ر.س</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+              <span>التكلفة المتغيرة</span><strong>300 ر.س</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+              <span>الكمية</span><strong>100 وحدة</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0;">
+              <span>النتيجة المتوقعة</span><strong style="color: var(--gold);">ربح 10,000 ر.س</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top: var(--space-8);">
+        <div class="card reveal">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📚 مصادر علمية موثوقة</h3>
+          <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+            <a href="https://en.wikipedia.org/wiki/Break-even_analysis" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
+              <span style="color: var(--gold);">→</span> Wikipedia — Break-even Analysis
+            </a>
+            <a href="https://www.investopedia.com/terms/b/breakevenanalysis.asp" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
+              <span style="color: var(--gold);">→</span> Investopedia — Break-Even Point
+            </a>
+            <a href="https://www.accountingtools.com/articles/break-even-point" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
+              <span style="color: var(--gold);">→</span> AccountingTools — Break-Even Formula
+            </a>
+          </div>
+        </div>
+        <div class="card reveal reveal-delay-1">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">⚠️ تحذيرات وتوضيحات</h3>
+          <ul style="font-size: 0.9rem; color: var(--text-secondary); line-height: 2; padding-right: var(--space-4);">
+            <li>هذه أداة <strong>تقديرية</strong> وليست بديلاً عن استشارة محاسب مرخص.</li>
+            <li>النتائج تعتمد على <strong>دقة البيانات المدخلة</strong>.</li>
+            <li>لا تشمل الضرائب، العمولات، أو التضخم.</li>
+            <li>تفترض أن التكاليف الثابتة والمتغيرة ثابتة في الفترة المدروسة.</li>
+            <li>المعادلة مستندة إلى <strong>مبدأ المحاسبة التكاليف</strong> المعترف به دولياً.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo-slot">
+            <img src="assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" loading="lazy" />
+            <span class="logo-text" style="color: var(--white);">بوندز</span>
+          </div>
+          <p>استشارات مالية لأصحاب المشاريع والشركات الصغيرة والمتوسطة في مصر والسعودية.</p>
+        </div>
+        <div>
+          <h4 class="footer-title">الصفحات</h4>
+          <div class="footer-links">
+            <a href="index.html">الرئيسية</a>
+            <a href="services.html">الخدمات</a>
+            <a href="about.html">من نحن</a>
+            <a href="faq.html">الأسئلة الشائعة</a>
+            <a href="contact.html">تواصل معنا</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">الخدمات</h4>
+          <div class="footer-links">
+            <a href="services.html#analysis">التحليل المالي</a>
+            <a href="services.html">التدفقات النقدية</a>
+            <a href="services.html#feasibility">دراسات الجدوى</a>
+            <a href="services.html#risk">تحليل المخاطر</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">السجلات التجارية</h4>
+          <div class="footer-links">
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">مصر: س.ت 39733</span>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">السعودية: ر.و.م 7042125869</span>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">تواصل</h4>
+          <div class="footer-links">
+            <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب: +966 56 756 6616</a>
+            <a href="mailto:info@bonds-global.com">info@bonds-global.com</a>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">الشيخ زايد، الجيزة، مصر</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="y">2025</span> بوندز للاستشارات المالية — جميع الحقوق محفوظة.</span>
+        <div style="display: flex; gap: var(--space-6);">
+          <a href="#" style="color: var(--text-muted);">سياسة الخصوصية</a>
+          <a href="#" style="color: var(--text-muted);">إخلاء المسؤولية</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
+
+  <script src="script.js" defer></script>
+  <script>
+    var chart = null;
+
+    function formatNumber(n) {
+      return Math.round(n).toLocaleString('ar-SA');
+    }
+
+    function getInputs() {
+      return {
+        fixed: parseFloat(document.getElementById('fixedCost').value) || 0,
+        price: parseFloat(document.getElementById('unitPrice').value) || 0,
+        varCost: parseFloat(document.getElementById('varCost').value) || 0,
+        qty: parseFloat(document.getElementById('quantity').value) || 0
+      };
+    }
+
+    function calculate(inputs) {
+      var contribution = inputs.price - inputs.varCost;
+      var breakEvenUnits = contribution > 0 ? Math.ceil(inputs.fixed / contribution) : 0;
+      var breakEvenAmount = breakEvenUnits * inputs.price;
+      var revenue = inputs.qty * inputs.price;
+      var totalCost = inputs.fixed + (inputs.varCost * inputs.qty);
+      var profit = revenue - totalCost;
+      return { contribution, breakEvenUnits, breakEvenAmount, revenue, totalCost, profit };
+    }
+
+    function updateResults(r, inputs) {
+      document.getElementById('resUnits').textContent = formatNumber(r.breakEvenUnits) + ' وحدة';
+      document.getElementById('resAmount').textContent = formatNumber(r.breakEvenAmount) + ' ر.س';
+      document.getElementById('resRevenue').textContent = formatNumber(r.revenue) + ' ر.س';
+      document.getElementById('resTotalCost').textContent = formatNumber(r.totalCost) + ' ر.س';
+
+      var profitEl = document.getElementById('resProfit');
+      if (r.profit > 0) {
+        profitEl.textContent = formatNumber(r.profit) + ' ر.س (ربح)';
+        profitEl.style.color = '#16a34a';
+      } else if (r.profit < 0) {
+        profitEl.textContent = formatNumber(Math.abs(r.profit)) + ' ر.س (خسارة)';
+        profitEl.style.color = '#dc2626';
+      } else {
+        profitEl.textContent = '0 ر.س (تعادل)';
+        profitEl.style.color = 'var(--text)';
+      }
+
+      var analysisBox = document.getElementById('analysisBox');
+      var analysisText = document.getElementById('analysisText');
+      var stepsArea = document.getElementById('stepsArea');
+      analysisBox.style.display = 'block';
+
+      // Steps
+      var stepsHTML = '';
+      if (r.contribution <= 0) {
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong style="color:#dc2626">⚠️ خطأ:</strong> الهامش المساهم = ' + formatNumber(inputs.price) + ' − ' + formatNumber(inputs.varCost) + ' = ' + formatNumber(r.contribution) + ' ر.س (سالب!)</div>';
+      } else {
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 1:</strong> الهامش المساهم = ' + formatNumber(inputs.price) + ' − ' + formatNumber(inputs.varCost) + ' = <strong>' + formatNumber(r.contribution) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 2:</strong> نقطة التعادل = ' + formatNumber(inputs.fixed) + ' ÷ ' + formatNumber(r.contribution) + ' = <strong>' + formatNumber(r.breakEvenUnits) + ' وحدة</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 3:</strong> الإيرادات = ' + formatNumber(inputs.qty) + ' × ' + formatNumber(inputs.price) + ' = <strong>' + formatNumber(r.revenue) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 4:</strong> التكاليف = ' + formatNumber(inputs.fixed) + ' + (' + formatNumber(inputs.qty) + ' × ' + formatNumber(inputs.varCost) + ') = <strong>' + formatNumber(r.totalCost) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>الخطوة 5:</strong> الربح = ' + formatNumber(r.revenue) + ' − ' + formatNumber(r.totalCost) + ' = <strong>' + formatNumber(r.profit) + ' ر.س</strong></div>';
+      }
+      stepsArea.innerHTML = stepsHTML;
+
+      if (r.contribution <= 0) {
+        analysisText.innerHTML = '<strong style="color:#dc2626">تحذير:</strong> تكلفة الوحدة المتغيرة أعلى من سعر البيع. المشروع يخسر في كل وحدة تبيعها.';
+      } else if (inputs.qty >= r.breakEvenUnits) {
+        var excess = inputs.qty - r.breakEvenUnits;
+        analysisText.innerHTML = 'أنت تبيع <strong>' + formatNumber(excess) + '</strong> وحدة فوق نقطة التعادل. كل وحدة إضافية تربح <strong>' + formatNumber(r.contribution) + ' ر.س</strong>.';
+      } else {
+        var needed = r.breakEvenUnits - inputs.qty;
+        analysisText.innerHTML = 'تحتاج تبيع <strong>' + formatNumber(needed) + '</strong> وحدة إضافية لتصل لنقطة التعادل.';
+      }
+    }
+
+    function updateChart(inputs, r) {
+      var ctx = document.getElementById('breakEvenChart').getContext('2d');
+      var maxQty = Math.max(inputs.qty * 1.5, r.breakEvenUnits * 1.5, 100);
+      var labels = [];
+      var revenueData = [];
+      var costData = [];
+      for (var i = 0; i <= 20; i++) {
+        var q = Math.round((maxQty / 20) * i);
+        labels.push(q);
+        revenueData.push(q * inputs.price);
+        costData.push(inputs.fixed + (inputs.varCost * q));
+      }
+
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'الإيرادات', data: revenueData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', tension: 0.4, fill: true },
+            { label: 'التكاليف', data: costData, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.1)', tension: 0.4, fill: true },
+            { label: 'نقطة التعادل', data: labels.map(function(q) { return q === r.breakEvenUnits ? r.breakEvenAmount : null; }), borderColor: '#d4a853', backgroundColor: '#d4a853', pointRadius: 8, showLine: false }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: { labels: { color: '#e8ecf4', font: { family: 'Vazirmatn' } } },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + formatNumber(context.raw) + ' ر.س';
+                }
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+
+    function updateScenarios(inputs, r) {
+      var pessimisticQty = Math.round(inputs.qty * 0.8);
+      var optimisticQty = Math.round(inputs.qty * 1.2);
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: pessimisticQty });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: optimisticQty });
+
+      document.getElementById('pessimisticProfit').textContent = formatNumber(p.profit) + ' ر.س';
+      document.getElementById('pessimisticProfit').style.color = p.profit >= 0 ? '#16a34a' : '#dc2626';
+      document.getElementById('expectedProfit').textContent = formatNumber(r.profit) + ' ر.س';
+      document.getElementById('expectedProfit').style.color = r.profit >= 0 ? '#16a34a' : '#dc2626';
+      document.getElementById('optimisticProfit').textContent = formatNumber(o.profit) + ' ر.س';
+      document.getElementById('optimisticProfit').style.color = o.profit >= 0 ? '#16a34a' : '#dc2626';
+    }
+
+    function updateSensitivity(inputs, r) {
+      var tbody = document.getElementById('sensitivityBody');
+      tbody.innerHTML = '';
+      var priceChanges = [0.7, 0.85, 1, 1.15, 1.3];
+      var qtyChanges = [0.7, 0.85, 1, 1.15, 1.3];
+
+      priceChanges.forEach(function(pc) {
+        var row = document.createElement('tr');
+        var newPrice = Math.round(inputs.price * pc);
+        row.innerHTML = '<th>' + formatNumber(newPrice) + ' ر.س</th>';
+        qtyChanges.forEach(function(qc) {
+          var newQty = Math.round(inputs.qty * qc);
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty });
+          var cell = document.createElement('td');
+          cell.textContent = formatNumber(res.profit);
+          cell.className = res.profit >= 0 ? 'positive' : 'negative';
+          row.appendChild(cell);
+        });
+        tbody.appendChild(row);
+      });
+    }
+
+    function saveToHistory(inputs, r) {
+      var history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+      history.unshift({
+        date: new Date().toLocaleString('ar-SA'),
+        fixed: inputs.fixed,
+        price: inputs.price,
+        varCost: inputs.varCost,
+        qty: inputs.qty,
+        profit: r.profit,
+        breakEven: r.breakEvenUnits
+      });
+      if (history.length > 10) history.pop();
+      localStorage.setItem('calcHistory', JSON.stringify(history));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      var history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+      var list = document.getElementById('historyList');
+      if (history.length === 0) {
+        list.innerHTML = '<p style="color: var(--text-muted); text-align: center;">لا توجد حسابات سابقة</p>';
+        return;
+      }
+      list.innerHTML = '';
+      history.forEach(function(item, i) {
+        var div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = '<span>' + item.date + '</span><span style="font-weight: 800; color: ' + (item.profit >= 0 ? '#16a34a' : '#dc2626') + '">' + formatNumber(item.profit) + ' ر.س</span>';
+        div.onclick = function() {
+          document.getElementById('fixedCost').value = item.fixed;
+          document.getElementById('unitPrice').value = item.price;
+          document.getElementById('varCost').value = item.varCost;
+          document.getElementById('quantity').value = item.qty;
+          calculateAll();
+        };
+        list.appendChild(div);
+      });
+    }
+
+    function updateShareLink(inputs) {
+      var url = new URL(window.location.href);
+      url.searchParams.set('f', inputs.fixed);
+      url.searchParams.set('p', inputs.price);
+      url.searchParams.set('v', inputs.varCost);
+      url.searchParams.set('q', inputs.qty);
+      document.getElementById('shareLink').value = url.toString();
+    }
+
+    function copyLink() {
+      var input = document.getElementById('shareLink');
+      input.select();
+      document.execCommand('copy');
+      alert('تم نسخ الرابط!');
+    }
+
+    function calculateAll() {
+      var inputs = getInputs();
+      if (inputs.fixed <= 0 || inputs.price <= 0) {
+        alert('أدخل التكاليف الثابتة وسعر البيع');
+        return;
+      }
+      var r = calculate(inputs);
+      updateResults(r, inputs);
+      updateChart(inputs, r);
+      updateScenarios(inputs, r);
+      updateSensitivity(inputs, r);
+      saveToHistory(inputs, r);
+      updateShareLink(inputs);
+    }
+
+    function loadExample() {
+      document.getElementById('fixedCost').value = '10000';
+      document.getElementById('unitPrice').value = '500';
+      document.getElementById('varCost').value = '300';
+      document.getElementById('quantity').value = '100';
+      calculateAll();
+    }
+
+    function resetCalc() {
+      document.getElementById('fixedCost').value = '';
+      document.getElementById('unitPrice').value = '';
+      document.getElementById('varCost').value = '';
+      document.getElementById('quantity').value = '';
+      document.getElementById('resUnits').textContent = '—';
+      document.getElementById('resAmount').textContent = '—';
+      document.getElementById('resRevenue').textContent = '—';
+      document.getElementById('resTotalCost').textContent = '—';
+      document.getElementById('resProfit').textContent = '—';
+      document.getElementById('analysisBox').style.display = 'none';
+      if (chart) chart.destroy();
+      document.getElementById('pessimisticProfit').textContent = '—';
+      document.getElementById('expectedProfit').textContent = '—';
+      document.getElementById('optimisticProfit').textContent = '—';
+      document.getElementById('sensitivityBody').innerHTML = '';
+      document.getElementById('shareLink').value = '';
+      localStorage.removeItem('calcHistory');
+      renderHistory();
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
+    // Load from URL params
+    function loadFromURL() {
+      var url = new URL(window.location.href);
+      var f = url.searchParams.get('f');
+      var p = url.searchParams.get('p');
+      var v = url.searchParams.get('v');
+      var q = url.searchParams.get('q');
+      if (f) document.getElementById('fixedCost').value = f;
+      if (p) document.getElementById('unitPrice').value = p;
+      if (v) document.getElementById('varCost').value = v;
+      if (q) document.getElementById('quantity').value = q;
+      if (f && p) calculateAll();
+    }
+
+    // Auto-save inputs
+    ['fixedCost', 'unitPrice', 'varCost', 'quantity'].forEach(function(id) {
+      document.getElementById(id).addEventListener('input', function() {
+        var inputs = getInputs();
+        if (inputs.fixed > 0 && inputs.price > 0) {
+          calculateAll();
+        }
+      });
+    });
+
+    loadFromURL();
+    renderHistory();
+  </script>
+  <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+</body>
+</html>

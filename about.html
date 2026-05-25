@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>من نحن | بوندز — استشارات مالية</title>
+  <meta name="description" content="تعرف على بوندز: استشارات مالية تبدأ من الواقع لأصحاب المشاريع في مصر والسعودية." />
+  <meta property="og:title" content="من نحن | بوندز للاستشارات المالية" />
+  <meta property="og:description" content="شركة بوندز مسجلة في مصر والسعودية. نقدم استشارات مالية لأصحاب المشاريع والشركات." />
+  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:url" content="https://bonds-global.com/about.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="من نحن | بوندز للاستشارات المالية" />
+  <meta name="twitter:description" content="شركة بوندز مسجلة في مصر والسعودية. نقدم استشارات مالية لأصحاب المشاريع والشركات." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" as="style" />
+  <link rel="preload" href="https://fonts.gstatic.com/s/cairo/v28/SLXVc1nY6HkvangtZmpcWmhzfHNZlDcf8Q.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="assets/site-logo.webp" as="image" type="image/webp" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" rel="stylesheet" />
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="assets/site-logo.png" type="image/png" />
+</head>
+<body style="font-family:Vazirmatn,system-ui,sans-serif">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <span>استشارتك الأولى مجانية — احجز الآن</span>
+      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب سريع →</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header" id="header">
+    <div class="container main-header__inner">
+      <a href="index.html" class="logo-slot">
+        <img src="assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" />
+        <span class="logo-text">بوندز</span>
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="index.html">الرئيسية</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              الخدمات
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="services.html#analysis">التحليل المالي</a>
+              <a href="services.html#cashflow">إدارة التدفقات النقدية</a>
+              <a href="services.html#feasibility">دراسات الجدوى</a>
+              <a href="services.html#risk">تحليل المخاطر</a>
+              <a href="services.html#research">الاستبيانات والبحوث</a>
+            </div>
+          </li>
+          <li><a href="pricing.html">الأسعار</a></li>
+          <li><a href="about.html" class="active">من نحن</a></li>
+          <li><a href="calculator.html">آلة حاسبة</a></li>
+          <li><a href="index.html#insights">مقالات</a></li>
+          <li><a href="faq.html">الأسئلة الشائعة</a></li>
+          <li><a href="contact.html">تواصل</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
+        <a href="contact.html" class="btn btn-primary hidden-mobile">احجز استشارتك</a>
+        <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Hero -->
+  <section class="hero" style="min-height: 50vh; padding: var(--space-20) 0;">
+    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
+    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+    <div class="container hero__content reveal">
+      <span class="hero__eyebrow">من نحن</span>
+      <h1 class="hero__title">نبدأ من الواقع <span class="text-gradient">ونبني للنمو</span></h1>
+      <p class="hero__desc">بوندز مكتب استشارات مالية تأسس على فكرة بسيطة: أصحاب الأعمال يحتاجون استشارة تبدأ من أرقامهم الحقيقية.</p>
+    </div>
+  </section>
+
+  <!-- Story -->
+  <section class="section">
+    <div class="container">
+      <div class="grid-2" style="align-items: center; gap: var(--space-16);">
+        <div class="reveal">
+          <span class="section__eyebrow">قصتنا</span>
+          <h2 class="section__title" style="text-align: right;">لماذا أنشأنا بوندز؟</h2>
+          <div style="color: var(--text-secondary); line-height: 1.9; margin-top: var(--space-6);">
+            <p style="margin-bottom: var(--space-4);">لاحظنا أن كثير من أصحاب المشاريع والشركات الصغيرة يديرون أعمالهم بخبرة قوية في منتجاتهم وخدماتهم — لكن عندما يتعلق الأمر بالقرار المالي (متى نوسع؟ كم نستثمر؟ هل نحن رابحين فعلاً؟) يكونون في حاجة لمن يقرأ أرقامهم بلغة واضحة.</p>
+            <p style="margin-bottom: var(--space-4);">بدأنا بوندز لتقديم استشارة عملية لا تعتمد على النظريات العامة، بل على <strong style="color: var(--navy-800);">تشخيص دقيق لوضعك الحالي</strong> وخطة قابلة للتنفيذ تبدأ من اليوم.</p>
+            <p>نخدم عملاء في مصر والسعودية، ونعمل بمرونة مع الشركات الصغيرة والمتوسطة التي تحتاج دعماً مالياً وإدارياً بدون تكلفة قسم داخلي كامل.</p>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-1">
+          <div style="background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: var(--space-8);">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+              <div style="text-align: center; padding: var(--space-6); background: var(--cream-100); border-radius: var(--radius); transition: transform var(--transition);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--gold-500); margin-bottom: var(--space-1);">150+</div>
+                <div style="font-size: var(--text-sm); color: var(--text-secondary);">استشارة منفذة</div>
+              </div>
+              <div style="text-align: center; padding: var(--space-6); background: var(--cream-100); border-radius: var(--radius); transition: transform var(--transition);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--gold-500); margin-bottom: var(--space-1);">8</div>
+                <div style="font-size: var(--text-sm); color: var(--text-secondary);">سنوات خبرة</div>
+              </div>
+              <div style="text-align: center; padding: var(--space-6); background: var(--cream-100); border-radius: var(--radius); transition: transform var(--transition);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--gold-500); margin-bottom: var(--space-1);">2</div>
+                <div style="font-size: var(--text-sm); color: var(--text-secondary);">دول نخدمها</div>
+              </div>
+              <div style="text-align: center; padding: var(--space-6); background: var(--cream-100); border-radius: var(--radius); transition: transform var(--transition);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--gold-500); margin-bottom: var(--space-1);">95%</div>
+                <div style="font-size: var(--text-sm); color: var(--text-secondary);">رضا العملاء</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Values -->
+  <section class="section" style="background: var(--cream-100);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">قيمنا</span>
+        <h2 class="section__title">مبادئ نلتزم بها في كل استشارة</h2>
+      </div>
+      <div class="grid-3">
+        <div class="card reveal">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <h3 class="card__title">الوضوح</h3>
+          <p class="card__text">لا نعقد الأمور. كل توصية مرفقة بتفسير بسيط يفهمه صاحب العمل حتى لو ليس خبيراً مالياً.</p>
+        </div>
+        <div class="card reveal reveal-delay-1">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <h3 class="card__title">الصدق</h3>
+          <p class="card__text">إذا وضعك لا يحتاج استشارة مدفوعة الآن، سنقول لك ذلك. هدفنا علاقة طويلة الأمد لا معاملة واحدة.</p>
+        </div>
+        <div class="card reveal reveal-delay-2">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <h3 class="card__title">السرعة العملية</h3>
+          <p class="card__text">لا نطيل في التقارير. نركز على ما يمكن تنفيذه خلال 30/60/90 يوماً القادمة.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">فريقنا</span>
+        <h2 class="section__title">خبراء يعملون معك</h2>
+        <p class="section__subtitle">فريق متخصص يجمع بين الخبرة المالية العميقة وفهم واقع الشركات الصغيرة والمتوسطة.</p>
+      </div>
+      <div class="grid-3">
+        <div class="reveal">
+          <div style="background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; transition: transform var(--transition), box-shadow var(--transition);" onmouseover="this.style.transform='translateY(-6px)';this.style.boxShadow='var(--shadow-xl)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+            <div style="height: 240px; background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center;">
+              <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-400), var(--gold-500)); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 2.5rem; font-weight: 900; color: var(--navy-950);">م</div>
+            </div>
+            <div style="padding: var(--space-6);">
+              <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">محمد عبدالله</h3>
+              <p style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-3);">الشريك المؤسس</p>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7;">خبرة 12 عاماً في التحليل المالي وإدارة التدفقات النقدية للشركات الصغيرة والمتوسطة في مصر والسعودية.</p>
+            </div>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-1">
+          <div style="background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; transition: transform var(--transition), box-shadow var(--transition);" onmouseover="this.style.transform='translateY(-6px)';this.style.boxShadow='var(--shadow-xl)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+            <div style="height: 240px; background: linear-gradient(135deg, var(--navy-700), var(--navy-500)); display: flex; align-items: center; justify-content: center;">
+              <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-400), var(--gold-500)); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 2.5rem; font-weight: 900; color: var(--navy-950);">أ</div>
+            </div>
+            <div style="padding: var(--space-6);">
+              <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">أحمد سمير</h3>
+              <p style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-3);">استشاري استراتيجية مالية</p>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7;">متخصص في دراسات الجدوى وتقييم المخاطر الاستثمارية. عمل مع أكثر من 40 شركة ناشئة.</p>
+            </div>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-2">
+          <div style="background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; transition: transform var(--transition), box-shadow var(--transition);" onmouseover="this.style.transform='translateY(-6px)';this.style.boxShadow='var(--shadow-xl)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+            <div style="height: 240px; background: linear-gradient(135deg, var(--navy-600), var(--navy-800)); display: flex; align-items: center; justify-content: center;">
+              <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-400), var(--gold-500)); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 2.5rem; font-weight: 900; color: var(--navy-950);">س</div>
+            </div>
+            <div style="padding: var(--space-6);">
+              <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">سارة محمود</h3>
+              <p style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-3);">استشارية تشغيلية</p>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7;">خبيرة في إعادة هندسة العمليات وتحسين كفاءة الفرق. شغّلت مشاريع في التجزئة والخدمات.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Join Us CTA -->
+  <section class="section" style="background: var(--cream-100);">
+    <div class="container">
+      <div class="reveal" style="max-width: 800px; margin-inline: auto; text-align: center;">
+        <span class="section__eyebrow">انضم إلينا</span>
+        <h2 class="section__title">نسعى دائماً لبناء علاقات طويلة الأمد</h2>
+        <p class="section__subtitle" style="margin-bottom: var(--space-8);">سواء كنت صاحب مشروع يبحث عن استشارة أو خبيراً يرغب في الانضمام لفريقنا — نحن نستمع.</p>
+        <div style="display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: center;">
+          <a href="contact.html" class="btn btn-primary btn-lg">احجز استشارتك</a>
+          <a href="https://calendly.com/iiffund-dev/30min" target="_blank" rel="noopener" class="btn btn-outline btn-lg">📅 احجز موعد مباشرة</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Legal Presence -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">التواجد القانوني</span>
+        <h2 class="section__title">مسجّلة رسمياً في مصر والسعودية</h2>
+      </div>
+      <div class="grid-2" style="gap: var(--space-8);">
+        <div class="reveal" style="background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: var(--space-8);">
+          <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4);">
+            <div style="width: 48px; height: 48px; border-radius: var(--radius); background: var(--navy-800); display: flex; align-items: center; justify-content: center; color: var(--white); font-weight: 700;">🇪🇬</div>
+            <div>
+              <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950);">شركة بوندز للاستشارات المالية</h3>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary);">جمهورية مصر العربية</p>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+            <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border-light);">
+              <span style="color: var(--text-secondary); font-size: var(--text-sm);">السجل التجاري</span>
+              <span style="font-weight: 700; color: var(--navy-950); font-family: var(--font-mono);">39733</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border-light);">
+              <span style="color: var(--text-secondary); font-size: var(--text-sm);">العنوان</span>
+              <span style="font-weight: 700; color: var(--navy-950);">الشيخ زايد، الجيزة، مصر</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0;">
+              <span style="color: var(--text-secondary); font-size: var(--text-sm);">النشاط</span>
+              <span style="font-weight: 700; color: var(--navy-950);">استشارات مالية وإدارية</span>
+            </div>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-1" style="background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: var(--space-8);">
+          <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4);">
+            <div style="width: 48px; height: 48px; border-radius: var(--radius); background: var(--navy-800); display: flex; align-items: center; justify-content: center; color: var(--white); font-weight: 700;">🇸🇦</div>
+            <div>
+              <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950);">مؤسسة نيو بوندز</h3>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary);">المملكة العربية السعودية</p>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+            <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border-light);">
+              <span style="color: var(--text-secondary); font-size: var(--text-sm);">الرقم الوطني الموحد</span>
+              <span style="font-weight: 700; color: var(--navy-950); font-family: var(--font-mono);">7042125869</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border-light);">
+              <span style="color: var(--text-secondary); font-size: var(--text-sm);">التمثيل</span>
+              <span style="font-weight: 700; color: var(--navy-950);">تمثيل شركة بوندز في السعودية</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0;">
+              <span style="color: var(--text-secondary); font-size: var(--text-sm);">النشاط</span>
+              <span style="font-weight: 700; color: var(--navy-950);">استشارات مالية وإدارية</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <h2 class="reveal">جاهز لنعرف وضعك المالي الحقيقي؟</h2>
+      <p class="reveal reveal-delay-1">احجز استشارتك المجانية — نستمع ونحدد إذا كنا الأنسب لمساعدتك.</p>
+      <a href="contact.html" class="btn btn-primary btn-lg reveal reveal-delay-2">احجز استشارتك المجانية →</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo-slot">
+            <img src="assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" loading="lazy" />
+            <span class="logo-text" style="color: var(--white);">بوندز</span>
+          </div>
+          <p>استشارات مالية لأصحاب المشاريع والشركات الصغيرة والمتوسطة في مصر والسعودية.</p>
+        </div>
+        <div>
+          <h4 class="footer-title">الصفحات</h4>
+          <div class="footer-links">
+            <a href="index.html">الرئيسية</a>
+            <a href="services.html">الخدمات</a>
+            <a href="about.html">من نحن</a>
+            <a href="faq.html">الأسئلة الشائعة</a>
+            <a href="contact.html">تواصل معنا</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">الخدمات</h4>
+          <div class="footer-links">
+            <a href="services.html#analysis">التحليل المالي</a>
+            <a href="services.html">التدفقات النقدية</a>
+            <a href="services.html">الموازنات والتقديرات</a>
+            <a href="services.html#feasibility">دراسات الجدوى</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">السجلات التجارية</h4>
+          <div class="footer-links">
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">مصر: س.ت 39733</span>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">السعودية: ر.و.م 7042125869</span>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">تواصل</h4>
+          <div class="footer-links">
+            <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب: +966 56 756 6616</a>
+            <a href="mailto:info@bonds-global.com">info@bonds-global.com</a>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">الشيخ زايد، الجيزة، مصر</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="y">2025</span> بوندز للاستشارات المالية — جميع الحقوق محفوظة.</span>
+        <div style="display: flex; gap: var(--space-6);">
+          <a href="#" style="color: var(--text-muted);">سياسة الخصوصية</a>
+          <a href="#" style="color: var(--text-muted);">إخلاء المسؤولية</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp Float -->
+  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
+
+  <div class="cookie-banner" id="cookieBanner">
+    <div class="container cookie-banner__inner">
+      <p class="cookie-banner__text">نستخدم ملفات تعريف الارتباط (Cookies) لتحسين تجربتك وتحليل الزيارات. <a href="privacy.html">سياسة الخصوصية</a></p>
+      <div class="cookie-banner__actions">
+        <button class="btn btn-primary" style="font-size:0.8rem;padding:var(--space-2) var(--space-4);" onclick="acceptCookies()">موافق</button>
+        <button class="btn btn-outline" style="font-size:0.8rem;padding:var(--space-2) var(--space-4);" onclick="declineCookies()">رفض</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    function acceptCookies(){localStorage.setItem('cookies','accepted');document.getElementById('cookieBanner').classList.remove('is-visible');}
+    function declineCookies(){localStorage.setItem('cookies','declined');document.getElementById('cookieBanner').classList.remove('is-visible');}
+    if(!localStorage.getItem('cookies')){setTimeout(function(){document.getElementById('cookieBanner').classList.add('is-visible');},1500);}
+  </script>
+  <script src="script.js" defer></script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+</body>
+</html>

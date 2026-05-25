@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>بوندز | استشارات مالية</title>
+  <meta name="description" content="استشارات مالية متخصصة للمنشآت التجارية، المصانع، السياحة، الزراعة، والمزيد في مصر والسعودية." />
+  <meta property="og:title" content="بوندز | استشارات مالية" />
+  <meta property="og:description" content="استشارات مالية متخصصة للمنشآت التجارية، المصانع، السياحة، الزراعة، والمزيد في مصر والسعودية." />
+  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:url" content="https://bonds-global.com/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="بوندز | استشارات مالية" />
+  <meta name="twitter:description" content="استشارات مالية متخصصة للمنشآت التجارية، المصانع، السياحة، الزراعة، والمزيد في مصر والسعودية." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" as="style" />
+  <link rel="preload" href="https://fonts.gstatic.com/s/cairo/v28/SLXVc1nY6HkvangtZmpcWmhzfHNZlDcf8Q.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="assets/site-logo.webp" as="image" type="image/webp" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" rel="stylesheet" />
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="assets/site-logo.png" type="image/png" />
+</head>
+<body style="font-family:Vazirmatn,system-ui,sans-serif">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <span>استشارتك الأولى مجانية — احجز الآن</span>
+      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب سريع →</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header" id="header">
+    <div class="container main-header__inner">
+      <a href="index.html" class="logo-slot">
+        <img src="assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" />
+        <span class="logo-text">بوندز</span>
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="index.html" class="active">الرئيسية</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              الخدمات
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="services.html#analysis">التحليل المالي</a>
+              <a href="services.html#cashflow">إدارة التدفقات النقدية</a>
+              <a href="services.html#feasibility">دراسات الجدوى</a>
+              <a href="services.html#risk">تحليل المخاطر</a>
+              <a href="services.html#research">الاستبيانات والبحوث</a>
+            </div>
+          </li>
+          <li><a href="pricing.html">الأسعار</a></li>
+          <li><a href="about.html">من نحن</a></li>
+          <li><a href="calculator.html">آلة حاسبة</a></li>
+          <li><a href="index.html#insights">مقالات</a></li>
+          <li><a href="faq.html">الأسئلة الشائعة</a></li>
+          <li><a href="contact.html">تواصل</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
+        <a href="contact.html" class="btn btn-primary hidden-mobile">احجز استشارتك</a>
+        <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero__orb hero__orb--1"></div>
+    <div class="hero__orb hero__orb--2"></div>
+    <div class="container hero__content">
+      <span class="hero__eyebrow reveal">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Trusted by 150+ businesses in Egypt & KSA
+      </span>
+      <h1 class="hero__title reveal reveal-delay-1">
+        شريكك في تنظيم <span class="text-gradient">المال</span><br />
+        واتخاذ قرارات <span class="text-gradient">النمو</span>
+      </h1>
+      <p class="hero__desc reveal reveal-delay-2">
+        استشارات مالية متخصصة للمنشآت التجارية، المصانع، السياحة، الزراعة، والمزيد — نبدأ من وضعك الحالي ونبني خططاً قابلة للتنفيذ.
+      </p>
+      <div class="hero__actions reveal reveal-delay-3">
+        <a href="contact.html" class="btn btn-primary btn-lg">احجز استشارتك المجانية →</a>
+        <a href="https://calendly.com/iiffund-dev/30min" target="_blank" rel="noopener" class="btn btn-outline btn-lg">📅 احجز موعد مباشرة</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Bar -->
+  <section class="stats-bar">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item reveal">
+          <span class="stat-item__num" data-target="150">0</span>
+          <span class="stat-item__label">استشارة منفذة</span>
+        </div>
+        <div class="stat-item reveal reveal-delay-1">
+          <span class="stat-item__num" data-target="8">0</span>
+          <span class="stat-item__label">سنوات خبرة</span>
+        </div>
+        <div class="stat-item reveal reveal-delay-2">
+          <span class="stat-item__num" data-target="95">0</span>
+          <span class="stat-item__label">% رضا العملاء</span>
+        </div>
+        <div class="stat-item reveal reveal-delay-3">
+          <span class="stat-item__num" data-target="8">0</span>
+          <span class="stat-item__label">قطاعات نخدمها</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="section" style="background: var(--cream-100);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">خدماتنا</span>
+        <h2 class="section__title">حلول مالية وإدارية شاملة</h2>
+        <p class="section__subtitle">من التحليل المالي إلى البحوث السوقية — نغطي احتياجاتك في مرحلتك الحالية.</p>
+      </div>
+      <div class="services-grid">
+        <div class="card reveal">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          </div>
+          <h3 class="card__title">التحليل المالي</h3>
+          <p class="card__text">قراءة القوائم، مؤشرات السيولة والربحية، ومقارنة الفعلي بالمخطط.</p>
+        </div>
+        <div class="card reveal reveal-delay-1">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <h3 class="card__title">إدارة التدفقات النقدية</h3>
+          <p class="card__text">خريطة توارد وصرف، أولويات دفع، وتحذير مبكر من شُح السيولة.</p>
+        </div>
+        <div class="card reveal reveal-delay-2">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <h3 class="card__title">الموازنات والتقديرات</h3>
+          <p class="card__text">موازنات شهرية وربع سنوية واقعية مع مقارنة الفعلي بالمخطط.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <h3 class="card__title">دراسات الجدوى</h3>
+          <p class="card__text">تقديرات تكلفة وإيراد واضحة مع تحليل المخاطر — لكل القطاعات.</p>
+        </div>
+        <div class="card reveal reveal-delay-1">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <h3 class="card__title">تحليل المخاطر</h3>
+          <p class="card__text">تحديد المخاطر المالية والتشغيلية ووضع خطط للتعامل معها.</p>
+        </div>
+        <div class="card reveal reveal-delay-2">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <h3 class="card__title">الاستبيانات والبحوث</h3>
+          <p class="card__text">تصميم استبيانات ودراسات سوق لاتخاذ قرارات مبنية على بيانات دقيقة.</p>
+        </div>
+      </div>
+      <div class="text-center" style="margin-top: var(--space-12);">
+        <a href="services.html" class="btn btn-secondary btn-lg reveal">عرض كل الخدمات والقطاعات</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Us -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">لماذا نحن</span>
+        <h2 class="section__title">نبني قراراتك المالية على بيانات واقعية</h2>
+        <p class="section__subtitle">لا نظريات عامة ولا وعود غير قابلة للقياس — نبدأ من أرقامك الحالية ونصنع خططاً يمكن متابعتها.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card reveal">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M6 8l2 2 4-4"/></svg>
+          </div>
+          <h3 class="card__title">تشخيص دقيق</h3>
+          <p class="card__text">نقرأ قوائمك المالية ونحدد نقاط القوة والضعف بدقة — لا تقديرات عشوائية.</p>
+        </div>
+        <div class="card reveal reveal-delay-1">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <h3 class="card__title">خطط قابلة للتنفيذ</h3>
+          <p class="card__text">كل توصية مرفقة بخطوات عملية وجدول زمني — ليس مجرد تقرير نظري.</p>
+        </div>
+        <div class="card reveal reveal-delay-2">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <h3 class="card__title">سرية تامة</h3>
+          <p class="card__text">بياناتك محمية بأعلى معايير الخصوصية — لا مشاركة ولا إفصاح لأي طرف ثالث.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="section process-section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">كيف نعمل</span>
+        <h2 class="section__title">رحلتك معنا في 4 خطوات</h2>
+        <p class="section__subtitle">عملية واضحة من أول تواصل حتى تسليم الخطة التنفيذية.</p>
+      </div>
+      <div class="process-timeline">
+        <div class="process-step reveal">
+          <div class="process-step__num">١</div>
+          <h3 class="process-step__title">استكشاف مجاني</h3>
+          <p class="process-step__desc">نستمع لوضعك الحالي ونحدد إذا كنا الأنسب لمساعدتك — بدون التزام.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-1">
+          <div class="process-step__num">٢</div>
+          <h3 class="process-step__title">تشخيص دقيق</h3>
+          <p class="process-step__desc">نطلب المستندات المالية ونحلل البيانات لتحديد نقاط القوة والضعف.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-2">
+          <div class="process-step__num">٣</div>
+          <h3 class="process-step__title">خطة مخصصة</h3>
+          <p class="process-step__desc">نصمم توصيات عملية مع جدول زمني واضح ومؤشرات أداء قابلة للقياس.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-3">
+          <div class="process-step__num">٤</div>
+          <h3 class="process-step__title">متابعة وتنفيذ</h3>
+          <p class="process-step__desc">نساعدك في تنفيذ الخطة ونقيم النتائج بشكل دوري حتى تحقق أهدافك.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sectors -->
+  <section class="section" style="background: var(--cream-100);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">القطاعات</span>
+        <h2 class="section__title">نخدم جميع القطاعات الاقتصادية</h2>
+        <p class="section__subtitle">خبرتنا تمتد عبر قطاعات متنوعة — نفهم تحديات كل صناعة ونبني الحلول المناسبة لها.</p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-4);">
+        <div class="reveal" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
+          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">التجارة والتجزئة</h3>
+            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">محلات، سلاسل تجارية، تجارة إلكترونية</p>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-1" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
+          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">الصناعة والمصانع</h3>
+            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">تصنيع، إنتاج، توزيع، سلاسل إمداد</p>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-2" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
+          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-7a2 2 0 012-2h4a2 2 0 012 2v7"/></svg>
+          </div>
+          <div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">السياحة والضيافة</h3>
+            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">فنادق، مطاعم، وكالات سفر، ترفيه</p>
+          </div>
+        </div>
+        <div class="reveal" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
+          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">الزراعة والأغذية</h3>
+            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">مزارع، تصنيع غذائي، توزيع، تصدير</p>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-1" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
+          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">الخدمات المهنية</h3>
+            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">محاماة، محاسبة، استشارات، تدريب</p>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-2" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
+          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          </div>
+          <div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">العقارات والإنشاءات</h3>
+            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">تطوير عقاري، مقاولات، إدارة أملاك</p>
+          </div>
+        </div>
+        <div class="reveal" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
+          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+          </div>
+          <div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">التكنولوجيا والبرمجيات</h3>
+            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">SaaS، تطبيقات، حلول رقمية، AI</p>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-1" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
+          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17H2a3 3 0 003-3V9a7 7 0 0114 0v5a3 3 0 003 3zm-8.27 4a2 2 0 01-3.46 0"/></svg>
+          </div>
+          <div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">الرعاية الصحية</h3>
+            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">عيادات، مستشفيات، صيدليات، مختبرات</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">آراء العملاء</span>
+        <h2 class="section__title">ما يقوله عملاؤنا عنا</h2>
+        <p class="section__subtitle">تجارب حقيقية من أصحاب المشاريع والشركات التي عملنا معها.</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial reveal">
+          <div class="testimonial__stars">★★★★★</div>
+          <p class="testimonial__text">"بوندز ساعدتنا في فهم حقيقة أوضاعنا المالية خلال أسبوع واحد. الخطة التي قدموها كانت واقعية وقابلة للتنفيذ فوراً."</p>
+          <div class="testimonial__author">
+            <div class="testimonial__avatar">م</div>
+            <div>
+              <div class="testimonial__name">محمد العلي</div>
+              <div class="testimonial__role">مالك متجر تجزئة — القاهرة</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial reveal reveal-delay-1">
+          <div class="testimonial__stars">★★★★★</div>
+          <p class="testimonial__text">"الاستشارة كانت عملية وليست نظرية. حددوا لنا نقاط الضعف في التدفق النقدي وأعطونا خارطة واضحة للـ 90 يوم القادمة."</p>
+          <div class="testimonial__author">
+            <div class="testimonial__avatar">س</div>
+            <div>
+              <div class="testimonial__name">سارة محمود</div>
+              <div class="testimonial__role">مديرة شركة خدمات مهنية — الشيخ زايد</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial reveal reveal-delay-2">
+          <div class="testimonial__stars">★★★★★</div>
+          <p class="testimonial__text">"تعاملنا مع بوندز قبل توسعة مصنعنا. دراسة الجدوى المبدئية أنقذتنا من دخول استثمار كبير قبل الجاهزية."</p>
+          <div class="testimonial__author">
+            <div class="testimonial__avatar">أ</div>
+            <div>
+              <div class="testimonial__name">أحمد حسين</div>
+              <div class="testimonial__role">شريك مؤسس — شركة صناعية — 6 أكتوبر</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Insights -->
+  <section class="section" id="insights" style="background: var(--cream-100);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">رؤى وأفكار</span>
+        <h2 class="section__title">آخر ما كتبناه</h2>
+        <p class="section__subtitle">تحليلات عملية ونصائح مالية يمكن تطبيقها فوراً في عملك.</p>
+      </div>
+      <div class="grid-3">
+        <article class="card reveal" style="padding: 0; overflow: hidden;">
+          <div style="height: 180px; background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+          </div>
+          <div style="padding: var(--space-6);">
+            <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">التدفقات النقدية</div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">الربح على الورق والفقر في المحفظة: لماذا؟</h3>
+            <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">70% من الشركات الصغيرة تربح في التقارير لكنها تعاني من السيولة. الفرق بين الربح المحاسبي والنقدي وكيف تحمي شركتك من أزمة دفع مفاجئة.</p>
+            <a href="#" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">اقرأ المقال →</a>
+          </div>
+        </article>
+        <article class="card reveal reveal-delay-1" style="padding: 0; overflow: hidden;">
+          <div style="height: 180px; background: linear-gradient(135deg, var(--navy-700), var(--navy-500)); display: flex; align-items: center; justify-content: center;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div style="padding: var(--space-6);">
+            <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">دراسات الجدوى</div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">قبل توسّع: 5 أسئلة تحميك من خسارة رأس المال</h3>
+            <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">التوسع السريع قاتل الشركات الصغيرة. قائمة التحقق العملية التي نستخدمها مع عملائنا قبل أي قرار استثماري — من تحليل السوق إلى نقطة التعادل.</p>
+            <a href="#" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">اقرأ المقال →</a>
+          </div>
+        </article>
+        <article class="card reveal reveal-delay-2" style="padding: 0; overflow: hidden;">
+          <div style="height: 180px; background: linear-gradient(135deg, var(--navy-600), var(--navy-800)); display: flex; align-items: center; justify-content: center;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <div style="padding: var(--space-6);">
+            <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">التسعير</div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">كيف تسعر منتجك؟ صيغة بسيطة تحمي هامش ربحك</h3>
+            <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">التسعير العشوائي يأكل أرباحك بصمت. طريقة احتساب التكلفة الحقيقية، نقطة التعادل، وهامش الربح المستهدف — مع مثال عملي من السوق السعودي.</p>
+            <a href="#" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">اقرأ المقال →</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="section" style="background: linear-gradient(135deg, var(--navy-900), var(--navy-700)); color: var(--white); position: relative; overflow: hidden;">
+    <div style="position: absolute; inset: 0; background: radial-gradient(circle at 30% 50%, rgba(197,160,40,0.08), transparent 50%);"></div>
+    <div class="container" style="position: relative; z-index: 1;">
+      <div class="reveal" style="max-width: 640px; margin-inline: auto; text-align: center;">
+        <span style="display: inline-block; color: var(--gold-300); font-size: var(--text-xs); font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-3);">نشرة أسبوعية</span>
+        <h2 style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; margin-bottom: var(--space-4); line-height: 1.2;">رؤى مالية في بريدك كل أسبوع</h2>
+        <p style="color: var(--cream-200); opacity: 0.9; margin-bottom: var(--space-8); font-size: var(--text-lg);">نصائح عملية حول إدارة التدفقات، التحليل المالي، واتخاذ قرارات النمو — بدون تشويش.</p>
+        <form style="display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: center;" onsubmit="event.preventDefault(); alert('شكراً للاشتراك! سنتواصل معك قريباً.');">
+          <input type="email" required placeholder="بريدك الإلكتروني" style="flex: 1; min-width: 240px; padding: var(--space-3) var(--space-5); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.08); color: var(--white); font-family: inherit; font-size: var(--text-sm); outline: none; backdrop-filter: blur(8px);" />
+          <button type="submit" class="btn btn-primary" style="font-size: var(--text-base);">اشترك الآن</button>
+        </form>
+        <p style="font-size: var(--text-xs); color: var(--cream-300); opacity: 0.6; margin-top: var(--space-4);">لا نرسل رسائل مزعجة. يمكنك إلغاء الاشتراك في أي وقت.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section faq-section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">الأسئلة الشائعة</span>
+        <h2 class="section__title">كل ما تريد معرفته</h2>
+      </div>
+      <div class="faq-list">
+        <details class="faq-item reveal" open>
+          <summary>كيف أبدأ وما الذي يحدث بعد إرسال الطلب؟</summary>
+          <div class="faq-item__content">
+            عن طريق نموذج التواصل أو واتساب. نهدف للرد خلال <strong>2–3 أيام عمل</strong> لتأكيد نوع الخدمة أو طلب معلومات إضافية.
+          </div>
+        </details>
+        <details class="faq-item reveal reveal-delay-1">
+          <summary>كم تستغرق الاستشارة أو المشروع؟</summary>
+          <div class="faq-item__content">
+            يختلف حسب النطاق: جلسة استكشافية قد تكون جلسة أو جلستين؛ تحليل مالي أو موازنة قد يستغرق من أسابيع قليلة إلى شهرين.
+          </div>
+        </details>
+        <details class="faq-item reveal reveal-delay-2">
+          <summary>كيف يتم التسعير؟</summary>
+          <div class="faq-item__content">
+            غالباً <strong>باقة أو مراحل</strong> حسب نطاق العمل، أو بعرض مكتوب بعد فهم الطلب. نفضل الشفافية في العرض لكل عميل.
+          </div>
+        </details>
+        <details class="faq-item reveal reveal-delay-3">
+          <summary>هل تضمنون عائداً استثمارياً أو موافقة تمويل؟</summary>
+          <div class="faq-item__content">
+            <strong>لا.</strong> نقدّم تحليلاً واستشارة مبنية على معلوماتك؛ القرار والنتائج يظلان من مسؤوليتك.
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <h2 class="reveal">جاهز لتنظيم مالك<br />وبناء خطتك؟</h2>
+      <p class="reveal reveal-delay-1">احجز استشارتك المجانية الآن — نستمع لوضعك ونحدد إذا كنا الأنسب لمساعدتك.</p>
+      <div class="hero__actions reveal reveal-delay-2">
+        <a href="contact.html" class="btn btn-primary btn-lg">احجز استشارتك المجانية →</a>
+        <a href="https://calendly.com/iiffund-dev/30min" target="_blank" rel="noopener" class="btn btn-outline btn-lg">📅 احجز موعد مباشرة</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo-slot">
+            <img src="assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" loading="lazy" />
+            <span class="logo-text" style="color: var(--white);">بوندز</span>
+          </div>
+          <p>استشارات مالية لأصحاب المشاريع والشركات الصغيرة والمتوسطة في مصر والسعودية.</p>
+        </div>
+        <div>
+          <h4 class="footer-title">الصفحات</h4>
+          <div class="footer-links">
+            <a href="index.html">الرئيسية</a>
+            <a href="services.html">الخدمات</a>
+            <a href="about.html">من نحن</a>
+            <a href="faq.html">الأسئلة الشائعة</a>
+            <a href="contact.html">تواصل معنا</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">الخدمات</h4>
+          <div class="footer-links">
+            <a href="services.html#analysis">التحليل المالي</a>
+            <a href="services.html">التدفقات النقدية</a>
+            <a href="services.html#feasibility">دراسات الجدوى</a>
+            <a href="services.html#risk">تحليل المخاطر</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">السجلات التجارية</h4>
+          <div class="footer-links">
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">مصر: س.ت 39733</span>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">السعودية: ر.و.م 7042125869</span>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">تواصل</h4>
+          <div class="footer-links">
+            <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب: +966 56 756 6616</a>
+            <a href="mailto:info@bonds-global.com">info@bonds-global.com</a>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">الشيخ زايد، الجيزة، مصر</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="y">2025</span> بوندز للاستشارات المالية — جميع الحقوق محفوظة.</span>
+        <div style="display: flex; gap: var(--space-6);">
+          <a href="#" style="color: var(--text-muted);">سياسة الخصوصية</a>
+          <a href="#" style="color: var(--text-muted);">إخلاء المسؤولية</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp Float -->
+  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
+
+  <div class="cookie-banner" id="cookieBanner">
+    <div class="container cookie-banner__inner">
+      <p class="cookie-banner__text">نستخدم ملفات تعريف الارتباط (Cookies) لتحسين تجربتك وتحليل الزيارات. <a href="privacy.html">سياسة الخصوصية</a></p>
+      <div class="cookie-banner__actions">
+        <button class="btn btn-primary" style="font-size:0.8rem;padding:var(--space-2) var(--space-4);" onclick="acceptCookies()">موافق</button>
+        <button class="btn btn-outline" style="font-size:0.8rem;padding:var(--space-2) var(--space-4);" onclick="declineCookies()">رفض</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    function acceptCookies(){localStorage.setItem('cookies','accepted');document.getElementById('cookieBanner').classList.remove('is-visible');}
+    function declineCookies(){localStorage.setItem('cookies','declined');document.getElementById('cookieBanner').classList.remove('is-visible');}
+    if(!localStorage.getItem('cookies')){setTimeout(function(){document.getElementById('cookieBanner').classList.add('is-visible');},1500);}
+  </script>
+  <script src="script.js" defer></script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="64 72 384 288" role="img" aria-hidden="true">
+  <defs>
+    <clipPath id="mClipBlue" clipPathUnits="userSpaceOnUse">
+      <path d="M 512 0 L 512 512 L 0 0 Z"/>
+    </clipPath>
+    <clipPath id="mClipGold" clipPathUnits="userSpaceOnUse">
+      <path d="M 0 512 L 0 0 L 512 512 Z"/>
+    </clipPath>
+    <path id="mGearRing" fill-rule="evenodd" d="M 0,-78 L 16.069,-49.455 L 45.847,-63.103 L 42.069,-30.565 L 74.182,-24.103 L 52,0 L 74.182,24.103 L 42.069,30.565 L 45.847,63.103 L 16.069,49.455 L 0,78 L -16.069,49.455 L -45.847,63.103 L -42.069,30.565 L -74.182,24.103 L -52,0 L -74.182,-24.103 L -42.069,-30.565 L -45.847,-63.103 L -16.069,-49.455 Z M 0,-40 A 40,40 0 1 0 0,40 A 40,40 0 1 0 0,-40 Z"/>
+  </defs>
+  <rect x="64" y="72" width="384" height="288" fill="#ffffff"/>
+  <ellipse cx="256" cy="275" rx="188" ry="182" fill="none" stroke="#B59453" stroke-width="3"/>
+  <g fill="none" stroke="#B59453" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 256 96 C 200 110 150 150 128 210 C 118 238 118 268 130 298"/>
+    <path d="M 256 96 C 312 110 364 150 384 210 C 394 238 394 268 382 298"/>
+    <path d="M 130 298 C 148 330 178 352 214 364 M 382 298 C 364 330 334 352 298 364"/>
+  </g>
+  <g fill="#B59453" opacity="0.9">
+    <ellipse cx="142" cy="218" rx="5" ry="9" transform="rotate(-28 142 218)"/>
+    <ellipse cx="370" cy="218" rx="5" ry="9" transform="rotate(28 370 218)"/>
+    <ellipse cx="168" cy="268" rx="4" ry="8" transform="rotate(-8 168 268)"/>
+    <ellipse cx="344" cy="268" rx="4" ry="8" transform="rotate(8 344 268)"/>
+  </g>
+  <g transform="translate(256 256)">
+    <g clip-path="url(#mClipBlue)">
+      <use href="#mGearRing" fill="#0072BC"/>
+    </g>
+    <g clip-path="url(#mClipGold)">
+      <use href="#mGearRing" fill="#B59453"/>
+    </g>
+    <g fill="#B59453">
+      <rect x="-34" y="6" width="11" height="26" rx="1.5"/>
+      <rect x="-20" y="-4" width="11" height="36" rx="1.5"/>
+      <rect x="-6" y="-14" width="11" height="46" rx="1.5"/>
+      <rect x="8" y="-26" width="11" height="58" rx="1.5"/>
+    </g>
+    <path fill="none" stroke="#0072BC" stroke-width="4.5" stroke-linecap="round" d="M -108 -6 Q 0,-36 108,-2"/>
+    <path fill="none" stroke="#B59453" stroke-width="4.5" stroke-linecap="round" d="M -108 14 Q 0,34 108,6"/>
+  </g>
+</svg>
