@@ -718,6 +718,22 @@
         }
       });
 
+      // Chart image
+      updateChart(inputs, r);
+      var canvas = document.getElementById('breakEvenChart');
+      var chartBottomY = doc.lastAutoTable.finalY + 12;
+      if (canvas && canvas.toDataURL) {
+        if (chartBottomY > 180) {
+          doc.addPage();
+          chartBottomY = 20;
+        }
+        var imgData = canvas.toDataURL('image/png');
+        var imgW = pageW - (margin * 2);
+        var imgH = 90;
+        doc.addImage(imgData, 'PNG', margin, chartBottomY, imgW, imgH);
+        chartBottomY = chartBottomY + imgH;
+      }
+
       // Scenarios table
       var pessProfit = cleanForPDF(document.getElementById('pessimisticProfit').textContent);
       var expProfit = cleanForPDF(document.getElementById('expectedProfit').textContent);
@@ -726,7 +742,7 @@
       if (pessProfit !== '—' && pessProfit !== '-') {
         doc.setFontSize(13);
         doc.setFont('helvetica', 'bold');
-        var nextY = doc.lastAutoTable.finalY + 12;
+        var nextY = chartBottomY + 12;
         if (nextY > 250) {
           doc.addPage();
           nextY = 20;
