@@ -451,12 +451,15 @@
       if (!platforms) return;
       platforms.forEach(function(p) {
         var opt = document.createElement('option');
-        opt.value = p.fee;
+        var totalFee = p.fee + (p.serviceFee || 0);
+        opt.value = totalFee;
         var badge = p.confidence === 'verified' ? ' ✅' : (p.confidence === 'estimated' ? ' ⚠️' : '');
-        opt.textContent = p.name + ' — ' + p.fee + '%' + badge;
+        var feeLabel = p.serviceFee ? p.fee + '% + ' + p.serviceFee + '% رسوم خدمة' : p.fee + '%';
+        opt.textContent = p.name + ' — ' + feeLabel + badge;
         opt.dataset.name = p.name;
         opt.dataset.confidence = p.confidence || 'estimated';
         opt.dataset.fee = p.fee;
+        opt.dataset.serviceFee = p.serviceFee || 0;
         if (p.freeDelivery) {
           opt.dataset.fdThreshold = p.freeDelivery.threshold;
           opt.dataset.fdShare = p.freeDelivery.restaurantShare;
@@ -532,7 +535,9 @@
     function calculatePlatform(foodCost, packagingCost, sellingPrice, platform) {
       var totalPrimeCost = foodCost + packagingCost;
       var fee = platform.fee || 0;
-      var commissionValue = sellingPrice * (fee / 100);
+      var serviceFee = platform.serviceFee || 0;
+      var totalFee = fee + serviceFee;
+      var commissionValue = sellingPrice * (totalFee / 100);
       var deliverySubsidy = 0;
       if (platform.freeDelivery && sellingPrice >= platform.freeDelivery.threshold) {
         deliverySubsidy = platform.freeDelivery.restaurantShare;
@@ -542,6 +547,8 @@
       return {
         name: platform.name,
         fee: fee,
+        serviceFee: serviceFee,
+        totalFee: totalFee,
         commission: commissionValue,
         deliverySubsidy: deliverySubsidy,
         profit: grossProfit,
@@ -575,7 +582,8 @@
         var statusText = r.margin >= 50 ? 'ممتاز' : (r.margin >= 40 ? 'مقبول' : 'خطير');
         var badge = r.confidence === 'verified' ? '<span style="color:#16a34a;font-size:0.75rem;">✅ مُدقَّق</span>' : '<span style="color:#ca8a04;font-size:0.75rem;">⚠️ تقديري</span>';
         var deliveryText = r.deliverySubsidy > 0 ? formatNumber(r.deliverySubsidy) + ' ' + currentCurrency : '—';
-        var optimalPrice = Math.ceil((foodCost + packagingCost + r.deliverySubsidy) / (1 - r.fee/100 - 0.45));
+        var feeDisplay = r.serviceFee ? r.fee + '% + ' + r.serviceFee + '%' : r.fee + '%';
+        var optimalPrice = Math.ceil((foodCost + packagingCost + r.deliverySubsidy) / (1 - r.totalFee/100 - 0.45));
 
         var tr = document.createElement('tr');
         var waText = 'مرحبا بوندز، اقترح تعديل بيانات منصة ' + r.name + ' في ' + countryData.name + ':\n\n' +
@@ -588,7 +596,7 @@
         tr.innerHTML = `
           <td><strong>${r.name}</strong></td>
           <td>${badge}</td>
-          <td>${r.fee}%</td>
+          <td>${feeDisplay}</td>
           <td>${deliveryText}</td>
           <td><strong style="color:${status === 'excellent' ? '#16a34a' : (status === 'good' ? '#ca8a04' : '#dc2626')}">${formatNumber(r.profit)}</strong></td>
           <td><strong>${r.margin.toFixed(1)}%</strong></td>

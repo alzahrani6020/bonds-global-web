@@ -561,7 +561,7 @@
       var data = COUNTRIES_DATA[code];
       currentCurrency = data.currencySymbolEn;
       PLATFORMS = data.platforms.map(function(p) {
-        return { id: p.id, name: p.nameEn, fee: p.fee };
+        return { id: p.id, name: p.nameEn, fee: p.fee, serviceFee: p.serviceFee || 0 };
       });
 
       // Update currency labels
@@ -590,10 +590,10 @@
         div.className = 'platform-check';
         var isChecked = idx < 3 ? 'checked' : '';
         div.innerHTML = `
-          <input type="checkbox" id="${p.id}" value="${p.fee}" ${isChecked} />
+          <input type="checkbox" id="${p.id}" value="${p.fee}" data-servicefee="${p.serviceFee || 0}" ${isChecked} />
           <div style="flex:1;">
             <label for="${p.id}">${p.name}</label>
-            <div class="fee">${p.fee}% commission</div>
+            <div class="fee">${p.fee}${p.serviceFee ? '+' + p.serviceFee : ''}% commission</div>
           </div>
           <button type="button" class="platform-calc-btn" onclick="focusPlatform('${p.id}')" title="Calculate this platform only">Calculate</button>
         `;
@@ -601,7 +601,7 @@
         // Add to focus dropdown
         var opt = document.createElement('option');
         opt.value = p.id;
-        opt.textContent = p.name + ' (' + p.fee + '%)';
+        opt.textContent = p.name + ' (' + p.fee + (p.serviceFee ? '+' + p.serviceFee : '') + '%)';
         focusSelect.appendChild(opt);
       });
       // Add direct always
@@ -734,7 +734,7 @@
       var platforms = [];
       PLATFORMS.forEach(function(p) {
         var el = document.getElementById(p.id);
-        if (el && el.checked) platforms.push({ name: p.name, fee: parseFloat(el.value) || 0 });
+        if (el && el.checked) platforms.push({ name: p.name, fee: parseFloat(el.value) || 0, serviceFee: parseFloat(el.dataset.servicefee) || 0 });
       });
       var isCloud = (currentBusinessModel === 'cloud');
       return {
@@ -782,14 +782,15 @@
       var dailyFixed = monthlyFixed / inputs.workingDays;
 
       var platformResults = inputs.platforms.map(function(p) {
-        var platformPrice = weightedPrice * (1 - p.fee / 100);
+        var totalFee = p.fee + (p.serviceFee || 0);
+        var platformPrice = weightedPrice * (1 - totalFee / 100);
         var varCostPerOrder = weightedCost + inputs.packaging + inputs.delivery;
         var contributionPerOrder = platformPrice - varCostPerOrder;
         var dailyProfit = contributionPerOrder * inputs.dailyOrders - dailyFixed;
         var monthlyProfit = dailyProfit * inputs.workingDays;
         var breakEvenOrders = contributionPerOrder > 0 ? Math.ceil(dailyFixed / contributionPerOrder) : -1;
         return {
-          name: p.name, fee: p.fee, platformPrice: platformPrice,
+          name: p.name, fee: p.fee, serviceFee: p.serviceFee || 0, totalFee: totalFee, platformPrice: platformPrice,
           contributionPerOrder: contributionPerOrder,
           dailyProfit: dailyProfit, monthlyProfit: monthlyProfit,
           breakEvenOrders: breakEvenOrders
@@ -879,7 +880,7 @@
         if (isWorst) tr.className = 'worst-platform';
         tr.innerHTML = `
           <td><strong>${p.name}</strong></td>
-          <td>${p.fee}%</td>
+          <td>${p.fee}${p.serviceFee ? '+' + p.serviceFee : ''}%</td>
           <td>${formatNumber(Math.round(p.platformPrice))}</td>
           <td>${formatNumber(Math.round(p.contributionPerOrder))}</td>
           <td style="color: ${p.dailyProfit >= 0 ? '#16a34a' : '#dc2626'};">${formatNumber(Math.round(p.dailyProfit))}</td>
@@ -914,7 +915,8 @@
         analysisText += `The best platform for you right now is <strong>${r.bestPlatform.name}</strong> which minimizes your loss. `;
       } else {
         analysisText = `✅ <strong>Profit:</strong> Your restaurant makes ${formatNumber(Math.round(r.netProfit))} ${currentCurrency} monthly (${r.profitMargin.toFixed(1)}% margin). `;
-        analysisText += `Best platform is <strong>${r.bestPlatform.name}</strong> (${r.bestPlatform.fee}% commission). `;
+        var bestFeeDisplay = r.bestPlatform.serviceFee ? r.bestPlatform.fee + '% + ' + r.bestPlatform.serviceFee + '%' : r.bestPlatform.fee + '%';
+        analysisText += `Best platform is <strong>${r.bestPlatform.name}</strong> (${bestFeeDisplay} commission). `;
       }
       if (r.weightedFoodCostPct > 35) {
         analysisText += `<br><br>🚨 <strong>Food Cost Alert:</strong> Ingredient cost (${r.weightedFoodCostPct.toFixed(1)}%) is above the recommended 30%. Review supplier prices or redesign your menu.`;
