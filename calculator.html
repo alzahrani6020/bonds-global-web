@@ -149,6 +149,14 @@
             <label>الكمية المتوقعة (شهرية)</label>
             <input type="number" id="quantity" placeholder="مثلاً: 200" min="0" />
           </div>
+          <div class="calc-input-group">
+            <label>نسبة الضريبة (%)</label>
+            <input type="number" id="taxRate" placeholder="مثلاً: 15" min="0" max="100" value="15" />
+          </div>
+          <div class="calc-input-group">
+            <label>نسبة الزكاة (%)</label>
+            <input type="number" id="zakatRate" placeholder="مثلاً: 2.5" min="0" max="100" value="2.5" />
+          </div>
           <button onclick="calculateAll()" class="btn btn-primary" style="width: 100%;">احسب النتائج</button>
           <button onclick="loadExample()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">🧮 جرب مثال توضيحي</button>
           <button onclick="resetCalc()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">مسح البيانات</button>
@@ -176,8 +184,24 @@
                 <span id="resTotalCost" style="font-weight: 800; color: var(--text);">—</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">صافي الربح/الخسارة</span>
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">صافي الربح/الخسارة (قبل الضريبة)</span>
                 <span id="resProfit" style="font-weight: 800;">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">الضريبة</span>
+                <span id="resTax" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">الربح بعد الضريبة</span>
+                <span id="resProfitAfterTax" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">الزكاة</span>
+                <span id="resZakat" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">الربح الصافي النهائي</span>
+                <span id="resNetProfit" style="font-weight: 800; color: var(--text);">—</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
                 <span style="color: var(--text-secondary); font-size: 0.9rem;">نسبة الربح (%)</span>
@@ -437,7 +461,7 @@
       return Math.round(n).toLocaleString('en-US');
     }
     function formatNumberAR(n) {
-      return Math.round(n).toLocaleString('ar-SA');
+      return Math.round(n).toLocaleString('en-US');
     }
 
     function getInputs() {
@@ -445,7 +469,9 @@
         fixed: parseFloat(document.getElementById('fixedCost').value) || 0,
         price: parseFloat(document.getElementById('unitPrice').value) || 0,
         varCost: parseFloat(document.getElementById('varCost').value) || 0,
-        qty: parseFloat(document.getElementById('quantity').value) || 0
+        qty: parseFloat(document.getElementById('quantity').value) || 0,
+        taxRate: parseFloat(document.getElementById('taxRate').value) || 0,
+        zakatRate: parseFloat(document.getElementById('zakatRate').value) || 0
       };
     }
 
@@ -465,9 +491,13 @@
       var revenue = inputs.qty * inputs.price;
       var totalCost = inputs.fixed + (inputs.varCost * inputs.qty);
       var profit = revenue - totalCost;
-      var profitMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
-      var roi = totalCost > 0 ? (profit / totalCost) * 100 : 0;
-      return { contribution, breakEvenUnits, breakEvenAmount, revenue, totalCost, profit, profitMargin, roi };
+      var taxAmount = profit > 0 ? profit * (inputs.taxRate / 100) : 0;
+      var profitAfterTax = profit - taxAmount;
+      var zakatAmount = profitAfterTax > 0 ? profitAfterTax * (inputs.zakatRate / 100) : 0;
+      var netProfit = profitAfterTax - zakatAmount;
+      var profitMargin = revenue > 0 ? (netProfit / revenue) * 100 : 0;
+      var roi = totalCost > 0 ? (netProfit / totalCost) * 100 : 0;
+      return { contribution, breakEvenUnits, breakEvenAmount, revenue, totalCost, profit, taxAmount, profitAfterTax, zakatAmount, netProfit, profitMargin, roi };
     }
 
     function updateResults(r, inputs) {
@@ -486,6 +516,49 @@
       } else {
         profitEl.textContent = '0 ر.س (تعادل)';
         profitEl.style.color = 'var(--text)';
+      }
+
+      var taxEl = document.getElementById('resTax');
+      var profitAfterTaxEl = document.getElementById('resProfitAfterTax');
+      var zakatEl = document.getElementById('resZakat');
+      var netProfitEl = document.getElementById('resNetProfit');
+
+      if (r.profit > 0 && inputs.taxRate > 0) {
+        taxEl.textContent = formatNumberAR(r.taxAmount) + ' ر.س (' + inputs.taxRate.toFixed(1) + '%)';
+        taxEl.style.color = '#dc2626';
+      } else {
+        taxEl.textContent = '0 ر.س';
+        taxEl.style.color = 'var(--text)';
+      }
+
+      if (r.profitAfterTax > 0) {
+        profitAfterTaxEl.textContent = formatNumberAR(r.profitAfterTax) + ' ر.س';
+        profitAfterTaxEl.style.color = '#16a34a';
+      } else if (r.profitAfterTax < 0) {
+        profitAfterTaxEl.textContent = formatNumberAR(Math.abs(r.profitAfterTax)) + ' ر.س (خسارة)';
+        profitAfterTaxEl.style.color = '#dc2626';
+      } else {
+        profitAfterTaxEl.textContent = '0 ر.س';
+        profitAfterTaxEl.style.color = 'var(--text)';
+      }
+
+      if (r.profitAfterTax > 0 && inputs.zakatRate > 0) {
+        zakatEl.textContent = formatNumberAR(r.zakatAmount) + ' ر.س (' + inputs.zakatRate.toFixed(1) + '%)';
+        zakatEl.style.color = '#dc2626';
+      } else {
+        zakatEl.textContent = '0 ر.س';
+        zakatEl.style.color = 'var(--text)';
+      }
+
+      if (r.netProfit > 0) {
+        netProfitEl.textContent = formatNumberAR(r.netProfit) + ' ر.س (ربح صافي)';
+        netProfitEl.style.color = '#16a34a';
+      } else if (r.netProfit < 0) {
+        netProfitEl.textContent = formatNumberAR(Math.abs(r.netProfit)) + ' ر.س (خسارة)';
+        netProfitEl.style.color = '#dc2626';
+      } else {
+        netProfitEl.textContent = '0 ر.س (تعادل)';
+        netProfitEl.style.color = 'var(--text)';
       }
 
       var marginEl = document.getElementById('resMargin');
@@ -648,11 +721,17 @@
         ['سعر البيع', inputs.price],
         ['التكلفة المتغيرة للوحدة', inputs.varCost],
         ['الكمية المتوقعة', inputs.qty],
+        ['نسبة الضريبة (%)', inputs.taxRate],
+        ['نسبة الزكاة (%)', inputs.zakatRate],
         ['نقطة التعادل (وحدات)', r.breakEvenUnits < 0 ? 'غير محققة' : r.breakEvenUnits],
         ['نقطة التعادل (مبالغ)', r.breakEvenAmount < 0 ? 'غير محققة' : r.breakEvenAmount],
         ['الإيرادات المتوقعة', r.revenue],
         ['إجمالي التكاليف', r.totalCost],
-        ['صافي الربح', r.profit],
+        ['صافي الربح (قبل الضريبة)', r.profit],
+        ['الضريبة', r.taxAmount],
+        ['الربح بعد الضريبة', r.profitAfterTax],
+        ['الزكاة', r.zakatAmount],
+        ['الربح الصافي النهائي', r.netProfit],
         ['نسبة الربح (%)', r.profitMargin],
         ['العائد على التكلفة (%)', r.roi]
       ];
@@ -1114,7 +1193,11 @@
             <tr><td style="font-weight:bold;">نقطة التعادل (مبالغ)</td><td>${beAmount}</td></tr>
             <tr style="background:#f5f5f5;"><td style="font-weight:bold;">الإيرادات المتوقعة</td><td>${formatNumberAR(r.revenue)} ر.س</td></tr>
             <tr><td style="font-weight:bold;">إجمالي التكاليف</td><td>${formatNumberAR(r.totalCost)} ر.س</td></tr>
-            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">صافي الربح/الخسارة</td><td class="${r.profit>=0?'positive':'negative'}">${profitText}</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">صافي الربح/الخسارة (قبل الضريبة)</td><td class="${r.profit>=0?'positive':'negative'}">${profitText}</td></tr>
+            <tr><td style="font-weight:bold;">الضريبة (${inputs.taxRate}%)</td><td class="negative">${formatNumberAR(r.taxAmount)} ر.س</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">الربح بعد الضريبة</td><td class="${r.profitAfterTax>=0?'positive':'negative'}">${formatNumberAR(r.profitAfterTax)} ر.س</td></tr>
+            <tr><td style="font-weight:bold;">الزكاة (${inputs.zakatRate}%)</td><td class="negative">${formatNumberAR(r.zakatAmount)} ر.س</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">الربح الصافي النهائي</td><td class="${r.netProfit>=0?'positive':'negative'}">${formatNumberAR(r.netProfit)} ر.س</td></tr>
             <tr><td style="font-weight:bold;">نسبة الربح (%)</td><td class="${r.profitMargin>=0?'positive':'negative'}">${r.profitMargin.toFixed(1)}%</td></tr>
             <tr style="background:#f5f5f5;"><td style="font-weight:bold;">العائد على التكلفة (%)</td><td class="${r.roi>=0?'positive':'negative'}">${r.roi.toFixed(1)}%</td></tr>
           </table>
@@ -1182,11 +1265,17 @@
       document.getElementById('unitPrice').value = '';
       document.getElementById('varCost').value = '';
       document.getElementById('quantity').value = '';
+      document.getElementById('taxRate').value = '15';
+      document.getElementById('zakatRate').value = '2.5';
       document.getElementById('resUnits').textContent = '—';
       document.getElementById('resAmount').textContent = '—';
       document.getElementById('resRevenue').textContent = '—';
       document.getElementById('resTotalCost').textContent = '—';
       document.getElementById('resProfit').textContent = '—';
+      document.getElementById('resTax').textContent = '—';
+      document.getElementById('resProfitAfterTax').textContent = '—';
+      document.getElementById('resZakat').textContent = '—';
+      document.getElementById('resNetProfit').textContent = '—';
       document.getElementById('resMargin').textContent = '—';
       document.getElementById('resROI').textContent = '—';
       document.getElementById('analysisBox').style.display = 'none';

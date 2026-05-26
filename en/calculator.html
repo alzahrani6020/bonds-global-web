@@ -149,6 +149,14 @@
             <label>Expected Quantity (monthly)</label>
             <input type="number" id="quantity" placeholder="e.g., 200" min="0" />
           </div>
+          <div class="calc-input-group">
+            <label>Tax Rate (%)</label>
+            <input type="number" id="taxRate" placeholder="e.g., 15" min="0" max="100" value="15" />
+          </div>
+          <div class="calc-input-group">
+            <label>Zakat Rate (%)</label>
+            <input type="number" id="zakatRate" placeholder="e.g., 2.5" min="0" max="100" value="2.5" />
+          </div>
           <button onclick="calculateAll()" class="btn btn-primary" style="width: 100%;">Calculate Results</button>
           <button onclick="loadExample()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">🧮 Try an Example</button>
           <button onclick="resetCalc()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">Clear Data</button>
@@ -176,8 +184,24 @@
                 <span id="resTotalCost" style="font-weight: 800; color: var(--text);">—</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Net Profit / Loss</span>
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Net Profit / Loss (before tax)</span>
                 <span id="resProfit" style="font-weight: 800;">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Tax</span>
+                <span id="resTax" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Profit After Tax</span>
+                <span id="resProfitAfterTax" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Zakat</span>
+                <span id="resZakat" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Final Net Profit</span>
+                <span id="resNetProfit" style="font-weight: 800; color: var(--text);">—</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
                 <span style="color: var(--text-secondary); font-size: 0.9rem;">Profit Margin (%)</span>
@@ -438,7 +462,9 @@
         fixed: parseFloat(document.getElementById('fixedCost').value) || 0,
         price: parseFloat(document.getElementById('unitPrice').value) || 0,
         varCost: parseFloat(document.getElementById('varCost').value) || 0,
-        qty: parseFloat(document.getElementById('quantity').value) || 0
+        qty: parseFloat(document.getElementById('quantity').value) || 0,
+        taxRate: parseFloat(document.getElementById('taxRate').value) || 0,
+        zakatRate: parseFloat(document.getElementById('zakatRate').value) || 0
       };
     }
 
@@ -458,9 +484,13 @@
       var revenue = inputs.qty * inputs.price;
       var totalCost = inputs.fixed + (inputs.varCost * inputs.qty);
       var profit = revenue - totalCost;
-      var profitMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
-      var roi = totalCost > 0 ? (profit / totalCost) * 100 : 0;
-      return { contribution, breakEvenUnits, breakEvenAmount, revenue, totalCost, profit, profitMargin, roi };
+      var taxAmount = profit > 0 ? profit * (inputs.taxRate / 100) : 0;
+      var profitAfterTax = profit - taxAmount;
+      var zakatAmount = profitAfterTax > 0 ? profitAfterTax * (inputs.zakatRate / 100) : 0;
+      var netProfit = profitAfterTax - zakatAmount;
+      var profitMargin = revenue > 0 ? (netProfit / revenue) * 100 : 0;
+      var roi = totalCost > 0 ? (netProfit / totalCost) * 100 : 0;
+      return { contribution, breakEvenUnits, breakEvenAmount, revenue, totalCost, profit, taxAmount, profitAfterTax, zakatAmount, netProfit, profitMargin, roi };
     }
 
     function updateResults(r, inputs) {
@@ -479,6 +509,49 @@
       } else {
         profitEl.textContent = '0 SAR (Break-even)';
         profitEl.style.color = 'var(--text)';
+      }
+
+      var taxEl = document.getElementById('resTax');
+      var profitAfterTaxEl = document.getElementById('resProfitAfterTax');
+      var zakatEl = document.getElementById('resZakat');
+      var netProfitEl = document.getElementById('resNetProfit');
+
+      if (r.profit > 0 && inputs.taxRate > 0) {
+        taxEl.textContent = formatNumber(r.taxAmount) + ' SAR (' + inputs.taxRate.toFixed(1) + '%)';
+        taxEl.style.color = '#dc2626';
+      } else {
+        taxEl.textContent = '0 SAR';
+        taxEl.style.color = 'var(--text)';
+      }
+
+      if (r.profitAfterTax > 0) {
+        profitAfterTaxEl.textContent = formatNumber(r.profitAfterTax) + ' SAR';
+        profitAfterTaxEl.style.color = '#16a34a';
+      } else if (r.profitAfterTax < 0) {
+        profitAfterTaxEl.textContent = formatNumber(Math.abs(r.profitAfterTax)) + ' SAR (Loss)';
+        profitAfterTaxEl.style.color = '#dc2626';
+      } else {
+        profitAfterTaxEl.textContent = '0 SAR';
+        profitAfterTaxEl.style.color = 'var(--text)';
+      }
+
+      if (r.profitAfterTax > 0 && inputs.zakatRate > 0) {
+        zakatEl.textContent = formatNumber(r.zakatAmount) + ' SAR (' + inputs.zakatRate.toFixed(1) + '%)';
+        zakatEl.style.color = '#dc2626';
+      } else {
+        zakatEl.textContent = '0 SAR';
+        zakatEl.style.color = 'var(--text)';
+      }
+
+      if (r.netProfit > 0) {
+        netProfitEl.textContent = formatNumber(r.netProfit) + ' SAR (Net Profit)';
+        netProfitEl.style.color = '#16a34a';
+      } else if (r.netProfit < 0) {
+        netProfitEl.textContent = formatNumber(Math.abs(r.netProfit)) + ' SAR (Loss)';
+        netProfitEl.style.color = '#dc2626';
+      } else {
+        netProfitEl.textContent = '0 SAR (Break-even)';
+        netProfitEl.style.color = 'var(--text)';
       }
 
       var marginEl = document.getElementById('resMargin');
@@ -641,11 +714,17 @@
         ['Unit Selling Price', inputs.price],
         ['Variable Cost per Unit', inputs.varCost],
         ['Expected Quantity', inputs.qty],
+        ['Tax Rate (%)', inputs.taxRate],
+        ['Zakat Rate (%)', inputs.zakatRate],
         ['Break-Even (units)', r.breakEvenUnits < 0 ? 'Not achievable' : r.breakEvenUnits],
         ['Break-Even (amount)', r.breakEvenAmount < 0 ? 'Not achievable' : r.breakEvenAmount],
         ['Expected Revenue', r.revenue],
         ['Total Costs', r.totalCost],
-        ['Net Profit', r.profit],
+        ['Net Profit (before tax)', r.profit],
+        ['Tax', r.taxAmount],
+        ['Profit After Tax', r.profitAfterTax],
+        ['Zakat', r.zakatAmount],
+        ['Final Net Profit', r.netProfit],
         ['Profit Margin (%)', r.profitMargin],
         ['Return on Cost (%)', r.roi]
       ];
@@ -782,6 +861,10 @@
       var resRevenue = cleanForPDF(document.getElementById('resRevenue').textContent);
       var resTotalCost = cleanForPDF(document.getElementById('resTotalCost').textContent);
       var resProfit = cleanForPDF(document.getElementById('resProfit').textContent);
+      var resTax = cleanForPDF(document.getElementById('resTax').textContent);
+      var resProfitAfterTax = cleanForPDF(document.getElementById('resProfitAfterTax').textContent);
+      var resZakat = cleanForPDF(document.getElementById('resZakat').textContent);
+      var resNetProfit = cleanForPDF(document.getElementById('resNetProfit').textContent);
       var resMargin = document.getElementById('resMargin').textContent;
       var resROI = document.getElementById('resROI').textContent;
 
@@ -845,7 +928,11 @@
           ['Break-Even (Amount)', resAmount],
           ['Expected Revenue', resRevenue],
           ['Total Costs', resTotalCost],
-          ['Net Profit / Loss', resProfit],
+          ['Net Profit / Loss (before tax)', resProfit],
+          ['Tax', resTax],
+          ['Profit After Tax', resProfitAfterTax],
+          ['Zakat', resZakat],
+          ['Final Net Profit', resNetProfit],
           ['Profit Margin (%)', resMargin],
           ['Return on Cost (%)', resROI]
         ],
@@ -1050,11 +1137,17 @@
       document.getElementById('unitPrice').value = '';
       document.getElementById('varCost').value = '';
       document.getElementById('quantity').value = '';
+      document.getElementById('taxRate').value = '15';
+      document.getElementById('zakatRate').value = '2.5';
       document.getElementById('resUnits').textContent = '—';
       document.getElementById('resAmount').textContent = '—';
       document.getElementById('resRevenue').textContent = '—';
       document.getElementById('resTotalCost').textContent = '—';
       document.getElementById('resProfit').textContent = '—';
+      document.getElementById('resTax').textContent = '—';
+      document.getElementById('resProfitAfterTax').textContent = '—';
+      document.getElementById('resZakat').textContent = '—';
+      document.getElementById('resNetProfit').textContent = '—';
       document.getElementById('resMargin').textContent = '—';
       document.getElementById('resROI').textContent = '—';
       document.getElementById('analysisBox').style.display = 'none';
