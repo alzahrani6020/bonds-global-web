@@ -273,6 +273,38 @@
         </div>
       </div>
 
+      <!-- Multi-Platform Dynamic Comparison -->
+      <div class="reveal" style="margin-top: var(--space-8);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-4);">
+          <h3 style="font-size: var(--text-lg); font-weight: 800; color: var(--gold);">📊 Dynamic Comparison — All Platforms</h3>
+          <button type="button" class="btn btn-primary" onclick="calculateAllPlatforms()">🔍 Calculate All Platforms</button>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--space-4);">
+          We calculate the dish profitability on <strong>every platform</strong> in the current country, applying their actual rules (tiered commission + delivery subsidy).
+          <span style="display: inline-block; margin-right: var(--space-2);">✅ Verified</span>
+          <span style="display: inline-block; margin-right: var(--space-2);">⚠️ Estimated</span>
+        </p>
+        <div style="overflow-x: auto;">
+          <table class="comparison-table" id="platformComparisonTable">
+            <thead>
+              <tr>
+                <th>Platform</th>
+                <th>Confidence</th>
+                <th>Commission</th>
+                <th>Delivery Subsidy</th>
+                <th>Profit</th>
+                <th>Margin</th>
+                <th>Rating</th>
+                <th>Optimal Price</th>
+              </tr>
+            </thead>
+            <tbody id="platformComparisonBody">
+              <tr><td colspan="8" style="color: var(--text-muted);">Click "Calculate All Platforms" above.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- Comparison Table -->
       <div class="reveal" style="margin-top: var(--space-8);">
         <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📋 Comparison Table</h3>
@@ -419,8 +451,15 @@
       platforms.forEach(function(p) {
         var opt = document.createElement('option');
         opt.value = p.fee;
-        opt.textContent = p.nameEn + ' — ' + p.fee + '%';
+        var badge = p.confidence === 'verified' ? ' ✅' : (p.confidence === 'estimated' ? ' ⚠️' : '');
+        opt.textContent = p.nameEn + ' — ' + p.fee + '%' + badge;
         opt.dataset.name = p.nameEn;
+        opt.dataset.confidence = p.confidence || 'estimated';
+        opt.dataset.fee = p.fee;
+        if (p.freeDelivery) {
+          opt.dataset.fdThreshold = p.freeDelivery.threshold;
+          opt.dataset.fdShare = p.freeDelivery.restaurantShare;
+        }
         select.appendChild(opt);
       });
     }

@@ -273,6 +273,38 @@
         </div>
       </div>
 
+      <!-- Multi-Platform Dynamic Comparison -->
+      <div class="reveal" style="margin-top: var(--space-8);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-4);">
+          <h3 style="font-size: var(--text-lg); font-weight: 800; color: var(--gold);">📊 مقارنة ديناميكية — جميع المنصات</h3>
+          <button type="button" class="btn btn-primary" onclick="calculateAllPlatforms()">🔍 احسب لكل المنصات</button>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--space-4);">
+          نحسب ربحية الوجبة على <strong>كل منصة</strong> في الدولة الحالية مع تطبيق قواعدها الفعلية (العمولة المتدرجة + تحمل التوصيل).
+          <span style="display: inline-block; margin-right: var(--space-2);">✅ مُدقَّق</span>
+          <span style="display: inline-block; margin-right: var(--space-2);">⚠️ تقديري</span>
+        </p>
+        <div style="overflow-x: auto;">
+          <table class="comparison-table" id="platformComparisonTable">
+            <thead>
+              <tr>
+                <th>المنصة</th>
+                <th>الثقة</th>
+                <th>العمولة</th>
+                <th>تحمل التوصيل</th>
+                <th>الربح</th>
+                <th>الهامج</th>
+                <th>التقييم</th>
+                <th>السعر المُحسَّب</th>
+              </tr>
+            </thead>
+            <tbody id="platformComparisonBody">
+              <tr><td colspan="8" style="color: var(--text-muted);">اضغط "احسب لكل المنصات" أعلاه.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- Comparison Table -->
       <div class="reveal" style="margin-top: var(--space-8);">
         <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📋 جدول المقارنة</h3>
@@ -419,8 +451,15 @@
       platforms.forEach(function(p) {
         var opt = document.createElement('option');
         opt.value = p.fee;
-        opt.textContent = p.name + ' — ' + p.fee + '%';
+        var badge = p.confidence === 'verified' ? ' ✅' : (p.confidence === 'estimated' ? ' ⚠️' : '');
+        opt.textContent = p.name + ' — ' + p.fee + '%' + badge;
         opt.dataset.name = p.name;
+        opt.dataset.confidence = p.confidence || 'estimated';
+        opt.dataset.fee = p.fee;
+        if (p.freeDelivery) {
+          opt.dataset.fdThreshold = p.freeDelivery.threshold;
+          opt.dataset.fdShare = p.freeDelivery.restaurantShare;
+        }
         select.appendChild(opt);
       });
     }
@@ -487,6 +526,69 @@
         analysisBox.style.display = 'none';
         alertBox.classList.remove('show');
       }
+    }
+
+    function calculatePlatform(foodCost, packagingCost, sellingPrice, platform) {
+      var totalPrimeCost = foodCost + packagingCost;
+      var fee = platform.fee || 0;
+      var commissionValue = sellingPrice * (fee / 100);
+      var deliverySubsidy = 0;
+      if (platform.freeDelivery && sellingPrice >= platform.freeDelivery.threshold) {
+        deliverySubsidy = platform.freeDelivery.restaurantShare;
+      }
+      var grossProfit = sellingPrice - commissionValue - totalPrimeCost - deliverySubsidy;
+      var margin = sellingPrice > 0 ? (grossProfit / sellingPrice) * 100 : 0;
+      return {
+        name: platform.name,
+        fee: fee,
+        commission: commissionValue,
+        deliverySubsidy: deliverySubsidy,
+        profit: grossProfit,
+        margin: margin,
+        confidence: platform.confidence || 'estimated'
+      };
+    }
+
+    function calculateAllPlatforms() {
+      var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
+      var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
+      var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+      if (!sellingPrice) { alert('أدخل سعر البيع أولاً'); return; }
+
+      var countryData = COUNTRIES_DATA[currentCountry];
+      if (!countryData || !countryData.platforms) return;
+
+      var tbody = document.getElementById('platformComparisonBody');
+      tbody.innerHTML = '';
+
+      var results = [];
+      countryData.platforms.forEach(function(p) {
+        var r = calculatePlatform(foodCost, packagingCost, sellingPrice, p);
+        results.push(r);
+      });
+
+      results.sort(function(a, b) { return b.profit - a.profit; });
+
+      results.forEach(function(r) {
+        var status = r.margin >= 50 ? 'excellent' : (r.margin >= 40 ? 'good' : 'danger');
+        var statusText = r.margin >= 50 ? 'ممتاز' : (r.margin >= 40 ? 'مقبول' : 'خطير');
+        var badge = r.confidence === 'verified' ? '<span style="color:#16a34a;font-size:0.75rem;">✅ مُدقَّق</span>' : '<span style="color:#ca8a04;font-size:0.75rem;">⚠️ تقديري</span>';
+        var deliveryText = r.deliverySubsidy > 0 ? formatNumber(r.deliverySubsidy) + ' ' + currentCurrency : '—';
+        var optimalPrice = Math.ceil((foodCost + packagingCost + r.deliverySubsidy) / (1 - r.fee/100 - 0.45));
+
+        var tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${r.name}</strong></td>
+          <td>${badge}</td>
+          <td>${r.fee}%</td>
+          <td>${deliveryText}</td>
+          <td><strong style="color:${status === 'excellent' ? '#16a34a' : (status === 'good' ? '#ca8a04' : '#dc2626')}">${formatNumber(r.profit)}</strong></td>
+          <td><strong>${r.margin.toFixed(1)}%</strong></td>
+          <td class="status-cell status-${status}">${statusText}</td>
+          <td>${optimalPrice} ${currentCurrency}</td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
     function calculateReverse() {
