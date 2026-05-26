@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bonds-v21';
+const CACHE_NAME = 'bonds-v22';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -13,6 +13,7 @@ const STATIC_ASSETS = [
   '/script.js',
   '/assets/site-logo.webp',
   '/assets/bonds-logo-opt.jpg',
+  '/manifest.json',
   '/calculators/cash-flow.html',
   '/calculators/pricing.html',
   '/calculators/loan.html',

@@ -31,6 +31,11 @@
   </script>
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0a0f1a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="بوندز" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -140,15 +145,15 @@
         Trusted by 150+ businesses in Egypt & KSA
       </span>
       <h1 class="hero__title reveal reveal-delay-1">
-        شريكك في تنظيم <span class="text-gradient">المال</span><br />
-        واتخاذ قرارات <span class="text-gradient">النمو</span>
+        حاسبات مالية <span class="text-gradient">ذكية</span><br />
+        لمطاعمك وشركتك
       </h1>
       <p class="hero__desc reveal reveal-delay-2">
-        استشارات مالية متخصصة للمنشآت التجارية، المصانع، السياحة، الزراعة، والمزيد — نبدأ من وضعك الحالي ونبني خططاً قابلة للتنفيذ.
+        احسب ربحية وجبتك، نقطة تعادلك، تدفقك النقدي، وأفضل منصة توصيل — مجاناً، فورياً، وبدون تسجيل.
       </p>
       <div class="hero__actions reveal reveal-delay-3">
-        <a href="contact.html" class="btn btn-primary btn-lg">احجز استشارتك المجانية →</a>
-        <a href="https://calendly.com/iiffund-dev/30min" target="_blank" rel="noopener" class="btn btn-outline btn-lg">📅 احجز موعد مباشرة</a>
+        <a href="#calculators" class="btn btn-primary btn-lg">🧮 جرب الحاسبات →</a>
+        <a href="contact.html" class="btn btn-outline btn-lg">احجز استشارتك المجانية</a>
       </div>
     </div>
   </section>
@@ -158,21 +163,70 @@
     <div class="container">
       <div class="stats-grid">
         <div class="stat-item reveal">
+          <span class="stat-item__num" data-target="22">0</span>
+          <span class="stat-item__label">دولة عربية</span>
+        </div>
+        <div class="stat-item reveal reveal-delay-1">
+          <span class="stat-item__num" data-target="179">0</span>
+          <span class="stat-item__label">منصة توصيل</span>
+        </div>
+        <div class="stat-item reveal reveal-delay-2">
+          <span class="stat-item__num" data-target="6">0</span>
+          <span class="stat-item__label">حاسبات مجانية</span>
+        </div>
+        <div class="stat-item reveal reveal-delay-3">
           <span class="stat-item__num" data-target="150">0</span>
           <span class="stat-item__label">استشارة منفذة</span>
         </div>
-        <div class="stat-item reveal reveal-delay-1">
-          <span class="stat-item__num" data-target="8">0</span>
-          <span class="stat-item__label">سنوات خبرة</span>
-        </div>
-        <div class="stat-item reveal reveal-delay-2">
-          <span class="stat-item__num" data-target="95">0</span>
-          <span class="stat-item__label">% رضا العملاء</span>
-        </div>
-        <div class="stat-item reveal reveal-delay-3">
-          <span class="stat-item__num" data-target="8">0</span>
-          <span class="stat-item__label">قطاعات نخدمها</span>
-        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Calculators Dashboard -->
+  <section class="section" id="calculators" style="background: var(--bg-secondary);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">حاسبات مجانية</span>
+        <h2 class="section__title">احسب فوراً — بدون تسجيل</h2>
+        <p class="section__subtitle">أدوات مالية احترافية للمطاعم والشركات. نتائج فورية، تصدير PDF/Excel، ومشاركة واتساب.</p>
+      </div>
+      <div class="services-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-6);">
+        <a href="calculators/restaurant.html" class="card reveal" style="text-decoration: none; display: block;">
+          <div class="card__icon" style="background: rgba(212,168,83,0.1); color: var(--gold);">🍽️</div>
+          <h3 class="card__title">حاسبة المطاعم</h3>
+          <p class="card__text">4 نماذج عمل (تقليدي، سحابي، كافيه، حلويات) × 22 دولة × 179 منصة توصيل.</p>
+          <span style="color: var(--gold); font-weight: 700; font-size: 0.9rem;">ابدأ الحساب →</span>
+        </a>
+        <a href="calculators/dish-margin.html" class="card reveal reveal-delay-1" style="text-decoration: none; display: block;">
+          <div class="card__icon" style="background: rgba(212,168,83,0.1); color: var(--gold);">🍔</div>
+          <h3 class="card__title">ربحية الوجبة</h3>
+          <p class="card__text">احسب ربح كل صنف قبل ما تضيفه للمنيو. مقارنة ديناميكية بين كل المنصات.</p>
+          <span style="color: var(--gold); font-weight: 700; font-size: 0.9rem;">ابدأ الحساب →</span>
+        </a>
+        <a href="calculator.html" class="card reveal reveal-delay-2" style="text-decoration: none; display: block;">
+          <div class="card__icon" style="background: rgba(212,168,83,0.1); color: var(--gold);">📊</div>
+          <h3 class="card__title">نقطة التعادل</h3>
+          <p class="card__text">كم طلب تحتاج يومياً لتغطية مصاريفك؟ حاسبة عامة لأي نشاط تجاري.</p>
+          <span style="color: var(--gold); font-weight: 700; font-size: 0.9rem;">ابدأ الحساب →</span>
+        </a>
+        <a href="calculators/cash-flow.html" class="card reveal" style="text-decoration: none; display: block;">
+          <div class="card__icon" style="background: rgba(212,168,83,0.1); color: var(--gold);">💰</div>
+          <h3 class="card__title">تدفق النقد</h3>
+          <p class="card__text">توقع فواتيرك ومدفوعاتك 12 شهر قادمة. اكتشف متى تنفذ قبل ما يصير.</p>
+          <span style="color: var(--gold); font-weight: 700; font-size: 0.9rem;">ابدأ الحساب →</span>
+        </a>
+        <a href="calculators/pricing.html" class="card reveal reveal-delay-1" style="text-decoration: none; display: block;">
+          <div class="card__icon" style="background: rgba(212,168,83,0.1); color: var(--gold);">🏷️</div>
+          <h3 class="card__title">تسعير المنتج</h3>
+          <p class="card__text">حدد سعر منتجك بناءً على التكلفة والهامش المستهدف. التسعير العكسي الذكي.</p>
+          <span style="color: var(--gold); font-weight: 700; font-size: 0.9rem;">ابدأ الحساب →</span>
+        </a>
+        <a href="calculators/loan.html" class="card reveal reveal-delay-2" style="text-decoration: none; display: block;">
+          <div class="card__icon" style="background: rgba(212,168,83,0.1); color: var(--gold);">🏦</div>
+          <h3 class="card__title">القرض والتمويل</h3>
+          <p class="card__text">قارن بين عروض البنوك. احسب القسط الشهري والفائدة الإجمالية.</p>
+          <span style="color: var(--gold); font-weight: 700; font-size: 0.9rem;">ابدأ الحساب →</span>
+        </a>
       </div>
     </div>
   </section>
