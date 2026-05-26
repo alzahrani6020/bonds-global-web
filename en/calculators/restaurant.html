@@ -104,6 +104,13 @@
     .settings-table th, .settings-table td { padding: 0.6rem; text-align: center; border-bottom: 1px solid var(--border); }
     .settings-table th { background: rgba(212,168,83,0.08); color: var(--gold); font-weight: 700; }
     .settings-table td { color: var(--text-secondary); }
+    .correction-box { background: linear-gradient(135deg, rgba(212,168,83,0.05) 0%, rgba(212,168,83,0.01) 100%); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-8); }
+    .correction-box h4 { color: var(--gold); margin-bottom: var(--space-4); font-size: var(--text-lg); }
+    .correction-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4); }
+    .correction-result { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); display: none; }
+    .correction-result.show { display: block; }
+    .correction-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-right: 0.5rem; }
+    .correction-badge.user { background: rgba(22,163,74,0.1); color: #16a34a; border: 1px solid rgba(22,163,74,0.3); }
     @media print {
       .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
       .calc-grid { grid-template-columns: 1fr 1fr; }
@@ -486,6 +493,32 @@
           </div>
         </div>
       </div>
+
+      <!-- Invoice Correction -->
+      <div class="correction-box">
+        <h4>🧾 Correct from Invoice</h4>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:var(--space-4);">Enter real order data to calculate the actual commission and compare it with our data.</p>
+        <div class="correction-grid">
+          <div class="calc-input-group">
+            <label>Platform</label>
+            <select id="corrPlatform"><option value="">Select...</option></select>
+          </div>
+          <div class="calc-input-group">
+            <label>Order Selling Price</label>
+            <input type="number" id="corrPrice" placeholder="e.g. 100" />
+          </div>
+          <div class="calc-input-group">
+            <label>Actual Payout Received</label>
+            <input type="number" id="corrPayout" placeholder="e.g. 78" />
+          </div>
+        </div>
+        <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;">
+          <button type="button" class="btn btn-primary" onclick="calculateCorrection()">Calculate Actual Commission</button>
+          <button type="button" class="btn btn-secondary" onclick="saveCorrection()" id="saveCorrBtn" style="display:none;">💾 Save Correction</button>
+        </div>
+        <div class="correction-result" id="corrResult"></div>
+      </div>
+
     </div>
   </section>
 
@@ -617,6 +650,8 @@
 
       // Re-render platforms
       renderPlatforms();
+      populateCorrectionPlatforms();
+      displayCorrections();
       _calcMemo.clear();
       document.getElementById('resultsSection').style.display = 'none';
     }
@@ -682,6 +717,7 @@
           <div style="flex:1;">
             <label for="${p.id}">${p.name}</label>
             <div class="fee">${p.fee}${p.serviceFee ? '+' + p.serviceFee : ''}% commission</div>
+            <div class="correction-badge user" id="corrBadge_${p.id}" style="display:none;margin-top:4px;"></div>
           </div>
           <button type="button" class="platform-calc-btn" onclick="focusPlatform('${p.id}')" title="Calculate this platform only">Calculate</button>
         `;
@@ -700,6 +736,7 @@
         <div style="flex:1;">
           <label for="plat_direct">Direct (No Platform)</label>
           <div class="fee">0% commission</div>
+          <div class="correction-badge user" id="corrBadge_plat_direct" style="display:none;margin-top:4px;"></div>
         </div>
         <button type="button" class="platform-calc-btn" onclick="focusPlatform('plat_direct')" title="Calculate direct only">Calculate</button>
       `;
@@ -713,6 +750,72 @@
       document.querySelectorAll('#platformContainer input[type="checkbox"]').forEach(function(el) {
         el.addEventListener('change', debouncedCalc);
       });
+    }
+
+    function populateCorrectionPlatforms() {
+      var select = document.getElementById('corrPlatform');
+      if (!select) return;
+      select.innerHTML = '<option value="">Select platform...</option>';
+      var data = COUNTRIES_DATA[currentCountry];
+      if (!data || !data.platforms) return;
+      data.platforms.forEach(function(p) {
+        if (p.id === 'plat_direct') return;
+        var opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nameEn || p.name;
+        opt.dataset.fee = p.fee;
+        opt.dataset.serviceFee = p.serviceFee || 0;
+        select.appendChild(opt);
+      });
+    }
+
+    function calculateCorrection() {
+      var platformId = document.getElementById('corrPlatform').value;
+      var price = parseFloat(document.getElementById('corrPrice').value) || 0;
+      var payout = parseFloat(document.getElementById('corrPayout').value) || 0;
+      if (!platformId || !price || !payout) { alert('Please fill in all fields'); return; }
+      if (payout > price) { alert('Payout cannot be greater than selling price'); return; }
+      var deduction = price - payout;
+      var actualFee = (deduction / price * 100).toFixed(2);
+      var opt = document.getElementById('corrPlatform').selectedOptions[0];
+      var dbFee = parseFloat(opt.dataset.fee) + parseFloat(opt.dataset.serviceFee || 0);
+      var diff = (actualFee - dbFee).toFixed(2);
+      var diffColor = diff > 0 ? '#dc2626' : '#16a34a';
+      var diffText = diff > 0 ? 'Higher by ' + diff + '%' : 'Lower by ' + Math.abs(diff) + '%';
+      document.getElementById('corrResult').innerHTML = 
+        '<strong style="color:var(--gold);">Actual commission: ' + actualFee + '%</strong><br>' +
+        '<small>Selling price: ' + price + ' | Deduction: ' + deduction.toFixed(2) + ' | Net: ' + payout + '</small><br>' +
+        '<small>Our data: ' + dbFee + '% | Difference: <span style="color:' + diffColor + '">' + diffText + '</span></small>';
+      document.getElementById('corrResult').classList.add('show');
+      document.getElementById('saveCorrBtn').style.display = 'inline-block';
+    }
+
+    async function saveCorrection() {
+      var platformId = document.getElementById('corrPlatform').value;
+      var price = parseFloat(document.getElementById('corrPrice').value) || 0;
+      var payout = parseFloat(document.getElementById('corrPayout').value) || 0;
+      var actualFee = ((price - payout) / price * 100).toFixed(2);
+      var key = 'correction_' + currentCountry + '_' + platformId;
+      await dbSet(key, { actualFee: parseFloat(actualFee), price: price, payout: payout, timestamp: Date.now() });
+      alert('✅ Correction saved locally. It will appear next to the commission in the table.');
+      displayCorrections();
+    }
+
+    async function displayCorrections() {
+      var data = COUNTRIES_DATA[currentCountry];
+      if (!data || !data.platforms) return;
+      for (var i = 0; i < data.platforms.length; i++) {
+        var p = data.platforms[i];
+        var key = 'correction_' + currentCountry + '_' + p.id;
+        var corr = await dbGet(key);
+        if (corr && corr.actualFee) {
+          var el = document.getElementById('corrBadge_' + p.id);
+          if (el) {
+            el.innerHTML = '⚠️ Actual fee: ' + corr.actualFee + '% (from invoice)';
+            el.style.display = 'inline-block';
+          }
+        }
+      }
     }
 
     function focusPlatform(platformId) {

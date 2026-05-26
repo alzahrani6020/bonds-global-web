@@ -13,6 +13,7 @@
  */
 
 var COUNTRIES_DATA = {
+  // NOTE: lastUpdated format 'YYYY-MM-DD' — updated via community corrections + periodic research
   SA: {
     name: 'السعودية',
     nameEn: 'Saudi Arabia',
@@ -20,6 +21,7 @@ var COUNTRIES_DATA = {
     currency: 'SAR',
     currencySymbol: 'ر.س',
     currencySymbolEn: 'SAR',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 65,
       peakHours: '12:30–14:00 و 19:30–22:00 (السحور 02:00–04:00 في رمضان)',
@@ -63,6 +65,7 @@ var COUNTRIES_DATA = {
     currency: 'AED',
     currencySymbol: 'د.إ',
     currencySymbolEn: 'AED',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 85,
       peakHours: '12:00–14:30 و 19:00–22:30 (السحور 01:00–03:30 في رمضان)',
@@ -99,6 +102,7 @@ var COUNTRIES_DATA = {
     currency: 'KWD',
     currencySymbol: 'د.ك',
     currencySymbolEn: 'KWD',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 6.5,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -133,6 +137,7 @@ var COUNTRIES_DATA = {
     currency: 'QAR',
     currencySymbol: 'ر.ق',
     currencySymbolEn: 'QAR',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 70,
       peakHours: '12:00–14:00 و 19:30–22:00',
@@ -171,6 +176,7 @@ var COUNTRIES_DATA = {
     currency: 'BHD',
     currencySymbol: 'د.ب',
     currencySymbolEn: 'BHD',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 7,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -204,6 +210,7 @@ var COUNTRIES_DATA = {
     currency: 'OMR',
     currencySymbol: 'ر.ع',
     currencySymbolEn: 'OMR',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 8,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -235,6 +242,7 @@ var COUNTRIES_DATA = {
     currency: 'EGP',
     currencySymbol: 'ج.م',
     currencySymbolEn: 'EGP',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 280,
       peakHours: '13:00–15:00 و 20:00–23:00 (السحور 02:00–04:00 في رمضان)',
@@ -265,6 +273,7 @@ var COUNTRIES_DATA = {
     currency: 'JOD',
     currencySymbol: 'د.أ',
     currencySymbolEn: 'JOD',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 12,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -297,6 +306,7 @@ var COUNTRIES_DATA = {
     currency: 'IQD',
     currencySymbol: 'د.ع',
     currencySymbolEn: 'IQD',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 15000,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -326,6 +336,7 @@ var COUNTRIES_DATA = {
     currency: 'LBP',
     currencySymbol: 'ل.ل',
     currencySymbolEn: 'LBP',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 250000,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -353,6 +364,7 @@ var COUNTRIES_DATA = {
     currency: 'SYP',
     currencySymbol: 'ل.س',
     currencySymbolEn: 'SYP',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 15000,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -376,6 +388,7 @@ var COUNTRIES_DATA = {
     currency: 'USD',
     currencySymbol: '$',
     currencySymbolEn: 'USD',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 18,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -400,6 +413,7 @@ var COUNTRIES_DATA = {
     currency: 'TND',
     currencySymbol: 'د.ت',
     currencySymbolEn: 'TND',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 25,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -427,6 +441,7 @@ var COUNTRIES_DATA = {
     currency: 'DZD',
     currencySymbol: 'د.ج',
     currencySymbolEn: 'DZD',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 800,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -456,6 +471,7 @@ var COUNTRIES_DATA = {
     currency: 'MAD',
     currencySymbol: 'د.م',
     currencySymbolEn: 'MAD',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 90,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -486,6 +502,7 @@ var COUNTRIES_DATA = {
     currency: 'LYD',
     currencySymbol: 'د.ل',
     currencySymbolEn: 'LYD',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 35,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -512,6 +529,7 @@ var COUNTRIES_DATA = {
     currency: 'SDG',
     currencySymbol: 'ج.س',
     currencySymbolEn: 'SDG',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 5000,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -537,6 +555,7 @@ var COUNTRIES_DATA = {
     currency: 'YER',
     currencySymbol: 'ر.ي',
     currencySymbolEn: 'YER',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 3500,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -562,6 +581,7 @@ var COUNTRIES_DATA = {
     currency: 'DJF',
     currencySymbol: 'ف.ج',
     currencySymbolEn: 'DJF',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 3000,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -586,6 +606,7 @@ var COUNTRIES_DATA = {
     currency: 'SOS',
     currencySymbol: 'ش.ص',
     currencySymbolEn: 'SOS',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 80000,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -611,6 +632,7 @@ var COUNTRIES_DATA = {
     currency: 'MRU',
     currencySymbol: 'أ.م',
     currencySymbolEn: 'MRU',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 250,
       peakHours: '12:30–14:00 و 19:30–22:00',
@@ -637,6 +659,7 @@ var COUNTRIES_DATA = {
     currency: 'KMF',
     currencySymbol: 'ف.ق',
     currencySymbolEn: 'KMF',
+    lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 3500,
       peakHours: '12:30–14:00 و 19:30–22:00',
