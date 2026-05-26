@@ -1026,7 +1026,7 @@
       doc.save('bonds-break-even-report.pdf');
     }
 
-    function exportPDF_AR() {
+        function exportPDF_AR() {
       var inputs = getInputs();
       if (inputs.price <= 0) {
         alert('احسب النتائج أولاً قبل تصدير PDF');
@@ -1036,36 +1036,9 @@
       var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8) });
       var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2) });
 
-      var printDiv = document.createElement('div');
-      printDiv.style.position = 'fixed';
-      printDiv.style.top = '0';
-      printDiv.style.left = '0';
-      printDiv.style.width = '800px';
-      printDiv.style.background = '#ffffff';
-      printDiv.style.color = '#1a1a1a';
-      printDiv.style.padding = '30px';
-      printDiv.style.fontFamily = 'Vazirmatn, Arial, sans-serif';
-      printDiv.style.direction = 'rtl';
-      printDiv.style.opacity = '0';
-      printDiv.style.pointerEvents = 'none';
-      printDiv.style.zIndex = '-1';
-
       var beText = r.breakEvenUnits < 0 ? 'غير محققة' : formatNumberAR(r.breakEvenUnits) + ' وحدة';
       var beAmount = r.breakEvenAmount < 0 ? 'غير محققة' : formatNumberAR(r.breakEvenAmount) + ' ر.س';
       var profitText = r.profit > 0 ? formatNumberAR(r.profit) + ' ر.س (ربح)' : r.profit < 0 ? formatNumberAR(Math.abs(r.profit)) + ' ر.س (خسارة)' : '0 ر.س (تعادل)';
-      var profitColor = r.profit >= 0 ? '#16a34a' : '#dc2626';
-
-      // Get chart images safely
-      var chartImg = '';
-      var pieImg = '';
-      var breakEvenCanvas = document.getElementById('breakEvenChart');
-      var costPieCanvas = document.getElementById('costPieChart');
-      if (breakEvenCanvas && breakEvenCanvas.toDataURL) {
-        try { chartImg = breakEvenCanvas.toDataURL('image/png'); } catch(e) {}
-      }
-      if (costPieCanvas && costPieCanvas.toDataURL) {
-        try { pieImg = costPieCanvas.toDataURL('image/png'); } catch(e) {}
-      }
 
       var sensRows = '';
       var priceChanges = [0.7, 0.85, 1, 1.15, 1.3];
@@ -1073,7 +1046,7 @@
       var qtyHeaders = ['-30%', '-15%', 'المتوقعة', '+15%', '+30%'];
       
       sensRows += '<tr style="background:#f5f5f5;">';
-      sensRows += '<th style="padding:6px; border:1px solid #ddd; font-size:12px;">سعر البيع \\ الكمية</th>';
+      sensRows += '<th style="padding:6px; border:1px solid #ddd; font-size:12px;">سعر البيع \ الكمية</th>';
       qtyHeaders.forEach(function(h) {
         sensRows += '<th style="padding:6px; border:1px solid #ddd; font-size:12px;">' + h + '</th>';
       });
@@ -1092,94 +1065,88 @@
         sensRows += '</tr>';
       });
 
-      printDiv.innerHTML = `
-        <div style="text-align:center; border-bottom:3px solid #d4a853; padding-bottom:15px; margin-bottom:25px;">
-          <h1 style="color:#0a0f1a; margin:0; font-size:24px;">بوندز</h1>
-          <p style="color:#666; margin:5px 0; font-size:14px;">تقرير تحليل نقطة التعادل</p>
-          <p style="color:#999; font-size:12px;">${new Date().toLocaleDateString('ar-SA')}</p>
-        </div>
-        
-        <h3 style="color:#d4a853; border-bottom:1px solid #ddd; padding-bottom:5px;">بيانات الإدخال</h3>
-        <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:13px;">
-          <tr style="background:#f5f5f5;"><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">التكاليف الثابتة</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(inputs.fixed)} ر.س</td></tr>
-          <tr><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">سعر البيع</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(inputs.price)} ر.س</td></tr>
-          <tr style="background:#f5f5f5;"><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">التكلفة المتغيرة</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(inputs.varCost)} ر.س</td></tr>
-          <tr><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">الكمية المتوقعة</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(inputs.qty)} وحدة</td></tr>
-        </table>
-        
-        <h3 style="color:#d4a853; border-bottom:1px solid #ddd; padding-bottom:5px;">النتائج</h3>
-        <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:13px;">
-          <tr style="background:#f5f5f5;"><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">نقطة التعادل (وحدات)</td><td style="padding:8px; border:1px solid #ddd;">${beText}</td></tr>
-          <tr><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">نقطة التعادل (مبالغ)</td><td style="padding:8px; border:1px solid #ddd;">${beAmount}</td></tr>
-          <tr style="background:#f5f5f5;"><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">الإيرادات المتوقعة</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(r.revenue)} ر.س</td></tr>
-          <tr><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">إجمالي التكاليف</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(r.totalCost)} ر.س</td></tr>
-          <tr style="background:#f5f5f5;"><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">صافي الربح/الخسارة</td><td style="padding:8px; border:1px solid #ddd; color:${profitColor}; font-weight:bold;">${profitText}</td></tr>
-          <tr><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">نسبة الربح (%)</td><td style="padding:8px; border:1px solid #ddd; color:${r.profitMargin>=0?'#16a34a':'#dc2626'}; font-weight:bold;">${r.profitMargin.toFixed(1)}%</td></tr>
-          <tr style="background:#f5f5f5;"><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">العائد على التكلفة (%)</td><td style="padding:8px; border:1px solid #ddd; color:${r.roi>=0?'#16a34a':'#dc2626'}; font-weight:bold;">${r.roi.toFixed(1)}%</td></tr>
-        </table>
-        
-        <div style="text-align:center; margin:20px 0;">
-          <h3 style="color:#d4a853; border-bottom:1px solid #ddd; padding-bottom:5px;">الرسم البياني</h3>
-          ${chartImg ? '<img src="' + chartImg + '" style="max-width:100%; height:auto; margin-bottom:10px;" />' : ''}
-          ${pieImg ? '<img src="' + pieImg + '" style="max-width:280px; height:auto;" />' : ''}
-        </div>
-        
-        <h3 style="color:#d4a853; border-bottom:1px solid #ddd; padding-bottom:5px;">مقارنة السيناريوهات</h3>
-        <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:13px;">
-          <tr style="background:#f5f5f5;">
-            <th style="padding:8px; border:1px solid #ddd;">المؤشر</th>
-            <th style="padding:8px; border:1px solid #ddd;">تشاؤم (-20%)</th>
-            <th style="padding:8px; border:1px solid #ddd;">المتوقع</th>
-            <th style="padding:8px; border:1px solid #ddd;">تفاؤل (+20%)</th>
-          </tr>
-          <tr><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">الكمية (وحدة)</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(Math.round(inputs.qty*0.8))}</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(inputs.qty)}</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(Math.round(inputs.qty*1.2))}</td></tr>
-          <tr style="background:#f5f5f5;"><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">الإيرادات (ر.س)</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(p.revenue)}</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(r.revenue)}</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(o.revenue)}</td></tr>
-          <tr><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">التكاليف (ر.س)</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(p.totalCost)}</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(r.totalCost)}</td><td style="padding:8px; border:1px solid #ddd;">${formatNumberAR(o.totalCost)}</td></tr>
-          <tr style="background:#f5f5f5;"><td style="padding:8px; border:1px solid #ddd; font-weight:bold;">صافي الربح (ر.س)</td><td style="padding:8px; border:1px solid #ddd; color:${p.profit>=0?'#16a34a':'#dc2626'};">${formatNumberAR(p.profit)}</td><td style="padding:8px; border:1px solid #ddd; color:${r.profit>=0?'#16a34a':'#dc2626'};">${formatNumberAR(r.profit)}</td><td style="padding:8px; border:1px solid #ddd; color:${o.profit>=0?'#16a34a':'#dc2626'};">${formatNumberAR(o.profit)}</td></tr>
-        </table>
-        
-        <h3 style="color:#d4a853; border-bottom:1px solid #ddd; padding-bottom:5px;">تحليل الحساسية</h3>
-        <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:12px;">
-          ${sensRows}
-        </table>
-        
-        <p style="font-size:11px; color:#888; border-top:1px solid #ddd; padding-top:10px; margin-top:20px;">
-          هذا التقرير للأغراض التقديرية فقط ولا يغني عن استشارة محاسب مرخص.<br>
-          تم إنشاؤه بواسطة bonds-global.com
-        </p>
-      `;
-
-      document.body.appendChild(printDiv);
-
-      if (typeof html2canvas === 'undefined') {
-        alert('مكتبة html2canvas غير محملة. جرب PDF English.');
-        document.body.removeChild(printDiv);
+      var printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        alert('تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.');
         return;
       }
 
-      html2canvas(printDiv, { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' }).then(function(canvas) {
-        var imgData = canvas.toDataURL('image/png');
-        var { jsPDF } = window.jspdf;
-        var pdf = new jsPDF('p', 'mm', 'a4');
-        var imgWidth = 210;
-        var imgHeight = canvas.height * imgWidth / canvas.width;
-        var heightLeft = imgHeight;
-        var position = 0;
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= 297;
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= 297;
-        }
-        pdf.save('bonds-break-even-report-ar.pdf');
-        document.body.removeChild(printDiv);
-      }).catch(function(err) {
-        console.error('html2canvas error:', err);
-        alert('حدث خطأ أثناء تصدير PDF: ' + err.message);
-        document.body.removeChild(printDiv);
-      });
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl">
+        <head>
+          <meta charset="UTF-8">
+          <title>تقرير نقطة التعادل - بوندز</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+            body { font-family: Vazirmatn, Arial, sans-serif; background: #fff; color: #1a1a1a; padding: 40px; max-width: 800px; margin: 0 auto; }
+            h1 { color: #0a0f1a; margin: 0; font-size: 28px; text-align: center; }
+            .header { text-align: center; border-bottom: 3px solid #d4a853; padding-bottom: 15px; margin-bottom: 25px; }
+            .header p { color: #666; margin: 5px 0; font-size: 14px; }
+            h3 { color: #d4a853; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 25px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+            th, td { padding: 8px; border: 1px solid #ddd; }
+            th { background: #f5f5f5; }
+            .positive { color: #16a34a; font-weight: bold; }
+            .negative { color: #dc2626; font-weight: bold; }
+            .footer { font-size: 11px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 20px; }
+            @media print { body { padding: 20px; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>بوندز</h1>
+            <p>تقرير تحليل نقطة التعادل</p>
+            <p style="color:#999; font-size:12px;">${new Date().toLocaleDateString('ar-SA')}</p>
+          </div>
+          
+          <h3>بيانات الإدخال</h3>
+          <table>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">التكاليف الثابتة</td><td>${formatNumberAR(inputs.fixed)} ر.س</td></tr>
+            <tr><td style="font-weight:bold;">سعر البيع</td><td>${formatNumberAR(inputs.price)} ر.س</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">التكلفة المتغيرة</td><td>${formatNumberAR(inputs.varCost)} ر.س</td></tr>
+            <tr><td style="font-weight:bold;">الكمية المتوقعة</td><td>${formatNumberAR(inputs.qty)} وحدة</td></tr>
+          </table>
+          
+          <h3>النتائج</h3>
+          <table>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">نقطة التعادل (وحدات)</td><td>${beText}</td></tr>
+            <tr><td style="font-weight:bold;">نقطة التعادل (مبالغ)</td><td>${beAmount}</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">الإيرادات المتوقعة</td><td>${formatNumberAR(r.revenue)} ر.س</td></tr>
+            <tr><td style="font-weight:bold;">إجمالي التكاليف</td><td>${formatNumberAR(r.totalCost)} ر.س</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">صافي الربح/الخسارة</td><td class="${r.profit>=0?'positive':'negative'}">${profitText}</td></tr>
+            <tr><td style="font-weight:bold;">نسبة الربح (%)</td><td class="${r.profitMargin>=0?'positive':'negative'}">${r.profitMargin.toFixed(1)}%</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">العائد على التكلفة (%)</td><td class="${r.roi>=0?'positive':'negative'}">${r.roi.toFixed(1)}%</td></tr>
+          </table>
+          
+          <h3>مقارنة السيناريوهات</h3>
+          <table>
+            <tr style="background:#f5f5f5;">
+              <th>المؤشر</th>
+              <th>تشاؤم (-20%)</th>
+              <th>المتوقع</th>
+              <th>تفاؤل (+20%)</th>
+            </tr>
+            <tr><td style="font-weight:bold;">الكمية (وحدة)</td><td>${formatNumberAR(Math.round(inputs.qty*0.8))}</td><td>${formatNumberAR(inputs.qty)}</td><td>${formatNumberAR(Math.round(inputs.qty*1.2))}</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">الإيرادات (ر.س)</td><td>${formatNumberAR(p.revenue)}</td><td>${formatNumberAR(r.revenue)}</td><td>${formatNumberAR(o.revenue)}</td></tr>
+            <tr><td style="font-weight:bold;">التكاليف (ر.س)</td><td>${formatNumberAR(p.totalCost)}</td><td>${formatNumberAR(r.totalCost)}</td><td>${formatNumberAR(o.totalCost)}</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">صافي الربح (ر.س)</td><td class="${p.profit>=0?'positive':'negative'}">${formatNumberAR(p.profit)}</td><td class="${r.profit>=0?'positive':'negative'}">${formatNumberAR(r.profit)}</td><td class="${o.profit>=0?'positive':'negative'}">${formatNumberAR(o.profit)}</td></tr>
+          </table>
+          
+          <h3>تحليل الحساسية</h3>
+          <table style="font-size:12px;">
+            ${sensRows}
+          </table>
+          
+          <div class="footer">
+            هذا التقرير للأغراض التقديرية فقط ولا يغني عن استشارة محاسب مرخص.<br>
+            تم إنشاؤه بواسطة bonds-global.com
+          </div>
+          <script>window.onload = function() { setTimeout(function() { window.print(); }, 500); };</script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
     }
 
     function calculateAll() {
