@@ -22,7 +22,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="assets/site-logo.png" type="image/png" />
   <style>
@@ -630,35 +631,48 @@
         alert('احسب النتائج أولاً قبل التصدير');
         return;
       }
+      if (typeof XLSX === 'undefined') {
+        alert('مكتبة Excel غير محملة. حاول تحديث الصفحة.');
+        return;
+      }
       var r = calculate(inputs);
       var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8) });
       var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2) });
-      var csv = '\uFEFF';
-      csv += 'بند;القيمة\n';
-      csv += 'التكاليف الثابتة;' + inputs.fixed + '\n';
-      csv += 'سعر البيع;' + inputs.price + '\n';
-      csv += 'التكلفة المتغيرة للوحدة;' + inputs.varCost + '\n';
-      csv += 'الكمية المتوقعة;' + inputs.qty + '\n';
-      csv += 'نقطة التعادل (وحدات);' + (r.breakEvenUnits < 0 ? 'غير محققة' : r.breakEvenUnits) + '\n';
-      csv += 'نقطة التعادل (مبالغ);' + (r.breakEvenAmount < 0 ? 'غير محققة' : r.breakEvenAmount) + '\n';
-      csv += 'الإيرادات المتوقعة;' + r.revenue + '\n';
-      csv += 'إجمالي التكاليف;' + r.totalCost + '\n';
-      csv += 'صافي الربح;' + r.profit + '\n';
-      csv += 'نسبة الربح (%);' + r.profitMargin.toFixed(2) + '\n';
-      csv += 'العائد على التكلفة (%);' + r.roi.toFixed(2) + '\n\n';
-      csv += 'مقارنة السيناريوهات\n';
-      csv += 'المؤشر;تشاؤم (-20%);المتوقع;تفاؤل (+20%)\n';
-      csv += 'الكمية;' + Math.round(inputs.qty*0.8) + ';' + inputs.qty + ';' + Math.round(inputs.qty*1.2) + '\n';
-      csv += 'الإيرادات;' + p.revenue + ';' + r.revenue + ';' + o.revenue + '\n';
-      csv += 'التكاليف;' + p.totalCost + ';' + r.totalCost + ';' + o.totalCost + '\n';
-      csv += 'صافي الربح;' + p.profit + ';' + r.profit + ';' + o.profit + '\n';
-      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      var link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'bonds-break-even.csv';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+
+      var wb = XLSX.utils.book_new();
+      wb.Props = { Title: 'تقرير نقطة التعادل', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+      var wsData = [
+        ['بند', 'القيمة'],
+        ['التكاليف الثابتة', inputs.fixed],
+        ['سعر البيع', inputs.price],
+        ['التكلفة المتغيرة للوحدة', inputs.varCost],
+        ['الكمية المتوقعة', inputs.qty],
+        ['نقطة التعادل (وحدات)', r.breakEvenUnits < 0 ? 'غير محققة' : r.breakEvenUnits],
+        ['نقطة التعادل (مبالغ)', r.breakEvenAmount < 0 ? 'غير محققة' : r.breakEvenAmount],
+        ['الإيرادات المتوقعة', r.revenue],
+        ['إجمالي التكاليف', r.totalCost],
+        ['صافي الربح', r.profit],
+        ['نسبة الربح (%)', r.profitMargin],
+        ['العائد على التكلفة (%)', r.roi]
+      ];
+      var ws = XLSX.utils.aoa_to_sheet(wsData);
+      ws['!cols'] = [{ wch: 28 }, { wch: 18 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'النتائج');
+
+      var ws2Data = [
+        ['مقارنة السيناريوهات'],
+        ['المؤشر', 'تشاؤم (-20%)', 'المتوقع', 'تفاؤل (+20%)'],
+        ['الكمية', Math.round(inputs.qty*0.8), inputs.qty, Math.round(inputs.qty*1.2)],
+        ['الإيرادات', p.revenue, r.revenue, o.revenue],
+        ['التكاليف', p.totalCost, r.totalCost, o.totalCost],
+        ['صافي الربح', p.profit, r.profit, o.profit]
+      ];
+      var ws2 = XLSX.utils.aoa_to_sheet(ws2Data);
+      ws2['!cols'] = [{ wch: 22 }, { wch: 16 }, { wch: 14 }, { wch: 16 }];
+      XLSX.utils.book_append_sheet(wb, ws2, 'السيناريوهات');
+
+      XLSX.writeFile(wb, 'bonds-break-even.xlsx');
     }
 
     function updateScenarios(inputs, r) {
@@ -1137,18 +1151,34 @@
 
       document.body.appendChild(printDiv);
 
-      html2pdf().set({
-        margin: 10,
-        filename: 'bonds-break-even-report-ar.pdf',
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 1.5, useCORS: true, logging: false },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      }).from(printDiv).save().then(function() {
+      if (typeof html2canvas === 'undefined') {
+        alert('مكتبة html2canvas غير محملة. جرب PDF English.');
+        document.body.removeChild(printDiv);
+        return;
+      }
+
+      html2canvas(printDiv, { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' }).then(function(canvas) {
+        var imgData = canvas.toDataURL('image/png');
+        var { jsPDF } = window.jspdf;
+        var pdf = new jsPDF('p', 'mm', 'a4');
+        var imgWidth = 210;
+        var imgHeight = canvas.height * imgWidth / canvas.width;
+        var heightLeft = imgHeight;
+        var position = 0;
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= 297;
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= 297;
+        }
+        pdf.save('bonds-break-even-report-ar.pdf');
         document.body.removeChild(printDiv);
       }).catch(function(err) {
+        console.error('html2canvas error:', err);
+        alert('حدث خطأ أثناء تصدير PDF: ' + err.message);
         document.body.removeChild(printDiv);
-        console.error('PDF export error:', err);
-        alert('حدث خطأ أثناء تصدير PDF. جرب PDF English بدلاً من ذلك.');
       });
     }
 

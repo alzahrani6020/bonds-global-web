@@ -20,6 +20,7 @@
   <link rel="preload" href="../assets/site-logo.webp" as="image" type="image/webp" />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <link rel="stylesheet" href="../styles.css" />
@@ -623,35 +624,48 @@
         alert('Calculate results first before exporting');
         return;
       }
+      if (typeof XLSX === 'undefined') {
+        alert('Excel library not loaded. Please refresh the page.');
+        return;
+      }
       var r = calculate(inputs);
       var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8) });
       var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2) });
-      var csv = '\uFEFF';
-      csv += 'Metric,Value\n';
-      csv += 'Fixed Costs,' + inputs.fixed + '\n';
-      csv += 'Unit Selling Price,' + inputs.price + '\n';
-      csv += 'Variable Cost per Unit,' + inputs.varCost + '\n';
-      csv += 'Expected Quantity,' + inputs.qty + '\n';
-      csv += 'Break-Even (units),' + (r.breakEvenUnits < 0 ? 'Not achievable' : r.breakEvenUnits) + '\n';
-      csv += 'Break-Even (amount),' + (r.breakEvenAmount < 0 ? 'Not achievable' : r.breakEvenAmount) + '\n';
-      csv += 'Expected Revenue,' + r.revenue + '\n';
-      csv += 'Total Costs,' + r.totalCost + '\n';
-      csv += 'Net Profit,' + r.profit + '\n';
-      csv += 'Profit Margin (%),' + r.profitMargin.toFixed(2) + '\n';
-      csv += 'Return on Cost (%),' + r.roi.toFixed(2) + '\n\n';
-      csv += 'Scenario Comparison\n';
-      csv += 'Metric,Pessimistic (-20%),Expected,Optimistic (+20%)\n';
-      csv += 'Quantity,' + Math.round(inputs.qty*0.8) + ',' + inputs.qty + ',' + Math.round(inputs.qty*1.2) + '\n';
-      csv += 'Revenue,' + p.revenue + ',' + r.revenue + ',' + o.revenue + '\n';
-      csv += 'Total Costs,' + p.totalCost + ',' + r.totalCost + ',' + o.totalCost + '\n';
-      csv += 'Net Profit,' + p.profit + ',' + r.profit + ',' + o.profit + '\n';
-      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      var link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'bonds-break-even.csv';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+
+      var wb = XLSX.utils.book_new();
+      wb.Props = { Title: 'Break-Even Report', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+      var wsData = [
+        ['Metric', 'Value'],
+        ['Fixed Costs', inputs.fixed],
+        ['Unit Selling Price', inputs.price],
+        ['Variable Cost per Unit', inputs.varCost],
+        ['Expected Quantity', inputs.qty],
+        ['Break-Even (units)', r.breakEvenUnits < 0 ? 'Not achievable' : r.breakEvenUnits],
+        ['Break-Even (amount)', r.breakEvenAmount < 0 ? 'Not achievable' : r.breakEvenAmount],
+        ['Expected Revenue', r.revenue],
+        ['Total Costs', r.totalCost],
+        ['Net Profit', r.profit],
+        ['Profit Margin (%)', r.profitMargin],
+        ['Return on Cost (%)', r.roi]
+      ];
+      var ws = XLSX.utils.aoa_to_sheet(wsData);
+      ws['!cols'] = [{ wch: 28 }, { wch: 18 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Results');
+
+      var ws2Data = [
+        ['Scenario Comparison'],
+        ['Metric', 'Pessimistic (-20%)', 'Expected', 'Optimistic (+20%)'],
+        ['Quantity', Math.round(inputs.qty*0.8), inputs.qty, Math.round(inputs.qty*1.2)],
+        ['Revenue', p.revenue, r.revenue, o.revenue],
+        ['Total Costs', p.totalCost, r.totalCost, o.totalCost],
+        ['Net Profit', p.profit, r.profit, o.profit]
+      ];
+      var ws2 = XLSX.utils.aoa_to_sheet(ws2Data);
+      ws2['!cols'] = [{ wch: 22 }, { wch: 18 }, { wch: 14 }, { wch: 18 }];
+      XLSX.utils.book_append_sheet(wb, ws2, 'Scenarios');
+
+      XLSX.writeFile(wb, 'bonds-break-even.xlsx');
     }
 
     function updateScenarios(inputs, r) {
