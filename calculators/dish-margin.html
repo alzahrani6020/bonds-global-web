@@ -296,6 +296,7 @@
                 <th>الهامج</th>
                 <th>التقييم</th>
                 <th>السعر المُحسَّب</th>
+                <th>تعديل</th>
               </tr>
             </thead>
             <tbody id="platformComparisonBody">
@@ -577,6 +578,13 @@
         var optimalPrice = Math.ceil((foodCost + packagingCost + r.deliverySubsidy) / (1 - r.fee/100 - 0.45));
 
         var tr = document.createElement('tr');
+        var waText = 'مرحبا بوندز، اقترح تعديل بيانات منصة ' + r.name + ' في ' + countryData.name + ':\n\n' +
+          '• العمولة الحالية: ' + r.fee + '%\n' +
+          '• العمولة الصحيحة: ___\n' +
+          '• التوصيل المجاني: ___\n' +
+          '• ملاحظات: ___\n\n' +
+          '— عبر حاسبة بوندز: https://bonds-global.com/calculators/dish-margin.html';
+        var waLink = 'https://wa.me/966567566616?text=' + encodeURIComponent(waText);
         tr.innerHTML = `
           <td><strong>${r.name}</strong></td>
           <td>${badge}</td>
@@ -586,6 +594,7 @@
           <td><strong>${r.margin.toFixed(1)}%</strong></td>
           <td class="status-cell status-${status}">${statusText}</td>
           <td>${optimalPrice} ${currentCurrency}</td>
+          <td><a href="${waLink}" target="_blank" rel="noopener" class="btn-small" style="font-size:0.7rem;padding:0.25rem 0.5rem;background:var(--bg-secondary);border:1px solid var(--border);color:var(--text);text-decoration:none;border-radius:4px;">📝 اقترح</a></td>
         `;
         tbody.appendChild(tr);
       });

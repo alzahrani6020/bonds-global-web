@@ -296,6 +296,7 @@
                 <th>Margin</th>
                 <th>Rating</th>
                 <th>Optimal Price</th>
+                <th>Edit</th>
               </tr>
             </thead>
             <tbody id="platformComparisonBody">
@@ -536,6 +537,76 @@
       var price = denominator > 0 ? totalCost / denominator : 0;
 
       document.getElementById('calculatedPrice').value = price > 0 ? Math.ceil(price) : '';
+    }
+
+    function calculatePlatform(foodCost, packagingCost, sellingPrice, platform) {
+      var totalPrimeCost = foodCost + packagingCost;
+      var fee = platform.fee || 0;
+      var commissionValue = sellingPrice * (fee / 100);
+      var deliverySubsidy = 0;
+      if (platform.freeDelivery && sellingPrice >= platform.freeDelivery.threshold) {
+        deliverySubsidy = platform.freeDelivery.restaurantShare;
+      }
+      var grossProfit = sellingPrice - commissionValue - totalPrimeCost - deliverySubsidy;
+      var margin = sellingPrice > 0 ? (grossProfit / sellingPrice) * 100 : 0;
+      return {
+        name: platform.nameEn,
+        fee: fee,
+        commission: commissionValue,
+        deliverySubsidy: deliverySubsidy,
+        profit: grossProfit,
+        margin: margin,
+        confidence: platform.confidence || 'estimated'
+      };
+    }
+
+    function calculateAllPlatforms() {
+      var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
+      var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
+      var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+      if (!sellingPrice) { alert('Enter selling price first'); return; }
+
+      var countryData = COUNTRIES_DATA[currentCountry];
+      if (!countryData || !countryData.platforms) return;
+
+      var tbody = document.getElementById('platformComparisonBody');
+      tbody.innerHTML = '';
+
+      var results = [];
+      countryData.platforms.forEach(function(p) {
+        var r = calculatePlatform(foodCost, packagingCost, sellingPrice, p);
+        results.push(r);
+      });
+
+      results.sort(function(a, b) { return b.profit - a.profit; });
+
+      results.forEach(function(r) {
+        var status = r.margin >= 50 ? 'excellent' : (r.margin >= 40 ? 'good' : 'danger');
+        var statusText = r.margin >= 50 ? 'Excellent' : (r.margin >= 40 ? 'Acceptable' : 'Danger');
+        var badge = r.confidence === 'verified' ? '<span style="color:#16a34a;font-size:0.75rem;">✅ Verified</span>' : '<span style="color:#ca8a04;font-size:0.75rem;">⚠️ Estimated</span>';
+        var deliveryText = r.deliverySubsidy > 0 ? formatNumber(r.deliverySubsidy) + ' ' + currentCurrency : '—';
+        var optimalPrice = Math.ceil((foodCost + packagingCost + r.deliverySubsidy) / (1 - r.fee/100 - 0.45));
+        var waText = 'Hello Bonds, I suggest updating data for ' + r.name + ' in ' + countryData.nameEn + ':\n\n' +
+          '• Current commission: ' + r.fee + '%\n' +
+          '• Correct commission: ___\n' +
+          '• Free delivery: ___\n' +
+          '• Notes: ___\n\n' +
+          '— via Bonds Calculator: https://bonds-global.com/en/calculators/dish-margin.html';
+        var waLink = 'https://wa.me/966567566616?text=' + encodeURIComponent(waText);
+        var tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${r.name}</strong></td>
+          <td>${badge}</td>
+          <td>${r.fee}%</td>
+          <td>${deliveryText}</td>
+          <td><strong style="color:${status === 'excellent' ? '#16a34a' : (status === 'good' ? '#ca8a04' : '#dc2626')}">${formatNumber(r.profit)}</strong></td>
+          <td><strong>${r.margin.toFixed(1)}%</strong></td>
+          <td class="status-cell status-${status}">${statusText}</td>
+          <td>${optimalPrice} ${currentCurrency}</td>
+          <td><a href="${waLink}" target="_blank" rel="noopener" class="btn-small" style="font-size:0.7rem;padding:0.25rem 0.5rem;background:var(--bg-secondary);border:1px solid var(--border);color:var(--text);text-decoration:none;border-radius:4px;">📝 Suggest</a></td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
     function addToComparison() {
