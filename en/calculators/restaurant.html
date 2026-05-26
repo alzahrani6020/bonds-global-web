@@ -631,7 +631,7 @@
       var data = COUNTRIES_DATA[code];
       currentCurrency = data.currencySymbolEn;
       PLATFORMS = data.platforms.map(function(p) {
-        return { id: p.id, name: p.nameEn, fee: p.fee, serviceFee: p.serviceFee || 0, feeTiers: p.feeTiers };
+        return { id: p.id, name: p.nameEn, fee: p.fee, serviceFee: p.serviceFee || 0, feeTiers: p.feeTiers, paymentGatewayFee: p.paymentGatewayFee || 0, campaignDiscount: p.campaignDiscount || 0 };
       });
 
       // Update currency labels
@@ -925,7 +925,7 @@
       var platforms = [];
       PLATFORMS.forEach(function(p) {
         var el = document.getElementById(p.id);
-        if (el && el.checked) platforms.push({ name: p.name, fee: parseFloat(el.value) || 0, serviceFee: parseFloat(el.dataset.servicefee) || 0, feeTiers: p.feeTiers });
+        if (el && el.checked) platforms.push({ name: p.name, fee: parseFloat(el.value) || 0, serviceFee: parseFloat(el.dataset.servicefee) || 0, feeTiers: p.feeTiers, paymentGatewayFee: p.paymentGatewayFee || 0, campaignDiscount: p.campaignDiscount || 0 });
       });
       var isCloud = (currentBusinessModel === 'cloud');
       return {
@@ -986,10 +986,18 @@
       var monthlyFixed = inputs.rent + inputs.salaries + inputs.utilities + inputs.licenses + inputs.cloudKitchen + inputs.marketing;
       var dailyFixed = monthlyFixed / inputs.workingDays;
 
+      var countryData = COUNTRIES_DATA[currentCountry];
+      var vatRate = countryData ? (countryData.vatRate || 0) : 0;
+
       var platformResults = inputs.platforms.map(function(p) {
         var ef = getEffectiveFee(p, inputs.monthlyGMV);
         var totalFee = ef.fee;
-        var platformPrice = weightedPrice * (1 - totalFee / 100);
+        var commissionValue = weightedPrice * (totalFee / 100);
+        var vatValue = commissionValue * (vatRate / 100);
+        var pgFeeValue = weightedPrice * ((p.paymentGatewayFee || 0) / 100);
+        var campaignValue = weightedPrice * ((p.campaignDiscount || 0) / 100);
+        var totalDeduction = commissionValue + vatValue + pgFeeValue + campaignValue;
+        var platformPrice = weightedPrice - totalDeduction;
         var varCostPerOrder = weightedCost + inputs.packaging + inputs.delivery;
         var contributionPerOrder = platformPrice - varCostPerOrder;
         var dailyProfit = contributionPerOrder * inputs.dailyOrders - dailyFixed;

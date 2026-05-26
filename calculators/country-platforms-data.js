@@ -21,6 +21,7 @@ var COUNTRIES_DATA = {
     currency: 'SAR',
     currencySymbol: 'ر.س',
     currencySymbolEn: 'SAR',
+    vatRate: 15,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 65,
@@ -32,31 +33,31 @@ var COUNTRIES_DATA = {
       specialNotes: 'توصيل ليلي مرتفع جداً في رمضان. هنقرستيشن يُستخدم كاسم عام للتوصيل. اليوم الوطني (23 سبتمبر) يرفع الطلبات 40%.'
     },
     platforms: [
-      { id: 'plat_hunger', name: 'هنقرستيشن', nameEn: 'HungerStation', fee: 22, confidence: 'verified', freeDelivery: { threshold: 50, restaurantShare: 4.5 }, serviceFee: 2 },
-      { id: 'plat_jahez', name: 'جاهز', nameEn: 'Jahez', fee: 20, confidence: 'verified', freeDelivery: { threshold: 60, restaurantShare: 5 } },
-      { id: 'plat_mrsoul', name: 'مرسول', nameEn: 'Mrsool', fee: 15, confidence: 'verified' },
-      { id: 'plat_talabat', name: 'طلبات', nameEn: 'Talabat', fee: 25, confidence: 'verified', freeDelivery: { threshold: 50, restaurantShare: 5 } },
-      { id: 'plat_to_you', name: 'تويو', nameEn: 'ToYou', fee: 18, confidence: 'estimated' },
-      { id: 'plat_the_chefz', name: 'ذا شفز', nameEn: 'The Chefz', fee: 25, confidence: 'estimated' },
-      { id: 'plat_shgardi', name: 'شقردي', nameEn: 'Shgardi', fee: 18, confidence: 'estimated' },
-      { id: 'plat_daily_mealz', name: 'ديلي ميلز', nameEn: 'DailyMealz', fee: 0, confidence: 'verified' },
-      { id: 'plat_lugmety', name: 'لقمتي', nameEn: 'Lugmety', fee: 18, confidence: 'estimated' },
-      { id: 'plat_burgerizzr', name: 'برجريززر', nameEn: 'Burgerizzr', fee: 18, confidence: 'estimated' },
-      { id: 'plat_keeta', name: 'كيتا', nameEn: 'Keeta', fee: 15, confidence: 'verified', freeDelivery: { threshold: 40, restaurantShare: 3 }, serviceFee: 2 },
-      { id: 'plat_careem', name: 'كريم ناو', nameEn: 'Careem NOW', fee: 22, confidence: 'verified' },
-      { id: 'plat_noon', name: 'نون فود', nameEn: 'Noon Food', fee: 15, confidence: 'verified', freeDelivery: { threshold: 35, restaurantShare: 3 } },
-      { id: 'plat_ninja', name: 'نينجا', nameEn: 'Ninja', fee: 15, confidence: 'estimated' },
-      { id: 'plat_get_cari', name: 'كاري', nameEn: 'Get Cari', fee: 18, confidence: 'estimated' },
-      { id: 'plat_ngwah', name: 'نجوة', nameEn: 'Ngwah', fee: 18, confidence: 'estimated' },
-      { id: 'plat_calo', name: 'كالو', nameEn: 'Calo', fee: 0, confidence: 'verified' },
-      { id: 'plat_freshhouse', name: 'فرش هاوس', nameEn: 'Freshhouse', fee: 0, confidence: 'verified' },
-      { id: 'plat_right_bite', name: 'رايت بايت', nameEn: 'Right Bite', fee: 0, confidence: 'verified' },
-      { id: 'plat_amazon', name: 'أمازون برايم', nameEn: 'Amazon Prime Now', fee: 18, confidence: 'estimated' },
-      { id: 'plat_wssel', name: 'وصّل', nameEn: 'Wssel', fee: 18, confidence: 'estimated' },
-      { id: 'plat_direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }
+      { id: 'plat_hunger', name: 'هنقرستيشن', nameEn: 'HungerStation', fee: 25, confidence: 'verified', freeDelivery: { threshold: 50, restaurantShare: 4.5 }, serviceFee: 2, paymentGatewayFee: 0 },
+      { id: 'plat_jahez', name: 'جاهز', nameEn: 'Jahez', fee: 25, confidence: 'verified', freeDelivery: { threshold: 60, restaurantShare: 5 }, serviceFee: 0, paymentGatewayFee: 0, feeTiers: [{min:0, max:74, fee:25}, {min:75, max:999999, fee:23}] },
+      { id: 'plat_mrsoul', name: 'مرسول', nameEn: 'Mrsool', fee: 12, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_talabat', name: 'طلبات', nameEn: 'Talabat', fee: 25, confidence: 'verified', freeDelivery: { threshold: 50, restaurantShare: 5 }, serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_to_you', name: 'تويو', nameEn: 'ToYou', fee: 22, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0, deliverySupport: true },
+      { id: 'plat_the_chefz', name: 'ذا شفز', nameEn: 'The Chefz', fee: 25, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_shgardi', name: 'شقردي', nameEn: 'Shgardi', fee: 22, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_daily_mealz', name: 'ديلي ميلز', nameEn: 'DailyMealz', fee: 0, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_lugmety', name: 'لقمتي', nameEn: 'Lugmety', fee: 18, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_burgerizzr', name: 'برجريززر', nameEn: 'Burgerizzr', fee: 18, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_keeta', name: 'كيتا', nameEn: 'Keeta', fee: 15, confidence: 'verified', freeDelivery: { threshold: 40, restaurantShare: 3 }, serviceFee: 2, paymentGatewayFee: 0 },
+      { id: 'plat_careem', name: 'كريم ناو', nameEn: 'Careem NOW', fee: 22, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_noon', name: 'نون فود', nameEn: 'Noon Food', fee: 15, confidence: 'verified', freeDelivery: { threshold: 35, restaurantShare: 3 }, serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_ninja', name: 'نينجا', nameEn: 'Ninja', fee: 15, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_get_cari', name: 'كاري', nameEn: 'Get Cari', fee: 18, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_ngwah', name: 'نجوة', nameEn: 'Ngwah', fee: 18, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_calo', name: 'كالو', nameEn: 'Calo', fee: 0, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_freshhouse', name: 'فرش هاوس', nameEn: 'Freshhouse', fee: 0, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_right_bite', name: 'رايت بايت', nameEn: 'Right Bite', fee: 0, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_amazon', name: 'أمازون برايم', nameEn: 'Amazon Prime Now', fee: 18, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_wssel', name: 'وصّل', nameEn: 'Wssel', fee: 18, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0 },
+      { id: 'plat_direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 0 }
     ],
-    note: 'هنقرستيشن السائد (~65% سوق). كيتا (ميتوان الصينية) دخلت بقوة 2024. جاهز استحوذ على ذا شفز وسنونو. هيئة المنافسة أصدرت توجيهات ضد الممارسات الاحتكارية (مارس 2025). متوسط قيمة الطلب ~65 ر.س. رمضان = +50% طلبات ليلية.',
-    noteEn: 'HungerStation dominates (~65% market). Keeta (Meituan China) entered aggressively in 2024. Jahez acquired The Chefz and Snoonu. GAC issued anti-competitive guidelines (Mar 2025). Avg order ~SAR 65. Ramadan = +50% night orders.'
+    note: 'هنقرستيشن السائد (~65% سوق). كيتا (ميتوان الصينية) دخلت بقوة 2024. جاهز استحوذ على ذا شفز وسنونو. هيئة المنافسة أصدرت توجيهات ضد الممارسات الاحتكارية (مارس 2025). متوسط قيمة الطلب ~65 ر.س. رمضان = +50% طلبات ليلية. ضريبة القيمة المضافة 15% (الزكاة والدخل) تُطبق على العمولات. رسوم الإعداد: هنقرستيشن 1500–2500 ر.س، جاهز 2000 ر.س.',
+    noteEn: 'HungerStation dominates (~65% market). Keeta (Meituan China) entered aggressively in 2024. Jahez acquired The Chefz and Snoonu. GAC issued anti-competitive guidelines (Mar 2025). Avg order ~SAR 65. Ramadan = +50% night orders. ZATCA VAT 15% applies to commissions. Setup fees: HungerStation SAR 1,500–2,500, Jahez SAR 2,000.'
   },
   AE: {
     name: 'الإمارات',
@@ -65,6 +66,7 @@ var COUNTRIES_DATA = {
     currency: 'AED',
     currencySymbol: 'د.إ',
     currencySymbolEn: 'AED',
+    vatRate: 5,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 85,
@@ -102,6 +104,7 @@ var COUNTRIES_DATA = {
     currency: 'KWD',
     currencySymbol: 'د.ك',
     currencySymbolEn: 'KWD',
+    vatRate: 0,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 6.5,
@@ -137,6 +140,7 @@ var COUNTRIES_DATA = {
     currency: 'QAR',
     currencySymbol: 'ر.ق',
     currencySymbolEn: 'QAR',
+    vatRate: 0,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 70,
@@ -176,6 +180,7 @@ var COUNTRIES_DATA = {
     currency: 'BHD',
     currencySymbol: 'د.ب',
     currencySymbolEn: 'BHD',
+    vatRate: 0,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 7,
@@ -210,6 +215,7 @@ var COUNTRIES_DATA = {
     currency: 'OMR',
     currencySymbol: 'ر.ع',
     currencySymbolEn: 'OMR',
+    vatRate: 0,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 8,
@@ -242,6 +248,7 @@ var COUNTRIES_DATA = {
     currency: 'EGP',
     currencySymbol: 'ج.م',
     currencySymbolEn: 'EGP',
+    vatRate: 14,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 280,
@@ -253,18 +260,18 @@ var COUNTRIES_DATA = {
       specialNotes: 'السوق ~3.9 مليار دولار (2025). أوبر إيتس وزوماتو انسحبتا. إلمينيوز منافس محلي قوي. التضخم يؤثر على الأسعار باستمرار. متوسط الطلب ~280 ج.م.'
     },
     platforms: [
-      { id: 'plat_talabat', name: 'طلبات', nameEn: 'Talabat', fee: 22, confidence: 'verified', freeDelivery: { threshold: 150, restaurantShare: 15 } },
-      { id: 'plat_elmenus', name: 'إلمينيوز', nameEn: 'Elmenus', fee: 16, confidence: 'verified', freeDelivery: { threshold: 100, restaurantShare: 10 } },
-      { id: 'plat_careem', name: 'كريم ناو', nameEn: 'Careem NOW', fee: 22, confidence: 'verified', freeDelivery: { threshold: 150, restaurantShare: 15 } },
-      { id: 'plat_noon', name: 'نون فود', nameEn: 'Noon Food', fee: 15, confidence: 'verified', freeDelivery: { threshold: 100, restaurantShare: 10 } },
-      { id: 'plat_mrsoul', name: 'مرسول', nameEn: 'Mrsool', fee: 18, confidence: 'verified', freeDelivery: { threshold: 100, restaurantShare: 10 } },
-      { id: 'plat_bolt', name: 'بولت فود', nameEn: 'Bolt Food', fee: 18, confidence: 'verified', freeDelivery: { threshold: 120, restaurantShare: 12 } },
-      { id: 'plat_otlob', name: 'أطلب', nameEn: 'Otlob', fee: 22, confidence: 'estimated' },
-      { id: 'plat_insta_shop', name: 'إنستا شوب', nameEn: 'InstaShop', fee: 18, confidence: 'estimated' },
-      { id: 'plat_direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }
+      { id: 'plat_talabat', name: 'طلبات', nameEn: 'Talabat', fee: 25, confidence: 'verified', freeDelivery: { threshold: 150, restaurantShare: 15 }, serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 50 },
+      { id: 'plat_elmenus', name: 'إلمينيوز', nameEn: 'Elmenus', fee: 22, confidence: 'verified', freeDelivery: { threshold: 100, restaurantShare: 10 }, serviceFee: 0, paymentGatewayFee: 2.5, campaignDiscount: 0 },
+      { id: 'plat_careem', name: 'كريم ناو', nameEn: 'Careem NOW', fee: 22, confidence: 'verified', freeDelivery: { threshold: 150, restaurantShare: 15 }, serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
+      { id: 'plat_noon', name: 'نون فود', nameEn: 'Noon Food', fee: 15, confidence: 'verified', freeDelivery: { threshold: 100, restaurantShare: 10 }, serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
+      { id: 'plat_mrsoul', name: 'مرسول', nameEn: 'Mrsool', fee: 12, confidence: 'verified', freeDelivery: { threshold: 100, restaurantShare: 10 }, serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
+      { id: 'plat_bolt', name: 'بولت فود', nameEn: 'Bolt Food', fee: 18, confidence: 'verified', freeDelivery: { threshold: 120, restaurantShare: 12 }, serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
+      { id: 'plat_otlob', name: 'أطلب', nameEn: 'Otlob', fee: 22, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
+      { id: 'plat_insta_shop', name: 'إنستا شوب', nameEn: 'InstaShop', fee: 18, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
+      { id: 'plat_direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 }
     ],
-    note: 'طلبات هي السائد (أدرجت في دبي 2024). إلمينيوز منافس مصري محلي قوي (عمولة 16%). السوق ~3.9 مليار دولار (2025). أوبر إيتس وزوماتو انسحبتا. متوسط الطلب ~280 ج.م. كاش عند الاستلام 70%.',
-    noteEn: 'Talabat dominant (IPO\'d Dubai 2024). Elmenus strong Egyptian-local competitor (16% fee). Market ~$3.9B (2025). Uber Eats and Zomato exited. Avg order ~EGP 280. Cash on delivery 70%.'
+    note: 'طلبات هي السائد (أدرجت في دبي 2024). إلمينيوز منافس مصري محلي قوي. السوق ~3.9 مليار دولار (2025). أوبر إيتس وزوماتو انسحبتا. متوسط الطلب ~280 ج.م. كاش عند الاستلام 70%. ضريبة القيمة المضافة 14% تُطبق على العمولات. خصومات الحملات بالتقسيم 50/50. رسوم بوابة الدفع 2–2.5%.',
+    noteEn: 'Talabat dominant (IPO\'d Dubai 2024). Elmenus strong Egyptian-local competitor. Market ~$3.9B (2025). Uber Eats and Zomato exited. Avg order ~EGP 280. Cash on delivery 70%. VAT 14% applies to commissions. Campaign discounts split 50/50. Payment gateway fees 2–2.5%.'
   },
   JO: {
     name: 'الأردن',
@@ -273,6 +280,7 @@ var COUNTRIES_DATA = {
     currency: 'JOD',
     currencySymbol: 'د.أ',
     currencySymbolEn: 'JOD',
+    vatRate: 16,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 12,
@@ -306,6 +314,7 @@ var COUNTRIES_DATA = {
     currency: 'IQD',
     currencySymbol: 'د.ع',
     currencySymbolEn: 'IQD',
+    vatRate: 0,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 15000,
@@ -336,6 +345,7 @@ var COUNTRIES_DATA = {
     currency: 'LBP',
     currencySymbol: 'ل.ل',
     currencySymbolEn: 'LBP',
+    vatRate: 11,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 250000,
@@ -364,6 +374,7 @@ var COUNTRIES_DATA = {
     currency: 'SYP',
     currencySymbol: 'ل.س',
     currencySymbolEn: 'SYP',
+    vatRate: 0,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 15000,
@@ -388,6 +399,7 @@ var COUNTRIES_DATA = {
     currency: 'USD',
     currencySymbol: '$',
     currencySymbolEn: 'USD',
+    vatRate: 16,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 18,
@@ -413,6 +425,7 @@ var COUNTRIES_DATA = {
     currency: 'TND',
     currencySymbol: 'د.ت',
     currencySymbolEn: 'TND',
+    vatRate: 19,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 25,
@@ -441,6 +454,7 @@ var COUNTRIES_DATA = {
     currency: 'DZD',
     currencySymbol: 'د.ج',
     currencySymbolEn: 'DZD',
+    vatRate: 19,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 800,
@@ -471,6 +485,7 @@ var COUNTRIES_DATA = {
     currency: 'MAD',
     currencySymbol: 'د.م',
     currencySymbolEn: 'MAD',
+    vatRate: 20,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 90,
@@ -502,6 +517,7 @@ var COUNTRIES_DATA = {
     currency: 'LYD',
     currencySymbol: 'د.ل',
     currencySymbolEn: 'LYD',
+    vatRate: 0,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 35,
@@ -529,6 +545,7 @@ var COUNTRIES_DATA = {
     currency: 'SDG',
     currencySymbol: 'ج.س',
     currencySymbolEn: 'SDG',
+    vatRate: 0,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 5000,
@@ -555,6 +572,7 @@ var COUNTRIES_DATA = {
     currency: 'YER',
     currencySymbol: 'ر.ي',
     currencySymbolEn: 'YER',
+    vatRate: 0,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 3500,
@@ -581,6 +599,7 @@ var COUNTRIES_DATA = {
     currency: 'DJF',
     currencySymbol: 'ف.ج',
     currencySymbolEn: 'DJF',
+    vatRate: 0,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 3000,
@@ -606,6 +625,7 @@ var COUNTRIES_DATA = {
     currency: 'SOS',
     currencySymbol: 'ش.ص',
     currencySymbolEn: 'SOS',
+    vatRate: 0,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 80000,
@@ -632,6 +652,7 @@ var COUNTRIES_DATA = {
     currency: 'MRU',
     currencySymbol: 'أ.م',
     currencySymbolEn: 'MRU',
+    vatRate: 0,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 250,
@@ -659,6 +680,7 @@ var COUNTRIES_DATA = {
     currency: 'KMF',
     currencySymbol: 'ف.ق',
     currencySymbolEn: 'KMF',
+    vatRate: 0,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 3500,

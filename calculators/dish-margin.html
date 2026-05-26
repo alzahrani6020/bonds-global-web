@@ -717,14 +717,25 @@
       var serviceFee = platform.serviceFee || 0;
       var totalFee = fee + serviceFee;
       var commissionValue = sellingPrice * (totalFee / 100);
+      // VAT on commission
+      var countryData = COUNTRIES_DATA[currentCountry];
+      var vatRate = countryData ? (countryData.vatRate || 0) : 0;
+      var vatValue = commissionValue * (vatRate / 100);
+      // Payment gateway fee
+      var pgFeeValue = sellingPrice * ((platform.paymentGatewayFee || 0) / 100);
+      // Campaign discount (restaurant share)
+      var campaignValue = sellingPrice * ((platform.campaignDiscount || 0) / 100);
+      // Free delivery subsidy
       var deliverySubsidy = 0;
       if (platform.freeDelivery && sellingPrice >= platform.freeDelivery.threshold) {
         deliverySubsidy = platform.freeDelivery.restaurantShare;
       }
-      var grossProfit = sellingPrice - commissionValue - totalPrimeCost - deliverySubsidy;
+      var totalDeduction = commissionValue + vatValue + pgFeeValue + campaignValue + deliverySubsidy;
+      var grossProfit = sellingPrice - totalDeduction - totalPrimeCost;
       var margin = sellingPrice > 0 ? (grossProfit / sellingPrice) * 100 : 0;
       // Profit without free delivery (for comparison)
-      var grossProfitNoFD = sellingPrice - commissionValue - totalPrimeCost;
+      var totalDeductionNoFD = commissionValue + vatValue + pgFeeValue + campaignValue;
+      var grossProfitNoFD = sellingPrice - totalDeductionNoFD - totalPrimeCost;
       var marginNoFD = sellingPrice > 0 ? (grossProfitNoFD / sellingPrice) * 100 : 0;
       return {
         name: platform.name,
