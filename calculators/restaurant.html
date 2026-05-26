@@ -77,6 +77,13 @@
     .share-bar input { flex: 1; min-width: 200px; }
     .country-selector { background: rgba(212,168,83,0.05); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-bottom: var(--space-6); }
     .country-note { font-size: 0.85rem; color: var(--text-muted); margin-top: var(--space-3); padding: var(--space-3); background: rgba(212,168,83,0.03); border-radius: var(--radius); border-right: 3px solid var(--gold); }
+    .market-insights { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); margin-top: var(--space-4); }
+    .insight-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); transition: all 0.3s; }
+    .insight-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+    .insight-card .insight-icon { font-size: 1.5rem; margin-bottom: var(--space-2); }
+    .insight-card .insight-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-1); }
+    .insight-card .insight-value { font-size: 1rem; font-weight: 700; color: var(--text); line-height: 1.5; }
+    .insight-card .insight-value small { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
     #countrySelect { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d4a853' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: left 1rem center; padding-left: 2.5rem; cursor: pointer; background-color: var(--bg-card); color: var(--text); }
     #countrySelect option { background: var(--bg-secondary); color: var(--text); font-size: 1rem; padding: 0.5rem; }
     .platform-focus-bar { display: flex; gap: var(--space-3); align-items: center; margin-top: var(--space-4); flex-wrap: wrap; }
@@ -209,6 +216,7 @@
           </select>
         </div>
         <div class="country-note" id="countryNote"></div>
+        <div class="market-insights" id="marketInsights"></div>
       </div>
 
       <div class="calc-grid reveal">
@@ -573,10 +581,44 @@
       var noteEl = document.getElementById('countryNote');
       noteEl.textContent = data.note || '';
 
+      // Update market insights
+      updateMarketInsights(data);
+
       // Re-render platforms
       renderPlatforms();
       _calcMemo.clear();
       document.getElementById('resultsSection').style.display = 'none';
+    }
+
+    function updateMarketInsights(data) {
+      var container = document.getElementById('marketInsights');
+      if (!container) return;
+      var mi = data.marketInsights;
+      if (!mi) { container.innerHTML = ''; return; }
+      var currency = data.currencySymbol || '';
+      var html = '';
+      if (mi.avgOrderValue) {
+        html += '<div class="insight-card"><div class="insight-icon">💰</div><div class="insight-label">متوسط قيمة الطلب</div><div class="insight-value">' + mi.avgOrderValue.toLocaleString('ar-SA') + ' ' + currency + '</div></div>';
+      }
+      if (mi.peakHours) {
+        html += '<div class="insight-card"><div class="insight-icon">⏰</div><div class="insight-label">أوقات الذروة</div><div class="insight-value">' + mi.peakHours + '</div></div>';
+      }
+      if (mi.ramadanMultiplier) {
+        html += '<div class="insight-card"><div class="insight-icon">🌙</div><div class="insight-label">مضاعف رمضان</div><div class="insight-value">+' + Math.round((mi.ramadanMultiplier - 1) * 100) + '% <small>طلبات إضافية</small></div></div>';
+      }
+      if (mi.paymentMethod) {
+        html += '<div class="insight-card"><div class="insight-icon">💳</div><div class="insight-label">طرق الدفع</div><div class="insight-value"><small>' + mi.paymentMethod + '</small></div></div>';
+      }
+      if (mi.weekendBehavior) {
+        html += '<div class="insight-card"><div class="insight-icon">📅</div><div class="insight-label">سلوك العطلة</div><div class="insight-value"><small>' + mi.weekendBehavior + '</small></div></div>';
+      }
+      if (mi.popularCategories && mi.popularCategories.length) {
+        html += '<div class="insight-card"><div class="insight-icon">🍽️</div><div class="insight-label">أشهر الأصناف</div><div class="insight-value"><small>' + mi.popularCategories.join(' • ') + '</small></div></div>';
+      }
+      if (mi.specialNotes) {
+        html += '<div class="insight-card" style="grid-column:1/-1;"><div class="insight-icon">📌</div><div class="insight-label">ملاحظات خاصة</div><div class="insight-value"><small>' + mi.specialNotes + '</small></div></div>';
+      }
+      container.innerHTML = html;
     }
 
     function renderPlatforms() {

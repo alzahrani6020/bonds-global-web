@@ -61,6 +61,13 @@
     .action-bar { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-6); }
     .smart-alert { display: none; background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); }
     .smart-alert.show { display: block; }
+    .market-insights { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); margin-top: var(--space-4); }
+    .insight-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); transition: all 0.3s; }
+    .insight-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+    .insight-card .insight-icon { font-size: 1.5rem; margin-bottom: var(--space-2); }
+    .insight-card .insight-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-1); }
+    .insight-card .insight-value { font-size: 1rem; font-weight: 700; color: var(--text); line-height: 1.5; }
+    .insight-card .insight-value small { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
     @media print {
       .hidden-print, .topbar, .main-header, .main-footer, button, select { display: none !important; }
       body { background: #fff !important; color: #000 !important; font-size: 12pt; }
@@ -163,6 +170,7 @@
           </div>
         </div>
         <div class="country-note" id="countryNote"></div>
+        <div class="market-insights" id="marketInsights"></div>
       </div>
 
       <div class="calc-grid reveal">
@@ -442,7 +450,39 @@
       var c = COUNTRIES_DATA[code];
       currentCurrency = c.currencySymbolEn;
       document.getElementById('countryNote').textContent = (c.noteEn || '') + ' Currency: ' + c.currencySymbolEn + ' (' + c.currency + ')';
+      updateMarketInsights(c);
       populatePlatforms(c.platforms);
+    }
+
+    function updateMarketInsights(data) {
+      var container = document.getElementById('marketInsights');
+      if (!container) return;
+      var mi = data.marketInsights;
+      if (!mi) { container.innerHTML = ''; return; }
+      var currency = data.currencySymbolEn || '';
+      var html = '';
+      if (mi.avgOrderValue) {
+        html += '<div class="insight-card"><div class="insight-icon">💰</div><div class="insight-label">Avg Order Value</div><div class="insight-value">' + mi.avgOrderValue.toLocaleString('en-US') + ' ' + currency + '</div></div>';
+      }
+      if (mi.peakHours) {
+        html += '<div class="insight-card"><div class="insight-icon">⏰</div><div class="insight-label">Peak Hours</div><div class="insight-value">' + mi.peakHours + '</div></div>';
+      }
+      if (mi.ramadanMultiplier) {
+        html += '<div class="insight-card"><div class="insight-icon">🌙</div><div class="insight-label">Ramadan Boost</div><div class="insight-value">+' + Math.round((mi.ramadanMultiplier - 1) * 100) + '% <small>extra orders</small></div></div>';
+      }
+      if (mi.paymentMethod) {
+        html += '<div class="insight-card"><div class="insight-icon">💳</div><div class="insight-label">Payment Methods</div><div class="insight-value"><small>' + mi.paymentMethod + '</small></div></div>';
+      }
+      if (mi.weekendBehavior) {
+        html += '<div class="insight-card"><div class="insight-icon">📅</div><div class="insight-label">Weekend Behavior</div><div class="insight-value"><small>' + mi.weekendBehavior + '</small></div></div>';
+      }
+      if (mi.popularCategories && mi.popularCategories.length) {
+        html += '<div class="insight-card"><div class="insight-icon">🍽️</div><div class="insight-label">Popular Categories</div><div class="insight-value"><small>' + mi.popularCategories.join(' • ') + '</small></div></div>';
+      }
+      if (mi.specialNotes) {
+        html += '<div class="insight-card" style="grid-column:1/-1;"><div class="insight-icon">📌</div><div class="insight-label">Special Notes</div><div class="insight-value"><small>' + mi.specialNotes + '</small></div></div>';
+      }
+      container.innerHTML = html;
     }
 
     function populatePlatforms(platforms) {
