@@ -427,6 +427,26 @@
             <button class="btn btn-secondary" onclick="exportPlatformPDF()">📑 PDF (Each Platform Separate)</button>
             <button class="btn btn-secondary" onclick="exportPlatformExcel()">📊 Excel (Each Platform Separate)</button>
           </div>
+
+          <!-- QR Code & Session Save -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-top: var(--space-8); max-width: 800px; margin-left: auto; margin-right: auto;">
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center;">
+              <h4 style="color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-base);">🔗 QR Code — Scan to Share</h4>
+              <div id="qrcode" style="display: flex; justify-content: center; margin-bottom: var(--space-3);"></div>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Scan with any phone to open this calculation instantly</p>
+            </div>
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center;">
+              <h4 style="color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-base);">💾 Save This Calculation</h4>
+              <input type="text" id="sessionName" placeholder="Name (e.g. Riyadh Branch)" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; margin-bottom: var(--space-3);" />
+              <button class="btn btn-primary" onclick="saveSession()" style="width: 100%;">💾 Save</button>
+            </div>
+          </div>
+
+          <!-- Saved Sessions -->
+          <div id="sessionsPanel" style="margin-top: var(--space-8); max-width: 800px; margin-left: auto; margin-right: auto; display: none;">
+            <h4 style="color: var(--gold); margin-bottom: var(--space-3); text-align: center;">📚 Saved Calculations</h4>
+            <div id="sessionsList" style="display: flex; flex-direction: column; gap: var(--space-3);"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -933,7 +953,9 @@
       url.searchParams.set('o', inputs.dailyOrders);
       url.searchParams.set('wd', inputs.workingDays);
       url.searchParams.set('c', currentCountry);
+      url.searchParams.set('model', currentBusinessModel);
       document.getElementById('shareLink').value = url.toString();
+      updateQR(url.toString());
     }
 
     function copyLink() {
@@ -941,6 +963,81 @@
       input.select();
       document.execCommand('copy');
       alert('Link copied!');
+    }
+
+    // ===== QR Code =====
+    function updateQR(url) {
+      var container = document.getElementById('qrcode');
+      container.innerHTML = '';
+      if (!url) return;
+      loadLib('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js').then(function() {
+        new QRCode(container, { text: url, width: 160, height: 160, colorDark: '#d4a853', colorLight: '#0a0f1a', correctLevel: QRCode.CorrectLevel.M });
+      });
+    }
+
+    // ===== Session Save / Load =====
+    var _sessionsKey = 'bonds_restaurant_sessions';
+
+    function saveSession() {
+      var name = document.getElementById('sessionName').value.trim();
+      if (!name) { alert('Enter a name for this calculation'); return; }
+      var url = document.getElementById('shareLink').value;
+      var session = {
+        id: Date.now(),
+        name: name,
+        url: url,
+        country: currentCountry,
+        model: currentBusinessModel,
+        date: new Date().toLocaleString('en-US'),
+        summary: document.getElementById('valNetProfit').textContent + ' profit | ' + document.getElementById('valMargin').textContent + ' margin'
+      };
+      dbGet(_sessionsKey).then(function(sessions) {
+        sessions = sessions || [];
+        sessions.unshift(session);
+        if (sessions.length > 20) sessions = sessions.slice(0, 20);
+        return dbSet(_sessionsKey, sessions);
+      }).then(function() {
+        document.getElementById('sessionName').value = '';
+        renderSessions();
+        alert('✅ Saved successfully');
+      });
+    }
+
+    function renderSessions() {
+      dbGet(_sessionsKey).then(function(sessions) {
+        sessions = sessions || [];
+        var panel = document.getElementById('sessionsPanel');
+        var list = document.getElementById('sessionsList');
+        if (sessions.length === 0) { panel.style.display = 'none'; return; }
+        panel.style.display = 'block';
+        list.innerHTML = '';
+        sessions.forEach(function(s) {
+          var div = document.createElement('div');
+          div.style.cssText = 'background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);';
+          div.innerHTML = `
+            <div style="text-align: left;">
+              <div style="font-weight: 800; color: var(--text);">${s.name}</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">${s.date} · ${s.summary}</div>
+            </div>
+            <div style="display: flex; gap: var(--space-2);">
+              <button class="btn btn-primary" onclick="loadSessionUrl('${s.url}')" style="font-size: 0.8rem; padding: 0.5rem 1rem;">Open</button>
+              <button class="btn btn-secondary" onclick="deleteSession(${s.id})" style="font-size: 0.8rem; padding: 0.5rem 1rem;">Delete</button>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      });
+    }
+
+    function loadSessionUrl(url) {
+      window.location.href = url;
+    }
+
+    function deleteSession(id) {
+      dbGet(_sessionsKey).then(function(sessions) {
+        sessions = (sessions || []).filter(function(s) { return s.id !== id; });
+        return dbSet(_sessionsKey, sessions);
+      }).then(function() { renderSessions(); });
     }
 
     // ===== Charts =====
@@ -1407,6 +1504,7 @@
     addDish({ name: 'Dish 1', price: 40, cost: 15, salesMix: 50 });
     addDish({ name: 'Dish 2', price: 35, cost: 12, salesMix: 50 });
     loadFromURL();
+    renderSessions();
 
     // Auto-calculate with debounce
     var debouncedCalc = debounce(calculateAll, 300);
