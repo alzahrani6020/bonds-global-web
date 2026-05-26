@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dish Profit Margin Calculator | Bonds Global</title>
+  <meta name="description" content="Calculate the profit margin for each dish before adding it to your menu. Food costs, platform commissions, reverse pricing. Free tool from Bonds Global." />
+  <meta property="og:title" content="Dish Profit Margin Calculator | Bonds Global" />
+  <meta property="og:description" content="Calculate profit per dish: costs, commissions, margin, and reverse pricing." />
+  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:url" content="https://bonds-global.com/en/calculators/dish-margin.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="../../assets/site-logo.webp" as="image" type="image/webp" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <script src="../../calculators/shared-utils.js"></script>
+  <script src="../../calculators/country-platforms-data.js"></script>
+  <style>
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+    .calc-input-group { margin-bottom: 1.5rem; }
+    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .calc-input-group input[type="number"], .calc-input-group select, .calc-input-group input[type="text"] { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
+    .calc-input-group input[type="number"]:focus, .calc-input-group select:focus, .calc-input-group input[type="text"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
+    .result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+    @media (min-width: 700px) { .result-grid { grid-template-columns: repeat(4, 1fr); } }
+    .result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center; transition: all 0.3s; }
+    .result-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+    .result-value { font-size: var(--text-2xl); font-weight: 900; margin-bottom: var(--space-2); }
+    .result-label { font-size: 0.85rem; color: var(--text-secondary); }
+    .result-card.status-excellent { border-color: #16a34a; background: rgba(22,163,74,0.05); }
+    .result-card.status-excellent .result-value { color: #16a34a; }
+    .result-card.status-good { border-color: #ca8a04; background: rgba(202,138,4,0.05); }
+    .result-card.status-good .result-value { color: #ca8a04; }
+    .result-card.status-danger { border-color: #dc2626; background: rgba(220,38,38,0.05); }
+    .result-card.status-danger .result-value { color: #dc2626; }
+    .margin-bar { width: 100%; height: 8px; background: var(--border); border-radius: 4px; margin-top: var(--space-2); overflow: hidden; }
+    .margin-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+    .analysis-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6); }
+    .analysis-box h4 { color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-lg); }
+    .comparison-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: var(--space-4); }
+    .comparison-table th, .comparison-table td { padding: 0.75rem; text-align: center; border-bottom: 1px solid var(--border); }
+    .comparison-table th { background: rgba(212,168,83,0.05); color: var(--gold); font-weight: 700; }
+    .comparison-table tr:hover { background: rgba(255,255,255,0.02); }
+    .comparison-table .status-cell { font-weight: 700; }
+    .comparison-table .status-excellent { color: #16a34a; }
+    .comparison-table .status-good { color: #ca8a04; }
+    .comparison-table .status-danger { color: #dc2626; }
+    .country-selector { background: rgba(212,168,83,0.05); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-bottom: var(--space-6); }
+    #countrySelect, #platformSelect { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d4a853' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; cursor: pointer; background-color: var(--bg-card); color: var(--text); }
+    #countrySelect option, #platformSelect option { background: var(--bg-secondary); color: var(--text); font-size: 1rem; padding: 0.5rem; }
+    .reverse-section { background: linear-gradient(135deg, rgba(212,168,83,0.05) 0%, rgba(212,168,83,0.01) 100%); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6); }
+    .reverse-section h4 { color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-lg); }
+    .btn-secondary { background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); padding: var(--space-3) var(--space-6); border-radius: var(--radius); font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; }
+    .btn-secondary:hover { border-color: var(--gold); }
+    .action-bar { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-6); }
+    .smart-alert { display: none; background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); }
+    .smart-alert.show { display: block; }
+    @media print {
+      .hidden-print, .topbar, .main-header, .main-footer, button, select { display: none !important; }
+      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
+      .section { padding: 0 !important; }
+    }
+  </style>
+</head>
+<body style="font-family:Inter,system-ui,sans-serif">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <span>First consultation is free — Book now</span>
+      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">Quick WhatsApp →</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header" id="header">
+    <div class="container main-header__inner">
+      <a href="../../index.html" class="logo-slot">
+        <img src="../../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" />
+        <span class="logo-text">Bonds</span>
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="../../index.html">Home</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position:relative;color:var(--text-secondary);font-weight:600;font-size:var(--text-sm);padding:var(--space-2) 0;">
+              Services
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="../../services.html#analysis">Financial Analysis</a>
+              <a href="../../services.html#cashflow">Cash Flow Management</a>
+              <a href="../../services.html#feasibility">Feasibility Studies</a>
+              <a href="../../services.html#risk">Risk Analysis</a>
+              <a href="../../services.html#research">Surveys & Research</a>
+            </div>
+          </li>
+          <li><a href="../../pricing.html">Pricing</a></li>
+          <li><a href="../../about.html">About</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position:relative;color:var(--text-secondary);font-weight:600;font-size:var(--text-sm);padding:var(--space-2) 0;">
+              Calculators
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="../../calculator.html">Break-Even</a>
+              <a href="calculators/cash-flow.html">Cash Flow</a>
+              <a href="calculators/pricing.html">Product Pricing</a>
+              <a href="calculators/loan.html">Loan & Finance</a>
+              <a href="calculators/restaurant.html">Restaurants</a>
+              <a href="calculators/dish-margin.html">Dish Margin</a>
+            </div>
+          </li>
+          <li><a href="../../blog/en/index.html">Blog</a></li>
+          <li><a href="../../faq.html">FAQ</a></li>
+        </ul>
+        <button class="btn btn-primary hidden-print" onclick="window.location.href='../../contact.html'">Free Consultation</button>
+      </nav>
+      <button class="mobile-menu-btn hidden-print" onclick="document.getElementById('mainNav').classList.toggle('open')" aria-label="Menu">
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" style="padding-top: 8rem; padding-bottom: 3rem;">
+    <div class="container" style="text-align: center;">
+      <span class="hero__eyebrow reveal">Specialized Financial Calculator</span>
+      <h1 class="hero__title reveal">Dish Profit Margin Calculator</h1>
+      <p class="hero__desc reveal" style="max-width: 640px; margin: 0 auto;">
+        Calculate the profitability of each dish before adding it to your menu. Supports 179 delivery platforms across 22 Arab countries with <strong>reverse pricing</strong> to find the optimal selling price.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="section" style="padding-top: 1rem;">
+    <div class="container">
+
+      <!-- Country & Platform Selector -->
+      <div class="country-selector reveal">
+        <div class="calc-grid" style="gap: 1rem;">
+          <div class="calc-input-group" style="margin-bottom:0;">
+            <label for="countrySelect">🌍 Country</label>
+            <select id="countrySelect" onchange="changeCountry(this.value)">
+              <option value="">Select country...</option>
+            </select>
+          </div>
+          <div class="calc-input-group" style="margin-bottom:0;">
+            <label for="platformSelect">📱 Delivery Platform</label>
+            <select id="platformSelect" onchange="selectPlatform(this.value)">
+              <option value="">Select platform...</option>
+            </select>
+          </div>
+        </div>
+        <div class="country-note" id="countryNote"></div>
+      </div>
+
+      <div class="calc-grid reveal">
+        <!-- Left Column: Inputs -->
+        <div>
+          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🧮 Dish Inputs</h3>
+          <div class="dish-card" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6);">
+            <div class="calc-input-group">
+              <label for="dishName">🍽️ Dish Name</label>
+              <input type="text" id="dishName" value="Dish 1" />
+            </div>
+            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="foodCost">Raw Food Cost</label>
+                <input type="number" id="foodCost" value="11" min="0" step="0.5" />
+              </div>
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="packagingCost">Packaging Cost</label>
+                <input type="number" id="packagingCost" value="3" min="0" step="0.5" />
+              </div>
+            </div>
+            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="sellingPrice">💰 Selling Price</label>
+                <input type="number" id="sellingPrice" value="45" min="0" step="0.5" />
+              </div>
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="commissionRate">📊 Platform Commission (%)</label>
+                <input type="number" id="commissionRate" value="25" min="0" max="100" step="0.5" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Reverse Pricing -->
+          <div class="reverse-section reveal">
+            <h4>🎯 Reverse Pricing — What should I charge?</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--space-4);">Enter your costs, commission, and target margin. We'll calculate the optimal selling price.</p>
+            <div class="calc-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="revFoodCost">Food Cost</label>
+                <input type="number" id="revFoodCost" value="11" min="0" step="0.5" />
+              </div>
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="revPackagingCost">Packaging Cost</label>
+                <input type="number" id="revPackagingCost" value="3" min="0" step="0.5" />
+              </div>
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="revCommissionRate">Commission (%)</label>
+                <input type="number" id="revCommissionRate" value="25" min="0" max="100" step="0.5" />
+              </div>
+            </div>
+            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="targetMargin">🎯 Target Margin (%)</label>
+                <input type="number" id="targetMargin" value="45" min="0" max="100" step="1" />
+              </div>
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="calculatedPrice" style="color: var(--gold);">💡 Calculated Price</label>
+                <input type="number" id="calculatedPrice" readonly style="background: rgba(212,168,83,0.08); border-color: var(--gold); font-weight: 900; color: var(--gold);" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Results -->
+        <div>
+          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📊 Dish Results</h3>
+          <div id="resultsSection">
+            <div class="result-grid">
+              <div class="result-card" id="cardCommission">
+                <div class="result-value" id="valCommission">—</div>
+                <div class="result-label">Platform Commission</div>
+              </div>
+              <div class="result-card" id="cardTotalCost">
+                <div class="result-value" id="valTotalCost">—</div>
+                <div class="result-label">Total Prime Cost</div>
+              </div>
+              <div class="result-card" id="cardProfit">
+                <div class="result-value" id="valProfit">—</div>
+                <div class="result-label">Net Profit (before fixed)</div>
+              </div>
+              <div class="result-card" id="cardMargin">
+                <div class="result-value" id="valMargin">—</div>
+                <div class="result-label">Profit Margin</div>
+                <div class="margin-bar"><div class="margin-bar-fill" id="marginBar"></div></div>
+              </div>
+            </div>
+
+            <!-- Analysis Box -->
+            <div class="analysis-box" id="analysisBox" style="display:none;">
+              <h4>🧠 Smart Analysis</h4>
+              <p id="analysisText"></p>
+            </div>
+
+            <!-- Smart Alert -->
+            <div class="smart-alert" id="smartAlert">
+              <strong>⚠️ Warning:</strong> <span id="alertText"></span>
+            </div>
+
+            <!-- Actions -->
+            <div class="action-bar hidden-print">
+              <button type="button" class="btn btn-primary" onclick="addToComparison()">➕ Add to Comparison</button>
+              <button type="button" class="btn btn-secondary" onclick="exportPDF()">📄 Export PDF</button>
+              <button type="button" class="btn btn-secondary" onclick="exportExcel()">📊 Export Excel</button>
+              <button type="button" class="btn btn-secondary" onclick="shareWhatsApp()">📱 WhatsApp</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Table -->
+      <div class="reveal" style="margin-top: var(--space-8);">
+        <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📋 Comparison Table</h3>
+        <div style="overflow-x: auto;">
+          <table class="comparison-table" id="comparisonTable">
+            <thead>
+              <tr>
+                <th>Dish</th>
+                <th>Price</th>
+                <th>Food Cost</th>
+                <th>Packaging</th>
+                <th>Platform</th>
+                <th>Commission</th>
+                <th>Profit</th>
+                <th>Margin</th>
+                <th>Rating</th>
+                <th class="hidden-print">Delete</th>
+              </tr>
+            </thead>
+            <tbody id="comparisonBody">
+              <tr><td colspan="10" style="color: var(--text-muted);">No dishes to compare yet. Add a dish from above.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="action-bar hidden-print" style="margin-top: var(--space-4);">
+          <button type="button" class="btn btn-secondary" onclick="clearComparison()">🗑️ Clear Table</button>
+        </div>
+      </div>
+
+      <!-- Guide -->
+      <div class="analysis-box reveal" style="margin-top: var(--space-8);">
+        <h4>📖 How to Read the Results</h4>
+        <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+          <div>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
+              <strong style="color: #16a34a;">🟢 Excellent (>50%):</strong> The dish is highly profitable. It easily covers fixed costs and leaves a healthy net profit.
+            </p>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
+              <strong style="color: #ca8a04;">🟡 Acceptable (40-50%):</strong> The dish is profitable but the margin is tight. Consider raising the price or reducing costs slightly.
+            </p>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8;">
+              <strong style="color: #dc2626;">🔴 Danger (<40%):</strong> The dish is unprofitable or has a very weak margin. Review pricing immediately.
+            </p>
+          </div>
+          <div>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
+              <strong>💡 Formulas:</strong>
+            </p>
+            <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.8; font-family: monospace;">
+              Platform Commission = Price × Commission Rate<br>
+              Total Prime Cost = Food Cost + Packaging<br>
+              Net Profit = Price − Commission − Total Cost<br>
+              Profit Margin = (Profit ÷ Price) × 100
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid" style="grid-template-columns: 1.5fr repeat(3, 1fr); gap: 3rem; padding-bottom: 3rem; border-bottom: 1px solid var(--border);">
+        <div>
+          <a href="../../index.html" class="logo-slot" style="margin-bottom: 1.5rem; display: inline-flex;">
+            <img src="../../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" style="width: 48px; height: 48px;" />
+            <span class="logo-text" style="font-size: 1.5rem;">Bonds</span>
+          </a>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.8; max-width: 280px;">We turn your financial data into clear decisions. Specialized financial consulting for restaurants and startups.</p>
+        </div>
+        <div>
+          <h4 class="footer-title">Links</h4>
+          <div class="footer-links">
+            <a href="../../services.html">Services</a>
+            <a href="../../pricing.html">Pricing</a>
+            <a href="../../about.html">About</a>
+            <a href="../../blog/en/index.html">Blog</a>
+            <a href="../../contact.html">Contact</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Calculators</h4>
+          <div class="footer-links">
+            <a href="../../calculator.html">Break-Even</a>
+            <a href="calculators/cash-flow.html">Cash Flow</a>
+            <a href="calculators/pricing.html">Product Pricing</a>
+            <a href="calculators/loan.html">Loan & Finance</a>
+            <a href="calculators/restaurant.html">Restaurants</a>
+            <a href="calculators/dish-margin.html">Dish Margin</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Business Registrations</h4>
+          <div class="footer-links">
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">Egypt: Reg. 39733</span>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">KSA: CR 7042125869</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="y">2025</span> Bonds Global Financial Consulting — All rights reserved.</span>
+        <div style="display: flex; gap: var(--space-6);">
+          <a href="../../privacy.html" style="color: var(--text-muted);">Privacy Policy</a>
+          <a href="#" style="color: var(--text-muted);">Disclaimer</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp">💬</a>
+
+  <script>
+    var currentCountry = 'SA';
+    var currentCurrency = 'SAR';
+    var comparisonItems = [];
+
+    function populateCountrySelect() {
+      var select = document.getElementById('countrySelect');
+      var keys = Object.keys(COUNTRIES_DATA);
+      keys.forEach(function(code) {
+        var c = COUNTRIES_DATA[code];
+        var opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = c.flag + ' ' + c.nameEn;
+        select.appendChild(opt);
+      });
+    }
+
+    function changeCountry(code) {
+      if (!code || !COUNTRIES_DATA[code]) return;
+      currentCountry = code;
+      var c = COUNTRIES_DATA[code];
+      currentCurrency = c.currencySymbolEn;
+      document.getElementById('countryNote').textContent = (c.noteEn || '') + ' Currency: ' + c.currencySymbolEn + ' (' + c.currency + ')';
+      populatePlatforms(c.platforms);
+    }
+
+    function populatePlatforms(platforms) {
+      var select = document.getElementById('platformSelect');
+      select.innerHTML = '<option value="">Select platform...</option>';
+      if (!platforms) return;
+      platforms.forEach(function(p) {
+        var opt = document.createElement('option');
+        opt.value = p.fee;
+        opt.textContent = p.nameEn + ' — ' + p.fee + '%';
+        opt.dataset.name = p.nameEn;
+        select.appendChild(opt);
+      });
+    }
+
+    function selectPlatform(value) {
+      if (value) {
+        document.getElementById('commissionRate').value = value;
+        calculate();
+      }
+    }
+
+    function formatNumber(n) {
+      return n.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    }
+
+    function calculate() {
+      var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
+      var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
+      var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+      var commissionRate = parseFloat(document.getElementById('commissionRate').value) || 0;
+
+      var totalPrimeCost = foodCost + packagingCost;
+      var commissionValue = sellingPrice * (commissionRate / 100);
+      var grossProfit = sellingPrice - commissionValue - totalPrimeCost;
+      var margin = sellingPrice > 0 ? (grossProfit / sellingPrice) * 100 : 0;
+
+      document.getElementById('valCommission').textContent = formatNumber(commissionValue) + ' ' + currentCurrency;
+      document.getElementById('valTotalCost').textContent = formatNumber(totalPrimeCost) + ' ' + currentCurrency;
+      document.getElementById('valProfit').textContent = formatNumber(grossProfit) + ' ' + currentCurrency;
+      document.getElementById('valMargin').textContent = margin.toFixed(1) + '%';
+
+      var bar = document.getElementById('marginBar');
+      bar.style.width = Math.min(Math.max(margin, 0), 100) + '%';
+
+      var status = margin >= 50 ? 'excellent' : (margin >= 40 ? 'good' : 'danger');
+      ['cardCommission', 'cardTotalCost', 'cardProfit', 'cardMargin'].forEach(function(id) {
+        var el = document.getElementById(id);
+        el.classList.remove('status-excellent', 'status-good', 'status-danger');
+        el.classList.add('status-' + status);
+      });
+
+      var analysisBox = document.getElementById('analysisBox');
+      var analysisText = document.getElementById('analysisText');
+      var alertBox = document.getElementById('smartAlert');
+      var alertText = document.getElementById('alertText');
+
+      if (sellingPrice > 0) {
+        analysisBox.style.display = 'block';
+        if (margin >= 50) {
+          analysisText.innerHTML = '✅ <strong>Excellent dish.</strong> Profit margin of ' + margin.toFixed(1) + '% easily covers fixed costs (rent, salaries) and leaves a healthy net profit.';
+          alertBox.classList.remove('show');
+        } else if (margin >= 40) {
+          analysisText.innerHTML = '⚠️ <strong>Acceptable dish.</strong> Profit margin of ' + margin.toFixed(1) + '% covers fixed costs but the margin is tight. Try raising the price or reducing costs.';
+          alertBox.classList.remove('show');
+        } else {
+          analysisText.innerHTML = '❌ <strong>Unprofitable dish.</strong> Profit margin of ' + margin.toFixed(1) + '% is insufficient to cover fixed costs. Raise the price to at least ' + formatNumber(Math.ceil(totalPrimeCost / (1 - commissionRate/100 - 0.45))) + ' ' + currentCurrency + ' to achieve a 45% margin.';
+          alertBox.classList.add('show');
+          alertText.textContent = 'Profit margin below 40% — the dish may sell at a loss after covering fixed costs.';
+        }
+      } else {
+        analysisBox.style.display = 'none';
+        alertBox.classList.remove('show');
+      }
+    }
+
+    function calculateReverse() {
+      var foodCost = parseFloat(document.getElementById('revFoodCost').value) || 0;
+      var packagingCost = parseFloat(document.getElementById('revPackagingCost').value) || 0;
+      var commissionRate = parseFloat(document.getElementById('revCommissionRate').value) || 0;
+      var targetMargin = parseFloat(document.getElementById('targetMargin').value) || 0;
+
+      var totalCost = foodCost + packagingCost;
+      var denominator = 1 - (commissionRate / 100) - (targetMargin / 100);
+      var price = denominator > 0 ? totalCost / denominator : 0;
+
+      document.getElementById('calculatedPrice').value = price > 0 ? Math.ceil(price) : '';
+    }
+
+    function addToComparison() {
+      var name = document.getElementById('dishName').value || 'Dish ' + (comparisonItems.length + 1);
+      var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
+      var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
+      var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+      var commissionRate = parseFloat(document.getElementById('commissionRate').value) || 0;
+
+      var commissionValue = sellingPrice * (commissionRate / 100);
+      var totalCost = foodCost + packagingCost;
+      var profit = sellingPrice - commissionValue - totalCost;
+      var margin = sellingPrice > 0 ? (profit / sellingPrice) * 100 : 0;
+      var status = margin >= 50 ? 'excellent' : (margin >= 40 ? 'good' : 'danger');
+      var statusText = margin >= 50 ? 'Excellent' : (margin >= 40 ? 'Acceptable' : 'Danger');
+
+      var platformSelect = document.getElementById('platformSelect');
+      var platformName = platformSelect.selectedOptions[0] && platformSelect.selectedOptions[0].dataset.name ? platformSelect.selectedOptions[0].dataset.name : 'Direct';
+
+      comparisonItems.push({
+        name: name, price: sellingPrice, foodCost: foodCost, packaging: packagingCost,
+        platform: platformName, commission: commissionValue, profit: profit, margin: margin,
+        status: status, statusText: statusText
+      });
+
+      renderComparison();
+    }
+
+    function renderComparison() {
+      var tbody = document.getElementById('comparisonBody');
+      if (comparisonItems.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="color: var(--text-muted);">No dishes to compare yet. Add a dish from above.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      comparisonItems.forEach(function(item, idx) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${item.name}</strong></td>
+          <td>${formatNumber(item.price)}</td>
+          <td>${formatNumber(item.foodCost)}</td>
+          <td>${formatNumber(item.packaging)}</td>
+          <td>${item.platform}</td>
+          <td>${formatNumber(item.commission)}</td>
+          <td><strong>${formatNumber(item.profit)}</strong></td>
+          <td><strong>${item.margin.toFixed(1)}%</strong></td>
+          <td class="status-cell status-${item.status}">${item.statusText}</td>
+          <td class="hidden-print"><button class="btn-small btn-remove" onclick="removeComparisonItem(${idx})">Delete</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function removeComparisonItem(idx) {
+      comparisonItems.splice(idx, 1);
+      renderComparison();
+    }
+
+    function clearComparison() {
+      comparisonItems = [];
+      renderComparison();
+    }
+
+    function shareWhatsApp() {
+      var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
+      var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
+      var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+      var commissionRate = parseFloat(document.getElementById('commissionRate').value) || 0;
+      var totalCost = foodCost + packagingCost;
+      var commissionValue = sellingPrice * (commissionRate / 100);
+      var profit = sellingPrice - commissionValue - totalCost;
+      var margin = sellingPrice > 0 ? (profit / sellingPrice) * 100 : 0;
+      var name = document.getElementById('dishName').value || 'Dish';
+
+      var text = '💰 Profit Analysis: ' + name + '\n' +
+        'Price: ' + sellingPrice + ' ' + currentCurrency + '\n' +
+        'Cost: ' + totalCost + ' ' + currentCurrency + '\n' +
+        'Platform Commission (' + commissionRate + '%): ' + commissionValue.toFixed(2) + ' ' + currentCurrency + '\n' +
+        'Net Profit: ' + profit.toFixed(2) + ' ' + currentCurrency + '\n' +
+        'Profit Margin: ' + margin.toFixed(1) + '%\n\n' +
+        '— via Bonds Calculator: https://bonds-global.com/en/calculators/dish-margin.html';
+
+      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    }
+
+    async function exportPDF() {
+      await loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+      await loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+      var section = document.getElementById('resultsSection');
+      var table = document.getElementById('comparisonTable');
+      var wrapper = document.createElement('div');
+      wrapper.style.background = '#0a0f1a';
+      wrapper.style.padding = '2rem';
+      wrapper.style.color = '#fff';
+      wrapper.style.fontFamily = 'Inter, system-ui, sans-serif';
+      wrapper.innerHTML = '<h2 style="color:#d4a853;text-align:center;margin-bottom:1.5rem;">📊 Dish Profit Analysis — Bonds Global</h2>';
+      wrapper.appendChild(section.cloneNode(true));
+      if (comparisonItems.length > 0) {
+        wrapper.innerHTML += '<h3 style="color:#d4a853;margin-top:2rem;">📋 Comparison Table</h3>';
+        wrapper.appendChild(table.cloneNode(true));
+      }
+      document.body.appendChild(wrapper);
+      var canvas = await html2canvas(wrapper, { scale: 2, backgroundColor: '#0a0f1a', useCORS: true });
+      document.body.removeChild(wrapper);
+      var imgData = canvas.toDataURL('image/png');
+      var { jsPDF } = window.jspdf;
+      var doc = new jsPDF({ orientation: 'landscape' });
+      var imgProps = doc.getImageProperties(imgData);
+      var pdfW = doc.internal.pageSize.getWidth();
+      var pdfH = (imgProps.height * pdfW) / imgProps.width;
+      doc.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+      doc.save('bonds-dish-margin.pdf');
+    }
+
+    function exportExcel() {
+      if (typeof XLSX === 'undefined') {
+        loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js').then(function() { doExportExcel(); });
+      } else {
+        doExportExcel();
+      }
+    }
+
+    function doExportExcel() {
+      var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
+      var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
+      var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+      var commissionRate = parseFloat(document.getElementById('commissionRate').value) || 0;
+      var totalCost = foodCost + packagingCost;
+      var commissionValue = sellingPrice * (commissionRate / 100);
+      var profit = sellingPrice - commissionValue - totalCost;
+      var margin = sellingPrice > 0 ? (profit / sellingPrice) * 100 : 0;
+
+      var wb = XLSX.utils.book_new();
+      wb.Props = { Title: 'Dish Profit Margin Calculator', Subject: 'Bonds Global', Author: 'Bonds Global' };
+
+      var summaryData = [
+        ['Dish Profit Analysis — Bonds Global'],
+        [''],
+        ['Dish Name', document.getElementById('dishName').value],
+        ['Country', COUNTRIES_DATA[currentCountry] ? COUNTRIES_DATA[currentCountry].nameEn : ''],
+        ['Currency', currentCurrency],
+        [''],
+        ['Selling Price', sellingPrice],
+        ['Food Cost', foodCost],
+        ['Packaging Cost', packagingCost],
+        ['Total Prime Cost', totalCost],
+        ['Platform Commission Rate', commissionRate + '%'],
+        ['Commission Value', commissionValue],
+        [''],
+        ['Net Profit', profit],
+        ['Profit Margin', margin.toFixed(2) + '%']
+      ];
+      var ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+      XLSX.utils.book_append_sheet(wb, ws1, 'Analysis');
+
+      if (comparisonItems.length > 0) {
+        var compData = [['Dish', 'Price', 'Food Cost', 'Packaging', 'Platform', 'Commission', 'Profit', 'Margin', 'Rating']];
+        comparisonItems.forEach(function(item) {
+          compData.push([item.name, item.price, item.foodCost, item.packaging, item.platform, item.commission, item.profit, item.margin, item.statusText]);
+        });
+        var ws2 = XLSX.utils.aoa_to_sheet(compData);
+        XLSX.utils.book_append_sheet(wb, ws2, 'Comparison');
+      }
+
+      XLSX.writeFile(wb, 'bonds-dish-margin.xlsx');
+    }
+
+    // Init
+    populateCountrySelect();
+    document.getElementById('countrySelect').value = 'SA';
+    changeCountry('SA');
+
+    // Auto-calculate
+    var debouncedCalc = debounce(calculate, 200);
+    document.querySelectorAll('input[type="number"]').forEach(function(el) {
+      el.addEventListener('input', debouncedCalc);
+    });
+
+    var debouncedReverse = debounce(calculateReverse, 200);
+    ['revFoodCost', 'revPackagingCost', 'revCommissionRate', 'targetMargin'].forEach(function(id) {
+      document.getElementById(id).addEventListener('input', debouncedReverse);
+    });
+
+    calculate();
+    calculateReverse();
+
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+
+  <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+</body>
+</html>

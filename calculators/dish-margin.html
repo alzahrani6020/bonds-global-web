@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>حاسبة ربحية الوجبة | بوندز — هامش الربح لكل صنف</title>
+  <meta name="description" content="احسب ربحية كل وجبة قبل إضافتها للمنيو. تكاليف المكونات، عمولات المنصات، هامش الربح، والتسعير العكسي. أداة مجانية من بوندز." />
+  <meta property="og:title" content="حاسبة ربحية الوجبة | بوندز" />
+  <meta property="og:description" content="احسب ربحية كل وجبة قبل إضافتها للمنيو: تكاليف، عمولات، هامش الربح، وتسعير عكسي." />
+  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/dish-margin.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="../assets/site-logo.webp" as="image" type="image/webp" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <script src="shared-utils.js"></script>
+  <script src="country-platforms-data.js"></script>
+  <style>
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+    .calc-input-group { margin-bottom: 1.5rem; }
+    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .calc-input-group input[type="number"], .calc-input-group select { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
+    .calc-input-group input[type="number"]:focus, .calc-input-group select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
+    .result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+    @media (min-width: 700px) { .result-grid { grid-template-columns: repeat(4, 1fr); } }
+    .result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center; transition: all 0.3s; }
+    .result-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+    .result-value { font-size: var(--text-2xl); font-weight: 900; margin-bottom: var(--space-2); }
+    .result-label { font-size: 0.85rem; color: var(--text-secondary); }
+    .result-card.status-excellent { border-color: #16a34a; background: rgba(22,163,74,0.05); }
+    .result-card.status-excellent .result-value { color: #16a34a; }
+    .result-card.status-good { border-color: #ca8a04; background: rgba(202,138,4,0.05); }
+    .result-card.status-good .result-value { color: #ca8a04; }
+    .result-card.status-danger { border-color: #dc2626; background: rgba(220,38,38,0.05); }
+    .result-card.status-danger .result-value { color: #dc2626; }
+    .margin-bar { width: 100%; height: 8px; background: var(--border); border-radius: 4px; margin-top: var(--space-2); overflow: hidden; }
+    .margin-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+    .analysis-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6); }
+    .analysis-box h4 { color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-lg); }
+    .comparison-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: var(--space-4); }
+    .comparison-table th, .comparison-table td { padding: 0.75rem; text-align: center; border-bottom: 1px solid var(--border); }
+    .comparison-table th { background: rgba(212,168,83,0.05); color: var(--gold); font-weight: 700; }
+    .comparison-table tr:hover { background: rgba(255,255,255,0.02); }
+    .comparison-table .status-cell { font-weight: 700; }
+    .comparison-table .status-excellent { color: #16a34a; }
+    .comparison-table .status-good { color: #ca8a04; }
+    .comparison-table .status-danger { color: #dc2626; }
+    .country-selector { background: rgba(212,168,83,0.05); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-bottom: var(--space-6); }
+    #countrySelect, #platformSelect { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d4a853' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: left 1rem center; padding-left: 2.5rem; cursor: pointer; background-color: var(--bg-card); color: var(--text); }
+    #countrySelect option, #platformSelect option { background: var(--bg-secondary); color: var(--text); font-size: 1rem; padding: 0.5rem; }
+    .reverse-section { background: linear-gradient(135deg, rgba(212,168,83,0.05) 0%, rgba(212,168,83,0.01) 100%); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6); }
+    .reverse-section h4 { color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-lg); }
+    .btn-secondary { background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); padding: var(--space-3) var(--space-6); border-radius: var(--radius); font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; }
+    .btn-secondary:hover { border-color: var(--gold); }
+    .action-bar { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-6); }
+    .smart-alert { display: none; background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); }
+    .smart-alert.show { display: block; }
+    @media print {
+      .hidden-print, .topbar, .main-header, .main-footer, button, select { display: none !important; }
+      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
+      .section { padding: 0 !important; }
+    }
+  </style>
+</head>
+<body style="font-family:Vazirmatn,system-ui,sans-serif">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <span>استشارتك الأولى مجانية — احجز الآن</span>
+      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب سريع →</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header" id="header">
+    <div class="container main-header__inner">
+      <a href="../index.html" class="logo-slot">
+        <img src="../assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" />
+        <span class="logo-text">بوندز</span>
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="../index.html">الرئيسية</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              الخدمات
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="../services.html#analysis">التحليل المالي</a>
+              <a href="../services.html#cashflow">إدارة التدفقات النقدية</a>
+              <a href="../services.html#feasibility">دراسات الجدوى</a>
+              <a href="../services.html#risk">تحليل المخاطر</a>
+              <a href="../services.html#research">الاستبيانات والبحوث</a>
+            </div>
+          </li>
+          <li><a href="../pricing.html">الأسعار</a></li>
+          <li><a href="../about.html">من نحن</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              الحاسبات
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="../calculator.html">نقطة التعادل</a>
+              <a href="cash-flow.html">تدفق النقد</a>
+              <a href="pricing.html">تسعير المنتج</a>
+              <a href="loan.html">القرض والتمويل</a>
+              <a href="restaurant.html">المطاعم والسحابي</a>
+              <a href="dish-margin.html">ربحية الوجبة</a>
+            </div>
+          </li>
+          <li><a href="../blog/index.html">مقالات</a></li>
+          <li><a href="../faq.html">الأسئلة الشائعة</a></li>
+        </ul>
+        <button class="btn btn-primary hidden-print" onclick="window.location.href='../contact.html'">استشارة مجانية</button>
+      </nav>
+      <button class="mobile-menu-btn hidden-print" onclick="document.getElementById('mainNav').classList.toggle('open')" aria-label="القائمة">
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" style="padding-top: 8rem; padding-bottom: 3rem;">
+    <div class="container" style="text-align: center;">
+      <span class="hero__eyebrow reveal">حاسبة مالية متخصصة</span>
+      <h1 class="hero__title reveal">حاسبة ربحية الوجبة الواحدة</h1>
+      <p class="hero__desc reveal" style="max-width: 640px; margin: 0 auto;">
+        احسب ربحية كل صنف قبل ما تضيفه للمنيو. يدعم 179 منصة توصيل في 22 دولة عربية مع <strong>التسعير العكسي</strong> لتحديد السعر المثالي.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="section" style="padding-top: 1rem;">
+    <div class="container">
+
+      <!-- Country & Platform Selector -->
+      <div class="country-selector reveal">
+        <div class="calc-grid" style="gap: 1rem;">
+          <div class="calc-input-group" style="margin-bottom:0;">
+            <label for="countrySelect">🌍 الدولة</label>
+            <select id="countrySelect" onchange="changeCountry(this.value)">
+              <option value="">اختر الدولة...</option>
+            </select>
+          </div>
+          <div class="calc-input-group" style="margin-bottom:0;">
+            <label for="platformSelect">📱 منصة التوصيل</label>
+            <select id="platformSelect" onchange="selectPlatform(this.value)">
+              <option value="">اختر المنصة...</option>
+            </select>
+          </div>
+        </div>
+        <div class="country-note" id="countryNote"></div>
+      </div>
+
+      <div class="calc-grid reveal">
+        <!-- Left Column: Inputs -->
+        <div>
+          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🧮 مدخلات الوجبة</h3>
+          <div class="dish-card" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6);">
+            <div class="calc-input-group">
+              <label for="dishName">🍽️ اسم الوجبة</label>
+              <input type="text" id="dishName" value="وجبة 1" style="width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem;" />
+            </div>
+            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="foodCost">تكلفة المكونات الخام</label>
+                <input type="number" id="foodCost" value="11" min="0" step="0.5" />
+              </div>
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="packagingCost">تكلفة التغليف</label>
+                <input type="number" id="packagingCost" value="3" min="0" step="0.5" />
+              </div>
+            </div>
+            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="sellingPrice">💰 سعر البيع المتوقع</label>
+                <input type="number" id="sellingPrice" value="45" min="0" step="0.5" />
+              </div>
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="commissionRate">📊 نسبة عمولة المنصة (%)</label>
+                <input type="number" id="commissionRate" value="25" min="0" max="100" step="0.5" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Reverse Pricing -->
+          <div class="reverse-section reveal">
+            <h4>🎯 التسعير العكسي — كم أبيع؟</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--space-4);">أدخل التكلفة والعمولة والهامش المستهدف، ونحسب لك سعر البيع المثالي.</p>
+            <div class="calc-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="revFoodCost">تكلفة المكونات</label>
+                <input type="number" id="revFoodCost" value="11" min="0" step="0.5" />
+              </div>
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="revPackagingCost">تكلفة التغليف</label>
+                <input type="number" id="revPackagingCost" value="3" min="0" step="0.5" />
+              </div>
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="revCommissionRate">عمولة المنصة (%)</label>
+                <input type="number" id="revCommissionRate" value="25" min="0" max="100" step="0.5" />
+              </div>
+            </div>
+            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="targetMargin">🎯 الهامش المستهدف (%)</label>
+                <input type="number" id="targetMargin" value="45" min="0" max="100" step="1" />
+              </div>
+              <div class="calc-input-group" style="margin-bottom:0;">
+                <label for="calculatedPrice" style="color: var(--gold);">💡 السعر المُحسَّب</label>
+                <input type="number" id="calculatedPrice" readonly style="background: rgba(212,168,83,0.08); border-color: var(--gold); font-weight: 900; color: var(--gold);" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Results -->
+        <div>
+          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📊 نتائج الوجبة</h3>
+          <div id="resultsSection">
+            <div class="result-grid">
+              <div class="result-card" id="cardCommission">
+                <div class="result-value" id="valCommission">—</div>
+                <div class="result-label">عمولة المنصة</div>
+              </div>
+              <div class="result-card" id="cardTotalCost">
+                <div class="result-value" id="valTotalCost">—</div>
+                <div class="result-label">إجمالي التكلفة المباشرة</div>
+              </div>
+              <div class="result-card" id="cardProfit">
+                <div class="result-value" id="valProfit">—</div>
+                <div class="result-label">صافي الربح (قبل الثابتة)</div>
+              </div>
+              <div class="result-card" id="cardMargin">
+                <div class="result-value" id="valMargin">—</div>
+                <div class="result-label">نسبة هامش الربح</div>
+                <div class="margin-bar"><div class="margin-bar-fill" id="marginBar"></div></div>
+              </div>
+            </div>
+
+            <!-- Analysis Box -->
+            <div class="analysis-box" id="analysisBox" style="display:none;">
+              <h4>🧠 التحليل الذكي</h4>
+              <p id="analysisText"></p>
+            </div>
+
+            <!-- Smart Alert -->
+            <div class="smart-alert" id="smartAlert">
+              <strong>⚠️ تنبيه:</strong> <span id="alertText"></span>
+            </div>
+
+            <!-- Actions -->
+            <div class="action-bar hidden-print">
+              <button type="button" class="btn btn-primary" onclick="addToComparison()">➕ أضف للمقارنة</button>
+              <button type="button" class="btn btn-secondary" onclick="exportPDF()">📄 تصدير PDF</button>
+              <button type="button" class="btn btn-secondary" onclick="exportExcel()">📊 تصدير Excel</button>
+              <button type="button" class="btn btn-secondary" onclick="shareWhatsApp()">📱 واتساب</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Table -->
+      <div class="reveal" style="margin-top: var(--space-8);">
+        <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📋 جدول المقارنة</h3>
+        <div style="overflow-x: auto;">
+          <table class="comparison-table" id="comparisonTable">
+            <thead>
+              <tr>
+                <th>الوجبة</th>
+                <th>السعر</th>
+                <th>تكلفة المكونات</th>
+                <th>التغليف</th>
+                <th>المنصة</th>
+                <th>العمولة</th>
+                <th>الربح</th>
+                <th>الهامش</th>
+                <th>التقييم</th>
+                <th class="hidden-print">حذف</th>
+              </tr>
+            </thead>
+            <tbody id="comparisonBody">
+              <tr><td colspan="10" style="color: var(--text-muted);">لا توجد أطباق للمقارنة بعد. أضف وجبة من الأعلى.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="action-bar hidden-print" style="margin-top: var(--space-4);">
+          <button type="button" class="btn btn-secondary" onclick="clearComparison()">🗑️ مسح الجدول</button>
+        </div>
+      </div>
+
+      <!-- Guide -->
+      <div class="analysis-box reveal" style="margin-top: var(--space-8);">
+        <h4>📖 كيف تقرأ النتائج</h4>
+        <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+          <div>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
+              <strong style="color: #16a34a;">🟢 ممتاز (>50%):</strong> الوجبة مربحة بشكل صحي. تغطي المصاريف الثابتة بسهولة وتترك هامش ربح جيد.
+            </p>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
+              <strong style="color: #ca8a04;">🟡 مقبول (40-50%):</strong> الوجبة مربحة لكن الهامش ضيق. ينصح برفع السعر أو خفض التكلفة قليلاً.
+            </p>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8;">
+              <strong style="color: #dc2626;">🔴 خطير (<40%):</strong> الوجبة غير مربحة أو هامشها ضعيف جداً. راجع التسعير فوراً.
+            </p>
+          </div>
+          <div>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
+              <strong>💡 المعادلات:</strong>
+            </p>
+            <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.8; font-family: monospace;">
+              عمولة المنصة = السعر × نسبة العمولة<br>
+              التكلفة الكلية = مكونات + تغليف<br>
+              صافي الربح = السعر - العمولة - التكلفة<br>
+              هامش الربح = (الربح ÷ السعر) × 100
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid" style="grid-template-columns: 1.5fr repeat(3, 1fr); gap: 3rem; padding-bottom: 3rem; border-bottom: 1px solid var(--border);">
+        <div>
+          <a href="../index.html" class="logo-slot" style="margin-bottom: 1.5rem; display: inline-flex;">
+            <img src="../assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" style="width: 48px; height: 48px;" />
+            <span class="logo-text" style="font-size: 1.5rem;">بوندز</span>
+          </a>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.8; max-width: 280px;">نحول بياناتك المالية إلى قرارات واضحة. استشارات مالية متخصصة للمطاعم والشركات الناشئة.</p>
+        </div>
+        <div>
+          <h4 class="footer-title">الروابط</h4>
+          <div class="footer-links">
+            <a href="../services.html">الخدمات</a>
+            <a href="../pricing.html">الأسعار</a>
+            <a href="../about.html">من نحن</a>
+            <a href="../blog/index.html">المدونة</a>
+            <a href="../contact.html">تواصل معنا</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">الحاسبات</h4>
+          <div class="footer-links">
+            <a href="../calculator.html">نقطة التعادل</a>
+            <a href="cash-flow.html">تدفق النقد</a>
+            <a href="pricing.html">تسعير المنتج</a>
+            <a href="loan.html">القرض والتمويل</a>
+            <a href="restaurant.html">المطاعم والسحابي</a>
+            <a href="dish-margin.html">ربحية الوجبة</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">السجلات التجارية</h4>
+          <div class="footer-links">
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">مصر: س.ت 39733</span>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">السعودية: ر.و.م 7042125869</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="y">2025</span> بوندز للاستشارات المالية — جميع الحقوق محفوظة.</span>
+        <div style="display: flex; gap: var(--space-6);">
+          <a href="../privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a>
+          <a href="#" style="color: var(--text-muted);">إخلاء المسؤولية</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
+
+  <script>
+    var currentCountry = 'SA';
+    var currentCurrency = 'ر.س';
+    var comparisonItems = [];
+
+    function populateCountrySelect() {
+      var select = document.getElementById('countrySelect');
+      var keys = Object.keys(COUNTRIES_DATA);
+      keys.forEach(function(code) {
+        var c = COUNTRIES_DATA[code];
+        var opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = c.flag + ' ' + c.name;
+        select.appendChild(opt);
+      });
+    }
+
+    function changeCountry(code) {
+      if (!code || !COUNTRIES_DATA[code]) return;
+      currentCountry = code;
+      var c = COUNTRIES_DATA[code];
+      currentCurrency = c.currencySymbol;
+      document.getElementById('countryNote').textContent = (c.note || '') + ' العملة: ' + c.currencySymbol + ' (' + c.currency + ')';
+      populatePlatforms(c.platforms);
+    }
+
+    function populatePlatforms(platforms) {
+      var select = document.getElementById('platformSelect');
+      select.innerHTML = '<option value="">اختر المنصة...</option>';
+      if (!platforms) return;
+      platforms.forEach(function(p) {
+        var opt = document.createElement('option');
+        opt.value = p.fee;
+        opt.textContent = p.name + ' — ' + p.fee + '%';
+        opt.dataset.name = p.name;
+        select.appendChild(opt);
+      });
+    }
+
+    function selectPlatform(value) {
+      if (value) {
+        document.getElementById('commissionRate').value = value;
+        calculate();
+      }
+    }
+
+    function formatNumber(n) {
+      return n.toLocaleString('ar-SA', { maximumFractionDigits: 2 });
+    }
+
+    function calculate() {
+      var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
+      var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
+      var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+      var commissionRate = parseFloat(document.getElementById('commissionRate').value) || 0;
+
+      var totalPrimeCost = foodCost + packagingCost;
+      var commissionValue = sellingPrice * (commissionRate / 100);
+      var grossProfit = sellingPrice - commissionValue - totalPrimeCost;
+      var margin = sellingPrice > 0 ? (grossProfit / sellingPrice) * 100 : 0;
+
+      document.getElementById('valCommission').textContent = formatNumber(commissionValue) + ' ' + currentCurrency;
+      document.getElementById('valTotalCost').textContent = formatNumber(totalPrimeCost) + ' ' + currentCurrency;
+      document.getElementById('valProfit').textContent = formatNumber(grossProfit) + ' ' + currentCurrency;
+      document.getElementById('valMargin').textContent = margin.toFixed(1) + '%';
+
+      // Margin bar
+      var bar = document.getElementById('marginBar');
+      bar.style.width = Math.min(Math.max(margin, 0), 100) + '%';
+
+      // Status classes
+      var status = margin >= 50 ? 'excellent' : (margin >= 40 ? 'good' : 'danger');
+      ['cardCommission', 'cardTotalCost', 'cardProfit', 'cardMargin'].forEach(function(id) {
+        var el = document.getElementById(id);
+        el.classList.remove('status-excellent', 'status-good', 'status-danger');
+        el.classList.add('status-' + status);
+      });
+
+      // Analysis
+      var analysisBox = document.getElementById('analysisBox');
+      var analysisText = document.getElementById('analysisText');
+      var alertBox = document.getElementById('smartAlert');
+      var alertText = document.getElementById('alertText');
+
+      if (sellingPrice > 0) {
+        analysisBox.style.display = 'block';
+        if (margin >= 50) {
+          analysisText.innerHTML = '✅ <strong>الوجبة ممتازة.</strong> هامش الربح ' + margin.toFixed(1) + '% يسمح بتغطية المصاريف الثابتة (إيجار، رواتب) وتحقيق ربح صافي جيد.';
+          alertBox.classList.remove('show');
+        } else if (margin >= 40) {
+          analysisText.innerHTML = '⚠️ <strong>الوجبة مقبولة.</strong> هامش الربح ' + margin.toFixed(1) + '% يكفي لتغطية المصاريف الثابتة لكن الهامش ضيق. جرّب رفع السعر ' + (grossProfit > 0 ? formatNumber(Math.ceil((totalPrimeCost / (1 - commissionRate/100 - 0.50)) - sellingPrice)) : '5') + ' ' + currentCurrency + ' أو خفض التكلفة.';
+          alertBox.classList.remove('show');
+        } else {
+          analysisText.innerHTML = '❌ <strong>الوجبة غير مربحة.</strong> هامش الربح ' + margin.toFixed(1) + '% لا يكفي لتغطية المصاريف الثابتة. يجب رفع السعر إلى ' + formatNumber(Math.ceil(totalPrimeCost / (1 - commissionRate/100 - 0.45))) + ' ' + currentCurrency + ' على الأقل لتحقيق هامش 45%.';
+          alertBox.classList.add('show');
+          alertText.textContent = 'هامش الربح أقل من 40% — الوجبة قد تبيع بخسارة بعد تغطية المصاريف الثابتة.';
+        }
+      } else {
+        analysisBox.style.display = 'none';
+        alertBox.classList.remove('show');
+      }
+    }
+
+    function calculateReverse() {
+      var foodCost = parseFloat(document.getElementById('revFoodCost').value) || 0;
+      var packagingCost = parseFloat(document.getElementById('revPackagingCost').value) || 0;
+      var commissionRate = parseFloat(document.getElementById('revCommissionRate').value) || 0;
+      var targetMargin = parseFloat(document.getElementById('targetMargin').value) || 0;
+
+      var totalCost = foodCost + packagingCost;
+      var denominator = 1 - (commissionRate / 100) - (targetMargin / 100);
+      var price = denominator > 0 ? totalCost / denominator : 0;
+
+      document.getElementById('calculatedPrice').value = price > 0 ? Math.ceil(price) : '';
+    }
+
+    function addToComparison() {
+      var name = document.getElementById('dishName').value || 'وجبة ' + (comparisonItems.length + 1);
+      var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
+      var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
+      var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+      var commissionRate = parseFloat(document.getElementById('commissionRate').value) || 0;
+
+      var commissionValue = sellingPrice * (commissionRate / 100);
+      var totalCost = foodCost + packagingCost;
+      var profit = sellingPrice - commissionValue - totalCost;
+      var margin = sellingPrice > 0 ? (profit / sellingPrice) * 100 : 0;
+      var status = margin >= 50 ? 'excellent' : (margin >= 40 ? 'good' : 'danger');
+      var statusText = margin >= 50 ? 'ممتاز' : (margin >= 40 ? 'مقبول' : 'خطير');
+
+      var platformSelect = document.getElementById('platformSelect');
+      var platformName = platformSelect.selectedOptions[0] && platformSelect.selectedOptions[0].dataset.name ? platformSelect.selectedOptions[0].dataset.name : 'مباشر';
+
+      comparisonItems.push({
+        name: name, price: sellingPrice, foodCost: foodCost, packaging: packagingCost,
+        platform: platformName, commission: commissionValue, profit: profit, margin: margin,
+        status: status, statusText: statusText
+      });
+
+      renderComparison();
+    }
+
+    function renderComparison() {
+      var tbody = document.getElementById('comparisonBody');
+      if (comparisonItems.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="color: var(--text-muted);">لا توجد أطباق للمقارنة بعد. أضف وجبة من الأعلى.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      comparisonItems.forEach(function(item, idx) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${item.name}</strong></td>
+          <td>${formatNumber(item.price)}</td>
+          <td>${formatNumber(item.foodCost)}</td>
+          <td>${formatNumber(item.packaging)}</td>
+          <td>${item.platform}</td>
+          <td>${formatNumber(item.commission)}</td>
+          <td><strong>${formatNumber(item.profit)}</strong></td>
+          <td><strong>${item.margin.toFixed(1)}%</strong></td>
+          <td class="status-cell status-${item.status}">${item.statusText}</td>
+          <td class="hidden-print"><button class="btn-small btn-remove" onclick="removeComparisonItem(${idx})">حذف</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function removeComparisonItem(idx) {
+      comparisonItems.splice(idx, 1);
+      renderComparison();
+    }
+
+    function clearComparison() {
+      comparisonItems = [];
+      renderComparison();
+    }
+
+    function shareWhatsApp() {
+      var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
+      var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
+      var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+      var commissionRate = parseFloat(document.getElementById('commissionRate').value) || 0;
+      var totalCost = foodCost + packagingCost;
+      var commissionValue = sellingPrice * (commissionRate / 100);
+      var profit = sellingPrice - commissionValue - totalCost;
+      var margin = sellingPrice > 0 ? (profit / sellingPrice) * 100 : 0;
+      var name = document.getElementById('dishName').value || 'الوجبة';
+
+      var text = '💰 تحليل ربحية: ' + name + '\n' +
+        'السعر: ' + sellingPrice + ' ' + currentCurrency + '\n' +
+        'التكلفة: ' + totalCost + ' ' + currentCurrency + '\n' +
+        'عمولة المنصة (' + commissionRate + '%): ' + commissionValue.toFixed(2) + ' ' + currentCurrency + '\n' +
+        'صافي الربح: ' + profit.toFixed(2) + ' ' + currentCurrency + '\n' +
+        'هامش الربح: ' + margin.toFixed(1) + '%\n\n' +
+        '— عبر حاسبة بوندز: https://bonds-global.com/calculators/dish-margin.html';
+
+      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    }
+
+    async function exportPDF() {
+      await loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+      await loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+      var section = document.getElementById('resultsSection');
+      var table = document.getElementById('comparisonTable');
+      var wrapper = document.createElement('div');
+      wrapper.style.background = '#0a0f1a';
+      wrapper.style.padding = '2rem';
+      wrapper.style.color = '#fff';
+      wrapper.style.fontFamily = 'Vazirmatn, system-ui, sans-serif';
+      wrapper.innerHTML = '<h2 style="color:#d4a853;text-align:center;margin-bottom:1.5rem;">📊 تحليل ربحية الوجبة — بوندز</h2>';
+      wrapper.appendChild(section.cloneNode(true));
+      if (comparisonItems.length > 0) {
+        wrapper.innerHTML += '<h3 style="color:#d4a853;margin-top:2rem;">📋 جدول المقارنة</h3>';
+        wrapper.appendChild(table.cloneNode(true));
+      }
+      document.body.appendChild(wrapper);
+      var canvas = await html2canvas(wrapper, { scale: 2, backgroundColor: '#0a0f1a', useCORS: true });
+      document.body.removeChild(wrapper);
+      var imgData = canvas.toDataURL('image/png');
+      var { jsPDF } = window.jspdf;
+      var doc = new jsPDF({ orientation: 'landscape' });
+      var imgProps = doc.getImageProperties(imgData);
+      var pdfW = doc.internal.pageSize.getWidth();
+      var pdfH = (imgProps.height * pdfW) / imgProps.width;
+      doc.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+      doc.save('bonds-dish-margin.pdf');
+    }
+
+    function exportExcel() {
+      if (typeof XLSX === 'undefined') {
+        loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js').then(function() { doExportExcel(); });
+      } else {
+        doExportExcel();
+      }
+    }
+
+    function doExportExcel() {
+      var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
+      var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
+      var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+      var commissionRate = parseFloat(document.getElementById('commissionRate').value) || 0;
+      var totalCost = foodCost + packagingCost;
+      var commissionValue = sellingPrice * (commissionRate / 100);
+      var profit = sellingPrice - commissionValue - totalCost;
+      var margin = sellingPrice > 0 ? (profit / sellingPrice) * 100 : 0;
+
+      var wb = XLSX.utils.book_new();
+      wb.Props = { Title: 'حاسبة ربحية الوجبة', Subject: 'بوندز', Author: 'Bonds Global' };
+
+      var summaryData = [
+        ['تحليل ربحية الوجبة — بوندز'],
+        [''],
+        ['اسم الوجبة', document.getElementById('dishName').value],
+        ['الدولة', COUNTRIES_DATA[currentCountry] ? COUNTRIES_DATA[currentCountry].name : ''],
+        ['العملة', currentCurrency],
+        [''],
+        ['سعر البيع', sellingPrice],
+        ['تكلفة المكونات', foodCost],
+        ['تكلفة التغليف', packagingCost],
+        ['إجمالي التكلفة المباشرة', totalCost],
+        ['نسبة عمولة المنصة', commissionRate + '%'],
+        ['قيمة العمولة', commissionValue],
+        [''],
+        ['صافي الربح', profit],
+        ['نسبة هامش الربح', margin.toFixed(2) + '%']
+      ];
+      var ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+      XLSX.utils.book_append_sheet(wb, ws1, 'التحليل');
+
+      if (comparisonItems.length > 0) {
+        var compData = [['الوجبة', 'السعر', 'المكونات', 'التغليف', 'المنصة', 'العمولة', 'الربح', 'الهامج', 'التقييم']];
+        comparisonItems.forEach(function(item) {
+          compData.push([item.name, item.price, item.foodCost, item.packaging, item.platform, item.commission, item.profit, item.margin, item.statusText]);
+        });
+        var ws2 = XLSX.utils.aoa_to_sheet(compData);
+        XLSX.utils.book_append_sheet(wb, ws2, 'المقارنة');
+      }
+
+      XLSX.writeFile(wb, 'bonds-dish-margin.xlsx');
+    }
+
+    // Init
+    populateCountrySelect();
+    document.getElementById('countrySelect').value = 'SA';
+    changeCountry('SA');
+
+    // Auto-calculate
+    var debouncedCalc = debounce(calculate, 200);
+    document.querySelectorAll('input[type="number"]').forEach(function(el) {
+      el.addEventListener('input', debouncedCalc);
+    });
+
+    var debouncedReverse = debounce(calculateReverse, 200);
+    ['revFoodCost', 'revPackagingCost', 'revCommissionRate', 'targetMargin'].forEach(function(id) {
+      document.getElementById(id).addEventListener('input', debouncedReverse);
+    });
+
+    // Initial calculations
+    calculate();
+    calculateReverse();
+
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+
+  <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+</body>
+</html>

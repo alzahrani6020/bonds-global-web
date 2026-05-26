@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bonds-v17';
+const CACHE_NAME = 'bonds-v18';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -24,6 +24,8 @@ const STATIC_ASSETS = [
   '/en/calculators/loan.html',
   '/calculators/restaurant.html',
   '/en/calculators/restaurant.html',
+  '/calculators/dish-margin.html',
+  '/en/calculators/dish-margin.html',
   '/sectors/manufacturing.html',
   '/blog/index.html',
   '/blog/cash-flow-mistakes.html',
