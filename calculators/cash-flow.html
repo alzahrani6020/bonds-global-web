@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>حاسبة تدفق النقد | بوندز — استشارات مالية</title>
+  <meta name="description" content="احسب توقعات التدفق النقدي لـ 12 شهراً: الواردات، المصروفات، والرصيد الختامي. أداة مجانية من بوندز." />
+  <meta property="og:title" content="حاسبة تدفق النقد | بوندز" />
+  <meta property="og:description" content="احسب توقعات التدفق النقدي لـ 12 شهراً: الواردات، المصروفات، والرصيد الختامي." />
+  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/cash-flow.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="حاسبة تدفق النقد | بوندز" />
+  <meta name="twitter:description" content="احسب توقعات التدفق النقدي لـ 12 شهراً: الواردات، المصروفات، والرصيد الختامي." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://cdn.sheetjs.com" />
+  <link rel="prefetch" href="../calculator.html" as="document" />
+  <link rel="prefetch" href="pricing.html" as="document" />
+  <link rel="prefetch" href="loan.html" as="document" />
+  <link rel="preload" href="../assets/site-logo.webp" as="image" type="image/webp" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <script src="shared-utils.js"></script>
+  <style>
+    .calc-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+    @media (min-width: 1100px) { .calc-grid { grid-template-columns: 1.2fr 0.8fr; } }
+    .calc-input-group { margin-bottom: 1.5rem; }
+    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .calc-input-group input[type="number"] { width: 100%; padding: 0.85rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 0.95rem; outline: none; transition: all 0.3s; }
+    .calc-input-group input[type="number"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
+    .cashflow-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg-card); }
+    .cashflow-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .cashflow-table th, .cashflow-table td { padding: 0.5rem 0.35rem; text-align: center; border: 1px solid var(--border); white-space: nowrap; }
+    .cashflow-table th { background: var(--bg-secondary); color: var(--gold); font-weight: 700; font-size: 0.8rem; position: sticky; top: 0; z-index: 2; }
+    .cashflow-table td:first-child, .cashflow-table th:first-child { position: sticky; right: 0; background: var(--bg-card); z-index: 3; font-weight: 700; text-align: right; padding-right: 1rem; min-width: 140px; }
+    .cashflow-table th:first-child { background: var(--bg-secondary); z-index: 4; }
+    .cashflow-table input[type="number"] { width: 80px; padding: 0.4rem 0.3rem; border-radius: 6px; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--text); font-family: inherit; font-size: 0.8rem; text-align: center; outline: none; transition: all 0.3s; }
+    .cashflow-table input[type="number"]:focus { border-color: var(--gold); }
+    .cashflow-table .row-in td:first-child { color: #16a34a; }
+    .cashflow-table .row-out td:first-child { color: #dc2626; }
+    .results-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg-card); margin-top: var(--space-6); }
+    .results-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .results-table th, .results-table td { padding: 0.6rem 0.4rem; text-align: center; border: 1px solid var(--border); white-space: nowrap; }
+    .results-table th { background: var(--bg-secondary); color: var(--gold); font-weight: 700; font-size: 0.8rem; }
+    .results-table td:first-child, .results-table th:first-child { position: sticky; right: 0; background: var(--bg-card); z-index: 1; font-weight: 700; text-align: right; padding-right: 1rem; min-width: 150px; }
+    .results-table th:first-child { background: var(--bg-secondary); z-index: 2; }
+    .results-table .positive { color: #16a34a; font-weight: 700; }
+    .results-table .negative { color: #dc2626; font-weight: 700; }
+    .results-table .highlight-row { background: rgba(212,168,83,0.06); }
+    .results-table .total-row { background: rgba(59,130,246,0.06); font-weight: 700; }
+    .share-bar { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+    .share-bar input { flex: 1; min-width: 200px; }
+    .section-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-4); }
+    .annual-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: var(--space-6); }
+    @media (min-width: 768px) { .annual-summary { grid-template-columns: repeat(3, 1fr); } }
+    .summary-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; text-align: center; }
+    .summary-card .summary-label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 0.5rem; }
+    .summary-card .summary-value { font-size: 1.35rem; font-weight: 900; }
+    .summary-card.gold { border-top: 3px solid var(--gold); }
+    .summary-card.green { border-top: 3px solid #16a34a; }
+    .summary-card.red { border-top: 3px solid #dc2626; }
+    .summary-card.blue { border-top: 3px solid #3b82f6; }
+    .month-tab-bar { display: flex; gap: 0.35rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: var(--space-4); }
+    .month-tab { padding: 0.4rem 0.7rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.3s; }
+    .month-tab.active { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+    .month-tab:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+    @media print {
+      .hidden-print, .topbar, .main-header, .main-footer, .hero, button, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
+      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
+      .section { padding: 0 !important; }
+      .cashflow-table-wrap, .results-table-wrap { border: 1px solid #ccc; background: #fff; }
+      .cashflow-table th, .results-table th { background: #f0f0f0 !important; color: #000 !important; }
+      .cashflow-table td:first-child, .results-table td:first-child { background: #fff !important; }
+      canvas { max-height: 280px !important; }
+    }
+  </style>
+</head>
+<body style="font-family:Vazirmatn,system-ui,sans-serif">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <span>استشارتك الأولى مجانية — احجز الآن</span>
+      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب سريع →</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header" id="header">
+    <div class="container main-header__inner">
+      <a href="../index.html" class="logo-slot">
+        <img src="../assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" />
+        <span class="logo-text">بوندز</span>
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="../index.html">الرئيسية</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              الخدمات
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="../services.html#analysis">التحليل المالي</a>
+              <a href="../services.html#cashflow">إدارة التدفقات النقدية</a>
+              <a href="../services.html#feasibility">دراسات الجدوى</a>
+              <a href="../services.html#risk">تحليل المخاطر</a>
+              <a href="../services.html#research">الاستبيانات والبحوث</a>
+            </div>
+          </li>
+          <li><a href="../pricing.html">الأسعار</a></li>
+          <li><a href="../about.html">من نحن</a></li>
+          <li><a href="../calculator.html">آلة حاسبة</a></li>
+          <li><a href="../index.html#insights">مقالات</a></li>
+          <li><a href="../faq.html">الأسئلة الشائعة</a></li>
+          <li><a href="../contact.html">تواصل</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <a href="en/cash-flow.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">EN</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
+        <a href="../contact.html" class="btn btn-primary hidden-mobile">احجز استشارتك</a>
+        <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" style="min-height: 35vh; padding: var(--space-20) 0;">
+    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
+    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+    <div class="container hero__content reveal">
+      <span class="hero__eyebrow">أداة مجانية</span>
+      <h1 class="hero__title">حاسبة <span class="text-gradient">تدفق النقد</span></h1>
+      <p class="hero__desc">توقع وضعك النقدي على مدار 12 شهراً: الواردات، المصروفات، والرصيد الختامي.</p>
+    </div>
+  </section>
+
+  <!-- Calculator -->
+  <section class="section">
+    <div class="container">
+      <div class="calc-grid">
+        <!-- Inputs -->
+        <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
+          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">بيانات التدفق النقدي</h2>
+          
+          <div class="calc-input-group">
+            <label>الرصيد الافتتاحي (بداية الشهر الأول)</label>
+            <input type="number" id="openingBalance" placeholder="مثلاً: 50000" min="0" />
+          </div>
+
+          <h3 style="font-size: var(--text-lg); font-weight: 700; margin: var(--space-6) 0 var(--space-4); color: var(--gold);">الواردات الشهرية 💰</h3>
+          <div class="cashflow-table-wrap" id="inflowTableWrap"></div>
+
+          <h3 style="font-size: var(--text-lg); font-weight: 700; margin: var(--space-6) 0 var(--space-4); color: var(--gold);">المصروفات الشهرية 💸</h3>
+          <div class="cashflow-table-wrap" id="outflowTableWrap"></div>
+
+          <div class="section-actions">
+            <button onclick="calculateAll()" class="btn btn-primary">احسب النتائج</button>
+            <button onclick="loadExample()" class="btn btn-outline">🧮 جرب مثال توضيحي</button>
+            <button onclick="resetCalc()" class="btn btn-outline">مسح البيانات</button>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="reveal reveal-delay-1">
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); margin-bottom: var(--space-6);">
+            <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">النتائج الشهرية</h2>
+            
+            <div id="annualSummary" class="annual-summary" style="display:none;">
+              <div class="summary-card gold">
+                <div class="summary-label">إجمالي الواردات السنوي</div>
+                <div class="summary-value" id="sumTotalIn">—</div>
+              </div>
+              <div class="summary-card red">
+                <div class="summary-label">إجمالي المصروفات السنوي</div>
+                <div class="summary-value" id="sumTotalOut">—</div>
+              </div>
+              <div class="summary-card blue">
+                <div class="summary-label">صافي التدفق السنوي</div>
+                <div class="summary-value" id="sumNetFlow">—</div>
+              </div>
+              <div class="summary-card green">
+                <div class="summary-label">الرصيد الختامي (ديسمبر)</div>
+                <div class="summary-value" id="sumClosing">—</div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-label">أدنى رصيد خلال العام</div>
+                <div class="summary-value" id="sumMinBal">—</div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-label">أعلى رصيد خلال العام</div>
+                <div class="summary-value" id="sumMaxBal">—</div>
+              </div>
+            </div>
+
+            <div id="resultsTableContainer" style="margin-top: var(--space-6);"></div>
+
+            <div class="share-bar hidden-print" style="margin-top: var(--space-6);">
+              <button onclick="exportExcel()" class="btn btn-outline" style="font-size: 0.8rem;">📊 Excel</button>
+              <button onclick="exportPDF()" class="btn btn-outline" style="font-size: 0.8rem;">🖨️ طباعة / PDF</button>
+            </div>
+          </div>
+
+          <div style="background: linear-gradient(135deg, var(--navy-900), var(--navy-700)); border-radius: var(--radius-lg); padding: var(--space-8); color: var(--white);">
+            <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3);">ابغى تحليل أعمق؟</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-6);">هذه الأداة تقديرية. لو تبي تحليل دقيق للتدفقات النقدية — نحن نقدم استشارة مجانية.</p>
+            <a href="../contact.html" class="btn btn-primary">احجز استشارتك المجانية →</a>
+          </div>
+
+          <!-- Smart Alert CTA -->
+          <div id="smartAlertBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.02)); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius-lg);">
+            <div style="display: flex; align-items: flex-start; gap: var(--space-4);">
+              <div style="font-size: 2rem; flex-shrink: 0;">⚠️</div>
+              <div>
+                <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-2); color: #fca5a5;">تنبيه: رصيد نقدي سالب</h4>
+                <p id="smartAlertText" style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4); line-height: 1.8;"></p>
+                <a href="../contact.html" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">📞 استشارة مجانية (30 دقيقة)</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lead Capture -->
+          <div id="leadCaptureBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);">
+            <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">💾 احفظ نتائجك واحصل على هدية</h4>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4);">أرسل هذه النتائج لبريدك + نموذج Cash Flow Forecast مجاني.</p>
+            <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
+              <input type="text" name="name" required placeholder="الاسم" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+              <input type="email" name="email" required placeholder="البريد الإلكتروني" style="flex: 2; min-width: 180px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+              <input type="tel" name="phone" placeholder="رقم الجوال (اختياري)" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+              <input type="hidden" name="source" value="cashflow_calculator_lead" />
+              <input type="hidden" name="calc_data" id="leadCalcData" />
+              <button type="submit" class="btn btn-primary" style="flex-shrink: 0;">أرسل لي النتائج</button>
+            </form>
+            <p id="leadCaptureSuccess" style="display:none; color: #16a34a; margin-top: var(--space-3); font-weight: 700;">✓ تم الإرسال! سنتواصل معك خلال 24 ساعة.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="reveal" style="margin-top: var(--space-12);">
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
+          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">الرصيد الختامي على مدار 12 شهراً</h2>
+          <div style="position: relative; height: 400px;">
+            <canvas id="cashFlowChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- How It Works -->
+      <div class="reveal" style="margin-top: var(--space-12);">
+        <div class="section-header" style="margin-bottom: var(--space-8);">
+          <span class="section__eyebrow">الشفافية</span>
+          <h2 class="section__title">كيف تعمل الحاسبة؟</h2>
+        </div>
+        <div class="grid-2">
+          <div class="card reveal">
+            <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📐 المعادلات</h3>
+            <div style="display: flex; flex-direction: column; gap: var(--space-3); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
+              <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+                إجمالي الواردات = إيرادات المبيعات + إيرادات أخرى + قروض مستلمة
+              </div>
+              <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+                إجمالي المصروفات = إيجار + رواتب + مواد خام + تسويق + ضرائب + سداد قروض + مصروفات أخرى
+              </div>
+              <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+                صافي التدفق = إجمالي الواردات − إجمالي المصروفات
+              </div>
+              <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+                الرصيد الختامي = الرصيد الافتتاحي + صافي التدفق
+              </div>
+            </div>
+          </div>
+          <div class="card reveal reveal-delay-1">
+            <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">⚠️ تحذيرات</h3>
+            <ul style="font-size: 0.9rem; color: var(--text-secondary); line-height: 2; padding-right: var(--space-4);">
+              <li>هذه أداة <strong>تقديرية</strong> وليست بديلاً عن استشارة مالية.</li>
+              <li>النتائج تعتمد على <strong>دقة البيانات المدخلة</strong>.</li>
+              <li>تأكد من تضمين جميع الالتزامات المتكررة.</li>
+              <li>الرصيد السالب في أي شهر يعني حاجة لتمويل إضافي.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <!-- Disclaimer -->
+  <section style="background: var(--bg-secondary); padding: var(--space-8) 0; border-top: 1px solid var(--border);">
+    <div class="container">
+      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); backdrop-filter: blur(16px);">
+        <h4 style="font-size: var(--text-base); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">⚠️ إخلاء مسؤولية</h4>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-3);">
+          هذه الأدوة <strong>حاسبات تقديرية</strong> تهدف إلى المساعدة في الفهم المالي العام. النتائج تعتمد على المدخلات التي تقدمها، وقد لا تعكس الواقع التشغيلي الدقيق لشركتك بسبب عوامل خارجية (تقلبات السوق، تغيرات التكاليف، الالتزامات غير المتوقعة، الاستهلاك، التضخم، إلخ).
+        </p>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8;">
+          <strong>لا تغني هذه الأدوة عن استشارة محاسب مرخص أو مستشار مالي مؤهل.</strong> إذا كنت تتخذ قرارات استثمارية أو مالية كبيرة، نوصي بشدة بالتواصل مع فريق بوندز للحصول على تحليل مخصص يأخذ بعين الاعتبار بيئة عملك الفعلية.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo-slot">
+            <img src="../assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" loading="lazy" />
+            <span class="logo-text" style="color: var(--white);">بوندز</span>
+          </div>
+          <p>استشارات مالية لأصحاب المشاريع والشركات الصغيرة والمتوسطة في مصر والسعودية.</p>
+        </div>
+        <div>
+          <h4 class="footer-title">الصفحات</h4>
+          <div class="footer-links">
+            <a href="../index.html">الرئيسية</a>
+            <a href="../services.html">الخدمات</a>
+            <a href="../about.html">من نحن</a>
+            <a href="../faq.html">الأسئلة الشائعة</a>
+            <a href="../contact.html">تواصل معنا</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">الخدمات</h4>
+          <div class="footer-links">
+            <a href="../services.html#analysis">التحليل المالي</a>
+            <a href="../services.html">التدفقات النقدية</a>
+            <a href="../services.html#feasibility">دراسات الجدوى</a>
+            <a href="../services.html#risk">تحليل المخاطر</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">السجلات التجارية</h4>
+          <div class="footer-links">
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">مصر: س.ت 39733</span>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">السعودية: ر.و.م 7042125869</span>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">تواصل</h4>
+          <div class="footer-links">
+            <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب: +966 56 756 6616</a>
+            <a href="mailto:info@bonds-global.com">info@bonds-global.com</a>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">الشيخ زايد، الجيزة، مصر <br>جدة، شارع قريش</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="y">2025</span> بوندز للاستشارات المالية — جميع الحقوق محفوظة.</span>
+        <div style="display: flex; gap: var(--space-6);">
+          <a href="../privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a>
+          <a href="#" style="color: var(--text-muted);">إخلاء المسؤولية</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
+
+  <script src="../script.js" defer></script>
+  <script>
+    var chart = null;
+    var chartJsPromise = null;
+    var MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    var INFLOW_ROWS = [
+      {id:'sales', label:'إيرادات المبيعات'},
+      {id:'other', label:'إيرادات أخرى'},
+      {id:'loans', label:'قروض مستلمة'}
+    ];
+    var OUTFLOW_ROWS = [
+      {id:'rent', label:'إيجار'},
+      {id:'salaries', label:'رواتب'},
+      {id:'raw', label:'مواد خام'},
+      {id:'marketing', label:'تسويق'},
+      {id:'taxes', label:'ضرائب'},
+      {id:'loan_repay', label:'سداد قروض'},
+      {id:'other_exp', label:'مصروفات أخرى'}
+    ];
+
+    function loadChartJS() {
+      if (chartJsPromise) return chartJsPromise;
+      if (typeof Chart !== 'undefined') return Promise.resolve();
+      chartJsPromise = new Promise(function(resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+      return chartJsPromise;
+    }
+
+    function formatNumber(n) {
+      return Math.round(n).toLocaleString('en-US');
+    }
+
+    function generateInputTable() {
+      var wrap = document.getElementById('inflowTableWrap');
+      var html = '<table class="cashflow-table"><thead><tr><th>البند</th>';
+      MONTHS_AR.forEach(function(m) { html += '<th>' + m + '</th>'; });
+      html += '</tr></thead><tbody>';
+      INFLOW_ROWS.forEach(function(row) {
+        html += '<tr class="row-in">';
+        html += '<td>' + row.label + '</td>';
+        for (var i = 0; i < 12; i++) {
+          html += '<td><input type="number" id="in_' + row.id + '_' + i + '" placeholder="0" min="0" /></td>';
+        }
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      wrap.innerHTML = html;
+
+      wrap = document.getElementById('outflowTableWrap');
+      html = '<table class="cashflow-table"><thead><tr><th>البند</th>';
+      MONTHS_AR.forEach(function(m) { html += '<th>' + m + '</th>'; });
+      html += '</tr></thead><tbody>';
+      OUTFLOW_ROWS.forEach(function(row) {
+        html += '<tr class="row-out">';
+        html += '<td>' + row.label + '</td>';
+        for (var i = 0; i < 12; i++) {
+          html += '<td><input type="number" id="out_' + row.id + '_' + i + '" placeholder="0" min="0" /></td>';
+        }
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      wrap.innerHTML = html;
+    }
+
+    function getMonthData() {
+      var months = [];
+      var opening = parseFloat(document.getElementById('openingBalance').value) || 0;
+      for (var m = 0; m < 12; m++) {
+        var month = { inflows: {}, outflows: {}, totalIn: 0, totalOut: 0, netCashFlow: 0, openingBalance: 0, closingBalance: 0 };
+        INFLOW_ROWS.forEach(function(row) {
+          var val = parseFloat(document.getElementById('in_' + row.id + '_' + m).value) || 0;
+          month.inflows[row.id] = val;
+          month.totalIn += val;
+        });
+        OUTFLOW_ROWS.forEach(function(row) {
+          var val = parseFloat(document.getElementById('out_' + row.id + '_' + m).value) || 0;
+          month.outflows[row.id] = val;
+          month.totalOut += val;
+        });
+        month.netCashFlow = month.totalIn - month.totalOut;
+        month.openingBalance = m === 0 ? opening : months[m-1].closingBalance;
+        month.closingBalance = month.openingBalance + month.netCashFlow;
+        months.push(month);
+      }
+      return months;
+    }
+
+    function generateResultsTable(months) {
+      var container = document.getElementById('resultsTableContainer');
+      var html = '<div class="results-table-wrap"><table class="results-table"><thead><tr><th>البند</th>';
+      MONTHS_AR.forEach(function(m) { html += '<th>' + m + '</th>'; });
+      html += '<th>المجموع / المتوسط</th></tr></thead><tbody>';
+
+      // Opening balance
+      html += '<tr><td>الرصيد الافتتاحي</td>';
+      months.forEach(function(m) {
+        html += '<td>' + formatNumber(m.openingBalance) + '</td>';
+      });
+      html += '<td>—</td></tr>';
+
+      // Inflows detail
+      INFLOW_ROWS.forEach(function(row) {
+        var total = 0;
+        html += '<tr><td style="color:#16a34a;">' + row.label + '</td>';
+        months.forEach(function(m) {
+          html += '<td>' + formatNumber(m.inflows[row.id]) + '</td>';
+          total += m.inflows[row.id];
+        });
+        html += '<td style="font-weight:700;">' + formatNumber(total) + '</td></tr>';
+      });
+
+      // Total inflows
+      var totalInYear = 0;
+      html += '<tr class="highlight-row"><td>إجمالي الواردات</td>';
+      months.forEach(function(m) {
+        html += '<td class="positive">' + formatNumber(m.totalIn) + '</td>';
+        totalInYear += m.totalIn;
+      });
+      html += '<td class="positive">' + formatNumber(totalInYear) + '</td></tr>';
+
+      // Outflows detail
+      OUTFLOW_ROWS.forEach(function(row) {
+        var total = 0;
+        html += '<tr><td style="color:#dc2626;">' + row.label + '</td>';
+        months.forEach(function(m) {
+          html += '<td>' + formatNumber(m.outflows[row.id]) + '</td>';
+          total += m.outflows[row.id];
+        });
+        html += '<td style="font-weight:700;">' + formatNumber(total) + '</td></tr>';
+      });
+
+      // Total outflows
+      var totalOutYear = 0;
+      html += '<tr class="highlight-row"><td>إجمالي المصروفات</td>';
+      months.forEach(function(m) {
+        html += '<td class="negative">' + formatNumber(m.totalOut) + '</td>';
+        totalOutYear += m.totalOut;
+      });
+      html += '<td class="negative">' + formatNumber(totalOutYear) + '</td></tr>';
+
+      // Net cash flow
+      var netFlowYear = 0;
+      html += '<tr class="total-row"><td>صافي التدفق النقدي</td>';
+      months.forEach(function(m) {
+        var cls = m.netCashFlow >= 0 ? 'positive' : 'negative';
+        html += '<td class="' + cls + '">' + formatNumber(m.netCashFlow) + '</td>';
+        netFlowYear += m.netCashFlow;
+      });
+      html += '<td class="' + (netFlowYear >= 0 ? 'positive' : 'negative') + '">' + formatNumber(netFlowYear) + '</td></tr>';
+
+      // Closing balance
+      html += '<tr class="total-row" style="background:rgba(212,168,83,0.1);"><td>الرصيد الختامي</td>';
+      months.forEach(function(m) {
+        var cls = m.closingBalance >= 0 ? 'positive' : 'negative';
+        html += '<td class="' + cls + '">' + formatNumber(m.closingBalance) + '</td>';
+      });
+      html += '<td>—</td></tr>';
+
+      html += '</tbody></table></div>';
+      container.innerHTML = html;
+    }
+
+    function updateSummary(months) {
+      var totalIn = 0, totalOut = 0, netFlow = 0;
+      var minBal = Infinity, maxBal = -Infinity;
+      var minMonth = '', maxMonth = '';
+      months.forEach(function(m, i) {
+        totalIn += m.totalIn;
+        totalOut += m.totalOut;
+        netFlow += m.netCashFlow;
+        if (m.closingBalance < minBal) { minBal = m.closingBalance; minMonth = MONTHS_AR[i]; }
+        if (m.closingBalance > maxBal) { maxBal = m.closingBalance; maxMonth = MONTHS_AR[i]; }
+      });
+      if (minBal === Infinity) minBal = 0;
+      if (maxBal === -Infinity) maxBal = 0;
+
+      document.getElementById('sumTotalIn').textContent = formatNumber(totalIn) + ' ر.س';
+      document.getElementById('sumTotalOut').textContent = formatNumber(totalOut) + ' ر.س';
+      document.getElementById('sumNetFlow').textContent = formatNumber(netFlow) + ' ر.س';
+      document.getElementById('sumNetFlow').style.color = netFlow >= 0 ? '#16a34a' : '#dc2626';
+      document.getElementById('sumClosing').textContent = formatNumber(months[11].closingBalance) + ' ر.س';
+      document.getElementById('sumClosing').style.color = months[11].closingBalance >= 0 ? '#16a34a' : '#dc2626';
+      document.getElementById('sumMinBal').textContent = formatNumber(minBal) + ' ر.س' + (minMonth ? ' (' + minMonth + ')' : '');
+      document.getElementById('sumMinBal').style.color = minBal >= 0 ? '#16a34a' : '#dc2626';
+      document.getElementById('sumMaxBal').textContent = formatNumber(maxBal) + ' ر.س' + (maxMonth ? ' (' + maxMonth + ')' : '');
+      document.getElementById('annualSummary').style.display = 'grid';
+    }
+
+    function updateChart(months) {
+      var ctx = document.getElementById('cashFlowChart').getContext('2d');
+      var labels = MONTHS_AR;
+      var data = months.map(function(m) { return m.closingBalance; });
+      var pointColors = data.map(function(v) { return v >= 0 ? '#16a34a' : '#dc2626'; });
+
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'الرصيد الختامي',
+            data: data,
+            borderColor: '#d4a853',
+            backgroundColor: 'rgba(212,168,83,0.1)',
+            pointBackgroundColor: pointColors,
+            pointBorderColor: pointColors,
+            pointRadius: 6,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: { labels: { color: '#e8ecf4', font: { family: 'Vazirmatn' } } },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return 'الرصيد: ' + formatNumber(context.raw) + ' ر.س';
+                }
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+
+    function checkSmartAlert(months) {
+      var alertBox = document.getElementById('smartAlertBox');
+      var alertText = document.getElementById('smartAlertText');
+      var negativeMonths = [];
+      months.forEach(function(m, i) {
+        if (m.closingBalance < 0) negativeMonths.push({ month: MONTHS_AR[i], balance: m.closingBalance });
+      });
+
+      if (negativeMonths.length > 0) {
+        alertBox.style.display = 'block';
+        var text = 'الرصيد سالب في ' + negativeMonths.length + ' شهر/أشهر: ';
+        text += negativeMonths.map(function(nm) { return nm.month + ' (' + formatNumber(Math.abs(nm.balance)) + ' ر.س)'; }).join('، ');
+        text += '. تحتاج خطة تمويل أو تخفيض مصروفات لتجاوز هذه الفترة.';
+        alertText.textContent = text;
+      } else {
+        alertBox.style.display = 'none';
+      }
+    }
+
+    function updateLeadCapture(months) {
+      var leadBox = document.getElementById('leadCaptureBox');
+      leadBox.style.display = 'block';
+      var summary = {
+        date: new Date().toLocaleString('ar-SA'),
+        openingBalance: parseFloat(document.getElementById('openingBalance').value) || 0,
+        months: months.map(function(m, i) {
+          return {
+            month: MONTHS_AR[i],
+            totalIn: m.totalIn,
+            totalOut: m.totalOut,
+            netCashFlow: m.netCashFlow,
+            openingBalance: m.openingBalance,
+            closingBalance: m.closingBalance
+          };
+        })
+      };
+      document.getElementById('leadCalcData').value = JSON.stringify(summary);
+    }
+
+    function calculateAll() {
+      try {
+        var months = getMonthData();
+        generateResultsTable(months);
+        updateSummary(months);
+        checkSmartAlert(months);
+        updateLeadCapture(months);
+        loadChartJS().then(function() {
+          updateChart(months);
+        }).catch(function(e) {
+          console.error('Chart.js load error:', e);
+        });
+      } catch (err) {
+        console.error('Calculate error:', err);
+        alert('حدث خطأ في الحساب: ' + err.message);
+      }
+    }
+
+    function loadExample() {
+      document.getElementById('openingBalance').value = '80000';
+      var exampleIn = {
+        sales: [45000, 48000, 52000, 50000, 55000, 58000, 60000, 62000, 59000, 65000, 70000, 75000],
+        other: [2000, 2000, 3000, 2000, 2500, 3000, 2000, 2500, 3000, 3500, 4000, 5000],
+        loans: [0, 0, 50000, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      };
+      var exampleOut = {
+        rent: [8000, 8000, 8000, 8000, 8000, 8000, 8000, 8000, 8000, 8000, 8000, 8000],
+        salaries: [25000, 25000, 25000, 27000, 27000, 27000, 27000, 27000, 27000, 27000, 27000, 27000],
+        raw: [12000, 13000, 14000, 13500, 15000, 16000, 16500, 17000, 16000, 18000, 19000, 20000],
+        marketing: [3000, 3000, 4000, 3000, 5000, 4000, 3000, 5000, 4000, 6000, 7000, 8000],
+        taxes: [0, 0, 0, 5000, 0, 0, 0, 5000, 0, 0, 0, 10000],
+        loan_repay: [0, 0, 0, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000],
+        other_exp: [2000, 2000, 3000, 2000, 2500, 3000, 2000, 2500, 3000, 3500, 4000, 5000]
+      };
+      INFLOW_ROWS.forEach(function(row) {
+        for (var i = 0; i < 12; i++) {
+          document.getElementById('in_' + row.id + '_' + i).value = exampleIn[row.id][i];
+        }
+      });
+      OUTFLOW_ROWS.forEach(function(row) {
+        for (var i = 0; i < 12; i++) {
+          document.getElementById('out_' + row.id + '_' + i).value = exampleOut[row.id][i];
+        }
+      });
+      calculateAll();
+    }
+
+    function resetCalc() {
+      document.getElementById('openingBalance').value = '';
+      INFLOW_ROWS.forEach(function(row) {
+        for (var i = 0; i < 12; i++) {
+          document.getElementById('in_' + row.id + '_' + i).value = '';
+        }
+      });
+      OUTFLOW_ROWS.forEach(function(row) {
+        for (var i = 0; i < 12; i++) {
+          document.getElementById('out_' + row.id + '_' + i).value = '';
+        }
+      });
+      document.getElementById('resultsTableContainer').innerHTML = '';
+      document.getElementById('annualSummary').style.display = 'none';
+      document.getElementById('smartAlertBox').style.display = 'none';
+      document.getElementById('leadCaptureBox').style.display = 'none';
+      document.getElementById('leadCaptureForm').style.display = 'flex';
+      document.getElementById('leadCaptureSuccess').style.display = 'none';
+      if (chart) { chart.destroy(); chart = null; }
+    }
+
+    function exportExcel() {
+      var months = getMonthData();
+      if (typeof XLSX === 'undefined') {
+        alert('مكتبة Excel غير محملة. حاول تحديث الصفحة.');
+        return;
+      }
+      var wb = XLSX.utils.book_new();
+      wb.Props = { Title: 'تقرير التدفق النقدي', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+      // Input sheet
+      var inputData = [['بيانات الإدخال']];
+      inputData.push(['الرصيد الافتتاحي', parseFloat(document.getElementById('openingBalance').value) || 0]);
+      inputData.push([]);
+      inputData.push(['الواردات'].concat(MONTHS_AR));
+      INFLOW_ROWS.forEach(function(row) {
+        var r = [row.label];
+        for (var i = 0; i < 12; i++) r.push(months[i].inflows[row.id]);
+        inputData.push(r);
+      });
+      inputData.push([]);
+      inputData.push(['المصروفات'].concat(MONTHS_AR));
+      OUTFLOW_ROWS.forEach(function(row) {
+        var r = [row.label];
+        for (var i = 0; i < 12; i++) r.push(months[i].outflows[row.id]);
+        inputData.push(r);
+      });
+      var ws1 = XLSX.utils.aoa_to_sheet(inputData);
+      ws1['!cols'] = [{wch:18}].concat(MONTHS_AR.map(function(){return {wch:12};}));
+      XLSX.utils.book_append_sheet(wb, ws1, 'الإدخالات');
+
+      // Results sheet
+      var resData = [['النتائج الشهرية']];
+      resData.push(['البند'].concat(MONTHS_AR).concat(['المجموع']));
+      resData.push(['الرصيد الافتتاحي'].concat(months.map(function(m){return m.openingBalance;})).concat(['—']));
+      INFLOW_ROWS.forEach(function(row) {
+        var total = 0;
+        var r = [row.label];
+        months.forEach(function(m){ r.push(m.inflows[row.id]); total += m.inflows[row.id]; });
+        r.push(total);
+        resData.push(r);
+      });
+      resData.push(['إجمالي الواردات'].concat(months.map(function(m){return m.totalIn;})).concat([months.reduce(function(a,m){return a+m.totalIn;},0)]));
+      OUTFLOW_ROWS.forEach(function(row) {
+        var total = 0;
+        var r = [row.label];
+        months.forEach(function(m){ r.push(m.outflows[row.id]); total += m.outflows[row.id]; });
+        r.push(total);
+        resData.push(r);
+      });
+      resData.push(['إجمالي المصروفات'].concat(months.map(function(m){return m.totalOut;})).concat([months.reduce(function(a,m){return a+m.totalOut;},0)]));
+      resData.push(['صافي التدفق النقدي'].concat(months.map(function(m){return m.netCashFlow;})).concat([months.reduce(function(a,m){return a+m.netCashFlow;},0)]));
+      resData.push(['الرصيد الختامي'].concat(months.map(function(m){return m.closingBalance;})).concat(['—']));
+      var ws2 = XLSX.utils.aoa_to_sheet(resData);
+      ws2['!cols'] = [{wch:18}].concat(MONTHS_AR.map(function(){return {wch:12};})).concat([{wch:14}]);
+      XLSX.utils.book_append_sheet(wb, ws2, 'النتائج');
+
+      XLSX.writeFile(wb, 'bonds-cash-flow.xlsx');
+    }
+
+    function exportPDF() {
+      var months = getMonthData();
+      var totalInYear = 0, totalOutYear = 0, netFlowYear = 0;
+      var minBal = Infinity, maxBal = -Infinity, minMonth = '', maxMonth = '';
+      months.forEach(function(m, i) {
+        totalInYear += m.totalIn; totalOutYear += m.totalOut; netFlowYear += m.netCashFlow;
+        if (m.closingBalance < minBal) { minBal = m.closingBalance; minMonth = MONTHS_AR[i]; }
+        if (m.closingBalance > maxBal) { maxBal = m.closingBalance; maxMonth = MONTHS_AR[i]; }
+      });
+      if (minBal === Infinity) minBal = 0;
+      if (maxBal === -Infinity) maxBal = 0;
+
+      var chartImg = '';
+      var canvas = document.getElementById('cashFlowChart');
+      if (canvas && canvas.toDataURL) chartImg = canvas.toDataURL('image/png');
+
+      var printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        alert('تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.');
+        return;
+      }
+
+      var resultsHTML = '<table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;">';
+      resultsHTML += '<tr style="background:#f5f5f5;"><th style="padding:6px;border:1px solid #ddd;text-align:right;">البند</th>';
+      MONTHS_AR.forEach(function(m){ resultsHTML += '<th style="padding:6px;border:1px solid #ddd;">' + m + '</th>'; });
+      resultsHTML += '<th style="padding:6px;border:1px solid #ddd;">المجموع</th></tr>';
+
+      resultsHTML += '<tr><td style="padding:6px;border:1px solid #ddd;font-weight:bold;">الرصيد الافتتاحي</td>';
+      months.forEach(function(m){ resultsHTML += '<td style="padding:6px;border:1px solid #ddd;">' + formatNumber(m.openingBalance) + '</td>'; });
+      resultsHTML += '<td style="padding:6px;border:1px solid #ddd;">—</td></tr>';
+
+      INFLOW_ROWS.forEach(function(row) {
+        var total = 0;
+        resultsHTML += '<tr><td style="padding:6px;border:1px solid #ddd;color:#16a34a;">' + row.label + '</td>';
+        months.forEach(function(m){ resultsHTML += '<td style="padding:6px;border:1px solid #ddd;">' + formatNumber(m.inflows[row.id]) + '</td>'; total += m.inflows[row.id]; });
+        resultsHTML += '<td style="padding:6px;border:1px solid #ddd;font-weight:bold;">' + formatNumber(total) + '</td></tr>';
+      });
+
+      resultsHTML += '<tr style="background:#f5f5f5;"><td style="padding:6px;border:1px solid #ddd;font-weight:bold;">إجمالي الواردات</td>';
+      months.forEach(function(m){ resultsHTML += '<td style="padding:6px;border:1px solid #ddd;color:#16a34a;font-weight:bold;">' + formatNumber(m.totalIn) + '</td>'; });
+      resultsHTML += '<td style="padding:6px;border:1px solid #ddd;color:#16a34a;font-weight:bold;">' + formatNumber(totalInYear) + '</td></tr>';
+
+      OUTFLOW_ROWS.forEach(function(row) {
+        var total = 0;
+        resultsHTML += '<tr><td style="padding:6px;border:1px solid #ddd;color:#dc2626;">' + row.label + '</td>';
+        months.forEach(function(m){ resultsHTML += '<td style="padding:6px;border:1px solid #ddd;">' + formatNumber(m.outflows[row.id]) + '</td>'; total += m.outflows[row.id]; });
+        resultsHTML += '<td style="padding:6px;border:1px solid #ddd;font-weight:bold;">' + formatNumber(total) + '</td></tr>';
+      });
+
+      resultsHTML += '<tr style="background:#f5f5f5;"><td style="padding:6px;border:1px solid #ddd;font-weight:bold;">إجمالي المصروفات</td>';
+      months.forEach(function(m){ resultsHTML += '<td style="padding:6px;border:1px solid #ddd;color:#dc2626;font-weight:bold;">' + formatNumber(m.totalOut) + '</td>'; });
+      resultsHTML += '<td style="padding:6px;border:1px solid #ddd;color:#dc2626;font-weight:bold;">' + formatNumber(totalOutYear) + '</td></tr>';
+
+      resultsHTML += '<tr style="background:#fafafa;"><td style="padding:6px;border:1px solid #ddd;font-weight:bold;">صافي التدفق النقدي</td>';
+      months.forEach(function(m){ var c = m.netCashFlow >= 0 ? '#16a34a' : '#dc2626'; resultsHTML += '<td style="padding:6px;border:1px solid #ddd;color:' + c + ';font-weight:bold;">' + formatNumber(m.netCashFlow) + '</td>'; });
+      var nc = netFlowYear >= 0 ? '#16a34a' : '#dc2626';
+      resultsHTML += '<td style="padding:6px;border:1px solid #ddd;color:' + nc + ';font-weight:bold;">' + formatNumber(netFlowYear) + '</td></tr>';
+
+      resultsHTML += '<tr style="background:#fff8e1;"><td style="padding:6px;border:1px solid #ddd;font-weight:bold;">الرصيد الختامي</td>';
+      months.forEach(function(m){ var c = m.closingBalance >= 0 ? '#16a34a' : '#dc2626'; resultsHTML += '<td style="padding:6px;border:1px solid #ddd;color:' + c + ';font-weight:bold;">' + formatNumber(m.closingBalance) + '</td>'; });
+      resultsHTML += '<td style="padding:6px;border:1px solid #ddd;">—</td></tr>';
+      resultsHTML += '</table>';
+
+      var summaryHTML = '<table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;">';
+      summaryHTML += '<tr style="background:#f5f5f5;"><th style="padding:6px;border:1px solid #ddd;text-align:right;">المؤشر</th><th style="padding:6px;border:1px solid #ddd;">القيمة</th></tr>';
+      summaryHTML += '<tr><td style="padding:6px;border:1px solid #ddd;">إجمالي الواردات السنوي</td><td style="padding:6px;border:1px solid #ddd;font-weight:bold;">' + formatNumber(totalInYear) + ' ر.س</td></tr>';
+      summaryHTML += '<tr><td style="padding:6px;border:1px solid #ddd;">إجمالي المصروفات السنوي</td><td style="padding:6px;border:1px solid #ddd;font-weight:bold;">' + formatNumber(totalOutYear) + ' ر.س</td></tr>';
+      summaryHTML += '<tr><td style="padding:6px;border:1px solid #ddd;">صافي التدفق السنوي</td><td style="padding:6px;border:1px solid #ddd;font-weight:bold;color:' + (netFlowYear>=0?'#16a34a':'#dc2626') + ';">' + formatNumber(netFlowYear) + ' ر.س</td></tr>';
+      summaryHTML += '<tr><td style="padding:6px;border:1px solid #ddd;">الرصيد الختامي (ديسمبر)</td><td style="padding:6px;border:1px solid #ddd;font-weight:bold;color:' + (months[11].closingBalance>=0?'#16a34a':'#dc2626') + ';">' + formatNumber(months[11].closingBalance) + ' ر.س</td></tr>';
+      summaryHTML += '<tr><td style="padding:6px;border:1px solid #ddd;">أدنى رصيد</td><td style="padding:6px;border:1px solid #ddd;font-weight:bold;color:' + (minBal>=0?'#16a34a':'#dc2626') + ';">' + formatNumber(minBal) + ' ر.س (' + minMonth + ')</td></tr>';
+      summaryHTML += '<tr><td style="padding:6px;border:1px solid #ddd;">أعلى رصيد</td><td style="padding:6px;border:1px solid #ddd;font-weight:bold;color:#16a34a;">' + formatNumber(maxBal) + ' ر.س (' + maxMonth + ')</td></tr>';
+      summaryHTML += '</table>';
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl">
+        <head>
+          <meta charset="UTF-8">
+          <title>تقرير التدفق النقدي - بوندز</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+            body { font-family: Vazirmatn, Arial, sans-serif; background: #fff; color: #1a1a1a; padding: 40px; max-width: 1100px; margin: 0 auto; }
+            h1 { color: #0a0f1a; margin: 0; font-size: 28px; text-align: center; }
+            .header { text-align: center; border-bottom: 3px solid #d4a853; padding-bottom: 15px; margin-bottom: 25px; }
+            .header p { color: #666; margin: 5px 0; font-size: 14px; }
+            h3 { color: #d4a853; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 25px; }
+            .footer { font-size: 11px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 20px; }
+            .chart-img { max-width: 100%; height: auto; margin: 15px 0; page-break-inside: avoid; }
+            @media print { body { padding: 20px; } .chart-img { max-height: 280px; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>بوندز</h1>
+            <p style="font-size:16px; font-weight:700; color:#444; margin:4px 0;">للاستشارات المالية</p>
+            <p>تقرير توقعات التدفق النقدي</p>
+            <p style="color:#999; font-size:12px;">${new Date().toLocaleDateString('ar-SA')}</p>
+          </div>
+          <h3>ملخص سنوي</h3>
+          ${summaryHTML}
+          <h3>التفاصيل الشهرية</h3>
+          ${resultsHTML}
+          ${chartImg ? '<h3>الرسم البياني</h3><img class="chart-img" src="' + chartImg + '" alt="الرصيد الختامي" />' : ''}
+          <div class="footer">
+            هذا التقرير للأغراض التقديرية فقط ولا يغني عن استشارة مالية مرخصة.<br>
+            تم إنشاؤه بواسطة bonds-global.com
+          </div>
+          <script>window.onload = function() { setTimeout(function() { window.print(); }, 600); };</scr${''}ipt>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    // Auto-calculate on input with debounce
+    var debouncedCalc = debounce(calculateAll, 300);
+    function attachAutoCalc() {
+      var ids = ['openingBalance'];
+      INFLOW_ROWS.forEach(function(row) {
+        for (var i = 0; i < 12; i++) ids.push('in_' + row.id + '_' + i);
+      });
+      OUTFLOW_ROWS.forEach(function(row) {
+        for (var i = 0; i < 12; i++) ids.push('out_' + row.id + '_' + i);
+      });
+      ids.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', function() {
+            if (document.getElementById('openingBalance').value !== '') {
+              debouncedCalc();
+            }
+          });
+        }
+      });
+    }
+
+    // Lead capture form handler
+    document.getElementById('leadCaptureForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var form = this;
+      var btn = form.querySelector('button[type="submit"]');
+      var originalText = btn.textContent;
+      btn.textContent = 'جاري الإرسال...';
+      btn.disabled = true;
+      fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' }})
+        .then(function(r) {
+          if (r.ok) {
+            form.style.display = 'none';
+            document.getElementById('leadCaptureSuccess').style.display = 'block';
+          } else {
+            alert('حدث خطأ، حاول مرة أخرى.');
+            btn.textContent = originalText;
+            btn.disabled = false;
+          }
+        })
+        .catch(function() {
+          alert('حدث خطأ، حاول مرة أخرى.');
+          btn.textContent = originalText;
+          btn.disabled = false;
+        });
+    });
+
+    generateInputTable();
+    attachAutoCalc();
+  </script>
+  <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);">↑</button>
+  <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
+<!-- Tawk.to Live Chat -->
+<script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
+</body>
+</html>

@@ -15,11 +15,11 @@
   <meta name="twitter:description" content="Financial analysis, cash flow, feasibility studies, risk analysis, and market research." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" as="style" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" as="style" />
   <link rel="preload" href="https://fonts.gstatic.com/s/cairo/v28/SLXVc1nY6HkvangtZmpcWmhzfHNZlDcf8Q.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" href="../assets/site-logo.webp" as="image" type="image/webp" />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script defer src="/_vercel/insights/script.js"></script>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -30,7 +30,7 @@
     gtag('config', 'G-XXXXXXXXXX');
   </script>
   <link rel="stylesheet" href="../styles.css" />
-  <link rel="icon" href="../assets/site-logo.png" type="image/png" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
 
@@ -67,8 +67,19 @@
           </li>
           <li><a href="pricing.html">Pricing</a></li>
           <li><a href="about.html">About Us</a></li>
-          <li><a href="calculator.html">Calculator</a></li>
-          <li><a href="index.html#insights">Insights</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              Calculators
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="calculator.html">Break-Even</a>
+              <a href="calculators/cash-flow.html">Cash Flow</a>
+              <a href="calculators/pricing.html">Pricing</a>
+              <a href="calculators/loan.html">Loan & Financing</a>
+            </div>
+          </li>
+          <li><a href="blog/index.html">Insights</a></li>
           <li><a href="faq.html">FAQ</a></li>
           <li><a href="contact.html">Contact</a></li>
           <li><a href="../services.html">العربية</a></li>
@@ -422,6 +433,7 @@
             <a href="services.html">Services</a>
             <a href="about.html">About Us</a>
             <a href="faq.html">FAQ</a>
+            <a href="methodology.html">Methodology</a>
             <a href="contact.html">Contact Us</a>
           </div>
         </div>

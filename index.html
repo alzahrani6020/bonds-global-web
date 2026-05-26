@@ -15,11 +15,11 @@
   <meta name="twitter:description" content="استشارات مالية متخصصة للمنشآت التجارية، المصانع، السياحة، الزراعة، والمزيد في مصر والسعودية." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" as="style" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" as="style" />
   <link rel="preload" href="https://fonts.gstatic.com/s/cairo/v28/SLXVc1nY6HkvangtZmpcWmhzfHNZlDcf8Q.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" href="assets/site-logo.webp" as="image" type="image/webp" />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script defer src="/_vercel/insights/script.js"></script>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -30,7 +30,7 @@
     gtag('config', 'G-XXXXXXXXXX');
   </script>
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="assets/site-logo.png" type="image/png" />
+  <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -101,8 +101,20 @@
           </li>
           <li><a href="pricing.html">الأسعار</a></li>
           <li><a href="about.html">من نحن</a></li>
-          <li><a href="calculator.html">آلة حاسبة</a></li>
-          <li><a href="index.html#insights">مقالات</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              الحاسبات
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="calculator.html">نقطة التعادل</a>
+              <a href="calculators/cash-flow.html">تدفق النقد</a>
+              <a href="calculators/pricing.html">تسعير المنتج</a>
+              <a href="calculators/loan.html">القرض والتمويل</a>
+              <a href="calculators/restaurant.html">المطاعم والسحابي</a>
+            </div>
+          </li>
+          <li><a href="blog/index.html">مقالات</a></li>
           <li><a href="faq.html">الأسئلة الشائعة</a></li>
           <li><a href="contact.html">تواصل</a></li>
         </ul>
@@ -530,10 +542,12 @@
         <span style="display: inline-block; color: var(--gold-300); font-size: var(--text-xs); font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-3);">نشرة أسبوعية</span>
         <h2 style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; margin-bottom: var(--space-4); line-height: 1.2;">رؤى مالية في بريدك كل أسبوع</h2>
         <p style="color: var(--cream-200); opacity: 0.9; margin-bottom: var(--space-8); font-size: var(--text-lg);">نصائح عملية حول إدارة التدفقات، التحليل المالي، واتخاذ قرارات النمو — بدون تشويش.</p>
-        <form style="display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: center;" onsubmit="event.preventDefault(); alert('شكراً للاشتراك! سنتواصل معك قريباً.');">
-          <input type="email" required placeholder="بريدك الإلكتروني" style="flex: 1; min-width: 240px; padding: var(--space-3) var(--space-5); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.08); color: var(--white); font-family: inherit; font-size: var(--text-sm); outline: none; backdrop-filter: blur(8px);" />
+        <form id="newsletterForm" action="https://formspree.io/f/mykvdana" method="POST" style="display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: center;">
+          <input type="email" name="email" required placeholder="بريدك الإلكتروني" style="flex: 1; min-width: 240px; padding: var(--space-3) var(--space-5); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.08); color: var(--white); font-family: inherit; font-size: var(--text-sm); outline: none; backdrop-filter: blur(8px);" />
+          <input type="hidden" name="source" value="newsletter_homepage" />
           <button type="submit" class="btn btn-primary" style="font-size: var(--text-base);">اشترك الآن</button>
         </form>
+        <p id="newsletterSuccess" style="display:none; color: var(--gold-300); margin-top: var(--space-4); font-weight: 700;">✓ تم الاشتراك بنجاح! شيك بريدك للتأكيد.</p>
         <p style="font-size: var(--text-xs); color: var(--cream-300); opacity: 0.6; margin-top: var(--space-4);">لا نرسل رسائل مزعجة. يمكنك إلغاء الاشتراك في أي وقت.</p>
       </div>
     </div>
@@ -605,6 +619,7 @@
             <a href="services.html">الخدمات</a>
             <a href="about.html">من نحن</a>
             <a href="faq.html">الأسئلة الشائعة</a>
+            <a href="methodology.html">منهجية الحساب</a>
             <a href="contact.html">تواصل معنا</a>
           </div>
         </div>
@@ -659,6 +674,18 @@
     function acceptCookies(){localStorage.setItem('cookies','accepted');document.getElementById('cookieBanner').classList.remove('is-visible');}
     function declineCookies(){localStorage.setItem('cookies','declined');document.getElementById('cookieBanner').classList.remove('is-visible');}
     if(!localStorage.getItem('cookies')){setTimeout(function(){document.getElementById('cookieBanner').classList.add('is-visible');},1500);}
+
+    document.getElementById('newsletterForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var form = this;
+      var btn = form.querySelector('button[type="submit"]');
+      var originalText = btn.textContent;
+      btn.textContent = 'جاري الإرسال...';
+      btn.disabled = true;
+      fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' }})
+        .then(function(r) { if(r.ok) { form.style.display='none'; document.getElementById('newsletterSuccess').style.display='block'; } else { alert('حدث خطأ، حاول مرة أخرى.'); btn.textContent=originalText; btn.disabled=false; }})
+        .catch(function() { alert('حدث خطأ، حاول مرة أخرى.'); btn.textContent=originalText; btn.disabled=false; });
+    });
   </script>
   <script src="script.js" defer></script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>

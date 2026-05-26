@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loan & Financing Calculator | Bonds — Financial Consulting</title>
+  <meta name="description" content="Calculate your loan installments, total interest, and amortization schedule. A free tool from Bonds Financial Consulting." />
+  <meta property="og:title" content="Loan & Financing Calculator | Bonds" />
+  <meta property="og:description" content="Calculate your loan installments, total interest, and amortization schedule." />
+  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/en/loan.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Loan & Financing Calculator | Bonds" />
+  <meta name="twitter:description" content="Calculate your loan installments, total interest, and amortization schedule." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+  <link rel="preconnect" href="https://cdn.sheetjs.com" />
+  <link rel="preload" href="../../assets/site-logo.webp" as="image" type="image/webp" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script defer src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <style>
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+    .calc-input-group { margin-bottom: 1.5rem; }
+    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .calc-input-group input[type="number"], .calc-input-group select { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
+    .calc-input-group input[type="number"]:focus, .calc-input-group select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
+    .calc-input-group select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; }
+    .share-bar { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+    .share-bar input { flex: 1; min-width: 200px; }
+    .amortization-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
+    .amortization-table th, .amortization-table td { padding: 0.6rem 0.75rem; text-align: center; border: 1px solid var(--border); }
+    .amortization-table th { background: var(--bg-card); color: var(--gold); font-weight: 700; }
+    .amortization-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    .amortization-table .total-row { background: rgba(212,168,83,0.08) !important; font-weight: 800; }
+    .amortization-table .last-row { background: rgba(59,130,246,0.06) !important; }
+    @media print {
+      .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
+      .calc-grid { grid-template-columns: 1fr 1fr; }
+      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
+      .section { padding: 0 !important; }
+      canvas { max-height: 280px !important; }
+      a { text-decoration: none; color: #000; }
+    }
+  </style>
+</head>
+<body style="font-family:Vazirmatn,system-ui,sans-serif">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <span>Your first consultation is free — Book now</span>
+      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">Quick WhatsApp &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header" id="header">
+    <div class="container main-header__inner">
+      <a href="../../en/index.html" class="logo-slot">
+        <img src="../../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" />
+        <span class="logo-text">Bonds</span>
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="../../en/index.html">Home</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              Services
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="../../en/services.html#analysis">Financial Analysis</a>
+              <a href="../../en/services.html#cashflow">Cash Flow Management</a>
+              <a href="../../en/services.html#feasibility">Feasibility Studies</a>
+              <a href="../../en/services.html#risk">Risk Analysis</a>
+              <a href="../../en/services.html#research">Surveys &amp; Research</a>
+            </div>
+          </li>
+          <li><a href="../../en/pricing.html">Pricing</a></li>
+          <li><a href="../../en/about.html">About Us</a></li>
+          <li><a href="../../en/calculator.html">Calculator</a></li>
+          <li><a href="../../en/index.html#insights">Insights</a></li>
+          <li><a href="../../en/faq.html">FAQ</a></li>
+          <li><a href="../../en/contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <a href="../loan.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">العربية</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+        <a href="../../en/contact.html" class="btn btn-primary hidden-mobile">Book Your Consultation</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" style="min-height: 40vh; padding: var(--space-20) 0;">
+    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
+    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+    <div class="container hero__content reveal">
+      <span class="hero__eyebrow">Free Tool</span>
+      <h1 class="hero__title">Loan &amp; Financing <span class="text-gradient">Calculator</span></h1>
+      <p class="hero__desc">Calculate your installments, total interest, and amortization schedule in simple, clear steps.</p>
+    </div>
+  </section>
+
+  <!-- Calculator -->
+  <section class="section">
+    <div class="container">
+      <div class="calc-grid">
+        <!-- Inputs -->
+        <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
+          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Loan Details</h2>
+          <div class="calc-input-group">
+            <label>Loan Amount</label>
+            <input type="number" id="loanAmount" placeholder="e.g., 500000" min="0" />
+          </div>
+          <div class="calc-input-group">
+            <label>Down Payment</label>
+            <input type="number" id="downPayment" placeholder="e.g., 50000" min="0" value="0" />
+          </div>
+          <div class="calc-input-group">
+            <label>Annual Interest Rate (%)</label>
+            <input type="number" id="interestRate" placeholder="e.g., 5" min="0" max="100" step="0.01" />
+          </div>
+          <div class="calc-input-group">
+            <label>Loan Term (months)</label>
+            <input type="number" id="loanTerm" placeholder="e.g., 240" min="1" />
+          </div>
+          <div class="calc-input-group">
+            <label>Payment Frequency</label>
+            <select id="paymentFrequency">
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+            </select>
+          </div>
+          <div class="calc-input-group">
+            <label>Extra Fees</label>
+            <input type="number" id="extraFees" placeholder="e.g., 2500" min="0" value="0" />
+          </div>
+          <div class="calc-input-group">
+            <label>Monthly Income (optional — for affordability analysis)</label>
+            <input type="number" id="monthlyIncome" placeholder="e.g., 15000" min="0" />
+          </div>
+          <button onclick="calculateAll()" class="btn btn-primary" style="width: 100%;">Calculate Results</button>
+          <button onclick="loadExample()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">🧮 Try an Example</button>
+          <button onclick="resetCalc()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">Clear Data</button>
+        </div>
+
+        <!-- Results -->
+        <div class="reveal reveal-delay-1">
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); margin-bottom: var(--space-6);">
+            <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Results</h2>
+            <div id="resultsArea" style="display: flex; flex-direction: column; gap: var(--space-3);">
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Net Loan Amount</span>
+                <span id="resNetLoan" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;"><span id="installmentLabel">Monthly</span> Installment</span>
+                <span id="resInstallment" style="font-weight: 800; color: var(--gold);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Total Interest</span>
+                <span id="resTotalInterest" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Total Amount Paid</span>
+                <span id="resTotalPaid" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Effective Annual Rate (EAR)</span>
+                <span id="resEAR" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0;">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Debt-to-Income Ratio</span>
+                <span id="resDti" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+            </div>
+            <div class="share-bar">
+              <input type="text" id="shareLink" readonly placeholder="Share link..." />
+              <button onclick="copyLink()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">Copy Link</button>
+              <button onclick="window.print()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">🖨️ Print</button>
+              <button onclick="exportExcel()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📊 Excel</button>
+              <button onclick="exportPDF()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📄 Export PDF</button>
+            </div>
+          </div>
+
+          <div style="background: linear-gradient(135deg, var(--navy-900), var(--navy-700)); border-radius: var(--radius-lg); padding: var(--space-8); color: var(--white);">
+            <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3);">Need deeper analysis?</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-6);">This tool is for estimation. If you need to compare different financing offers — we offer a free consultation.</p>
+            <a href="../../en/contact.html" class="btn btn-primary">Book Your Free Consultation &rarr;</a>
+          </div>
+
+          <!-- Smart Alert CTA -->
+          <div id="smartAlertBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.02)); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius-lg);">
+            <div style="display: flex; align-items: flex-start; gap: var(--space-4);">
+              <div style="font-size: 2rem; flex-shrink: 0;">⚠️</div>
+              <div>
+                <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-2); color: #fca5a5;">Financial Alert</h4>
+                <p id="smartAlertText" style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4); line-height: 1.8;"></p>
+                <a href="../../en/contact.html" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">📞 Free Consultation (30 min)</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lead Capture -->
+          <div id="leadCaptureBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);">
+            <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">💾 Save your results &amp; get a free gift</h4>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4);">Send these results to your email + get a free financing comparison template.</p>
+            <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
+              <input type="text" name="name" required placeholder="Name" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+              <input type="email" name="email" required placeholder="Email" style="flex: 2; min-width: 180px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+              <input type="tel" name="phone" placeholder="Phone (optional)" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+              <input type="hidden" name="source" value="loan_calculator_lead_en" />
+              <input type="hidden" name="calc_data" id="leadCalcData" />
+              <button type="submit" class="btn btn-primary" style="flex-shrink: 0;">Send me the results</button>
+            </form>
+            <p id="leadCaptureSuccess" style="display:none; color: #16a34a; margin-top: var(--space-3); font-weight: 700;">✓ Sent! We will contact you within 24 hours.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="reveal" style="margin-top: var(--space-12);">
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
+          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">Chart: Principal vs Interest</h2>
+          <div style="position: relative; height: 320px; max-width: 400px; margin: 0 auto;">
+            <canvas id="principalInterestChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" style="margin-top: var(--space-8);">
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
+          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">Chart: Remaining Balance Over Time</h2>
+          <div style="position: relative; height: 400px;">
+            <canvas id="balanceChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amortization Schedule -->
+      <div class="reveal" style="margin-top: var(--space-12);">
+        <div class="section-header" style="margin-bottom: var(--space-8);">
+          <span class="section__eyebrow">Amortization Schedule</span>
+          <h2 class="section__title">Installment &amp; Interest Details</h2>
+        </div>
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); overflow-x: auto;">
+          <table class="amortization-table" id="amortizationTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Installment</th>
+                <th>Principal</th>
+                <th>Interest</th>
+                <th>Remaining Balance</th>
+              </tr>
+            </thead>
+            <tbody id="amortizationBody">
+              <tr><td colspan="5" style="color: var(--text-muted);">Calculate results to display the schedule</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section" style="background: var(--bg-secondary);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">Transparency</span>
+        <h2 class="section__title">How does the calculator work?</h2>
+        <p class="section__subtitle">We use the internationally recognized mathematical formula for loan amortization.</p>
+      </div>
+      <div class="grid-2">
+        <div class="card reveal">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📐 Mathematical Formulas</h3>
+          <div style="display: flex; flex-direction: column; gap: var(--space-3); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
+            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+              Installment = P × [r(1+r)^n] / [(1+r)^n − 1]
+            </div>
+            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+              P = Net Loan | r = Periodic Rate | n = Number of Payments
+            </div>
+            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+              Effective Annual Rate = (1 + r)^periods_per_year − 1
+            </div>
+          </div>
+        </div>
+        <div class="card reveal reveal-delay-1">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🧮 Try It Yourself</h3>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-4);">Click "Try an Example" and verify the calculation manually:</p>
+          <div style="display: flex; flex-direction: column; gap: var(--space-2); font-size: 0.85rem; color: var(--text-secondary);">
+            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+              <span>Loan Amount</span><strong>500,000 SAR</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+              <span>Down Payment</span><strong>50,000 SAR</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+              <span>Interest Rate</span><strong>5% annually</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+              <span>Term</span><strong>240 months (20 years)</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0;">
+              <span>Expected Result</span><strong style="color: var(--gold);">Monthly ~2,960 SAR</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top: var(--space-8);">
+        <div class="card reveal">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📚 Trusted Scientific Sources</h3>
+          <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+            <a href="https://en.wikipedia.org/wiki/Amortization_calculator" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
+              <span style="color: var(--gold);">&rarr;</span> Wikipedia — Amortization Calculator
+            </a>
+            <a href="https://www.investopedia.com/terms/a/amortization.asp" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
+              <span style="color: var(--gold);">&rarr;</span> Investopedia — Amortization
+            </a>
+            <a href="https://www.consumerfinance.gov/consumer-tools/auto-loans/answers/what-is-an-amortization-schedule/" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
+              <span style="color: var(--gold);">&rarr;</span> CFPB — Amortization Schedule
+            </a>
+          </div>
+        </div>
+        <div class="card reveal reveal-delay-1">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">⚠️ Warnings &amp; Clarifications</h3>
+          <ul style="font-size: 0.9rem; color: var(--text-secondary); line-height: 2; padding-left: var(--space-4);">
+            <li>This is an <strong>estimation tool</strong> and not a substitute for a licensed financial advisor.</li>
+            <li>Results depend on the <strong>accuracy of the data entered</strong>.</li>
+            <li>Actual interest rates may vary between banks due to additional fees and commissions.</li>
+            <li>Assumes a fixed interest rate throughout the loan term.</li>
+            <li>Variable-rate loans may result in different installments over time.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo-slot">
+            <img src="../../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" loading="lazy" />
+            <span class="logo-text" style="color: var(--white);">Bonds</span>
+          </div>
+          <p>Financial consulting for business owners and SMEs in Egypt and Saudi Arabia.</p>
+        </div>
+        <div>
+          <h4 class="footer-title">Pages</h4>
+          <div class="footer-links">
+            <a href="../../en/index.html">Home</a>
+            <a href="../../en/services.html">Services</a>
+            <a href="../../en/about.html">About Us</a>
+            <a href="../../en/faq.html">FAQ</a>
+            <a href="../../en/contact.html">Contact Us</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Services</h4>
+          <div class="footer-links">
+            <a href="../../en/services.html#analysis">Financial Analysis</a>
+            <a href="../../en/services.html">Cash Flow</a>
+            <a href="../../en/services.html#feasibility">Feasibility Studies</a>
+            <a href="../../en/services.html#risk">Risk Analysis</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Commercial Registrations</h4>
+          <div class="footer-links">
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">Egypt: CR 39733</span>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">Saudi Arabia: URN 7042125869</span>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Contact</h4>
+          <div class="footer-links">
+            <a href="https://wa.me/966567566616" target="_blank" rel="noopener">WhatsApp: +966 56 756 6616</a>
+            <a href="mailto:info@bonds-global.com">info@bonds-global.com</a>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">Sheikh Zayed, Giza, Egypt <br>Jeddah, Quraish Street</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; <span id="y">2025</span> Bonds Financial Consulting &mdash; All rights reserved.</span>
+        <div style="display: flex; gap: var(--space-6);">
+          <a href="../../en/privacy.html" style="color: var(--text-muted);">Privacy Policy</a>
+          <a href="#" style="color: var(--text-muted);">Disclaimer</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp">💬</a>
+
+  <script src="../../script.js" defer></script>
+  <script>
+    var doughnutChart = null;
+    var lineChart = null;
+    var chartJsPromise = null;
+
+    function loadChartJS() {
+      if (chartJsPromise) return chartJsPromise;
+      if (typeof Chart !== 'undefined') return Promise.resolve();
+      chartJsPromise = new Promise(function(resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+      return chartJsPromise;
+    }
+
+    function formatNumber(n) {
+      if (n === undefined || n === null || isNaN(n)) return '—';
+      return Math.round(n).toLocaleString('en-US');
+    }
+    function formatDecimal(n, d) {
+      d = d || 2;
+      if (n === undefined || n === null || isNaN(n)) return '—';
+      return n.toFixed(d);
+    }
+
+    function getInputs() {
+      return {
+        loanAmount: parseFloat(document.getElementById('loanAmount').value) || 0,
+        downPayment: parseFloat(document.getElementById('downPayment').value) || 0,
+        interestRate: parseFloat(document.getElementById('interestRate').value) || 0,
+        loanTerm: parseFloat(document.getElementById('loanTerm').value) || 0,
+        frequency: document.getElementById('paymentFrequency').value,
+        extraFees: parseFloat(document.getElementById('extraFees').value) || 0,
+        monthlyIncome: parseFloat(document.getElementById('monthlyIncome').value) || 0
+      };
+    }
+
+    function calculateLoan(inputs) {
+      var netLoan = inputs.loanAmount - inputs.downPayment + inputs.extraFees;
+      var isMonthly = inputs.frequency === 'monthly';
+      var periodsPerYear = isMonthly ? 12 : 4;
+      var totalPayments = isMonthly ? inputs.loanTerm : Math.floor(inputs.loanTerm / 3);
+      if (totalPayments < 1) totalPayments = 1;
+      var periodicRate = (inputs.interestRate / 100) / periodsPerYear;
+
+      var installment = 0;
+      if (periodicRate === 0) {
+        installment = netLoan / totalPayments;
+      } else {
+        installment = netLoan * (periodicRate * Math.pow(1 + periodicRate, totalPayments)) / (Math.pow(1 + periodicRate, totalPayments) - 1);
+      }
+
+      var totalPaid = installment * totalPayments;
+      var totalInterest = totalPaid - netLoan;
+      var ear = Math.pow(1 + periodicRate, periodsPerYear) - 1;
+
+      var schedule = [];
+      var balance = netLoan;
+      var totalPrincipalPaid = 0, totalInterestPaid = 0;
+      for (var i = 1; i <= totalPayments; i++) {
+        var interestPayment = balance * periodicRate;
+        var principalPayment = installment - interestPayment;
+        balance -= principalPayment;
+        if (balance < 0) { principalPayment += balance; balance = 0; }
+        totalPrincipalPaid += principalPayment;
+        totalInterestPaid += interestPayment;
+        schedule.push({
+          period: i,
+          installment: installment,
+          principal: principalPayment,
+          interest: interestPayment,
+          balance: balance
+        });
+      }
+
+      return {
+        netLoan: netLoan,
+        installment: installment,
+        totalPaid: totalPaid,
+        totalInterest: totalInterest,
+        ear: ear,
+        schedule: schedule,
+        totalPayments: totalPayments,
+        totalPrincipalPaid: totalPrincipalPaid,
+        totalInterestPaid: totalInterestPaid,
+        periodicRate: periodicRate,
+        periodsPerYear: periodsPerYear
+      };
+    }
+
+    function updateResults(r, inputs) {
+      var freqLabel = inputs.frequency === 'monthly' ? 'Monthly' : 'Quarterly';
+      document.getElementById('installmentLabel').textContent = freqLabel;
+
+      document.getElementById('resNetLoan').textContent = formatNumber(r.netLoan) + ' SAR';
+      document.getElementById('resInstallment').textContent = formatNumber(r.installment) + ' SAR';
+      document.getElementById('resTotalInterest').textContent = formatNumber(r.totalInterest) + ' SAR';
+      document.getElementById('resTotalPaid').textContent = formatNumber(r.totalPaid) + ' SAR';
+      document.getElementById('resEAR').textContent = (r.ear * 100).toFixed(2) + '%';
+
+      var dtiEl = document.getElementById('resDti');
+      if (inputs.monthlyIncome > 0) {
+        var dti = (r.installment / inputs.monthlyIncome) * 100;
+        dtiEl.textContent = dti.toFixed(1) + '%';
+        dtiEl.style.color = dti > 30 ? '#dc2626' : (dti > 20 ? '#d4a853' : '#16a34a');
+      } else {
+        dtiEl.textContent = '—';
+        dtiEl.style.color = 'var(--text)';
+      }
+
+      // Smart Alert CTA
+      var alertBox = document.getElementById('smartAlertBox');
+      var alertText = document.getElementById('smartAlertText');
+      var alerts = [];
+      if (inputs.interestRate > 15) {
+        alerts.push('The interest rate (' + inputs.interestRate + '%) is very high. There may be cheaper financing alternatives. Consult one of our experts to compare offers.');
+      }
+      if (inputs.monthlyIncome > 0) {
+        var dti = (r.installment / inputs.monthlyIncome) * 100;
+        if (dti > 30) {
+          alerts.push('The installment represents ' + dti.toFixed(1) + '% of your monthly income — this is above the recommended limit (30%). It may affect your financial stability.');
+        }
+      }
+      if (alerts.length > 0) {
+        alertBox.style.display = 'block';
+        alertText.innerHTML = alerts.join('<br><br>');
+      } else {
+        alertBox.style.display = 'none';
+      }
+
+      // Lead Capture
+      var leadBox = document.getElementById('leadCaptureBox');
+      leadBox.style.display = 'block';
+      document.getElementById('leadCalcData').value = JSON.stringify({
+        date: new Date().toLocaleString('en-GB'),
+        loanAmount: inputs.loanAmount,
+        downPayment: inputs.downPayment,
+        interestRate: inputs.interestRate,
+        loanTerm: inputs.loanTerm,
+        frequency: inputs.frequency,
+        extraFees: inputs.extraFees,
+        netLoan: r.netLoan,
+        installment: r.installment,
+        totalInterest: r.totalInterest,
+        totalPaid: r.totalPaid,
+        ear: r.ear
+      });
+    }
+
+    function updateCharts(r, inputs) {
+      // Doughnut: Principal vs Interest
+      var ctx1 = document.getElementById('principalInterestChart').getContext('2d');
+      if (doughnutChart) doughnutChart.destroy();
+      doughnutChart = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: ['Principal', 'Interest'],
+          datasets: [{
+            data: [r.netLoan, r.totalInterest],
+            backgroundColor: ['#d4a853', '#3b82f6'],
+            borderColor: 'var(--bg-card)',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#e8ecf4', font: { family: 'system-ui', size: 14 }, padding: 20 }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  var total = context.dataset.data.reduce(function(a,b){return a+b;}, 0);
+                  var pct = total > 0 ? ((context.raw / total) * 100).toFixed(1) : 0;
+                  return context.label + ': ' + formatNumber(context.raw) + ' SAR (' + pct + '%)';
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Line: Remaining balance over time
+      var ctx2 = document.getElementById('balanceChart').getContext('2d');
+      var labels = [];
+      var balanceData = [];
+      var step = Math.max(1, Math.floor(r.schedule.length / 24));
+      for (var i = 0; i < r.schedule.length; i += step) {
+        labels.push(r.schedule[i].period);
+        balanceData.push(r.schedule[i].balance);
+      }
+      if (labels[labels.length - 1] !== r.schedule[r.schedule.length - 1].period) {
+        labels.push(r.schedule[r.schedule.length - 1].period);
+        balanceData.push(r.schedule[r.schedule.length - 1].balance);
+      }
+
+      if (lineChart) lineChart.destroy();
+      lineChart = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Remaining Balance',
+            data: balanceData,
+            borderColor: '#d4a853',
+            backgroundColor: 'rgba(212,168,83,0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: { labels: { color: '#e8ecf4', font: { family: 'system-ui' } } },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + formatNumber(context.raw) + ' SAR';
+                }
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#94a3b8', font: { family: 'system-ui' } }, grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: inputs.frequency === 'monthly' ? 'Month' : 'Quarter', color: '#94a3b8' } },
+            y: { ticks: { color: '#94a3b8', font: { family: 'system-ui' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+
+    function updateAmortizationTable(r, inputs) {
+      var tbody = document.getElementById('amortizationBody');
+      tbody.innerHTML = '';
+      var freqLabel = inputs.frequency === 'monthly' ? 'Month' : 'Quarter';
+      var schedule = r.schedule;
+      var len = schedule.length;
+
+      var showCount = Math.min(12, len);
+      for (var i = 0; i < showCount; i++) {
+        var row = schedule[i];
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + row.period + ' ' + freqLabel + '</td><td>' + formatNumber(row.installment) + '</td><td>' + formatNumber(row.principal) + '</td><td>' + formatNumber(row.interest) + '</td><td>' + formatNumber(row.balance) + '</td>';
+        tbody.appendChild(tr);
+      }
+
+      if (len > 13) {
+        var trEllipsis = document.createElement('tr');
+        trEllipsis.innerHTML = '<td colspan="5" style="color: var(--text-muted); font-style: italic;">... ' + (len - showCount - 1) + ' more ' + (inputs.frequency === 'monthly' ? 'months' : 'quarters') + ' ...</td>';
+        tbody.appendChild(trEllipsis);
+      }
+
+      if (len > 13) {
+        var last = schedule[len - 1];
+        var trLast = document.createElement('tr');
+        trLast.className = 'last-row';
+        trLast.innerHTML = '<td>' + last.period + ' ' + freqLabel + '</td><td>' + formatNumber(last.installment) + '</td><td>' + formatNumber(last.principal) + '</td><td>' + formatNumber(last.interest) + '</td><td>' + formatNumber(last.balance) + '</td>';
+        tbody.appendChild(trLast);
+      }
+
+      var trTotal = document.createElement('tr');
+      trTotal.className = 'total-row';
+      trTotal.innerHTML = '<td>Total</td><td>' + formatNumber(r.installment * len) + '</td><td>' + formatNumber(r.totalPrincipalPaid) + '</td><td>' + formatNumber(r.totalInterestPaid) + '</td><td>—</td>';
+      tbody.appendChild(trTotal);
+    }
+
+    function exportExcel() {
+      var inputs = getInputs();
+      if (inputs.loanAmount <= 0) {
+        alert('Calculate results first before exporting');
+        return;
+      }
+      if (typeof XLSX === 'undefined') {
+        alert('Excel library not loaded. Please refresh the page.');
+        return;
+      }
+      var r = calculateLoan(inputs);
+
+      var wb = XLSX.utils.book_new();
+      wb.Props = { Title: 'Loan & Financing Report', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+      var freqLabel = inputs.frequency === 'monthly' ? 'Monthly' : 'Quarterly';
+      var wsData = [
+        ['Metric', 'Value'],
+        ['Loan Amount', inputs.loanAmount],
+        ['Down Payment', inputs.downPayment],
+        ['Annual Interest Rate (%)', inputs.interestRate + '%'],
+        ['Loan Term (months)', inputs.loanTerm],
+        ['Payment Frequency', freqLabel],
+        ['Extra Fees', inputs.extraFees],
+        ['Net Loan Amount', r.netLoan],
+        [freqLabel + ' Installment', r.installment],
+        ['Total Interest', r.totalInterest],
+        ['Total Amount Paid', r.totalPaid],
+        ['Effective Annual Rate (%)', (r.ear * 100).toFixed(2) + '%'],
+        ['Number of Payments', r.totalPayments]
+      ];
+      var ws = XLSX.utils.aoa_to_sheet(wsData);
+      ws['!cols'] = [{ wch: 32 }, { wch: 18 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Results');
+
+      var amData = [['#', 'Installment', 'Principal', 'Interest', 'Remaining Balance']];
+      r.schedule.forEach(function(row) {
+        amData.push([row.period, row.installment, row.principal, row.interest, row.balance]);
+      });
+      amData.push(['Total', r.installment * r.totalPayments, r.totalPrincipalPaid, r.totalInterestPaid, '']);
+      var ws2 = XLSX.utils.aoa_to_sheet(amData);
+      ws2['!cols'] = [{ wch: 10 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];
+      XLSX.utils.book_append_sheet(wb, ws2, 'Amortization');
+
+      XLSX.writeFile(wb, 'bonds-loan-report.xlsx');
+    }
+
+    async function exportPDF() {
+      var inputs = getInputs();
+      if (inputs.loanAmount <= 0) {
+        alert('Calculate the results first before exporting PDF');
+        return;
+      }
+      var r = calculateLoan(inputs);
+      await loadChartJS();
+      updateCharts(r, inputs);
+
+      var { jsPDF } = window.jspdf;
+      var doc = new jsPDF();
+      var pageW = doc.internal.pageSize.getWidth();
+      var margin = 14;
+
+      // Header
+      doc.setFillColor(10, 15, 26);
+      doc.rect(0, 0, pageW, 40, 'F');
+      doc.setTextColor(212, 168, 83);
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Bonds Global', pageW / 2, 18, { align: 'center' });
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Loan & Financing Report', pageW / 2, 28, { align: 'center' });
+      doc.setTextColor(150, 150, 150);
+      doc.setFontSize(9);
+      doc.text(new Date().toLocaleDateString('en-GB'), pageW / 2, 35, { align: 'center' });
+
+      // Inputs
+      doc.setTextColor(30, 30, 30);
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Input Data', margin, 52);
+
+      doc.autoTable({
+        startY: 56,
+        head: [['Parameter', 'Value']],
+        body: [
+          ['Loan Amount', formatNumber(inputs.loanAmount) + ' SAR'],
+          ['Down Payment', formatNumber(inputs.downPayment) + ' SAR'],
+          ['Annual Interest Rate', inputs.interestRate + '%'],
+          ['Loan Term (months)', inputs.loanTerm],
+          ['Payment Frequency', inputs.frequency === 'monthly' ? 'Monthly' : 'Quarterly'],
+          ['Extra Fees', formatNumber(inputs.extraFees) + ' SAR']
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
+        styles: { fontSize: 10, cellPadding: 4, font: 'helvetica' },
+        margin: { left: margin, right: margin }
+      });
+
+      // Results
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Results', margin, doc.lastAutoTable.finalY + 12);
+
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 16,
+        head: [['Metric', 'Result']],
+        body: [
+          ['Net Loan Amount', formatNumber(r.netLoan) + ' SAR'],
+          ['Installment', formatNumber(r.installment) + ' SAR'],
+          ['Total Interest', formatNumber(r.totalInterest) + ' SAR'],
+          ['Total Amount Paid', formatNumber(r.totalPaid) + ' SAR'],
+          ['Effective Annual Rate', (r.ear * 100).toFixed(2) + '%']
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
+        styles: { fontSize: 10, cellPadding: 4, font: 'helvetica' },
+        margin: { left: margin, right: margin }
+      });
+
+      // Charts
+      var chartBottomY = doc.lastAutoTable.finalY + 12;
+      var canvas1 = document.getElementById('principalInterestChart');
+      if (canvas1 && canvas1.toDataURL) {
+        if (chartBottomY > 180) { doc.addPage(); chartBottomY = 20; }
+        var imgData = canvas1.toDataURL('image/png');
+        doc.addImage(imgData, 'PNG', margin, chartBottomY, 80, 80);
+        chartBottomY += 86;
+      }
+      var canvas2 = document.getElementById('balanceChart');
+      if (canvas2 && canvas2.toDataURL) {
+        if (chartBottomY > 180) { doc.addPage(); chartBottomY = 20; }
+        var imgData2 = canvas2.toDataURL('image/png');
+        doc.addImage(imgData2, 'PNG', margin, chartBottomY, pageW - margin * 2, 80);
+        chartBottomY += 86;
+      }
+
+      // Amortization summary
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      var amY = chartBottomY + 12;
+      if (amY > 230) { doc.addPage(); amY = 20; }
+      doc.text('Amortization Schedule', margin, amY);
+
+      var amBody = [];
+      var showCount = Math.min(12, r.schedule.length);
+      for (var i = 0; i < showCount; i++) {
+        var row = r.schedule[i];
+        amBody.push([row.period, formatNumber(row.installment), formatNumber(row.principal), formatNumber(row.interest), formatNumber(row.balance)]);
+      }
+      if (r.schedule.length > 13) {
+        var last = r.schedule[r.schedule.length - 1];
+        amBody.push([last.period, formatNumber(last.installment), formatNumber(last.principal), formatNumber(last.interest), formatNumber(last.balance)]);
+      }
+      amBody.push(['Total', formatNumber(r.installment * r.totalPayments), formatNumber(r.totalPrincipalPaid), formatNumber(r.totalInterestPaid), '']);
+
+      doc.autoTable({
+        startY: amY + 4,
+        head: [['#', 'Installment', 'Principal', 'Interest', 'Balance']],
+        body: amBody,
+        theme: 'striped',
+        headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
+        styles: { fontSize: 9, cellPadding: 3, font: 'helvetica' },
+        margin: { left: margin, right: margin }
+      });
+
+      // Disclaimer
+      var disclaimerY = doc.lastAutoTable.finalY + 14;
+      if (disclaimerY > 270) { doc.addPage(); disclaimerY = 20; }
+      doc.setTextColor(100, 100, 100);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'italic');
+      doc.text('This report is for estimation purposes only and does not replace professional financial advice.', margin, disclaimerY);
+      doc.text('Generated by bonds-global.com', margin, disclaimerY + 4);
+
+      // Footer
+      doc.setFillColor(10, 15, 26);
+      doc.rect(0, doc.internal.pageSize.getHeight() - 12, pageW, 12, 'F');
+      doc.setTextColor(212, 168, 83);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Bonds Global Financial Consulting | bonds-global.com | WhatsApp: +966 56 756 6616', pageW / 2, doc.internal.pageSize.getHeight() - 5, { align: 'center' });
+
+      doc.save('bonds-loan-report.pdf');
+    }
+
+    function calculateAll() {
+      try {
+        var inputs = getInputs();
+        if (inputs.loanAmount <= 0) {
+          alert('Please enter the loan amount');
+          return;
+        }
+        if (inputs.interestRate < 0 || inputs.loanTerm <= 0) {
+          alert('Please make sure all inputs are valid');
+          return;
+        }
+        if (inputs.downPayment >= inputs.loanAmount) {
+          alert('Down payment must be less than the loan amount');
+          return;
+        }
+        var r = calculateLoan(inputs);
+        updateResults(r, inputs);
+        updateAmortizationTable(r, inputs);
+        updateShareLink(inputs);
+        loadChartJS().then(function() {
+          updateCharts(r, inputs);
+        }).catch(function(e) {
+          console.error('Chart.js load error:', e);
+        });
+      } catch (err) {
+        console.error('Calculate error:', err);
+        alert('Calculation error: ' + err.message);
+      }
+    }
+
+    function loadExample() {
+      document.getElementById('loanAmount').value = '500000';
+      document.getElementById('downPayment').value = '50000';
+      document.getElementById('interestRate').value = '5';
+      document.getElementById('loanTerm').value = '240';
+      document.getElementById('paymentFrequency').value = 'monthly';
+      document.getElementById('extraFees').value = '2500';
+      document.getElementById('monthlyIncome').value = '15000';
+      calculateAll();
+    }
+
+    function resetCalc() {
+      document.getElementById('loanAmount').value = '';
+      document.getElementById('downPayment').value = '0';
+      document.getElementById('interestRate').value = '';
+      document.getElementById('loanTerm').value = '';
+      document.getElementById('paymentFrequency').value = 'monthly';
+      document.getElementById('extraFees').value = '0';
+      document.getElementById('monthlyIncome').value = '';
+      document.getElementById('resNetLoan').textContent = '—';
+      document.getElementById('resInstallment').textContent = '—';
+      document.getElementById('resTotalInterest').textContent = '—';
+      document.getElementById('resTotalPaid').textContent = '—';
+      document.getElementById('resEAR').textContent = '—';
+      document.getElementById('resDti').textContent = '—';
+      document.getElementById('resDti').style.color = 'var(--text)';
+      document.getElementById('amortizationBody').innerHTML = '<tr><td colspan="5" style="color: var(--text-muted);">Calculate results to display the schedule</td></tr>';
+      document.getElementById('shareLink').value = '';
+      document.getElementById('smartAlertBox').style.display = 'none';
+      document.getElementById('leadCaptureBox').style.display = 'none';
+      document.getElementById('leadCaptureForm').style.display = 'flex';
+      document.getElementById('leadCaptureSuccess').style.display = 'none';
+      if (doughnutChart) doughnutChart.destroy();
+      if (lineChart) lineChart.destroy();
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
+    function updateShareLink(inputs) {
+      var url = new URL(window.location.href);
+      url.searchParams.set('a', inputs.loanAmount);
+      url.searchParams.set('d', inputs.downPayment);
+      url.searchParams.set('r', inputs.interestRate);
+      url.searchParams.set('t', inputs.loanTerm);
+      url.searchParams.set('f', inputs.frequency);
+      url.searchParams.set('e', inputs.extraFees);
+      if (inputs.monthlyIncome > 0) url.searchParams.set('i', inputs.monthlyIncome);
+      document.getElementById('shareLink').value = url.toString();
+    }
+
+    function copyLink() {
+      var input = document.getElementById('shareLink');
+      input.select();
+      document.execCommand('copy');
+      alert('Link copied!');
+    }
+
+    // Load from URL params
+    function loadFromURL() {
+      var url = new URL(window.location.href);
+      var a = url.searchParams.get('a');
+      var d = url.searchParams.get('d');
+      var r = url.searchParams.get('r');
+      var t = url.searchParams.get('t');
+      var f = url.searchParams.get('f');
+      var e = url.searchParams.get('e');
+      var i = url.searchParams.get('i');
+      if (a) document.getElementById('loanAmount').value = a;
+      if (d) document.getElementById('downPayment').value = d;
+      if (r) document.getElementById('interestRate').value = r;
+      if (t) document.getElementById('loanTerm').value = t;
+      if (f) document.getElementById('paymentFrequency').value = f;
+      if (e) document.getElementById('extraFees').value = e;
+      if (i) document.getElementById('monthlyIncome').value = i;
+      if (a && r && t) calculateAll();
+    }
+
+    // Auto-calculate
+    ['loanAmount', 'downPayment', 'interestRate', 'loanTerm', 'extraFees', 'monthlyIncome'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', function() {
+          var inputs = getInputs();
+          if (inputs.loanAmount > 0 && inputs.interestRate >= 0 && inputs.loanTerm > 0) {
+            calculateAll();
+          }
+        });
+      }
+    });
+    document.getElementById('paymentFrequency').addEventListener('change', function() {
+      var inputs = getInputs();
+      if (inputs.loanAmount > 0 && inputs.interestRate >= 0 && inputs.loanTerm > 0) {
+        calculateAll();
+      }
+    });
+
+    // Lead capture form handler
+    document.getElementById('leadCaptureForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var form = this;
+      var btn = form.querySelector('button[type="submit"]');
+      var originalText = btn.textContent;
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' }})
+        .then(function(r) {
+          if (r.ok) {
+            form.style.display = 'none';
+            document.getElementById('leadCaptureSuccess').style.display = 'block';
+          } else {
+            alert('An error occurred. Please try again.');
+            btn.textContent = originalText;
+            btn.disabled = false;
+          }
+        })
+        .catch(function() {
+          alert('An error occurred. Please try again.');
+          btn.textContent = originalText;
+          btn.disabled = false;
+        });
+    });
+
+    loadFromURL();
+  </script>
+  <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);">↑</button>
+  <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
+<!-- Tawk.to Live Chat -->
+<script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
+</body>
+</html>

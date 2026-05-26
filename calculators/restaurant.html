@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>حاسبة المطاعم والمطابخ السحابية | بوندز — استشارات مالية</title>
+  <meta name="description" content="احسب ربحية مطعمك أو مطبخك السحابي بدقة: تكلفة المكونات، عمولات المنصات، نقطة التعادل، ومقارنة المنصات. أداة مجانية من بوندز تغطي 22 دولة عربية." />
+  <meta property="og:title" content="حاسبة المطاعم والمطابخ السحابية | بوندز" />
+  <meta property="og:description" content="احسب ربحية مطعمك أو مطبخك السحابي بدقة: تكلفة المكونات، عمولات منصات التوصيل، نقطة التعادل." />
+  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/restaurant.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="حاسبة المطاعم والمطابخ السحابية | بوندز" />
+  <meta name="twitter:description" content="احسب ربحية مطعمك أو مطبخك السحابي بدقة." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+  <link rel="preconnect" href="https://cdn.sheetjs.com" />
+  <link rel="prefetch" href="../calculator.html" as="document" />
+  <link rel="prefetch" href="pricing.html" as="document" />
+  <link rel="prefetch" href="cash-flow.html" as="document" />
+  <link rel="prefetch" href="loan.html" as="document" />
+  <link rel="preload" href="../assets/site-logo.webp" as="image" type="image/webp" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <script src="shared-utils.js"></script>
+  <script src="country-platforms-data.js"></script>
+  <style>
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+    .calc-input-group { margin-bottom: 1.5rem; }
+    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .calc-input-group input[type="number"], .calc-input-group select { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
+    .calc-input-group input[type="number"]:focus, .calc-input-group select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
+    .dish-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-bottom: var(--space-4); }
+    .dish-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); }
+    .dish-card-title { font-weight: 800; color: var(--gold); }
+    .btn-small { padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 6px; background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text); cursor: pointer; transition: all 0.3s; }
+    .btn-small:hover { border-color: var(--gold); }
+    .btn-remove { color: #dc2626; }
+    .platform-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3); max-height: 420px; overflow-y: auto; padding-left: var(--space-2); }
+    @media (min-width: 600px) { .platform-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 900px) { .platform-grid { grid-template-columns: repeat(4, 1fr); } }
+    .platform-check { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all 0.3s; }
+    .platform-check:hover { border-color: var(--gold); }
+    .platform-check input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--gold); cursor: pointer; }
+    .platform-check label { cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .platform-check .fee { font-size: 0.75rem; color: var(--text-muted); }
+    .toggle-row { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .toggle-switch { position: relative; width: 50px; height: 26px; background: var(--border); border-radius: 13px; cursor: pointer; transition: all 0.3s; }
+    .toggle-switch.active { background: var(--gold); }
+    .toggle-switch::after { content: ''; position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: all 0.3s; }
+    .toggle-switch.active::after { right: 27px; }
+    .result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+    @media (min-width: 700px) { .result-grid { grid-template-columns: repeat(3, 1fr); } }
+    .result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); text-align: center; transition: all 0.3s; }
+    .result-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+    .result-value { font-size: var(--text-2xl); font-weight: 900; color: var(--gold); margin-bottom: var(--space-2); }
+    .result-label { font-size: 0.85rem; color: var(--text-secondary); }
+    .platform-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: var(--space-4); }
+    .platform-table th, .platform-table td { padding: 0.75rem; text-align: center; border-bottom: 1px solid var(--border); }
+    .platform-table th { background: rgba(212,168,83,0.05); color: var(--gold); font-weight: 700; }
+    .platform-table tr:hover { background: rgba(255,255,255,0.02); }
+    .best-platform { background: rgba(22,163,74,0.08) !important; border-left: 3px solid #16a34a; }
+    .worst-platform { background: rgba(220,38,38,0.05) !important; }
+    .analysis-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6); }
+    .analysis-box h4 { color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-lg); }
+    .analysis-box p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; }
+    .smart-alert { display: none; background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); }
+    .smart-alert.show { display: block; }
+    .share-bar { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+    .share-bar input { flex: 1; min-width: 200px; }
+    .country-selector { background: rgba(212,168,83,0.05); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-bottom: var(--space-6); }
+    .country-note { font-size: 0.85rem; color: var(--text-muted); margin-top: var(--space-3); padding: var(--space-3); background: rgba(212,168,83,0.03); border-radius: var(--radius); border-right: 3px solid var(--gold); }
+    #countrySelect { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d4a853' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: left 1rem center; padding-left: 2.5rem; cursor: pointer; background-color: var(--bg-card); color: var(--text); }
+    #countrySelect option { background: var(--bg-secondary); color: var(--text); font-size: 1rem; padding: 0.5rem; }
+    .platform-focus-bar { display: flex; gap: var(--space-3); align-items: center; margin-top: var(--space-4); flex-wrap: wrap; }
+    .platform-focus-bar select { flex: 1; min-width: 200px; }
+    .platform-calc-btn { font-size: 0.75rem; padding: 0.25rem 0.5rem; background: var(--gold); color: #0a0f1a; border: none; border-radius: 4px; cursor: pointer; font-weight: 700; margin-right: auto; white-space: nowrap; }
+    .platform-calc-btn:hover { background: var(--gold-bright); }
+    .side-by-side-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-4); margin-top: var(--space-6); }
+    .platform-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-4); }
+    .platform-card h5 { color: var(--gold); margin-bottom: var(--space-2); font-size: 1rem; }
+    .platform-card .stat { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+    .platform-card .stat:last-child { border-bottom: none; }
+    @media print {
+      .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
+      .calc-grid { grid-template-columns: 1fr 1fr; }
+      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
+      .section { padding: 0 !important; }
+      canvas { max-height: 280px !important; }
+      a { text-decoration: none; color: #000; }
+    }
+  </style>
+</head>
+<body style="font-family:Vazirmatn,system-ui,sans-serif">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <span>استشارتك الأولى مجانية — احجز الآن</span>
+      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب سريع →</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header" id="header">
+    <div class="container main-header__inner">
+      <a href="../index.html" class="logo-slot">
+        <img src="../assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" />
+        <span class="logo-text">بوندز</span>
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="../index.html">الرئيسية</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              الخدمات
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="../services.html#analysis">التحليل المالي</a>
+              <a href="../services.html#cashflow">إدارة التدفقات النقدية</a>
+              <a href="../services.html#feasibility">دراسات الجدوى</a>
+              <a href="../services.html#risk">تحليل المخاطر</a>
+              <a href="../services.html#research">الاستبيانات والبحوث</a>
+            </div>
+          </li>
+          <li><a href="../pricing.html">الأسعار</a></li>
+          <li><a href="../about.html">من نحن</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              الحاسبات
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="../calculator.html">نقطة التعادل</a>
+              <a href="calculators/cash-flow.html">تدفق النقد</a>
+              <a href="calculators/pricing.html">تسعير المنتج</a>
+              <a href="calculators/loan.html">القرض والتمويل</a>
+              <a href="calculators/restaurant.html">المطاعم والسحابي</a>
+            </div>
+          </li>
+          <li><a href="../blog/index.html">مقالات</a></li>
+          <li><a href="../faq.html">الأسئلة الشائعة</a></li>
+          <li><a href="../contact.html">تواصل</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <a href="../en/calculators/restaurant.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">EN</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
+        <a href="../contact.html" class="btn btn-primary hidden-mobile">احجز استشارتك</a>
+        <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" style="padding: var(--space-16) 0 var(--space-12);">
+    <div class="container" style="text-align: center;">
+      <span class="hero__eyebrow reveal">حاسبة متخصصة</span>
+      <h1 class="hero__title reveal" style="font-size: clamp(2rem, 5vw, 3.5rem);">حاسبة المطاعم والمطابخ السحابية</h1>
+      <p class="hero__desc reveal" style="max-width: 640px; margin: 0 auto;">احسب ربحية مطعمك بدقة: تكلفة المكونات، عمولات منصات التوصيل، نقطة التعادل اليومية، ومقارنة أي منصة الأربح لك — تغطي 22 دولة عربية.</p>
+      <div class="reveal" style="margin-top: var(--space-8);">
+        <a href="#calc" class="btn btn-primary">ابدأ الحساب →</a>
+        <a href="#analysis" class="btn btn-secondary">التعرف على التحليل</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Calculator Section -->
+  <section class="section" id="calc">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">ادخلاتك</span>
+        <h2 class="section__title">بيانات المطعم</h2>
+      </div>
+
+      <!-- Country Selector -->
+      <div class="country-selector reveal">
+        <div class="calc-input-group" style="margin-bottom:0;">
+          <label for="countrySelect">🌍 الدولة</label>
+          <select id="countrySelect" onchange="changeCountry(this.value)" style="font-size:1.1rem;font-weight:700;">
+            <!-- Generated by JS -->
+          </select>
+        </div>
+        <div class="country-note" id="countryNote"></div>
+      </div>
+
+      <div class="calc-grid reveal">
+        <!-- Left Column -->
+        <div>
+          <!-- Business Model Selector -->
+          <div style="margin-bottom: var(--space-6);">
+            <h3 style="font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: var(--space-3);">🏢 نموذج العمل</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3);">
+              <label class="model-card" id="cardTraditional" onclick="setBusinessModel('traditional')" style="cursor: pointer; background: var(--bg-card); border: 2px solid var(--gold); border-radius: var(--radius); padding: var(--space-4); text-align: center; transition: all 0.3s;">
+                <div style="font-size: 2rem; margin-bottom: var(--space-2);">🏢</div>
+                <div style="font-weight: 800; color: var(--text); margin-bottom: var(--space-1);">مطعم تقليدي</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">صالة + استقبال + توصيل</div>
+                <input type="radio" name="businessModel" value="traditional" checked style="display: none;" />
+              </label>
+              <label class="model-card" id="cardCloud" onclick="setBusinessModel('cloud')" style="cursor: pointer; background: var(--bg-card); border: 2px solid var(--border); border-radius: var(--radius); padding: var(--space-4); text-align: center; transition: all 0.3s;">
+                <div style="font-size: 2rem; margin-bottom: var(--space-2);">☁️</div>
+                <div style="font-weight: 800; color: var(--text); margin-bottom: var(--space-1);">مطبخ سحابي</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">بدون صالة — توصيل فقط</div>
+                <input type="radio" name="businessModel" value="cloud" style="display: none;" />
+              </label>
+              <label class="model-card" id="cardCafe" onclick="setBusinessModel('cafe')" style="cursor: pointer; background: var(--bg-card); border: 2px solid var(--border); border-radius: var(--radius); padding: var(--space-4); text-align: center; transition: all 0.3s;">
+                <div style="font-size: 2rem; margin-bottom: var(--space-2);">☕</div>
+                <div style="font-weight: 800; color: var(--text); margin-bottom: var(--space-1);">كافيه</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">قهوة + وجبات خفيفة</div>
+                <input type="radio" name="businessModel" value="cafe" style="display: none;" />
+              </label>
+              <label class="model-card" id="cardDessert" onclick="setBusinessModel('dessert')" style="cursor: pointer; background: var(--bg-card); border: 2px solid var(--border); border-radius: var(--radius); padding: var(--space-4); text-align: center; transition: all 0.3s;">
+                <div style="font-size: 2rem; margin-bottom: var(--space-2);">🍰</div>
+                <div style="font-weight: 800; color: var(--text); margin-bottom: var(--space-1);">محل حلويات</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">حلويات + مخبوزات</div>
+                <input type="radio" name="businessModel" value="dessert" style="display: none;" />
+              </label>
+            </div>
+          </div>
+
+          <!-- Dishes -->
+          <div id="dishesContainer">
+            <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🍽️ الأطباق</h3>
+            <!-- Dishes will be generated by JS -->
+          </div>
+          <button type="button" class="btn btn-secondary" onclick="addDish()" style="margin-top: var(--space-2);">+ إضافة طبق</button>
+
+          <!-- Platforms -->
+          <div style="margin-top: var(--space-8);">
+            <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📱 منصات التوصيل</h3>
+            <div class="platform-grid" id="platformContainer">
+              <!-- Generated by JS based on country -->
+            </div>
+            <div class="platform-focus-bar">
+              <select id="focusPlatform" onchange="focusPlatform(this.value)">
+                <option value="">🔍 اختر منصة لحسابها فقط...</option>
+              </select>
+              <button type="button" class="btn btn-secondary" onclick="calculateAll()">📊 مقارنة كل المنصات</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div>
+          <!-- Fixed Costs -->
+          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🏢 التكاليف الثابتة (شهرية)</h3>
+          <div class="calc-input-group">
+            <label for="rentCost">الإيجار (<span class="currency-label">ر.س</span>)</label>
+            <input type="number" id="rentCost" placeholder="مثال: 15000" value="15000" />
+          </div>
+          <div class="calc-input-group">
+            <label for="salariesCost">الرواتب والأجور (<span class="currency-label">ر.س</span>)</label>
+            <input type="number" id="salariesCost" placeholder="مثال: 20000" value="20000" />
+          </div>
+          <div class="calc-input-group">
+            <label for="utilitiesCost">المرافق (كهرباء، غاز، ماء) (<span class="currency-label">ر.س</span>)</label>
+            <input type="number" id="utilitiesCost" placeholder="مثال: 3000" value="3000" />
+          </div>
+          <div class="calc-input-group">
+            <label for="licensesCost">التراخيص والتأمينات (<span class="currency-label">ر.س</span>)</label>
+            <input type="number" id="licensesCost" placeholder="مثال: 2000" value="2000" />
+          </div>
+          <div class="calc-input-group" id="cloudCostGroup" style="display: none;">
+            <label for="cloudKitchenCost">رسوم المطبخ السحابي (<span class="currency-label">ر.س</span>)</label>
+            <input type="number" id="cloudKitchenCost" placeholder="مثال: 5000" value="5000" />
+          </div>
+          <div class="calc-input-group">
+            <label for="marketingCost">الإعلانات والتسويق (<span class="currency-label">ر.س</span>)</label>
+            <input type="number" id="marketingCost" placeholder="مثال: 5000" value="5000" />
+          </div>
+
+          <!-- Variable Costs -->
+          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); margin-top: var(--space-8); color: var(--gold);">📦 تكاليف متغيرة (للطلب)</h3>
+          <div class="calc-input-group">
+            <label for="packagingCost">تكلفة التغليف (<span class="currency-label">ر.س</span>)</label>
+            <input type="number" id="packagingCost" placeholder="مثال: 3" value="3" />
+          </div>
+          <div class="calc-input-group">
+            <label for="deliveryCost">رسوم التوصيل (للسائق) (<span class="currency-label">ر.س</span>)</label>
+            <input type="number" id="deliveryCost" placeholder="مثال: 8" value="8" />
+          </div>
+          <div class="calc-input-group">
+            <label for="wasteRate">نسبة الهدر والتالف (%)</label>
+            <input type="number" id="wasteRate" placeholder="مثال: 8" value="8" />
+          </div>
+
+          <!-- Daily Orders -->
+          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); margin-top: var(--space-8); color: var(--gold);">📊 الطلبات</h3>
+          <div class="calc-input-group">
+            <label for="dailyOrders">عدد الطلبات المتوقع (يومياً)</label>
+            <input type="number" id="dailyOrders" placeholder="مثال: 80" value="80" />
+          </div>
+          <div class="calc-input-group">
+            <label for="workingDays">أيام العمل في الشهر</label>
+            <input type="number" id="workingDays" placeholder="مثال: 30" value="30" />
+          </div>
+
+          <div style="display: flex; gap: var(--space-3); margin-top: var(--space-6); flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" onclick="calculateAll()">احسب الربحية</button>
+            <button type="button" class="btn btn-secondary" onclick="loadExample()">مثال توضيحي</button>
+            <button type="button" class="btn btn-secondary" onclick="resetCalc()">إعادة تعيين</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="resultsSection" style="display: none; margin-top: var(--space-12);">
+        <div class="section-header reveal">
+          <span class="section__eyebrow">النتائج</span>
+          <h2 class="section__title">تحليل الربحية</h2>
+        </div>
+
+        <div class="result-grid reveal" id="resultCards">
+          <!-- Generated by JS -->
+        </div>
+
+        <!-- Smart Alert -->
+        <div class="smart-alert" id="smartAlert">
+          <strong style="color: #dc2626;">⚠️ تنبيه:</strong> <span id="smartAlertText"></span>
+        </div>
+
+        <!-- Platform Comparison Table -->
+        <div class="analysis-box reveal" style="margin-top: var(--space-8);">
+          <h4>📱 مقارنة المنصات</h4>
+          <div style="overflow-x: auto;">
+            <table class="platform-table" id="platformTable">
+              <thead>
+                <tr>
+                  <th>المنصة</th>
+                  <th>العمولة</th>
+                  <th>سعر البيع الصافي</th>
+                  <th>الربح لكل طبق</th>
+                  <th>الربح اليومي</th>
+                  <th>الربح الشهري</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Dish Analysis -->
+        <div class="analysis-box reveal" style="margin-top: var(--space-8);">
+          <h4>🍽️ تحليل الأطباق</h4>
+          <div style="overflow-x: auto;">
+            <table class="platform-table" id="dishTable">
+              <thead>
+                <tr>
+                  <th>الطبق</th>
+                  <th>السعر</th>
+                  <th>تكلفة المكونات</th>
+                  <th>Food Cost %</th>
+                  <th>Contribution</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="calc-grid reveal" style="margin-top: var(--space-8);">
+          <div class="analysis-box">
+            <h4>📊 مقارنة الربح بالمنصات</h4>
+            <div class="canvas-container" style="height: 300px;">
+              <canvas id="platformChart"></canvas>
+            </div>
+          </div>
+          <div class="analysis-box">
+            <h4>🥧 تركيبة التكلفة</h4>
+            <div class="canvas-container" style="height: 300px;">
+              <canvas id="costChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Break-even Analysis -->
+        <div class="analysis-box reveal" style="margin-top: var(--space-8);">
+          <h4>📈 منحنى نقطة التعادل</h4>
+          <div class="canvas-container" style="height: 300px;">
+            <canvas id="breakEvenChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Analysis Text -->
+        <div class="analysis-box reveal" id="analysisBox" style="margin-top: var(--space-8);">
+          <h4>💡 التحليل والتوصيات</h4>
+          <p id="analysisText"></p>
+        </div>
+
+        <!-- Share & Export -->
+        <div class="reveal" style="margin-top: var(--space-8); text-align: center;">
+          <div class="share-bar" style="justify-content: center;">
+            <input type="text" id="shareLink" readonly style="max-width: 400px;" />
+            <button class="btn btn-secondary" onclick="copyLink()">نسخ الرابط</button>
+          </div>
+          <div style="display: flex; gap: var(--space-3); justify-content: center; margin-top: var(--space-4); flex-wrap: wrap;">
+            <button class="btn btn-secondary" onclick="exportExcel()">📊 Excel (مقارنة)</button>
+            <button class="btn btn-secondary" onclick="exportPDF()">📄 PDF (تقرير كامل)</button>
+            <button class="btn btn-secondary" onclick="exportPlatformPDF()">📑 PDF (كل منصة منفصلة)</button>
+            <button class="btn btn-secondary" onclick="exportPlatformExcel()">📊 Excel (كل منصة منفصلة)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section" id="analysis" style="background: var(--bg-secondary);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">كيف تعمل</span>
+        <h2 class="section__title">مؤشرات رئيسية تفهمها</h2>
+      </div>
+      <div class="result-grid reveal">
+        <div class="result-card">
+          <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">🥘</div>
+          <h4 style="font-weight: 800; margin-bottom: var(--space-2);">Food Cost %</h4>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">نسبة تكلفة المكونات من سعر البيع. المطاعم الناجحة تحافظ على أقل من 30%.</p>
+        </div>
+        <div class="result-card">
+          <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">📦</div>
+          <h4 style="font-weight: 800; margin-bottom: var(--space-2);">Contribution Margin</h4>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">الربح لكل طبق بعد خصم المكونات والتغليف والعمولة. يجب أن يغطي التكاليف الثابتة.</p>
+        </div>
+        <div class="result-card">
+          <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">🎯</div>
+          <h4 style="font-weight: 800; margin-bottom: var(--space-2);">Break-Even Orders</h4>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">عدد الطلبات اليومية اللازمة لتغطية كل التكاليف. أقل من 80 طلب/يوم = قابل للتنفيذ.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid" style="grid-template-columns: 1.5fr repeat(3, 1fr); gap: 3rem; padding-bottom: 3rem; border-bottom: 1px solid var(--border);">
+        <div>
+          <a href="../index.html" class="logo-slot" style="margin-bottom: 1.5rem; display: inline-flex;">
+            <img src="../assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" style="width: 48px; height: 48px;" />
+            <span class="logo-text" style="font-size: 1.5rem;">بوندز</span>
+          </a>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.8; max-width: 280px;">نحول بياناتك المالية إلى قرارات واضحة. استشارات مالية متخصصة للمطاعم والشركات الناشئة.</p>
+        </div>
+        <div>
+          <h4 class="footer-title">الروابط</h4>
+          <div class="footer-links">
+            <a href="../services.html">الخدمات</a>
+            <a href="../pricing.html">الأسعار</a>
+            <a href="../about.html">من نحن</a>
+            <a href="../blog/index.html">المدونة</a>
+            <a href="../contact.html">تواصل معنا</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">الحاسبات</h4>
+          <div class="footer-links">
+            <a href="../calculator.html">نقطة التعادل</a>
+            <a href="cash-flow.html">تدفق النقد</a>
+            <a href="pricing.html">تسعير المنتج</a>
+            <a href="loan.html">القرض والتمويل</a>
+            <a href="restaurant.html">المطاعم والسحابي</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">السجلات التجارية</h4>
+          <div class="footer-links">
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">مصر: س.ت 39733</span>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">السعودية: ر.و.م 7042125869</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="y">2025</span> بوندز للاستشارات المالية — جميع الحقوق محفوظة.</span>
+        <div style="display: flex; gap: var(--space-6);">
+          <a href="../privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a>
+          <a href="#" style="color: var(--text-muted);">إخلاء المسؤولية</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
+
+  <script src="../script.js" defer></script>
+  <script>
+
+    // ===== State =====
+    var dishes = [];
+    var chartInstances = {};
+    var _calcMemo = createMemo();
+    var currentBusinessModel = 'traditional';
+    var currentCountry = 'SA';
+    var currentCurrency = 'ر.س';
+    var PLATFORMS = [];
+
+    // ===== Country Management =====
+    function populateCountrySelect() {
+      var select = document.getElementById('countrySelect');
+      var keys = Object.keys(COUNTRIES_DATA);
+      keys.forEach(function(code) {
+        var c = COUNTRIES_DATA[code];
+        var opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = c.flag + ' ' + c.name + ' (' + c.currency + ')';
+        select.appendChild(opt);
+      });
+      select.value = DEFAULT_COUNTRY;
+    }
+
+    function changeCountry(code) {
+      currentCountry = code;
+      var data = COUNTRIES_DATA[code];
+      currentCurrency = data.currencySymbol;
+      PLATFORMS = data.platforms.map(function(p) {
+        return { id: p.id, name: p.name, fee: p.fee };
+      });
+
+      // Update currency labels
+      document.querySelectorAll('.currency-label').forEach(function(el) {
+        el.textContent = currentCurrency;
+      });
+
+      // Update country note
+      var noteEl = document.getElementById('countryNote');
+      noteEl.textContent = data.note || '';
+
+      // Re-render platforms
+      renderPlatforms();
+      _calcMemo.clear();
+      document.getElementById('resultsSection').style.display = 'none';
+    }
+
+    function renderPlatforms() {
+      var container = document.getElementById('platformContainer');
+      container.innerHTML = '';
+      var focusSelect = document.getElementById('focusPlatform');
+      focusSelect.innerHTML = '<option value="">🔍 اختر منصة لحسابها فقط...</option>';
+      PLATFORMS.forEach(function(p, idx) {
+        if (p.id === 'plat_direct') return; // skip direct in grid, add at end
+        var div = document.createElement('div');
+        div.className = 'platform-check';
+        var isChecked = idx < 3 ? 'checked' : '';
+        div.innerHTML = `
+          <input type="checkbox" id="${p.id}" value="${p.fee}" ${isChecked} />
+          <div style="flex:1;">
+            <label for="${p.id}">${p.name}</label>
+            <div class="fee">عمولة ${p.fee}%</div>
+          </div>
+          <button type="button" class="platform-calc-btn" onclick="focusPlatform('${p.id}')" title="احسب هذه المنصة فقط">حساب</button>
+        `;
+        container.appendChild(div);
+        // Add to focus dropdown
+        var opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name + ' (' + p.fee + '%)';
+        focusSelect.appendChild(opt);
+      });
+      // Add direct always
+      var directDiv = document.createElement('div');
+      directDiv.className = 'platform-check';
+      directDiv.innerHTML = `
+        <input type="checkbox" id="plat_direct" value="0" checked />
+        <div style="flex:1;">
+          <label for="plat_direct">مباشر (بدون منصة)</label>
+          <div class="fee">عمولة 0%</div>
+        </div>
+        <button type="button" class="platform-calc-btn" onclick="focusPlatform('plat_direct')" title="احسب المباشر فقط">حساب</button>
+      `;
+      container.appendChild(directDiv);
+      var directOpt = document.createElement('option');
+      directOpt.value = 'plat_direct';
+      directOpt.textContent = 'مباشر (بدون منصة) (0%)';
+      focusSelect.appendChild(directOpt);
+      // Re-attach listeners
+      var debouncedCalc = debounce(calculateAll, 300);
+      document.querySelectorAll('#platformContainer input[type="checkbox"]').forEach(function(el) {
+        el.addEventListener('change', debouncedCalc);
+      });
+    }
+
+    function focusPlatform(platformId) {
+      if (!platformId) return;
+      PLATFORMS.forEach(function(p) {
+        var el = document.getElementById(p.id);
+        if (el) el.checked = (p.id === platformId);
+      });
+      document.getElementById('focusPlatform').value = platformId;
+      calculateAll();
+    }
+
+    // ===== Dish Management =====
+    function addDish(data) {
+      var idx = dishes.length;
+      data = data || { name: 'طبق ' + (idx + 1), price: 45, cost: 18, salesMix: 50 };
+      dishes.push(data);
+      renderDishes();
+    }
+
+    function removeDish(idx) {
+      dishes.splice(idx, 1);
+      renderDishes();
+    }
+
+    function updateDish(idx, field, value) {
+      dishes[idx][field] = value;
+      _calcMemo.clear();
+    }
+
+    function renderDishes() {
+      var container = document.getElementById('dishesContainer');
+      var existing = container.querySelectorAll('.dish-card');
+      existing.forEach(function(el) { el.remove(); });
+
+      dishes.forEach(function(dish, idx) {
+        var card = document.createElement('div');
+        card.className = 'dish-card';
+        card.innerHTML = `
+          <div class="dish-card-header">
+            <span class="dish-card-title">🍽️ ${dish.name}</span>
+            <button type="button" class="btn-small btn-remove" onclick="removeDish(${idx})">حذف</button>
+          </div>
+          <div class="calc-input-group">
+            <label>اسم الطبق</label>
+            <input type="text" value="${dish.name}" onchange="updateDish(${idx},'name',this.value)" style="width:100%;padding:1rem 1.25rem;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;font-size:1rem;" />
+          </div>
+          <div class="calc-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+            <div class="calc-input-group" style="margin-bottom:0;">
+              <label>السعر (${currentCurrency})</label>
+              <input type="number" value="${dish.price}" min="0" step="0.5" onchange="updateDish(${idx},'price',parseFloat(this.value)||0)" />
+            </div>
+            <div class="calc-input-group" style="margin-bottom:0;">
+              <label>تكلفة المكونات</label>
+              <input type="number" value="${dish.cost}" min="0" step="0.5" onchange="updateDish(${idx},'cost',parseFloat(this.value)||0)" />
+            </div>
+            <div class="calc-input-group" style="margin-bottom:0;">
+              <label>نسبة المبيعات (%)</label>
+              <input type="number" value="${dish.salesMix}" min="0" max="100" onchange="updateDish(${idx},'salesMix',parseFloat(this.value)||0)" />
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // ===== Business Model Selector =====
+    function setBusinessModel(model) {
+      currentBusinessModel = model;
+      var isCloud = (model === 'cloud');
+      var models = ['traditional', 'cloud', 'cafe', 'dessert'];
+      var cards = {
+        traditional: document.getElementById('cardTraditional'),
+        cloud: document.getElementById('cardCloud'),
+        cafe: document.getElementById('cardCafe'),
+        dessert: document.getElementById('cardDessert')
+      };
+      models.forEach(function(m) {
+        if (cards[m]) {
+          cards[m].style.borderColor = (m === model) ? 'var(--gold)' : 'var(--border)';
+          var input = cards[m].querySelector('input');
+          if (input) input.checked = (m === model);
+        }
+      });
+      var cloudGroup = document.getElementById('cloudCostGroup');
+      var rentInput = document.getElementById('rentCost');
+      if (cloudGroup) {
+        cloudGroup.style.display = isCloud ? 'block' : 'none';
+      }
+      if (rentInput) {
+        if (isCloud) {
+          rentInput.value = '0';
+          rentInput.disabled = true;
+          rentInput.style.opacity = '0.5';
+        } else {
+          var rentMap = { traditional: '15000', cafe: '10000', dessert: '8000' };
+          rentInput.value = rentMap[model] || '15000';
+          rentInput.disabled = false;
+          rentInput.style.opacity = '1';
+        }
+      }
+      _calcMemo.clear();
+    }
+
+    // ===== Inputs =====
+    function getInputs() {
+      var platforms = [];
+      PLATFORMS.forEach(function(p) {
+        var el = document.getElementById(p.id);
+        if (el && el.checked) platforms.push({ name: p.name, fee: parseFloat(el.value) || 0 });
+      });
+      var isCloud = (currentBusinessModel === 'cloud');
+      return {
+        dishes: dishes.map(function(d) { return { name: d.name, price: d.price, cost: d.cost, salesMix: d.salesMix }; }),
+        platforms: platforms,
+        isCloud: isCloud,
+        rent: parseFloat(document.getElementById('rentCost').value) || 0,
+        salaries: parseFloat(document.getElementById('salariesCost').value) || 0,
+        utilities: parseFloat(document.getElementById('utilitiesCost').value) || 0,
+        licenses: parseFloat(document.getElementById('licensesCost').value) || 0,
+        cloudKitchen: isCloud ? (parseFloat(document.getElementById('cloudKitchenCost').value) || 0) : 0,
+        marketing: parseFloat(document.getElementById('marketingCost').value) || 0,
+        packaging: parseFloat(document.getElementById('packagingCost').value) || 0,
+        delivery: parseFloat(document.getElementById('deliveryCost').value) || 0,
+        wasteRate: parseFloat(document.getElementById('wasteRate').value) || 0,
+        dailyOrders: parseFloat(document.getElementById('dailyOrders').value) || 0,
+        workingDays: parseFloat(document.getElementById('workingDays').value) || 30
+      };
+    }
+
+    // ===== Core Calculation =====
+    function calculate(inputs) {
+      var memoKey = _calcMemo.key(inputs);
+      if (_calcMemo.has(memoKey)) return _calcMemo.get(memoKey);
+
+      var totalMix = inputs.dishes.reduce(function(sum, d) { return sum + d.salesMix; }, 0);
+      if (totalMix === 0) totalMix = 1;
+
+      var weightedPrice = 0, weightedCost = 0, weightedFoodCostPct = 0;
+      var dishResults = inputs.dishes.map(function(d) {
+        var mix = d.salesMix / totalMix;
+        var foodCostPct = d.price > 0 ? (d.cost / d.price) * 100 : 0;
+        var effectiveCost = d.cost * (1 + inputs.wasteRate / 100);
+        weightedPrice += d.price * mix;
+        weightedCost += effectiveCost * mix;
+        weightedFoodCostPct += foodCostPct * mix;
+        return {
+          name: d.name, price: d.price, cost: d.cost, mix: mix,
+          foodCostPct: foodCostPct, effectiveCost: effectiveCost,
+          contribution: d.price - effectiveCost - inputs.packaging - inputs.delivery
+        };
+      });
+
+      var monthlyFixed = inputs.rent + inputs.salaries + inputs.utilities + inputs.licenses + inputs.cloudKitchen + inputs.marketing;
+      var dailyFixed = monthlyFixed / inputs.workingDays;
+
+      var platformResults = inputs.platforms.map(function(p) {
+        var platformPrice = weightedPrice * (1 - p.fee / 100);
+        var varCostPerOrder = weightedCost + inputs.packaging + inputs.delivery;
+        var contributionPerOrder = platformPrice - varCostPerOrder;
+        var dailyProfit = contributionPerOrder * inputs.dailyOrders - dailyFixed;
+        var monthlyProfit = dailyProfit * inputs.workingDays;
+        var breakEvenOrders = contributionPerOrder > 0 ? Math.ceil(dailyFixed / contributionPerOrder) : -1;
+        return {
+          name: p.name, fee: p.fee, platformPrice: platformPrice,
+          contributionPerOrder: contributionPerOrder,
+          dailyProfit: dailyProfit, monthlyProfit: monthlyProfit,
+          breakEvenOrders: breakEvenOrders
+        };
+      });
+
+      var bestPlatform = platformResults.reduce(function(best, p) {
+        return (p.monthlyProfit > best.monthlyProfit) ? p : best;
+      }, platformResults[0] || { monthlyProfit: -Infinity });
+
+      var worstPlatform = platformResults.reduce(function(worst, p) {
+        return (p.monthlyProfit < worst.monthlyProfit) ? p : worst;
+      }, platformResults[0] || { monthlyProfit: Infinity });
+
+      var totalMonthlyRevenue = weightedPrice * inputs.dailyOrders * inputs.workingDays;
+      var totalMonthlyVarCost = (weightedCost + inputs.packaging + inputs.delivery) * inputs.dailyOrders * inputs.workingDays;
+      var netProfit = totalMonthlyRevenue - totalMonthlyVarCost - monthlyFixed;
+      var profitMargin = totalMonthlyRevenue > 0 ? (netProfit / totalMonthlyRevenue) * 100 : 0;
+
+      var result = {
+        inputs: inputs,
+        weightedPrice: weightedPrice,
+        weightedCost: weightedCost,
+        weightedFoodCostPct: weightedFoodCostPct,
+        dishResults: dishResults,
+        monthlyFixed: monthlyFixed,
+        dailyFixed: dailyFixed,
+        platformResults: platformResults,
+        bestPlatform: bestPlatform,
+        worstPlatform: worstPlatform,
+        totalMonthlyRevenue: totalMonthlyRevenue,
+        totalMonthlyVarCost: totalMonthlyVarCost,
+        netProfit: netProfit,
+        profitMargin: profitMargin,
+        breakEvenDaily: platformResults.length > 0 && platformResults[0].breakEvenOrders > 0 ? platformResults[0].breakEvenOrders : -1,
+        breakEvenMonthly: platformResults.length > 0 && platformResults[0].breakEvenOrders > 0 ? platformResults[0].breakEvenOrders * inputs.workingDays : -1
+      };
+      _calcMemo.set(memoKey, result);
+      return result;
+    }
+
+    // ===== Results Update =====
+    function updateResults(r) {
+      var section = document.getElementById('resultsSection');
+      section.style.display = 'block';
+
+      var cards = document.getElementById('resultCards');
+      var beText = r.breakEvenDaily > 0 ? r.breakEvenDaily + ' طلب' : 'غير محققة';
+      var beMonthlyText = r.breakEvenMonthly > 0 ? r.breakEvenMonthly + ' طلب' : 'غير محققة';
+      var profitColor = r.netProfit >= 0 ? '#16a34a' : '#dc2626';
+
+      cards.innerHTML = `
+        <div class="result-card">
+          <div class="result-value" style="color: ${profitColor};">${formatNumber(Math.round(r.netProfit))}</div>
+          <div class="result-label">الربح الشهري الصافي (${currentCurrency})</div>
+        </div>
+        <div class="result-card">
+          <div class="result-value">${r.profitMargin.toFixed(1)}%</div>
+          <div class="result-label">هامش الربح الشهري</div>
+        </div>
+        <div class="result-card">
+          <div class="result-value">${r.weightedFoodCostPct.toFixed(1)}%</div>
+          <div class="result-label">متوسط Food Cost</div>
+        </div>
+        <div class="result-card">
+          <div class="result-value">${beText}</div>
+          <div class="result-label">نقطة التعادل اليومية</div>
+        </div>
+        <div class="result-card">
+          <div class="result-value">${beMonthlyText}</div>
+          <div class="result-label">نقطة التعادل الشهرية</div>
+        </div>
+        <div class="result-card">
+          <div class="result-value" style="color: var(--gold);">${r.bestPlatform.name || '—'}</div>
+          <div class="result-label">أفضل منصة للربح</div>
+        </div>
+      `;
+
+      // Platform table
+      var ptbody = document.querySelector('#platformTable tbody');
+      ptbody.innerHTML = '';
+      r.platformResults.forEach(function(p) {
+        var isBest = p.name === r.bestPlatform.name;
+        var isWorst = p.name === r.worstPlatform.name;
+        var tr = document.createElement('tr');
+        if (isBest) tr.className = 'best-platform';
+        if (isWorst) tr.className = 'worst-platform';
+        tr.innerHTML = `
+          <td><strong>${p.name}</strong></td>
+          <td>${p.fee}%</td>
+          <td>${formatNumber(Math.round(p.platformPrice))}</td>
+          <td>${formatNumber(Math.round(p.contributionPerOrder))}</td>
+          <td style="color: ${p.dailyProfit >= 0 ? '#16a34a' : '#dc2626'};">${formatNumber(Math.round(p.dailyProfit))}</td>
+          <td style="color: ${p.monthlyProfit >= 0 ? '#16a34a' : '#dc2626'}; font-weight: 800;">${formatNumber(Math.round(p.monthlyProfit))}</td>
+        `;
+        ptbody.appendChild(tr);
+      });
+
+      // Dish table
+      var dtbody = document.querySelector('#dishTable tbody');
+      dtbody.innerHTML = '';
+      r.dishResults.forEach(function(d) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${d.name}</strong></td>
+          <td>${formatNumber(d.price)}</td>
+          <td>${formatNumber(d.cost)}</td>
+          <td>${d.foodCostPct.toFixed(1)}%</td>
+          <td>${formatNumber(Math.round(d.contribution))}</td>
+        `;
+        dtbody.appendChild(tr);
+      });
+
+      // Analysis text
+      var analysisText = '';
+      if (r.netProfit < 0) {
+        analysisText = `⚠️ <strong>خسارة:</strong> مطعمك يخسر ${formatNumber(Math.round(Math.abs(r.netProfit)))} ${currentCurrency} شهرياً. `;
+        if (r.breakEvenDaily > 0) {
+          var gap = r.breakEvenDaily - r.inputs.dailyOrders;
+          analysisText += `تحتاج زيادة ${gap} طلب يومياً (${Math.ceil(gap * r.inputs.workingDays)} طلب شهرياً) للوصول لنقطة التعادل. `;
+        }
+        analysisText += `أفضل منصة لك حالياً هي <strong>${r.bestPlatform.name}</strong> التي تقلل خسارتك. `;
+      } else {
+        analysisText = `✅ <strong>ربح:</strong> مطعمك يحقق ${formatNumber(Math.round(r.netProfit))} ${currentCurrency} شهرياً (${r.profitMargin.toFixed(1)}% هامش). `;
+        analysisText += `أفضل منصة هي <strong>${r.bestPlatform.name}</strong> (عمولة ${r.bestPlatform.fee}%). `;
+      }
+      if (r.weightedFoodCostPct > 35) {
+        analysisText += `<br><br>🚨 <strong>تنبيه Food Cost:</strong> نسبة تكلفة المكونات (${r.weightedFoodCostPct.toFixed(1)}%) أعلى من المُوصى به (30%). راجع أسعار مورديك أو أعد تصميم قائمتك.`;
+      }
+      if (r.inputs.isCloud) {
+        analysisText += `<br><br>☁️ <strong>نموذج سحابي:</strong> أنت توفر ${formatNumber(Math.round(r.inputs.rent + (r.inputs.cloudKitchen * 0)))} ${currentCurrency} في الإيجار مقارنة بالمطعم التقليدي، لكن المنصات تأخذ عمولة أعلى.`;
+      }
+      document.getElementById('analysisText').innerHTML = analysisText;
+
+      // Smart alert
+      var alertBox = document.getElementById('smartAlert');
+      var alerts = [];
+      if (r.weightedFoodCostPct > 35) alerts.push(`Food Cost مرتفع (${r.weightedFoodCostPct.toFixed(1)}%). الهدف: أقل من 30%.`);
+      if (r.breakEvenDaily > r.inputs.dailyOrders && r.breakEvenDaily > 0) {
+        alerts.push(`تحتاج ${r.breakEvenDaily - r.inputs.dailyOrders} طلب إضافي يومياً للتعادل.`);
+      }
+      if (r.profitMargin < 10 && r.netProfit > 0) alerts.push(`هامش الربح منخفض (${r.profitMargin.toFixed(1)}%). راجع تسعيرك أو خفض تكاليفك.`);
+      if (alerts.length > 0) {
+        alertBox.classList.add('show');
+        document.getElementById('smartAlertText').innerHTML = alerts.join('<br>');
+      } else {
+        alertBox.classList.remove('show');
+      }
+
+      updateShareLink(r.inputs);
+    }
+
+    function formatNumber(n) {
+      if (n === undefined || n === null || isNaN(n)) return '—';
+      return Math.round(n).toLocaleString('en-US');
+    }
+
+    function updateShareLink(inputs) {
+      var url = new URL(window.location.href);
+      url.searchParams.set('d', JSON.stringify(inputs.dishes));
+      url.searchParams.set('o', inputs.dailyOrders);
+      url.searchParams.set('wd', inputs.workingDays);
+      url.searchParams.set('c', currentCountry);
+      document.getElementById('shareLink').value = url.toString();
+    }
+
+    function copyLink() {
+      var input = document.getElementById('shareLink');
+      input.select();
+      document.execCommand('copy');
+      alert('تم نسخ الرابط!');
+    }
+
+    // ===== Charts =====
+    function loadChartJS() {
+      if (typeof Chart !== 'undefined') return Promise.resolve();
+      return new Promise(function(resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    function updateCharts(r) {
+      loadChartJS().then(function() {
+        // Platform comparison bar chart
+        var pCtx = document.getElementById('platformChart');
+        if (chartInstances.platform) chartInstances.platform.destroy();
+        chartInstances.platform = new Chart(pCtx, {
+          type: 'bar',
+          data: {
+            labels: r.platformResults.map(function(p) { return p.name; }),
+            datasets: [{
+              label: 'الربح الشهري (' + currentCurrency + ')',
+              data: r.platformResults.map(function(p) { return Math.round(p.monthlyProfit); }),
+              backgroundColor: r.platformResults.map(function(p) {
+                return p.monthlyProfit >= 0 ? 'rgba(22,163,74,0.7)' : 'rgba(220,38,38,0.7)';
+              }),
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+              x: { ticks: { color: '#e8ecf4', font: { family: 'Vazirmatn' } }, grid: { display: false } }
+            }
+          }
+        });
+
+        // Cost breakdown doughnut
+        var cCtx = document.getElementById('costChart');
+        if (chartInstances.cost) chartInstances.cost.destroy();
+        var foodCostTotal = r.weightedCost * r.inputs.dailyOrders * r.inputs.workingDays;
+        var packagingTotal = r.inputs.packaging * r.inputs.dailyOrders * r.inputs.workingDays;
+        var deliveryTotal = r.inputs.delivery * r.inputs.dailyOrders * r.inputs.workingDays;
+        var platformFeeTotal = 0;
+        if (r.platformResults.length > 0) {
+          platformFeeTotal = (r.inputs.platforms[0].fee / 100) * r.totalMonthlyRevenue;
+        }
+        chartInstances.cost = new Chart(cCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['مكونات', 'تغليف', 'توصيل', 'عمولة المنصة', 'تكاليف ثابتة'],
+            datasets: [{
+              data: [foodCostTotal, packagingTotal, deliveryTotal, platformFeeTotal, r.monthlyFixed],
+              backgroundColor: ['#d4a853', '#3b82f6', '#8b5cf6', '#ef4444', '#64748b'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { color: '#e8ecf4', font: { family: 'Vazirmatn' } } }
+            }
+          }
+        });
+
+        // Break-even line chart
+        var beCtx = document.getElementById('breakEvenChart');
+        if (chartInstances.breakEven) chartInstances.breakEven.destroy();
+        var beLabels = [];
+        var beRevenue = [], beCosts = [], beProfit = [];
+        for (var i = 0; i <= 200; i += 20) {
+          var orders = i;
+          var rev = r.weightedPrice * orders * r.inputs.workingDays;
+          var varCost = (r.weightedCost + r.inputs.packaging + r.inputs.delivery) * orders * r.inputs.workingDays;
+          var totalCost = varCost + r.monthlyFixed;
+          beLabels.push(orders + '');
+          beRevenue.push(Math.round(rev));
+          beCosts.push(Math.round(totalCost));
+          beProfit.push(Math.round(rev - totalCost));
+        }
+        chartInstances.breakEven = new Chart(beCtx, {
+          type: 'line',
+          data: {
+            labels: beLabels,
+            datasets: [
+              { label: 'الإيرادات', data: beRevenue, borderColor: '#16a34a', tension: 0.3, fill: false },
+              { label: 'إجمالي التكاليف', data: beCosts, borderColor: '#dc2626', tension: 0.3, fill: false },
+              { label: 'الربح', data: beProfit, borderColor: '#d4a853', tension: 0.3, fill: false }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { labels: { color: '#e8ecf4', font: { family: 'Vazirmatn' } } }
+            },
+            scales: {
+              y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+              x: { ticks: { color: '#e8ecf4', font: { family: 'Vazirmatn' } }, grid: { display: false } }
+            }
+          }
+        });
+      }).catch(function(e) { console.error('Chart error:', e); });
+    }
+
+    // ===== Main Calculate =====
+    function calculateAll() {
+      try {
+        var inputs = getInputs();
+        if (inputs.dishes.length === 0) { alert('أضف طبقاً واحداً على الأقل'); return; }
+        if (inputs.dailyOrders <= 0) { alert('أدخل عدد الطلبات اليومية'); return; }
+        var r = calculate(inputs);
+        updateResults(r);
+        updateCharts(r);
+      } catch (err) {
+        console.error('Calculate error:', err);
+        alert('حدث خطأ في الحساب: ' + err.message);
+      }
+    }
+
+    // ===== Export =====
+    async function exportExcel() {
+      var inputs = getInputs();
+      if (inputs.dishes.length === 0) { alert('احسب النتائج أولاً'); return; }
+      await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+      if (typeof XLSX === 'undefined') { alert('فشل تحميل Excel'); return; }
+      var r = calculate(inputs);
+      var wb = XLSX.utils.book_new();
+      wb.Props = { Title: 'تقرير ربحية المطعم', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+      // Dishes sheet
+      var dishData = [['الطبق', 'السعر', 'تكلفة المكونات', 'Food Cost %', 'Contribution']];
+      r.dishResults.forEach(function(d) {
+        dishData.push([d.name, d.price, d.cost, d.foodCostPct.toFixed(1) + '%', Math.round(d.contribution)]);
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dishData), 'الأطباق');
+
+      // Individual platform sheets
+      r.platformResults.forEach(function(p) {
+        var sheetName = p.name.substring(0, 31); // Excel sheet name max 31 chars
+        var data = [
+          ['المؤشر', 'القيمة'],
+          ['المنصة', p.name],
+          ['العمولة', p.fee + '%'],
+          ['سعر البيع الصافي', Math.round(p.platformPrice)],
+          ['الربح لكل طلب', Math.round(p.contributionPerOrder)],
+          ['الربح اليومي', Math.round(p.dailyProfit)],
+          ['الربح الشهري', Math.round(p.monthlyProfit)],
+          ['نقطة التعادل يومياً', p.breakEvenOrders > 0 ? p.breakEvenOrders : 'غير محققة'],
+          ['نقطة التعادل شهرياً', p.breakEvenOrders > 0 ? p.breakEvenOrders * r.inputs.workingDays : 'غير محققة']
+        ];
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), sheetName);
+      });
+
+      // Comparison sheet
+      var compData = [['المنصة', 'العمولة', 'الربح اليومي', 'الربح الشهري', 'نقطة التعادل']];
+      r.platformResults.forEach(function(p) {
+        compData.push([p.name, p.fee + '%', Math.round(p.dailyProfit), Math.round(p.monthlyProfit), p.breakEvenOrders > 0 ? p.breakEvenOrders : 'غير محققة']);
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(compData), 'مقارنة المنصات');
+
+      // Summary
+      var sumData = [
+        ['المؤشر', 'القيمة'],
+        ['الربح الشهري الصافي', Math.round(r.netProfit)],
+        ['هامش الربح', r.profitMargin.toFixed(1) + '%'],
+        ['متوسط Food Cost', r.weightedFoodCostPct.toFixed(1) + '%'],
+        ['نقطة التعادل اليومية', r.breakEvenDaily > 0 ? r.breakEvenDaily : 'غير محققة'],
+        ['التكاليف الثابتة الشهرية', Math.round(r.monthlyFixed)],
+        ['إجمالي الإيرادات الشهرية', Math.round(r.totalMonthlyRevenue)],
+        ['أفضل منصة', r.bestPlatform.name]
+      ];
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sumData), 'الملخص');
+
+      XLSX.writeFile(wb, 'bonds-restaurant-analysis.xlsx');
+    }
+
+    async function exportPDF() {
+      var inputs = getInputs();
+      if (inputs.dishes.length === 0) { alert('احسب النتائج أولاً'); return; }
+      var section = document.getElementById('resultsSection');
+      if (section.style.display === 'none') { alert('احسب النتائج أولاً'); return; }
+      await Promise.all([
+        loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf'),
+        loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')
+      ]);
+      if (typeof html2canvas === 'undefined') { alert('فشل تحميل html2canvas'); return; }
+      var { jsPDF } = window.jspdf;
+      var canvas = await html2canvas(section, { scale: 2, backgroundColor: '#0a0f1a', useCORS: true });
+      var imgData = canvas.toDataURL('image/png');
+      var pdf = new jsPDF('p', 'mm', 'a4');
+      var imgWidth = 210;
+      var pageHeight = 297;
+      var imgHeight = canvas.height * imgWidth / canvas.width;
+      var heightLeft = imgHeight;
+      var position = 0;
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      pdf.save('bonds-restaurant-report.pdf');
+    }
+
+    async function exportPlatformPDF() {
+      var inputs = getInputs();
+      if (inputs.dishes.length === 0) { alert('احسب النتائج أولاً'); return; }
+      var section = document.getElementById('resultsSection');
+      if (section.style.display === 'none') { alert('احسب النتائج أولاً'); return; }
+      await Promise.all([
+        loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf'),
+        loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')
+      ]);
+      if (typeof html2canvas === 'undefined') { alert('فشل تحميل html2canvas'); return; }
+      var r = calculate(inputs);
+      var platformId = document.getElementById('focusPlatform').value;
+      var targetPlatform = r.platformResults.find(function(p) {
+        var el = document.getElementById(p.id);
+        return el && el.checked;
+      });
+      if (!targetPlatform && r.platformResults.length > 0) {
+        targetPlatform = r.platformResults[0];
+      }
+      if (!targetPlatform) { alert('لا توجد منصة محددة'); return; }
+      var { jsPDF } = window.jspdf;
+      var canvas = await html2canvas(section, { scale: 2, backgroundColor: '#0a0f1a', useCORS: true });
+      var imgData = canvas.toDataURL('image/png');
+      var pdf = new jsPDF('p', 'mm', 'a4');
+      var imgWidth = 210;
+      var pageHeight = 297;
+      var imgHeight = canvas.height * imgWidth / canvas.width;
+      var heightLeft = imgHeight;
+      var position = 0;
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      pdf.save('bonds-' + targetPlatform.name.replace(/\s+/g, '-') + '-report.pdf');
+    }
+
+    async function exportPlatformExcel() {
+      var inputs = getInputs();
+      if (inputs.dishes.length === 0) { alert('احسب النتائج أولاً'); return; }
+      await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+      if (typeof XLSX === 'undefined') { alert('فشل تحميل Excel'); return; }
+      var r = calculate(inputs);
+      var wb = XLSX.utils.book_new();
+      wb.Props = { Title: 'تقرير منصة واحدة', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+      var platformId = document.getElementById('focusPlatform').value;
+      var targetPlatform = r.platformResults.find(function(p) {
+        var pid = 'plat_' + p.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        return pid === platformId;
+      });
+      if (!targetPlatform && r.platformResults.length > 0) {
+        targetPlatform = r.platformResults[0];
+      }
+      if (!targetPlatform) { alert('لا توجد منصة محددة'); return; }
+
+      // Dishes
+      var dishData = [['الطبق', 'السعر', 'تكلفة المكونات', 'Food Cost %', 'Contribution']];
+      r.dishResults.forEach(function(d) {
+        dishData.push([d.name, d.price, d.cost, d.foodCostPct.toFixed(1) + '%', Math.round(d.contribution)]);
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dishData), 'الأطباق');
+
+      // Platform sheet
+      var data = [
+        ['المؤشر', 'القيمة'],
+        ['المنصة', targetPlatform.name],
+        ['العمولة', targetPlatform.fee + '%'],
+        ['سعر البيع الصافي', Math.round(targetPlatform.platformPrice)],
+        ['الربح لكل طلب', Math.round(targetPlatform.contributionPerOrder)],
+        ['الربح اليومي', Math.round(targetPlatform.dailyProfit)],
+        ['الربح الشهري', Math.round(targetPlatform.monthlyProfit)],
+        ['نقطة التعادل يومياً', targetPlatform.breakEvenOrders > 0 ? targetPlatform.breakEvenOrders : 'غير محققة'],
+        ['نقطة التعادل شهرياً', targetPlatform.breakEvenOrders > 0 ? targetPlatform.breakEvenOrders * r.inputs.workingDays : 'غير محققة']
+      ];
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), targetPlatform.name.substring(0, 31));
+
+      XLSX.writeFile(wb, 'bonds-' + targetPlatform.name.replace(/\s+/g, '-') + '-analysis.xlsx');
+    }
+
+    // ===== Loaders =====
+    function loadExample() {
+      dishes = [];
+      addDish({ name: 'برجر كلاسيك', price: 35, cost: 14, salesMix: 40 });
+      addDish({ name: 'باستا Alfredo', price: 42, cost: 16, salesMix: 35 });
+      addDish({ name: 'سلطة سيزر', price: 28, cost: 10, salesMix: 25 });
+      document.getElementById('dailyOrders').value = '100';
+      document.getElementById('workingDays').value = '30';
+      document.getElementById('rentCost').value = '20000';
+      document.getElementById('salariesCost').value = '25000';
+      document.getElementById('utilitiesCost').value = '4000';
+      document.getElementById('licensesCost').value = '3000';
+      document.getElementById('marketingCost').value = '8000';
+      document.getElementById('packagingCost').value = '4';
+      document.getElementById('deliveryCost').value = '10';
+      document.getElementById('wasteRate').value = '8';
+      _calcMemo.clear();
+      calculateAll();
+    }
+
+    function resetCalc() {
+      dishes = [];
+      addDish({ name: 'طبق 1', price: 40, cost: 15, salesMix: 50 });
+      addDish({ name: 'طبق 2', price: 35, cost: 12, salesMix: 50 });
+      document.getElementById('rentCost').value = '15000';
+      document.getElementById('salariesCost').value = '20000';
+      document.getElementById('utilitiesCost').value = '3000';
+      document.getElementById('licensesCost').value = '2000';
+      document.getElementById('cloudKitchenCost').value = '5000';
+      document.getElementById('marketingCost').value = '5000';
+      document.getElementById('packagingCost').value = '3';
+      document.getElementById('deliveryCost').value = '8';
+      document.getElementById('wasteRate').value = '8';
+      document.getElementById('dailyOrders').value = '80';
+      document.getElementById('workingDays').value = '30';
+      setBusinessModel('traditional');
+      document.getElementById('resultsSection').style.display = 'none';
+      document.getElementById('smartAlert').classList.remove('show');
+      _calcMemo.clear();
+    }
+
+    function loadFromURL() {
+      var url = new URL(window.location.href);
+      var d = url.searchParams.get('d');
+      var o = url.searchParams.get('o');
+      var wd = url.searchParams.get('wd');
+      var c = url.searchParams.get('c');
+      if (c && COUNTRIES_DATA[c]) {
+        document.getElementById('countrySelect').value = c;
+        changeCountry(c);
+      }
+      if (d) {
+        try { dishes = JSON.parse(d); renderDishes(); } catch(e) {}
+      }
+      if (o) document.getElementById('dailyOrders').value = o;
+      if (wd) document.getElementById('workingDays').value = wd;
+      if (d) calculateAll();
+    }
+
+    // ===== Init =====
+    populateCountrySelect();
+    changeCountry(DEFAULT_COUNTRY);
+    addDish({ name: 'طبق 1', price: 40, cost: 15, salesMix: 50 });
+    addDish({ name: 'طبق 2', price: 35, cost: 12, salesMix: 50 });
+    loadFromURL();
+
+    // Auto-calculate with debounce
+    var debouncedCalc = debounce(calculateAll, 300);
+    document.querySelectorAll('input[type="number"]').forEach(function(el) {
+      el.addEventListener('input', debouncedCalc);
+    });
+    document.querySelectorAll('input[name="businessModel"]').forEach(function(el) {
+      el.addEventListener('change', function() {
+        if (this.checked) setBusinessModel(this.value);
+        setTimeout(debouncedCalc, 50);
+      });
+    });
+
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+
+  <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+</body>
+</html>

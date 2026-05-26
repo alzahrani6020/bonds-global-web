@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blog | Bonds — Financial Insights & Analysis</title>
+  <meta name="description" content="Practical content on financial management, pricing, cash flow, and taxes to help you make better financial decisions for your business." />
+  <meta property="og:title" content="Blog | Bonds — Financial Insights & Analysis" />
+  <meta property="og:description" content="Practical content on financial management, pricing, cash flow, and taxes to help you make better financial decisions for your business." />
+  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:url" content="https://bonds-global.com/blog/en/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Blog | Bonds — Financial Insights & Analysis" />
+  <meta name="twitter:description" content="Practical content on financial management, pricing, cash flow, and taxes to help you make better financial decisions for your business." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <link rel="canonical" href="https://bonds-global.com/blog/en/" />
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/blog/" />
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/blog/en/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="../../assets/site-logo.webp" as="image" type="image/webp" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <style>
+    .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-6); }
+    .blog-card { background: var(--bg-card); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-6); transition: all var(--transition); display: flex; flex-direction: column; height: 100%; text-decoration: none; color: inherit; }
+    .blog-card:hover { background: var(--bg-card-hover); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 40px var(--gold-glow); border-color: var(--gold); }
+    .blog-card__tag { display: inline-block; font-size: 0.75rem; font-weight: 700; color: var(--gold); background: rgba(212,168,83,0.1); border: 1px solid var(--border); border-radius: 100px; padding: 0.25rem 0.75rem; margin-bottom: var(--space-4); align-self: flex-start; }
+    .blog-card__title { font-size: 1.15rem; font-weight: 800; margin-bottom: var(--space-3); line-height: 1.4; }
+    .blog-card__desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4); flex-grow: 1; }
+    .blog-card__meta { display: flex; align-items: center; gap: var(--space-2); font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: var(--space-4); }
+    .cta-box { background: linear-gradient(135deg, var(--navy-900), var(--navy-700)); border-radius: var(--radius-lg); padding: var(--space-12) var(--space-8); text-align: center; }
+  </style>
+</head>
+<body style="font-family:Vazirmatn,system-ui,sans-serif">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <span>Your first consultation is free — Book now</span>
+      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">Quick WhatsApp &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header" id="header">
+    <div class="container main-header__inner">
+      <a href="../../en/index.html" class="logo-slot">
+        <img src="../../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" />
+        <span class="logo-text">Bonds</span>
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="../../en/index.html">Home</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              Services
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="../../en/services.html#analysis">Financial Analysis</a>
+              <a href="../../en/services.html#cashflow">Cash Flow Management</a>
+              <a href="../../en/services.html#feasibility">Feasibility Studies</a>
+              <a href="../../en/services.html#risk">Risk Analysis</a>
+              <a href="../../en/services.html#research">Surveys &amp; Research</a>
+            </div>
+          </li>
+          <li><a href="../../en/pricing.html">Pricing</a></li>
+          <li><a href="../../en/about.html">About Us</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              Calculators
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="../../en/calculator.html">Break-Even</a>
+              <a href="../../en/calculators/cash-flow.html">Cash Flow</a>
+              <a href="../../en/calculators/pricing.html">Pricing</a>
+              <a href="../../en/calculators/loan.html">Loan &amp; Financing</a>
+            </div>
+          </li>
+          <li><a href="index.html">Blog</a></li>
+          <li><a href="../../en/faq.html">FAQ</a></li>
+          <li><a href="../../en/contact.html">Contact</a></li>
+          <li><a href="../index.html">العربية</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <a href="../index.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">العربية</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+        <a href="../../en/contact.html" class="btn btn-primary hidden-mobile">Book Your Consultation</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" style="min-height: 45vh; padding: var(--space-20) 0;">
+    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
+    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+    <div class="container hero__content reveal">
+      <span class="hero__eyebrow">Blog</span>
+      <h1 class="hero__title">Financial <span class="text-gradient">Insights &amp; Analysis</span></h1>
+      <p class="hero__desc">Practical content to help you make better financial decisions for your business.</p>
+    </div>
+  </section>
+
+  <!-- Articles Grid -->
+  <section class="section" style="padding-top: var(--space-12);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">Latest Articles</span>
+        <h2 class="section__title">Dive Into Key Financial Topics</h2>
+        <p class="section__subtitle">Concise, practical articles to level up your financial management.</p>
+      </div>
+      <div class="blog-grid">
+        <a href="../../cash-flow-mistakes.html" class="blog-card reveal">
+          <span class="blog-card__tag">Financial Management</span>
+          <h3 class="blog-card__title">5 Cash Flow Mistakes That Kill Small Businesses</h3>
+          <p class="blog-card__desc">Learn the most common mistakes that dry up cash flow in small businesses, and how to avoid them with practical steps.</p>
+          <div class="blog-card__meta">
+            <span>⏱</span>
+            <span>6 min read</span>
+          </div>
+        </a>
+        <a href="../../pricing-strategy.html" class="blog-card reveal reveal-delay-1">
+          <span class="blog-card__tag">Pricing</span>
+          <h3 class="blog-card__title">How to Price Your Product Without Losing Customers</h3>
+          <p class="blog-card__desc">Practical pricing strategies that balance profitability and market competitiveness.</p>
+          <div class="blog-card__meta">
+            <span>⏱</span>
+            <span>7 min read</span>
+          </div>
+        </a>
+        <a href="../../break-even-explained.html" class="blog-card reveal reveal-delay-1">
+          <span class="blog-card__tag">Financial Analysis</span>
+          <h3 class="blog-card__title">Break-Even Point: When Does Your Project Start Profiting?</h3>
+          <p class="blog-card__desc">A simple explanation of the break-even formula and why it matters when evaluating any new project.</p>
+          <div class="blog-card__meta">
+            <span>⏱</span>
+            <span>5 min read</span>
+          </div>
+        </a>
+        <a href="../../tax-zakat-sme.html" class="blog-card reveal">
+          <span class="blog-card__tag">Tax Compliance</span>
+          <h3 class="blog-card__title">Tax &amp; Zakat for SMEs: A Practical Guide</h3>
+          <p class="blog-card__desc">Everything you need to know about tax and zakat compliance for small businesses in Saudi Arabia and Egypt.</p>
+          <div class="blog-card__meta">
+            <span>⏱</span>
+            <span>8 min read</span>
+          </div>
+        </a>
+        <a href="../../financial-kpis.html" class="blog-card reveal reveal-delay-1">
+          <span class="blog-card__tag">Financial Analysis</span>
+          <h3 class="blog-card__title">Top 10 Financial Metrics Every Business Owner Should Track</h3>
+          <p class="blog-card__desc">Simple financial KPIs that help you quickly assess your company's health and make data-driven decisions.</p>
+          <div class="blog-card__meta">
+            <span>⏱</span>
+            <span>6 min read</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" style="padding-top: var(--space-8);">
+    <div class="container reveal">
+      <div class="cta-box">
+        <h2 style="font-size: var(--text-xl); font-weight: 900; margin-bottom: var(--space-4); color: var(--white);">Need Deeper Financial Analysis?</h2>
+        <p style="font-size: 1rem; color: var(--text-secondary); margin-bottom: var(--space-8); max-width: 600px; margin-left: auto; margin-right: auto;">Articles are a starting point. If you need a tailored diagnosis for your business — your first consultation is free.</p>
+        <a href="../../en/contact.html" class="btn btn-primary">Book Your Free Consultation →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo-slot">
+            <img src="../../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" loading="lazy" />
+            <span class="logo-text" style="color: var(--white);">Bonds</span>
+          </div>
+          <p>Financial consulting for entrepreneurs and small-to-medium businesses in Egypt and Saudi Arabia.</p>
+        </div>
+        <div>
+          <h4 class="footer-title">Pages</h4>
+          <div class="footer-links">
+            <a href="../../en/index.html">Home</a>
+            <a href="../../en/services.html">Services</a>
+            <a href="../../en/about.html">About Us</a>
+            <a href="../../en/faq.html">FAQ</a>
+            <a href="../../en/contact.html">Contact Us</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Services</h4>
+          <div class="footer-links">
+            <a href="../../en/services.html#analysis">Financial Analysis</a>
+            <a href="../../en/services.html">Cash Flow</a>
+            <a href="../../en/services.html#feasibility">Feasibility Studies</a>
+            <a href="../../en/services.html#risk">Risk Analysis</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Commercial Registrations</h4>
+          <div class="footer-links">
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">Egypt: CR 39733</span>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">Saudi Arabia: URN 7042125869</span>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Contact</h4>
+          <div class="footer-links">
+            <a href="https://wa.me/966567566616" target="_blank" rel="noopener">WhatsApp: +966 56 756 6616</a>
+            <a href="mailto:info@bonds-global.com">info@bonds-global.com</a>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">Sheikh Zayed, Giza, Egypt <br>Jeddah, Quraish Street</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; <span id="y">2025</span> Bonds Financial Consulting &mdash; All rights reserved.</span>
+        <div style="display: flex; gap: var(--space-6);">
+          <a href="../../en/privacy.html" style="color: var(--text-muted);">Privacy Policy</a>
+          <a href="#" style="color: var(--text-muted);">Disclaimer</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp">💬</a>
+
+  <script src="../../script.js" defer></script>
+  <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);">↑</button>
+  <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
+  <!-- Tawk.to Live Chat -->
+  <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
+</body>
+</html>

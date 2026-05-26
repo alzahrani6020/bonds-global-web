@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculation Methodology & Transparency | Bonds — Financial Consulting</title>
+  <meta name="description" content="All mathematical formulas used in Bonds calculators: break-even, pricing, cash flow, and loan. Written with complete clarity and manually verifiable." />
+  <meta property="og:title" content="Calculation Methodology & Transparency | Bonds" />
+  <meta property="og:description" content="All mathematical formulas used in Bonds calculators, written with complete clarity and manually verifiable." />
+  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:url" content="https://bonds-global.com/en/methodology.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Calculation Methodology & Transparency | Bonds" />
+  <meta name="twitter:description" content="All mathematical formulas used in Bonds calculators, written with complete clarity and manually verifiable." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <link rel="canonical" href="https://bonds-global.com/en/methodology.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="../assets/site-logo.webp" as="image" type="image/webp" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <style>
+    .formula-box { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; font-family: 'Courier New', monospace; direction: ltr; text-align: left; font-size: 0.95rem; color: var(--text); margin-bottom: 0.75rem; line-height: 1.6; }
+    .formula-box .var { color: var(--gold); font-weight: 700; }
+    .formula-box .op { color: var(--text-secondary); }
+    .example-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .example-table th, .example-table td { padding: 0.75rem 1rem; border: 1px solid var(--border); font-size: 0.9rem; }
+    .example-table th { background: var(--bg-card); color: var(--gold); font-weight: 700; text-align: left; }
+    .example-table td { text-align: left; direction: ltr; font-family: 'Courier New', monospace; }
+    .example-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    .step-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-6); margin-bottom: var(--space-4); }
+    .step-card h4 { color: var(--gold); font-size: 1rem; margin-bottom: var(--space-3); }
+    .calc-links { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
+    .calc-links a { display: inline-flex; align-items: center; gap: var(--space-2); padding: 0.6rem 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.85rem; text-decoration: none; transition: all 0.3s; }
+    .calc-links a:hover { border-color: var(--gold); color: var(--gold); }
+    .assumption-list { list-style: none; padding: 0; }
+    .assumption-list li { position: relative; padding-left: 1.5rem; margin-bottom: var(--space-3); color: var(--text-secondary); line-height: 1.8; }
+    .assumption-list li::before { content: "✓"; position: absolute; left: 0; color: var(--gold); font-weight: 700; }
+    .accuracy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-6); }
+    .accuracy-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-6); text-align: center; transition: all 0.3s; }
+    .accuracy-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+    .accuracy-card .icon { font-size: 2rem; margin-bottom: var(--space-3); }
+    .accuracy-card h4 { color: var(--gold); font-size: 1rem; margin-bottom: var(--space-2); }
+    .accuracy-card p { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.7; }
+    @media print {
+      .topbar, .main-header, .footer, button, .float-whatsapp, .hero__orb { display: none !important; }
+      body { background: #fff !important; color: #000 !important; }
+      .formula-box { border-color: #ccc; background: #f9f9f9; color: #000; }
+      .step-card { border-color: #ccc; background: #fff; }
+    }
+  </style>
+</head>
+<body style="font-family:Vazirmatn,system-ui,sans-serif">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <span>Your first consultation is free — Book now</span>
+      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">Quick WhatsApp &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header" id="header">
+    <div class="container main-header__inner">
+      <a href="index.html" class="logo-slot">
+        <img src="../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" />
+        <span class="logo-text">Bonds</span>
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              Services
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="services.html#analysis">Financial Analysis</a>
+              <a href="services.html#cashflow">Cash Flow Management</a>
+              <a href="services.html#feasibility">Feasibility Studies</a>
+              <a href="services.html#risk">Risk Analysis</a>
+              <a href="services.html#research">Surveys &amp; Research</a>
+            </div>
+          </li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              Calculators
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="calculator.html">Break-Even</a>
+              <a href="calculators/cash-flow.html">Cash Flow</a>
+              <a href="calculators/pricing.html">Pricing</a>
+              <a href="calculators/loan.html">Loan &amp; Financing</a>
+              <a href="calculators/restaurant.html">Restaurants &amp; Cloud</a>
+            </div>
+          </li>
+          <li><a href="blog/index.html">Insights</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <a href="../methodology.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">العربية</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+        <a href="contact.html" class="btn btn-primary hidden-mobile">Book Your Consultation</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" style="min-height: 45vh; padding: var(--space-20) 0;">
+    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
+    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+    <div class="container hero__content reveal">
+      <span class="hero__eyebrow">Financial Transparency</span>
+      <h1 class="hero__title">Calculation Methodology — <span class="text-gradient">Transparency First</span></h1>
+      <p class="hero__desc">All mathematical formulas used in our calculators, written with complete clarity and manually verifiable.</p>
+    </div>
+  </section>
+
+  <!-- Section 1: Break-Even Calculator -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">Calculator 1</span>
+        <h2 class="section__title">Break-Even Calculator</h2>
+        <p class="section__subtitle">All formulas used to calculate the break-even point and net profitability.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="reveal">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📐 Core Formulas</h3>
+          <div class="formula-box"><span class="var">Contribution Margin</span> <span class="op">=</span> Selling Price <span class="op">−</span> Variable Cost per Unit</div>
+          <div class="formula-box"><span class="var">Break-Even (units)</span> <span class="op">=</span> Fixed Costs <span class="op">÷</span> Contribution Margin</div>
+          <div class="formula-box"><span class="var">Break-Even (amount)</span> <span class="op">=</span> Break-Even Units <span class="op">×</span> Selling Price</div>
+          <div class="formula-box"><span class="var">Revenue</span> <span class="op">=</span> Quantity <span class="op">×</span> Selling Price</div>
+          <div class="formula-box"><span class="var">Total Costs</span> <span class="op">=</span> Fixed Costs <span class="op">+</span> (Variable Cost <span class="op">×</span> Quantity)</div>
+          <div class="formula-box"><span class="var">Gross Profit</span> <span class="op">=</span> Revenue <span class="op">−</span> Total Costs</div>
+          <div class="formula-box"><span class="var">Tax</span> <span class="op">=</span> max(0, Gross Profit <span class="op">×</span> Tax Rate)</div>
+          <div class="formula-box"><span class="var">Profit After Tax</span> <span class="op">=</span> Gross Profit <span class="op">−</span> Tax</div>
+          <div class="formula-box"><span class="var">Zakat</span> <span class="op">=</span> max(0, Profit After Tax <span class="op">×</span> Zakat Rate)</div>
+          <div class="formula-box"><span class="var">Net Profit</span> <span class="op">=</span> Profit After Tax <span class="op">−</span> Zakat</div>
+          <div class="formula-box"><span class="var">Profit Margin</span> <span class="op">=</span> (Net Profit <span class="op">÷</span> Revenue) <span class="op">×</span> 100</div>
+          <div class="formula-box"><span class="var">ROI</span> <span class="op">=</span> (Net Profit <span class="op">÷</span> Total Costs) <span class="op">×</span> 100</div>
+        </div>
+
+        <div class="reveal reveal-delay-1">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🧮 Step-by-Step Numeric Example</h3>
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6);">
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: var(--space-4);">Data: Fixed Costs = 10,000 | Selling Price = 500 | Variable Cost = 300 | Quantity = 100 | Tax = 15% | Zakat = 2.5%</p>
+            <div class="step-card">
+              <h4>Step 1: Contribution Margin</h4>
+              <div class="formula-box">500 − 300 = <strong style="color:var(--gold)">200</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 2: Break-Even (units)</h4>
+              <div class="formula-box">10,000 ÷ 200 = <strong style="color:var(--gold)">50 units</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 3: Break-Even (amount)</h4>
+              <div class="formula-box">50 × 500 = <strong style="color:var(--gold)">25,000</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 4: Revenue</h4>
+              <div class="formula-box">100 × 500 = <strong style="color:var(--gold)">50,000</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 5: Total Costs</h4>
+              <div class="formula-box">10,000 + (300 × 100) = 10,000 + 30,000 = <strong style="color:var(--gold)">40,000</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 6: Gross Profit</h4>
+              <div class="formula-box">50,000 − 40,000 = <strong style="color:var(--gold)">10,000</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 7: Tax</h4>
+              <div class="formula-box">max(0, 10,000 × 0.15) = <strong style="color:var(--gold)">1,500</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 8: Profit After Tax</h4>
+              <div class="formula-box">10,000 − 1,500 = <strong style="color:var(--gold)">8,500</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 9: Zakat</h4>
+              <div class="formula-box">max(0, 8,500 × 0.025) = <strong style="color:var(--gold)">212.5</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 10: Final Net Profit</h4>
+              <div class="formula-box">8,500 − 212.5 = <strong style="color:var(--gold)">8,287.5</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 11: Profit Margin</h4>
+              <div class="formula-box">(8,287.5 ÷ 50,000) × 100 = <strong style="color:var(--gold)">16.58%</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 12: Return on Investment (ROI)</h4>
+              <div class="formula-box">(8,287.5 ÷ 40,000) × 100 = <strong style="color:var(--gold)">20.72%</strong></div>
+            </div>
+          </div>
+          <a href="calculator.html" class="btn btn-primary" style="margin-top: var(--space-6);">→ Try the Calculator</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Pricing Calculator -->
+  <section class="section" style="background: var(--bg-secondary);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">Calculator 2</span>
+        <h2 class="section__title">Pricing Calculator</h2>
+        <p class="section__subtitle">Formulas for determining the optimal selling price based on cost and target margin.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="reveal">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📐 Core Formulas</h3>
+          <div class="formula-box"><span class="var">Cost per Unit</span> <span class="op">=</span> Direct Cost <span class="op">+</span> Overhead per Unit</div>
+          <div class="formula-box"><span class="var">Selling Price</span> <span class="op">=</span> Cost per Unit <span class="op">÷</span> (1 <span class="op">−</span> Desired Margin%)</div>
+          <div class="formula-box"><span class="var">Profit Before Tax</span> <span class="op">=</span> Selling Price <span class="op">−</span> Cost per Unit</div>
+          <div class="formula-box"><span class="var">Tax</span> <span class="op">=</span> max(0, Profit Before Tax <span class="op">×</span> Tax Rate)</div>
+          <div class="formula-box"><span class="var">Zakat</span> <span class="op">=</span> max(0, (Profit Before Tax <span class="op">−</span> Tax) <span class="op">×</span> Zakat Rate)</div>
+          <div class="formula-box"><span class="var">Net Profit per Unit</span> <span class="op">=</span> Profit Before Tax <span class="op">−</span> Tax <span class="op">−</span> Zakat</div>
+          <div class="formula-box"><span class="var">Monthly Profit</span> <span class="op">=</span> Net Profit per Unit <span class="op">×</span> Monthly Volume</div>
+          <div class="formula-box"><span class="var">Actual Margin</span> <span class="op">=</span> (Net Profit per Unit <span class="op">÷</span> Selling Price) <span class="op">×</span> 100</div>
+          <div class="formula-box"><span class="var">Break-Even Price</span> <span class="op">=</span> Cost per Unit <span class="op">+</span> (Monthly Fixed Costs <span class="op">÷</span> Monthly Volume)</div>
+        </div>
+
+        <div class="reveal reveal-delay-1">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🧮 Step-by-Step Numeric Example</h3>
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6);">
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: var(--space-4);">Data: Direct Cost = 200 | Overhead per Unit = 50 | Target Margin = 30% | Monthly Volume = 100 | Monthly Fixed Costs = 5,000 | Tax = 15% | Zakat = 2.5%</p>
+            <div class="step-card">
+              <h4>Step 1: Cost per Unit</h4>
+              <div class="formula-box">200 + 50 = <strong style="color:var(--gold)">250</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 2: Selling Price</h4>
+              <div class="formula-box">250 ÷ (1 − 0.30) = 250 ÷ 0.70 = <strong style="color:var(--gold)">357.14</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 3: Profit Before Tax</h4>
+              <div class="formula-box">357.14 − 250 = <strong style="color:var(--gold)">107.14</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 4: Tax</h4>
+              <div class="formula-box">max(0, 107.14 × 0.15) = <strong style="color:var(--gold)">16.07</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 5: Zakat</h4>
+              <div class="formula-box">max(0, (107.14 − 16.07) × 0.025) = 91.07 × 0.025 = <strong style="color:var(--gold)">2.28</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 6: Net Profit per Unit</h4>
+              <div class="formula-box">107.14 − 16.07 − 2.28 = <strong style="color:var(--gold)">88.79</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 7: Monthly Profit</h4>
+              <div class="formula-box">88.79 × 100 = <strong style="color:var(--gold)">8,879</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 8: Actual Margin</h4>
+              <div class="formula-box">(88.79 ÷ 357.14) × 100 = <strong style="color:var(--gold)">24.86%</strong></div>
+            </div>
+            <div class="step-card">
+              <h4>Step 9: Break-Even Price</h4>
+              <div class="formula-box">250 + (5,000 ÷ 100) = 250 + 50 = <strong style="color:var(--gold)">300</strong></div>
+            </div>
+          </div>
+          <a href="calculators/pricing.html" class="btn btn-primary" style="margin-top: var(--space-6);">→ Try the Calculator</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: Cash Flow Calculator -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">Calculator 3</span>
+        <h2 class="section__title">Cash Flow Calculator</h2>
+        <p class="section__subtitle">Formulas for tracking opening and closing balances of monthly cash flows.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="reveal">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📐 Core Formulas</h3>
+          <div class="formula-box"><span class="var">Opening Balance (Month 1)</span> <span class="op">=</span> User Input</div>
+          <div class="formula-box"><span class="var">Opening Balance (Month N)</span> <span class="op">=</span> Closing Balance of Month N−1</div>
+          <div class="formula-box"><span class="var">Total Inflows</span> <span class="op">=</span> Sum of all inflow categories</div>
+          <div class="formula-box"><span class="var">Total Outflows</span> <span class="op">=</span> Sum of all outflow categories</div>
+          <div class="formula-box"><span class="var">Net Cash Flow</span> <span class="op">=</span> Total Inflows <span class="op">−</span> Total Outflows</div>
+          <div class="formula-box"><span class="var">Closing Balance</span> <span class="op">=</span> Opening Balance <span class="op">+</span> Net Cash Flow</div>
+        </div>
+
+        <div class="reveal reveal-delay-1">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📋 Logical Explanation</h3>
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6);">
+            <ul style="color: var(--text-secondary); line-height: 2; font-size: 0.9rem; padding-left: var(--space-4);">
+              <li><strong>Opening Balance</strong> for Month 1 is entered directly by the user.</li>
+              <li><strong>Opening Balance</strong> for any subsequent month equals the previous month's closing balance automatically.</li>
+              <li><strong>Total Inflows</strong> is the sum of all income categories: sales, collections, loans, etc.</li>
+              <li><strong>Total Outflows</strong> is the sum of all expense categories: salaries, rent, purchases, etc.</li>
+              <li><strong>Net Cash Flow</strong> being positive means increased liquidity; negative means a deficit.</li>
+              <li><strong>Closing Balance</strong> is calculated cumulatively to give a clear picture of the cash position.</li>
+            </ul>
+          </div>
+          <a href="calculators/cash-flow.html" class="btn btn-primary" style="margin-top: var(--space-6);">→ Try the Calculator</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: Loan Calculator -->
+  <section class="section" style="background: var(--bg-secondary);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">Calculator 4</span>
+        <h2 class="section__title">Loan &amp; Financing Calculator</h2>
+        <p class="section__subtitle">Loan formulas using fixed-rate amortization and equal installment payments.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="reveal">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📐 Core Formulas</h3>
+          <div class="formula-box"><span class="var">Net Loan</span> <span class="op">=</span> Loan Amount <span class="op">−</span> Down Payment <span class="op">+</span> Extra Fees</div>
+          <div class="formula-box"><span class="var">Periodic Rate</span> <span class="op">=</span> Annual Rate <span class="op">÷</span> Periods per Year</div>
+          <div class="formula-box"><span class="var">Installment</span> <span class="op">=</span> P <span class="op">×</span> [r(1+r)ⁿ] <span class="op">÷</span> [(1+r)ⁿ <span class="op">−</span> 1]</div>
+          <div class="formula-box"><span class="var">Total Interest</span> <span class="op">=</span> (Installment <span class="op">×</span> Number of Payments) <span class="op">−</span> Net Loan</div>
+          <div class="formula-box"><span class="var">EAR</span> <span class="op">=</span> (1 <span class="op">+</span> Periodic Rate)^Periods per Year <span class="op">−</span> 1</div>
+          <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: var(--space-4);">Where: P = Net Loan | r = Periodic Interest Rate | n = Number of Payments</p>
+        </div>
+
+        <div class="reveal reveal-delay-1">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📋 Logical Explanation</h3>
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6);">
+            <ul style="color: var(--text-secondary); line-height: 2; font-size: 0.9rem; padding-left: var(--space-4);">
+              <li><strong>Net Loan</strong> deducts the down payment and adds any administrative fees.</li>
+              <li><strong>Periodic Rate</strong> converts the annual interest rate into the installment period (monthly, quarterly, etc.).</li>
+              <li><strong>Installment Formula</strong> is the internationally recognized amortization formula.</li>
+              <li><strong>Total Interest</strong> is calculated by multiplying the installment by the number of payments, then subtracting the net loan.</li>
+              <li><strong>Effective Annual Rate (EAR)</strong> reflects the true cost considering the frequency of periods.</li>
+            </ul>
+          </div>
+          <a href="calculators/loan.html" class="btn btn-primary" style="margin-top: var(--space-6);">→ Try the Calculator</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: Assumptions & Limitations -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">Important Warnings</span>
+        <h2 class="section__title">Assumptions &amp; Limitations</h2>
+        <p class="section__subtitle">Users should understand that these calculators are estimation tools, not a substitute for professional advice.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card reveal">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">⚠️ Calculator Assumptions</h3>
+          <ul class="assumption-list">
+            <li>Tax is calculated on positive profit only — no tax loss carryforward.</li>
+            <li>Zakat is calculated on profit after tax according to the Saudi standard.</li>
+            <li>The loan calculator uses fixed-rate amortization (not variable rate).</li>
+            <li>Cash flow does not account for the time value of money.</li>
+            <li>All calculations use nominal values and are not inflation-adjusted.</li>
+          </ul>
+        </div>
+        <div class="card reveal reveal-delay-1">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📋 Usage Limitations</h3>
+          <ul class="assumption-list">
+            <li>Results depend entirely on the accuracy of user-entered data.</li>
+            <li>Calculators do not include indirect bank commissions or additional financing fees.</li>
+            <li>Assumes fixed and variable costs remain constant during the studied period.</li>
+            <li>Does not provide binding investment or tax recommendations.</li>
+            <li>For complex financial decisions, consult a licensed accountant or financial advisor.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 6: How We Ensure Accuracy -->
+  <section class="section" style="background: var(--bg-secondary);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">Quality &amp; Accuracy</span>
+        <h2 class="section__title">How We Ensure Accuracy</h2>
+        <p class="section__subtitle">We adhere to the highest quality standards for every formula we publish.</p>
+      </div>
+
+      <div class="accuracy-grid reveal">
+        <div class="accuracy-card">
+          <div class="icon">📚</div>
+          <h4>Professionally Recognized Standards</h4>
+          <p>All formulas are aligned with CIMA and ACCA standards in cost accounting and financial analysis.</p>
+        </div>
+        <div class="accuracy-card">
+          <div class="icon">🧪</div>
+          <h4>Tested Against Python & Excel</h4>
+          <p>10 independent scenarios verified using Python and manual Excel — result: 100% accuracy match.</p>
+        </div>
+        <div class="accuracy-card">
+          <div class="icon">🔄</div>
+          <h4>Monthly Review</h4>
+          <p>We conduct a periodic monthly review to verify formula accuracy and update them when needed.</p>
+        </div>
+        <div class="accuracy-card">
+          <div class="icon">⚡</div>
+          <h4>Rapid Bug Fixes</h4>
+          <p>Any error reported by users is addressed within 24 hours maximum.</p>
+        </div>
+      </div>
+
+      <div class="reveal" style="text-align: center; margin-top: var(--space-12);">
+        <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4);">Noticed a calculation error?</h3>
+        <p style="color: var(--text-secondary); margin-bottom: var(--space-6);">We value your feedback — help us maintain accuracy for all users.</p>
+        <a href="contact.html" class="btn btn-primary">📧 Report a Potential Error</a>
+      </div>
+
+      <div class="reveal" style="text-align: center; margin-top: var(--space-12); background: rgba(212,168,83,0.05); border: 1px solid rgba(212,168,83,0.2); border-radius: var(--radius-lg); padding: var(--space-8);">
+        <div class="icon" style="font-size: 3rem; margin-bottom: var(--space-4);">✅</div>
+        <h3 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-3);">Accuracy Verified</h3>
+        <p style="color: var(--text-secondary); margin-bottom: var(--space-4);">All calculators have been tested against independent Python and manual Excel computations. Result: <strong style="color: var(--gold);">10/10 scenarios passed with 100% accuracy</strong>.</p>
+        <a href="../reports/en/validation.html" class="btn btn-primary">📊 View Validation Report</a>
+        <a href="../reports/calculator-validation.xlsx" class="btn btn-primary" style="margin-right: var(--space-3);" download>📥 Download Excel</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Links to Calculators -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">Get Started</span>
+        <h2 class="section__title">Available Calculators</h2>
+      </div>
+      <div class="calc-links reveal">
+        <a href="calculator.html">📐 Break-Even Calculator</a>
+        <a href="calculators/pricing.html">💰 Pricing Calculator</a>
+        <a href="calculators/cash-flow.html">💵 Cash Flow Calculator</a>
+        <a href="calculators/loan.html">🏦 Loan &amp; Financing Calculator</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo-slot">
+            <img src="../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" loading="lazy" />
+            <span class="logo-text" style="color: var(--white);">Bonds</span>
+          </div>
+          <p>Financial consulting for business owners and SMEs in Egypt and Saudi Arabia.</p>
+        </div>
+        <div>
+          <h4 class="footer-title">Pages</h4>
+          <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="services.html">Services</a>
+            <a href="about.html">About Us</a>
+            <a href="faq.html">FAQ</a>
+            <a href="contact.html">Contact Us</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Services</h4>
+          <div class="footer-links">
+            <a href="services.html#analysis">Financial Analysis</a>
+            <a href="services.html">Cash Flow</a>
+            <a href="services.html#feasibility">Feasibility Studies</a>
+            <a href="services.html#risk">Risk Analysis</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Commercial Registrations</h4>
+          <div class="footer-links">
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">Egypt: CR 39733</span>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">Saudi Arabia: URN 7042125869</span>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-title">Contact</h4>
+          <div class="footer-links">
+            <a href="https://wa.me/966567566616" target="_blank" rel="noopener">WhatsApp: +966 56 756 6616</a>
+            <a href="mailto:info@bonds-global.com">info@bonds-global.com</a>
+            <span style="color: var(--text-muted); font-size: var(--text-sm);">Sheikh Zayed, Giza, Egypt <br>Jeddah, Quraish Street</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; <span id="y">2025</span> Bonds Financial Consulting &mdash; All rights reserved.</span>
+        <div style="display: flex; gap: var(--space-6);">
+          <a href="privacy.html" style="color: var(--text-muted);">Privacy Policy</a>
+          <a href="#" style="color: var(--text-muted);">Disclaimer</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp">💬</a>
+
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);">↑</button>
+
+  <script src="../script.js" defer></script>
+  <script>
+    (function() {
+      var backToTop = document.getElementById('backToTop');
+      if (backToTop) {
+        window.addEventListener('scroll', function() {
+          if (window.scrollY > 400) {
+            backToTop.style.opacity = '1';
+            backToTop.style.visibility = 'visible';
+          } else {
+            backToTop.style.opacity = '0';
+            backToTop.style.visibility = 'hidden';
+          }
+        });
+      }
+      var y = document.getElementById('y');
+      if (y) y.textContent = new Date().getFullYear();
+    })();
+  </script>
+  <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+  <!-- Tawk.to Live Chat -->
+  <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
+</body>
+</html>

@@ -6,11 +6,11 @@
   <title>الأسئلة الشائعة | بوندز — استشارات مالية</title>
   <meta name="description" content="إجابات على أكثر الأسئلة شيوعاً حول استشارات بوندز المالية: التسعير، المدة، القطاعات، السرية، الحجز، والمزيد." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" as="style" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" as="style" />
   <link rel="preload" href="https://fonts.gstatic.com/s/cairo/v28/SLXVc1nY6HkvangtZmpcWmhzfHNZlDcf8Q.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" href="assets/site-logo.webp" as="image" type="image/webp" />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script defer src="/_vercel/insights/script.js"></script>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -21,7 +21,7 @@
     gtag('config', 'G-XXXXXXXXXX');
   </script>
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="assets/site-logo.png" type="image/png" />
+  <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
   <style>
     .faq-hero { min-height: 45vh; padding: var(--space-20) 0; }
     .faq-grid { display: flex; flex-direction: column; gap: var(--space-4); max-width: 880px; margin: 0 auto; }
@@ -180,8 +180,20 @@
           </li>
           <li><a href="pricing.html">الأسعار</a></li>
           <li><a href="about.html">من نحن</a></li>
-          <li><a href="calculator.html">آلة حاسبة</a></li>
-          <li><a href="index.html#insights">مقالات</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              الحاسبات
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="calculator.html">نقطة التعادل</a>
+              <a href="calculators/cash-flow.html">تدفق النقد</a>
+              <a href="calculators/pricing.html">تسعير المنتج</a>
+              <a href="calculators/loan.html">القرض والتمويل</a>
+              <a href="calculators/restaurant.html">المطاعم والسحابي</a>
+            </div>
+          </li>
+          <li><a href="blog/index.html">مقالات</a></li>
           <li><a href="faq.html">الأسئلة الشائعة</a></li>
           <li><a href="contact.html">تواصل</a></li>
         </ul>
@@ -301,6 +313,7 @@
             <a href="services.html">الخدمات</a>
             <a href="about.html">من نحن</a>
             <a href="faq.html">الأسئلة الشائعة</a>
+            <a href="methodology.html">منهجية الحساب</a>
             <a href="contact.html">تواصل معنا</a>
           </div>
         </div>

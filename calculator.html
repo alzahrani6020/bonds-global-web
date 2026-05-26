@@ -16,16 +16,18 @@
   <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+  <link rel="preconnect" href="https://cdn.sheetjs.com" />
+  <link rel="prefetch" href="calculators/pricing.html" as="document" />
+  <link rel="prefetch" href="calculators/cash-flow.html" as="document" />
+  <link rel="prefetch" href="calculators/loan.html" as="document" />
   <link rel="preload" href="assets/site-logo.webp" as="image" type="image/webp" />
   <script defer src="/_vercel/insights/script.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=block" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="assets/site-logo.png" type="image/png" />
+  <link rel="icon" href="assets/bonds-mark.svg" type="image/svg+xml" />
+  <script src="calculators/shared-utils.js"></script>
   <style>
     .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
     @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
@@ -98,8 +100,20 @@
           </li>
           <li><a href="pricing.html">الأسعار</a></li>
           <li><a href="about.html">من نحن</a></li>
-          <li><a href="calculator.html">آلة حاسبة</a></li>
-          <li><a href="index.html#insights">مقالات</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              الحاسبات
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="calculator.html">نقطة التعادل</a>
+              <a href="calculators/cash-flow.html">تدفق النقد</a>
+              <a href="calculators/pricing.html">تسعير المنتج</a>
+              <a href="calculators/loan.html">القرض والتمويل</a>
+              <a href="calculators/restaurant.html">المطاعم والسحابي</a>
+            </div>
+          </li>
+          <li><a href="blog/index.html">مقالات</a></li>
           <li><a href="faq.html">الأسئلة الشائعة</a></li>
           <li><a href="contact.html">تواصل</a></li>
         </ul>
@@ -235,6 +249,33 @@
             <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-6);">هذه الأداة تقديرية. لو تبي تحليل دقيق لنماذجك المالية — نحن نقدم استشارة مجانية.</p>
             <a href="contact.html" class="btn btn-primary">احجز استشارتك المجانية →</a>
           </div>
+
+          <!-- Smart Alert CTA -->
+          <div id="smartAlertBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.02)); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius-lg);">
+            <div style="display: flex; align-items: flex-start; gap: var(--space-4);">
+              <div style="font-size: 2rem; flex-shrink: 0;">⚠️</div>
+              <div>
+                <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-2); color: #fca5a5;">هامش الربح يحتاج مراجعة</h4>
+                <p id="smartAlertText" style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4); line-height: 1.8;"></p>
+                <a href="contact.html" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">📞 استشارة مجانية (30 دقيقة)</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lead Capture -->
+          <div id="leadCaptureBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);">
+            <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">💾 احفظ نتائجك واحصل على هدية</h4>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4);">أرسل هذه النتائج لبريدك + نموذج Cash Flow Forecast مجاني.</p>
+            <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
+              <input type="text" name="name" required placeholder="الاسم" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+              <input type="email" name="email" required placeholder="البريد الإلكتروني" style="flex: 2; min-width: 180px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+              <input type="tel" name="phone" placeholder="رقم الجوال (اختياري)" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+              <input type="hidden" name="source" value="calculator_lead" />
+              <input type="hidden" name="calc_data" id="leadCalcData" />
+              <button type="submit" class="btn btn-primary" style="flex-shrink: 0;">أرسل لي النتائج</button>
+            </form>
+            <p id="leadCaptureSuccess" style="display:none; color: #16a34a; margin-top: var(--space-3); font-weight: 700;">✓ تم الإرسال! سنتواصل معك خلال 24 ساعة.</p>
+          </div>
         </div>
       </div>
 
@@ -277,6 +318,12 @@
             <div class="scenario-label" style="color: #16a34a;">تفاؤل (+20%)</div>
             <div class="scenario-value" id="optimisticProfit">—</div>
             <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">صافي الربح</div>
+          </div>
+        </div>
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); margin-top: var(--space-8);">
+          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); text-align: center;">رسم بياني: مقارنة صافي الربح بين السيناريوهات</h3>
+          <div style="position: relative; height: 300px; max-width: 600px; margin: 0 auto;">
+            <canvas id="scenarioChart"></canvas>
           </div>
         </div>
       </div>
@@ -412,6 +459,7 @@
             <a href="services.html">الخدمات</a>
             <a href="about.html">من نحن</a>
             <a href="faq.html">الأسئلة الشائعة</a>
+            <a href="methodology.html">منهجية الحساب</a>
             <a href="contact.html">تواصل معنا</a>
           </div>
         </div>
@@ -456,6 +504,21 @@
   <script>
     var chart = null;
     var pieChart = null;
+    var scenarioChart = null;
+    var chartJsPromise = null;
+
+    function loadChartJS() {
+      if (chartJsPromise) return chartJsPromise;
+      if (typeof Chart !== 'undefined') return Promise.resolve();
+      chartJsPromise = new Promise(function(resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+      return chartJsPromise;
+    }
 
     function formatNumber(n) {
       return Math.round(n).toLocaleString('en-US');
@@ -477,7 +540,10 @@
       };
     }
 
+    var _calcMemo = createMemo();
     function calculate(inputs) {
+      var memoKey = _calcMemo.key(inputs);
+      if (_calcMemo.has(memoKey)) return _calcMemo.get(memoKey);
       var contribution = inputs.price - inputs.varCost;
       var breakEvenUnits, breakEvenAmount;
       if (contribution > 0) {
@@ -493,13 +559,17 @@
       var revenue = inputs.qty * inputs.price;
       var totalCost = inputs.fixed + (inputs.varCost * inputs.qty);
       var profit = revenue - totalCost;
-      var taxAmount = profit > 0 ? profit * (inputs.taxRate / 100) : 0;
+      var taxRate = (inputs.taxRate !== undefined && inputs.taxRate !== null) ? inputs.taxRate : 0;
+      var zakatRate = (inputs.zakatRate !== undefined && inputs.zakatRate !== null) ? inputs.zakatRate : 0;
+      var taxAmount = profit > 0 ? profit * (taxRate / 100) : 0;
       var profitAfterTax = profit - taxAmount;
-      var zakatAmount = profitAfterTax > 0 ? profitAfterTax * (inputs.zakatRate / 100) : 0;
+      var zakatAmount = profitAfterTax > 0 ? profitAfterTax * (zakatRate / 100) : 0;
       var netProfit = profitAfterTax - zakatAmount;
       var profitMargin = revenue > 0 ? (netProfit / revenue) * 100 : 0;
       var roi = totalCost > 0 ? (netProfit / totalCost) * 100 : 0;
-      return { contribution, breakEvenUnits, breakEvenAmount, revenue, totalCost, profit, taxAmount, profitAfterTax, zakatAmount, netProfit, profitMargin, roi };
+      var result = { contribution, breakEvenUnits, breakEvenAmount, revenue, totalCost, profit, taxAmount, profitAfterTax, zakatAmount, netProfit, profitMargin, roi };
+      _calcMemo.set(memoKey, result);
+      return result;
     }
 
     function updateResults(r, inputs) {
@@ -610,6 +680,30 @@
         var needed = r.breakEvenUnits - inputs.qty;
         analysisText.innerHTML = 'تحتاج تبيع <strong>' + formatNumberAR(needed) + '</strong> وحدة إضافية لتصل لنقطة التعادل.';
       }
+
+      // Smart Alert CTA
+      var alertBox = document.getElementById('smartAlertBox');
+      var alertText = document.getElementById('smartAlertText');
+      if (r.netProfit < 0) {
+        alertBox.style.display = 'block';
+        alertText.textContent = 'مشروعك يحقق خسارة صافية بقيمة ' + formatNumberAR(Math.abs(r.netProfit)) + ' ر.س. هذا ليس حكم نهائي — أحياناً تعديل بسيط في التسعير أو هيكلة التكاليف يقلب الوضع 180 درجة.';
+      } else if (r.profitMargin > 0 && r.profitMargin < 10) {
+        alertBox.style.display = 'block';
+        alertText.textContent = 'هامش الربح (' + r.profitMargin.toFixed(1) + '%) أقل من 10% — هذا هامش ضيق وقد يتحول لخسارة بأي تقلب في السوق أو التكاليف. استشاري مالي يستطيع مراجعة هيكل التكاليف واقتراح تحسينات.';
+      } else {
+        alertBox.style.display = 'none';
+      }
+
+      // Lead Capture
+      var leadBox = document.getElementById('leadCaptureBox');
+      leadBox.style.display = 'block';
+      document.getElementById('leadCalcData').value = JSON.stringify({
+        date: new Date().toLocaleString('ar-SA'),
+        fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: inputs.qty,
+        taxRate: inputs.taxRate, zakatRate: inputs.zakatRate,
+        breakEven: r.breakEvenUnits, revenue: r.revenue, totalCost: r.totalCost,
+        netProfit: r.netProfit, margin: r.profitMargin, roi: r.roi
+      });
     }
 
     function updateChart(inputs, r) {
@@ -700,31 +794,32 @@
       });
     }
 
-    function exportCSV() {
+    async function exportCSV() {
       var inputs = getInputs();
       if (inputs.price <= 0) {
         alert('احسب النتائج أولاً قبل التصدير');
         return;
       }
+      await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
       if (typeof XLSX === 'undefined') {
-        alert('مكتبة Excel غير محملة. حاول تحديث الصفحة.');
+        alert('فشل تحميل مكتبة Excel. حاول مرة أخرى.');
         return;
       }
       var r = calculate(inputs);
-      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8) });
-      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2) });
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
 
       var wb = XLSX.utils.book_new();
       wb.Props = { Title: 'تقرير نقطة التعادل', Subject: 'Bonds Global', Author: 'bonds-global.com' };
 
       var wsData = [
         ['بند', 'القيمة'],
-        ['التكاليف الثابتة', inputs.fixed],
-        ['سعر البيع', inputs.price],
-        ['التكلفة المتغيرة للوحدة', inputs.varCost],
+        ['التكاليف الثابتة', parseFloat(inputs.fixed).toFixed(2)],
+        ['سعر البيع', parseFloat(inputs.price).toFixed(2)],
+        ['التكلفة المتغيرة للوحدة', parseFloat(inputs.varCost).toFixed(2)],
         ['الكمية المتوقعة', inputs.qty],
-        ['نسبة الضريبة (%)', inputs.taxRate],
-        ['نسبة الزكاة (%)', inputs.zakatRate],
+        ['نسبة الضريبة (%)', inputs.taxRate + '%'],
+        ['نسبة الزكاة (%)', inputs.zakatRate + '%'],
         ['نقطة التعادل (وحدات)', r.breakEvenUnits < 0 ? 'غير محققة' : r.breakEvenUnits],
         ['نقطة التعادل (مبالغ)', r.breakEvenAmount < 0 ? 'غير محققة' : r.breakEvenAmount],
         ['الإيرادات المتوقعة', r.revenue],
@@ -734,8 +829,8 @@
         ['الربح بعد الضريبة', r.profitAfterTax],
         ['الزكاة', r.zakatAmount],
         ['الربح الصافي النهائي', r.netProfit],
-        ['نسبة الربح (%)', r.profitMargin],
-        ['العائد على التكلفة (%)', r.roi]
+        ['نسبة الربح (%)', r.profitMargin.toFixed(2) + '%'],
+        ['العائد على التكلفة (%)', r.roi.toFixed(2) + '%']
       ];
       var ws = XLSX.utils.aoa_to_sheet(wsData);
       ws['!cols'] = [{ wch: 28 }, { wch: 18 }];
@@ -747,11 +842,33 @@
         ['الكمية', Math.round(inputs.qty*0.8), inputs.qty, Math.round(inputs.qty*1.2)],
         ['الإيرادات', p.revenue, r.revenue, o.revenue],
         ['التكاليف', p.totalCost, r.totalCost, o.totalCost],
-        ['صافي الربح', p.profit, r.profit, o.profit]
+        ['صافي الربح', p.netProfit, r.netProfit, o.netProfit],
+        ['نسبة الربح (%)', p.profitMargin.toFixed(2) + '%', r.profitMargin.toFixed(2) + '%', o.profitMargin.toFixed(2) + '%'],
+        ['العائد على التكلفة (%)', p.roi.toFixed(2) + '%', r.roi.toFixed(2) + '%', o.roi.toFixed(2) + '%']
       ];
       var ws2 = XLSX.utils.aoa_to_sheet(ws2Data);
       ws2['!cols'] = [{ wch: 22 }, { wch: 16 }, { wch: 14 }, { wch: 16 }];
       XLSX.utils.book_append_sheet(wb, ws2, 'السيناريوهات');
+
+      // Sensitivity sheet
+      var sensData = [['تحليل الحساسية: صافي الربح بتغيير السعر والكمية']];
+      var priceChanges = [0.7, 0.85, 1, 1.15, 1.3];
+      var qtyChanges = [0.7, 0.85, 1, 1.15, 1.3];
+      var qtyHeaders = ['-30%', '-15%', 'المتوقعة', '+15%', '+30%'];
+      sensData.push(['سعر البيع \\ الكمية'].concat(qtyHeaders));
+      priceChanges.forEach(function(pc) {
+        var newPrice = Math.round(inputs.price * pc);
+        var row = [newPrice + ' ر.س'];
+        qtyChanges.forEach(function(qc) {
+          var newQty = Math.round(inputs.qty * qc);
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+          row.push(res.netProfit);
+        });
+        sensData.push(row);
+      });
+      var ws3 = XLSX.utils.aoa_to_sheet(sensData);
+      ws3['!cols'] = [{ wch: 18 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }];
+      XLSX.utils.book_append_sheet(wb, ws3, 'الحساسية');
 
       XLSX.writeFile(wb, 'bonds-break-even.xlsx');
     }
@@ -759,15 +876,50 @@
     function updateScenarios(inputs, r) {
       var pessimisticQty = Math.round(inputs.qty * 0.8);
       var optimisticQty = Math.round(inputs.qty * 1.2);
-      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: pessimisticQty });
-      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: optimisticQty });
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: pessimisticQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: optimisticQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
 
-      document.getElementById('pessimisticProfit').textContent = formatNumberAR(p.profit) + ' ر.س';
-      document.getElementById('pessimisticProfit').style.color = p.profit >= 0 ? '#16a34a' : '#dc2626';
-      document.getElementById('expectedProfit').textContent = formatNumberAR(r.profit) + ' ر.س';
-      document.getElementById('expectedProfit').style.color = r.profit >= 0 ? '#16a34a' : '#dc2626';
-      document.getElementById('optimisticProfit').textContent = formatNumberAR(o.profit) + ' ر.س';
-      document.getElementById('optimisticProfit').style.color = o.profit >= 0 ? '#16a34a' : '#dc2626';
+      document.getElementById('pessimisticProfit').textContent = formatNumberAR(p.netProfit) + ' ر.س';
+      document.getElementById('pessimisticProfit').style.color = p.netProfit >= 0 ? '#16a34a' : '#dc2626';
+      document.getElementById('expectedProfit').textContent = formatNumberAR(r.netProfit) + ' ر.س';
+      document.getElementById('expectedProfit').style.color = r.netProfit >= 0 ? '#16a34a' : '#dc2626';
+      document.getElementById('optimisticProfit').textContent = formatNumberAR(o.netProfit) + ' ر.س';
+      document.getElementById('optimisticProfit').style.color = o.netProfit >= 0 ? '#16a34a' : '#dc2626';
+
+      // Update scenario bar chart
+      var ctx = document.getElementById('scenarioChart').getContext('2d');
+      if (scenarioChart) scenarioChart.destroy();
+      scenarioChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['تشاؤم (-20%)', 'المتوقع', 'تفاؤل (+20%)'],
+          datasets: [{
+            label: 'صافي الربح (ر.س)',
+            data: [p.netProfit, r.netProfit, o.netProfit],
+            backgroundColor: [p.netProfit >= 0 ? '#dc2626' : '#dc2626', r.netProfit >= 0 ? '#d4a853' : '#d4a853', o.netProfit >= 0 ? '#16a34a' : '#16a34a'],
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return 'صافي الربح: ' + formatNumberAR(context.raw) + ' ر.س';
+                }
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#e8ecf4', font: { family: 'Vazirmatn' } }, grid: { display: false } },
+            y: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumberAR(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
     }
 
     function updateSensitivity(inputs, r) {
@@ -782,7 +934,7 @@
         row.innerHTML = '<th>' + formatNumberAR(newPrice) + ' ر.س</th>';
         qtyChanges.forEach(function(qc) {
           var newQty = Math.round(inputs.qty * qc);
-          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty });
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
           var cell = document.createElement('td');
           cell.textContent = formatNumberAR(res.profit);
           cell.className = res.profit >= 0 ? 'positive' : 'negative';
@@ -793,41 +945,44 @@
     }
 
     function saveToHistory(inputs, r) {
-      var history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
-      history.unshift({
-        date: new Date().toLocaleString('ar-SA'),
-        fixed: inputs.fixed,
-        price: inputs.price,
-        varCost: inputs.varCost,
-        qty: inputs.qty,
-        profit: r.profit,
-        breakEven: r.breakEvenUnits
+      dbGet('calcHistory').then(function(history) {
+        history = history || [];
+        history.unshift({
+          date: new Date().toLocaleString('ar-SA'),
+          fixed: inputs.fixed,
+          price: inputs.price,
+          varCost: inputs.varCost,
+          qty: inputs.qty,
+          profit: r.profit,
+          breakEven: r.breakEvenUnits
+        });
+        if (history.length > 50) history.pop();
+        dbSet('calcHistory', history).then(renderHistory);
       });
-      if (history.length > 10) history.pop();
-      localStorage.setItem('calcHistory', JSON.stringify(history));
-      renderHistory();
     }
 
     function renderHistory() {
-      var history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
-      var list = document.getElementById('historyList');
-      if (history.length === 0) {
-        list.innerHTML = '<p style="color: var(--text-muted); text-align: center;">لا توجد حسابات سابقة</p>';
-        return;
-      }
-      list.innerHTML = '';
-      history.forEach(function(item, i) {
-        var div = document.createElement('div');
-        div.className = 'history-item';
-        div.innerHTML = '<span>' + item.date + '</span><span style="font-weight: 800; color: ' + (item.profit >= 0 ? '#16a34a' : '#dc2626') + '">' + formatNumberAR(item.profit) + ' ر.س</span>';
-        div.onclick = function() {
-          document.getElementById('fixedCost').value = item.fixed;
-          document.getElementById('unitPrice').value = item.price;
-          document.getElementById('varCost').value = item.varCost;
-          document.getElementById('quantity').value = item.qty;
-          calculateAll();
-        };
-        list.appendChild(div);
+      dbGet('calcHistory').then(function(history) {
+        history = history || [];
+        var list = document.getElementById('historyList');
+        if (history.length === 0) {
+          list.innerHTML = '<p style="color: var(--text-muted); text-align: center;">لا توجد حسابات سابقة</p>';
+          return;
+        }
+        list.innerHTML = '';
+        history.forEach(function(item, i) {
+          var div = document.createElement('div');
+          div.className = 'history-item';
+          div.innerHTML = '<span>' + item.date + '</span><span style="font-weight: 800; color: ' + (item.profit >= 0 ? '#16a34a' : '#dc2626') + '">' + formatNumberAR(item.profit) + ' ر.س</span>';
+          div.onclick = function() {
+            document.getElementById('fixedCost').value = item.fixed;
+            document.getElementById('unitPrice').value = item.price;
+            document.getElementById('varCost').value = item.varCost;
+            document.getElementById('quantity').value = item.qty;
+            calculateAll();
+          };
+          list.appendChild(div);
+        });
       });
     }
 
@@ -876,15 +1031,20 @@
       }
     }
 
-    function exportPDF_EN() {
+    async function exportPDF_EN() {
       var inputs = getInputs();
       if (inputs.price <= 0) {
         alert('احسب النتائج أولاً قبل تصدير PDF');
         return;
       }
+      await Promise.all([
+        loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf'),
+        loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js')
+      ]);
       var r = calculate(inputs);
-      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8) });
-      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2) });
+      await loadChartJS();
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
 
       var resUnits = r.breakEvenUnits < 0 ? 'N/A' : formatNumber(r.breakEvenUnits) + ' units';
       var resAmount = r.breakEvenAmount < 0 ? 'N/A' : formatNumber(r.breakEvenAmount) + ' SAR';
@@ -1010,7 +1170,7 @@
         startY: nextY + 4,
         head: [['Scenario', 'Net Profit']],
         body: [
-          ['Pessimistic (-20% quantity)', formatNumber(p.profit) + ' SAR'],
+          ['Pessimistic (-20% quantity)', formatNumber(p.netProfit) + ' SAR'],
           ['Expected', formatNumber(r.profit) + ' SAR'],
           ['Optimistic (+20% quantity)', formatNumber(o.profit) + ' SAR']
         ],
@@ -1040,7 +1200,9 @@
           ['Quantity (units)', formatNumber(pQty), formatNumber(inputs.qty), formatNumber(oQty)],
           ['Revenue (SAR)', formatNumber(p.revenue), formatNumber(r.revenue), formatNumber(o.revenue)],
           ['Total Costs (SAR)', formatNumber(p.totalCost), formatNumber(r.totalCost), formatNumber(o.totalCost)],
-          ['Net Profit (SAR)', formatNumber(p.profit), formatNumber(r.profit), formatNumber(o.profit)]
+          ['Net Profit (SAR)', formatNumber(p.netProfit), formatNumber(r.netProfit), formatNumber(o.netProfit)],
+          ['Profit Margin (%)', p.profitMargin.toFixed(2) + '%', r.profitMargin.toFixed(2) + '%', o.profitMargin.toFixed(2) + '%'],
+          ['Return on Cost (%)', p.roi.toFixed(2) + '%', r.roi.toFixed(2) + '%', o.roi.toFixed(2) + '%']
         ],
         theme: 'striped',
         headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
@@ -1068,8 +1230,8 @@
         var row = [formatNumber(newPrice) + ' SAR'];
         qtyChanges.forEach(function(qc) {
           var newQty = Math.round(inputs.qty * qc);
-          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty });
-          row.push(formatNumber(res.profit));
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+          row.push(formatNumber(res.netProfit));
         });
         sensBody.push(row);
       });
@@ -1114,8 +1276,8 @@
         return;
       }
       var r = calculate(inputs);
-      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8) });
-      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2) });
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
 
       var beText = r.breakEvenUnits < 0 ? 'غير محققة' : formatNumberAR(r.breakEvenUnits) + ' وحدة';
       var beAmount = r.breakEvenAmount < 0 ? 'غير محققة' : formatNumberAR(r.breakEvenAmount) + ' ر.س';
@@ -1139,12 +1301,23 @@
         sensRows += '<td style="padding:6px; border:1px solid #ddd; font-weight:bold; font-size:12px;">' + formatNumberAR(newPrice) + ' ر.س</td>';
         qtyChanges.forEach(function(qc) {
           var newQty = Math.round(inputs.qty * qc);
-          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty });
-          var color = res.profit >= 0 ? '#16a34a' : '#dc2626';
-          sensRows += '<td style="padding:6px; border:1px solid #ddd; font-size:12px; color:' + color + ';">' + formatNumberAR(res.profit) + '</td>';
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+          var color = res.netProfit >= 0 ? '#16a34a' : '#dc2626';
+          sensRows += '<td style="padding:6px; border:1px solid #ddd; font-size:12px; color:' + color + ';">' + formatNumberAR(res.netProfit) + '</td>';
         });
         sensRows += '</tr>';
       });
+
+      // Capture chart images
+      var chartImg = '';
+      var costImg = '';
+      var scenarioImg = '';
+      var chartCanvas = document.getElementById('breakEvenChart');
+      var costCanvas = document.getElementById('costPieChart');
+      var scenarioCanvas = document.getElementById('scenarioChart');
+      if (chartCanvas && chartCanvas.toDataURL) chartImg = chartCanvas.toDataURL('image/png');
+      if (costCanvas && costCanvas.toDataURL) costImg = costCanvas.toDataURL('image/png');
+      if (scenarioCanvas && scenarioCanvas.toDataURL) scenarioImg = scenarioCanvas.toDataURL('image/png');
 
       var printWindow = window.open('', '_blank');
       if (!printWindow) {
@@ -1171,12 +1344,14 @@
             .positive { color: #16a34a; font-weight: bold; }
             .negative { color: #dc2626; font-weight: bold; }
             .footer { font-size: 11px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 20px; }
-            @media print { body { padding: 20px; } }
+            .chart-img { max-width: 100%; height: auto; margin: 15px 0; page-break-inside: avoid; }
+            @media print { body { padding: 20px; } .chart-img { max-height: 280px; } }
           </style>
         </head>
         <body>
           <div class="header">
             <h1>بوندز</h1>
+            <p style="font-size:16px; font-weight:700; color:#444; margin:4px 0;">للاستشارات المالية</p>
             <p>تقرير تحليل نقطة التعادل</p>
             <p style="color:#999; font-size:12px;">${new Date().toLocaleDateString('ar-SA')}</p>
           </div>
@@ -1204,6 +1379,11 @@
             <tr style="background:#f5f5f5;"><td style="font-weight:bold;">العائد على التكلفة (%)</td><td class="${r.roi>=0?'positive':'negative'}">${r.roi.toFixed(1)}%</td></tr>
           </table>
           
+          <h3>الرسوم البيانية</h3>
+          ${chartImg ? '<img class="chart-img" src="' + chartImg + '" alt="رسم بياني للتكاليف والإيرادات" />' : ''}
+          ${scenarioImg ? '<img class="chart-img" src="' + scenarioImg + '" alt="مقارنة السيناريوهات" style="max-height:240px;" />' : ''}
+          ${costImg ? '<img class="chart-img" src="' + costImg + '" alt="تركيبة التكاليف" style="max-width:300px; margin:15px auto; display:block;" />' : ''}
+          
           <h3>مقارنة السيناريوهات</h3>
           <table>
             <tr style="background:#f5f5f5;">
@@ -1215,7 +1395,9 @@
             <tr><td style="font-weight:bold;">الكمية (وحدة)</td><td>${formatNumberAR(Math.round(inputs.qty*0.8))}</td><td>${formatNumberAR(inputs.qty)}</td><td>${formatNumberAR(Math.round(inputs.qty*1.2))}</td></tr>
             <tr style="background:#f5f5f5;"><td style="font-weight:bold;">الإيرادات (ر.س)</td><td>${formatNumberAR(p.revenue)}</td><td>${formatNumberAR(r.revenue)}</td><td>${formatNumberAR(o.revenue)}</td></tr>
             <tr><td style="font-weight:bold;">التكاليف (ر.س)</td><td>${formatNumberAR(p.totalCost)}</td><td>${formatNumberAR(r.totalCost)}</td><td>${formatNumberAR(o.totalCost)}</td></tr>
-            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">صافي الربح (ر.س)</td><td class="${p.profit>=0?'positive':'negative'}">${formatNumberAR(p.profit)}</td><td class="${r.profit>=0?'positive':'negative'}">${formatNumberAR(r.profit)}</td><td class="${o.profit>=0?'positive':'negative'}">${formatNumberAR(o.profit)}</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">صافي الربح (ر.س)</td><td class="${p.netProfit>=0?'positive':'negative'}">${formatNumberAR(p.netProfit)}</td><td class="${r.netProfit>=0?'positive':'negative'}">${formatNumberAR(r.netProfit)}</td><td class="${o.netProfit>=0?'positive':'negative'}">${formatNumberAR(o.netProfit)}</td></tr>
+            <tr><td style="font-weight:bold;">نسبة الربح (%)</td><td class="${p.profitMargin>=0?'positive':'negative'}">${p.profitMargin.toFixed(2)}%</td><td class="${r.profitMargin>=0?'positive':'negative'}">${r.profitMargin.toFixed(2)}%</td><td class="${o.profitMargin>=0?'positive':'negative'}">${o.profitMargin.toFixed(2)}%</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">العائد على التكلفة (%)</td><td class="${p.roi>=0?'positive':'negative'}">${p.roi.toFixed(2)}%</td><td class="${r.roi>=0?'positive':'negative'}">${r.roi.toFixed(2)}%</td><td class="${o.roi>=0?'positive':'negative'}">${o.roi.toFixed(2)}%</td></tr>
           </table>
           
           <h3>تحليل الحساسية</h3>
@@ -1247,12 +1429,16 @@
         }
         var r = calculate(inputs);
         updateResults(r, inputs);
-        updateChart(inputs, r);
-        updateCostChart(inputs, r);
-        updateScenarios(inputs, r);
         updateSensitivity(inputs, r);
         saveToHistory(inputs, r);
         updateShareLink(inputs);
+        loadChartJS().then(function() {
+          updateChart(inputs, r);
+          updateCostChart(inputs, r);
+          updateScenarios(inputs, r);
+        }).catch(function(e) {
+          console.error('Chart.js load error:', e);
+        });
       } catch (err) {
         console.error('Calculate error:', err);
         alert('حدث خطأ في الحساب: ' + err.message);
@@ -1288,11 +1474,16 @@
       document.getElementById('analysisBox').style.display = 'none';
       if (chart) chart.destroy();
       if (pieChart) pieChart.destroy();
+      if (scenarioChart) scenarioChart.destroy();
       document.getElementById('pessimisticProfit').textContent = '—';
       document.getElementById('expectedProfit').textContent = '—';
       document.getElementById('optimisticProfit').textContent = '—';
       document.getElementById('sensitivityBody').innerHTML = '';
       document.getElementById('shareLink').value = '';
+      document.getElementById('smartAlertBox').style.display = 'none';
+      document.getElementById('leadCaptureBox').style.display = 'none';
+      document.getElementById('leadCaptureForm').style.display = 'flex';
+      document.getElementById('leadCaptureSuccess').style.display = 'none';
       localStorage.removeItem('calcHistory');
       renderHistory();
       window.history.replaceState({}, '', window.location.pathname);
@@ -1312,14 +1503,41 @@
       if (p) calculateAll();
     }
 
-    // Auto-save inputs
-    ['fixedCost', 'unitPrice', 'varCost', 'quantity'].forEach(function(id) {
+    // Auto-save inputs with debounce
+    var debouncedCalc = debounce(calculateAll, 300);
+    ['fixedCost', 'unitPrice', 'varCost', 'quantity', 'taxRate', 'zakatRate'].forEach(function(id) {
       document.getElementById(id).addEventListener('input', function() {
         var inputs = getInputs();
-        if (inputs.fixed > 0 && inputs.price > 0) {
-          calculateAll();
+        if (inputs.price > 0) {
+          debouncedCalc();
         }
       });
+    });
+
+    // Lead capture form handler
+    document.getElementById('leadCaptureForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var form = this;
+      var btn = form.querySelector('button[type="submit"]');
+      var originalText = btn.textContent;
+      btn.textContent = 'جاري الإرسال...';
+      btn.disabled = true;
+      fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' }})
+        .then(function(r) {
+          if (r.ok) {
+            form.style.display = 'none';
+            document.getElementById('leadCaptureSuccess').style.display = 'block';
+          } else {
+            alert('حدث خطأ، حاول مرة أخرى.');
+            btn.textContent = originalText;
+            btn.disabled = false;
+          }
+        })
+        .catch(function() {
+          alert('حدث خطأ، حاول مرة أخرى.');
+          btn.textContent = originalText;
+          btn.disabled = false;
+        });
     });
 
     loadFromURL();
