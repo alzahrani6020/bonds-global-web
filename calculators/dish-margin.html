@@ -68,6 +68,15 @@
     .insight-card .insight-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-1); }
     .insight-card .insight-value { font-size: 0.9rem; font-weight: 700; color: var(--text); line-height: 1.5; }
     .insight-card .insight-value small { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; }
+    .settings-panel { margin-top: var(--space-6); }
+    .settings-toggle { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; padding: var(--space-3); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); font-weight: 700; color: var(--gold); }
+    .settings-toggle:hover { border-color: var(--gold); }
+    .settings-content { display: none; margin-top: var(--space-3); }
+    .settings-content.open { display: block; }
+    .settings-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .settings-table th, .settings-table td { padding: 0.6rem; text-align: center; border-bottom: 1px solid var(--border); }
+    .settings-table th { background: rgba(212,168,83,0.08); color: var(--gold); font-weight: 700; }
+    .settings-table td { color: var(--text-secondary); }
     @media print {
       .hidden-print, .topbar, .main-header, .main-footer, button, select { display: none !important; }
       body { background: #fff !important; color: #000 !important; font-size: 12pt; }
@@ -173,6 +182,19 @@
         <div class="market-insights" id="marketInsights"></div>
       </div>
 
+      <!-- Settings Panel -->
+      <div class="settings-panel">
+        <div class="settings-toggle" onclick="document.getElementById('settingsContent').classList.toggle('open')">
+          📋 جدول السياسات والعمولات (اضغط للتوسيع)
+        </div>
+        <div class="settings-content" id="settingsContent">
+          <table class="settings-table" id="settingsTable">
+            <thead><tr><th>المنصة</th><th>العمولة</th><th>رسوم خدمة</th><th>توصيل مجاني من</th><th>تحمل المطعم</th><th>الثقة</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="calc-grid reveal">
         <!-- Left Column: Inputs -->
         <div>
@@ -276,6 +298,7 @@
               <button type="button" class="btn btn-secondary" onclick="exportPDF()">📄 تصدير PDF</button>
               <button type="button" class="btn btn-secondary" onclick="exportExcel()">📊 تصدير Excel</button>
               <button type="button" class="btn btn-secondary" onclick="shareWhatsApp()">📱 واتساب</button>
+              <button type="button" class="btn btn-secondary" onclick="exportExcelSettings()">📊 تصدير إكسيل</button>
             </div>
           </div>
         </div>
@@ -451,6 +474,7 @@
       currentCurrency = c.currencySymbol;
       document.getElementById('countryNote').textContent = (c.note || '') + ' العملة: ' + c.currencySymbol + ' (' + c.currency + ')';
       updateMarketInsights(c);
+      updateSettingsTable(c);
       populatePlatforms(c.platforms);
     }
 
@@ -483,6 +507,21 @@
         html += '<div class="insight-card" style="grid-column:1/-1;"><div class="insight-icon">📌</div><div class="insight-label">ملاحظات خاصة</div><div class="insight-value"><small>' + mi.specialNotes + '</small></div></div>';
       }
       container.innerHTML = html;
+    }
+
+    function updateSettingsTable(data) {
+      var tbody = document.querySelector('#settingsTable tbody');
+      if (!tbody || !data || !data.platforms) return;
+      var html = '';
+      data.platforms.forEach(function(p) {
+        if (p.id === 'plat_direct') return;
+        var fee = p.fee + (p.serviceFee ? '+' + p.serviceFee : '') + '%';
+        var fd = p.freeDelivery ? '≥ ' + p.freeDelivery.threshold + ' ' + data.currencySymbol : '—';
+        var fdShare = p.freeDelivery ? p.freeDelivery.restaurantShare + ' ' + data.currencySymbol : '—';
+        var conf = p.confidence === 'verified' ? '✅ مُدقَّق' : '⚠️ تقديري';
+        html += '<tr><td><strong>' + p.name + '</strong></td><td>' + fee + '</td><td>' + (p.serviceFee ? p.serviceFee + '%' : '—') + '</td><td>' + fd + '</td><td>' + fdShare + '</td><td>' + conf + '</td></tr>';
+      });
+      tbody.innerHTML = html;
     }
 
     function populatePlatforms(platforms) {
@@ -584,6 +623,9 @@
       }
       var grossProfit = sellingPrice - commissionValue - totalPrimeCost - deliverySubsidy;
       var margin = sellingPrice > 0 ? (grossProfit / sellingPrice) * 100 : 0;
+      // Profit without free delivery (for comparison)
+      var grossProfitNoFD = sellingPrice - commissionValue - totalPrimeCost;
+      var marginNoFD = sellingPrice > 0 ? (grossProfitNoFD / sellingPrice) * 100 : 0;
       return {
         name: platform.name,
         fee: fee,
@@ -593,6 +635,8 @@
         deliverySubsidy: deliverySubsidy,
         profit: grossProfit,
         margin: margin,
+        profitNoFD: grossProfitNoFD,
+        marginNoFD: marginNoFD,
         confidence: platform.confidence || 'estimated'
       };
     }
@@ -639,6 +683,8 @@
           <td>${feeDisplay}</td>
           <td>${deliveryText}</td>
           <td><strong style="color:${status === 'excellent' ? '#16a34a' : (status === 'good' ? '#ca8a04' : '#dc2626')}">${formatNumber(r.profit)}</strong></td>
+          <td>${formatNumber(r.profitNoFD)}</td>
+          <td style="color:${r.profit > r.profitNoFD ? '#16a34a' : '#dc2626'};font-size:0.85rem;">${r.profit > r.profitNoFD ? '↑' : '↓'} ${formatNumber(Math.abs(r.profit - r.profitNoFD))}</td>
           <td><strong>${r.margin.toFixed(1)}%</strong></td>
           <td class="status-cell status-${status}">${statusText}</td>
           <td>${optimalPrice} ${currentCurrency}</td>
@@ -824,6 +870,25 @@
       }
 
       XLSX.writeFile(wb, 'bonds-dish-margin.xlsx');
+    }
+
+    async function exportExcelSettings() {
+      await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+      if (typeof XLSX === 'undefined') { alert('فشل تحميل Excel'); return; }
+      var data = COUNTRIES_DATA[currentCountry];
+      if (!data) return;
+      var wb = XLSX.utils.book_new();
+      var settingsData = [['المنصة', 'العمولة %', 'رسوم خدمة %', 'حد التوصيل المجاني', 'تحمل المطعم', 'الثقة']];
+      data.platforms.forEach(function(p) {
+        if (p.id === 'plat_direct') return;
+        settingsData.push([p.name, p.fee, p.serviceFee || 0, p.freeDelivery ? p.freeDelivery.threshold : '', p.freeDelivery ? p.freeDelivery.restaurantShare : '', p.confidence]);
+      });
+      var ws1 = XLSX.utils.aoa_to_sheet(settingsData);
+      XLSX.utils.book_append_sheet(wb, ws1, 'السياسات');
+      var calcData = [['البند', 'القيمة'], ['تكلفة الطعام', ''], ['تكلفة التغليف', ''], ['سعر البيع', '']];
+      var ws2 = XLSX.utils.aoa_to_sheet(calcData);
+      XLSX.utils.book_append_sheet(wb, ws2, 'الحاسبة');
+      XLSX.writeFile(wb, 'bonds-dish-' + currentCountry + '.xlsx');
     }
 
     // Init

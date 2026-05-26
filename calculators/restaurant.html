@@ -95,6 +95,15 @@
     .platform-card h5 { color: var(--gold); margin-bottom: var(--space-2); font-size: 1rem; }
     .platform-card .stat { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
     .platform-card .stat:last-child { border-bottom: none; }
+    .settings-panel { margin-top: var(--space-6); }
+    .settings-toggle { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; padding: var(--space-3); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); font-weight: 700; color: var(--gold); }
+    .settings-toggle:hover { border-color: var(--gold); }
+    .settings-content { display: none; margin-top: var(--space-3); }
+    .settings-content.open { display: block; }
+    .settings-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .settings-table th, .settings-table td { padding: 0.6rem; text-align: center; border-bottom: 1px solid var(--border); }
+    .settings-table th { background: rgba(212,168,83,0.08); color: var(--gold); font-weight: 700; }
+    .settings-table td { color: var(--text-secondary); }
     @media print {
       .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
       .calc-grid { grid-template-columns: 1fr 1fr; }
@@ -273,6 +282,20 @@
               <button type="button" class="btn btn-secondary" onclick="calculateAll()">📊 مقارنة كل المنصات</button>
             </div>
           </div>
+
+          <!-- Settings Panel -->
+          <div class="settings-panel">
+            <div class="settings-toggle" onclick="document.getElementById('settingsContent').classList.toggle('open')">
+              📋 جدول السياسات والعمولات (اضغط للتوسيع)
+            </div>
+            <div class="settings-content" id="settingsContent">
+              <table class="settings-table" id="settingsTable">
+                <thead><tr><th>المنصة</th><th>العمولة</th><th>رسوم خدمة</th><th>توصيل مجاني من</th><th>تحمل المطعم</th><th>الثقة</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
 
         <!-- Right Column -->
@@ -329,6 +352,10 @@
             <label for="workingDays">أيام العمل في الشهر</label>
             <input type="number" id="workingDays" placeholder="مثال: 30" value="30" />
           </div>
+          <div class="calc-input-group">
+            <label for="monthlyGMV">إجمالي المبيعات الشهرية المتوقعة (<span class="currency-label">ر.س</span>) <small style="color:var(--text-muted);">(لتطبيق درجات العمولة)</small></label>
+            <input type="number" id="monthlyGMV" placeholder="مثال: 50000" value="50000" />
+          </div>
 
           <div style="display: flex; gap: var(--space-3); margin-top: var(--space-6); flex-wrap: wrap;">
             <button type="button" class="btn btn-primary" onclick="calculateAll()">احسب الربحية</button>
@@ -363,6 +390,7 @@
                 <tr>
                   <th>المنصة</th>
                   <th>العمولة</th>
+                  <th>الدرجة</th>
                   <th>سعر البيع الصافي</th>
                   <th>الربح لكل طبق</th>
                   <th>الربح اليومي</th>
@@ -434,6 +462,7 @@
             <button class="btn btn-secondary" onclick="exportPDF()">📄 PDF (تقرير كامل)</button>
             <button class="btn btn-secondary" onclick="exportPlatformPDF()">📑 PDF (كل منصة منفصلة)</button>
             <button class="btn btn-secondary" onclick="exportPlatformExcel()">📊 Excel (كل منصة منفصلة)</button>
+            <button type="button" class="btn btn-secondary" onclick="exportExcelSettings()">📊 تصدير إكسيل</button>
           </div>
 
           <!-- QR Code & Session Save -->
@@ -569,7 +598,7 @@
       var data = COUNTRIES_DATA[code];
       currentCurrency = data.currencySymbol;
       PLATFORMS = data.platforms.map(function(p) {
-        return { id: p.id, name: p.name, fee: p.fee, serviceFee: p.serviceFee || 0 };
+        return { id: p.id, name: p.name, fee: p.fee, serviceFee: p.serviceFee || 0, feeTiers: p.feeTiers };
       });
 
       // Update currency labels
@@ -583,6 +612,9 @@
 
       // Update market insights
       updateMarketInsights(data);
+
+      // Update settings table
+      updateSettingsTable(data);
 
       // Re-render platforms
       renderPlatforms();
@@ -619,6 +651,21 @@
         html += '<div class="insight-card" style="grid-column:1/-1;"><div class="insight-icon">📌</div><div class="insight-label">ملاحظات خاصة</div><div class="insight-value"><small>' + mi.specialNotes + '</small></div></div>';
       }
       container.innerHTML = html;
+    }
+
+    function updateSettingsTable(data) {
+      var tbody = document.querySelector('#settingsTable tbody');
+      if (!tbody || !data || !data.platforms) return;
+      var html = '';
+      data.platforms.forEach(function(p) {
+        if (p.id === 'plat_direct') return;
+        var fee = p.fee + (p.serviceFee ? '+' + p.serviceFee : '') + '%';
+        var fd = p.freeDelivery ? '≥ ' + p.freeDelivery.threshold + ' ' + data.currencySymbol : '—';
+        var fdShare = p.freeDelivery ? p.freeDelivery.restaurantShare + ' ' + data.currencySymbol : '—';
+        var conf = p.confidence === 'verified' ? '✅ مُدقَّق' : '⚠️ تقديري';
+        html += '<tr><td><strong>' + p.name + '</strong></td><td>' + fee + '</td><td>' + (p.serviceFee ? p.serviceFee + '%' : '—') + '</td><td>' + fd + '</td><td>' + fdShare + '</td><td>' + conf + '</td></tr>';
+      });
+      tbody.innerHTML = html;
     }
 
     function renderPlatforms() {
@@ -776,7 +823,7 @@
       var platforms = [];
       PLATFORMS.forEach(function(p) {
         var el = document.getElementById(p.id);
-        if (el && el.checked) platforms.push({ name: p.name, fee: parseFloat(el.value) || 0, serviceFee: parseFloat(el.dataset.servicefee) || 0 });
+        if (el && el.checked) platforms.push({ name: p.name, fee: parseFloat(el.value) || 0, serviceFee: parseFloat(el.dataset.servicefee) || 0, feeTiers: p.feeTiers });
       });
       var isCloud = (currentBusinessModel === 'cloud');
       return {
@@ -793,11 +840,25 @@
         delivery: parseFloat(document.getElementById('deliveryCost').value) || 0,
         wasteRate: parseFloat(document.getElementById('wasteRate').value) || 0,
         dailyOrders: parseFloat(document.getElementById('dailyOrders').value) || 0,
-        workingDays: parseFloat(document.getElementById('workingDays').value) || 30
+        workingDays: parseFloat(document.getElementById('workingDays').value) || 30,
+        monthlyGMV: parseFloat(document.getElementById('monthlyGMV').value) || 0
       };
     }
 
     // ===== Core Calculation =====
+    function getEffectiveFee(platformData, monthlyGMV) {
+      var baseFee = (platformData.fee || 0) + (platformData.serviceFee || 0);
+      var tiers = platformData.feeTiers;
+      if (!tiers || !monthlyGMV || monthlyGMV <= 0) return { fee: baseFee, tierApplied: false };
+      for (var i = 0; i < tiers.length; i++) {
+        var t = tiers[i];
+        if (monthlyGMV >= t.min && monthlyGMV <= t.max) {
+          return { fee: (t.fee || 0) + (platformData.serviceFee || 0), tierApplied: true, tierName: t.min + '-' + t.max };
+        }
+      }
+      return { fee: baseFee, tierApplied: false };
+    }
+
     function calculate(inputs) {
       var memoKey = _calcMemo.key(inputs);
       if (_calcMemo.has(memoKey)) return _calcMemo.get(memoKey);
@@ -824,7 +885,8 @@
       var dailyFixed = monthlyFixed / inputs.workingDays;
 
       var platformResults = inputs.platforms.map(function(p) {
-        var totalFee = p.fee + (p.serviceFee || 0);
+        var ef = getEffectiveFee(p, inputs.monthlyGMV);
+        var totalFee = ef.fee;
         var platformPrice = weightedPrice * (1 - totalFee / 100);
         var varCostPerOrder = weightedCost + inputs.packaging + inputs.delivery;
         var contributionPerOrder = platformPrice - varCostPerOrder;
@@ -832,7 +894,8 @@
         var monthlyProfit = dailyProfit * inputs.workingDays;
         var breakEvenOrders = contributionPerOrder > 0 ? Math.ceil(dailyFixed / contributionPerOrder) : -1;
         return {
-          name: p.name, fee: p.fee, serviceFee: p.serviceFee || 0, totalFee: totalFee, platformPrice: platformPrice,
+          name: p.name, fee: p.fee, serviceFee: p.serviceFee || 0, totalFee: totalFee,
+          tierApplied: ef.tierApplied, tierName: ef.tierName || '', platformPrice: platformPrice,
           contributionPerOrder: contributionPerOrder,
           dailyProfit: dailyProfit, monthlyProfit: monthlyProfit,
           breakEvenOrders: breakEvenOrders
@@ -923,6 +986,7 @@
         tr.innerHTML = `
           <td><strong>${p.name}</strong></td>
           <td>${p.fee}${p.serviceFee ? '+' + p.serviceFee : ''}%</td>
+          <td>${p.tierApplied ? '<span style="color:#16a34a;font-size:0.75rem;">✓ ' + p.tierName + '</span>' : '—'}</td>
           <td>${formatNumber(Math.round(p.platformPrice))}</td>
           <td>${formatNumber(Math.round(p.contributionPerOrder))}</td>
           <td style="color: ${p.dailyProfit >= 0 ? '#16a34a' : '#dc2626'};">${formatNumber(Math.round(p.dailyProfit))}</td>
@@ -958,7 +1022,8 @@
       } else {
         analysisText = `✅ <strong>ربح:</strong> مطعمك يحقق ${formatNumber(Math.round(r.netProfit))} ${currentCurrency} شهرياً (${r.profitMargin.toFixed(1)}% هامش). `;
         var bestFeeDisplay = r.bestPlatform.serviceFee ? r.bestPlatform.fee + '% + ' + r.bestPlatform.serviceFee + '%' : r.bestPlatform.fee + '%';
-        analysisText += `أفضل منصة هي <strong>${r.bestPlatform.name}</strong> (عمولة ${bestFeeDisplay}). `;
+        var tierText = r.bestPlatform.tierApplied ? ' <small style="color:#16a34a;">(درجة مبيعات ' + r.bestPlatform.tierName + ')</small>' : '';
+        analysisText += `أفضل منصة هي <strong>${r.bestPlatform.name}</strong> (عمولة ${bestFeeDisplay})${tierText}. `;
       }
       if (r.weightedFoodCostPct > 35) {
         analysisText += `<br><br>🚨 <strong>تنبيه Food Cost:</strong> نسبة تكلفة المكونات (${r.weightedFoodCostPct.toFixed(1)}%) أعلى من المُوصى به (30%). راجع أسعار مورديك أو أعد تصميم قائمتك.`;
@@ -1377,6 +1442,28 @@
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), targetPlatform.name.substring(0, 31));
 
       XLSX.writeFile(wb, 'bonds-' + targetPlatform.name.replace(/\s+/g, '-') + '-analysis.xlsx');
+    }
+
+    async function exportExcelSettings() {
+      await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+      if (typeof XLSX === 'undefined') { alert('فشل تحميل Excel'); return; }
+      var data = COUNTRIES_DATA[currentCountry];
+      if (!data) return;
+      var wb = XLSX.utils.book_new();
+      // Sheet 1: Settings
+      var settingsData = [['المنصة', 'العمولة %', 'رسوم خدمة %', 'حد التوصيل المجاني', 'تحمل المطعم', 'الثقة', 'درجات العمولة']];
+      data.platforms.forEach(function(p) {
+        if (p.id === 'plat_direct') return;
+        var tiers = p.feeTiers ? p.feeTiers.map(function(t) { return t.min + '-' + t.max + ':' + t.fee + '%'; }).join(', ') : '';
+        settingsData.push([p.name, p.fee, p.serviceFee || 0, p.freeDelivery ? p.freeDelivery.threshold : '', p.freeDelivery ? p.freeDelivery.restaurantShare : '', p.confidence, tiers]);
+      });
+      var ws1 = XLSX.utils.aoa_to_sheet(settingsData);
+      XLSX.utils.book_append_sheet(wb, ws1, 'السياسات');
+      // Sheet 2: Calculator template
+      var calcData = [['البند', 'القيمة'], ['سعر البيع المتوسط', ''], ['تكلفة المكونات', ''], ['تكلفة التغليف', ''], ['رسوم التوصيل', ''], ['عدد الطلبات اليومية', ''], ['أيام العمل', '30'], ['إجمالي المبيعات الشهرية', '']];
+      var ws2 = XLSX.utils.aoa_to_sheet(calcData);
+      XLSX.utils.book_append_sheet(wb, ws2, 'الحاسبة');
+      XLSX.writeFile(wb, 'bonds-restaurant-' + currentCountry + '.xlsx');
     }
 
     // ===== Loaders =====
