@@ -458,13 +458,15 @@
     }
 
     function getInputs() {
+      var taxEl = document.getElementById('taxRate');
+      var zakatEl = document.getElementById('zakatRate');
       return {
         fixed: parseFloat(document.getElementById('fixedCost').value) || 0,
         price: parseFloat(document.getElementById('unitPrice').value) || 0,
         varCost: parseFloat(document.getElementById('varCost').value) || 0,
         qty: parseFloat(document.getElementById('quantity').value) || 0,
-        taxRate: parseFloat(document.getElementById('taxRate').value) || 0,
-        zakatRate: parseFloat(document.getElementById('zakatRate').value) || 0
+        taxRate: taxEl ? (parseFloat(taxEl.value) || 0) : 0,
+        zakatRate: zakatEl ? (parseFloat(zakatEl.value) || 0) : 0
       };
     }
 
@@ -1105,23 +1107,28 @@
     }
 
     function calculateAll() {
-      var inputs = getInputs();
-      if (inputs.price <= 0) {
-        alert('Please enter selling price');
-        return;
+      try {
+        var inputs = getInputs();
+        if (inputs.price <= 0) {
+          alert('Please enter selling price');
+          return;
+        }
+        if (inputs.fixed < 0 || inputs.varCost < 0 || inputs.qty < 0) {
+          alert('Please make sure all inputs are non-negative');
+          return;
+        }
+        var r = calculate(inputs);
+        updateResults(r, inputs);
+        updateChart(inputs, r);
+        updateCostChart(inputs, r);
+        updateScenarios(inputs, r);
+        updateSensitivity(inputs, r);
+        saveToHistory(inputs, r);
+        updateShareLink(inputs);
+      } catch (err) {
+        console.error('Calculate error:', err);
+        alert('Calculation error: ' + err.message);
       }
-      if (inputs.fixed < 0 || inputs.varCost < 0 || inputs.qty < 0) {
-        alert('Please make sure all inputs are non-negative');
-        return;
-      }
-      var r = calculate(inputs);
-      updateResults(r, inputs);
-      updateChart(inputs, r);
-      updateCostChart(inputs, r);
-      updateScenarios(inputs, r);
-      updateSensitivity(inputs, r);
-      saveToHistory(inputs, r);
-      updateShareLink(inputs);
     }
 
     function loadExample() {
