@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bonds-v18';
+const CACHE_NAME = 'bonds-v19';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

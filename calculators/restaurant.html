@@ -143,7 +143,11 @@
               <a href="calculators/cash-flow.html">تدفق النقد</a>
               <a href="calculators/pricing.html">تسعير المنتج</a>
               <a href="calculators/loan.html">القرض والتمويل</a>
-              <a href="calculators/restaurant.html">المطاعم والسحابي</a>
+              <a href="calculators/restaurant.html?model=traditional">🏢 المطعم التقليدي</a>
+              <a href="calculators/restaurant.html?model=cloud">☁️ المطبخ السحابي</a>
+              <a href="calculators/restaurant.html?model=cafe">☕ الكافيه</a>
+              <a href="calculators/restaurant.html?model=dessert">🍰 محل الحلويات</a>
+              <a href="calculators/dish-margin.html">🍽️ ربحية الوجبة</a>
             </div>
           </li>
           <li><a href="../blog/index.html">مقالات</a></li>
@@ -1281,6 +1285,7 @@
       var o = url.searchParams.get('o');
       var wd = url.searchParams.get('wd');
       var c = url.searchParams.get('c');
+      var model = url.searchParams.get('model');
       if (c && COUNTRIES_DATA[c]) {
         document.getElementById('countrySelect').value = c;
         changeCountry(c);
@@ -1290,7 +1295,10 @@
       }
       if (o) document.getElementById('dailyOrders').value = o;
       if (wd) document.getElementById('workingDays').value = wd;
-      if (d) calculateAll();
+      if (model && ['traditional', 'cloud', 'cafe', 'dessert'].indexOf(model) !== -1) {
+        setBusinessModel(model);
+      }
+      if (d || o || wd || model) calculateAll();
     }
 
     // ===== Init =====

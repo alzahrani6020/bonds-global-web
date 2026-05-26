@@ -143,7 +143,11 @@
               <a href="cash-flow.html">Cash Flow</a>
               <a href="pricing.html">Product Pricing</a>
               <a href="loan.html">Loan & Financing</a>
-              <a href="restaurant.html">Restaurants & Cloud</a>
+              <a href="restaurant.html?model=traditional">🏢 Traditional Restaurant</a>
+              <a href="restaurant.html?model=cloud">☁️ Cloud Kitchen</a>
+              <a href="restaurant.html?model=cafe">☕ Café</a>
+              <a href="restaurant.html?model=dessert">🍰 Dessert Shop</a>
+              <a href="dish-margin.html">🍽️ Dish Margin</a>
             </div>
           </li>
           <li><a href="../../blog/index.html">Articles</a></li>
@@ -1381,6 +1385,7 @@
       var o = url.searchParams.get('o');
       var wd = url.searchParams.get('wd');
       var c = url.searchParams.get('c');
+      var model = url.searchParams.get('model');
       if (c && COUNTRIES_DATA[c]) {
         document.getElementById('countrySelect').value = c;
         changeCountry(c);
@@ -1390,7 +1395,10 @@
       }
       if (o) document.getElementById('dailyOrders').value = o;
       if (wd) document.getElementById('workingDays').value = wd;
-      if (d) calculateAll();
+      if (model && ['traditional', 'cloud', 'cafe', 'dessert'].indexOf(model) !== -1) {
+        setBusinessModel(model);
+      }
+      if (d || o || wd || model) calculateAll();
     }
 
     // ===== Init =====
