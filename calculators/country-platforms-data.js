@@ -173,8 +173,8 @@ var COUNTRIES_DATA = {
       { id: 'plat_baqaala', operatingModel: 'closed', name: 'بقالة', nameEn: 'Baqaala', fee: 18, confidence: 'estimated' },
       { id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }
     ],
-    note: 'سنونو قطري محلي (استحوذت عليه جاهز 76.56%). طلبات غُرّمت 1.14 مليون ر.ق (2025). ديليفرو انسحبت من قطر نهائياً (مارس 2026). كليكس تأخذ رسوم توصيل فقط. متوسط الطلب ~70 ر.ق.'
-    noteEn: 'Snoonu Qatari-local (Jahez acquired 76.56%). Talabat fined QAR 1.14M (2025). Deliveroo exited Qatar permanently (Mar 2026). Clicks charges delivery fee only. Avg order ~QAR 70.'
+    note: 'سنونو قطري محلي (استحوذت عليه جاهز 76.56%) تتنافس بعمولة 10-12%. طلبات السائد (غرّمت 1.14M ر.ق 2025). ديليفرو انسحبت نهائياً (مارس 2026). كيتا دخلت بقوة. كليكس تأخذ رسوم توصيل فقط. متوسط الطلب ~70 ر.ق.',
+    noteEn: 'Snoonu Qatari-local (Jahez acquired 76.56%) competes at 10-12% commission. Talabat dominant (fined QAR 1.14M 2025). Deliveroo exited permanently (Mar 2026). Keeta entered aggressively. Clicks charges delivery fee only. Avg order ~QAR 70.'
   },
   BH: {
     name: 'البحرين',
