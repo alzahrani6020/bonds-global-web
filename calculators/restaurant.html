@@ -30,6 +30,10 @@
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="shared-utils.js"></script>
   <script src="country-platforms-data.js"></script>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../api/supabase-client.js"></script>
+  <script src="../api/auth-guard.js"></script>
   <style>
     .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
     @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
@@ -132,6 +136,12 @@
     .health-item { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3); text-align: center; }
     .health-item .h-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: var(--space-1); }
     .health-item .h-score { font-size: 1.1rem; font-weight: 800; }
+    .premium-lock { position: relative; opacity: 0.6; pointer-events: none; filter: grayscale(0.4); }
+    .premium-lock::after { content: '🔒 Pro'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(0,0,0,0.75); color: var(--gold); font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 4px; white-space: nowrap; pointer-events: none; }
+    [dir="rtl"] .premium-lock::after { left: auto; right: 50%; transform: translate(50%,-50%); }
+    .premium-badge { display: inline-flex; align-items: center; gap: 0.25rem; background: rgba(212,168,83,0.15); color: var(--gold); font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; border: 1px solid rgba(212,168,83,0.3); margin-right: 0.5rem; }
+    .tier-banner { background: linear-gradient(90deg, rgba(212,168,83,0.1), rgba(212,168,83,0.02)); border: 1px solid rgba(212,168,83,0.2); border-radius: var(--radius); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-4); font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
+    .tier-banner strong { color: var(--gold); }
     @media print {
       .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
       .calc-grid { grid-template-columns: 1fr 1fr; }
@@ -202,6 +212,7 @@
       <div class="header-actions">
         <a href="../en/calculators/restaurant.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">EN</a>
         <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
+        <div id="authContainer" style="display:flex;align-items:center;gap:0.5rem;"></div>
         <a href="../contact.html" class="btn btn-primary hidden-mobile">احجز استشارتك</a>
         <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">
           <span></span><span></span><span></span>
@@ -243,6 +254,9 @@
         <span class="section__eyebrow">ادخلاتك</span>
         <h2 class="section__title">بيانات المطعم</h2>
       </div>
+
+      <!-- Tier Banner -->
+      <div id="tierBanner" class="tier-banner reveal" style="display:none;"></div>
 
       <!-- Country Selector -->
       <div class="country-selector reveal">
@@ -367,7 +381,12 @@
           </div>
           <div class="calc-input-group">
             <label for="wasteRate">نسبة الهدر والتالف (%)</label>
-            <input type="number" id="wasteRate" placeholder="مثال: 8" value="8" />
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <input type="range" id="wasteRateSlider" min="0" max="20" value="8" style="flex: 1; accent-color: var(--gold);" oninput="document.getElementById('wasteRate').value = this.value; document.getElementById('wasteLabel').textContent = this.value + '%'; debouncedCalc();" />
+              <input type="number" id="wasteRate" value="8" style="width: 80px; text-align: center;" oninput="document.getElementById('wasteRateSlider').value = this.value; document.getElementById('wasteLabel').textContent = this.value + '%'; debouncedCalc();" />
+              <span id="wasteLabel" style="font-weight: 700; color: var(--gold); min-width: 40px;">8%</span>
+            </div>
+            <p id="wasteImpact" style="font-size: 0.8rem; color: var(--text-muted); margin-top: var(--space-2);"></p>
           </div>
 
           <!-- Daily Orders -->
@@ -383,6 +402,34 @@
           <div class="calc-input-group">
             <label for="monthlyGMV">إجمالي المبيعات الشهرية المتوقعة (<span class="currency-label">ر.س</span>) <small style="color:var(--text-muted);">(لتطبيق درجات العمولة)</small></label>
             <input type="number" id="monthlyGMV" placeholder="مثال: 50000" value="50000" />
+          </div>
+
+          <!-- Target Profit Pricing -->
+          <div style="background: linear-gradient(135deg, rgba(212,168,83,0.08), rgba(212,168,83,0.02)); border: 1px solid rgba(212,168,83,0.25); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6);">
+            <h4 style="color: var(--gold); margin-bottom: var(--space-4); font-size: var(--text-lg);">🎯 ذكاء التسعير العكسي</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: var(--space-4);">حدد الربح المستهدف لكل طلب، وستخبرك الحاسبة بسعر البيع المطلوب في كل منصة.</p>
+            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="calc-input-group" style="margin-bottom: 0;">
+                <label for="targetProfitPerOrder">الربح المستهدف لكل طلب (<span class="currency-label">ر.س</span>)</label>
+                <input type="number" id="targetProfitPerOrder" placeholder="مثال: 15" value="" />
+              </div>
+              <div class="calc-input-group" style="margin-bottom: 0;">
+                <label for="targetDishCost">تكلفة المواد + التغليف (<span class="currency-label">ر.س</span>)</label>
+                <input type="number" id="targetDishCost" placeholder="مثلاً: 12" value="" />
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="calculateTargetPricing()" style="margin-top: var(--space-4); width: 100%;">احسب السعر المطلوب لكل منصة</button>
+            <div id="targetPricingResult" style="margin-top: var(--space-4); display: none;"></div>
+          </div>
+
+          <!-- CSV Ingredient Import -->
+          <div style="margin-top: var(--space-6);">
+            <button type="button" class="btn btn-secondary" onclick="toggleIngredientImport()" style="font-size: 0.85rem;">📥 استيراد مكونات من CSV (اختياري)</button>
+            <div id="ingredientImportPanel" style="display: none; margin-top: var(--space-4); padding: var(--space-4); background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border);">
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: var(--space-3);">صيغة الملف: <code>ingredient,unit,price</code> (سطر لكل مكون)</p>
+              <input type="file" id="ingredientCSV" accept=".csv" onchange="parseIngredientsCSV(this)" style="color: var(--text);" />
+              <div id="ingredientList" style="margin-top: var(--space-3); font-size: 0.85rem;"></div>
+            </div>
           </div>
 
           <div style="display: flex; gap: var(--space-3); margin-top: var(--space-6); flex-wrap: wrap;">
@@ -515,6 +562,27 @@
           <p id="analysisText"></p>
         </div>
 
+        <!-- VAT Breakdown -->
+        <div class="analysis-box reveal" id="vatBreakdownBox" style="margin-top: var(--space-8); display: none;">
+          <h4>📋 تفصيل الضريبة والعمولات (ZATCA)</h4>
+          <div style="overflow-x: auto;">
+            <table class="platform-table" id="vatTable">
+              <thead>
+                <tr>
+                  <th>المنصة</th>
+                  <th>الإيراد قبل الضريبة</th>
+                  <th>ضريبة القيمة المضافة (15%)</th>
+                  <th>عمولة المنصة</th>
+                  <th>صافي التحويل</th>
+                  <th>هامش صافي</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: var(--space-3);">💡 الأرقام أعلاه تُفيد في إعداد إقرار ضريبة القيمة المضافة الشهري.</p>
+        </div>
+
         <!-- Share & Export -->
         <div class="reveal" style="margin-top: var(--space-8); text-align: center;">
           <div class="share-bar" style="justify-content: center;">
@@ -523,8 +591,8 @@
           </div>
           <div style="display: flex; gap: var(--space-3); justify-content: center; margin-top: var(--space-4); flex-wrap: wrap;">
             <button class="btn btn-secondary" onclick="exportExcel()">📊 Excel (مقارنة)</button>
-            <button class="btn btn-secondary" onclick="exportPDF()">📄 PDF (تقرير كامل)</button>
-            <button class="btn btn-secondary" onclick="exportPlatformPDF()">📑 PDF (كل منصة منفصلة)</button>
+            <button class="btn btn-secondary" id="btnExportPDF" onclick="exportPDF()" data-premium="pro">📄 PDF (تقرير كامل) <span class="premium-badge">Pro</span></button>
+            <button class="btn btn-secondary" id="btnExportPlatformPDF" onclick="exportPlatformPDF()" data-premium="pro">📑 PDF (كل منصة منفصلة) <span class="premium-badge">Pro</span></button>
             <button class="btn btn-secondary" onclick="exportPlatformExcel()">📊 Excel (كل منصة منفصلة)</button>
             <button type="button" class="btn btn-secondary" onclick="exportExcelSettings()">📊 تصدير إكسيل</button>
           </div>
@@ -718,6 +786,51 @@
     var _lastResult = null;
     var _scenarioBackup = null;
     var _activeScenario = '';
+    var _currentTier = 'free';
+    var _currentUser = null;
+    var _usedCountries = new Set();
+
+    // ===== Auth & Tier Helpers =====
+    async function initAuthState() {
+      var sb = window.BondsAuth && window.BondsAuth.getSupabase ? window.BondsAuth.getSupabase() : null;
+      if (!sb) return;
+      try {
+        var session = (await window.BondsAuth.getSession()).data?.session;
+        if (session) {
+          _currentUser = session.user;
+          var sub = (await window.BondsAuth.getSubscription(session.user.id)).data;
+          _currentTier = sub?.tier || 'free';
+        } else {
+          _currentTier = 'free';
+          _currentUser = null;
+        }
+      } catch(e) { console.log('Auth init skipped'); }
+      updateTierUI();
+    }
+
+    function updateTierUI() {
+      var banner = document.getElementById('tierBanner');
+      if (!banner) return;
+      if (_currentUser) {
+        var tierLabel = _currentTier === 'enterprise' ? 'Enterprise' : (_currentTier === 'pro' ? 'Pro' : 'Free');
+        banner.innerHTML = '<span>باقتك: <strong>' + tierLabel + '</strong></span>' + (_currentTier === 'free' ? '<a href="../pricing.html" style="color:var(--gold);font-weight:700;text-decoration:none;font-size:0.85rem;">الترقية →</a>' : '');
+        banner.style.display = 'flex';
+      } else {
+        banner.innerHTML = '<span>أنت تستخدم النسخة المجانية. <a href="auth/" style="color:var(--gold);font-weight:700;text-decoration:none;">سجّل دخولك</a> لحفظ السيناريوهات.</span>';
+        banner.style.display = 'flex';
+      }
+    }
+
+    function isLoggedIn() { return !!_currentUser; }
+    function isPro() { return _currentTier === 'pro' || _currentTier === 'enterprise'; }
+    function isEnterprise() { return _currentTier === 'enterprise'; }
+
+    function requirePro(callback) {
+      if (isPro()) { if (callback) callback(); return true; }
+      if (window.showUpgradeModal) window.showUpgradeModal({ tier: _currentTier, reason: 'not_logged_in' });
+      else alert('الميزة متوفرة في باقة Pro — اضغط على "عرض الباقات"');
+      return false;
+    }
 
     // ===== Country Management =====
     function populateCountrySelect() {
@@ -734,6 +847,23 @@
     }
 
     function changeCountry(code) {
+      // Free tier country limit (soft warning)
+      if (!isPro() && code !== currentCountry) {
+        _usedCountries.add(code);
+        try {
+          var stored = JSON.parse(localStorage.getItem('bonds_used_countries') || '[]');
+          stored.forEach(function(c){ _usedCountries.add(c); });
+          _usedCountries.add(code);
+          localStorage.setItem('bonds_used_countries', JSON.stringify(Array.from(_usedCountries)));
+        } catch(e) {}
+        if (_usedCountries.size > 5) {
+          var warned = sessionStorage.getItem('bonds_country_warn');
+          if (!warned) {
+            sessionStorage.setItem('bonds_country_warn', '1');
+            alert('⚠️ لقد استخدمت أكثر من 5 دول. الباقة المجانية تتضمن 5 دول. رقِّ للـ Pro لفتح كل الـ 22 دولة.');
+          }
+        }
+      }
       currentCountry = code;
       var data = COUNTRIES_DATA[code];
       currentCurrency = data.currencySymbol;
@@ -905,26 +1035,66 @@
       var platformId = document.getElementById('corrPlatform').value;
       var price = parseFloat(document.getElementById('corrPrice').value) || 0;
       var payout = parseFloat(document.getElementById('corrPayout').value) || 0;
+      if (!price || !payout || price <= 0) { alert('أدخل السعر والتحصيل بشكل صحيح'); return; }
       var actualFee = ((price - payout) / price * 100).toFixed(2);
       var key = 'correction_' + currentCountry + '_' + platformId;
       await dbSet(key, { actualFee: parseFloat(actualFee), price: price, payout: payout, timestamp: Date.now() });
-      alert('✅ تم حفظ التصحيح محلياً. سيظهر بجانب العمولة في الجدول.');
+
+      // Save to Supabase for Pro users
+      if (isPro() && _currentUser && window.BondsAuth) {
+        var sb = window.BondsAuth.getSupabase();
+        var platformData = PLATFORMS.find(function(p) { return p.id === platformId; });
+        var estimatedFee = platformData ? (platformData.fee + (platformData.serviceFee || 0)) : 0;
+        sb.from('invoice_corrections').upsert({
+          user_id: _currentUser.id,
+          country: currentCountry,
+          platform_id: platformId,
+          estimated_fee: estimatedFee,
+          actual_fee: parseFloat(actualFee),
+          notes: 'User verified from invoice'
+        }, { onConflict: 'user_id,country,platform_id' }).then(function(res) {
+          if (res.error) console.error('Correction save error:', res.error);
+        });
+      }
+
+      alert('✅ تم حفظ التصحيح. سيظهر بجانب العمولة في الجدول.');
       displayCorrections();
     }
 
     async function displayCorrections() {
       var data = COUNTRIES_DATA[currentCountry];
       if (!data || !data.platforms) return;
+      var corrections = {};
+
+      // Load from Supabase for Pro users
+      if (isPro() && _currentUser && window.BondsAuth) {
+        try {
+          var sb = window.BondsAuth.getSupabase();
+          var res = await sb.from('invoice_corrections').select('*').eq('user_id', _currentUser.id).eq('country', currentCountry);
+          if (res.data) {
+            res.data.forEach(function(c) {
+              corrections[c.platform_id] = { actualFee: c.actual_fee, isCloud: true };
+            });
+          }
+        } catch(e) { console.error('Cloud corrections load error', e); }
+      }
+
+      // Merge with local corrections
       for (var i = 0; i < data.platforms.length; i++) {
         var p = data.platforms[i];
         var key = 'correction_' + currentCountry + '_' + p.id;
         var corr = await dbGet(key);
-        if (corr && corr.actualFee) {
-          var el = document.getElementById('corrBadge_' + p.id);
-          if (el) {
-            el.innerHTML = '⚠️ العمولة الفعلية: ' + corr.actualFee + '% (من فاتورة)';
-            el.style.display = 'inline-block';
-          }
+        if (corr && corr.actualFee) corrections[p.id] = corr;
+      }
+
+      // Display
+      for (var pid in corrections) {
+        var corr = corrections[pid];
+        var el = document.getElementById('corrBadge_' + pid);
+        if (el) {
+          var cloudBadge = corr.isCloud ? '☁️ ' : '';
+          el.innerHTML = cloudBadge + '⚠️ العمولة الفعلية: ' + corr.actualFee + '% (من فاتورة)';
+          el.style.display = 'inline-block';
         }
       }
     }
@@ -1231,6 +1401,32 @@
         dtbody.appendChild(tr);
       });
 
+      // VAT Breakdown table
+      var vatBox = document.getElementById('vatBreakdownBox');
+      var vatTbody = document.querySelector('#vatTable tbody');
+      if (vatBox && vatTbody) {
+        vatBox.style.display = 'block';
+        vatTbody.innerHTML = '';
+        r.platformResults.forEach(function(p) {
+          var totalRevenue = p.platformPrice * r.inputs.dailyOrders * r.inputs.workingDays;
+          var revenueBeforeVat = totalRevenue / (1 + (COUNTRIES_DATA[currentCountry].vatRate || 0) / 100);
+          var vatAmount = totalRevenue - revenueBeforeVat;
+          var commissionAmount = revenueBeforeVat * (p.fee + (p.serviceFee || 0)) / 100;
+          var netTransfer = revenueBeforeVat - commissionAmount;
+          var netMargin = revenueBeforeVat > 0 ? ((netTransfer - (r.weightedCost * r.inputs.dailyOrders * r.inputs.workingDays)) / revenueBeforeVat * 100) : 0;
+          var tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${p.name}</strong></td>
+            <td>${formatNumber(Math.round(revenueBeforeVat))}</td>
+            <td>${formatNumber(Math.round(vatAmount))}</td>
+            <td>${formatNumber(Math.round(commissionAmount))}</td>
+            <td>${formatNumber(Math.round(netTransfer))}</td>
+            <td style="color: ${netMargin >= 0 ? '#16a34a' : '#dc2626'}; font-weight: 700;">${netMargin.toFixed(1)}%</td>
+          `;
+          vatTbody.appendChild(tr);
+        });
+      }
+
       // Analysis text
       var analysisText = '';
       if (r.netProfit < 0) {
@@ -1353,6 +1549,25 @@
           return '<div class="health-item"><div class="h-label">' + b.icon + ' ' + b.label + '</div><div class="h-score" style="color:' + c + '">' + b.score + '</div></div>';
         }).join('');
       }
+
+      // Save to Supabase for Pro users
+      if (isPro() && _currentUser && window.BondsAuth && window.BondsAuth.getSupabase) {
+        var sb = window.BondsAuth.getSupabase();
+        sb.from('health_scores').insert({
+          user_id: _currentUser.id,
+          country: currentCountry,
+          score: finalScore,
+          breakdown: {
+            profitScore: breakdown[0].score,
+            foodCostScore: breakdown[1].score,
+            commissionScore: breakdown[2].score,
+            breakEvenScore: breakdown[3].score
+          },
+          inputs_snapshot: r.inputs
+        }).then(function(res) {
+          if (res.error) console.error('Health score save error:', res.error);
+        });
+      }
     }
 
     function generateSmartTip(r) {
@@ -1465,6 +1680,18 @@
     function saveSession() {
       var name = document.getElementById('sessionName').value.trim();
       if (!name) { alert('أدخل اسم للحساب'); return; }
+
+      // Free tier: max 3 scenarios
+      if (!isPro()) {
+        var localCount = 0;
+        try { var raw = localStorage.getItem(_sessionsKey); if (raw) localCount = JSON.parse(raw).length; } catch(e){}
+        if (localCount >= 3) {
+          alert('⚠️ وصلت للحد الأقصى (3 سيناريوهات) في الباقة المجانية. رقِّ للـ Pro لحفظ سيناريوهات غير محدودة.');
+          window.location.href = '../pricing.html';
+          return;
+        }
+      }
+
       var inputs = getInputs();
       var selectedIds = [];
       PLATFORMS.forEach(function(p) {
@@ -1481,6 +1708,24 @@
         date: new Date().toLocaleString('ar-SA'),
         summary: document.getElementById('valNetProfit').textContent + ' ربح | ' + document.getElementById('valMargin').textContent + ' هامش'
       };
+
+      // Save to Supabase if logged in
+      if (_currentUser && window.BondsAuth && window.BondsAuth.getSupabase) {
+        var sb = window.BondsAuth.getSupabase();
+        inputs.selectedIds = selectedIds;
+        inputs.model = currentBusinessModel;
+        sb.from('scenarios').insert({
+          user_id: _currentUser.id,
+          name: name,
+          country: currentCountry,
+          inputs: inputs,
+          results: _lastResult || null
+        }).then(function(res) {
+          if (res.error) console.error('Supabase save error:', res.error);
+        });
+      }
+
+      // Always save locally as cache
       dbGet(_sessionsKey).then(function(sessions) {
         sessions = sessions || [];
         sessions.unshift(session);
@@ -1489,33 +1734,63 @@
       }).then(function() {
         document.getElementById('sessionName').value = '';
         renderSessions();
+        if (typeof gtag !== 'undefined') gtag('event', 'save_scenario', { country: currentCountry });
         alert('✅ تم حفظ الحساب');
       });
     }
 
-    function renderSessions() {
-      dbGet(_sessionsKey).then(function(sessions) {
-        sessions = sessions || [];
-        var panel = document.getElementById('sessionsPanel');
-        var list = document.getElementById('sessionsList');
-        if (sessions.length === 0) { panel.style.display = 'none'; return; }
-        panel.style.display = 'block';
-        list.innerHTML = '';
-        sessions.forEach(function(s) {
-          var div = document.createElement('div');
-          div.style.cssText = 'background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);';
-          div.innerHTML = `
-            <div style="text-align: right;">
-              <div style="font-weight: 800; color: var(--text);">${s.name}</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">${s.date} · ${s.summary}</div>
-            </div>
-            <div style="display: flex; gap: var(--space-2);">
-              <button class="btn btn-primary" onclick='loadSessionUrl(${JSON.stringify(s)})' style="font-size: 0.8rem; padding: 0.5rem 1rem;">تحميل</button>
-              <button class="btn btn-secondary" onclick="deleteSession(${s.id})" style="font-size: 0.8rem; padding: 0.5rem 1rem;">حذف</button>
-            </div>
-          `;
-          list.appendChild(div);
-        });
+    async function renderSessions() {
+      var sessions = [];
+
+      // Load from Supabase if Pro
+      if (isPro() && _currentUser && window.BondsAuth && window.BondsAuth.getSupabase) {
+        try {
+          var sb = window.BondsAuth.getSupabase();
+          var res = await sb.from('scenarios').select('*').eq('user_id', _currentUser.id).order('created_at', { ascending: false }).limit(50);
+          if (res.data) {
+            sessions = res.data.map(function(row) {
+              return {
+                id: row.id,
+                name: row.name,
+                country: row.country,
+                inputs: row.inputs,
+                selectedIds: row.inputs && row.inputs.selectedIds ? row.inputs.selectedIds : [],
+                model: row.inputs && row.inputs.model ? row.inputs.model : 'traditional',
+                date: new Date(row.created_at).toLocaleString('ar-SA'),
+                summary: row.results ? 'محفوظ في السحابة' : 'سيناريو',
+                isCloud: true
+              };
+            });
+          }
+        } catch(e) { console.error('Cloud load error', e); }
+      }
+
+      // Fallback: local sessions
+      if (sessions.length === 0) {
+        var local = await dbGet(_sessionsKey);
+        sessions = local || [];
+      }
+
+      var panel = document.getElementById('sessionsPanel');
+      var list = document.getElementById('sessionsList');
+      if (sessions.length === 0) { panel.style.display = 'none'; return; }
+      panel.style.display = 'block';
+      list.innerHTML = '';
+      sessions.forEach(function(s) {
+        var div = document.createElement('div');
+        div.style.cssText = 'background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);';
+        var cloudBadge = s.isCloud ? '<span style="font-size:0.7rem;background:rgba(212,168,83,0.15);color:var(--gold);padding:0.1rem 0.4rem;border-radius:4px;margin-right:0.5rem;">☁️</span>' : '';
+        div.innerHTML = `
+          <div style="text-align: right;">
+            <div style="font-weight: 800; color: var(--text);">${cloudBadge}${s.name}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">${s.date} · ${s.summary}</div>
+          </div>
+          <div style="display: flex; gap: var(--space-2);">
+            <button class="btn btn-primary" onclick='loadSessionUrl(${JSON.stringify(s)})' style="font-size: 0.8rem; padding: 0.5rem 1rem;">تحميل</button>
+            <button class="btn btn-secondary" onclick="deleteSession(${typeof s.id === 'string' ? '\'' + s.id + '\'' : s.id})" style="font-size: 0.8rem; padding: 0.5rem 1rem;">حذف</button>
+          </div>
+        `;
+        list.appendChild(div);
       });
     }
 
@@ -1555,11 +1830,19 @@
       window.scrollTo({ top: document.getElementById('calc').offsetTop - 80, behavior: 'smooth' });
     }
 
-    function deleteSession(id) {
-      dbGet(_sessionsKey).then(function(sessions) {
-        sessions = (sessions || []).filter(function(s) { return s.id !== id; });
-        return dbSet(_sessionsKey, sessions);
-      }).then(function() { renderSessions(); });
+    async function deleteSession(id) {
+      // Delete from Supabase if cloud session
+      if (typeof id === 'string' && id.length > 20 && _currentUser && window.BondsAuth) {
+        try {
+          var sb = window.BondsAuth.getSupabase();
+          await sb.from('scenarios').delete().eq('id', id).eq('user_id', _currentUser.id);
+        } catch(e) { console.error('Cloud delete error', e); }
+      }
+      // Delete local
+      var sessions = await dbGet(_sessionsKey);
+      sessions = (sessions || []).filter(function(s) { return s.id !== id; });
+      await dbSet(_sessionsKey, sessions);
+      renderSessions();
     }
 
     // ===== Charts =====
@@ -1869,6 +2152,8 @@
     }
 
     async function exportPDF() {
+      if (!requirePro()) return;
+      if (typeof gtag !== 'undefined') gtag('event', 'export_pdf', { type: 'full' });
       var inputs = getInputs();
       if (inputs.dishes.length === 0) { alert('احسب النتائج أولاً'); return; }
       var section = document.getElementById('resultsSection');
@@ -1899,6 +2184,8 @@
     }
 
     async function exportPlatformPDF() {
+      if (!requirePro()) return;
+      if (typeof gtag !== 'undefined') gtag('event', 'export_pdf', { type: 'per_platform' });
       var inputs = getInputs();
       if (inputs.dishes.length === 0) { alert('احسب النتائج أولاً'); return; }
       var section = document.getElementById('resultsSection');
@@ -2049,8 +2336,57 @@
       _calcMemo.clear();
     }
 
+    async function loadScenarioFromCloud(id) {
+      if (!window.BondsAuth || !window.BondsAuth.getSupabase) { alert('يجب تسجيل الدخول لتحميل السيناريوهات من السحابة'); return false; }
+      var sb = window.BondsAuth.getSupabase();
+      try {
+        var res = await sb.from('scenarios').select('*').eq('id', id).single();
+        if (res.error || !res.data) { alert('لم يتم العثور على السيناريو'); return false; }
+        var s = res.data;
+        if (s.country && COUNTRIES_DATA[s.country]) {
+          document.getElementById('countrySelect').value = s.country;
+          changeCountry(s.country);
+        }
+        if (s.inputs) {
+          var i = s.inputs;
+          if (i.dishes && i.dishes.length) { dishes = i.dishes.map(function(d) { return { name: d.name, price: d.price, cost: d.cost, salesMix: d.salesMix }; }); renderDishes(); }
+          if (i.dailyOrders) document.getElementById('dailyOrders').value = i.dailyOrders;
+          if (i.workingDays) document.getElementById('workingDays').value = i.workingDays;
+          if (i.rent) document.getElementById('rentCost').value = i.rent;
+          if (i.salaries) document.getElementById('salariesCost').value = i.salaries;
+          if (i.utilities) document.getElementById('utilitiesCost').value = i.utilities;
+          if (i.licenses) document.getElementById('licensesCost').value = i.licenses;
+          if (i.cloudKitchen) document.getElementById('cloudKitchenCost').value = i.cloudKitchen;
+          if (i.marketing) document.getElementById('marketingCost').value = i.marketing;
+          if (i.packaging) document.getElementById('packagingCost').value = i.packaging;
+          if (i.delivery) document.getElementById('deliveryCost').value = i.delivery;
+          if (i.wasteRate !== undefined) document.getElementById('wasteRate').value = i.wasteRate;
+          if (i.monthlyGMV) document.getElementById('monthlyGMV').value = i.monthlyGMV;
+        }
+        if (s.model && ['traditional', 'cloud', 'cafe', 'dessert'].indexOf(s.model) !== -1) {
+          setBusinessModel(s.model);
+        }
+        if (s.inputs && s.inputs.selectedIds && s.inputs.selectedIds.length) {
+          PLATFORMS.forEach(function(p) {
+            var el = document.getElementById(p.id);
+            if (el) el.checked = s.inputs.selectedIds.indexOf(p.id) !== -1;
+          });
+        }
+        calculateAll();
+        window.scrollTo({ top: document.getElementById('calc').offsetTop - 80, behavior: 'smooth' });
+        return true;
+      } catch(e) { console.error('Cloud load error', e); alert('تعذر تحميل السيناريو'); return false; }
+    }
+
     function loadFromURL() {
       var url = new URL(window.location.href);
+      var subscribed = url.searchParams.get('subscribed');
+      if (subscribed === '1') {
+        if (typeof gtag !== 'undefined') gtag('event', 'purchase', { event_category: 'subscription' });
+        alert('🎉 تم الاشتراك بنجاح! يمكنك الآن استخدام كل مميزات Pro.');
+      }
+      var loadId = url.searchParams.get('load');
+      if (loadId) { loadScenarioFromCloud(loadId); return; }
       var d = url.searchParams.get('d');
       var o = url.searchParams.get('o');
       var wd = url.searchParams.get('wd');
@@ -2099,13 +2435,110 @@
       if (d || o || wd || model || rent || plats) calculateAll();
     }
 
+    // ===== Target Profit Pricing (Reverse Calculator) =====
+    function calculateTargetPricing() {
+      var targetProfit = parseFloat(document.getElementById('targetProfitPerOrder').value) || 0;
+      var dishCost = parseFloat(document.getElementById('targetDishCost').value) || 0;
+      if (!targetProfit || !dishCost || targetProfit <= 0 || dishCost <= 0) {
+        alert('أدخل تكلفة المواد والربح المستهدف بشكل صحيح');
+        return;
+      }
+      var vatRate = (COUNTRIES_DATA[currentCountry].vatRate || 0) / 100;
+      var resultDiv = document.getElementById('targetPricingResult');
+      resultDiv.style.display = 'block';
+
+      var html = '<table class="platform-table" style="margin-top: var(--space-4);"><thead><tr><th>المنصة</th><th>العمولة</th><th>سعر البيع المطلوب</th><th>صافي للمطعم</th></tr></thead><tbody>';
+      PLATFORMS.forEach(function(p) {
+        if (p.id === 'plat_direct') return;
+        var totalFee = p.fee + (p.serviceFee || 0);
+        var requiredPrice = (dishCost + targetProfit) * (1 + vatRate) / (1 - totalFee / 100);
+        var netToRestaurant = requiredPrice / (1 + vatRate) * (1 - totalFee / 100);
+        html += '<tr><td><strong>' + p.name + '</strong></td><td>' + totalFee + '%</td><td style="color:var(--gold);font-weight:800;">' + formatNumber(Math.ceil(requiredPrice)) + ' ' + currentCurrency + '</td><td>' + formatNumber(Math.round(netToRestaurant)) + '</td></tr>';
+      });
+      html += '</tbody></table>';
+      html += '<p style="font-size:0.8rem;color:var(--text-muted);margin-top:var(--space-3);">💡 المعادلة: (تكلفة المواد + الربح المستهدف) × (1+VAT) ÷ (1−عمولة المنصة)</p>';
+      resultDiv.innerHTML = html;
+
+      if (typeof gtag !== 'undefined') gtag('event', 'target_pricing_calculated', { country: currentCountry });
+    }
+
+    // ===== Ingredient CSV Import =====
+    function toggleIngredientImport() {
+      var panel = document.getElementById('ingredientImportPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    var _importedIngredients = [];
+
+    function parseIngredientsCSV(input) {
+      var file = input.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var text = e.target.result;
+        var lines = text.split('\n').filter(function(l) { return l.trim(); });
+        _importedIngredients = [];
+        lines.forEach(function(line, idx) {
+          if (idx === 0 && line.toLowerCase().includes('ingredient')) return; // skip header
+          var parts = line.split(',');
+          if (parts.length >= 3) {
+            _importedIngredients.push({ name: parts[0].trim(), unit: parts[1].trim(), price: parseFloat(parts[2]) || 0 });
+          }
+        });
+        var listDiv = document.getElementById('ingredientList');
+        if (_importedIngredients.length > 0) {
+          listDiv.innerHTML = '✅ تم استيراد ' + _importedIngredients.length + ' مكون: ' + _importedIngredients.map(function(i) { return i.name + ' (' + i.price + ')'; }).join('، ');
+        } else {
+          listDiv.innerHTML = '❌ لم يتم التعرف على أي مكون. تأكد من الصيغة: ingredient,unit,price';
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // ===== Waste Impact Display =====
+    function updateWasteImpact() {
+      var wasteRate = parseFloat(document.getElementById('wasteRate').value) || 0;
+      var impactEl = document.getElementById('wasteImpact');
+      if (impactEl) {
+        if (wasteRate > 10) {
+          impactEl.innerHTML = '🔴 هدر مرتفع — كل طلب يخسر ' + wasteRate + '% من قيمته. راجع إجراءات المطبخ.';
+          impactEl.style.color = '#dc2626';
+        } else if (wasteRate > 5) {
+          impactEl.innerHTML = '🟡 هدر متوسط — يُحسّن بمراقبة الجودة.';
+          impactEl.style.color = '#d4a853';
+        } else {
+          impactEl.innerHTML = '🟢 هدر منخفض — أداء ممتاز.';
+          impactEl.style.color = '#16a34a';
+        }
+      }
+    }
+
+    // ===== Env Validation =====
+    setTimeout(function(){
+      var env = window.__ENV || {};
+      if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+        var banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#5a1a1a;color:#ff8a8a;padding:12px;text-align:center;z-index:99999;font-size:0.9rem;';
+        banner.innerHTML = '⚠️ لم يتم إعداد متغيرات البيئة (Environment Variables). يرجى مراجعة دليل النشر.';
+        document.body.prepend(banner);
+      }
+    }, 500);
+
     // ===== Init =====
     populateCountrySelect();
     changeCountry(DEFAULT_COUNTRY);
-    addDish({ name: 'طبق 1', price: 40, cost: 15, salesMix: 50 });
-    addDish({ name: 'طبق 2', price: 35, cost: 12, salesMix: 50 });
+
+    // Auto-load example for first-time visitors
+    if (!localStorage.getItem('bonds_has_used')) {
+      loadExample();
+      localStorage.setItem('bonds_has_used', '1');
+    } else {
+      addDish({ name: 'طبق 1', price: 40, cost: 15, salesMix: 50 });
+      addDish({ name: 'طبق 2', price: 35, cost: 12, salesMix: 50 });
+    }
+
     loadFromURL();
-    renderSessions();
+    initAuthState().then(renderSessions);
 
     // Auto-calculate with debounce
     var debouncedCalc = debounce(calculateAll, 300);

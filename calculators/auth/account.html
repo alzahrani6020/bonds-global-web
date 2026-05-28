@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حسابي — Bonds</title>
+  <link rel="stylesheet" href="../../style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg" />
+  <style>
+    :root{--gold:#c8a45c;--bg:#0c0c0c;--bg-card:#141414;--bg-elevated:#1c1c1c;--border:#2a2a2a;--text:#f5f5f5;--text-secondary:#9a9a9a;--radius-lg:16px;--radius-md:10px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Tajawal','Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .container{max-width:960px;margin:0 auto;padding:var(--space-6)}
+    .account-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-8);flex-wrap:wrap;gap:var(--space-4)}
+    .account-header h1{font-size:1.8rem;font-weight:800;color:var(--gold)}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-6);margin-bottom:var(--space-6)}
+    .card h2{font-size:1.1rem;font-weight:700;color:var(--gold);margin-bottom:var(--space-4);display:flex;align-items:center;gap:var(--space-3)}
+    .card h2 span{font-size:1.3rem}
+    .info-row{display:flex;justify-content:space-between;padding:var(--space-3) 0;border-bottom:1px solid var(--border);font-size:0.95rem}
+    .info-row:last-child{border-bottom:none}
+    .info-row .label{color:var(--text-secondary)}
+    .info-row .value{font-weight:700}
+    .tier-badge{display:inline-block;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.8rem;font-weight:700}
+    .tier-free{background:rgba(150,150,150,0.15);color:#aaa}
+    .tier-pro{background:rgba(212,168,83,0.15);color:var(--gold);border:1px solid rgba(212,168,83,0.3)}
+    .tier-enterprise{background:rgba(138,43,226,0.15);color:#a855f7;border:1px solid rgba(138,43,226,0.3)}
+    .btn{padding:var(--space-3) var(--space-6);border-radius:var(--radius-md);font-family:inherit;font-size:0.95rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;display:inline-block}
+    .btn-primary{background:var(--gold);color:#0c0c0c}
+    .btn-primary:hover{background:#d4b76a}
+    .btn-secondary{background:var(--bg-elevated);color:var(--text);border:1px solid var(--border)}
+    .btn-secondary:hover{border-color:var(--gold)}
+    .btn-danger{background:#3a1515;color:#ff8a8a;border:1px solid #5a2525}
+    .btn-danger:hover{background:#4a2020}
+    .actions{display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-6)}
+    .empty-state{text-align:center;color:var(--text-secondary);padding:var(--space-8)}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-6)}
+    @media(max-width:768px){.grid-2{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="account-header">
+      <div>
+        <h1>👤 حسابي</h1>
+        <p style="color:var(--text-secondary);margin-top:0.5rem;">إدارة اشتراكك وسيناريوهاتك</p>
+      </div>
+      <a href="../../calculator.html" class="btn btn-secondary">← العودة للحاسبة</a>
+    </div>
+
+    <div class="grid-2">
+      <!-- Profile Card -->
+      <div class="card">
+        <h2><span>🍽️</span> الملف الشخصي</h2>
+        <div id="profileLoading" class="empty-state">جاري التحميل...</div>
+        <div id="profileContent" style="display:none;">
+          <div class="info-row"><span class="label">الاسم</span><span class="value" id="accName">—</span></div>
+          <div class="info-row"><span class="label">البريد</span><span class="value" id="accEmail">—</span></div>
+          <div class="info-row"><span class="label">الدولة</span><span class="value" id="accCountry">—</span></div>
+          <div class="info-row"><span class="label">اللغة</span><span class="value" id="accLang">—</span></div>
+        </div>
+      </div>
+
+      <!-- Subscription Card -->
+      <div class="card">
+        <h2><span>💳</span> الاشتراك</h2>
+        <div id="subLoading" class="empty-state">جاري التحميل...</div>
+        <div id="subContent" style="display:none;">
+          <div class="info-row"><span class="label">الباقة</span><span class="value" id="accTier">—</span></div>
+          <div class="info-row"><span class="label">الحالة</span><span class="value" id="accStatus">—</span></div>
+          <div class="info-row" id="renewalRow" style="display:none;"><span class="label">التجديد</span><span class="value" id="accRenewal">—</span></div>
+          <div class="actions">
+            <button id="btnManageSub" class="btn btn-primary" style="display:none;">إدارة الاشتراك</button>
+            <a href="../../pricing.html" id="btnUpgrade" class="btn btn-primary" style="display:none;">الترقية</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scenarios Card -->
+    <div class="card">
+      <h2><span>📁</span> سيناريوهاتي المحفوظة</h2>
+      <div id="scenariosLoading" class="empty-state">جاري التحميل...</div>
+      <div id="scenariosList" style="display:none;"></div>
+    </div>
+
+    <!-- Health Score History -->
+    <div class="card" id="healthCard" style="display:none;">
+      <h2><span>❤️</span> تاريخ Health Score</h2>
+      <div id="healthHistoryList"></div>
+    </div>
+
+    <div class="actions" style="justify-content:center;">
+      <button onclick="window.BondsAuth.signOut().then(()=>location.href='../../index.html')" class="btn btn-danger">🚪 تسجيل الخروج</button>
+    </div>
+  </div>
+
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../../api/supabase-client.js"></script>
+  <script src="../../calculators/country-platforms-data.js"></script>
+
+  <script>
+    // Env validation
+    setTimeout(function(){
+      var env = window.__ENV || {};
+      if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+        var banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#5a1a1a;color:#ff8a8a;padding:12px;text-align:center;z-index:99999;font-size:0.9rem;';
+        banner.innerHTML = '⚠️ لم يتم إعداد متغيرات البيئة (Environment Variables). يرجى مراجعة دليل النشر.';
+        document.body.prepend(banner);
+      }
+    }, 500);
+    (async function() {
+      'use strict';
+
+      const { data: sessionData } = await window.BondsAuth.getSession();
+      const session = sessionData?.session;
+      if (!session) {
+        window.location.href = 'index.html?redirect=' + encodeURIComponent(location.pathname);
+        return;
+      }
+
+      const user = session.user;
+      const sb = window.BondsAuth.getSupabase();
+
+      // Load profile
+      const { data: profile } = await window.BondsAuth.getProfile(user.id);
+      document.getElementById('profileLoading').style.display = 'none';
+      document.getElementById('profileContent').style.display = 'block';
+      document.getElementById('accName').textContent = profile?.restaurant_name || user.user_metadata?.restaurant_name || '—';
+      document.getElementById('accEmail').textContent = user.email;
+      document.getElementById('accCountry').textContent = profile?.country || user.user_metadata?.country || '—';
+      document.getElementById('accLang').textContent = profile?.language === 'en' ? 'English' : 'العربية';
+
+      // Load subscription
+      const { data: sub } = await window.BondsAuth.getSubscription(user.id);
+      document.getElementById('subLoading').style.display = 'none';
+      document.getElementById('subContent').style.display = 'block';
+
+      const tier = sub?.tier || 'free';
+      const status = sub?.status || 'inactive';
+      const tierLabel = tier === 'enterprise' ? 'Enterprise' : (tier === 'pro' ? 'Pro' : 'Free');
+      const tierClass = tier === 'enterprise' ? 'tier-enterprise' : (tier === 'pro' ? 'tier-pro' : 'tier-free');
+      const statusLabel = status === 'active' ? 'نشط' : (status === 'trialing' ? 'فترة تجريبية' : (status === 'past_due' ? 'متأخر' : 'غير نشط'));
+
+      document.getElementById('accTier').innerHTML = `<span class="tier-badge ${tierClass}">${tierLabel}</span>`;
+      document.getElementById('accStatus').textContent = statusLabel;
+
+      if (sub?.current_period_end) {
+        document.getElementById('renewalRow').style.display = 'flex';
+        document.getElementById('accRenewal').textContent = new Date(sub.current_period_end).toLocaleDateString('ar-SA');
+      }
+
+      if (tier === 'free') {
+        document.getElementById('btnUpgrade').style.display = 'inline-block';
+      } else if (sub?.stripe_subscription_id) {
+        document.getElementById('btnManageSub').style.display = 'inline-block';
+        document.getElementById('btnManageSub').addEventListener('click', async () => {
+          // Create portal session via API
+          try {
+            const res = await fetch('/api/create-portal', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ customerId: sub.stripe_customer_id, returnUrl: location.href })
+            });
+            const json = await res.json();
+            if (json.url) window.location.href = json.url;
+          } catch(e) { alert('تعذر فتح بوابة الإدارة'); }
+        });
+      }
+
+      // Load scenarios
+      const { data: scenarios } = await sb.from('scenarios').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+      document.getElementById('scenariosLoading').style.display = 'none';
+      const list = document.getElementById('scenariosList');
+      list.style.display = 'block';
+
+      if (!scenarios || scenarios.length === 0) {
+        list.innerHTML = '<div class="empty-state">لا توجد سيناريوهات محفوظة. <a href="../../calculators/restaurant.html" style="color:var(--gold);">اذهب للحاسبة</a></div>';
+      } else {
+        list.innerHTML = scenarios.map(s => `
+          <div class="info-row" style="align-items:center;">
+            <div>
+              <div style="font-weight:700;">${s.name}</div>
+              <div style="font-size:0.8rem;color:var(--text-secondary);">${COUNTRIES_DATA[s.country]?.name || s.country} · ${new Date(s.created_at).toLocaleDateString('ar-SA')}</div>
+            </div>
+            <a href="../../calculators/restaurant.html?country=${s.country}&load=${s.id}" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;">فتح</a>
+          </div>
+        `).join('');
+      }
+
+      // Load health score history (Pro only)
+      if (tier === 'pro' || tier === 'enterprise') {
+        const { data: healthScores } = await sb.from('health_scores').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20);
+        if (healthScores && healthScores.length > 0) {
+          document.getElementById('healthCard').style.display = 'block';
+          document.getElementById('healthHistoryList').innerHTML = healthScores.map(h => `
+            <div class="info-row" style="align-items:center;">
+              <div>
+                <div style="font-weight:700;">${COUNTRIES_DATA[h.country]?.name || h.country}</div>
+                <div style="font-size:0.8rem;color:var(--text-secondary);">${new Date(h.created_at).toLocaleDateString('ar-SA')}</div>
+              </div>
+              <div class="tier-badge ${h.score >= 80 ? 'tier-pro' : (h.score >= 50 ? 'tier-free' : 'tier-danger')}" style="font-size:0.85rem;padding:0.2rem 0.6rem;">${h.score}/100</div>
+            </div>
+          `).join('');
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

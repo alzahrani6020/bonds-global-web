@@ -1,0 +1,75 @@
+country_code,country_name,platform_id,platform_name_ar,platform_name_en,fee_percent,service_fee_percent,payment_gateway_fee_percent,campaign_discount_percent,operating_model,free_delivery_threshold,free_delivery_restaurant_share,confidence,notes
+SA,السعودية,plat_hunger,هنقرستيشن (توصيل),HungerStation (Delivery),25,2,1.75,0,closed,50,4.5,verified,رسوم تأسيس 1500-2500 ر.س
+SA,السعودية,plat_hunger_market,هنقرستيشن (ماركت),HungerStation (Marketplace),11,0,1.75,0,open,0,0,verified,التوصيل على المطعم
+SA,السعودية,plat_jahez,جاهز,Jahez,25,0,0,0,closed,60,5,verified,ينخفض لـ 23% إذا AOV > 75 ر.س
+SA,السعودية,plat_mrsoul,مرسول,Mrsool,12,0,0,0,open,0,0,verified,نظام مندوب مفتوح
+SA,السعودية,plat_talabat,طلبات,Talabat,25,0,0,0,closed,50,5,verified,
+SA,السعودية,plat_to_you,تويو,ToYou,22,0,0,0,closed,0,0,estimated,دعم توصيل 3-5 ر.س
+SA,السعودية,plat_keeta,كيتا,Keeta,15,2,0,0,closed,40,3,verified,
+SA,السعودية,plat_noon,نون فود,Noon Food,15,0,0,0,closed,35,3,verified,
+SA,السعودية,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+EG,مصر,plat_talabat,طلبات,Talabat,25,0,0,50,closed,150,15,verified,خصومات حملات 50/50
+EG,مصر,plat_elmenus,إلمينيوز,Elmenus,22,0,2.5,0,closed,100,10,verified,
+EG,مصر,plat_mrsoul,مرسول,Mrsool,12,0,0,0,open,100,10,verified,نظام مندوب مفتوح
+EG,مصر,plat_bolt,بولت فود,Bolt Food,18,0,0,0,closed,120,12,verified,
+EG,مصر,plat_careem,كريم ناو,Careem NOW,22,0,0,0,closed,150,15,verified,
+EG,مصر,plat_noon,نون فود,Noon Food,15,0,0,0,closed,100,10,verified,
+EG,مصر,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+AE,الإمارات,plat_talabat,طلبات,Talabat,22,0,0,0,closed,30,5,verified,45% سوق الإمارات
+AE,الإمارات,plat_deliveroo,ديليفرو,Deliveroo,28,0,0,0,closed,60,6,verified,استحواذ DoorDash 2025
+AE,الإمارات,plat_careem,كريم ناو,Careem NOW,22,0,0,0,closed,30,5,verified,
+AE,الإمارات,plat_noon,نون فود,Noon Food,15,0,0,0,closed,25,4,verified,
+AE,الإمارات,plat_keeta,كيتا,Keeta,15,0,0,0,closed,25,3,verified,دخلت 2025
+AE,الإمارات,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+KW,الكويت,plat_talabat,طلبات,Talabat,20,0,0,0,closed,3,0.5,verified,قرار حدّ العمولات 2026
+KW,الكويت,plat_carriage,كاريدج,Carriage,22,0,0,0,closed,4,0.6,estimated,
+KW,الكويت,plat_deliveroo,ديليفرو,Deliveroo,28,0,0,0,closed,5,0.7,verified,
+KW,الكويت,plat_keeta,كيتا,Keeta,15,0,0,0,closed,2.5,0.4,verified,
+KW,الكويت,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+QA,قطر,plat_talabat,طلبات,Talabat,22,0,0,0,closed,35,5,verified,غرّمت 1.14M 2025
+QA,قطر,plat_snoonu,سنونو,Snoonu,18,0,0,0,closed,30,4,estimated,استحواذ جاهز 76.56%
+QA,قطر,plat_keeta,كيتا,Keeta,15,0,0,0,closed,25,3,verified,
+QA,قطر,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+BH,البحرين,plat_talabat,طلبات,Talabat,22,0,0,0,closed,3,0.5,verified,60%+ سوق
+BH,البحرين,plat_deliveroo,ديليفرو,Deliveroo,28,0,0,0,closed,6,0.9,verified,
+BH,البحرين,plat_jahez,جاهز,Jahez,20,0,0,0,closed,5,0.7,estimated,نمو 50% سنوياً
+BH,البحرين,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+OM,عمان,plat_talabat,طلبات,Talabat,22,0,0,0,closed,3,0.5,verified,
+OM,عمان,plat_careem,كريم ناو,Careem NOW,22,0,0,0,closed,3,0.5,verified,
+OM,عمان,plat_keeta,كيتا,Keeta,15,0,0,0,closed,2.5,0.4,verified,
+OM,عمان,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+JO,الأردن,plat_talabat,طلبات,Talabat,22,0,0,0,closed,5,0.8,verified,
+JO,الأردن,plat_toters,توترز,Toters,25,0,0,0,closed,7,1,verified,
+JO,الأردن,plat_jahez,جاهز,Jahez,20,0,0,0,closed,5,0.7,estimated,
+JO,الأردن,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+IQ,العراق,plat_talabati,طلباتي,Talabati,18,0,0,0,closed,0,0,estimated,
+IQ,العراق,plat_mrsoul,مرسول,Mrsool,18,0,0,0,open,0,0,verified,
+IQ,العراق,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+LB,لبنان,plat_toters,توترز,Toters,25,0,0,0,closed,5,0.8,verified,
+LB,لبنان,plat_wakilni,وكيلني,Wakilni,5,0,0,0,closed,0,0,estimated,رسوم توصيل فقط
+LB,لبنان,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+TN,تونس,plat_glovo,غلوفو,Glovo,25,0,0,0,closed,0,0,verified,
+TN,تونس,plat_jumia,جوميا فود,Jumia Food,14,0,0,0,closed,0,0,verified,
+TN,تونس,plat_bolt,بولت فود,Bolt Food,18,0,0,0,closed,0,0,verified,
+TN,تونس,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+DZ,الجزائر,plat_yassir,ياسير,Yassir,18,0,0,0,closed,0,0,verified,8M مستخدم
+DZ,الجزائر,plat_jumia,جوميا فود,Jumia Food,14,0,0,0,closed,0,0,verified,
+DZ,الجزائر,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+MA,المغرب,plat_glovo,غلوفو,Glovo,25,0,0,0,closed,0,0,verified,حدّت عند 30% 2024
+MA,المغرب,plat_jumia,جوميا فود,Jumia Food,14,0,0,0,closed,0,0,verified,
+MA,المغرب,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+LY,ليبيا,plat_glovo,غلوفو,Glovo,25,0,0,0,closed,0,0,verified,
+LY,ليبيا,plat_jumia,جوميا فود,Jumia Food,14,0,0,0,closed,0,0,verified,
+LY,ليبيا,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+SD,السودان,plat_nine,ناين,Nine,15,0,0,0,closed,0,0,estimated,2500+ مطعم
+SD,السودان,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+YE,اليمن,plat_wagbat,واجبات,Wagbat,18,0,0,0,closed,0,0,estimated,120 مطعم
+YE,اليمن,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+DJ,جيبوتي,plat_kiki,كيكي دروب,KiKi Drop,18,0,0,0,closed,0,0,estimated,
+DJ,جيبوتي,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+SO,الصومال,plat_ricaab,ريكاب,Ricaab,18,0,0,0,closed,0,0,estimated,100K+ عميل
+SO,الصومال,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+MR,موريتانيا,plat_jumli,جملي,Jumli,18,0,0,0,closed,0,0,verified,2M+ مستخدم
+MR,موريتانيا,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,
+KM,جزر القمر,plat_sahilkom,ساهيلكوم,Sahilkom,15,0,0,0,closed,0,0,estimated,
+KM,جزر القمر,plat_direct,مباشر (بدون منصة),Direct,0,0,0,0,direct,0,0,verified,

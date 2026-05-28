@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Core Pages (AR) -->
   <url><loc>https://bonds-global.com/</loc><priority>1.0</priority></url>
   <url><loc>https://bonds-global.com/services.html</loc><priority>0.9</priority></url>
   <url><loc>https://bonds-global.com/pricing.html</loc><priority>0.9</priority></url>
@@ -8,4 +9,47 @@
   <url><loc>https://bonds-global.com/contact.html</loc><priority>0.9</priority></url>
   <url><loc>https://bonds-global.com/faq.html</loc><priority>0.7</priority></url>
   <url><loc>https://bonds-global.com/privacy.html</loc><priority>0.5</priority></url>
+  <url><loc>https://bonds-global.com/methodology.html</loc><priority>0.6</priority></url>
+
+  <!-- Core Pages (EN) -->
+  <url><loc>https://bonds-global.com/en/</loc><priority>0.9</priority></url>
+  <url><loc>https://bonds-global.com/en/services.html</loc><priority>0.8</priority></url>
+  <url><loc>https://bonds-global.com/en/pricing.html</loc><priority>0.8</priority></url>
+  <url><loc>https://bonds-global.com/en/about.html</loc><priority>0.7</priority></url>
+  <url><loc>https://bonds-global.com/en/calculator.html</loc><priority>0.7</priority></url>
+  <url><loc>https://bonds-global.com/en/contact.html</loc><priority>0.8</priority></url>
+  <url><loc>https://bonds-global.com/en/faq.html</loc><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/en/privacy.html</loc><priority>0.5</priority></url>
+  <url><loc>https://bonds-global.com/en/methodology.html</loc><priority>0.6</priority></url>
+
+  <!-- Calculators -->
+  <url><loc>https://bonds-global.com/calculators/restaurant.html</loc><priority>1.0</priority></url>
+  <url><loc>https://bonds-global.com/calculators/cash-flow.html</loc><priority>0.7</priority></url>
+  <url><loc>https://bonds-global.com/calculators/pricing.html</loc><priority>0.7</priority></url>
+  <url><loc>https://bonds-global.com/calculators/loan.html</loc><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/en/calculators/restaurant.html</loc><priority>0.9</priority></url>
+  <url><loc>https://bonds-global.com/en/calculators/cash-flow.html</loc><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/en/calculators/pricing.html</loc><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/en/calculators/loan.html</loc><priority>0.5</priority></url>
+
+  <!-- Auth & Account -->
+  <url><loc>https://bonds-global.com/calculators/auth/</loc><priority>0.8</priority></url>
+  <url><loc>https://bonds-global.com/calculators/auth/account.html</loc><priority>0.7</priority></url>
+  <url><loc>https://bonds-global.com/en/calculators/auth/</loc><priority>0.7</priority></url>
+  <url><loc>https://bonds-global.com/en/calculators/auth/account.html</loc><priority>0.6</priority></url>
+
+  <!-- Blog -->
+  <url><loc>https://bonds-global.com/blog/</loc><priority>0.7</priority></url>
+  <url><loc>https://bonds-global.com/blog/index.html</loc><priority>0.7</priority></url>
+  <url><loc>https://bonds-global.com/blog/break-even-explained.html</loc><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/blog/cash-flow-mistakes.html</loc><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/blog/financial-kpis.html</loc><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/blog/pricing-strategy.html</loc><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/blog/tax-zakat-sme.html</loc><priority>0.6</priority></url>
+
+  <!-- Sectors -->
+  <url><loc>https://bonds-global.com/sectors/manufacturing.html</loc><priority>0.6</priority></url>
+
+  <!-- Reports -->
+  <url><loc>https://bonds-global.com/reports/validation.html</loc><priority>0.5</priority></url>
 </urlset>

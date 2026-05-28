@@ -1,0 +1,23 @@
+{
+  "name": "bonds-global-web",
+  "version": "2.0.0",
+  "description": "Bonds Global — Restaurant Profitability SaaS Platform",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod",
+    "setup:supabase": "node scripts/setup-supabase.js",
+    "setup:stripe": "node scripts/setup-stripe.js"
+  },
+  "dependencies": {
+    "stripe": "^15.0.0",
+    "@supabase/supabase-js": "^2.43.0"
+  },
+  "devDependencies": {
+    "pg": "^8.12.0",
+    "vercel": "latest"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
