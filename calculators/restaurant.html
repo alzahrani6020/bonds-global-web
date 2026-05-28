@@ -111,6 +111,17 @@
     .correction-result.show { display: block; }
     .correction-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-right: 0.5rem; }
     .correction-badge.user { background: rgba(22,163,74,0.1); color: #16a34a; border: 1px solid rgba(22,163,74,0.3); }
+    .opm-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-left: 0.25rem; }
+    .opm-badge.closed { background: rgba(220,38,38,0.1); color: #dc2626; border: 1px solid rgba(220,38,38,0.3); }
+    .opm-badge.open { background: rgba(37,99,235,0.1); color: #2563eb; border: 1px solid rgba(37,99,235,0.3); }
+    .opm-badge.subscription { background: rgba(147,51,234,0.1); color: #9333ea; border: 1px solid rgba(147,51,234,0.3); }
+    .opm-badge.direct { background: rgba(22,163,74,0.1); color: #16a34a; border: 1px solid rgba(22,163,74,0.3); }
+    .sensitivity-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); }
+    .sensitivity-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); }
+    .sensitivity-item label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: var(--space-2); }
+    .sensitivity-item input[type="range"] { width: 100%; accent-color: var(--gold); }
+    .sensitivity-value { text-align: center; font-weight: 800; color: var(--gold); margin-top: var(--space-2); }
+    .scenario-badge { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px; background: rgba(212,168,83,0.1); border: 1px solid var(--gold); color: var(--gold); font-size: 0.85rem; font-weight: 700; }
     @media print {
       .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
       .calc-grid { grid-template-columns: 1fr 1fr; }
@@ -297,7 +308,7 @@
             </div>
             <div class="settings-content" id="settingsContent">
               <table class="settings-table" id="settingsTable">
-                <thead><tr><th>المنصة</th><th>العمولة</th><th>رسوم خدمة</th><th>توصيل مجاني من</th><th>تحمل المطعم</th><th>الثقة</th></tr></thead>
+                <thead><tr><th>المنصة</th><th>نوع التشغيل</th><th>العمولة</th><th>رسوم خدمة</th><th>توصيل مجاني من</th><th>تحمل المطعم</th><th>الثقة</th></tr></thead>
                 <tbody></tbody>
               </table>
             </div>
@@ -369,6 +380,18 @@
             <button type="button" class="btn btn-secondary" onclick="loadExample()">مثال توضيحي</button>
             <button type="button" class="btn btn-secondary" onclick="resetCalc()">إعادة تعيين</button>
           </div>
+        </div>
+      </div>
+
+      <!-- Scenario Comparison -->
+      <div id="scenarioSection" style="display: none; margin-top: var(--space-8);">
+        <div style="display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" onclick="applyScenario('normal')">📅 شهر عادي</button>
+          <button type="button" class="btn btn-secondary" onclick="applyScenario('ramadan')">🌙 رمضان</button>
+          <button type="button" class="btn btn-secondary" onclick="applyScenario('holiday')">🎉 عيد/حملة</button>
+        </div>
+        <div id="scenarioBadge" style="text-align: center; margin-top: var(--space-3); display: none;">
+          <span class="scenario-badge"></span>
         </div>
       </div>
 
@@ -494,6 +517,53 @@
         </div>
       </div>
 
+      <!-- Sensitivity Analysis -->
+      <div id="sensitivitySection" style="display: none; margin-top: var(--space-8);">
+        <div class="section-header reveal">
+          <span class="section__eyebrow">تحليل الحساسية</span>
+          <h2 class="section__title">كيف يتغير الربح عند تغيير المعطيات</h2>
+        </div>
+        <div class="sensitivity-grid reveal">
+          <div class="sensitivity-item">
+            <label for="sensCommission">تغيير العمولة</label>
+            <input type="range" id="sensCommission" min="-5" max="5" step="0.5" value="0" oninput="updateSensitivityDisplay()" />
+            <div class="sensitivity-value" id="sensCommissionVal">0%</div>
+          </div>
+          <div class="sensitivity-item">
+            <label for="sensOrders">تغيير عدد الطلبات</label>
+            <input type="range" id="sensOrders" min="-30" max="30" step="5" value="0" oninput="updateSensitivityDisplay()" />
+            <div class="sensitivity-value" id="sensOrdersVal">0%</div>
+          </div>
+          <div class="sensitivity-item">
+            <label for="sensPrice">تغيير سعر البيع</label>
+            <input type="range" id="sensPrice" min="-15" max="15" step="1" value="0" oninput="updateSensitivityDisplay()" />
+            <div class="sensitivity-value" id="sensPriceVal">0%</div>
+          </div>
+          <div class="sensitivity-item">
+            <label for="sensCost">تغيير تكلفة المكونات</label>
+            <input type="range" id="sensCost" min="-15" max="15" step="1" value="0" oninput="updateSensitivityDisplay()" />
+            <div class="sensitivity-value" id="sensCostVal">0%</div>
+          </div>
+        </div>
+        <div class="analysis-box reveal" style="margin-top: var(--space-6);">
+          <h4>📊 تأثير التغييرات</h4>
+          <div class="result-grid" id="sensitivityResults" style="margin-top: var(--space-4);">
+            <div class="result-card">
+              <div class="result-value" id="sensProfit">—</div>
+              <div class="result-label">الربح الشهري الصافي</div>
+            </div>
+            <div class="result-card">
+              <div class="result-value" id="sensBE">—</div>
+              <div class="result-label">نقطة التعادل اليومية</div>
+            </div>
+            <div class="result-card">
+              <div class="result-value" id="sensBest" style="color: var(--gold);">—</div>
+              <div class="result-label">أفضل منصة</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Invoice Correction -->
       <div class="correction-box">
         <h4>🧾 صحّح من فاتورتك</h4>
@@ -611,6 +681,9 @@
     var currentCountry = 'SA';
     var currentCurrency = 'ر.س';
     var PLATFORMS = [];
+    var _lastResult = null;
+    var _scenarioBackup = null;
+    var _activeScenario = '';
 
     // ===== Country Management =====
     function populateCountrySelect() {
@@ -631,7 +704,7 @@
       var data = COUNTRIES_DATA[code];
       currentCurrency = data.currencySymbol;
       PLATFORMS = data.platforms.map(function(p) {
-        return { id: p.id, name: p.name, fee: p.fee, serviceFee: p.serviceFee || 0, feeTiers: p.feeTiers, paymentGatewayFee: p.paymentGatewayFee || 0, campaignDiscount: p.campaignDiscount || 0 };
+        return { id: p.id, name: p.name, fee: p.fee, serviceFee: p.serviceFee || 0, feeTiers: p.feeTiers, paymentGatewayFee: p.paymentGatewayFee || 0, campaignDiscount: p.campaignDiscount || 0, operatingModel: p.operatingModel || 'closed' };
       });
 
       // Update currency labels
@@ -698,7 +771,9 @@
         var fd = p.freeDelivery ? '≥ ' + p.freeDelivery.threshold + ' ' + data.currencySymbol : '—';
         var fdShare = p.freeDelivery ? p.freeDelivery.restaurantShare + ' ' + data.currencySymbol : '—';
         var conf = p.confidence === 'verified' ? '✅ مُدقَّق' : '⚠️ تقديري';
-        html += '<tr><td><strong>' + p.name + '</strong></td><td>' + fee + '</td><td>' + (p.serviceFee ? p.serviceFee + '%' : '—') + '</td><td>' + fd + '</td><td>' + fdShare + '</td><td>' + conf + '</td></tr>';
+        var opmLabel = { closed: 'قائمة مغلقة', open: 'مندوب مفتوح', subscription: 'اشتراك', direct: 'مباشر' }[p.operatingModel || 'closed'] || 'قائمة مغلقة';
+        var opmBadge = '<span class="opm-badge ' + (p.operatingModel || 'closed') + '">' + opmLabel + '</span>';
+        html += '<tr><td><strong>' + p.name + '</strong></td><td>' + opmBadge + '</td><td>' + fee + '</td><td>' + (p.serviceFee ? p.serviceFee + '%' : '—') + '</td><td>' + fd + '</td><td>' + fdShare + '</td><td>' + conf + '</td></tr>';
       });
       tbody.innerHTML = html;
     }
@@ -717,6 +792,7 @@
           <input type="checkbox" id="${p.id}" value="${p.fee}" data-servicefee="${p.serviceFee || 0}" ${isChecked} />
           <div style="flex:1;">
             <label for="${p.id}">${p.name}</label>
+            <span class="opm-badge ${p.operatingModel || 'closed'}" style="font-size:0.7rem;padding:2px 6px;margin-right:4px;">${ {closed:'قائمة مغلقة',open:'مندوب مفتوح',subscription:'اشتراك',direct:'مباشر'}[p.operatingModel||'closed'] }</span>
             <div class="fee">عمولة ${p.fee}${p.serviceFee ? '+' + p.serviceFee : ''}%</div>
             <div class="correction-badge user" id="corrBadge_${p.id}" style="display:none;margin-top:4px;"></div>
           </div>
@@ -926,7 +1002,7 @@
       var platforms = [];
       PLATFORMS.forEach(function(p) {
         var el = document.getElementById(p.id);
-        if (el && el.checked) platforms.push({ name: p.name, fee: parseFloat(el.value) || 0, serviceFee: parseFloat(el.dataset.servicefee) || 0, feeTiers: p.feeTiers, paymentGatewayFee: p.paymentGatewayFee || 0, campaignDiscount: p.campaignDiscount || 0 });
+        if (el && el.checked) platforms.push({ name: p.name, fee: parseFloat(el.value) || 0, serviceFee: parseFloat(el.dataset.servicefee) || 0, feeTiers: p.feeTiers, paymentGatewayFee: p.paymentGatewayFee || 0, campaignDiscount: p.campaignDiscount || 0, operatingModel: p.operatingModel || 'closed' });
       });
       var isCloud = (currentBusinessModel === 'cloud');
       return {
@@ -1377,12 +1453,134 @@
         if (inputs.dishes.length === 0) { alert('أضف طبقاً واحداً على الأقل'); return; }
         if (inputs.dailyOrders <= 0) { alert('أدخل عدد الطلبات اليومية'); return; }
         var r = calculate(inputs);
+        _lastResult = r;
         updateResults(r);
         updateCharts(r);
+        document.getElementById('scenarioSection').style.display = 'block';
+        document.getElementById('sensitivitySection').style.display = 'block';
+        updateSensitivityDisplay();
       } catch (err) {
         console.error('Calculate error:', err);
         alert('حدث خطأ في الحساب: ' + err.message);
       }
+    }
+
+    // ===== Scenario Comparison =====
+    function applyScenario(scenario) {
+      var data = COUNTRIES_DATA[currentCountry];
+      var mi = data.marketInsights || {};
+      var baseOrders = parseFloat(document.getElementById('dailyOrders').value) || 0;
+
+      if (scenario === 'normal') {
+        if (_scenarioBackup) {
+          dishes = _scenarioBackup.dishes.map(function(d) { return { name: d.name, price: d.price, cost: d.cost, salesMix: d.salesMix }; });
+          document.getElementById('dailyOrders').value = _scenarioBackup.dailyOrders;
+          _scenarioBackup = null;
+        }
+        _activeScenario = '';
+      } else {
+        if (!_scenarioBackup) {
+          _scenarioBackup = {
+            dishes: dishes.map(function(d) { return { name: d.name, price: d.price, cost: d.cost, salesMix: d.salesMix }; }),
+            dailyOrders: baseOrders
+          };
+        }
+        var originalOrders = _scenarioBackup.dailyOrders;
+        if (scenario === 'ramadan') {
+          document.getElementById('dailyOrders').value = Math.round(originalOrders * (mi.ramadanMultiplier || 1.3));
+        } else if (scenario === 'holiday') {
+          dishes = _scenarioBackup.dishes.map(function(d) { return { name: d.name, price: Math.round(d.price * 0.8), cost: d.cost, salesMix: d.salesMix }; });
+          document.getElementById('dailyOrders').value = Math.round(originalOrders * 1.4);
+        }
+        _activeScenario = scenario;
+      }
+      renderDishes();
+      updateScenarioBadge();
+      calculateAll();
+    }
+
+    function updateScenarioBadge() {
+      var badge = document.getElementById('scenarioBadge');
+      var span = badge.querySelector('span');
+      if (_activeScenario === 'ramadan') {
+        span.textContent = '🌙 سيناريو رمضان';
+        badge.style.display = 'block';
+      } else if (_activeScenario === 'holiday') {
+        span.textContent = '🎉 سيناريو عيد/حملة';
+        badge.style.display = 'block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    // ===== Sensitivity Analysis =====
+    function calculateSensitivity(baseResult, commissionDelta, ordersDelta, priceDelta, costDelta) {
+      var inputs = baseResult.inputs;
+      var adjustedPrice = baseResult.weightedPrice * (1 + priceDelta/100);
+      var adjustedCost = baseResult.weightedCost * (1 + costDelta/100);
+      var adjustedOrders = inputs.dailyOrders * (1 + ordersDelta/100);
+      var monthlyFixed = inputs.rent + inputs.salaries + inputs.utilities + inputs.licenses + inputs.cloudKitchen + inputs.marketing;
+      var dailyFixed = monthlyFixed / inputs.workingDays;
+      var countryData = COUNTRIES_DATA[currentCountry];
+      var vatRate = countryData ? (countryData.vatRate || 0) : 0;
+
+      var platformResults = inputs.platforms.map(function(p) {
+        var ef = getEffectiveFee(p, inputs.monthlyGMV);
+        var totalFee = ef.fee + commissionDelta;
+        if (totalFee < 0) totalFee = 0;
+        var commissionValue = adjustedPrice * (totalFee / 100);
+        var vatValue = commissionValue * (vatRate / 100);
+        var pgFeeValue = adjustedPrice * ((p.paymentGatewayFee || 0) / 100);
+        var campaignValue = adjustedPrice * ((p.campaignDiscount || 0) / 100);
+        var totalDeduction = commissionValue + vatValue + pgFeeValue + campaignValue;
+        var platformPrice = adjustedPrice - totalDeduction;
+        var varCostPerOrder = adjustedCost + inputs.packaging + inputs.delivery;
+        var contributionPerOrder = platformPrice - varCostPerOrder;
+        var dailyProfit = contributionPerOrder * adjustedOrders - dailyFixed;
+        var monthlyProfit = dailyProfit * inputs.workingDays;
+        var breakEvenOrders = contributionPerOrder > 0 ? Math.ceil(dailyFixed / contributionPerOrder) : -1;
+        return {
+          name: p.name, monthlyProfit: monthlyProfit, breakEvenOrders: breakEvenOrders
+        };
+      });
+
+      var bestPlatform = platformResults.reduce(function(best, p) {
+        return (p.monthlyProfit > best.monthlyProfit) ? p : best;
+      }, platformResults[0] || { monthlyProfit: -Infinity });
+
+      var totalMonthlyRevenue = adjustedPrice * adjustedOrders * inputs.workingDays;
+      var totalMonthlyVarCost = (adjustedCost + inputs.packaging + inputs.delivery) * adjustedOrders * inputs.workingDays;
+      var netProfit = totalMonthlyRevenue - totalMonthlyVarCost - monthlyFixed;
+
+      return {
+        netProfit: netProfit,
+        bestPlatform: bestPlatform,
+        breakEvenDaily: platformResults.length > 0 && platformResults[0].breakEvenOrders > 0 ? platformResults[0].breakEvenOrders : -1
+      };
+    }
+
+    function updateSensitivityDisplay() {
+      if (!_lastResult) return;
+      var commissionDelta = parseFloat(document.getElementById('sensCommission').value) || 0;
+      var ordersDelta = parseFloat(document.getElementById('sensOrders').value) || 0;
+      var priceDelta = parseFloat(document.getElementById('sensPrice').value) || 0;
+      var costDelta = parseFloat(document.getElementById('sensCost').value) || 0;
+
+      document.getElementById('sensCommissionVal').textContent = (commissionDelta > 0 ? '+' : '') + commissionDelta + '%';
+      document.getElementById('sensOrdersVal').textContent = (ordersDelta > 0 ? '+' : '') + ordersDelta + '%';
+      document.getElementById('sensPriceVal').textContent = (priceDelta > 0 ? '+' : '') + priceDelta + '%';
+      document.getElementById('sensCostVal').textContent = (costDelta > 0 ? '+' : '') + costDelta + '%';
+
+      var sr = calculateSensitivity(_lastResult, commissionDelta, ordersDelta, priceDelta, costDelta);
+
+      var baseProfit = _lastResult.netProfit;
+      var profitColor = sr.netProfit >= baseProfit ? '#16a34a' : '#dc2626';
+      var beText = sr.breakEvenDaily > 0 ? sr.breakEvenDaily + ' طلب' : 'غير محققة';
+
+      document.getElementById('sensProfit').textContent = formatNumber(Math.round(sr.netProfit));
+      document.getElementById('sensProfit').style.color = profitColor;
+      document.getElementById('sensBE').textContent = beText;
+      document.getElementById('sensBest').textContent = sr.bestPlatform.name || '—';
     }
 
     // ===== Export =====
@@ -1615,6 +1813,11 @@
       setBusinessModel('traditional');
       document.getElementById('resultsSection').style.display = 'none';
       document.getElementById('smartAlert').classList.remove('show');
+      document.getElementById('scenarioSection').style.display = 'none';
+      document.getElementById('sensitivitySection').style.display = 'none';
+      _activeScenario = '';
+      _scenarioBackup = null;
+      _lastResult = null;
       _calcMemo.clear();
     }
 
