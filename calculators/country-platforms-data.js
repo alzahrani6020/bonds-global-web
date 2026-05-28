@@ -33,7 +33,8 @@ var COUNTRIES_DATA = {
       specialNotes: 'توصيل ليلي مرتفع جداً في رمضان. هنقرستيشن يُستخدم كاسم عام للتوصيل. اليوم الوطني (23 سبتمبر) يرفع الطلبات 40%.'
     },
     platforms: [
-      { id: 'plat_hunger', operatingModel: 'closed', name: 'هنقرستيشن', nameEn: 'HungerStation', fee: 25, confidence: 'verified', freeDelivery: { threshold: 50, restaurantShare: 4.5 }, serviceFee: 2, paymentGatewayFee: 0 },
+      { id: 'plat_hunger', operatingModel: 'closed', name: 'هنقرستيشن (توصيل)', nameEn: 'HungerStation (Delivery)', fee: 25, confidence: 'verified', freeDelivery: { threshold: 50, restaurantShare: 4.5 }, serviceFee: 2, paymentGatewayFee: 1.75 },
+      { id: 'plat_hunger_market', operatingModel: 'open', name: 'هنقرستيشن (ماركت)', nameEn: 'HungerStation (Marketplace)', fee: 11, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 1.75 },
       { id: 'plat_jahez', operatingModel: 'closed', name: 'جاهز', nameEn: 'Jahez', fee: 25, confidence: 'verified', freeDelivery: { threshold: 60, restaurantShare: 5 }, serviceFee: 0, paymentGatewayFee: 0, feeTiers: [{min:0, max:74, fee:25}, {min:75, max:999999, fee:23}] },
       { id: 'plat_mrsoul', operatingModel: 'open', name: 'مرسول', nameEn: 'Mrsool', fee: 12, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 0 },
       { id: 'plat_talabat', operatingModel: 'closed', name: 'طلبات', nameEn: 'Talabat', fee: 25, confidence: 'verified', freeDelivery: { threshold: 50, restaurantShare: 5 }, serviceFee: 0, paymentGatewayFee: 0 },
@@ -58,8 +59,8 @@ var COUNTRIES_DATA = {
       { id: 'plat_mr_mandob', name: 'مستر مندوب', nameEn: 'Mr Mandob', operatingModel: 'open', fee: 12, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0 },
       { id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 0 }
     ],
-    note: 'هنقرستيشن السائد (~65% سوق). كيتا (ميتوان الصينية) دخلت بقوة 2024. جاهز استحوذ على ذا شفز وسنونو. هيئة المنافسة أصدرت توجيهات ضد الممارسات الاحتكارية (مارس 2025). متوسط قيمة الطلب ~65 ر.س. رمضان = +50% طلبات ليلية. ضريبة القيمة المضافة 15% (الزكاة والدخل) تُطبق على العمولات. رسوم الإعداد: هنقرستيشن 1500–2500 ر.س، جاهز 2000 ر.س.',
-    noteEn: 'HungerStation dominates (~65% market). Keeta (Meituan China) entered aggressively in 2024. Jahez acquired The Chefz and Snoonu. GAC issued anti-competitive guidelines (Mar 2025). Avg order ~SAR 65. Ramadan = +50% night orders. ZATCA VAT 15% applies to commissions. Setup fees: HungerStation SAR 1,500–2,500, Jahez SAR 2,000.'
+    note: 'هنقرستيشن السائد (~65% سوق) بنموذجين: توصيل (عمولة 25% + رسوم خدمة 2% + بوابة دفع 1.75%) وماركت (عمولة 11% التوصيل على المطعم). جاهز 25% (ينخفض لـ 23% إذا معدل السلة >75 ر.س). كيتا دخلت بقوة 2024. مرسول 10-15% نظام مفتوح. تويو 20-24% + دعم توصيل 3-5 ر.س. ضريبة القيمة المضافة 15% تُطبق على العمولات. رسوم الإعداد: هنقرستيشن 1500–2500 ر.س، جاهز 2000 ر.س.'
+    noteEn: 'HungerStation dominates (~65% market) with two models: delivery (25% + 2% service fee + 1.75% payment gateway) and marketplace (11%, restaurant handles delivery). Jahez 25% (drops to 23% if AOV > SAR 75). Keeta entered aggressively in 2024. Mrsool 10-15% open courier. ToYou 20-24% + delivery support SAR 3-5. ZATCA VAT 15% applies to commissions. Setup fees: HungerStation SAR 1,500–2,500, Jahez SAR 2,000.'
   },
   AE: {
     name: 'الإمارات',
@@ -96,8 +97,8 @@ var COUNTRIES_DATA = {
       { id: 'plat_cari', operatingModel: 'closed', name: 'كاري', nameEn: 'Cari', fee: 18, confidence: 'estimated' },
       { id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }
     ],
-    note: 'ديليفرو استحوذت عليها DoorDash (أكتوبر 2025) لكنها تعمل كعلامة منفصلة. الإمارات ألزمت المنصات بالشفافية في خوارزميات الترتيب (سبتمبر 2025). أوبر إيتس غير موجود. متوسط الطلب ~85 د.إ. Talabat Pro: توصيل مجاني فوق 30 د.إ. Deliveroo Plus: فوق 60 د.إ.',
-    noteEn: 'Deliveroo acquired by DoorDash (Oct 2025) but operates as separate brand. UAE mandated platform algorithm transparency (Sep 2025). Uber Eats not operating. Avg order ~AED 85. Talabat Pro: free delivery above AED 30. Deliveroo Plus: above AED 60.'
+    note: 'طلبات 45% سوق الإمارات (عمولة 20-25% للمطاعم العادية). ديليفرو ~25% (متميزة بالمطاعم الراقية، استحواذ DoorDash أكتوبر 2025). كيتا دخلت 2025. نون فود 15%. ضريبة القيمة المضافة 5%. متوسط الطلب ~85 د.إ. Talabat Pro: مجاني فوق 30 د.إ. Deliveroo Plus: فوق 60 د.إ.'
+    noteEn: 'Talabat ~45% UAE market (20-25% commission for standard restaurants). Deliveroo ~25% (premium focus, DoorDash acquisition Oct 2025). Keeta entered 2025. Noon Food 15%. VAT 5%. Avg order ~AED 85. Talabat Pro: free delivery above AED 30. Deliveroo Plus: above AED 60.'
   },
   KW: {
     name: 'الكويت',
@@ -172,8 +173,8 @@ var COUNTRIES_DATA = {
       { id: 'plat_baqaala', operatingModel: 'closed', name: 'بقالة', nameEn: 'Baqaala', fee: 18, confidence: 'estimated' },
       { id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }
     ],
-    note: 'سنونو قطري محلي (استحوذت عليه جاهز 76.56%). طلبات غُرّمت 1.14 مليون ر.ق (2025). ديليفرو أغلقت قطر (مارس 2026). كليكس تأخذ رسوم توصيل فقط. متوسط الطلب ~70 ر.ق.',
-    noteEn: 'Snoonu is Qatari-local (Jahez acquired 76.56%). Talabat fined QAR 1.14M (2025). Deliveroo shut Qatar (Mar 2026). Clicks charges delivery fee only. Avg order ~QAR 70.'
+    note: 'سنونو قطري محلي (استحوذت عليه جاهز 76.56%). طلبات غُرّمت 1.14 مليون ر.ق (2025). ديليفرو انسحبت من قطر نهائياً (مارس 2026). كليكس تأخذ رسوم توصيل فقط. متوسط الطلب ~70 ر.ق.'
+    noteEn: 'Snoonu Qatari-local (Jahez acquired 76.56%). Talabat fined QAR 1.14M (2025). Deliveroo exited Qatar permanently (Mar 2026). Clicks charges delivery fee only. Avg order ~QAR 70.'
   },
   BH: {
     name: 'البحرين',
@@ -207,8 +208,8 @@ var COUNTRIES_DATA = {
       { id: 'plat_ninja_kitchen', operatingModel: 'closed', name: 'نينجا كيتشن', nameEn: 'Ninja Kitchen', fee: 15, confidence: 'estimated' },
       { id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }
     ],
-    note: 'طلبات تملك ~60%+ سوق البحرين. جاهز نما 50% سنوياً بعد 2025. نينجا كيتشن تجرب توصيل بالدرونات (2026). متوسط الطلب ~7 د.ب.',
-    noteEn: 'Talabat owns ~60%+ Bahrain market. Jahez grew 50% YoY post-2025. Ninja Kitchen drone pilot (2026). Avg order ~BHD 7.'
+    note: 'طلبات 60%+ سوق البحرين (عمولة حتى 30% للمطاعم الجديدة). جاهز نما 50% سنوياً. ديليفرو 28%. نينجا كيتشن تجرب توصيل بالدرونات (2026). متوسط الطلب ~7 د.ب.'
+    noteEn: 'Talabat 60%+ Bahrain market (up to 30% for new restaurants). Jahez grew 50% YoY. Deliveroo 28%. Ninja Kitchen drone pilot (2026). Avg order ~BHD 7.'
   },
   OM: {
     name: 'عمان',
