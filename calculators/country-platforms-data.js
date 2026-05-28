@@ -130,7 +130,7 @@ var COUNTRIES_DATA = {
       { id: 'plat_raha', operatingModel: 'closed', name: 'رهة / شوب رهة', nameEn: 'Raha / ShopRaha', fee: 18, confidence: 'estimated' },
       { id: 'plat_cari', operatingModel: 'closed', name: 'كاري', nameEn: 'Cari', fee: 18, confidence: 'estimated' },
       { id: 'plat_armada', operatingModel: 'closed', name: 'أرمادا', nameEn: 'Armada', fee: 15, confidence: 'estimated' },
-      { id: 'plat_to_you', operatingModel: 'closed', name: 'تويو', nameEn: 'ToYou', fee: 18, confidence: 'estimated' },
+      { id: 'plat_to_you', operatingModel: 'closed', name: 'تويو', nameEn: 'ToYou', fee: 22, confidence: 'estimated', deliverySupport: 4 },
       { id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }
     ],
     note: 'الكويت حدّت العمولات بقرار وزاري (فبراير 2026) لمدة 3 سنوات. طلبات تأسست في الكويت 2004. كاريدج تأسست 2016. متوسط الطلب ~6.5 د.ك. كاش عند الاستلام شائع جداً (45%).',
@@ -235,7 +235,7 @@ var COUNTRIES_DATA = {
       { id: 'plat_careem', operatingModel: 'closed', name: 'كريم ناو', nameEn: 'Careem NOW', fee: 22, confidence: 'verified', freeDelivery: { threshold: 3, restaurantShare: 0.5 } },
       { id: 'plat_wssel', operatingModel: 'open', name: 'وصّل', nameEn: 'Wssel', fee: 18, confidence: 'estimated' },
       { id: 'plat_lugmety', operatingModel: 'closed', name: 'لقمتي', nameEn: 'Lugmety', fee: 18, confidence: 'estimated' },
-      { id: 'plat_toters', operatingModel: 'closed', name: 'توترز', nameEn: 'Toters', fee: 22, confidence: 'verified', freeDelivery: { threshold: 3, restaurantShare: 0.5 } },
+      { id: 'plat_toters', operatingModel: 'closed', name: 'توترز', nameEn: 'Toters', fee: 25, confidence: 'verified', freeDelivery: { threshold: 3, restaurantShare: 0.5 } },
       { id: 'plat_zomato', operatingModel: 'closed', name: 'زوماتو', nameEn: 'Zomato', fee: 22, confidence: 'verified' },
       { id: 'plat_keeta', operatingModel: 'closed', name: 'كيتا', nameEn: 'Keeta', fee: 15, confidence: 'verified', freeDelivery: { threshold: 2.5, restaurantShare: 0.4 } },
       { id: 'plat_noon', operatingModel: 'closed', name: 'نون فود', nameEn: 'Noon Food', fee: 15, confidence: 'verified', freeDelivery: { threshold: 2.5, restaurantShare: 0.4 } },
@@ -363,7 +363,7 @@ var COUNTRIES_DATA = {
       specialNotes: 'وكيلني يأخذ رسوم توصيل (2–6$) لا عمولة. العمولات عالية بسبب الأزمة (تصل 45–50% مع التسويق). ديليفرو انسحبت 2022. متوسط الطلب ~250,000 ل.ل.'
     },
     platforms: [
-      { id: 'plat_toters', operatingModel: 'closed', name: 'توترز', nameEn: 'Toters', fee: 30, confidence: 'verified' },
+      { id: 'plat_toters', operatingModel: 'closed', name: 'توترز', nameEn: 'Toters', fee: 25, confidence: 'verified' },
       { id: 'plat_talabat', operatingModel: 'closed', name: 'طلبات', nameEn: 'Talabat', fee: 28, confidence: 'verified' },
       { id: 'plat_foodics', operatingModel: 'closed', name: 'فودكس أونلاين', nameEn: 'Foodics Online', fee: 0, confidence: 'estimated' },
       { id: 'plat_wakilni', operatingModel: 'closed', name: 'وكيلني', nameEn: 'Wakilni', fee: 5, confidence: 'estimated' },
@@ -563,7 +563,7 @@ var COUNTRIES_DATA = {
       specialNotes: 'ناين محلي سوداني (2,500+ مطعم في الخرطوم). حالاً مصري-سوداني (10M+ رحلة). الدفع بزين كاش وموكاش. لا توجد تطبيقات دولية. متوسط الطلب ~5,000 ج.س.'
     },
     platforms: [
-      { id: 'plat_nine', operatingModel: 'closed', name: 'ناين', nameEn: 'Nine', fee: 18, confidence: 'estimated' },
+      { id: 'plat_nine', operatingModel: 'closed', name: 'ناين', nameEn: 'Nine', fee: 15, confidence: 'estimated' },
       { id: 'plat_halan', operatingModel: 'closed', name: 'حالاً', nameEn: 'Halan', fee: 18, confidence: 'estimated' },
       { id: 'plat_foodchow', operatingModel: 'closed', name: 'فودتشاو', nameEn: 'FoodChow', fee: 18, confidence: 'estimated' },
       { id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }
