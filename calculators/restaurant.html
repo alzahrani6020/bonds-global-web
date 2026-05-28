@@ -411,6 +411,12 @@
           <strong style="color: #dc2626;">⚠️ تنبيه:</strong> <span id="smartAlertText"></span>
         </div>
 
+        <!-- Smart Tip -->
+        <div class="analysis-box reveal" id="smartTipBox" style="margin-top: var(--space-6); display: none; border-left: 4px solid var(--gold);">
+          <h4 style="color: var(--gold); margin-bottom: var(--space-2);">💡 نصيحة ذكية</h4>
+          <p id="smartTipText" style="font-size: 1rem; line-height: 1.7; margin: 0;"></p>
+        </div>
+
         <!-- Platform Comparison Table -->
         <div class="analysis-box reveal" style="margin-top: var(--space-8);">
           <h4>📱 مقارنة المنصات</h4>
@@ -1238,6 +1244,61 @@
       updateShareLink(r.inputs);
     }
 
+    function generateSmartTip(r) {
+      var tips = [];
+      var inputs = r.inputs;
+      var currency = currentCurrency;
+      // Tip 1: Profit vs loss
+      if (r.netProfit < 0) {
+        var be = r.breakEvenDaily;
+        var needed = be - inputs.dailyOrders;
+        if (needed > 0) {
+          tips.push('أنت تخسر حالياً. زيادة الطلبات اليومية بـ ' + needed + ' طلب فقط تحقق لك نقطة التعادل.');
+        }
+        var priceBoost = Math.ceil((-r.netProfit / (inputs.dailyOrders * inputs.workingDays)) / (inputs.dailyOrders * inputs.workingDays) * 100);
+        if (priceBoost > 0 && priceBoost < 50) {
+          tips.push('زيادة سعر البيع ' + priceBoost + '% تقريباً يحقق التعادل بدون زيادة طلبات.');
+        }
+      } else {
+        tips.push('أرباحك الإجمالية ' + formatNumber(Math.round(r.netProfit)) + ' ' + currency + '/شهر. حاول زيادة الحجم على أفضل منصة (' + r.bestPlatform.name + ').');
+      }
+      // Tip 2: Best vs worst platform
+      if (r.worstPlatform && r.bestPlatform && r.worstPlatform.name !== r.bestPlatform.name) {
+        var diff = r.bestPlatform.monthlyProfit - r.worstPlatform.monthlyProfit;
+        if (diff > 0) {
+          tips.push('الفرق بين أفضل منصة (' + r.bestPlatform.name + ') وأسوأها (' + r.worstPlatform.name + ') = ' + formatNumber(Math.round(diff)) + ' ' + currency + '/شهر.');
+        }
+      }
+      // Tip 3: Break-even analysis
+      if (r.breakEvenDaily > inputs.dailyOrders * 1.5) {
+        tips.push('نقطة التعادل مرتفعة (' + r.breakEvenDaily + ' طلب/يوم). راجع التكاليف الثابتة أو هامش الربح.');
+      }
+      // Tip 4: Open vs closed model
+      var openProfit = 0, closedProfit = 0;
+      r.platformResults.forEach(function(p) {
+        var pm = inputs.platforms.find(function(x) { return x.name === p.name; });
+        if (pm) {
+          if (pm.operatingModel === 'open') openProfit += p.monthlyProfit;
+          else if (pm.operatingModel === 'closed') closedProfit += p.monthlyProfit;
+        }
+      });
+      if (openProfit > closedProfit && closedProfit > 0) {
+        tips.push('نموذج المندوب المفتوح (مثل مرسول) يحقق ربحاً أعلى بـ ' + formatNumber(Math.round(openProfit - closedProfit)) + ' ' + currency + ' من القائمة المغلقة.');
+      }
+      // Tip 5: Food cost
+      if (r.weightedFoodCostPct > 35) {
+        tips.push('نسبة تكلفة الطعام مرتفعة (' + r.weightedFoodCostPct.toFixed(1) + '%). المعدل المثالي 25-30%.');
+      }
+      // Pick best tip
+      var tip = tips.length ? tips[0] : '';
+      var box = document.getElementById('smartTipBox');
+      var txt = document.getElementById('smartTipText');
+      if (box && txt) {
+        if (tip) { txt.textContent = tip; box.style.display = 'block'; }
+        else { box.style.display = 'none'; }
+      }
+    }
+
     function formatNumber(n) {
       if (n === undefined || n === null || isNaN(n)) return '—';
       return Math.round(n).toLocaleString('en-US');
@@ -1250,6 +1311,22 @@
       url.searchParams.set('wd', inputs.workingDays);
       url.searchParams.set('c', currentCountry);
       url.searchParams.set('model', currentBusinessModel);
+      url.searchParams.set('rent', inputs.rent);
+      url.searchParams.set('sal', inputs.salaries);
+      url.searchParams.set('util', inputs.utilities);
+      url.searchParams.set('lic', inputs.licenses);
+      url.searchParams.set('cloud', inputs.cloudKitchen);
+      url.searchParams.set('mkt', inputs.marketing);
+      url.searchParams.set('pkg', inputs.packaging);
+      url.searchParams.set('del', inputs.delivery);
+      url.searchParams.set('waste', inputs.wasteRate);
+      url.searchParams.set('gmv', inputs.monthlyGMV);
+      var selectedIds = [];
+      PLATFORMS.forEach(function(p) {
+        var el = document.getElementById(p.id);
+        if (el && el.checked && p.id !== 'plat_direct') selectedIds.push(p.id);
+      });
+      url.searchParams.set('plats', selectedIds.join(','));
       document.getElementById('shareLink').value = url.toString();
       updateQR(url.toString());
     }
@@ -1277,13 +1354,19 @@
     function saveSession() {
       var name = document.getElementById('sessionName').value.trim();
       if (!name) { alert('أدخل اسم للحساب'); return; }
-      var url = document.getElementById('shareLink').value;
+      var inputs = getInputs();
+      var selectedIds = [];
+      PLATFORMS.forEach(function(p) {
+        var el = document.getElementById(p.id);
+        if (el && el.checked && p.id !== 'plat_direct') selectedIds.push(p.id);
+      });
       var session = {
         id: Date.now(),
         name: name,
-        url: url,
         country: currentCountry,
         model: currentBusinessModel,
+        inputs: inputs,
+        selectedIds: selectedIds,
         date: new Date().toLocaleString('ar-SA'),
         summary: document.getElementById('valNetProfit').textContent + ' ربح | ' + document.getElementById('valMargin').textContent + ' هامش'
       };
@@ -1316,7 +1399,7 @@
               <div style="font-size: 0.8rem; color: var(--text-muted);">${s.date} · ${s.summary}</div>
             </div>
             <div style="display: flex; gap: var(--space-2);">
-              <button class="btn btn-primary" onclick="loadSessionUrl('${s.url}')" style="font-size: 0.8rem; padding: 0.5rem 1rem;">فتح</button>
+              <button class="btn btn-primary" onclick='loadSessionUrl(${JSON.stringify(s)})' style="font-size: 0.8rem; padding: 0.5rem 1rem;">تحميل</button>
               <button class="btn btn-secondary" onclick="deleteSession(${s.id})" style="font-size: 0.8rem; padding: 0.5rem 1rem;">حذف</button>
             </div>
           `;
@@ -1325,8 +1408,40 @@
       });
     }
 
-    function loadSessionUrl(url) {
-      window.location.href = url;
+    function loadSessionUrl(session) {
+      if (typeof session === 'string') { window.location.href = session; return; }
+      var s = session;
+      if (s.country && COUNTRIES_DATA[s.country]) {
+        document.getElementById('countrySelect').value = s.country;
+        changeCountry(s.country);
+      }
+      if (s.inputs) {
+        var i = s.inputs;
+        if (i.dishes && i.dishes.length) { dishes = i.dishes.map(function(d) { return { name: d.name, price: d.price, cost: d.cost, salesMix: d.salesMix }; }); renderDishes(); }
+        if (i.dailyOrders) document.getElementById('dailyOrders').value = i.dailyOrders;
+        if (i.workingDays) document.getElementById('workingDays').value = i.workingDays;
+        if (i.rent) document.getElementById('rentCost').value = i.rent;
+        if (i.salaries) document.getElementById('salariesCost').value = i.salaries;
+        if (i.utilities) document.getElementById('utilitiesCost').value = i.utilities;
+        if (i.licenses) document.getElementById('licensesCost').value = i.licenses;
+        if (i.cloudKitchen) document.getElementById('cloudKitchenCost').value = i.cloudKitchen;
+        if (i.marketing) document.getElementById('marketingCost').value = i.marketing;
+        if (i.packaging) document.getElementById('packagingCost').value = i.packaging;
+        if (i.delivery) document.getElementById('deliveryCost').value = i.delivery;
+        if (i.wasteRate !== undefined) document.getElementById('wasteRate').value = i.wasteRate;
+        if (i.monthlyGMV) document.getElementById('monthlyGMV').value = i.monthlyGMV;
+      }
+      if (s.model && ['traditional', 'cloud', 'cafe', 'dessert'].indexOf(s.model) !== -1) {
+        setBusinessModel(s.model);
+      }
+      if (s.selectedIds && s.selectedIds.length) {
+        PLATFORMS.forEach(function(p) {
+          var el = document.getElementById(p.id);
+          if (el) el.checked = s.selectedIds.indexOf(p.id) !== -1;
+        });
+      }
+      calculateAll();
+      window.scrollTo({ top: document.getElementById('calc').offsetTop - 80, behavior: 'smooth' });
     }
 
     function deleteSession(id) {
@@ -1456,6 +1571,7 @@
         _lastResult = r;
         updateResults(r);
         updateCharts(r);
+        generateSmartTip(r);
         document.getElementById('scenarioSection').style.display = 'block';
         document.getElementById('sensitivitySection').style.display = 'block';
         updateSensitivityDisplay();
@@ -1828,6 +1944,17 @@
       var wd = url.searchParams.get('wd');
       var c = url.searchParams.get('c');
       var model = url.searchParams.get('model');
+      var rent = url.searchParams.get('rent');
+      var sal = url.searchParams.get('sal');
+      var util = url.searchParams.get('util');
+      var lic = url.searchParams.get('lic');
+      var cloud = url.searchParams.get('cloud');
+      var mkt = url.searchParams.get('mkt');
+      var pkg = url.searchParams.get('pkg');
+      var del = url.searchParams.get('del');
+      var waste = url.searchParams.get('waste');
+      var gmv = url.searchParams.get('gmv');
+      var plats = url.searchParams.get('plats');
       if (c && COUNTRIES_DATA[c]) {
         document.getElementById('countrySelect').value = c;
         changeCountry(c);
@@ -1837,10 +1964,27 @@
       }
       if (o) document.getElementById('dailyOrders').value = o;
       if (wd) document.getElementById('workingDays').value = wd;
+      if (rent) document.getElementById('rentCost').value = rent;
+      if (sal) document.getElementById('salariesCost').value = sal;
+      if (util) document.getElementById('utilitiesCost').value = util;
+      if (lic) document.getElementById('licensesCost').value = lic;
+      if (cloud) document.getElementById('cloudKitchenCost').value = cloud;
+      if (mkt) document.getElementById('marketingCost').value = mkt;
+      if (pkg) document.getElementById('packagingCost').value = pkg;
+      if (del) document.getElementById('deliveryCost').value = del;
+      if (waste) document.getElementById('wasteRate').value = waste;
+      if (gmv) document.getElementById('monthlyGMV').value = gmv;
       if (model && ['traditional', 'cloud', 'cafe', 'dessert'].indexOf(model) !== -1) {
         setBusinessModel(model);
       }
-      if (d || o || wd || model) calculateAll();
+      if (plats) {
+        var ids = plats.split(',');
+        PLATFORMS.forEach(function(p) {
+          var el = document.getElementById(p.id);
+          if (el) el.checked = ids.indexOf(p.id) !== -1;
+        });
+      }
+      if (d || o || wd || model || rent || plats) calculateAll();
     }
 
     // ===== Init =====

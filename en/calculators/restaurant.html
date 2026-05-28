@@ -411,6 +411,12 @@
           <strong style="color: #dc2626;">⚠️ Alert:</strong> <span id="smartAlertText"></span>
         </div>
 
+        <!-- Smart Tip -->
+        <div class="analysis-box reveal" id="smartTipBox" style="margin-top: var(--space-6); display: none; border-left: 4px solid var(--gold);">
+          <h4 style="color: var(--gold); margin-bottom: var(--space-2);">💡 Smart Tip</h4>
+          <p id="smartTipText" style="font-size: 1rem; line-height: 1.7; margin: 0;"></p>
+        </div>
+
         <!-- Platform Comparison Table -->
         <div class="analysis-box reveal" style="margin-top: var(--space-8);">
           <h4>📱 Platform Comparison</h4>
@@ -1237,6 +1243,55 @@
       updateShareLink(r.inputs);
     }
 
+    function generateSmartTip(r) {
+      var tips = [];
+      var inputs = r.inputs;
+      var currency = currentCurrency;
+      if (r.netProfit < 0) {
+        var be = r.breakEvenDaily;
+        var needed = be - inputs.dailyOrders;
+        if (needed > 0) {
+          tips.push('You are currently losing money. Increasing daily orders by just ' + needed + ' reaches break-even.');
+        }
+        var priceBoost = Math.ceil((-r.netProfit / (inputs.dailyOrders * inputs.workingDays)) / (inputs.dailyOrders * inputs.workingDays) * 100);
+        if (priceBoost > 0 && priceBoost < 50) {
+          tips.push('Raising prices by ~' + priceBoost + '% achieves break-even without more orders.');
+        }
+      } else {
+        tips.push('Your total profit is ' + formatNumber(Math.round(r.netProfit)) + ' ' + currency + '/month. Try scaling on your best platform (' + r.bestPlatform.name + ').');
+      }
+      if (r.worstPlatform && r.bestPlatform && r.worstPlatform.name !== r.bestPlatform.name) {
+        var diff = r.bestPlatform.monthlyProfit - r.worstPlatform.monthlyProfit;
+        if (diff > 0) {
+          tips.push('Gap between best (' + r.bestPlatform.name + ') and worst (' + r.worstPlatform.name + ') = ' + formatNumber(Math.round(diff)) + ' ' + currency + '/month.');
+        }
+      }
+      if (r.breakEvenDaily > inputs.dailyOrders * 1.5) {
+        tips.push('Break-even is high (' + r.breakEvenDaily + ' orders/day). Review fixed costs or profit margin.');
+      }
+      var openProfit = 0, closedProfit = 0;
+      r.platformResults.forEach(function(p) {
+        var pm = inputs.platforms.find(function(x) { return x.name === p.name; });
+        if (pm) {
+          if (pm.operatingModel === 'open') openProfit += p.monthlyProfit;
+          else if (pm.operatingModel === 'closed') closedProfit += p.monthlyProfit;
+        }
+      });
+      if (openProfit > closedProfit && closedProfit > 0) {
+        tips.push('Open-courier model (like Mrsool) earns ' + formatNumber(Math.round(openProfit - closedProfit)) + ' ' + currency + ' more than closed-menu platforms.');
+      }
+      if (r.weightedFoodCostPct > 35) {
+        tips.push('Food cost ratio is high (' + r.weightedFoodCostPct.toFixed(1) + '%). Ideal range is 25-30%.');
+      }
+      var tip = tips.length ? tips[0] : '';
+      var box = document.getElementById('smartTipBox');
+      var txt = document.getElementById('smartTipText');
+      if (box && txt) {
+        if (tip) { txt.textContent = tip; box.style.display = 'block'; }
+        else { box.style.display = 'none'; }
+      }
+    }
+
     function formatNumber(n) {
       if (n === undefined || n === null || isNaN(n)) return '—';
       return Math.round(n).toLocaleString('en-US');
@@ -1276,14 +1331,20 @@
 
     function saveSession() {
       var name = document.getElementById('sessionName').value.trim();
-      if (!name) { alert('Enter a name for this calculation'); return; }
-      var url = document.getElementById('shareLink').value;
+      if (!name) { alert('Enter a name for this scenario'); return; }
+      var inputs = getInputs();
+      var selectedIds = [];
+      PLATFORMS.forEach(function(p) {
+        var el = document.getElementById(p.id);
+        if (el && el.checked && p.id !== 'plat_direct') selectedIds.push(p.id);
+      });
       var session = {
         id: Date.now(),
         name: name,
-        url: url,
         country: currentCountry,
         model: currentBusinessModel,
+        inputs: inputs,
+        selectedIds: selectedIds,
         date: new Date().toLocaleString('en-US'),
         summary: document.getElementById('valNetProfit').textContent + ' profit | ' + document.getElementById('valMargin').textContent + ' margin'
       };
@@ -1295,7 +1356,7 @@
       }).then(function() {
         document.getElementById('sessionName').value = '';
         renderSessions();
-        alert('✅ Saved successfully');
+        alert('✅ Scenario saved');
       });
     }
 
@@ -1316,7 +1377,7 @@
               <div style="font-size: 0.8rem; color: var(--text-muted);">${s.date} · ${s.summary}</div>
             </div>
             <div style="display: flex; gap: var(--space-2);">
-              <button class="btn btn-primary" onclick="loadSessionUrl('${s.url}')" style="font-size: 0.8rem; padding: 0.5rem 1rem;">Open</button>
+              <button class="btn btn-primary" onclick='loadSessionUrl(${JSON.stringify(s)})' style="font-size: 0.8rem; padding: 0.5rem 1rem;">Load</button>
               <button class="btn btn-secondary" onclick="deleteSession(${s.id})" style="font-size: 0.8rem; padding: 0.5rem 1rem;">Delete</button>
             </div>
           `;
@@ -1325,8 +1386,40 @@
       });
     }
 
-    function loadSessionUrl(url) {
-      window.location.href = url;
+    function loadSessionUrl(session) {
+      if (typeof session === 'string') { window.location.href = session; return; }
+      var s = session;
+      if (s.country && COUNTRIES_DATA[s.country]) {
+        document.getElementById('countrySelect').value = s.country;
+        changeCountry(s.country);
+      }
+      if (s.inputs) {
+        var i = s.inputs;
+        if (i.dishes && i.dishes.length) { dishes = i.dishes.map(function(d) { return { name: d.name, price: d.price, cost: d.cost, salesMix: d.salesMix }; }); renderDishes(); }
+        if (i.dailyOrders) document.getElementById('dailyOrders').value = i.dailyOrders;
+        if (i.workingDays) document.getElementById('workingDays').value = i.workingDays;
+        if (i.rent) document.getElementById('rentCost').value = i.rent;
+        if (i.salaries) document.getElementById('salariesCost').value = i.salaries;
+        if (i.utilities) document.getElementById('utilitiesCost').value = i.utilities;
+        if (i.licenses) document.getElementById('licensesCost').value = i.licenses;
+        if (i.cloudKitchen) document.getElementById('cloudKitchenCost').value = i.cloudKitchen;
+        if (i.marketing) document.getElementById('marketingCost').value = i.marketing;
+        if (i.packaging) document.getElementById('packagingCost').value = i.packaging;
+        if (i.delivery) document.getElementById('deliveryCost').value = i.delivery;
+        if (i.wasteRate !== undefined) document.getElementById('wasteRate').value = i.wasteRate;
+        if (i.monthlyGMV) document.getElementById('monthlyGMV').value = i.monthlyGMV;
+      }
+      if (s.model && ['traditional', 'cloud', 'cafe', 'dessert'].indexOf(s.model) !== -1) {
+        setBusinessModel(s.model);
+      }
+      if (s.selectedIds && s.selectedIds.length) {
+        PLATFORMS.forEach(function(p) {
+          var el = document.getElementById(p.id);
+          if (el) el.checked = s.selectedIds.indexOf(p.id) !== -1;
+        });
+      }
+      calculateAll();
+      window.scrollTo({ top: document.getElementById('calc').offsetTop - 80, behavior: 'smooth' });
     }
 
     function deleteSession(id) {
@@ -1456,6 +1549,7 @@
         _lastResult = r;
         updateResults(r);
         updateCharts(r);
+        generateSmartTip(r);
         document.getElementById('scenarioSection').style.display = 'block';
         document.getElementById('sensitivitySection').style.display = 'block';
         updateSensitivityDisplay();
