@@ -266,38 +266,51 @@ async function seedDemoData() {
 }
 
 async function loadAllData() {
-  const { data: p } = await sb.from('platforms').select('*').eq('user_id', currentUser.id).order('name');
-  platforms = p || [];
-  renderPlatforms();
+  try {
+    const { data: p, error: pe } = await sb.from('platforms').select('*').eq('user_id', currentUser.id).order('name');
+    if (pe) console.error('loadAllData platforms:', pe);
+    platforms = p || [];
+    renderPlatforms();
 
-  const { data: i } = await sb.from('ingredients').select('*').eq('user_id', currentUser.id).order('name');
-  ingredients = i || [];
-  renderIngredients();
+    const { data: i, error: ie } = await sb.from('ingredients').select('*').eq('user_id', currentUser.id).order('name');
+    if (ie) console.error('loadAllData ingredients:', ie);
+    ingredients = i || [];
+    renderIngredients();
 
-  const { data: m } = await sb.from('menu_items').select('*').eq('user_id', currentUser.id).order('name');
-  menuItems = m || [];
-  renderMenuItems();
+    const { data: m, error: me } = await sb.from('menu_items').select('*').eq('user_id', currentUser.id).order('name');
+    if (me) console.error('loadAllData menu_items:', me);
+    menuItems = m || [];
+    renderMenuItems();
 
-  updateDropdowns();
-  await renderSales();
+    updateDropdowns();
+    await renderSales();
+  } catch (e) {
+    console.error('loadAllData error:', e);
+    alert('خطأ في تحميل البيانات: ' + e.message);
+  }
 }
 
 // Platforms
 async function addPlatform() {
-  const code = document.getElementById('pCode').value.trim();
-  const name = document.getElementById('pName').value.trim();
-  const commission = parseFloat(document.getElementById('pCommission').value) || 0;
-  const service = parseFloat(document.getElementById('pService').value) || 0;
-  const gateway = parseFloat(document.getElementById('pGateway').value) || 0;
-  const delivery = parseFloat(document.getElementById('pDelivery').value) || 0;
-  if (!code || !name) return alert('أدخل الرمز والاسم');
+  try {
+    const code = document.getElementById('pCode').value.trim();
+    const name = document.getElementById('pName').value.trim();
+    const commission = parseFloat(document.getElementById('pCommission').value) || 0;
+    const service = parseFloat(document.getElementById('pService').value) || 0;
+    const gateway = parseFloat(document.getElementById('pGateway').value) || 0;
+    const delivery = parseFloat(document.getElementById('pDelivery').value) || 0;
+    if (!code || !name) return alert('أدخل الرمز والاسم');
 
-  const { error } = await sb.from('platforms').insert({
-    user_id: currentUser.id, code, name, commission_rate: commission,
-    service_fee_rate: service, payment_gateway_fee: gateway, delivery_fee: delivery
-  });
-  if (error) return alert(error.message);
-  await loadAllData();
+    const { error } = await sb.from('platforms').insert({
+      user_id: currentUser.id, code, name, commission_rate: commission,
+      service_fee_rate: service, payment_gateway_fee: gateway, delivery_fee: delivery
+    });
+    if (error) { console.error('addPlatform error:', error); return alert('خطأ: ' + (error.message || JSON.stringify(error))); }
+    await loadAllData();
+  } catch (e) {
+    console.error('addPlatform catch:', e);
+    alert('خطأ غير متوقع: ' + e.message);
+  }
 }
 
 function renderPlatforms() {
@@ -307,17 +320,22 @@ function renderPlatforms() {
 
 // Ingredients
 async function addIngredient() {
-  const name = document.getElementById('iName').value.trim();
-  const unit = document.getElementById('iUnit').value.trim() || 'kg';
-  const cost = parseFloat(document.getElementById('iCost').value) || 0;
-  const category = document.getElementById('iCategory').value.trim() || 'other';
-  if (!name) return alert('أدخل اسم المكون');
+  try {
+    const name = document.getElementById('iName').value.trim();
+    const unit = document.getElementById('iUnit').value.trim() || 'kg';
+    const cost = parseFloat(document.getElementById('iCost').value) || 0;
+    const category = document.getElementById('iCategory').value.trim() || 'other';
+    if (!name) return alert('أدخل اسم المكون');
 
-  const { error } = await sb.from('ingredients').insert({
-    user_id: currentUser.id, name, unit, current_price: cost, category
-  });
-  if (error) return alert(error.message);
-  await loadAllData();
+    const { error } = await sb.from('ingredients').insert({
+      user_id: currentUser.id, name, unit, current_price: cost, category
+    });
+    if (error) { console.error('addIngredient error:', error); return alert('خطأ: ' + (error.message || JSON.stringify(error))); }
+    await loadAllData();
+  } catch (e) {
+    console.error('addIngredient catch:', e);
+    alert('خطأ غير متوقع: ' + e.message);
+  }
 }
 
 function renderIngredients() {
@@ -327,16 +345,21 @@ function renderIngredients() {
 
 // Menu Items
 async function addMenuItem() {
-  const name = document.getElementById('mName').value.trim();
-  const category = document.getElementById('mCategory').value;
-  const price = parseFloat(document.getElementById('mPrice').value) || 0;
-  if (!name) return alert('أدخل اسم الوجبة');
+  try {
+    const name = document.getElementById('mName').value.trim();
+    const category = document.getElementById('mCategory').value;
+    const price = parseFloat(document.getElementById('mPrice').value) || 0;
+    if (!name) return alert('أدخل اسم الوجبة');
 
-  const { error } = await sb.from('menu_items').insert({
-    user_id: currentUser.id, name, category, base_price: price
-  });
-  if (error) return alert(error.message);
-  await loadAllData();
+    const { error } = await sb.from('menu_items').insert({
+      user_id: currentUser.id, name, category, base_price: price
+    });
+    if (error) { console.error('addMenuItem error:', error); return alert('خطأ: ' + (error.message || JSON.stringify(error))); }
+    await loadAllData();
+  } catch (e) {
+    console.error('addMenuItem catch:', e);
+    alert('خطأ غير متوقع: ' + e.message);
+  }
 }
 
 function renderMenuItems() {
@@ -346,19 +369,24 @@ function renderMenuItems() {
 
 // Sales
 async function addSale() {
-  const menuItemId = document.getElementById('sMenuItem').value;
-  const platformId = document.getElementById('sPlatform').value || null;
-  const qty = parseInt(document.getElementById('sQty').value) || 1;
-  const price = parseFloat(document.getElementById('sPrice').value) || 0;
-  if (!menuItemId) return alert('اختر الوجبة');
+  try {
+    const menuItemId = document.getElementById('sMenuItem').value;
+    const platformId = document.getElementById('sPlatform').value || null;
+    const qty = parseInt(document.getElementById('sQty').value) || 1;
+    const price = parseFloat(document.getElementById('sPrice').value) || 0;
+    if (!menuItemId) return alert('اختر الوجبة');
 
-  const { error } = await sb.from('sales_transactions').insert({
-    user_id: currentUser.id, menu_item_id: menuItemId,
-    platform_id: platformId, quantity: qty, unit_price: price
-  });
-  if (error) return alert(error.message);
-  await renderSales();
-  await loadMatrix();
+    const { error } = await sb.from('sales_transactions').insert({
+      user_id: currentUser.id, menu_item_id: menuItemId,
+      platform_id: platformId, quantity: qty, unit_price: price
+    });
+    if (error) { console.error('addSale error:', error); return alert('خطأ في الحفظ: ' + (error.message || JSON.stringify(error))); }
+    await renderSales();
+    await loadMatrix();
+  } catch (e) {
+    console.error('addSale catch:', e);
+    alert('خطأ غير متوقع: ' + e.message);
+  }
 }
 
 async function renderSales() {
