@@ -32,18 +32,29 @@
     .me-item .badge { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-top: var(--space-2); }
     .badge-profit { background: rgba(34,197,94,0.15); color: #22c55e; }
     .badge-loss { background: rgba(239,68,68,0.15); color: #ef4444; }
-    .me-actions { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); max-width: 600px; margin: 0 auto var(--space-12); }
+    .me-actions { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); margin-bottom: var(--space-12); }
     .me-actions h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: var(--space-6); text-align: center; }
     .form-group { margin-bottom: var(--space-4); }
     .form-group label { display: block; font-weight: 600; margin-bottom: var(--space-2); color: var(--text-secondary); }
     .form-group input, .form-group select { width: 100%; padding: var(--space-3) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text); font-family: inherit; }
     .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-dim)); color: #0a0f1a; font-weight: 800; border: none; padding: var(--space-3) var(--space-6); border-radius: var(--radius); cursor: pointer; width: 100%; font-size: 1rem; }
     .btn-primary:hover { filter: brightness(1.1); }
+    .btn-secondary { background: var(--bg-secondary); color: var(--gold); font-weight: 700; border: 1px solid var(--border); padding: var(--space-2) var(--space-4); border-radius: var(--radius); cursor: pointer; font-size: 0.9rem; }
+    .btn-secondary:hover { border-color: var(--gold); }
     .result-box { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); }
     .result-box h4 { color: var(--gold); margin-bottom: var(--space-2); }
-    .result-box pre { white-space: pre-wrap; font-size: 0.9rem; color: var(--text-secondary); }
     .loading { text-align: center; color: var(--text-muted); padding: var(--space-8); }
     .error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; padding: var(--space-4); border-radius: var(--radius); text-align: center; }
+    .success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #22c55e; padding: var(--space-4); border-radius: var(--radius); text-align: center; }
+    .tabs { display: flex; gap: var(--space-2); margin-bottom: var(--space-6); flex-wrap: wrap; justify-content: center; }
+    .tab { padding: var(--space-2) var(--space-4); border-radius: var(--radius); cursor: pointer; border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; }
+    .tab.active { background: var(--gold); color: #0a0f1a; border-color: var(--gold); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); }
+    .list-box { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3); margin-top: var(--space-4); }
+    .list-box .row { display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    .list-box .row:last-child { border-bottom: none; }
   </style>
 </head>
 <body>
@@ -53,31 +64,87 @@
       <p>صنّف وجباتك بناءً على بيانات المبيعات الفعلية. اعرف النجوم التي تحافظ عليها، والكلاب التي تحذفها.</p>
     </div>
 
+    <div id="authAlert"></div>
+
+    <!-- Data Entry Tabs -->
+    <div class="me-actions">
+      <h2>📥 إدخال البيانات</h2>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('platforms')">المنصات</div>
+        <div class="tab" onclick="switchTab('ingredients')">المكونات</div>
+        <div class="tab" onclick="switchTab('menu')">المنيو</div>
+        <div class="tab" onclick="switchTab('sales')">المبيعات</div>
+      </div>
+
+      <!-- Platforms Tab -->
+      <div id="tab-platforms" class="tab-content active">
+        <div class="form-row">
+          <div class="form-group"><label>رمز المنصة</label><input id="pCode" placeholder="jahez" /></div>
+          <div class="form-group"><label>اسم المنصة</label><input id="pName" placeholder="جاهز" /></div>
+          <div class="form-group"><label>العمولة (%)</label><input id="pCommission" type="number" value="25" /></div>
+          <div class="form-group"><label>رسوم الخدمة (%)</label><input id="pService" type="number" value="2" /></div>
+          <div class="form-group"><label>بوابة الدفع (%)</label><input id="pGateway" type="number" value="1.75" /></div>
+          <div class="form-group"><label>رسوم التوصيل (ر.س)</label><input id="pDelivery" type="number" value="0" /></div>
+        </div>
+        <button class="btn-primary" onclick="addPlatform()">➕ إضافة منصة</button>
+        <div id="pList" class="list-box"></div>
+      </div>
+
+      <!-- Ingredients Tab -->
+      <div id="tab-ingredients" class="tab-content">
+        <div class="form-row">
+          <div class="form-group"><label>اسم المكون</label><input id="iName" placeholder="دجاج فيليه" /></div>
+          <div class="form-group"><label>الوحدة</label><input id="iUnit" placeholder="kg" /></div>
+          <div class="form-group"><label>التكلفة للوحدة (ر.س)</label><input id="iCost" type="number" step="0.01" placeholder="12.50" /></div>
+        </div>
+        <button class="btn-primary" onclick="addIngredient()">➕ إضافة مكون</button>
+        <div id="iList" class="list-box"></div>
+      </div>
+
+      <!-- Menu Tab -->
+      <div id="tab-menu" class="tab-content">
+        <div class="form-row">
+          <div class="form-group"><label>اسم الوجبة</label><input id="mName" placeholder="برجر كلاسيك" /></div>
+          <div class="form-group"><label>التصنيف</label>
+            <select id="mCategory">
+              <option value="main">رئيسي</option>
+              <option value="appetizer">مقبلات</option>
+              <option value="dessert">حلويات</option>
+              <option value="drink">مشروبات</option>
+            </select>
+          </div>
+          <div class="form-group"><label>السعر الأساسي (ر.س)</label><input id="mPrice" type="number" step="0.01" placeholder="35" /></div>
+        </div>
+        <button class="btn-primary" onclick="addMenuItem()">➕ إضافة وجبة</button>
+        <div id="mList" class="list-box"></div>
+      </div>
+
+      <!-- Sales Tab -->
+      <div id="tab-sales" class="tab-content">
+        <div class="form-row">
+          <div class="form-group"><label>الوجبة</label><select id="sMenuItem"><option value="">اختر...</option></select></div>
+          <div class="form-group"><label>المنصة</label><select id="sPlatform"><option value="">اختر...</option></select></div>
+          <div class="form-group"><label>الكمية</label><input id="sQty" type="number" value="1" /></div>
+          <div class="form-group"><label>سعر البيع (ر.س)</label><input id="sPrice" type="number" step="0.01" /></div>
+        </div>
+        <button class="btn-primary" onclick="addSale()">➕ تسجيل مبيعة</button>
+        <div id="sList" class="list-box"></div>
+      </div>
+    </div>
+
+    <!-- Matrix -->
     <div id="matrixContainer">
       <div class="loading">جاري تحميل البيانات...</div>
     </div>
 
+    <!-- Promo Simulator -->
     <div class="me-actions">
-      <h2>🧮 محاكاة سريعة</h2>
-      <div class="form-group">
-        <label>الوجبة</label>
-        <select id="simItem">
-          <option value="">اختر وجبة...</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>المنصة</label>
-        <select id="simPlatform">
-          <option value="">اختر منصة...</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>نسبة الخصم (%)</label>
-        <input type="number" id="simDiscount" value="20" min="0" max="100" />
-      </div>
-      <div class="form-group">
-        <label>المبيعات اليومية الحالية</label>
-        <input type="number" id="simSales" value="50" min="1" />
+      <h2>🧮 محاكاة حملات الخصم</h2>
+      <div class="form-row">
+        <div class="form-group"><label>الوجبة</label><select id="simItem"><option value="">اختر...</option></select></div>
+        <div class="form-group"><label>المنصة</label><select id="simPlatform"><option value="">اختر...</option></select></div>
+        <div class="form-group"><label>نسبة الخصم (%)</label><input type="number" id="simDiscount" value="20" min="0" max="100" /></div>
+        <div class="form-group"><label>المبيعات اليومية الحالية</label><input type="number" id="simSales" value="50" min="1" /></div>
       </div>
       <button class="btn-primary" onclick="runPromoSim()">احسب تأثير الحملة</button>
       <div id="simResult"></div>
@@ -85,144 +152,207 @@
   </div>
 
 <script>
-const API_BASE = '/api';
 let currentUser = null;
-let menuItems = [];
+let sb = null;
 let platforms = [];
+let ingredients = [];
+let menuItems = [];
 
 async function init() {
   try {
     const { data: userData } = await window.BondsAuth.getUser();
     currentUser = userData?.user;
     if (!currentUser) {
-      document.getElementById('matrixContainer').innerHTML =
-        '<div class="error">يجب تسجيل الدخول لعرض هندسة المنيو. <a href="/calculators/auth/?redirect=' + encodeURIComponent(location.pathname) + '">تسجيل الدخول</a></div>';
+      document.getElementById('authAlert').innerHTML =
+        '<div class="error">يجب تسجيل الدخول. <a href="/calculators/auth/?redirect=' + encodeURIComponent(location.pathname) + '">تسجيل الدخول</a></div>';
       return;
     }
+    sb = window.BondsAuth.getSupabase();
+    await loadAllData();
     await loadMatrix();
-    await loadDropdowns();
   } catch (e) {
     document.getElementById('matrixContainer').innerHTML = '<div class="error">' + e.message + '</div>';
   }
 }
 
-async function loadMatrix() {
-  const res = await fetch(`${API_BASE}/menu-engineering?user_id=${currentUser.id}`);
-  const json = await res.json();
-  if (!json.success) throw new Error(json.error);
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
 
+async function loadAllData() {
+  const { data: p } = await sb.from('platforms').select('*').eq('user_id', currentUser.id).order('name');
+  platforms = p || [];
+  renderPlatforms();
+
+  const { data: i } = await sb.from('ingredients').select('*').eq('user_id', currentUser.id).order('name');
+  ingredients = i || [];
+  renderIngredients();
+
+  const { data: m } = await sb.from('menu_items').select('*').eq('user_id', currentUser.id).order('name');
+  menuItems = m || [];
+  renderMenuItems();
+
+  updateDropdowns();
+  await renderSales();
+}
+
+// Platforms
+async function addPlatform() {
+  const code = document.getElementById('pCode').value.trim();
+  const name = document.getElementById('pName').value.trim();
+  const commission = parseFloat(document.getElementById('pCommission').value) || 0;
+  const service = parseFloat(document.getElementById('pService').value) || 0;
+  const gateway = parseFloat(document.getElementById('pGateway').value) || 0;
+  const delivery = parseFloat(document.getElementById('pDelivery').value) || 0;
+  if (!code || !name) return alert('أدخل الرمز والاسم');
+
+  const { error } = await sb.from('platforms').insert({
+    user_id: currentUser.id, code, name, commission_rate: commission,
+    service_fee_rate: service, payment_gateway_fee: gateway, delivery_fee: delivery
+  });
+  if (error) return alert(error.message);
+  await loadAllData();
+}
+
+function renderPlatforms() {
+  const el = document.getElementById('pList');
+  el.innerHTML = platforms.map(p => `<div class="row"><span>${p.name} (${p.code}) — ${p.commission_rate}%</span></div>`).join('') || '<div class="row">لا توجد منصات</div>';
+}
+
+// Ingredients
+async function addIngredient() {
+  const name = document.getElementById('iName').value.trim();
+  const unit = document.getElementById('iUnit').value.trim() || 'kg';
+  const cost = parseFloat(document.getElementById('iCost').value) || 0;
+  if (!name) return alert('أدخل اسم المكون');
+
+  const { error } = await sb.from('ingredients').insert({
+    user_id: currentUser.id, name, unit, cost_per_unit: cost
+  });
+  if (error) return alert(error.message);
+  await loadAllData();
+}
+
+function renderIngredients() {
+  const el = document.getElementById('iList');
+  el.innerHTML = ingredients.map(i => `<div class="row"><span>${i.name} — ${i.cost_per_unit} ر.س / ${i.unit}</span></div>`).join('') || '<div class="row">لا توجد مكونات</div>';
+}
+
+// Menu Items
+async function addMenuItem() {
+  const name = document.getElementById('mName').value.trim();
+  const category = document.getElementById('mCategory').value;
+  const price = parseFloat(document.getElementById('mPrice').value) || 0;
+  if (!name) return alert('أدخل اسم الوجبة');
+
+  const { error } = await sb.from('menu_items').insert({
+    user_id: currentUser.id, name, category, base_price: price
+  });
+  if (error) return alert(error.message);
+  await loadAllData();
+}
+
+function renderMenuItems() {
+  const el = document.getElementById('mList');
+  el.innerHTML = menuItems.map(m => `<div class="row"><span>${m.name} — ${m.base_price} ر.س</span></div>`).join('') || '<div class="row">لا توجد وجبات</div>';
+}
+
+// Sales
+async function addSale() {
+  const menuItemId = document.getElementById('sMenuItem').value;
+  const platformId = document.getElementById('sPlatform').value || null;
+  const qty = parseInt(document.getElementById('sQty').value) || 1;
+  const price = parseFloat(document.getElementById('sPrice').value) || 0;
+  if (!menuItemId) return alert('اختر الوجبة');
+
+  const { error } = await sb.from('sales_transactions').insert({
+    user_id: currentUser.id, menu_item_id: menuItemId,
+    platform_id: platformId, quantity: qty, unit_price: price
+  });
+  if (error) return alert(error.message);
+  await renderSales();
+  await loadMatrix();
+}
+
+async function renderSales() {
+  const { data } = await sb.from('sales_transactions')
+    .select('*, menu_item:menu_item_id(name), platform:platform_id(name)')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  const el = document.getElementById('sList');
+  el.innerHTML = (data || []).map(s => `<div class="row"><span>${s.menu_item?.name || '—'} × ${s.quantity} = ${s.unit_price * s.quantity} ر.س</span></div>`).join('') || '<div class="row">لا توجد مبيعات</div>';
+}
+
+function updateDropdowns() {
+  const itemSel = document.getElementById('sMenuItem');
+  const simItem = document.getElementById('simItem');
+  [itemSel, simItem].forEach(sel => {
+    sel.innerHTML = '<option value="">اختر...</option>' + menuItems.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  });
+
+  const platSel = document.getElementById('sPlatform');
+  const simPlat = document.getElementById('simPlatform');
+  [platSel, simPlat].forEach(sel => {
+    sel.innerHTML = '<option value="">اختر...</option>' + platforms.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  });
+}
+
+// Matrix
+async function loadMatrix() {
+  const res = await fetch(`/api/menu-engineering?user_id=${currentUser.id}`);
+  const json = await res.json();
+  if (!json.success) {
+    document.getElementById('matrixContainer').innerHTML = '<div class="error">' + json.error + '</div>';
+    return;
+  }
   const data = json.data;
   const cats = {
-    star: { icon: '⭐', title: 'النجوم (Stars)', desc: 'ربح عالٍ + مبيعات عالية', color: '#22c55e' },
-    plowhorse: { icon: '🐴', title: 'الحصان الرابح (Plowhorses)', desc: 'مبيعات عالية + ربح منخفض', color: '#f59e0b' },
-    puzzle: { icon: '🧩', title: 'الألغاز (Puzzles)', desc: 'ربح عالٍ + مبيعات منخفضة', color: '#3b82f6' },
-    dog: { icon: '🐕', title: 'الكلاب (Dogs)', desc: 'ربح منخفض + مبيعات منخفضة', color: '#ef4444' }
+    star: { icon: '⭐', title: 'النجوم', desc: 'ربح عالٍ + مبيعات عالية' },
+    plowhorse: { icon: '🐴', title: 'الحصان الرابح', desc: 'مبيعات عالية + ربح منخفض' },
+    puzzle: { icon: '🧩', title: 'الألغاز', desc: 'ربح عالٍ + مبيعات منخفضة' },
+    dog: { icon: '🐕', title: 'الكلاب', desc: 'ربح منخفض + مبيعات منخفضة' }
   };
-
   let html = '<div class="me-grid">';
   for (const key of ['star', 'plowhorse', 'puzzle', 'dog']) {
     const c = cats[key];
     const items = data[key] || [];
-    html += `<div class="me-quadrant ${key}">
-      <h3>${c.icon} ${c.title} <span class="count">(${items.length})</span></h3>
-      <p style="font-size:0.85rem;color:var(--text-muted);">${c.desc}</p>
-      <div class="items">`;
-    if (items.length === 0) {
-      html += '<div class="me-item"><div class="meta">لا توجد وجبات في هذا القسم</div></div>';
-    } else {
-      for (const item of items) {
-        const profit = item.gross_profit || 0;
-        const margin = item.profit_margin_pct || 0;
-        html += `<div class="me-item">
-          <div class="name">${item.menu_item?.name || '—'}</div>
-          <div class="meta">
-            <span>💰 ${profit.toFixed(0)} ر.س ربح</span>
-            <span>📈 ${margin.toFixed(1)}% هامش</span>
-            <span>🛒 ${item.total_sales_count || 0} مبيعة</span>
-          </div>
-          ${item.recommendation ? `<div class="badge ${margin >= 0 ? 'badge-profit' : 'badge-loss'}">${item.recommendation}</div>` : ''}
-        </div>`;
-      }
-    }
+    html += `<div class="me-quadrant ${key}"><h3>${c.icon} ${c.title} <span class="count">(${items.length})</span></h3><p style="font-size:0.85rem;color:var(--text-muted);">${c.desc}</p><div class="items">`;
+    if (items.length === 0) html += '<div class="me-item"><div class="meta">لا توجد وجبات</div></div>';
+    else items.forEach(item => {
+      const profit = item.gross_profit || 0;
+      const margin = item.profit_margin_pct || 0;
+      html += `<div class="me-item"><div class="name">${item.menu_item?.name || '—'}</div><div class="meta"><span>💰 ${profit.toFixed(0)} ر.س</span><span>📈 ${margin.toFixed(1)}%</span><span>🛒 ${item.total_sales_count || 0}</span></div>${item.recommendation ? `<div class="badge ${margin >= 0 ? 'badge-profit' : 'badge-loss'}">${item.recommendation}</div>` : ''}</div>`;
+    });
     html += '</div></div>';
   }
   html += '</div>';
-
-  html += `<div style="text-align:center;color:var(--text-muted);margin-bottom:var(--space-12);">
-    📊 إجمالي الوجبات: <strong style="color:var(--gold);">${data.summary.total_items}</strong> |
-    متوسط الهامش: <strong style="color:var(--gold);">${data.summary.avg_margin}%</strong> |
-    إجمالي الربح: <strong style="color:var(--gold);">${data.summary.total_profit} ر.س</strong>
-  </div>`;
-
+  html += `<div style="text-align:center;color:var(--text-muted);margin-bottom:var(--space-12);">📊 إجمالي: <strong style="color:var(--gold);">${data.summary.total_items}</strong> | متوسط الهامش: <strong style="color:var(--gold);">${data.summary.avg_margin}%</strong> | إجمالي الربح: <strong style="color:var(--gold);">${data.summary.total_profit} ر.س</strong></div>`;
   document.getElementById('matrixContainer').innerHTML = html;
 }
 
-async function loadDropdowns() {
-  const sb = window.BondsAuth.getSupabase();
-  if (!sb) return;
-
-  const { data: items } = await sb.from('menu_items').select('id,name').eq('user_id', currentUser.id);
-  const { data: plats } = await sb.from('platforms').select('id,name').eq('user_id', currentUser.id);
-
-  menuItems = items || [];
-  platforms = plats || [];
-
-  const itemSel = document.getElementById('simItem');
-  for (const i of menuItems) {
-    const opt = document.createElement('option');
-    opt.value = i.id;
-    opt.textContent = i.name;
-    itemSel.appendChild(opt);
-  }
-
-  const platSel = document.getElementById('simPlatform');
-  for (const p of platforms) {
-    const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = p.name;
-    platSel.appendChild(opt);
-  }
-}
-
+// Promo Simulator
 async function runPromoSim() {
   const itemId = document.getElementById('simItem').value;
   const platId = document.getElementById('simPlatform').value;
   const discount = parseFloat(document.getElementById('simDiscount').value);
   const sales = parseInt(document.getElementById('simSales').value);
   const box = document.getElementById('simResult');
-
-  if (!itemId || !platId || isNaN(discount) || isNaN(sales)) {
-    box.innerHTML = '<div class="error">يرجى ملء جميع الحقول</div>';
-    return;
-  }
+  if (!itemId || !platId || isNaN(discount) || isNaN(sales)) return box.innerHTML = '<div class="error">املأ جميع الحقول</div>';
 
   box.innerHTML = '<div class="loading">جاري الحساب...</div>';
-
   try {
-    const res = await fetch(`${API_BASE}/promo-simulator`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: currentUser.id,
-        menu_item_id: itemId,
-        platform_id: platId,
-        discount_pct: discount,
-        current_daily_sales: sales
-      })
+    const res = await fetch('/api/promo-simulator', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: currentUser.id, menu_item_id: itemId, platform_id: platId, discount_pct: discount, current_daily_sales: sales })
     });
     const json = await res.json();
     if (!json.success) throw new Error(json.error);
-
     const d = json.data;
-    box.innerHTML = `
-      <div class="result-box">
-        <h4>🎯 نتيجة المحاكاة: ${d.item_name}</h4>
-        <p><strong>السعر الأصلي:</strong> ${d.original_price} ر.س → <strong>بعد الخصم:</strong> ${d.discounted_price} ر.س</p>
-        <p><strong>هامش الربح الأصلي:</strong> ${d.original_margin_pct}% → <strong>بعد الخصم:</strong> ${d.new_margin_pct}%</p>
-        <hr style="border-color:var(--border);margin:var(--space-3) 0;">
-        <p style="color:${d.is_profitable ? '#22c55e' : '#ef4444'};font-weight:700;">${d.verdict}</p>
-      </div>
-    `;
+    box.innerHTML = `<div class="result-box"><h4>🎯 نتيجة المحاكاة: ${d.item_name}</h4><p><strong>السعر:</strong> ${d.original_price} → <strong>${d.discounted_price}</strong> ر.س</p><p><strong>الهامش:</strong> ${d.original_margin_pct}% → <strong>${d.new_margin_pct}%</strong></p><hr style="border-color:var(--border);margin:var(--space-3) 0;"><p style="color:${d.is_profitable ? '#22c55e' : '#ef4444'};font-weight:700;">${d.verdict}</p></div>`;
   } catch (e) {
     box.innerHTML = '<div class="error">' + e.message + '</div>';
   }
