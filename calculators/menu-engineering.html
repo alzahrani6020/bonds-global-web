@@ -316,6 +316,10 @@ async function addPlatform() {
     const delivery = parseFloat(document.getElementById('pDelivery').value) || 0;
     if (!code || !name) return alert('أدخل الرمز والاسم');
 
+    // Check duplicate
+    const { data: existing } = await sb.from('platforms').select('id').eq('user_id', currentUser.id).eq('code', code).single();
+    if (existing) return alert('هذا التطبيق موجود مسبقاً: ' + name);
+
     const { error } = await sb.from('platforms').insert({
       user_id: currentUser.id, code, name, commission_rate: commission,
       service_fee_rate: service, payment_gateway_fee: gateway, delivery_fee: delivery
@@ -342,6 +346,10 @@ async function addIngredient() {
     const category = document.getElementById('iCategory').value.trim() || 'other';
     if (!name) return alert('أدخل اسم المكون');
 
+    // Check duplicate
+    const { data: existing } = await sb.from('ingredients').select('id').eq('user_id', currentUser.id).eq('name', name).single();
+    if (existing) return alert('هذا المكون موجود مسبقاً: ' + name);
+
     const { error } = await sb.from('ingredients').insert({
       user_id: currentUser.id, name, unit, current_price: cost, category
     });
@@ -365,6 +373,10 @@ async function addMenuItem() {
     const category = document.getElementById('mCategory').value;
     const price = parseFloat(document.getElementById('mPrice').value) || 0;
     if (!name) return alert('أدخل اسم الوجبة');
+
+    // Check duplicate
+    const { data: existing } = await sb.from('menu_items').select('id').eq('user_id', currentUser.id).eq('name', name).single();
+    if (existing) return alert('هذه الوجبة موجودة مسبقاً: ' + name);
 
     const { error } = await sb.from('menu_items').insert({
       user_id: currentUser.id, name, category, base_price: price
