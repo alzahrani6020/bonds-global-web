@@ -96,6 +96,7 @@
           <div class="form-group"><label>اسم المكون</label><input id="iName" placeholder="دجاج فيليه" /></div>
           <div class="form-group"><label>الوحدة</label><input id="iUnit" placeholder="kg" /></div>
           <div class="form-group"><label>التكلفة للوحدة (ر.س)</label><input id="iCost" type="number" step="0.01" placeholder="12.50" /></div>
+          <div class="form-group"><label>التصنيف</label><input id="iCategory" placeholder="لحوم" value="other" /></div>
         </div>
         <button class="btn-primary" onclick="addIngredient()">➕ إضافة مكون</button>
         <div id="iList" class="list-box"></div>
@@ -227,10 +228,11 @@ async function addIngredient() {
   const name = document.getElementById('iName').value.trim();
   const unit = document.getElementById('iUnit').value.trim() || 'kg';
   const cost = parseFloat(document.getElementById('iCost').value) || 0;
+  const category = document.getElementById('iCategory').value.trim() || 'other';
   if (!name) return alert('أدخل اسم المكون');
 
   const { error } = await sb.from('ingredients').insert({
-    user_id: currentUser.id, name, unit, cost_per_unit: cost
+    user_id: currentUser.id, name, unit, current_price: cost, category
   });
   if (error) return alert(error.message);
   await loadAllData();
@@ -238,7 +240,7 @@ async function addIngredient() {
 
 function renderIngredients() {
   const el = document.getElementById('iList');
-  el.innerHTML = ingredients.map(i => `<div class="row"><span>${i.name} — ${i.cost_per_unit} ر.س / ${i.unit}</span></div>`).join('') || '<div class="row">لا توجد مكونات</div>';
+  el.innerHTML = ingredients.map(i => `<div class="row"><span>${i.name} — ${i.current_price || 0} ر.س / ${i.unit}</span></div>`).join('') || '<div class="row">لا توجد مكونات</div>';
 }
 
 // Menu Items
