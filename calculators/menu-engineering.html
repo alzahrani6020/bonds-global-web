@@ -33,6 +33,9 @@
     .me-item .badge { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-top: var(--space-2); }
     .badge-profit { background: rgba(34,197,94,0.15); color: #22c55e; }
     .badge-loss { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .badge-high { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .badge-mid { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .badge-low { background: rgba(239,68,68,0.15); color: #ef4444; }
     .me-actions { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); margin-bottom: var(--space-12); }
     .me-actions h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: var(--space-6); text-align: center; }
     .form-group { margin-bottom: var(--space-4); }
@@ -592,7 +595,8 @@ async function loadMatrix() {
       const cost = item.total_cost || 0;
       const sales = item.total_sales_count || 0;
       const marginClass = margin >= 40 ? 'high' : margin >= 20 ? 'mid' : margin >= 0 ? 'low' : 'loss';
-      html += `<div class="me-item" style="border-left:4px solid var(--${key === 'star' ? 'gold' : key === 'engine' ? 'primary' : key === 'treasure' ? 'success' : 'danger'});padding-left:var(--space-3);">`;
+      const borderColor = key === 'stars' ? '#22c55e' : key === 'engines' ? '#f59e0b' : key === 'treasures' ? '#3b82f6' : '#ef4444';
+      html += `<div class="me-item" style="border-left:4px solid ${borderColor};padding-left:var(--space-3);">`;
       html += `<div class="name" style="font-weight:700;font-size:1rem;margin-bottom:var(--space-1);">${item.menu_item?.name || '—'}</div>`;
       html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-1);font-size:0.8rem;color:var(--text-secondary);margin-bottom:var(--space-2);">`;
       html += `<span>💰 إيراد: ${revenue.toFixed(0)} ر.س</span><span>📉 تكلفة: ${cost.toFixed(0)} ر.س</span>`;
