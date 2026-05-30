@@ -66,7 +66,10 @@
     </div>
 
     <div id="authAlert"></div>
-    <div style="text-align:center;margin-bottom:var(--space-6);"><button class="btn-secondary" onclick="seedDemoData()">🚀 تحميل بيانات تجريبية</button></div>
+    <div style="text-align:center;margin-bottom:var(--space-6);display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
+      <button class="btn-secondary" onclick="seedDemoData()">🚀 تحميل بيانات تجريبية</button>
+      <button class="btn-secondary" style="background:#ef4444;border-color:#ef4444;color:#fff;" onclick="clearAllData()">🗑️ مسح كل البيانات</button>
+    </div>
 
     <!-- Data Entry Tabs -->
     <div class="me-actions">
@@ -258,6 +261,23 @@ function switchTab(id) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   event.target.classList.add('active');
   document.getElementById('tab-' + id).classList.add('active');
+}
+
+async function clearAllData() {
+  if (!sb || !currentUser) return alert('سجل دخول أولاً');
+  if (!confirm('هل أنت متأكد من مسح كل بياناتك؟')) return;
+  try {
+    const res = await fetch('/api/clear-user-data', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: currentUser.id })
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error);
+    alert('✅ تم مسح كل البيانات');
+    location.reload();
+  } catch (e) {
+    alert('خطأ: ' + e.message);
+  }
 }
 
 async function seedDemoData() {
