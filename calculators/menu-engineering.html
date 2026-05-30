@@ -20,9 +20,9 @@
     .me-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-12); }
     .me-quadrant { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); position: relative; overflow: hidden; }
     .me-quadrant::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
-    .me-quadrant.star::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
-    .me-quadrant.engine::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
-    .me-quadrant.treasure::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+    .me-quadrant.stars::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .me-quadrant.engines::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .me-quadrant.treasures::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
     .me-quadrant.stalled::before { background: linear-gradient(90deg, #ef4444, #dc2626); }
     .me-quadrant h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: var(--space-2); display: flex; align-items: center; gap: var(--space-2); }
     .me-quadrant .count { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
@@ -518,22 +518,22 @@ async function loadMatrix() {
   }
   let data = json.data;
   // If no data, show demo
-  const hasAny = (data.star?.length||0) + (data.engines?.length||0) + (data.treasures?.length||0) + (data.stalled?.length||0);
+  const hasAny = (data.stars?.length||0) + (data.engines?.length||0) + (data.treasures?.length||0) + (data.stalled?.length||0);
   if (!hasAny) {
     data = {
-      star: DEMO_ITEMS.star, engines: DEMO_ITEMS.engine,
+      stars: DEMO_ITEMS.star, engines: DEMO_ITEMS.engine,
       treasures: DEMO_ITEMS.treasure, stalled: DEMO_ITEMS.stalled,
-      summary: { total_items: 8, avg_margin: '38.25', total_profit: '128.00' }
+      summary: { total_items: 8, avg_margin: '38.25', total_profit: '128.00', total_revenue: 34338, total_cost: 18453, total_net_revenue: 25754, platform_fees: 8584 }
     };
   }
   const cats = {
-    star: { icon: '⭐', title: 'النجوم', desc: 'ربح عالٍ + مبيعات عالية' },
-    engine: { icon: '🚀', title: 'المحرك', desc: 'مبيعات عالية + ربح محدود' },
-    treasure: { icon: '💎', title: 'المكنوز', desc: 'ربح عالٍ + مبيعات منخفضة' },
+    stars: { icon: '⭐', title: 'النجوم', desc: 'ربح عالٍ + مبيعات عالية' },
+    engines: { icon: '🚀', title: 'المحرك', desc: 'مبيعات عالية + ربح محدود' },
+    treasures: { icon: '💎', title: 'المكنوز', desc: 'ربح عالٍ + مبيعات منخفضة' },
     stalled: { icon: '⚠️', title: 'المتعثرة', desc: 'ربح منخفض + مبيعات منخفضة' }
   };
   let html = '<div class="me-grid">';
-  for (const key of ['star', 'engine', 'treasure', 'stalled']) {
+  for (const key of ['stars', 'engines', 'treasures', 'stalled']) {
     const c = cats[key];
     const items = data[key] || [];
     html += `<div class="me-quadrant ${key}"><h3>${c.icon} ${c.title} <span class="count">(${items.length})</span></h3><p style="font-size:0.85rem;color:var(--text-muted);">${c.desc}</p><div class="items">`;
