@@ -66,6 +66,7 @@
     </div>
 
     <div id="authAlert"></div>
+    <div style="text-align:center;margin-bottom:var(--space-6);"><button class="btn-secondary" onclick="seedDemoData()">🚀 تحميل بيانات تجريبية</button></div>
 
     <!-- Data Entry Tabs -->
     <div class="me-actions">
@@ -243,6 +244,25 @@ function switchTab(id) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   event.target.classList.add('active');
   document.getElementById('tab-' + id).classList.add('active');
+}
+
+async function seedDemoData() {
+  if (!sb || !currentUser) return alert('سجل دخول أولاً');
+  const uid = currentUser.id;
+  try {
+    const plat = await sb.from('platforms').insert({ user_id: uid, code: 'jahez', name: 'جاهز', commission_rate: 25, service_fee_rate: 2, payment_gateway_fee: 1.75 }).select().single();
+    const m1 = await sb.from('menu_items').insert({ user_id: uid, name: 'برجر كلاسيك', category: 'main', base_price: 35 }).select().single();
+    const m2 = await sb.from('menu_items').insert({ user_id: uid, name: 'شاورما دجاج', category: 'main', base_price: 28 }).select().single();
+    const m3 = await sb.from('menu_items').insert({ user_id: uid, name: 'باستا ألفريدو', category: 'main', base_price: 42 }).select().single();
+    const m4 = await sb.from('menu_items').insert({ user_id: uid, name: 'سلطة سيزر', category: 'appetizer', base_price: 22 }).select().single();
+    await sb.from('sales_transactions').insert([
+      { user_id: uid, menu_item_id: m1.data.id, platform_id: plat.data.id, quantity: 50, unit_price: 35 },
+      { user_id: uid, menu_item_id: m2.data.id, platform_id: plat.data.id, quantity: 80, unit_price: 28 },
+      { user_id: uid, menu_item_id: m3.data.id, platform_id: plat.data.id, quantity: 15, unit_price: 42 },
+      { user_id: uid, menu_item_id: m4.data.id, platform_id: plat.data.id, quantity: 10, unit_price: 22 }
+    ]);
+    alert('✅ تم تحميل البيانات التجريبية! اضغط F5');
+  } catch (e) { alert('خطأ: ' + e.message); }
 }
 
 async function loadAllData() {
