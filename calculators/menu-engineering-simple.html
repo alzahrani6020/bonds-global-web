@@ -180,8 +180,8 @@ function addMenuItem(){
   save(); renderAll();
 }
 function addLink(){
-  const m=+document.getElementById('mc').value, i=+document.getElementById('mi').value, q=+document.getElementById('mq').value;
-  if(!m||!i||!q) return alert('اختر الكل');
+  const m=document.getElementById('mc').value, i=document.getElementById('mi').value, q=+document.getElementById('mq').value;
+  if(m===''||i===''||!q) return alert('اختر الكل');
   if(q>10) return alert('الكمية كبيرة جداً! هل تقصد '+q/1000+'؟ الكمية = المطلوب للوجبة الواحدة فقط (مثال: 0.3 كجم رز)');
   if(links.some(l=>l.menuId===m&&l.ingId===i)) return alert('هذا المكون مربوط مسبقاً بهذه الوجبة');
   links.push({id:uid(),menuId:m,ingId:i,qty:q});
@@ -189,8 +189,8 @@ function addLink(){
   save(); renderAll();
 }
 function addSale(){
-  const m=+document.getElementById('sm').value, p=+document.getElementById('sp').value, q=+document.getElementById('sq').value;
-  if(!m||!p||!q) return alert('اختر الكل');
+  const m=document.getElementById('sm').value, p=document.getElementById('sp').value, q=+document.getElementById('sq').value;
+  if(m===''||p===''||!q) return alert('اختر الكل');
   const item=menuItems.find(x=>x.id===m);
   sales.push({id:uid(),menuId:m,platId:p,qty:q,unitPrice:item?item.price:0,date:new Date().toISOString()});
   document.getElementById('sq').value='1';
@@ -201,21 +201,21 @@ function del(arr,id,key){ window[key]=arr.filter(x=>x.id!==id); save(); renderAl
 // ===== RENDER =====
 function renderAll(){
   // platforms
-  document.getElementById('plist').innerHTML=platforms.map(p=>`<div class="list-item"><span>${p.name} — ${p.comm}%</span><span class="del" onclick="del(platforms,${p.id},'platforms')">🗑</span></div>`).join('')||'لا توجد';
+  document.getElementById('plist').innerHTML=platforms.map(p=>`<div class="list-item"><span>${p.name} — ${p.comm}%</span><span class="del" onclick="del(platforms,'${p.id}','platforms')">🗑</span></div>`).join('')||'لا توجد';
   // ingredients
-  document.getElementById('ilist').innerHTML=ingredients.map(i=>`<div class="list-item"><span>${i.name} — ${i.price} ر.س/${i.unit}</span><span class="del" onclick="del(ingredients,${i.id},'ingredients')">🗑</span></div>`).join('')||'لا توجد';
+  document.getElementById('ilist').innerHTML=ingredients.map(i=>`<div class="list-item"><span>${i.name} — ${i.price} ر.س/${i.unit}</span><span class="del" onclick="del(ingredients,'${i.id}','ingredients')">🗑</span></div>`).join('')||'لا توجد';
   // menu
-  document.getElementById('mlist').innerHTML=menuItems.map(m=>`<div class="list-item"><span>${m.name} — ${m.price} ر.س</span><span class="del" onclick="del(menuItems,${m.id},'menuItems')">🗑</span></div>`).join('')||'لا توجد';
+  document.getElementById('mlist').innerHTML=menuItems.map(m=>`<div class="list-item"><span>${m.name} — ${m.price} ر.س</span><span class="del" onclick="del(menuItems,'${m.id}','menuItems')">🗑</span></div>`).join('')||'لا توجد';
   // links
   document.getElementById('mlinklist').innerHTML=links.map(l=>{
     const m=menuItems.find(x=>x.id===l.menuId), i=ingredients.find(x=>x.id===l.ingId);
     const cost=(l.qty*(i?i.price:0)).toFixed(2);
-    return `<div class="list-item"><span>${m?m.name:'—'} ← ${i?i.name:'—'} × ${l.qty} = ${cost} ر.س</span><span class="del" onclick="del(links,${l.id},'links')">🗑</span></div>`;
+    return `<div class="list-item"><span>${m?m.name:'—'} ← ${i?i.name:'—'} × ${l.qty} = ${cost} ر.س</span><span class="del" onclick="del(links,'${l.id}','links')">🗑</span></div>`;
   }).join('')||'لا توجد';
   // sales
   document.getElementById('slist').innerHTML=sales.map(s=>{
     const m=menuItems.find(x=>x.id===s.menuId), p=platforms.find(x=>x.id===s.platId);
-    return `<div class="list-item"><span>${m?m.name:'—'} × ${s.qty} (${p?p.name:'—'}) = ${(s.qty*s.unitPrice).toFixed(0)} ر.س</span><span class="del" onclick="del(sales,${s.id},'sales')">🗑</span></div>`;
+    return `<div class="list-item"><span>${m?m.name:'—'} × ${s.qty} (${p?p.name:'—'}) = ${(s.qty*s.unitPrice).toFixed(0)} ر.س</span><span class="del" onclick="del(sales,'${s.id}','sales')">🗑</span></div>`;
   }).join('')||'لا توجد';
 
   // dropdowns
@@ -249,11 +249,11 @@ function renderMatrix(){
   // calc cost per item
   const scores=[];
   for(const[mid,agg]of Object.entries(by)){
-    const m=menuItems.find(x=>x.id===+mid);
+    const m=menuItems.find(x=>x.id===mid);
     if(!m) continue;
     // cost from links
     let costPerUnit=0;
-    links.filter(l=>l.menuId===+mid).forEach(l=>{
+    links.filter(l=>l.menuId===mid).forEach(l=>{
       const i=ingredients.find(x=>x.id===l.ingId);
       if(i) costPerUnit+=l.qty*i.price;
     });
