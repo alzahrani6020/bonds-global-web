@@ -105,7 +105,7 @@
       <button onclick="addSale()">➕ تسجيل مبيعة</button>
       <div class="list" id="slist"></div>
 
-      <button onclick="seedDemo()" style="background:#1a2332;color:var(--gold);border:1px solid var(--gold);margin-top:1rem;">🚀 تحميل بيانات تجريبية</button>
+      <p style="color:var(--muted);font-size:.85rem;margin-top:1rem;text-align:center;">💡 ابدأ بإضافة منصة واحدة، ثم مكوناتك، ثم وجباتك، ثم اربط المكونات وسجل المبيعات</p>
     </div>
 
     <!-- الماتريكس -->
@@ -131,9 +131,14 @@ function save(){
   localStorage.setItem('me_sales',JSON.stringify(sales));
 }
 function clearAll(){
-  if(!confirm('هل أنت متأكد؟ سيتم مسح كل البيانات (منصات، مكونات، منيو، مبيعات)')) return;
+  if(!confirm('هل أنت متأكد؟ سيتم مسح كل البيانات')) return;
+  localStorage.removeItem('me_platforms');
+  localStorage.removeItem('me_ingredients');
+  localStorage.removeItem('me_menu');
+  localStorage.removeItem('me_links');
+  localStorage.removeItem('me_sales');
   platforms=[]; ingredients=[]; menuItems=[]; links=[]; sales=[];
-  save(); renderAll(); renderMatrix();
+  renderAll(); renderMatrix();
 }
 
 // ===== UI =====
@@ -211,7 +216,7 @@ function renderAll(){
 // ===== MATRIX =====
 function renderMatrix(){
   if(!sales.length){
-    document.getElementById('summary').innerHTML='<div style="text-align:center;color:var(--muted);">لا توجد مبيعات — اذهب لتبويب "المنيو" واضغط "تحميل بيانات تجريبية"</div>';
+    document.getElementById('summary').innerHTML='<div style="text-align:center;color:var(--muted);">لا توجد مبيعات — اذهب لتبويب "المنيو + المبيعات" واضف منصات، مكونات، وجبات، ثم سجل مبيعات</div>';
     document.getElementById('matrixBox').innerHTML='';
     return;
   }
@@ -288,43 +293,6 @@ function renderMatrix(){
     mk(engines,'المحرك','🚀','engines','مبيعات عالية + ربح محدود')+
     mk(treasures,'المكنوز','💎','treasures','ربح عالٍ + مبيعات منخفضة')+
     mk(stalled,'المتعثرة','⚠️','stalled','ربح منخفض + مبيعات منخفضة');
-}
-
-// ===== DEMO =====
-function seedDemo(){
-  platforms=[{id:1,name:'جاهز',comm:25,serv:2,gate:1.75}];
-  ingredients=[
-    {id:1,name:'لحم بقر مفروم',unit:'kg',price:45},
-    {id:2,name:'صمون برجر',unit:'piece',price:2},
-    {id:3,name:'جبنة شيدر',unit:'kg',price:30},
-    {id:4,name:'دجاج فيليه',unit:'kg',price:28},
-    {id:5,name:'باستا',unit:'kg',price:12},
-    {id:6,name:'صلصة كريمة',unit:'kg',price:18},
-    {id:7,name:'خس روماني',unit:'kg',price:15},
-    {id:8,name:'جبنة بارميزان',unit:'kg',price:55}
-  ];
-  menuItems=[
-    {id:1,name:'برجر كلاسيك',price:35},
-    {id:2,name:'شاورما دجاج',price:28},
-    {id:3,name:'باستا ألفريدو',price:42},
-    {id:4,name:'سلطة سيزر',price:22}
-  ];
-  links=[
-    {id:1,menuId:1,ingId:1,qty:0.15},{id:2,menuId:1,ingId:2,qty:1},{id:3,menuId:1,ingId:3,qty:0.03},
-    {id:4,menuId:2,ingId:4,qty:0.12},
-    {id:5,menuId:3,ingId:5,qty:0.15},{id:6,menuId:3,ingId:6,qty:0.1},{id:7,menuId:3,ingId:8,qty:0.02},
-    {id:8,menuId:4,ingId:7,qty:0.08}
-  ];
-  sales=[
-    {id:1,menuId:1,platId:1,qty:50,unitPrice:35,date:new Date().toISOString()},
-    {id:2,menuId:2,platId:1,qty:80,unitPrice:28,date:new Date().toISOString()},
-    {id:3,menuId:3,platId:1,qty:15,unitPrice:42,date:new Date().toISOString()},
-    {id:4,menuId:4,platId:1,qty:10,unitPrice:22,date:new Date().toISOString()}
-  ];
-  save(); renderAll();
-  alert('✅ تم تحميل البيانات');
-  show('matrix');
-  renderMatrix();
 }
 
 // ===== INIT =====
