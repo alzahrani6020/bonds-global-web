@@ -284,11 +284,38 @@ async function seedDemoData() {
   if (!sb || !currentUser) return alert('سجل دخول أولاً');
   const uid = currentUser.id;
   try {
+    // 1. Platform
     const plat = await sb.from('platforms').insert({ user_id: uid, code: 'jahez', name: 'جاهز', commission_rate: 25, service_fee_rate: 2, payment_gateway_fee: 1.75 }).select().single();
+    
+    // 2. Ingredients
+    const i1 = await sb.from('ingredients').insert({ user_id: uid, name: 'لحم بقر مفروم', unit: 'kg', current_price: 45, category: 'لحوم' }).select().single();
+    const i2 = await sb.from('ingredients').insert({ user_id: uid, name: 'صمون برجر', unit: 'piece', current_price: 2, category: 'مخبوزات' }).select().single();
+    const i3 = await sb.from('ingredients').insert({ user_id: uid, name: 'جبنة شيدر', unit: 'kg', current_price: 30, category: 'ألبان' }).select().single();
+    const i4 = await sb.from('ingredients').insert({ user_id: uid, name: 'دجاج فيليه', unit: 'kg', current_price: 28, category: 'لحوم' }).select().single();
+    const i5 = await sb.from('ingredients').insert({ user_id: uid, name: 'باستا', unit: 'kg', current_price: 12, category: 'مكرونات' }).select().single();
+    const i6 = await sb.from('ingredients').insert({ user_id: uid, name: 'صلصة كريمة', unit: 'kg', current_price: 18, category: 'صلصات' }).select().single();
+    const i7 = await sb.from('ingredients').insert({ user_id: uid, name: 'خس روماني', unit: 'kg', current_price: 15, category: 'خضار' }).select().single();
+    const i8 = await sb.from('ingredients').insert({ user_id: uid, name: 'جبنة بارميزان', unit: 'kg', current_price: 55, category: 'ألبان' }).select().single();
+    
+    // 3. Menu Items
     const m1 = await sb.from('menu_items').insert({ user_id: uid, name: 'برجر كلاسيك', category: 'main', base_price: 35 }).select().single();
     const m2 = await sb.from('menu_items').insert({ user_id: uid, name: 'شاورما دجاج', category: 'main', base_price: 28 }).select().single();
     const m3 = await sb.from('menu_items').insert({ user_id: uid, name: 'باستا ألفريدو', category: 'main', base_price: 42 }).select().single();
     const m4 = await sb.from('menu_items').insert({ user_id: uid, name: 'سلطة سيزر', category: 'appetizer', base_price: 22 }).select().single();
+    
+    // 4. Link ingredients to menu items
+    await sb.from('menu_item_ingredients').insert([
+      { menu_item_id: m1.data.id, ingredient_id: i1.data.id, quantity_needed: 0.15, unit: 'kg' },
+      { menu_item_id: m1.data.id, ingredient_id: i2.data.id, quantity_needed: 1, unit: 'piece' },
+      { menu_item_id: m1.data.id, ingredient_id: i3.data.id, quantity_needed: 0.03, unit: 'kg' },
+      { menu_item_id: m2.data.id, ingredient_id: i4.data.id, quantity_needed: 0.12, unit: 'kg' },
+      { menu_item_id: m3.data.id, ingredient_id: i5.data.id, quantity_needed: 0.15, unit: 'kg' },
+      { menu_item_id: m3.data.id, ingredient_id: i6.data.id, quantity_needed: 0.1, unit: 'kg' },
+      { menu_item_id: m3.data.id, ingredient_id: i8.data.id, quantity_needed: 0.02, unit: 'kg' },
+      { menu_item_id: m4.data.id, ingredient_id: i7.data.id, quantity_needed: 0.08, unit: 'kg' }
+    ]);
+    
+    // 5. Sales
     await sb.from('sales_transactions').insert([
       { user_id: uid, menu_item_id: m1.data.id, platform_id: plat.data.id, quantity: 50, unit_price: 35 },
       { user_id: uid, menu_item_id: m2.data.id, platform_id: plat.data.id, quantity: 80, unit_price: 28 },
