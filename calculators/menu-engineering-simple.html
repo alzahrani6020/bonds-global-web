@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>محرك هندسة المنيو | بوندز</title>
+  <style>
+    :root { --bg:#0a0f1a; --card:#111827; --border:#1f2937; --text:#e5e7eb; --muted:#9ca3af; --gold:#d4a853; }
+    * { box-sizing:border-box; margin:0; padding:0; font-family:Tahoma,Segoe UI,sans-serif; }
+    body { background:var(--bg); color:var(--text); padding:2rem; }
+    .wrap { max-width:1100px; margin:0 auto; }
+    h1 { text-align:center; color:var(--gold); font-size:2rem; margin-bottom:.5rem; }
+    p.desc { text-align:center; color:var(--muted); margin-bottom:2rem; }
+    .tabs { display:flex; gap:.5rem; justify-content:center; margin-bottom:1.5rem; flex-wrap:wrap; }
+    .tab { padding:.6rem 1.2rem; border-radius:8px; cursor:pointer; border:1px solid var(--border); background:var(--card); color:var(--muted); font-weight:700; }
+    .tab.active { background:var(--gold); color:#0a0f1a; border-color:var(--gold); }
+    .panel { display:none; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; margin-bottom:1.5rem; }
+    .panel.active { display:block; }
+    label { display:block; color:var(--muted); font-size:.85rem; margin-bottom:.3rem; font-weight:600; }
+    input,select { width:100%; padding:.7rem; border:1px solid var(--border); border-radius:8px; background:#1a2332; color:var(--text); margin-bottom:.5rem; }
+    button { width:100%; padding:.8rem; border:none; border-radius:8px; background:var(--gold); color:#0a0f1a; font-weight:800; font-size:1rem; cursor:pointer; margin-top:.5rem; }
+    button:hover { filter:brightness(1.1); }
+    .row2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+    .list { max-height:180px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:.5rem; margin-top:1rem; }
+    .list-item { padding:.4rem 0; border-bottom:1px solid var(--border); font-size:.9rem; display:flex; justify-content:space-between; }
+    .list-item:last-child { border-bottom:none; }
+    .matrix { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-top:1.5rem; }
+    .quad { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.2rem; position:relative; overflow:hidden; }
+    .quad::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; }
+    .q-stars::before { background:#22c55e; } .q-engines::before { background:#f59e0b; }
+    .q-treasures::before { background:#3b82f6; } .q-stalled::before { background:#ef4444; }
+    .quad h3 { font-size:1.1rem; margin-bottom:.5rem; }
+    .item-box { background:#1a2332; border:1px solid var(--border); border-radius:8px; padding:.8rem; margin:.4rem 0; font-size:.85rem; }
+    .item-box b { color:var(--gold); }
+    .summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:.8rem; margin:1.5rem 0; }
+    .s-box { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:.8rem; text-align:center; }
+    .s-box div:first-child { color:var(--muted); font-size:.75rem; }
+    .s-box div:last-child { font-size:1.2rem; font-weight:700; color:var(--gold); }
+    .del { color:#ef4444; cursor:pointer; margin-right:.5rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🎯 محرك هندسة المنيو</h1>
+    <p class="desc">كل البيانات تحفظ في متصفحك — لا يحتاج إنترنت بعد التحميل</p>
+
+    <div class="tabs">
+      <div class="tab active" onclick="show('platforms')">المنصات</div>
+      <div class="tab" onclick="show('ingredients')">المكونات</div>
+      <div class="tab" onclick="show('menu')">المنيو + المبيعات</div>
+      <div class="tab" onclick="show('matrix')">الماتريكس</div>
+    </div>
+
+    <!-- المنصات -->
+    <div id="platforms" class="panel active">
+      <div class="row2">
+        <div><label>اسم التطبيق</label><input id="pn" placeholder="جاهز" /></div>
+        <div><label>العمولة %</label><input id="pc" type="number" value="25" /></div>
+        <div><label>رسوم الخدمة %</label><input id="ps" type="number" value="2" /></div>
+        <div><label>بوابة الدفع %</label><input id="pg" type="number" value="1.75" /></div>
+      </div>
+      <button onclick="addPlatform()">➕ إضافة تطبيق</button>
+      <div class="list" id="plist"></div>
+    </div>
+
+    <!-- المكونات -->
+    <div id="ingredients" class="panel">
+      <div class="row2">
+        <div><label>اسم المكون</label><input id="in" placeholder="لحم بقر" /></div>
+        <div><label>الوحدة</label><input id="iu" placeholder="kg" /></div>
+        <div><label>السعر للوحدة</label><input id="ip" type="number" step="0.01" placeholder="45" /></div>
+      </div>
+      <button onclick="addIngredient()">➕ إضافة مكون</button>
+      <div class="list" id="ilist"></div>
+    </div>
+
+    <!-- المنيو -->
+    <div id="menu" class="panel">
+      <h3 style="color:var(--gold);margin-bottom:1rem;">الوجبات</h3>
+      <div class="row2">
+        <div><label>اسم الوجبة</label><input id="mn" placeholder="برجر كلاسيك" /></div>
+        <div><label>السعر</label><input id="mp" type="number" step="0.01" placeholder="35" /></div>
+      </div>
+      <button onclick="addMenuItem()">➕ إضافة وجبة</button>
+      <div class="list" id="mlist"></div>
+
+      <h3 style="color:var(--gold);margin:1.5rem 0 1rem;">ربط المكونات بالوجبة</h3>
+      <div class="row2">
+        <div><label>الوجبة</label><select id="mc"></select></div>
+        <div><label>المكون</label><select id="mi"></select></div>
+        <div><label>الكمية</label><input id="mq" type="number" step="0.01" placeholder="0.15" /></div>
+      </div>
+      <button onclick="addLink()">➕ ربط مكون</button>
+      <div class="list" id="mlinklist"></div>
+
+      <h3 style="color:var(--gold);margin:1.5rem 0 1rem;">تسجيل مبيعة</h3>
+      <div class="row2">
+        <div><label>الوجبة</label><select id="sm"></select></div>
+        <div><label>التطبيق</label><select id="sp"></select></div>
+        <div><label>الكمية</label><input id="sq" type="number" value="1" /></div>
+      </div>
+      <button onclick="addSale()">➕ تسجيل مبيعة</button>
+      <div class="list" id="slist"></div>
+
+      <button onclick="seedDemo()" style="background:#1a2332;color:var(--gold);border:1px solid var(--gold);margin-top:1rem;">🚀 تحميل بيانات تجريبية</button>
+    </div>
+
+    <!-- الماتريكس -->
+    <div id="matrix" class="panel">
+      <div class="summary" id="summary"></div>
+      <div class="matrix" id="matrixBox"></div>
+    </div>
+  </div>
+
+<script>
+// ===== DATA =====
+let platforms = JSON.parse(localStorage.getItem('me_platforms')||'[]');
+let ingredients = JSON.parse(localStorage.getItem('me_ingredients')||'[]');
+let menuItems = JSON.parse(localStorage.getItem('me_menu')||'[]');
+let links = JSON.parse(localStorage.getItem('me_links')||'[]');
+let sales = JSON.parse(localStorage.getItem('me_sales')||'[]');
+
+function save(){
+  localStorage.setItem('me_platforms',JSON.stringify(platforms));
+  localStorage.setItem('me_ingredients',JSON.stringify(ingredients));
+  localStorage.setItem('me_menu',JSON.stringify(menuItems));
+  localStorage.setItem('me_links',JSON.stringify(links));
+  localStorage.setItem('me_sales',JSON.stringify(sales));
+}
+
+// ===== UI =====
+function show(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  if(id==='matrix') renderMatrix();
+}
+
+function addPlatform(){
+  const n=document.getElementById('pn').value.trim();
+  if(!n) return alert('أدخل اسم');
+  platforms.push({id:Date.now(),name:n,comm:+document.getElementById('pc').value||0,serv:+document.getElementById('ps').value||0,gate:+document.getElementById('pg').value||0});
+  save(); renderAll();
+}
+function addIngredient(){
+  const n=document.getElementById('in').value.trim();
+  if(!n) return alert('أدخل اسم');
+  ingredients.push({id:Date.now(),name:n,unit:document.getElementById('iu').value||'kg',price:+document.getElementById('ip').value||0});
+  save(); renderAll();
+}
+function addMenuItem(){
+  const n=document.getElementById('mn').value.trim();
+  if(!n) return alert('أدخل اسم');
+  menuItems.push({id:Date.now(),name:n,price:+document.getElementById('mp').value||0});
+  save(); renderAll();
+}
+function addLink(){
+  const m=+document.getElementById('mc').value, i=+document.getElementById('mi').value, q=+document.getElementById('mq').value;
+  if(!m||!i||!q) return alert('اختر الكل');
+  links.push({id:Date.now(),menuId:m,ingId:i,qty:q});
+  save(); renderAll();
+}
+function addSale(){
+  const m=+document.getElementById('sm').value, p=+document.getElementById('sp').value, q=+document.getElementById('sq').value;
+  if(!m||!p||!q) return alert('اختر الكل');
+  const item=menuItems.find(x=>x.id===m);
+  sales.push({id:Date.now(),menuId:m,platId:p,qty:q,unitPrice:item?item.price:0,date:new Date().toISOString()});
+  save(); renderAll(); renderMatrix();
+}
+function del(arr,id,key){ window[key]=arr.filter(x=>x.id!==id); save(); renderAll(); }
+
+// ===== RENDER =====
+function renderAll(){
+  // platforms
+  document.getElementById('plist').innerHTML=platforms.map(p=>`<div class="list-item"><span>${p.name} — ${p.comm}%</span><span class="del" onclick="del(platforms,${p.id},'platforms')">🗑</span></div>`).join('')||'لا توجد';
+  // ingredients
+  document.getElementById('ilist').innerHTML=ingredients.map(i=>`<div class="list-item"><span>${i.name} — ${i.price} ر.س/${i.unit}</span><span class="del" onclick="del(ingredients,${i.id},'ingredients')">🗑</span></div>`).join('')||'لا توجد';
+  // menu
+  document.getElementById('mlist').innerHTML=menuItems.map(m=>`<div class="list-item"><span>${m.name} — ${m.price} ر.س</span><span class="del" onclick="del(menuItems,${m.id},'menuItems')">🗑</span></div>`).join('')||'لا توجد';
+  // links
+  document.getElementById('mlinklist').innerHTML=links.map(l=>{
+    const m=menuItems.find(x=>x.id===l.menuId), i=ingredients.find(x=>x.id===l.ingId);
+    const cost=(l.qty*(i?i.price:0)).toFixed(2);
+    return `<div class="list-item"><span>${m?m.name:'—'} ← ${i?i.name:'—'} × ${l.qty} = ${cost} ر.س</span><span class="del" onclick="del(links,${l.id},'links')">🗑</span></div>`;
+  }).join('')||'لا توجد';
+  // sales
+  document.getElementById('slist').innerHTML=sales.map(s=>{
+    const m=menuItems.find(x=>x.id===s.menuId), p=platforms.find(x=>x.id===s.platId);
+    return `<div class="list-item"><span>${m?m.name:'—'} × ${s.qty} (${p?p.name:'—'}) = ${(s.qty*s.unitPrice).toFixed(0)} ر.س</span><span class="del" onclick="del(sales,${s.id},'sales')">🗑</span></div>`;
+  }).join('')||'لا توجد';
+
+  // dropdowns
+  const optM=menuItems.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  const optI=ingredients.map(i=>`<option value="${i.id}">${i.name}</option>`).join('');
+  const optP=platforms.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  document.getElementById('mc').innerHTML='<option value="">اختر...</option>'+optM;
+  document.getElementById('mi').innerHTML='<option value="">اختر...</option>'+optI;
+  document.getElementById('sp').innerHTML='<option value="">اختر...</option>'+optP;
+  document.getElementById('sm').innerHTML='<option value="">اختر...</option>'+optM;
+}
+
+// ===== MATRIX =====
+function renderMatrix(){
+  if(!sales.length){
+    document.getElementById('summary').innerHTML='<div style="text-align:center;color:var(--muted);">لا توجد مبيعات — اذهب لتبويب "المنيو" واضغط "تحميل بيانات تجريبية"</div>';
+    document.getElementById('matrixBox').innerHTML='';
+    return;
+  }
+  // group sales by menu item
+  const by={};
+  sales.forEach(s=>{
+    if(!by[s.menuId]) by[s.menuId]={qty:0,rev:0,net:0,plat:s.platId};
+    by[s.menuId].qty+=s.qty;
+    by[s.menuId].rev+=s.qty*s.unitPrice;
+    const p=platforms.find(x=>x.id===s.platId);
+    const fee=(p?(p.comm+p.serv+p.gate):0)/100;
+    by[s.menuId].net+=s.qty*s.unitPrice*(1-fee);
+  });
+
+  // calc cost per item
+  const scores=[];
+  for(const[mid,agg]of Object.entries(by)){
+    const m=menuItems.find(x=>x.id===+mid);
+    if(!m) continue;
+    // cost from links
+    let costPerUnit=0;
+    links.filter(l=>l.menuId===+mid).forEach(l=>{
+      const i=ingredients.find(x=>x.id===l.ingId);
+      if(i) costPerUnit+=l.qty*i.price;
+    });
+    if(!costPerUnit) costPerUnit=agg.rev/agg.qty*0.35; // fallback
+    const totalCost=costPerUnit*agg.qty;
+    const profit=agg.net-totalCost;
+    const margin=agg.rev>0?(profit/agg.rev)*100:0;
+    scores.push({name:m.name,qty:agg.qty,rev:agg.rev,net:agg.net,cost:totalCost,profit,margin});
+  }
+
+  const avgQty=scores.reduce((s,i)=>s+i.qty,0)/scores.length||0;
+  const avgProfit=scores.reduce((s,i)=>s+i.profit,0)/scores.length||0;
+
+  const stars=[],engines=[],treasures=[],stalled=[];
+  scores.forEach(s=>{
+    if(s.qty>=avgQty&&s.profit>=avgProfit) stars.push(s);
+    else if(s.qty>=avgQty&&s.profit<avgProfit) engines.push(s);
+    else if(s.qty<avgQty&&s.profit>=avgProfit) treasures.push(s);
+    else stalled.push(s);
+  });
+
+  const totalRev=scores.reduce((s,i)=>s+i.rev,0);
+  const totalCost=scores.reduce((s,i)=>s+i.cost,0);
+  const totalNet=scores.reduce((s,i)=>s+i.net,0);
+  const totalProfit=scores.reduce((s,i)=>s+i.profit,0);
+  const avgMargin=scores.length?scores.reduce((s,i)=>s+i.margin,0)/scores.length:0;
+  const fees=totalRev-totalNet;
+
+  document.getElementById('summary').innerHTML=`
+    <div class="s-box"><div>📦 منتجات</div><div>${scores.length}</div></div>
+    <div class="s-box"><div>💰 إيرادات</div><div>${totalRev.toFixed(0)} ر.س</div></div>
+    <div class="s-box"><div>📉 تكاليف</div><div>${totalCost.toFixed(0)} ر.س</div></div>
+    <div class="s-box"><div>🏦 عمولات</div><div>${fees.toFixed(0)} ر.س</div></div>
+    <div class="s-box"><div>📈 ربح صافي</div><div>${totalProfit.toFixed(0)} ر.س</div></div>
+    <div class="s-box"><div>📊 متوسط الهامش</div><div>${avgMargin.toFixed(1)}%</div></div>`;
+
+  const mk=(arr,title,icon,color,desc)=>{
+    if(!arr.length) return '';
+    return `<div class="quad q-${color}"><h3>${icon} ${title} (${arr.length})</h3><p style="font-size:.8rem;color:var(--muted);">${desc}</p>`+
+      arr.map(s=>`<div class="item-box">
+        <div style="font-weight:700;margin-bottom:.3rem;">${s.name}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;font-size:.8rem;color:var(--muted);">
+          <span>💰 إيراد: ${s.rev.toFixed(0)}</span><span>📉 تكلفة: ${s.cost.toFixed(0)}</span>
+          <span>🛒 مبيعات: ${s.qty}</span><span>📈 هامش: <b style="color:${s.margin>=0?'#22c55e':'#ef4444'}">${s.margin.toFixed(1)}%</b></span>
+        </div>
+        <div style="font-size:.8rem;margin-top:.3rem;">ربح صافي: <b style="color:${s.profit>=0?'#22c55e':'#ef4444'}">${s.profit.toFixed(2)} ر.س</b></div>
+      </div>`).join('')+'</div>';
+  };
+
+  document.getElementById('matrixBox').innerHTML=
+    mk(stars,'النجوم','⭐','stars','ربح عالٍ + مبيعات عالية')+
+    mk(engines,'المحرك','🚀','engines','مبيعات عالية + ربح محدود')+
+    mk(treasures,'المكنوز','💎','treasures','ربح عالٍ + مبيعات منخفضة')+
+    mk(stalled,'المتعثرة','⚠️','stalled','ربح منخفض + مبيعات منخفضة');
+}
+
+// ===== DEMO =====
+function seedDemo(){
+  platforms=[{id:1,name:'جاهز',comm:25,serv:2,gate:1.75}];
+  ingredients=[
+    {id:1,name:'لحم بقر مفروم',unit:'kg',price:45},
+    {id:2,name:'صمون برجر',unit:'piece',price:2},
+    {id:3,name:'جبنة شيدر',unit:'kg',price:30},
+    {id:4,name:'دجاج فيليه',unit:'kg',price:28},
+    {id:5,name:'باستا',unit:'kg',price:12},
+    {id:6,name:'صلصة كريمة',unit:'kg',price:18},
+    {id:7,name:'خس روماني',unit:'kg',price:15},
+    {id:8,name:'جبنة بارميزان',unit:'kg',price:55}
+  ];
+  menuItems=[
+    {id:1,name:'برجر كلاسيك',price:35},
+    {id:2,name:'شاورما دجاج',price:28},
+    {id:3,name:'باستا ألفريدو',price:42},
+    {id:4,name:'سلطة سيزر',price:22}
+  ];
+  links=[
+    {id:1,menuId:1,ingId:1,qty:0.15},{id:2,menuId:1,ingId:2,qty:1},{id:3,menuId:1,ingId:3,qty:0.03},
+    {id:4,menuId:2,ingId:4,qty:0.12},
+    {id:5,menuId:3,ingId:5,qty:0.15},{id:6,menuId:3,ingId:6,qty:0.1},{id:7,menuId:3,ingId:8,qty:0.02},
+    {id:8,menuId:4,ingId:7,qty:0.08}
+  ];
+  sales=[
+    {id:1,menuId:1,platId:1,qty:50,unitPrice:35,date:new Date().toISOString()},
+    {id:2,menuId:2,platId:1,qty:80,unitPrice:28,date:new Date().toISOString()},
+    {id:3,menuId:3,platId:1,qty:15,unitPrice:42,date:new Date().toISOString()},
+    {id:4,menuId:4,platId:1,qty:10,unitPrice:22,date:new Date().toISOString()}
+  ];
+  save(); renderAll();
+  alert('✅ تم تحميل البيانات');
+  show('matrix');
+  renderMatrix();
+}
+
+// ===== INIT =====
+renderAll();
+</script>
+</body>
+</html>
