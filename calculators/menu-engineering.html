@@ -390,6 +390,26 @@ function updateDropdowns() {
 }
 
 // Matrix
+// Demo data shown when user has no data
+const DEMO_ITEMS = {
+  star: [
+    { menu_item: { name: 'برجر كلاسيك' }, gross_profit: 18.50, profit_margin_pct: 42.0, total_sales_count: 320, recommendation: 'حافظ عليه — نجم المطعم' },
+    { menu_item: { name: 'شاورما لحم' }, gross_profit: 14.00, profit_margin_pct: 38.5, total_sales_count: 275, recommendation: 'روّج له في المنيو الرئيسي' }
+  ],
+  engine: [
+    { menu_item: { name: 'كريب دجاج' }, gross_profit: 5.20, profit_margin_pct: 18.0, total_sales_count: 210, recommendation: 'ارفع السعر 10% أو قلل الحجم قليلاً' },
+    { menu_item: { name: 'بطاطس مقلية' }, gross_profit: 2.80, profit_margin_pct: 35.0, total_sales_count: 450, recommendation: 'بِعه كـ add-on مع البرجر' }
+  ],
+  treasure: [
+    { menu_item: { name: 'ستيك مشوي' }, gross_profit: 45.00, profit_margin_pct: 55.0, total_sales_count: 45, recommendation: 'صوّره واعرضه في المنيو المميز' },
+    { menu_item: { name: 'سلمون مشوي' }, gross_profit: 38.00, profit_margin_pct: 50.0, total_sales_count: 32, recommendation: 'أضف combo مع مشروب لتعزيز المبيعات' }
+  ],
+  stalled: [
+    { menu_item: { name: 'سلطة يونانية' }, gross_profit: 4.00, profit_margin_pct: 22.0, total_sales_count: 18, recommendation: 'حذف أو تغيير كامل للمكونات' },
+    { menu_item: { name: 'مشروب غازي' }, gross_profit: 1.50, profit_margin_pct: 15.0, total_sales_count: 12, recommendation: 'استبدله بمشروب بربح أعلى' }
+  ]
+};
+
 async function loadMatrix() {
   const res = await fetch(`/api/menu-engineering?user_id=${currentUser.id}`);
   const json = await res.json();
@@ -397,7 +417,16 @@ async function loadMatrix() {
     document.getElementById('matrixContainer').innerHTML = '<div class="error">' + json.error + '</div>';
     return;
   }
-  const data = json.data;
+  let data = json.data;
+  // If no data, show demo
+  const hasAny = (data.star?.length||0) + (data.engines?.length||0) + (data.treasures?.length||0) + (data.stalled?.length||0);
+  if (!hasAny) {
+    data = {
+      star: DEMO_ITEMS.star, engines: DEMO_ITEMS.engine,
+      treasures: DEMO_ITEMS.treasure, stalled: DEMO_ITEMS.stalled,
+      summary: { total_items: 8, avg_margin: '38.25', total_profit: '128.00' }
+    };
+  }
   const cats = {
     star: { icon: '⭐', title: 'النجوم', desc: 'ربح عالٍ + مبيعات عالية' },
     engine: { icon: '🚀', title: 'المحرك', desc: 'مبيعات عالية + ربح محدود' },
@@ -418,7 +447,8 @@ async function loadMatrix() {
     html += '</div></div>';
   }
   html += '</div>';
-  html += `<div style="text-align:center;color:var(--text-muted);margin-bottom:var(--space-12);">📊 إجمالي: <strong style="color:var(--gold);">${data.summary.total_items}</strong> | متوسط الهامش: <strong style="color:var(--gold);">${data.summary.avg_margin}%</strong> | إجمالي الربح: <strong style="color:var(--gold);">${data.summary.total_profit} ر.س</strong></div>`;
+  const isDemo = !hasAny;
+  html += `<div style="text-align:center;color:var(--text-muted);margin-bottom:var(--space-12);">📊 إجمالي: <strong style="color:var(--gold);">${data.summary.total_items}</strong> | متوسط الهامش: <strong style="color:var(--gold);">${data.summary.avg_margin}%</strong> | إجمالي الربح: <strong style="color:var(--gold);">${data.summary.total_profit} ر.س</strong>${isDemo ? ' <span style="color:var(--primary);font-size:0.8rem;">(بيانات تجريبية — أدخل مبيعاتك الحقيقية)</span>' : ''}</div>`;
   document.getElementById('matrixContainer').innerHTML = html;
 }
 
