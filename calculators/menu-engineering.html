@@ -9,6 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../supabase-client.js"></script>
   <script src="../auth-guard.js"></script>
+  <script src="country-platforms-data.js"></script>
   <link rel="stylesheet" href="../styles.css" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <style>
@@ -79,14 +80,16 @@
       <!-- Platforms Tab -->
       <div id="tab-platforms" class="tab-content active">
         <div class="form-row">
-          <div class="form-group"><label>رمز المنصة</label><input id="pCode" placeholder="jahez" /></div>
-          <div class="form-group"><label>اسم المنصة</label><input id="pName" placeholder="جاهز" /></div>
+          <div class="form-group"><label>الدولة</label><select id="pCountry" onchange="loadCountryPlatforms()"><option value="">اختر الدولة...</option></select></div>
+          <div class="form-group"><label>التطبيق</label><select id="pPlatformSelect" onchange="fillPlatformData()"><option value="">اختر التطبيق...</option></select></div>
+          <div class="form-group"><label>رمز التطبيق</label><input id="pCode" placeholder="jahez" /></div>
+          <div class="form-group"><label>اسم التطبيق</label><input id="pName" placeholder="جاهز" /></div>
           <div class="form-group"><label>العمولة (%)</label><input id="pCommission" type="number" value="25" /></div>
           <div class="form-group"><label>رسوم الخدمة (%)</label><input id="pService" type="number" value="2" /></div>
           <div class="form-group"><label>بوابة الدفع (%)</label><input id="pGateway" type="number" value="1.75" /></div>
           <div class="form-group"><label>رسوم التوصيل (ر.س)</label><input id="pDelivery" type="number" value="0" /></div>
         </div>
-        <button class="btn-primary" onclick="addPlatform()">➕ إضافة منصة</button>
+        <button class="btn-primary" onclick="addPlatform()">➕ إضافة تطبيق</button>
         <div id="pList" class="list-box"></div>
       </div>
 
@@ -184,11 +187,47 @@ async function init() {
       return;
     }
     sb = window.BondsAuth.getSupabase();
+    populateCountries();
     await loadAllData();
     await loadMatrix();
   } catch (e) {
     document.getElementById('matrixContainer').innerHTML = '<div class="error">' + e.message + '</div>';
   }
+}
+
+function populateCountries() {
+  const sel = document.getElementById('pCountry');
+  if (!sel || typeof COUNTRIES_DATA === 'undefined') return;
+  const countries = Object.entries(COUNTRIES_DATA).sort((a, b) => a[1].name.localeCompare(b[1].name, 'ar'));
+  sel.innerHTML = '<option value="">اختر الدولة...</option>' +
+    countries.map(([code, c]) => `<option value="${code}">${c.flag} ${c.name}</option>`).join('');
+}
+
+function loadCountryPlatforms() {
+  const countryCode = document.getElementById('pCountry').value;
+  const sel = document.getElementById('pPlatformSelect');
+  if (!countryCode || typeof COUNTRIES_DATA === 'undefined') {
+    sel.innerHTML = '<option value="">اختر التطبيق...</option>';
+    return;
+  }
+  const country = COUNTRIES_DATA[countryCode];
+  const platforms = country.platforms || [];
+  sel.innerHTML = '<option value="">اختر التطبيق...</option>' +
+    platforms.map((p, idx) => `<option value="${idx}">${p.name} (${p.fee}%)</option>`).join('');
+}
+
+function fillPlatformData() {
+  const countryCode = document.getElementById('pCountry').value;
+  const idx = document.getElementById('pPlatformSelect').value;
+  if (!countryCode || idx === '' || typeof COUNTRIES_DATA === 'undefined') return;
+  const p = COUNTRIES_DATA[countryCode].platforms[idx];
+  if (!p) return;
+  document.getElementById('pCode').value = p.id || '';
+  document.getElementById('pName').value = p.name || '';
+  document.getElementById('pCommission').value = p.fee || 0;
+  document.getElementById('pService').value = p.serviceFee || 0;
+  document.getElementById('pGateway').value = p.paymentGatewayFee || 0;
+  document.getElementById('pDelivery').value = p.setupFee || 0;
 }
 
 function switchTab(id) {
