@@ -75,6 +75,7 @@
         <div class="tab active" onclick="switchTab('platforms')">المنصات</div>
         <div class="tab" onclick="switchTab('ingredients')">المكونات</div>
         <div class="tab" onclick="switchTab('menu')">المنيو</div>
+        <div class="tab" onclick="switchTab('costs')">تكاليف الوجبات</div>
         <div class="tab" onclick="switchTab('sales')">المبيعات</div>
       </div>
 
@@ -122,6 +123,18 @@
         </div>
         <button class="btn-primary" onclick="addMenuItem()">➕ إضافة وجبة</button>
         <div id="mList" class="list-box"></div>
+      </div>
+
+      <!-- Menu Item Ingredients Tab -->
+      <div id="tab-costs" class="tab-content">
+        <div class="form-row">
+          <div class="form-group"><label>الوجبة</label><select id="cMenuItem"><option value="">اختر...</option></select></div>
+          <div class="form-group"><label>المكون</label><select id="cIngredient"><option value="">اختر...</option></select></div>
+          <div class="form-group"><label>الكمية المطلوبة</label><input id="cQty" type="number" step="0.01" placeholder="0.15" /></div>
+          <div class="form-group"><label>الوحدة</label><input id="cUnit" type="text" placeholder="kg أو g أو piece" /></div>
+        </div>
+        <button class="btn-primary" onclick="addMenuItemIngredient()">➕ ربط مكون بالوجبة</button>
+        <div id="cList" class="list-box"></div>
       </div>
 
       <!-- Sales Tab -->
@@ -177,6 +190,7 @@ let sb = null;
 let platforms = [];
 let ingredients = [];
 let menuItems = [];
+let menuItemIngredients = [];
 
 async function init() {
   try {
@@ -283,6 +297,7 @@ async function loadAllData() {
     renderMenuItems();
 
     updateDropdowns();
+    await renderMenuItemIngredients();
     await renderSales();
   } catch (e) {
     console.error('loadAllData error:', e);
@@ -367,6 +382,46 @@ function renderMenuItems() {
   el.innerHTML = menuItems.map(m => `<div class="row"><span>${m.name} — ${m.base_price} ر.س</span></div>`).join('') || '<div class="row">لا توجد وجبات</div>';
 }
 
+// Menu Item Ingredients
+async function addMenuItemIngredient() {
+  try {
+    const menuItemId = document.getElementById('cMenuItem').value;
+    const ingredientId = document.getElementById('cIngredient').value;
+    const qty = parseFloat(document.getElementById('cQty').value) || 0;
+    const unit = document.getElementById('cUnit').value.trim() || 'g';
+    if (!menuItemId || !ingredientId) return alert('اختر الوجبة والمكون');
+    if (qty <= 0) return alert('أدخل كمية أكبر من صفر');
+
+    const { error } = await sb.from('menu_item_ingredients').insert({
+      menu_item_id: menuItemId, ingredient_id: ingredientId, quantity_needed: qty, unit
+    });
+    if (error) { console.error('addMenuItemIngredient error:', error); return alert('خطأ: ' + (error.message || JSON.stringify(error))); }
+    await renderMenuItemIngredients();
+  } catch (e) {
+    console.error('addMenuItemIngredient catch:', e);
+    alert('خطأ غير متوقع: ' + e.message);
+  }
+}
+
+async function renderMenuItemIngredients() {
+  try {
+    let query = sb.from('menu_item_ingredients')
+      .select('*, menu_item:menu_item_id(name), ingredient:ingredient_id(name, current_price)');
+    if (menuItems.length > 0) {
+      query = query.in('menu_item_id', menuItems.map(m => m.id));
+    }
+    const { data } = await query;
+    menuItemIngredients = data || [];
+    const el = document.getElementById('cList');
+    el.innerHTML = (data || []).map(r => {
+      const cost = (r.quantity_needed * (r.ingredient?.current_price || 0)).toFixed(2);
+      return `<div class="row"><span>${r.menu_item?.name || '—'} ← ${r.ingredient?.name || '—'} × ${r.quantity_needed} ${r.unit} = ${cost} ر.س</span></div>`;
+    }).join('') || '<div class="row">لا توجد مكونات مربوطة</div>';
+  } catch (e) {
+    console.error('renderMenuItemIngredients error:', e);
+  }
+}
+
 // Sales
 async function addSale() {
   try {
@@ -402,8 +457,9 @@ async function renderSales() {
 function updateDropdowns() {
   const itemSel = document.getElementById('sMenuItem');
   const simItem = document.getElementById('simItem');
-  [itemSel, simItem].forEach(sel => {
-    sel.innerHTML = '<option value="">اختر...</option>' + menuItems.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  const cMenuItem = document.getElementById('cMenuItem');
+  [itemSel, simItem, cMenuItem].forEach(sel => {
+    if (sel) sel.innerHTML = '<option value="">اختر...</option>' + menuItems.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
   });
 
   const platSel = document.getElementById('sPlatform');
@@ -415,6 +471,9 @@ function updateDropdowns() {
 
   const omniItem = document.getElementById('omniItem');
   if (omniItem) omniItem.innerHTML = '<option value="">اختر...</option>' + menuItems.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+
+  const cIngredient = document.getElementById('cIngredient');
+  if (cIngredient) cIngredient.innerHTML = '<option value="">اختر...</option>' + ingredients.map(i => `<option value="${i.id}">${i.name} (${i.current_price} ر.س/${i.unit})</option>`).join('');
 }
 
 // Matrix
