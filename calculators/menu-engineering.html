@@ -187,9 +187,9 @@ async function init() {
       return;
     }
     sb = window.BondsAuth.getSupabase();
-    populateCountries();
     await loadAllData();
     await loadMatrix();
+    setTimeout(populateCountries, 500);
   } catch (e) {
     document.getElementById('matrixContainer').innerHTML = '<div class="error">' + e.message + '</div>';
   }
@@ -197,10 +197,18 @@ async function init() {
 
 function populateCountries() {
   const sel = document.getElementById('pCountry');
-  if (!sel || typeof COUNTRIES_DATA === 'undefined') return;
-  const countries = Object.entries(COUNTRIES_DATA).sort((a, b) => a[1].name.localeCompare(b[1].name, 'ar'));
-  sel.innerHTML = '<option value="">اختر الدولة...</option>' +
-    countries.map(([code, c]) => `<option value="${code}">${c.flag} ${c.name}</option>`).join('');
+  if (!sel) return;
+  if (typeof COUNTRIES_DATA === 'undefined') {
+    setTimeout(populateCountries, 300);
+    return;
+  }
+  try {
+    const countries = Object.entries(COUNTRIES_DATA).sort((a, b) => a[1].name.localeCompare(b[1].name, 'ar'));
+    sel.innerHTML = '<option value="">اختر الدولة...</option>' +
+      countries.map(([code, c]) => `<option value="${code}">${c.flag} ${c.name}</option>`).join('');
+  } catch (e) {
+    console.error('populateCountries error:', e);
+  }
 }
 
 function loadCountryPlatforms() {
