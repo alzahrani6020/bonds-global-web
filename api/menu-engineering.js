@@ -36,10 +36,10 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-      // 1. Aggregate sales by menu_item + platform
+      // 1. Aggregate sales by menu_item
       const { data: salesAgg, error: sErr } = await supabase
         .from('sales_transactions')
-        .select('menu_item_id, platform_id, quantity, unit_price, commission_deduction, net_revenue')
+        .select('menu_item_id, quantity, unit_price, net_revenue')
         .eq('user_id', user_id);
 
       if (sErr) throw sErr;
@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
       const byItem = {};
       for (const s of (salesAgg || [])) {
         const key = s.menu_item_id;
-        if (!byItem[key]) byItem[key] = { total_sales: 0, total_revenue: 0, total_net: 0, platform_id: s.platform_id };
+        if (!byItem[key]) byItem[key] = { total_sales: 0, total_revenue: 0, total_net: 0 };
         byItem[key].total_sales += s.quantity;
         byItem[key].total_revenue += (s.quantity * s.unit_price);
         byItem[key].total_net += (s.net_revenue || s.quantity * s.unit_price);
@@ -62,27 +62,43 @@ module.exports = async function handler(req, res) {
         for (const m of (menuData || [])) menuMap[m.id] = m;
       }
 
-      // 3. Build scores
+      // 3. Fetch real costs from ingredients
+      let costMap = {};
+      if (menuItemIds.length > 0) {
+        const { data: costData } = await supabase
+          .from('menu_item_ingredients')
+          .select('menu_item_id, cost_share')
+          .in('menu_item_id', menuItemIds);
+        for (const c of (costData || [])) {
+          if (!costMap[c.menu_item_id]) costMap[c.menu_item_id] = 0;
+          costMap[c.menu_item_id] += (c.cost_share || 0);
+        }
+      }
+
+      // 4. Build scores with REAL costs
       const scores = [];
       for (const [mid, agg] of Object.entries(byItem)) {
         const menu = menuMap[mid] || {};
         const revenue = agg.total_revenue;
-        const cost = revenue * 0.4; // approximate 40% COGS if no ingredients linked
-        const profit = revenue - cost;
+        const netRevenue = agg.total_net;
+        const costPerUnit = costMap[mid] || (revenue * 0.35); // fallback 35% if no ingredients
+        const totalCost = costPerUnit * agg.total_sales;
+        const profit = netRevenue - totalCost;
         const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
         scores.push({
           menu_item_id: mid,
-          platform_id: agg.platform_id,
           menu_item: menu,
           total_sales_count: agg.total_sales,
           total_revenue: revenue,
-          total_cost: cost,
+          total_net_revenue: netRevenue,
+          total_cost: totalCost,
           gross_profit: profit,
-          profit_margin_pct: margin
+          profit_margin_pct: margin,
+          cost_per_unit: costPerUnit
         });
       }
 
-      // 4. Classify
+      // 5. Classify
       const avgSales = scores.length ? scores.reduce((s, i) => s + i.total_sales_count, 0) / scores.length : 0;
       const avgProfit = scores.length ? scores.reduce((s, i) => s + i.gross_profit, 0) / scores.length : 0;
 
@@ -102,7 +118,12 @@ module.exports = async function handler(req, res) {
         }
       }
 
-      // 5. Build matrix
+      // 6. Build matrix with enhanced stats
+      const totalRevenue = scores.reduce((s, i) => s + i.total_revenue, 0);
+      const totalNet = scores.reduce((s, i) => s + i.total_net_revenue, 0);
+      const totalCost = scores.reduce((s, i) => s + i.total_cost, 0);
+      const totalProfit = scores.reduce((s, i) => s + i.gross_profit, 0);
+
       const matrix = {
         stars: scores.filter(i => i.category === 'star'),
         engines: scores.filter(i => i.category === 'engine'),
@@ -111,8 +132,12 @@ module.exports = async function handler(req, res) {
         unclassified: [],
         summary: {
           total_items: scores.length,
+          total_revenue: totalRevenue.toFixed(2),
+          total_net_revenue: totalNet.toFixed(2),
+          total_cost: totalCost.toFixed(2),
+          total_profit: totalProfit.toFixed(2),
           avg_margin: scores.length ? (scores.reduce((s, i) => s + i.profit_margin_pct, 0) / scores.length).toFixed(2) : 0,
-          total_profit: scores.reduce((s, i) => s + i.gross_profit, 0).toFixed(2)
+          platform_fees: (totalRevenue - totalNet).toFixed(2)
         }
       };
 

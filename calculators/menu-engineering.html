@@ -477,23 +477,23 @@ function updateDropdowns() {
 }
 
 // Matrix
-// Demo data shown when user has no data
+// Demo data shown when user has no data — realistic numbers
 const DEMO_ITEMS = {
   star: [
-    { menu_item: { name: 'برجر كلاسيك' }, gross_profit: 18.50, profit_margin_pct: 42.0, total_sales_count: 320, recommendation: 'حافظ عليه — نجم المطعم' },
-    { menu_item: { name: 'شاورما لحم' }, gross_profit: 14.00, profit_margin_pct: 38.5, total_sales_count: 275, recommendation: 'روّج له في المنيو الرئيسي' }
+    { menu_item: { name: 'برجر كلاسيك' }, gross_profit: 18.50, profit_margin_pct: 42.0, total_sales_count: 320, total_revenue: 14080, total_cost: 8160, recommendation: 'حافظ عليه — نجم المطعم' },
+    { menu_item: { name: 'شاورما لحم' }, gross_profit: 14.00, profit_margin_pct: 38.5, total_sales_count: 275, total_revenue: 10010, total_cost: 6160, recommendation: 'روّج له في المنيو الرئيسي' }
   ],
   engine: [
-    { menu_item: { name: 'كريب دجاج' }, gross_profit: 5.20, profit_margin_pct: 18.0, total_sales_count: 210, recommendation: 'ارفع السعر 10% أو قلل الحجم قليلاً' },
-    { menu_item: { name: 'بطاطس مقلية' }, gross_profit: 2.80, profit_margin_pct: 35.0, total_sales_count: 450, recommendation: 'بِعه كـ add-on مع البرجر' }
+    { menu_item: { name: 'كريب دجاج' }, gross_profit: 3.50, profit_margin_pct: 14.0, total_sales_count: 210, total_revenue: 5250, total_cost: 4410, recommendation: 'ارفع السعر 10% أو قلل الحجم قليلاً' },
+    { menu_item: { name: 'بطاطس مقلية' }, gross_profit: 1.20, profit_margin_pct: 15.0, total_sales_count: 450, total_revenue: 3600, total_cost: 3060, recommendation: 'بِعه كـ add-on مع البرجر' }
   ],
   treasure: [
-    { menu_item: { name: 'ستيك مشوي' }, gross_profit: 45.00, profit_margin_pct: 55.0, total_sales_count: 45, recommendation: 'صوّره واعرضه في المنيو المميز' },
-    { menu_item: { name: 'سلمون مشوي' }, gross_profit: 38.00, profit_margin_pct: 50.0, total_sales_count: 32, recommendation: 'أضف combo مع مشروب لتعزيز المبيعات' }
+    { menu_item: { name: 'ستيك مشوي' }, gross_profit: 45.00, profit_margin_pct: 55.0, total_sales_count: 45, total_revenue: 3680, total_cost: 1656, recommendation: 'صوّره واعرضه في المنيو المميز' },
+    { menu_item: { name: 'سلمون مشوي' }, gross_profit: 38.00, profit_margin_pct: 50.0, total_sales_count: 32, total_revenue: 2432, total_cost: 1216, recommendation: 'أضف combo مع مشروب لتعزيز المبيعات' }
   ],
   stalled: [
-    { menu_item: { name: 'سلطة يونانية' }, gross_profit: 4.00, profit_margin_pct: 22.0, total_sales_count: 18, recommendation: 'حذف أو تغيير كامل للمكونات' },
-    { menu_item: { name: 'مشروب غازي' }, gross_profit: 1.50, profit_margin_pct: 15.0, total_sales_count: 12, recommendation: 'استبدله بمشروب بربح أعلى' }
+    { menu_item: { name: 'سلطة يونانية' }, gross_profit: 1.50, profit_margin_pct: 8.0, total_sales_count: 18, total_revenue: 396, total_cost: 363, recommendation: 'حذف أو تغيير كامل للمكونات' },
+    { menu_item: { name: 'مشروب غازي' }, gross_profit: 0.50, profit_margin_pct: 5.0, total_sales_count: 12, total_revenue: 120, total_cost: 114, recommendation: 'استبدله بمشروب بربح أعلى' }
   ]
 };
 
@@ -529,13 +529,34 @@ async function loadMatrix() {
     else items.forEach(item => {
       const profit = item.gross_profit || 0;
       const margin = item.profit_margin_pct || 0;
-      html += `<div class="me-item"><div class="name">${item.menu_item?.name || '—'}</div><div class="meta"><span>💰 ${profit.toFixed(0)} ر.س</span><span>📈 ${margin.toFixed(1)}%</span><span>🛒 ${item.total_sales_count || 0}</span></div>${item.recommendation ? `<div class="badge ${margin >= 0 ? 'badge-profit' : 'badge-loss'}">${item.recommendation}</div>` : ''}</div>`;
+      const revenue = item.total_revenue || 0;
+      const cost = item.total_cost || 0;
+      const sales = item.total_sales_count || 0;
+      const marginClass = margin >= 40 ? 'high' : margin >= 20 ? 'mid' : margin >= 0 ? 'low' : 'loss';
+      html += `<div class="me-item" style="border-left:4px solid var(--${key === 'star' ? 'gold' : key === 'engine' ? 'primary' : key === 'treasure' ? 'success' : 'danger'});padding-left:var(--space-3);">`;
+      html += `<div class="name" style="font-weight:700;font-size:1rem;margin-bottom:var(--space-1);">${item.menu_item?.name || '—'}</div>`;
+      html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-1);font-size:0.8rem;color:var(--text-secondary);margin-bottom:var(--space-2);">`;
+      html += `<span>💰 إيراد: ${revenue.toFixed(0)} ر.س</span><span>📉 تكلفة: ${cost.toFixed(0)} ر.س</span>`;
+      html += `<span>🛒 مبيعات: ${sales}</span><span>📈 هامش: <strong style="color:${margin >= 40 ? '#22c55e' : margin >= 20 ? '#f59e0b' : '#ef4444'};">${margin.toFixed(1)}%</strong></span>`;
+      html += `</div>`;
+      html += `<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:var(--space-1);">ربح صافي: <strong style="color:${profit >= 0 ? '#22c55e' : '#ef4444'};">${profit.toFixed(2)} ر.س</strong></div>`;
+      html += `${item.recommendation ? `<div class="badge badge-${marginClass}">${item.recommendation}</div>` : ''}</div>`;
     });
     html += '</div></div>';
   }
   html += '</div>';
   const isDemo = !hasAny;
-  html += `<div style="text-align:center;color:var(--text-muted);margin-bottom:var(--space-12);">📊 إجمالي: <strong style="color:var(--gold);">${data.summary.total_items}</strong> | متوسط الهامش: <strong style="color:var(--gold);">${data.summary.avg_margin}%</strong> | إجمالي الربح: <strong style="color:var(--gold);">${data.summary.total_profit} ر.س</strong>${isDemo ? ' <span style="color:var(--primary);font-size:0.8rem;">(بيانات تجريبية — أدخل مبيعاتك الحقيقية)</span>' : ''}</div>`;
+  const s = data.summary || {};
+  // Summary dashboard
+  html += `<div class="me-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--space-4);margin:var(--space-8) 0;">`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📦 منتجات</div><div style="font-size:1.4rem;font-weight:700;color:var(--gold);">${s.total_items || 0}</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">💰 إيرادات</div><div style="font-size:1.4rem;font-weight:700;color:#22c55e;">${Number(s.total_revenue || 0).toFixed(0)} ر.س</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📉 تكاليف</div><div style="font-size:1.4rem;font-weight:700;color:#ef4444;">${Number(s.total_cost || 0).toFixed(0)} ر.س</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">🏦 عمولات</div><div style="font-size:1.4rem;font-weight:700;color:#f59e0b;">${Number(s.platform_fees || 0).toFixed(0)} ر.س</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📈 ربح صافي</div><div style="font-size:1.4rem;font-weight:700;color:var(--gold);">${Number(s.total_profit || 0).toFixed(0)} ر.س</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📊 متوسط الهامش</div><div style="font-size:1.4rem;font-weight:700;color:var(--primary);">${s.avg_margin || 0}%</div></div>`;
+  html += `</div>`;
+  if (isDemo) html += '<div style="text-align:center;color:var(--primary);font-size:0.85rem;margin-bottom:var(--space-6);">🎮 بيانات تجريبية — أدخل مبيعاتك الحقيقية لترى نتائجك</div>';
   document.getElementById('matrixContainer').innerHTML = html;
 }
 
