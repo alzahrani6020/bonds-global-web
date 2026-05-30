@@ -78,11 +78,7 @@ CREATE TABLE IF NOT EXISTS menu_item_ingredients (
     ingredient_id UUID NOT NULL REFERENCES ingredients(id) ON DELETE CASCADE,
     quantity_needed DECIMAL(10, 4) NOT NULL DEFAULT 1, -- الكمية المطلوبة للوجبة الواحدة
     unit TEXT NOT NULL DEFAULT 'g',
-    cost_share DECIMAL(12, 4) GENERATED ALWAYS AS (
-        quantity_needed * (
-            SELECT cost_per_unit FROM ingredients WHERE id = ingredient_id
-        )
-    ) STORED,
+    cost_share DECIMAL(12, 4) DEFAULT 0,
     UNIQUE(menu_item_id, ingredient_id)
 );
 
@@ -229,15 +225,15 @@ BEGIN
     UPDATE menu_engineering_scores
     SET category = CASE
         WHEN total_sales_count >= avg_popularity AND gross_profit >= avg_profit THEN 'star'
-        WHEN total_sales_count >= avg_popularity AND gross_profit < avg_profit THEN 'plowhorse'
-        WHEN total_sales_count < avg_popularity AND gross_profit >= avg_profit THEN 'puzzle'
-        ELSE 'dog'
+        WHEN total_sales_count >= avg_popularity AND gross_profit < avg_profit THEN 'engine'
+        WHEN total_sales_count < avg_popularity AND gross_profit >= avg_profit THEN 'treasure'
+        ELSE 'stalled'
     END,
     recommendation = CASE
         WHEN total_sales_count >= avg_popularity AND gross_profit >= avg_profit THEN 'حافظ عليها ودعمها تسويقياً'
         WHEN total_sales_count >= avg_popularity AND gross_profit < avg_profit THEN 'قلل الكميات أو ارفع السعر 5%'
         WHEN total_sales_count < avg_popularity AND gross_profit >= avg_profit THEN 'أعد تسميتها أو روج لها في التطبيقات'
-        ELSE 'حذفها فوراً من المنيو'
+        ELSE 'حذفها أو طورها فوراً'
     END,
     calculated_at = NOW()
     WHERE user_id = p_user_id;
