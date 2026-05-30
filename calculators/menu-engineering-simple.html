@@ -154,31 +154,37 @@ function show(id){
   if(id==='matrix') renderMatrix();
 }
 
+function uid(){ return Date.now()+Math.random().toString(36).slice(2); }
 function addPlatform(){
   const n=document.getElementById('pn').value.trim();
   if(!n) return alert('أدخل اسم');
-  platforms.push({id:Date.now(),name:n,comm:+document.getElementById('pc').value||0,serv:+document.getElementById('ps').value||0,gate:+document.getElementById('pg').value||0});
+  if(platforms.some(p=>p.name===n)) return alert('هذا التطبيق موجود مسبقاً');
+  platforms.push({id:uid(),name:n,comm:+document.getElementById('pc').value||0,serv:+document.getElementById('ps').value||0,gate:+document.getElementById('pg').value||0});
   document.getElementById('pn').value='';
   save(); renderAll();
 }
 function addIngredient(){
   const n=document.getElementById('in').value.trim();
   if(!n) return alert('أدخل اسم');
-  ingredients.push({id:Date.now(),name:n,unit:document.getElementById('iu').value||'kg',price:+document.getElementById('ip').value||0});
+  if(ingredients.some(i=>i.name===n)) return alert('هذا المكون موجود مسبقاً');
+  ingredients.push({id:uid(),name:n,unit:document.getElementById('iu').value||'kg',price:+document.getElementById('ip').value||0});
   document.getElementById('in').value=''; document.getElementById('iu').value=''; document.getElementById('ip').value='';
   save(); renderAll();
 }
 function addMenuItem(){
   const n=document.getElementById('mn').value.trim();
   if(!n) return alert('أدخل اسم');
-  menuItems.push({id:Date.now(),name:n,price:+document.getElementById('mp').value||0});
+  if(menuItems.some(m=>m.name===n)) return alert('هذه الوجبة موجودة مسبقاً');
+  menuItems.push({id:uid(),name:n,price:+document.getElementById('mp').value||0});
   document.getElementById('mn').value=''; document.getElementById('mp').value='';
   save(); renderAll();
 }
 function addLink(){
   const m=+document.getElementById('mc').value, i=+document.getElementById('mi').value, q=+document.getElementById('mq').value;
   if(!m||!i||!q) return alert('اختر الكل');
-  links.push({id:Date.now(),menuId:m,ingId:i,qty:q});
+  if(q>10) return alert('الكمية كبيرة جداً! هل تقصد '+q/1000+'؟ الكمية = المطلوب للوجبة الواحدة فقط (مثال: 0.3 كجم رز)');
+  if(links.some(l=>l.menuId===m&&l.ingId===i)) return alert('هذا المكون مربوط مسبقاً بهذه الوجبة');
+  links.push({id:uid(),menuId:m,ingId:i,qty:q});
   document.getElementById('mq').value='';
   save(); renderAll();
 }
@@ -186,7 +192,7 @@ function addSale(){
   const m=+document.getElementById('sm').value, p=+document.getElementById('sp').value, q=+document.getElementById('sq').value;
   if(!m||!p||!q) return alert('اختر الكل');
   const item=menuItems.find(x=>x.id===m);
-  sales.push({id:Date.now(),menuId:m,platId:p,qty:q,unitPrice:item?item.price:0,date:new Date().toISOString()});
+  sales.push({id:uid(),menuId:m,platId:p,qty:q,unitPrice:item?item.price:0,date:new Date().toISOString()});
   document.getElementById('sq').value='1';
   save(); renderAll(); renderMatrix();
 }
