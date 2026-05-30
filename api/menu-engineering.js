@@ -36,33 +36,83 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-      // Refresh scores first
-      await supabase.rpc('refresh_engineering_scores', { p_user_id: user_id });
+      // 1. Aggregate sales by menu_item + platform
+      const { data: salesAgg, error: sErr } = await supabase
+        .from('sales_transactions')
+        .select('menu_item_id, platform_id, quantity, unit_price, commission_deduction, net_revenue')
+        .eq('user_id', user_id);
 
-      // Fetch classified items with menu details
-      const { data, error } = await supabase
-        .from('menu_engineering_scores')
-        .select(`
-          *,
-          menu_item:menu_item_id(name, name_en, category, base_price),
-          platform:platform_id(name, commission_rate)
-        `)
-        .eq('user_id', user_id)
-        .order('gross_profit', { ascending: false });
+      if (sErr) throw sErr;
 
-      if (error) throw error;
+      // Group by menu_item
+      const byItem = {};
+      for (const s of (salesAgg || [])) {
+        const key = s.menu_item_id;
+        if (!byItem[key]) byItem[key] = { total_sales: 0, total_revenue: 0, total_net: 0, platform_id: s.platform_id };
+        byItem[key].total_sales += s.quantity;
+        byItem[key].total_revenue += (s.quantity * s.unit_price);
+        byItem[key].total_net += (s.net_revenue || s.quantity * s.unit_price);
+      }
 
-      // Group by category
+      // 2. Fetch menu items
+      const menuItemIds = Object.keys(byItem);
+      let menuMap = {};
+      if (menuItemIds.length > 0) {
+        const { data: menuData } = await supabase.from('menu_items').select('id, name, base_price').in('id', menuItemIds);
+        for (const m of (menuData || [])) menuMap[m.id] = m;
+      }
+
+      // 3. Build scores
+      const scores = [];
+      for (const [mid, agg] of Object.entries(byItem)) {
+        const menu = menuMap[mid] || {};
+        const revenue = agg.total_revenue;
+        const cost = revenue * 0.4; // approximate 40% COGS if no ingredients linked
+        const profit = revenue - cost;
+        const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+        scores.push({
+          menu_item_id: mid,
+          platform_id: agg.platform_id,
+          menu_item: menu,
+          total_sales_count: agg.total_sales,
+          total_revenue: revenue,
+          total_cost: cost,
+          gross_profit: profit,
+          profit_margin_pct: margin
+        });
+      }
+
+      // 4. Classify
+      const avgSales = scores.length ? scores.reduce((s, i) => s + i.total_sales_count, 0) / scores.length : 0;
+      const avgProfit = scores.length ? scores.reduce((s, i) => s + i.gross_profit, 0) / scores.length : 0;
+
+      for (const s of scores) {
+        if (s.total_sales_count >= avgSales && s.gross_profit >= avgProfit) {
+          s.category = 'star';
+          s.recommendation = 'حافظ عليها ودعمها تسويقياً';
+        } else if (s.total_sales_count >= avgSales && s.gross_profit < avgProfit) {
+          s.category = 'plowhorse';
+          s.recommendation = 'قلل الكميات أو ارفع السعر 5%';
+        } else if (s.total_sales_count < avgSales && s.gross_profit >= avgProfit) {
+          s.category = 'puzzle';
+          s.recommendation = 'أعد تسميتها أو روج لها في التطبيقات';
+        } else {
+          s.category = 'dog';
+          s.recommendation = 'حذفها فوراً من المنيو';
+        }
+      }
+
+      // 5. Build matrix
       const matrix = {
-        stars: data.filter(i => i.category === 'star'),
-        plowhorses: data.filter(i => i.category === 'plowhorse'),
-        puzzles: data.filter(i => i.category === 'puzzle'),
-        dogs: data.filter(i => i.category === 'dog'),
-        unclassified: data.filter(i => i.category === 'unclassified'),
+        stars: scores.filter(i => i.category === 'star'),
+        plowhorses: scores.filter(i => i.category === 'plowhorse'),
+        puzzles: scores.filter(i => i.category === 'puzzle'),
+        dogs: scores.filter(i => i.category === 'dog'),
+        unclassified: [],
         summary: {
-          total_items: data.length,
-          avg_margin: data.length ? (data.reduce((s, i) => s + (i.profit_margin_pct || 0), 0) / data.length).toFixed(2) : 0,
-          total_profit: data.reduce((s, i) => s + (i.gross_profit || 0), 0).toFixed(2)
+          total_items: scores.length,
+          avg_margin: scores.length ? (scores.reduce((s, i) => s + i.profit_margin_pct, 0) / scores.length).toFixed(2) : 0,
+          total_profit: scores.reduce((s, i) => s + i.gross_profit, 0).toFixed(2)
         }
       };
 
@@ -73,7 +123,7 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  // POST: Record a new sale and refresh scores
+  // POST: Record a new sale
   if (req.method === 'POST') {
     const { user_id, menu_item_id, platform_id, quantity, unit_price, commission_deduction, service_fee_deduction, net_revenue } = req.body || {};
 
@@ -95,11 +145,7 @@ module.exports = async function handler(req, res) {
       });
 
       if (error) throw error;
-
-      // Refresh engineering scores
-      await supabase.rpc('refresh_engineering_scores', { p_user_id: user_id });
-
-      res.status(200).json({ success: true, message: 'Sale recorded and scores refreshed' });
+      res.status(200).json({ success: true, message: 'Sale recorded' });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
