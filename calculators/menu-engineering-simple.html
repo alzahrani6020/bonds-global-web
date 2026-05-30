@@ -44,11 +44,14 @@
     <h1>🎯 محرك هندسة المنيو</h1>
     <p class="desc">كل البيانات تحفظ في متصفحك — لا يحتاج إنترنت بعد التحميل</p>
 
-    <div class="tabs">
-      <div class="tab active" onclick="show('platforms')">المنصات</div>
-      <div class="tab" onclick="show('ingredients')">المكونات</div>
-      <div class="tab" onclick="show('menu')">المنيو + المبيعات</div>
-      <div class="tab" onclick="show('matrix')">الماتريكس</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem;">
+      <div class="tabs" style="margin-bottom:0;">
+        <div class="tab active" onclick="show('platforms')">المنصات</div>
+        <div class="tab" onclick="show('ingredients')">المكونات</div>
+        <div class="tab" onclick="show('menu')">المنيو + المبيعات</div>
+        <div class="tab" onclick="show('matrix')">الماتريكس</div>
+      </div>
+      <button onclick="clearAll()" style="width:auto;padding:.5rem 1rem;background:#7f1d1d;color:#fecaca;font-size:.85rem;border:1px solid #ef4444;">🗑️ مسح كل البيانات</button>
     </div>
 
     <!-- المنصات -->
@@ -126,6 +129,11 @@ function save(){
   localStorage.setItem('me_menu',JSON.stringify(menuItems));
   localStorage.setItem('me_links',JSON.stringify(links));
   localStorage.setItem('me_sales',JSON.stringify(sales));
+}
+function clearAll(){
+  if(!confirm('هل أنت متأكد؟ سيتم مسح كل البيانات (منصات، مكونات، منيو، مبيعات)')) return;
+  platforms=[]; ingredients=[]; menuItems=[]; links=[]; sales=[];
+  save(); renderAll(); renderMatrix();
 }
 
 // ===== UI =====
