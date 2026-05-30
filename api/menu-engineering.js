@@ -1,7 +1,7 @@
 // ============================================
 // Menu Engineering Matrix API
 // GET /api/menu-engineering?user_id=xxx
-// Returns: Stars, Plowhorses, Puzzles, Burdens (الأعباء)
+// Returns: Stars (النجوم), Engine (المحرك), Treasure (المكنوز), Stalled (المتعثرة)
 // ============================================
 
 const { createClient } = require('@supabase/supabase-js');
@@ -91,23 +91,23 @@ module.exports = async function handler(req, res) {
           s.category = 'star';
           s.recommendation = 'حافظ عليها ودعمها تسويقياً';
         } else if (s.total_sales_count >= avgSales && s.gross_profit < avgProfit) {
-          s.category = 'plowhorse';
+          s.category = 'engine';
           s.recommendation = 'قلل الكميات أو ارفع السعر 5%';
         } else if (s.total_sales_count < avgSales && s.gross_profit >= avgProfit) {
-          s.category = 'puzzle';
+          s.category = 'treasure';
           s.recommendation = 'أعد تسميتها أو روج لها في التطبيقات';
         } else {
-          s.category = 'burden';
-          s.recommendation = 'حذفها فوراً من المنيو';
+          s.category = 'stalled';
+          s.recommendation = 'حذفها أو طورها فوراً';
         }
       }
 
       // 5. Build matrix
       const matrix = {
         stars: scores.filter(i => i.category === 'star'),
-        plowhorses: scores.filter(i => i.category === 'plowhorse'),
-        puzzles: scores.filter(i => i.category === 'puzzle'),
-        burdens: scores.filter(i => i.category === 'burden'),
+        engines: scores.filter(i => i.category === 'engine'),
+        treasures: scores.filter(i => i.category === 'treasure'),
+        stalled: scores.filter(i => i.category === 'stalled'),
         unclassified: [],
         summary: {
           total_items: scores.length,

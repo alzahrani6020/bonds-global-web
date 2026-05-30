@@ -20,9 +20,9 @@
     .me-quadrant { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); position: relative; overflow: hidden; }
     .me-quadrant::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
     .me-quadrant.star::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
-    .me-quadrant.plowhorse::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
-    .me-quadrant.puzzle::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
-    .me-quadrant.burden::before { background: linear-gradient(90deg, #ef4444, #dc2626); }
+    .me-quadrant.engine::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .me-quadrant.treasure::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+    .me-quadrant.stalled::before { background: linear-gradient(90deg, #ef4444, #dc2626); }
     .me-quadrant h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: var(--space-2); display: flex; align-items: center; gap: var(--space-2); }
     .me-quadrant .count { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
     .me-quadrant .items { margin-top: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
@@ -61,7 +61,7 @@
   <div class="me-container">
     <div class="me-header">
       <h1>🎯 محرك هندسة المنيو</h1>
-      <p>صنّف وجباتك بناءً على بيانات المبيعات الفعلية. اعرف النجوم التي تحافظ عليها، والأعباء التي تحذفها.</p>
+      <p>صنّف وجباتك بناءً على بيانات المبيعات الفعلية. اعرف النجوم التي تحافظ عليها، والمحرك الذي يدفع مبيعاتك، والمكنوز الذي تروج له.</p>
     </div>
 
     <div id="authAlert"></div>
@@ -333,12 +333,12 @@ async function loadMatrix() {
   const data = json.data;
   const cats = {
     star: { icon: '⭐', title: 'النجوم', desc: 'ربح عالٍ + مبيعات عالية' },
-    plowhorse: { icon: '🐴', title: 'الحصان الرابح', desc: 'مبيعات عالية + ربح منخفض' },
-    puzzle: { icon: '🧩', title: 'الألغاز', desc: 'ربح عالٍ + مبيعات منخفضة' },
-    burden: { icon: '📉', title: 'الأعباء', desc: 'ربح منخفض + مبيعات منخفضة' }
+    engine: { icon: '🚀', title: 'المحرك', desc: 'مبيعات عالية + ربح محدود' },
+    treasure: { icon: '💎', title: 'المكنوز', desc: 'ربح عالٍ + مبيعات منخفضة' },
+    stalled: { icon: '⚠️', title: 'المتعثرة', desc: 'ربح منخفض + مبيعات منخفضة' }
   };
   let html = '<div class="me-grid">';
-  for (const key of ['star', 'plowhorse', 'puzzle', 'burden']) {
+  for (const key of ['star', 'engine', 'treasure', 'stalled']) {
     const c = cats[key];
     const items = data[key] || [];
     html += `<div class="me-quadrant ${key}"><h3>${c.icon} ${c.title} <span class="count">(${items.length})</span></h3><p style="font-size:0.85rem;color:var(--text-muted);">${c.desc}</p><div class="items">`;
