@@ -1,7 +1,7 @@
 // ============================================
 // Menu Engineering Matrix API
 // GET /api/menu-engineering?user_id=xxx
-// Returns: Stars, Plowhorses, Puzzles, Dogs
+// Returns: Stars, Plowhorses, Puzzles, Burdens (الأعباء)
 // ============================================
 
 const { createClient } = require('@supabase/supabase-js');
@@ -97,7 +97,7 @@ module.exports = async function handler(req, res) {
           s.category = 'puzzle';
           s.recommendation = 'أعد تسميتها أو روج لها في التطبيقات';
         } else {
-          s.category = 'dog';
+          s.category = 'burden';
           s.recommendation = 'حذفها فوراً من المنيو';
         }
       }
@@ -107,7 +107,7 @@ module.exports = async function handler(req, res) {
         stars: scores.filter(i => i.category === 'star'),
         plowhorses: scores.filter(i => i.category === 'plowhorse'),
         puzzles: scores.filter(i => i.category === 'puzzle'),
-        dogs: scores.filter(i => i.category === 'dog'),
+        burdens: scores.filter(i => i.category === 'burden'),
         unclassified: [],
         summary: {
           total_items: scores.length,
