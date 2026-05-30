@@ -68,10 +68,11 @@
 
     <!-- المكونات -->
     <div id="ingredients" class="panel">
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">💡 هنا تضيف موادك الخام وتكلفة شرائها من المورد</p>
       <div class="row2">
         <div><label>اسم المكون</label><input id="in" placeholder="لحم بقر" /></div>
         <div><label>الوحدة</label><input id="iu" placeholder="kg" /></div>
-        <div><label>السعر للوحدة</label><input id="ip" type="number" step="0.01" placeholder="45" /></div>
+        <div><label>سعر الشراء من المورد</label><input id="ip" type="number" step="0.01" placeholder="45" /></div>
       </div>
       <button onclick="addIngredient()">➕ إضافة مكون</button>
       <div class="list" id="ilist"></div>
@@ -79,28 +80,31 @@
 
     <!-- المنيو -->
     <div id="menu" class="panel">
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">💡 هنا تضيف وجباتك و<strong>سعر البيع للعميل</strong></p>
       <h3 style="color:var(--gold);margin-bottom:1rem;">الوجبات</h3>
       <div class="row2">
         <div><label>اسم الوجبة</label><input id="mn" placeholder="برجر كلاسيك" /></div>
-        <div><label>السعر</label><input id="mp" type="number" step="0.01" placeholder="35" /></div>
+        <div><label>سعر البيع للعميل</label><input id="mp" type="number" step="0.01" placeholder="35" /></div>
       </div>
       <button onclick="addMenuItem()">➕ إضافة وجبة</button>
       <div class="list" id="mlist"></div>
 
       <h3 style="color:var(--gold);margin:1.5rem 0 1rem;">ربط المكونات بالوجبة</h3>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">⚠️ الكمية = المطلوب <strong>للوجبة الواحدة</strong> فقط (مثال: 0.3 كجم رز للكبسة الواحدة)</p>
       <div class="row2">
         <div><label>الوجبة</label><select id="mc"></select></div>
         <div><label>المكون</label><select id="mi"></select></div>
-        <div><label>الكمية</label><input id="mq" type="number" step="0.01" placeholder="0.15" /></div>
+        <div><label>الكمية للوجبة الواحدة</label><input id="mq" type="number" step="0.01" placeholder="0.15" /></div>
       </div>
       <button onclick="addLink()">➕ ربط مكون</button>
       <div class="list" id="mlinklist"></div>
 
       <h3 style="color:var(--gold);margin:1.5rem 0 1rem;">تسجيل مبيعة</h3>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">📌 السعر يجي تلقائياً من الوجبة — تسجل بس كم مبيعة صارت</p>
       <div class="row2">
         <div><label>الوجبة</label><select id="sm"></select></div>
         <div><label>التطبيق</label><select id="sp"></select></div>
-        <div><label>الكمية</label><input id="sq" type="number" value="1" /></div>
+        <div><label>عدد المبيعات</label><input id="sq" type="number" value="1" /></div>
       </div>
       <button onclick="addSale()">➕ تسجيل مبيعة</button>
       <div class="list" id="slist"></div>
