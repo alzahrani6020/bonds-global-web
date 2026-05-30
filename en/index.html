@@ -22,13 +22,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script defer src="/_vercel/insights/script.js"></script>
   <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
+  <!-- Google Analytics: replace G-XXXXXXXXXX with your real tracking ID -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script> -->
+  <!-- <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script> -->
   <link rel="stylesheet" href="../styles.css" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
   <link rel="manifest" href="/manifest.json" />
@@ -68,6 +64,21 @@
     "sameAs": [
       "https://wa.me/966567566616"
     ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": "https://bonds-global.com/en/",
+    "name": "Bonds Global Financial Consulting",
+    "alternateName": "بوندز للاستشارات المالية",
+    "inLanguage": ["en", "ar"],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://bonds-global.com/en/faq.html?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
   }
   </script>
 </head>
@@ -116,6 +127,8 @@
               <a href="calculators/cash-flow.html">Cash Flow</a>
               <a href="calculators/pricing.html">Pricing</a>
               <a href="calculators/loan.html">Loan & Financing</a>
+              <a href="calculators/restaurant.html">Restaurant & Cloud</a>
+              <a href="calculators/menu-engineering.html">Menu Engineering</a>
             </div>
           </li>
           <li><a href="blog/index.html">Insights</a></li>
@@ -127,6 +140,7 @@
       <div class="header-actions">
         <a href="../index.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">العربية</a>
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+        <a href="calculators/auth/index.html" style="color:var(--gold);font-weight:600;font-size:0.85rem;padding:0.4rem 0.8rem;border:1px solid var(--gold);border-radius:6px;text-decoration:none;transition:all 0.3s;">Sign In</a>
         <a href="contact.html" class="btn btn-primary hidden-mobile">Book Your Consultation</a>
         <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
           <span></span><span></span><span></span>
@@ -163,20 +177,20 @@
     <div class="container">
       <div class="stats-grid">
         <div class="stat-item reveal">
-          <span class="stat-item__num" data-target="150">0</span>
-          <span class="stat-item__label">Consultations Delivered</span>
+          <span class="stat-item__num" data-target="22">0</span>
+          <span class="stat-item__label">Arab Countries</span>
         </div>
         <div class="stat-item reveal reveal-delay-1">
-          <span class="stat-item__num" data-target="8">0</span>
-          <span class="stat-item__label">Years of Experience</span>
+          <span class="stat-item__num" data-target="179">0</span>
+          <span class="stat-item__label">Delivery Platforms</span>
         </div>
         <div class="stat-item reveal reveal-delay-2">
-          <span class="stat-item__num" data-target="95">0</span>
-          <span class="stat-item__label">% Client Satisfaction</span>
+          <span class="stat-item__num" data-target="6">0</span>
+          <span class="stat-item__label">Free Calculators</span>
         </div>
         <div class="stat-item reveal reveal-delay-3">
-          <span class="stat-item__num" data-target="8">0</span>
-          <span class="stat-item__label">Sectors We Serve</span>
+          <span class="stat-item__num" data-target="150">0</span>
+          <span class="stat-item__label">Consultations Delivered</span>
         </div>
       </div>
     </div>
@@ -455,7 +469,7 @@
             <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">Cash Flow</div>
             <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">Paper Profit &amp; Empty Wallet: Why?</h3>
             <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">70% of small businesses show profits in reports yet suffer from liquidity. The difference between accounting profit and cash profit, and how to protect your company from a sudden payment crisis.</p>
-            <a href="#" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">Read Article &rarr;</a>
+            <a href="blog/en/cash-flow-mistakes.html" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">Read Article &rarr;</a>
           </div>
         </article>
         <article class="card reveal reveal-delay-1" style="padding: 0; overflow: hidden;">
@@ -466,7 +480,7 @@
             <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">Feasibility Studies</div>
             <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">Before Expanding: 5 Questions That Protect Your Capital</h3>
             <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">Rapid expansion is a killer for small businesses. The practical checklist we use with our clients before any investment decision — from market analysis to break-even point.</p>
-            <a href="#" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">Read Article &rarr;</a>
+            <a href="blog/en/break-even-explained.html" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">Read Article &rarr;</a>
           </div>
         </article>
         <article class="card reveal reveal-delay-2" style="padding: 0; overflow: hidden;">
@@ -477,7 +491,7 @@
             <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">Pricing</div>
             <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">How to Price Your Product? A Simple Formula to Protect Your Margin</h3>
             <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">Random pricing silently eats your profits. How to calculate true cost, break-even point, and target profit margin — with a practical example from the Saudi market.</p>
-            <a href="#" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">Read Article &rarr;</a>
+            <a href="blog/en/pricing-strategy.html" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">Read Article &rarr;</a>
           </div>
         </article>
       </div>
@@ -657,7 +671,7 @@
         <span>&copy; <span id="y">2025</span> Bonds Financial Consulting &mdash; All rights reserved.</span>
         <div style="display: flex; gap: var(--space-6);">
           <a href="privacy.html" style="color: var(--text-muted);">Privacy Policy</a>
-          <a href="#" style="color: var(--text-muted);">Disclaimer</a>
+          <a href="faq.html" style="color: var(--text-muted);">FAQ</a>
         </div>
       </div>
     </div>

@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /tools/
+Disallow: /reports/
+Disallow: /calculators/auth/
+Disallow: /en/calculators/auth/
 
 Sitemap: https://bonds-global.com/sitemap.xml

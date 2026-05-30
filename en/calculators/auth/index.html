@@ -27,18 +27,53 @@
     .form-group input{width:100%;padding:var(--space-3) var(--space-4);background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text);font-family:inherit;font-size:1rem;transition:border-color 0.2s}
     .form-group input:focus{outline:none;border-color:var(--gold)}
     .form-group input::placeholder{color:#666}
-    .btn{width:100%;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s}
+    .form-group input.match{border-color:#16a34a}
+    .form-group input.mismatch{border-color:#dc2626}
+    .pw-wrap{position:relative;display:flex;align-items:center}
+    .pw-wrap input{flex:1;padding-right:2.5rem}
+    .pw-toggle{position:absolute;right:0.75rem;background:transparent;border:none;color:var(--text-secondary);cursor:pointer;font-size:1.1rem;padding:0.25rem;transition:color 0.2s}
+    .pw-toggle:hover{color:var(--gold)}
+    .btn{width:100%;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:var(--space-3)}
+    .btn:disabled{opacity:0.6;cursor:not-allowed}
     .btn-primary{background:var(--gold);color:#0c0c0c}
-    .btn-primary:hover{background:#d4b76a;transform:translateY(-1px)}
+    .btn-primary:hover:not(:disabled){background:#d4b76a;transform:translateY(-1px)}
     .btn-secondary{background:var(--bg-elevated);color:var(--text);border:1px solid var(--border)}
-    .btn-secondary:hover{border-color:var(--gold)}
+    .btn-secondary:hover:not(:disabled){border-color:var(--gold)}
+    .btn-google{background:#fff;color:#333;border:1px solid #ddd}
+    .btn-google:hover:not(:disabled){background:#f5f5f5}
+    .btn-small{padding:0.35rem 0.75rem;font-size:0.8rem;border-radius:6px;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:all 0.2s}
+    .btn-small:hover{border-color:var(--gold);color:var(--gold)}
     .divider{display:flex;align-items:center;gap:var(--space-4);margin:var(--space-6) 0;color:var(--text-secondary);font-size:0.85rem}
     .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
     .error-msg{background:#3a1515;color:#ff8a8a;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
     .success-msg{background:#153a1f;color:#8affa0;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
-    .link{color:var(--gold);text-decoration:none;font-weight:600}
+    .link{color:var(--gold);text-decoration:none;font-weight:600;font-size:0.85rem}
     .link:hover{text-decoration:underline}
     .back-link{display:block;text-align:center;margin-top:var(--space-6);color:var(--text-secondary);font-size:0.9rem}
+    .password-row{display:flex;align-items:center;gap:var(--space-3)}
+    .password-row input{flex:1}
+    .strength-bar{height:4px;border-radius:2px;margin-top:var(--space-3);background:var(--border);overflow:hidden;transition:all 0.3s}
+    .strength-bar>div{height:100%;width:0;transition:all 0.3s;border-radius:2px}
+    .strength-bar.weak>div{width:33%;background:#dc2626}
+    .strength-bar.medium>div{width:66%;background:#d4a853}
+    .strength-bar.strong>div{width:100%;background:#16a34a}
+    .strength-label{font-size:0.8rem;margin-top:var(--space-3);color:var(--text-secondary)}
+    .strength-label.weak{color:#dc2626}
+    .strength-label.medium{color:#d4a853}
+    .strength-label.strong{color:#16a34a}
+    .match-label{font-size:0.8rem;margin-top:var(--space-3)}
+    .match-label.ok{color:#16a34a}
+    .match-label.err{color:#dc2626}
+    .req-list{margin-top:var(--space-3);display:flex;flex-direction:column;gap:0.25rem}
+    .req-item{font-size:0.78rem;color:var(--text-secondary);display:flex;align-items:center;gap:0.4rem;transition:color 0.2s}
+    .req-item.met{color:#16a34a}
+    .req-item::before{content:'○';font-size:0.7rem}
+    .req-item.met::before{content:'✓'}
+    .forgot-row{display:flex;justify-content:flex-end;margin-top:-0.5rem;margin-bottom:var(--space-4)}
+    .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:currentColor;border-radius:50%;animation:spin 0.8s linear infinite;display:none}
+    .btn.loading .spinner{display:inline-block}
+    .btn.loading .btn-text{opacity:0.7}
+    @keyframes spin{to{transform:rotate(360deg)}}
     @media(max-width:480px){.auth-card{padding:var(--space-6) var(--space-4)}}
   </style>
 </head>
@@ -67,12 +102,30 @@
           </div>
           <div class="form-group">
             <label for="loginPassword">Password</label>
-            <input type="password" id="loginPassword" required placeholder="••••••••" />
+            <div class="pw-wrap">
+              <input type="password" id="loginPassword" required placeholder="••••••••" />
+              <button type="button" class="pw-toggle" data-target="loginPassword" title="Show/Hide">👁️</button>
+            </div>
           </div>
-          <button type="submit" class="btn btn-primary">Sign In</button>
+          <div class="forgot-row" style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-3)">
+            <a href="#" class="link" id="forgotLink">Forgot password?</a>
+          </div>
+          <button type="submit" class="btn btn-primary" id="loginBtn">
+            <span class="spinner"></span>
+            <span class="btn-text">Sign In</span>
+          </button>
         </form>
         <div class="divider">or</div>
-        <button id="otpBtn" class="btn btn-secondary">Send Magic Link 📧</button>
+        <button id="otpBtn" class="btn btn-secondary">
+          <span class="spinner"></span>
+          <span class="btn-text">Send Magic Link 📧</span>
+        </button>
+        <button id="passkeyBtn" class="btn btn-secondary" style="margin-top:var(--space-3);border-style:dashed">
+          <span class="btn-text">🔐 Sign in with Passkey</span>
+        </button>
+        <button id="googleBtn" class="btn btn-google" style="margin-top:var(--space-3)">
+          <span class="btn-text">🔍 Sign in with Google</span>
+        </button>
       </div>
 
       <!-- Signup Panel -->
@@ -87,14 +140,39 @@
             <input type="email" id="signupEmail" required placeholder="your@email.com" />
           </div>
           <div class="form-group">
-            <label for="signupPassword">Password (min 8 characters)</label>
-            <input type="password" id="signupPassword" required minlength="8" placeholder="••••••••" />
+            <label for="signupPassword">Password</label>
+            <div class="password-row">
+              <div class="pw-wrap" style="flex:1">
+                <input type="password" id="signupPassword" required minlength="8" placeholder="Min 8 characters" />
+                <button type="button" class="pw-toggle" data-target="signupPassword" title="Show/Hide">👁️</button>
+              </div>
+              <button type="button" class="btn-small" id="genPwBtn" title="Generate strong password">🔐 Generate</button>
+            </div>
+            <div class="strength-bar" id="strengthBar"><div></div></div>
+            <div class="strength-label" id="strengthLabel">Enter a password</div>
+            <div class="req-list" id="reqList">
+              <div class="req-item" data-req="len">At least 8 characters</div>
+              <div class="req-item" data-req="upper">Uppercase letter (A-Z)</div>
+              <div class="req-item" data-req="num">Number (0-9)</div>
+              <div class="req-item" data-req="special">Special character (!@#$...)</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="signupPasswordConfirm">Confirm Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="signupPasswordConfirm" required placeholder="Re-enter password" />
+              <button type="button" class="pw-toggle" data-target="signupPasswordConfirm" title="Show/Hide">👁️</button>
+            </div>
+            <div class="match-label" id="matchLabel"></div>
           </div>
           <div class="form-group">
             <label for="signupCountry">Country</label>
             <input type="text" id="signupCountry" placeholder="e.g. Saudi Arabia" />
           </div>
-          <button type="submit" class="btn btn-primary">Create Account</button>
+          <button type="submit" class="btn btn-primary" id="signupBtn">
+            <span class="spinner"></span>
+            <span class="btn-text">Create Account</span>
+          </button>
         </form>
       </div>
 
@@ -102,26 +180,35 @@
     </div>
   </div>
 
-  <!-- Env vars + Supabase -->
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="../../api/supabase-client.js"></script>
+  <script src="/supabase-client.js?v=5"></script>
 
   <script>
-    // Env validation
-    setTimeout(function(){
-      var env = window.__ENV || {};
-      if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
-        var banner = document.createElement('div');
-        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#5a1a1a;color:#ff8a8a;padding:12px;text-align:center;z-index:99999;font-size:0.9rem;font-family:Inter,sans-serif;';
-        banner.innerHTML = '⚠️ Environment variables are not configured. Please check the deployment guide.';
-        document.body.prepend(banner);
-      }
-    }, 500);
     (function() {
       'use strict';
 
-      // Tab switching
+      setTimeout(function(){
+        var env = window.__ENV || {};
+        if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+          var banner = document.createElement('div');
+          banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#5a1a1a;color:#ff8a8a;padding:12px;text-align:center;z-index:99999;font-size:0.9rem;font-family:Inter,sans-serif;';
+          banner.innerHTML = '⚠️ Environment variables not configured. Please check deployment guide.';
+          document.body.prepend(banner);
+        }
+      }, 500);
+
+      // If already logged in, redirect
+      (async function checkLoggedIn() {
+        try {
+          const { data } = await window.BondsAuth.getUser();
+          if (data?.user) {
+            const redirectTo = window.BondsAuth.getRedirectUrl();
+            window.location.href = redirectTo;
+          }
+        } catch (e) {}
+      })();
+
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -149,20 +236,137 @@
         document.getElementById('successMsg').style.display = 'none';
       }
 
-      // Check for redirect
-      const urlParams = new URLSearchParams(window.location.search);
-      const redirectTo = urlParams.get('redirect') || '../../calculator.html';
+      // Password visibility toggle
+      document.querySelectorAll('.pw-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const input = document.getElementById(btn.dataset.target);
+          if (input.type === 'password') {
+            input.type = 'text';
+            btn.textContent = '🙈';
+          } else {
+            input.type = 'password';
+            btn.textContent = '👁️';
+          }
+        });
+      });
 
-      // Login
+      const pwInput = document.getElementById('signupPassword');
+      const pwConfirm = document.getElementById('signupPasswordConfirm');
+      const strengthBar = document.getElementById('strengthBar');
+      const strengthLabel = document.getElementById('strengthLabel');
+      const matchLabel = document.getElementById('matchLabel');
+      const reqList = document.getElementById('reqList');
+
+      function checkStrength(pw) {
+        let score = 0;
+        if (pw.length >= 8) score++;
+        if (pw.length >= 12) score++;
+        if (/[A-Z]/.test(pw)) score++;
+        if (/[0-9]/.test(pw)) score++;
+        if (/[^A-Za-z0-9]/.test(pw)) score++;
+        return score;
+      }
+
+      function updateReqs(pw) {
+        reqList.querySelectorAll('.req-item').forEach(item => {
+          const req = item.dataset.req;
+          let met = false;
+          if (req === 'len') met = pw.length >= 8;
+          if (req === 'upper') met = /[A-Z]/.test(pw);
+          if (req === 'num') met = /[0-9]/.test(pw);
+          if (req === 'special') met = /[^A-Za-z0-9]/.test(pw);
+          item.classList.toggle('met', met);
+        });
+      }
+
+      function updateStrength() {
+        const pw = pwInput.value;
+        const score = checkStrength(pw);
+        strengthBar.className = 'strength-bar';
+        strengthLabel.className = 'strength-label';
+        updateReqs(pw);
+
+        if (pw.length === 0) {
+          strengthLabel.textContent = 'Enter a password';
+        } else if (score <= 2) {
+          strengthBar.classList.add('weak');
+          strengthLabel.classList.add('weak');
+          strengthLabel.textContent = 'Weak — add numbers and symbols';
+        } else if (score <= 3) {
+          strengthBar.classList.add('medium');
+          strengthLabel.classList.add('medium');
+          strengthLabel.textContent = 'Medium — add special characters';
+        } else {
+          strengthBar.classList.add('strong');
+          strengthLabel.classList.add('strong');
+          strengthLabel.textContent = 'Strong ✅';
+        }
+        updateMatch();
+      }
+
+      function updateMatch() {
+        const pw = pwInput.value;
+        const conf = pwConfirm.value;
+        if (conf.length === 0) {
+          matchLabel.textContent = '';
+          pwConfirm.classList.remove('match', 'mismatch');
+          return;
+        }
+        if (pw === conf) {
+          matchLabel.textContent = 'Passwords match ✅';
+          matchLabel.className = 'match-label ok';
+          pwConfirm.classList.add('match');
+          pwConfirm.classList.remove('mismatch');
+        } else {
+          matchLabel.textContent = 'Passwords do not match ❌';
+          matchLabel.className = 'match-label err';
+          pwConfirm.classList.add('mismatch');
+          pwConfirm.classList.remove('match');
+        }
+      }
+
+      pwInput.addEventListener('input', updateStrength);
+      pwConfirm.addEventListener('input', updateMatch);
+
+      document.getElementById('genPwBtn').addEventListener('click', () => {
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+        let pw = '';
+        for (let i = 0; i < 16; i++) {
+          pw += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        pwInput.value = pw;
+        pwConfirm.value = pw;
+        updateStrength();
+        updateMatch();
+        showSuccess('Strong password generated and copied to confirmation field');
+      });
+
+      function setLoading(btnId, loading) {
+        const btn = document.getElementById(btnId);
+        btn.disabled = loading;
+        btn.classList.toggle('loading', loading);
+      }
+
+      const redirectTo = window.BondsAuth.getRedirectUrl();
+
       document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         hideMessages();
+        setLoading('loginBtn', true);
         const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPassword').value;
 
         const { data, error } = await window.BondsAuth.signIn(email, password);
+        setLoading('loginBtn', false);
         if (error) {
-          showError(error.message === 'Invalid login credentials' ? 'Invalid email or password' : error.message);
+          const msg = error.message || '';
+          if (msg.includes('Invalid login credentials')) {
+            showError('Invalid email or password');
+          } else if (msg.includes('Email not confirmed')) {
+            showError('Email not confirmed. Check your inbox.');
+          } else {
+            showError(msg);
+          }
           return;
         }
         showSuccess('Signed in! Redirecting...');
@@ -170,50 +374,70 @@
         setTimeout(() => window.location.href = redirectTo, 800);
       });
 
-      // OTP Login
       document.getElementById('otpBtn').addEventListener('click', async () => {
         hideMessages();
         const email = document.getElementById('loginEmail').value.trim();
         if (!email) { showError('Enter your email first'); return; }
-
+        setLoading('otpBtn', true);
         const { error } = await window.BondsAuth.signInWithOTP(email);
+        setLoading('otpBtn', false);
         if (error) { showError(error.message); return; }
         showSuccess('Magic link sent! Check your inbox 📧');
       });
 
-      // Signup
+      document.getElementById('forgotLink').addEventListener('click', async (e) => {
+        e.preventDefault();
+        hideMessages();
+        const email = document.getElementById('loginEmail').value.trim();
+        if (!email) { showError('Enter your email first, then click "Forgot password"'); return; }
+        const sb = window.BondsAuth.getSupabase();
+        if (!sb) { showError('System not ready'); return; }
+        const { error } = await sb.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + '/en/calculators/auth/reset.html'
+        });
+        if (error) { showError(error.message); return; }
+        showSuccess('Password reset link sent to your email 📧');
+      });
+
+      document.getElementById('googleBtn').addEventListener('click', async () => {
+        hideMessages();
+        const sb = window.BondsAuth.getSupabase();
+        if (!sb) { showError('System not ready'); return; }
+        const { error } = await sb.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: window.location.origin + redirectTo }
+        });
+        window.BondsAuth.clearRedirectUrl();
+        if (error) showError(error.message);
+      });
+
       document.getElementById('signupForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         hideMessages();
+        setLoading('signupBtn', true);
         const email = document.getElementById('signupEmail').value.trim();
         const password = document.getElementById('signupPassword').value;
+        const confirm = document.getElementById('signupPasswordConfirm').value;
         const name = document.getElementById('signupName').value.trim();
         const country = document.getElementById('signupCountry').value.trim();
 
-        if (password.length < 8) { showError('Password must be at least 8 characters'); return; }
+        if (password.length < 8) { showError('Password must be at least 8 characters'); setLoading('signupBtn', false); return; }
+        if (password !== confirm) { showError('Passwords do not match'); setLoading('signupBtn', false); return; }
+        if (checkStrength(password) < 3) { showError('Password is too weak — add numbers and symbols'); setLoading('signupBtn', false); return; }
 
         const { data, error } = await window.BondsAuth.signUp(email, password, {
           restaurant_name: name,
           country: country,
           language: 'en'
         });
+        setLoading('signupBtn', false);
 
-        if (error) { showError(error.message); return; }
-
-        if (data?.session) {
-          showSuccess('Account created! Redirecting...');
-          if (typeof gtag !== 'undefined') gtag('event', 'sign_up', { method: 'email' });
-          setTimeout(() => window.location.href = redirectTo, 800);
-        } else {
-          showSuccess('Confirmation email sent! Check your inbox 📧');
+        if (error) {
+          showError(error.message.includes('already registered') ? 'This email is already registered' : error.message);
+          return;
         }
-      });
-
-      // Check if already logged in
-      window.BondsAuth.getSession().then(({ data }) => {
-        if (data?.session) {
-          window.location.href = redirectTo;
-        }
+        if (typeof gtag !== 'undefined') gtag('event', 'sign_up', { method: 'email' });
+        window.location.href = './verify-email.html';
       });
     })();
   </script>

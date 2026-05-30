@@ -22,7 +22,7 @@ var COUNTRIES_DATA = {
     currencySymbol: 'ر.س',
     currencySymbolEn: 'SAR',
     vatRate: 15,
-    lastUpdated: "2026-05-26",
+    lastUpdated: "2026-05-30",
     marketInsights: {
       avgOrderValue: 65,
       peakHours: '12:30–14:00 و 19:30–22:00 (السحور 02:00–04:00 في رمضان)',
@@ -33,9 +33,9 @@ var COUNTRIES_DATA = {
       specialNotes: 'توصيل ليلي مرتفع جداً في رمضان. هنقرستيشن يُستخدم كاسم عام للتوصيل. اليوم الوطني (23 سبتمبر) يرفع الطلبات 40%.'
     },
     platforms: [
-      { id: 'plat_hunger', operatingModel: 'closed', name: 'هنقرستيشن (توصيل)', nameEn: 'HungerStation (Delivery)', fee: 25, confidence: 'verified', freeDelivery: { threshold: 50, restaurantShare: 4.5 }, serviceFee: 2, paymentGatewayFee: 1.75 },
-      { id: 'plat_hunger_market', operatingModel: 'open', name: 'هنقرستيشن (ماركت)', nameEn: 'HungerStation (Marketplace)', fee: 11, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 1.75 },
-      { id: 'plat_jahez', operatingModel: 'closed', name: 'جاهز', nameEn: 'Jahez', fee: 25, confidence: 'verified', freeDelivery: { threshold: 60, restaurantShare: 5 }, serviceFee: 0, paymentGatewayFee: 0, feeTiers: [{min:0, max:74, fee:25}, {min:75, max:999999, fee:23}] },
+      { id: 'plat_hunger', operatingModel: 'closed', name: 'هنقرستيشن (توصيل)', nameEn: 'HungerStation (Delivery)', fee: 25, confidence: 'verified', freeDelivery: { threshold: 50, restaurantShare: 4.5 }, serviceFee: 2, paymentGatewayFee: 1.75, setupFee: 2000 },
+      { id: 'plat_hunger_market', operatingModel: 'open', name: 'هنقرستيشن (ماركت)', nameEn: 'HungerStation (Marketplace)', fee: 11, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 1.75, setupFee: 2000 },
+      { id: 'plat_jahez', operatingModel: 'closed', name: 'جاهز', nameEn: 'Jahez', fee: 25, confidence: 'verified', freeDelivery: { threshold: 60, restaurantShare: 5 }, serviceFee: 0, paymentGatewayFee: 0, setupFee: 2000, feeTiers: [{min:0, max:74, fee:25}, {min:75, max:999999, fee:23}] },
       { id: 'plat_mrsoul', operatingModel: 'open', name: 'مرسول', nameEn: 'Mrsool', fee: 12, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 0 },
       { id: 'plat_talabat', operatingModel: 'closed', name: 'طلبات', nameEn: 'Talabat', fee: 25, confidence: 'verified', freeDelivery: { threshold: 50, restaurantShare: 5 }, serviceFee: 0, paymentGatewayFee: 0 },
       { id: 'plat_to_you', operatingModel: 'closed', name: 'تويو', nameEn: 'ToYou', fee: 22, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0, deliverySupport: 4 },
@@ -59,7 +59,7 @@ var COUNTRIES_DATA = {
       { id: 'plat_mr_mandob', name: 'مستر مندوب', nameEn: 'Mr Mandob', operatingModel: 'open', fee: 12, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0 },
       { id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 0 }
     ],
-    note: 'هنقرستيشن السائد (~65% سوق) بنموذجين: توصيل (عمولة 25% + رسوم خدمة 2% + بوابة دفع 1.75%) وماركت (عمولة 11% التوصيل على المطعم). جاهز 25% (ينخفض لـ 23% إذا معدل السلة >75 ر.س). كيتا دخلت بقوة 2024. مرسول 10-15% نظام مفتوح. تويو 20-24% + دعم توصيل 3-5 ر.س. ضريبة القيمة المضافة 15% تُطبق على العمولات. رسوم الإعداد: هنقرستيشن 1500–2500 ر.س، جاهز 2000 ر.س.'
+    note: 'هنقرستيشن السائد (~65% سوق) بنموذجين: توصيل (عمولة 25% + رسوم خدمة 2% + بوابة دفع 1.75%) وماركت (عمولة 11% التوصيل على المطعم). جاهز 25% (ينخفض لـ 23% إذا معدل السلة >75 ر.س). كيتا دخلت بقوة 2024. مرسول 10-15% نظام مفتوح. تويو 20-24% + دعم توصيل 3-5 ر.س. ضريبة القيمة المضافة 15% تُطبق على العمولات. رسوم الإعداد: هنقرستيشن 1500–2500 ر.س، جاهز 2000 ر.س.',
     noteEn: 'HungerStation dominates (~65% market) with two models: delivery (25% + 2% service fee + 1.75% gateway + SAR 1 flat) and marketplace (11%, restaurant handles delivery). Jahez 24-28% (drops 2-3% if AOV > SAR 75). ToYou 20-24% + delivery support SAR 3-5. Mrsool 10-15% open courier. Keeta entered 2024. ZATCA VAT 15% applies to commissions. Setup: HungerStation SAR 1,500–2,500, Jahez SAR 2,000.'
   },
   AE: {
@@ -97,7 +97,7 @@ var COUNTRIES_DATA = {
       { id: 'plat_cari', operatingModel: 'closed', name: 'كاري', nameEn: 'Cari', fee: 18, confidence: 'estimated' },
       { id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }
     ],
-    note: 'طلبات 45% سوق الإمارات (عمولة 20-25% للمطاعم العادية). ديليفرو ~25% (متميزة بالمطاعم الراقية، استحواذ DoorDash أكتوبر 2025). كيتا دخلت 2025. نون فود 15%. ضريبة القيمة المضافة 5%. متوسط الطلب ~85 د.إ. Talabat Pro: مجاني فوق 30 د.إ. Deliveroo Plus: فوق 60 د.إ.'
+    note: 'طلبات 45% سوق الإمارات (عمولة 20-25% للمطاعم العادية). ديليفرو ~25% (متميزة بالمطاعم الراقية، استحواذ DoorDash أكتوبر 2025). كيتا دخلت 2025. نون فود 15%. ضريبة القيمة المضافة 5%. متوسط الطلب ~85 د.إ. Talabat Pro: مجاني فوق 30 د.إ. Deliveroo Plus: فوق 60 د.إ.',
     noteEn: 'Talabat ~45% UAE market (20-25% commission for standard restaurants). Deliveroo ~25% (premium focus, DoorDash acquisition Oct 2025). Keeta entered 2025. Noon Food 15%. VAT 5%. Avg order ~AED 85. Talabat Pro: free delivery above AED 30. Deliveroo Plus: above AED 60.'
   },
   KW: {
@@ -208,7 +208,7 @@ var COUNTRIES_DATA = {
       { id: 'plat_ninja_kitchen', operatingModel: 'closed', name: 'نينجا كيتشن', nameEn: 'Ninja Kitchen', fee: 15, confidence: 'estimated' },
       { id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }
     ],
-    note: 'طلبات 60%+ سوق البحرين (عمولة حتى 30% للمطاعم الجديدة). جاهز نما 50% سنوياً. ديليفرو 28%. نينجا كيتشن تجرب توصيل بالدرونات (2026). متوسط الطلب ~7 د.ب.'
+    note: 'طلبات 60%+ سوق البحرين (عمولة حتى 30% للمطاعم الجديدة). جاهز نما 50% سنوياً. ديليفرو 28%. نينجا كيتشن تجرب توصيل بالدرونات (2026). متوسط الطلب ~7 د.ب.',
     noteEn: 'Talabat 60%+ Bahrain market (up to 30% for new restaurants). Jahez grew 50% YoY. Deliveroo 28%. Ninja Kitchen drone pilot (2026). Avg order ~BHD 7.'
   },
   OM: {
@@ -252,7 +252,7 @@ var COUNTRIES_DATA = {
     currencySymbol: 'ج.م',
     currencySymbolEn: 'EGP',
     vatRate: 14,
-    lastUpdated: "2026-05-26",
+    lastUpdated: "2026-05-30",
     marketInsights: {
       avgOrderValue: 280,
       peakHours: '13:00–15:00 و 20:00–23:00 (السحور 02:00–04:00 في رمضان)',
@@ -263,11 +263,11 @@ var COUNTRIES_DATA = {
       specialNotes: 'السوق ~3.9 مليار دولار (2025). أوبر إيتس وزوماتو انسحبتا. إلمينيوز منافس محلي قوي. التضخم يؤثر على الأسعار باستمرار. متوسط الطلب ~280 ج.م.'
     },
     platforms: [
-      { id: 'plat_talabat', operatingModel: 'closed', name: 'طلبات', nameEn: 'Talabat', fee: 25, confidence: 'verified', freeDelivery: { threshold: 150, restaurantShare: 15 }, serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 50 },
-      { id: 'plat_elmenus', operatingModel: 'closed', name: 'إلمينيوز', nameEn: 'Elmenus', fee: 22, confidence: 'verified', freeDelivery: { threshold: 100, restaurantShare: 10 }, serviceFee: 0, paymentGatewayFee: 2.5, campaignDiscount: 0 },
+      { id: 'plat_talabat', operatingModel: 'closed', name: 'طلبات', nameEn: 'Talabat', fee: 25, confidence: 'verified', freeDelivery: { threshold: 150, restaurantShare: 15 }, serviceFee: 0, paymentGatewayFee: 0, selfDeliveryFee: 13.5, campaignDiscount: 50 },
+      { id: 'plat_elmenus', operatingModel: 'closed', name: 'إلمينيوز', nameEn: 'Elmenus', fee: 22, confidence: 'verified', freeDelivery: { threshold: 100, restaurantShare: 10 }, serviceFee: 0, paymentGatewayFee: 2.5, selfDeliveryFee: 11, campaignDiscount: 0 },
       { id: 'plat_careem', operatingModel: 'closed', name: 'كريم ناو', nameEn: 'Careem NOW', fee: 22, confidence: 'verified', freeDelivery: { threshold: 150, restaurantShare: 15 }, serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
       { id: 'plat_noon', operatingModel: 'closed', name: 'نون فود', nameEn: 'Noon Food', fee: 15, confidence: 'verified', freeDelivery: { threshold: 100, restaurantShare: 10 }, serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
-      { id: 'plat_mrsoul', operatingModel: 'open', name: 'مرسول', nameEn: 'Mrsool', fee: 12, confidence: 'verified', freeDelivery: { threshold: 100, restaurantShare: 10 }, serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
+      { id: 'plat_mrsoul', operatingModel: 'open', name: 'مرسول', nameEn: 'Mrsool', fee: 10, confidence: 'verified', freeDelivery: { threshold: 100, restaurantShare: 10 }, serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
       { id: 'plat_bolt', operatingModel: 'closed', name: 'بولت فود', nameEn: 'Bolt Food', fee: 18, confidence: 'verified', freeDelivery: { threshold: 120, restaurantShare: 12 }, serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
       { id: 'plat_otlob', operatingModel: 'closed', name: 'أطلب', nameEn: 'Otlob', fee: 22, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
       { id: 'plat_insta_shop', operatingModel: 'closed', name: 'إنستا شوب', nameEn: 'InstaShop', fee: 18, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
@@ -276,7 +276,7 @@ var COUNTRIES_DATA = {
       { id: 'plat_indrive', name: 'إندرايف توصيل', nameEn: 'inDrive Delivery', operatingModel: 'open', fee: 10, confidence: 'estimated', serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 },
       { id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified', serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 }
     ],
-    note: 'طلبات السائد (IPO دبي 2024): عمولة 22-28% (السحابية 25%)، توصيل المطعم 12-15%، خصومات حملات بالتناصف 50/50. إلمينيوز 20-25% (توصيل المطعم 10-12%) + بوابة دفع 2-2.5%. مرسول مصر 8-12% مندوب مفتوح. السوق ~3.9 مليار دولار (2025). أوبر إيتس وزوماتو انسحبتا. متوسط الطلب ~280 ج.م. كاش عند الاستلام 70%. ضريبة القيمة المضافة 14% على العمولات.'
+    note: 'طلبات السائد (IPO دبي 2024): عمولة 22-28% (السحابية 25%)، توصيل المطعم 12-15%، خصومات حملات بالتناصف 50/50. إلمينيوز 20-25% (توصيل المطعم 10-12%) + بوابة دفع 2-2.5%. مرسول مصر 8-12% مندوب مفتوح. السوق ~3.9 مليار دولار (2025). أوبر إيتس وزوماتو انسحبتا. متوسط الطلب ~280 ج.م. كاش عند الاستلام 70%. ضريبة القيمة المضافة 14% على العمولات.',
     noteEn: 'Talabat dominant (Dubai IPO 2024): commission 22-28% (cloud kitchens 25%), self-delivery 12-15%, campaign discounts split 50/50. Elmenus 20-25% (self-delivery 10-12%) + payment gateway 2-2.5%. Mrsool Egypt 8-12% open courier. Market ~$3.9B (2025). Uber Eats & Zomato exited. Avg order ~EGP 280. Cash on delivery 70%. VAT 14% on commissions.'
   },
   JO: {

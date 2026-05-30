@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile — Bonds</title>
+  <link rel="stylesheet" href="../../style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg">
+  <style>
+    :root{--gold:#c8a45c;--gold-light:#f5efe3;--bg:#0c0c0c;--bg-card:#141414;--bg-elevated:#1c1c1c;--border:#2a2a2a;--text:#f5f5f5;--text-secondary:#9a9a9a;--radius-lg:16px;--radius-md:10px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter','Tajawal',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:var(--space-4)}
+    .container{width:100%;max-width:600px;margin:0 auto}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-8) var(--space-6);margin-bottom:var(--space-6)}
+    .logo{display:flex;align-items:center;justify-content:center;gap:var(--space-3);margin-bottom:var(--space-6)}
+    .logo img{height:40px}
+    .logo span{font-weight:800;font-size:1.4rem;color:var(--gold)}
+    h1{font-size:1.3rem;font-weight:800;margin-bottom:var(--space-6);color:var(--gold);text-align:center}
+    h2{font-size:1rem;font-weight:700;margin-bottom:var(--space-4);color:var(--text);border-bottom:1px solid var(--border);padding-bottom:var(--space-3)}
+    .form-group{margin-bottom:var(--space-4)}
+    .form-group label{display:block;margin-bottom:var(--space-3);font-size:0.9rem;font-weight:500;color:var(--text-secondary)}
+    .form-group input,.form-group select{width:100%;padding:var(--space-3) var(--space-4);background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text);font-family:inherit;font-size:1rem;transition:border-color 0.2s}
+    .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--gold)}
+    .form-group input::placeholder{color:#666}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
+    @media(max-width:480px){.row{grid-template-columns:1fr}}
+    .time-selects{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    .time-selects select{padding:10px 8px;font-size:0.95rem;text-align:center}
+    .avatar-preview{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--gold);margin:0 auto var(--space-4);display:block;background:var(--bg-elevated)}
+    .avatar-placeholder{width:80px;height:80px;border-radius:50%;background:var(--gold);color:#0c0c0c;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.5rem;margin:0 auto var(--space-4);border:3px solid var(--gold)}
+    .avatar-actions{display:flex;flex-direction:column;gap:10px;align-items:center;margin-bottom:var(--space-4)}
+    .avatar-actions .btn-secondary{background:var(--bg-elevated);color:var(--text);border:1px solid var(--border);width:auto;padding:8px 16px;font-size:0.85rem}
+    .avatar-actions .btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+    .avatar-actions .or-text{color:var(--text-secondary);font-size:0.8rem}
+    .btn{width:100%;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:var(--space-3)}
+    .btn-primary{background:var(--gold);color:#0c0c0c}
+    .btn-primary:hover:not(:disabled){background:#d4b76a;transform:translateY(-1px)}
+    .btn:disabled{opacity:0.6;cursor:not-allowed}
+    .success-msg{background:#153a1f;color:#8affa0;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
+    .error-msg{background:#3a1515;color:#ff8a8a;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
+    .info-msg{background:#1a2a4a;color:#8ab4ff;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
+    .back-link{display:block;text-align:center;color:var(--text-secondary);text-decoration:none;margin-top:var(--space-6);font-size:0.9rem}
+    .back-link:hover{color:var(--gold)}
+    .spinner{width:18px;height:18px;border:2px solid rgba(12,12,12,0.3);border-top-color:#0c0c0c;border-radius:50%;animation:spin 1s linear infinite;display:none}
+    .upload-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;display:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="logo">
+        <img src="../../assets/bonds-mark.svg" alt="Bonds">
+        <span>Bonds</span>
+      </div>
+      <h1>Profile</h1>
+
+      <div class="success-msg" id="successMsg">✅ Changes saved successfully</div>
+      <div class="error-msg" id="errorMsg"></div>
+      <div class="info-msg" id="infoMsg"></div>
+
+      <form id="profileForm">
+        <h2>🖼️ Logo & Avatar</h2>
+        <div id="avatarContainer"></div>
+        <div class="avatar-actions">
+          <input type="file" id="avatarFile" accept="image/*" style="display:none">
+          <button type="button" class="btn btn-secondary" id="uploadBtn" onclick="document.getElementById('avatarFile').click()">
+            <span class="upload-spinner" id="uploadSpinner"></span>
+            <span id="uploadText">📤 Upload image from device</span>
+          </button>
+          <span class="or-text">— or —</span>
+        </div>
+        <div class="form-group">
+          <label for="avatarUrl">Logo URL (direct link)</label>
+          <input type="url" id="avatarUrl" placeholder="https://example.com/logo.png">
+          <div style="margin-top:8px;text-align:center">
+            <a href="#" id="reportLink" style="color:#ff8a8a;font-size:0.8rem;text-decoration:none;display:none" onclick="reportImage(event)">🚨 Report inappropriate image</a>
+          </div>
+        </div>
+
+        <h2>🏢 Contact Information</h2>
+        <div class="form-group">
+          <label for="restaurantName">Restaurant / Company Name *</label>
+          <input type="text" id="restaurantName" required placeholder="e.g. Gourmet Restaurant">
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" disabled style="opacity:0.6">
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" placeholder="+966 5xxxxxxxx">
+          </div>
+        </div>
+
+        <h2>📍 Location</h2>
+        <div class="row">
+          <div class="form-group">
+            <label for="city">City</label>
+            <input type="text" id="city" placeholder="e.g. Riyadh">
+          </div>
+          <div class="form-group">
+            <label for="neighborhood">Neighborhood / District</label>
+            <input type="text" id="neighborhood" placeholder="e.g. Al Olaya">
+          </div>
+        </div>
+
+        <h2>⏰ Peak & Rush Hours</h2>
+        <div class="row">
+          <div class="form-group">
+            <label>Peak Hours — Start</label>
+            <div class="time-selects">
+              <select id="peakStartH"></select>
+              <select id="peakStartM"></select>
+              <select id="peakStartAmpm"></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Peak Hours — End</label>
+            <div class="time-selects">
+              <select id="peakEndH"></select>
+              <select id="peakEndM"></select>
+              <select id="peakEndAmpm"></select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Rush Hours — Start</label>
+            <div class="time-selects">
+              <select id="rushStartH"></select>
+              <select id="rushStartM"></select>
+              <select id="rushStartAmpm"></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Rush Hours — End</label>
+            <div class="time-selects">
+              <select id="rushEndH"></select>
+              <select id="rushEndM"></select>
+              <select id="rushEndAmpm"></select>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="saveBtn" style="margin-top:var(--space-4)">
+          <span class="spinner" id="saveSpinner"></span>
+          <span id="saveText">Save Changes</span>
+        </button>
+      </form>
+
+      <a href="./subscription.html" class="back-link">← Back to Subscription</a>
+    </div>
+  </div>
+
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/supabase-client.js?v=5"></script>
+  <script>
+    (async () => {
+      const successMsg = document.getElementById('successMsg');
+      const errorMsg = document.getElementById('errorMsg');
+      const saveBtn = document.getElementById('saveBtn');
+      const saveSpinner = document.getElementById('saveSpinner');
+      const saveText = document.getElementById('saveText');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const uploadSpinner = document.getElementById('uploadSpinner');
+      const uploadText = document.getElementById('uploadText');
+
+      function showSuccess(msg) { successMsg.textContent = msg; successMsg.style.display = 'block'; errorMsg.style.display = 'none'; if(infoMsg) infoMsg.style.display = 'none'; }
+      function showError(msg) { errorMsg.textContent = msg; errorMsg.style.display = 'block'; successMsg.style.display = 'none'; if(infoMsg) infoMsg.style.display = 'none'; }
+      function showInfo(msg) { if(infoMsg) { infoMsg.textContent = msg; infoMsg.style.display = 'block'; successMsg.style.display = 'none'; errorMsg.style.display = 'none'; } }
+      function setLoading(v) { saveBtn.disabled = v; saveSpinner.style.display = v ? 'inline-block' : 'none'; saveText.textContent = v ? 'Saving...' : 'Save Changes'; }
+      function setUploading(v) { uploadBtn.disabled = v; uploadSpinner.style.display = v ? 'inline-block' : 'none'; uploadText.textContent = v ? 'Uploading...' : '📤 Upload image from device'; }
+
+      // Build time dropdown options
+      const hours = Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0'));
+      const minutes = ['00','15','30','45'];
+      const periods = [{v:'AM',l:'AM'},{v:'PM',l:'PM'}];
+      const timeFields = ['peakStart','peakEnd','rushStart','rushEnd'];
+
+      timeFields.forEach(prefix => {
+        const hSel = document.getElementById(prefix+'H');
+        const mSel = document.getElementById(prefix+'M');
+        const aSel = document.getElementById(prefix+'Ampm');
+        hSel.innerHTML = hours.map(h=>`<option value="${h}">${h}</option>`).join('');
+        mSel.innerHTML = minutes.map(m=>`<option value="${m}">${m}</option>`).join('');
+        aSel.innerHTML = periods.map(p=>`<option value="${p.v}">${p.l}</option>`).join('');
+      });
+
+      function parseTime24(timeStr) {
+        if (!timeStr) return { h: '12', m: '00', ampm: 'AM' };
+        const [h24, m] = timeStr.split(':');
+        let h = parseInt(h24, 10);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12;
+        if (h === 0) h = 12;
+        return { h: String(h).padStart(2, '0'), m: m || '00', ampm };
+      }
+      function buildTime24(h, m, ampm) {
+        let h24 = parseInt(h, 10);
+        if (ampm === 'PM' && h24 !== 12) h24 += 12;
+        if (ampm === 'AM' && h24 === 12) h24 = 0;
+        return String(h24).padStart(2, '0') + ':' + m;
+      }
+      function setTimeDropdowns(prefix, timeStr) {
+        const t = parseTime24(timeStr);
+        document.getElementById(prefix+'H').value = t.h;
+        document.getElementById(prefix+'M').value = t.m;
+        document.getElementById(prefix+'Ampm').value = t.ampm;
+      }
+      function getTimeDropdowns(prefix) {
+        const h = document.getElementById(prefix+'H').value;
+        const m = document.getElementById(prefix+'M').value;
+        const ampm = document.getElementById(prefix+'Ampm').value;
+        return buildTime24(h, m, ampm);
+      }
+
+      // AUTH CHECK — uses getUser() for REAL server validation
+      let user = null;
+      try {
+        const { data: userData, error: userError } = await window.BondsAuth.getUser();
+        if (userError) {
+          console.error('[Profile] Auth error:', userError);
+          showError('Session expired. Please sign in again.');
+          setTimeout(() => {
+            window.location.href = './index.html?redirect=' + encodeURIComponent(window.location.pathname);
+          }, 2000);
+          return;
+        }
+        user = userData?.user;
+        if (!user) {
+          showInfo('Please sign in first...');
+          setTimeout(() => {
+            window.location.href = './index.html?redirect=' + encodeURIComponent(window.location.pathname);
+          }, 1500);
+          return;
+        }
+      } catch (err) {
+        console.error('[Profile] Auth exception:', err);
+        showError('Auth check failed. Please refresh.');
+        return;
+      }
+
+      document.getElementById('email').value = user.email || '';
+
+      const { data: profile, error: profileError } = await window.BondsAuth.getProfile(user.id);
+      if (profileError && profileError.code !== 'PGRST116') { showError('Error loading data: ' + profileError.message); }
+
+      if (profile) {
+        document.getElementById('restaurantName').value = profile.restaurant_name || '';
+        document.getElementById('phone').value = profile.phone || '';
+        document.getElementById('city').value = profile.city || '';
+        document.getElementById('neighborhood').value = profile.neighborhood || '';
+        setTimeDropdowns('peakStart', profile.peak_hours_start);
+        setTimeDropdowns('peakEnd', profile.peak_hours_end);
+        setTimeDropdowns('rushStart', profile.rush_hours_start);
+        setTimeDropdowns('rushEnd', profile.rush_hours_end);
+        document.getElementById('avatarUrl').value = profile.avatar_url || '';
+        updateAvatarPreview(profile.avatar_url, profile.restaurant_name);
+      } else {
+        document.getElementById('restaurantName').value = user.user_metadata?.restaurant_name || '';
+        updateAvatarPreview(null, user.user_metadata?.restaurant_name);
+      }
+
+      document.getElementById('avatarUrl').addEventListener('input', (e) => {
+        const name = document.getElementById('restaurantName').value;
+        updateAvatarPreview(e.target.value, name);
+      });
+
+      function updateAvatarPreview(url, name) {
+        const container = document.getElementById('avatarContainer');
+        const reportLink = document.getElementById('reportLink');
+        if (url) {
+          const cacheBust = url + '#t=' + Date.now();
+          container.innerHTML = `<img src="${cacheBust}" alt="logo" class="avatar-preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" id="avatarImg"><div class="avatar-placeholder" style="display:none">${(name||'B').charAt(0)}</div>`;
+          if (reportLink) reportLink.style.display = 'inline';
+        } else {
+          container.innerHTML = `<div class="avatar-placeholder">${(name||'B').charAt(0)}</div>`;
+          if (reportLink) reportLink.style.display = 'none';
+        }
+      }
+      window.reportImage = function(e) {
+        e.preventDefault();
+        const url = document.getElementById('avatarUrl').value;
+        if (!url) return;
+        const subject = encodeURIComponent('Report inappropriate image — Bonds');
+        const body = encodeURIComponent('Reported URL:\n' + url + '\n\nReason:\n');
+        window.location.href = 'mailto:support@bonds-global.com?subject=' + subject + '&body=' + body;
+      };
+
+      // File validation (accept all image types)
+      function isHeic(file) {
+        return file.type === 'image/heic' || file.type === 'image/heif' ||
+               file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
+      }
+
+      async function compressImage(file, maxWidth = 400, quality = 0.8) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const scale = Math.min(1, maxWidth / img.width);
+              canvas.width = img.width * scale;
+              canvas.height = img.height * scale;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              canvas.toBlob((blob) => {
+                if (blob) {
+                  const compressed = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+                  resolve(compressed);
+                } else {
+                  reject(new Error('Compression failed'));
+                }
+              }, 'image/jpeg', quality);
+            };
+            img.onerror = () => reject(new Error('Failed to read image'));
+            img.src = e.target.result;
+          };
+          reader.onerror = () => reject(new Error('Failed to read file'));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async function validateImage(file) {
+        if (!file.type.startsWith('image/') && !isHeic(file)) return 'File must be an image';
+        if (isHeic(file)) return 'HEIC format is not supported. Please convert to JPG first.';
+        if (file.size > 5 * 1024 * 1024) return 'Image size must not exceed 5 MB';
+        return null;
+      }
+
+      // File upload to Supabase Storage
+      document.getElementById('avatarFile').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const validationError = await validateImage(file);
+        if (validationError) { showError(validationError); return; }
+
+        setUploading(true);
+        try {
+          let uploadFile = file;
+          if (file.size > 500 * 1024) {
+            try {
+              uploadFile = await compressImage(file, 400, 0.8);
+              console.log('[Profile] Compressed:', file.size, '→', uploadFile.size);
+            } catch (compErr) {
+              console.warn('[Profile] Compression failed, uploading original:', compErr);
+            }
+          }
+
+          const sb = window.BondsAuth.getSupabase();
+          let fileExt = uploadFile.name.split('.').pop().toLowerCase();
+          if (fileExt === 'jpeg') fileExt = 'jpg';
+          const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+
+          const { data, error } = await sb.storage.from('avatars').upload(fileName, uploadFile, { upsert: true, contentType: uploadFile.type });
+
+          if (error) {
+            if (error.message && error.message.includes('bucket')) {
+              showError('Error: Bucket "avatars" does not exist in Supabase. Create it from the dashboard.');
+            } else {
+              showError('Image upload error: ' + error.message);
+            }
+            setUploading(false);
+            return;
+          }
+
+          const { data: urlData } = sb.storage.from('avatars').getPublicUrl(fileName);
+          const publicUrl = urlData.publicUrl;
+          document.getElementById('avatarUrl').value = publicUrl;
+          const name = document.getElementById('restaurantName').value;
+          updateAvatarPreview(publicUrl, name);
+          showSuccess('✅ Image uploaded — click "Save Changes" to confirm');
+        } catch (err) {
+          showError('Unexpected upload error: ' + (err?.message || String(err)));
+        } finally {
+          setUploading(false);
+        }
+      });
+
+      document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        console.log('[Profile] Save started');
+        hideMessages();
+        setLoading(true);
+
+        try {
+          // Re-validate user is still authenticated before saving
+          const { data: currentUserData } = await window.BondsAuth.getUser();
+          if (!currentUserData?.user) {
+            setLoading(false);
+            showError('Session expired. Please sign in again.');
+            setTimeout(() => window.location.href = './index.html', 2000);
+            return;
+          }
+
+          const updates = {
+            id: user.id,
+            restaurant_name: document.getElementById('restaurantName').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            city: document.getElementById('city').value.trim(),
+            neighborhood: document.getElementById('neighborhood').value.trim(),
+            peak_hours_start: getTimeDropdowns('peakStart'),
+            peak_hours_end: getTimeDropdowns('peakEnd'),
+            rush_hours_start: getTimeDropdowns('rushStart'),
+            rush_hours_end: getTimeDropdowns('rushEnd'),
+            avatar_url: document.getElementById('avatarUrl').value.trim()
+          };
+          console.log('[Profile] Upsert payload:', updates);
+
+          const sb = window.BondsAuth.getSupabase();
+          const { data, error } = await sb.from('profiles').upsert(updates, { onConflict: 'id' });
+          console.log('[Profile] Upsert result:', { data, error });
+
+          setLoading(false);
+          if (error) {
+            console.error('[Profile] Upsert error:', error);
+            if (error.message && error.message.includes('avatar_url')) {
+              showError('Error: avatar_url column does not exist in profiles table.');
+            } else if (error.code === '42501' || (error.message && error.message.includes('JWT'))) {
+              showError('Session expired. Please sign in again.');
+              setTimeout(() => window.location.href = './index.html', 2000);
+            } else {
+              showError('Save error: ' + (error.message || JSON.stringify(error)));
+            }
+            return;
+          }
+          // Also update auth metadata so header picks up the new avatar
+          try {
+            await sb.auth.updateUser({
+              data: {
+                avatar_url: updates.avatar_url,
+                restaurant_name: updates.restaurant_name
+              }
+            });
+            console.log('[Profile] Auth metadata updated');
+          } catch (metaErr) {
+            console.warn('[Profile] Failed to update auth metadata:', metaErr);
+          }
+          // Save to localStorage as reliable fallback for header
+          try {
+            localStorage.setItem('bonds_avatar_url', updates.avatar_url || '');
+            localStorage.setItem('bonds_restaurant_name', updates.restaurant_name || '');
+          } catch (e) {}
+          showSuccess('✅ Changes saved successfully — refreshing...');
+          setTimeout(() => window.location.reload(true), 1200);
+        } catch (err) {
+          console.error('[Profile] Save exception:', err);
+          setLoading(false);
+          showError('Unexpected error: ' + (err?.message || String(err)));
+        }
+      });
+      });
+
+      function hideMessages() { successMsg.style.display = 'none'; errorMsg.style.display = 'none'; }
+    })();
+  </script>
+</body>
+</html>

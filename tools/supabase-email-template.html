@@ -1,0 +1,52 @@
+<!--
+  قالب إيميل تأكيد الحساب لـ Supabase
+  المكان: Supabase Dashboard → Authentication → Email Templates → Confirm signup
+  انسخ المحتوى كاملًا والصقه في حقل "Subject" و "Body"
+-->
+
+<!-- Subject: -->
+تأكيد حسابك في Bonds للاستشارات المالية
+
+<!-- Body (HTML): -->
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; margin: 0; padding: 40px 20px; direction: rtl; }
+    .container { max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    .header { background: #0c0c0c; padding: 32px; text-align: center; }
+    .header h1 { color: #c8a45c; margin: 0; font-size: 24px; font-weight: 800; }
+    .header p { color: #9a9a9a; margin: 8px 0 0; font-size: 14px; }
+    .body { padding: 32px; text-align: center; }
+    .body h2 { color: #0c0c0c; margin: 0 0 16px; font-size: 20px; }
+    .body p { color: #555; font-size: 15px; line-height: 1.7; margin: 0 0 24px; }
+    .btn { display: inline-block; background: #c8a45c; color: #0c0c0c; text-decoration: none; padding: 14px 32px; border-radius: 10px; font-weight: 700; font-size: 16px; margin-bottom: 20px; }
+    .btn:hover { background: #d4b76a; }
+    .link-box { background: #f5f5f5; border-radius: 8px; padding: 12px; word-break: break-all; font-size: 13px; color: #666; margin-bottom: 20px; }
+    .footer { padding: 24px 32px; background: #fafafa; border-top: 1px solid #eee; text-align: center; }
+    .footer p { color: #999; font-size: 13px; margin: 0; }
+    .footer a { color: #c8a45c; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Bonds</h1>
+      <p>للاستشارات المالية</p>
+    </div>
+    <div class="body">
+      <h2>مرحباً بك في Bonds! 👋</h2>
+      <p>شكراً لتسجيلك معنا. لتفعيل حسابك والبدء في استخدام خدماتنا، يرجى الضغط على الزر أدناه:</p>
+      <a href="{{ .ConfirmationURL }}" class="btn">تأكيد البريد الإلكتروني</a>
+      <p style="font-size:13px;color:#888;">إذا لم يعمل الزر، انسخ هذا الرابط والصقه في المتصفح:</p>
+      <div class="link-box">{{ .ConfirmationURL }}</div>
+      <p style="font-size:13px;color:#888;">إذا لم تقم بتسجيل حساب في Bonds، يمكنك تجاهل هذا الإيميل.</p>
+    </div>
+    <div class="footer">
+      <p>© Bonds للاستشارات المالية | <a href="https://bonds-global.com">bonds-global.com</a></p>
+    </div>
+  </div>
+</body>
+</html>

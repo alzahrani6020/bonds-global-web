@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Created — Bonds</title>
+  <link rel="stylesheet" href="../../style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg">
+  <style>
+    :root{--gold:#c8a45c;--gold-light:#f5efe3;--bg:#0c0c0c;--bg-card:#141414;--border:#2a2a2a;--text:#f5f5f5;--text-secondary:#9a9a9a;--radius-lg:16px;--space-4:16px;--space-6:24px;--space-8:32px;--space-10:40px}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter','Tajawal',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:var(--space-4)}
+    .container{width:100%;max-width:420px;text-align:center}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-10) var(--space-6)}
+    .icon{font-size:4rem;margin-bottom:var(--space-6);display:block}
+    h1{font-size:1.5rem;font-weight:800;margin-bottom:var(--space-4);color:var(--gold)}
+    p{color:var(--text-secondary);font-size:1rem;line-height:1.7;margin-bottom:var(--space-6)}
+    .brand{color:var(--gold);font-weight:700}
+    .btn{display:inline-block;width:100%;padding:14px 24px;border-radius:10px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;background:var(--gold);color:#0c0c0c}
+    .btn:hover{background:#d4b76a;transform:translateY(-1px)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <span class="icon">📧</span>
+      <h1>Account Created Successfully!</h1>
+      <p>
+        Your account has been created at <span class="brand">Bonds Financial Consultancy</span>.<br><br>
+        We have sent a confirmation link to your email.<br>
+        Please check your inbox and click the link to activate your account.
+      </p>
+      <a href="./index.html" class="btn">Back to Sign In</a>
+    </div>
+  </div>
+</body>
+</html>

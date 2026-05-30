@@ -22,13 +22,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script defer src="/_vercel/insights/script.js"></script>
   <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
+  <!-- Google Analytics: replace G-XXXXXXXXXX with your real tracking ID -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script> -->
+  <!-- <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script> -->
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
   <link rel="manifest" href="/manifest.json" />
@@ -68,6 +64,21 @@
     "sameAs": [
       "https://wa.me/966567566616"
     ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": "https://bonds-global.com",
+    "name": "بوندز للاستشارات المالية",
+    "alternateName": "Bonds Global",
+    "inLanguage": ["ar", "en"],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://bonds-global.com/faq.html?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
   }
   </script>
 </head>
@@ -127,6 +138,7 @@
       <div class="header-actions">
         <a href="en/index.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">EN</a>
         <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
+        <a href="calculators/auth/index.html" style="color:var(--gold);font-weight:600;font-size:0.85rem;padding:0.4rem 0.8rem;border:1px solid var(--gold);border-radius:6px;text-decoration:none;transition:all 0.3s;">تسجيل الدخول</a>
         <a href="contact.html" class="btn btn-primary hidden-mobile">احجز استشارتك</a>
         <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">
           <span></span><span></span><span></span>
@@ -220,6 +232,12 @@
           <h3 class="card__title">تسعير المنتج</h3>
           <p class="card__text">حدد سعر منتجك بناءً على التكلفة والهامش المستهدف. التسعير العكسي الذكي.</p>
           <span style="color: var(--gold); font-weight: 700; font-size: 0.9rem;">ابدأ الحساب →</span>
+        </a>
+        <a href="calculators/menu-engineering.html" class="card reveal reveal-delay-1" style="text-decoration: none; display: block;">
+          <div class="card__icon" style="background: rgba(212,168,83,0.1); color: var(--gold);">🎯</div>
+          <h3 class="card__title">هندسة المنيو</h3>
+          <p class="card__text">صنّف وجباتك إلى نجوم وكلاب بناءً على المبيعات. محرك ذكي لزيادة ربح المطعم.</p>
+          <span style="color: var(--gold); font-weight: 700; font-size: 0.9rem;">جرب المحرك →</span>
         </a>
         <a href="calculators/loan.html" class="card reveal reveal-delay-2" style="text-decoration: none; display: block;">
           <div class="card__icon" style="background: rgba(212,168,83,0.1); color: var(--gold);">🏦</div>
@@ -504,7 +522,7 @@
             <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">التدفقات النقدية</div>
             <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">الربح على الورق والفقر في المحفظة: لماذا؟</h3>
             <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">70% من الشركات الصغيرة تربح في التقارير لكنها تعاني من السيولة. الفرق بين الربح المحاسبي والنقدي وكيف تحمي شركتك من أزمة دفع مفاجئة.</p>
-            <a href="#" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">اقرأ المقال →</a>
+            <a href="blog/cash-flow-mistakes.html" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">اقرأ المقال →</a>
           </div>
         </article>
         <article class="card reveal reveal-delay-1" style="padding: 0; overflow: hidden;">
@@ -515,7 +533,7 @@
             <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">دراسات الجدوى</div>
             <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">قبل توسّع: 5 أسئلة تحميك من خسارة رأس المال</h3>
             <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">التوسع السريع قاتل الشركات الصغيرة. قائمة التحقق العملية التي نستخدمها مع عملائنا قبل أي قرار استثماري — من تحليل السوق إلى نقطة التعادل.</p>
-            <a href="#" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">اقرأ المقال →</a>
+            <a href="blog/break-even-explained.html" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">اقرأ المقال →</a>
           </div>
         </article>
         <article class="card reveal reveal-delay-2" style="padding: 0; overflow: hidden;">
@@ -526,7 +544,7 @@
             <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">التسعير</div>
             <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">كيف تسعر منتجك؟ صيغة بسيطة تحمي هامش ربحك</h3>
             <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">التسعير العشوائي يأكل أرباحك بصمت. طريقة احتساب التكلفة الحقيقية، نقطة التعادل، وهامش الربح المستهدف — مع مثال عملي من السوق السعودي.</p>
-            <a href="#" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">اقرأ المقال →</a>
+            <a href="blog/pricing-strategy.html" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">اقرأ المقال →</a>
           </div>
         </article>
       </div>
@@ -705,8 +723,8 @@
       <div class="footer-bottom">
         <span>© <span id="y">2025</span> بوندز للاستشارات المالية — جميع الحقوق محفوظة.</span>
         <div style="display: flex; gap: var(--space-6);">
-          <a href="#" style="color: var(--text-muted);">سياسة الخصوصية</a>
-          <a href="#" style="color: var(--text-muted);">إخلاء المسؤولية</a>
+          <a href="privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a>
+          <a href="faq.html" style="color: var(--text-muted);">الأسئلة الشائعة</a>
         </div>
       </div>
     </div>

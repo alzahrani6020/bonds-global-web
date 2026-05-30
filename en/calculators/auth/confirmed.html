@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Confirmed — Bonds</title>
+  <link rel="stylesheet" href="../../style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg">
+  <style>
+    :root{--gold:#c8a45c;--gold-light:#f5efe3;--bg:#0c0c0c;--bg-card:#141414;--border:#2a2a2a;--text:#f5f5f5;--text-secondary:#9a9a9a;--radius-lg:16px;--space-4:16px;--space-6:24px;--space-8:32px;--space-10:40px}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter','Tajawal',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:var(--space-4)}
+    .container{width:100%;max-width:420px;text-align:center}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-10) var(--space-6)}
+    .icon{font-size:4rem;margin-bottom:var(--space-6);display:block;animation:pop 0.5s ease}
+    @keyframes pop{0%{transform:scale(0)}80%{transform:scale(1.1)}100%{transform:scale(1)}}
+    h1{font-size:1.5rem;font-weight:800;margin-bottom:var(--space-4);color:var(--gold)}
+    p{color:var(--text-secondary);font-size:1rem;line-height:1.7;margin-bottom:var(--space-6)}
+    .brand{color:var(--gold);font-weight:700}
+    .btn{display:inline-block;width:100%;padding:14px 24px;border-radius:10px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;background:var(--gold);color:#0c0c0c;margin-bottom:var(--space-4)}
+    .btn:hover{background:#d4b76a;transform:translateY(-1px)}
+    .btn-secondary{background:transparent;color:var(--text-secondary);border:1px solid var(--border)}
+    .btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+    .spinner{width:24px;height:24px;border:3px solid rgba(200,164,92,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;display:inline-block;margin-bottom:var(--space-4)}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="card">
+      <div class="spinner" id="spinner"></div>
+      <p id="status" style="color:var(--text-secondary)">Confirming your account...</p>
+    </div>
+  </div>
+
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/supabase-client.js?v=5"></script>
+  <script>
+    (async () => {
+      const card = document.getElementById('card');
+      const spinner = document.getElementById('spinner');
+      const status = document.getElementById('status');
+
+      await new Promise(r => setTimeout(r, 1500));
+
+      const { data } = await window.BondsAuth.getSession();
+      const user = data?.session?.user;
+
+      spinner.style.display = 'none';
+
+      if (user) {
+        card.innerHTML = `
+          <span class="icon">🎉</span>
+          <h1>Account Confirmed!</h1>
+          <p>
+            Welcome <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
+            Your account at <span class="brand">Bonds Financial Consultancy</span> has been confirmed.<br>
+            You can now use all services.
+          </p>
+          <a href="/en/calculators/restaurant.html" class="btn">Go to Calculator</a>
+          <a href="/en/calculators/auth/subscription.html" class="btn btn-secondary">Manage Subscription</a>
+        `;
+      } else {
+        card.innerHTML = `
+          <span class="icon">✅</span>
+          <h1>Account Confirmed!</h1>
+          <p>
+            Your email has been confirmed at <span class="brand">Bonds Financial Consultancy</span>.<br><br>
+            You can now sign in and use all services.
+          </p>
+          <a href="./index.html" class="btn">Sign In</a>
+        `;
+      }
+    })();
+  </script>
+</body>
+</html>

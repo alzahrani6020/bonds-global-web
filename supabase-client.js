@@ -9,7 +9,7 @@ let _supabase = null;
 function getSupabase() {
   if (_supabase) return _supabase;
   if (typeof supabase === 'undefined') {
-    console.error('Supabase library not loaded');
+    console.error('[BondsAuth] Supabase library not loaded');
     return null;
   }
   _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
@@ -23,13 +23,30 @@ function getSupabase() {
 }
 
 // ===== Auth Helpers =====
+function getRedirectUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const fromParam = params.get('redirect');
+  if (fromParam) return decodeURIComponent(fromParam);
+  const stored = sessionStorage.getItem('auth_redirect');
+  if (stored) return stored;
+  return '/calculators/restaurant.html';
+}
+
+function clearRedirectUrl() {
+  sessionStorage.removeItem('auth_redirect');
+}
+
 async function signUp(email, password, metadata) {
   const sb = getSupabase();
   if (!sb) return { error: new Error('Supabase not initialized') };
+  const redirectTo = window.location.origin + '/calculators/auth/confirmed.html';
   const { data, error } = await sb.auth.signUp({
     email: email,
     password: password,
-    options: { data: metadata || {} }
+    options: {
+      data: metadata || {},
+      emailRedirectTo: redirectTo
+    }
   });
   return { data, error };
 }
@@ -40,6 +57,16 @@ async function signIn(email, password) {
   const { data, error } = await sb.auth.signInWithPassword({
     email: email,
     password: password
+  });
+  return { data, error };
+}
+
+async function signInWithOAuth(provider, options) {
+  const sb = getSupabase();
+  if (!sb) return { error: new Error('Supabase not initialized') };
+  const { data, error } = await sb.auth.signInWithOAuth({
+    provider: provider,
+    options: options || {}
   });
   return { data, error };
 }
@@ -57,20 +84,28 @@ async function signInWithOTP(email) {
 async function signOut() {
   const sb = getSupabase();
   if (!sb) return { error: new Error('Supabase not initialized') };
+  // Clear local backup too
+  try {
+    localStorage.removeItem('bonds_avatar_url');
+    localStorage.removeItem('bonds_restaurant_name');
+    localStorage.removeItem('bonds_session_type');
+  } catch (e) {}
   const { error } = await sb.auth.signOut();
   return { error };
 }
 
+// getUser() validates the session with the SERVER — use this for real auth checks
 async function getUser() {
   const sb = getSupabase();
-  if (!sb) return { data: { user: null } };
+  if (!sb) return { data: { user: null }, error: new Error('Supabase not initialized') };
   const { data, error } = await sb.auth.getUser();
   return { data, error };
 }
 
+// getSession() reads from localStorage — can return stale/expired data
 async function getSession() {
   const sb = getSupabase();
-  if (!sb) return { data: { session: null } };
+  if (!sb) return { data: { session: null }, error: new Error('Supabase not initialized') };
   const { data, error } = await sb.auth.getSession();
   return { data, error };
 }
@@ -100,15 +135,14 @@ async function getProfile(userId) {
 
 // ===== Feature Gates =====
 async function checkFeatureAccess(feature) {
-  const { data: sessionData } = await getSession();
-  const user = sessionData?.session?.user;
+  const { data: userData } = await getUser();
+  const user = userData?.user;
   if (!user) return { allowed: false, reason: 'not_logged_in', tier: 'none' };
 
   const { data: sub } = await getSubscription(user.id);
   const tier = sub?.tier || 'free';
   const status = sub?.status || 'inactive';
 
-  // Free tier limits
   const FREE_LIMITS = {
     maxScenarios: 3,
     maxCountries: 5,
@@ -116,8 +150,6 @@ async function checkFeatureAccess(feature) {
     healthHistory: false,
     apiAccess: false
   };
-
-  // Pro tier
   const PRO_LIMITS = {
     maxScenarios: Infinity,
     maxCountries: 22,
@@ -125,8 +157,6 @@ async function checkFeatureAccess(feature) {
     healthHistory: true,
     apiAccess: true
   };
-
-  // Enterprise tier
   const ENTERPRISE_LIMITS = {
     ...PRO_LIMITS,
     webhooks: true,
@@ -144,6 +174,7 @@ async function checkFeatureAccess(feature) {
 
 // Export for global use
 window.BondsAuth = {
-  getSupabase, signUp, signIn, signInWithOTP, signOut, getUser, getSession,
-  getSubscription, getProfile, checkFeatureAccess
+  getSupabase, signUp, signIn, signInWithOAuth, signInWithOTP, signOut,
+  getUser, getSession, getSubscription, getProfile, checkFeatureAccess,
+  getRedirectUrl, clearRedirectUrl
 };

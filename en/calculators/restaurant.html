@@ -29,11 +29,46 @@
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="../../calculators/shared-utils.js"></script>
-  <script src="../../calculators/country-platforms-data.js"></script>
+  <script src="../../calculators/country-platforms-data.min.js"></script>
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="../../api/supabase-client.js"></script>
-  <script src="../../api/auth-guard.js"></script>
+  <script src="/supabase-client.js?v=5"></script>
+  <script src="/auth-guard.js?v=5"></script>
+  <script>
+    // Fallback avatar loader — runs after auth-guard.js
+    (function() {
+      function fixAvatar() {
+        const url = localStorage.getItem('bonds_avatar_url');
+        if (!url || !url.includes('supabase.co/storage')) return;
+        const container = document.getElementById('authContainer');
+        if (!container) return;
+        const existingImg = container.querySelector('img');
+        if (existingImg && existingImg.src && existingImg.style.display !== 'none') return;
+        const pathMatch = url.match(/\/avatars\/(.+)$/);
+        if (!pathMatch || !window.BondsAuth) return;
+        window.BondsAuth.getSupabase().storage.from('avatars').download(pathMatch[1]).then(({ data, error }) => {
+          if (error || !data) return;
+          const blobUrl = URL.createObjectURL(data);
+          let img = container.querySelector('img');
+          if (!img) {
+            const wrap = document.createElement('span');
+            wrap.style.cssText = 'position:relative;width:32px;height:32px;display:inline-block;';
+            img = document.createElement('img');
+            img.style.cssText = 'width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);';
+            wrap.appendChild(img);
+            const nameSpan = container.querySelector('span[style*="color:var(--gold)"]');
+            if (nameSpan) container.insertBefore(wrap, nameSpan);
+            else container.appendChild(wrap);
+          }
+          img.src = blobUrl;
+          img.style.display = 'inline';
+          const fb = container.querySelector('span[style*="background:var(--gold)"]');
+          if (fb) fb.style.display = 'none';
+        }).catch(() => {});
+      }
+      setTimeout(fixAvatar, 1500);
+    })();
+  </script>
   <style>
     .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
     @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
@@ -141,6 +176,13 @@
     .premium-badge { display: inline-flex; align-items: center; gap: 0.25rem; background: rgba(212,168,83,0.15); color: var(--gold); font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; border: 1px solid rgba(212,168,83,0.3); margin-left: 0.5rem; }
     .tier-banner { background: linear-gradient(90deg, rgba(212,168,83,0.1), rgba(212,168,83,0.02)); border: 1px solid rgba(212,168,83,0.2); border-radius: var(--radius); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-4); font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
     .tier-banner strong { color: var(--gold); }
+    .quota-bar { width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; margin-top:6px; }
+    .quota-bar>div { height:100%; border-radius:3px; transition:width 0.4s, background 0.4s; }
+    .quota-bar.safe>div { background:#16a34a; }
+    .quota-bar.warn>div { background:#d4a853; }
+    .quota-bar.danger>div { background:#dc2626; }
+    .upgrade-btn-inline { background:var(--gold); color:#0c0c0c; border:none; padding:0.3rem 0.8rem; border-radius:6px; font-weight:700; font-size:0.8rem; cursor:pointer; text-decoration:none; transition:all 0.2s; }
+    .upgrade-btn-inline:hover { background:#d4b76a; }
     @media print {
       .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
       .calc-grid { grid-template-columns: 1fr 1fr; }
@@ -211,7 +253,9 @@
       <div class="header-actions">
         <a href="../../calculators/restaurant.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">AR</a>
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
-        <div id="authContainer" style="display:flex;align-items:center;gap:0.5rem;"></div>
+        <div id="authContainer" style="display:flex;align-items:center;gap:0.5rem;">
+          <a href="auth/index.html" style="color:var(--gold);font-weight:600;font-size:0.85rem;padding:0.4rem 0.8rem;border:1px solid var(--gold);border-radius:6px;text-decoration:none;transition:all 0.3s;">Sign In</a>
+        </div>
         <a href="../contact.html" class="btn btn-primary hidden-mobile">Book Consultation</a>
         <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
           <span></span><span></span><span></span>
@@ -331,7 +375,7 @@
             </div>
             <div class="settings-content" id="settingsContent">
               <table class="settings-table" id="settingsTable">
-                <thead><tr><th>Platform</th><th>Operating Model</th><th>Commission</th><th>Service Fee</th><th>Free Delivery From</th><th>Restaurant Share</th><th>Confidence</th></tr></thead>
+                <thead><tr><th>Platform</th><th>Operating Model</th><th>Commission</th><th>Service Fee</th><th>Free Delivery From</th><th>Restaurant Share</th><th>Self Delivery</th><th>Setup Fee</th><th>Confidence</th></tr></thead>
                 <tbody></tbody>
               </table>
             </div>
@@ -779,15 +823,43 @@
       updateTierUI();
     }
 
+    async function countScenarios() {
+      var count = 0;
+      try { var raw = localStorage.getItem(_sessionsKey); if (raw) count = JSON.parse(raw).length; } catch(e){}
+      if (_currentUser && window.BondsAuth && window.BondsAuth.getSupabase) {
+        try {
+          var sb = window.BondsAuth.getSupabase();
+          var res = await sb.from('scenarios').select('id', { count: 'exact', head: true }).eq('user_id', _currentUser.id);
+          if (res.count != null) count = res.count;
+        } catch(e){}
+      }
+      return count;
+    }
+
     function updateTierUI() {
       var banner = document.getElementById('tierBanner');
       if (!banner) return;
       if (_currentUser) {
         var tierLabel = _currentTier === 'enterprise' ? 'Enterprise' : (_currentTier === 'pro' ? 'Pro' : 'Free');
-        banner.innerHTML = '<span>Your plan: <strong>' + tierLabel + '</strong></span>' + (_currentTier === 'free' ? '<a href="../pricing.html" style="color:var(--gold);font-weight:700;text-decoration:none;font-size:0.85rem;">Upgrade →</a>' : '');
+        banner.innerHTML = '<span>Your plan: <strong>' + tierLabel + '</strong></span>' + (_currentTier === 'free' ? '<a href="../../pricing.html" class="upgrade-btn-inline">Upgrade →</a>' : '');
         banner.style.display = 'flex';
+        if (_currentTier === 'free') {
+          countScenarios().then(function(count) {
+            var pct = Math.min((count / 3) * 100, 100);
+            var barClass = pct < 60 ? 'safe' : (pct < 90 ? 'warn' : 'danger');
+            var quotaHtml = '<div style="width:100%;margin-top:6px;font-size:0.78rem;color:var(--text-secondary);">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">' +
+              '<span>Saved scenarios: <strong>' + count + ' / 3</strong></span>' +
+              (count >= 3 ? '<a href="../../pricing.html" style="color:#dc2626;font-weight:700;">Limit reached — Upgrade now</a>' : '') +
+              '</div>' +
+              '<div class="quota-bar ' + barClass + '"><div style="width:' + pct + '%;"></div></div>' +
+              '</div>';
+            banner.insertAdjacentHTML('beforeend', quotaHtml);
+          });
+        }
       } else {
-        banner.innerHTML = '<span>You are using the free version. <a href="auth/" style="color:var(--gold);font-weight:700;text-decoration:none;">Sign in</a> to save scenarios.</span>';
+        banner.innerHTML = '<span>You are using the free version. <a href="auth/" style="color:var(--gold);font-weight:700;text-decoration:none;">Sign in</a> to save scenarios to the cloud.</span>' +
+          '<a href="../../pricing.html" class="upgrade-btn-inline">View Plans</a>';
         banner.style.display = 'flex';
       }
     }
@@ -907,7 +979,9 @@
         var conf = p.confidence === 'verified' ? '✅ Verified' : '⚠️ Estimated';
         var opmLabel = { closed: 'Closed Menu', open: 'Open Courier', subscription: 'Subscription', direct: 'Direct' }[p.operatingModel || 'closed'] || 'Closed Menu';
         var opmBadge = '<span class="opm-badge ' + (p.operatingModel || 'closed') + '">' + opmLabel + '</span>';
-        html += '<tr><td><strong>' + (p.nameEn || p.name) + '</strong></td><td>' + opmBadge + '</td><td>' + fee + '</td><td>' + (p.serviceFee ? p.serviceFee + '%' : '—') + '</td><td>' + fd + '</td><td>' + fdShare + '</td><td>' + conf + '</td></tr>';
+        var selfDel = p.selfDeliveryFee ? p.selfDeliveryFee + '%' : '—';
+        var setup = p.setupFee ? p.setupFee + ' ' + data.currencySymbolEn : '—';
+        html += '<tr><td><strong>' + (p.nameEn || p.name) + '</strong></td><td>' + opmBadge + '</td><td>' + fee + '</td><td>' + (p.serviceFee ? p.serviceFee + '%' : '—') + '</td><td>' + fd + '</td><td>' + fdShare + '</td><td>' + selfDel + '</td><td>' + setup + '</td><td>' + conf + '</td></tr>';
       });
       tbody.innerHTML = html;
     }
@@ -1176,7 +1250,7 @@
       var platforms = [];
       PLATFORMS.forEach(function(p) {
         var el = document.getElementById(p.id);
-        if (el && el.checked) platforms.push({ name: p.name, fee: parseFloat(el.value) || 0, serviceFee: parseFloat(el.dataset.servicefee) || 0, feeTiers: p.feeTiers, paymentGatewayFee: p.paymentGatewayFee || 0, campaignDiscount: p.campaignDiscount || 0, operatingModel: p.operatingModel || 'closed' });
+        if (el && el.checked) platforms.push({ name: p.name, fee: parseFloat(el.value) || 0, serviceFee: parseFloat(el.dataset.servicefee) || 0, feeTiers: p.feeTiers, paymentGatewayFee: p.paymentGatewayFee || 0, campaignDiscount: p.campaignDiscount || 0, operatingModel: p.operatingModel || 'closed', setupFee: p.setupFee || 0, selfDeliveryFee: p.selfDeliveryFee || 0 });
       });
       var isCloud = (currentBusinessModel === 'cloud');
       return {
@@ -1251,15 +1325,16 @@
         var platformPrice = weightedPrice - totalDeduction;
         var varCostPerOrder = weightedCost + inputs.packaging + inputs.delivery;
         var contributionPerOrder = platformPrice - varCostPerOrder;
-        var dailyProfit = contributionPerOrder * inputs.dailyOrders - dailyFixed;
+        var setupFeeMonthly = (p.setupFee || 0) / 12;
+        var dailyProfit = contributionPerOrder * inputs.dailyOrders - dailyFixed - (setupFeeMonthly / inputs.workingDays);
         var monthlyProfit = dailyProfit * inputs.workingDays;
-        var breakEvenOrders = contributionPerOrder > 0 ? Math.ceil(dailyFixed / contributionPerOrder) : -1;
+        var breakEvenOrders = contributionPerOrder > 0 ? Math.ceil((dailyFixed + (setupFeeMonthly / inputs.workingDays)) / contributionPerOrder) : -1;
         return {
           name: p.name, fee: p.fee, serviceFee: p.serviceFee || 0, totalFee: totalFee,
           tierApplied: ef.tierApplied, tierName: ef.tierName || '', platformPrice: platformPrice,
           contributionPerOrder: contributionPerOrder,
           dailyProfit: dailyProfit, monthlyProfit: monthlyProfit,
-          breakEvenOrders: breakEvenOrders
+          breakEvenOrders: breakEvenOrders, setupFee: p.setupFee || 0, setupFeeMonthly: setupFeeMonthly
         };
       });
 
@@ -1344,8 +1419,9 @@
         var tr = document.createElement('tr');
         if (isBest) tr.className = 'best-platform';
         if (isWorst) tr.className = 'worst-platform';
+        var setupNote = p.setupFee ? '<span style="color:#d4a853;font-size:0.7rem;display:block;margin-top:2px;">Setup ' + formatNumber(p.setupFee) + ' (mo ' + formatNumber(Math.round(p.setupFeeMonthly)) + ')</span>' : '';
         tr.innerHTML = `
-          <td><strong>${p.name}</strong></td>
+          <td><strong>${p.name}</strong>${setupNote}</td>
           <td>${p.fee}${p.serviceFee ? '+' + p.serviceFee : ''}%</td>
           <td>${p.tierApplied ? '<span style="color:#16a34a;font-size:0.75rem;">✓ ' + p.tierName + '</span>' : '—'}</td>
           <td>${formatNumber(Math.round(p.platformPrice))}</td>
@@ -1629,6 +1705,19 @@
     function saveSession() {
       var name = document.getElementById('sessionName').value.trim();
       if (!name) { alert('Enter a name for this scenario'); return; }
+
+      // Free tier: max 3 scenarios
+      if (!isPro()) {
+        var localCount = 0;
+        try { var raw = localStorage.getItem(_sessionsKey); if (raw) localCount = JSON.parse(raw).length; } catch(e){}
+        if (localCount >= 3) {
+          if (confirm('⚠️ You have reached the limit (3 scenarios) on the free plan.\n\nUpgrade to Pro for unlimited scenarios?')) {
+            window.location.href = '../../pricing.html';
+          }
+          return;
+        }
+      }
+
       var inputs = getInputs();
       var selectedIds = [];
       PLATFORMS.forEach(function(p) {
@@ -1678,12 +1767,12 @@
     async function renderSessions() {
       var sessions = [];
 
-      // Load from Supabase if Pro
-      if (isPro() && _currentUser && window.BondsAuth && window.BondsAuth.getSupabase) {
+      // Load from Supabase if logged in
+      if (_currentUser && window.BondsAuth && window.BondsAuth.getSupabase) {
         try {
           var sb = window.BondsAuth.getSupabase();
           var res = await sb.from('scenarios').select('*').eq('user_id', _currentUser.id).order('created_at', { ascending: false }).limit(50);
-          if (res.data) {
+          if (res.data && res.data.length > 0) {
             sessions = res.data.map(function(row) {
               return {
                 id: row.id,
@@ -1693,7 +1782,7 @@
                 selectedIds: row.inputs && row.inputs.selectedIds ? row.inputs.selectedIds : [],
                 model: row.inputs && row.inputs.model ? row.inputs.model : 'traditional',
                 date: new Date(row.created_at).toLocaleString('en-US'),
-                summary: row.results ? 'Cloud saved' : 'Scenario',
+                summary: row.results ? 'Saved in cloud ☁️' : 'Scenario',
                 isCloud: true
               };
             });
@@ -1983,9 +2072,10 @@
         var platformPrice = adjustedPrice - totalDeduction;
         var varCostPerOrder = adjustedCost + inputs.packaging + inputs.delivery;
         var contributionPerOrder = platformPrice - varCostPerOrder;
-        var dailyProfit = contributionPerOrder * adjustedOrders - dailyFixed;
+        var setupFeeMonthly = (p.setupFee || 0) / 12;
+        var dailyProfit = contributionPerOrder * adjustedOrders - dailyFixed - (setupFeeMonthly / inputs.workingDays);
         var monthlyProfit = dailyProfit * inputs.workingDays;
-        var breakEvenOrders = contributionPerOrder > 0 ? Math.ceil(dailyFixed / contributionPerOrder) : -1;
+        var breakEvenOrders = contributionPerOrder > 0 ? Math.ceil((dailyFixed + (setupFeeMonthly / inputs.workingDays)) / contributionPerOrder) : -1;
         return {
           name: p.name, monthlyProfit: monthlyProfit, breakEvenOrders: breakEvenOrders
         };

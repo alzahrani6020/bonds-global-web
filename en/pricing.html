@@ -21,7 +21,6 @@
   <link rel="preload" href="../assets/site-logo.webp" as="image" type="image/webp" />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="/api/env"></script>
-  <script src="/api/env"></script>
   <script defer src="/_vercel/insights/script.js"></script>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -79,6 +78,7 @@
               <a href="calculators/cash-flow.html">Cash Flow</a>
               <a href="calculators/pricing.html">Pricing</a>
               <a href="calculators/loan.html">Loan & Financing</a>
+              <a href="calculators/restaurant.html">Restaurant & Cloud</a>
             </div>
           </li>
           <li><a href="blog/index.html">Insights</a></li>
@@ -348,7 +348,7 @@
         <span>&copy; <span id="y">2025</span> Bonds Financial Consulting &mdash; All rights reserved.</span>
         <div style="display: flex; gap: var(--space-6);">
           <a href="privacy.html" style="color: var(--text-muted);">Privacy Policy</a>
-          <a href="#" style="color: var(--text-muted);">Disclaimer</a>
+          <a href="faq.html" style="color: var(--text-muted);">FAQ</a>
         </div>
       </div>
     </div>
@@ -372,8 +372,8 @@
   </script>
   <!-- Supabase + Auth + Checkout -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="../api/supabase-client.js"></script>
-  <script src="../api/auth-guard.js"></script>
+  <script src="/supabase-client.js?v=5"></script>
+  <script src="/auth-guard.js?v=5"></script>
   <script>
     // Env validation
     setTimeout(function(){
