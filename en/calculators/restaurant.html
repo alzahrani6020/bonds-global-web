@@ -1226,7 +1226,7 @@
           <td><input type="number" class="ing-qty" value="${ing.qty}" min="0" step="0.01" placeholder="500" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
           <td><input type="text" class="ing-unit" value="${escapeHtml(ing.unit)}" placeholder="g" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
           <td><input type="number" class="ing-price" value="${ing.unitPrice}" min="0" step="0.01" placeholder="45 (per kg)" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
-          <td class="ing-total" style="text-align:center;font-weight:700;color:var(--gold);">${formatNumber(ing.total)}</td>
+          <td class="ing-total" style="text-align:center;font-weight:700;color:var(--gold);">${ing.total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
           <td style="text-align:center;"><button type="button" class="btn-small btn-remove" onclick="removeIngredientRow(${i})" style="padding:0.3rem 0.6rem;">🗑️</button></td>
         </tr>`;
       }).join('');
@@ -1259,7 +1259,7 @@
       var price = parseFloat(row.querySelector('.ing-price').value) || 0;
       var multiplier = getUnitMultiplier(unit);
       var total = Math.round(qty * multiplier * price * 100) / 100;
-      row.querySelector('.ing-total').textContent = formatNumber(total);
+      row.querySelector('.ing-total').textContent = total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
       return total;
     }
 
@@ -1270,7 +1270,7 @@
       rows.forEach(function(row) {
         sum += updateIngredientRowTotal(row);
       });
-      document.getElementById('ingredientModalTotal').textContent = 'Total: ' + formatNumber(sum) + ' ' + currentCurrency;
+      document.getElementById('ingredientModalTotal').textContent = 'Total: ' + sum.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ' + currentCurrency;
       return sum;
     }
 
