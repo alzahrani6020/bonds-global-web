@@ -1256,8 +1256,8 @@
     }
 
     function getUnitSelectHtml(selectedValue) {
-      return '<select class="ing-unit" onchange="updateIngredientRowTotal(this.closest(\'tr\'));updateIngredientTotal();updatePricePlaceholder(this.closest(\'tr\'));" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;">' +
-        INGREDIENT_UNITS.map(function(o){ return '<option value="' + o.value + '"' + (o.value === selectedValue ? ' selected' : '') + '>' + o.label + '</option>'; }).join('') +
+      return '<select class="ing-unit" onchange="updateIngredientRowTotal(this.closest(\'tr\'));updateIngredientTotal();updatePricePlaceholder(this.closest(\'tr\'));" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:#0f1525;color:var(--text);font-family:inherit;">' +
+        INGREDIENT_UNITS.map(function(o){ return '<option value="' + o.value + '"' + (o.value === selectedValue ? ' selected' : '') + ' style="background:#0f1525;color:var(--text);">' + o.label + '</option>'; }).join('') +
       '</select>';
     }
 
