@@ -1157,7 +1157,8 @@
     // ===== Dish Management =====
     function addDish(data) {
       var idx = dishes.length;
-      data = data || { name: 'طبق ' + (idx + 1), price: 45, cost: 18, salesMix: 50 };
+      data = data || { name: 'طبق ' + (idx + 1), price: 45, cost: 18, salesMix: 50, ingredients: [] };
+      if (!data.ingredients) data.ingredients = [];
       dishes.push(data);
       renderDishes();
     }
@@ -1170,6 +1171,140 @@
     function updateDish(idx, field, value) {
       dishes[idx][field] = value;
       _calcMemo.clear();
+    }
+
+    function handleCostChange(idx, input) {
+      var newVal = parseFloat(input.value) || 0;
+      var oldVal = dishes[idx].cost;
+      dishes[idx].cost = newVal;
+      // If user manually changes cost and ingredients exist, clear them to avoid confusion
+      if (dishes[idx].ingredients && dishes[idx].ingredients.length > 0 && Math.abs(newVal - oldVal) > 0.01) {
+        dishes[idx].ingredients = [];
+        renderDishes();
+        BondsUI.toast('🗑️ تم مسح تفصيل المكونات لأن التكلفة عدّلت يدوياً', 'warning');
+      }
+      _calcMemo.clear();
+    }
+
+    // ===== Ingredient Breakdown Modal =====
+    var _currentIngredientDishIdx = null;
+
+    function openIngredientModal(dishIdx) {
+      _currentIngredientDishIdx = dishIdx;
+      var dish = dishes[dishIdx];
+      document.getElementById('ingredientModalTitle').textContent = '📋 مكونات: ' + dish.name;
+      renderIngredientRows();
+      updateIngredientTotal();
+      document.getElementById('ingredientModalOverlay').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeIngredientModal() {
+      document.getElementById('ingredientModalOverlay').style.display = 'none';
+      document.body.style.overflow = '';
+      _currentIngredientDishIdx = null;
+    }
+
+    function renderIngredientRows() {
+      var tbody = document.getElementById('ingredientRows');
+      var dish = dishes[_currentIngredientDishIdx];
+      var list = dish.ingredients || [];
+      if (list.length === 0) {
+        tbody.innerHTML = '';
+        return;
+      }
+      tbody.innerHTML = list.map(function(ing, i) {
+        return `<tr>
+          <td><input type="text" class="ing-name" value="${escapeHtml(ing.name)}" placeholder="مثال: لحم بقري" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
+          <td><input type="number" class="ing-qty" value="${ing.qty}" min="0" step="0.01" placeholder="500" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
+          <td><input type="text" class="ing-unit" value="${escapeHtml(ing.unit)}" placeholder="غرام" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
+          <td><input type="number" class="ing-price" value="${ing.unitPrice}" min="0" step="0.01" placeholder="45" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
+          <td class="ing-total" style="text-align:center;font-weight:700;color:var(--gold);">${formatNumber(ing.total)}</td>
+          <td style="text-align:center;"><button type="button" class="btn-small btn-remove" onclick="removeIngredientRow(${i})" style="padding:0.3rem 0.6rem;">🗑️</button></td>
+        </tr>`;
+      }).join('');
+      attachIngredientListeners();
+    }
+
+    function attachIngredientListeners() {
+      var tbody = document.getElementById('ingredientRows');
+      var rows = tbody.querySelectorAll('tr');
+      rows.forEach(function(row, idx) {
+        var inputs = row.querySelectorAll('input');
+        inputs.forEach(function(inp) {
+          inp.addEventListener('input', function() { updateIngredientRowTotal(row); updateIngredientTotal(); });
+        });
+      });
+    }
+
+    function updateIngredientRowTotal(row) {
+      var qty = parseFloat(row.querySelector('.ing-qty').value) || 0;
+      var price = parseFloat(row.querySelector('.ing-price').value) || 0;
+      var total = Math.round(qty * price * 100) / 100;
+      row.querySelector('.ing-total').textContent = formatNumber(total);
+      return total;
+    }
+
+    function updateIngredientTotal() {
+      var tbody = document.getElementById('ingredientRows');
+      var rows = tbody.querySelectorAll('tr');
+      var sum = 0;
+      rows.forEach(function(row) {
+        sum += updateIngredientRowTotal(row);
+      });
+      document.getElementById('ingredientModalTotal').textContent = 'المجموع: ' + formatNumber(sum) + ' ' + currentCurrency;
+      return sum;
+    }
+
+    function addIngredientRow() {
+      var tbody = document.getElementById('ingredientRows');
+      var tr = document.createElement('tr');
+      tr.innerHTML = `<td><input type="text" class="ing-name" placeholder="مثال: لحم بقري" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
+        <td><input type="number" class="ing-qty" min="0" step="0.01" placeholder="500" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
+        <td><input type="text" class="ing-unit" placeholder="غرام" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
+        <td><input type="number" class="ing-price" min="0" step="0.01" placeholder="45" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
+        <td class="ing-total" style="text-align:center;font-weight:700;color:var(--gold);">0</td>
+        <td style="text-align:center;"><button type="button" class="btn-small btn-remove" onclick="this.closest('tr').remove();updateIngredientTotal();" style="padding:0.3rem 0.6rem;">🗑️</button></td>`;
+      tbody.appendChild(tr);
+      attachIngredientListeners();
+      tr.querySelector('.ing-name').focus();
+    }
+
+    function removeIngredientRow(idx) {
+      var dish = dishes[_currentIngredientDishIdx];
+      if (dish.ingredients && dish.ingredients[idx]) {
+        dish.ingredients.splice(idx, 1);
+        renderIngredientRows();
+        updateIngredientTotal();
+      }
+    }
+
+    function saveIngredients() {
+      var tbody = document.getElementById('ingredientRows');
+      var rows = tbody.querySelectorAll('tr');
+      var list = [];
+      rows.forEach(function(row) {
+        var name = row.querySelector('.ing-name').value.trim();
+        var qty = parseFloat(row.querySelector('.ing-qty').value) || 0;
+        var unit = row.querySelector('.ing-unit').value.trim();
+        var unitPrice = parseFloat(row.querySelector('.ing-price').value) || 0;
+        if (name && qty > 0 && unitPrice > 0) {
+          list.push({ name: name, qty: qty, unit: unit || 'وحدة', unitPrice: unitPrice, total: Math.round(qty * unitPrice * 100) / 100 });
+        }
+      });
+      var dish = dishes[_currentIngredientDishIdx];
+      dish.ingredients = list;
+      var total = list.reduce(function(s, i) { return s + i.total; }, 0);
+      dish.cost = Math.round(total * 100) / 100;
+      renderDishes();
+      closeIngredientModal();
+      BondsUI.toast('✅ تم حفظ ' + list.length + ' مكونات وتعديل التكلفة', 'success');
+      _calcMemo.clear();
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
     function renderDishes() {
@@ -1196,12 +1331,15 @@
             </div>
             <div class="calc-input-group" style="margin-bottom:0;">
               <label>تكلفة مكونات هذا الطبق</label>
-              <input type="number" value="${dish.cost}" min="0" step="0.5" onchange="updateDish(${idx},'cost',parseFloat(this.value)||0)" />
+              <input type="number" value="${dish.cost}" min="0" step="0.5" onchange="handleCostChange(${idx},this)" />
             </div>
             <div class="calc-input-group" style="margin-bottom:0;">
               <label>نسبة مبيعات هذا الطبق (%)</label>
               <input type="number" value="${dish.salesMix}" min="0" max="100" onchange="updateDish(${idx},'salesMix',parseFloat(this.value)||0)" />
             </div>
+          </div>
+          <div style="margin-top: var(--space-2); display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;">
+            ${dish.ingredients && dish.ingredients.length ? `<button type="button" class="btn-small" onclick="openIngredientModal(${idx})" style="background: rgba(212,168,83,0.15); color: var(--gold); border: 1px solid rgba(212,168,83,0.3);">📋 ${dish.ingredients.length} مكون${dish.ingredients.length > 1 ? 'ات' : ''} = ${formatNumber(dish.cost)} ${currentCurrency}</button>` : `<button type="button" class="btn-small btn-ghost" onclick="openIngredientModal(${idx})" style="color: var(--text-muted);">📋 تفصيل المكونات</button>`}
           </div>
         `;
         container.appendChild(card);
@@ -1255,7 +1393,7 @@
       });
       var isCloud = (currentBusinessModel === 'cloud');
       return {
-        dishes: dishes.map(function(d) { return { name: d.name, price: d.price, cost: d.cost, salesMix: d.salesMix }; }),
+        dishes: dishes.map(function(d) { return { name: d.name, price: d.price, cost: d.cost, salesMix: d.salesMix, ingredients: d.ingredients || [] }; }),
         platforms: platforms,
         isCloud: isCloud,
         rent: parseFloat(document.getElementById('rentCost').value) || 0,
@@ -2039,7 +2177,7 @@
       } else {
         if (!_scenarioBackup) {
           _scenarioBackup = {
-            dishes: dishes.map(function(d) { return { name: d.name, price: d.price, cost: d.cost, salesMix: d.salesMix }; }),
+            dishes: dishes.map(function(d) { return { name: d.name, price: d.price, cost: d.cost, salesMix: d.salesMix, ingredients: d.ingredients || [] }; }),
             dailyOrders: baseOrders
           };
         }
@@ -2287,9 +2425,9 @@
     // ===== Loaders =====
     function loadExample() {
       dishes = [];
-      addDish({ name: 'برجر كلاسيك', price: 35, cost: 14, salesMix: 40 });
-      addDish({ name: 'باستا Alfredo', price: 42, cost: 16, salesMix: 35 });
-      addDish({ name: 'سلطة سيزر', price: 28, cost: 10, salesMix: 25 });
+      addDish({ name: 'برجر كلاسيك', price: 35, cost: 14, salesMix: 40, ingredients: [] });
+      addDish({ name: 'باستا Alfredo', price: 42, cost: 16, salesMix: 35, ingredients: [] });
+      addDish({ name: 'سلطة سيزر', price: 28, cost: 10, salesMix: 25, ingredients: [] });
       document.getElementById('dailyOrders').value = '100';
       document.getElementById('workingDays').value = '30';
       document.getElementById('rentCost').value = '20000';
@@ -2306,8 +2444,8 @@
 
     function resetCalc() {
       dishes = [];
-      addDish({ name: 'طبق 1', price: 40, cost: 15, salesMix: 50 });
-      addDish({ name: 'طبق 2', price: 35, cost: 12, salesMix: 50 });
+      addDish({ name: 'طبق 1', price: 40, cost: 15, salesMix: 50, ingredients: [] });
+      addDish({ name: 'طبق 2', price: 35, cost: 12, salesMix: 50, ingredients: [] });
       document.getElementById('rentCost').value = '15000';
       document.getElementById('salariesCost').value = '20000';
       document.getElementById('utilitiesCost').value = '3000';
@@ -2527,8 +2665,8 @@
       loadExample();
       localStorage.setItem('bonds_has_used', '1');
     } else {
-      addDish({ name: 'طبق 1', price: 40, cost: 15, salesMix: 50 });
-      addDish({ name: 'طبق 2', price: 35, cost: 12, salesMix: 50 });
+      addDish({ name: 'طبق 1', price: 40, cost: 15, salesMix: 50, ingredients: [] });
+      addDish({ name: 'طبق 2', price: 35, cost: 12, salesMix: 50, ingredients: [] });
     }
 
     loadFromURL();
@@ -2551,6 +2689,38 @@
     // Load from URL params (e.g. ?model=cloud)
     loadFromURL();
   </script>
+
+  <!-- Ingredient Breakdown Modal -->
+  <div id="ingredientModalOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;padding:1rem;box-sizing:border-box;">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);max-width:700px;width:100%;max-height:90vh;overflow-y:auto;padding:var(--space-5);position:relative;">
+      <button type="button" onclick="closeIngredientModal()" style="position:absolute;top:var(--space-3);left:var(--space-3);background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;line-height:1;">×</button>
+      <h3 id="ingredientModalTitle" style="margin-bottom:var(--space-4);font-size:1.25rem;font-weight:800;color:var(--text);">📋 مكونات الطبق</h3>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:var(--space-3);">
+        <thead>
+          <tr style="font-size:0.85rem;color:var(--text-muted);text-align:right;">
+            <th style="padding:0.5rem;width:30%;">المكون</th>
+            <th style="padding:0.5rem;width:15%;">الكمية</th>
+            <th style="padding:0.5rem;width:15%;">الوحدة</th>
+            <th style="padding:0.5rem;width:15%;">سعر الوحدة</th>
+            <th style="padding:0.5rem;width:15%;text-align:center;">المجموع</th>
+            <th style="padding:0.5rem;width:10%;text-align:center;">حذف</th>
+          </tr>
+        </thead>
+        <tbody id="ingredientRows"></tbody>
+      </table>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-3);">
+        <button type="button" class="btn btn-ghost" onclick="addIngredientRow()" style="font-size:0.9rem;">+ إضافة مكون</button>
+        <div id="ingredientModalTotal" style="font-weight:800;color:var(--gold);font-size:1.1rem;">المجموع: 0</div>
+      </div>
+
+      <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4);justify-content:flex-end;">
+        <button type="button" class="btn btn-ghost" onclick="closeIngredientModal()">إلغاء</button>
+        <button type="button" class="btn btn-primary" onclick="saveIngredients()">💾 حفظ المكونات</button>
+      </div>
+    </div>
+  </div>
 
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
 </body>
