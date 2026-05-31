@@ -2323,6 +2323,19 @@
       });
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dishData), 'Dishes');
 
+      // Ingredients sheet
+      var ingData = [['Dish', 'Ingredient', 'Qty', 'Unit', 'Price per kg/L', 'Total']];
+      r.inputs.dishes.forEach(function(d) {
+        if (d.ingredients && d.ingredients.length) {
+          d.ingredients.forEach(function(ing) {
+            ingData.push([d.name, ing.name, ing.qty, ing.unit, ing.unitPrice, ing.total]);
+          });
+        } else {
+          ingData.push([d.name, '—', '—', '—', '—', d.cost]);
+        }
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(ingData), 'Ingredients');
+
       // Individual platform sheets
       r.platformResults.forEach(function(p) {
         var sheetName = p.name.substring(0, 31); // Excel sheet name max 31 chars
@@ -2562,6 +2575,19 @@
         dishData.push([d.name, d.price, d.cost, d.foodCostPct.toFixed(1) + '%', Math.round(d.contribution)]);
       });
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dishData), 'Dishes');
+
+      // Ingredients
+      var ingData = [['Dish', 'Ingredient', 'Qty', 'Unit', 'Price per kg/L', 'Total']];
+      r.inputs.dishes.forEach(function(d) {
+        if (d.ingredients && d.ingredients.length) {
+          d.ingredients.forEach(function(ing) {
+            ingData.push([d.name, ing.name, ing.qty, ing.unit, ing.unitPrice, ing.total]);
+          });
+        } else {
+          ingData.push([d.name, '—', '—', '—', '—', d.cost]);
+        }
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(ingData), 'Ingredients');
 
       // Platform sheet
       var data = [

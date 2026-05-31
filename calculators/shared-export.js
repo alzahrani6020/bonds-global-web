@@ -31,7 +31,7 @@ async function exportElementToPDF(options) {
   options = options || {};
   var elementId = options.elementId;
   var filename = options.filename || 'report.pdf';
-  var bgColor = options.bgColor || '#0a0f1a';
+  var bgColor = options.bgColor || '#ffffff';
   var scale = options.scale || 2;
 
   var section = document.getElementById(elementId);

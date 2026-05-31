@@ -2329,6 +2329,19 @@
       });
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dishData), 'الأطباق');
 
+      // Ingredients sheet
+      var ingData = [['الطبق', 'المكون', 'الكمية', 'الوحدة', 'السعر لكل كغ/لتر', 'المجموع']];
+      r.inputs.dishes.forEach(function(d) {
+        if (d.ingredients && d.ingredients.length) {
+          d.ingredients.forEach(function(ing) {
+            ingData.push([d.name, ing.name, ing.qty, ing.unit, ing.unitPrice, ing.total]);
+          });
+        } else {
+          ingData.push([d.name, '—', '—', '—', '—', d.cost]);
+        }
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(ingData), 'المكونات');
+
       // Individual platform sheets
       r.platformResults.forEach(function(p) {
         var sheetName = p.name.substring(0, 31); // Excel sheet name max 31 chars
@@ -2372,7 +2385,24 @@
     async function exportPDF() {
       if (!requirePro()) return;
       if (typeof gtag !== 'undefined') gtag('event', 'export_pdf', { type: 'full' });
-      await exportElementToPDF({ elementId: 'resultsSection', filename: 'bonds-restaurant-report.pdf' });
+      var section = document.getElementById('resultsSection');
+      var originalBg = section.style.background;
+      var originalColor = section.style.color;
+      section.style.background = '#ffffff';
+      section.style.color = '#1a1a1a';
+      section.querySelectorAll('.result-card, .result-section').forEach(function(el) {
+        el.dataset._origBg = el.style.background;
+        el.dataset._origColor = el.style.color;
+        el.style.background = '#f8f9fa';
+        el.style.color = '#1a1a1a';
+      });
+      await exportElementToPDF({ elementId: 'resultsSection', filename: 'bonds-restaurant-report.pdf', bgColor: '#ffffff' });
+      section.style.background = originalBg;
+      section.style.color = originalColor;
+      section.querySelectorAll('.result-card, .result-section').forEach(function(el) {
+        el.style.background = el.dataset._origBg || '';
+        el.style.color = el.dataset._origColor || '';
+      });
     }
 
     async function exportPlatformPDF() {
@@ -2387,7 +2417,24 @@
       });
       if (!targetPlatform && r.platformResults.length > 0) targetPlatform = r.platformResults[0];
       var filename = targetPlatform ? 'bonds-' + targetPlatform.name.replace(/\s+/g, '-') + '-report.pdf' : 'bonds-platform-report.pdf';
-      await exportElementToPDF({ elementId: 'resultsSection', filename: filename });
+      var section = document.getElementById('resultsSection');
+      var originalBg = section.style.background;
+      var originalColor = section.style.color;
+      section.style.background = '#ffffff';
+      section.style.color = '#1a1a1a';
+      section.querySelectorAll('.result-card, .result-section').forEach(function(el) {
+        el.dataset._origBg = el.style.background;
+        el.dataset._origColor = el.style.color;
+        el.style.background = '#f8f9fa';
+        el.style.color = '#1a1a1a';
+      });
+      await exportElementToPDF({ elementId: 'resultsSection', filename: filename, bgColor: '#ffffff' });
+      section.style.background = originalBg;
+      section.style.color = originalColor;
+      section.querySelectorAll('.result-card, .result-section').forEach(function(el) {
+        el.style.background = el.dataset._origBg || '';
+        el.style.color = el.dataset._origColor || '';
+      });
     }
 
     async function exportPlatformExcel() {
@@ -2415,6 +2462,19 @@
         dishData.push([d.name, d.price, d.cost, d.foodCostPct.toFixed(1) + '%', Math.round(d.contribution)]);
       });
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dishData), 'الأطباق');
+
+      // Ingredients
+      var ingData = [['الطبق', 'المكون', 'الكمية', 'الوحدة', 'السعر لكل كغ/لتر', 'المجموع']];
+      r.inputs.dishes.forEach(function(d) {
+        if (d.ingredients && d.ingredients.length) {
+          d.ingredients.forEach(function(ing) {
+            ingData.push([d.name, ing.name, ing.qty, ing.unit, ing.unitPrice, ing.total]);
+          });
+        } else {
+          ingData.push([d.name, '—', '—', '—', '—', d.cost]);
+        }
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(ingData), 'المكونات');
 
       // Platform sheet
       var data = [
