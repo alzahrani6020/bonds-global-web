@@ -11,6 +11,8 @@
   <script src="../auth-guard.js"></script>
   <script src="country-platforms-data.js"></script>
   <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="shared-calculators.css" />
+  <script src="shared-ui.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <style>
     .me-container { max-width: 1200px; margin: 0 auto; padding: var(--space-8) var(--space-4); }
@@ -60,6 +62,9 @@
     .list-box .row { display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
     .list-box .row:last-child { border-bottom: none; }
   </style>
+
+  <script src="db-client.js"></script>
+  <script src="db-client-auto.js"></script>
 </head>
 <body>
   <div class="me-container">
@@ -78,11 +83,11 @@
     <div class="me-actions">
       <h2>📥 إدخال البيانات</h2>
       <div class="tabs">
-        <div class="tab active" onclick="switchTab('platforms')">المنصات</div>
-        <div class="tab" onclick="switchTab('ingredients')">المكونات</div>
-        <div class="tab" onclick="switchTab('menu')">المنيو</div>
-        <div class="tab" onclick="switchTab('costs')">تكاليف الوجبات</div>
-        <div class="tab" onclick="switchTab('sales')">المبيعات</div>
+        <div class="tab active" onclick="switchTab('platforms', event)">المنصات</div>
+        <div class="tab" onclick="switchTab('ingredients', event)">المكونات</div>
+        <div class="tab" onclick="switchTab('menu', event)">المنيو</div>
+        <div class="tab" onclick="switchTab('costs', event)">تكاليف الوجبات</div>
+        <div class="tab" onclick="switchTab('sales', event)">المبيعات</div>
       </div>
 
       <!-- Platforms Tab -->
@@ -205,6 +210,7 @@ async function init() {
     if (!currentUser) {
       document.getElementById('authAlert').innerHTML =
         '<div class="error">يجب تسجيل الدخول. <a href="/calculators/auth/?redirect=' + encodeURIComponent(location.pathname) + '">تسجيل الدخول</a></div>';
+      if (window.BondsUI) BondsUI.toast('🔐 يجب تسجيل الدخول لاستخدام هذه الحاسبة', 'warning', 5000);
       return;
     }
     sb = window.BondsAuth.getSupabase();
@@ -259,16 +265,17 @@ function fillPlatformData() {
   document.getElementById('pDelivery').value = p.setupFee || 0;
 }
 
-function switchTab(id) {
+function switchTab(id, evt) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
+  if (evt && evt.target) evt.target.classList.add('active');
   document.getElementById('tab-' + id).classList.add('active');
 }
 
 async function clearAllData() {
-  if (!sb || !currentUser) return alert('سجل دخول أولاً');
+  if (!sb || !currentUser) return BondsUI && BondsUI.toast('🔐 سجل دخول أولاً', 'warning');
   if (!confirm('هل أنت متأكد من مسح كل بياناتك؟')) return;
+    BondsUI.toast('⏳ جاري المسح...', 'info');
   try {
     const res = await fetch('/api/clear-user-data', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -276,19 +283,20 @@ async function clearAllData() {
     });
     const json = await res.json();
     if (!json.success) throw new Error(json.error);
-    alert('✅ تم مسح كل البيانات');
+    BondsUI.toast('✅ تم مسح كل البيانات', 'success');
     location.reload();
   } catch (e) {
-    alert('خطأ: ' + e.message);
+    BondsUI.toast('❌ خطأ: ' + e.message, 'error', 5000);
   }
 }
 
 async function seedDemoData() {
-  if (!sb || !currentUser) return alert('سجل دخول أولاً');
+  if (!sb || !currentUser) return BondsUI.toast('🔐 سجل دخول أولاً', 'warning');
   const uid = currentUser.id;
   try {
     // 1. Platform
     const plat = await sb.from('platforms').insert({ user_id: uid, code: 'jahez', name: 'جاهز', commission_rate: 25, service_fee_rate: 2, payment_gateway_fee: 1.75 }).select().single();
+    if (!plat.data) { BondsUI.toast('⚠️ تعذر قراءة بيانات المنصة — تحقق من صلاحيات Supabase', 'warning'); return; }
     
     // 2. Ingredients
     const i1 = await sb.from('ingredients').insert({ user_id: uid, name: 'لحم بقر مفروم', unit: 'kg', current_price: 45, category: 'لحوم' }).select().single();
@@ -300,11 +308,18 @@ async function seedDemoData() {
     const i7 = await sb.from('ingredients').insert({ user_id: uid, name: 'خس روماني', unit: 'kg', current_price: 15, category: 'خضار' }).select().single();
     const i8 = await sb.from('ingredients').insert({ user_id: uid, name: 'جبنة بارميزان', unit: 'kg', current_price: 55, category: 'ألبان' }).select().single();
     
+    // Verify inserts succeeded
+    const ingredients = [i1, i2, i3, i4, i5, i6, i7, i8];
+    if (ingredients.some(i => !i.data)) { BondsUI.toast('⚠️ تعذر قراءة بعض المكونات — تحقق من صلاحيات Supabase', 'warning'); return; }
+    
     // 3. Menu Items
     const m1 = await sb.from('menu_items').insert({ user_id: uid, name: 'برجر كلاسيك', category: 'main', base_price: 35 }).select().single();
     const m2 = await sb.from('menu_items').insert({ user_id: uid, name: 'شاورما دجاج', category: 'main', base_price: 28 }).select().single();
     const m3 = await sb.from('menu_items').insert({ user_id: uid, name: 'باستا ألفريدو', category: 'main', base_price: 42 }).select().single();
     const m4 = await sb.from('menu_items').insert({ user_id: uid, name: 'سلطة سيزر', category: 'appetizer', base_price: 22 }).select().single();
+    
+    const menuItems = [m1, m2, m3, m4];
+    if (menuItems.some(m => !m.data)) { BondsUI.toast('⚠️ تعذر قراءة بعض الوجبات — تحقق من صلاحيات Supabase', 'warning'); return; }
     
     // 4. Link ingredients to menu items
     await sb.from('menu_item_ingredients').insert([
@@ -325,8 +340,8 @@ async function seedDemoData() {
       { user_id: uid, menu_item_id: m3.data.id, platform_id: plat.data.id, quantity: 15, unit_price: 42 },
       { user_id: uid, menu_item_id: m4.data.id, platform_id: plat.data.id, quantity: 10, unit_price: 22 }
     ]);
-    alert('✅ تم تحميل البيانات التجريبية! اضغط F5');
-  } catch (e) { alert('خطأ: ' + e.message); }
+    BondsUI.toast('✅ تم تحميل البيانات التجريبية! اضغط F5', 'success');
+  } catch (e) { BondsUI.toast('❌ خطأ: ' + e.message, 'error'); }
 }
 
 async function loadAllData() {
@@ -351,12 +366,13 @@ async function loadAllData() {
     await renderSales();
   } catch (e) {
     console.error('loadAllData error:', e);
-    alert('خطأ في تحميل البيانات: ' + e.message);
+    BondsUI.toast('❌ خطأ في تحميل البيانات: ' + e.message, 'error', 5000);
   }
 }
 
 // Platforms
 async function addPlatform() {
+  if (!currentUser) return BondsUI.toast('🔐 سجل دخول أولاً لإضافة منصة', 'warning');
   try {
     const code = document.getElementById('pCode').value.trim();
     const name = document.getElementById('pName').value.trim();
@@ -364,84 +380,98 @@ async function addPlatform() {
     const service = parseFloat(document.getElementById('pService').value) || 0;
     const gateway = parseFloat(document.getElementById('pGateway').value) || 0;
     const delivery = parseFloat(document.getElementById('pDelivery').value) || 0;
-    if (!code || !name) return alert('أدخل الرمز والاسم');
+    if (!code || !name) return BondsUI.toast('⚠️ أدخل الرمز والاسم', 'warning');
 
     // Check duplicate
     const { data: existing } = await sb.from('platforms').select('id').eq('user_id', currentUser.id).eq('code', code).single();
-    if (existing) return alert('هذا التطبيق موجود مسبقاً: ' + name);
+    if (existing) return BondsUI.toast('⚠️ هذا التطبيق موجود مسبقاً: ' + name, 'warning');
 
     const { error } = await sb.from('platforms').insert({
       user_id: currentUser.id, code, name, commission_rate: commission,
       service_fee_rate: service, payment_gateway_fee: gateway, delivery_fee: delivery
     });
-    if (error) { console.error('addPlatform error:', error); return alert('خطأ: ' + (error.message || JSON.stringify(error))); }
+    if (error) { console.error('addPlatform error:', error); return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await loadAllData();
   } catch (e) {
     console.error('addPlatform catch:', e);
-    alert('خطأ غير متوقع: ' + e.message);
+    BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }
 
 function renderPlatforms() {
   const el = document.getElementById('pList');
-  el.innerHTML = platforms.map(p => `<div class="row"><span>${p.name} (${p.code}) — ${p.commission_rate}%</span></div>`).join('') || '<div class="row">لا توجد منصات</div>';
+  if (platforms.length === 0) {
+    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">📱 لا توجد منصات — أضف تطبيق توصيل</div>';
+  } else {
+    el.innerHTML = platforms.map(p => `<div class="row"><span>${p.name} (${p.code}) — ${p.commission_rate}%</span></div>`).join('');
+  }
 }
 
 // Ingredients
 async function addIngredient() {
+  if (!currentUser) return BondsUI.toast('🔐 سجل دخول أولاً لإضافة مكون', 'warning');
   try {
     const name = document.getElementById('iName').value.trim();
     const unit = document.getElementById('iUnit').value.trim() || 'kg';
     const cost = parseFloat(document.getElementById('iCost').value) || 0;
     const category = document.getElementById('iCategory').value.trim() || 'other';
-    if (!name) return alert('أدخل اسم المكون');
+    if (!name) return BondsUI.toast('⚠️ أدخل اسم المكون', 'warning');
 
     // Check duplicate
     const { data: existing } = await sb.from('ingredients').select('id').eq('user_id', currentUser.id).eq('name', name).single();
-    if (existing) return alert('هذا المكون موجود مسبقاً: ' + name);
+    if (existing) return BondsUI.toast('⚠️ هذا المكون موجود مسبقاً: ' + name, 'warning');
 
     const { error } = await sb.from('ingredients').insert({
       user_id: currentUser.id, name, unit, current_price: cost, category
     });
-    if (error) { console.error('addIngredient error:', error); return alert('خطأ: ' + (error.message || JSON.stringify(error))); }
+    if (error) { console.error('addIngredient error:', error); return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await loadAllData();
   } catch (e) {
     console.error('addIngredient catch:', e);
-    alert('خطأ غير متوقع: ' + e.message);
+    BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }
 
 function renderIngredients() {
   const el = document.getElementById('iList');
-  el.innerHTML = ingredients.map(i => `<div class="row"><span>${i.name} — ${i.current_price || 0} ر.س / ${i.unit}</span></div>`).join('') || '<div class="row">لا توجد مكونات</div>';
+  if (ingredients.length === 0) {
+    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">🥩 لا توجد مكونات — أضف موادك الخام</div>';
+  } else {
+    el.innerHTML = ingredients.map(i => `<div class="row"><span>${i.name} — ${i.current_price || 0} ر.س / ${i.unit}</span></div>`).join('');
+  }
 }
 
 // Menu Items
 async function addMenuItem() {
+  if (!currentUser) return BondsUI.toast('🔐 سجل دخول أولاً لإضافة وجبة', 'warning');
   try {
     const name = document.getElementById('mName').value.trim();
     const category = document.getElementById('mCategory').value;
     const price = parseFloat(document.getElementById('mPrice').value) || 0;
-    if (!name) return alert('أدخل اسم الوجبة');
+    if (!name) return BondsUI.toast('⚠️ أدخل اسم الوجبة', 'warning');
 
     // Check duplicate
     const { data: existing } = await sb.from('menu_items').select('id').eq('user_id', currentUser.id).eq('name', name).single();
-    if (existing) return alert('هذه الوجبة موجودة مسبقاً: ' + name);
+    if (existing) return BondsUI.toast('⚠️ هذه الوجبة موجودة مسبقاً: ' + name, 'warning');
 
     const { error } = await sb.from('menu_items').insert({
       user_id: currentUser.id, name, category, base_price: price
     });
-    if (error) { console.error('addMenuItem error:', error); return alert('خطأ: ' + (error.message || JSON.stringify(error))); }
+    if (error) { console.error('addMenuItem error:', error); return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await loadAllData();
   } catch (e) {
     console.error('addMenuItem catch:', e);
-    alert('خطأ غير متوقع: ' + e.message);
+    BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }
 
 function renderMenuItems() {
   const el = document.getElementById('mList');
-  el.innerHTML = menuItems.map(m => `<div class="row"><span>${m.name} — ${m.base_price} ر.س</span></div>`).join('') || '<div class="row">لا توجد وجبات</div>';
+  if (menuItems.length === 0) {
+    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">🍔 لا توجد وجبات — أضف قائمة الطعام</div>';
+  } else {
+    el.innerHTML = menuItems.map(m => `<div class="row"><span>${m.name} — ${m.base_price} ر.س</span></div>`).join('');
+  }
 }
 
 // Menu Item Ingredients
@@ -451,17 +481,17 @@ async function addMenuItemIngredient() {
     const ingredientId = document.getElementById('cIngredient').value;
     const qty = parseFloat(document.getElementById('cQty').value) || 0;
     const unit = document.getElementById('cUnit').value.trim() || 'g';
-    if (!menuItemId || !ingredientId) return alert('اختر الوجبة والمكون');
-    if (qty <= 0) return alert('أدخل كمية أكبر من صفر');
+    if (!menuItemId || !ingredientId) return BondsUI.toast('⚠️ اختر الوجبة والمكون', 'warning');
+    if (qty <= 0) return BondsUI.toast('⚠️ أدخل كمية أكبر من صفر', 'warning');
 
     const { error } = await sb.from('menu_item_ingredients').insert({
       menu_item_id: menuItemId, ingredient_id: ingredientId, quantity_needed: qty, unit
     });
-    if (error) { console.error('addMenuItemIngredient error:', error); return alert('خطأ: ' + (error.message || JSON.stringify(error))); }
+    if (error) { console.error('addMenuItemIngredient error:', error); return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await renderMenuItemIngredients();
   } catch (e) {
     console.error('addMenuItemIngredient catch:', e);
-    alert('خطأ غير متوقع: ' + e.message);
+    BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }
 
@@ -475,10 +505,14 @@ async function renderMenuItemIngredients() {
     const { data } = await query;
     menuItemIngredients = data || [];
     const el = document.getElementById('cList');
+    if (!data || data.length === 0) {
+    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">🔗 لا توجد مكونات مربوطة — اربط كل وجبة بمكوناتها</div>';
+  } else {
     el.innerHTML = (data || []).map(r => {
       const cost = (r.quantity_needed * (r.ingredient?.current_price || 0)).toFixed(2);
       return `<div class="row"><span>${r.menu_item?.name || '—'} ← ${r.ingredient?.name || '—'} × ${r.quantity_needed} ${r.unit} = ${cost} ر.س</span></div>`;
-    }).join('') || '<div class="row">لا توجد مكونات مربوطة</div>';
+    }).join('');
+  }
   } catch (e) {
     console.error('renderMenuItemIngredients error:', e);
   }
@@ -486,23 +520,24 @@ async function renderMenuItemIngredients() {
 
 // Sales
 async function addSale() {
+  if (!currentUser) return BondsUI.toast('🔐 سجل دخول أولاً لإضافة مبيعات', 'warning');
   try {
     const menuItemId = document.getElementById('sMenuItem').value;
     const platformId = document.getElementById('sPlatform').value || null;
     const qty = parseInt(document.getElementById('sQty').value) || 1;
     const price = parseFloat(document.getElementById('sPrice').value) || 0;
-    if (!menuItemId) return alert('اختر الوجبة');
+    if (!menuItemId) return BondsUI.toast('⚠️ اختر الوجبة', 'warning');
 
     const { error } = await sb.from('sales_transactions').insert({
       user_id: currentUser.id, menu_item_id: menuItemId,
       platform_id: platformId, quantity: qty, unit_price: price
     });
-    if (error) { console.error('addSale error:', error); return alert('خطأ في الحفظ: ' + (error.message || JSON.stringify(error))); }
+    if (error) { console.error('addSale error:', error); return BondsUI.toast('❌ خطأ في الحفظ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await renderSales();
     await loadMatrix();
   } catch (e) {
     console.error('addSale catch:', e);
-    alert('خطأ غير متوقع: ' + e.message);
+    BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }
 
@@ -513,7 +548,11 @@ async function renderSales() {
     .order('created_at', { ascending: false })
     .limit(20);
   const el = document.getElementById('sList');
-  el.innerHTML = (data || []).map(s => `<div class="row"><span>${s.menu_item?.name || '—'} × ${s.quantity} = ${s.unit_price * s.quantity} ر.س</span></div>`).join('') || '<div class="row">لا توجد مبيعات</div>';
+  if (!data || data.length === 0) {
+    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">🛒 لا توجد مبيعات — سجل أول مبيعة</div>';
+  } else {
+    el.innerHTML = (data || []).map(s => `<div class="row"><span>${s.menu_item?.name || '—'} × ${s.quantity} = ${s.unit_price * s.quantity} ر.س</span></div>`).join('');
+  }
 }
 
 function updateDropdowns() {

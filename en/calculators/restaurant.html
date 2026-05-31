@@ -27,6 +27,8 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
+  <script src="../../calculators/shared-ui.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/country-platforms-data.min.js"></script>
@@ -71,7 +73,7 @@
   </script>
   <style>
     .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .calc-grid { grid-template-columns: 1fr; } }
     .calc-input-group { margin-bottom: 1.5rem; }
     .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
     .calc-input-group input[type="number"], .calc-input-group select { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
@@ -192,6 +194,9 @@
       a { text-decoration: none; color: #000; }
     }
   </style>
+
+  <script src="../../calculators/db-client.js"></script>
+  <script src="../../calculators/db-client-auto.js"></script>
 </head>
 <body style="font-family:Inter,system-ui,sans-serif">
 
@@ -243,6 +248,8 @@
               <a href="restaurant.html?model=cafe">☕ Café</a>
               <a href="restaurant.html?model=dessert">🍰 Dessert Shop</a>
               <a href="dish-margin.html">🍽️ Dish Margin</a>
+              <a href="feasibility.html">🚀 Feasibility</a>
+              <a href="invoice-analyzer.html">🧾 Invoice Analyzer</a>
             </div>
           </li>
           <li><a href="../../blog/index.html">Articles</a></li>
@@ -319,7 +326,7 @@
           <!-- Business Model Selector -->
           <div style="margin-bottom: var(--space-6);">
             <h3 style="font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: var(--space-3);">🏢 Business Model</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3);">
+            <div class="calc-grid" style="gap: var(--space-3);">
               <label class="model-card" id="cardTraditional" onclick="setBusinessModel('traditional')" style="cursor: pointer; background: var(--bg-card); border: 2px solid var(--gold); border-radius: var(--radius); padding: var(--space-4); text-align: center; transition: all 0.3s;">
                 <div style="font-size: 2rem; margin-bottom: var(--space-2);">🏢</div>
                 <div style="font-weight: 800; color: var(--text); margin-bottom: var(--space-1);">Traditional Restaurant</div>
@@ -374,10 +381,12 @@
               📋 Policies & Commissions Table (click to expand)
             </div>
             <div class="settings-content" id="settingsContent">
+            <div class="settings-table-wrap">
               <table class="settings-table" id="settingsTable">
                 <thead><tr><th>Platform</th><th>Operating Model</th><th>Commission</th><th>Service Fee</th><th>Free Delivery From</th><th>Restaurant Share</th><th>Self Delivery</th><th>Setup Fee</th><th>Confidence</th></tr></thead>
                 <tbody></tbody>
               </table>
+            </div>
             </div>
           </div>
 
@@ -613,7 +622,7 @@
           </div>
 
           <!-- QR Code & Session Save -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-top: var(--space-8); max-width: 800px; margin-left: auto; margin-right: auto;">
+          <div class="calc-grid" style="gap: var(--space-6); margin-top: var(--space-8); max-width: 800px; margin-left: auto; margin-right: auto;">
             <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center;">
               <h4 style="color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-base);">🔗 QR Code — Scan to Share</h4>
               <div id="qrcode" style="display: flex; justify-content: center; margin-bottom: var(--space-3);"></div>
@@ -819,7 +828,7 @@
           _currentTier = 'free';
           _currentUser = null;
         }
-      } catch(e) { console.log('Auth init skipped'); }
+      } catch(e) { /* auth init skipped silently */ }
       updateTierUI();
     }
 
@@ -871,7 +880,7 @@
     function requirePro(callback) {
       if (isPro()) { if (callback) callback(); return true; }
       if (window.showUpgradeModal) window.showUpgradeModal({ tier: _currentTier, reason: 'not_logged_in' });
-      else alert('This feature is available on Pro plan — click "View Plans"');
+      else BondsUI.toast('⚠️ This feature is available on Pro plan — click "View Plans"', 'warning');
       return false;
     }
 
@@ -903,7 +912,7 @@
           var warned = sessionStorage.getItem('bonds_country_warn');
           if (!warned) {
             sessionStorage.setItem('bonds_country_warn', '1');
-            alert('⚠️ You have used more than 5 countries. The free plan includes 5 countries. Upgrade to Pro to unlock all 22 countries.');
+            BondsUI.toast('⚠️ You have used more than 5 countries. The free plan includes 5 countries. Upgrade to Pro to unlock all 22 countries.', 'warning');
           }
         }
       }
@@ -1058,8 +1067,8 @@
       var platformId = document.getElementById('corrPlatform').value;
       var price = parseFloat(document.getElementById('corrPrice').value) || 0;
       var payout = parseFloat(document.getElementById('corrPayout').value) || 0;
-      if (!platformId || !price || !payout) { alert('Please fill in all fields'); return; }
-      if (payout > price) { alert('Payout cannot be greater than selling price'); return; }
+      if (!platformId || !price || !payout) { BondsUI.toast('⚠️ Please fill in all fields', 'warning'); return; }
+      if (payout > price) { BondsUI.toast('⚠️ Payout cannot be greater than selling price', 'warning'); return; }
       var deduction = price - payout;
       var actualFee = (deduction / price * 100).toFixed(2);
       var opt = document.getElementById('corrPlatform').selectedOptions[0];
@@ -1079,7 +1088,7 @@
       var platformId = document.getElementById('corrPlatform').value;
       var price = parseFloat(document.getElementById('corrPrice').value) || 0;
       var payout = parseFloat(document.getElementById('corrPayout').value) || 0;
-      if (!price || !payout || price <= 0) { alert('Enter valid price and payout'); return; }
+      if (!price || !payout || price <= 0) { BondsUI.toast('⚠️ Enter valid price and payout', 'warning'); return; }
       var actualFee = ((price - payout) / price * 100).toFixed(2);
       var key = 'correction_' + currentCountry + '_' + platformId;
       await dbSet(key, { actualFee: parseFloat(actualFee), price: price, payout: payout, timestamp: Date.now() });
@@ -1101,7 +1110,7 @@
         });
       }
 
-      alert('✅ Correction saved. It will appear next to the commission in the table.');
+      BondsUI.toast('✅ Correction saved. It will appear next to the commission in the table.', 'success');
       displayCorrections();
     }
 
@@ -1188,7 +1197,7 @@
             <label>Dish Name</label>
             <input type="text" value="${dish.name}" onchange="updateDish(${idx},'name',this.value)" style="width:100%;padding:1rem 1.25rem;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;font-size:1rem;" />
           </div>
-          <div class="calc-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+          <div class="calc-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;">
             <div class="calc-input-group" style="margin-bottom:0;">
               <label>Price (${currentCurrency})</label>
               <input type="number" value="${dish.price}" min="0" step="0.5" onchange="updateDish(${idx},'price',parseFloat(this.value)||0)" />
@@ -1686,7 +1695,7 @@
       var input = document.getElementById('shareLink');
       input.select();
       document.execCommand('copy');
-      alert('Link copied!');
+      BondsUI.toast('✅ Link copied!', 'success');
     }
 
     // ===== QR Code =====
@@ -1704,7 +1713,7 @@
 
     function saveSession() {
       var name = document.getElementById('sessionName').value.trim();
-      if (!name) { alert('Enter a name for this scenario'); return; }
+      if (!name) { BondsUI.toast('⚠️ Enter a name for this scenario', 'warning'); return; }
 
       // Free tier: max 3 scenarios
       if (!isPro()) {
@@ -1760,7 +1769,7 @@
         document.getElementById('sessionName').value = '';
         renderSessions();
         if (typeof gtag !== 'undefined') gtag('event', 'save_scenario', { country: currentCountry });
-        alert('✅ Scenario saved');
+        BondsUI.toast('✅ Scenario saved', 'success');
       });
     }
 
@@ -1983,9 +1992,16 @@
     // ===== Main Calculate =====
     function calculateAll() {
       try {
+        var vOrders = BondsUI.validateField('dailyOrders', { type: 'number', required: true, min: 1, label: 'Daily Orders' });
+        var vDays = BondsUI.validateField('workingDays', { type: 'number', required: true, min: 1, max: 31, label: 'Working Days' });
+        if (!vOrders.valid || !vDays.valid) {
+          var errs = [].concat(vOrders.errors, vDays.errors);
+          BondsUI.toast('❌ ' + errs.join(', '), 'error');
+          return;
+        }
         var inputs = getInputs();
-        if (inputs.dishes.length === 0) { alert('Add at least one dish'); return; }
-        if (inputs.dailyOrders <= 0) { alert('Enter daily orders'); return; }
+        if (inputs.dishes.length === 0) { BondsUI.toast('⚠️ Add at least one dish', 'warning'); return; }
+        if (inputs.dailyOrders <= 0) { BondsUI.toast('⚠️ Enter daily orders', 'warning'); return; }
         var r = calculate(inputs);
         _lastResult = r;
         updateResults(r);
@@ -1997,7 +2013,7 @@
         updateSensitivityDisplay();
       } catch (err) {
         console.error('Calculate error:', err);
-        alert('Calculation error: ' + err.message);
+        BondsUI.toast('❌ Calculation error: ' + err.message, 'error');
       }
     }
 
@@ -2123,9 +2139,9 @@
     // ===== Export =====
     async function exportExcel() {
       var inputs = getInputs();
-      if (inputs.dishes.length === 0) { alert('Calculate results first'); return; }
+      if (inputs.dishes.length === 0) { BondsUI.toast('⚠️ Calculate results first', 'warning'); return; }
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
-      if (typeof XLSX === 'undefined') { alert('Failed to load Excel'); return; }
+      if (typeof XLSX === 'undefined') { BondsUI.toast('❌ Failed to load Excel', 'error'); return; }
       var r = calculate(inputs);
       var wb = XLSX.utils.book_new();
       wb.Props = { Title: 'Restaurant Profitability Report', Subject: 'Bonds Global', Author: 'bonds-global.com' };
@@ -2181,7 +2197,7 @@
       if (!requirePro()) return;
       if (typeof gtag !== 'undefined') gtag('event', 'export_pdf', { type: 'full' });
       var inputs = getInputs();
-      if (inputs.dishes.length === 0) { alert('Calculate results first'); return; }
+      if (inputs.dishes.length === 0) { BondsUI.toast('⚠️ Calculate results first', 'warning'); return; }
       await Promise.all([
         loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf'),
         loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js')
@@ -2285,7 +2301,7 @@
       if (!requirePro()) return;
       if (typeof gtag !== 'undefined') gtag('event', 'export_pdf', { type: 'per_platform' });
       var inputs = getInputs();
-      if (inputs.dishes.length === 0) { alert('Calculate results first'); return; }
+      if (inputs.dishes.length === 0) { BondsUI.toast('⚠️ Calculate results first', 'warning'); return; }
       await Promise.all([
         loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf'),
         loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js')
@@ -2300,7 +2316,7 @@
       if (!targetPlatform && r.platformResults.length > 0) {
         targetPlatform = r.platformResults[0];
       }
-      if (!targetPlatform) { alert('No platform selected'); return; }
+      if (!targetPlatform) { BondsUI.toast('⚠️ No platform selected', 'warning'); return; }
 
       var doc = new jsPDF();
       var pageW = doc.internal.pageSize.getWidth();
@@ -2353,9 +2369,9 @@
 
     async function exportPlatformExcel() {
       var inputs = getInputs();
-      if (inputs.dishes.length === 0) { alert('Calculate results first'); return; }
+      if (inputs.dishes.length === 0) { BondsUI.toast('⚠️ Calculate results first', 'warning'); return; }
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
-      if (typeof XLSX === 'undefined') { alert('Failed to load Excel'); return; }
+      if (typeof XLSX === 'undefined') { BondsUI.toast('❌ Failed to load Excel', 'error'); return; }
       var r = calculate(inputs);
       var wb = XLSX.utils.book_new();
       wb.Props = { Title: 'Single Platform Report', Subject: 'Bonds Global', Author: 'bonds-global.com' };
@@ -2368,7 +2384,7 @@
       if (!targetPlatform && r.platformResults.length > 0) {
         targetPlatform = r.platformResults[0];
       }
-      if (!targetPlatform) { alert('No platform selected'); return; }
+      if (!targetPlatform) { BondsUI.toast('⚠️ No platform selected', 'warning'); return; }
 
       // Dishes
       var dishData = [['Dish', 'Price', 'Ingredient Cost', 'Food Cost %', 'Contribution']];
@@ -2396,7 +2412,7 @@
 
     async function exportExcelSettings() {
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
-      if (typeof XLSX === 'undefined') { alert('Failed to load Excel'); return; }
+      if (typeof XLSX === 'undefined') { BondsUI.toast('❌ Failed to load Excel', 'error'); return; }
       var data = COUNTRIES_DATA[currentCountry];
       if (!data) return;
       var wb = XLSX.utils.book_new();
@@ -2465,11 +2481,11 @@
     }
 
     async function loadScenarioFromCloud(id) {
-      if (!window.BondsAuth || !window.BondsAuth.getSupabase) { alert('Sign in required to load cloud scenarios'); return false; }
+      if (!window.BondsAuth || !window.BondsAuth.getSupabase) { BondsUI.toast('⚠️ Sign in required to load cloud scenarios', 'warning'); return false; }
       var sb = window.BondsAuth.getSupabase();
       try {
         var res = await sb.from('scenarios').select('*').eq('id', id).single();
-        if (res.error || !res.data) { alert('Scenario not found'); return false; }
+        if (res.error || !res.data) { BondsUI.toast('❌ Scenario not found', 'error'); return false; }
         var s = res.data;
         if (s.country && COUNTRIES_DATA[s.country]) {
           document.getElementById('countrySelect').value = s.country;
@@ -2503,7 +2519,7 @@
         calculateAll();
         window.scrollTo({ top: document.getElementById('calc').offsetTop - 80, behavior: 'smooth' });
         return true;
-      } catch(e) { console.error('Cloud load error', e); alert('Failed to load scenario'); return false; }
+      } catch(e) { console.error('Cloud load error', e); BondsUI.toast('❌ Failed to load scenario', 'error'); return false; }
     }
 
     function loadFromURL() {
@@ -2511,7 +2527,7 @@
       var subscribed = url.searchParams.get('subscribed');
       if (subscribed === '1') {
         if (typeof gtag !== 'undefined') gtag('event', 'purchase', { event_category: 'subscription' });
-        alert('🎉 Subscribed successfully! You can now use all Pro features.');
+        BondsUI.toast('✅ Subscribed successfully! You can now use all Pro features.', 'success');
       }
       var loadId = url.searchParams.get('load');
       if (loadId) { loadScenarioFromCloud(loadId); return; }
@@ -2542,7 +2558,7 @@
       var targetProfit = parseFloat(document.getElementById('targetProfitPerOrder').value) || 0;
       var dishCost = parseFloat(document.getElementById('targetDishCost').value) || 0;
       if (!targetProfit || !dishCost || targetProfit <= 0 || dishCost <= 0) {
-        alert('Enter valid food cost and target profit');
+        BondsUI.toast('⚠️ Enter valid food cost and target profit', 'warning');
         return;
       }
       var vatRate = (COUNTRIES_DATA[currentCountry].vatRate || 0) / 100;

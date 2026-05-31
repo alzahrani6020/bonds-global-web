@@ -17,12 +17,14 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
+  <script src="../../calculators/shared-ui.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/country-platforms-data.min.js"></script>
   <style>
     .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .calc-grid { grid-template-columns: 1fr; } }
     .calc-input-group { margin-bottom: 1.5rem; }
     .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
     .calc-input-group input[type="number"], .calc-input-group select, .calc-input-group input[type="text"] { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
@@ -90,6 +92,9 @@
       .section { padding: 0 !important; }
     }
   </style>
+
+  <script src="../../calculators/db-client.js"></script>
+  <script src="../../calculators/db-client-auto.js"></script>
 </head>
 <body style="font-family:Inter,system-ui,sans-serif">
 
@@ -141,6 +146,8 @@
               <a href="restaurant.html?model=cafe">☕ Café</a>
               <a href="restaurant.html?model=dessert">🍰 Dessert Shop</a>
               <a href="dish-margin.html">🍽️ Dish Margin</a>
+              <a href="feasibility.html">🚀 Feasibility</a>
+              <a href="invoice-analyzer.html">🧾 Invoice Analyzer</a>
             </div>
           </li>
           <li><a href="../../blog/en/index.html">Blog</a></li>
@@ -195,10 +202,12 @@
           📋 Policies & Commissions Table (click to expand)
         </div>
         <div class="settings-content" id="settingsContent">
-          <table class="settings-table" id="settingsTable">
+          <div class="settings-table-wrap">
+            <table class="settings-table" id="settingsTable">
             <thead><tr><th>Platform</th><th>Commission</th><th>Service Fee</th><th>Free Delivery From</th><th>Restaurant Share</th><th>Confidence</th></tr></thead>
             <tbody></tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -211,7 +220,7 @@
               <label for="dishName">🍽️ Dish Name</label>
               <input type="text" id="dishName" value="Dish 1" />
             </div>
-            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="calc-grid" style="gap: 1rem;">
               <div class="calc-input-group" style="margin-bottom:0;">
                 <label for="foodCost">Raw Food Cost</label>
                 <input type="number" id="foodCost" value="11" min="0" step="0.5" />
@@ -221,7 +230,7 @@
                 <input type="number" id="packagingCost" value="3" min="0" step="0.5" />
               </div>
             </div>
-            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+            <div class="calc-grid" style="gap: 1rem; margin-top: 1rem;">
               <div class="calc-input-group" style="margin-bottom:0;">
                 <label for="sellingPrice">💰 Selling Price</label>
                 <input type="number" id="sellingPrice" value="45" min="0" step="0.5" />
@@ -237,7 +246,7 @@
           <div class="reverse-section reveal">
             <h4>🎯 Reverse Pricing — What should I charge?</h4>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--space-4);">Enter your costs, commission, and target margin. We'll calculate the optimal selling price.</p>
-            <div class="calc-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;">
               <div class="calc-input-group" style="margin-bottom:0;">
                 <label for="revFoodCost">Food Cost</label>
                 <input type="number" id="revFoodCost" value="11" min="0" step="0.5" />
@@ -251,7 +260,7 @@
                 <input type="number" id="revCommissionRate" value="25" min="0" max="100" step="0.5" />
               </div>
             </div>
-            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+            <div class="calc-grid" style="gap: 1rem; margin-top: 1rem;">
               <div class="calc-input-group" style="margin-bottom:0;">
                 <label for="targetMargin">🎯 Target Margin (%)</label>
                 <input type="number" id="targetMargin" value="45" min="0" max="100" step="1" />
@@ -391,7 +400,7 @@
       <!-- Guide -->
       <div class="analysis-box reveal" style="margin-top: var(--space-8);">
         <h4>📖 How to Read the Results</h4>
-        <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div class="calc-grid" style="gap: 2rem;">
           <div>
             <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
               <strong style="color: #16a34a;">🟢 Excellent (>50%):</strong> The dish is highly profitable. It easily covers fixed costs and leaves a healthy net profit.
@@ -592,8 +601,8 @@
       var platformId = document.getElementById('corrPlatform').value;
       var price = parseFloat(document.getElementById('corrPrice').value) || 0;
       var payout = parseFloat(document.getElementById('corrPayout').value) || 0;
-      if (!platformId || !price || !payout) { alert('Please fill in all fields'); return; }
-      if (payout > price) { alert('Payout cannot be greater than selling price'); return; }
+      if (!platformId || !price || !payout) { BondsUI.toast('⚠️ Please fill in all fields', 'warning'); return; }
+      if (payout > price) { BondsUI.toast('⚠️ Payout cannot be greater than selling price', 'warning'); return; }
       var deduction = price - payout;
       var actualFee = (deduction / price * 100).toFixed(2);
       var opt = document.getElementById('corrPlatform').selectedOptions[0];
@@ -616,7 +625,7 @@
       var actualFee = ((price - payout) / price * 100).toFixed(2);
       var key = 'correction_' + currentCountry + '_' + platformId;
       await dbSet(key, { actualFee: parseFloat(actualFee), price: price, payout: payout, timestamp: Date.now() });
-      alert('✅ Correction saved locally. It will appear next to the commission in the table.');
+      BondsUI.toast('✅ Correction saved locally. It will appear next to the commission in the table.', 'success');
       displayCorrections();
     }
 
@@ -649,6 +658,15 @@
     }
 
     function calculate() {
+      var vFood = BondsUI.validateField('foodCost', { type: 'number', min: 0, label: 'Food Cost' });
+      var vPack = BondsUI.validateField('packagingCost', { type: 'number', min: 0, label: 'Packaging Cost' });
+      var vPrice = BondsUI.validateField('sellingPrice', { type: 'number', min: 0, label: 'Selling Price' });
+      var vComm = BondsUI.validateField('commissionRate', { type: 'number', min: 0, max: 100, label: 'Commission Rate' });
+      if (!vFood.valid || !vPack.valid || !vPrice.valid || !vComm.valid) {
+        var errs = [].concat(vFood.errors, vPack.errors, vPrice.errors, vComm.errors);
+        BondsUI.toast('❌ ' + errs.join(', '), 'error');
+        return;
+      }
       var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
       var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
       var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
@@ -751,7 +769,7 @@
       var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
       var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
       var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
-      if (!sellingPrice) { alert('Enter selling price first'); return; }
+      if (!sellingPrice) { BondsUI.toast('⚠️ Enter selling price first', 'warning'); return; }
 
       var countryData = COUNTRIES_DATA[currentCountry];
       if (!countryData || !countryData.platforms) return;
@@ -966,7 +984,7 @@
 
     async function exportExcelSettings() {
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
-      if (typeof XLSX === 'undefined') { alert('Failed to load Excel'); return; }
+      if (typeof XLSX === 'undefined') { BondsUI.toast('❌ Failed to load Excel', 'error'); return; }
       var data = COUNTRIES_DATA[currentCountry];
       if (!data) return;
       var wb = XLSX.utils.book_new();

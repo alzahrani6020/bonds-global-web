@@ -26,17 +26,23 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
+  <script src="../../calculators/shared-ui.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
-  <script src="../shared-utils.js"></script>
+  <script src="../../calculators/shared-utils.js"></script>
   <style>
     .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .calc-grid { grid-template-columns: 1fr; } }
     .calc-input-group { margin-bottom: 1.5rem; }
     .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
     .calc-input-group input[type="number"] { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
     .calc-input-group input[type="number"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
     .share-bar { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
     .share-bar input { flex: 1; min-width: 200px; }
+    @media (max-width: 640px) {
+      .share-bar { flex-direction: column; }
+      .share-bar input { width: 100%; min-width: auto; }
+    }
     .history-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
     .history-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.3s; }
     .history-item:hover { border-color: var(--gold); }
@@ -49,6 +55,9 @@
       a { text-decoration: none; color: #000; }
     }
   </style>
+
+  <script src="../../calculators/db-client.js"></script>
+  <script src="../../calculators/db-client-auto.js"></script>
 </head>
 <body style="font-family:Inter,system-ui,sans-serif">
 
@@ -625,12 +634,12 @@
     async function exportExcel() {
       var inputs = getInputs();
       if (inputs.direct <= 0) {
-        alert('Calculate the results first before exporting');
+        BondsUI.toast('⚠️ Calculate the results first before exporting', 'warning');
         return;
       }
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
       if (typeof XLSX === 'undefined') {
-        alert('Failed to load Excel library. Please try again.');
+        BondsUI.toast('❌ Failed to load Excel library. Please try again.', 'error');
         return;
       }
       var r = calculate(inputs);
@@ -715,18 +724,25 @@
       var input = document.getElementById('shareLink');
       input.select();
       document.execCommand('copy');
-      alert('Link copied!');
+      BondsUI.toast('✅ Link copied!', 'success');
     }
 
     function calculateAll() {
       try {
+        var vDirect = BondsUI.validateField('directCost', { type: 'number', required: true, min: 0.01, label: 'Direct Cost' });
+        var vMargin = BondsUI.validateField('desiredMargin', { type: 'number', required: true, min: 0, max: 99.99, label: 'Desired Margin' });
+        if (!vDirect.valid || !vMargin.valid) {
+          var errs = [].concat(vDirect.errors, vMargin.errors);
+          BondsUI.toast('❌ ' + errs.join(', '), 'error');
+          return;
+        }
         var inputs = getInputs();
         if (inputs.direct <= 0) {
-          alert('Please enter direct cost');
+          BondsUI.toast('⚠️ Please enter direct cost', 'warning');
           return;
         }
         if (inputs.margin >= 100) {
-          alert('Profit margin must be less than 100%');
+          BondsUI.toast('⚠️ Profit margin must be less than 100%', 'warning');
           return;
         }
         var r = calculate(inputs);
@@ -740,7 +756,7 @@
         });
       } catch (err) {
         console.error('Calculate error:', err);
-        alert('Calculation error: ' + err.message);
+        BondsUI.toast('❌ Calculation error: ' + err.message, 'error');
       }
     }
 
@@ -824,13 +840,13 @@
             form.style.display = 'none';
             document.getElementById('leadCaptureSuccess').style.display = 'block';
           } else {
-            alert('An error occurred, please try again.');
+            BondsUI.toast('❌ An error occurred, please try again.', 'error');
             btn.textContent = originalText;
             btn.disabled = false;
           }
         })
         .catch(function() {
-          alert('An error occurred, please try again.');
+          BondsUI.toast('❌ An error occurred, please try again.', 'error');
           btn.textContent = originalText;
           btn.disabled = false;
         });

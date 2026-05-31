@@ -26,29 +26,21 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="shared-calculators.css" />
+  <script src="shared-ui.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="shared-utils.js"></script>
+  <script src="shared-charts.js"></script>
+  <script src="shared-export.js"></script>
   <style>
-    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
-    .calc-input-group { margin-bottom: 1.5rem; }
-    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
-    .calc-input-group input[type="number"] { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
-    .calc-input-group input[type="number"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
-    .share-bar { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-    .share-bar input { flex: 1; min-width: 200px; }
-    .history-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
-    .history-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-    .history-item:hover { border-color: var(--gold); }
-    @media print {
-      .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
-      .calc-grid { grid-template-columns: 1fr 1fr; }
-      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
-      .section { padding: 0 !important; }
-      canvas { max-height: 280px !important; }
-      a { text-decoration: none; color: #000; }
+    @media (max-width: 640px) {
+      .share-bar { flex-direction: column; }
+      .share-bar input { width: 100%; min-width: auto; }
     }
   </style>
+
+  <script src="db-client.js"></script>
+  <script src="db-client-auto.js"></script>
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
 
@@ -202,7 +194,7 @@
             </div>
             <div class="share-bar">
               <input type="text" id="shareLink" readonly placeholder="رابط المشاركة..." />
-              <button onclick="copyLink()" class="btn btn-outline" style="font-size: 0.8rem;">نسخ الرابط</button>
+              <button onclick="copyShareLink('shareLink')" class="btn btn-outline" style="font-size: 0.8rem;">نسخ الرابط</button>
               <button onclick="window.print()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">🖨️ طباعة</button>
               <button onclick="exportExcel()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📊 Excel</button>
             </div>
@@ -421,20 +413,6 @@
   <script src="../script.js" defer></script>
   <script>
     var pricingChart = null;
-    var chartJsPromise = null;
-
-    function loadChartJS() {
-      if (chartJsPromise) return chartJsPromise;
-      if (typeof Chart !== 'undefined') return Promise.resolve();
-      chartJsPromise = new Promise(function(resolve, reject) {
-        var s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
-        s.onload = resolve;
-        s.onerror = reject;
-        document.head.appendChild(s);
-      });
-      return chartJsPromise;
-    }
 
     function formatNumber(n) {
       return Math.round(n).toLocaleString('en-US');
@@ -625,12 +603,12 @@
     async function exportExcel() {
       var inputs = getInputs();
       if (inputs.direct <= 0) {
-        alert('احسب النتائج أولاً قبل التصدير');
+        BondsUI.toast('⚠️ احسب النتائج أولاً قبل التصدير', 'warning');
         return;
       }
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
       if (typeof XLSX === 'undefined') {
-        alert('فشل تحميل مكتبة Excel. حاول مرة أخرى.');
+        BondsUI.toast('❌ فشل تحميل مكتبة Excel. حاول مرة أخرى.', 'error');
         return;
       }
       var r = calculate(inputs);
@@ -681,7 +659,7 @@
         history = history || [];
         var list = document.getElementById('historyList');
         if (history.length === 0) {
-          list.innerHTML = '<p style="color: var(--text-muted); text-align: center;">لا توجد حسابات سابقة</p>';
+          BondsUI.emptyState('historyList', { icon: '📭', title: 'لا توجد حسابات سابقة', desc: 'احسب نتيجة جديدة لترى السجل هنا' });
           return;
         }
         list.innerHTML = '';
@@ -711,22 +689,18 @@
       document.getElementById('shareLink').value = url.toString();
     }
 
-    function copyLink() {
-      var input = document.getElementById('shareLink');
-      input.select();
-      document.execCommand('copy');
-      alert('تم نسخ الرابط!');
-    }
-
     function calculateAll() {
       try {
-        var inputs = getInputs();
-        if (inputs.direct <= 0) {
-          alert('أدخل التكلفة المباشرة');
+        var directRes = BondsUI.validateField('directCost', { required:true, type:'number', min:0, label:'التكلفة المباشرة' });
+        var marginRes = BondsUI.validateField('desiredMargin', { required:true, type:'number', min:0, max:99, label:'هامش الربح المستهدف' });
+        if (!directRes.valid || !marginRes.valid) {
+          BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
           return;
         }
+        BondsUI.clearValidation('directCost'); BondsUI.clearValidation('desiredMargin');
+        var inputs = getInputs();
         if (inputs.margin >= 100) {
-          alert('هامش الربح يجب أن يكون أقل من 100%');
+          BondsUI.toast('⚠️ هامش الربح يجب أن يكون أقل من 100%', 'warning');
           return;
         }
         var r = calculate(inputs);
@@ -740,7 +714,7 @@
         });
       } catch (err) {
         console.error('Calculate error:', err);
-        alert('حدث خطأ في الحساب: ' + err.message);
+        BondsUI.toast('❌ حدث خطأ في الحساب: ' + err.message, 'error');
       }
     }
 
@@ -824,13 +798,13 @@
             form.style.display = 'none';
             document.getElementById('leadCaptureSuccess').style.display = 'block';
           } else {
-            alert('حدث خطأ، حاول مرة أخرى.');
+            BondsUI.toast('❌ حدث خطأ، حاول مرة أخرى.', 'error');
             btn.textContent = originalText;
             btn.disabled = false;
           }
         })
         .catch(function() {
-          alert('حدث خطأ، حاول مرة أخرى.');
+          BondsUI.toast('❌ حدث خطأ، حاول مرة أخرى.', 'error');
           btn.textContent = originalText;
           btn.disabled = false;
         });

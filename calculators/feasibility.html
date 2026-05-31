@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>حاسبة جدوى المطعم | بوندز — هل فكرتك مربحة؟</title>
+  <meta name="description" content="احسب جدوى مطعمك قبل الافتتاح: التكاليف، الإيرادات، نقطة التعادل، والسيناريوهات المتشائمة والمتفائلة. أداة مجانية من بوندز." />
+  <meta property="og:title" content="حاسبة جدوى المطعم | بوندز" />
+  <meta property="og:description" content="هل فكرة مطعمك مربحة؟ احسب قبل ما تدفع ريال." />
+  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="shared-calculators.css" />
+  <script src="shared-ui.js"></script>
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <style>
+    .feas-container { max-width: 900px; margin: 0 auto; padding: var(--space-8) var(--space-4); }
+    .feas-header { text-align: center; margin-bottom: var(--space-8); }
+    .feas-header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; color: var(--gold); margin-bottom: var(--space-3); }
+    .feas-header p { color: var(--text-secondary); font-size: 1.05rem; max-width: 560px; margin: 0 auto; }
+    .feas-badge { display: inline-block; background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; margin-bottom: var(--space-4); }
+    .feas-section-title { font-size: 1.1rem; font-weight: 800; color: var(--gold); margin: var(--space-6) 0 var(--space-4); display: flex; align-items: center; gap: 0.5rem; }
+    .feas-result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-bottom: var(--space-6); text-align: center; }
+    .feas-result-card h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: var(--space-2); }
+    .feas-result-card .big-number { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; margin: var(--space-2) 0; }
+    .feas-result-card .subtitle { color: var(--text-secondary); font-size: 0.9rem; }
+    .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); margin-top: var(--space-6); }
+    .scenario-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center; transition: all 0.3s; }
+    .scenario-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+    .scenario-card.pessimistic { border-top: 3px solid #ef4444; }
+    .scenario-card.expected { border-top: 3px solid var(--gold); }
+    .scenario-card.optimistic { border-top: 3px solid #22c55e; }
+    .scenario-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-2); }
+    .scenario-value { font-size: 1.5rem; font-weight: 900; }
+    .scenario-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: var(--space-2); }
+    .verdict-box { padding: var(--space-6); border-radius: var(--radius-lg); margin: var(--space-6) 0; text-align: center; }
+    .verdict-box.profit { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); }
+    .verdict-box.loss { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); }
+    .verdict-box.warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); }
+    .verdict-icon { font-size: 2.5rem; margin-bottom: var(--space-2); }
+    .verdict-title { font-size: 1.3rem; font-weight: 800; margin-bottom: var(--space-2); }
+    .verdict-text { font-size: 0.95rem; line-height: 1.7; }
+    .metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-4); margin: var(--space-6) 0; }
+    .metric-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); text-align: center; }
+    .metric-box .label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.25rem; }
+    .metric-box .value { font-size: 1.3rem; font-weight: 800; color: var(--gold); }
+    .hint-text { font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: var(--space-2); }
+  </style>
+
+  <script src="db-client.js"></script>
+  <script src="db-client-auto.js"></script>
+</head>
+<body>
+  <div class="feas-container">
+    <div class="feas-header">
+      <div class="feas-badge">🚀 لرواد الأعمال — قبل الفتح</div>
+      <h1>حاسبة جدوى المطعم</h1>
+      <p>احسب تكاليفك المتوقعة وإيراداتك ونقطة التعادل <strong>قبل</strong> ما تدفع ريال واحد. جرب السيناريوهات المختلفة واتخذ قرارك بثقة.</p>
+    </div>
+
+    <!-- Progress -->
+    <div id="progressContainer"></div>
+
+    <!-- Tabs -->
+    <div class="bonds-tabs">
+      <div class="bonds-tab active" onclick="showTab('setup')">📋 تكاليف الافتتاح</div>
+      <div class="bonds-tab" onclick="showTab('monthly')">📅 التكاليف الشهرية</div>
+      <div class="bonds-tab" onclick="showTab('revenue')">💰 الإيرادات المتوقعة</div>
+      <div class="bonds-tab" onclick="showTab('result')">📊 النتيجة</div>
+    </div>
+
+    <!-- Tab 1: Setup Costs -->
+    <div id="setup" class="bonds-panel active">
+      <div class="bonds-card">
+        <p style="color:var(--text-secondary);margin-bottom:var(--space-4);text-align:center;">💡 هذه التكاليف تُدفع <strong>مرة واحدة</strong> قبل الافتتاح</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>الترخيص والتسجيل</label><input id="sLicense" class="bonds-input" type="number" value="5000" placeholder="5000" /></div>
+          <div class="bonds-form-group"><label>التأثيث والديكور</label><input id="sFurniture" class="bonds-input" type="number" value="40000" placeholder="40000" /></div>
+          <div class="bonds-form-group"><label>المعدات والأجهزة</label><input id="sEquipment" class="bonds-input" type="number" value="30000" placeholder="30000" /></div>
+          <div class="bonds-form-group"><label>تصميم الهوية والتسويق</label><input id="sMarketing" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
+          <div class="bonds-form-group"><label>الأمن والسلامة</label><input id="sSafety" class="bonds-input" type="number" value="3000" placeholder="3000" /></div>
+          <div class="bonds-form-group"><label>مصاريف أخرى</label><input id="sOther" class="bonds-input" type="number" value="5000" placeholder="5000" /></div>
+        </div>
+        <div class="feas-section-title">📝 ملخص تكاليف الافتتاح</div>
+        <div class="metric-row" id="setupSummary">
+          <div class="metric-box"><div class="label">الإجمالي</div><div class="value" id="setupTotal">0 ر.س</div></div>
+        </div>
+        <div style="text-align:center;">
+          <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">التالي: التكاليف الشهرية →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Monthly Costs -->
+    <div id="monthly" class="bonds-panel">
+      <div class="bonds-card">
+        <p style="color:var(--text-secondary);margin-bottom:var(--space-4);text-align:center;">💡 هذه التكاليف تُدفع <strong>كل شهر</strong></p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>الإيجار الشهري</label><input id="mRent" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
+          <div class="bonds-form-group"><label>الرواتب والأجور</label><input id="mSalaries" class="bonds-input" type="number" value="12000" placeholder="12000" /></div>
+          <div class="bonds-form-group"><label>الكهرباء والماء</label><input id="mUtilities" class="bonds-input" type="number" value="1500" placeholder="1500" /></div>
+          <div class="bonds-form-group"><label>الغاز والإنترنت</label><input id="mGasNet" class="bonds-input" type="number" value="800" placeholder="800" /></div>
+          <div class="bonds-form-group"><label>تكلفة الموردين (مواد خام)</label><input id="mSupplies" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
+          <div class="bonds-form-group"><label>التسويق والإعلانات</label><input id="mAds" class="bonds-input" type="number" value="2000" placeholder="2000" /></div>
+          <div class="bonds-form-group"><label>صيانة ومصاريف متنوعة</label><input id="mMisc" class="bonds-input" type="number" value="1000" placeholder="1000" /></div>
+        </div>
+        <div class="feas-section-title">📊 ملخص التكاليف الشهرية</div>
+        <div class="metric-row" id="monthlySummary">
+          <div class="metric-box"><div class="label">الإجمالي الشهري</div><div class="value" id="monthlyTotal">0 ر.س</div></div>
+        </div>
+        <div style="text-align:center;">
+          <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← السابق</button>
+          <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">التالي: الإيرادات →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Revenue -->
+    <div id="revenue" class="bonds-panel">
+      <div class="bonds-card">
+        <p style="color:var(--text-secondary);margin-bottom:var(--space-4);text-align:center;">💡 ابدأ بأرقام واقعية — لا تتفائل كثيراً في البداية</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>متوسط سعر الطلب الواحد</label><input id="rAvgPrice" class="bonds-input" type="number" value="35" placeholder="35" min="1" /></div>
+          <div class="bonds-form-group"><label>عدد الطلبات المتوقع / يوم</label><input id="rDailyOrders" class="bonds-input" type="number" value="80" placeholder="80" min="1" /></div>
+          <div class="bonds-form-group"><label>أيام العمل في الشهر</label><input id="rWorkDays" class="bonds-input" type="number" value="26" placeholder="26" min="1" max="31" /></div>
+        </div>
+        <div class="feas-section-title">💵 ملخص الإيرادات المتوقعة</div>
+        <div class="metric-row" id="revenueSummary">
+          <div class="metric-box"><div class="label">إيراد يومي</div><div class="value" id="revDaily">0 ر.س</div></div>
+          <div class="metric-box"><div class="label">إيراد شهري</div><div class="value" id="revMonthly">0 ر.س</div></div>
+          <div class="metric-box"><div class="label">إيراد سنوي</div><div class="value" id="revYearly">0 ر.س</div></div>
+        </div>
+        <div style="text-align:center;">
+          <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← السابق</button>
+          <button class="bonds-btn bonds-btn-primary" onclick="calculateAll();nextTab();">احسب النتيجة 🚀</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Result -->
+    <div id="result" class="bonds-panel">
+      <div id="resultContent">
+        <div style="text-align:center;padding:3rem;color:var(--text-muted);">
+          <div style="font-size:3rem;margin-bottom:1rem;">📊</div>
+          <p style="font-size:1.1rem;font-weight:700;">اكمل الخطوات السابقة لترى النتيجة</p>
+          <button class="bonds-btn bonds-btn-primary" style="margin-top:1rem;" onclick="showTab('setup')">ابدأ الآن</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ===== PROGRESS =====
+const progress = new BondsUI.ProgressTracker('progressContainer', ['تكاليف الافتتاح', 'التكاليف الشهرية', 'الإيرادات', 'النتيجة']);
+
+// ===== TABS =====
+const tabIds = ['setup','monthly','revenue','result'];
+let currentTab = 0;
+
+function showTab(id) {
+  document.querySelectorAll('.bonds-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bonds-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = tabIds.indexOf(id);
+  currentTab = idx;
+  progress.set(idx);
+  // Highlight active tab
+  document.querySelectorAll('.bonds-tab')[idx].classList.add('active');
+  // Auto-calculate summaries
+  if (id === 'setup') updateSetupSummary();
+  if (id === 'monthly') updateMonthlySummary();
+  if (id === 'revenue') updateRevenueSummary();
+}
+
+function nextTab() {
+  if (currentTab < tabIds.length - 1) showTab(tabIds[currentTab + 1]);
+}
+function prevTab() {
+  if (currentTab > 0) showTab(tabIds[currentTab - 1]);
+}
+
+// ===== AUTO-CALCULATE SUMMARIES =====
+function getVal(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+
+function updateSetupSummary() {
+  const total = getVal('sLicense') + getVal('sFurniture') + getVal('sEquipment') + getVal('sMarketing') + getVal('sSafety') + getVal('sOther');
+  document.getElementById('setupTotal').textContent = total.toLocaleString('ar-SA') + ' ر.س';
+}
+
+function updateMonthlySummary() {
+  const total = getVal('mRent') + getVal('mSalaries') + getVal('mUtilities') + getVal('mGasNet') + getVal('mSupplies') + getVal('mAds') + getVal('mMisc');
+  document.getElementById('monthlyTotal').textContent = total.toLocaleString('ar-SA') + ' ر.س';
+}
+
+function updateRevenueSummary() {
+  const daily = getVal('rAvgPrice') * getVal('rDailyOrders');
+  const monthly = daily * getVal('rWorkDays');
+  const yearly = monthly * 12;
+  document.getElementById('revDaily').textContent = daily.toLocaleString('ar-SA') + ' ر.س';
+  document.getElementById('revMonthly').textContent = monthly.toLocaleString('ar-SA') + ' ر.س';
+  document.getElementById('revYearly').textContent = yearly.toLocaleString('ar-SA') + ' ر.س';
+}
+
+// Auto-update on input
+['sLicense','sFurniture','sEquipment','sMarketing','sSafety','sOther'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', updateSetupSummary);
+});
+['mRent','mSalaries','mUtilities','mGasNet','mSupplies','mAds','mMisc'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', updateMonthlySummary);
+});
+['rAvgPrice','rDailyOrders','rWorkDays'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', updateRevenueSummary);
+});
+
+// ===== MAIN CALCULATION =====
+function calculateAll() {
+  // Validate
+  const avgPriceRes = BondsUI.validateField('rAvgPrice', { required:true, type:'number', min:1, label:'متوسط السعر' });
+  const dailyOrdersRes = BondsUI.validateField('rDailyOrders', { required:true, type:'number', min:1, label:'عدد الطلبات' });
+  const workDaysRes = BondsUI.validateField('rWorkDays', { required:true, type:'number', min:1, max:31, label:'أيام العمل' });
+  if (!avgPriceRes.valid || !dailyOrdersRes.valid || !workDaysRes.valid) {
+    BondsUI.toast('⚠️ راجع حقول الإيرادات', 'warning');
+    showTab('revenue');
+    return;
+  }
+
+  // Inputs
+  const setupTotal = getVal('sLicense') + getVal('sFurniture') + getVal('sEquipment') + getVal('sMarketing') + getVal('sSafety') + getVal('sOther');
+  const monthlyFixed = getVal('mRent') + getVal('mSalaries') + getVal('mUtilities') + getVal('mGasNet') + getVal('mAds') + getVal('mMisc');
+  const monthlyVariable = getVal('mSupplies');
+  const monthlyTotal = monthlyFixed + monthlyVariable;
+  const avgPrice = getVal('rAvgPrice');
+  const dailyOrders = getVal('rDailyOrders');
+  const workDays = getVal('rWorkDays');
+
+  // Revenue
+  const monthlyRevenue = avgPrice * dailyOrders * workDays;
+  const yearlyRevenue = monthlyRevenue * 12;
+
+  // Profit
+  const monthlyProfit = monthlyRevenue - monthlyTotal;
+  const yearlyProfit = monthlyProfit * 12;
+  const profitMargin = monthlyRevenue > 0 ? (monthlyProfit / monthlyRevenue) * 100 : 0;
+
+  // Break-even
+  const beOrdersPerDay = monthlyTotal / (avgPrice * workDays);
+  const beOrdersPerMonth = beOrdersPerDay * workDays;
+  const beRevenuePerMonth = beOrdersPerMonth * avgPrice;
+
+  // ROI period (months to recover setup cost)
+  const roiMonths = monthlyProfit > 0 ? setupTotal / monthlyProfit : Infinity;
+
+  // Scenarios
+  const scenarios = {
+    pessimistic: { dailyOrders: Math.round(dailyOrders * 0.6), label: 'المتشائم', desc: '60% من التوقعات' },
+    expected:    { dailyOrders: dailyOrders, label: 'المتوقع', desc: '100% من التوقعات' },
+    optimistic:  { dailyOrders: Math.round(dailyOrders * 1.4), label: 'المتفائل', desc: '140% من التوقعات' }
+  };
+
+  function calcScenario(dOrders) {
+    const mRev = avgPrice * dOrders * workDays;
+    const mProfit = mRev - monthlyTotal;
+    const margin = mRev > 0 ? (mProfit / mRev) * 100 : 0;
+    return { revenue: mRev, profit: mProfit, margin };
+  }
+
+  const pess = calcScenario(scenarios.pessimistic.dailyOrders);
+  const exp = calcScenario(scenarios.expected.dailyOrders);
+  const opt = calcScenario(scenarios.optimistic.dailyOrders);
+
+  // Verdict
+  let verdictHTML = '';
+  if (monthlyProfit < 0) {
+    verdictHTML = `
+      <div class="verdict-box loss">
+        <div class="verdict-icon">🔴</div>
+        <div class="verdict-title" style="color:#ef4444;">تحذير: المشروع يتوقع خسارة شهرية</div>
+        <div class="verdict-text">
+          بمتوسط ${dailyOrders} طلب/يوم، تتوقع خسارة <strong>${Math.abs(monthlyProfit).toLocaleString('ar-SA')} ر.س</strong> شهرياً.<br>
+          💡 <strong>الحلول:</strong> ارفع متوسط الطلب إلى ${Math.ceil(beOrdersPerDay)} طلب/يوم، أو قلل التكاليف الشهرية، أو ارفع السعر.
+        </div>
+      </div>`;
+  } else if (roiMonths > 24) {
+    verdictHTML = `
+      <div class="verdict-box warning">
+        <div class="verdict-icon">🟡</div>
+        <div class="verdict-title" style="color:#f59e0b;">مربح لكن بطيء الاسترداد</div>
+        <div class="verdict-text">
+          المشروع مربح ${monthlyProfit.toLocaleString('ar-SA')} ر.س/شهر، لكن يحتاج <strong>${Math.ceil(roiMonths)} شهر</strong> لاسترداد رأس المال.<br>
+          💡 جرب زيادة الطلبات أو تقليل التكاليف لتسريع الاسترداد.
+        </div>
+      </div>`;
+  } else {
+    verdictHTML = `
+      <div class="verdict-box profit">
+        <div class="verdict-icon">🟢</div>
+        <div class="verdict-title" style="color:#22c55e;">مشروع مربح ومبشر!</div>
+        <div class="verdict-text">
+          تتوقع ربح <strong>${monthlyProfit.toLocaleString('ar-SA')} ر.س</strong> شهرياً بهامش ${profitMargin.toFixed(1)}%.<br>
+          استرداد رأس المال خلال <strong>${Math.ceil(roiMonths)} شهر</strong> تقريباً.
+        </div>
+      </div>`;
+  }
+
+  // Render
+  document.getElementById('resultContent').innerHTML = `
+    ${verdictHTML}
+
+    <div class="feas-section-title">📈 النتائج الرئيسية</div>
+    <div class="metric-row">
+      <div class="metric-box"><div class="label">نقطة التعادل (يومياً)</div><div class="value">${Math.ceil(beOrdersPerDay)} طلب</div></div>
+      <div class="metric-box"><div class="label">نقطة التعادل (شهرياً)</div><div class="value">${Math.ceil(beOrdersPerMonth)} طلب</div></div>
+      <div class="metric-box"><div class="label">الربح الشهري المتوقع</div><div class="value" style="color:${monthlyProfit>=0?'#22c55e':'#ef4444'}">${monthlyProfit.toLocaleString('ar-SA')} ر.س</div></div>
+      <div class="metric-box"><div class="label">هامش الربح</div><div class="value">${profitMargin.toFixed(1)}%</div></div>
+      <div class="metric-box"><div class="label">استرداد رأس المال</div><div class="value">${roiMonths === Infinity ? '—' : Math.ceil(roiMonths) + ' شهر'}</div></div>
+      <div class="metric-box"><div class="label">تكلفة الافتتاح</div><div class="value">${setupTotal.toLocaleString('ar-SA')} ر.س</div></div>
+    </div>
+
+    <div class="feas-section-title">🎲 السيناريوهات</div>
+    <div class="scenario-grid">
+      <div class="scenario-card pessimistic">
+        <div class="scenario-label" style="color:#ef4444;">المتشائم</div>
+        <div class="scenario-value" style="color:#ef4444;">${pess.profit.toLocaleString('ar-SA')} ر.س</div>
+        <div class="scenario-desc">${scenarios.pessimistic.dailyOrders} طلب/يوم<br>هامش: ${pess.margin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-card expected">
+        <div class="scenario-label" style="color:var(--gold);">المتوقع</div>
+        <div class="scenario-value" style="color:var(--gold);">${exp.profit.toLocaleString('ar-SA')} ر.س</div>
+        <div class="scenario-desc">${scenarios.expected.dailyOrders} طلب/يوم<br>هامش: ${exp.margin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-card optimistic">
+        <div class="scenario-label" style="color:#22c55e;">المتفائل</div>
+        <div class="scenario-value" style="color:#22c55e;">${opt.profit.toLocaleString('ar-SA')} ر.س</div>
+        <div class="scenario-desc">${scenarios.optimistic.dailyOrders} طلب/يوم<br>هامش: ${opt.margin.toFixed(1)}%</div>
+      </div>
+    </div>
+
+    <div class="feas-section-title">📋 ملخص تفصيلي</div>
+    <div class="bonds-card" style="text-align:right;">
+      <p><strong>💰 الإيرادات:</strong></p>
+      <p>• يومي: ${(avgPrice * dailyOrders).toLocaleString('ar-SA')} ر.س | شهري: ${monthlyRevenue.toLocaleString('ar-SA')} ر.س | سنوي: ${yearlyRevenue.toLocaleString('ar-SA')} ر.س</p>
+      <p style="margin-top:0.5rem;"><strong>📉 التكاليف الشهرية:</strong></p>
+      <p>• ثابتة: ${monthlyFixed.toLocaleString('ar-SA')} ر.س | متغيرة: ${monthlyVariable.toLocaleString('ar-SA')} ر.س | الإجمالي: ${monthlyTotal.toLocaleString('ar-SA')} ر.س</p>
+      <p style="margin-top:0.5rem;"><strong>📊 الربحية:</strong></p>
+      <p>• شهري: ${monthlyProfit.toLocaleString('ar-SA')} ر.س | سنوي: ${yearlyProfit.toLocaleString('ar-SA')} ر.س | هامش: ${profitMargin.toFixed(1)}%</p>
+      <p style="margin-top:0.5rem;"><strong>🎯 نقطة التعادل:</strong></p>
+      <p>• يومياً: ${Math.ceil(beOrdersPerDay)} طلب | شهرياً: ${Math.ceil(beOrdersPerMonth)} طلب | إيراد: ${beRevenuePerMonth.toLocaleString('ar-SA')} ر.س</p>
+    </div>
+
+    <div style="text-align:center;margin-top:var(--space-6);">
+      <button class="bonds-btn bonds-btn-secondary" onclick="showTab('setup'); BondsUI.toast('🔄 ابدأ من جديد وجرّب أرقام جديدة', 'info');">🔄 جرب أرقام جديدة</button>
+    </div>
+  `;
+}
+
+// ===== INIT =====
+updateSetupSummary();
+updateMonthlySummary();
+updateRevenueSummary();
+progress.set(0);
+
+// Onboarding for first-time users
+const onboard = new BondsUI.Onboarding([
+  { icon: '🚀', title: 'حاسبة جدوى المطعم', desc: 'أداة تساعدك تحسب هل فكرة مطعمك مربحة قبل ما تدفع ريال واحد.' },
+  { icon: '📋', title: 'أربع خطوات بسيطة', desc: '1️⃣ أدخل تكاليف الافتتاح<br>2️⃣ أدخل التكاليف الشهرية<br>3️⃣ أدخل توقعات الإيرادات<br>4️⃣ احصل على النتيجة والسيناريوهات' },
+  { icon: '🎲', title: 'ثلاث سيناريوهات', desc: 'شوف نتيجتك إذا المبيعات أقل أو أكثر من توقعاتك — لا تتفائل كثير ولا تتشائم!' }
+]);
+setTimeout(() => onboard.start(), 600);
+</script>
+</body>
+</html>

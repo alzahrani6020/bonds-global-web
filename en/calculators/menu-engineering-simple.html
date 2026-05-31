@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Menu Engineering Engine | Bonds</title>
+  <style>
+    :root { --bg:#0a0f1a; --card:#111827; --border:#1f2937; --text:#e5e7eb; --muted:#9ca3af; --gold:#d4a853; }
+    * { box-sizing:border-box; margin:0; padding:0; font-family:Inter,system-ui,sans-serif; }
+    body { background:var(--bg); color:var(--text); padding:2rem; }
+    .wrap { max-width:1100px; margin:0 auto; }
+    h1 { text-align:center; color:var(--gold); font-size:2rem; margin-bottom:.5rem; }
+    p.desc { text-align:center; color:var(--muted); margin-bottom:2rem; }
+    .tabs { display:flex; gap:.5rem; justify-content:center; margin-bottom:1.5rem; flex-wrap:wrap; }
+    .tab { padding:.6rem 1.2rem; border-radius:8px; cursor:pointer; border:1px solid var(--border); background:var(--card); color:var(--muted); font-weight:700; }
+    .tab.active { background:var(--gold); color:#0a0f1a; border-color:var(--gold); }
+    .panel { display:none; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; margin-bottom:1.5rem; }
+    .panel.active { display:block; }
+    label { display:block; color:var(--muted); font-size:.85rem; margin-bottom:.3rem; font-weight:600; }
+    input,select { width:100%; padding:.7rem; border:1px solid var(--border); border-radius:8px; background:#1a2332; color:var(--text); margin-bottom:.5rem; }
+    button { width:100%; padding:.8rem; border:none; border-radius:8px; background:var(--gold); color:#0a0f1a; font-weight:800; font-size:1rem; cursor:pointer; margin-top:.5rem; }
+    button:hover { filter:brightness(1.1); }
+    .row2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+    .list { max-height:180px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:.5rem; margin-top:1rem; }
+    .list-item { padding:.4rem 0; border-bottom:1px solid var(--border); font-size:.9rem; display:flex; justify-content:space-between; }
+    .list-item:last-child { border-bottom:none; }
+    .matrix { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-top:1.5rem; }
+    .quad { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.2rem; position:relative; overflow:hidden; }
+    .quad::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; }
+    .q-stars::before { background:#22c55e; } .q-engines::before { background:#f59e0b; }
+    .q-treasures::before { background:#3b82f6; } .q-stalled::before { background:#ef4444; }
+    .quad h3 { font-size:1.1rem; margin-bottom:.5rem; }
+    .item-box { background:#1a2332; border:1px solid var(--border); border-radius:8px; padding:.8rem; margin:.4rem 0; font-size:.85rem; }
+    .item-box b { color:var(--gold); }
+    .summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:.8rem; margin:1.5rem 0; }
+    .s-box { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:.8rem; text-align:center; }
+    .s-box div:first-child { color:var(--muted); font-size:.75rem; }
+    .s-box div:last-child { font-size:1.2rem; font-weight:700; color:var(--gold); }
+    .del { color:#ef4444; cursor:pointer; margin-left:.5rem; }
+  </style>
+  <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
+  <script src="../../calculators/shared-ui.js"></script>
+
+  <script src="../../calculators/db-client.js"></script>
+  <script src="../../calculators/db-client-auto.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🎯 Menu Engineering Engine</h1>
+    <p class="desc">All data is saved in your browser — works offline after loading</p>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem;">
+      <div class="tabs" style="margin-bottom:0;">
+        <div class="tab active" onclick="show('platforms', event)">Platforms</div>
+        <div class="tab" onclick="show('ingredients', event)">Ingredients</div>
+        <div class="tab" onclick="show('menu', event)">Menu + Sales</div>
+        <div class="tab" onclick="show('matrix', event)">Matrix</div>
+      </div>
+      <button onclick="clearAll()" style="width:auto;padding:.5rem 1rem;background:#7f1d1d;color:#fecaca;font-size:.85rem;border:1px solid #ef4444;">🗑️ Clear All Data</button>
+    </div>
+
+    <!-- Platforms -->
+    <div id="platforms" class="panel active">
+      <div class="row2">
+        <div><label>Platform Name</label><input id="pn" placeholder="Uber Eats" /></div>
+        <div><label>Commission %</label><input id="pc" type="number" value="25" /></div>
+        <div><label>Service Fee %</label><input id="ps" type="number" value="2" /></div>
+        <div><label>Payment Gateway %</label><input id="pg" type="number" value="1.75" /></div>
+      </div>
+      <button onclick="addPlatform()">➕ Add Platform</button>
+      <div class="list" id="plist"></div>
+    </div>
+
+    <!-- Ingredients -->
+    <div id="ingredients" class="panel">
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">💡 Add your raw materials and their cost from the supplier</p>
+      <div class="row2">
+        <div><label>Ingredient Name</label><input id="in" placeholder="Ground Beef" /></div>
+        <div><label>Unit</label><input id="iu" placeholder="kg" /></div>
+        <div><label>Purchase Price from Supplier</label><input id="ip" type="number" step="0.01" placeholder="45" /></div>
+      </div>
+      <button onclick="addIngredient()">➕ Add Ingredient</button>
+      <div class="list" id="ilist"></div>
+    </div>
+
+    <!-- Menu -->
+    <div id="menu" class="panel">
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">💡 Add your dishes and their <strong>selling price to the customer</strong></p>
+      <h3 style="color:var(--gold);margin-bottom:1rem;">Dishes</h3>
+      <div class="row2">
+        <div><label>Dish Name</label><input id="mn" placeholder="Classic Burger" /></div>
+        <div><label>Selling Price to Customer</label><input id="mp" type="number" step="0.01" placeholder="35" /></div>
+      </div>
+      <button onclick="addMenuItem()">➕ Add Dish</button>
+      <div class="list" id="mlist"></div>
+
+      <h3 style="color:var(--gold);margin:1.5rem 0 1rem;">Link Ingredients to Dish</h3>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">⚠️ Quantity = required <strong>per single dish</strong> only (e.g., 0.3 kg rice for one Kabsa)</p>
+      <div class="row2">
+        <div><label>Dish</label><select id="mc"></select></div>
+        <div><label>Ingredient</label><select id="mi"></select></div>
+        <div><label>Quantity per Dish</label><input id="mq" type="number" step="0.01" placeholder="0.15" /></div>
+      </div>
+      <button onclick="addLink()">➕ Link Ingredient</button>
+      <div class="list" id="mlinklist"></div>
+
+      <h3 style="color:var(--gold);margin:1.5rem 0 1rem;">Record a Sale</h3>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">📌 Price is auto-filled from the dish — just record how many sales you made</p>
+      <div class="row2">
+        <div><label>Dish</label><select id="sm"></select></div>
+        <div><label>Platform</label><select id="sp"></select></div>
+        <div><label>Number of Sales</label><input id="sq" type="number" value="1" /></div>
+      </div>
+      <button onclick="addSale()">➕ Record Sale</button>
+      <div class="list" id="slist"></div>
+
+      <p style="color:var(--muted);font-size:.85rem;margin-top:1rem;text-align:center;">💡 Start by adding one platform, then your ingredients, then dishes, then link ingredients and record sales</p>
+    </div>
+
+    <!-- Matrix -->
+    <div id="matrix" class="panel">
+      <div class="summary" id="summary"></div>
+      <div class="matrix" id="matrixBox"></div>
+    </div>
+  </div>
+
+<script>
+// ===== DATA =====
+let platforms = JSON.parse(localStorage.getItem('me_platforms')||'[]');
+let ingredients = JSON.parse(localStorage.getItem('me_ingredients')||'[]');
+let menuItems = JSON.parse(localStorage.getItem('me_menu')||'[]');
+let links = JSON.parse(localStorage.getItem('me_links')||'[]');
+let sales = JSON.parse(localStorage.getItem('me_sales')||'[]');
+
+function save(){
+  localStorage.setItem('me_platforms',JSON.stringify(platforms));
+  localStorage.setItem('me_ingredients',JSON.stringify(ingredients));
+  localStorage.setItem('me_menu',JSON.stringify(menuItems));
+  localStorage.setItem('me_links',JSON.stringify(links));
+  localStorage.setItem('me_sales',JSON.stringify(sales));
+}
+function clearAll(){
+  if(!confirm('Are you sure? All data will be deleted')) return;
+  localStorage.removeItem('me_platforms');
+  localStorage.removeItem('me_ingredients');
+  localStorage.removeItem('me_menu');
+  localStorage.removeItem('me_links');
+  localStorage.removeItem('me_sales');
+  platforms=[]; ingredients=[]; menuItems=[]; links=[]; sales=[];
+  renderAll(); renderMatrix();
+}
+
+// ===== UI =====
+function show(id, evt){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(evt && evt.target) evt.target.classList.add('active');
+  if(id==='matrix') renderMatrix();
+}
+
+function uid(){ return Date.now()+Math.random().toString(36).slice(2); }
+function addPlatform(){
+  const n=document.getElementById('pn').value.trim();
+  if(!n) return BondsUI.toast('⚠️ Enter a name', 'warning');
+  if(platforms.some(p=>p.name===n)) return BondsUI.toast('⚠️ This platform already exists', 'warning');
+  platforms.push({id:uid(),name:n,comm:+document.getElementById('pc').value||0,serv:+document.getElementById('ps').value||0,gate:+document.getElementById('pg').value||0});
+  document.getElementById('pn').value='';
+  save(); renderAll();
+}
+function addIngredient(){
+  const n=document.getElementById('in').value.trim();
+  if(!n) return BondsUI.toast('⚠️ Enter a name', 'warning');
+  if(ingredients.some(i=>i.name===n)) return BondsUI.toast('⚠️ This ingredient already exists', 'warning');
+  ingredients.push({id:uid(),name:n,unit:document.getElementById('iu').value||'kg',price:+document.getElementById('ip').value||0});
+  document.getElementById('in').value=''; document.getElementById('iu').value=''; document.getElementById('ip').value='';
+  save(); renderAll();
+}
+function addMenuItem(){
+  const n=document.getElementById('mn').value.trim();
+  if(!n) return BondsUI.toast('⚠️ Enter a name', 'warning');
+  if(menuItems.some(m=>m.name===n)) return BondsUI.toast('⚠️ This dish already exists', 'warning');
+  menuItems.push({id:uid(),name:n,price:+document.getElementById('mp').value||0});
+  document.getElementById('mn').value=''; document.getElementById('mp').value='';
+  save(); renderAll();
+}
+function addLink(){
+  const m=document.getElementById('mc').value, i=document.getElementById('mi').value, q=+document.getElementById('mq').value;
+  if(m===''||i===''||!q) return BondsUI.toast('⚠️ Select all fields', 'warning');
+  if(q>10) return BondsUI.toast('⚠️ Quantity is too large! Did you mean '+q/1000+'? Quantity = required per single dish only (e.g., 0.3 kg rice)', 'warning');
+  if(links.some(l=>l.menuId===m&&l.ingId===i)) return BondsUI.toast('⚠️ This ingredient is already linked to this dish', 'warning');
+  links.push({id:uid(),menuId:m,ingId:i,qty:q});
+  document.getElementById('mq').value='';
+  save(); renderAll();
+}
+function addSale(){
+  const m=document.getElementById('sm').value, p=document.getElementById('sp').value, q=+document.getElementById('sq').value;
+  if(m===''||p===''||!q) return BondsUI.toast('⚠️ Select all fields', 'warning');
+  const item=menuItems.find(x=>x.id===m);
+  sales.push({id:uid(),menuId:m,platId:p,qty:q,unitPrice:item?item.price:0,date:new Date().toISOString()});
+  document.getElementById('sq').value='1';
+  save(); renderAll(); renderMatrix();
+}
+function del(arr,id,key){ window[key]=arr.filter(x=>x.id!==id); save(); renderAll(); }
+
+// ===== RENDER =====
+function renderAll(){
+  // platforms
+  document.getElementById('plist').innerHTML=platforms.map(p=>`<div class="list-item"><span>${p.name} — ${p.comm}%</span><span class="del" onclick="del(platforms,'${p.id}','platforms')">🗑</span></div>`).join('')||'None';
+  // ingredients
+  document.getElementById('ilist').innerHTML=ingredients.map(i=>`<div class="list-item"><span>${i.name} — ${i.price} SAR/${i.unit}</span><span class="del" onclick="del(ingredients,'${i.id}','ingredients')">🗑</span></div>`).join('')||'None';
+  // menu
+  document.getElementById('mlist').innerHTML=menuItems.map(m=>`<div class="list-item"><span>${m.name} — ${m.price} SAR</span><span class="del" onclick="del(menuItems,'${m.id}','menuItems')">🗑</span></div>`).join('')||'None';
+  // links
+  document.getElementById('mlinklist').innerHTML=links.map(l=>{
+    const m=menuItems.find(x=>x.id===l.menuId), i=ingredients.find(x=>x.id===l.ingId);
+    const cost=(l.qty*(i?i.price:0)).toFixed(2);
+    return `<div class="list-item"><span>${m?m.name:'—'} ← ${i?i.name:'—'} × ${l.qty} = ${cost} SAR</span><span class="del" onclick="del(links,'${l.id}','links')">🗑</span></div>`;
+  }).join('')||'None';
+  // sales
+  document.getElementById('slist').innerHTML=sales.map(s=>{
+    const m=menuItems.find(x=>x.id===s.menuId), p=platforms.find(x=>x.id===s.platId);
+    return `<div class="list-item"><span>${m?m.name:'—'} × ${s.qty} (${p?p.name:'—'}) = ${(s.qty*s.unitPrice).toFixed(0)} SAR</span><span class="del" onclick="del(sales,'${s.id}','sales')">🗑</span></div>`;
+  }).join('')||'None';
+
+  // dropdowns
+  const optM=menuItems.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  const optI=ingredients.map(i=>`<option value="${i.id}">${i.name}</option>`).join('');
+  const optP=platforms.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  document.getElementById('mc').innerHTML='<option value="">Select...</option>'+optM;
+  document.getElementById('mi').innerHTML='<option value="">Select...</option>'+optI;
+  document.getElementById('sp').innerHTML='<option value="">Select...</option>'+optP;
+  document.getElementById('sm').innerHTML='<option value="">Select...</option>'+optM;
+}
+
+// ===== MATRIX =====
+function renderMatrix(){
+  if(!sales.length){
+    document.getElementById('summary').innerHTML='<div style="text-align:center;color:var(--muted);">No sales yet — go to "Menu + Sales" tab and add platforms, ingredients, dishes, then record sales</div>';
+    document.getElementById('matrixBox').innerHTML='';
+    return;
+  }
+  // group sales by menu item
+  const by={};
+  sales.forEach(s=>{
+    if(!by[s.menuId]) by[s.menuId]={qty:0,rev:0,net:0,plat:s.platId};
+    by[s.menuId].qty+=s.qty;
+    by[s.menuId].rev+=s.qty*s.unitPrice;
+    const p=platforms.find(x=>x.id===s.platId);
+    const fee=(p?(p.comm+p.serv+p.gate):0)/100;
+    by[s.menuId].net+=s.qty*s.unitPrice*(1-fee);
+  });
+
+  // calc cost per item
+  const scores=[];
+  for(const[mid,agg]of Object.entries(by)){
+    const m=menuItems.find(x=>x.id===mid);
+    if(!m) continue;
+    // cost from links
+    let costPerUnit=0;
+    links.filter(l=>l.menuId===mid).forEach(l=>{
+      const i=ingredients.find(x=>x.id===l.ingId);
+      if(i) costPerUnit+=l.qty*i.price;
+    });
+    if(!costPerUnit) costPerUnit=agg.rev/agg.qty*0.35; // fallback
+    const totalCost=costPerUnit*agg.qty;
+    const profit=agg.net-totalCost;
+    const margin=agg.rev>0?(profit/agg.rev)*100:0;
+    scores.push({name:m.name,qty:agg.qty,rev:agg.rev,net:agg.net,cost:totalCost,profit,margin});
+  }
+
+  const avgQty=scores.reduce((s,i)=>s+i.qty,0)/scores.length||0;
+  const avgProfit=scores.reduce((s,i)=>s+i.profit,0)/scores.length||0;
+
+  const stars=[],engines=[],treasures=[],stalled=[];
+  scores.forEach(s=>{
+    if(s.qty>=avgQty&&s.profit>=avgProfit) stars.push(s);
+    else if(s.qty>=avgQty&&s.profit<avgProfit) engines.push(s);
+    else if(s.qty<avgQty&&s.profit>=avgProfit) treasures.push(s);
+    else stalled.push(s);
+  });
+
+  const totalRev=scores.reduce((s,i)=>s+i.rev,0);
+  const totalCost=scores.reduce((s,i)=>s+i.cost,0);
+  const totalNet=scores.reduce((s,i)=>s+i.net,0);
+  const totalProfit=scores.reduce((s,i)=>s+i.profit,0);
+  const avgMargin=scores.length?scores.reduce((s,i)=>s+i.margin,0)/scores.length:0;
+  const fees=totalRev-totalNet;
+
+  document.getElementById('summary').innerHTML=`
+    <div class="s-box"><div>📦 Products</div><div>${scores.length}</div></div>
+    <div class="s-box"><div>💰 Revenue</div><div>${totalRev.toFixed(0)} SAR</div></div>
+    <div class="s-box"><div>📉 Costs</div><div>${totalCost.toFixed(0)} SAR</div></div>
+    <div class="s-box"><div>🏦 Fees</div><div>${fees.toFixed(0)} SAR</div></div>
+    <div class="s-box"><div>📈 Net Profit</div><div>${totalProfit.toFixed(0)} SAR</div></div>
+    <div class="s-box"><div>📊 Avg Margin</div><div>${avgMargin.toFixed(1)}%</div></div>`;
+
+  const mk=(arr,title,icon,color,desc)=>{
+    if(!arr.length) return '';
+    return `<div class="quad q-${color}"><h3>${icon} ${title} (${arr.length})</h3><p style="font-size:.8rem;color:var(--muted);">${desc}</p>`+
+      arr.map(s=>`<div class="item-box">
+        <div style="font-weight:700;margin-bottom:.3rem;">${s.name}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;font-size:.8rem;color:var(--muted);">
+          <span>💰 Rev: ${s.rev.toFixed(0)}</span><span>📉 Cost: ${s.cost.toFixed(0)}</span>
+          <span>🛒 Sales: ${s.qty}</span><span>📈 Margin: <b style="color:${s.margin>=0?'#22c55e':'#ef4444'}">${s.margin.toFixed(1)}%</b></span>
+        </div>
+        <div style="font-size:.8rem;margin-top:.3rem;">Net Profit: <b style="color:${s.profit>=0?'#22c55e':'#ef4444'}">${s.profit.toFixed(2)} SAR</b></div>
+      </div>`).join('')+'</div>';
+  };
+
+  document.getElementById('matrixBox').innerHTML=
+    mk(stars,'Stars','⭐','stars','High profit + High sales')+
+    mk(engines,'Workhorses','🚀','engines','High sales + Limited profit')+
+    mk(treasures,'Puzzles','💎','treasures','High profit + Low sales')+
+    mk(stalled,'Dogs','⚠️','stalled','Low profit + Low sales');
+}
+
+// ===== INIT =====
+renderAll();
+</script>
+</body>
+</html>

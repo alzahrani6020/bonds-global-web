@@ -17,79 +17,20 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="shared-calculators.css" />
+  <script src="shared-ui.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="shared-utils.js"></script>
   <script src="country-platforms-data.min.js"></script>
   <style>
-    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
-    .calc-input-group { margin-bottom: 1.5rem; }
-    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
-    .calc-input-group input[type="number"], .calc-input-group select { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
-    .calc-input-group input[type="number"]:focus, .calc-input-group select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
-    .result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
-    @media (min-width: 700px) { .result-grid { grid-template-columns: repeat(4, 1fr); } }
-    .result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center; transition: all 0.3s; }
-    .result-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-    .result-value { font-size: var(--text-2xl); font-weight: 900; margin-bottom: var(--space-2); }
-    .result-label { font-size: 0.85rem; color: var(--text-secondary); }
-    .result-card.status-excellent { border-color: #16a34a; background: rgba(22,163,74,0.05); }
-    .result-card.status-excellent .result-value { color: #16a34a; }
-    .result-card.status-good { border-color: #ca8a04; background: rgba(202,138,4,0.05); }
-    .result-card.status-good .result-value { color: #ca8a04; }
-    .result-card.status-danger { border-color: #dc2626; background: rgba(220,38,38,0.05); }
-    .result-card.status-danger .result-value { color: #dc2626; }
-    .margin-bar { width: 100%; height: 8px; background: var(--border); border-radius: 4px; margin-top: var(--space-2); overflow: hidden; }
-    .margin-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
-    .analysis-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6); }
-    .analysis-box h4 { color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-lg); }
-    .comparison-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: var(--space-4); }
-    .comparison-table th, .comparison-table td { padding: 0.75rem; text-align: center; border-bottom: 1px solid var(--border); }
-    .comparison-table th { background: rgba(212,168,83,0.05); color: var(--gold); font-weight: 700; }
-    .comparison-table tr:hover { background: rgba(255,255,255,0.02); }
-    .comparison-table .status-cell { font-weight: 700; }
-    .comparison-table .status-excellent { color: #16a34a; }
-    .comparison-table .status-good { color: #ca8a04; }
-    .comparison-table .status-danger { color: #dc2626; }
-    .country-selector { background: rgba(212,168,83,0.05); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-bottom: var(--space-6); }
-    #countrySelect, #platformSelect { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d4a853' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: left 1rem center; padding-left: 2.5rem; cursor: pointer; background-color: var(--bg-card); color: var(--text); }
-    #countrySelect option, #platformSelect option { background: var(--bg-secondary); color: var(--text); font-size: 1rem; padding: 0.5rem; }
-    .reverse-section { background: linear-gradient(135deg, rgba(212,168,83,0.05) 0%, rgba(212,168,83,0.01) 100%); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6); }
-    .reverse-section h4 { color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-lg); }
-    .btn-secondary { background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); padding: var(--space-3) var(--space-6); border-radius: var(--radius); font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; }
-    .btn-secondary:hover { border-color: var(--gold); }
-    .action-bar { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-6); }
-    .smart-alert { display: none; background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); }
-    .smart-alert.show { display: block; }
-    .market-insights { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-3); margin-top: var(--space-4); }
-    .insight-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); transition: all 0.3s; }
-    .insight-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-    .insight-card .insight-icon { font-size: 1.3rem; margin-bottom: var(--space-2); }
-    .insight-card .insight-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-1); }
-    .insight-card .insight-value { font-size: 0.9rem; font-weight: 700; color: var(--text); line-height: 1.5; }
-    .insight-card .insight-value small { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; }
-    .settings-panel { margin-top: var(--space-6); }
-    .settings-toggle { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; padding: var(--space-3); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); font-weight: 700; color: var(--gold); }
-    .settings-toggle:hover { border-color: var(--gold); }
-    .settings-content { display: none; margin-top: var(--space-3); }
-    .settings-content.open { display: block; }
-    .settings-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .settings-table th, .settings-table td { padding: 0.6rem; text-align: center; border-bottom: 1px solid var(--border); }
-    .settings-table th { background: rgba(212,168,83,0.08); color: var(--gold); font-weight: 700; }
-    .settings-table td { color: var(--text-secondary); }
-    .correction-box { background: linear-gradient(135deg, rgba(212,168,83,0.05) 0%, rgba(212,168,83,0.01) 100%); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-8); }
-    .correction-box h4 { color: var(--gold); margin-bottom: var(--space-4); font-size: var(--text-lg); }
-    .correction-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4); }
-    .correction-result { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); display: none; }
-    .correction-result.show { display: block; }
-    .correction-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-right: 0.5rem; }
-    .correction-badge.user { background: rgba(22,163,74,0.1); color: #16a34a; border: 1px solid rgba(22,163,74,0.3); }
-    @media print {
-      .hidden-print, .topbar, .main-header, .main-footer, button, select { display: none !important; }
-      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
-      .section { padding: 0 !important; }
+    @media (max-width: 640px) {
+      .settings-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .settings-table { min-width: 600px; }
     }
   </style>
+
+  <script src="db-client.js"></script>
+  <script src="db-client-auto.js"></script>
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
 
@@ -142,6 +83,8 @@
               <a href="restaurant.html?model=dessert">🍰 محل الحلويات</a>
               <a href="dish-margin.html">🍽️ ربحية الوجبة</a>
               <a href="menu-engineering.html">🎯 هندسة المنيو</a>
+              <a href="feasibility.html">🚀 جدوى المطعم</a>
+              <a href="invoice-analyzer.html">🧾 تحليل الفواتير</a>
             </div>
           </li>
           <li><a href="../blog/index.html">مقالات</a></li>
@@ -196,10 +139,12 @@
           📋 جدول السياسات والعمولات (اضغط للتوسيع)
         </div>
         <div class="settings-content" id="settingsContent">
-          <table class="settings-table" id="settingsTable">
+          <div class="settings-table-wrap">
+            <table class="settings-table" id="settingsTable">
             <thead><tr><th>المنصة</th><th>العمولة</th><th>رسوم خدمة</th><th>توصيل مجاني من</th><th>تحمل المطعم</th><th>الثقة</th></tr></thead>
             <tbody></tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -212,7 +157,7 @@
               <label for="dishName">🍽️ اسم الوجبة</label>
               <input type="text" id="dishName" value="وجبة 1" style="width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem;" />
             </div>
-            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="calc-grid" style="gap: 1rem;">
               <div class="calc-input-group" style="margin-bottom:0;">
                 <label for="foodCost">تكلفة المكونات الخام</label>
                 <input type="number" id="foodCost" value="11" min="0" step="0.5" />
@@ -222,7 +167,7 @@
                 <input type="number" id="packagingCost" value="3" min="0" step="0.5" />
               </div>
             </div>
-            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+            <div class="calc-grid" style="gap: 1rem; margin-top: 1rem;">
               <div class="calc-input-group" style="margin-bottom:0;">
                 <label for="sellingPrice">💰 سعر البيع المتوقع</label>
                 <input type="number" id="sellingPrice" value="45" min="0" step="0.5" />
@@ -238,7 +183,7 @@
           <div class="reverse-section reveal">
             <h4>🎯 التسعير العكسي — كم أبيع؟</h4>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--space-4);">أدخل التكلفة والعمولة والهامش المستهدف، ونحسب لك سعر البيع المثالي.</p>
-            <div class="calc-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;">
               <div class="calc-input-group" style="margin-bottom:0;">
                 <label for="revFoodCost">تكلفة المكونات</label>
                 <input type="number" id="revFoodCost" value="11" min="0" step="0.5" />
@@ -252,7 +197,7 @@
                 <input type="number" id="revCommissionRate" value="25" min="0" max="100" step="0.5" />
               </div>
             </div>
-            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+            <div class="calc-grid" style="gap: 1rem; margin-top: 1rem;">
               <div class="calc-input-group" style="margin-bottom:0;">
                 <label for="targetMargin">🎯 الهامش المستهدف (%)</label>
                 <input type="number" id="targetMargin" value="45" min="0" max="100" step="1" />
@@ -339,7 +284,7 @@
               </tr>
             </thead>
             <tbody id="platformComparisonBody">
-              <tr><td colspan="8" style="color: var(--text-muted);">اضغط "احسب لكل المنصات" أعلاه.</td></tr>
+              <tr><td colspan="8" style="text-align:center; padding: 2rem; color: var(--text-muted);"><div style="font-size:2.5rem; margin-bottom:0.75rem; opacity:0.5;">📊</div><p style="font-weight:600;">اضغط "احسب لكل المنصات" أعلاه</p></td></tr>
             </tbody>
           </table>
         </div>
@@ -365,7 +310,7 @@
               </tr>
             </thead>
             <tbody id="comparisonBody">
-              <tr><td colspan="10" style="color: var(--text-muted);">لا توجد أطباق للمقارنة بعد. أضف وجبة من الأعلى.</td></tr>
+              <tr><td colspan="10" style="text-align:center; padding: 2rem; color: var(--text-muted);"><div style="font-size:2.5rem; margin-bottom:0.75rem; opacity:0.5;">📭</div><p style="font-weight:600;">لا توجد أطباق للمقارنة بعد</p><p style="font-size:0.85rem;">أضف وجبة من الأعلى</p></td></tr>
             </tbody>
           </table>
         </div>
@@ -402,7 +347,7 @@
       <!-- Guide -->
       <div class="analysis-box reveal" style="margin-top: var(--space-8);">
         <h4>📖 كيف تقرأ النتائج</h4>
-        <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div class="calc-grid" style="gap: 2rem;">
           <div>
             <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
               <strong style="color: #16a34a;">🟢 ممتاز (>50%):</strong> الوجبة مربحة بشكل صحي. تغطي المصاريف الثابتة بسهولة وتترك هامش ربح جيد.
@@ -603,8 +548,18 @@
       var platformId = document.getElementById('corrPlatform').value;
       var price = parseFloat(document.getElementById('corrPrice').value) || 0;
       var payout = parseFloat(document.getElementById('corrPayout').value) || 0;
-      if (!platformId || !price || !payout) { alert('أكمل جميع الحقول'); return; }
-      if (payout > price) { alert('المبلغ الصافي لا يمكن أن يكون أكبر من سعر البيع'); return; }
+      var platformRes = BondsUI.validateField('corrPlatform', { required:true, label:'المنصة' });
+      var priceRes = BondsUI.validateField('corrPrice', { required:true, type:'number', min:0, label:'سعر البيع' });
+      var payoutRes = BondsUI.validateField('corrPayout', { required:true, type:'number', min:0, label:'المبلغ الصافي' });
+      if (!platformRes.valid || !priceRes.valid || !payoutRes.valid) {
+        BondsUI.toast('⚠️ أكمل جميع الحقول', 'warning');
+        return;
+      }
+      BondsUI.clearValidation('corrPlatform'); BondsUI.clearValidation('corrPrice'); BondsUI.clearValidation('corrPayout');
+      var platformId = document.getElementById('corrPlatform').value;
+      var price = parseFloat(document.getElementById('corrPrice').value) || 0;
+      var payout = parseFloat(document.getElementById('corrPayout').value) || 0;
+      if (payout > price) { BondsUI.toast('⚠️ المبلغ الصافي لا يمكن أن يكون أكبر من سعر البيع', 'warning'); return; }
       var deduction = price - payout;
       var actualFee = (deduction / price * 100).toFixed(2);
       var opt = document.getElementById('corrPlatform').selectedOptions[0];
@@ -627,7 +582,7 @@
       var actualFee = ((price - payout) / price * 100).toFixed(2);
       var key = 'correction_' + currentCountry + '_' + platformId;
       await dbSet(key, { actualFee: parseFloat(actualFee), price: price, payout: payout, timestamp: Date.now() });
-      alert('✅ تم حفظ التصحيح محلياً. سيظهر بجانب العمولة في الجدول.');
+      BondsUI.toast('✅ تم حفظ التصحيح محلياً. سيظهر بجانب العمولة في الجدول.', 'success');
       displayCorrections();
     }
 
@@ -660,6 +615,14 @@
     }
 
     function calculate() {
+      var foodRes = BondsUI.validateField('foodCost', { required:true, type:'number', min:0, label:'تكلفة المكونات الخام' });
+      var packRes = BondsUI.validateField('packagingCost', { required:true, type:'number', min:0, label:'تكلفة التغليف' });
+      var priceRes = BondsUI.validateField('sellingPrice', { required:true, type:'number', min:0, label:'سعر البيع المتوقع' });
+      if (!foodRes.valid || !packRes.valid || !priceRes.valid) {
+        BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
+        return;
+      }
+      BondsUI.clearValidation('foodCost'); BondsUI.clearValidation('packagingCost'); BondsUI.clearValidation('sellingPrice');
       var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
       var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
       var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
@@ -757,7 +720,12 @@
       var foodCost = parseFloat(document.getElementById('foodCost').value) || 0;
       var packagingCost = parseFloat(document.getElementById('packagingCost').value) || 0;
       var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
-      if (!sellingPrice) { alert('أدخل سعر البيع أولاً'); return; }
+      var priceRes = BondsUI.validateField('sellingPrice', { required:true, type:'number', min:0, label:'سعر البيع المتوقع' });
+      if (!priceRes.valid) {
+        BondsUI.toast('⚠️ أدخل سعر البيع أولاً', 'warning');
+        return;
+      }
+      BondsUI.clearValidation('sellingPrice');
 
       var countryData = COUNTRIES_DATA[currentCountry];
       if (!countryData || !countryData.platforms) return;
@@ -848,7 +816,7 @@
     function renderComparison() {
       var tbody = document.getElementById('comparisonBody');
       if (comparisonItems.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="color: var(--text-muted);">لا توجد أطباق للمقارنة بعد. أضف وجبة من الأعلى.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 2rem; color: var(--text-muted);"><div style="font-size:2.5rem; margin-bottom:0.75rem; opacity:0.5;">📭</div><p style="font-weight:600;">لا توجد أطباق للمقارنة بعد</p><p style="font-size:0.85rem;">أضف وجبة من الأعلى</p></td></tr>';
         return;
       }
       tbody.innerHTML = '';
@@ -986,7 +954,7 @@
 
     async function exportExcelSettings() {
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
-      if (typeof XLSX === 'undefined') { alert('فشل تحميل Excel'); return; }
+      if (typeof XLSX === 'undefined') { BondsUI.toast('❌ فشل تحميل Excel', 'error'); return; }
       var data = COUNTRIES_DATA[currentCountry];
       if (!data) return;
       var wb = XLSX.utils.book_new();

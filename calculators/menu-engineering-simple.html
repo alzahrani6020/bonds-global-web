@@ -4,26 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>محرك هندسة المنيو | بوندز</title>
+  <link rel="stylesheet" href="shared-calculators.css" />
+  <script src="shared-utils.js"></script>
+  <script src="shared-ui.js"></script>
   <style>
     :root { --bg:#0a0f1a; --card:#111827; --border:#1f2937; --text:#e5e7eb; --muted:#9ca3af; --gold:#d4a853; }
     * { box-sizing:border-box; margin:0; padding:0; font-family:Tahoma,Segoe UI,sans-serif; }
-    body { background:var(--bg); color:var(--text); padding:2rem; }
+    body { background:var(--bg); color:var(--text); padding:2rem 1rem; }
     .wrap { max-width:1100px; margin:0 auto; }
     h1 { text-align:center; color:var(--gold); font-size:2rem; margin-bottom:.5rem; }
-    p.desc { text-align:center; color:var(--muted); margin-bottom:2rem; }
-    .tabs { display:flex; gap:.5rem; justify-content:center; margin-bottom:1.5rem; flex-wrap:wrap; }
-    .tab { padding:.6rem 1.2rem; border-radius:8px; cursor:pointer; border:1px solid var(--border); background:var(--card); color:var(--muted); font-weight:700; }
-    .tab.active { background:var(--gold); color:#0a0f1a; border-color:var(--gold); }
-    .panel { display:none; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; margin-bottom:1.5rem; }
-    .panel.active { display:block; }
-    label { display:block; color:var(--muted); font-size:.85rem; margin-bottom:.3rem; font-weight:600; }
-    input,select { width:100%; padding:.7rem; border:1px solid var(--border); border-radius:8px; background:#1a2332; color:var(--text); margin-bottom:.5rem; }
-    button { width:100%; padding:.8rem; border:none; border-radius:8px; background:var(--gold); color:#0a0f1a; font-weight:800; font-size:1rem; cursor:pointer; margin-top:.5rem; }
-    button:hover { filter:brightness(1.1); }
-    .row2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
-    .list { max-height:180px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:.5rem; margin-top:1rem; }
-    .list-item { padding:.4rem 0; border-bottom:1px solid var(--border); font-size:.9rem; display:flex; justify-content:space-between; }
-    .list-item:last-child { border-bottom:none; }
+    p.desc { text-align:center; color:var(--muted); margin-bottom:1.5rem; }
     .matrix { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-top:1.5rem; }
     .quad { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.2rem; position:relative; overflow:hidden; }
     .quad::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; }
@@ -36,85 +26,162 @@
     .s-box { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:.8rem; text-align:center; }
     .s-box div:first-child { color:var(--muted); font-size:.75rem; }
     .s-box div:last-child { font-size:1.2rem; font-weight:700; color:var(--gold); }
-    .del { color:#ef4444; cursor:pointer; margin-right:.5rem; }
+    .del { color:#ef4444; cursor:pointer; margin-right:.5rem; font-size:1rem; }
+    .del:hover { transform:scale(1.2); display:inline-block; }
+    .demo-banner { background:linear-gradient(90deg,rgba(212,168,83,0.15),rgba(34,197,94,0.1)); border:1px solid var(--gold); border-radius:12px; padding:1rem; margin-bottom:1.5rem; text-align:center; }
+    .demo-banner button { width:auto; display:inline-block; margin:0 0.25rem; }
+    @media (max-width:640px){ body{padding:1rem 0.5rem;} h1{font-size:1.5rem;} }
   </style>
+
+  <script src="db-client.js"></script>
+  <script src="db-client-auto.js"></script>
 </head>
 <body>
   <div class="wrap">
     <h1>🎯 محرك هندسة المنيو</h1>
     <p class="desc">كل البيانات تحفظ في متصفحك — لا يحتاج إنترنت بعد التحميل</p>
 
+    <!-- Progress Tracker -->
+    <div id="progressContainer"></div>
+
+    <!-- Demo Banner -->
+    <div class="demo-banner" id="demoBanner">
+      <p style="margin-bottom:0.75rem;font-weight:700;color:var(--gold);">🎮 أول مرة هنا؟ جرب البيانات التجريبية أو ابدأ من الصفر</p>
+      <button class="bonds-btn bonds-btn-primary bonds-btn-sm" onclick="loadDemoData()">🚀 تحميل بيانات تجريبية</button>
+      <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="dismissDemoBanner()">✕ لا شكراً</button>
+    </div>
+
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem;">
-      <div class="tabs" style="margin-bottom:0;">
-        <div class="tab active" onclick="show('platforms')">المنصات</div>
-        <div class="tab" onclick="show('ingredients')">المكونات</div>
-        <div class="tab" onclick="show('menu')">المنيو + المبيعات</div>
-        <div class="tab" onclick="show('matrix')">الماتريكس</div>
+      <div class="bonds-tabs" style="margin-bottom:0;">
+        <div class="bonds-tab active" onclick="showPanel('platforms', event)">المنصات</div>
+        <div class="bonds-tab" onclick="showPanel('ingredients', event)">المكونات</div>
+        <div class="bonds-tab" onclick="showPanel('menu', event)">المنيو + المبيعات</div>
+        <div class="bonds-tab" onclick="showPanel('matrix', event)">الماتريكس</div>
       </div>
-      <button onclick="clearAll()" style="width:auto;padding:.5rem 1rem;background:#7f1d1d;color:#fecaca;font-size:.85rem;border:1px solid #ef4444;">🗑️ مسح كل البيانات</button>
+      <button class="bonds-btn bonds-btn-danger bonds-btn-sm" onclick="clearAll()">🗑️ مسح كل البيانات</button>
     </div>
 
     <!-- المنصات -->
-    <div id="platforms" class="panel active">
-      <div class="row2">
-        <div><label>اسم التطبيق</label><input id="pn" placeholder="جاهز" /></div>
-        <div><label>العمولة %</label><input id="pc" type="number" value="25" /></div>
-        <div><label>رسوم الخدمة %</label><input id="ps" type="number" value="2" /></div>
-        <div><label>بوابة الدفع %</label><input id="pg" type="number" value="1.75" /></div>
+    <div id="platforms" class="bonds-panel active">
+      <div class="bonds-card">
+        <div class="bonds-form-row">
+          <div class="bonds-form-group">
+            <label>اسم التطبيق</label>
+            <input id="pn" class="bonds-input" placeholder="جاهز" />
+            <div class="bonds-error-msg" id="pn-error"></div>
+          </div>
+          <div class="bonds-form-group">
+            <label>العمولة %</label>
+            <input id="pc" class="bonds-input" type="number" value="25" min="0" max="100" />
+            <div class="bonds-error-msg" id="pc-error"></div>
+          </div>
+          <div class="bonds-form-group">
+            <label>رسوم الخدمة %</label>
+            <input id="ps" class="bonds-input" type="number" value="2" min="0" max="100" />
+          </div>
+          <div class="bonds-form-group">
+            <label>بوابة الدفع %</label>
+            <input id="pg" class="bonds-input" type="number" value="1.75" min="0" max="100" />
+          </div>
+        </div>
+        <button class="bonds-btn bonds-btn-primary" onclick="addPlatform()">➕ إضافة تطبيق</button>
+        <div class="bonds-list" id="plist" style="margin-top:1rem;"></div>
       </div>
-      <button onclick="addPlatform()">➕ إضافة تطبيق</button>
-      <div class="list" id="plist"></div>
     </div>
 
     <!-- المكونات -->
-    <div id="ingredients" class="panel">
-      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">💡 هنا تضيف موادك الخام وتكلفة شرائها من المورد</p>
-      <div class="row2">
-        <div><label>اسم المكون</label><input id="in" placeholder="لحم بقر" /></div>
-        <div><label>الوحدة</label><input id="iu" placeholder="kg" /></div>
-        <div><label>سعر الشراء من المورد</label><input id="ip" type="number" step="0.01" placeholder="45" /></div>
+    <div id="ingredients" class="bonds-panel">
+      <div class="bonds-card">
+        <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">💡 هنا تضيف موادك الخام وتكلفة شرائها من المورد</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group">
+            <label>اسم المكون</label>
+            <input id="in" class="bonds-input" placeholder="لحم بقر" />
+            <div class="bonds-error-msg" id="in-error"></div>
+          </div>
+          <div class="bonds-form-group">
+            <label>الوحدة</label>
+            <input id="iu" class="bonds-input" placeholder="kg" />
+          </div>
+          <div class="bonds-form-group">
+            <label>سعر الشراء من المورد</label>
+            <input id="ip" class="bonds-input" type="number" step="0.01" placeholder="45" min="0" />
+            <div class="bonds-error-msg" id="ip-error"></div>
+          </div>
+        </div>
+        <button class="bonds-btn bonds-btn-primary" onclick="addIngredient()">➕ إضافة مكون</button>
+        <div class="bonds-list" id="ilist" style="margin-top:1rem;"></div>
       </div>
-      <button onclick="addIngredient()">➕ إضافة مكون</button>
-      <div class="list" id="ilist"></div>
     </div>
 
     <!-- المنيو -->
-    <div id="menu" class="panel">
-      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">💡 هنا تضيف وجباتك و<strong>سعر البيع للعميل</strong></p>
-      <h3 style="color:var(--gold);margin-bottom:1rem;">الوجبات</h3>
-      <div class="row2">
-        <div><label>اسم الوجبة</label><input id="mn" placeholder="برجر كلاسيك" /></div>
-        <div><label>سعر البيع للعميل</label><input id="mp" type="number" step="0.01" placeholder="35" /></div>
-      </div>
-      <button onclick="addMenuItem()">➕ إضافة وجبة</button>
-      <div class="list" id="mlist"></div>
+    <div id="menu" class="bonds-panel">
+      <div class="bonds-card">
+        <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">💡 هنا تضيف وجباتك و<strong>سعر البيع للعميل</strong></p>
 
-      <h3 style="color:var(--gold);margin:1.5rem 0 1rem;">ربط المكونات بالوجبة</h3>
-      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">⚠️ الكمية = المطلوب <strong>للوجبة الواحدة</strong> فقط (مثال: 0.3 كجم رز للكبسة الواحدة)</p>
-      <div class="row2">
-        <div><label>الوجبة</label><select id="mc"></select></div>
-        <div><label>المكون</label><select id="mi"></select></div>
-        <div><label>الكمية للوجبة الواحدة</label><input id="mq" type="number" step="0.01" placeholder="0.15" /></div>
-      </div>
-      <button onclick="addLink()">➕ ربط مكون</button>
-      <div class="list" id="mlinklist"></div>
+        <h3 style="color:var(--gold);margin-bottom:1rem;">الوجبات</h3>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group">
+            <label>اسم الوجبة</label>
+            <input id="mn" class="bonds-input" placeholder="برجر كلاسيك" />
+            <div class="bonds-error-msg" id="mn-error"></div>
+          </div>
+          <div class="bonds-form-group">
+            <label>سعر البيع للعميل</label>
+            <input id="mp" class="bonds-input" type="number" step="0.01" placeholder="35" min="0" />
+            <div class="bonds-error-msg" id="mp-error"></div>
+          </div>
+        </div>
+        <button class="bonds-btn bonds-btn-primary" onclick="addMenuItem()">➕ إضافة وجبة</button>
+        <div class="bonds-list" id="mlist" style="margin-top:1rem;"></div>
 
-      <h3 style="color:var(--gold);margin:1.5rem 0 1rem;">تسجيل مبيعة</h3>
-      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">📌 السعر يجي تلقائياً من الوجبة — تسجل بس كم مبيعة صارت</p>
-      <div class="row2">
-        <div><label>الوجبة</label><select id="sm"></select></div>
-        <div><label>التطبيق</label><select id="sp"></select></div>
-        <div><label>عدد المبيعات</label><input id="sq" type="number" value="1" /></div>
-      </div>
-      <button onclick="addSale()">➕ تسجيل مبيعة</button>
-      <div class="list" id="slist"></div>
+        <h3 style="color:var(--gold);margin:1.5rem 0 1rem;">ربط المكونات بالوجبة</h3>
+        <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">⚠️ الكمية = المطلوب <strong>للوجبة الواحدة</strong> فقط (مثال: 0.3 كجم رز للكبسة الواحدة)</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group">
+            <label>الوجبة</label>
+            <select id="mc" class="bonds-select"><option value="">اختر...</option></select>
+          </div>
+          <div class="bonds-form-group">
+            <label>المكون</label>
+            <select id="mi" class="bonds-select"><option value="">اختر...</option></select>
+          </div>
+          <div class="bonds-form-group">
+            <label>الكمية للوجبة الواحدة</label>
+            <input id="mq" class="bonds-input" type="number" step="0.01" placeholder="0.15" min="0" />
+            <div class="bonds-error-msg" id="mq-error"></div>
+          </div>
+        </div>
+        <button class="bonds-btn bonds-btn-primary" onclick="addLink()">➕ ربط مكون</button>
+        <div class="bonds-list" id="mlinklist" style="margin-top:1rem;"></div>
 
-      <p style="color:var(--muted);font-size:.85rem;margin-top:1rem;text-align:center;">💡 ابدأ بإضافة منصة واحدة، ثم مكوناتك، ثم وجباتك، ثم اربط المكونات وسجل المبيعات</p>
+        <h3 style="color:var(--gold);margin:1.5rem 0 1rem;">تسجيل مبيعة</h3>
+        <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;text-align:center;">📌 السعر يجي تلقائياً من الوجبة — تسجل بس كم مبيعة صارت</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group">
+            <label>الوجبة</label>
+            <select id="sm" class="bonds-select"><option value="">اختر...</option></select>
+          </div>
+          <div class="bonds-form-group">
+            <label>التطبيق</label>
+            <select id="sp" class="bonds-select"><option value="">اختر...</option></select>
+          </div>
+          <div class="bonds-form-group">
+            <label>عدد المبيعات</label>
+            <input id="sq" class="bonds-input" type="number" value="1" min="1" />
+            <div class="bonds-error-msg" id="sq-error"></div>
+          </div>
+        </div>
+        <button class="bonds-btn bonds-btn-primary" onclick="addSale()">➕ تسجيل مبيعة</button>
+        <div class="bonds-list" id="slist" style="margin-top:1rem;"></div>
+
+        <p style="color:var(--muted);font-size:.85rem;margin-top:1rem;text-align:center;">💡 ابدأ بإضافة منصة واحدة، ثم مكوناتك، ثم وجباتك، ثم اربط المكونات وسجل المبيعات</p>
+      </div>
     </div>
 
     <!-- الماتريكس -->
-    <div id="matrix" class="panel">
-      <div class="summary" id="summary"></div>
+    <div id="matrix" class="bonds-panel">
+      <div id="summary"></div>
       <div class="matrix" id="matrixBox"></div>
     </div>
   </div>
@@ -127,12 +194,52 @@ let menuItems = JSON.parse(localStorage.getItem('me_menu')||'[]');
 let links = JSON.parse(localStorage.getItem('me_links')||'[]');
 let sales = JSON.parse(localStorage.getItem('me_sales')||'[]');
 
+// ===== PROGRESS TRACKER =====
+const progressSteps = ['منصات', 'مكونات', 'وجبات', 'ربط مكونات', 'مبيعات'];
+const progress = new BondsUI.ProgressTracker('progressContainer', progressSteps);
+function updateProgress() {
+  let score = 0;
+  if (platforms.length > 0) score++;
+  if (ingredients.length > 0) score++;
+  if (menuItems.length > 0) score++;
+  if (links.length > 0) score++;
+  if (sales.length > 0) score++;
+  progress.set(score);
+}
+
+// ===== AUTO-SAVE =====
+const autoSave = new BondsUI.AutoSave({
+  key: 'me_simple_autosave',
+  interval: 3000,
+  getData: () => ({ platforms, ingredients, menuItems, links, sales }),
+  onRestore: (d) => {
+    if (d.platforms) platforms = d.platforms;
+    if (d.ingredients) ingredients = d.ingredients;
+    if (d.menuItems) menuItems = d.menuItems;
+    if (d.links) links = d.links;
+    if (d.sales) sales = d.sales;
+    renderAll(); renderMatrix(); updateProgress();
+    BondsUI.toast('✅ تم استرجاع بياناتك السابقة', 'success');
+  }
+});
+autoSave.start();
+
+// ===== ONBOARDING =====
+const onboarding = new BondsUI.Onboarding([
+  { icon: '🎯', title: 'مرحباً بك في محرك هندسة المنيو', desc: 'أداة ذكية تصنف وجباتك إلى نجوم، محركات، مكنوز، ومتعثرة بناءً على بياناتك الفعلية.' },
+  { icon: '📊', title: 'أربع خطوات بسيطة', desc: '1️⃣ أضف منصات التوصيل<br>2️⃣ أضف مكوناتك<br>3️⃣ أضف وجباتك واربط المكونات<br>4️⃣ سجل مبيعاتك' },
+  { icon: '💡', title: 'بياناتك محفوظة تلقائياً', desc: 'كل ما تدخله يُحفظ في متصفحك. لا تقلق من تحديث الصفحة أو إغلاق المتصفح.' },
+  { icon: '🚀', title: 'جرب البيانات التجريبية', desc: 'اضغط على زر "تحميل بيانات تجريبية" لتشاهد كيف تبدو النتائج فوراً!' }
+]);
+
+// ===== HELPERS =====
 function save(){
   localStorage.setItem('me_platforms',JSON.stringify(platforms));
   localStorage.setItem('me_ingredients',JSON.stringify(ingredients));
   localStorage.setItem('me_menu',JSON.stringify(menuItems));
   localStorage.setItem('me_links',JSON.stringify(links));
   localStorage.setItem('me_sales',JSON.stringify(sales));
+  updateProgress();
 }
 function clearAll(){
   if(!confirm('هل أنت متأكد؟ سيتم مسح كل البيانات')) return;
@@ -141,82 +248,171 @@ function clearAll(){
   localStorage.removeItem('me_menu');
   localStorage.removeItem('me_links');
   localStorage.removeItem('me_sales');
+  localStorage.removeItem('me_simple_autosave');
   platforms=[]; ingredients=[]; menuItems=[]; links=[]; sales=[];
   renderAll(); renderMatrix();
+  BondsUI.toast('🗑️ تم مسح كل البيانات', 'info');
+}
+function dismissDemoBanner() {
+  document.getElementById('demoBanner').style.display = 'none';
+  localStorage.setItem('me_demo_dismissed','1');
 }
 
 // ===== UI =====
-function show(id){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+function showPanel(id, evt){
+  document.querySelectorAll('.bonds-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bonds-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  event.target.classList.add('active');
+  if(evt && evt.target) evt.target.classList.add('active');
   if(id==='matrix') renderMatrix();
 }
 
 function uid(){ return Date.now()+Math.random().toString(36).slice(2); }
+
+// ===== VALIDATED ADD FUNCTIONS =====
 function addPlatform(){
+  const nameRes = BondsUI.validateField('pn', { required:true, minLength:1, label:'اسم التطبيق' });
+  const commRes = BondsUI.validateField('pc', { required:true, type:'number', min:0, max:100, label:'العمولة' });
+  if (!nameRes.valid || !commRes.valid) {
+    BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
+    return;
+  }
   const n=document.getElementById('pn').value.trim();
-  if(!n) return alert('أدخل اسم');
-  if(platforms.some(p=>p.name===n)) return alert('هذا التطبيق موجود مسبقاً');
+  if(platforms.some(p=>p.name===n)) {
+    BondsUI.toast('هذا التطبيق موجود مسبقاً', 'warning');
+    return;
+  }
   platforms.push({id:uid(),name:n,comm:+document.getElementById('pc').value||0,serv:+document.getElementById('ps').value||0,gate:+document.getElementById('pg').value||0});
   document.getElementById('pn').value='';
+  BondsUI.clearValidation('pn'); BondsUI.clearValidation('pc');
   save(); renderAll();
+  BondsUI.toast('✅ تم إضافة المنصة', 'success');
 }
+
 function addIngredient(){
+  const nameRes = BondsUI.validateField('in', { required:true, label:'اسم المكون' });
+  const priceRes = BondsUI.validateField('ip', { required:true, type:'number', min:0, label:'السعر' });
+  if (!nameRes.valid || !priceRes.valid) {
+    BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
+    return;
+  }
   const n=document.getElementById('in').value.trim();
-  if(!n) return alert('أدخل اسم');
-  if(ingredients.some(i=>i.name===n)) return alert('هذا المكون موجود مسبقاً');
+  if(ingredients.some(i=>i.name===n)) {
+    BondsUI.toast('هذا المكون موجود مسبقاً', 'warning');
+    return;
+  }
   ingredients.push({id:uid(),name:n,unit:document.getElementById('iu').value||'kg',price:+document.getElementById('ip').value||0});
   document.getElementById('in').value=''; document.getElementById('iu').value=''; document.getElementById('ip').value='';
+  BondsUI.clearValidation('in'); BondsUI.clearValidation('ip');
   save(); renderAll();
+  BondsUI.toast('✅ تم إضافة المكون', 'success');
 }
+
 function addMenuItem(){
+  const nameRes = BondsUI.validateField('mn', { required:true, label:'اسم الوجبة' });
+  const priceRes = BondsUI.validateField('mp', { required:true, type:'number', min:0, label:'السعر' });
+  if (!nameRes.valid || !priceRes.valid) {
+    BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
+    return;
+  }
   const n=document.getElementById('mn').value.trim();
-  if(!n) return alert('أدخل اسم');
-  if(menuItems.some(m=>m.name===n)) return alert('هذه الوجبة موجودة مسبقاً');
+  if(menuItems.some(m=>m.name===n)) {
+    BondsUI.toast('هذه الوجبة موجودة مسبقاً', 'warning');
+    return;
+  }
   menuItems.push({id:uid(),name:n,price:+document.getElementById('mp').value||0});
   document.getElementById('mn').value=''; document.getElementById('mp').value='';
+  BondsUI.clearValidation('mn'); BondsUI.clearValidation('mp');
   save(); renderAll();
+  BondsUI.toast('✅ تم إضافة الوجبة', 'success');
 }
+
 function addLink(){
   const m=document.getElementById('mc').value, i=document.getElementById('mi').value, q=+document.getElementById('mq').value;
-  if(m===''||i===''||!q) return alert('اختر الكل');
-  if(q>10) return alert('الكمية كبيرة جداً! هل تقصد '+q/1000+'؟ الكمية = المطلوب للوجبة الواحدة فقط (مثال: 0.3 كجم رز)');
-  if(links.some(l=>l.menuId===m&&l.ingId===i)) return alert('هذا المكون مربوط مسبقاً بهذه الوجبة');
+  const qtyRes = BondsUI.validateField('mq', { required:true, type:'number', min:0.001, label:'الكمية' });
+  if(m===''||i===''||!qtyRes.valid) {
+    BondsUI.toast('⚠️ اختر الوجبة والمكون وأدخل كمية صحيحة', 'warning');
+    return;
+  }
+  if(q>10) {
+    BondsUI.toast('الكمية كبيرة جداً! هل تقصد '+q/1000+'؟', 'warning');
+    return;
+  }
+  if(links.some(l=>l.menuId===m&&l.ingId===i)) {
+    BondsUI.toast('هذا المكون مربوط مسبقاً بهذه الوجبة', 'warning');
+    return;
+  }
   links.push({id:uid(),menuId:m,ingId:i,qty:q});
   document.getElementById('mq').value='';
-  save(); renderAll();
+  BondsUI.clearValidation('mq');
+  save(); renderAll(); renderMatrix();
+  BondsUI.toast('✅ تم ربط المكون', 'success');
 }
+
 function addSale(){
   const m=document.getElementById('sm').value, p=document.getElementById('sp').value, q=+document.getElementById('sq').value;
-  if(m===''||p===''||!q) return alert('اختر الكل');
+  const qtyRes = BondsUI.validateField('sq', { required:true, type:'number', min:1, label:'عدد المبيعات' });
+  if(m===''||p===''||!qtyRes.valid) {
+    BondsUI.toast('⚠️ اختر الوجبة والمنصة وأدخل عدد صحيح', 'warning');
+    return;
+  }
   const item=menuItems.find(x=>x.id===m);
   sales.push({id:uid(),menuId:m,platId:p,qty:q,unitPrice:item?item.price:0,date:new Date().toISOString()});
-  document.getElementById('sq').value='1';
+  BondsUI.clearValidation('sq');
   save(); renderAll(); renderMatrix();
+  BondsUI.toast('✅ تم تسجيل المبيعة', 'success');
 }
-function del(arr,id,key){ window[key]=arr.filter(x=>x.id!==id); save(); renderAll(); }
+
+function del(arr,id,key){ 
+  window[key]=arr.filter(x=>x.id!==id); 
+  save(); renderAll(); 
+  BondsUI.toast('🗑️ تم الحذف', 'info');
+}
 
 // ===== RENDER =====
 function renderAll(){
   // platforms
-  document.getElementById('plist').innerHTML=platforms.map(p=>`<div class="list-item"><span>${p.name} — ${p.comm}%</span><span class="del" onclick="del(platforms,'${p.id}','platforms')">🗑</span></div>`).join('')||'لا توجد';
+  const pEl = document.getElementById('plist');
+  if (platforms.length === 0) {
+    BondsUI.emptyState('plist', { icon:'📱', title:'لا توجد منصات', desc:'أضف منصة واحدة على الأقل مثل جاهز أو هنقرستيشن', action:'showPanel(\'platforms\')', actionLabel:'➕ أضف منصة' });
+  } else {
+    pEl.innerHTML=platforms.map(p=>`<div class="bonds-list-item"><span>${p.name} — ${p.comm}%</span><span class="del" onclick="del(platforms,'${p.id}','platforms')">🗑</span></div>`).join('');
+  }
   // ingredients
-  document.getElementById('ilist').innerHTML=ingredients.map(i=>`<div class="list-item"><span>${i.name} — ${i.price} ر.س/${i.unit}</span><span class="del" onclick="del(ingredients,'${i.id}','ingredients')">🗑</span></div>`).join('')||'لا توجد';
+  const iEl = document.getElementById('ilist');
+  if (ingredients.length === 0) {
+    BondsUI.emptyState('ilist', { icon:'🥩', title:'لا توجد مكونات', desc:'أضف اللحم، الخضار، البهارات...' });
+  } else {
+    iEl.innerHTML=ingredients.map(i=>`<div class="bonds-list-item"><span>${i.name} — ${i.price} ر.س/${i.unit}</span><span class="del" onclick="del(ingredients,'${i.id}','ingredients')">🗑</span></div>`).join('');
+  }
   // menu
-  document.getElementById('mlist').innerHTML=menuItems.map(m=>`<div class="list-item"><span>${m.name} — ${m.price} ر.س</span><span class="del" onclick="del(menuItems,'${m.id}','menuItems')">🗑</span></div>`).join('')||'لا توجد';
+  const mEl = document.getElementById('mlist');
+  if (menuItems.length === 0) {
+    BondsUI.emptyState('mlist', { icon:'🍔', title:'لا توجد وجبات', desc:'أضف برجر، شاورما، كبسة...' });
+  } else {
+    mEl.innerHTML=menuItems.map(m=>`<div class="bonds-list-item"><span>${m.name} — ${m.price} ر.س</span><span class="del" onclick="del(menuItems,'${m.id}','menuItems')">🗑</span></div>`).join('');
+  }
   // links
-  document.getElementById('mlinklist').innerHTML=links.map(l=>{
-    const m=menuItems.find(x=>x.id===l.menuId), i=ingredients.find(x=>x.id===l.ingId);
-    const cost=(l.qty*(i?i.price:0)).toFixed(2);
-    return `<div class="list-item"><span>${m?m.name:'—'} ← ${i?i.name:'—'} × ${l.qty} = ${cost} ر.س</span><span class="del" onclick="del(links,'${l.id}','links')">🗑</span></div>`;
-  }).join('')||'لا توجد';
+  const lEl = document.getElementById('mlinklist');
+  if (links.length === 0) {
+    BondsUI.emptyState('mlinklist', { icon:'🔗', title:'لا توجد روابط', desc:'اربط كل وجبة بمكوناتها' });
+  } else {
+    lEl.innerHTML=links.map(l=>{
+      const mx=menuItems.find(x=>x.id===l.menuId), ix=ingredients.find(x=>x.id===l.ingId);
+      const cost=(l.qty*(ix?ix.price:0)).toFixed(2);
+      return `<div class="bonds-list-item"><span>${mx?mx.name:'—'} ← ${ix?ix.name:'—'} × ${l.qty} = ${cost} ر.س</span><span class="del" onclick="del(links,'${l.id}','links')">🗑</span></div>`;
+    }).join('');
+  }
   // sales
-  document.getElementById('slist').innerHTML=sales.map(s=>{
-    const m=menuItems.find(x=>x.id===s.menuId), p=platforms.find(x=>x.id===s.platId);
-    return `<div class="list-item"><span>${m?m.name:'—'} × ${s.qty} (${p?p.name:'—'}) = ${(s.qty*s.unitPrice).toFixed(0)} ر.س</span><span class="del" onclick="del(sales,'${s.id}','sales')">🗑</span></div>`;
-  }).join('')||'لا توجد';
+  const sEl = document.getElementById('slist');
+  if (sales.length === 0) {
+    BondsUI.emptyState('slist', { icon:'🛒', title:'لا توجد مبيعات', desc:'سجل أول مبيعة لتفعيل الماتريكس' });
+  } else {
+    sEl.innerHTML=sales.map(s=>{
+      const mx=menuItems.find(x=>x.id===s.menuId), px=platforms.find(x=>x.id===s.platId);
+      return `<div class="bonds-list-item"><span>${mx?mx.name:'—'} × ${s.qty} (${px?px.name:'—'}) = ${(s.qty*s.unitPrice).toFixed(0)} ر.س</span><span class="del" onclick="del(sales,'${s.id}','sales')">🗑</span></div>`;
+    }).join('');
+  }
 
   // dropdowns
   const optM=menuItems.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
@@ -231,11 +427,10 @@ function renderAll(){
 // ===== MATRIX =====
 function renderMatrix(){
   if(!sales.length){
-    document.getElementById('summary').innerHTML='<div style="text-align:center;color:var(--muted);">لا توجد مبيعات — اذهب لتبويب "المنيو + المبيعات" واضف منصات، مكونات، وجبات، ثم سجل مبيعات</div>';
+    BondsUI.emptyState('summary', { icon:'📊', title:'الماتريكس تنتظر بياناتك', desc:'أضف مبيعات في تبويب "المنيو + المبيعات" لتفعيل التحليل' });
     document.getElementById('matrixBox').innerHTML='';
     return;
   }
-  // group sales by menu item
   const by={};
   sales.forEach(s=>{
     if(!by[s.menuId]) by[s.menuId]={qty:0,rev:0,net:0,plat:s.platId};
@@ -246,18 +441,16 @@ function renderMatrix(){
     by[s.menuId].net+=s.qty*s.unitPrice*(1-fee);
   });
 
-  // calc cost per item
   const scores=[];
   for(const[mid,agg]of Object.entries(by)){
     const m=menuItems.find(x=>x.id===mid);
     if(!m) continue;
-    // cost from links
     let costPerUnit=0;
     links.filter(l=>l.menuId===mid).forEach(l=>{
       const i=ingredients.find(x=>x.id===l.ingId);
       if(i) costPerUnit+=l.qty*i.price;
     });
-    if(!costPerUnit) costPerUnit=agg.rev/agg.qty*0.35; // fallback
+    if(!costPerUnit) costPerUnit=agg.rev/agg.qty*0.35;
     const totalCost=costPerUnit*agg.qty;
     const profit=agg.net-totalCost;
     const margin=agg.rev>0?(profit/agg.rev)*100:0;
@@ -283,12 +476,14 @@ function renderMatrix(){
   const fees=totalRev-totalNet;
 
   document.getElementById('summary').innerHTML=`
-    <div class="s-box"><div>📦 منتجات</div><div>${scores.length}</div></div>
-    <div class="s-box"><div>💰 إيرادات</div><div>${totalRev.toFixed(0)} ر.س</div></div>
-    <div class="s-box"><div>📉 تكاليف</div><div>${totalCost.toFixed(0)} ر.س</div></div>
-    <div class="s-box"><div>🏦 عمولات</div><div>${fees.toFixed(0)} ر.س</div></div>
-    <div class="s-box"><div>📈 ربح صافي</div><div>${totalProfit.toFixed(0)} ر.س</div></div>
-    <div class="s-box"><div>📊 متوسط الهامش</div><div>${avgMargin.toFixed(1)}%</div></div>`;
+    <div class="summary">
+      <div class="s-box"><div>📦 منتجات</div><div>${scores.length}</div></div>
+      <div class="s-box"><div>💰 إيرادات</div><div>${totalRev.toFixed(0)} ر.س</div></div>
+      <div class="s-box"><div>📉 تكاليف</div><div>${totalCost.toFixed(0)} ر.س</div></div>
+      <div class="s-box"><div>🏦 عمولات</div><div>${fees.toFixed(0)} ر.س</div></div>
+      <div class="s-box"><div>📈 ربح صافي</div><div>${totalProfit.toFixed(0)} ر.س</div></div>
+      <div class="s-box"><div>📊 متوسط الهامش</div><div>${avgMargin.toFixed(1)}%</div></div>
+    </div>`;
 
   const mk=(arr,title,icon,color,desc)=>{
     if(!arr.length) return '';
@@ -310,8 +505,60 @@ function renderMatrix(){
     mk(stalled,'المتعثرة','⚠️','stalled','ربح منخفض + مبيعات منخفضة');
 }
 
+// ===== DEMO DATA =====
+function loadDemoData(){
+  if(platforms.length || ingredients.length || menuItems.length) {
+    if(!confirm('هذا سيستبدل بياناتك الحالية. هل أنت متأكد؟')) return;
+  }
+  platforms=[
+    {id:uid(),name:'جاهز',comm:25,serv:2,gate:1.75},
+    {id:uid(),name:'هنقرستيشن',comm:22,serv:1.5,gate:1.5}
+  ];
+  ingredients=[
+    {id:uid(),name:'لحم بقر مفروم',unit:'kg',price:45},
+    {id:uid(),name:'صمون برجر',unit:'piece',price:2},
+    {id:uid(),name:'جبنة شيدر',unit:'kg',price:30},
+    {id:uid(),name:'دجاج فيليه',unit:'kg',price:28},
+    {id:uid(),name:'بطاطس',unit:'kg',price:8},
+    {id:uid(),name:'خس',unit:'kg',price:12}
+  ];
+  const m1=uid(),m2=uid(),m3=uid();
+  menuItems=[
+    {id:m1,name:'برجر كلاسيك',price:35},
+    {id:m2,name:'شاورما دجاج',price:28},
+    {id:m3,name:'بطاطس مقلية',price:15}
+  ];
+  const i1=ingredients[0].id,i2=ingredients[1].id,i3=ingredients[2].id,i4=ingredients[3].id,i5=ingredients[4].id,i6=ingredients[5].id;
+  links=[
+    {id:uid(),menuId:m1,ingId:i1,qty:0.15},{id:uid(),menuId:m1,ingId:i2,qty:1},{id:uid(),menuId:m1,ingId:i3,qty:0.03},{id:uid(),menuId:m1,ingId:i6,qty:0.02},
+    {id:uid(),menuId:m2,ingId:i4,qty:0.12},{id:uid(),menuId:m2,ingId:i5,qty:0.08},
+    {id:uid(),menuId:m3,ingId:i5,qty:0.15}
+  ];
+  const p1=platforms[0].id,p2=platforms[1].id;
+  sales=[
+    {id:uid(),menuId:m1,platId:p1,qty:120,unitPrice:35,date:new Date().toISOString()},
+    {id:uid(),menuId:m1,platId:p2,qty:80,unitPrice:35,date:new Date().toISOString()},
+    {id:uid(),menuId:m2,platId:p1,qty:200,unitPrice:28,date:new Date().toISOString()},
+    {id:uid(),menuId:m3,platId:p1,qty:300,unitPrice:15,date:new Date().toISOString()}
+  ];
+  save(); renderAll(); renderMatrix();
+  BondsUI.toast('🎉 تم تحميل البيانات التجريبية! شاهد الماتريكس الآن', 'success');
+}
+
 // ===== INIT =====
-renderAll();
+if (localStorage.getItem('me_demo_dismissed')) {
+  document.getElementById('demoBanner').style.display = 'none';
+}
+const restored = autoSave.restore();
+if (!restored) renderAll();
+updateProgress();
+
+// Start onboarding after a short delay
+setTimeout(() => {
+  if (!platforms.length && !ingredients.length && !menuItems.length) {
+    onboarding.start();
+  }
+}, 800);
 </script>
 </body>
 </html>

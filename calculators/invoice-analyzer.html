@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>حاسبة تحليل الفواتير | بوندز</title>
+  <meta name="description" content="حلل فاتورة كل طلب — ربح الفاتورة، ربح اليوم، الشهر، السنة. قارن بين منصات التوصيل." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="shared-calculators.css" />
+  <script src="shared-ui.js"></script>
+  <script src="country-platforms-data.js"></script>
+  <script src="db-client.js"></script>
+  <script src="db-client-auto.js"></script>
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <style>
+    :root { --gold:#d4a853; --green:#22c55e; --red:#ef4444; --orange:#f59e0b; }
+    body { background:#0a0f1a; color:#e2e8f0; font-family:'Vazirmatn',system-ui,sans-serif; margin:0; padding:2rem 1rem; }
+    .container { max-width:960px; margin:0 auto; }
+
+    .invoice-card {
+      background:linear-gradient(135deg, rgba(16,24,45,0.9), rgba(10,15,26,0.95));
+      border:1px solid rgba(212,168,83,0.2);
+      border-radius:16px;
+      padding:1.5rem;
+      margin-bottom:1.5rem;
+      position:relative;
+      overflow:hidden;
+    }
+    .invoice-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--gold), #f0c96a);
+    }
+    .invoice-header {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:1.25rem; padding-bottom:0.75rem;
+      border-bottom:1px dashed rgba(255,255,255,0.1);
+    }
+    .invoice-header h2 {
+      margin:0; font-size:1.1rem; font-weight:800; color:var(--gold);
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .invoice-header .badge {
+      background:rgba(34,197,94,0.15); color:var(--green);
+      border:1px solid rgba(34,197,94,0.3); padding:0.2rem 0.6rem;
+      border-radius:999px; font-size:0.75rem; font-weight:700;
+    }
+
+    .invoice-line {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:0.6rem 0; border-bottom:1px solid rgba(255,255,255,0.04);
+      font-size:0.95rem;
+    }
+    .invoice-line:last-child { border-bottom:none; }
+    .invoice-line .label { color:#94a3b8; }
+    .invoice-line .value { font-weight:700; font-family:monospace; font-size:1rem; }
+    .invoice-line.positive .value { color:var(--green); }
+    .invoice-line.negative .value { color:var(--red); }
+    .invoice-line.total { padding-top:0.75rem; margin-top:0.5rem; border-top:2px solid var(--gold); }
+    .invoice-line.total .label { color:var(--gold); font-weight:800; font-size:1.05rem; }
+    .invoice-line.total .value { color:var(--gold); font-size:1.3rem; font-weight:900; }
+
+    .receipt-dots {
+      text-align:center; color:rgba(255,255,255,0.15);
+      font-size:1.2rem; letter-spacing:4px; margin:0.5rem 0;
+    }
+
+    .volume-grid {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:1rem;
+      margin:1.5rem 0;
+    }
+    @media(max-width:640px){ .volume-grid { grid-template-columns:1fr; } }
+
+    .input-group label {
+      display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:0.4rem; font-weight:600;
+    }
+    .input-group input, .input-group select {
+      width:100%; padding:0.7rem 1rem; border-radius:10px; border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.03); color:#e2e8f0; font-family:inherit; font-size:1rem;
+      box-sizing:border-box; transition:border-color 0.2s;
+    }
+    .input-group input:focus, .input-group select:focus { outline:none; border-color:var(--gold); }
+    .input-group select option { background:#0a0f1a; color:#e2e8f0; }
+
+    .summary-grid {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin:1.5rem 0;
+    }
+    @media(max-width:900px){ .summary-grid { grid-template-columns:repeat(2,1fr); } }
+    @media(max-width:640px){ .summary-grid { grid-template-columns:1fr; } }
+
+    .summary-card {
+      background:rgba(16,24,45,0.7); border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px; padding:1.25rem; text-align:center;
+      transition:all 0.3s;
+    }
+    .summary-card:hover { border-color:rgba(212,168,83,0.3); transform:translateY(-2px); }
+    .summary-card .icon { font-size:1.5rem; margin-bottom:0.5rem; }
+    .summary-card .num {
+      font-size:1.6rem; font-weight:900; color:var(--gold); font-family:monospace;
+    }
+    .summary-card .label { font-size:0.75rem; color:#64748b; margin-top:0.25rem; }
+    .summary-card .sub { font-size:0.7rem; color:#475569; margin-top:0.15rem; }
+
+    .promo-box {
+      background:linear-gradient(135deg, rgba(239,68,68,0.08), rgba(245,158,11,0.08));
+      border:1px solid rgba(239,68,68,0.2); border-radius:12px;
+      padding:1.25rem; margin:1.5rem 0;
+    }
+    .promo-box h3 { margin:0 0 0.75rem; font-size:1rem; color:var(--red); display:flex; align-items:center; gap:0.5rem; }
+    .promo-row { display:flex; justify-content:space-between; padding:0.4rem 0; font-size:0.9rem; }
+    .promo-row .label { color:#94a3b8; }
+    .promo-row .value { font-weight:700; }
+    .promo-row.highlight { padding:0.6rem 0; margin-top:0.5rem; border-top:1px dashed rgba(255,255,255,0.1); }
+    .promo-row.highlight .value { color:var(--orange); font-size:1.1rem; }
+
+    .compare-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.5rem 0;
+    }
+    @media(max-width:640px){ .compare-grid { grid-template-columns:1fr; } }
+
+    .compare-card {
+      background:rgba(16,24,45,0.7); border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px; padding:1.25rem;
+    }
+    .compare-card.winner { border-color:rgba(34,197,94,0.3); background:rgba(34,197,94,0.05); }
+    .compare-card h4 { margin:0 0 0.75rem; font-size:0.95rem; }
+    .compare-card .big { font-size:1.8rem; font-weight:900; font-family:monospace; }
+    .compare-card .desc { font-size:0.8rem; color:#64748b; margin-top:0.3rem; }
+
+    .inputs-grid {
+      display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin:1.5rem 0;
+    }
+    @media(max-width:640px){ .inputs-grid { grid-template-columns:1fr; } }
+
+    .section-title {
+      font-size:1.1rem; font-weight:800; color:var(--gold); margin:1.5rem 0 1rem;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+
+    .btn-calc {
+      background:linear-gradient(135deg, var(--gold), #f0c96a); color:#0a0f1a;
+      border:none; padding:0.9rem 2rem; border-radius:10px; font-family:inherit;
+      font-weight:800; font-size:1rem; cursor:pointer; transition:all 0.2s;
+      display:block; width:100%; margin:1rem 0;
+    }
+    .btn-calc:hover { opacity:0.9; transform:translateY(-1px); }
+    .btn-calc.secondary {
+      background:transparent; color:var(--gold); border:1px solid rgba(212,168,83,0.4);
+      margin-top:0.5rem;
+    }
+    .btn-calc.secondary:hover { background:rgba(212,168,83,0.1); }
+
+    .empty-state { text-align:center; padding:3rem 1rem; color:#64748b; }
+    .empty-state .icon { font-size:3rem; margin-bottom:1rem; opacity:0.5; }
+
+    /* Platform comparison table */
+    .platform-table-wrap { overflow-x:auto; margin:1.5rem 0; }
+    .platform-table {
+      width:100%; border-collapse:collapse; font-size:0.85rem;
+    }
+    .platform-table th {
+      background:rgba(212,168,83,0.1); color:var(--gold); padding:0.7rem 0.5rem;
+      text-align:center; font-weight:700; border-bottom:2px solid rgba(212,168,83,0.3);
+    }
+    .platform-table td {
+      padding:0.6rem 0.5rem; text-align:center;
+      border-bottom:1px solid rgba(255,255,255,0.04);
+    }
+    .platform-table tr:hover td { background:rgba(255,255,255,0.02); }
+    .platform-table .best { color:var(--green); font-weight:800; }
+    .platform-table .worst { color:var(--red); font-weight:800; }
+    .platform-table .name-cell { text-align:right; font-weight:600; }
+    .platform-table .fee-cell { font-family:monospace; }
+
+    .info-tag {
+      display:inline-block; font-size:0.7rem; padding:0.15rem 0.4rem;
+      border-radius:4px; margin-right:0.3rem;
+    }
+    .info-tag.verified { background:rgba(34,197,94,0.12); color:#22c55e; }
+    .info-tag.estimated { background:rgba(245,158,11,0.12); color:#f59e0b; }
+    .info-tag.tiered { background:rgba(59,130,246,0.12); color:#60a5fa; }
+
+    .platform-selector-row {
+      display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;
+    }
+    @media(max-width:640px){ .platform-selector-row { grid-template-columns:1fr; } }
+
+    .auto-fill-note {
+      font-size:0.8rem; color:#64748b; margin-top:0.5rem; text-align:center;
+    }
+
+    #compareAllSection { display:none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1 style="text-align:center; font-size:clamp(1.5rem,4vw,2.2rem); font-weight:900; color:var(--gold); margin-bottom:0.5rem;">
+    🧾 حاسبة تحليل الفواتير
+  </h1>
+  <p style="text-align:center; color:#94a3b8; margin-bottom:1rem; font-size:0.95rem;">
+    اختر الدولة والمنصة — أو أدخل البيانات يدوياً. شوف ربح كل طلب، اليوم، الشهر، والسنة
+  </p>
+  <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:0.75rem 1rem; margin-bottom:1.5rem; text-align:center; font-size:0.85rem; color:#f59e0b; line-height:1.6;">
+    ⚠️ <strong>تنبيه:</strong> البيانات تقديرية بناءً على معلومات عامة. العمولة والرسوم <strong>تختلف من مطعم لمطعم</strong> حسب الاتفاق المباشر مع المنصة. تأكد من أرقام عقدك الفعلي وأعدل القيم يدوياً.
+  </div>
+
+  <!-- Platform Selector -->
+  <div class="section-title">🌍 الدولة والمنصة</div>
+  <div class="platform-selector-row">
+    <div class="input-group">
+      <label>🇦🇪 الدولة</label>
+      <select id="countrySelect" onchange="onCountryChange()">
+        <option value="">-- اختر الدولة --</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>📱 المنصة</label>
+      <select id="platformSelect" onchange="onPlatformChange()">
+        <option value="">-- اختر المنصة --</option>
+      </select>
+    </div>
+  </div>
+  <div class="auto-fill-note" id="autoFillNote">اختر الدولة والمنصة لتعبئة البيانات تلقائياً</div>
+
+  <!-- Invoice Inputs -->
+  <div class="section-title">📋 بيانات الفاتورة</div>
+  <div class="inputs-grid">
+    <div class="input-group">
+      <label>💰 سعر الطلب (قبل الخصم)</label>
+      <input type="number" id="orderPrice" placeholder="34.99" step="0.01" min="0" />
+    </div>
+    <div class="input-group">
+      <label>🏷️ خصم التاجر (اللي تدفعه أنت)</label>
+      <input type="number" id="merchantDiscount" placeholder="18.25" step="0.01" min="0" />
+    </div>
+    <div class="input-group">
+      <label>📱 عمولة المنصة (%) ← أو مبلغ ثابت</label>
+      <input type="number" id="platformCommissionPct" placeholder="25" step="0.01" min="0" />
+    </div>
+    <div class="input-group">
+      <label>💳 رسوم الدفع / بوابة (%) ← أو مبلغ ثابت</label>
+      <input type="number" id="paymentFeePct" placeholder="1.75" step="0.01" min="0" />
+    </div>
+    <div class="input-group">
+      <label>📦 تكلفة المنتج (مكونات + تعبئة)</label>
+      <input type="number" id="productCost" placeholder="8.00" step="0.01" min="0" />
+    </div>
+    <div class="input-group">
+      <label>🚚 رسوم التوصيل (إذا تتحملها)</label>
+      <input type="number" id="deliveryFee" placeholder="0.00" step="0.01" min="0" />
+    </div>
+    <div class="input-group">
+      <label>📊 نسبة الضريبة (VAT %)</label>
+      <input type="number" id="vatRate" placeholder="15" step="0.01" min="0" max="100" value="15" />
+    </div>
+    <div class="input-group">
+      <label>🔧 رسوم خدمة إضافية (%)</label>
+      <input type="number" id="serviceFeePct" placeholder="2" step="0.01" min="0" value="0" />
+    </div>
+  </div>
+
+  <!-- Volume Inputs -->
+  <div class="section-title">📊 حجم المبيعات</div>
+  <div class="volume-grid">
+    <div class="input-group">
+      <label>📈 عدد الطلبات / اليوم</label>
+      <input type="number" id="dailyOrders" placeholder="50" min="0" />
+    </div>
+    <div class="input-group">
+      <label>📅 أيام العمل / الشهر</label>
+      <input type="number" id="workingDays" placeholder="30" min="1" max="31" />
+    </div>
+    <div class="input-group">
+      <label>🏷️ اسم الوجبة / العرض (اختياري)</label>
+      <input type="text" id="itemName" placeholder="Value Offer" />
+    </div>
+  </div>
+
+  <button class="btn-calc" onclick="calculateInvoice()">🔍 احسب وتحلل</button>
+  <button class="btn-calc secondary" onclick="compareAllPlatforms()">⚖️ قارن كل المنصات في الدولة</button>
+  <button class="btn-calc secondary" onclick="loadDemoData()">🧪 جرب ببيانات تجريبية</button>
+
+  <!-- Results -->
+  <div id="resultsSection" style="display:none;">
+
+    <!-- Invoice Breakdown -->
+    <div class="invoice-card" id="invoiceCard">
+      <div class="invoice-header">
+        <h2>🧾 <span id="invoiceItemName">فاتورة الطلب</span></h2>
+        <span class="badge" id="invoiceBadge">ربح ✓</span>
+      </div>
+      <div class="invoice-line">
+        <span class="label">💰 إجمالي دخل المطعم</span>
+        <span class="value" id="valSubtotal">0.00 ر.س</span>
+      </div>
+      <div class="invoice-line negative">
+        <span class="label">└ الخصم الممول من التاجر</span>
+        <span class="value" id="valDiscount">−0.00 ر.س</span>
+      </div>
+      <div class="receipt-dots">• • • • • • • • • •</div>
+      <div class="invoice-line" style="border-top:1px dashed rgba(255,255,255,0.1); padding-top:0.6rem;">
+        <span class="label" style="color:#94a3b8; font-weight:600;">💰 إجمالي الدخل بعد خصم التاجر</span>
+        <span class="value" style="color:#94a3b8; font-weight:700;" id="valAfterDiscount">0.00 ر.س</span>
+      </div>
+      <div class="invoice-line negative">
+        <span class="label">└ عمولة المنصة</span>
+        <span class="value" id="valCommission">−0.00 ر.س</span>
+      </div>
+      <div class="invoice-line negative" id="vatCommissionLine">
+        <span class="label">└ └ ضريبة العمولة (VAT)</span>
+        <span class="value" id="valVatCommission">−0.00 ر.س</span>
+      </div>
+      <div class="invoice-line negative" id="serviceFeeLine">
+        <span class="label">└ رسوم خدمة المنصة</span>
+        <span class="value" id="valServiceFee">−0.00 ر.س</span>
+      </div>
+      <div class="invoice-line negative" id="vatServiceFeeLine">
+        <span class="label">└ └ ضريبة رسوم الخدمة</span>
+        <span class="value" id="valVatServiceFee">−0.00 ر.س</span>
+      </div>
+      <div class="invoice-line negative">
+        <span class="label">└ رسوم الدفع / البوابة</span>
+        <span class="value" id="valPaymentFee">−0.00 ر.س</span>
+      </div>
+      <div class="invoice-line negative" id="vatPaymentLine">
+        <span class="label">└ └ ضريبة رسوم الدفع (VAT)</span>
+        <span class="value" id="valVatPayment">−0.00 ر.س</span>
+      </div>
+      <div class="invoice-line negative" id="deliveryLine">
+        <span class="label">└ رسوم التوصيل</span>
+        <span class="value" id="valDeliveryFee">−0.00 ر.س</span>
+      </div>
+      <div class="invoice-line negative" id="vatDeliveryLine">
+        <span class="label">└ └ ضريبة التوصيل (VAT)</span>
+        <span class="value" id="valVatDelivery">−0.00 ر.س</span>
+      </div>
+      <div class="receipt-dots">• • • • • • • • • •</div>
+      <div class="invoice-line negative" style="border-top:1px dashed rgba(255,255,255,0.15); padding-top:0.75rem;">
+        <span class="label" style="color:#f59e0b; font-weight:700;">📉 إجمالي الخصومات</span>
+        <span class="value" style="color:#f59e0b; font-weight:800;" id="valTotalDeductions">−0.00 ر.س</span>
+      </div>
+      <div class="receipt-dots">• • • • • • • • • •</div>
+      <div class="invoice-line total">
+        <span class="label">📊 صافي الدخل (المبلغ الداخل بعد الخصومات)</span>
+        <span class="value" id="valNetIncome">0.00 ر.س</span>
+      </div>
+      <div class="receipt-dots">• • • • • • • • • •</div>
+      <div class="invoice-line negative" style="opacity:0.8;">
+        <span class="label">📦 تكلفة المنتج (مكونات + تعبئة)</span>
+        <span class="value" id="valProductCost2">−0.00 ر.س</span>
+      </div>
+      <div class="receipt-dots">• • • • • • • • • •</div>
+      <div class="invoice-line total">
+        <span class="label">💵 صافي الربح = صافي الدخل − تكلفة المنتج</span>
+        <span class="value" id="valNetProfit">0.00 ر.س</span>
+      </div>
+      <div class="invoice-line" style="padding-top:0.3rem;">
+        <span class="label" style="font-size:0.8rem;">هامش الربح</span>
+        <span class="value" style="font-size:0.85rem; color:#94a3b8;" id="valMargin">0%</span>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="section-title">📊 الأرباح التراكمية</div>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="icon">🧾</div>
+        <div class="num" id="sumInvoice">0.00</div>
+        <div class="label">ربح الفاتورة</div>
+        <div class="sub" id="sumInvoiceSub">بدون خصم: 0.00</div>
+      </div>
+      <div class="summary-card">
+        <div class="icon">📅</div>
+        <div class="num" id="sumDaily">0.00</div>
+        <div class="label">ربح اليوم</div>
+        <div class="sub" id="sumDailySub">0 طلب × 0.00</div>
+      </div>
+      <div class="summary-card">
+        <div class="icon">📆</div>
+        <div class="num" id="sumMonthly">0.00</div>
+        <div class="label">ربح الشهر</div>
+        <div class="sub" id="sumMonthlySub">0 يوم × 0.00</div>
+      </div>
+      <div class="summary-card">
+        <div class="icon">🗓️</div>
+        <div class="num" id="sumYearly">0.00</div>
+        <div class="label">ربح السنة</div>
+        <div class="sub" id="sumYearlySub">12 شهر × 0.00</div>
+      </div>
+    </div>
+
+    <!-- Promo Analysis -->
+    <div class="promo-box" id="promoBox">
+      <h3>⚠️ هل العرض يستحق؟</h3>
+      <div class="promo-row">
+        <span class="label">الخصم اللي تدفعه:</span>
+        <span class="value" id="promoDiscount" style="color:var(--red);">0.00 ر.س</span>
+      </div>
+      <div class="promo-row">
+        <span class="label">نسبة الخصم من السعر:</span>
+        <span class="value" id="promoDiscountPct">0%</span>
+      </div>
+      <div class="promo-row">
+        <span class="label">ربح الفاتورة بدون خصم:</span>
+        <span class="value" id="promoProfitNoDiscount" style="color:var(--green);">0.00 ر.س</span>
+      </div>
+      <div class="promo-row">
+        <span class="label">ربح الفاتورة مع الخصم:</span>
+        <span class="value" id="promoProfitWithDiscount">0.00 ر.س</span>
+      </div>
+      <div class="promo-row highlight">
+        <span class="label">📉 الخسارة / فاتورة بسبب الخصم:</span>
+        <span class="value" id="promoLossPerInvoice">0.00 ر.س</span>
+      </div>
+      <div class="promo-row highlight">
+        <span class="label">📈 طلبات إضافية مطلوبة / يوم:</span>
+        <span class="value" id="promoExtraOrders">0</span>
+      </div>
+      <div class="promo-row highlight">
+        <span class="label">🎯 الزيادة المطلوبة في المبيعات:</span>
+        <span class="value" id="promoRequiredIncrease">0%</span>
+      </div>
+    </div>
+
+    <!-- With vs Without -->
+    <div class="section-title">⚖️ مقارنة: مع العرض vs بدون</div>
+    <div class="compare-grid">
+      <div class="compare-card" id="cardWithPromo">
+        <h4>🎁 مع العرض (الوضع الحالي)</h4>
+        <div class="big" id="compareWith" style="color:var(--red);">0.00</div>
+        <div class="desc">ربح الشهر مع الخصم</div>
+      </div>
+      <div class="compare-card winner" id="cardWithoutPromo">
+        <h4>✅ بدون العرض</h4>
+        <div class="big" id="compareWithout" style="color:var(--green);">0.00</div>
+        <div class="desc">ربح الشهر بدون خصم</div>
+      </div>
+    </div>
+
+    <!-- Verdict -->
+    <div id="verdictBox" style="text-align:center; padding:1.5rem; border-radius:12px; margin:1rem 0; font-weight:700;"></div>
+
+  </div>
+
+  <!-- Compare All Platforms Section -->
+  <div id="compareAllSection">
+    <div class="section-title">⚖️ مقارنة كل المنصات في الدولة</div>
+    <p style="color:#94a3b8; font-size:0.85rem; margin:-0.5rem 0 1rem;">
+      نفس الطلب (نفس السعر + نفس التكلفة) على كل منصة في الدولة
+    </p>
+    <div class="platform-table-wrap">
+      <table class="platform-table" id="platformTable">
+        <thead>
+          <tr>
+            <th>المنصة</th>
+            <th>العمولة</th>
+            <th>رسوم خدمة</th>
+            <th>بوابة دفع</th>
+            <th>توصيل</th>
+            <th>الخصومات</th>
+            <th>صافي الدخل</th>
+            <th>صافي الربح</th>
+            <th>الهامش</th>
+          </tr>
+        </thead>
+        <tbody id="platformTableBody"></tbody>
+      </table>
+    </div>
+    <p style="text-align:center; color:#64748b; font-size:0.75rem; margin-top:0.5rem;">
+      ⚠️ الأرقام تقديرية. العمولات والرسوم الفعلية تختلف حسب الاتفاق المباشر بين كل مطعم والمنصة.
+    </p>
+  </div>
+
+  <!-- Saved Invoices -->
+  <div class="section-title">💾 الفواتير المحفوظة</div>
+  <div id="savedInvoicesSection" style="display:none; margin-bottom:1.5rem;">
+    <div id="savedInvoicesList" style="display:flex; flex-wrap:wrap; gap:0.5rem;"></div>
+  </div>
+
+  <!-- Backup / Restore -->
+  <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin:1.5rem 0;">
+    <button class="btn-calc secondary" onclick="saveCurrentInvoice()" style="flex:1; min-width:140px;">💾 احفظ الفاتورة</button>
+    <button class="btn-calc secondary" onclick="exportAllData()" style="flex:1; min-width:140px;">📥 تصدير كل البيانات</button>
+    <label style="flex:1; min-width:140px; cursor:pointer;">
+      <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importAllData(this)" />
+      <span class="btn-calc secondary" style="display:block; text-align:center;">📤 استيراد البيانات</span>
+    </label>
+  </div>
+
+  <!-- Empty State -->
+  <div id="emptyState" class="empty-state">
+    <div class="icon">🧾</div>
+    <p>اختر الدولة والمنصة — أو أدخل البيانات يدوياً<br>واضغط "احسب وتحلل"</p>
+  </div>
+
+</div>
+
+<script>
+var currentSymbol = 'ر.س';
+var currentCountry = null;
+var currentPlatform = null;
+
+function formatMoney(n) {
+  return (typeof n === 'number' ? n : 0).toFixed(2) + ' ' + currentSymbol;
+}
+
+function loadDemoData() {
+  // Saudi + HungerStation example based on market average
+  document.getElementById('countrySelect').value = 'SA';
+  onCountryChange();
+  setTimeout(function() {
+    document.getElementById('platformSelect').value = 'plat_hunger';
+    onPlatformChange();
+    document.getElementById('orderPrice').value = '65';
+    document.getElementById('merchantDiscount').value = '18';
+    document.getElementById('productCost').value = '20';
+    document.getElementById('dailyOrders').value = '35';
+    document.getElementById('workingDays').value = '26';
+    document.getElementById('itemName').value = 'وجبة شاورما عرض';
+    // Re-trigger platform fill with the new price
+    onPlatformChange();
+    calculateInvoice();
+    BondsUI.toast('✅ تم تحميل بيانات تجريبية — هنقرستيشن، شاورما 65 ر.س', 'success');
+  }, 100);
+}
+
+function populateCountries() {
+  var sel = document.getElementById('countrySelect');
+  if (!sel || !window.COUNTRIES_DATA) return;
+  for (var code in COUNTRIES_DATA) {
+    var c = COUNTRIES_DATA[code];
+    var opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = c.flag + ' ' + c.name + ' (' + c.currencySymbol + ')';
+    sel.appendChild(opt);
+  }
+  // Default to SA if available
+  if (COUNTRIES_DATA['SA']) {
+    sel.value = 'SA';
+    onCountryChange();
+  }
+}
+
+function onCountryChange() {
+  var code = document.getElementById('countrySelect').value;
+  currentCountry = code ? COUNTRIES_DATA[code] : null;
+  currentSymbol = currentCountry ? currentCountry.currencySymbol : 'ر.س';
+
+  var platSel = document.getElementById('platformSelect');
+  platSel.innerHTML = '<option value="">-- اختر المنصة --</option>';
+
+  if (currentCountry && currentCountry.platforms) {
+    currentCountry.platforms.forEach(function(p) {
+      var opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name;
+      platSel.appendChild(opt);
+    });
+    // Set VAT default
+    document.getElementById('vatRate').value = currentCountry.vatRate || 0;
+  }
+
+  document.getElementById('autoFillNote').textContent = code
+    ? 'اختر منصة لتعبئة البيانات تلقائياً — أو املأ يدوياً'
+    : 'اختر الدولة والمنصة لتعبئة البيانات تلقائياً';
+}
+
+function getEffectiveFee(platform, orderPrice) {
+  if (!platform.feeTiers || platform.feeTiers.length === 0) {
+    return platform.fee || 0;
+  }
+  for (var i = 0; i < platform.feeTiers.length; i++) {
+    var t = platform.feeTiers[i];
+    if (orderPrice >= t.min && orderPrice <= t.max) return t.fee;
+  }
+  return platform.fee || 0;
+}
+
+function onPlatformChange() {
+  var code = document.getElementById('countrySelect').value;
+  var platId = document.getElementById('platformSelect').value;
+  if (!code || !platId || !COUNTRIES_DATA[code]) return;
+
+  var country = COUNTRIES_DATA[code];
+  var platform = country.platforms.find(function(p) { return p.id === platId; });
+  if (!platform) return;
+
+  currentPlatform = platform;
+  currentSymbol = country.currencySymbol;
+
+  var price = parseFloat(document.getElementById('orderPrice').value) || 0;
+  var feePct = getEffectiveFee(platform, price);
+
+  // Auto-fill percentages (not amounts — they depend on price)
+  document.getElementById('platformCommissionPct').value = feePct;
+  document.getElementById('paymentFeePct').value = platform.paymentGatewayFee || 0;
+  document.getElementById('serviceFeePct').value = platform.serviceFee || 0;
+  document.getElementById('vatRate').value = country.vatRate || 0;
+
+  // Auto-fill delivery if applicable (restaurant share when under threshold)
+  if (platform.freeDelivery && price > 0 && price < platform.freeDelivery.threshold) {
+    document.getElementById('deliveryFee').value = platform.freeDelivery.restaurantShare || 0;
+  } else if (platform.freeDelivery && price >= platform.freeDelivery.threshold) {
+    document.getElementById('deliveryFee').value = 0;
+  }
+
+  // Tier note
+  var note = '';
+  if (platform.feeTiers && platform.feeTiers.length > 0) {
+    note = 'شريحة ' + feePct + '% (حسب سعر الطلب ' + price.toFixed(0) + ' ' + currentSymbol + ')';
+  } else {
+    note = 'عمولة ثابتة ' + feePct + '%';
+  }
+  if (platform.serviceFee) note += ' + رسوم خدمة ' + platform.serviceFee + '%';
+  if (platform.paymentGatewayFee) note += ' + بوابة ' + platform.paymentGatewayFee + '%';
+  document.getElementById('autoFillNote').textContent = note;
+
+  // If price is entered, recalculate automatically
+  if (price > 0) calculateInvoice();
+}
+
+function calculateInvoice() {
+  var priceEl = document.getElementById('orderPrice');
+  if (!priceEl.value) { BondsUI.toast('أدخل سعر الطلب', 'warning'); priceEl.focus(); return; }
+
+  var price = parseFloat(priceEl.value) || 0;
+  var discount = parseFloat(document.getElementById('merchantDiscount').value) || 0;
+  var commissionPct = parseFloat(document.getElementById('platformCommissionPct').value) || 0;
+  var paymentFeePct = parseFloat(document.getElementById('paymentFeePct').value) || 0;
+  var serviceFeePct = parseFloat(document.getElementById('serviceFeePct').value) || 0;
+  var productCost = parseFloat(document.getElementById('productCost').value) || 0;
+  var deliveryFee = parseFloat(document.getElementById('deliveryFee').value) || 0;
+  var vatRate = parseFloat(document.getElementById('vatRate').value) || 0;
+  var dailyOrders = parseInt(document.getElementById('dailyOrders').value) || 0;
+  var workingDays = parseInt(document.getElementById('workingDays').value) || 30;
+  var itemName = document.getElementById('itemName').value.trim() || 'فاتورة الطلب';
+
+  // If platform changed and price changed, update commission for tiers
+  var code = document.getElementById('countrySelect').value;
+  var platId = document.getElementById('platformSelect').value;
+  if (code && platId && COUNTRIES_DATA[code]) {
+    var platform = COUNTRIES_DATA[code].platforms.find(function(p) { return p.id === platId; });
+    if (platform && platform.feeTiers) {
+      var effectiveFee = getEffectiveFee(platform, price);
+      if (effectiveFee !== commissionPct) {
+        document.getElementById('platformCommissionPct').value = effectiveFee;
+        commissionPct = effectiveFee;
+      }
+    }
+    // Update delivery fee based on free delivery threshold
+    if (platform && platform.freeDelivery) {
+      if (price > 0 && price < platform.freeDelivery.threshold) {
+        if (document.getElementById('deliveryFee').value === '' || document.getElementById('deliveryFee').value === '0') {
+          document.getElementById('deliveryFee').value = platform.freeDelivery.restaurantShare || 0;
+          deliveryFee = platform.freeDelivery.restaurantShare || 0;
+        }
+      }
+    }
+  }
+
+  var vatMultiplier = vatRate / 100;
+
+  // Calculate amounts from percentages
+  var commissionAmount = price * (commissionPct / 100);
+  var serviceFeeAmount = price * (serviceFeePct / 100);
+  var paymentFeeAmount = price * (paymentFeePct / 100);
+
+  var vatCommission = commissionAmount * vatMultiplier;
+  var vatServiceFee = serviceFeeAmount * vatMultiplier;
+  var vatPayment = paymentFeeAmount * vatMultiplier;
+  var vatDelivery = deliveryFee * vatMultiplier;
+
+  var afterDiscount = price - discount;
+  var totalDeductions = discount + commissionAmount + vatCommission + serviceFeeAmount + vatServiceFee + paymentFeeAmount + vatPayment + deliveryFee + vatDelivery;
+  var netIncome = afterDiscount - totalDeductions + discount; // Wait, let's recalculate properly
+
+  // Proper net income = price - discount - commission - vatCommission - serviceFee - vatServiceFee - paymentFee - vatPayment - deliveryFee - vatDelivery
+  netIncome = price - discount - commissionAmount - vatCommission - serviceFeeAmount - vatServiceFee - paymentFeeAmount - vatPayment - deliveryFee - vatDelivery;
+  var netProfit = netIncome - productCost;
+  var marginPct = price > 0 ? (netProfit / price * 100) : 0;
+
+  // Without discount scenario
+  var profitNoDiscount = price - commissionAmount - vatCommission - serviceFeeAmount - vatServiceFee - paymentFeeAmount - vatPayment - deliveryFee - vatDelivery - productCost;
+  var lossFromDiscount = profitNoDiscount - netProfit;
+
+  var dailyProfit = netProfit * dailyOrders;
+  var monthlyProfit = dailyProfit * workingDays;
+  var yearlyProfit = monthlyProfit * 12;
+
+  var dailyProfitNoDiscount = profitNoDiscount * dailyOrders;
+  var monthlyProfitNoDiscount = dailyProfitNoDiscount * workingDays;
+
+  var extraOrdersNeeded = 0, requiredIncreasePct = 0;
+  if (netProfit > 0 && dailyOrders > 0) {
+    extraOrdersNeeded = Math.ceil((lossFromDiscount * dailyOrders) / netProfit);
+    requiredIncreasePct = ((dailyOrders + extraOrdersNeeded) / dailyOrders - 1) * 100;
+  } else if (netProfit <= 0 && discount > 0) {
+    extraOrdersNeeded = Infinity; requiredIncreasePct = Infinity;
+  }
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('resultsSection').style.display = 'block';
+
+  document.getElementById('invoiceItemName').textContent = itemName;
+  var badge = document.getElementById('invoiceBadge');
+  if (netProfit > 0) { badge.textContent = 'ربح ✓'; badge.style.background = 'rgba(34,197,94,0.15)'; badge.style.color = '#22c55e'; badge.style.borderColor = 'rgba(34,197,94,0.3)'; }
+  else if (netProfit === 0) { badge.textContent = 'تعادل'; badge.style.background = 'rgba(245,158,11,0.15)'; badge.style.color = '#f59e0b'; badge.style.borderColor = 'rgba(245,158,11,0.3)'; }
+  else { badge.textContent = 'خسارة ✗'; badge.style.background = 'rgba(239,68,68,0.15)'; badge.style.color = '#ef4444'; badge.style.borderColor = 'rgba(239,68,68,0.3)'; }
+
+  document.getElementById('valSubtotal').textContent = formatMoney(price);
+  document.getElementById('valDiscount').textContent = '−' + formatMoney(discount);
+  document.getElementById('valAfterDiscount').textContent = formatMoney(price - discount);
+  document.getElementById('valCommission').textContent = '−' + formatMoney(commissionAmount);
+  document.getElementById('valPaymentFee').textContent = '−' + formatMoney(paymentFeeAmount);
+
+  // Service fee line
+  var sfl = document.getElementById('serviceFeeLine');
+  if (serviceFeeAmount > 0) { sfl.style.display = 'flex'; document.getElementById('valServiceFee').textContent = '−' + formatMoney(serviceFeeAmount); }
+  else { sfl.style.display = 'none'; }
+
+  var vsfl = document.getElementById('vatServiceFeeLine');
+  if (vatServiceFee > 0) { vsfl.style.display = 'flex'; document.getElementById('valVatServiceFee').textContent = '−' + formatMoney(vatServiceFee); }
+  else { vsfl.style.display = 'none'; }
+
+  var dl = document.getElementById('deliveryLine');
+  if (deliveryFee > 0) { dl.style.display = 'flex'; document.getElementById('valDeliveryFee').textContent = '−' + formatMoney(deliveryFee); }
+  else { dl.style.display = 'none'; }
+
+  var vcl = document.getElementById('vatCommissionLine');
+  if (vatCommission > 0) { vcl.style.display = 'flex'; document.getElementById('valVatCommission').textContent = '−' + formatMoney(vatCommission); }
+  else { vcl.style.display = 'none'; }
+
+  var vpl = document.getElementById('vatPaymentLine');
+  if (vatPayment > 0) { vpl.style.display = 'flex'; document.getElementById('valVatPayment').textContent = '−' + formatMoney(vatPayment); }
+  else { vpl.style.display = 'none'; }
+
+  var vdl = document.getElementById('vatDeliveryLine');
+  if (vatDelivery > 0) { vdl.style.display = 'flex'; document.getElementById('valVatDelivery').textContent = '−' + formatMoney(vatDelivery); }
+  else { vdl.style.display = 'none'; }
+
+  document.getElementById('valTotalDeductions').textContent = '−' + formatMoney(totalDeductions);
+  document.getElementById('valNetIncome').textContent = formatMoney(netIncome);
+  document.getElementById('valProductCost2').textContent = '−' + formatMoney(productCost);
+  document.getElementById('valNetProfit').textContent = formatMoney(netProfit);
+  document.getElementById('valMargin').textContent = marginPct.toFixed(1) + '%';
+
+  document.getElementById('sumInvoice').textContent = netProfit.toFixed(2);
+  document.getElementById('sumInvoiceSub').textContent = 'بدون خصم: ' + profitNoDiscount.toFixed(2);
+  document.getElementById('sumDaily').textContent = dailyProfit.toFixed(0);
+  document.getElementById('sumDailySub').textContent = dailyOrders + ' طلب × ' + netProfit.toFixed(2);
+  document.getElementById('sumMonthly').textContent = monthlyProfit.toFixed(0);
+  document.getElementById('sumMonthlySub').textContent = workingDays + ' يوم × ' + dailyProfit.toFixed(0);
+  document.getElementById('sumYearly').textContent = yearlyProfit.toFixed(0);
+  document.getElementById('sumYearlySub').textContent = '12 شهر × ' + monthlyProfit.toFixed(0);
+
+  document.getElementById('promoDiscount').textContent = formatMoney(discount);
+  document.getElementById('promoDiscountPct').textContent = price > 0 ? ((discount / price) * 100).toFixed(1) + '%' : '0%';
+  document.getElementById('promoProfitNoDiscount').textContent = formatMoney(profitNoDiscount);
+  document.getElementById('promoProfitWithDiscount').textContent = formatMoney(netProfit);
+  document.getElementById('promoLossPerInvoice').textContent = formatMoney(lossFromDiscount);
+
+  var extraEl = document.getElementById('promoExtraOrders');
+  if (extraOrdersNeeded === Infinity) extraEl.textContent = '∞ (الربح سالب!)';
+  else if (extraOrdersNeeded === 0 && discount === 0) extraEl.textContent = '0 (ما فيه خصم)';
+  else extraEl.textContent = extraOrdersNeeded + ' طلب';
+
+  var reqEl = document.getElementById('promoRequiredIncrease');
+  if (requiredIncreasePct === Infinity) reqEl.textContent = '∞';
+  else if (requiredIncreasePct === 0) reqEl.textContent = '0%';
+  else reqEl.textContent = requiredIncreasePct.toFixed(0) + '%';
+
+  document.getElementById('compareWith').textContent = monthlyProfit.toFixed(0) + ' ' + currentSymbol;
+  document.getElementById('compareWithout').textContent = monthlyProfitNoDiscount.toFixed(0) + ' ' + currentSymbol;
+
+  var cardWith = document.getElementById('cardWithPromo');
+  var cardWithout = document.getElementById('cardWithoutPromo');
+  if (discount > 0) { cardWithout.classList.add('winner'); cardWith.classList.remove('winner'); }
+  else { cardWith.classList.add('winner'); cardWithout.classList.remove('winner'); }
+
+  var verdict = document.getElementById('verdictBox');
+  if (discount === 0) {
+    verdict.style.cssText = 'background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.3);text-align:center;padding:1.5rem;border-radius:12px;margin:1rem 0;font-weight:700;';
+    verdict.textContent = '✅ ما فيه خصم — ربحك الشهري ' + monthlyProfit.toFixed(0) + ' ' + currentSymbol;
+  } else if (netProfit < 0) {
+    verdict.style.cssText = 'background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);text-align:center;padding:1.5rem;border-radius:12px;margin:1rem 0;font-weight:700;';
+    verdict.textContent = '❌ العرض يُسبب خسارة! كل طلب يخسر ' + Math.abs(netProfit).toFixed(2) + ' ' + currentSymbol;
+  } else if (extraOrdersNeeded > 0 && extraOrdersNeeded !== Infinity) {
+    verdict.style.cssText = 'background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);text-align:center;padding:1.5rem;border-radius:12px;margin:1rem 0;font-weight:700;';
+    verdict.textContent = '⚠️ تحتاج ' + extraOrdersNeeded + ' طلب إضافي/يوم (' + requiredIncreasePct.toFixed(0) + '%) عشان تعويض الخصم';
+  } else {
+    verdict.style.cssText = 'background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.3);text-align:center;padding:1.5rem;border-radius:12px;margin:1rem 0;font-weight:700;';
+    verdict.textContent = '✅ العرض مربح حتى مع الخصم!';
+  }
+
+  BondsUI.toast('✅ تم التحليل بنجاح', 'success');
+}
+
+function compareAllPlatforms() {
+  var code = document.getElementById('countrySelect').value;
+  if (!code || !COUNTRIES_DATA[code]) {
+    BondsUI.toast('اختر دولة أولاً', 'warning');
+    return;
+  }
+
+  var price = parseFloat(document.getElementById('orderPrice').value) || 0;
+  var discount = parseFloat(document.getElementById('merchantDiscount').value) || 0;
+  var productCost = parseFloat(document.getElementById('productCost').value) || 0;
+  var vatRate = parseFloat(document.getElementById('vatRate').value) || 0;
+  var dailyOrders = parseInt(document.getElementById('dailyOrders').value) || 0;
+  var workingDays = parseInt(document.getElementById('workingDays').value) || 30;
+
+  if (!price) { BondsUI.toast('أدخل سعر الطلب أولاً', 'warning'); document.getElementById('orderPrice').focus(); return; }
+
+  var country = COUNTRIES_DATA[code];
+  var symbol = country.currencySymbol;
+  var vatMultiplier = vatRate / 100;
+  var tbody = document.getElementById('platformTableBody');
+  tbody.innerHTML = '';
+
+  var results = [];
+
+  country.platforms.forEach(function(p) {
+    var feePct = getEffectiveFee(p, price);
+    var commission = price * (feePct / 100);
+    var serviceFee = price * ((p.serviceFee || 0) / 100);
+    var paymentFee = price * ((p.paymentGatewayFee || 0) / 100);
+    var delivery = 0;
+    if (p.freeDelivery && price < p.freeDelivery.threshold) {
+      delivery = p.freeDelivery.restaurantShare || 0;
+    }
+
+    var vatCommission = commission * vatMultiplier;
+    var vatService = serviceFee * vatMultiplier;
+    var vatPayment = paymentFee * vatMultiplier;
+    var vatDelivery = delivery * vatMultiplier;
+
+    var totalDeductions = discount + commission + vatCommission + serviceFee + vatService + paymentFee + vatPayment + delivery + vatDelivery;
+    var netIncome = price - totalDeductions;
+    var netProfit = netIncome - productCost;
+    var margin = price > 0 ? (netProfit / price * 100) : 0;
+
+    results.push({
+      platform: p,
+      feePct: feePct,
+      commission: commission,
+      serviceFee: serviceFee,
+      paymentFee: paymentFee,
+      delivery: delivery,
+      totalDeductions: totalDeductions,
+      netIncome: netIncome,
+      netProfit: netProfit,
+      margin: margin
+    });
+  });
+
+  // Sort by net profit descending
+  results.sort(function(a, b) { return b.netProfit - a.netProfit; });
+
+  var bestProfit = results.length > 0 ? results[0].netProfit : 0;
+  var worstProfit = results.length > 0 ? results[results.length - 1].netProfit : 0;
+
+  results.forEach(function(r) {
+    var p = r.platform;
+    var tr = document.createElement('tr');
+
+    var nameHtml = '<div class="name-cell">' + p.name;
+    if (p.confidence === 'verified') nameHtml += '<span class="info-tag verified">✓ مؤكد</span>';
+    else nameHtml += '<span class="info-tag estimated">تقدير</span>';
+    if (p.feeTiers && p.feeTiers.length > 0) nameHtml += '<span class="info-tag tiered">شرائح</span>';
+    nameHtml += '</div>';
+
+    var profitClass = '';
+    if (r.netProfit === bestProfit && r.netProfit > 0) profitClass = 'best';
+    if (r.netProfit === worstProfit && r.netProfit < 0) profitClass = 'worst';
+
+    tr.innerHTML =
+      '<td>' + nameHtml + '</td>' +
+      '<td class="fee-cell">' + r.feePct + '%</td>' +
+      '<td class="fee-cell">' + (p.serviceFee || 0) + '%</td>' +
+      '<td class="fee-cell">' + (p.paymentGatewayFee || 0) + '%</td>' +
+      '<td class="fee-cell">' + (r.delivery > 0 ? r.delivery.toFixed(2) : '0') + '</td>' +
+      '<td class="fee-cell">' + r.totalDeductions.toFixed(2) + '</td>' +
+      '<td class="fee-cell">' + r.netIncome.toFixed(2) + '</td>' +
+      '<td class="fee-cell ' + profitClass + '">' + r.netProfit.toFixed(2) + '</td>' +
+      '<td class="fee-cell ' + profitClass + '">' + r.margin.toFixed(1) + '%</td>';
+
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('compareAllSection').style.display = 'block';
+  document.getElementById('compareAllSection').scrollIntoView({ behavior: 'smooth' });
+  BondsUI.toast('✅ تمت المقارنة بين ' + results.length + ' منصة', 'success');
+}
+
+// ============ BondsDB Integration ============
+
+function getFormData() {
+  return {
+    country: document.getElementById('countrySelect').value,
+    platform: document.getElementById('platformSelect').value,
+    orderPrice: document.getElementById('orderPrice').value,
+    merchantDiscount: document.getElementById('merchantDiscount').value,
+    platformCommissionPct: document.getElementById('platformCommissionPct').value,
+    paymentFeePct: document.getElementById('paymentFeePct').value,
+    serviceFeePct: document.getElementById('serviceFeePct').value,
+    productCost: document.getElementById('productCost').value,
+    deliveryFee: document.getElementById('deliveryFee').value,
+    vatRate: document.getElementById('vatRate').value,
+    dailyOrders: document.getElementById('dailyOrders').value,
+    workingDays: document.getElementById('workingDays').value,
+    itemName: document.getElementById('itemName').value
+  };
+}
+
+function setFormData(data) {
+  if (!data) return;
+  if (data.country) { document.getElementById('countrySelect').value = data.country; onCountryChange(); }
+  setTimeout(function() {
+    if (data.platform) { document.getElementById('platformSelect').value = data.platform; onPlatformChange(); }
+    if (data.orderPrice !== undefined) document.getElementById('orderPrice').value = data.orderPrice;
+    if (data.merchantDiscount !== undefined) document.getElementById('merchantDiscount').value = data.merchantDiscount;
+    if (data.platformCommissionPct !== undefined) document.getElementById('platformCommissionPct').value = data.platformCommissionPct;
+    if (data.paymentFeePct !== undefined) document.getElementById('paymentFeePct').value = data.paymentFeePct;
+    if (data.serviceFeePct !== undefined) document.getElementById('serviceFeePct').value = data.serviceFeePct;
+    if (data.productCost !== undefined) document.getElementById('productCost').value = data.productCost;
+    if (data.deliveryFee !== undefined) document.getElementById('deliveryFee').value = data.deliveryFee;
+    if (data.vatRate !== undefined) document.getElementById('vatRate').value = data.vatRate;
+    if (data.dailyOrders !== undefined) document.getElementById('dailyOrders').value = data.dailyOrders;
+    if (data.workingDays !== undefined) document.getElementById('workingDays').value = data.workingDays;
+    if (data.itemName !== undefined) document.getElementById('itemName').value = data.itemName;
+    if (data.orderPrice) calculateInvoice();
+  }, 150);
+}
+
+function saveCurrentInvoice() {
+  var data = getFormData();
+  if (!data.orderPrice) { BondsUI.toast('أدخل سعر الطلب أولاً', 'warning'); return; }
+  var name = data.itemName || ('فاتورة ' + new Date().toLocaleDateString('ar-SA'));
+  BondsDB.save('invoices', { name: name, formData: data }).then(function() {
+    BondsUI.toast('✅ تم حفظ الفاتورة', 'success');
+    loadSavedInvoices();
+  }).catch(function(e) {
+    BondsUI.toast('❌ فشل الحفظ', 'error');
+  });
+}
+
+function loadSavedInvoices() {
+  BondsDB.getAll('invoices').then(function(list) {
+    var container = document.getElementById('savedInvoicesSection');
+    var box = document.getElementById('savedInvoicesList');
+    if (!list || list.length === 0) { container.style.display = 'none'; return; }
+    container.style.display = 'block';
+    box.innerHTML = '';
+    list.forEach(function(inv) {
+      var btn = document.createElement('button');
+      btn.textContent = inv.name;
+      btn.style.cssText = 'background:rgba(212,168,83,0.1);color:var(--gold);border:1px solid rgba(212,168,83,0.3);padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.85rem;transition:all 0.2s;';
+      btn.onmouseenter = function() { btn.style.background = 'rgba(212,168,83,0.2)'; };
+      btn.onmouseleave = function() { btn.style.background = 'rgba(212,168,83,0.1)'; };
+      btn.onclick = function() { setFormData(inv.formData); BondsUI.toast('✅ تم تحميل الفاتورة', 'success'); };
+      box.appendChild(btn);
+    });
+  });
+}
+
+function exportAllData() {
+  BondsDB.exportAll().then(function(data) {
+    var filename = 'bonds-backup-' + new Date().toISOString().slice(0,10) + '.json';
+    BondsDB.downloadJSON(filename, data);
+    BondsUI.toast('✅ تم تصدير البيانات', 'success');
+  }).catch(function() {
+    BondsUI.toast('❌ فشل التصدير', 'error');
+  });
+}
+
+function importAllData(input) {
+  var file = input.files[0];
+  if (!file) return;
+  BondsDB.readFile(file).then(function(data) {
+    return BondsDB.importAll(data);
+  }).then(function() {
+    BondsUI.toast('✅ تم استيراد البيانات', 'success');
+    loadSavedInvoices();
+    input.value = '';
+  }).catch(function(e) {
+    BondsUI.toast('❌ ملف غير صالح', 'error');
+    input.value = '';
+  });
+}
+
+// Auto-save every 5 seconds when form changes
+var _autoSaveTimer = null;
+function setupAutoSave() {
+  var inputs = document.querySelectorAll('.inputs-grid input, .inputs-grid select, .volume-grid input');
+  inputs.forEach(function(el) {
+    el.addEventListener('change', function() {
+      clearTimeout(_autoSaveTimer);
+      _autoSaveTimer = setTimeout(function() {
+        var data = getFormData();
+        if (data.orderPrice) {
+          BondsDB.autoSave('autosave', 'invoice-analyzer-last', data);
+        }
+      }, 2000);
+    });
+  });
+}
+
+// ============ End BondsDB ============
+
+// Init
+populateCountries();
+
+// Init BondsDB + auto-save + load saved
+BondsDB.init().then(function() {
+  setupAutoSave();
+  loadSavedInvoices();
+  // Auto-load last state if no URL params
+  var url = new URL(window.location.href);
+  if (!url.searchParams.get('price')) {
+    BondsDB.autoLoad('autosave', 'invoice-analyzer-last').then(function(data) {
+      if (data) setFormData(data);
+    });
+  }
+});
+
+// Load defaults from URL params
+(function() {
+  var url = new URL(window.location.href);
+  var p = url.searchParams;
+  if (p.get('country')) {
+    document.getElementById('countrySelect').value = p.get('country');
+    onCountryChange();
+  }
+  if (p.get('platform')) {
+    document.getElementById('platformSelect').value = p.get('platform');
+    onPlatformChange();
+  }
+  if (p.get('price')) document.getElementById('orderPrice').value = p.get('price');
+  if (p.get('discount')) document.getElementById('merchantDiscount').value = p.get('discount');
+  if (p.get('comm')) document.getElementById('platformCommissionPct').value = p.get('comm');
+  if (p.get('fee')) document.getElementById('paymentFeePct').value = p.get('fee');
+  if (p.get('service')) document.getElementById('serviceFeePct').value = p.get('service');
+  if (p.get('cost')) document.getElementById('productCost').value = p.get('cost');
+  if (p.get('del')) document.getElementById('deliveryFee').value = p.get('del');
+  if (p.get('vat')) document.getElementById('vatRate').value = p.get('vat');
+  if (p.get('orders')) document.getElementById('dailyOrders').value = p.get('orders');
+  if (p.get('days')) document.getElementById('workingDays').value = p.get('days');
+  if (p.get('name')) document.getElementById('itemName').value = decodeURIComponent(p.get('name'));
+  if (p.get('price')) calculateInvoice();
+})();
+</script>
+
+</body>
+</html>

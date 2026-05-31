@@ -26,33 +26,19 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="shared-calculators.css" />
+  <script src="shared-ui.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="shared-utils.js"></script>
   <style>
-    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
-    .calc-input-group { margin-bottom: 1.5rem; }
-    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
-    .calc-input-group input[type="number"], .calc-input-group select { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
-    .calc-input-group input[type="number"]:focus, .calc-input-group select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
-    .calc-input-group select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: left 1rem center; padding-left: 2.5rem; }
-    .share-bar { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-    .share-bar input { flex: 1; min-width: 200px; }
-    .amortization-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
-    .amortization-table th, .amortization-table td { padding: 0.6rem 0.75rem; text-align: center; border: 1px solid var(--border); }
-    .amortization-table th { background: var(--bg-card); color: var(--gold); font-weight: 700; }
-    .amortization-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
-    .amortization-table .total-row { background: rgba(212,168,83,0.08) !important; font-weight: 800; }
-    .amortization-table .last-row { background: rgba(59,130,246,0.06) !important; }
-    @media print {
-      .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
-      .calc-grid { grid-template-columns: 1fr 1fr; }
-      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
-      .section { padding: 0 !important; }
-      canvas { max-height: 280px !important; }
-      a { text-decoration: none; color: #000; }
+    @media (max-width: 640px) {
+      .share-bar { flex-direction: column; }
+      .share-bar input { width: 100%; min-width: auto; }
     }
   </style>
+
+  <script src="db-client.js"></script>
+  <script src="db-client-auto.js"></script>
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
 
@@ -192,7 +178,7 @@
             </div>
             <div class="share-bar">
               <input type="text" id="shareLink" readonly placeholder="رابط المشاركة..." />
-              <button onclick="copyLink()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">نسخ الرابط</button>
+              <button onclick="copyShareLink('shareLink')" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">نسخ الرابط</button>
               <button onclick="window.print()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">🖨️ طباعة</button>
               <button onclick="exportExcel()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📊 Excel</button>
               <select id="pdfLang" class="hidden-print" style="padding:0.5rem 0.75rem; border-radius:8px; background:var(--bg-card); color:var(--text); border:1px solid var(--border); font-family:inherit; font-size:0.8rem; cursor:pointer;">
@@ -274,7 +260,7 @@
               </tr>
             </thead>
             <tbody id="amortizationBody">
-              <tr><td colspan="5" style="color: var(--text-muted);">احسب النتائج لعرض الجدول</td></tr>
+              <tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-muted);"><div style="font-size:2.5rem; margin-bottom:0.75rem; opacity:0.5;">📊</div><p style="font-weight:600;">احسب النتائج لعرض الجدول</p></td></tr>
             </tbody>
           </table>
         </div>
@@ -415,23 +401,11 @@
   <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
 
   <script src="../script.js" defer></script>
+  <script src="shared-charts.js"></script>
+  <script src="shared-export.js"></script>
   <script>
     var doughnutChart = null;
     var lineChart = null;
-    var chartJsPromise = null;
-
-    function loadChartJS() {
-      if (chartJsPromise) return chartJsPromise;
-      if (typeof Chart !== 'undefined') return Promise.resolve();
-      chartJsPromise = new Promise(function(resolve, reject) {
-        var s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
-        s.onload = resolve;
-        s.onerror = reject;
-        document.head.appendChild(s);
-      });
-      return chartJsPromise;
-    }
 
     function formatNumber(n) {
       if (n === undefined || n === null || isNaN(n)) return '—';
@@ -724,11 +698,11 @@
     function exportExcel() {
       var inputs = getInputs();
       if (inputs.loanAmount <= 0) {
-        alert('احسب النتائج أولاً قبل التصدير');
+        BondsUI.toast('⚠️ احسب النتائج أولاً قبل التصدير', 'warning');
         return;
       }
       if (typeof XLSX === 'undefined') {
-        alert('مكتبة Excel غير محملة. حاول تحديث الصفحة.');
+        BondsUI.toast('❌ مكتبة Excel غير محملة. حاول تحديث الصفحة.', 'error');
         return;
       }
       var r = calculateLoan(inputs);
@@ -795,7 +769,7 @@
     async function exportPDF_EN() {
       var inputs = getInputs();
       if (inputs.loanAmount <= 0) {
-        alert('احسب النتائج أولاً قبل تصدير PDF');
+        BondsUI.toast('⚠️ احسب النتائج أولاً قبل تصدير PDF', 'warning');
         return;
       }
       var r = calculateLoan(inputs);
@@ -935,7 +909,7 @@
     function exportPDF_AR() {
       var inputs = getInputs();
       if (inputs.loanAmount <= 0) {
-        alert('احسب النتائج أولاً قبل تصدير PDF');
+        BondsUI.toast('⚠️ احسب النتائج أولاً قبل تصدير PDF', 'warning');
         return;
       }
       var r = calculateLoan(inputs);
@@ -962,91 +936,40 @@
       }
       rows += '<tr style="background:rgba(212,168,83,0.15); font-weight:bold;"><td style="padding:6px; border:1px solid #ddd; font-size:12px;">الإجمالي</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(r.installment * r.totalPayments) + '</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(r.totalPrincipalPaid) + '</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(r.totalInterestPaid) + '</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">—</td></tr>';
 
-      var printWindow = window.open('', '_blank');
-      if (!printWindow) {
-        alert('تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.');
-        return;
-      }
-
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html dir="rtl">
-        <head>
-          <meta charset="UTF-8">
-          <title>تقرير القرض والتمويل - بوندز</title>
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
-            body { font-family: Vazirmatn, Arial, sans-serif; background: #fff; color: #1a1a1a; padding: 40px; max-width: 800px; margin: 0 auto; }
-            h1 { color: #0a0f1a; margin: 0; font-size: 28px; text-align: center; }
-            .header { text-align: center; border-bottom: 3px solid #d4a853; padding-bottom: 15px; margin-bottom: 25px; }
-            .header p { color: #666; margin: 5px 0; font-size: 14px; }
-            h3 { color: #d4a853; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 25px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
-            th, td { padding: 8px; border: 1px solid #ddd; }
-            th { background: #f5f5f5; }
-            .footer { font-size: 11px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 20px; }
-            .chart-img { max-width: 100%; height: auto; margin: 15px 0; page-break-inside: avoid; }
-            @media print { body { padding: 20px; } .chart-img { max-height: 280px; } }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>بوندز</h1>
-            <p style="font-size:16px; font-weight:700; color:#444; margin:4px 0;">للاستشارات المالية</p>
-            <p>تقرير القرض والتمويل</p>
-            <p style="color:#999; font-size:12px;">${new Date().toLocaleDateString('ar-SA')}</p>
-          </div>
-          <h3>بيانات الإدخال</h3>
-          <table>
-            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">مبلغ القرض</td><td>${formatNumber(inputs.loanAmount)} ر.س</td></tr>
-            <tr><td style="font-weight:bold;">الدفعة المقدمة</td><td>${formatNumber(inputs.downPayment)} ر.س</td></tr>
-            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">نسبة الفائدة السنوية</td><td>${inputs.interestRate}%</td></tr>
-            <tr><td style="font-weight:bold;">مدة القرض (شهر)</td><td>${inputs.loanTerm}</td></tr>
-            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">تكرار السداد</td><td>${inputs.frequency === 'monthly' ? 'شهري' : 'ربع سنوي'}</td></tr>
-            <tr><td style="font-weight:bold;">رسوم إضافية</td><td>${formatNumber(inputs.extraFees)} ر.س</td></tr>
-          </table>
-          <h3>النتائج</h3>
-          <table>
-            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">صافي مبلغ القرض</td><td>${formatNumber(r.netLoan)} ر.س</td></tr>
-            <tr><td style="font-weight:bold;">القسط ${inputs.frequency === 'monthly' ? 'الشهري' : 'الربع سنوي'}</td><td>${formatNumber(r.installment)} ر.س</td></tr>
-            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">إجمالي الفائدة</td><td>${formatNumber(r.totalInterest)} ر.س</td></tr>
-            <tr><td style="font-weight:bold;">إجمالي المبلغ المدفوع</td><td>${formatNumber(r.totalPaid)} ر.س</td></tr>
-            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">معدل الفائدة الفعلي سنوياً</td><td>${(r.ear * 100).toFixed(2)}%</td></tr>
-          </table>
-          <h3>الرسوم البيانية</h3>
-          ${img1 ? '<img class="chart-img" src="' + img1 + '" alt="أصل الدين مقابل الفائدة" style="max-width:300px; margin:15px auto; display:block;" />' : ''}
-          ${img2 ? '<img class="chart-img" src="' + img2 + '" alt="الرصيد المتبقي" />' : ''}
-          <h3>جدول الاستهلاك</h3>
-          <table>
-            <tr style="background:#f5f5f5;">
-              <th>#</th><th>القسط</th><th>أصل الدين</th><th>الفائدة</th><th>الرصيد المتبقي</th>
-            </tr>
-            ${rows}
-          </table>
-          <div class="footer">
-            هذا التقرير للأغراض التقديرية فقط ولا يغني عن استشارة مالية مرخصة.<br>
-            تم إنشاؤه بواسطة bonds-global.com
-          </div>
-          <script>window.onload = function() { setTimeout(function() { window.print(); }, 500); };</scr${''}ipt>
-        </body>
-        </html>
-      `);
-      printWindow.document.close();
+      var content = '<h3>بيانات الإدخال</h3>' +
+        '<table><tr style="background:#f5f5f5;"><td style="font-weight:bold;">مبلغ القرض</td><td>' + formatNumber(inputs.loanAmount) + ' ر.س</td></tr>' +
+        '<tr><td style="font-weight:bold;">الدفعة المقدمة</td><td>' + formatNumber(inputs.downPayment) + ' ر.س</td></tr>' +
+        '<tr style="background:#f5f5f5;"><td style="font-weight:bold;">نسبة الفائدة السنوية</td><td>' + inputs.interestRate + '%</td></tr>' +
+        '<tr><td style="font-weight:bold;">مدة القرض (شهر)</td><td>' + inputs.loanTerm + '</td></tr>' +
+        '<tr style="background:#f5f5f5;"><td style="font-weight:bold;">تكرار السداد</td><td>' + (inputs.frequency === 'monthly' ? 'شهري' : 'ربع سنوي') + '</td></tr>' +
+        '<tr><td style="font-weight:bold;">رسوم إضافية</td><td>' + formatNumber(inputs.extraFees) + ' ر.س</td></tr></table>' +
+        '<h3>النتائج</h3>' +
+        '<table><tr style="background:#f5f5f5;"><td style="font-weight:bold;">صافي مبلغ القرض</td><td>' + formatNumber(r.netLoan) + ' ر.س</td></tr>' +
+        '<tr><td style="font-weight:bold;">القسط ' + (inputs.frequency === 'monthly' ? 'الشهري' : 'الربع سنوي') + '</td><td>' + formatNumber(r.installment) + ' ر.س</td></tr>' +
+        '<tr style="background:#f5f5f5;"><td style="font-weight:bold;">إجمالي الفائدة</td><td>' + formatNumber(r.totalInterest) + ' ر.س</td></tr>' +
+        '<tr><td style="font-weight:bold;">إجمالي المبلغ المدفوع</td><td>' + formatNumber(r.totalPaid) + ' ر.س</td></tr>' +
+        '<tr style="background:#f5f5f5;"><td style="font-weight:bold;">معدل الفائدة الفعلي سنوياً</td><td>' + (r.ear * 100).toFixed(2) + '%</td></tr></table>' +
+        '<h3>الرسوم البيانية</h3>' +
+        (img1 ? '<img class="chart-img" src="' + img1 + '" alt="أصل الدين مقابل الفائدة" style="max-width:300px; margin:15px auto; display:block;" />' : '') +
+        (img2 ? '<img class="chart-img" src="' + img2 + '" alt="الرصيد المتبقي" />' : '') +
+        '<h3>جدول الاستهلاك</h3>' +
+        '<table><tr style="background:#f5f5f5;"><th>#</th><th>القسط</th><th>أصل الدين</th><th>الفائدة</th><th>الرصيد المتبقي</th></tr>' + rows + '</table>';
+      openPrintWindow({ content: content, title: 'تقرير القرض والتمويل', headerTitle: 'تقرير القرض والتمويل', autoPrint: true });
     }
 
     function calculateAll() {
       try {
+        var amountRes = BondsUI.validateField('loanAmount', { required:true, type:'number', min:0, label:'مبلغ القرض' });
+        var rateRes = BondsUI.validateField('interestRate', { required:true, type:'number', min:0, label:'نسبة الفائدة' });
+        var termRes = BondsUI.validateField('loanTerm', { required:true, type:'number', min:1, label:'مدة القرض' });
+        if (!amountRes.valid || !rateRes.valid || !termRes.valid) {
+          BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
+          return;
+        }
+        BondsUI.clearValidation('loanAmount'); BondsUI.clearValidation('interestRate'); BondsUI.clearValidation('loanTerm');
         var inputs = getInputs();
-        if (inputs.loanAmount <= 0) {
-          alert('أدخل مبلغ القرض');
-          return;
-        }
-        if (inputs.interestRate < 0 || inputs.loanTerm <= 0) {
-          alert('تأكد من صحة البيانات المدخلة');
-          return;
-        }
         if (inputs.downPayment >= inputs.loanAmount) {
-          alert('الدفعة المقدمة يجب أن تكون أقل من مبلغ القرض');
+          BondsUI.toast('⚠️ الدفعة المقدمة يجب أن تكون أقل من مبلغ القرض', 'warning');
           return;
         }
         var r = calculateLoan(inputs);
@@ -1060,7 +983,7 @@
         });
       } catch (err) {
         console.error('Calculate error:', err);
-        alert('حدث خطأ في الحساب: ' + err.message);
+        BondsUI.toast('❌ حدث خطأ في الحساب: ' + err.message, 'error');
       }
     }
 
@@ -1090,7 +1013,7 @@
       document.getElementById('resEAR').textContent = '—';
       document.getElementById('resDti').textContent = '—';
       document.getElementById('resDti').style.color = 'var(--text)';
-      document.getElementById('amortizationBody').innerHTML = '<tr><td colspan="5" style="color: var(--text-muted);">احسب النتائج لعرض الجدول</td></tr>';
+      document.getElementById('amortizationBody').innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-muted);"><div style="font-size:2.5rem; margin-bottom:0.75rem; opacity:0.5;">📊</div><p style="font-weight:600;">احسب النتائج لعرض الجدول</p></td></tr>';
       document.getElementById('shareLink').value = '';
       document.getElementById('smartAlertBox').style.display = 'none';
       document.getElementById('leadCaptureBox').style.display = 'none';
@@ -1111,13 +1034,6 @@
       url.searchParams.set('e', inputs.extraFees);
       if (inputs.monthlyIncome > 0) url.searchParams.set('i', inputs.monthlyIncome);
       document.getElementById('shareLink').value = url.toString();
-    }
-
-    function copyLink() {
-      var input = document.getElementById('shareLink');
-      input.select();
-      document.execCommand('copy');
-      alert('تم نسخ الرابط!');
     }
 
     // Load from URL params
@@ -1174,13 +1090,13 @@
             form.style.display = 'none';
             document.getElementById('leadCaptureSuccess').style.display = 'block';
           } else {
-            alert('حدث خطأ، حاول مرة أخرى.');
+            BondsUI.toast('❌ حدث خطأ، حاول مرة أخرى.', 'error');
             btn.textContent = originalText;
             btn.disabled = false;
           }
         })
         .catch(function() {
-          alert('حدث خطأ، حاول مرة أخرى.');
+          BondsUI.toast('❌ حدث خطأ، حاول مرة أخرى.', 'error');
           btn.textContent = originalText;
           btn.disabled = false;
         });

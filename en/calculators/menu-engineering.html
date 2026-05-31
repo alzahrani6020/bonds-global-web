@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Menu Engineering Engine | Bonds</title>
+  <meta name="description" content="Intelligent menu classifier that categorizes dishes into Stars, Workhorses, Puzzles, and Dogs based on actual sales data." />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../../supabase-client.js"></script>
+  <script src="../../auth-guard.js"></script>
+  <script src="../../calculators/country-platforms-data.js"></script>
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
+  <script src="../../calculators/shared-ui.js"></script>
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <style>
+    .me-container { max-width: 1200px; margin: 0 auto; padding: var(--space-8) var(--space-4); }
+    .me-header { text-align: center; margin-bottom: var(--space-12); }
+    .me-header h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; color: var(--gold); margin-bottom: var(--space-4); }
+    .me-header p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+    .me-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-12); }
+    .me-quadrant { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); position: relative; overflow: hidden; }
+    .me-quadrant::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+    .me-quadrant.stars::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .me-quadrant.engines::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .me-quadrant.treasures::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+    .me-quadrant.stalled::before { background: linear-gradient(90deg, #ef4444, #dc2626); }
+    .me-quadrant h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: var(--space-2); display: flex; align-items: center; gap: var(--space-2); }
+    .me-quadrant .count { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+    .me-quadrant .items { margin-top: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
+    .me-item { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); }
+    .me-item .name { font-weight: 700; color: var(--text); margin-bottom: var(--space-1); }
+    .me-item .meta { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: var(--space-4); flex-wrap: wrap; }
+    .me-item .badge { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-top: var(--space-2); }
+    .badge-profit { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .badge-loss { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .badge-high { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .badge-mid { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .badge-low { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .me-actions { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); margin-bottom: var(--space-12); }
+    .me-actions h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: var(--space-6); text-align: center; }
+    .form-group { margin-bottom: var(--space-4); }
+    .form-group label { display: block; font-weight: 600; margin-bottom: var(--space-2); color: var(--text-secondary); }
+    .form-group input, .form-group select { width: 100%; padding: var(--space-3) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text); font-family: inherit; }
+    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-dim)); color: #0a0f1a; font-weight: 800; border: none; padding: var(--space-3) var(--space-6); border-radius: var(--radius); cursor: pointer; width: 100%; font-size: 1rem; }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-secondary { background: var(--bg-secondary); color: var(--gold); font-weight: 700; border: 1px solid var(--border); padding: var(--space-2) var(--space-4); border-radius: var(--radius); cursor: pointer; font-size: 0.9rem; }
+    .btn-secondary:hover { border-color: var(--gold); }
+    .result-box { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); }
+    .result-box h4 { color: var(--gold); margin-bottom: var(--space-2); }
+    .loading { text-align: center; color: var(--text-muted); padding: var(--space-8); }
+    .error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; padding: var(--space-4); border-radius: var(--radius); text-align: center; }
+    .success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #22c55e; padding: var(--space-4); border-radius: var(--radius); text-align: center; }
+    .tabs { display: flex; gap: var(--space-2); margin-bottom: var(--space-6); flex-wrap: wrap; justify-content: center; }
+    .tab { padding: var(--space-2) var(--space-4); border-radius: var(--radius); cursor: pointer; border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; }
+    .tab.active { background: var(--gold); color: #0a0f1a; border-color: var(--gold); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); }
+    .list-box { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3); margin-top: var(--space-4); }
+    .list-box .row { display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    .list-box .row:last-child { border-bottom: none; }
+  </style>
+
+  <script src="../../calculators/db-client.js"></script>
+  <script src="../../calculators/db-client-auto.js"></script>
+</head>
+<body>
+  <div class="me-container">
+    <div class="me-header">
+      <h1>🎯 Menu Engineering Engine</h1>
+      <p>Classify your dishes based on actual sales data. Know which Stars to keep, which Workhorses drive your sales, and which Puzzles to promote.</p>
+    </div>
+
+    <div id="authAlert"></div>
+    <div style="text-align:center;margin-bottom:var(--space-6);display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
+      <button class="btn-secondary" onclick="seedDemoData()">🚀 Load Demo Data</button>
+      <button class="btn-secondary" style="background:#ef4444;border-color:#ef4444;color:#fff;" onclick="clearAllData()">🗑️ Clear All Data</button>
+    </div>
+
+    <!-- Data Entry Tabs -->
+    <div class="me-actions">
+      <h2>📥 Data Entry</h2>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('platforms', event)">Platforms</div>
+        <div class="tab" onclick="switchTab('ingredients', event)">Ingredients</div>
+        <div class="tab" onclick="switchTab('menu', event)">Menu</div>
+        <div class="tab" onclick="switchTab('costs', event)">Recipe Costs</div>
+        <div class="tab" onclick="switchTab('sales', event)">Sales</div>
+      </div>
+
+      <!-- Platforms Tab -->
+      <div id="tab-platforms" class="tab-content active">
+        <div class="form-row">
+          <div class="form-group"><label>Country</label><select id="pCountry" onchange="loadCountryPlatforms()"><option value="">Select country...</option></select></div>
+          <div class="form-group"><label>Platform</label><select id="pPlatformSelect" onchange="fillPlatformData()"><option value="">Select platform...</option></select></div>
+          <div class="form-group"><label>Platform Code</label><input id="pCode" placeholder="jahez" /></div>
+          <div class="form-group"><label>Platform Name</label><input id="pName" placeholder="Jahez" /></div>
+          <div class="form-group"><label>Commission (%)</label><input id="pCommission" type="number" value="25" /></div>
+          <div class="form-group"><label>Service Fee (%)</label><input id="pService" type="number" value="2" /></div>
+          <div class="form-group"><label>Payment Gateway (%)</label><input id="pGateway" type="number" value="1.75" /></div>
+          <div class="form-group"><label>Delivery Fee (SAR)</label><input id="pDelivery" type="number" value="0" /></div>
+        </div>
+        <button class="btn-primary" onclick="addPlatform()">➕ Add Platform</button>
+        <div id="pList" class="list-box"></div>
+      </div>
+
+      <!-- Ingredients Tab -->
+      <div id="tab-ingredients" class="tab-content">
+        <div class="form-row">
+          <div class="form-group"><label>Ingredient Name</label><input id="iName" placeholder="Chicken Fillet" /></div>
+          <div class="form-group"><label>Unit</label><input id="iUnit" placeholder="kg" /></div>
+          <div class="form-group"><label>Cost per Unit (SAR)</label><input id="iCost" type="number" step="0.01" placeholder="12.50" /></div>
+          <div class="form-group"><label>Category</label><input id="iCategory" placeholder="Meat" value="other" /></div>
+        </div>
+        <button class="btn-primary" onclick="addIngredient()">➕ Add Ingredient</button>
+        <div id="iList" class="list-box"></div>
+      </div>
+
+      <!-- Menu Tab -->
+      <div id="tab-menu" class="tab-content">
+        <div class="form-row">
+          <div class="form-group"><label>Dish Name</label><input id="mName" placeholder="Classic Burger" /></div>
+          <div class="form-group"><label>Category</label>
+            <select id="mCategory">
+              <option value="main">Main</option>
+              <option value="appetizer">Appetizer</option>
+              <option value="dessert">Dessert</option>
+              <option value="drink">Drink</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Base Price (SAR)</label><input id="mPrice" type="number" step="0.01" placeholder="35" /></div>
+        </div>
+        <button class="btn-primary" onclick="addMenuItem()">➕ Add Dish</button>
+        <div id="mList" class="list-box"></div>
+      </div>
+
+      <!-- Menu Item Ingredients Tab -->
+      <div id="tab-costs" class="tab-content">
+        <div class="form-row">
+          <div class="form-group"><label>Dish</label><select id="cMenuItem"><option value="">Select...</option></select></div>
+          <div class="form-group"><label>Ingredient</label><select id="cIngredient"><option value="">Select...</option></select></div>
+          <div class="form-group"><label>Quantity Required</label><input id="cQty" type="number" step="0.01" placeholder="0.15" /></div>
+          <div class="form-group"><label>Unit</label><input id="cUnit" type="text" placeholder="kg or g or piece" /></div>
+        </div>
+        <button class="btn-primary" onclick="addMenuItemIngredient()">➕ Link Ingredient to Dish</button>
+        <div id="cList" class="list-box"></div>
+      </div>
+
+      <!-- Sales Tab -->
+      <div id="tab-sales" class="tab-content">
+        <div class="form-row">
+          <div class="form-group"><label>Dish</label><select id="sMenuItem"><option value="">Select...</option></select></div>
+          <div class="form-group"><label>Platform</label><select id="sPlatform"><option value="">Select...</option></select></div>
+          <div class="form-group"><label>Quantity</label><input id="sQty" type="number" value="1" /></div>
+          <div class="form-group"><label>Selling Price (SAR)</label><input id="sPrice" type="number" step="0.01" /></div>
+        </div>
+        <button class="btn-primary" onclick="addSale()">➕ Record Sale</button>
+        <div id="sList" class="list-box"></div>
+      </div>
+    </div>
+
+    <!-- Matrix -->
+    <div id="matrixContainer">
+      <div class="loading">Loading data...</div>
+    </div>
+
+    <!-- Promo Simulator -->
+    <div class="me-actions">
+      <h2>🧮 Promo Campaign Simulator</h2>
+      <div class="form-row">
+        <div class="form-group"><label>Dish</label><select id="simItem"><option value="">Select...</option></select></div>
+        <div class="form-group"><label>Platform</label><select id="simPlatform"><option value="">Select...</option></select></div>
+        <div class="form-group"><label>Discount (%)</label><input type="number" id="simDiscount" value="20" min="0" max="100" /></div>
+        <div class="form-group"><label>Current Daily Sales</label><input type="number" id="simSales" value="50" min="1" /></div>
+      </div>
+      <button class="btn-primary" onclick="runPromoSim()">Calculate Campaign Impact</button>
+      <div id="simResult"></div>
+    </div>
+
+    <!-- Omnichannel Margin Calculator -->
+    <div class="me-actions">
+      <h2>🌐 Omnichannel Margin Calculator</h2>
+      <p style="text-align:center;color:var(--text-secondary);margin-bottom:var(--space-6);">Compare selling via delivery apps vs direct sales from your own website</p>
+      <div class="form-row">
+        <div class="form-group"><label>Dish</label><select id="omniItem"><option value="">Select...</option></select></div>
+        <div class="form-group"><label>Platform to Compare</label><select id="omniPlatform"><option value="">Select...</option></select></div>
+        <div class="form-group"><label>Customer Acquisition Cost (CAC) SAR</label><input type="number" id="omniCAC" value="5" step="0.5" /></div>
+        <div class="form-group"><label>Self-Delivery Cost SAR</label><input type="number" id="omniDelivery" value="15" /></div>
+        <div class="form-group"><label>Monthly Ad Budget SAR</label><input type="number" id="omniAdBudget" value="3000" /></div>
+      </div>
+      <button class="btn-primary" onclick="runOmnichannel()">Compare Profits</button>
+      <div id="omniResult"></div>
+    </div>
+  </div>
+
+<script>
+let currentUser = null;
+let sb = null;
+let platforms = [];
+let ingredients = [];
+let menuItems = [];
+let menuItemIngredients = [];
+
+async function init() {
+  try {
+    const { data: userData } = await window.BondsAuth.getUser();
+    currentUser = userData?.user;
+    if (!currentUser) {
+      document.getElementById('authAlert').innerHTML =
+        '<div class="error">Please sign in. <a href="/calculators/auth/?redirect=' + encodeURIComponent(location.pathname) + '">Sign In</a></div>';
+      return;
+    }
+    sb = window.BondsAuth.getSupabase();
+    await loadAllData();
+    await loadMatrix();
+    setTimeout(populateCountries, 500);
+  } catch (e) {
+    document.getElementById('matrixContainer').innerHTML = '<div class="error">' + e.message + '</div>';
+  }
+}
+
+function populateCountries() {
+  const sel = document.getElementById('pCountry');
+  if (!sel) return;
+  if (typeof COUNTRIES_DATA === 'undefined') {
+    setTimeout(populateCountries, 300);
+    return;
+  }
+  try {
+    const countries = Object.entries(COUNTRIES_DATA).sort((a, b) => a[1].nameEn.localeCompare(b[1].nameEn, 'en'));
+    sel.innerHTML = '<option value="">Select country...</option>' +
+      countries.map(([code, c]) => `<option value="${code}">${c.flag} ${c.nameEn}</option>`).join('');
+  } catch (e) {
+    console.error('populateCountries error:', e);
+  }
+}
+
+function loadCountryPlatforms() {
+  const countryCode = document.getElementById('pCountry').value;
+  const sel = document.getElementById('pPlatformSelect');
+  if (!countryCode || typeof COUNTRIES_DATA === 'undefined') {
+    sel.innerHTML = '<option value="">Select platform...</option>';
+    return;
+  }
+  const country = COUNTRIES_DATA[countryCode];
+  const platforms = country.platforms || [];
+  sel.innerHTML = '<option value="">Select platform...</option>' +
+    platforms.map((p, idx) => `<option value="${idx}">${p.nameEn || p.name} (${p.fee}%)</option>`).join('');
+}
+
+function fillPlatformData() {
+  const countryCode = document.getElementById('pCountry').value;
+  const idx = document.getElementById('pPlatformSelect').value;
+  if (!countryCode || idx === '' || typeof COUNTRIES_DATA === 'undefined') return;
+  const p = COUNTRIES_DATA[countryCode].platforms[idx];
+  if (!p) return;
+  document.getElementById('pCode').value = p.id || '';
+  document.getElementById('pName').value = p.nameEn || p.name || '';
+  document.getElementById('pCommission').value = p.fee || 0;
+  document.getElementById('pService').value = p.serviceFee || 0;
+  document.getElementById('pGateway').value = p.paymentGatewayFee || 0;
+  document.getElementById('pDelivery').value = p.setupFee || 0;
+}
+
+function switchTab(id, evt) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  if (evt && evt.target) evt.target.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
+async function clearAllData() {
+  if (!sb || !currentUser) return BondsUI.toast('⚠️ Please sign in first', 'warning');
+  if (!confirm('Are you sure you want to clear all your data?')) return;
+  try {
+    const res = await fetch('/api/clear-user-data', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: currentUser.id })
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error);
+    BondsUI.toast('✅ All data cleared', 'success');
+    location.reload();
+  } catch (e) {
+    BondsUI.toast('❌ Error: ' + e.message, 'error');
+  }
+}
+
+async function seedDemoData() {
+  if (!sb || !currentUser) return BondsUI.toast('⚠️ Please sign in first', 'warning');
+  const uid = currentUser.id;
+  try {
+    // 1. Platform
+    const plat = await sb.from('platforms').insert({ user_id: uid, code: 'jahez', name: 'Jahez', commission_rate: 25, service_fee_rate: 2, payment_gateway_fee: 1.75 }).select().single();
+    if (!plat.data) { BondsUI.toast('⚠️ Could not read platform data — check Supabase permissions', 'warning'); return; }
+    
+    // 2. Ingredients
+    const i1 = await sb.from('ingredients').insert({ user_id: uid, name: 'Ground Beef', unit: 'kg', current_price: 45, category: 'Meat' }).select().single();
+    const i2 = await sb.from('ingredients').insert({ user_id: uid, name: 'Burger Bun', unit: 'piece', current_price: 2, category: 'Bakery' }).select().single();
+    const i3 = await sb.from('ingredients').insert({ user_id: uid, name: 'Cheddar Cheese', unit: 'kg', current_price: 30, category: 'Dairy' }).select().single();
+    const i4 = await sb.from('ingredients').insert({ user_id: uid, name: 'Chicken Fillet', unit: 'kg', current_price: 28, category: 'Meat' }).select().single();
+    const i5 = await sb.from('ingredients').insert({ user_id: uid, name: 'Pasta', unit: 'kg', current_price: 12, category: 'Pasta' }).select().single();
+    const i6 = await sb.from('ingredients').insert({ user_id: uid, name: 'Cream Sauce', unit: 'kg', current_price: 18, category: 'Sauces' }).select().single();
+    const i7 = await sb.from('ingredients').insert({ user_id: uid, name: 'Romaine Lettuce', unit: 'kg', current_price: 15, category: 'Vegetables' }).select().single();
+    const i8 = await sb.from('ingredients').insert({ user_id: uid, name: 'Parmesan Cheese', unit: 'kg', current_price: 55, category: 'Dairy' }).select().single();
+    
+    const ingredients = [i1, i2, i3, i4, i5, i6, i7, i8];
+    if (ingredients.some(i => !i.data)) { BondsUI.toast('⚠️ Could not read some ingredients — check Supabase permissions', 'warning'); return; }
+    
+    // 3. Menu Items
+    const m1 = await sb.from('menu_items').insert({ user_id: uid, name: 'Classic Burger', category: 'main', base_price: 35 }).select().single();
+    const m2 = await sb.from('menu_items').insert({ user_id: uid, name: 'Chicken Shawarma', category: 'main', base_price: 28 }).select().single();
+    const m3 = await sb.from('menu_items').insert({ user_id: uid, name: 'Alfredo Pasta', category: 'main', base_price: 42 }).select().single();
+    const m4 = await sb.from('menu_items').insert({ user_id: uid, name: 'Caesar Salad', category: 'appetizer', base_price: 22 }).select().single();
+    
+    const menuItems = [m1, m2, m3, m4];
+    if (menuItems.some(m => !m.data)) { BondsUI.toast('⚠️ Could not read some menu items — check Supabase permissions', 'warning'); return; }
+    
+    // 4. Link ingredients to menu items
+    await sb.from('menu_item_ingredients').insert([
+      { menu_item_id: m1.data.id, ingredient_id: i1.data.id, quantity_needed: 0.15, unit: 'kg' },
+      { menu_item_id: m1.data.id, ingredient_id: i2.data.id, quantity_needed: 1, unit: 'piece' },
+      { menu_item_id: m1.data.id, ingredient_id: i3.data.id, quantity_needed: 0.03, unit: 'kg' },
+      { menu_item_id: m2.data.id, ingredient_id: i4.data.id, quantity_needed: 0.12, unit: 'kg' },
+      { menu_item_id: m3.data.id, ingredient_id: i5.data.id, quantity_needed: 0.15, unit: 'kg' },
+      { menu_item_id: m3.data.id, ingredient_id: i6.data.id, quantity_needed: 0.1, unit: 'kg' },
+      { menu_item_id: m3.data.id, ingredient_id: i8.data.id, quantity_needed: 0.02, unit: 'kg' },
+      { menu_item_id: m4.data.id, ingredient_id: i7.data.id, quantity_needed: 0.08, unit: 'kg' }
+    ]);
+    
+    // 5. Sales
+    await sb.from('sales_transactions').insert([
+      { user_id: uid, menu_item_id: m1.data.id, platform_id: plat.data.id, quantity: 50, unit_price: 35 },
+      { user_id: uid, menu_item_id: m2.data.id, platform_id: plat.data.id, quantity: 80, unit_price: 28 },
+      { user_id: uid, menu_item_id: m3.data.id, platform_id: plat.data.id, quantity: 15, unit_price: 42 },
+      { user_id: uid, menu_item_id: m4.data.id, platform_id: plat.data.id, quantity: 10, unit_price: 22 }
+    ]);
+    BondsUI.toast('✅ Demo data loaded! Press F5', 'success');
+  } catch (e) { BondsUI.toast('❌ Error: ' + e.message, 'error'); }
+}
+
+async function loadAllData() {
+  try {
+    const { data: p, error: pe } = await sb.from('platforms').select('*').eq('user_id', currentUser.id).order('name');
+    if (pe) console.error('loadAllData platforms:', pe);
+    platforms = p || [];
+    renderPlatforms();
+
+    const { data: i, error: ie } = await sb.from('ingredients').select('*').eq('user_id', currentUser.id).order('name');
+    if (ie) console.error('loadAllData ingredients:', ie);
+    ingredients = i || [];
+    renderIngredients();
+
+    const { data: m, error: me } = await sb.from('menu_items').select('*').eq('user_id', currentUser.id).order('name');
+    if (me) console.error('loadAllData menu_items:', me);
+    menuItems = m || [];
+    renderMenuItems();
+
+    updateDropdowns();
+    await renderMenuItemIngredients();
+    await renderSales();
+  } catch (e) {
+    console.error('loadAllData error:', e);
+    BondsUI.toast('❌ Error loading data: ' + e.message, 'error');
+  }
+}
+
+// Platforms
+async function addPlatform() {
+  if (!currentUser) return BondsUI.toast('🔐 Please sign in to add a platform', 'warning');
+  try {
+    const code = document.getElementById('pCode').value.trim();
+    const name = document.getElementById('pName').value.trim();
+    const commission = parseFloat(document.getElementById('pCommission').value) || 0;
+    const service = parseFloat(document.getElementById('pService').value) || 0;
+    const gateway = parseFloat(document.getElementById('pGateway').value) || 0;
+    const delivery = parseFloat(document.getElementById('pDelivery').value) || 0;
+    var vCode = BondsUI.validateField('pCode', { required: true, label: 'Platform Code' });
+    var vName = BondsUI.validateField('pName', { required: true, label: 'Platform Name' });
+    if (!vCode.valid || !vName.valid) {
+      var errs = [].concat(vCode.errors, vName.errors);
+      BondsUI.toast('⚠️ ' + errs.join(', '), 'warning');
+      return;
+    }
+    if (!code || !name) { BondsUI.toast('⚠️ Enter code and name', 'warning'); return; }
+
+    // Check duplicate
+    const { data: existing } = await sb.from('platforms').select('id').eq('user_id', currentUser.id).eq('code', code).single();
+    if (existing) return BondsUI.toast('⚠️ This platform already exists: ' + name, 'warning');
+
+    const { error } = await sb.from('platforms').insert({
+      user_id: currentUser.id, code, name, commission_rate: commission,
+      service_fee_rate: service, payment_gateway_fee: gateway, delivery_fee: delivery
+    });
+    if (error) { console.error('addPlatform error:', error); return BondsUI.toast('❌ Error: ' + (error.message || JSON.stringify(error)), 'error'); }
+    await loadAllData();
+  } catch (e) {
+    console.error('addPlatform catch:', e);
+    BondsUI.toast('❌ Unexpected error: ' + e.message, 'error');
+  }
+}
+
+function renderPlatforms() {
+  const el = document.getElementById('pList');
+  el.innerHTML = platforms.map(p => `<div class="row"><span>${p.name} (${p.code}) — ${p.commission_rate}%</span></div>`).join('') || '<div class="row">No platforms</div>';
+}
+
+// Ingredients
+async function addIngredient() {
+  if (!currentUser) return BondsUI.toast('🔐 Please sign in to add an ingredient', 'warning');
+  try {
+    const name = document.getElementById('iName').value.trim();
+    const unit = document.getElementById('iUnit').value.trim() || 'kg';
+    const cost = parseFloat(document.getElementById('iCost').value) || 0;
+    const category = document.getElementById('iCategory').value.trim() || 'other';
+    var vIName = BondsUI.validateField('iName', { required: true, label: 'Ingredient Name' });
+    if (!vIName.valid) {
+      BondsUI.toast('⚠️ ' + vIName.errors.join(', '), 'warning');
+      return;
+    }
+    if (!name) { BondsUI.toast('⚠️ Enter ingredient name', 'warning'); return; }
+
+    // Check duplicate
+    const { data: existing } = await sb.from('ingredients').select('id').eq('user_id', currentUser.id).eq('name', name).single();
+    if (existing) return BondsUI.toast('⚠️ This ingredient already exists: ' + name, 'warning');
+
+    const { error } = await sb.from('ingredients').insert({
+      user_id: currentUser.id, name, unit, current_price: cost, category
+    });
+    if (error) { console.error('addIngredient error:', error); return BondsUI.toast('❌ Error: ' + (error.message || JSON.stringify(error)), 'error'); }
+    await loadAllData();
+  } catch (e) {
+    console.error('addIngredient catch:', e);
+    BondsUI.toast('❌ Unexpected error: ' + e.message, 'error');
+  }
+}
+
+function renderIngredients() {
+  const el = document.getElementById('iList');
+  el.innerHTML = ingredients.map(i => `<div class="row"><span>${i.name} — ${i.current_price || 0} SAR / ${i.unit}</span></div>`).join('') || '<div class="row">No ingredients</div>';
+}
+
+// Menu Items
+async function addMenuItem() {
+  if (!currentUser) return BondsUI.toast('🔐 Please sign in to add a menu item', 'warning');
+  try {
+    const name = document.getElementById('mName').value.trim();
+    const category = document.getElementById('mCategory').value;
+    const price = parseFloat(document.getElementById('mPrice').value) || 0;
+    var vMName = BondsUI.validateField('mName', { required: true, label: 'Dish Name' });
+    if (!vMName.valid) {
+      BondsUI.toast('⚠️ ' + vMName.errors.join(', '), 'warning');
+      return;
+    }
+    if (!name) { BondsUI.toast('⚠️ Enter dish name', 'warning'); return; }
+
+    // Check duplicate
+    const { data: existing } = await sb.from('menu_items').select('id').eq('user_id', currentUser.id).eq('name', name).single();
+    if (existing) return BondsUI.toast('⚠️ This dish already exists: ' + name, 'warning');
+
+    const { error } = await sb.from('menu_items').insert({
+      user_id: currentUser.id, name, category, base_price: price
+    });
+    if (error) { console.error('addMenuItem error:', error); return BondsUI.toast('❌ Error: ' + (error.message || JSON.stringify(error)), 'error'); }
+    await loadAllData();
+  } catch (e) {
+    console.error('addMenuItem catch:', e);
+    BondsUI.toast('❌ Unexpected error: ' + e.message, 'error');
+  }
+}
+
+function renderMenuItems() {
+  const el = document.getElementById('mList');
+  el.innerHTML = menuItems.map(m => `<div class="row"><span>${m.name} — ${m.base_price} SAR</span></div>`).join('') || '<div class="row">No dishes</div>';
+}
+
+// Menu Item Ingredients
+async function addMenuItemIngredient() {
+  try {
+    const menuItemId = document.getElementById('cMenuItem').value;
+    const ingredientId = document.getElementById('cIngredient').value;
+    const qty = parseFloat(document.getElementById('cQty').value) || 0;
+    const unit = document.getElementById('cUnit').value.trim() || 'g';
+    var vQty = BondsUI.validateField('cQty', { type: 'number', required: true, min: 0.01, label: 'Quantity' });
+    if (!vQty.valid) {
+      BondsUI.toast('⚠️ ' + vQty.errors.join(', '), 'warning');
+      return;
+    }
+    if (!menuItemId || !ingredientId) { BondsUI.toast('⚠️ Select dish and ingredient', 'warning'); return; }
+    if (qty <= 0) { BondsUI.toast('⚠️ Enter a quantity greater than zero', 'warning'); return; }
+
+    const { error } = await sb.from('menu_item_ingredients').insert({
+      menu_item_id: menuItemId, ingredient_id: ingredientId, quantity_needed: qty, unit
+    });
+    if (error) { console.error('addMenuItemIngredient error:', error); return BondsUI.toast('❌ Error: ' + (error.message || JSON.stringify(error)), 'error'); }
+    await renderMenuItemIngredients();
+  } catch (e) {
+    console.error('addMenuItemIngredient catch:', e);
+    BondsUI.toast('❌ Unexpected error: ' + e.message, 'error');
+  }
+}
+
+async function renderMenuItemIngredients() {
+  try {
+    let query = sb.from('menu_item_ingredients')
+      .select('*, menu_item:menu_item_id(name), ingredient:ingredient_id(name, current_price)');
+    if (menuItems.length > 0) {
+      query = query.in('menu_item_id', menuItems.map(m => m.id));
+    }
+    const { data } = await query;
+    menuItemIngredients = data || [];
+    const el = document.getElementById('cList');
+    el.innerHTML = (data || []).map(r => {
+      const cost = (r.quantity_needed * (r.ingredient?.current_price || 0)).toFixed(2);
+      return `<div class="row"><span>${r.menu_item?.name || '—'} ← ${r.ingredient?.name || '—'} × ${r.quantity_needed} ${r.unit} = ${cost} SAR</span></div>`;
+    }).join('') || '<div class="row">No linked ingredients</div>';
+  } catch (e) {
+    console.error('renderMenuItemIngredients error:', e);
+  }
+}
+
+// Sales
+async function addSale() {
+  if (!currentUser) return BondsUI.toast('🔐 Please sign in to add sales', 'warning');
+  try {
+    const menuItemId = document.getElementById('sMenuItem').value;
+    const platformId = document.getElementById('sPlatform').value || null;
+    const qty = parseInt(document.getElementById('sQty').value) || 1;
+    const price = parseFloat(document.getElementById('sPrice').value) || 0;
+    var vSqty = BondsUI.validateField('sQty', { type: 'number', required: true, min: 1, label: 'Quantity' });
+    if (!vSqty.valid) {
+      BondsUI.toast('⚠️ ' + vSqty.errors.join(', '), 'warning');
+      return;
+    }
+    if (!menuItemId) { BondsUI.toast('⚠️ Select a dish', 'warning'); return; }
+
+    const { error } = await sb.from('sales_transactions').insert({
+      user_id: currentUser.id, menu_item_id: menuItemId,
+      platform_id: platformId, quantity: qty, unit_price: price
+    });
+    if (error) { console.error('addSale error:', error); return BondsUI.toast('❌ Error saving: ' + (error.message || JSON.stringify(error)), 'error'); }
+    await renderSales();
+    await loadMatrix();
+  } catch (e) {
+    console.error('addSale catch:', e);
+    BondsUI.toast('❌ Unexpected error: ' + e.message, 'error');
+  }
+}
+
+async function renderSales() {
+  const { data } = await sb.from('sales_transactions')
+    .select('*, menu_item:menu_item_id(name), platform:platform_id(name)')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  const el = document.getElementById('sList');
+  el.innerHTML = (data || []).map(s => `<div class="row"><span>${s.menu_item?.name || '—'} × ${s.quantity} = ${s.unit_price * s.quantity} SAR</span></div>`).join('') || '<div class="row">No sales</div>';
+}
+
+function updateDropdowns() {
+  const itemSel = document.getElementById('sMenuItem');
+  const simItem = document.getElementById('simItem');
+  const cMenuItem = document.getElementById('cMenuItem');
+  [itemSel, simItem, cMenuItem].forEach(sel => {
+    if (sel) sel.innerHTML = '<option value="">Select...</option>' + menuItems.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  });
+
+  const platSel = document.getElementById('sPlatform');
+  const simPlat = document.getElementById('simPlatform');
+  const omniPlat = document.getElementById('omniPlatform');
+  [platSel, simPlat, omniPlat].forEach(sel => {
+    if (sel) sel.innerHTML = '<option value="">Select...</option>' + platforms.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  });
+
+  const omniItem = document.getElementById('omniItem');
+  if (omniItem) omniItem.innerHTML = '<option value="">Select...</option>' + menuItems.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+
+  const cIngredient = document.getElementById('cIngredient');
+  if (cIngredient) cIngredient.innerHTML = '<option value="">Select...</option>' + ingredients.map(i => `<option value="${i.id}">${i.name} (${i.current_price} SAR/${i.unit})</option>`).join('');
+}
+
+// Matrix
+// Demo data shown when user has no data — realistic numbers
+const DEMO_ITEMS = {
+  star: [
+    { menu_item: { name: 'Classic Burger' }, gross_profit: 18.50, profit_margin_pct: 42.0, total_sales_count: 320, total_revenue: 14080, total_cost: 8160, recommendation: 'Keep it — the restaurant star' },
+    { menu_item: { name: 'Beef Shawarma' }, gross_profit: 14.00, profit_margin_pct: 38.5, total_sales_count: 275, total_revenue: 10010, total_cost: 6160, recommendation: 'Promote it on the main menu' }
+  ],
+  engine: [
+    { menu_item: { name: 'Chicken Crepe' }, gross_profit: 3.50, profit_margin_pct: 14.0, total_sales_count: 210, total_revenue: 5250, total_cost: 4410, recommendation: 'Raise price 10% or reduce portion slightly' },
+    { menu_item: { name: 'French Fries' }, gross_profit: 1.20, profit_margin_pct: 15.0, total_sales_count: 450, total_revenue: 3600, total_cost: 3060, recommendation: 'Sell as an add-on with the burger' }
+  ],
+  treasure: [
+    { menu_item: { name: 'Grilled Steak' }, gross_profit: 45.00, profit_margin_pct: 55.0, total_sales_count: 45, total_revenue: 3680, total_cost: 1656, recommendation: 'Photograph it and feature it on the menu' },
+    { menu_item: { name: 'Grilled Salmon' }, gross_profit: 38.00, profit_margin_pct: 50.0, total_sales_count: 32, total_revenue: 2432, total_cost: 1216, recommendation: 'Add a combo with a drink to boost sales' }
+  ],
+  stalled: [
+    { menu_item: { name: 'Greek Salad' }, gross_profit: 1.50, profit_margin_pct: 8.0, total_sales_count: 18, total_revenue: 396, total_cost: 363, recommendation: 'Delete or completely revamp ingredients' },
+    { menu_item: { name: 'Soda Drink' }, gross_profit: 0.50, profit_margin_pct: 5.0, total_sales_count: 12, total_revenue: 120, total_cost: 114, recommendation: 'Replace with a higher-margin drink' }
+  ]
+};
+
+async function loadMatrix() {
+  const res = await fetch(`/api/menu-engineering?user_id=${currentUser.id}`);
+  const json = await res.json();
+  if (!json.success) {
+    document.getElementById('matrixContainer').innerHTML = '<div class="error">' + json.error + '</div>';
+    return;
+  }
+  let data = json.data;
+  // If no data, show demo
+  const hasAny = (data.stars?.length||0) + (data.engines?.length||0) + (data.treasures?.length||0) + (data.stalled?.length||0);
+  if (!hasAny) {
+    data = {
+      stars: DEMO_ITEMS.star, engines: DEMO_ITEMS.engine,
+      treasures: DEMO_ITEMS.treasure, stalled: DEMO_ITEMS.stalled,
+      summary: { total_items: 8, avg_margin: '38.25', total_profit: '128.00', total_revenue: 34338, total_cost: 18453, total_net_revenue: 25754, platform_fees: 8584 }
+    };
+  }
+  const cats = {
+    stars: { icon: '⭐', title: 'Stars', desc: 'High profit + High sales' },
+    engines: { icon: '🚀', title: 'Workhorses', desc: 'High sales + Limited profit' },
+    treasures: { icon: '💎', title: 'Puzzles', desc: 'High profit + Low sales' },
+    stalled: { icon: '⚠️', title: 'Dogs', desc: 'Low profit + Low sales' }
+  };
+  let html = '<div class="me-grid">';
+  for (const key of ['stars', 'engines', 'treasures', 'stalled']) {
+    const c = cats[key];
+    const items = data[key] || [];
+    html += `<div class="me-quadrant ${key}"><h3>${c.icon} ${c.title} <span class="count">(${items.length})</span></h3><p style="font-size:0.85rem;color:var(--text-muted);">${c.desc}</p><div class="items">`;
+    if (items.length === 0) html += '<div class="me-item"><div class="meta">No dishes</div></div>';
+    else items.forEach(item => {
+      const profit = item.gross_profit || 0;
+      const margin = item.profit_margin_pct || 0;
+      const revenue = item.total_revenue || 0;
+      const cost = item.total_cost || 0;
+      const sales = item.total_sales_count || 0;
+      const marginClass = margin >= 40 ? 'high' : margin >= 20 ? 'mid' : margin >= 0 ? 'low' : 'loss';
+      const borderColor = key === 'stars' ? '#22c55e' : key === 'engines' ? '#f59e0b' : key === 'treasures' ? '#3b82f6' : '#ef4444';
+      html += `<div class="me-item" style="border-left:4px solid ${borderColor};padding-left:var(--space-3);">`;
+      html += `<div class="name" style="font-weight:700;font-size:1rem;margin-bottom:var(--space-1);">${item.menu_item?.name || '—'}</div>`;
+      html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-1);font-size:0.8rem;color:var(--text-secondary);margin-bottom:var(--space-2);">`;
+      html += `<span>💰 Revenue: ${revenue.toFixed(0)} SAR</span><span>📉 Cost: ${cost.toFixed(0)} SAR</span>`;
+      html += `<span>🛒 Sales: ${sales}</span><span>📈 Margin: <strong style="color:${margin >= 40 ? '#22c55e' : margin >= 20 ? '#f59e0b' : '#ef4444'};">${margin.toFixed(1)}%</strong></span>`;
+      html += `</div>`;
+      html += `<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:var(--space-1);">Net Profit: <strong style="color:${profit >= 0 ? '#22c55e' : '#ef4444'};">${profit.toFixed(2)} SAR</strong></div>`;
+      html += `${item.recommendation ? `<div class="badge badge-${marginClass}">${item.recommendation}</div>` : ''}</div>`;
+    });
+    html += '</div></div>';
+  }
+  html += '</div>';
+  const isDemo = !hasAny;
+  const s = data.summary || {};
+  // Summary dashboard
+  html += `<div class="me-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--space-4);margin:var(--space-8) 0;">`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📦 Products</div><div style="font-size:1.4rem;font-weight:700;color:var(--gold);">${s.total_items || 0}</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">💰 Revenue</div><div style="font-size:1.4rem;font-weight:700;color:#22c55e;">${Number(s.total_revenue || 0).toFixed(0)} SAR</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📉 Costs</div><div style="font-size:1.4rem;font-weight:700;color:#ef4444;">${Number(s.total_cost || 0).toFixed(0)} SAR</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">🏦 Fees</div><div style="font-size:1.4rem;font-weight:700;color:#f59e0b;">${Number(s.platform_fees || 0).toFixed(0)} SAR</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📈 Net Profit</div><div style="font-size:1.4rem;font-weight:700;color:var(--gold);">${Number(s.total_profit || 0).toFixed(0)} SAR</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📊 Avg Margin</div><div style="font-size:1.4rem;font-weight:700;color:var(--primary);">${s.avg_margin || 0}%</div></div>`;
+  html += `</div>`;
+  if (isDemo) html += '<div style="text-align:center;color:var(--primary);font-size:0.85rem;margin-bottom:var(--space-6);">🎮 Demo data — Enter your real sales to see your results</div>';
+  document.getElementById('matrixContainer').innerHTML = html;
+}
+
+// Promo Simulator
+async function runPromoSim() {
+  const itemId = document.getElementById('simItem').value;
+  const platId = document.getElementById('simPlatform').value;
+  const discount = parseFloat(document.getElementById('simDiscount').value);
+  const sales = parseInt(document.getElementById('simSales').value);
+  const box = document.getElementById('simResult');
+  if (!itemId || !platId || isNaN(discount) || isNaN(sales)) return box.innerHTML = '<div class="error">Fill all fields</div>';
+
+  box.innerHTML = '<div class="loading">Calculating...</div>';
+  try {
+    const res = await fetch('/api/promo-simulator', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: currentUser.id, menu_item_id: itemId, platform_id: platId, discount_pct: discount, current_daily_sales: sales })
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error);
+    const d = json.data;
+    box.innerHTML = `<div class="result-box"><h4>🎯 Simulation Result: ${d.item_name}</h4><p><strong>Price:</strong> ${d.original_price} → <strong>${d.discounted_price}</strong> SAR</p><p><strong>Margin:</strong> ${d.original_margin_pct}% → <strong>${d.new_margin_pct}%</strong></p><hr style="border-color:var(--border);margin:var(--space-3) 0;"><p style="color:${d.is_profitable ? '#22c55e' : '#ef4444'};font-weight:700;">${d.verdict}</p></div>`;
+  } catch (e) {
+    box.innerHTML = '<div class="error">' + e.message + '</div>';
+  }
+}
+
+// Omnichannel Calculator
+async function runOmnichannel() {
+  const itemId = document.getElementById('omniItem').value;
+  const platId = document.getElementById('omniPlatform').value;
+  const cac = parseFloat(document.getElementById('omniCAC').value) || 5;
+  const delivery = parseFloat(document.getElementById('omniDelivery').value) || 15;
+  const adBudget = parseFloat(document.getElementById('omniAdBudget').value) || 3000;
+  const box = document.getElementById('omniResult');
+  if (!itemId || !platId) return box.innerHTML = '<div class="error">Select dish and platform</div>';
+
+  box.innerHTML = '<div class="loading">Calculating...</div>';
+  try {
+    const res = await fetch('/api/omnichannel-calculator', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: currentUser.id, menu_item_id: itemId, platform_id: platId, direct_cac: cac, direct_delivery_fee: delivery, monthly_ad_budget: adBudget })
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error);
+    const d = json.data;
+    const plat = d.platform;
+    const dir = d.direct;
+    const comp = d.comparison;
+    box.innerHTML = `<div class="result-box"><h4>🌐 Comparison: ${d.item_name} (${d.item_price} SAR)</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin:var(--space-4) 0;">
+        <div style="background:var(--bg-card);padding:var(--space-4);border-radius:var(--radius);border:1px solid var(--border);">
+          <h5 style="color:#ef4444;margin-bottom:var(--space-2);">📱 ${plat.name}</h5>
+          <p>Commission: ${plat.commission} SAR</p>
+          <p>Fees: ${plat.service_fee} SAR</p>
+          <p>Gateway: ${plat.gateway_fee} SAR</p>
+          <p>Delivery: ${plat.delivery_fee} SAR</p>
+          <hr style="border-color:var(--border);margin:var(--space-2) 0;">
+          <p><strong>Net: ${plat.net_revenue} SAR</strong></p>
+          <p><strong>Margin: ${plat.margin_pct}%</strong></p>
+        </div>
+        <div style="background:var(--bg-card);padding:var(--space-4);border-radius:var(--radius);border:1px solid var(--border);">
+          <h5 style="color:#22c55e;margin-bottom:var(--space-2);">🌐 Direct Sales</h5>
+          <p>Acquisition: ${dir.cac} SAR</p>
+          <p>Delivery: ${dir.delivery_fee} SAR</p>
+          <p>Gateway: ${dir.gateway_fee} SAR</p>
+          <hr style="border-color:var(--border);margin:var(--space-2) 0;">
+          <p><strong>Net: ${dir.net_revenue} SAR</strong></p>
+          <p><strong>Margin: ${dir.margin_pct}%</strong></p>
+        </div>
+      </div>
+      <hr style="border-color:var(--border);margin:var(--space-3) 0;">
+      <p style="color:var(--gold);font-weight:800;font-size:1.1rem;">${comp.verdict}</p>
+      <p>💡 Savings per order: <strong>${comp.savings_per_order} SAR</strong></p>
+      <p>📈 Margin improvement: <strong>${comp.margin_lift_pct}%</strong></p>
+      <p>🎯 Orders to recover ad spend: <strong>${comp.break_even_orders_for_ad_budget} orders/month</strong></p>
+      <p>⚠️ Max profitable CAC: <strong>${comp.max_profitable_cac} SAR</strong></p>
+    </div>`;
+  } catch (e) {
+    box.innerHTML = '<div class="error">' + e.message + '</div>';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

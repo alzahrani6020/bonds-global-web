@@ -20,17 +20,19 @@
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
   <link rel="preconnect" href="https://cdn.sheetjs.com" />
   <link rel="prefetch" href="../../calculator.html" as="document" />
-  <link rel="prefetch" href="../en/calculators/pricing.html" as="document" />
-  <link rel="prefetch" href="../en/calculators/cash-flow.html" as="document" />
+  <link rel="prefetch" href="pricing.html" as="document" />
+  <link rel="prefetch" href="cash-flow.html" as="document" />
   <link rel="preload" href="../../assets/site-logo.webp" as="image" type="image/webp" />
   <script defer src="/_vercel/insights/script.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
+  <script src="../../calculators/shared-ui.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
-  <script src="../shared-utils.js"></script>
+  <script src="../../calculators/shared-utils.js"></script>
   <style>
     .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .calc-grid { grid-template-columns: 1fr; } }
     .calc-input-group { margin-bottom: 1.5rem; }
     .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
     .calc-input-group input[type="number"], .calc-input-group select { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
@@ -38,6 +40,10 @@
     .calc-input-group select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: left 1rem center; padding-left: 2.5rem; }
     .share-bar { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
     .share-bar input { flex: 1; min-width: 200px; }
+    @media (max-width: 640px) {
+      .share-bar { flex-direction: column; }
+      .share-bar input { width: 100%; min-width: auto; }
+    }
     .amortization-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
     .amortization-table th, .amortization-table td { padding: 0.6rem 0.75rem; text-align: center; border: 1px solid var(--border); }
     .amortization-table th { background: var(--bg-card); color: var(--gold); font-weight: 700; }
@@ -53,6 +59,9 @@
       a { text-decoration: none; color: #000; }
     }
   </style>
+
+  <script src="../../calculators/db-client.js"></script>
+  <script src="../../calculators/db-client-auto.js"></script>
 </head>
 <body style="font-family:Inter,system-ui,sans-serif">
 
@@ -724,11 +733,11 @@
     function exportExcel() {
       var inputs = getInputs();
       if (inputs.loanAmount <= 0) {
-        alert('Calculate Results أولاً قبل التصدير');
+        BondsUI.toast('⚠️ Calculate Results أولاً قبل التصدير', 'warning');
         return;
       }
       if (typeof XLSX === 'undefined') {
-        alert('مكتبة Excel غير محملة. حاول تحديث الصفحة.');
+        BondsUI.toast('❌ مكتبة Excel غير محملة. حاول تحديث الصفحة.', 'error');
         return;
       }
       var r = calculateLoan(inputs);
@@ -795,7 +804,7 @@
     async function exportPDF_EN() {
       var inputs = getInputs();
       if (inputs.loanAmount <= 0) {
-        alert('Calculate results first before exporting PDF');
+        BondsUI.toast('⚠️ Calculate results first before exporting PDF', 'warning');
         return;
       }
       var r = calculateLoan(inputs);
@@ -935,7 +944,7 @@
     function exportPDF_AR() {
       var inputs = getInputs();
       if (inputs.loanAmount <= 0) {
-        alert('Calculate results first before exporting PDF');
+        BondsUI.toast('⚠️ Calculate results first before exporting PDF', 'warning');
         return;
       }
       var r = calculateLoan(inputs);
@@ -964,7 +973,7 @@
 
       var printWindow = window.open('', '_blank');
       if (!printWindow) {
-        alert('تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.');
+        BondsUI.toast('⚠️ تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.', 'warning');
         return;
       }
 
@@ -1036,17 +1045,25 @@
 
     function calculateAll() {
       try {
+        var vLoan = BondsUI.validateField('loanAmount', { type: 'number', required: true, min: 1, label: 'Loan Amount' });
+        var vRate = BondsUI.validateField('interestRate', { type: 'number', required: true, min: 0, label: 'Interest Rate' });
+        var vTerm = BondsUI.validateField('loanTerm', { type: 'number', required: true, min: 1, label: 'Loan Term' });
+        if (!vLoan.valid || !vRate.valid || !vTerm.valid) {
+          var errs = [].concat(vLoan.errors, vRate.errors, vTerm.errors);
+          BondsUI.toast('❌ ' + errs.join(', '), 'error');
+          return;
+        }
         var inputs = getInputs();
         if (inputs.loanAmount <= 0) {
-          alert('أدخل Loan Amount');
+          BondsUI.toast('⚠️ أدخل Loan Amount', 'warning');
           return;
         }
         if (inputs.interestRate < 0 || inputs.loanTerm <= 0) {
-          alert('تأكد من صحة البيانات المدخلة');
+          BondsUI.toast('⚠️ تأكد من صحة البيانات المدخلة', 'warning');
           return;
         }
         if (inputs.downPayment >= inputs.loanAmount) {
-          alert('Down Payment يجب أن تكون أقل من Loan Amount');
+          BondsUI.toast('⚠️ Down Payment يجب أن تكون أقل من Loan Amount', 'warning');
           return;
         }
         var r = calculateLoan(inputs);
@@ -1060,7 +1077,7 @@
         });
       } catch (err) {
         console.error('Calculate error:', err);
-        alert('حدث خطأ في الحساب: ' + err.message);
+        BondsUI.toast('❌ حدث خطأ في الحساب: ' + err.message, 'error');
       }
     }
 
@@ -1117,7 +1134,7 @@
       var input = document.getElementById('shareLink');
       input.select();
       document.execCommand('copy');
-      alert('تم نسخ الرابط!');
+      BondsUI.toast('✅ تم نسخ الرابط!', 'success');
     }
 
     // Load from URL params
@@ -1174,13 +1191,13 @@
             form.style.display = 'none';
             document.getElementById('leadCaptureSuccess').style.display = 'block';
           } else {
-            alert('حدث خطأ، حاول مرة أخرى.');
+            BondsUI.toast('❌ حدث خطأ، حاول مرة أخرى.', 'error');
             btn.textContent = originalText;
             btn.disabled = false;
           }
         })
         .catch(function() {
-          alert('حدث خطأ، حاول مرة أخرى.');
+          BondsUI.toast('❌ حدث خطأ، حاول مرة أخرى.', 'error');
           btn.textContent = originalText;
           btn.disabled = false;
         });

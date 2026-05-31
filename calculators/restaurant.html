@@ -27,8 +27,12 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="shared-calculators.css" />
+  <script src="shared-ui.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="shared-utils.js"></script>
+  <script src="shared-charts.js"></script>
+  <script src="shared-export.js"></script>
   <script src="country-platforms-data.min.js"></script>
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -74,12 +78,6 @@
     })();
   </script>
   <style>
-    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
-    .calc-input-group { margin-bottom: 1.5rem; }
-    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
-    .calc-input-group input[type="number"], .calc-input-group select { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
-    .calc-input-group input[type="number"]:focus, .calc-input-group select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
     .dish-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-bottom: var(--space-4); }
     .dish-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); }
     .dish-card-title { font-weight: 800; color: var(--gold); }
@@ -99,36 +97,12 @@
     .toggle-switch.active { background: var(--gold); }
     .toggle-switch::after { content: ''; position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: all 0.3s; }
     .toggle-switch.active::after { right: 27px; }
-    .result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
-    @media (min-width: 700px) { .result-grid { grid-template-columns: repeat(3, 1fr); } }
-    .result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); text-align: center; transition: all 0.3s; }
-    .result-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-    .result-value { font-size: var(--text-2xl); font-weight: 900; color: var(--gold); margin-bottom: var(--space-2); }
-    .result-label { font-size: 0.85rem; color: var(--text-secondary); }
     .platform-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: var(--space-4); }
     .platform-table th, .platform-table td { padding: 0.75rem; text-align: center; border-bottom: 1px solid var(--border); }
     .platform-table th { background: rgba(212,168,83,0.05); color: var(--gold); font-weight: 700; }
     .platform-table tr:hover { background: rgba(255,255,255,0.02); }
     .best-platform { background: rgba(22,163,74,0.08) !important; border-left: 3px solid #16a34a; }
     .worst-platform { background: rgba(220,38,38,0.05) !important; }
-    .analysis-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6); }
-    .analysis-box h4 { color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-lg); }
-    .analysis-box p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; }
-    .smart-alert { display: none; background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); }
-    .smart-alert.show { display: block; }
-    .share-bar { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-    .share-bar input { flex: 1; min-width: 200px; }
-    .country-selector { background: rgba(212,168,83,0.05); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-bottom: var(--space-6); }
-    .country-note { font-size: 0.85rem; color: var(--text-muted); margin-top: var(--space-3); padding: var(--space-3); background: rgba(212,168,83,0.03); border-radius: var(--radius); border-right: 3px solid var(--gold); }
-    .market-insights { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); margin-top: var(--space-4); }
-    .insight-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); transition: all 0.3s; }
-    .insight-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-    .insight-card .insight-icon { font-size: 1.5rem; margin-bottom: var(--space-2); }
-    .insight-card .insight-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-1); }
-    .insight-card .insight-value { font-size: 1rem; font-weight: 700; color: var(--text); line-height: 1.5; }
-    .insight-card .insight-value small { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
-    #countrySelect { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d4a853' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: left 1rem center; padding-left: 2.5rem; cursor: pointer; background-color: var(--bg-card); color: var(--text); }
-    #countrySelect option { background: var(--bg-secondary); color: var(--text); font-size: 1rem; padding: 0.5rem; }
     .platform-focus-bar { display: flex; gap: var(--space-3); align-items: center; margin-top: var(--space-4); flex-wrap: wrap; }
     .platform-focus-bar select { flex: 1; min-width: 200px; }
     .platform-calc-btn { font-size: 0.75rem; padding: 0.25rem 0.5rem; background: var(--gold); color: #0a0f1a; border: none; border-radius: 4px; cursor: pointer; font-weight: 700; margin-right: auto; white-space: nowrap; }
@@ -138,22 +112,6 @@
     .platform-card h5 { color: var(--gold); margin-bottom: var(--space-2); font-size: 1rem; }
     .platform-card .stat { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
     .platform-card .stat:last-child { border-bottom: none; }
-    .settings-panel { margin-top: var(--space-6); }
-    .settings-toggle { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; padding: var(--space-3); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); font-weight: 700; color: var(--gold); }
-    .settings-toggle:hover { border-color: var(--gold); }
-    .settings-content { display: none; margin-top: var(--space-3); }
-    .settings-content.open { display: block; }
-    .settings-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .settings-table th, .settings-table td { padding: 0.6rem; text-align: center; border-bottom: 1px solid var(--border); }
-    .settings-table th { background: rgba(212,168,83,0.08); color: var(--gold); font-weight: 700; }
-    .settings-table td { color: var(--text-secondary); }
-    .correction-box { background: linear-gradient(135deg, rgba(212,168,83,0.05) 0%, rgba(212,168,83,0.01) 100%); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-8); }
-    .correction-box h4 { color: var(--gold); margin-bottom: var(--space-4); font-size: var(--text-lg); }
-    .correction-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4); }
-    .correction-result { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); display: none; }
-    .correction-result.show { display: block; }
-    .correction-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-right: 0.5rem; }
-    .correction-badge.user { background: rgba(22,163,74,0.1); color: #16a34a; border: 1px solid rgba(22,163,74,0.3); }
     .opm-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-left: 0.25rem; }
     .opm-badge.closed { background: rgba(220,38,38,0.1); color: #dc2626; border: 1px solid rgba(220,38,38,0.3); }
     .opm-badge.open { background: rgba(37,99,235,0.1); color: #2563eb; border: 1px solid rgba(37,99,235,0.3); }
@@ -188,15 +146,14 @@
     .quota-bar.danger>div { background:#dc2626; }
     .upgrade-btn-inline { background:var(--gold); color:#0c0c0c; border:none; padding:0.3rem 0.8rem; border-radius:6px; font-weight:700; font-size:0.8rem; cursor:pointer; text-decoration:none; transition:all 0.2s; }
     .upgrade-btn-inline:hover { background:#d4b76a; }
-    @media print {
-      .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
-      .calc-grid { grid-template-columns: 1fr 1fr; }
-      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
-      .section { padding: 0 !important; }
-      canvas { max-height: 280px !important; }
-      a { text-decoration: none; color: #000; }
+    @media (max-width: 640px) {
+      .settings-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .settings-table { min-width: 600px; }
     }
   </style>
+
+  <script src="db-client.js"></script>
+  <script src="db-client-auto.js"></script>
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
 
@@ -249,6 +206,8 @@
               <a href="restaurant.html?model=dessert">🍰 محل الحلويات</a>
               <a href="dish-margin.html">🍽️ ربحية الوجبة</a>
               <a href="menu-engineering.html">🎯 هندسة المنيو</a>
+              <a href="feasibility.html">🚀 جدوى المطعم</a>
+              <a href="invoice-analyzer.html">🧾 تحليل الفواتير</a>
             </div>
           </li>
           <li><a href="../blog/index.html">مقالات</a></li>
@@ -325,7 +284,7 @@
           <!-- Business Model Selector -->
           <div style="margin-bottom: var(--space-6);">
             <h3 style="font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: var(--space-3);">🏢 نموذج العمل</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3);">
+            <div class="calc-grid" style="gap: var(--space-3);">
               <label class="model-card" id="cardTraditional" onclick="setBusinessModel('traditional')" style="cursor: pointer; background: var(--bg-card); border: 2px solid var(--gold); border-radius: var(--radius); padding: var(--space-4); text-align: center; transition: all 0.3s;">
                 <div style="font-size: 2rem; margin-bottom: var(--space-2);">🏢</div>
                 <div style="font-weight: 800; color: var(--text); margin-bottom: var(--space-1);">مطعم تقليدي</div>
@@ -380,10 +339,12 @@
               📋 جدول السياسات والعمولات (اضغط للتوسيع)
             </div>
             <div class="settings-content" id="settingsContent">
-              <table class="settings-table" id="settingsTable">
+              <div class="settings-table-wrap">
+                <table class="settings-table" id="settingsTable">
                 <thead><tr><th>المنصة</th><th>نوع التشغيل</th><th>العمولة</th><th>رسوم خدمة</th><th>توصيل مجاني من</th><th>تحمل المطعم</th><th>توصيل ذاتي</th><th>تأسيس</th><th>الثقة</th></tr></thead>
                 <tbody></tbody>
               </table>
+              </div>
             </div>
           </div>
 
@@ -457,7 +418,7 @@
           <div style="background: linear-gradient(135deg, rgba(212,168,83,0.08), rgba(212,168,83,0.02)); border: 1px solid rgba(212,168,83,0.25); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6);">
             <h4 style="color: var(--gold); margin-bottom: var(--space-4); font-size: var(--text-lg);">🎯 ذكاء التسعير العكسي</h4>
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: var(--space-4);">حدد الربح المستهدف لكل طلب، وستخبرك الحاسبة بسعر البيع المطلوب في كل منصة.</p>
-            <div class="calc-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="calc-grid" style="gap: 1rem;">
               <div class="calc-input-group" style="margin-bottom: 0;">
                 <label for="targetProfitPerOrder">الربح المستهدف لكل طلب (<span class="currency-label">ر.س</span>)</label>
                 <input type="number" id="targetProfitPerOrder" placeholder="مثال: 15" value="" />
@@ -647,7 +608,7 @@
           </div>
 
           <!-- QR Code & Session Save -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-top: var(--space-8); max-width: 800px; margin-left: auto; margin-right: auto;">
+          <div class="calc-grid" style="gap: var(--space-6); margin-top: var(--space-8); max-width: 800px; margin-left: auto; margin-right: auto;">
             <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center;">
               <h4 style="color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-base);">🔗 QR Code — امسح لمشاركة</h4>
               <div id="qrcode" style="display: flex; justify-content: center; margin-bottom: var(--space-3);"></div>
@@ -853,7 +814,7 @@
           _currentTier = 'free';
           _currentUser = null;
         }
-      } catch(e) { console.log('Auth init skipped'); }
+      } catch(e) { /* auth init skipped silently */ }
       updateTierUI();
     }
 
@@ -910,7 +871,7 @@
     function requirePro(callback) {
       if (isPro()) { if (callback) callback(); return true; }
       if (window.showUpgradeModal) window.showUpgradeModal({ tier: _currentTier, reason: 'not_logged_in' });
-      else alert('الميزة متوفرة في باقة Pro — اضغط على "عرض الباقات"');
+      else BondsUI.toast('❌ الميزة متوفرة في باقة Pro — اضغط على "عرض الباقات"', 'error');
       return false;
     }
 
@@ -942,7 +903,7 @@
           var warned = sessionStorage.getItem('bonds_country_warn');
           if (!warned) {
             sessionStorage.setItem('bonds_country_warn', '1');
-            alert('⚠️ لقد استخدمت أكثر من 5 دول. الباقة المجانية تتضمن 5 دول. رقِّ للـ Pro لفتح كل الـ 22 دولة.');
+            BondsUI.toast('⚠️ لقد استخدمت أكثر من 5 دول. الباقة المجانية تتضمن 5 دول. رقِّ للـ Pro لفتح كل الـ 22 دولة.', 'warning');
           }
         }
       }
@@ -1098,8 +1059,8 @@
       var platformId = document.getElementById('corrPlatform').value;
       var price = parseFloat(document.getElementById('corrPrice').value) || 0;
       var payout = parseFloat(document.getElementById('corrPayout').value) || 0;
-      if (!platformId || !price || !payout) { alert('أكمل جميع الحقول'); return; }
-      if (payout > price) { alert('المبلغ الصافي لا يمكن أن يكون أكبر من سعر البيع'); return; }
+      if (!platformId || !price || !payout) { BondsUI.toast('⚠️ أكمل جميع الحقول', 'warning'); return; }
+      if (payout > price) { BondsUI.toast('❌ المبلغ الصافي لا يمكن أن يكون أكبر من سعر البيع', 'error'); return; }
       var deduction = price - payout;
       var actualFee = (deduction / price * 100).toFixed(2);
       var opt = document.getElementById('corrPlatform').selectedOptions[0];
@@ -1119,7 +1080,7 @@
       var platformId = document.getElementById('corrPlatform').value;
       var price = parseFloat(document.getElementById('corrPrice').value) || 0;
       var payout = parseFloat(document.getElementById('corrPayout').value) || 0;
-      if (!price || !payout || price <= 0) { alert('أدخل السعر والتحصيل بشكل صحيح'); return; }
+      if (!price || !payout || price <= 0) { BondsUI.toast('❌ أدخل السعر والتحصيل بشكل صحيح', 'error'); return; }
       var actualFee = ((price - payout) / price * 100).toFixed(2);
       var key = 'correction_' + currentCountry + '_' + platformId;
       await dbSet(key, { actualFee: parseFloat(actualFee), price: price, payout: payout, timestamp: Date.now() });
@@ -1141,7 +1102,7 @@
         });
       }
 
-      alert('✅ تم حفظ التصحيح. سيظهر بجانب العمولة في الجدول.');
+      BondsUI.toast('✅ تم حفظ التصحيح. سيظهر بجانب العمولة في الجدول.', 'success');
       displayCorrections();
     }
 
@@ -1228,7 +1189,7 @@
             <label>اسم الطبق</label>
             <input type="text" value="${dish.name}" onchange="updateDish(${idx},'name',this.value)" style="width:100%;padding:1rem 1.25rem;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;font-size:1rem;" />
           </div>
-          <div class="calc-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+          <div class="calc-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;">
             <div class="calc-input-group" style="margin-bottom:0;">
               <label>السعر (${currentCurrency})</label>
               <input type="number" value="${dish.price}" min="0" step="0.5" onchange="updateDish(${idx},'price',parseFloat(this.value)||0)" />
@@ -1238,7 +1199,7 @@
               <input type="number" value="${dish.cost}" min="0" step="0.5" onchange="updateDish(${idx},'cost',parseFloat(this.value)||0)" />
             </div>
             <div class="calc-input-group" style="margin-bottom:0;">
-              <label>نسبة المبيعات (%)</label>
+              <label>نسبة مبيعات هذا الطبق (%)</label>
               <input type="number" value="${dish.salesMix}" min="0" max="100" onchange="updateDish(${idx},'salesMix',parseFloat(this.value)||0)" />
             </div>
           </div>
@@ -1743,12 +1704,7 @@
       updateQR(url.toString());
     }
 
-    function copyLink() {
-      var input = document.getElementById('shareLink');
-      input.select();
-      document.execCommand('copy');
-      alert('تم نسخ الرابط!');
-    }
+    function copyLink() { copyShareLink('shareLink'); }
 
     // ===== QR Code =====
     function updateQR(url) {
@@ -1765,7 +1721,7 @@
 
     function saveSession() {
       var name = document.getElementById('sessionName').value.trim();
-      if (!name) { alert('أدخل اسم للحساب'); return; }
+      if (!name) { BondsUI.toast('⚠️ أدخل اسم للحساب', 'warning'); return; }
 
       // Free tier: max 3 scenarios
       if (!isPro()) {
@@ -1793,7 +1749,7 @@
         inputs: inputs,
         selectedIds: selectedIds,
         date: new Date().toLocaleString('ar-SA'),
-        summary: document.getElementById('valNetProfit').textContent + ' ربح | ' + document.getElementById('valMargin').textContent + ' هامش'
+        summary: (_lastResult ? formatNumber(Math.round(_lastResult.netProfit)) + ' ربح | ' + _lastResult.profitMargin.toFixed(1) + '% هامش' : 'حفظ جلسة')
       };
 
       // Save to Supabase if logged in
@@ -1822,7 +1778,7 @@
         document.getElementById('sessionName').value = '';
         renderSessions();
         if (typeof gtag !== 'undefined') gtag('event', 'save_scenario', { country: currentCountry });
-        alert('✅ تم حفظ الحساب');
+        BondsUI.toast('✅ تم حفظ الحساب', 'success');
       });
     }
 
@@ -1933,16 +1889,6 @@
     }
 
     // ===== Charts =====
-    function loadChartJS() {
-      if (typeof Chart !== 'undefined') return Promise.resolve();
-      return new Promise(function(resolve, reject) {
-        var s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
-        s.onload = resolve;
-        s.onerror = reject;
-        document.head.appendChild(s);
-      });
-    }
 
     function updateCharts(r) {
       loadChartJS().then(function() {
@@ -2045,9 +1991,23 @@
     // ===== Main Calculate =====
     function calculateAll() {
       try {
+        // Validate key inputs
+        var v1 = BondsUI.validateField('dailyOrders', { required:true, type:'number', min:1, label:'عدد الطلبات اليومية' });
+        var v2 = BondsUI.validateField('workingDays', { required:true, type:'number', min:1, max:31, label:'أيام العمل في الشهر' });
+        var v3 = BondsUI.validateField('rentCost', { required:true, type:'number', min:0, label:'الإيجار' });
+        var v4 = BondsUI.validateField('salariesCost', { required:true, type:'number', min:0, label:'الرواتب والأجور' });
+        if (!v1.valid || !v2.valid || !v3.valid || !v4.valid) {
+          BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
+          return;
+        }
+        BondsUI.clearValidation('dailyOrders');
+        BondsUI.clearValidation('workingDays');
+        BondsUI.clearValidation('rentCost');
+        BondsUI.clearValidation('salariesCost');
+
         var inputs = getInputs();
-        if (inputs.dishes.length === 0) { alert('أضف طبقاً واحداً على الأقل'); return; }
-        if (inputs.dailyOrders <= 0) { alert('أدخل عدد الطلبات اليومية'); return; }
+        if (inputs.dishes.length === 0) { BondsUI.toast('⚠️ أضف طبقاً واحداً على الأقل', 'warning'); return; }
+        if (inputs.dailyOrders <= 0) { BondsUI.toast('⚠️ أدخل عدد الطلبات اليومية', 'warning'); return; }
         var r = calculate(inputs);
         _lastResult = r;
         updateResults(r);
@@ -2059,7 +2019,7 @@
         updateSensitivityDisplay();
       } catch (err) {
         console.error('Calculate error:', err);
-        alert('حدث خطأ في الحساب: ' + err.message);
+        BondsUI.toast('❌ حدث خطأ في الحساب: ' + err.message, 'error');
       }
     }
 
@@ -2184,9 +2144,9 @@
     // ===== Export =====
     async function exportExcel() {
       var inputs = getInputs();
-      if (inputs.dishes.length === 0) { alert('احسب النتائج أولاً'); return; }
+      if (inputs.dishes.length === 0) { BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning'); return; }
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
-      if (typeof XLSX === 'undefined') { alert('فشل تحميل Excel'); return; }
+      if (typeof XLSX === 'undefined') { BondsUI.toast('❌ فشل تحميل Excel', 'error'); return; }
       var r = calculate(inputs);
       var wb = XLSX.utils.book_new();
       wb.Props = { Title: 'تقرير ربحية المطعم', Subject: 'Bonds Global', Author: 'bonds-global.com' };
@@ -2241,82 +2201,29 @@
     async function exportPDF() {
       if (!requirePro()) return;
       if (typeof gtag !== 'undefined') gtag('event', 'export_pdf', { type: 'full' });
-      var inputs = getInputs();
-      if (inputs.dishes.length === 0) { alert('احسب النتائج أولاً'); return; }
-      var section = document.getElementById('resultsSection');
-      if (section.style.display === 'none') { alert('احسب النتائج أولاً'); return; }
-      await Promise.all([
-        loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf'),
-        loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')
-      ]);
-      if (typeof html2canvas === 'undefined') { alert('فشل تحميل html2canvas'); return; }
-      var { jsPDF } = window.jspdf;
-      var canvas = await html2canvas(section, { scale: 2, backgroundColor: '#0a0f1a', useCORS: true });
-      var imgData = canvas.toDataURL('image/png');
-      var pdf = new jsPDF('p', 'mm', 'a4');
-      var imgWidth = 210;
-      var pageHeight = 297;
-      var imgHeight = canvas.height * imgWidth / canvas.width;
-      var heightLeft = imgHeight;
-      var position = 0;
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-      pdf.save('bonds-restaurant-report.pdf');
+      await exportElementToPDF({ elementId: 'resultsSection', filename: 'bonds-restaurant-report.pdf' });
     }
 
     async function exportPlatformPDF() {
       if (!requirePro()) return;
       if (typeof gtag !== 'undefined') gtag('event', 'export_pdf', { type: 'per_platform' });
       var inputs = getInputs();
-      if (inputs.dishes.length === 0) { alert('احسب النتائج أولاً'); return; }
-      var section = document.getElementById('resultsSection');
-      if (section.style.display === 'none') { alert('احسب النتائج أولاً'); return; }
-      await Promise.all([
-        loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf'),
-        loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')
-      ]);
-      if (typeof html2canvas === 'undefined') { alert('فشل تحميل html2canvas'); return; }
+      if (inputs.dishes.length === 0) { BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning'); return; }
       var r = calculate(inputs);
-      var platformId = document.getElementById('focusPlatform').value;
       var targetPlatform = r.platformResults.find(function(p) {
         var el = document.getElementById(p.id);
         return el && el.checked;
       });
-      if (!targetPlatform && r.platformResults.length > 0) {
-        targetPlatform = r.platformResults[0];
-      }
-      if (!targetPlatform) { alert('لا توجد منصة محددة'); return; }
-      var { jsPDF } = window.jspdf;
-      var canvas = await html2canvas(section, { scale: 2, backgroundColor: '#0a0f1a', useCORS: true });
-      var imgData = canvas.toDataURL('image/png');
-      var pdf = new jsPDF('p', 'mm', 'a4');
-      var imgWidth = 210;
-      var pageHeight = 297;
-      var imgHeight = canvas.height * imgWidth / canvas.width;
-      var heightLeft = imgHeight;
-      var position = 0;
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-      pdf.save('bonds-' + targetPlatform.name.replace(/\s+/g, '-') + '-report.pdf');
+      if (!targetPlatform && r.platformResults.length > 0) targetPlatform = r.platformResults[0];
+      var filename = targetPlatform ? 'bonds-' + targetPlatform.name.replace(/\s+/g, '-') + '-report.pdf' : 'bonds-platform-report.pdf';
+      await exportElementToPDF({ elementId: 'resultsSection', filename: filename });
     }
 
     async function exportPlatformExcel() {
       var inputs = getInputs();
-      if (inputs.dishes.length === 0) { alert('احسب النتائج أولاً'); return; }
+      if (inputs.dishes.length === 0) { BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning'); return; }
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
-      if (typeof XLSX === 'undefined') { alert('فشل تحميل Excel'); return; }
+      if (typeof XLSX === 'undefined') { BondsUI.toast('❌ فشل تحميل Excel', 'error'); return; }
       var r = calculate(inputs);
       var wb = XLSX.utils.book_new();
       wb.Props = { Title: 'تقرير منصة واحدة', Subject: 'Bonds Global', Author: 'bonds-global.com' };
@@ -2329,7 +2236,7 @@
       if (!targetPlatform && r.platformResults.length > 0) {
         targetPlatform = r.platformResults[0];
       }
-      if (!targetPlatform) { alert('لا توجد منصة محددة'); return; }
+      if (!targetPlatform) { BondsUI.toast('⚠️ لا توجد منصة محددة', 'warning'); return; }
 
       // Dishes
       var dishData = [['الطبق', 'السعر', 'تكلفة المكونات', 'Food Cost %', 'Contribution']];
@@ -2357,7 +2264,7 @@
 
     async function exportExcelSettings() {
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
-      if (typeof XLSX === 'undefined') { alert('فشل تحميل Excel'); return; }
+      if (typeof XLSX === 'undefined') { BondsUI.toast('❌ فشل تحميل Excel', 'error'); return; }
       var data = COUNTRIES_DATA[currentCountry];
       if (!data) return;
       var wb = XLSX.utils.book_new();
@@ -2424,11 +2331,11 @@
     }
 
     async function loadScenarioFromCloud(id) {
-      if (!window.BondsAuth || !window.BondsAuth.getSupabase) { alert('يجب تسجيل الدخول لتحميل السيناريوهات من السحابة'); return false; }
+      if (!window.BondsAuth || !window.BondsAuth.getSupabase) { BondsUI.toast('❌ يجب تسجيل الدخول لتحميل السيناريوهات من السحابة', 'error'); return false; }
       var sb = window.BondsAuth.getSupabase();
       try {
         var res = await sb.from('scenarios').select('*').eq('id', id).single();
-        if (res.error || !res.data) { alert('لم يتم العثور على السيناريو'); return false; }
+        if (res.error || !res.data) { BondsUI.toast('❌ لم يتم العثور على السيناريو', 'error'); return false; }
         var s = res.data;
         if (s.country && COUNTRIES_DATA[s.country]) {
           document.getElementById('countrySelect').value = s.country;
@@ -2462,7 +2369,7 @@
         calculateAll();
         window.scrollTo({ top: document.getElementById('calc').offsetTop - 80, behavior: 'smooth' });
         return true;
-      } catch(e) { console.error('Cloud load error', e); alert('تعذر تحميل السيناريو'); return false; }
+      } catch(e) { console.error('Cloud load error', e); BondsUI.toast('❌ تعذر تحميل السيناريو', 'error'); return false; }
     }
 
     function loadFromURL() {
@@ -2470,7 +2377,7 @@
       var subscribed = url.searchParams.get('subscribed');
       if (subscribed === '1') {
         if (typeof gtag !== 'undefined') gtag('event', 'purchase', { event_category: 'subscription' });
-        alert('🎉 تم الاشتراك بنجاح! يمكنك الآن استخدام كل مميزات Pro.');
+        BondsUI.toast('✅ تم الاشتراك بنجاح! يمكنك الآن استخدام كل مميزات Pro.', 'success');
       }
       var loadId = url.searchParams.get('load');
       if (loadId) { loadScenarioFromCloud(loadId); return; }
@@ -2527,7 +2434,7 @@
       var targetProfit = parseFloat(document.getElementById('targetProfitPerOrder').value) || 0;
       var dishCost = parseFloat(document.getElementById('targetDishCost').value) || 0;
       if (!targetProfit || !dishCost || targetProfit <= 0 || dishCost <= 0) {
-        alert('أدخل تكلفة المواد والربح المستهدف بشكل صحيح');
+        BondsUI.toast('⚠️ أدخل تكلفة المواد والربح المستهدف بشكل صحيح', 'warning');
         return;
       }
       var vatRate = (COUNTRIES_DATA[currentCountry].vatRate || 0) / 100;
@@ -2640,6 +2547,9 @@
     });
 
     document.getElementById('y').textContent = new Date().getFullYear();
+
+    // Load from URL params (e.g. ?model=cloud)
+    loadFromURL();
   </script>
 
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>

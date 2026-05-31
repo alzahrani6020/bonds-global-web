@@ -25,61 +25,21 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="shared-calculators.css" />
+  <script src="shared-ui.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="shared-utils.js"></script>
+  <script src="shared-charts.js"></script>
+  <script src="shared-export.js"></script>
   <style>
-    .calc-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
-    @media (min-width: 1100px) { .calc-grid { grid-template-columns: 1.2fr 0.8fr; } }
-    .calc-input-group { margin-bottom: 1.5rem; }
-    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
-    .calc-input-group input[type="number"] { width: 100%; padding: 0.85rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 0.95rem; outline: none; transition: all 0.3s; }
-    .calc-input-group input[type="number"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
-    .cashflow-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg-card); }
-    .cashflow-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .cashflow-table th, .cashflow-table td { padding: 0.5rem 0.35rem; text-align: center; border: 1px solid var(--border); white-space: nowrap; }
-    .cashflow-table th { background: var(--bg-secondary); color: var(--gold); font-weight: 700; font-size: 0.8rem; position: sticky; top: 0; z-index: 2; }
-    .cashflow-table td:first-child, .cashflow-table th:first-child { position: sticky; right: 0; background: var(--bg-card); z-index: 3; font-weight: 700; text-align: right; padding-right: 1rem; min-width: 140px; }
-    .cashflow-table th:first-child { background: var(--bg-secondary); z-index: 4; }
-    .cashflow-table input[type="number"] { width: 80px; padding: 0.4rem 0.3rem; border-radius: 6px; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--text); font-family: inherit; font-size: 0.8rem; text-align: center; outline: none; transition: all 0.3s; }
-    .cashflow-table input[type="number"]:focus { border-color: var(--gold); }
-    .cashflow-table .row-in td:first-child { color: #16a34a; }
-    .cashflow-table .row-out td:first-child { color: #dc2626; }
-    .results-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg-card); margin-top: var(--space-6); }
-    .results-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .results-table th, .results-table td { padding: 0.6rem 0.4rem; text-align: center; border: 1px solid var(--border); white-space: nowrap; }
-    .results-table th { background: var(--bg-secondary); color: var(--gold); font-weight: 700; font-size: 0.8rem; }
-    .results-table td:first-child, .results-table th:first-child { position: sticky; right: 0; background: var(--bg-card); z-index: 1; font-weight: 700; text-align: right; padding-right: 1rem; min-width: 150px; }
-    .results-table th:first-child { background: var(--bg-secondary); z-index: 2; }
-    .results-table .positive { color: #16a34a; font-weight: 700; }
-    .results-table .negative { color: #dc2626; font-weight: 700; }
-    .results-table .highlight-row { background: rgba(212,168,83,0.06); }
-    .results-table .total-row { background: rgba(59,130,246,0.06); font-weight: 700; }
-    .share-bar { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-    .share-bar input { flex: 1; min-width: 200px; }
-    .section-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-4); }
-    .annual-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: var(--space-6); }
-    @media (min-width: 768px) { .annual-summary { grid-template-columns: repeat(3, 1fr); } }
-    .summary-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; text-align: center; }
-    .summary-card .summary-label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 0.5rem; }
-    .summary-card .summary-value { font-size: 1.35rem; font-weight: 900; }
-    .summary-card.gold { border-top: 3px solid var(--gold); }
-    .summary-card.green { border-top: 3px solid #16a34a; }
-    .summary-card.red { border-top: 3px solid #dc2626; }
-    .summary-card.blue { border-top: 3px solid #3b82f6; }
-    .month-tab-bar { display: flex; gap: 0.35rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: var(--space-4); }
-    .month-tab { padding: 0.4rem 0.7rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.3s; }
-    .month-tab.active { background: var(--gold); color: var(--bg); border-color: var(--gold); }
-    .month-tab:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
-    @media print {
-      .hidden-print, .topbar, .main-header, .main-footer, .hero, button, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
-      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
-      .section { padding: 0 !important; }
-      .cashflow-table-wrap, .results-table-wrap { border: 1px solid #ccc; background: #fff; }
-      .cashflow-table th, .results-table th { background: #f0f0f0 !important; color: #000 !important; }
-      .cashflow-table td:first-child, .results-table td:first-child { background: #fff !important; }
-      canvas { max-height: 280px !important; }
+    @media (max-width: 640px) {
+      .share-bar { flex-direction: column; }
+      .share-bar input { width: 100%; min-width: auto; }
     }
   </style>
+
+  <script src="db-client.js"></script>
+  <script src="db-client-auto.js"></script>
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
 
@@ -369,7 +329,6 @@
   <script src="../script.js" defer></script>
   <script>
     var chart = null;
-    var chartJsPromise = null;
     var MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
     var INFLOW_ROWS = [
       {id:'sales', label:'إيرادات المبيعات'},
@@ -385,19 +344,6 @@
       {id:'loan_repay', label:'سداد قروض'},
       {id:'other_exp', label:'مصروفات أخرى'}
     ];
-
-    function loadChartJS() {
-      if (chartJsPromise) return chartJsPromise;
-      if (typeof Chart !== 'undefined') return Promise.resolve();
-      chartJsPromise = new Promise(function(resolve, reject) {
-        var s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
-        s.onload = resolve;
-        s.onerror = reject;
-        document.head.appendChild(s);
-      });
-      return chartJsPromise;
-    }
 
     function formatNumber(n) {
       return Math.round(n).toLocaleString('en-US');
@@ -645,6 +591,12 @@
 
     function calculateAll() {
       try {
+        var openingRes = BondsUI.validateField('openingBalance', { required:true, type:'number', min:0, label:'الرصيد الافتتاحي' });
+        if (!openingRes.valid) {
+          BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
+          return;
+        }
+        BondsUI.clearValidation('openingBalance');
         var months = getMonthData();
         generateResultsTable(months);
         updateSummary(months);
@@ -657,7 +609,7 @@
         });
       } catch (err) {
         console.error('Calculate error:', err);
-        alert('حدث خطأ في الحساب: ' + err.message);
+        BondsUI.toast('❌ حدث خطأ في الحساب: ' + err.message, 'error');
       }
     }
 
@@ -714,7 +666,7 @@
     function exportExcel() {
       var months = getMonthData();
       if (typeof XLSX === 'undefined') {
-        alert('مكتبة Excel غير محملة. حاول تحديث الصفحة.');
+        BondsUI.toast('❌ مكتبة Excel غير محملة. حاول تحديث الصفحة.', 'error');
         return;
       }
       var wb = XLSX.utils.book_new();
@@ -786,12 +738,6 @@
       var canvas = document.getElementById('cashFlowChart');
       if (canvas && canvas.toDataURL) chartImg = canvas.toDataURL('image/png');
 
-      var printWindow = window.open('', '_blank');
-      if (!printWindow) {
-        alert('تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.');
-        return;
-      }
-
       var resultsHTML = '<table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;">';
       resultsHTML += '<tr style="background:#f5f5f5;"><th style="padding:6px;border:1px solid #ddd;text-align:right;">البند</th>';
       MONTHS_AR.forEach(function(m){ resultsHTML += '<th style="padding:6px;border:1px solid #ddd;">' + m + '</th>'; });
@@ -843,45 +789,9 @@
       summaryHTML += '<tr><td style="padding:6px;border:1px solid #ddd;">أعلى رصيد</td><td style="padding:6px;border:1px solid #ddd;font-weight:bold;color:#16a34a;">' + formatNumber(maxBal) + ' ر.س (' + maxMonth + ')</td></tr>';
       summaryHTML += '</table>';
 
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html dir="rtl">
-        <head>
-          <meta charset="UTF-8">
-          <title>تقرير التدفق النقدي - بوندز</title>
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
-            body { font-family: Vazirmatn, Arial, sans-serif; background: #fff; color: #1a1a1a; padding: 40px; max-width: 1100px; margin: 0 auto; }
-            h1 { color: #0a0f1a; margin: 0; font-size: 28px; text-align: center; }
-            .header { text-align: center; border-bottom: 3px solid #d4a853; padding-bottom: 15px; margin-bottom: 25px; }
-            .header p { color: #666; margin: 5px 0; font-size: 14px; }
-            h3 { color: #d4a853; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 25px; }
-            .footer { font-size: 11px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 20px; }
-            .chart-img { max-width: 100%; height: auto; margin: 15px 0; page-break-inside: avoid; }
-            @media print { body { padding: 20px; } .chart-img { max-height: 280px; } }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>بوندز</h1>
-            <p style="font-size:16px; font-weight:700; color:#444; margin:4px 0;">للاستشارات المالية</p>
-            <p>تقرير توقعات التدفق النقدي</p>
-            <p style="color:#999; font-size:12px;">${new Date().toLocaleDateString('ar-SA')}</p>
-          </div>
-          <h3>ملخص سنوي</h3>
-          ${summaryHTML}
-          <h3>التفاصيل الشهرية</h3>
-          ${resultsHTML}
-          ${chartImg ? '<h3>الرسم البياني</h3><img class="chart-img" src="' + chartImg + '" alt="الرصيد الختامي" />' : ''}
-          <div class="footer">
-            هذا التقرير للأغراض التقديرية فقط ولا يغني عن استشارة مالية مرخصة.<br>
-            تم إنشاؤه بواسطة bonds-global.com
-          </div>
-          <script>window.onload = function() { setTimeout(function() { window.print(); }, 600); };</scr${''}ipt>
-        </body>
-        </html>
-      `);
-      printWindow.document.close();
+      var content = '<h3>ملخص سنوي</h3>' + summaryHTML + '<h3>التفاصيل الشهرية</h3>' + resultsHTML;
+      if (chartImg) content += '<h3>الرسم البياني</h3><img class="chart-img" src="' + chartImg + '" alt="الرصيد الختامي" />';
+      openPrintWindow({ content: content, title: 'تقرير التدفق النقدي', headerTitle: 'تقرير توقعات التدفق النقدي', autoPrint: true });
     }
 
     // Auto-calculate on input with debounce
@@ -920,13 +830,13 @@
             form.style.display = 'none';
             document.getElementById('leadCaptureSuccess').style.display = 'block';
           } else {
-            alert('حدث خطأ، حاول مرة أخرى.');
+            BondsUI.toast('❌ حدث خطأ، حاول مرة أخرى.', 'error');
             btn.textContent = originalText;
             btn.disabled = false;
           }
         })
         .catch(function() {
-          alert('حدث خطأ، حاول مرة أخرى.');
+          BondsUI.toast('❌ حدث خطأ، حاول مرة أخرى.', 'error');
           btn.textContent = originalText;
           btn.disabled = false;
         });

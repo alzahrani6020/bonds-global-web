@@ -1,0 +1,109 @@
+<!--
+  Bonds Global — Supabase Email Templates (Arabic)
+  Copy-paste each template into Supabase Dashboard:
+  Authentication → Email Templates → [Template Name]
+  
+  Variables:
+    {{ .SiteURL }}      — your domain
+    {{ .ConfirmationURL }} — confirm signup link
+    {{ .Token }}        — OTP code
+    {{ .Email }}        — user email
+    {{ .NewEmail }}     — new email (for email change)
+    {{ .Data }}
+-->
+
+<!-- ============================================ -->
+<!-- 1. Confirm Signup (تأكيد التسجيل) -->
+<!-- ============================================ -->
+<h2 style="color:#0a0f1a; font-family:Vazirmatn, system-ui, sans-serif;">👋 أهلاً بك في بوندز</h2>
+<p style="color:#475569; font-size:16px;">تم إنشاء حسابك. اضغط الزر لتأكيد بريدك الإلكتروني:</p>
+<div style="text-align:center; margin:24px 0;">
+  <a href="{{ .ConfirmationURL }}" 
+     style="background:#d4a853; color:#0a0f1a; padding:14px 32px; border-radius:10px; text-decoration:none; font-weight:800; font-size:16px; display:inline-block; font-family:Vazirmatn, system-ui, sans-serif;">
+    ✅ تأكيد البريد الإلكتروني
+  </a>
+</div>
+<p style="color:#64748b; font-size:13px;">أو انسخ هذا الرابط والصقه في المتصفح:</p>
+<p style="background:#f1f5f9; padding:12px; border-radius:8px; font-family:monospace; font-size:12px; word-break:break-all; color:#0f172a;">
+  {{ .ConfirmationURL }}
+</p>
+<p style="color:#94a3b8; font-size:12px; margin-top:24px;">إذا لم تسجل في بوندز، تجاهل هذا البريد.</p>
+
+
+<!-- ============================================ -->
+<!-- 2. Magic Link (الدخول بدون كلمة مرور) -->
+<!-- ============================================ -->
+<h2 style="color:#0a0f1a; font-family:Vazirmatn, system-ui, sans-serif;">🔐 رابط الدخول السريع</h2>
+<p style="color:#475569; font-size:16px;">اضغط الزر للدخول إلى حسابك بدون كلمة مرور:</p>
+<div style="text-align:center; margin:24px 0;">
+  <a href="{{ .ConfirmationURL }}" 
+     style="background:#d4a853; color:#0a0f1a; padding:14px 32px; border-radius:10px; text-decoration:none; font-weight:800; font-size:16px; display:inline-block; font-family:Vazirmatn, system-ui, sans-serif;">
+    🚀 الدخول الآن
+  </a>
+</div>
+<p style="color:#64748b; font-size:13px;">أو انسخ الرابط:</p>
+<p style="background:#f1f5f9; padding:12px; border-radius:8px; font-family:monospace; font-size:12px; word-break:break-all; color:#0f172a;">
+  {{ .ConfirmationURL }}
+</p>
+<p style="color:#94a3b8; font-size:12px; margin-top:24px;">الرابط صالح لـ 60 دقيقة فقط.</p>
+
+
+<!-- ============================================ -->
+<!-- 3. Reset Password (استعادة كلمة المرور) -->
+<!-- ============================================ -->
+<h2 style="color:#0a0f1a; font-family:Vazirmatn, system-ui, sans-serif;">🔑 استعادة كلمة المرور</h2>
+<p style="color:#475569; font-size:16px;">طلبت تغيير كلمة المرور. اضغط الزر:</p>
+<div style="text-align:center; margin:24px 0;">
+  <a href="{{ .ConfirmationURL }}" 
+     style="background:#d4a853; color:#0a0f1a; padding:14px 32px; border-radius:10px; text-decoration:none; font-weight:800; font-size:16px; display:inline-block; font-family:Vazirmatn, system-ui, sans-serif;">
+    🔄 تعيين كلمة مرور جديدة
+  </a>
+</div>
+<p style="color:#64748b; font-size:13px;">أو انسخ الرابط:</p>
+<p style="background:#f1f5f9; padding:12px; border-radius:8px; font-family:monospace; font-size:12px; word-break:break-all; color:#0f172a;">
+  {{ .ConfirmationURL }}
+</p>
+<p style="color:#94a3b8; font-size:12px; margin-top:24px;">إذا لم تطلب استعادة كلمة المرور، تجاهل هذا البريد.</p>
+
+
+<!-- ============================================ -->
+<!-- 4. Change Email (تغيير البريد) -->
+<!-- ============================================ -->
+<h2 style="color:#0a0f1a; font-family:Vazirmatn, system-ui, sans-serif;">📧 تأكيد تغيير البريد</h2>
+<p style="color:#475569; font-size:16px;">طلبت ربط هذا البريد الجديد بحسابك:</p>
+<p style="background:#f1f5f9; padding:12px; border-radius:8px; font-family:monospace; font-size:14px; color:#0f172a; text-align:center; font-weight:700;">
+  {{ .NewEmail }}
+</p>
+<div style="text-align:center; margin:24px 0;">
+  <a href="{{ .ConfirmationURL }}" 
+     style="background:#d4a853; color:#0a0f1a; padding:14px 32px; border-radius:10px; text-decoration:none; font-weight:800; font-size:16px; display:inline-block; font-family:Vazirmatn, system-ui, sans-serif;">
+    ✅ تأكيد البريد الجديد
+  </a>
+</div>
+<p style="color:#94a3b8; font-size:12px; margin-top:24px;">إذا لم تطلب تغيير البريد، تجاهل هذا البريد.</p>
+
+
+<!-- ============================================ -->
+<!-- 5. Invite User (دعوة مستخدم) -->
+<!-- ============================================ -->
+<h2 style="color:#0a0f1a; font-family:Vazirmatn, system-ui, sans-serif;">🎟️ دعوة للانضمام</h2>
+<p style="color:#475569; font-size:16px;">تمت دعوتك للانضمام إلى <strong>بوندز</strong>. اضغط الزر لقبول الدعوة:</p>
+<div style="text-align:center; margin:24px 0;">
+  <a href="{{ .ConfirmationURL }}" 
+     style="background:#d4a853; color:#0a0f1a; padding:14px 32px; border-radius:10px; text-decoration:none; font-weight:800; font-size:16px; display:inline-block; font-family:Vazirmatn, system-ui, sans-serif;">
+    🎯 قبول الدعوة
+  </a>
+</div>
+
+
+<!-- ============================================ -->
+<!-- 6. OTP (الرمز المؤقت) — if using OTP instead of link -->
+<!-- ============================================ -->
+<h2 style="color:#0a0f1a; font-family:Vazirmatn, system-ui, sans-serif;">🔢 رمز التحقق</h2>
+<p style="color:#475569; font-size:16px;">استخدم هذا الرمز للدخول:</p>
+<div style="text-align:center; margin:24px 0;">
+  <span style="background:#0a0f1a; color:#d4a853; padding:16px 40px; border-radius:10px; font-weight:900; font-size:32px; letter-spacing:8px; font-family:monospace; display:inline-block;">
+    {{ .Token }}
+  </span>
+</div>
+<p style="color:#94a3b8; font-size:12px;">الرمز صالح لـ 60 دقيقة.</p>
