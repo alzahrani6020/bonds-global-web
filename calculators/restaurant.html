@@ -1218,7 +1218,7 @@
           <td><input type="text" class="ing-name" value="${escapeHtml(ing.name)}" placeholder="مثال: لحم بقري" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
           <td><input type="number" class="ing-qty" value="${ing.qty}" min="0" step="0.01" placeholder="500" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
           <td><input type="text" class="ing-unit" value="${escapeHtml(ing.unit)}" placeholder="غرام" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
-          <td><input type="number" class="ing-price" value="${ing.unitPrice}" min="0" step="0.01" placeholder="45" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
+          <td><input type="number" class="ing-price" value="${ing.unitPrice}" min="0" step="0.01" placeholder="45 (للكغ)" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
           <td class="ing-total" style="text-align:center;font-weight:700;color:var(--gold);">${formatNumber(ing.total)}</td>
           <td style="text-align:center;"><button type="button" class="btn-small btn-remove" onclick="removeIngredientRow(${i})" style="padding:0.3rem 0.6rem;">🗑️</button></td>
         </tr>`;
@@ -1237,10 +1237,21 @@
       });
     }
 
+    function getUnitMultiplier(unit) {
+      if (!unit) return 1;
+      var u = unit.toLowerCase().trim();
+      if (u === 'جرام' || u === 'g' || u === 'gram' || u === 'grams' || u === 'غ') return 0.001;
+      if (u === 'مل' || u === 'ml' || u === 'milliliter' || u === 'millilitre') return 0.001;
+      if (u === 'مغ' || u === 'mg' || u === 'milligram') return 0.000001;
+      return 1;
+    }
+
     function updateIngredientRowTotal(row) {
       var qty = parseFloat(row.querySelector('.ing-qty').value) || 0;
+      var unit = row.querySelector('.ing-unit').value || '';
       var price = parseFloat(row.querySelector('.ing-price').value) || 0;
-      var total = Math.round(qty * price * 100) / 100;
+      var multiplier = getUnitMultiplier(unit);
+      var total = Math.round(qty * multiplier * price * 100) / 100;
       row.querySelector('.ing-total').textContent = formatNumber(total);
       return total;
     }
@@ -1262,7 +1273,7 @@
       tr.innerHTML = `<td><input type="text" class="ing-name" placeholder="مثال: لحم بقري" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
         <td><input type="number" class="ing-qty" min="0" step="0.01" placeholder="500" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
         <td><input type="text" class="ing-unit" placeholder="غرام" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
-        <td><input type="number" class="ing-price" min="0" step="0.01" placeholder="45" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
+        <td><input type="number" class="ing-price" min="0" step="0.01" placeholder="45 (للكغ)" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
         <td class="ing-total" style="text-align:center;font-weight:700;color:var(--gold);">0</td>
         <td style="text-align:center;"><button type="button" class="btn-small btn-remove" onclick="this.closest('tr').remove();updateIngredientTotal();" style="padding:0.3rem 0.6rem;">🗑️</button></td>`;
       tbody.appendChild(tr);
@@ -1289,7 +1300,7 @@
         var unit = row.querySelector('.ing-unit').value.trim();
         var unitPrice = parseFloat(row.querySelector('.ing-price').value) || 0;
         if (name && qty > 0 && unitPrice > 0) {
-          list.push({ name: name, qty: qty, unit: unit || 'وحدة', unitPrice: unitPrice, total: Math.round(qty * unitPrice * 100) / 100 });
+          list.push({ name: name, qty: qty, unit: unit || 'وحدة', unitPrice: unitPrice, total: Math.round(qty * getUnitMultiplier(unit) * unitPrice * 100) / 100 });
         }
       });
       var dish = dishes[_currentIngredientDishIdx];
@@ -2699,16 +2710,18 @@
       <table style="width:100%;border-collapse:collapse;margin-bottom:var(--space-3);">
         <thead>
           <tr style="font-size:0.85rem;color:var(--text-muted);text-align:right;">
-            <th style="padding:0.5rem;width:30%;">المكون</th>
-            <th style="padding:0.5rem;width:15%;">الكمية</th>
-            <th style="padding:0.5rem;width:15%;">الوحدة</th>
-            <th style="padding:0.5rem;width:15%;">سعر الوحدة</th>
-            <th style="padding:0.5rem;width:15%;text-align:center;">المجموع</th>
+            <th style="padding:0.5rem;width:28%;">المكون</th>
+            <th style="padding:0.5rem;width:14%;">الكمية</th>
+            <th style="padding:0.5rem;width:14%;">الوحدة</th>
+            <th style="padding:0.5rem;width:18%;">السعر لكل كغ/لتر</th>
+            <th style="padding:0.5rem;width:16%;text-align:center;">المجموع</th>
             <th style="padding:0.5rem;width:10%;text-align:center;">حذف</th>
           </tr>
         </thead>
         <tbody id="ingredientRows"></tbody>
       </table>
+
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:var(--space-3);">💡 <strong>ملاحظة:</strong> اكتب السعر <strong>للكغ أو اللتر</strong>. البرنامج يحول تلقائياً (500 جرام = 0.5 كغ).</p>
 
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-3);">
         <button type="button" class="btn btn-ghost" onclick="addIngredientRow()" style="font-size:0.9rem;">+ إضافة مكون</button>
