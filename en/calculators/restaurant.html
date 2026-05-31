@@ -1224,7 +1224,7 @@
         return `<tr>
           <td><input type="text" class="ing-name" value="${escapeHtml(ing.name)}" placeholder="e.g. Beef" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
           <td><input type="number" class="ing-qty" value="${ing.qty}" min="0" step="0.01" placeholder="500" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
-          <td><input type="text" class="ing-unit" value="${escapeHtml(ing.unit)}" placeholder="g" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
+          <td>${getUnitSelectHtml(ing.unit)}</td>
           <td><input type="number" class="ing-price" value="${ing.unitPrice}" min="0" step="0.01" placeholder="45 (per kg)" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
           <td class="ing-total" style="text-align:center;font-weight:700;color:var(--gold);">${ing.total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
           <td style="text-align:center;"><button type="button" class="btn-small btn-remove" onclick="removeIngredientRow(${i})" style="padding:0.3rem 0.6rem;">🗑️</button></td>
@@ -1236,21 +1236,43 @@
     function attachIngredientListeners() {
       var tbody = document.getElementById('ingredientRows');
       var rows = tbody.querySelectorAll('tr');
-      rows.forEach(function(row, idx) {
+      rows.forEach(function(row) {
         var inputs = row.querySelectorAll('input');
         inputs.forEach(function(inp) {
           inp.addEventListener('input', function() { updateIngredientRowTotal(row); updateIngredientTotal(); });
         });
+        updatePricePlaceholder(row);
       });
     }
 
-    function getUnitMultiplier(unit) {
-      if (!unit) return 1;
-      var u = unit.toLowerCase().trim();
-      if (u === 'g' || u === 'gram' || u === 'grams' || u === 'جرام' || u === 'غرام' || u === 'غ') return 0.001;
-      if (u === 'ml' || u === 'milliliter' || u === 'millilitre' || u === 'مل') return 0.001;
-      if (u === 'mg' || u === 'milligram' || u === 'مغ') return 0.000001;
-      return 1;
+    var INGREDIENT_UNITS = [
+      { value: 'kg', label: 'kg', factor: 1, priceLabel: 'per kg' },
+      { value: 'g', label: 'gram', factor: 0.001, priceLabel: 'per kg' },
+      { value: 'mg', label: 'mg', factor: 0.000001, priceLabel: 'per kg' },
+      { value: 'l', label: 'liter', factor: 1, priceLabel: 'per liter' },
+      { value: 'ml', label: 'ml', factor: 0.001, priceLabel: 'per liter' },
+      { value: 'piece', label: 'piece', factor: 1, priceLabel: 'per piece' },
+      { value: 'box', label: 'box', factor: 1, priceLabel: 'per box' },
+      { value: 'cup', label: 'cup', factor: 1, priceLabel: 'per cup' },
+      { value: 'spoon', label: 'spoon', factor: 1, priceLabel: 'per spoon' }
+    ];
+
+    function getUnitMultiplier(unitValue) {
+      var opt = INGREDIENT_UNITS.find(function(u) { return u.value === unitValue; });
+      return opt ? opt.factor : 1;
+    }
+
+    function getUnitSelectHtml(selectedValue) {
+      return '<select class="ing-unit" onchange="updateIngredientRowTotal(this.closest(\'tr\'));updateIngredientTotal();updatePricePlaceholder(this.closest(\'tr\'));" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;">' +
+        INGREDIENT_UNITS.map(function(o){ return '<option value="' + o.value + '"' + (o.value === selectedValue ? ' selected' : '') + '>' + o.label + '</option>'; }).join('') +
+      '</select>';
+    }
+
+    function updatePricePlaceholder(row) {
+      var unitValue = row.querySelector('.ing-unit').value;
+      var opt = INGREDIENT_UNITS.find(function(u) { return u.value === unitValue; });
+      var ph = opt ? 'Price ' + opt.priceLabel : 'Price';
+      row.querySelector('.ing-price').placeholder = ph;
     }
 
     function updateIngredientRowTotal(row) {
@@ -1279,7 +1301,7 @@
       var tr = document.createElement('tr');
       tr.innerHTML = `<td><input type="text" class="ing-name" placeholder="e.g. Beef" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
         <td><input type="number" class="ing-qty" min="0" step="0.01" placeholder="500" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
-        <td><input type="text" class="ing-unit" placeholder="g" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
+        <td>${getUnitSelectHtml('g')}</td>
         <td><input type="number" class="ing-price" min="0" step="0.01" placeholder="45 (per kg)" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text);font-family:inherit;" /></td>
         <td class="ing-total" style="text-align:center;font-weight:700;color:var(--gold);">0</td>
         <td style="text-align:center;"><button type="button" class="btn-small btn-remove" onclick="this.closest('tr').remove();updateIngredientTotal();" style="padding:0.3rem 0.6rem;">🗑️</button></td>`;
@@ -2841,7 +2863,7 @@
         <tbody id="ingredientRows"></tbody>
       </table>
 
-      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:var(--space-3);">💡 <strong>Tip:</strong> Enter price <strong>per kg or liter</strong>. Auto-converts (500 g = 0.5 kg).</p>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:var(--space-3);">💡 <strong>Tip:</strong> Select unit from dropdown. Price auto-calculates (500 g = 0.5 kg).</p>
 
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-3);">
         <button type="button" class="btn btn-ghost" onclick="addIngredientRow()" style="font-size:0.9rem;">+ Add Ingredient</button>
