@@ -1240,7 +1240,7 @@
     function getUnitMultiplier(unit) {
       if (!unit) return 1;
       var u = unit.toLowerCase().trim();
-      if (u === 'جرام' || u === 'g' || u === 'gram' || u === 'grams' || u === 'غ') return 0.001;
+      if (u === 'جرام' || u === 'غرام' || u === 'g' || u === 'gram' || u === 'grams' || u === 'غ') return 0.001;
       if (u === 'مل' || u === 'ml' || u === 'milliliter' || u === 'millilitre') return 0.001;
       if (u === 'مغ' || u === 'mg' || u === 'milligram') return 0.000001;
       return 1;
