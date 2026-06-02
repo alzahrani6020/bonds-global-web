@@ -89,6 +89,24 @@
     .swot-box.t { background:rgba(100,116,139,0.08); border-color:rgba(100,116,139,0.3); }
     .swot-box.t h4 { color:#94a3b8; }
 
+    /* ===== Research Modal ===== */
+    #research-modal { display:none; position:fixed; inset:0; z-index:200; align-items:center; justify-content:center; }
+    .research-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); }
+    .research-panel { position:relative; background:var(--bg-card); border:1px solid var(--border); border-radius:16px; width:90%; max-width:600px; max-height:90vh; overflow:auto; padding:0; box-shadow:0 20px 60px rgba(0,0,0,0.4); }
+    .research-header { display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); }
+    .research-header h3 { margin:0; font-size:1.1rem; color:var(--gold-bright); }
+    .research-close { background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer; line-height:1; }
+    .research-close:hover { color:var(--gold); }
+    .research-body { padding:1.5rem; }
+    .research-run { width:100%; background:#38bdf8; color:#0a0f1a; border:none; padding:0.8rem; border-radius:10px; font-weight:700; font-family:inherit; font-size:0.95rem; cursor:pointer; margin-top:0.5rem; }
+    .research-run:hover { background:#7dd3fc; }
+    .research-run:disabled { opacity:0.6; cursor:not-allowed; }
+    .research-apply { width:100%; background:var(--gold); color:#0a0f1a; border:none; padding:0.75rem; border-radius:10px; font-weight:700; font-family:inherit; font-size:0.9rem; cursor:pointer; margin-top:0.75rem; }
+    .research-apply:hover { background:var(--gold-bright); }
+    .research-spinner { display:inline-flex; align-items:center; gap:0.5rem; }
+    .research-spinner::before { content:''; width:14px; height:14px; border:2px solid rgba(10,15,26,0.3); border-top-color:#0a0f1a; border-radius:50%; animation:spin 0.8s linear infinite; display:inline-block; vertical-align:middle; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
     /* ===== Dashboard ===== */
     .dash-header { text-align:center; margin-bottom:2rem; }
     .dash-header h3 { font-size:1.15rem; color:var(--gold-bright); margin:0; }
@@ -203,6 +221,7 @@
     <button class="btn-ghost" onclick="loadDraft()">📂 Load Draft</button>
     <button class="btn-ghost" onclick="scrollToDashboard()">🎯 Dashboard</button>
     <button class="btn-ghost" id="btn-import-supabase" onclick="fillFromSupabase()" style="display:none;">📥 Import My Data</button>
+    <button class="btn-ghost" onclick="openResearchModal()" style="color:#38bdf8;border-color:#38bdf8;">Smart Research</button>
     <button class="btn-ghost" onclick="exportToExcel()">📊 Export Excel</button>
   </div>
 
@@ -281,13 +300,13 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <div class="template-page" id="page-tech-impact">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Technological Impact</div></div>
       <div class="page-header"><div class="section-number">4</div><div><h2>Technological Impact</h2><p>How technology affects your business</p></div></div>
-      <div class="field-group"><label>Will you use technology in your business?</label><textarea rows="3" placeholder="POS, delivery apps, inventory management, social media, AI..."></textarea></div>
+      <div class="field-group"><label>Will you use technology in your business?</label><textarea id="tech-usage" rows="3" placeholder="POS, delivery apps, inventory management, social media, AI..."></textarea></div>
       <div class="field-group inline">
-        <div class="field-group"><label>Positive Effects 🟢</label><textarea rows="3" placeholder="Efficiency gains, cost reduction, wider reach..."></textarea></div>
-        <div class="field-group"><label>Negative Effects 🔴</label><textarea rows="3" placeholder="Maintenance costs, security risks, platform dependency..."></textarea></div>
+        <div class="field-group"><label>Positive Effects 🟢</label><textarea id="tech-positive" rows="3" placeholder="Efficiency gains, cost reduction, wider reach..."></textarea></div>
+        <div class="field-group"><label>Negative Effects 🔴</label><textarea id="tech-negative" rows="3" placeholder="Maintenance costs, security risks, platform dependency..."></textarea></div>
       </div>
-      <div class="field-group"><label>How will you leverage technology to your advantage?</label><textarea rows="3" placeholder="Order automation, data analytics, digital marketing..."></textarea></div>
-      <div class="field-group"><label>Will your products/services be affected by technology changes in the near future?</label><textarea rows="2" placeholder="Replacement risks, innovation opportunities..."></textarea></div>
+      <div class="field-group"><label>How will you leverage technology to your advantage?</label><textarea id="tech-benefit" rows="3" placeholder="Order automation, data analytics, digital marketing..."></textarea></div>
+      <div class="field-group"><label>Will your products/services be affected by technology changes in the near future?</label><textarea id="tech-future" rows="2" placeholder="Replacement risks, innovation opportunities..."></textarea></div>
     </div>
 
     <!-- ========== PAGE 5: COUNTRY ECONOMY ========== -->
@@ -295,8 +314,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Country Economy</div></div>
       <div class="page-header"><div class="section-number">5</div><div><h2>Country Economy</h2><p>The overall economic environment</p></div></div>
       <div class="field-group inline">
-        <div class="field-group"><label>GDP Growth — Last 3 Years</label><textarea rows="2" placeholder="Annual growth rates..."></textarea></div>
-        <div class="field-group"><label>Country Credit Rating</label><input type="text" placeholder="e.g. A+ / B / BBB-" /></div>
+        <div class="field-group"><label>GDP Growth — Last 3 Years</label><textarea id="econ-gdp" rows="2" placeholder="Annual growth rates..."></textarea></div>
+        <div class="field-group"><label>Country Credit Rating</label><input type="text" id="econ-credit" placeholder="e.g. A+ / B / BBB-" /></div>
       </div>
       <div class="field-group inline">
         <div class="field-group"><label>State of Public Budget</label><textarea rows="2" placeholder="Surplus / Deficit — spending and revenues..."></textarea></div>
@@ -313,22 +332,22 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
       <h3 style="font-size:1rem;color:var(--gold);margin:1rem 0 0.5rem;">A. PESTLE Analysis</h3>
       <div class="field-group inline-3">
-        <div class="field-group"><label>Political</label><textarea rows="2" placeholder="Laws, government support, stability..."></textarea></div>
-        <div class="field-group"><label>Economic</label><textarea rows="2" placeholder="Growth, inflation, purchasing power..."></textarea></div>
-        <div class="field-group"><label>Social</label><textarea rows="2" placeholder="Culture, demographics, trends..."></textarea></div>
+        <div class="field-group"><label>Political</label><textarea id="pestle-political" rows="2" placeholder="Laws, government support, stability..."></textarea></div>
+        <div class="field-group"><label>Economic</label><textarea id="pestle-economic" rows="2" placeholder="Growth, inflation, purchasing power..."></textarea></div>
+        <div class="field-group"><label>Social</label><textarea id="pestle-social" rows="2" placeholder="Culture, demographics, trends..."></textarea></div>
       </div>
       <div class="field-group inline-3">
-        <div class="field-group"><label>Technological</label><textarea rows="2" placeholder="Innovation, automation, digital transformation..."></textarea></div>
-        <div class="field-group"><label>Legal</label><textarea rows="2" placeholder="Licenses, taxes, consumer protection..."></textarea></div>
-        <div class="field-group"><label>Environmental</label><textarea rows="2" placeholder="Sustainability, climate change, resources..."></textarea></div>
+        <div class="field-group"><label>Technological</label><textarea id="pestle-tech" rows="2" placeholder="Innovation, automation, digital transformation..."></textarea></div>
+        <div class="field-group"><label>Legal</label><textarea id="pestle-legal" rows="2" placeholder="Licenses, taxes, consumer protection..."></textarea></div>
+        <div class="field-group"><label>Environmental</label><textarea id="pestle-env" rows="2" placeholder="Sustainability, climate change, resources..."></textarea></div>
       </div>
 
       <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">B. SWOT Analysis</h3>
       <div class="swot-grid">
-        <div class="swot-box s"><h4>✅ Strengths</h4><textarea rows="4" placeholder="Internal advantages you possess..."></textarea></div>
-        <div class="swot-box w"><h4>⚠️ Weaknesses</h4><textarea rows="4" placeholder="What needs internal improvement..."></textarea></div>
-        <div class="swot-box o"><h4>🌟 Opportunities</h4><textarea rows="4" placeholder="External factors to capitalize on..."></textarea></div>
-        <div class="swot-box t"><h4>⛔ Threats</h4><textarea rows="4" placeholder="External factors that may negatively impact..."></textarea></div>
+        <div class="swot-box s"><h4>✅ Strengths</h4><textarea id="swot-s" rows="4" placeholder="Internal advantages you possess..."></textarea></div>
+        <div class="swot-box w"><h4>⚠️ Weaknesses</h4><textarea id="swot-w" rows="4" placeholder="What needs internal improvement..."></textarea></div>
+        <div class="swot-box o"><h4>🌟 Opportunities</h4><textarea id="swot-o" rows="4" placeholder="External factors to capitalize on..."></textarea></div>
+        <div class="swot-box t"><h4>⛔ Threats</h4><textarea id="swot-t" rows="4" placeholder="External factors that may negatively impact..."></textarea></div>
       </div>
 
       <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">C. Porter's Five Forces</h3>
@@ -355,14 +374,14 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <div class="template-page" id="page-marketing">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Marketing</div></div>
       <div class="page-header"><div class="section-number">7</div><div><h2>Marketing Strategy (4Ps)</h2><p>Clear plan to reach and convert customers</p></div></div>
-      <div class="field-group"><label>Product — What you sell and how you present it</label><textarea rows="3" placeholder="Packaging, quality, ancillary services, warranty..."></textarea></div>
-      <div class="field-group"><label>Price — Pricing strategy</label><textarea rows="3" placeholder="Value-based, competitive, penetration, premium..."></textarea></div>
+      <div class="field-group"><label>Product — What you sell and how you present it</label><textarea id="marketing-product" rows="3" placeholder="Packaging, quality, ancillary services, warranty..."></textarea></div>
+      <div class="field-group"><label>Price — Pricing strategy</label><textarea id="marketing-price-strategy" rows="3" placeholder="Value-based, competitive, penetration, premium..."></textarea></div>
       <div class="field-group inline">
         <div class="field-group"><label>Expected Unit Price (SAR)</label><input type="number" id="marketing-price" placeholder="0" oninput="linkPriceToRevenue()" /></div>
         <div class="field-group"><label>Expected Monthly Quantity</label><input type="number" id="marketing-qty" placeholder="0" oninput="linkQtyToRevenue()" /></div>
       </div>
-      <div class="field-group"><label>Place — Sales and distribution channels</label><textarea rows="3" placeholder="Delivery platforms, physical location, e-store, agents..."></textarea></div>
-      <div class="field-group"><label>Promotion — Reach plan</label><textarea rows="4" placeholder="Social media, paid ads, content marketing, promotions..."></textarea></div>
+      <div class="field-group"><label>Place — Sales and distribution channels</label><textarea id="marketing-place" rows="3" placeholder="Delivery platforms, physical location, e-store, agents..."></textarea></div>
+      <div class="field-group"><label>Promotion — Reach plan</label><textarea id="marketing-promotion" rows="4" placeholder="Social media, paid ads, content marketing, promotions..."></textarea></div>
       <div class="field-group inline">
         <div class="field-group"><label>Monthly Marketing Budget</label><input type="number" placeholder="0" /></div>
         <div class="field-group"><label>Customer Acquisition Cost (CAC)</label><input type="number" placeholder="0" /></div>
@@ -407,8 +426,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">+ إضافة</button><button onclick="removeRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">- Remove</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>Required Insurances</label><textarea rows="3" placeholder="Property insurance, liability insurance, employee insurance..."></textarea></div>
-      <div class="field-group"><label>Expected Tax Obligations</label><textarea rows="2" placeholder="VAT 15%, Zakat 2.5%, income tax if applicable..."></textarea></div>
+      <div class="field-group" style="margin-top:1rem;"><label>Required Insurances</label><textarea id="legal-insurance" rows="3" placeholder="Property insurance, liability insurance, employee insurance..."></textarea></div>
+      <div class="field-group"><label>Expected Tax Obligations</label><textarea id="legal-taxes" rows="2" placeholder="VAT 15%, Zakat 2.5%, income tax if applicable..."></textarea></div>
     </div>
 
     <!-- ========== PAGE 10: HUMAN RESOURCES ========== -->
@@ -1761,6 +1780,210 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       this.setAttribute('aria-expanded', document.getElementById('navLinks').classList.contains('active'));
     });
     window.addEventListener('load', () => { populateCountrySelect(); initSupabase(); calcFinancials(); updateProgress(); });
+    // ===== Smart Research Agent =====
+    let lastResearchResult = null;
+
+    function openResearchModal() {
+      let modal = document.getElementById('research-modal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'research-modal';
+        modal.innerHTML = `
+          <div class="research-overlay" onclick="if(event.target===this)closeResearchModal()"></div>
+          <div class="research-panel">
+            <div class="research-header">
+              <h3>Smart Research — Market Agent</h3>
+              <button class="research-close" onclick="closeResearchModal()">&times;</button>
+            </div>
+            <div class="research-body">
+              <div class="field-group">
+                <label>Project Description</label>
+                <input type="text" id="research-query" placeholder="e.g. Premium burger restaurant in Riyadh" />
+              </div>
+              <div class="field-group inline-3">
+                <div class="field-group">
+                  <label>Country</label>
+                  <select id="research-country"><option value="">Select country</option></select>
+                </div>
+                <div class="field-group">
+                  <label>City (optional)</label>
+                  <input type="text" id="research-city" placeholder="e.g. Riyadh" />
+                </div>
+                <div class="field-group">
+                  <label>Research Type</label>
+                  <select id="research-type">
+                    <option value="full_template">Full Research (All Sections)</option>
+                    <option value="swot_analysis">Full SWOT</option>
+                    <option value="pestle">PESTLE</option>
+                    <option value="market_overview">Market Overview</option>
+                    <option value="competitor_analysis">Competitors</option>
+                  </select>
+                </div>
+              </div>
+              <button class="research-run" onclick="runSmartResearch()" id="research-run-btn">
+                <span class="research-btn-text">Search Now</span>
+                <span class="research-spinner" style="display:none;">Searching...</span>
+              </button>
+              <div id="research-result" style="margin-top:1rem;display:none;">
+                <div style="background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:1rem;">
+                  <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-bottom:0.5rem;">Research Results</div>
+                  <pre id="research-output" style="white-space:pre-wrap;font-size:0.85rem;color:var(--text);margin:0;line-height:1.6;max-height:300px;overflow:auto;"></pre>
+                </div>
+                <button class="research-apply" onclick="applyResearchResults()">Fill Template Fields</button>
+              </div>
+              <div id="research-error" style="margin-top:1rem;display:none;color:#f87171;font-size:0.85rem;"></div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        const rc = document.getElementById('research-country');
+        const cc = document.getElementById('cover-country');
+        if (rc && cc) {
+          rc.innerHTML = cc.innerHTML;
+          rc.value = cc.value;
+        }
+      }
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeResearchModal() {
+      const m = document.getElementById('research-modal');
+      if (m) { m.style.display = 'none'; document.body.style.overflow = ''; }
+    }
+
+    async function runSmartResearch() {
+      const query = document.getElementById('research-query')?.value?.trim();
+      const country = document.getElementById('research-country')?.value;
+      const city = document.getElementById('research-city')?.value?.trim();
+      const type = document.getElementById('research-type')?.value;
+      const btn = document.getElementById('research-run-btn');
+      const resultDiv = document.getElementById('research-result');
+      const errorDiv = document.getElementById('research-error');
+      const output = document.getElementById('research-output');
+
+      if (!query) { alert('Enter project description'); return; }
+      if (!country) { alert('Select a country'); return; }
+
+      btn.disabled = true;
+      btn.querySelector('.research-btn-text').style.display = 'none';
+      btn.querySelector('.research-spinner').style.display = 'inline';
+      resultDiv.style.display = 'none';
+      errorDiv.style.display = 'none';
+      lastResearchResult = null;
+
+      try {
+        const res = await fetch('/api/market-research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, country, city, researchType: type }),
+        });
+
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Search failed');
+
+        lastResearchResult = { type, data: data.analysis };
+        output.textContent = JSON.stringify(data.analysis, null, 2);
+        resultDiv.style.display = 'block';
+
+        if (data.sources?.length) {
+          const sourcesDiv = document.createElement('div');
+          sourcesDiv.style.cssText = 'margin-top:0.75rem;font-size:0.75rem;color:var(--text-secondary);';
+          sourcesDiv.innerHTML = '<strong>Sources:</strong> ' + data.sources.map(s => s.title).join(' | ');
+          output.parentElement.appendChild(sourcesDiv);
+        }
+      } catch (err) {
+        console.error(err);
+        errorDiv.textContent = 'Could not connect to research agent. Please try again or fill data manually.';
+        errorDiv.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.querySelector('.research-btn-text').style.display = 'inline';
+        btn.querySelector('.research-spinner').style.display = 'none';
+      }
+    }
+
+    function applyResearchResults() {
+      if (!lastResearchResult) return;
+      const { type, data } = lastResearchResult;
+      let filledCount = 0;
+
+      function setVal(id, val) {
+        const el = document.getElementById(id);
+        if (el && val && !el.value) { el.value = val; filledCount++; }
+      }
+
+      if (data.swot || data.strengths) {
+        const swot = data.swot || data;
+        if (swot.strengths?.length) setVal('swot-s', swot.strengths.join('\n'));
+        if (swot.weaknesses?.length) setVal('swot-w', swot.weaknesses.join('\n'));
+        if (swot.opportunities?.length) setVal('swot-o', swot.opportunities.join('\n'));
+        if (swot.threats?.length) setVal('swot-t', swot.threats.join('\n'));
+      }
+      if (data.pestle || data.political) {
+        const p = data.pestle || data;
+        if (p.political) setVal('pestle-political', p.political);
+        if (p.economic) setVal('pestle-economic', p.economic);
+        if (p.social) setVal('pestle-social', p.social);
+        if (p.technological) setVal('pestle-tech', p.technological);
+        if (p.legal) setVal('pestle-legal', p.legal);
+        if (p.environmental) setVal('pestle-env', p.environmental);
+      }
+      if (data.country_economy) {
+        const ce = data.country_economy;
+        if (ce.gdp_growth) setVal('econ-gdp', ce.gdp_growth);
+        if (ce.credit_rating) setVal('econ-credit', ce.credit_rating);
+        if (ce.budget_status) setVal('econ-budget', ce.budget_status);
+        if (ce.purchasing_power) setVal('econ-purchasing', ce.purchasing_power);
+        if (ce.market_outlook) setVal('econ-outlook', ce.market_outlook);
+        if (ce.government_impact) setVal('econ-government', ce.government_impact);
+      }
+      if (data.technological_impact) {
+        const ti = data.technological_impact;
+        if (ti.positive) setVal('tech-positive', ti.positive);
+        if (ti.negative) setVal('tech-negative', ti.negative);
+        if (ti.future_risk) setVal('tech-future', ti.future_risk);
+      }
+      if (data.marketing_4ps) {
+        const m = data.marketing_4ps;
+        if (m.product_strategy) setVal('marketing-product', m.product_strategy);
+        if (m.pricing_strategy) setVal('marketing-price-strategy', m.pricing_strategy);
+        if (m.place_strategy) setVal('marketing-place', m.place_strategy);
+        if (m.promotion_strategy) setVal('marketing-promotion', m.promotion_strategy);
+      }
+      if (data.legal_requirements) {
+        const l = data.legal_requirements;
+        if (l.insurance) setVal('legal-insurance', l.insurance);
+        if (l.taxes) setVal('legal-taxes', l.taxes);
+      }
+      if (data.competitors?.length) {
+        const rows = document.querySelectorAll('#porter-table tbody tr');
+        data.competitors.slice(0, 5).forEach((c, i) => {
+          if (rows[i]) {
+            const textInputs = rows[i].querySelectorAll('input[type="text"]');
+            const numInput = rows[i].querySelector('input[type="number"]');
+            if (textInputs[0] && !textInputs[0].value) {
+              textInputs[0].value = c.name + (c.strengths ? ' — ' + c.strengths : '');
+            }
+            if (numInput && !numInput.value && c.intensity) numInput.value = c.intensity;
+          }
+        });
+      }
+      if (data.market_trends?.length) {
+        setVal('cover-idea', data.market_trends.join(' — '));
+      }
+
+      calcFinancials(); calcCashFlow(); calcCapital();
+      runSmartAnalysis(); updateProgress(); closeResearchModal();
+      alert(filledCount + ' fields filled successfully ✅');
+    }
+
+    document.addEventListener('change', function(e) {
+      if (e.target && e.target.id === 'cover-country') {
+        const rc = document.getElementById('research-country');
+        if (rc) rc.value = e.target.value;
+      }
+    });
   </script>
 </body>
 </html>

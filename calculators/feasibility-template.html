@@ -89,6 +89,24 @@
     .swot-box.t { background:rgba(100,116,139,0.08); border-color:rgba(100,116,139,0.3); }
     .swot-box.t h4 { color:#94a3b8; }
 
+    /* ===== Research Modal ===== */
+    #research-modal { display:none; position:fixed; inset:0; z-index:200; align-items:center; justify-content:center; }
+    .research-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); }
+    .research-panel { position:relative; background:var(--bg-card); border:1px solid var(--border); border-radius:16px; width:90%; max-width:600px; max-height:90vh; overflow:auto; padding:0; box-shadow:0 20px 60px rgba(0,0,0,0.4); }
+    .research-header { display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); }
+    .research-header h3 { margin:0; font-size:1.1rem; color:var(--gold-bright); }
+    .research-close { background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer; line-height:1; }
+    .research-close:hover { color:var(--gold); }
+    .research-body { padding:1.5rem; }
+    .research-run { width:100%; background:#38bdf8; color:#0a0f1a; border:none; padding:0.8rem; border-radius:10px; font-weight:700; font-family:inherit; font-size:0.95rem; cursor:pointer; margin-top:0.5rem; }
+    .research-run:hover { background:#7dd3fc; }
+    .research-run:disabled { opacity:0.6; cursor:not-allowed; }
+    .research-apply { width:100%; background:var(--gold); color:#0a0f1a; border:none; padding:0.75rem; border-radius:10px; font-weight:700; font-family:inherit; font-size:0.9rem; cursor:pointer; margin-top:0.75rem; }
+    .research-apply:hover { background:var(--gold-bright); }
+    .research-spinner { display:inline-flex; align-items:center; gap:0.5rem; }
+    .research-spinner::before { content:''; width:14px; height:14px; border:2px solid rgba(10,15,26,0.3); border-top-color:#0a0f1a; border-radius:50%; animation:spin 0.8s linear infinite; display:inline-block; vertical-align:middle; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
     /* ===== Dashboard ===== */
     .dash-header { text-align:center; margin-bottom:2rem; }
     .dash-header h3 { font-size:1.15rem; color:var(--gold-bright); margin:0; }
@@ -203,6 +221,7 @@
     <button class="btn-ghost" onclick="loadDraft()">📂 استرجاع مسودة</button>
     <button class="btn-ghost" onclick="scrollToDashboard()">🎯 لوحة التحكم</button>
     <button class="btn-ghost" id="btn-import-supabase" onclick="fillFromSupabase()" style="display:none;">📥 استيراد من بياناتي</button>
+    <button class="btn-ghost" onclick="openResearchModal()" style="background:#38bdf8;color:#0a0f1a;border-color:#38bdf8;font-weight:800;">🔍 بحث ذكي</button>
     <button class="btn-ghost" onclick="exportToExcel()">📊 تصدير Excel</button>
   </div>
 
@@ -292,13 +311,13 @@
     <div class="template-page" id="page-tech-impact">
       <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الأثر التكنولوجي</div></div>
       <div class="page-header"><div class="section-number">4</div><div><h2>الأثر التكنولوجي</h2><p>كيف تؤثر التكنولوجيا على مشروعك</p></div></div>
-      <div class="field-group"><label>هل ستستخدم تكنولوجيا في عملك؟</label><textarea rows="3" placeholder="POS، تطبيق توصيل، إدارة مخزون، سوشال ميديا، AI..."></textarea></div>
+      <div class="field-group"><label>هل ستستخدم تكنولوجيا في عملك؟</label><textarea id="tech-usage" rows="3" placeholder="POS، تطبيق توصيل، إدارة مخزون، سوشال ميديا، AI..."></textarea></div>
       <div class="field-group inline">
-        <div class="field-group"><label>التأثيرات الإيجابية 🟢</label><textarea rows="3" placeholder="زيادة الكفاءة، تقليل التكاليف، وصول أوسع..."></textarea></div>
-        <div class="field-group"><label>التأثيرات السلبية 🔴</label><textarea rows="3" placeholder="تكاليف صيانة، مخاطر اختراق، اعتمادية على المنصات..."></textarea></div>
+        <div class="field-group"><label>التأثيرات الإيجابية 🟢</label><textarea id="tech-positive" rows="3" placeholder="زيادة الكفاءة، تقليل التكاليف، وصول أوسع..."></textarea></div>
+        <div class="field-group"><label>التأثيرات السلبية 🔴</label><textarea id="tech-negative" rows="3" placeholder="تكاليف صيانة، مخاطر اختراق، اعتمادية على المنصات..."></textarea></div>
       </div>
-      <div class="field-group"><label>كيف ستستفيد من التكنولوجيا لصالحك؟</label><textarea rows="3" placeholder="أتمتة الطلبات، تحليل البيانات، تسويق رقمي..."></textarea></div>
-      <div class="field-group"><label>هل منتجاتك/خدماتك ستتأثر بتطور التكنولوجيا في المستقبل القريب؟</label><textarea rows="2" placeholder="مخاطر الاستبدال، فرص ابتكار..."></textarea></div>
+      <div class="field-group"><label>كيف ستستفيد من التكنولوجيا لصالحك؟</label><textarea id="tech-benefit" rows="3" placeholder="أتمتة الطلبات، تحليل البيانات، تسويق رقمي..."></textarea></div>
+      <div class="field-group"><label>هل منتجاتك/خدماتك ستتأثر بتطور التكنولوجيا في المستقبل القريب؟</label><textarea id="tech-future" rows="2" placeholder="مخاطر الاستبدال، فرص ابتكار..."></textarea></div>
     </div>
 
     <!-- ========== PAGE 5: COUNTRY ECONOMY ========== -->
@@ -306,15 +325,15 @@
       <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الاقتصاد الكلي</div></div>
       <div class="page-header"><div class="section-number">5</div><div><h2>الاقتصاد الكلي للدولة</h2><p>البيئة الاقتصادية العامة</p></div></div>
       <div class="field-group inline">
-        <div class="field-group"><label>نمو الناتج المحلي الإجمالي (GDP) — آخر 3 سنوات</label><textarea rows="2" placeholder="نسب النمو السنوية..."></textarea></div>
-        <div class="field-group"><label>التصنيف الائتماني للدولة</label><input type="text" placeholder="مثال: A+ / B / BBB-" /></div>
+        <div class="field-group"><label>نمو الناتج المحلي الإجمالي (GDP) — آخر 3 سنوات</label><textarea id="econ-gdp" rows="2" placeholder="نسب النمو السنوية..."></textarea></div>
+        <div class="field-group"><label>التصنيف الائتماني للدولة</label><input type="text" id="econ-credit" placeholder="مثال: A+ / B / BBB-" /></div>
       </div>
       <div class="field-group inline">
-        <div class="field-group"><label>حالة الميزانية العامة</label><textarea rows="2" placeholder="فائض / عجز — الإنفاق والإيرادات..."></textarea></div>
-        <div class="field-group"><label>القدرة الشرائية للأفراد</label><textarea rows="2" placeholder="متوسط الدخل، الإنفاق الاستهلاكي..."></textarea></div>
+        <div class="field-group"><label>حالة الميزانية العامة</label><textarea id="econ-budget" rows="2" placeholder="فائض / عجز — الإنفاق والإيرادات..."></textarea></div>
+        <div class="field-group"><label>القدرة الشرائية للأفراد</label><textarea id="econ-purchasing" rows="2" placeholder="متوسط الدخل، الإنفاق الاستهلاكي..."></textarea></div>
       </div>
-      <div class="field-group"><label>التوقعات الاقتصادية للسوق</label><textarea rows="3" placeholder="نمو القطاع، توجهات الاستثمار، التضخم..."></textarea></div>
-      <div class="field-group"><label>تأثير القرارات الحكومية على النشاط</label><textarea rows="2" placeholder="رسوم بلدية، ضرائب جديدة، دعم حكومي..."></textarea></div>
+      <div class="field-group"><label>التوقعات الاقتصادية للسوق</label><textarea id="econ-outlook" rows="3" placeholder="نمو القطاع، توجهات الاستثمار، التضخم..."></textarea></div>
+      <div class="field-group"><label>تأثير القرارات الحكومية على النشاط</label><textarea id="econ-government" rows="2" placeholder="رسوم بلدية، ضرائب جديدة، دعم حكومي..."></textarea></div>
     </div>
 
     <!-- ========== PAGE 6: MARKET ANALYSIS (PESTLE + SWOT + Porter + Persona) ========== -->
@@ -324,22 +343,22 @@
 
       <h3 style="font-size:1rem;color:var(--gold);margin:1rem 0 0.5rem;">أ. تحليل PESTLE</h3>
       <div class="field-group inline-3">
-        <div class="field-group"><label>سياسي (Political)</label><textarea rows="2" placeholder="القوانين، الدعم الحكومي، الاستقرار..."></textarea></div>
-        <div class="field-group"><label>اقتصادي (Economic)</label><textarea rows="2" placeholder="النمو، التضخم، القدرة الشرائية..."></textarea></div>
-        <div class="field-group"><label>اجتماعي (Social)</label><textarea rows="2" placeholder="الثقافة، التركيبة السكانية، الاتجاهات..."></textarea></div>
+        <div class="field-group"><label>سياسي (Political)</label><textarea id="pestle-political" rows="2" placeholder="القوانين، الدعم الحكومي، الاستقرار..."></textarea></div>
+        <div class="field-group"><label>اقتصادي (Economic)</label><textarea id="pestle-economic" rows="2" placeholder="النمو، التضخم، القدرة الشرائية..."></textarea></div>
+        <div class="field-group"><label>اجتماعي (Social)</label><textarea id="pestle-social" rows="2" placeholder="الثقافة، التركيبة السكانية، الاتجاهات..."></textarea></div>
       </div>
       <div class="field-group inline-3">
-        <div class="field-group"><label>تكنولوجي (Technological)</label><textarea rows="2" placeholder="الابتكار، الأتمتة، التحول الرقمي..."></textarea></div>
-        <div class="field-group"><label>قانوني (Legal)</label><textarea rows="2" placeholder="التراخيص، الضرائب، حماية المستهلك..."></textarea></div>
-        <div class="field-group"><label>بيئي (Environmental)</label><textarea rows="2" placeholder="الاستدامة، التغير المناخي، الموارد..."></textarea></div>
+        <div class="field-group"><label>تكنولوجي (Technological)</label><textarea id="pestle-tech" rows="2" placeholder="الابتكار، الأتمتة، التحول الرقمي..."></textarea></div>
+        <div class="field-group"><label>قانوني (Legal)</label><textarea id="pestle-legal" rows="2" placeholder="التراخيص، الضرائب، حماية المستهلك..."></textarea></div>
+        <div class="field-group"><label>بيئي (Environmental)</label><textarea id="pestle-env" rows="2" placeholder="الاستدامة، التغير المناخي، الموارد..."></textarea></div>
       </div>
 
       <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">ب. تحليل SWOT</h3>
       <div class="swot-grid">
-        <div class="swot-box s"><h4>✅ نقاط القوة (Strengths)</h4><textarea rows="4" placeholder="ما تمتلكه من ميزات داخلية..."></textarea></div>
-        <div class="swot-box w"><h4>⚠️ نقاط الضعف (Weaknesses)</h4><textarea rows="4" placeholder="ما تحتاج لتحسينه داخلياً..."></textarea></div>
-        <div class="swot-box o"><h4>🌟 الفرص (Opportunities)</h4><textarea rows="4" placeholder="عوامل خارجية يمكن الاستفادة منها..."></textarea></div>
-        <div class="swot-box t"><h4>⛔ التهديدات (Threats)</h4><textarea rows="4" placeholder="عوامل خارجية قد تؤثر سلباً..."></textarea></div>
+        <div class="swot-box s"><h4>✅ نقاط القوة (Strengths)</h4><textarea id="swot-s" rows="4" placeholder="ما تمتلكه من ميزات داخلية..."></textarea></div>
+        <div class="swot-box w"><h4>⚠️ نقاط الضعف (Weaknesses)</h4><textarea id="swot-w" rows="4" placeholder="ما تحتاج لتحسينه داخلياً..."></textarea></div>
+        <div class="swot-box o"><h4>🌟 الفرص (Opportunities)</h4><textarea id="swot-o" rows="4" placeholder="عوامل خارجية يمكن الاستفادة منها..."></textarea></div>
+        <div class="swot-box t"><h4>⛔ التهديدات (Threats)</h4><textarea id="swot-t" rows="4" placeholder="عوامل خارجية قد تؤثر سلباً..."></textarea></div>
       </div>
 
       <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">ج. تحليل قوى بورتر التنافسية</h3>
@@ -366,14 +385,14 @@
     <div class="template-page" id="page-marketing">
       <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التسويق</div></div>
       <div class="page-header"><div class="section-number">7</div><div><h2>استراتيجية التسويق (4Ps)</h2><p>خطة واضحة للوصول إلى العميل وتحويله</p></div></div>
-      <div class="field-group"><label>المنتج (Product) — ما تبيعه وكيف تُقدمه</label><textarea rows="3" placeholder="العبوة، الجودة، الخدمات الملحقة، الضمان..."></textarea></div>
-      <div class="field-group"><label>السعر (Price) — استراتيجية التسعير</label><textarea rows="3" placeholder="تسعير قيمة، تنافسي، اختراقي، فاخر..."></textarea></div>
+      <div class="field-group"><label>المنتج (Product) — ما تبيعه وكيف تُقدمه</label><textarea id="marketing-product" rows="3" placeholder="العبوة، الجودة، الخدمات الملحقة، الضمان..."></textarea></div>
+      <div class="field-group"><label>السعر (Price) — استراتيجية التسعير</label><textarea id="marketing-price-strategy" rows="3" placeholder="تسعير قيمة، تنافسي، اختراقي، فاخر..."></textarea></div>
       <div class="field-group inline">
         <div class="field-group"><label>السعر المتوقع للوحدة (ريال)</label><input type="number" id="marketing-price" placeholder="0" oninput="linkPriceToRevenue()" /></div>
         <div class="field-group"><label>الكمية المتوقعة شهرياً</label><input type="number" id="marketing-qty" placeholder="0" oninput="linkQtyToRevenue()" /></div>
       </div>
-      <div class="field-group"><label>المكان (Place) — قنوات البيع والتوزيع</label><textarea rows="3" placeholder="منصات توصيل، موقع فعلي، متجر إلكتروني، وكلاء..."></textarea></div>
-      <div class="field-group"><label>الترويج (Promotion) — خطة الوصول</label><textarea rows="4" placeholder="السوشيال ميديا، الإعلانات المدفوعة، التسويق بالمحتوى، العروض الترويجية..."></textarea></div>
+      <div class="field-group"><label>المكان (Place) — قنوات البيع والتوزيع</label><textarea id="marketing-place" rows="3" placeholder="منصات توصيل، موقع فعلي، متجر إلكتروني، وكلاء..."></textarea></div>
+      <div class="field-group"><label>الترويج (Promotion) — خطة الوصول</label><textarea id="marketing-promotion" rows="4" placeholder="السوشيال ميديا، الإعلانات المدفوعة، التسويق بالمحتوى، العروض الترويجية..."></textarea></div>
       <div class="field-group inline">
         <div class="field-group"><label>ميزانية التسويق الشهرية</label><input type="number" placeholder="0" /></div>
         <div class="field-group"><label>تكلفة اكتساب عميل (CAC)</label><input type="number" placeholder="0" /></div>
@@ -418,8 +437,8 @@
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">+ إضافة</button><button onclick="removeRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">- حذف</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>التأمينات المطلوبة</label><textarea rows="3" placeholder="تأمين الممتلكات، تأمين المسؤولية المدنية، تأمين الموظفين..."></textarea></div>
-      <div class="field-group"><label>الالتزامات الضريبية المتوقعة</label><textarea rows="2" placeholder="VAT 15%، Zakat 2.5%، ضريبة الدخل إن وجدت..."></textarea></div>
+      <div class="field-group" style="margin-top:1rem;"><label>التأمينات المطلوبة</label><textarea id="legal-insurance" rows="3" placeholder="تأمين الممتلكات، تأمين المسؤولية المدنية، تأمين الموظفين..."></textarea></div>
+      <div class="field-group"><label>الالتزامات الضريبية المتوقعة</label><textarea id="legal-taxes" rows="2" placeholder="VAT 15%، Zakat 2.5%، ضريبة الدخل إن وجدت..."></textarea></div>
     </div>
 
     <!-- ========== PAGE 10: HUMAN RESOURCES ========== -->
@@ -1795,6 +1814,284 @@
       this.setAttribute('aria-expanded', document.getElementById('navLinks').classList.contains('active'));
     });
     window.addEventListener('load', () => { populateCountrySelect(); initSupabase(); calcFinancials(); updateProgress(); });
+    // ===== Smart Research Agent =====
+    let lastResearchResult = null;
+
+    function openResearchModal() {
+      let modal = document.getElementById('research-modal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'research-modal';
+        modal.innerHTML = `
+          <div class="research-overlay" onclick="if(event.target===this)closeResearchModal()"></div>
+          <div class="research-panel">
+            <div class="research-header">
+              <h3>بحث ذكي — وكيل السوق</h3>
+              <button class="research-close" onclick="closeResearchModal()">&times;</button>
+            </div>
+            <div class="research-body">
+              <div class="field-group">
+                <label>وصف المشروع</label>
+                <input type="text" id="research-query" placeholder="مثال: مطعم برجر فاخر في الرياض" />
+              </div>
+              <div class="field-group inline-3">
+                <div class="field-group">
+                  <label>الدولة</label>
+                  <select id="research-country"><option value="">اختر الدولة</option></select>
+                </div>
+                <div class="field-group">
+                  <label>المدينة (اختياري)</label>
+                  <input type="text" id="research-city" placeholder="مثال: الرياض" />
+                </div>
+                <div class="field-group">
+                  <label>نوع النشاط</label>
+                  <select id="research-sector">
+                    <option value="مطعم">مطعم / مقهى</option>
+                    <option value="تجارة">تجارة / متجر</option>
+                    <option value="صناعة">صناعة / مصنع</option>
+                    <option value="خدمات">خدمات مهنية</option>
+                    <option value="تقني">تقني / برمجة</option>
+                    <option value="صحة">صحة / عيادة</option>
+                    <option value="تعليم">تعليم / تدريب</option>
+                    <option value="لوجستيات">لوجستيات / توصيل</option>
+                    <option value="جمعية">جمعية / منظمة غير ربحية</option>
+                    <option value="ترفيه">ترفيه / سياحة</option>
+                    <option value="عقارات">عقارات / إنشاءات</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field-group" style="margin-top:0.5rem;">
+                <label>نوع البحث</label>
+                <select id="research-type">
+                  <option value="full_template">بحث شامل (كل الأقسام)</option>
+                  <option value="swot_analysis">SWOT كامل</option>
+                  <option value="pestle">PESTLE</option>
+                  <option value="market_overview">نظرة السوق</option>
+                  <option value="competitor_analysis">المنافسين</option>
+                </select>
+              </div>
+              <button class="research-run" onclick="runSmartResearch()" id="research-run-btn">
+                <span class="research-btn-text">بحث الآن</span>
+                <span class="research-spinner" style="display:none;">جاري البحث...</span>
+              </button>
+              <div id="research-result" style="margin-top:1rem;display:none;">
+                <div style="background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:1rem;">
+                  <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-bottom:0.5rem;">نتائج البحث</div>
+                  <pre id="research-output" style="white-space:pre-wrap;font-size:0.85rem;color:var(--text);margin:0;line-height:1.6;max-height:300px;overflow:auto;"></pre>
+                </div>
+                <button class="research-apply" onclick="applyResearchResults()">ملء الخانات في النموذج</button>
+              </div>
+              <div id="research-error" style="margin-top:1rem;display:none;color:#f87171;font-size:0.85rem;"></div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        // populate country dropdown
+        const rc = document.getElementById('research-country');
+        const cc = document.getElementById('cover-country');
+        if (rc && cc) {
+          rc.innerHTML = cc.innerHTML;
+          rc.value = cc.value;
+        }
+      }
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeResearchModal() {
+      const m = document.getElementById('research-modal');
+      if (m) { m.style.display = 'none'; document.body.style.overflow = ''; }
+    }
+
+    async function runSmartResearch() {
+      const query = document.getElementById('research-query')?.value?.trim();
+      const country = document.getElementById('research-country')?.value;
+      const city = document.getElementById('research-city')?.value?.trim();
+      const type = document.getElementById('research-type')?.value;
+      const btn = document.getElementById('research-run-btn');
+      const resultDiv = document.getElementById('research-result');
+      const errorDiv = document.getElementById('research-error');
+      const output = document.getElementById('research-output');
+
+      if (!query) { alert('أدخل وصف المشروع'); return; }
+      if (!country) { alert('اختر الدولة'); return; }
+
+      btn.disabled = true;
+      btn.querySelector('.research-btn-text').style.display = 'none';
+      btn.querySelector('.research-spinner').style.display = 'inline';
+      resultDiv.style.display = 'none';
+      errorDiv.style.display = 'none';
+      lastResearchResult = null;
+
+      try {
+        const sectorType = document.getElementById('research-sector')?.value;
+        const res = await fetch('/api/market-research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, country, city, sectorType, researchType: type }),
+        });
+
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'فشل البحث');
+
+        lastResearchResult = { type, data: data.analysis };
+        output.textContent = JSON.stringify(data.analysis, null, 2);
+        resultDiv.style.display = 'block';
+
+        // Show sources
+        if (data.sources?.length) {
+          const sourcesDiv = document.createElement('div');
+          sourcesDiv.style.cssText = 'margin-top:0.75rem;font-size:0.75rem;color:var(--text-secondary);';
+          sourcesDiv.innerHTML = '<strong>المصادر:</strong> ' + data.sources.map(s => s.title).join(' | ');
+          output.parentElement.appendChild(sourcesDiv);
+        }
+      } catch (err) {
+        console.error(err);
+        errorDiv.textContent = 'تعذر الاتصال بوكيل البحث. حاول مرة أخرى أو املأ البيانات يدوياً.';
+        errorDiv.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.querySelector('.research-btn-text').style.display = 'inline';
+        btn.querySelector('.research-spinner').style.display = 'none';
+      }
+    }
+
+    function applyResearchResults() {
+      if (!lastResearchResult) return;
+      const { type, data } = lastResearchResult;
+      let filledCount = 0;
+
+      function setVal(id, val) {
+        const el = document.getElementById(id);
+        if (el && val && !el.value) { el.value = val; filledCount++; }
+      }
+
+      // === SWOT ===
+      if (data.swot || data.strengths) {
+        const swot = data.swot || data;
+        if (swot.strengths?.length) setVal('swot-s', swot.strengths.join('\n'));
+        if (swot.weaknesses?.length) setVal('swot-w', swot.weaknesses.join('\n'));
+        if (swot.opportunities?.length) setVal('swot-o', swot.opportunities.join('\n'));
+        if (swot.threats?.length) setVal('swot-t', swot.threats.join('\n'));
+      }
+
+      // === PESTLE ===
+      if (data.pestle || data.political) {
+        const p = data.pestle || data;
+        if (p.political) setVal('pestle-political', p.political);
+        if (p.economic) setVal('pestle-economic', p.economic);
+        if (p.social) setVal('pestle-social', p.social);
+        if (p.technological) setVal('pestle-tech', p.technological);
+        if (p.legal) setVal('pestle-legal', p.legal);
+        if (p.environmental) setVal('pestle-env', p.environmental);
+      }
+
+      // === Country Economy ===
+      if (data.country_economy) {
+        const ce = data.country_economy;
+        if (ce.gdp_growth) setVal('econ-gdp', ce.gdp_growth);
+        if (ce.credit_rating) setVal('econ-credit', ce.credit_rating);
+        if (ce.budget_status) setVal('econ-budget', ce.budget_status);
+        if (ce.purchasing_power) setVal('econ-purchasing', ce.purchasing_power);
+        if (ce.market_outlook) setVal('econ-outlook', ce.market_outlook);
+        if (ce.government_impact) setVal('econ-government', ce.government_impact);
+      }
+
+      // === Technological Impact ===
+      if (data.technological_impact) {
+        const ti = data.technological_impact;
+        if (ti.positive) setVal('tech-positive', ti.positive);
+        if (ti.negative) setVal('tech-negative', ti.negative);
+        if (ti.future_risk) setVal('tech-future', ti.future_risk);
+      }
+
+      // === Marketing 4Ps ===
+      if (data.marketing_4ps) {
+        const m = data.marketing_4ps;
+        if (m.product_strategy) setVal('marketing-product', m.product_strategy);
+        if (m.pricing_strategy) setVal('marketing-price-strategy', m.pricing_strategy);
+        if (m.place_strategy) setVal('marketing-place', m.place_strategy);
+        if (m.promotion_strategy) setVal('marketing-promotion', m.promotion_strategy);
+      }
+
+      // === Legal ===
+      if (data.legal_requirements) {
+        const l = data.legal_requirements;
+        if (l.insurance) setVal('legal-insurance', l.insurance);
+        if (l.taxes) setVal('legal-taxes', l.taxes);
+        if (l.licenses?.length) {
+          const licenseTable = document.getElementById('licenses-table');
+          const tbody = licenseTable?.querySelector('tbody');
+          if (tbody) {
+            l.licenses.slice(0, 4).forEach((licName, i) => {
+              const row = tbody.children[i];
+              if (row && !row.cells[1]?.querySelector('input')?.value) {
+                const nameInput = row.cells[1]?.querySelector('input');
+                if (nameInput) nameInput.value = licName;
+              }
+            });
+          }
+        }
+      }
+
+      // === Competitors (Porter table) ===
+      if (data.competitors?.length) {
+        const rows = document.querySelectorAll('#porter-table tbody tr');
+        data.competitors.slice(0, 5).forEach((c, i) => {
+          if (rows[i]) {
+            const textInputs = rows[i].querySelectorAll('input[type="text"]');
+            const numInput = rows[i].querySelector('input[type="number"]');
+            if (textInputs[0] && !textInputs[0].value) {
+              textInputs[0].value = c.name + (c.strengths ? ' — ' + c.strengths : '');
+            }
+            if (numInput && !numInput.value && c.intensity) numInput.value = c.intensity;
+          }
+        });
+      }
+
+      // === Financial Projections ===
+      if (data.financial_projections) {
+        const fp = data.financial_projections;
+        const cc = document.getElementById('cover-country');
+        const currency = cc ? (COUNTRIES_DATA[cc.value]?.currency || 'SAR') : 'SAR';
+        const rate = currency === 'SAR' ? 3.75 : (currency === 'AED' ? 3.67 : 1);
+        if (fp.avg_monthly_revenue_usd) {
+          const rev = Math.round(fp.avg_monthly_revenue_usd * rate);
+          const firstRevPrice = document.querySelector('#revenue-table .rev-price');
+          const firstRevQty = document.querySelector('#revenue-table .rev-qty');
+          if (firstRevPrice && !firstRevPrice.value) firstRevPrice.value = rev;
+          if (firstRevQty && !firstRevQty.value) firstRevQty.value = 1000;
+        }
+        if (fp.setup_cost_range_usd?.max) {
+          const capital = Math.round(fp.setup_cost_range_usd.max * rate);
+          const capInput = document.getElementById('capital-invested');
+          if (capInput && !capInput.value) capInput.value = capital;
+        }
+      }
+
+      // === Market Trends → Cover Idea ===
+      if (data.market_trends?.length) {
+        const trendsText = data.market_trends.join(' — ');
+        setVal('cover-idea', trendsText);
+      }
+
+      // Update calculations
+      calcFinancials();
+      calcCashFlow();
+      calcCapital();
+      runSmartAnalysis();
+      updateProgress();
+      closeResearchModal();
+      alert('تم ملء ' + filledCount + ' خانة بنجاح ✅');
+    }
+
+    // Sync research country with cover country
+    document.addEventListener('change', function(e) {
+      if (e.target && e.target.id === 'cover-country') {
+        const rc = document.getElementById('research-country');
+        if (rc) rc.value = e.target.value;
+      }
+    });
   </script>
 </body>
 </html>

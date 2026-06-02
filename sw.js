@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bonds-v34';
+const CACHE_NAME = 'bonds-v35';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -25,6 +25,7 @@ const STATIC_ASSETS = [
   '/calculators/db-client.js',
   '/calculators/db-client-auto.js',
   '/calculators/country-platforms-data.js',
+  '/calculators/feasibility-benchmarks.js',
   '/calculators/cash-flow.html',
   '/calculators/pricing.html',
   '/calculators/loan.html',
