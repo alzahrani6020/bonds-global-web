@@ -219,6 +219,17 @@
         <div class="field-group"><label>الشكل القانوني</label><input type="text" id="cover-legal-form" placeholder="مؤسسة فردية / شركة ذات مسؤولية محدودة" /></div>
         <div class="field-group"><label>تاريخ الإعداد</label><input type="date" id="cover-date" /></div>
       </div>
+      <div class="field-group inline-2" style="max-width:520px;width:100%;margin-top:1rem;text-align:right;display:grid;grid-template-columns:2fr 1fr;gap:1rem;">
+        <div class="field-group" style="margin-bottom:0;">
+          <label>الدولة</label>
+          <select id="cover-country" onchange="fillFromCountry()">
+            <option value="">اختر الدولة...</option>
+          </select>
+        </div>
+        <div class="field-group" style="margin-bottom:0;display:flex;align-items:flex-end;">
+          <button type="button" class="btn-ghost" style="width:100%;padding:0.75rem;border-radius:10px;background:rgba(212,168,83,0.1);color:var(--gold);border:1px solid var(--gold);font-weight:700;cursor:pointer;font-family:inherit;" onclick="fillFromCountry()">🔄 ملء البيانات</button>
+        </div>
+      </div>
       <div class="field-group" style="max-width:520px;width:100%;margin-top:1.5rem;text-align:right;">
         <label>فكرة المشروع بجملة واحدة</label><textarea id="cover-idea" rows="2" placeholder="وصف مختصر لفكرة المشروع..."></textarea>
       </div>
@@ -795,6 +806,7 @@
 
   <footer class="footer no-print"><div class="container" style="text-align:center;padding:2rem 0;"><p style="color:var(--text-secondary);font-size:0.85rem;">&copy; 2026 بوندز. جميع الحقوق محفوظة.</p></div></footer>
 
+  <script src="country-platforms-data.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script>
@@ -1251,6 +1263,142 @@
       calcROI();
     }
 
+    // ===== Country Auto-Fill =====
+    function populateCountrySelect() {
+      const select = document.getElementById('cover-country');
+      if (!select || !window.COUNTRIES_DATA) return;
+      Object.keys(window.COUNTRIES_DATA).forEach(code => {
+        const c = window.COUNTRIES_DATA[code];
+        const opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = (c.flag || '') + ' ' + (c.name || code);
+        select.appendChild(opt);
+      });
+    }
+
+    function fillFromCountry() {
+      const code = document.getElementById('cover-country')?.value;
+      if (!code || !window.COUNTRIES_DATA) return;
+      const data = window.COUNTRIES_DATA[code];
+      if (!data) return;
+
+      // 1. VAT & Tax
+      const taxField = document.querySelector('#page-legal .field-group textarea[placeholder*="VAT"]');
+      if (taxField && data.vatRate) {
+        taxField.value = 'VAT ' + data.vatRate + '%' + (code === 'SA' ? '، زكاة 2.5%' : '');
+      }
+
+      // 2. Currency labels across the template
+      const currencySymbol = data.currencySymbol || 'ريال';
+      document.querySelectorAll('.template-table th').forEach(th => {
+        if (th.textContent.includes('ريال') && !th.textContent.includes(currencySymbol)) {
+          th.textContent = th.textContent.replace('ريال', currencySymbol);
+        }
+      });
+      document.querySelectorAll('label').forEach(lbl => {
+        if (lbl.textContent.includes('(ريال)') && !lbl.textContent.includes('(' + currencySymbol + ')')) {
+          lbl.textContent = lbl.textContent.replace('(ريال)', '(' + currencySymbol + ')');
+        }
+      });
+
+      // 3. Licenses (clear and fill standard ones)
+      const licenseTable = document.getElementById('licenses-table')?.querySelector('tbody');
+      if (licenseTable) {
+        const defaults = {
+          SA: [
+            ['سجل تجاري', 'وزارة التجارة', '500', '1-3 أيام'],
+            ['رخصة بلدية', 'البلدية', '3000', '2-4 أسابيع'],
+            ['تصريح دفاع مدني', 'الدفاع المدني', '500', '1 أسبوع'],
+            ['شهادة صحية', 'وزارة البلدية', '300', '3-5 أيام'],
+            ['اشتراك غرفة تجارية', 'الغرفة التجارية', '2000', '1-2 أسابيع']
+          ],
+          AE: [
+            ['Trade License', 'DED / Free Zone', '15000', '1-2 أسابيع'],
+            ['Food Safety Certificate', 'Dubai Municipality', '2500', '1 أسبوع'],
+            ['Tenancy Contract (Ejari)', 'Dubai Land Dept', '4000', '3-5 أيام']
+          ],
+          EG: [
+            ['سجل تجاري', 'وزارة التجارة', '2000', '1-2 أسابيع'],
+            ['ترخيص محل', 'الحي', '5000', '2-4 أسابيع'],
+            ['شهادة صحية', 'وزارة الصحة', '1000', '1 أسبوع']
+          ],
+          KW: [
+            ['Commercial License', 'Ministry of Commerce', '3000', '1-2 أسابيع'],
+            ['Municipality License', 'Baladiya', '2000', '2-3 أسابيع']
+          ],
+          QA: [
+            ['Commercial Registration', 'Ministry of Commerce', '5000', '1-2 أسابيع'],
+            ['Food License', 'Municipality', '3000', '1-2 أسابيع']
+          ],
+          BH: [
+            ['CR License', 'Sijilat', '2500', '1-2 أسابيع'],
+            ['Municipality License', 'Bahrain Municipality', '1500', '1-2 أسابيع']
+          ],
+          OM: [
+            ['Commercial Registration', 'MOCIIP', '3000', '1-2 أسابيع'],
+            ['Municipality Permit', 'Muscat Municipality', '2000', '2-3 أسابيع']
+          ],
+          JO: [
+            ['سجل تجاري', 'وزارة الصناعة', '1500', '1-2 أسابيع'],
+            ['رخصة بلدية', 'الأمانة', '1000', '1-2 أسابيع']
+          ],
+          IQ: [
+            ['سجل تجاري', 'وزارة التجارة', '1000', '1-2 أسابيع'],
+            ['رخصة بلدية', 'البلدية', '500', '2-4 أسابيع']
+          ],
+          LB: [
+            ['سجل تجاري', 'وزارة الاقتصاد', '2000', '1-2 أسابيع'],
+            ['ترخيص بلدي', 'البلدية', '1500', '2-3 أسابيع']
+          ],
+          YE: [
+            ['سجل تجاري', 'وزارة التجارة', '500', '1-2 أسابيع'],
+            ['ترخيص بلدي', 'الأمانة', '300', '2-4 أسابيع']
+          ]
+        };
+        const rows = defaults[code] || defaults['SA'];
+        licenseTable.innerHTML = '';
+        rows.forEach((row, i) => {
+          licenseTable.insertAdjacentHTML('beforeend', '<tr><td>' + (i+1) + '</td><td><input type="text" value="' + row[0] + '" /></td><td><input type="text" value="' + row[1] + '" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" value="' + row[2] + '" /></td><td><input type="text" value="' + row[3] + '" /></td></tr>');
+        });
+        linkLicensesToCapital();
+      }
+
+      // 4. Market Insights → 4Ps / Marketing
+      const mi = data.marketInsights;
+      if (mi) {
+        // Place (distribution channels)
+        const placeFields = document.querySelectorAll('#page-4ps .field-group textarea');
+        placeFields.forEach(ta => {
+          if (ta.placeholder.includes('منصات توصيل') && !ta.value) {
+            const topPlatforms = (data.platforms || []).filter(p => p.fee > 0).slice(0, 5).map(p => p.name).join('، ');
+            ta.value = 'القنوات الرئيسية:\n' + topPlatforms + '\n\nملاحظات:\n' + (data.note || '').slice(0, 300);
+          }
+        });
+
+        // Marketing peak hours & seasonality
+        const promoFields = document.querySelectorAll('#page-4ps .field-group textarea');
+        promoFields.forEach(ta => {
+          if (ta.placeholder.includes('ترويج') && !ta.value && mi.peakHours) {
+            ta.value = 'ساعات الذروة: ' + mi.peakHours + '\nمتوسط قيمة الطلب: ' + (mi.avgOrderValue || '-') + ' ' + currencySymbol + '\n' + (mi.weekendBehavior || '');
+          }
+        });
+      }
+
+      // 5. Platform fees → Variable Costs (add a note row)
+      const vcTable = document.getElementById('variable-costs-table')?.querySelector('tbody');
+      if (vcTable && data.platforms) {
+        const topFee = data.platforms.filter(p => p.fee > 0).sort((a,b) => b.fee - a.fee)[0];
+        if (topFee) {
+          const existing = Array.from(vcTable.querySelectorAll('input[type="text"]')).map(i => i.value);
+          if (!existing.includes('عمولات منصات')) {
+            vcTable.insertAdjacentHTML('beforeend', '<tr><td>' + (vcTable.children.length + 1) + '</td><td><input type="text" value="عمولات منصات (' + topFee.name + ' ~' + topFee.fee + '%)" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>');
+          }
+        }
+      }
+
+      alert('تم ملء ' + (data.name || code) + ' ✅\nالتراخيص: ' + (defaults[code]?.length || 0) + ' | VAT: ' + (data.vatRate || '-') + '% | العملة: ' + currencySymbol);
+    }
+
     // ===== ROI & Payback =====
     function calcROI() {
       const net = parseFloat(document.getElementById('net-profit')?.value) || 0;
@@ -1389,7 +1537,7 @@
       document.getElementById('navLinks').classList.toggle('active');
       this.setAttribute('aria-expanded', document.getElementById('navLinks').classList.contains('active'));
     });
-    window.addEventListener('load', () => { calcFinancials(); updateProgress(); });
+    window.addEventListener('load', () => { populateCountrySelect(); calcFinancials(); updateProgress(); });
   </script>
 </body>
 </html>

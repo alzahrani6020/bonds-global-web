@@ -795,6 +795,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
   <footer class="footer no-print"><div class="container" style="text-align:center;padding:2rem 0;"><p style="color:var(--text-secondary);font-size:0.85rem;">&copy; 2026 Bonds. All rights reserved.</p></div></footer>
 
+  <script src="../../calculators/country-platforms-data.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script>
@@ -1244,6 +1245,134 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       calcROI();
     }
 
+    // ===== Country Auto-Fill =====
+    function populateCountrySelect() {
+      const select = document.getElementById('cover-country');
+      if (!select || !window.COUNTRIES_DATA) return;
+      Object.keys(window.COUNTRIES_DATA).forEach(code => {
+        const c = window.COUNTRIES_DATA[code];
+        const opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = (c.flag || '') + ' ' + (c.nameEn || c.name || code);
+        select.appendChild(opt);
+      });
+    }
+
+    function fillFromCountry() {
+      const code = document.getElementById('cover-country')?.value;
+      if (!code || !window.COUNTRIES_DATA) return;
+      const data = window.COUNTRIES_DATA[code];
+      if (!data) return;
+
+      // 1. VAT & Tax
+      const taxField = document.querySelector('#page-legal .field-group textarea[placeholder*="VAT"]');
+      if (taxField && data.vatRate) {
+        taxField.value = 'VAT ' + data.vatRate + '%' + (code === 'SA' ? ', Zakat 2.5%' : '');
+      }
+
+      // 2. Currency labels
+      const currencySymbol = data.currencySymbolEn || data.currencySymbol || 'SAR';
+      document.querySelectorAll('.template-table th').forEach(th => {
+        if (th.textContent.includes('SAR') && !th.textContent.includes(currencySymbol)) {
+          th.textContent = th.textContent.replace('SAR', currencySymbol);
+        }
+      });
+
+      // 3. Licenses
+      const licenseTable = document.getElementById('licenses-table')?.querySelector('tbody');
+      if (licenseTable) {
+        const defaults = {
+          SA: [
+            ['Commercial Registration', 'Ministry of Commerce', '500', '1-3 days'],
+            ['Municipality License', 'Municipality', '3000', '2-4 weeks'],
+            ['Civil Defense Permit', 'Civil Defense', '500', '1 week'],
+            ['Health Certificate', 'Municipality', '300', '3-5 days'],
+            ['Chamber of Commerce', 'Chamber', '2000', '1-2 weeks']
+          ],
+          AE: [
+            ['Trade License', 'DED / Free Zone', '15000', '1-2 weeks'],
+            ['Food Safety Certificate', 'Dubai Municipality', '2500', '1 week'],
+            ['Tenancy Contract (Ejari)', 'Dubai Land Dept', '4000', '3-5 days']
+          ],
+          EG: [
+            ['Commercial Registration', 'Ministry of Commerce', '2000', '1-2 weeks'],
+            ['Shop License', 'District', '5000', '2-4 weeks'],
+            ['Health Certificate', 'Ministry of Health', '1000', '1 week']
+          ],
+          KW: [
+            ['Commercial License', 'Ministry of Commerce', '3000', '1-2 weeks'],
+            ['Municipality License', 'Baladiya', '2000', '2-3 weeks']
+          ],
+          QA: [
+            ['Commercial Registration', 'Ministry of Commerce', '5000', '1-2 weeks'],
+            ['Food License', 'Municipality', '3000', '1-2 weeks']
+          ],
+          BH: [
+            ['CR License', 'Sijilat', '2500', '1-2 weeks'],
+            ['Municipality License', 'Bahrain Municipality', '1500', '1-2 weeks']
+          ],
+          OM: [
+            ['Commercial Registration', 'MOCIIP', '3000', '1-2 weeks'],
+            ['Municipality Permit', 'Muscat Municipality', '2000', '2-3 weeks']
+          ],
+          JO: [
+            ['Commercial Registration', 'Ministry of Industry', '1500', '1-2 weeks'],
+            ['Municipality License', 'Amman Municipality', '1000', '1-2 weeks']
+          ],
+          IQ: [
+            ['Commercial Registration', 'Ministry of Commerce', '1000', '1-2 weeks'],
+            ['Municipality License', 'Municipality', '500', '2-4 weeks']
+          ],
+          LB: [
+            ['Commercial Registration', 'Ministry of Economy', '2000', '1-2 weeks'],
+            ['Municipality License', 'Municipality', '1500', '2-3 weeks']
+          ],
+          YE: [
+            ['Commercial Registration', 'Ministry of Commerce', '500', '1-2 weeks'],
+            ['Municipality License', 'Municipality', '300', '2-4 weeks']
+          ]
+        };
+        const rows = defaults[code] || defaults['SA'];
+        licenseTable.innerHTML = '';
+        rows.forEach((row, i) => {
+          licenseTable.insertAdjacentHTML('beforeend', '<tr><td>' + (i+1) + '</td><td><input type="text" value="' + row[0] + '" /></td><td><input type="text" value="' + row[1] + '" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" value="' + row[2] + '" /></td><td><input type="text" value="' + row[3] + '" /></td></tr>');
+        });
+        linkLicensesToCapital();
+      }
+
+      // 4. Market Insights → 4Ps / Marketing
+      const mi = data.marketInsights;
+      if (mi) {
+        const placeFields = document.querySelectorAll('#page-4ps .field-group textarea');
+        placeFields.forEach(ta => {
+          if (ta.placeholder.includes('distribution') && !ta.value) {
+            const topPlatforms = (data.platforms || []).filter(p => p.fee > 0).slice(0, 5).map(p => p.nameEn || p.name).join(', ');
+            ta.value = 'Main channels:\n' + topPlatforms + '\n\nNotes:\n' + (data.noteEn || data.note || '').slice(0, 300);
+          }
+        });
+        const promoFields = document.querySelectorAll('#page-4ps .field-group textarea');
+        promoFields.forEach(ta => {
+          if (ta.placeholder.includes('promotion') && !ta.value && mi.peakHours) {
+            ta.value = 'Peak hours: ' + mi.peakHours + '\nAvg order value: ' + (mi.avgOrderValue || '-') + ' ' + currencySymbol + '\n' + (mi.weekendBehavior || '');
+          }
+        });
+      }
+
+      // 5. Platform fees → Variable Costs
+      const vcTable = document.getElementById('variable-costs-table')?.querySelector('tbody');
+      if (vcTable && data.platforms) {
+        const topFee = data.platforms.filter(p => p.fee > 0).sort((a,b) => b.fee - a.fee)[0];
+        if (topFee) {
+          const existing = Array.from(vcTable.querySelectorAll('input[type="text"]')).map(i => i.value);
+          if (!existing.includes('Platform commissions')) {
+            vcTable.insertAdjacentHTML('beforeend', '<tr><td>' + (vcTable.children.length + 1) + '</td><td><input type="text" value="Platform commissions (' + (topFee.nameEn || topFee.name) + ' ~' + topFee.fee + '%)" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>');
+          }
+        }
+      }
+
+      alert('Filled ' + (data.nameEn || data.name || code) + ' ✅\nLicenses: ' + (defaults[code]?.length || 0) + ' | VAT: ' + (data.vatRate || '-') + '% | Currency: ' + currencySymbol);
+    }
+
     // ===== ROI & Payback =====
     function calcROI() {
       const net = parseFloat(document.getElementById('net-profit')?.value) || 0;
@@ -1382,7 +1511,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       document.getElementById('navLinks').classList.toggle('active');
       this.setAttribute('aria-expanded', document.getElementById('navLinks').classList.contains('active'));
     });
-    window.addEventListener('load', () => { calcFinancials(); updateProgress(); });
+    window.addEventListener('load', () => { populateCountrySelect(); calcFinancials(); updateProgress(); });
   </script>
 </body>
 </html>
