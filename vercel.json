@@ -8,6 +8,26 @@
     {
       "source": "/api/([^/]+)",
       "destination": "/api/$1.js"
+    },
+    {
+      "source": "/break-even-explained.html",
+      "destination": "/blog/break-even-explained.html"
+    },
+    {
+      "source": "/cash-flow-mistakes.html",
+      "destination": "/blog/cash-flow-mistakes.html"
+    },
+    {
+      "source": "/financial-kpis.html",
+      "destination": "/blog/financial-kpis.html"
+    },
+    {
+      "source": "/pricing-strategy.html",
+      "destination": "/blog/pricing-strategy.html"
+    },
+    {
+      "source": "/tax-zakat-sme.html",
+      "destination": "/blog/tax-zakat-sme.html"
     }
   ],
   "headers": [
