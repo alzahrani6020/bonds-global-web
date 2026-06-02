@@ -10,6 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
   <script src="../../calculators/shared-ui.js"></script>
+  <script src="../../calculators/shared-utils.js"></script>
+  <script src="../../calculators/shared-export.js"></script>
   <script src="../../calculators/country-platforms-data.js"></script>
   <script src="../../calculators/db-client.js"></script>
   <script src="../../calculators/db-client-auto.js"></script>
@@ -409,6 +411,10 @@
     </div>
 
     <div id="verdictBox" style="text-align:center; padding:1.5rem; border-radius:12px; margin:1rem 0; font-weight:700;"></div>
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; margin:1rem 0;">
+      <button class="btn-calc secondary" onclick="exportInvoiceExcel()">📊 Excel</button>
+      <button class="btn-calc secondary" onclick="exportInvoicePDF()">📄 PDF</button>
+    </div>
   </div>
 
   <!-- Compare All Platforms Section -->
@@ -619,6 +625,7 @@ function calculateInvoice() {
   var commissionAmount = price * (commissionPct / 100);
   var serviceFeeAmount = price * (serviceFeePct / 100);
   var paymentFeeAmount = price * (paymentFeePct / 100);
+  var afterDiscount = price - discount;
 
   var vatCommission = commissionAmount * vatMultiplier;
   var vatServiceFee = serviceFeeAmount * vatMultiplier;
@@ -742,6 +749,8 @@ function calculateInvoice() {
     verdict.textContent = '✅ The promo is profitable even with the discount!';
   }
 
+  window._lastInvoice = { price, discount, commissionPct, paymentFeePct, serviceFeePct, productCost, deliveryFee, vatRate, dailyOrders, workingDays, itemName, commissionAmount, serviceFeeAmount, paymentFeeAmount, vatCommission, vatServiceFee, vatPayment, vatDelivery, afterDiscount, totalDeductions, netIncome, netProfit, marginPct, profitNoDiscount, lossFromDiscount, dailyProfit, monthlyProfit, yearlyProfit, dailyProfitNoDiscount, monthlyProfitNoDiscount, extraOrdersNeeded, requiredIncreasePct };
+
   BondsUI.toast('✅ Analysis complete', 'success');
 }
 
@@ -839,6 +848,86 @@ function compareAllPlatforms() {
   document.getElementById('compareAllSection').style.display = 'block';
   document.getElementById('compareAllSection').scrollIntoView({ behavior: 'smooth' });
   BondsUI.toast('✅ Compared ' + results.length + ' platforms', 'success');
+}
+
+async function exportInvoiceExcel() {
+  if (!window._lastInvoice) {
+    BondsUI.toast('⚠️ Calculate results first', 'warning');
+    return;
+  }
+  await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+  if (typeof XLSX === 'undefined') {
+    BondsUI.toast('❌ Failed to load Excel library', 'error');
+    return;
+  }
+  var d = window._lastInvoice;
+  var wb = XLSX.utils.book_new();
+  wb.Props = { Title: 'Invoice Analysis', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+  var sheet = [
+    ['Item', 'Value'],
+    ['Product Name', d.itemName],
+    ['Order Price', d.price],
+    ['Merchant-Funded Discount', d.discount],
+    ['', ''],
+    ['Commission (' + d.commissionPct + '%)', d.commissionAmount],
+    ['Service Fee (' + d.serviceFeePct + '%)', d.serviceFeeAmount],
+    ['Payment Fee (' + d.paymentFeePct + '%)', d.paymentFeeAmount],
+    ['Delivery Fee', d.deliveryFee],
+    ['VAT on Commission', d.vatCommission],
+    ['VAT on Service Fee', d.vatServiceFee],
+    ['VAT on Payment Fee', d.vatPayment],
+    ['VAT on Delivery', d.vatDelivery],
+    ['', ''],
+    ['Total Deductions', d.totalDeductions],
+    ['Net Income', d.netIncome],
+    ['Product Cost', d.productCost],
+    ['', ''],
+    ['Net Profit (per invoice)', d.netProfit],
+    ['Profit Margin', d.marginPct.toFixed(1) + '%'],
+    ['', ''],
+    ['Daily Profit (' + d.dailyOrders + ' orders)', d.dailyProfit],
+    ['Monthly Profit (' + d.workingDays + ' days)', d.monthlyProfit],
+    ['Yearly Profit (12 months)', d.yearlyProfit]
+  ];
+  var ws = XLSX.utils.aoa_to_sheet(sheet);
+  ws['!cols'] = [{ wch: 32 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, ws, 'Analysis');
+  XLSX.writeFile(wb, 'bonds-invoice-analysis.xlsx');
+}
+
+function exportInvoicePDF() {
+  if (!window._lastInvoice) {
+    BondsUI.toast('⚠️ Calculate results first', 'warning');
+    return;
+  }
+  var d = window._lastInvoice;
+  var content = `
+    <h2>🧾 Invoice Details</h2>
+    <table>
+      <tr><th>Item</th><th>Value</th></tr>
+      <tr><td>Product Name</td><td class="num">${d.itemName}</td></tr>
+      <tr><td>Order Price</td><td class="num">${d.price.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>Merchant-Funded Discount</td><td class="num">${d.discount.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>Commission</td><td class="num">${d.commissionAmount.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>Service Fee</td><td class="num">${d.serviceFeeAmount.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>Payment Fee</td><td class="num">${d.paymentFeeAmount.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>Delivery Fee</td><td class="num">${d.deliveryFee.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>Total Deductions</td><td class="num">${d.totalDeductions.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>Net Income</td><td class="num">${d.netIncome.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>Product Cost</td><td class="num">${d.productCost.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td><strong>Net Profit</strong></td><td class="num"><strong>${d.netProfit.toFixed(2)} ${currentSymbol}</strong></td></tr>
+      <tr><td>Profit Margin</td><td class="num">${d.marginPct.toFixed(1)}%</td></tr>
+    </table>
+
+    <h2>📊 Financial Projections</h2>
+    <div class="metric-grid">
+      <div class="metric-item"><div class="label">Daily Profit</div><div class="value">${d.dailyProfit.toFixed(0)} ${currentSymbol}</div></div>
+      <div class="metric-item"><div class="label">Monthly Profit</div><div class="value">${d.monthlyProfit.toFixed(0)} ${currentSymbol}</div></div>
+      <div class="metric-item"><div class="label">Yearly Profit</div><div class="value">${d.yearlyProfit.toFixed(0)} ${currentSymbol}</div></div>
+    </div>
+  `;
+  openPrintWindow({ content: content, title: 'Invoice Analysis', headerTitle: 'Invoice Analysis — ' + d.itemName, lang: 'en' });
 }
 
 // ============ BondsDB Integration ============
@@ -992,7 +1081,22 @@ BondsDB.init().then(function() {
   if (p.get('orders')) document.getElementById('dailyOrders').value = p.get('orders');
   if (p.get('days')) document.getElementById('workingDays').value = p.get('days');
   if (p.get('name')) document.getElementById('itemName').value = decodeURIComponent(p.get('name'));
-  if (p.get('price')) calculateInvoice();
+  if (p.get('price')) {
+    var calcSection = document.querySelector('.container');
+    if ('IntersectionObserver' in window && calcSection) {
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            calculateInvoice();
+            io.disconnect();
+          }
+        });
+      }, { rootMargin: '200px' });
+      io.observe(calcSection);
+    } else {
+      calculateInvoice();
+    }
+  }
 })();
 </script>
 

@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Integrated Feasibility Study | Bonds</title>
+  <meta name="description" content="Professional integrated feasibility study: PESTLE, SWOT, financial analysis, cash flow, scenarios. Free from Bonds." />
+  <meta property="og:title" content="Integrated Feasibility Study | Bonds" />
+  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <style>
+    :root { --gold:#d4a853; --gold-bright:#f0c96a; --bg:#0a0f1a; --bg-card:rgba(16,24,45,0.6); --text:#e8ecf4; --text-secondary:#94a3b8; --border:rgba(197,160,40,0.15); }
+    body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; line-height:1.7; }
+    @media print {
+      body { background:#fff !important; color:#000 !important; }
+      .no-print,.navbar,.template-toolbar,.footer { display:none !important; }
+      .template-page { page-break-after:always; background:#fff !important; color:#000 !important; box-shadow:none !important; border:none !important; margin:0 !important; padding:2cm !important; max-width:100% !important; }
+      .template-page:last-child { page-break-after:auto; }
+      input,textarea,select { border:none !important; border-bottom:1px dotted #666 !important; background:transparent !important; color:#000 !important; }
+      .template-table th,.template-table td { border:1px solid #333 !important; color:#000 !important; }
+      .template-table th { background:#f0f0f0 !important; }
+      h2 { color:#000 !important; border-color:#333 !important; }
+      .section-number { background:#333 !important; color:#fff !important; }
+      .scenario-pessimistic,.scenario-expected,.scenario-optimistic { background:#fff !important; }
+      .swot-box { border:1px solid #333 !important; }
+    }
+    @page { size:A4; margin:1.5cm; }
+
+    .template-toolbar { position:sticky; top:0; z-index:100; background:var(--bg-card); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); padding:0.75rem 1.5rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+    .template-toolbar button { background:var(--gold); color:#0a0f1a; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-weight:700; font-family:inherit; cursor:pointer; transition:all 0.2s; }
+    .template-toolbar button:hover { background:var(--gold-bright); transform:translateY(-1px); }
+    .template-toolbar .btn-ghost { background:transparent; color:var(--gold); border:1px solid var(--gold); }
+    .template-toolbar .btn-ghost:hover { background:var(--gold); color:#0a0f1a; }
+
+    .template-wrapper { max-width:960px; margin:0 auto; padding:2rem 1rem; }
+    .template-page { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:2.5rem; margin-bottom:2rem; page-break-inside:avoid; }
+    .template-header-print { display:none; align-items:center; justify-content:space-between; border-bottom:2px solid var(--gold); padding-bottom:1rem; margin-bottom:1.5rem; }
+    .template-header-print img { height:48px; }
+    .template-header-print .doc-title { font-size:1.1rem; font-weight:700; color:var(--text-secondary); }
+    .page-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:2px solid var(--gold); }
+    .section-number { width:40px; height:40px; border-radius:50%; background:var(--gold); color:#0a0f1a; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.1rem; flex-shrink:0; }
+    .page-header h2 { margin:0; font-size:1.3rem; font-weight:700; color:var(--gold-bright); }
+    .page-header p { margin:0; color:var(--text-secondary); font-size:0.9rem; }
+
+    .field-group { margin-bottom:1.5rem; }
+    .field-group label { display:block; font-weight:700; font-size:0.9rem; color:var(--text-secondary); margin-bottom:0.4rem; }
+    .field-group input,.field-group textarea,.field-group select { width:100%; padding:0.75rem 1rem; border-radius:10px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:var(--text); font-family:inherit; font-size:0.95rem; transition:border-color 0.2s; }
+    .field-group input:focus,.field-group textarea:focus,.field-group select:focus { outline:none; border-color:var(--gold); }
+    .field-group textarea { min-height:90px; resize:vertical; }
+    .field-group.inline { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .field-group.inline-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
+    .field-group input[readonly] { opacity:0.8; cursor:default; }
+
+    .template-table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.9rem; }
+    .template-table th,.template-table td { border:1px solid var(--border); padding:0.55rem 0.7rem; text-align:center; }
+    .template-table th { background:rgba(212,168,83,0.1); color:var(--gold-bright); font-weight:700; }
+    .template-table td input { width:100%; background:transparent; border:none; color:var(--text); font-family:inherit; text-align:center; padding:0.2rem; }
+    .template-table td input:focus { outline:none; }
+    .template-table td input[readonly] { opacity:0.7; }
+
+    .table-actions { display:flex; gap:0.5rem; margin-top:0.5rem; justify-content:center; }
+    .table-actions button { background:rgba(212,168,83,0.15); color:var(--gold); border:1px solid var(--gold); padding:0.3rem 0.8rem; border-radius:6px; font-family:inherit; font-size:0.8rem; cursor:pointer; transition:all 0.2s; }
+    .table-actions button:hover { background:var(--gold); color:#0a0f1a; }
+
+    .cover-page { text-align:center; padding:4rem 2rem; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:70vh; }
+    .cover-page img { height:80px; margin-bottom:2rem; }
+    .cover-page h1 { font-size:2rem; font-weight:800; color:var(--gold-bright); margin-bottom:0.5rem; }
+    .cover-page .cover-subtitle { font-size:1.2rem; color:var(--text-secondary); margin-bottom:2rem; }
+    .cover-meta { display:grid; grid-template-columns:1fr 1fr; gap:1rem; max-width:520px; width:100%; text-align:right; }
+    .cover-meta .field-group label { font-size:0.85rem; }
+    .cover-meta .field-group input { text-align:center; }
+
+    .checklist { list-style:none; padding:0; margin:0; }
+    .checklist li { display:flex; align-items:flex-start; gap:0.75rem; margin-bottom:0.75rem; padding:0.5rem; background:rgba(255,255,255,0.02); border-radius:8px; }
+    .checklist li input[type="checkbox"] { width:20px; height:20px; accent-color:var(--gold); margin-top:2px; flex-shrink:0; }
+    .checklist li span { flex:1; font-size:0.9rem; }
+    .checklist li textarea { flex:1; min-height:60px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; padding:0.5rem; color:var(--text); font-family:inherit; }
+
+    .swot-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1rem 0; }
+    .swot-box { border-radius:12px; padding:1.25rem; border:1px solid var(--border); }
+    .swot-box h4 { margin:0 0 0.75rem; font-size:1rem; }
+    .swot-box.s { background:rgba(22,163,74,0.08); border-color:rgba(22,163,74,0.3); }
+    .swot-box.s h4 { color:#16a34a; }
+    .swot-box.w { background:rgba(220,38,38,0.08); border-color:rgba(220,38,38,0.3); }
+    .swot-box.w h4 { color:#dc2626; }
+    .swot-box.o { background:rgba(212,168,83,0.08); border-color:rgba(212,168,83,0.3); }
+    .swot-box.o h4 { color:var(--gold-bright); }
+    .swot-box.t { background:rgba(100,116,139,0.08); border-color:rgba(100,116,139,0.3); }
+    .swot-box.t h4 { color:#94a3b8; }
+
+    .scenario-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin:1rem 0; }
+    .scenario-card { border-radius:12px; padding:1.25rem; text-align:center; border:1px solid var(--border); }
+    .scenario-pessimistic { background:rgba(220,38,38,0.08); border-color:rgba(220,38,38,0.3); }
+    .scenario-expected { background:rgba(212,168,83,0.08); border-color:var(--gold); }
+    .scenario-optimistic { background:rgba(22,163,74,0.08); border-color:rgba(22,163,74,0.3); }
+    .scenario-label { font-size:0.75rem; font-weight:800; margin-bottom:0.5rem; }
+    .scenario-value { font-size:1.5rem; font-weight:900; }
+    .scenario-desc { font-size:0.8rem; color:var(--text-secondary); }
+
+    .link-badge { display:inline-block; font-size:0.7rem; background:rgba(212,168,83,0.15); color:var(--gold); padding:0.15rem 0.5rem; border-radius:4px; margin-right:0.5rem; vertical-align:middle; }
+
+    .signature-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-top:2rem; }
+    .signature-box { border-top:1px solid var(--border); padding-top:1rem; text-align:center; }
+    .signature-box label { font-size:0.85rem; color:var(--text-secondary); }
+    .signature-box input { width:100%; margin-top:0.5rem; background:transparent; border:none; border-bottom:1px solid var(--border); text-align:center; color:var(--text); font-family:inherit; }
+
+    .progress-bar { position:fixed; top:0; left:0; right:0; height:3px; background:transparent; z-index:200; }
+    .progress-bar div { height:100%; background:var(--gold); width:0%; transition:width 0.3s; }
+
+    @media (max-width:768px) {
+      .template-page { padding:1.25rem; }
+      .field-group.inline,.field-group.inline-3,.cover-meta,.swot-grid,.scenario-grid,.signature-grid { grid-template-columns:1fr; }
+      .template-toolbar { position:relative; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar no-print"><div id="progressFill"></div></div>
+
+  <!-- Navbar -->
+  <nav class="navbar no-print">
+    <a href="../../index.html" class="logo"><img src="../../assets/site-logo.webp" alt="بوندز" height="36" loading="lazy" decoding="async" /></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../../index.html">Home</a></li>
+      <li class="dropdown">
+        <span class="dropdown-toggle">Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        <div class="dropdown-menu">
+          <a href="../../services.html#analysis">Financial Analysis</a>
+          <a href="../../services.html#cashflow">Cash Flow Management</a>
+          <a href="../../services.html#feasibility">Feasibility Studies</a>
+          <a href="../../services.html#break-even">Break-Even</a>
+        </div>
+      </li>
+      <li class="dropdown">
+        <span class="dropdown-toggle">Calculators <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <div class="dropdown-menu">
+          <a href="../../calculator.html">Break-Even</a>
+          <a href="cash-flow.html">Cash Flow</a>
+          <a href="pricing.html">Product Pricing</a>
+          <a href="loan.html">Loan & Finance</a>
+          <a href="restaurant.html">Restaurants & Cloud</a>
+          <a href="menu-engineering.html">Menu Engineering</a>
+          <a href="feasibility.html">Restaurant Feasibility</a>
+          <a href="invoice-analyzer.html">Invoice Analyzer</a>
+          <a href="feasibility-template.html">Feasibility Study</a>
+        </div>
+      </li>
+      <li><a href="../../blog/index.html">Blog</a></li>
+      <li><a href="../../faq.html">FAQ</a></li>
+      <li><a href="../../contact.html">Contact</a></li>
+    </ul>
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <a href="../../calculators/feasibility-template.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;">AR</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme">🌙</button>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">☰</button>
+    </div>
+  </nav>
+
+  <!-- Toolbar -->
+  <div class="template-toolbar no-print">
+    <button onclick="window.print()">🖨️ Print / PDF</button>
+    <button class="btn-ghost" onclick="clearAll()">🗑️ Clear All</button>
+    <button class="btn-ghost" onclick="saveDraft()">💾 Save Draft</button>
+    <button class="btn-ghost" onclick="loadDraft()">📂 Load Draft</button>
+    <button class="btn-ghost" onclick="scrollToDashboard()">🎯 Dashboard</button>
+    <button class="btn-ghost" onclick="exportToExcel()">📊 Export Excel</button>
+  </div>
+
+  <div class="template-wrapper">
+
+    <!-- ========== PAGE 0: COVER ========== -->
+    <div class="template-page cover-page" id="page-cover">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Integrated Feasibility Study</div></div>
+      <img src="../../assets/site-logo.webp" alt="بوندز" class="no-print" loading="lazy" decoding="async" />
+      <h1>Integrated Feasibility Study</h1>
+      <p class="cover-subtitle">Integrated Feasibility Study Template</p>
+      <div class="cover-meta">
+        <div class="field-group"><label>Project / Business Name</label><input type="text" id="cover-business-name" placeholder="e.g. Al-Thawaqa Restaurant" /></div>
+        <div class="field-group"><label>Owner Name</label><input type="text" id="cover-owner-name" placeholder="الاسم الكامل" /></div>
+        <div class="field-group"><label>Legal Form</label><input type="text" id="cover-legal-form" placeholder="Sole Proprietorship / LLC" /></div>
+        <div class="field-group"><label>Preparation Date</label><input type="date" id="cover-date" /></div>
+      </div>
+      <div class="field-group" style="max-width:520px;width:100%;margin-top:1.5rem;text-align:right;">
+        <label>Project Idea in One Sentence</label><textarea id="cover-idea" rows="2" placeholder="Brief description of the project idea..."></textarea>
+      </div>
+      <div class="field-group" style="max-width:520px;width:100%;text-align:right;">
+        <label>Expected Investment (SAR)</label><input type="number" id="cover-investment" placeholder="0" oninput="linkToCapital()" />
+      </div>
+    </div>
+
+    <!-- ========== PAGE 1: VISION & OBJECTIVES ========== -->
+    <div class="template-page" id="page-vision">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Vision</div></div>
+      <div class="page-header"><div class="section-number">1</div><div><h2>Vision, Mission & Objectives</h2><p>Why the project exists and what it aims to achieve</p></div></div>
+      <div class="field-group"><label>Vision — Where do you see yourself in 5-10 years?</label><textarea rows="3" placeholder="Ambitious and specific vision for the future..."></textarea></div>
+      <div class="field-group"><label>Mission — What is your core value?</label><textarea rows="3" placeholder="The fundamental purpose of the project..."></textarea></div>
+      <div class="field-group"><label>SMART Objectives</label><textarea rows="4" placeholder="Specific, Measurable, Achievable, Relevant, Time-bound...
+Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
+      <div class="field-group"><label>Unique Selling Propositions (USP)</label><textarea rows="3" placeholder="What makes you unique and different from all competitors?"></textarea></div>
+    </div>
+
+    <!-- ========== PAGE 2: EXECUTIVE SUMMARY ========== -->
+    <div class="template-page" id="page-summary">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Summary</div></div>
+      <div class="page-header"><div class="section-number">2</div><div><h2>Executive Summary</h2><p>Overview of the entire study (best written last)</p></div></div>
+      <div class="field-group"><label>Project Summary (3-5 lines)</label><textarea rows="5" placeholder="Comprehensive overview: idea, market, opportunity, expected results..."></textarea></div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Required Capital (SAR)</label><input type="number" id="summary-capital" placeholder="0" /></div>
+        <div class="field-group"><label>Payback Period (months)</label><input type="number" id="summary-payback" readonly tabindex="-1" placeholder="Will be calculated automatically" /></div>
+        <div class="field-group"><label>Expected ROI (%)</label><input type="number" id="summary-roi" readonly tabindex="-1" placeholder="Will be calculated automatically" /></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Expected Monthly Units</label><input type="number" id="summary-units" placeholder="0" /></div>
+        <div class="field-group"><label>Expected Jobs</label><input type="number" placeholder="0" /></div>
+        <div class="field-group"><label>Target Market Size (SAR)</label><input type="number" placeholder="0" /></div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 3: PRODUCTS & SERVICES ========== -->
+    <div class="template-page" id="page-products">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Products</div></div>
+      <div class="page-header"><div class="section-number">3</div><div><h2>Products & Services Description</h2><p>What you offer and how customers benefit</p></div></div>
+      <div class="field-group"><label>Primary Product/Service Description</label><textarea rows="4" placeholder="Describe fundamentally what you sell..."></textarea></div>
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">Product Cards</h3>
+      <table class="template-table" id="products-table">
+        <thead><tr><th>م</th><th>Product Name</th><th>Price (SAR)</th><th>Variable Cost</th><th>Contribution Margin</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
+          <tr><td>2</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addProductRow()">+ إضافة منتج</button><button onclick="removeRow('products-table')">- Remove</button></div>
+      <div class="field-group inline" style="margin-top:1rem;">
+        <div class="field-group"><label>Added Value</label><textarea rows="2" placeholder="What differentiates you?"></textarea></div>
+        <div class="field-group"><label>Customer Benefit</label><textarea rows="2" placeholder="Direct benefit..."></textarea></div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 4: MARKET ANALYSIS (PESTLE + SWOT + Porter + Persona) ========== -->
+    <div class="template-page" id="page-market-analysis">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Market Analysis</div></div>
+      <div class="page-header"><div class="section-number">4</div><div><h2>Project Environment Analysis</h2><p>PESTLE + SWOT + Porter's Forces + Customer Persona</p></div></div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1rem 0 0.5rem;">A. PESTLE Analysis</h3>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Political</label><textarea rows="2" placeholder="Laws, government support, stability..."></textarea></div>
+        <div class="field-group"><label>Economic</label><textarea rows="2" placeholder="Growth, inflation, purchasing power..."></textarea></div>
+        <div class="field-group"><label>Social</label><textarea rows="2" placeholder="Culture, demographics, trends..."></textarea></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Technological</label><textarea rows="2" placeholder="Innovation, automation, digital transformation..."></textarea></div>
+        <div class="field-group"><label>Legal</label><textarea rows="2" placeholder="Licenses, taxes, consumer protection..."></textarea></div>
+        <div class="field-group"><label>Environmental</label><textarea rows="2" placeholder="Sustainability, climate change, resources..."></textarea></div>
+      </div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">B. SWOT Analysis</h3>
+      <div class="swot-grid">
+        <div class="swot-box s"><h4>✅ Strengths</h4><textarea rows="4" placeholder="Internal advantages you possess..."></textarea></div>
+        <div class="swot-box w"><h4>⚠️ Weaknesses</h4><textarea rows="4" placeholder="What needs internal improvement..."></textarea></div>
+        <div class="swot-box o"><h4>🌟 Opportunities</h4><textarea rows="4" placeholder="External factors to capitalize on..."></textarea></div>
+        <div class="swot-box t"><h4>⛔ Threats</h4><textarea rows="4" placeholder="External factors that may negatively impact..."></textarea></div>
+      </div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">C. Porter's Five Forces</h3>
+      <table class="template-table" id="porter-table">
+        <thead><tr><th>Force</th><th>Intensity (1-5)</th><th>Explanation</th></tr></thead>
+        <tbody>
+          <tr><td>Competitive Rivalry</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="Number of competitors, intensity..." /></td></tr>
+          <tr><td>Threat of New Entrants</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="Barriers to entry, licenses..." /></td></tr>
+          <tr><td>Bargaining Power of Suppliers</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="Number of suppliers, alternatives..." /></td></tr>
+          <tr><td>Bargaining Power of Buyers</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="Customer options, price sensitivity..." /></td></tr>
+          <tr><td>Threat of Substitutes</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="Alternative products/services..." /></td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">D. Ideal Customer Persona</h3>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Age / Gender / Location</label><input type="text" placeholder="e.g. 25-40 years, male & female, Riyadh" /></div>
+        <div class="field-group"><label>Estimated Monthly Income</label><input type="text" placeholder="5,000 - 15,000 SAR" /></div>
+        <div class="field-group"><label>Needs & Pain Points</label><input type="text" placeholder="What they suffer from and need solved" /></div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 5: MARKETING STRATEGY (4Ps) ========== -->
+    <div class="template-page" id="page-marketing">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Marketing</div></div>
+      <div class="page-header"><div class="section-number">5</div><div><h2>Marketing Strategy (4Ps)</h2><p>Clear plan to reach and convert customers</p></div></div>
+      <div class="field-group"><label>Product — What you sell and how you present it</label><textarea rows="3" placeholder="Packaging, quality, ancillary services, warranty..."></textarea></div>
+      <div class="field-group"><label>Price — Pricing strategy</label><textarea rows="3" placeholder="Value-based, competitive, penetration, premium..."></textarea></div>
+      <div class="field-group inline">
+        <div class="field-group"><label>Expected Unit Price (SAR)</label><input type="number" id="marketing-price" placeholder="0" oninput="linkPriceToRevenue()" /></div>
+        <div class="field-group"><label>Expected Monthly Quantity</label><input type="number" id="marketing-qty" placeholder="0" oninput="linkQtyToRevenue()" /></div>
+      </div>
+      <div class="field-group"><label>Place — Sales and distribution channels</label><textarea rows="3" placeholder="Delivery platforms, physical location, e-store, agents..."></textarea></div>
+      <div class="field-group"><label>Promotion — Reach plan</label><textarea rows="4" placeholder="Social media, paid ads, content marketing, promotions..."></textarea></div>
+      <div class="field-group inline">
+        <div class="field-group"><label>Monthly Marketing Budget</label><input type="number" placeholder="0" /></div>
+        <div class="field-group"><label>Customer Acquisition Cost (CAC)</label><input type="number" placeholder="0" /></div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 6: OPERATIONS & TIMELINE ========== -->
+    <div class="template-page" id="page-operations">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Operations</div></div>
+      <div class="page-header"><div class="section-number">6</div><div><h2>Operations Plan & Timeline</h2><p>How you will manage operations daily and monthly</p></div></div>
+      <div class="field-group"><label>Business Location</label><textarea rows="2" placeholder="City, district, area, annual rent..."></textarea></div>
+      <div class="field-group"><label>Working Hours</label><input type="text" placeholder="e.g. 8 AM - 12 AM, 7 days/week" /></div>
+      <div class="field-group"><label>Production/Service Process Step by Step</label><textarea rows="4" placeholder="1. Receive order → 2. Prepare → 3. Package → 4. Deliver..."></textarea></div>
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">Detailed Timeline</h3>
+      <table class="template-table" id="timeline-table">
+        <thead><tr><th>م</th><th>Task</th><th>Expected Date</th><th>Responsible</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" value="Complete Study" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" value="In Progress" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="Funding Acquisition" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="Obtain Licenses" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="Site Preparation" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="Hiring" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="Soft Launch" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>7</td><td><input type="text" value="Grand Opening" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('timeline-table')">+ إضافة</button><button onclick="removeRow('timeline-table')">- Remove</button></div>
+    </div>
+
+    <!-- ========== PAGE 7: LEGAL & INSURANCE ========== -->
+    <div class="template-page" id="page-legal">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Legal</div></div>
+      <div class="page-header"><div class="section-number">7</div><div><h2>Licenses, Laws & Insurance</h2><p>Regulatory obligations and legal protection</p></div></div>
+      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Required Licenses</h3>
+      <table class="template-table" id="licenses-table">
+        <thead><tr><th>م</th><th>License Name</th><th>Issuing Authority</th><th>Cost (SAR)</th><th>Issuance Duration</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" value="Commercial Registration" /></td><td><input type="text" value="Ministry of Commerce" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="1-3 days" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="Municipal License" /></td><td><input type="text" value="Municipality" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="2-4 weeks" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="Civil Defense Permit" /></td><td><input type="text" value="Civil Defense" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="1 week" /></td></tr>
+        <tr><td>4</td><td><input type="text" value="Health Certificate" /></td><td><input type="text" value="Municipality" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="3-5 days" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">+ إضافة</button><button onclick="removeRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">- Remove</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>Required Insurances</label><textarea rows="3" placeholder="Property insurance, liability insurance, employee insurance..."></textarea></div>
+      <div class="field-group"><label>Expected Tax Obligations</label><textarea rows="2" placeholder="VAT 15%, Zakat 2.5%, income tax if applicable..."></textarea></div>
+    </div>
+
+    <!-- ========== PAGE 8: HUMAN RESOURCES ========== -->
+    <div class="template-page" id="page-hr">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — HR</div></div>
+      <div class="page-header"><div class="section-number">8</div><div><h2>Human Resources</h2><p>Organizational structure and required workforce</p></div></div>
+      <div class="field-group"><label>Organizational Structure</label><textarea rows="3" placeholder="Who manages whom? How do decisions flow?"></textarea></div>
+      <table class="template-table" id="hr-table">
+        <thead><tr><th>م</th><th>Job Title</th><th>Count</th><th>Monthly Salary</th><th>Monthly Total</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" value="Manager" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="Employee" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addHRRow()">+ إضافة</button><button onclick="removeRow('hr-table')">- Remove</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>Total Monthly Salaries: <span id="hr-grand-total" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+      <div class="field-group inline"><div class="field-group"><label>Total Employees</label><input type="number" id="hr-total-employees" readonly tabindex="-1" placeholder="0" /></div><div class="field-group"><label>Salary/Revenue Ratio</label><input type="text" id="hr-salary-ratio" readonly tabindex="-1" placeholder="Will be calculated" /></div></div>
+    </div>
+
+    <!-- ========== PAGE 9: TECHNICAL ========== -->
+    <div class="template-page" id="page-technical">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Technical</div></div>
+      <div class="page-header"><div class="section-number">9</div><div><h2>Technical Needs & Equipment</h2><p>What you need to run the project</p></div></div>
+      <table class="template-table" id="tools-table">
+        <thead><tr><th>م</th><th>Equipment/Tool</th><th>Count</th><th>Unit Price</th><th>Total</th><th>Supply Method</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" placeholder="Buy/Rent" /></td></tr>
+          <tr><td>2</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" /></td></tr>
+          <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addToolRow()">+ إضافة</button><button onclick="removeRow('tools-table')">- Remove</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>Total Equipment Cost: <span id="tools-grand-total" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+      <div class="field-group"><label>Required Technical Systems</label><textarea rows="3" placeholder="POS, inventory management, CRM, website, app..."></textarea></div>
+    </div>
+
+    <!-- ========== PAGE 10: FIXED COSTS ========== -->
+    <div class="template-page" id="page-fixed">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Fixed Costs</div></div>
+      <div class="page-header"><div class="section-number">10</div><div><h2>Monthly Fixed Costs</h2><p>Costs that do not change with production volume</p></div></div>
+      <table class="template-table" id="fixed-costs-table">
+        <thead><tr><th>م</th><th>Cost Item</th><th>Monthly Amount (SAR)</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" value="Rent" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="Salaries" /></td><td><input type="number" class="fc-input" id="fc-salaries" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="Utilities" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="التأمين" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="Tech Subscriptions" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="License Fees" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('fixed-costs-table'); setTimeout(calcFinancials,50)">+ إضافة</button><button onclick="removeRow('fixed-costs-table'); setTimeout(calcFinancials,50)">- Remove</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>Total Fixed Costs: <span id="total-fixed-display" style="color:var(--gold);font-weight:800;">0</span> SAR/month</label></div>
+    </div>
+
+    <!-- ========== PAGE 11: VARIABLE COSTS ========== -->
+    <div class="template-page" id="page-variable">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Variable Costs</div></div>
+      <div class="page-header"><div class="section-number">11</div><div><h2>Variable Costs (Per Unit)</h2><p>Costs that scale with production volume</p></div></div>
+      <table class="template-table" id="var-costs-table">
+        <thead><tr><th>م</th><th>Cost Item</th><th>Per Unit (SAR)</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" value="Raw Materials" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="Packaging" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="Platform Commissions" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="Delivery Fees" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('var-costs-table'); setTimeout(calcFinancials,50)">+ إضافة</button><button onclick="removeRow('var-costs-table'); setTimeout(calcFinancials,50)">- Remove</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>Total Variable Cost Per Unit: <span id="total-var-display" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+    </div>
+
+    <!-- ========== PAGE 12: REVENUE ========== -->
+    <div class="template-page" id="page-revenue">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Revenue</div></div>
+      <div class="page-header"><div class="section-number">12</div><div><h2>Expected Revenue</h2><p>Targeted monthly income sources</p></div></div>
+      <table class="template-table" id="revenue-table">
+        <thead><tr><th>م</th><th>Revenue Item</th><th>Qty/Month</th><th>Unit Price</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>2</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRevenueRow()">+ إضافة</button><button onclick="removeRow('revenue-table'); setTimeout(calcFinancials,50)">- Remove</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>Total Monthly Revenue: <span id="total-revenue-display" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+    </div>
+
+    <!-- ========== PAGE 13: CASH FLOW 12 MONTHS ========== -->
+    <div class="template-page" id="page-cashflow">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Cash Flow</div></div>
+      <div class="page-header"><div class="section-number">13</div><div><h2>Expected Cash Flow (12 Months)</h2><p>Money in and out monthly</p></div></div>
+      <table class="template-table" id="cashflow-table">
+        <thead><tr><th>Month</th><th>Revenue</th><th>Costs</th><th>Net Flow</th><th>Cumulative Balance</th></tr></thead>
+        <tbody>
+          <tr><td>الشهر 1</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 2</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 3</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 4</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 5</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 6</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 7</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 8</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 9</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 10</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 11</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 12</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+        </tbody>
+      </table>
+      <p style="text-align:center;font-size:0.85rem;color:var(--text-secondary);">💡 Fill first 3 months manually, then click "Auto Fill" for the rest of the year</p>
+      <div class="table-actions no-print"><button onclick="autoFillCashFlow()">✨ Auto Fill from Revenue</button></div>
+    </div>
+
+    <!-- ========== PAGE 14: FINANCIAL ANALYSIS ========== -->
+    <div class="template-page" id="page-financial">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Financial Analysis</div></div>
+      <div class="page-header"><div class="section-number">14</div><div><h2>Comprehensive Financial Analysis</h2><p>Numbers that determine the investment decision</p></div></div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Total Fixed Costs/Month</label><input type="number" id="total-fixed" readonly tabindex="-1" placeholder="0" /></div>
+        <div class="field-group"><label>Total Variable Costs/Month</label><input type="number" id="total-var" readonly tabindex="-1" placeholder="0" /></div>
+        <div class="field-group"><label>Total Revenue/Month</label><input type="number" id="total-revenue" readonly tabindex="-1" placeholder="0" /></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Net Profit/Month (SAR)</label><input type="number" id="net-profit" readonly tabindex="-1" placeholder="0" /></div>
+        <div class="field-group"><label>Profit Margin (%)</label><input type="number" id="profit-margin" readonly tabindex="-1" placeholder="0" /></div>
+        <div class="field-group"><label>Break-Even (Units/Month)</label><input type="number" id="break-even-units" readonly tabindex="-1" placeholder="0" /></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Invested Capital (SAR)</label><input type="number" id="capital-invested" placeholder="0" oninput="calcROI()" /></div>
+        <div class="field-group"><label>Payback Period (months)</label><input type="number" id="payback-period" readonly tabindex="-1" placeholder="Will be calculated" /></div>
+        <div class="field-group"><label>Return on Investment ROI (%)</label><input type="number" id="roi-percent" readonly tabindex="-1" placeholder="Will be calculated" /></div>
+      </div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:2rem 0 0.75rem;">Financial Scenarios</h3>
+      <div class="scenario-grid">
+        <div class="scenario-card scenario-pessimistic">
+          <div class="scenario-label" style="color:#dc2626;">Pessimistic (-30%)</div>
+          <div class="scenario-value" id="scenario-pessimistic" style="color:#dc2626;">0</div>
+          <div class="scenario-desc">Monthly Net Profit</div>
+        </div>
+        <div class="scenario-card scenario-expected">
+          <div class="scenario-label" style="color:var(--gold);">Expected</div>
+          <div class="scenario-value" id="scenario-expected" style="color:var(--gold-bright);">0</div>
+          <div class="scenario-desc">Monthly Net Profit</div>
+        </div>
+        <div class="scenario-card scenario-optimistic">
+          <div class="scenario-label" style="color:#16a34a;">Optimistic (+30%)</div>
+          <div class="scenario-value" id="scenario-optimistic" style="color:#16a34a;">0</div>
+          <div class="scenario-desc">Monthly Net Profit</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 15: SMART ANALYSIS ========== -->
+    <div class="template-page" id="page-smart">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — Smart Analysis</div></div>
+      <div class="page-header"><div class="section-number">15</div><div><h2>Smart Analysis & Recommendations</h2><p>Automated analysis of entered data with practical recommendations</p></div></div>
+
+      <div id="smart-loading" style="text-align:center;padding:2rem;">
+        <p style="color:var(--text-secondary);">Fill in the costs and revenue data in previous pages to analyze automatically...</p>
+        <button class="btn-ghost" style="margin-top:1rem;" onclick="runSmartAnalysis()">🔍 Analyze Now</button>
+      </div>
+
+      <div id="smart-results" style="display:none;">
+        <!-- Health Score -->
+        <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;padding:1.5rem;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid var(--border);">
+          <div style="width:80px;height:80px;border-radius:50%;background:conic-gradient(var(--gold) var(--score-deg,0deg), rgba(255,255,255,0.05) 0deg);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;">
+            <div style="width:64px;height:64px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;">
+              <span id="smart-score" style="font-size:1.25rem;font-weight:800;color:var(--gold);">0</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:1rem;font-weight:700;color:var(--gold-bright);" id="smart-score-label">Analyzing...</div>
+            <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;" id="smart-score-desc">Project health score out of 100</div>
+          </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem;">
+          <div style="padding:1rem;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.3);border-radius:10px;">
+            <div style="font-size:0.75rem;color:#16a34a;font-weight:700;">Strengths</div>
+            <ul id="smart-strengths" style="margin:0.5rem 0 0;padding:0 1.25rem;font-size:0.85rem;color:var(--text);"></ul>
+          </div>
+          <div style="padding:1rem;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.3);border-radius:10px;">
+            <div style="font-size:0.75rem;color:#dc2626;font-weight:700;">Areas for Improvement</div>
+            <ul id="smart-weaknesses" style="margin:0.5rem 0 0;padding:0 1.25rem;font-size:0.85rem;color:var(--text);"></ul>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div style="padding:1.25rem;background:rgba(212,168,83,0.05);border:1px solid var(--border);border-radius:12px;">
+          <div style="font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:0.75rem;">📋 Bonds Recommendations</div>
+          <ol id="smart-recommendations" style="margin:0;padding:0 1.25rem;font-size:0.85rem;color:var(--text);line-height:1.8;"></ol>
+        </div>
+
+        <!-- Benchmark Comparison -->
+        <div style="margin-top:1.5rem;">
+          <div style="font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:0.75rem;">📊 Industry Benchmark Comparison</div>
+          <table class="template-table" id="benchmark-table">
+            <thead><tr><th>Indicator</th><th>Your Project</th><th>Optimal Benchmark</th><th>Rating</th></tr></thead>
+            <tbody>
+              <tr><td>هامش الربح</td><td id="bm-margin">-</td><td>25-40%</td><td id="bm-margin-status">-</td></tr>
+              <tr><td>Salary/Revenue Ratio</td><td id="bm-salary">-</td><td>&lt;30%</td><td id="bm-salary-status">-</td></tr>
+              <tr><td>فترة الاسترداد</td><td id="bm-payback">-</td><td>&lt;18 شهر</td><td id="bm-payback-status">-</td></tr>
+              <tr><td>العائد على الاستثمار</td><td id="bm-roi">-</td><td>&gt;20%</td><td id="bm-roi-status">-</td></tr>
+              <tr><td>Break-Even/الإنتاج المتوقع</td><td id="bm-be">-</td><td>&lt;60%</td><td id="bm-be-status">-</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Charts -->
+        <div style="margin-top:1.5rem;">
+          <div style="font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:0.75rem;">📈 Charts</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1rem;"><canvas id="chart-scenarios" height="180"></canvas></div>
+            <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1rem;"><canvas id="chart-costs" height="180"></canvas></div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-top:1rem;"><canvas id="chart-cashflow" height="150"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 16: SENSITIVITY + KPIs ========== -->
+    <div class="template-page" id="page-sensitivity">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Sensitivity</div></div>
+      <div class="page-header"><div class="section-number">16</div><div><h2>Sensitivity Analysis & Indicators</h2><p>What if key variables change?</p></div></div>
+      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Sensitivity Analysis (±10%)</h3>
+      <table class="template-table" id="sensitivity-table">
+        <thead><tr><th>Variable</th><th>-10%</th><th>Base</th><th>+10%</th></tr></thead>
+        <tbody>
+          <tr><td>Price</td><td><input type="number" class="sens-down" readonly tabindex="-1" /></td><td><input type="number" class="sens-base" readonly tabindex="-1" /></td><td><input type="number" class="sens-up" readonly tabindex="-1" /></td></tr>
+          <tr><td>Quantity Sold</td><td><input type="number" class="sens-down" readonly tabindex="-1" /></td><td><input type="number" class="sens-base" readonly tabindex="-1" /></td><td><input type="number" class="sens-up" readonly tabindex="-1" /></td></tr>
+          <tr><td>Fixed Costs</td><td><input type="number" class="sens-down" readonly tabindex="-1" /></td><td><input type="number" class="sens-base" readonly tabindex="-1" /></td><td><input type="number" class="sens-up" readonly tabindex="-1" /></td></tr>
+          <tr><td>Variable Costs</td><td><input type="number" class="sens-down" readonly tabindex="-1" /></td><td><input type="number" class="sens-base" readonly tabindex="-1" /></td><td><input type="number" class="sens-up" readonly tabindex="-1" /></td></tr>
+        </tbody>
+      </table>
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">Key Performance Indicators (KPIs)</h3>
+      <table class="template-table" id="kpi-table">
+        <thead><tr><th>Indicator</th><th>Target</th><th>Actual</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Customer Satisfaction Rate</td><td><input type="text" placeholder="%" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>Repeat Purchase Rate</td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>Customer Acquisition Cost (CAC)</td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>Customer Lifetime Value (LTV)</td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>Inventory Turnover Rate</td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('kpi-table')">+ Add KPI</button><button onclick="removeRow('kpi-table')">- Remove</button></div>
+    </div>
+
+    <!-- ========== PAGE 16: RISKS ========== -->
+    <div class="template-page" id="page-risks">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Risks</div></div>
+      <div class="page-header"><div class="section-number">17</div><div><h2>Risks & Mitigation Plans</h2><p>Identify risks early and prepare for them</p></div></div>
+      <table class="template-table" id="risks-table">
+        <thead><tr><th>م</th><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation Plan</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" placeholder="Demand Decline" /></td><td><input type="text" placeholder="Medium" /></td><td><input type="text" placeholder="High" /></td><td><input type="text" placeholder="Diversify Products" /></td></tr>
+          <tr><td>2</td><td><input type="text" placeholder="Rising Costs" /></td><td><input type="text" placeholder="High" /></td><td><input type="text" placeholder="Medium" /></td><td><input type="text" placeholder="Fixed Contracts with Suppliers" /></td></tr>
+          <tr><td>3</td><td><input type="text" placeholder="New Competitor" /></td><td><input type="text" placeholder="Medium" /></td><td><input type="text" placeholder="Medium" /></td><td><input type="text" placeholder="Build Customer Loyalty" /></td></tr>
+          <tr><td>4</td><td><input type="text" placeholder="Regulatory Change" /></td><td><input type="text" placeholder="Low" /></td><td><input type="text" placeholder="High" /></td><td><input type="text" placeholder="Monitor Laws" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('risks-table')">+ إضافة</button><button onclick="removeRow('risks-table')">- Remove</button></div>
+      <div class="field-group" style="margin-top:1.5rem;"><label>Emergency Plan (Plan B)</label><textarea rows="3" placeholder="What will you do if the project fails to meet goals within 6 months?"></textarea></div>
+    </div>
+
+    <!-- ========== PAGE 17: QUALITY + ESG + EXIT ========== -->
+    <div class="template-page" id="page-quality">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Quality</div></div>
+      <div class="page-header"><div class="section-number">18</div><div><h2>Quality, Sustainability & Exit Plan</h2><p>Quality standards and social/environmental impact</p></div></div>
+      <div class="field-group"><label>Quality Standards</label><textarea rows="3" placeholder="How do you ensure product/service quality? Inspections, complaints, continuous improvement..."></textarea></div>
+      <div class="field-group"><label>Social & Environmental Impact (ESG)</label><textarea rows="3" placeholder="Local hiring, waste reduction, sustainable packaging, community responsibility..."></textarea></div>
+      <div class="field-group"><label>Exit Strategy</label><textarea rows="3" placeholder="Sale, merger, expansion, liquidation... when and how?"></textarea></div>
+      <div class="field-group inline"><div class="field-group"><label>Social Goals</label><textarea rows="2" placeholder="Jobs, training, community support..."></textarea></div><div class="field-group"><label>Environmental Goals</label><textarea rows="2" placeholder="Carbon reduction, recycling..."></textarea></div></div>
+    </div>
+
+    <!-- ========== PAGE 18: CAPITAL + RESULTS ========== -->
+    <div class="template-page" id="page-capital">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Capital</div></div>
+      <div class="page-header"><div class="section-number">19</div><div><h2>Capital Requirements & Results</h2><p>Initial investment and final decision</p></div></div>
+      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Initial Investment</h3>
+      <table class="template-table" id="capital-table">
+        <thead><tr><th>م</th><th>Investment Item</th><th>Amount (SAR)</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" value="Licenses & Registration" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="Furniture & Equipment" /></td><td><input type="number" class="cap-input" id="cap-tools" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="Site Preparation" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="Initial Inventory" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="Launch Marketing" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="Working Capital (3 months)" /></td><td><input type="number" class="cap-input" id="cap-working" readonly tabindex="-1" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('capital-table'); setTimeout(calcCapital,50)">+ إضافة</button><button onclick="removeRow('capital-table'); setTimeout(calcCapital,50)">- Remove</button></div>
+      <div class="field-group inline" style="margin-top:1.5rem;">
+        <div class="field-group"><label>Total Required Capital</label><input type="number" id="total-capital" readonly tabindex="-1" placeholder="0" /></div>
+        <div class="field-group"><label>Expected Source</label><input type="text" placeholder="Self-funded / Loan / Investor / Platform" /></div>
+      </div>
+      <div class="field-group"><label>Financing Strategy</label><textarea rows="3" placeholder="How will you secure funding? Under what terms? When?"></textarea></div>
+      <div class="field-group"><label>Key Results</label><textarea rows="3" placeholder="Key findings from the study..."></textarea></div>
+      <div class="field-group"><label>Recommendations & Next Steps</label><textarea rows="3" placeholder="What is the first step? Who starts it? When?"></textarea></div>
+      <div class="field-group"><label>Is the project viable?</label><select><option value="">Select...</option><option value="yes">✅ Yes, Viable</option><option value="no">❌ No, Not Viable</option><option value="conditional">⚠️ Viable Under Conditions</option></select></div>
+      <div class="signature-grid">
+        <div class="signature-box"><label>Prepared & Signed</label><input type="text" placeholder="الاسم والتوقيع" /></div>
+        <div class="signature-box"><label>Date</label><input type="date" /></div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 20: EXECUTIVE DASHBOARD ========== -->
+    <div class="template-page" id="page-dashboard">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Executive Dashboard — Investor Summary</div></div>
+      <div class="page-header"><div class="section-number">20</div><div><h2>Executive Dashboard</h2><p>One-page investor summary</p></div></div>
+
+      <div style="text-align:center;margin-bottom:1.5rem;">
+        <h3 id="dash-project-name" style="font-size:1.1rem;color:var(--gold-bright);margin:0;">Project Name</h3>
+        <p id="dash-date" style="font-size:0.8rem;color:var(--text-secondary);margin:0.25rem 0 0;">Prepared on</p>
+      </div>
+
+      <!-- KPI Cards -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
+        <div style="background:rgba(212,168,83,0.08);border:1px solid var(--gold);border-radius:12px;padding:1rem;text-align:center;">
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">Monthly Revenue</div>
+          <div id="dash-revenue" style="font-size:1.4rem;font-weight:800;color:var(--gold-bright);margin:0.25rem 0;">0</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);">SAR</div>
+        </div>
+        <div style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.3);border-radius:12px;padding:1rem;text-align:center;">
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">Net Profit</div>
+          <div id="dash-profit" style="font-size:1.4rem;font-weight:800;color:#16a34a;margin:0.25rem 0;">0</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);">SAR/month</div>
+        </div>
+        <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:1rem;text-align:center;">
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">Profit Margin</div>
+          <div id="dash-margin" style="font-size:1.4rem;font-weight:800;color:#3b82f6;margin:0.25rem 0;">0%</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);">Percentage</div>
+        </div>
+        <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:1rem;text-align:center;">
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">Payback Period</div>
+          <div id="dash-payback" style="font-size:1.4rem;font-weight:800;color:#a855f7;margin:0.25rem 0;">0</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);">months</div>
+        </div>
+        <div style="background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.3);border-radius:12px;padding:1rem;text-align:center;">
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">Return on Investment</div>
+          <div id="dash-roi" style="font-size:1.4rem;font-weight:800;color:#eab308;margin:0.25rem 0;">0%</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);">annual</div>
+        </div>
+        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:1rem;text-align:center;">
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">Break-Even</div>
+          <div id="dash-be" style="font-size:1.4rem;font-weight:800;color:#ef4444;margin:0.25rem 0;">0</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);">units/month</div>
+        </div>
+      </div>
+
+      <!-- Health Score + Charts -->
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:1rem;margin-bottom:1.5rem;">
+        <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:1.25rem;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="width:100px;height:100px;border-radius:50%;background:conic-gradient(var(--gold) var(--dash-deg,0deg), rgba(255,255,255,0.05) 0deg);display:flex;align-items:center;justify-content:center;position:relative;">
+            <div style="width:82px;height:82px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;">
+              <span id="dash-score" style="font-size:1.5rem;font-weight:800;color:var(--gold);">0</span>
+            </div>
+          </div>
+          <div style="font-size:0.85rem;font-weight:700;color:var(--gold-bright);margin-top:0.75rem;" id="dash-score-label">Analyzing...</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);" id="dash-score-desc">Project Health Score</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:0.75rem;"><canvas id="dash-chart-costs" height="140"></canvas></div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:0.75rem;"><canvas id="dash-chart-scenarios" height="140"></canvas></div>
+        </div>
+      </div>
+
+      <!-- SWOT Mini + Recommendations -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:1rem;">
+          <div style="font-size:0.85rem;font-weight:700;color:var(--gold);margin-bottom:0.5rem;">📋 Top Recommendations</div>
+          <ol id="dash-recommendations" style="margin:0;padding:0 1rem;font-size:0.8rem;color:var(--text);line-height:1.7;"></ol>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.3);border-radius:8px;padding:0.6rem;">
+            <div style="font-size:0.65rem;color:#16a34a;font-weight:700;">Strength #1</div>
+            <div id="dash-swot-s" style="font-size:0.75rem;color:var(--text);margin-top:0.25rem;">-</div>
+          </div>
+          <div style="background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.3);border-radius:8px;padding:0.6rem;">
+            <div style="font-size:0.65rem;color:#dc2626;font-weight:700;">Weakness #1</div>
+            <div id="dash-swot-w" style="font-size:0.75rem;color:var(--text);margin-top:0.25rem;">-</div>
+          </div>
+          <div style="background:rgba(212,168,83,0.08);border:1px solid rgba(212,168,83,0.3);border-radius:8px;padding:0.6rem;">
+            <div style="font-size:0.65rem;color:var(--gold-bright);font-weight:700;">Opportunity #1</div>
+            <div id="dash-swot-o" style="font-size:0.75rem;color:var(--text);margin-top:0.25rem;">-</div>
+          </div>
+          <div style="background:rgba(100,116,139,0.08);border:1px solid rgba(100,116,139,0.3);border-radius:8px;padding:0.6rem;">
+            <div style="font-size:0.65rem;color:#94a3b8;font-weight:700;">Threat #1</div>
+            <div id="dash-swot-t" style="font-size:0.75rem;color:var(--text);margin-top:0.25rem;">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cash Flow Mini Chart -->
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:0.75rem;margin-bottom:1rem;">
+        <canvas id="dash-chart-cashflow" height="100"></canvas>
+      </div>
+
+      <p style="text-align:center;font-size:0.75rem;color:var(--text-secondary);margin:0;">This dashboard summarizes data entered in the template. For full details, review the preceding sections.</p>
+    </div>
+
+    <!-- Footer Disclaimer -->
+    <div class="template-page no-print" style="text-align:center;padding:2rem;">
+      <p style="color:var(--text-secondary);font-size:0.85rem;">
+        This template is provided by <strong style="color:var(--gold)">بوندز</strong> as an assistive tool only. Not financial or legal advice.<br/>
+        For a detailed feasibility study, <a href="../../contact.html" style="color:var(--gold)">book your consultation</a>.
+      </p>
+    </div>
+
+  </div>
+
+  <footer class="footer no-print"><div class="container" style="text-align:center;padding:2rem 0;"><p style="color:var(--text-secondary);font-size:0.85rem;">&copy; 2026 Bonds. All rights reserved.</p></div></footer>
+
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+
+    // ===== Smart Analysis =====
+    let chartScenarios, chartCosts, chartCashFlow;
+    function runSmartAnalysis() {
+      const revenue = parseFloat(document.getElementById('total-revenue')?.value) || 0;
+      const fixed = parseFloat(document.getElementById('total-fixed')?.value) || 0;
+      const variable = parseFloat(document.getElementById('total-var')?.value) || 0;
+      const net = parseFloat(document.getElementById('net-profit')?.value) || 0;
+      const margin = parseFloat(document.getElementById('profit-margin')?.value) || 0;
+      const roi = parseFloat(document.getElementById('roi-percent')?.value) || 0;
+      const payback = parseFloat(document.getElementById('payback-period')?.value) || 0;
+      const beUnits = parseFloat(document.getElementById('break-even-units')?.value) || 0;
+      const totalQty = parseFloat(document.querySelector('#revenue-table .rev-total')?.closest('tr')?.querySelector('.rev-qty')?.value) || 1;
+      const salaryRatio = document.getElementById('hr-salary-ratio')?.value || '-';
+      const hrTotal = parseFloat(document.getElementById('hr-grand-total')?.textContent) || 0;
+
+      document.getElementById('smart-loading').style.display = 'none';
+      document.getElementById('smart-results').style.display = 'block';
+
+      // Calculate health score (0-100)
+      let score = 0;
+      if (margin >= 30) score += 25; else if (margin >= 15) score += 15; else if (margin > 0) score += 5;
+      if (roi >= 25) score += 25; else if (roi >= 15) score += 15; else if (roi > 0) score += 5;
+      if (payback > 0 && payback <= 12) score += 25; else if (payback > 0 && payback <= 24) score += 15; else if (payback > 0) score += 5;
+      if (revenue > 0 && fixed / revenue < 0.5) score += 15; else if (revenue > 0) score += 5;
+      if (net > 0) score += 10;
+      score = Math.min(100, score);
+
+      document.getElementById('smart-score').textContent = score;
+      document.querySelector('#smart-results').style.setProperty('--score-deg', (score * 3.6) + 'deg');
+
+      if (score >= 75) { document.getElementById('smart-score-label').textContent = 'مشروع واعد وصحي'; document.getElementById('smart-score-label').style.color = '#16a34a'; }
+      else if (score >= 50) { document.getElementById('smart-score-label').textContent = 'Viable but needs improvement'; document.getElementById('smart-score-label').style.color = 'var(--gold-bright)'; }
+      else if (score > 0) { document.getElementById('smart-score-label').textContent = 'مشروع High المخاطر — راجع البيانات'; document.getElementById('smart-score-label').style.color = '#dc2626'; }
+      else { document.getElementById('smart-score-label').textContent = 'أدخل البيانات أولاً'; document.getElementById('smart-score-label').style.color = 'var(--text-secondary)'; }
+
+      // Strengths
+      const strengths = [];
+      if (margin >= 25) strengths.push('Good profit margin (≥25%)');
+      if (roi >= 20) strengths.push('Excellent ROI (≥20%)');
+      if (payback > 0 && payback <= 18) strengths.push('Acceptable payback (≤18 months)');
+      if (net > 0) strengths.push('Positive net profit');
+      if (beUnits > 0 && totalQty > 0 && beUnits / totalQty < 0.6) strengths.push('Break-Even قابلة للتحقيق');
+      const sList = document.getElementById('smart-strengths');
+      sList.innerHTML = strengths.length ? strengths.map(s => '<li>' + s + '</li>').join('') : '<li>أدخل المزيد من البيانات لرؤية نقاط Force</li>';
+
+      // Weaknesses
+      const weaknesses = [];
+      if (margin < 15 && margin > 0) weaknesses.push('هامش الربح Low — راجع التسعير أو التكاليف');
+      if (margin <= 0) weaknesses.push('هامش الربح سلبي — المشروع غير مربح حالياً');
+      if (roi < 15 && roi > 0) weaknesses.push('عائد الاستثمار Low');
+      if (payback > 36) weaknesses.push('Payback period too long (>36 months)');
+      if (revenue > 0 && fixed / revenue > 0.6) weaknesses.push('Fixed Costs مرتفعة مقارنة بالإيرادات');
+      if (hrTotal > 0 && revenue > 0 && hrTotal / revenue > 0.35) weaknesses.push('نسبة Salaries مرتفعة (>35% من الإيرادات)');
+      const wList = document.getElementById('smart-weaknesses');
+      wList.innerHTML = weaknesses.length ? weaknesses.map(w => '<li>' + w + '</li>').join('') : '<li>No clear weaknesses — continue monitoring</li>';
+
+      // Recommendations
+      const recs = [];
+      if (margin < 20) recs.push('Review cost structure: Can you reduce raw materials or negotiate with suppliers?');
+      if (margin < 20) recs.push('اختبر رفع Price 5-10% على جزء من العملاء لقياس حساسية الطلب.');
+      if (fixed / revenue > 0.5) recs.push('Fixed Costs تلتهم نصف إيراداتك. هل يمكن تقليل Rent أو العمل بنظام Hybrid؟');
+      if (payback > 24) recs.push('Payback period is long. Consider reducing initial capital or increasing revenue.');
+      if (beUnits > 0 && totalQty > 0 && beUnits / totalQty > 0.8) recs.push('Break-Even مرتفعة. زيادة Quantity Sold أو تقليل Variable Cost ضروري.');
+      if (roi < 15) recs.push('العائد Low. قارن مشروعك مع بدائل الاستثمار (صناديق، عقار...)');
+      if (net > 0 && net < fixed * 0.2) recs.push('Safety margin is tight. Keep a cash reserve covering 3-6 months.');
+      if (recs.length === 0) recs.push('Indicators are generally good. Focus on execution and periodic monitoring.');
+      recs.push('Review this template monthly and update actual vs. expected numbers.');
+      document.getElementById('smart-recommendations').innerHTML = recs.map((r, i) => '<li>' + r + '</li>').join('');
+
+      // Benchmarks
+      document.getElementById('bm-margin').textContent = margin.toFixed(1) + '%';
+      document.getElementById('bm-margin-status').innerHTML = margin >= 25 ? '<span style="color:#16a34a">✅ Excellent</span>' : margin >= 15 ? '<span style="color:var(--gold)">⚠️ Acceptable</span>' : '<span style="color:#dc2626">❌ Needs Improvement</span>';
+      document.getElementById('bm-salary').textContent = hrTotal > 0 && revenue > 0 ? ((hrTotal / revenue) * 100).toFixed(1) + '%' : '-';
+      document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span style="color:#16a34a">✅</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-payback').textContent = payback > 0 ? payback.toFixed(1) + ' شهر' : '-';
+      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= 18 ? '<span style="color:#16a34a">✅</span>' : payback > 0 && payback <= 36 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-roi').textContent = roi.toFixed(1) + '%';
+      document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span style="color:#16a34a">✅</span>' : roi >= 10 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-be').textContent = totalQty > 0 ? ((beUnits / totalQty) * 100).toFixed(0) + '%' : '-';
+      document.getElementById('bm-be-status').innerHTML = totalQty > 0 && beUnits / totalQty < 0.6 ? '<span style="color:#16a34a">✅</span>' : totalQty > 0 && beUnits / totalQty < 0.9 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
+
+      renderCharts(revenue, fixed, variable, net);
+      updateDashboard(revenue, fixed, variable, net, marginPct, roi, paybackMonths, beUnits);
+    }
+
+    function updateDashboard(revenue, fixed, variable, net, marginPct, roi, paybackMonths, beUnits) {
+      const projectName = document.getElementById('cover-business-name')?.value || 'Untitled Project';
+      document.getElementById('dash-project-name').textContent = projectName;
+      document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-GB');
+
+      document.getElementById('dash-revenue').textContent = Math.round(revenue).toLocaleString('en-US');
+      document.getElementById('dash-profit').textContent = Math.round(net).toLocaleString('en-US');
+      document.getElementById('dash-margin').textContent = (marginPct * 100).toFixed(1) + '%';
+      document.getElementById('dash-payback').textContent = paybackMonths < 999 ? paybackMonths.toFixed(1) : '∞';
+      document.getElementById('dash-roi').textContent = roi.toFixed(1) + '%';
+      document.getElementById('dash-be').textContent = Math.round(beUnits).toLocaleString('en-US');
+
+      const salaryRatio = revenue > 0 ? (fixed * 0.6) / revenue : 0;
+      const paybackScore = paybackMonths < 999 ? Math.max(0, Math.min(100, (36 - paybackMonths) / 36 * 100)) : 0;
+      const salaryRatioScore = Math.max(0, Math.min(100, (1 - salaryRatio) * 100));
+      const score = Math.min(100, Math.max(0, (marginPct * 30) + (roi * 0.3) + (paybackScore * 0.25) + (salaryRatioScore * 0.15)));
+      document.getElementById('dash-score').textContent = Math.round(score);
+      document.getElementById('dash-score').style.color = score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626';
+      document.getElementById('dash-score-label').textContent = score >= 75 ? 'Excellent Project ✅' : score >= 50 ? 'Needs Improvement ⚠️' : 'High Risk ❌';
+      document.getElementById('dash-score-label').style.color = score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626';
+      const deg = Math.round(score / 100 * 360);
+      const scoreCircle = document.querySelector('#dash-score').closest('div[style*="conic-gradient"]');
+      if (scoreCircle) scoreCircle.style.background = 'conic-gradient(' + (score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626') + ' ' + deg + 'deg, rgba(255,255,255,0.05) 0deg)';
+
+      const recs = [];
+      if (marginPct < 0.15) recs.push('Margin is low — review pricing or reduce variable costs.');
+      if (paybackMonths > 24) recs.push('Payback period is long — consider reducing capital or increasing revenue.');
+      if (roi < 15) recs.push('ROI is weak — explore opportunities to improve efficiency.');
+      if (salaryRatio > 0.35) recs.push('Salary ratio is high — consider flexible staffing or automation.');
+      if (beUnits / (revenue > 0 ? revenue / document.querySelector('.rev-price')?.value || 1 : 1) > 0.8) recs.push('Break-even is close — risk of not covering early months.');
+      if (recs.length === 0) recs.push('Project is generally healthy. Continue monthly financial monitoring.');
+      document.getElementById('dash-recommendations').innerHTML = recs.map(r => '<li>' + r + '</li>').join('');
+
+      const strengths = Array.from(document.querySelectorAll('.swot-cell:nth-child(1) input')).map(i => i.value).filter(Boolean);
+      const weaknesses = Array.from(document.querySelectorAll('.swot-cell:nth-child(2) input')).map(i => i.value).filter(Boolean);
+      const opportunities = Array.from(document.querySelectorAll('.swot-cell:nth-child(3) input')).map(i => i.value).filter(Boolean);
+      const threats = Array.from(document.querySelectorAll('.swot-cell:nth-child(4) input')).map(i => i.value).filter(Boolean);
+      document.getElementById('dash-swot-s').textContent = strengths[0] || 'Not defined';
+      document.getElementById('dash-swot-w').textContent = weaknesses[0] || 'Not defined';
+      document.getElementById('dash-swot-o').textContent = opportunities[0] || 'Not defined';
+      document.getElementById('dash-swot-t').textContent = threats[0] || 'Not defined';
+
+      const ctxCost = document.getElementById('dash-chart-costs');
+      if (dashChartCosts) dashChartCosts.destroy();
+      dashChartCosts = new Chart(ctxCost, {
+        type: 'doughnut',
+        data: { labels: ['Fixed','Variable'], datasets: [{ data: [fixed, variable], backgroundColor: ['#3b82f6','#ef4444'], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: 'var(--text)', font: { size: 10 } } } } }
+      });
+
+      const ctxScen = document.getElementById('dash-chart-scenarios');
+      if (dashChartScenarios) dashChartScenarios.destroy();
+      dashChartScenarios = new Chart(ctxScen, {
+        type: 'bar',
+        data: { labels: ['Pessimistic','Expected','Optimistic'], datasets: [{ data: [net * 0.7, net, net * 1.3], backgroundColor: ['#dc2626','var(--gold)','#16a34a'], borderRadius: 4, borderSkipped: false }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: 'var(--text)', font: { size: 9 } }, grid: { display: false } }, y: { display: false } } }
+      });
+
+      const cashData = [];
+      for (let i = 1; i <= 12; i++) {
+        const rev = parseFloat(document.getElementById('cf-rev-' + i)?.value) || 0;
+        const cost = parseFloat(document.getElementById('cf-cost-' + i)?.value) || 0;
+        cashData.push(rev - cost);
+      }
+      const ctxCf = document.getElementById('dash-chart-cashflow');
+      if (dashChartCashFlow) dashChartCashFlow.destroy();
+      dashChartCashFlow = new Chart(ctxCf, {
+        type: 'line',
+        data: { labels: ['1','2','3','4','5','6','7','8','9','10','11','12'], datasets: [{ data: cashData, borderColor: 'var(--gold)', backgroundColor: 'rgba(212,168,83,0.1)', fill: true, tension: 0.3, pointRadius: 2, borderWidth: 2 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: 'var(--text-secondary)', font: { size: 9 } }, grid: { display: false } }, y: { display: false } } }
+      });
+    }
+
+    let dashChartCosts, dashChartScenarios, dashChartCashFlow;
+
+    function scrollToDashboard() {
+      document.getElementById('page-dashboard').scrollIntoView({ behavior: 'smooth' });
+      calcFinancials();
+    }
+
+    function renderCharts(revenue, fixed, variable, net) {
+      const pessimistic = net * 0.7;
+      const expected = net;
+      const optimistic = net * 1.3;
+
+      // Scenarios bar chart
+      const ctx1 = document.getElementById('chart-scenarios');
+      if (chartScenarios) chartScenarios.destroy();
+      chartScenarios = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: ['المتشائم', 'المتوقع', 'المتفائل'],
+          datasets: [{
+            label: 'Monthly Net Profit (SAR)',
+            data: [pessimistic, expected, optimistic],
+            backgroundColor: ['rgba(220,38,38,0.7)', 'rgba(212,168,83,0.7)', 'rgba(22,163,74,0.7)'],
+            borderColor: ['#dc2626', 'var(--gold)', '#16a34a'],
+            borderWidth: 1
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+
+      // Costs doughnut
+      const ctx2 = document.getElementById('chart-costs');
+      if (chartCosts) chartCosts.destroy();
+      chartCosts = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: ['تكاليف ثابتة', 'تكاليف متغيرة', 'صافي ربح'],
+          datasets: [{
+            data: [fixed, variable, Math.max(0, net)],
+            backgroundColor: ['rgba(220,38,38,0.6)', 'rgba(59,130,246,0.6)', 'rgba(22,163,74,0.6)'],
+            borderColor: ['#dc2626', '#3b82f6', '#16a34a'],
+            borderWidth: 1
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { labels: { color: 'var(--text)' } } } }
+      });
+
+      // Cash flow line chart
+      const cfData = [];
+      document.querySelectorAll('#cashflow-table tbody tr').forEach(row => {
+        const bal = parseFloat(row.querySelector('.cf-balance')?.value) || 0;
+        cfData.push(bal);
+      });
+      const ctx3 = document.getElementById('chart-cashflow');
+      if (chartCashFlow) chartCashFlow.destroy();
+      chartCashFlow = new Chart(ctx3, {
+        type: 'line',
+        data: {
+          labels: ['ش1','ش2','ش3','ش4','ش5','ش6','ش7','ش8','ش9','ش10','ش11','ش12'],
+          datasets: [{
+            label: 'Cumulative Balance (ريال)',
+            data: cfData.length ? cfData : [0,0,0,0,0,0,0,0,0,0,0,0],
+            borderColor: 'var(--gold)',
+            backgroundColor: 'rgba(212,168,83,0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { labels: { color: 'var(--text)' } } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
+      });
+    }
+
+    // ===== Progress Bar =====
+    function updateProgress() {
+      const pages = document.querySelectorAll('.template-page');
+      let filled = 0;
+      document.querySelectorAll('input, textarea, select').forEach(el => {
+        if (el.type === 'checkbox') { if (el.checked) filled++; }
+        else if (el.value && el.value.trim()) filled++;
+      });
+      const total = document.querySelectorAll('input, textarea, select').length;
+      const pct = total ? Math.min(100, Math.round((filled / total) * 100)) : 0;
+      document.getElementById('progressFill').style.width = pct + '%';
+    }
+    document.addEventListener('input', updateProgress);
+
+    // ===== Table helpers =====
+    function addRow(tableId) {
+      const table = document.getElementById(tableId);
+      const tbody = table.querySelector('tbody');
+      const firstRow = tbody.querySelector('tr');
+      const newRow = document.createElement('tr');
+      const cols = firstRow.children.length;
+      let html = '<td>' + (tbody.children.length + 1) + '</td>';
+      for (let i = 1; i < cols; i++) {
+        const input = firstRow.children[i].querySelector('input, select, textarea');
+        const type = input ? input.type : 'text';
+        const ph = input ? input.placeholder : '';
+        const cls = input ? input.className : '';
+        const oninp = input ? input.getAttribute('oninput') : '';
+        const read = input && input.hasAttribute('readonly') ? 'readonly tabindex="-1"' : '';
+        if (type === 'date') html += '<td><input type="date" /></td>';
+        else if (type === 'number') html += '<td><input type="number" class="' + cls + '" ' + read + (oninp ? ' oninput="' + oninp + '"' : '') + ' placeholder="' + ph + '" /></td>';
+        else html += '<td><input type="text" placeholder="' + ph + '" /></td>';
+      }
+      newRow.innerHTML = html;
+      tbody.appendChild(newRow);
+      renumberRows(tableId);
+    }
+    function removeRow(tableId) {
+      const tbody = document.getElementById(tableId).querySelector('tbody');
+      if (tbody.children.length > 1) tbody.removeChild(tbody.lastElementChild);
+      renumberRows(tableId);
+    }
+    function renumberRows(tableId) {
+      document.querySelectorAll('#' + tableId + ' tbody tr').forEach((r, i) => { if (r.children[0]) r.children[0].textContent = i + 1; });
+    }
+
+    // ===== Product margin =====
+    function calcProductMargin(input) {
+      const row = input.closest('tr');
+      const price = parseFloat(row.querySelector('.prod-price')?.value) || 0;
+      const cost = parseFloat(row.querySelector('.prod-cost')?.value) || 0;
+      const margin = row.querySelector('.prod-margin');
+      if (margin) margin.value = (price - cost).toFixed(2);
+    }
+    function addProductRow() {
+      const tbody = document.getElementById('products-table').querySelector('tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (tbody.children.length + 1) + '</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td>';
+      tbody.appendChild(tr);
+    }
+
+    // ===== HR =====
+    function calcHRRow(input) {
+      const row = input.closest('tr');
+      const count = parseFloat(row.querySelector('.hr-count')?.value) || 0;
+      const salary = parseFloat(row.querySelector('.hr-salary')?.value) || 0;
+      const total = row.querySelector('.hr-total');
+      if (total) total.value = (count * salary).toFixed(2);
+      calcHRGrandTotal();
+    }
+    function calcHRGrandTotal() {
+      let grand = 0, employees = 0;
+      document.querySelectorAll('#hr-table .hr-total').forEach(el => grand += parseFloat(el.value) || 0);
+      document.querySelectorAll('#hr-table .hr-count').forEach(el => employees += parseFloat(el.value) || 0);
+      document.getElementById('hr-grand-total').textContent = grand.toFixed(0);
+      document.getElementById('hr-total-employees').value = employees;
+      const rev = parseFloat(document.getElementById('total-revenue')?.value) || 0;
+      document.getElementById('hr-salary-ratio').value = rev > 0 ? ((grand / rev) * 100).toFixed(1) + '%' : '-';
+      document.getElementById('fc-salaries').value = grand.toFixed(2);
+      calcFinancials();
+    }
+    function addHRRow() {
+      const tbody = document.getElementById('hr-table').querySelector('tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (tbody.children.length + 1) + '</td><td><input type="text" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td>';
+      tbody.appendChild(tr);
+    }
+
+    // ===== Tools =====
+    function calcToolRow(input) {
+      const row = input.closest('tr');
+      const qty = parseFloat(row.querySelector('.tool-qty')?.value) || 0;
+      const price = parseFloat(row.querySelector('.tool-price')?.value) || 0;
+      const total = row.querySelector('.tool-total');
+      if (total) total.value = (qty * price).toFixed(2);
+      calcToolsGrandTotal();
+    }
+    function calcToolsGrandTotal() {
+      let grand = 0;
+      document.querySelectorAll('#tools-table .tool-total').forEach(el => grand += parseFloat(el.value) || 0);
+      document.getElementById('tools-grand-total').textContent = grand.toFixed(0);
+      document.getElementById('cap-tools').value = grand.toFixed(2);
+      calcCapital();
+    }
+    function addToolRow() {
+      const tbody = document.getElementById('tools-table').querySelector('tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (tbody.children.length + 1) + '</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" placeholder="Buy/Rent" /></td>';
+      tbody.appendChild(tr);
+    }
+
+    // ===== Revenue =====
+    function calcRevenueRow(input) {
+      const row = input.closest('tr');
+      const qty = parseFloat(row.querySelector('.rev-qty')?.value) || 0;
+      const price = parseFloat(row.querySelector('.rev-price')?.value) || 0;
+      const total = row.querySelector('.rev-total');
+      if (total) total.value = (qty * price).toFixed(2);
+      calcFinancials();
+    }
+    function addRevenueRow() {
+      const tbody = document.getElementById('revenue-table').querySelector('tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (tbody.children.length + 1) + '</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td>';
+      tbody.appendChild(tr);
+    }
+
+    // ===== Financials core =====
+    function sumInputs(selector) {
+      let total = 0;
+      document.querySelectorAll(selector).forEach(el => total += parseFloat(el.value) || 0);
+      return total;
+    }
+    function calcFinancials() {
+      const fixed = sumInputs('#fixed-costs-table .fc-input');
+      const varCost = sumInputs('#var-costs-table .vc-input');
+      const revenue = sumInputs('#revenue-table .rev-total');
+      const totalQty = sumInputs('#revenue-table .rev-qty');
+      const net = revenue - fixed - varCost;
+      const margin = revenue > 0 ? (net / revenue) * 100 : 0;
+      const avgPrice = totalQty > 0 ? revenue / totalQty : 0;
+      const avgVarCost = totalQty > 0 ? varCost / totalQty : 0;
+      const contribution = avgPrice - avgVarCost;
+      const beUnits = contribution > 0 ? fixed / contribution : 0;
+
+      document.getElementById('total-fixed').value = fixed.toFixed(2);
+      document.getElementById('total-var').value = varCost.toFixed(2);
+      document.getElementById('total-revenue').value = revenue.toFixed(2);
+      document.getElementById('net-profit').value = net.toFixed(2);
+      document.getElementById('profit-margin').value = margin.toFixed(2);
+      document.getElementById('break-even-units').value = beUnits > 0 && isFinite(beUnits) ? Math.ceil(beUnits) : 0;
+
+      document.getElementById('total-fixed-display').textContent = fixed.toFixed(0);
+      document.getElementById('total-var-display').textContent = varCost.toFixed(0);
+      document.getElementById('total-revenue-display').textContent = revenue.toFixed(0);
+
+      document.getElementById('scenario-expected').textContent = net.toFixed(0);
+      document.getElementById('scenario-pessimistic').textContent = (net * 0.7).toFixed(0);
+      document.getElementById('scenario-optimistic').textContent = (net * 1.3).toFixed(0);
+
+      document.getElementById('cap-working').value = (fixed * 3).toFixed(2);
+      calcCapital();
+      calcROI();
+      calcSensitivity();
+      updateProgress();
+    }
+
+    // ===== Cash Flow =====
+    function calcCashFlow() {
+      let balance = 0;
+      const rows = document.querySelectorAll('#cashflow-table tbody tr');
+      rows.forEach(row => {
+        const rev = parseFloat(row.querySelector('.cf-rev')?.value) || 0;
+        const cost = parseFloat(row.querySelector('.cf-cost')?.value) || 0;
+        const net = rev - cost;
+        balance += net;
+        const netEl = row.querySelector('.cf-net');
+        const balEl = row.querySelector('.cf-balance');
+        if (netEl) netEl.value = net.toFixed(2);
+        if (balEl) balEl.value = balance.toFixed(2);
+      });
+    }
+    function autoFillCashFlow() {
+      const rev = parseFloat(document.getElementById('total-revenue')?.value) || 0;
+      const cost = parseFloat(document.getElementById('total-fixed')?.value) || 0;
+      const rows = document.querySelectorAll('#cashflow-table tbody tr');
+      rows.forEach((row, idx) => {
+        const growth = 1 + (idx * 0.02); // 2% monthly growth
+        const r = rev * growth;
+        const c = cost * growth;
+        const revInput = row.querySelector('.cf-rev');
+        const costInput = row.querySelector('.cf-cost');
+        if (revInput && !revInput.value) revInput.value = r.toFixed(2);
+        if (costInput && !costInput.value) costInput.value = c.toFixed(2);
+      });
+      calcCashFlow();
+    }
+
+    // ===== Capital =====
+    function calcCapital() {
+      const total = sumInputs('#capital-table .cap-input');
+      document.getElementById('total-capital').value = total.toFixed(2);
+      calcROI();
+    }
+    function linkLicensesToCapital() {
+      const total = sumInputs('#licenses-table .license-cost');
+      // Auto-fill licenses row in capital if exists
+      calcCapital();
+    }
+    function linkToCapital() {
+      const val = parseFloat(document.getElementById('cover-investment')?.value) || 0;
+      document.getElementById('capital-invested').value = val;
+      calcROI();
+    }
+
+    // ===== ROI & Payback =====
+    function calcROI() {
+      const net = parseFloat(document.getElementById('net-profit')?.value) || 0;
+      const capital = parseFloat(document.getElementById('capital-invested')?.value) || parseFloat(document.getElementById('total-capital')?.value) || 0;
+      const annual = net * 12;
+      const roi = capital > 0 ? (annual / capital) * 100 : 0;
+      const payback = net > 0 ? capital / net : 0;
+      document.getElementById('roi-percent').value = roi.toFixed(2);
+      document.getElementById('payback-period').value = payback > 0 && isFinite(payback) ? payback.toFixed(1) : 0;
+      document.getElementById('summary-capital').value = capital;
+      document.getElementById('summary-payback').value = payback > 0 && isFinite(payback) ? payback.toFixed(1) : 0;
+      document.getElementById('summary-roi').value = roi.toFixed(2);
+    }
+
+    // ===== Sensitivity =====
+    function calcSensitivity() {
+      const rev = parseFloat(document.getElementById('total-revenue')?.value) || 0;
+      const fixed = parseFloat(document.getElementById('total-fixed')?.value) || 0;
+      const varCost = parseFloat(document.getElementById('total-var')?.value) || 0;
+      const baseNet = rev - fixed - varCost;
+      const rows = document.querySelectorAll('#sensitivity-table tbody tr');
+      if (rows.length >= 1) {
+        rows[0].querySelector('.sens-base').value = baseNet.toFixed(0);
+        rows[0].querySelector('.sens-down').value = (baseNet * 0.9).toFixed(0);
+        rows[0].querySelector('.sens-up').value = (baseNet * 1.1).toFixed(0);
+      }
+      if (rows.length >= 2) {
+        rows[1].querySelector('.sens-base').value = baseNet.toFixed(0);
+        rows[1].querySelector('.sens-down').value = (baseNet * 0.85).toFixed(0);
+        rows[1].querySelector('.sens-up').value = (baseNet * 1.15).toFixed(0);
+      }
+      if (rows.length >= 3) {
+        rows[2].querySelector('.sens-base').value = baseNet.toFixed(0);
+        rows[2].querySelector('.sens-down').value = (baseNet * 1.1).toFixed(0); // lower fixed = higher profit
+        rows[2].querySelector('.sens-up').value = (baseNet * 0.9).toFixed(0);
+      }
+      if (rows.length >= 4) {
+        rows[3].querySelector('.sens-base').value = baseNet.toFixed(0);
+        rows[3].querySelector('.sens-down').value = (baseNet * 1.1).toFixed(0);
+        rows[3].querySelector('.sens-up').value = (baseNet * 0.9).toFixed(0);
+      }
+    }
+
+    // ===== Marketing links =====
+    function linkPriceToRevenue() {
+      const price = document.getElementById('marketing-price')?.value;
+      const firstRevPrice = document.querySelector('#revenue-table .rev-price');
+      if (firstRevPrice && price && !firstRevPrice.value) firstRevPrice.value = price;
+      calcFinancials();
+    }
+    function linkQtyToRevenue() {
+      const qty = document.getElementById('marketing-qty')?.value;
+      const firstRevQty = document.querySelector('#revenue-table .rev-qty');
+      if (firstRevQty && qty && !firstRevQty.value) firstRevQty.value = qty;
+      calcFinancials();
+    }
+
+    // ===== Draft save/load =====
+    function saveDraft() {
+      const data = {};
+      document.querySelectorAll('input, textarea, select').forEach((el, i) => {
+        data['f' + i] = el.type === 'checkbox' ? el.checked : el.value;
+      });
+      localStorage.setItem('bonds_feasibility_v2', JSON.stringify(data));
+      alert('Draft saved successfully ✅');
+    }
+    function loadDraft() {
+      const raw = localStorage.getItem('bonds_feasibility_v2');
+      if (!raw) { alert('No saved draft found'); return; }
+      const data = JSON.parse(raw);
+      document.querySelectorAll('input, textarea, select').forEach((el, i) => {
+        const key = 'f' + i;
+        if (data[key] !== undefined) {
+          if (el.type === 'checkbox') el.checked = data[key];
+          else el.value = data[key];
+        }
+      });
+      calcFinancials();
+      calcCashFlow();
+      calcCapital();
+      calcHRGrandTotal();
+      calcToolsGrandTotal();
+      alert('Draft loaded successfully ✅');
+    }
+    function clearAll() {
+      if (!confirm('Are you sure you want to clear all data?')) return;
+      document.querySelectorAll('input, textarea, select').forEach(el => {
+        if (el.type === 'checkbox') el.checked = false;
+        else if (!el.hasAttribute('readonly')) el.value = '';
+      });
+      calcFinancials();
+      calcCashFlow();
+      calcCapital();
+    }
+
+    // ===== Export to Excel =====
+    function exportToExcel() {
+      if (typeof XLSX === 'undefined') { alert('جاري تحميل مكتبة Excel...'); setTimeout(exportToExcel, 1000); return; }
+      const wb = XLSX.utils.book_new();
+      wb.Props = { Title: 'دراسة جدوى - بوندز', Subject: 'Feasibility Study', Author: 'Bonds Global', CreatedDate: new Date() };
+      const ws1 = XLSX.utils.aoa_to_sheet([
+        ['Integrated Feasibility Study - بوندز'],
+        [],
+        ['المعلومات العامة'],
+        ['اسم المشروع', document.getElementById('cover-business-name')?.value || ''],
+        ['Owner Name', document.getElementById('cover-owner-name')?.value || ''],
+        ['Legal Form', document.getElementById('cover-legal-form')?.value || ''],
+        ['Preparation Date', document.getElementById('cover-date')?.value || ''],
+        ['فكرة المشروع', document.getElementById('cover-idea')?.value || ''],
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws1, 'عام');
+      const ws2 = XLSX.utils.aoa_to_sheet([
+        ['Financial Analysis'],
+        ['Fixed Costs/شهر', document.getElementById('total-fixed')?.value || 0],
+        ['Variable Costs/شهر', document.getElementById('total-var')?.value || 0],
+        ['الإيرادات/شهر', document.getElementById('total-revenue')?.value || 0],
+        ['صافي الربح/شهر', document.getElementById('net-profit')?.value || 0],
+        ['هامش الربح %', document.getElementById('profit-margin')?.value || 0],
+        ['Break-Even (وحدة)', document.getElementById('break-even-units')?.value || 0],
+        ['رأس المال المستثمر', document.getElementById('capital-invested')?.value || 0],
+        ['ROI %', document.getElementById('roi-percent')?.value || 0],
+        ['Payback Period (months)', document.getElementById('payback-period')?.value || 0],
+        [],
+        ['السيناريوهات'],
+        ['المتشائم', document.getElementById('scenario-pessimistic')?.textContent || 0],
+        ['المتوقع', document.getElementById('scenario-expected')?.textContent || 0],
+        ['المتفائل', document.getElementById('scenario-optimistic')?.textContent || 0],
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws2, 'مالي');
+      XLSX.writeFile(wb, 'bonds-feasibility-study.xlsx');
+    }
+
+    // ===== Init =====
+    document.getElementById('cover-date').valueAsDate = new Date();
+    document.getElementById('navToggle').addEventListener('click', function() {
+      document.getElementById('navLinks').classList.toggle('active');
+      this.setAttribute('aria-expanded', document.getElementById('navLinks').classList.contains('active'));
+    });
+    window.addEventListener('load', () => { calcFinancials(); updateProgress(); });
+  </script>
+</body>
+</html>

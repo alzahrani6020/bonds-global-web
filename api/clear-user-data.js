@@ -1,6 +1,6 @@
 // DELETE /api/clear-user-data
 // Body: { user_id }
-const { createClient } = require('@supabase/supabase-js');
+const getSupabase = require('./lib/supabase');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -14,20 +14,24 @@ module.exports = async function handler(req, res) {
   const { user_id } = req.body || {};
   if (!user_id) { res.status(400).json({ error: 'Missing user_id' }); return; }
 
-  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const supabase = getSupabase();
 
   try {
-    // Delete in correct order (respect foreign keys)
-    await supabase.from('sales_transactions').delete().eq('user_id', user_id);
-    await supabase.from('menu_engineering_scores').delete().eq('user_id', user_id);
-    await supabase.from('promo_campaigns').delete().eq('user_id', user_id);
-    await supabase.from('menu_platform_prices').delete().in('menu_item_id', 
-      (await supabase.from('menu_items').select('id').eq('user_id', user_id)).data?.map(m => m.id) || []);
-    await supabase.from('menu_item_ingredients').delete().in('menu_item_id',
-      (await supabase.from('menu_items').select('id').eq('user_id', user_id)).data?.map(m => m.id) || []);
-    await supabase.from('menu_items').delete().eq('user_id', user_id);
-    await supabase.from('ingredients').delete().eq('user_id', user_id);
-    await supabase.from('platforms').delete().eq('user_id', user_id);
+    // Fetch menu item IDs once for dependent deletes
+    const { data: menuItems } = await supabase.from('menu_items').select('id').eq('user_id', user_id);
+    const menuIds = menuItems?.map(m => m.id) || [];
+
+    // Parallel delete (respect foreign keys: children first)
+    await Promise.all([
+      supabase.from('sales_transactions').delete().eq('user_id', user_id),
+      supabase.from('menu_engineering_scores').delete().eq('user_id', user_id),
+      supabase.from('promo_campaigns').delete().eq('user_id', user_id),
+      menuIds.length > 0 ? supabase.from('menu_platform_prices').delete().in('menu_item_id', menuIds) : Promise.resolve(),
+      menuIds.length > 0 ? supabase.from('menu_item_ingredients').delete().in('menu_item_id', menuIds) : Promise.resolve(),
+      supabase.from('menu_items').delete().eq('user_id', user_id),
+      supabase.from('ingredients').delete().eq('user_id', user_id),
+      supabase.from('platforms').delete().eq('user_id', user_id)
+    ]);
 
     res.status(200).json({ success: true, message: 'All data cleared' });
   } catch (e) {

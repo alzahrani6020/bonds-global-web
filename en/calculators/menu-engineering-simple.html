@@ -40,6 +40,8 @@
   </style>
   <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
   <script src="../../calculators/shared-ui.js"></script>
+  <script src="../../calculators/shared-utils.js"></script>
+  <script src="../../calculators/shared-export.js"></script>
 
   <script src="../../calculators/db-client.js"></script>
   <script src="../../calculators/db-client-auto.js"></script>
@@ -121,6 +123,10 @@
     <div id="matrix" class="panel">
       <div class="summary" id="summary"></div>
       <div class="matrix" id="matrixBox"></div>
+      <div style="text-align:center;margin-top:1rem;display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;">
+        <button class="bonds-btn bonds-btn-primary" onclick="exportMatrixExcel()">📊 Excel</button>
+        <button class="bonds-btn bonds-btn-primary" onclick="exportMatrixPDF()">📄 PDF</button>
+      </div>
     </div>
   </div>
 
@@ -287,6 +293,8 @@ function renderMatrix(){
   const avgMargin=scores.length?scores.reduce((s,i)=>s+i.margin,0)/scores.length:0;
   const fees=totalRev-totalNet;
 
+  window._lastMatrix = { scores, stars, engines, treasures, stalled, totalRev, totalCost, totalNet, totalProfit, avgMargin, fees, avgQty, avgProfit };
+
   document.getElementById('summary').innerHTML=`
     <div class="s-box"><div>📦 Products</div><div>${scores.length}</div></div>
     <div class="s-box"><div>💰 Revenue</div><div>${totalRev.toFixed(0)} SAR</div></div>
@@ -313,6 +321,77 @@ function renderMatrix(){
     mk(engines,'Workhorses','🚀','engines','High sales + Limited profit')+
     mk(treasures,'Puzzles','💎','treasures','High profit + Low sales')+
     mk(stalled,'Dogs','⚠️','stalled','Low profit + Low sales');
+}
+
+async function exportMatrixExcel() {
+  if (!window._lastMatrix) {
+    BondsUI.toast('⚠️ No data to export', 'warning');
+    return;
+  }
+  await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+  if (typeof XLSX === 'undefined') {
+    BondsUI.toast('❌ Failed to load Excel library', 'error');
+    return;
+  }
+  var d = window._lastMatrix;
+  var wb = XLSX.utils.book_new();
+  wb.Props = { Title: 'Menu Engineering Engine', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+  var summarySheet = [
+    ['Metric', 'Value'],
+    ['Products', d.scores.length],
+    ['Total Revenue', d.totalRev],
+    ['Total Costs', d.totalCost],
+    ['Total Fees', d.fees],
+    ['Net Profit', d.totalProfit],
+    ['Avg Margin (%)', d.avgMargin.toFixed(2) + '%'],
+    ['Avg Quantity', d.avgQty.toFixed(0)],
+    ['Avg Profit', d.avgProfit.toFixed(2)]
+  ];
+  var ws1 = XLSX.utils.aoa_to_sheet(summarySheet);
+  ws1['!cols'] = [{ wch: 28 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Summary');
+
+  var itemsSheet = [['Product', 'Sales', 'Revenue', 'Cost', 'Net Profit', 'Margin (%)', 'Category']];
+  d.scores.forEach(function(s) {
+    var cat = d.stars.includes(s) ? 'Star' : d.engines.includes(s) ? 'Engine' : d.treasures.includes(s) ? 'Treasure' : 'Stalled';
+    itemsSheet.push([s.name, s.qty, s.rev, s.cost, s.profit, s.margin.toFixed(2) + '%', cat]);
+  });
+  var ws2 = XLSX.utils.aoa_to_sheet(itemsSheet);
+  ws2['!cols'] = [{ wch: 24 }, { wch: 12 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 14 }];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Items');
+
+  XLSX.writeFile(wb, 'bonds-menu-engineering.xlsx');
+}
+
+function exportMatrixPDF() {
+  if (!window._lastMatrix) {
+    BondsUI.toast('⚠️ No data to export', 'warning');
+    return;
+  }
+  var d = window._lastMatrix;
+  var content = `
+    <h2>📊 Menu Engineering Summary</h2>
+    <div class="metric-grid">
+      <div class="metric-item"><div class="label">Products</div><div class="value">${d.scores.length}</div></div>
+      <div class="metric-item"><div class="label">Revenue</div><div class="value">$${d.totalRev.toFixed(0)}</div></div>
+      <div class="metric-item"><div class="label">Costs</div><div class="value">$${d.totalCost.toFixed(0)}</div></div>
+      <div class="metric-item"><div class="label">Fees</div><div class="value">$${d.fees.toFixed(0)}</div></div>
+      <div class="metric-item"><div class="label">Net Profit</div><div class="value">$${d.totalProfit.toFixed(0)}</div></div>
+      <div class="metric-item"><div class="label">Avg Margin</div><div class="value">${d.avgMargin.toFixed(1)}%</div></div>
+    </div>
+
+    <h2>📋 Product Details</h2>
+    <table>
+      <tr><th>Product</th><th>Sales</th><th>Revenue</th><th>Cost</th><th>Profit</th><th>Margin</th><th>Category</th></tr>
+      ${d.scores.map(function(s) {
+        var cat = d.stars.includes(s) ? 'Star' : d.engines.includes(s) ? 'Engine' : d.treasures.includes(s) ? 'Treasure' : 'Stalled';
+        var color = d.stars.includes(s) ? '#22c55e' : d.engines.includes(s) ? '#f59e0b' : d.treasures.includes(s) ? '#3b82f6' : '#ef4444';
+        return '<tr><td>' + s.name + '</td><td class="num">' + s.qty + '</td><td class="num">' + s.rev.toFixed(0) + '</td><td class="num">' + s.cost.toFixed(0) + '</td><td class="num">' + s.profit.toFixed(2) + '</td><td class="num">' + s.margin.toFixed(1) + '%</td><td style="color:' + color + ';font-weight:700;">' + cat + '</td></tr>';
+      }).join('')}
+    </table>
+  `;
+  openPrintWindow({ content: content, title: 'Menu Engineering Report', headerTitle: 'Menu Engineering Report — Bonds', lang: 'en' });
 }
 
 // ===== INIT =====

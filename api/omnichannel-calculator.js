@@ -5,7 +5,7 @@
 // Returns: platform vs direct margin comparison
 // ============================================
 
-const { createClient } = require('@supabase/supabase-js');
+const getSupabase = require('./lib/supabase');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -23,15 +23,13 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    res.status(500).json({ error: 'Supabase environment variables missing' });
+  let supabase;
+  try {
+    supabase = getSupabase();
+  } catch (e) {
+    res.status(500).json({ error: e.message });
     return;
   }
-
-  const supabase = createClient(supabaseUrl, supabaseKey);
   const {
     user_id,
     menu_item_id,

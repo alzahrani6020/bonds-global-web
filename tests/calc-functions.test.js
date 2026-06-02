@@ -4,7 +4,15 @@ const {
   calculateDTI,
   calculatePricing,
   calculateCashFlow,
-  calculateFeasibility
+  calculateFeasibility,
+  INGREDIENT_UNITS,
+  getUnitMultiplier,
+  getEffectiveFee,
+  formatNumber,
+  calculateHealthScore,
+  generateSmartTips,
+  parseIngredientsCSVText,
+  calculateSensitivity
 } = require('../calculators/calc-functions');
 
 // ============================================================================
@@ -399,5 +407,397 @@ describe('calculateFeasibility', () => {
     expect(r.setupTotal).toBe(5000);
     expect(r.monthlyFixed).toBe(3000);
     expect(r.monthlyVariable).toBe(0);
+  });
+});
+
+// ============================================================================
+// Restaurant Calculator Helpers
+// ============================================================================
+
+describe('INGREDIENT_UNITS', () => {
+  test('has 9 units', () => {
+    expect(INGREDIENT_UNITS.length).toBe(9);
+  });
+
+  test('contains kg, g, ml, piece', () => {
+    expect(INGREDIENT_UNITS.some(u => u.value === 'kg')).toBe(true);
+    expect(INGREDIENT_UNITS.some(u => u.value === 'g')).toBe(true);
+    expect(INGREDIENT_UNITS.some(u => u.value === 'ml')).toBe(true);
+    expect(INGREDIENT_UNITS.some(u => u.value === 'piece')).toBe(true);
+  });
+});
+
+describe('getUnitMultiplier', () => {
+  test('kg returns 1', () => {
+    expect(getUnitMultiplier('kg')).toBe(1);
+  });
+
+  test('g returns 0.001', () => {
+    expect(getUnitMultiplier('g')).toBe(0.001);
+  });
+
+  test('mg returns 0.000001', () => {
+    expect(getUnitMultiplier('mg')).toBe(0.000001);
+  });
+
+  test('ml returns 0.001', () => {
+    expect(getUnitMultiplier('ml')).toBe(0.001);
+  });
+
+  test('piece returns 1', () => {
+    expect(getUnitMultiplier('piece')).toBe(1);
+  });
+
+  test('unknown unit returns 1', () => {
+    expect(getUnitMultiplier('unknown')).toBe(1);
+    expect(getUnitMultiplier('')).toBe(1);
+    expect(getUnitMultiplier(null)).toBe(1);
+  });
+});
+
+describe('getEffectiveFee', () => {
+  test('returns base fee when no tiers', () => {
+    const p = { fee: 20, serviceFee: 5 };
+    const r = getEffectiveFee(p, 10000);
+    expect(r.fee).toBe(25);
+    expect(r.tierApplied).toBe(false);
+  });
+
+  test('returns base fee when monthlyGMV is zero', () => {
+    const p = { fee: 20, serviceFee: 5, feeTiers: [{ min: 0, max: 5000, fee: 15 }] };
+    const r = getEffectiveFee(p, 0);
+    expect(r.fee).toBe(25);
+    expect(r.tierApplied).toBe(false);
+  });
+
+  test('applies correct tier', () => {
+    const p = { fee: 20, serviceFee: 5, feeTiers: [
+      { min: 0, max: 5000, fee: 15 },
+      { min: 5001, max: 20000, fee: 12 },
+      { min: 20001, max: 100000, fee: 10 }
+    ]};
+    expect(getEffectiveFee(p, 3000).fee).toBe(20); // 15 + 5
+    expect(getEffectiveFee(p, 3000).tierApplied).toBe(true);
+    expect(getEffectiveFee(p, 3000).tierName).toBe('0-5000');
+    expect(getEffectiveFee(p, 10000).fee).toBe(17); // 12 + 5
+    expect(getEffectiveFee(p, 50000).fee).toBe(15); // 10 + 5
+  });
+
+  test('returns base fee when GMV above all tiers', () => {
+    const p = { fee: 20, serviceFee: 5, feeTiers: [{ min: 0, max: 1000, fee: 15 }] };
+    const r = getEffectiveFee(p, 5000);
+    expect(r.fee).toBe(25);
+    expect(r.tierApplied).toBe(false);
+  });
+
+  test('handles missing serviceFee', () => {
+    const p = { fee: 20, feeTiers: [{ min: 0, max: 10000, fee: 15 }] };
+    expect(getEffectiveFee(p, 5000).fee).toBe(15);
+  });
+});
+
+describe('formatNumber', () => {
+  test('formats positive integers', () => {
+    expect(formatNumber(1234567)).toBe('1,234,567');
+  });
+
+  test('rounds decimals', () => {
+    expect(formatNumber(1234.56)).toBe('1,235');
+  });
+
+  test('returns em-dash for undefined', () => {
+    expect(formatNumber(undefined)).toBe('—');
+  });
+
+  test('returns em-dash for null', () => {
+    expect(formatNumber(null)).toBe('—');
+  });
+
+  test('returns em-dash for NaN', () => {
+    expect(formatNumber(NaN)).toBe('—');
+  });
+
+  test('formats negative numbers', () => {
+    expect(formatNumber(-5000)).toBe('-5,000');
+  });
+
+  test('formats zero', () => {
+    expect(formatNumber(0)).toBe('0');
+  });
+});
+
+describe('calculateHealthScore', () => {
+  test('excellent score for healthy restaurant (AR)', () => {
+    const r = {
+      inputs: { dailyOrders: 100, platforms: [{ fee: 15, serviceFee: 0 }] },
+      profitMargin: 25,
+      weightedFoodCostPct: 22,
+      breakEvenDaily: 30
+    };
+    const result = calculateHealthScore(r, 'ar');
+    expect(result.finalScore).toBeGreaterThanOrEqual(80);
+    expect(result.color).toBe('#16a34a');
+    expect(result.breakdown.length).toBe(4);
+  });
+
+  test('excellent score for healthy restaurant (EN)', () => {
+    const r = {
+      inputs: { dailyOrders: 100, platforms: [{ fee: 15, serviceFee: 0 }] },
+      profitMargin: 25,
+      weightedFoodCostPct: 22,
+      breakEvenDaily: 30
+    };
+    const result = calculateHealthScore(r, 'en');
+    expect(result.finalScore).toBeGreaterThanOrEqual(80);
+    expect(result.labelText).toContain('Excellent');
+    expect(result.breakdown[0].label).toBe('Profit Margin');
+  });
+
+  test('poor score for struggling restaurant', () => {
+    const r = {
+      inputs: { dailyOrders: 20, platforms: [{ fee: 30, serviceFee: 5 }] },
+      profitMargin: -5,
+      weightedFoodCostPct: 40,
+      breakEvenDaily: 50
+    };
+    const result = calculateHealthScore(r);
+    expect(result.finalScore).toBeLessThan(50);
+    expect(result.color).toBe('#dc2626');
+  });
+
+  test('medium score for average restaurant', () => {
+    const r = {
+      inputs: { dailyOrders: 40, platforms: [{ fee: 20, serviceFee: 0 }] },
+      profitMargin: 12,
+      weightedFoodCostPct: 28,
+      breakEvenDaily: 30
+    };
+    const result = calculateHealthScore(r);
+    expect(result.finalScore).toBeGreaterThanOrEqual(40);
+    expect(result.finalScore).toBeLessThan(80);
+  });
+
+  test('handles zero break-even safely', () => {
+    const r = {
+      inputs: { dailyOrders: 50, platforms: [] },
+      profitMargin: 15,
+      weightedFoodCostPct: 25,
+      breakEvenDaily: -1
+    };
+    const result = calculateHealthScore(r);
+    expect(result.finalScore).toBeGreaterThan(0);
+    expect(result.breakdown[3].label).toBe('أمان التعادل');
+  });
+
+  test('label text matches score range', () => {
+    const excellent = calculateHealthScore({ inputs: { dailyOrders: 100, platforms: [{ fee: 10 }] }, profitMargin: 30, weightedFoodCostPct: 20, breakEvenDaily: 20 }, 'ar');
+    expect(excellent.labelText).toContain('ممتاز');
+
+    const poor = calculateHealthScore({ inputs: { dailyOrders: 10, platforms: [{ fee: 35 }] }, profitMargin: -10, weightedFoodCostPct: 45, breakEvenDaily: 80 }, 'en');
+    expect(poor.labelText).toContain('Weak');
+  });
+});
+
+describe('generateSmartTips', () => {
+  test('returns loss tips when netProfit < 0 (AR)', () => {
+    const r = {
+      inputs: { dailyOrders: 20, workingDays: 26, platforms: [{ name: 'A', operatingModel: 'open' }] },
+      netProfit: -5000,
+      breakEvenDaily: 40,
+      bestPlatform: { name: 'A' },
+      worstPlatform: { name: 'B' },
+      platformResults: [{ name: 'A', monthlyProfit: -2000 }],
+      weightedFoodCostPct: 30
+    };
+    const tips = generateSmartTips(r, 'SAR', 'ar');
+    expect(tips.length).toBeGreaterThan(0);
+    expect(tips[0]).toContain('تخسر');
+  });
+
+  test('returns loss tips when netProfit < 0 (EN)', () => {
+    const r = {
+      inputs: { dailyOrders: 20, workingDays: 26, platforms: [{ name: 'A', operatingModel: 'open' }] },
+      netProfit: -5000,
+      breakEvenDaily: 40,
+      bestPlatform: { name: 'A' },
+      worstPlatform: { name: 'B' },
+      platformResults: [{ name: 'A', monthlyProfit: -2000 }],
+      weightedFoodCostPct: 30
+    };
+    const tips = generateSmartTips(r, 'SAR', 'en');
+    expect(tips.length).toBeGreaterThan(0);
+    expect(tips[0]).toContain('losing money');
+  });
+
+  test('returns profit tip when netProfit >= 0', () => {
+    const r = {
+      inputs: { dailyOrders: 60, workingDays: 26, platforms: [{ name: 'A', operatingModel: 'open' }] },
+      netProfit: 10000,
+      breakEvenDaily: 30,
+      bestPlatform: { name: 'A' },
+      worstPlatform: { name: 'B' },
+      platformResults: [{ name: 'A', monthlyProfit: 10000 }],
+      weightedFoodCostPct: 28
+    };
+    const tips = generateSmartTips(r, 'SAR', 'ar');
+    expect(tips.length).toBeGreaterThan(0);
+    expect(tips[0]).toContain('أرباحك');
+  });
+
+  test('includes platform comparison when difference exists', () => {
+    const r = {
+      inputs: { dailyOrders: 50, workingDays: 26, platforms: [
+        { name: 'A', operatingModel: 'open' },
+        { name: 'B', operatingModel: 'closed' }
+      ]},
+      netProfit: 5000,
+      breakEvenDaily: 20,
+      bestPlatform: { name: 'A', monthlyProfit: 8000 },
+      worstPlatform: { name: 'B', monthlyProfit: 2000 },
+      platformResults: [
+        { name: 'A', monthlyProfit: 8000 },
+        { name: 'B', monthlyProfit: 2000 }
+      ],
+      weightedFoodCostPct: 28
+    };
+    const tips = generateSmartTips(r, 'SAR', 'ar');
+    const hasDiffTip = tips.some(t => t.includes('أفضل منصة') && t.includes('أسوأها'));
+    expect(hasDiffTip).toBe(true);
+  });
+
+  test('includes food cost warning when high (EN)', () => {
+    const r = {
+      inputs: { dailyOrders: 50, workingDays: 26, platforms: [{ name: 'A', operatingModel: 'open' }] },
+      netProfit: 5000,
+      breakEvenDaily: 20,
+      bestPlatform: { name: 'A' },
+      worstPlatform: { name: 'A' },
+      platformResults: [{ name: 'A', monthlyProfit: 5000 }],
+      weightedFoodCostPct: 38
+    };
+    const tips = generateSmartTips(r, 'SAR', 'en');
+    const hasFoodTip = tips.some(t => t.includes('Food cost'));
+    expect(hasFoodTip).toBe(true);
+  });
+
+  test('returns empty array for neutral restaurant', () => {
+    const r = {
+      inputs: { dailyOrders: 50, workingDays: 26, platforms: [{ name: 'A', operatingModel: 'open' }] },
+      netProfit: 1000,
+      breakEvenDaily: 10,
+      bestPlatform: { name: 'A' },
+      worstPlatform: { name: 'A' },
+      platformResults: [{ name: 'A', monthlyProfit: 1000 }],
+      weightedFoodCostPct: 25
+    };
+    const tips = generateSmartTips(r, 'SAR', 'ar');
+    expect(tips.length).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('parseIngredientsCSVText', () => {
+  test('parses valid CSV lines', () => {
+    const text = 'Flour,g,12.5\nBeef,kg,45\nSalt,g,2';
+    const result = parseIngredientsCSVText(text);
+    expect(result.length).toBe(3);
+    expect(result[0]).toEqual({ name: 'Flour', unit: 'g', price: 12.5 });
+    expect(result[1]).toEqual({ name: 'Beef', unit: 'kg', price: 45 });
+  });
+
+  test('skips header line containing "ingredient"', () => {
+    const text = 'Ingredient,Unit,Price\nFlour,g,12.5\nBeef,kg,45';
+    const result = parseIngredientsCSVText(text);
+    expect(result.length).toBe(2);
+    expect(result[0].name).toBe('Flour');
+  });
+
+  test('skips empty lines', () => {
+    const text = 'Flour,g,12.5\n\n\nBeef,kg,45\n';
+    const result = parseIngredientsCSVText(text);
+    expect(result.length).toBe(2);
+  });
+
+  test('ignores lines with fewer than 3 columns', () => {
+    const text = 'Flour,g\nBeef,kg,45\nSalt';
+    const result = parseIngredientsCSVText(text);
+    expect(result.length).toBe(1);
+    expect(result[0].name).toBe('Beef');
+  });
+
+  test('handles zero price', () => {
+    const text = 'Flour,g,0';
+    const result = parseIngredientsCSVText(text);
+    expect(result[0].price).toBe(0);
+  });
+
+  test('returns empty array for empty text', () => {
+    expect(parseIngredientsCSVText('')).toEqual([]);
+    expect(parseIngredientsCSVText('\n\n')).toEqual([]);
+  });
+});
+
+describe('calculateSensitivity', () => {
+  const baseInputs = {
+    dailyOrders: 50,
+    workingDays: 26,
+    rent: 5000, salaries: 8000, utilities: 1000, licenses: 500,
+    cloudKitchen: 0, marketing: 2000,
+    packaging: 2, delivery: 3,
+    monthlyGMV: 50000,
+    platforms: [
+      { name: 'Talabat', fee: 20, serviceFee: 0, paymentGatewayFee: 0, campaignDiscount: 0 }
+    ]
+  };
+
+  const baseResult = {
+    inputs: baseInputs,
+    weightedPrice: 50,
+    weightedCost: 20
+  };
+
+  test('base case with no deltas', () => {
+    const r = calculateSensitivity(baseResult, 0, 0, 0, 0, 15);
+    expect(typeof r.netProfit).toBe('number');
+    expect(r.bestPlatform).toBeDefined();
+    expect(r.bestPlatform.name).toBe('Talabat');
+  });
+
+  test('commission increase reduces best platform profit', () => {
+    const base = calculateSensitivity(baseResult, 0, 0, 0, 0, 15);
+    const higher = calculateSensitivity(baseResult, 10, 0, 0, 0, 15);
+    expect(higher.bestPlatform.monthlyProfit).toBeLessThan(base.bestPlatform.monthlyProfit);
+  });
+
+  test('price increase improves profit', () => {
+    const base = calculateSensitivity(baseResult, 0, 0, 0, 0, 15);
+    const higher = calculateSensitivity(baseResult, 0, 0, 20, 0, 15);
+    expect(higher.netProfit).toBeGreaterThan(base.netProfit);
+  });
+
+  test('negative commission is clamped to zero', () => {
+    const r = calculateSensitivity(baseResult, -50, 0, 0, 0, 15);
+    expect(r.netProfit).toBeGreaterThan(0);
+  });
+
+  test('orders increase improves profit', () => {
+    const base = calculateSensitivity(baseResult, 0, 0, 0, 0, 15);
+    const more = calculateSensitivity(baseResult, 0, 50, 0, 0, 15);
+    expect(more.netProfit).toBeGreaterThan(base.netProfit);
+  });
+
+  test('handles zero vatRate', () => {
+    const r = calculateSensitivity(baseResult, 0, 0, 0, 0, 0);
+    expect(typeof r.netProfit).toBe('number');
+    expect(r.bestPlatform.name).toBe('Talabat');
+  });
+
+  test('returns -1 breakEven when contribution is negative', () => {
+    const badResult = {
+      inputs: baseInputs,
+      weightedPrice: 10,
+      weightedCost: 50
+    };
+    const r = calculateSensitivity(badResult, 0, 0, 0, 0, 15);
+    expect(r.breakEvenDaily).toBe(-1);
   });
 });

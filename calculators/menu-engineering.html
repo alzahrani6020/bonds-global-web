@@ -166,6 +166,11 @@
       <div class="loading">جاري تحميل البيانات...</div>
     </div>
 
+    <div style="text-align:center;margin:var(--space-6) 0;display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
+      <button class="btn-secondary" onclick="exportExcel()">📊 تصدير Excel</button>
+      <button class="btn-secondary" onclick="exportPDF()">📄 تصدير PDF</button>
+    </div>
+
     <!-- Promo Simulator -->
     <div class="me-actions">
       <h2>🧮 محاكاة حملات الخصم</h2>
@@ -202,6 +207,8 @@ let platforms = [];
 let ingredients = [];
 let menuItems = [];
 let menuItemIngredients = [];
+let sales = [];
+let _lastMatrixData = null;
 
 async function init() {
   try {
@@ -547,6 +554,7 @@ async function renderSales() {
     .eq('user_id', currentUser.id)
     .order('created_at', { ascending: false })
     .limit(20);
+  sales = data || [];
   const el = document.getElementById('sList');
   if (!data || data.length === 0) {
     el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">🛒 لا توجد مبيعات — سجل أول مبيعة</div>';
@@ -607,6 +615,7 @@ async function loadMatrix() {
   }
   let data = json.data;
   // If no data, show demo
+  _lastMatrixData = data;
   const hasAny = (data.stars?.length||0) + (data.engines?.length||0) + (data.treasures?.length||0) + (data.stalled?.length||0);
   if (!hasAny) {
     data = {
@@ -740,6 +749,82 @@ async function runOmnichannel() {
   } catch (e) {
     box.innerHTML = '<div class="error">' + e.message + '</div>';
   }
+}
+
+async function exportExcel() {
+  await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+  if (typeof XLSX === 'undefined') { BondsUI.toast('❌ فشل تحميل Excel', 'error'); return; }
+  var wb = XLSX.utils.book_new();
+  wb.Props = { Title: 'تقرير هندسة المنيو', Subject: 'بوندز', Author: 'bonds-global.com' };
+
+  var menuData = [['الوجبة', 'التصنيف', 'السعر الأساسي']];
+  menuItems.forEach(function(m) {
+    menuData.push([m.name, m.category, m.base_price]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(menuData), 'المنيو');
+
+  var ingData = [['المكون', 'الوحدة', 'التكلفة', 'التصنيف']];
+  ingredients.forEach(function(i) {
+    ingData.push([i.name, i.unit, i.current_price, i.category]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(ingData), 'المكونات');
+
+  var linkData = [['الوجبة', 'المكون', 'الكمية', 'الوحدة', 'التكلفة']];
+  menuItemIngredients.forEach(function(r) {
+    var cost = (r.quantity_needed * (r.ingredient?.current_price || 0)).toFixed(2);
+    linkData.push([r.menu_item?.name || '—', r.ingredient?.name || '—', r.quantity_needed, r.unit, cost]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(linkData), 'تكاليف الوجبات');
+
+  var salesData = [['الوجبة', 'المنصة', 'الكمية', 'سعر البيع']];
+  sales.forEach(function(s) {
+    salesData.push([s.menu_item?.name || '—', s.platform?.name || '—', s.quantity, s.unit_price]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(salesData), 'المبيعات');
+
+  var platData = [['المنصة', 'العمولة %', 'رسوم الخدمة %', 'بوابة الدفع %', 'رسوم التوصيل']];
+  platforms.forEach(function(p) {
+    platData.push([p.name, p.commission_rate, p.service_fee_rate, p.payment_gateway_fee, p.delivery_fee]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(platData), 'المنصات');
+
+  var matrixData = [['التصنيف', 'الوجبة', 'الربح الصافي', 'هامش الربح %', 'إجمالي المبيعات', 'إجمالي الإيرادات', 'إجمالي التكلفة', 'التوصية']];
+  if (_lastMatrixData) {
+    var cats = { stars: 'النجوم', engines: 'المحرك', treasures: 'المكنوز', stalled: 'المتعثرة' };
+    ['stars', 'engines', 'treasures', 'stalled'].forEach(function(key) {
+      var items = _lastMatrixData[key] || [];
+      items.forEach(function(item) {
+        matrixData.push([cats[key], item.menu_item?.name || '—', item.gross_profit, item.profit_margin_pct, item.total_sales_count, item.total_revenue, item.total_cost, item.recommendation]);
+      });
+    });
+  }
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(matrixData), 'المقارنة');
+
+  XLSX.writeFile(wb, 'bonds-menu-engineering.xlsx');
+}
+
+async function exportPDF() {
+  await loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  await loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  var section = document.getElementById('matrixContainer');
+  var wrapper = document.createElement('div');
+  wrapper.style.background = '#ffffff';
+  wrapper.style.padding = '2rem';
+  wrapper.style.color = '#1a1a1a';
+  wrapper.style.fontFamily = 'Vazirmatn, system-ui, sans-serif';
+  wrapper.innerHTML = '<h2 style="color:#1a1a1a;text-align:center;margin-bottom:1.5rem;">📊 تقرير هندسة المنيو — بوندز</h2>';
+  wrapper.appendChild(section.cloneNode(true));
+  document.body.appendChild(wrapper);
+  var canvas = await html2canvas(wrapper, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+  document.body.removeChild(wrapper);
+  var imgData = canvas.toDataURL('image/png');
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ orientation: 'landscape' });
+  var imgProps = doc.getImageProperties(imgData);
+  var pdfW = doc.internal.pageSize.getWidth();
+  var pdfH = (imgProps.height * pdfW) / imgProps.width;
+  doc.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+  doc.save('bonds-menu-engineering.pdf');
 }
 
 init();

@@ -10,6 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="shared-calculators.css" />
   <script src="shared-ui.js"></script>
+  <script src="shared-utils.js"></script>
+  <script src="shared-export.js"></script>
   <script src="country-platforms-data.js"></script>
   <script src="db-client.js"></script>
   <script src="db-client-auto.js"></script>
@@ -442,6 +444,11 @@
     <!-- Verdict -->
     <div id="verdictBox" style="text-align:center; padding:1.5rem; border-radius:12px; margin:1rem 0; font-weight:700;"></div>
 
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; margin:1rem 0;">
+      <button class="btn-calc secondary" onclick="exportInvoiceExcel()">📊 Excel</button>
+      <button class="btn-calc secondary" onclick="exportInvoicePDF()">📄 PDF</button>
+    </div>
+
   </div>
 
   <!-- Compare All Platforms Section -->
@@ -794,6 +801,8 @@ function calculateInvoice() {
     verdict.textContent = '✅ العرض مربح حتى مع الخصم!';
   }
 
+  window._lastInvoice = { price, discount, commissionPct, paymentFeePct, serviceFeePct, productCost, deliveryFee, vatRate, dailyOrders, workingDays, itemName, commissionAmount, serviceFeeAmount, paymentFeeAmount, vatCommission, vatServiceFee, vatPayment, vatDelivery, afterDiscount, totalDeductions, netIncome, netProfit, marginPct, profitNoDiscount, lossFromDiscount, dailyProfit, monthlyProfit, yearlyProfit, dailyProfitNoDiscount, monthlyProfitNoDiscount, extraOrdersNeeded, requiredIncreasePct };
+
   BondsUI.toast('✅ تم التحليل بنجاح', 'success');
 }
 
@@ -892,6 +901,86 @@ function compareAllPlatforms() {
   document.getElementById('compareAllSection').style.display = 'block';
   document.getElementById('compareAllSection').scrollIntoView({ behavior: 'smooth' });
   BondsUI.toast('✅ تمت المقارنة بين ' + results.length + ' منصة', 'success');
+}
+
+async function exportInvoiceExcel() {
+  if (!window._lastInvoice) {
+    BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning');
+    return;
+  }
+  await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+  if (typeof XLSX === 'undefined') {
+    BondsUI.toast('❌ فشل تحميل مكتبة Excel', 'error');
+    return;
+  }
+  var d = window._lastInvoice;
+  var wb = XLSX.utils.book_new();
+  wb.Props = { Title: 'تحليل الفاتورة', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+  var sheet = [
+    ['البند', 'القيمة'],
+    ['اسم المنتج', d.itemName],
+    ['سعر الطلب', d.price],
+    ['الخصم من التاجر', d.discount],
+    ['', ''],
+    ['العمولة (' + d.commissionPct + '%)', d.commissionAmount],
+    ['رسوم الخدمة (' + d.serviceFeePct + '%)', d.serviceFeeAmount],
+    ['رسوم الدفع (' + d.paymentFeePct + '%)', d.paymentFeeAmount],
+    ['رسوم التوصيل', d.deliveryFee],
+    ['ضريبة العمولة', d.vatCommission],
+    ['ضريبة رسوم الخدمة', d.vatServiceFee],
+    ['ضريبة رسوم الدفع', d.vatPayment],
+    ['ضريبة التوصيل', d.vatDelivery],
+    ['', ''],
+    ['إجمالي الخصومات', d.totalDeductions],
+    ['صافي الدخل', d.netIncome],
+    ['تكلفة المنتج', d.productCost],
+    ['', ''],
+    ['صافي الربح (للفاتورة)', d.netProfit],
+    ['هامش الربح', d.marginPct.toFixed(1) + '%'],
+    ['', ''],
+    ['الربح اليومي (' + d.dailyOrders + ' طلب)', d.dailyProfit],
+    ['الربح الشهري (' + d.workingDays + ' يوم)', d.monthlyProfit],
+    ['الربح السنوي (12 شهر)', d.yearlyProfit]
+  ];
+  var ws = XLSX.utils.aoa_to_sheet(sheet);
+  ws['!cols'] = [{ wch: 32 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, ws, 'التحليل');
+  XLSX.writeFile(wb, 'bonds-invoice-analysis.xlsx');
+}
+
+function exportInvoicePDF() {
+  if (!window._lastInvoice) {
+    BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning');
+    return;
+  }
+  var d = window._lastInvoice;
+  var content = `
+    <h2>🧾 تفاصيل الفاتورة</h2>
+    <table>
+      <tr><th>البند</th><th>القيمة</th></tr>
+      <tr><td>اسم المنتج</td><td class="num">${d.itemName}</td></tr>
+      <tr><td>سعر الطلب</td><td class="num">${d.price.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>الخصم من التاجر</td><td class="num">${d.discount.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>العمولة</td><td class="num">${d.commissionAmount.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>رسوم الخدمة</td><td class="num">${d.serviceFeeAmount.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>رسوم الدفع</td><td class="num">${d.paymentFeeAmount.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>رسوم التوصيل</td><td class="num">${d.deliveryFee.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>إجمالي الخصومات</td><td class="num">${d.totalDeductions.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>صافي الدخل</td><td class="num">${d.netIncome.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td>تكلفة المنتج</td><td class="num">${d.productCost.toFixed(2)} ${currentSymbol}</td></tr>
+      <tr><td><strong>صافي الربح</strong></td><td class="num"><strong>${d.netProfit.toFixed(2)} ${currentSymbol}</strong></td></tr>
+      <tr><td>هامش الربح</td><td class="num">${d.marginPct.toFixed(1)}%</td></tr>
+    </table>
+
+    <h2>📊 الإسقاطات المالية</h2>
+    <div class="metric-grid">
+      <div class="metric-item"><div class="label">ربح اليوم</div><div class="value">${d.dailyProfit.toFixed(0)} ${currentSymbol}</div></div>
+      <div class="metric-item"><div class="label">ربح الشهر</div><div class="value">${d.monthlyProfit.toFixed(0)} ${currentSymbol}</div></div>
+      <div class="metric-item"><div class="label">ربح السنة</div><div class="value">${d.yearlyProfit.toFixed(0)} ${currentSymbol}</div></div>
+    </div>
+  `;
+  openPrintWindow({ content: content, title: 'تحليل الفاتورة', headerTitle: 'تحليل الفاتورة — ' + d.itemName });
 }
 
 // ============ BondsDB Integration ============
@@ -1048,7 +1137,22 @@ BondsDB.init().then(function() {
   if (p.get('orders')) document.getElementById('dailyOrders').value = p.get('orders');
   if (p.get('days')) document.getElementById('workingDays').value = p.get('days');
   if (p.get('name')) document.getElementById('itemName').value = decodeURIComponent(p.get('name'));
-  if (p.get('price')) calculateInvoice();
+  if (p.get('price')) {
+    var calcSection = document.querySelector('.container');
+    if ('IntersectionObserver' in window && calcSection) {
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            calculateInvoice();
+            io.disconnect();
+          }
+        });
+      }, { rootMargin: '200px' });
+      io.observe(calcSection);
+    } else {
+      calculateInvoice();
+    }
+  }
 })();
 </script>
 

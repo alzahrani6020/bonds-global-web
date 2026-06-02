@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bonds-v31';
+const CACHE_NAME = 'bonds-v34';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -13,22 +13,30 @@ const STATIC_ASSETS = [
   '/script.js',
   '/assets/site-logo.webp',
   '/assets/bonds-logo-opt.jpg',
+  '/assets/bonds-mark.svg',
   '/manifest.json',
+  '/calculators/shared-calculators.css',
+  '/calculators/shared-utils.js',
+  '/calculators/shared-ui.js',
+  '/calculators/shared-export.js',
+  '/calculators/shared-charts.js',
+  '/calculators/shared-nav.js',
+  '/calculators/calc-functions.js',
+  '/calculators/db-client.js',
+  '/calculators/db-client-auto.js',
+  '/calculators/country-platforms-data.js',
   '/calculators/cash-flow.html',
   '/calculators/pricing.html',
   '/calculators/loan.html',
-  '/calculators/shared-utils.js',
-  '/calculators/shared-nav.js',
-  '/calculators/db-client.js',
-  '/calculators/db-client-auto.js',
   '/calculators/loan-worker.js',
-  '/calculators/country-platforms-data.js',
   '/calculators/restaurant.html',
   '/calculators/dish-margin.html',
   '/calculators/feasibility.html',
   '/calculators/invoice-analyzer.html',
+  '/calculators/feasibility-template.html',
   '/calculators/menu-engineering.html',
   '/calculators/menu-engineering-simple.html',
+  '/en/index.html',
   '/en/calculators/pricing.html',
   '/en/calculators/cash-flow.html',
   '/en/calculators/loan.html',
@@ -36,6 +44,7 @@ const STATIC_ASSETS = [
   '/en/calculators/dish-margin.html',
   '/en/calculators/feasibility.html',
   '/en/calculators/invoice-analyzer.html',
+  '/en/calculators/feasibility-template.html',
   '/en/calculators/menu-engineering.html',
   '/en/calculators/menu-engineering-simple.html',
   '/sectors/manufacturing.html',
@@ -90,13 +99,31 @@ function cacheFirstWithRefresh(request) {
   });
 }
 
+// Network-first for HTML pages (always fresh content)
+function networkFirst(request) {
+  return fetch(request).then(networkResponse => {
+    if (networkResponse && networkResponse.ok) {
+      const clone = networkResponse.clone();
+      caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+    }
+    return networkResponse;
+  }).catch(() => caches.match(request));
+}
+
 self.addEventListener('fetch', e => {
   const { request } = e;
   const url = new URL(request.url);
 
+  // Skip cross-origin requests except CDN assets
+  if (url.origin !== self.location.origin && !CDN_ASSETS.some(cdn => url.href === cdn)) {
+    return;
+  }
+
   // Navigation fallback
   if (request.mode === 'navigate') {
-    e.respondWith(fetch(request).catch(() => caches.match('/index.html')));
+    e.respondWith(
+      fetch(request).catch(() => caches.match('/index.html'))
+    );
     return;
   }
 
@@ -106,7 +133,13 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Default: cache-first with network fallback
+  // HTML pages: network-first for freshness
+  if (request.destination === 'document' || url.pathname.endsWith('.html')) {
+    e.respondWith(networkFirst(request));
+    return;
+  }
+
+  // Static assets (CSS, JS, images, fonts): cache-first with network fallback
   e.respondWith(
     caches.match(request).then(cached =>
       cached || fetch(request).then(response => {

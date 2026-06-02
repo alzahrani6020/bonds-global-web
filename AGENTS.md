@@ -145,12 +145,14 @@
 - `index.html` ←→ `en/index.html`
 - `about.html` ←→ `en/about.html`
 - `calculator.html` ←→ `en/calculator.html`
+- `pitch.html` ←→ `en/pitch.html`
+- `pitch-print.html` ←→ `en/pitch-print.html`
 - `calculators/*.html` ←→ `en/calculators/*.html`
 - `calculators/auth/*.html` ←→ `en/calculators/auth/*.html`
 
-### 5.3 الحاسبات المفقودة حالياً في الإنجليزية
-- `en/calculators/menu-engineering.html` ❌
-- `en/calculators/menu-engineering-simple.html` ❌
+### 5.3 الملفات المفقودة حالياً في الإنجليزية
+- لا يوجد ملفات جذر أو حاسبات مفقودة حالياً ✅
+- `blog/*.html` و `sectors/*.html` لا تزال غير مترجمة (محتوى تكميلي)
 
 ---
 
@@ -272,6 +274,7 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 □ لا توجد أسرار (API Keys) مكشوفة
 □ لا يوجد console.log leftover (احذف logs التصحيح)
 □ الروابط نسبية وصحيحة (../styles.css وليس /styles.css)
+□ `npm test` يمر بدون أخطاء (إذا عدّلت دوال calc-functions.js)
 ```
 
 ---

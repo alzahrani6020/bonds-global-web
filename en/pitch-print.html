@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pitch Deck — PDF | Bonds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <!-- Google Analytics 4 — replace G-XXXXXXXXXX with your real Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+    function gaEvent(name, params) {
+      if (typeof gtag === 'function' && !window.location.hostname.includes('localhost')) {
+        gtag('event', name, params || {});
+      }
+    }
+    const pitchStart = Date.now();
+    gaEvent('pitch_open', { version: 'pdf_print', referrer: document.referrer || 'direct' });
+    window.addEventListener('beforeunload', () => {
+      gaEvent('time_spent', { duration_seconds: Math.round((Date.now() - pitchStart) / 1000), version: 'pdf_print' });
+    });
+  </script>
+  <style>
+    :root {
+      --gold: #d4a853;
+      --text: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: rgba(255,255,255,0.08);
+      --slide-bg: #0a0f1a;
+      --slide-card: rgba(16,24,45,0.7);
+    }
+
+    /* ─── Page setup ─── */
+    @page {
+      size: A4 portrait;
+      margin: 18mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--slide-bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      direction: ltr;
+      overflow-x: hidden;
+    }
+
+    /* ─── Print toolbar (screen only) ─── */
+    .print-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 9999;
+      background: #0f172a;
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .print-bar .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 800;
+      color: var(--gold);
+      font-size: 1rem;
+    }
+    .print-bar .actions { display: flex; gap: 0.5rem; }
+    .print-bar button {
+      background: var(--gold);
+      color: #0a0f1a;
+      border: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .print-bar button:hover { opacity: 0.9; }
+    .print-bar .hint {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    /* ─── Slides ─── */
+    .slide {
+      width: 100%;
+      min-height: 257mm;           /* A4 height minus margins */
+      page-break-after: always;
+      break-after: page;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1.5rem;
+      position: relative;
+      background: var(--slide-bg);
+    }
+    .slide:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+    .slide-content {
+      max-width: 170mm;
+      width: 100%;
+    }
+    .slide-number {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    .slide-tag {
+      display: inline-block;
+      background: rgba(212,168,83,0.12);
+      color: var(--gold);
+      border: 1px solid rgba(212,168,83,0.25);
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    .slide h1 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1.2;
+      margin: 0 0 0.75rem;
+    }
+    .slide h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--gold);
+      margin: 0 0 0.75rem;
+    }
+    .slide p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 600px;
+      margin: 0 0 1rem;
+    }
+    .slide ul {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      padding-left: 1.25rem;
+      margin: 0 0 1rem;
+    }
+    .slide ul li { margin-bottom: 0.4rem; }
+
+    /* Stats */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin: 1.25rem 0;
+    }
+    .stat-box {
+      background: var(--slide-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .stat-box .num { font-size: 1.5rem; font-weight: 900; color: var(--gold); }
+    .stat-box .label { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+    .info-card {
+      background: var(--slide-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    .info-card .icon { font-size: 1.25rem; margin-bottom: 0.4rem; }
+    .info-card h4 { font-size: 0.9rem; font-weight: 800; margin: 0 0 0.25rem; color: var(--gold); }
+    .info-card p { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.55; max-width: none; margin: 0; }
+
+    /* Table */
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.82rem;
+    }
+    .comp-table th, .comp-table td {
+      padding: 0.6rem 0.5rem;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .comp-table th {
+      background: var(--slide-card);
+      color: var(--gold);
+      font-weight: 800;
+    }
+    .comp-table td:first-child { text-align: left; font-weight: 700; }
+    .comp-table .yes { color: #22c55e; font-weight: 700; }
+    .comp-table .no { color: #ef4444; }
+
+    /* Timeline */
+    .timeline {
+      display: flex;
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+    .timeline-item {
+      flex: 1;
+      background: var(--slide-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      text-align: center;
+      position: relative;
+    }
+    .timeline-item::after {
+      content: '→';
+      position: absolute;
+      left: -0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+    .timeline-item:first-child::after { display: none; }
+    .timeline-item .q { font-size: 0.7rem; color: var(--gold); font-weight: 800; margin-bottom: 0.2rem; }
+    .timeline-item .t { font-size: 0.8rem; color: var(--text-secondary); }
+
+    /* Progress */
+    .progress-track {
+      background: rgba(255,255,255,0.05);
+      border-radius: 999px;
+      height: 5px;
+      margin: 0.75rem 0;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: linear-gradient(90deg, var(--gold), #f0c96a);
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    /* Ask box */
+    .ask-box {
+      background: linear-gradient(135deg, rgba(212,168,83,0.12), rgba(34,197,94,0.08));
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      margin: 1rem 0;
+    }
+    .ask-box h3 { font-size: 1.2rem; font-weight: 900; color: var(--gold); margin: 0 0 0.4rem; }
+    .ask-box p { color: var(--text-secondary); font-size: 0.9rem; max-width: none; margin: 0; }
+
+    /* ─── Print overrides ─── */
+    @media print {
+      .print-bar { display: none !important; }
+      body { background: var(--slide-bg); }
+      .slide { min-height: 257mm; padding: 0; }
+      .slide-content { max-width: 170mm; }
+      a { text-decoration: none; color: var(--gold); }
+    }
+
+    /* ─── Screen preview ─── */
+    @media screen {
+      body { padding-top: 60px; }
+      .slide {
+        margin-bottom: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 0 0 1px var(--border), 0 8px 32px rgba(0,0,0,0.3);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Print toolbar -->
+<div class="print-bar">
+  <div class="brand">🧮 Bonds — Pitch Deck (PDF Version)</div>
+  <div class="hint">Press Ctrl+P or Cmd+P — Make sure to enable "Background graphics"</div>
+  <div class="actions">
+    <button onclick="window.print()">🖨️ Print / PDF</button>
+    <button onclick="history.back()">↩ Back</button>
+  </div>
+</div>
+
+<!-- Slide 1: Cover -->
+<div class="slide">
+  <div class="slide-number">01 / 10</div>
+  <div class="slide-content" style="text-align:center;">
+    <div style="font-size:3.5rem;margin-bottom:0.75rem;">🧮</div>
+    <h1 style="margin-bottom:0.4rem;">Bonds</h1>
+    <p style="margin:0 auto 1.25rem; font-size:1.1rem; color:var(--gold);">The Financial Brain for Restaurants in MENA</p>
+    <p>A SaaS platform delivering specialized financial calculators for restaurants and entrepreneurs — before and after opening.</p>
+    <div class="stat-grid" style="max-width:520px;margin:1.5rem auto;">
+      <div class="stat-box"><div class="num">7</div><div class="label">Specialized Calculators</div></div>
+      <div class="stat-box"><div class="num">22</div><div class="label">Countries Supported</div></div>
+      <div class="stat-box"><div class="num">$0→$49</div><div class="label">Monthly Price</div></div>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1.5rem;">Pitch Deck — 2026</p>
+  </div>
+</div>
+
+<!-- Slide 2: Problem -->
+<div class="slide">
+  <div class="slide-number">02 / 10</div>
+  <div class="slide-content">
+    <div class="slide-tag">The Problem</div>
+    <h2>70% of Restaurants Close in the First Year</h2>
+    <p>Not because the food is bad — but because the owner <strong>doesn't understand the numbers</strong>.</p>
+    <div class="card-grid">
+      <div class="info-card">
+        <div class="icon">😰</div>
+        <h4>Opens Without Analysis</h4>
+        <p>80% of restaurant entrepreneurs open without calculating break-even or projected cash flow.</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">📉</div>
+        <h4>Unaware of Profitability</h4>
+        <p>They know they're "selling," but don't know if those sales are "profit" or "loss" after app commissions.</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">🤷</div>
+        <h4>No Arabic Tools</h4>
+        <p>All financial tools are in English. There is no Arabic platform specialized in restaurant profitability.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 3: Solution -->
+<div class="slide">
+  <div class="slide-number">03 / 10</div>
+  <div class="slide-content">
+    <div class="slide-tag">The Solution</div>
+    <h2>One Platform — Before &amp; After Opening</h2>
+    <p>Bonds is a <strong>financial layer</strong> on top of any POS system. We don't compete with POS — we complement it.</p>
+    <div class="card-grid">
+      <div class="info-card">
+        <div class="icon">🚀</div>
+        <h4>Pre-Opening</h4>
+        <p>Restaurant Feasibility Calculator: Is your idea profitable? Calculate break-even and scenarios before spending a single penny.</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">🍽️</div>
+        <h4>During Operations</h4>
+        <p>Menu Engineering + Dish Profitability + Promo Simulation + Omnichannel Comparison.</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">📊</div>
+        <h4>Financial Planning</h4>
+        <p>Cash Flow + Loans &amp; Financing + Product Pricing + Break-Even.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 4: Product -->
+<div class="slide">
+  <div class="slide-number">04 / 10</div>
+  <div class="slide-content">
+    <div class="slide-tag">The Product</div>
+    <h2>7 Calculators — All in One Platform</h2>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="num">🎯</div><div class="label">Menu Engineering<br><small>Stars/Workhorses/Puzzles/Dogs</small></div></div>
+      <div class="stat-box"><div class="num">🚀</div><div class="label">Restaurant Feasibility<br><small>Pre-Opening</small></div></div>
+      <div class="stat-box"><div class="num">💰</div><div class="label">Cash Flow<br><small>12-Month Forecast</small></div></div>
+      <div class="stat-box"><div class="num">🏷️</div><div class="label">Product Pricing<br><small>With VAT + Zakat</small></div></div>
+      <div class="stat-box"><div class="num">🏦</div><div class="label">Loan &amp; Financing<br><small>Amortization Schedule</small></div></div>
+      <div class="stat-box"><div class="num">🍔</div><div class="label">Dish Profitability<br><small>After App Commissions</small></div></div>
+      <div class="stat-box"><div class="num">📊</div><div class="label">Break-Even Analysis<br><small>Break-Even Analysis</small></div></div>
+    </div>
+    <p style="text-align:center;margin-top:0.75rem;font-size:0.9rem;">✅ All <strong>Arabic + RTL</strong> | ✅ Offline Mode | ✅ Lightweight SaaS — Any Browser</p>
+  </div>
+</div>
+
+<!-- Slide 5: Gap -->
+<div class="slide">
+  <div class="slide-number">05 / 10</div>
+  <div class="slide-content">
+    <div class="slide-tag">The Gap</div>
+    <h2>What No One Can Copy</h2>
+    <p>No competitor offers this combination:</p>
+    <div class="card-grid">
+      <div class="info-card">
+        <div class="icon">🌍</div>
+        <h4>Arabic + RTL + 22 Countries</h4>
+        <p>Toast, MarketMan, and Oracle don't support Arabic. We are the only ones specialized in MENA.</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">🎲</div>
+        <h4>Promo Simulation + Omnichannel</h4>
+        <p>No competitor calculates "If I discount 20% — will sales increase 30%?" or compares Talabat vs your direct website.</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">🚀</div>
+        <h4>Pre-Opening Feasibility</h4>
+        <p>Foodics starts after opening. We start when the restaurant is still just an idea in the entrepreneur's mind.</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">💵</div>
+        <h4>Highly Competitive Price</h4>
+        <p>MarketMan starts at $239/month. Bonds: Free → $49/month.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 6: Competition -->
+<div class="slide">
+  <div class="slide-number">06 / 10</div>
+  <div class="slide-content">
+    <div class="slide-tag">Competition</div>
+    <h2>We Don't Compete with POS — We Complement It</h2>
+    <table class="comp-table">
+      <tr><th>Feature</th><th>Bonds</th><th>Foodics</th><th>Toast</th><th>MarketMan</th></tr>
+      <tr><td>POS / Cashier</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td></tr>
+      <tr><td>Multiple Financial Calculators</td><td class="yes">✓ 7</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>Arabic + RTL</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>Offline Mode</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>Pre-Opening Feasibility</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>Promo Simulation</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>Omnichannel</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>Price/Month</td><td class="yes">$0-49</td><td class="no">$53-167</td><td class="no">$55-189</td><td class="no">~$239</td></tr>
+    </table>
+    <p style="margin-top:0.75rem;text-align:center;font-size:0.95rem;"><strong>Foodics = Manages your day. Bonds = Manages your future.</strong></p>
+  </div>
+</div>
+
+<!-- Slide 7: Business Model -->
+<div class="slide">
+  <div class="slide-number">07 / 10</div>
+  <div class="slide-content">
+    <div class="slide-tag">Business Model</div>
+    <h2>Freemium SaaS — Monetize Value</h2>
+    <div class="card-grid">
+      <div class="info-card" style="border-top:3px solid #94a3b8;">
+        <div class="icon">🆓</div>
+        <h4>Free</h4>
+        <p>3 Scenarios<br>5 Countries<br>Excel Export<br><strong>Goal:</strong> User Acquisition</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--gold);">
+        <div class="icon">⭐</div>
+        <h4>Pro — $19/month</h4>
+        <p>Unlimited Scenarios<br>22 Countries<br>PDF Export<br>Cloud Save</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid #22c55e;">
+        <div class="icon">🏢</div>
+        <h4>Enterprise — $49/month</h4>
+        <p>Pro + API Access<br>White-Label<br>Priority Support<br>Custom Reports</p>
+      </div>
+    </div>
+    <div class="stat-grid" style="max-width:520px;margin:1.25rem auto;">
+      <div class="stat-box"><div class="num">$19</div><div class="label">Pro Price (12x cheaper than MarketMan)</div></div>
+      <div class="stat-box"><div class="num">85%</div><div class="label">Expected SaaS Profit Margin</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 8: Market -->
+<div class="slide">
+  <div class="slide-number">08 / 10</div>
+  <div class="slide-content">
+    <div class="slide-tag">Market Size</div>
+    <h2>Massive &amp; Growing Market</h2>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="num">350K+</div><div class="label">Restaurants in the GCC &amp; Maghreb</div></div>
+      <div class="stat-box"><div class="num">$12B</div><div class="label">MENA Food Delivery Market</div></div>
+      <div class="stat-box"><div class="num">25%</div><div class="label">Annual Growth in Cloud Kitchens</div></div>
+      <div class="stat-box"><div class="num">2M+</div><div class="label">Entrepreneurs Seeking Opportunity</div></div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" style="width:15%;"></div></div>
+    <p style="font-size:0.8rem;color:var(--text-muted);text-align:center;">Restaurant digitalization in MENA is under 15% — a massive growth opportunity</p>
+    <div class="timeline">
+      <div class="timeline-item"><div class="q">Year 1</div><div class="t">1,000 Users</div></div>
+      <div class="timeline-item"><div class="q">Year 2</div><div class="t">10,000 Users</div></div>
+      <div class="timeline-item"><div class="q">Year 3</div><div class="t">50,000 Restaurants</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 9: Traction -->
+<div class="slide">
+  <div class="slide-number">09 / 10</div>
+  <div class="slide-content">
+    <div class="slide-tag">Traction</div>
+    <h2>What We've Achieved So Far</h2>
+    <div class="card-grid">
+      <div class="info-card">
+        <div class="icon">🧮</div>
+        <h4>7 Specialized Calculators</h4>
+        <p>Break-even, cash flow, pricing, loan, restaurants, profitability, menu engineering, and feasibility.</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">🌍</div>
+        <h4>22 Arabic &amp; Global Countries</h4>
+        <p>Local delivery platform data for 22 countries with 179+ platforms.</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">⚡</div>
+        <h4>Lightweight SaaS + Offline</h4>
+        <p>Works on any browser without installation. Offline mode for basic calculators.</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">🔗</div>
+        <h4>Smart Integrations</h4>
+        <p>Supabase + Stripe + Private APIs (Promo Simulator, Omnichannel).</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">🧪</div>
+        <h4>42 Automated Tests</h4>
+        <p>All calculation functions are tested — number accuracy guaranteed.</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">📱</div>
+        <h4>Responsive Design</h4>
+        <p>All calculators are mobile-friendly — 70% of MENA users are on mobile.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 10: Ask -->
+<div class="slide">
+  <div class="slide-number">10 / 10</div>
+  <div class="slide-content" style="text-align:center;">
+    <div class="slide-tag">Investment</div>
+    <h1 style="margin-bottom:0.5rem;">Seeking a Strategic Partner</h1>
+    <p>Not just a funder — a partner who believes in empowering Arab entrepreneurs.</p>
+    <div class="ask-box">
+      <h3>🎯 Phase One: Seed</h3>
+      <p>Use of Funds: Marketing + Dev Team + Expansion to Egypt &amp; the Maghreb</p>
+    </div>
+    <div class="stat-grid" style="max-width:420px;margin:1.25rem auto;">
+      <div class="stat-box"><div class="num">12 Months</div><div class="label">First Growth Plan</div></div>
+      <div class="stat-box"><div class="num">1,000+</div><div class="label">Target Users</div></div>
+      <div class="stat-box"><div class="num">5x</div><div class="label">Expected Annual Growth</div></div>
+    </div>
+    <p style="margin-top:1.5rem;font-size:1rem;">
+      📧 <a href="mailto:hello@bonds-global.com">hello@bonds-global.com</a><br>
+      🌐 <a href="https://bonds-global.com">bonds-global.com</a>
+    </p>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.75rem;">Thank you for your time 🙏</p>
+  </div>
+</div>
+
+</body>
+</html>

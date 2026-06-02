@@ -2,6 +2,8 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
+  <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
+  <link rel="preconnect" href="https://embed.tawk.to" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Product Pricing Calculator | Bonds — Financial Consulting</title>
   <meta name="description" content="Calculate your product price professionally: direct costs, overhead, profit margin, tax, and zakat. A free tool from Bonds." />
@@ -73,7 +75,7 @@
   <header class="main-header" id="header">
     <div class="container main-header__inner">
       <a href="../../index.html" class="logo-slot">
-        <img src="../../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" />
+        <img src="../../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
         <span class="logo-text">Bonds</span>
       </a>
       <nav class="main-nav" id="mainNav">
@@ -214,6 +216,7 @@
               <button onclick="copyLink()" class="btn btn-outline" style="font-size: 0.8rem;">Copy Link</button>
               <button onclick="window.print()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">🖨️ Print</button>
               <button onclick="exportExcel()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📊 Excel</button>
+              <button onclick="exportPDF()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📄 PDF</button>
             </div>
           </div>
 
@@ -631,6 +634,47 @@
       });
     }
 
+    function exportPDF() {
+      var last = window._lastPricingResult;
+      if (!last) {
+        BondsUI.toast('⚠️ Calculate results first', 'warning');
+        return;
+      }
+      var r = last.r;
+      var inputs = last.inputs;
+      var content = `
+        <h2>📊 Pricing Results</h2>
+        <div class="metric-grid">
+          <div class="metric-item"><div class="label">Total Cost per Unit</div><div class="value">${r.costPerUnit.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-item"><div class="label">Selling Price before Tax</div><div class="value">${r.priceBeforeTax.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-item"><div class="label">Net Profit per Unit</div><div class="value">${r.netProfitPerUnit.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-item"><div class="label">Target Monthly Profit</div><div class="value">${r.monthlyProfit.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-item"><div class="label">Actual Profit Margin</div><div class="value">${r.actualMargin.toFixed(1)}%</div></div>
+          <div class="metric-item"><div class="label">Break-Even Price</div><div class="value">${r.breakEvenPrice.toLocaleString('en-US')} SAR</div></div>
+        </div>
+
+        <h2>📋 Calculation Details</h2>
+        <table>
+          <tr><th>Item</th><th>Value</th></tr>
+          <tr><td>Direct Cost</td><td class="num">${inputs.direct.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Overhead Cost</td><td class="num">${inputs.overhead.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Total Cost per Unit</td><td class="num">${r.costPerUnit.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Desired Margin</td><td class="num">${inputs.margin}%</td></tr>
+          <tr><td>Selling Price before Tax</td><td class="num">${r.priceBeforeTax.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Profit before Tax</td><td class="num">${r.profitBeforeTax.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Tax (${inputs.taxRate}%)</td><td class="num">${r.taxAmount.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Profit after Tax</td><td class="num">${r.profitAfterTax.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Zakat (${inputs.zakatRate}%)</td><td class="num">${r.zakatAmount.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Net Profit per Unit</td><td class="num">${r.netProfitPerUnit.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Monthly Sales Volume</td><td class="num">${inputs.volume.toLocaleString('en-US')} units</td></tr>
+          <tr><td>Target Monthly Profit</td><td class="num">${r.monthlyProfit.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Actual Profit Margin</td><td class="num">${r.actualMargin.toFixed(2)}%</td></tr>
+          <tr><td>Break-Even Price</td><td class="num">${r.breakEvenPrice.toLocaleString('en-US')} SAR</td></tr>
+        </table>
+      `;
+      openPrintWindow({ content: content, title: 'Product Pricing Report', headerTitle: 'Product Pricing Report — Bonds', lang: 'en' });
+    }
+
     async function exportExcel() {
       var inputs = getInputs();
       if (inputs.direct <= 0) {
@@ -746,6 +790,7 @@
           return;
         }
         var r = calculate(inputs);
+        window._lastPricingResult = { r: r, inputs: inputs };
         updateResults(r, inputs);
         saveToHistory(inputs, r);
         updateShareLink(inputs);
@@ -852,7 +897,20 @@
         });
     });
 
-    loadFromURL();
+    var calcSection = document.querySelector('.calc-grid');
+    if ('IntersectionObserver' in window && calcSection) {
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            loadFromURL();
+            io.disconnect();
+          }
+        });
+      }, { rootMargin: '200px' });
+      io.observe(calcSection);
+    } else {
+      loadFromURL();
+    }
     renderHistory();
   </script>
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>

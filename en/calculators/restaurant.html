@@ -2,6 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
+  <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Restaurant & Cloud Kitchen Calculator | Bonds — Financial Consulting</title>
   <meta name="description" content="Calculate your restaurant or cloud kitchen profitability accurately: ingredient costs, platform commissions, break-even, and platform comparison. Covers all 22 Arab countries. A free tool from Bonds." />
@@ -32,6 +33,7 @@
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/country-platforms-data.min.js"></script>
+  <script src="../../calculators/calc-functions.js"></script>
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/supabase-client.js?v=5"></script>
@@ -212,7 +214,7 @@
   <header class="main-header" id="header">
     <div class="container main-header__inner">
       <a href="../index.html" class="logo-slot">
-        <img src="../../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" />
+        <img src="../../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
         <span class="logo-text">Bonds</span>
       </a>
       <nav class="main-nav" id="mainNav">
@@ -615,8 +617,8 @@
           </div>
           <div style="display: flex; gap: var(--space-3); justify-content: center; margin-top: var(--space-4); flex-wrap: wrap;">
             <button class="btn btn-secondary" onclick="exportExcel()">📊 Excel (Compare)</button>
-            <button class="btn btn-secondary" id="btnExportPDF" onclick="exportPDF()" data-premium="pro">📄 PDF (Full Report) <span class="premium-badge">Pro</span></button>
-            <button class="btn btn-secondary" id="btnExportPlatformPDF" onclick="exportPlatformPDF()" data-premium="pro">📑 PDF (Each Platform Separate) <span class="premium-badge">Pro</span></button>
+            <button class="btn btn-secondary" id="btnExportPDF" onclick="exportPDF()">📄 PDF (Full Report)</button>
+            <button class="btn btn-secondary" id="btnExportPlatformPDF" onclick="exportPlatformPDF()">📑 PDF (Each Platform Separate)</button>
             <button class="btn btn-secondary" onclick="exportPlatformExcel()">📊 Excel (Each Platform Separate)</button>
             <button type="button" class="btn btn-secondary" onclick="exportExcelSettings()">📊 Export Excel</button>
           </div>
@@ -751,7 +753,7 @@
       <div class="footer-grid" style="grid-template-columns: 1.5fr repeat(3, 1fr); gap: 3rem; padding-bottom: 3rem; border-bottom: 1px solid var(--border);">
         <div>
           <a href="../index.html" class="logo-slot" style="margin-bottom: 1.5rem; display: inline-flex;">
-            <img src="../../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" style="width: 48px; height: 48px;" />
+            <img src="../../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" style="width: 48px; height: 48px;" loading="lazy" />
             <span class="logo-text" style="font-size: 1.5rem;">Bonds</span>
           </a>
           <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.8; max-width: 280px;">We transform your financial data into clear decisions. Specialized financial consulting for restaurants and startups.</p>
@@ -798,6 +800,13 @@
 
   <script src="../../script.js" defer></script>
   <script>
+
+    // ===== Aliases for extracted pure functions =====
+    var getUnitMultiplier = BondsCalc.getUnitMultiplier;
+    var getEffectiveFee = BondsCalc.getEffectiveFee;
+    var formatNumber = BondsCalc.formatNumber;
+    var calculateSensitivity = BondsCalc.calculateSensitivity;
+    var parseIngredientsCSVText = BondsCalc.parseIngredientsCSVText;
 
     // ===== State =====
     var dishes = [];
@@ -1257,11 +1266,6 @@
       { value: 'spoon', label: 'spoon', factor: 1, priceLabel: 'per spoon' }
     ];
 
-    function getUnitMultiplier(unitValue) {
-      var opt = INGREDIENT_UNITS.find(function(u) { return u.value === unitValue; });
-      return opt ? opt.factor : 1;
-    }
-
     function getUnitSelectHtml(selectedValue) {
       return '<select class="ing-unit" onchange="updateIngredientRowTotal(this.closest(\'tr\'));updateIngredientTotal();updatePricePlaceholder(this.closest(\'tr\'));" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:#0f1525;color:var(--text);font-family:inherit;">' +
         INGREDIENT_UNITS.map(function(o){ return '<option value="' + o.value + '"' + (o.value === selectedValue ? ' selected' : '') + ' style="background:#0f1525;color:var(--text);">' + o.label + '</option>'; }).join('') +
@@ -1452,19 +1456,6 @@
     }
 
     // ===== Core Calculation =====
-    function getEffectiveFee(platformData, monthlyGMV) {
-      var baseFee = (platformData.fee || 0) + (platformData.serviceFee || 0);
-      var tiers = platformData.feeTiers;
-      if (!tiers || !monthlyGMV || monthlyGMV <= 0) return { fee: baseFee, tierApplied: false };
-      for (var i = 0; i < tiers.length; i++) {
-        var t = tiers[i];
-        if (monthlyGMV >= t.min && monthlyGMV <= t.max) {
-          return { fee: (t.fee || 0) + (platformData.serviceFee || 0), tierApplied: true, tierName: t.min + '-' + t.max };
-        }
-      }
-      return { fee: baseFee, tierApplied: false };
-    }
-
     function calculate(inputs) {
       var memoKey = _calcMemo.key(inputs);
       if (_calcMemo.has(memoKey)) return _calcMemo.get(memoKey);
@@ -1694,58 +1685,11 @@
     }
 
     function calculateHealthScore(r) {
-      var inputs = r.inputs;
-      var score = 0;
-      var breakdown = [];
-
-      // 1. Profit Margin (30% weight)
-      var marginScore = 0;
-      if (r.profitMargin >= 20) marginScore = 100;
-      else if (r.profitMargin >= 10) marginScore = 50 + (r.profitMargin - 10) * 5;
-      else if (r.profitMargin >= 0) marginScore = r.profitMargin * 5;
-      else marginScore = 0;
-      score += marginScore * 0.30;
-      breakdown.push({ label: 'Profit Margin', score: Math.round(marginScore), icon: '💰' });
-
-      // 2. Food Cost (25% weight)
-      var foodScore = 0;
-      var fc = r.weightedFoodCostPct || 0;
-      if (fc <= 25) foodScore = 100;
-      else if (fc <= 30) foodScore = 100 - (fc - 25) * 5;
-      else if (fc <= 35) foodScore = 75 - (fc - 30) * 5;
-      else foodScore = Math.max(0, 50 - (fc - 35) * 3);
-      score += foodScore * 0.25;
-      breakdown.push({ label: 'Food Cost', score: Math.round(foodScore), icon: '🍽️' });
-
-      // 3. Platform Fee Burden (25% weight)
-      var avgFee = 0;
-      if (inputs.platforms.length > 0) {
-        var totalFee = inputs.platforms.reduce(function(sum, p) { return sum + p.fee + (p.serviceFee || 0); }, 0);
-        avgFee = totalFee / inputs.platforms.length;
-      }
-      var feeScore = 0;
-      if (avgFee <= 20) feeScore = 100;
-      else if (avgFee <= 25) feeScore = 100 - (avgFee - 20) * 5;
-      else if (avgFee <= 30) feeScore = 75 - (avgFee - 25) * 5;
-      else feeScore = Math.max(0, 50 - (avgFee - 30) * 3);
-      score += feeScore * 0.25;
-      breakdown.push({ label: 'Platform Fees', score: Math.round(feeScore), icon: '📱' });
-
-      // 4. Break-Even Safety (20% weight)
-      var beScore = 0;
-      if (r.breakEvenDaily > 0) {
-        var ratio = inputs.dailyOrders / r.breakEvenDaily;
-        if (ratio >= 2) beScore = 100;
-        else if (ratio >= 1.5) beScore = 75 + (ratio - 1.5) * 50;
-        else if (ratio >= 1) beScore = 50 + (ratio - 1) * 50;
-        else beScore = Math.max(0, ratio * 50);
-      } else {
-        beScore = 100;
-      }
-      score += beScore * 0.20;
-      breakdown.push({ label: 'Break-Even', score: Math.round(beScore), icon: '🛡️' });
-
-      var finalScore = Math.round(Math.min(100, Math.max(0, score)));
+      var result = BondsCalc.calculateHealthScore(r, 'en');
+      var finalScore = result.finalScore;
+      var breakdown = result.breakdown;
+      var color = result.color;
+      var labelText = result.labelText;
 
       // Update UI
       var box = document.getElementById('healthScoreBox');
@@ -1759,13 +1703,8 @@
       if (circle) circle.style.setProperty('--score', finalScore);
       if (val) val.textContent = finalScore;
 
-      var color = finalScore >= 80 ? '#16a34a' : (finalScore >= 50 ? '#d4a853' : '#dc2626');
       if (bar) { bar.style.width = finalScore + '%'; bar.style.background = color; }
 
-      var labelText = finalScore >= 80 ? 'Excellent — Your restaurant is in great shape' :
-                      finalScore >= 60 ? 'Good — There is room for minor improvement' :
-                      finalScore >= 40 ? 'Fair — Review costs and pricing' :
-                      'Weak — Immediate operational intervention needed';
       if (label) { label.textContent = labelText; label.style.color = color; }
 
       if (bd) {
@@ -1796,45 +1735,7 @@
     }
 
     function generateSmartTip(r) {
-      var tips = [];
-      var inputs = r.inputs;
-      var currency = currentCurrency;
-      if (r.netProfit < 0) {
-        var be = r.breakEvenDaily;
-        var needed = be - inputs.dailyOrders;
-        if (needed > 0) {
-          tips.push('You are currently losing money. Increasing daily orders by just ' + needed + ' reaches break-even.');
-        }
-        var priceBoost = Math.ceil((-r.netProfit / (inputs.dailyOrders * inputs.workingDays)) / (inputs.dailyOrders * inputs.workingDays) * 100);
-        if (priceBoost > 0 && priceBoost < 50) {
-          tips.push('Raising prices by ~' + priceBoost + '% achieves break-even without more orders.');
-        }
-      } else {
-        tips.push('Your total profit is ' + formatNumber(Math.round(r.netProfit)) + ' ' + currency + '/month. Try scaling on your best platform (' + r.bestPlatform.name + ').');
-      }
-      if (r.worstPlatform && r.bestPlatform && r.worstPlatform.name !== r.bestPlatform.name) {
-        var diff = r.bestPlatform.monthlyProfit - r.worstPlatform.monthlyProfit;
-        if (diff > 0) {
-          tips.push('Gap between best (' + r.bestPlatform.name + ') and worst (' + r.worstPlatform.name + ') = ' + formatNumber(Math.round(diff)) + ' ' + currency + '/month.');
-        }
-      }
-      if (r.breakEvenDaily > inputs.dailyOrders * 1.5) {
-        tips.push('Break-even is high (' + r.breakEvenDaily + ' orders/day). Review fixed costs or profit margin.');
-      }
-      var openProfit = 0, closedProfit = 0;
-      r.platformResults.forEach(function(p) {
-        var pm = inputs.platforms.find(function(x) { return x.name === p.name; });
-        if (pm) {
-          if (pm.operatingModel === 'open') openProfit += p.monthlyProfit;
-          else if (pm.operatingModel === 'closed') closedProfit += p.monthlyProfit;
-        }
-      });
-      if (openProfit > closedProfit && closedProfit > 0) {
-        tips.push('Open-courier model (like Mrsool) earns ' + formatNumber(Math.round(openProfit - closedProfit)) + ' ' + currency + ' more than closed-menu platforms.');
-      }
-      if (r.weightedFoodCostPct > 35) {
-        tips.push('Food cost ratio is high (' + r.weightedFoodCostPct.toFixed(1) + '%). Ideal range is 25-30%.');
-      }
+      var tips = BondsCalc.generateSmartTips(r, currentCurrency, 'en');
       var tip = tips.length ? tips[0] : '';
       var box = document.getElementById('smartTipBox');
       var txt = document.getElementById('smartTipText');
@@ -1842,11 +1743,6 @@
         if (tip) { txt.textContent = tip; box.style.display = 'block'; }
         else { box.style.display = 'none'; }
       }
-    }
-
-    function formatNumber(n) {
-      if (n === undefined || n === null || isNaN(n)) return '—';
-      return Math.round(n).toLocaleString('en-US');
     }
 
     function updateShareLink(inputs) {
@@ -2236,52 +2132,6 @@
     }
 
     // ===== Sensitivity Analysis =====
-    function calculateSensitivity(baseResult, commissionDelta, ordersDelta, priceDelta, costDelta) {
-      var inputs = baseResult.inputs;
-      var adjustedPrice = baseResult.weightedPrice * (1 + priceDelta/100);
-      var adjustedCost = baseResult.weightedCost * (1 + costDelta/100);
-      var adjustedOrders = inputs.dailyOrders * (1 + ordersDelta/100);
-      var monthlyFixed = inputs.rent + inputs.salaries + inputs.utilities + inputs.licenses + inputs.cloudKitchen + inputs.marketing;
-      var dailyFixed = monthlyFixed / inputs.workingDays;
-      var countryData = COUNTRIES_DATA[currentCountry];
-      var vatRate = countryData ? (countryData.vatRate || 0) : 0;
-
-      var platformResults = inputs.platforms.map(function(p) {
-        var ef = getEffectiveFee(p, inputs.monthlyGMV);
-        var totalFee = ef.fee + commissionDelta;
-        if (totalFee < 0) totalFee = 0;
-        var commissionValue = adjustedPrice * (totalFee / 100);
-        var vatValue = commissionValue * (vatRate / 100);
-        var pgFeeValue = adjustedPrice * ((p.paymentGatewayFee || 0) / 100);
-        var campaignValue = adjustedPrice * ((p.campaignDiscount || 0) / 100);
-        var totalDeduction = commissionValue + vatValue + pgFeeValue + campaignValue;
-        var platformPrice = adjustedPrice - totalDeduction;
-        var varCostPerOrder = adjustedCost + inputs.packaging + inputs.delivery;
-        var contributionPerOrder = platformPrice - varCostPerOrder;
-        var setupFeeMonthly = (p.setupFee || 0) / 12;
-        var dailyProfit = contributionPerOrder * adjustedOrders - dailyFixed - (setupFeeMonthly / inputs.workingDays);
-        var monthlyProfit = dailyProfit * inputs.workingDays;
-        var breakEvenOrders = contributionPerOrder > 0 ? Math.ceil((dailyFixed + (setupFeeMonthly / inputs.workingDays)) / contributionPerOrder) : -1;
-        return {
-          name: p.name, monthlyProfit: monthlyProfit, breakEvenOrders: breakEvenOrders
-        };
-      });
-
-      var bestPlatform = platformResults.reduce(function(best, p) {
-        return (p.monthlyProfit > best.monthlyProfit) ? p : best;
-      }, platformResults[0] || { monthlyProfit: -Infinity });
-
-      var totalMonthlyRevenue = adjustedPrice * adjustedOrders * inputs.workingDays;
-      var totalMonthlyVarCost = (adjustedCost + inputs.packaging + inputs.delivery) * adjustedOrders * inputs.workingDays;
-      var netProfit = totalMonthlyRevenue - totalMonthlyVarCost - monthlyFixed;
-
-      return {
-        netProfit: netProfit,
-        bestPlatform: bestPlatform,
-        breakEvenDaily: platformResults.length > 0 && platformResults[0].breakEvenOrders > 0 ? platformResults[0].breakEvenOrders : -1
-      };
-    }
-
     function updateSensitivityDisplay() {
       if (!_lastResult) return;
       var commissionDelta = parseFloat(document.getElementById('sensCommission').value) || 0;
@@ -2294,7 +2144,9 @@
       document.getElementById('sensPriceVal').textContent = (priceDelta > 0 ? '+' : '') + priceDelta + '%';
       document.getElementById('sensCostVal').textContent = (costDelta > 0 ? '+' : '') + costDelta + '%';
 
-      var sr = calculateSensitivity(_lastResult, commissionDelta, ordersDelta, priceDelta, costDelta);
+      var countryData = COUNTRIES_DATA[currentCountry];
+      var vatRate = countryData ? (countryData.vatRate || 0) : 0;
+      var sr = calculateSensitivity(_lastResult, commissionDelta, ordersDelta, priceDelta, costDelta, vatRate);
 
       var baseProfit = _lastResult.netProfit;
       var profitColor = sr.netProfit >= baseProfit ? '#16a34a' : '#dc2626';
@@ -2789,21 +2641,12 @@
       if (!file) return;
       var reader = new FileReader();
       reader.onload = function(e) {
-        var text = e.target.result;
-        var lines = text.split('\n').filter(function(l) { return l.trim(); });
-        _importedIngredients = [];
-        lines.forEach(function(line, idx) {
-          if (idx === 0 && line.toLowerCase().includes('ingredient')) return;
-          var parts = line.split(',');
-          if (parts.length >= 3) {
-            _importedIngredients.push({ name: parts[0].trim(), unit: parts[1].trim(), price: parseFloat(parts[2]) || 0 });
-          }
-        });
+        _importedIngredients = parseIngredientsCSVText(e.target.result);
         var listDiv = document.getElementById('ingredientList');
         if (_importedIngredients.length > 0) {
           listDiv.innerHTML = '✅ Imported ' + _importedIngredients.length + ' ingredients: ' + _importedIngredients.map(function(i) { return i.name + ' (' + i.price + ')'; }).join(', ');
         } else {
-          listDiv.innerHTML = '❌ No ingredients recognized. Check format: ingredient,unit,price';
+          listDiv.innerHTML = '❌ No ingredients recognized. Make sure format is: ingredient,unit,price';
         }
       };
       reader.readAsText(file);
@@ -2851,8 +2694,22 @@
       addDish({ name: 'Dish 2', price: 35, cost: 12, salesMix: 50, ingredients: [] });
     }
 
-    loadFromURL();
     initAuthState().then(renderSessions);
+
+    var calcSection = document.getElementById('calc');
+    if ('IntersectionObserver' in window && calcSection) {
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            loadFromURL();
+            io.disconnect();
+          }
+        });
+      }, { rootMargin: '200px' });
+      io.observe(calcSection);
+    } else {
+      loadFromURL();
+    }
 
     // Auto-calculate with debounce
     var debouncedCalc = debounce(calculateAll, 300);

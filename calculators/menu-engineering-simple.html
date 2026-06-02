@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="shared-calculators.css" />
   <script src="shared-utils.js"></script>
   <script src="shared-ui.js"></script>
+  <script src="shared-export.js"></script>
   <style>
     :root { --bg:#0a0f1a; --card:#111827; --border:#1f2937; --text:#e5e7eb; --muted:#9ca3af; --gold:#d4a853; }
     * { box-sizing:border-box; margin:0; padding:0; font-family:Tahoma,Segoe UI,sans-serif; }
@@ -183,6 +184,10 @@
     <div id="matrix" class="bonds-panel">
       <div id="summary"></div>
       <div class="matrix" id="matrixBox"></div>
+      <div style="text-align:center;margin-top:1rem;display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;">
+        <button class="bonds-btn bonds-btn-primary" onclick="exportMatrixExcel()">📊 Excel</button>
+        <button class="bonds-btn bonds-btn-primary" onclick="exportMatrixPDF()">📄 PDF</button>
+      </div>
     </div>
   </div>
 
@@ -475,6 +480,8 @@ function renderMatrix(){
   const avgMargin=scores.length?scores.reduce((s,i)=>s+i.margin,0)/scores.length:0;
   const fees=totalRev-totalNet;
 
+  window._lastMatrix = { scores, stars, engines, treasures, stalled, totalRev, totalCost, totalNet, totalProfit, avgMargin, fees, avgQty, avgProfit };
+
   document.getElementById('summary').innerHTML=`
     <div class="summary">
       <div class="s-box"><div>📦 منتجات</div><div>${scores.length}</div></div>
@@ -503,6 +510,77 @@ function renderMatrix(){
     mk(engines,'المحرك','🚀','engines','مبيعات عالية + ربح محدود')+
     mk(treasures,'المكنوز','💎','treasures','ربح عالٍ + مبيعات منخفضة')+
     mk(stalled,'المتعثرة','⚠️','stalled','ربح منخفض + مبيعات منخفضة');
+}
+
+async function exportMatrixExcel() {
+  if (!window._lastMatrix) {
+    BondsUI.toast('⚠️ لا توجد بيانات للتصدير', 'warning');
+    return;
+  }
+  await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+  if (typeof XLSX === 'undefined') {
+    BondsUI.toast('❌ فشل تحميل مكتبة Excel', 'error');
+    return;
+  }
+  var d = window._lastMatrix;
+  var wb = XLSX.utils.book_new();
+  wb.Props = { Title: 'محرك هندسة المنيو', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+  var summarySheet = [
+    ['المؤشر', 'القيمة'],
+    ['عدد المنتجات', d.scores.length],
+    ['إجمالي الإيرادات', d.totalRev],
+    ['إجمالي التكاليف', d.totalCost],
+    ['إجمالي العمولات', d.fees],
+    ['الربح الصافي', d.totalProfit],
+    ['متوسط الهامش (%)', d.avgMargin.toFixed(2) + '%'],
+    ['متوسط الكمية', d.avgQty.toFixed(0)],
+    ['متوسط الربح', d.avgProfit.toFixed(2)]
+  ];
+  var ws1 = XLSX.utils.aoa_to_sheet(summarySheet);
+  ws1['!cols'] = [{ wch: 28 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, ws1, 'الملخص');
+
+  var itemsSheet = [['المنتج', 'المبيعات', 'الإيراد', 'التكلفة', 'الربح الصافي', 'الهامش (%)', 'التصنيف']];
+  d.scores.forEach(function(s) {
+    var cat = d.stars.includes(s) ? '⭐ نجم' : d.engines.includes(s) ? '🚀 محرك' : d.treasures.includes(s) ? '💎 مكنوز' : '⚠️ متعثر';
+    itemsSheet.push([s.name, s.qty, s.rev, s.cost, s.profit, s.margin.toFixed(2) + '%', cat]);
+  });
+  var ws2 = XLSX.utils.aoa_to_sheet(itemsSheet);
+  ws2['!cols'] = [{ wch: 24 }, { wch: 12 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 14 }];
+  XLSX.utils.book_append_sheet(wb, ws2, 'المنتجات');
+
+  XLSX.writeFile(wb, 'bonds-menu-engineering.xlsx');
+}
+
+function exportMatrixPDF() {
+  if (!window._lastMatrix) {
+    BondsUI.toast('⚠️ لا توجد بيانات للتصدير', 'warning');
+    return;
+  }
+  var d = window._lastMatrix;
+  var content = `
+    <h2>📊 ملخص هندسة المنيو</h2>
+    <div class="metric-grid">
+      <div class="metric-item"><div class="label">المنتجات</div><div class="value">${d.scores.length}</div></div>
+      <div class="metric-item"><div class="label">الإيرادات</div><div class="value">${d.totalRev.toFixed(0)} ر.س</div></div>
+      <div class="metric-item"><div class="label">التكاليف</div><div class="value">${d.totalCost.toFixed(0)} ر.س</div></div>
+      <div class="metric-item"><div class="label">العمولات</div><div class="value">${d.fees.toFixed(0)} ر.س</div></div>
+      <div class="metric-item"><div class="label">الربح الصافي</div><div class="value">${d.totalProfit.toFixed(0)} ر.س</div></div>
+      <div class="metric-item"><div class="label">متوسط الهامش</div><div class="value">${d.avgMargin.toFixed(1)}%</div></div>
+    </div>
+
+    <h2>📋 تفاصيل المنتجات</h2>
+    <table>
+      <tr><th>المنتج</th><th>المبيعات</th><th>الإيراد</th><th>التكلفة</th><th>الربح</th><th>الهامش</th><th>التصنيف</th></tr>
+      ${d.scores.map(function(s) {
+        var cat = d.stars.includes(s) ? '⭐ نجم' : d.engines.includes(s) ? '🚀 محرك' : d.treasures.includes(s) ? '💎 مكنوز' : '⚠️ متعثر';
+        var color = d.stars.includes(s) ? '#22c55e' : d.engines.includes(s) ? '#f59e0b' : d.treasures.includes(s) ? '#3b82f6' : '#ef4444';
+        return '<tr><td>' + s.name + '</td><td class="num">' + s.qty + '</td><td class="num">' + s.rev.toFixed(0) + '</td><td class="num">' + s.cost.toFixed(0) + '</td><td class="num">' + s.profit.toFixed(2) + '</td><td class="num">' + s.margin.toFixed(1) + '%</td><td style="color:' + color + ';font-weight:700;">' + cat + '</td></tr>';
+      }).join('')}
+    </table>
+  `;
+  openPrintWindow({ content: content, title: 'تقرير هندسة المنيو', headerTitle: 'تقرير هندسة المنيو — بوندز' });
 }
 
 // ===== DEMO DATA =====

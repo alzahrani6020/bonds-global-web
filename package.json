@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vercel dev",
     "deploy": "vercel --prod",
+    "test": "jest",
     "setup:supabase": "node scripts/setup-supabase.js",
     "setup:stripe": "node scripts/setup-stripe.js"
   },

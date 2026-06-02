@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>نموذج دراسة الجدوى المتكامل | بوندز</title>
+  <meta name="description" content="نموذج دراسة جدوى احترافي متكامل: PESTLE، SWOT، تحليل مالي، تدفق نقدي، سيناريوهات. مجاني من بوندز." />
+  <meta property="og:title" content="نموذج دراسة الجدوى المتكامل | بوندز" />
+  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    :root { --gold:#d4a853; --gold-bright:#f0c96a; --bg:#0a0f1a; --bg-card:rgba(16,24,45,0.6); --text:#e8ecf4; --text-secondary:#94a3b8; --border:rgba(197,160,40,0.15); }
+    body { background:var(--bg); color:var(--text); font-family:'Vazirmatn',sans-serif; line-height:1.7; }
+    @media print {
+      body { background:#fff !important; color:#000 !important; }
+      .no-print,.navbar,.template-toolbar,.footer { display:none !important; }
+      .template-page { page-break-after:always; background:#fff !important; color:#000 !important; box-shadow:none !important; border:none !important; margin:0 !important; padding:2cm !important; max-width:100% !important; }
+      .template-page:last-child { page-break-after:auto; }
+      input,textarea,select { border:none !important; border-bottom:1px dotted #666 !important; background:transparent !important; color:#000 !important; }
+      .template-table th,.template-table td { border:1px solid #333 !important; color:#000 !important; }
+      .template-table th { background:#f0f0f0 !important; }
+      h2 { color:#000 !important; border-color:#333 !important; }
+      .section-number { background:#333 !important; color:#fff !important; }
+      .scenario-pessimistic,.scenario-expected,.scenario-optimistic { background:#fff !important; }
+      .swot-box { border:1px solid #333 !important; }
+    }
+    @page { size:A4; margin:1.5cm; }
+
+    .template-toolbar { position:sticky; top:0; z-index:100; background:var(--bg-card); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); padding:0.75rem 1.5rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+    .template-toolbar button { background:var(--gold); color:#0a0f1a; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-weight:700; font-family:inherit; cursor:pointer; transition:all 0.2s; }
+    .template-toolbar button:hover { background:var(--gold-bright); transform:translateY(-1px); }
+    .template-toolbar .btn-ghost { background:transparent; color:var(--gold); border:1px solid var(--gold); }
+    .template-toolbar .btn-ghost:hover { background:var(--gold); color:#0a0f1a; }
+
+    .template-wrapper { max-width:960px; margin:0 auto; padding:2rem 1rem; }
+    .template-page { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:2.5rem; margin-bottom:2rem; page-break-inside:avoid; }
+    .template-header-print { display:none; align-items:center; justify-content:space-between; border-bottom:2px solid var(--gold); padding-bottom:1rem; margin-bottom:1.5rem; }
+    .template-header-print img { height:48px; }
+    .template-header-print .doc-title { font-size:1.1rem; font-weight:700; color:var(--text-secondary); }
+    .page-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:2px solid var(--gold); }
+    .section-number { width:40px; height:40px; border-radius:50%; background:var(--gold); color:#0a0f1a; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.1rem; flex-shrink:0; }
+    .page-header h2 { margin:0; font-size:1.3rem; font-weight:700; color:var(--gold-bright); }
+    .page-header p { margin:0; color:var(--text-secondary); font-size:0.9rem; }
+
+    .field-group { margin-bottom:1.5rem; }
+    .field-group label { display:block; font-weight:700; font-size:0.9rem; color:var(--text-secondary); margin-bottom:0.4rem; }
+    .field-group input,.field-group textarea,.field-group select { width:100%; padding:0.75rem 1rem; border-radius:10px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:var(--text); font-family:inherit; font-size:0.95rem; transition:border-color 0.2s; }
+    .field-group input:focus,.field-group textarea:focus,.field-group select:focus { outline:none; border-color:var(--gold); }
+    .field-group textarea { min-height:90px; resize:vertical; }
+    .field-group.inline { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .field-group.inline-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
+    .field-group input[readonly] { opacity:0.8; cursor:default; }
+
+    .template-table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.9rem; }
+    .template-table th,.template-table td { border:1px solid var(--border); padding:0.55rem 0.7rem; text-align:center; }
+    .template-table th { background:rgba(212,168,83,0.1); color:var(--gold-bright); font-weight:700; }
+    .template-table td input { width:100%; background:transparent; border:none; color:var(--text); font-family:inherit; text-align:center; padding:0.2rem; }
+    .template-table td input:focus { outline:none; }
+    .template-table td input[readonly] { opacity:0.7; }
+
+    .table-actions { display:flex; gap:0.5rem; margin-top:0.5rem; justify-content:center; }
+    .table-actions button { background:rgba(212,168,83,0.15); color:var(--gold); border:1px solid var(--gold); padding:0.3rem 0.8rem; border-radius:6px; font-family:inherit; font-size:0.8rem; cursor:pointer; transition:all 0.2s; }
+    .table-actions button:hover { background:var(--gold); color:#0a0f1a; }
+
+    .cover-page { text-align:center; padding:4rem 2rem; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:70vh; }
+    .cover-page img { height:80px; margin-bottom:2rem; }
+    .cover-page h1 { font-size:2rem; font-weight:800; color:var(--gold-bright); margin-bottom:0.5rem; }
+    .cover-page .cover-subtitle { font-size:1.2rem; color:var(--text-secondary); margin-bottom:2rem; }
+    .cover-meta { display:grid; grid-template-columns:1fr 1fr; gap:1rem; max-width:520px; width:100%; text-align:right; }
+    .cover-meta .field-group label { font-size:0.85rem; }
+    .cover-meta .field-group input { text-align:center; }
+
+    .checklist { list-style:none; padding:0; margin:0; }
+    .checklist li { display:flex; align-items:flex-start; gap:0.75rem; margin-bottom:0.75rem; padding:0.5rem; background:rgba(255,255,255,0.02); border-radius:8px; }
+    .checklist li input[type="checkbox"] { width:20px; height:20px; accent-color:var(--gold); margin-top:2px; flex-shrink:0; }
+    .checklist li span { flex:1; font-size:0.9rem; }
+    .checklist li textarea { flex:1; min-height:60px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; padding:0.5rem; color:var(--text); font-family:inherit; }
+
+    .swot-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1rem 0; }
+    .swot-box { border-radius:12px; padding:1.25rem; border:1px solid var(--border); }
+    .swot-box h4 { margin:0 0 0.75rem; font-size:1rem; }
+    .swot-box.s { background:rgba(22,163,74,0.08); border-color:rgba(22,163,74,0.3); }
+    .swot-box.s h4 { color:#16a34a; }
+    .swot-box.w { background:rgba(220,38,38,0.08); border-color:rgba(220,38,38,0.3); }
+    .swot-box.w h4 { color:#dc2626; }
+    .swot-box.o { background:rgba(212,168,83,0.08); border-color:rgba(212,168,83,0.3); }
+    .swot-box.o h4 { color:var(--gold-bright); }
+    .swot-box.t { background:rgba(100,116,139,0.08); border-color:rgba(100,116,139,0.3); }
+    .swot-box.t h4 { color:#94a3b8; }
+
+    .scenario-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin:1rem 0; }
+    .scenario-card { border-radius:12px; padding:1.25rem; text-align:center; border:1px solid var(--border); }
+    .scenario-pessimistic { background:rgba(220,38,38,0.08); border-color:rgba(220,38,38,0.3); }
+    .scenario-expected { background:rgba(212,168,83,0.08); border-color:var(--gold); }
+    .scenario-optimistic { background:rgba(22,163,74,0.08); border-color:rgba(22,163,74,0.3); }
+    .scenario-label { font-size:0.75rem; font-weight:800; margin-bottom:0.5rem; }
+    .scenario-value { font-size:1.5rem; font-weight:900; }
+    .scenario-desc { font-size:0.8rem; color:var(--text-secondary); }
+
+    .link-badge { display:inline-block; font-size:0.7rem; background:rgba(212,168,83,0.15); color:var(--gold); padding:0.15rem 0.5rem; border-radius:4px; margin-right:0.5rem; vertical-align:middle; }
+
+    .signature-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-top:2rem; }
+    .signature-box { border-top:1px solid var(--border); padding-top:1rem; text-align:center; }
+    .signature-box label { font-size:0.85rem; color:var(--text-secondary); }
+    .signature-box input { width:100%; margin-top:0.5rem; background:transparent; border:none; border-bottom:1px solid var(--border); text-align:center; color:var(--text); font-family:inherit; }
+
+    .progress-bar { position:fixed; top:0; left:0; right:0; height:3px; background:transparent; z-index:200; }
+    .progress-bar div { height:100%; background:var(--gold); width:0%; transition:width 0.3s; }
+
+    @media (max-width:768px) {
+      .template-page { padding:1.25rem; }
+      .field-group.inline,.field-group.inline-3,.cover-meta,.swot-grid,.scenario-grid,.signature-grid { grid-template-columns:1fr; }
+      .template-toolbar { position:relative; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar no-print"><div id="progressFill"></div></div>
+
+  <!-- Navbar -->
+  <nav class="navbar no-print">
+    <a href="../index.html" class="logo"><img src="../assets/site-logo.webp" alt="بوندز" height="36" loading="lazy" decoding="async" /></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">الرئيسية</a></li>
+      <li class="dropdown">
+        <span class="dropdown-toggle">الخدمات <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        <div class="dropdown-menu">
+          <a href="../services.html#analysis">التحليل المالي</a>
+          <a href="../services.html#cashflow">إدارة التدفقات النقدية</a>
+          <a href="../services.html#feasibility">دراسات الجدوى</a>
+          <a href="../services.html#break-even">نقطة التعادل</a>
+        </div>
+      </li>
+      <li class="dropdown">
+        <span class="dropdown-toggle">الحاسبات <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <div class="dropdown-menu">
+          <a href="../calculator.html">نقطة التعادل</a>
+          <a href="cash-flow.html">تدفق النقد</a>
+          <a href="pricing.html">تسعير المنتج</a>
+          <a href="loan.html">القرض والتمويل</a>
+          <a href="restaurant.html">المطاعم والسحابي</a>
+          <a href="menu-engineering.html">هندسة المنيو</a>
+          <a href="feasibility.html">جدوى المطعم</a>
+          <a href="invoice-analyzer.html">تحليل الفواتير</a>
+          <a href="feasibility-template.html">نموذج دراسة الجدوى</a>
+        </div>
+      </li>
+      <li><a href="../blog/index.html">المدونة</a></li>
+      <li><a href="../faq.html">الأسئلة</a></li>
+      <li><a href="../contact.html">تواصل</a></li>
+    </ul>
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <a href="../en/calculators/feasibility-template.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;">EN</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
+      <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">☰</button>
+    </div>
+  </nav>
+
+  <!-- Toolbar -->
+  <div class="template-toolbar no-print">
+    <button onclick="window.print()">🖨️ طباعة / PDF</button>
+    <button class="btn-ghost" onclick="clearAll()">🗑️ مسح الكل</button>
+    <button class="btn-ghost" onclick="saveDraft()">💾 حفظ مسودة</button>
+    <button class="btn-ghost" onclick="loadDraft()">📂 استرجاع مسودة</button>
+    <button class="btn-ghost" onclick="scrollToDashboard()">🎯 لوحة التحكم</button>
+    <button class="btn-ghost" onclick="exportToExcel()">📊 تصدير Excel</button>
+  </div>
+
+  <div class="template-wrapper">
+
+    <!-- ========== PAGE 0: COVER ========== -->
+    <div class="template-page cover-page" id="page-cover">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى المتكامل</div></div>
+      <img src="../assets/site-logo.webp" alt="بوندز" class="no-print" loading="lazy" decoding="async" />
+      <h1>نموذج دراسة الجدوى المتكامل</h1>
+      <p class="cover-subtitle">Integrated Feasibility Study Template</p>
+      <div class="cover-meta">
+        <div class="field-group"><label>اسم المشروع / النشاط</label><input type="text" id="cover-business-name" placeholder="مثال: مطعم الذواقة" /></div>
+        <div class="field-group"><label>اسم صاحب النشاط</label><input type="text" id="cover-owner-name" placeholder="الاسم الكامل" /></div>
+        <div class="field-group"><label>الشكل القانوني</label><input type="text" id="cover-legal-form" placeholder="مؤسسة فردية / شركة ذات مسؤولية محدودة" /></div>
+        <div class="field-group"><label>تاريخ الإعداد</label><input type="date" id="cover-date" /></div>
+      </div>
+      <div class="field-group" style="max-width:520px;width:100%;margin-top:1.5rem;text-align:right;">
+        <label>فكرة المشروع بجملة واحدة</label><textarea id="cover-idea" rows="2" placeholder="وصف مختصر لفكرة المشروع..."></textarea>
+      </div>
+      <div class="field-group" style="max-width:520px;width:100%;text-align:right;">
+        <label>المبلغ المستثمر المتوقع (ريال)</label><input type="number" id="cover-investment" placeholder="0" oninput="linkToCapital()" />
+      </div>
+    </div>
+
+    <!-- ========== PAGE 1: VISION & OBJECTIVES ========== -->
+    <div class="template-page" id="page-vision">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الرؤية</div></div>
+      <div class="page-header"><div class="section-number">1</div><div><h2>الرؤية والرسالة والأهداف</h2><p>لماذا وجد المشروع وماذا يسعى لتحقيقه</p></div></div>
+      <div class="field-group"><label>الرؤية (Vision) — إلى أين تتجه بعد 5-10 سنوات؟</label><textarea rows="3" placeholder="رؤية طموحة ومحددة للمستقبل..."></textarea></div>
+      <div class="field-group"><label>الرسالة (Mission) — ما قيمتك الأساسية؟</label><textarea rows="3" placeholder="الغرض الأساسي من وجود المشروع..."></textarea></div>
+      <div class="field-group"><label>الأهداف SMART</label><textarea rows="4" placeholder="Specific, Measurable, Achievable, Relevant, Time-bound...
+مثال: تحقيق 100 ألف ريال إيراد شهري خلال 12 شهر"></textarea></div>
+      <div class="field-group"><label>نقاط التمايز الأساسية (USP)</label><textarea rows="3" placeholder="ما الذي يجعلك فريداً ومختلفاً عن كل المنافسين؟"></textarea></div>
+    </div>
+
+    <!-- ========== PAGE 2: EXECUTIVE SUMMARY ========== -->
+    <div class="template-page" id="page-summary">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الملخص</div></div>
+      <div class="page-header"><div class="section-number">2</div><div><h2>الملخص التنفيذي</h2><p>نظرة عامة على كامل الدراسة (يُفضل كتابته آخراً)</p></div></div>
+      <div class="field-group"><label>ملخص المشروع (3-5 أسطر)</label><textarea rows="5" placeholder="نظرة شاملة: الفكرة، السوق، الفرصة، والنتائج المتوقعة..."></textarea></div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>رأس المال المطلوب (ريال)</label><input type="number" id="summary-capital" placeholder="0" /></div>
+        <div class="field-group"><label>فترة الاسترداد (شهر)</label><input type="number" id="summary-payback" readonly tabindex="-1" placeholder="سيُحسب تلقائياً" /></div>
+        <div class="field-group"><label>العائد المتوقع ROI (%)</label><input type="number" id="summary-roi" readonly tabindex="-1" placeholder="سيُحسب تلقائياً" /></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>الوحدات الشهرية المتوقعة</label><input type="number" id="summary-units" placeholder="0" /></div>
+        <div class="field-group"><label>عدد الوظائف المتوقع</label><input type="number" placeholder="0" /></div>
+        <div class="field-group"><label>حجم السوق المستهدف (ريال)</label><input type="number" placeholder="0" /></div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 3: PRODUCTS & SERVICES ========== -->
+    <div class="template-page" id="page-products">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — المنتجات</div></div>
+      <div class="page-header"><div class="section-number">3</div><div><h2>وصف المنتجات والخدمات</h2><p>ما تقدمه وكيف يستفيد العملاء</p></div></div>
+      <div class="field-group"><label>وصف المنتج/الخدمة الأساسية</label><textarea rows="4" placeholder="صف جذرياً ما تبيعه..."></textarea></div>
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">بطاقات المنتجات</h3>
+      <table class="template-table" id="products-table">
+        <thead><tr><th>م</th><th>اسم المنتج</th><th>السعر (ريال)</th><th>التكلفة المتغيرة</th><th>هامش المساهمة</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
+          <tr><td>2</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addProductRow()">+ إضافة منتج</button><button onclick="removeRow('products-table')">- حذف</button></div>
+      <div class="field-group inline" style="margin-top:1rem;">
+        <div class="field-group"><label>القيمة المضافة</label><textarea rows="2" placeholder="ما الذي يميزك؟"></textarea></div>
+        <div class="field-group"><label>فائدة العميل</label><textarea rows="2" placeholder="الفائدة المباشرة..."></textarea></div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 4: MARKET ANALYSIS (PESTLE + SWOT + Porter + Persona) ========== -->
+    <div class="template-page" id="page-market-analysis">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — تحليل السوق</div></div>
+      <div class="page-header"><div class="section-number">4</div><div><h2>تحليل بيئة المشروع</h2><p>PESTLE + SWOT + قوى بورتر + شخصية العميل</p></div></div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1rem 0 0.5rem;">أ. تحليل PESTLE</h3>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>سياسي (Political)</label><textarea rows="2" placeholder="القوانين، الدعم الحكومي، الاستقرار..."></textarea></div>
+        <div class="field-group"><label>اقتصادي (Economic)</label><textarea rows="2" placeholder="النمو، التضخم، القدرة الشرائية..."></textarea></div>
+        <div class="field-group"><label>اجتماعي (Social)</label><textarea rows="2" placeholder="الثقافة، التركيبة السكانية، الاتجاهات..."></textarea></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>تكنولوجي (Technological)</label><textarea rows="2" placeholder="الابتكار، الأتمتة، التحول الرقمي..."></textarea></div>
+        <div class="field-group"><label>قانوني (Legal)</label><textarea rows="2" placeholder="التراخيص، الضرائب، حماية المستهلك..."></textarea></div>
+        <div class="field-group"><label>بيئي (Environmental)</label><textarea rows="2" placeholder="الاستدامة، التغير المناخي، الموارد..."></textarea></div>
+      </div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">ب. تحليل SWOT</h3>
+      <div class="swot-grid">
+        <div class="swot-box s"><h4>✅ نقاط القوة (Strengths)</h4><textarea rows="4" placeholder="ما تمتلكه من ميزات داخلية..."></textarea></div>
+        <div class="swot-box w"><h4>⚠️ نقاط الضعف (Weaknesses)</h4><textarea rows="4" placeholder="ما تحتاج لتحسينه داخلياً..."></textarea></div>
+        <div class="swot-box o"><h4>🌟 الفرص (Opportunities)</h4><textarea rows="4" placeholder="عوامل خارجية يمكن الاستفادة منها..."></textarea></div>
+        <div class="swot-box t"><h4>⛔ التهديدات (Threats)</h4><textarea rows="4" placeholder="عوامل خارجية قد تؤثر سلباً..."></textarea></div>
+      </div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">ج. تحليل قوى بورتر التنافسية</h3>
+      <table class="template-table" id="porter-table">
+        <thead><tr><th>القوة</th><th>الشدة (1-5)</th><th>التوضيح</th></tr></thead>
+        <tbody>
+          <tr><td>قوة المنافسين الحاليين</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="عدد المنافسين، حدة التنافس..." /></td></tr>
+          <tr><td>تهديد الداخلين الجدد</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="حواجز الدخول، التراخيص..." /></td></tr>
+          <tr><td>قوة الموردين</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="عدد الموردين، بدائلهم..." /></td></tr>
+          <tr><td>قوة المشترين</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="خيارات العميل، حساسية السعر..." /></td></tr>
+          <tr><td>تهديد البدائل</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="منتجات/خدمات بديلة..." /></td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">د. شخصية العميل المثالية (Persona)</h3>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>العمر / الجنس / الموقع</label><input type="text" placeholder="مثال: 25-40 سنة، ذكور وإناث، الرياض" /></div>
+        <div class="field-group"><label>الدخل الشهري التقديري</label><input type="text" placeholder="5,000 - 15,000 ريال" /></div>
+        <div class="field-group"><label>الاحتياجات والآلام</label><input type="text" placeholder="ما يعانون منه ويحتاجون لحله" /></div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 5: MARKETING STRATEGY (4Ps) ========== -->
+    <div class="template-page" id="page-marketing">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التسويق</div></div>
+      <div class="page-header"><div class="section-number">5</div><div><h2>استراتيجية التسويق (4Ps)</h2><p>خطة واضحة للوصول إلى العميل وتحويله</p></div></div>
+      <div class="field-group"><label>المنتج (Product) — ما تبيعه وكيف تُقدمه</label><textarea rows="3" placeholder="العبوة، الجودة، الخدمات الملحقة، الضمان..."></textarea></div>
+      <div class="field-group"><label>السعر (Price) — استراتيجية التسعير</label><textarea rows="3" placeholder="تسعير قيمة، تنافسي، اختراقي، فاخر..."></textarea></div>
+      <div class="field-group inline">
+        <div class="field-group"><label>السعر المتوقع للوحدة (ريال)</label><input type="number" id="marketing-price" placeholder="0" oninput="linkPriceToRevenue()" /></div>
+        <div class="field-group"><label>الكمية المتوقعة شهرياً</label><input type="number" id="marketing-qty" placeholder="0" oninput="linkQtyToRevenue()" /></div>
+      </div>
+      <div class="field-group"><label>المكان (Place) — قنوات البيع والتوزيع</label><textarea rows="3" placeholder="منصات توصيل، موقع فعلي، متجر إلكتروني، وكلاء..."></textarea></div>
+      <div class="field-group"><label>الترويج (Promotion) — خطة الوصول</label><textarea rows="4" placeholder="السوشيال ميديا، الإعلانات المدفوعة، التسويق بالمحتوى، العروض الترويجية..."></textarea></div>
+      <div class="field-group inline">
+        <div class="field-group"><label>ميزانية التسويق الشهرية</label><input type="number" placeholder="0" /></div>
+        <div class="field-group"><label>تكلفة اكتساب عميل (CAC)</label><input type="number" placeholder="0" /></div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 6: OPERATIONS & TIMELINE ========== -->
+    <div class="template-page" id="page-operations">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التشغيل</div></div>
+      <div class="page-header"><div class="section-number">6</div><div><h2>خطة التشغيل والجدول الزمني</h2><p>كيف ستُدير العمليات يومياً وشهرياً</p></div></div>
+      <div class="field-group"><label>موقع النشاط</label><textarea rows="2" placeholder="المدينة، الحي، المساحة، الإيجار السنوي..."></textarea></div>
+      <div class="field-group"><label>ساعات العمل</label><input type="text" placeholder="مثال: 8 صباحاً - 12 ليلاً، 7 أيام/أسبوع" /></div>
+      <div class="field-group"><label>عملية الإنتاج/الخدمة خطوة بخطوة</label><textarea rows="4" placeholder="1. استلام الطلب → 2. التحضير → 3. التغليف → 4. التوصيل..."></textarea></div>
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">الجدول الزمني التفصيلي</h3>
+      <table class="template-table" id="timeline-table">
+        <thead><tr><th>م</th><th>المهمة</th><th>التاريخ المتوقع</th><th>المسؤول</th><th>الحالة</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" value="إتمام الدراسة" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" value="قيد التنفيذ" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="الحصول على التمويل" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="استخراج التراخيص" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="تجهيز الموقع" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="التوظيف" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="الافتتاح التجريبي" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>7</td><td><input type="text" value="الافتتاح الرسمي" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('timeline-table')">+ إضافة</button><button onclick="removeRow('timeline-table')">- حذف</button></div>
+    </div>
+
+    <!-- ========== PAGE 7: LEGAL & INSURANCE ========== -->
+    <div class="template-page" id="page-legal">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — القانون</div></div>
+      <div class="page-header"><div class="section-number">7</div><div><h2>التراخيص والقوانين والتأمين</h2><p>الالتزامات التنظيمية والحماية القانونية</p></div></div>
+      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">التراخيص المطلوبة</h3>
+      <table class="template-table" id="licenses-table">
+        <thead><tr><th>م</th><th>اسم الترخيص</th><th>الجهة المصدرة</th><th>التكلفة (ريال)</th><th>مدة الإصدار</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" value="سجل تجاري" /></td><td><input type="text" value="وزارة التجارة" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="1-3 أيام" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="رخصة بلدية" /></td><td><input type="text" value="البلدية" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="2-4 أسابيع" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="تصريح دفاع مدني" /></td><td><input type="text" value="الدفاع المدني" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="1 أسبوع" /></td></tr>
+        <tr><td>4</td><td><input type="text" value="شهادة صحية" /></td><td><input type="text" value="البلدية" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="3-5 أيام" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">+ إضافة</button><button onclick="removeRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">- حذف</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>التأمينات المطلوبة</label><textarea rows="3" placeholder="تأمين الممتلكات، تأمين المسؤولية المدنية، تأمين الموظفين..."></textarea></div>
+      <div class="field-group"><label>الالتزامات الضريبية المتوقعة</label><textarea rows="2" placeholder="VAT 15%، Zakat 2.5%، ضريبة الدخل إن وجدت..."></textarea></div>
+    </div>
+
+    <!-- ========== PAGE 8: HUMAN RESOURCES ========== -->
+    <div class="template-page" id="page-hr">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الموارد البشرية</div></div>
+      <div class="page-header"><div class="section-number">8</div><div><h2>الموارد البشرية</h2><p>الهيكل التنظيمي والقوى العاملة المطلوبة</p></div></div>
+      <div class="field-group"><label>الهيكل التنظيمي</label><textarea rows="3" placeholder="من يُدير من؟ كيف تتدفق القرارات؟"></textarea></div>
+      <table class="template-table" id="hr-table">
+        <thead><tr><th>م</th><th>المسمى الوظيفي</th><th>العدد</th><th>الراتب الشهري</th><th>إجمالي شهري</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" value="مدير" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="موظف" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addHRRow()">+ إضافة</button><button onclick="removeRow('hr-table')">- حذف</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>إجمالي الرواتب الشهرية: <span id="hr-grand-total" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+      <div class="field-group inline"><div class="field-group"><label>إجمالي الموظفين</label><input type="number" id="hr-total-employees" readonly tabindex="-1" placeholder="0" /></div><div class="field-group"><label>نسبة الرواتب/الإيرادات</label><input type="text" id="hr-salary-ratio" readonly tabindex="-1" placeholder="سيُحسب" /></div></div>
+    </div>
+
+    <!-- ========== PAGE 9: TECHNICAL ========== -->
+    <div class="template-page" id="page-technical">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التقني</div></div>
+      <div class="page-header"><div class="section-number">9</div><div><h2>الاحتياجات التقنية والمعدات</h2><p>ما تحتاجه لتشغيل المشروع</p></div></div>
+      <table class="template-table" id="tools-table">
+        <thead><tr><th>م</th><th>المعدة/الأداة</th><th>العدد</th><th>سعر الوحدة</th><th>الإجمالي</th><th>طريقة التوريد</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" placeholder="شراء/إيجار" /></td></tr>
+          <tr><td>2</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" /></td></tr>
+          <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addToolRow()">+ إضافة</button><button onclick="removeRow('tools-table')">- حذف</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>إجمالي تكلفة المعدات: <span id="tools-grand-total" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+      <div class="field-group"><label>الأنظمة التقنية المطلوبة</label><textarea rows="3" placeholder="POS، نظام إدارة المخزون، CRM، موقع إلكتروني، تطبيق..."></textarea></div>
+    </div>
+
+    <!-- ========== PAGE 10: FIXED COSTS ========== -->
+    <div class="template-page" id="page-fixed">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التكاليف الثابتة</div></div>
+      <div class="page-header"><div class="section-number">10</div><div><h2>التكاليف الثابتة الشهرية</h2><p>التكاليف التي لا تتغير مع حجم الإنتاج</p></div></div>
+      <table class="template-table" id="fixed-costs-table">
+        <thead><tr><th>م</th><th>بند التكلفة</th><th>المبلغ الشهري (ريال)</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" value="الإيجار" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="الرواتب" /></td><td><input type="number" class="fc-input" id="fc-salaries" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="المرافق" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="التأمين" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="اشتراكات تقنية" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="رسوم تراخيص" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('fixed-costs-table'); setTimeout(calcFinancials,50)">+ إضافة</button><button onclick="removeRow('fixed-costs-table'); setTimeout(calcFinancials,50)">- حذف</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>إجمالي التكاليف الثابتة: <span id="total-fixed-display" style="color:var(--gold);font-weight:800;">0</span> ريال/شهر</label></div>
+    </div>
+
+    <!-- ========== PAGE 11: VARIABLE COSTS ========== -->
+    <div class="template-page" id="page-variable">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التكاليف المتغيرة</div></div>
+      <div class="page-header"><div class="section-number">11</div><div><h2>التكاليف المتغيرة (لكل وحدة)</h2><p>التكاليف التي تتناسب مع حجم الإنتاج</p></div></div>
+      <table class="template-table" id="var-costs-table">
+        <thead><tr><th>م</th><th>بند التكلفة</th><th>للوحدة (ريال)</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" value="مواد خام" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="تغليف" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="عمولات منصات" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="رسوم توصيل" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('var-costs-table'); setTimeout(calcFinancials,50)">+ إضافة</button><button onclick="removeRow('var-costs-table'); setTimeout(calcFinancials,50)">- حذف</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>إجمالي التكلفة المتغيرة للوحدة: <span id="total-var-display" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+    </div>
+
+    <!-- ========== PAGE 12: REVENUE ========== -->
+    <div class="template-page" id="page-revenue">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الإيرادات</div></div>
+      <div class="page-header"><div class="section-number">12</div><div><h2>الإيرادات المتوقعة</h2><p>مصادر الدخل الشهرية المستهدفة</p></div></div>
+      <table class="template-table" id="revenue-table">
+        <thead><tr><th>م</th><th>بند الإيراد</th><th>الكمية/شهر</th><th>سعر الوحدة</th><th>الإجمالي</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>2</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRevenueRow()">+ إضافة</button><button onclick="removeRow('revenue-table'); setTimeout(calcFinancials,50)">- حذف</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>إجمالي الإيرادات الشهرية: <span id="total-revenue-display" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+    </div>
+
+    <!-- ========== PAGE 13: CASH FLOW 12 MONTHS ========== -->
+    <div class="template-page" id="page-cashflow">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التدفق النقدي</div></div>
+      <div class="page-header"><div class="section-number">13</div><div><h2>التدفق النقدي المتوقع (12 شهر)</h2><p>الأموال الداخلة والخارجة شهرياً</p></div></div>
+      <table class="template-table" id="cashflow-table">
+        <thead><tr><th>الشهر</th><th>الإيرادات</th><th>التكاليف</th><th>صافي التدفق</th><th>الرصيد التراكمي</th></tr></thead>
+        <tbody>
+          <tr><td>الشهر 1</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 2</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 3</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 4</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 5</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 6</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 7</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 8</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 9</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 10</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 11</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 12</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+        </tbody>
+      </table>
+      <p style="text-align:center;font-size:0.85rem;color:var(--text-secondary);">💡 املأ أول 3 أشهر يدوياً، ثم اضغط "ملء تلقائي" لتوزيع بقية السنة</p>
+      <div class="table-actions no-print"><button onclick="autoFillCashFlow()">✨ ملء تلقائي من الإيرادات</button></div>
+    </div>
+
+    <!-- ========== PAGE 14: FINANCIAL ANALYSIS ========== -->
+    <div class="template-page" id="page-financial">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التحليل المالي</div></div>
+      <div class="page-header"><div class="section-number">14</div><div><h2>التحليل المالي الشامل</h2><p>الأرقام التي تحدد قرار الاستثمار</p></div></div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>إجمالي التكاليف الثابتة/شهر</label><input type="number" id="total-fixed" readonly tabindex="-1" placeholder="0" /></div>
+        <div class="field-group"><label>إجمالي التكاليف المتغيرة/شهر</label><input type="number" id="total-var" readonly tabindex="-1" placeholder="0" /></div>
+        <div class="field-group"><label>إجمالي الإيرادات/شهر</label><input type="number" id="total-revenue" readonly tabindex="-1" placeholder="0" /></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>صافي الربح/شهر (ريال)</label><input type="number" id="net-profit" readonly tabindex="-1" placeholder="0" /></div>
+        <div class="field-group"><label>هامش الربح (%)</label><input type="number" id="profit-margin" readonly tabindex="-1" placeholder="0" /></div>
+        <div class="field-group"><label>نقطة التعادل (وحدة/شهر)</label><input type="number" id="break-even-units" readonly tabindex="-1" placeholder="0" /></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>رأس المال المستثمر (ريال)</label><input type="number" id="capital-invested" placeholder="0" oninput="calcROI()" /></div>
+        <div class="field-group"><label>فترة الاسترداد (شهر)</label><input type="number" id="payback-period" readonly tabindex="-1" placeholder="سيُحسب" /></div>
+        <div class="field-group"><label>العائد على الاستثمار ROI (%)</label><input type="number" id="roi-percent" readonly tabindex="-1" placeholder="سيُحسب" /></div>
+      </div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:2rem 0 0.75rem;">السيناريوهات المالية</h3>
+      <div class="scenario-grid">
+        <div class="scenario-card scenario-pessimistic">
+          <div class="scenario-label" style="color:#dc2626;">المتشائم (-30%)</div>
+          <div class="scenario-value" id="scenario-pessimistic" style="color:#dc2626;">0</div>
+          <div class="scenario-desc">صافي ربح شهري</div>
+        </div>
+        <div class="scenario-card scenario-expected">
+          <div class="scenario-label" style="color:var(--gold);">المتوقع</div>
+          <div class="scenario-value" id="scenario-expected" style="color:var(--gold-bright);">0</div>
+          <div class="scenario-desc">صافي ربح شهري</div>
+        </div>
+        <div class="scenario-card scenario-optimistic">
+          <div class="scenario-label" style="color:#16a34a;">المتفائل (+30%)</div>
+          <div class="scenario-value" id="scenario-optimistic" style="color:#16a34a;">0</div>
+          <div class="scenario-desc">صافي ربح شهري</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 15: SMART ANALYSIS ========== -->
+    <div class="template-page" id="page-smart">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التحليل الذكي</div></div>
+      <div class="page-header"><div class="section-number">15</div><div><h2>التحليل الذكي والتوصيات</h2><p>تحليل تلقائي للبيانات المدخلة مع توصيات عملية</p></div></div>
+
+      <div id="smart-loading" style="text-align:center;padding:2rem;">
+        <p style="color:var(--text-secondary);">املأ بيانات التكاليف والإيرادات في الصفحات السابقة لتحليلها تلقائياً...</p>
+        <button class="btn-ghost" style="margin-top:1rem;" onclick="runSmartAnalysis()">🔍 تحليل الآن</button>
+      </div>
+
+      <div id="smart-results" style="display:none;">
+        <!-- Health Score -->
+        <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;padding:1.5rem;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid var(--border);">
+          <div style="width:80px;height:80px;border-radius:50%;background:conic-gradient(var(--gold) var(--score-deg,0deg), rgba(255,255,255,0.05) 0deg);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;">
+            <div style="width:64px;height:64px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;">
+              <span id="smart-score" style="font-size:1.25rem;font-weight:800;color:var(--gold);">0</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:1rem;font-weight:700;color:var(--gold-bright);" id="smart-score-label">جاري التحليل...</div>
+            <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;" id="smart-score-desc">درجة صحة المشروع من 100</div>
+          </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem;">
+          <div style="padding:1rem;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.3);border-radius:10px;">
+            <div style="font-size:0.75rem;color:#16a34a;font-weight:700;">نقاط القوة</div>
+            <ul id="smart-strengths" style="margin:0.5rem 0 0;padding:0 1.25rem;font-size:0.85rem;color:var(--text);"></ul>
+          </div>
+          <div style="padding:1rem;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.3);border-radius:10px;">
+            <div style="font-size:0.75rem;color:#dc2626;font-weight:700;">مجالات تحتاج تحسين</div>
+            <ul id="smart-weaknesses" style="margin:0.5rem 0 0;padding:0 1.25rem;font-size:0.85rem;color:var(--text);"></ul>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div style="padding:1.25rem;background:rgba(212,168,83,0.05);border:1px solid var(--border);border-radius:12px;">
+          <div style="font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:0.75rem;">📋 توصيات بوندز</div>
+          <ol id="smart-recommendations" style="margin:0;padding:0 1.25rem;font-size:0.85rem;color:var(--text);line-height:1.8;"></ol>
+        </div>
+
+        <!-- Benchmark Comparison -->
+        <div style="margin-top:1.5rem;">
+          <div style="font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:0.75rem;">📊 مقارنة مع معايير الصناعة</div>
+          <table class="template-table" id="benchmark-table">
+            <thead><tr><th>المؤشر</th><th>مشروعك</th><th>المعيار الأمثل</th><th>التقييم</th></tr></thead>
+            <tbody>
+              <tr><td>هامش الربح</td><td id="bm-margin">-</td><td>25-40%</td><td id="bm-margin-status">-</td></tr>
+              <tr><td>نسبة الرواتب/الإيرادات</td><td id="bm-salary">-</td><td>&lt;30%</td><td id="bm-salary-status">-</td></tr>
+              <tr><td>فترة الاسترداد</td><td id="bm-payback">-</td><td>&lt;18 شهر</td><td id="bm-payback-status">-</td></tr>
+              <tr><td>العائد على الاستثمار</td><td id="bm-roi">-</td><td>&gt;20%</td><td id="bm-roi-status">-</td></tr>
+              <tr><td>نقطة التعادل/الإنتاج المتوقع</td><td id="bm-be">-</td><td>&lt;60%</td><td id="bm-be-status">-</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Charts -->
+        <div style="margin-top:1.5rem;">
+          <div style="font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:0.75rem;">📈 الرسوم البيانية</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1rem;"><canvas id="chart-scenarios" height="180"></canvas></div>
+            <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1rem;"><canvas id="chart-costs" height="180"></canvas></div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-top:1rem;"><canvas id="chart-cashflow" height="150"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 16: SENSITIVITY + KPIs ========== -->
+    <div class="template-page" id="page-sensitivity">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الحساسية</div></div>
+      <div class="page-header"><div class="section-number">16</div><div><h2>التحليل الحساسي والمؤشرات</h2><p>ماذا لو تغيرت المتغيرات الرئيسية؟</p></div></div>
+      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">تحليل الحساسية (±10%)</h3>
+      <table class="template-table" id="sensitivity-table">
+        <thead><tr><th>المتغير</th><th>-10%</th><th>الأساسي</th><th>+10%</th></tr></thead>
+        <tbody>
+          <tr><td>السعر</td><td><input type="number" class="sens-down" readonly tabindex="-1" /></td><td><input type="number" class="sens-base" readonly tabindex="-1" /></td><td><input type="number" class="sens-up" readonly tabindex="-1" /></td></tr>
+          <tr><td>الكمية المباعة</td><td><input type="number" class="sens-down" readonly tabindex="-1" /></td><td><input type="number" class="sens-base" readonly tabindex="-1" /></td><td><input type="number" class="sens-up" readonly tabindex="-1" /></td></tr>
+          <tr><td>التكاليف الثابتة</td><td><input type="number" class="sens-down" readonly tabindex="-1" /></td><td><input type="number" class="sens-base" readonly tabindex="-1" /></td><td><input type="number" class="sens-up" readonly tabindex="-1" /></td></tr>
+          <tr><td>التكاليف المتغيرة</td><td><input type="number" class="sens-down" readonly tabindex="-1" /></td><td><input type="number" class="sens-base" readonly tabindex="-1" /></td><td><input type="number" class="sens-up" readonly tabindex="-1" /></td></tr>
+        </tbody>
+      </table>
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">المؤشرات الرئيسية للأداء (KPIs)</h3>
+      <table class="template-table" id="kpi-table">
+        <thead><tr><th>المؤشر</th><th>الهدف</th><th>الواقع</th><th>ملاحظات</th></tr></thead>
+        <tbody>
+          <tr><td>معدل رضا العملاء</td><td><input type="text" placeholder="%" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>معدل تكرار الشراء</td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>تكلفة اكتساب عميل (CAC)</td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>قيمة العميل مدى الحياة (LTV)</td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>معدل دوران المخزون</td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('kpi-table')">+ إضافة KPI</button><button onclick="removeRow('kpi-table')">- حذف</button></div>
+    </div>
+
+    <!-- ========== PAGE 16: RISKS ========== -->
+    <div class="template-page" id="page-risks">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — المخاطر</div></div>
+      <div class="page-header"><div class="section-number">17</div><div><h2>المخاطر وخطط التخفيف</h2><p>حدد المخاطر مبكراً واستعد لها</p></div></div>
+      <table class="template-table" id="risks-table">
+        <thead><tr><th>م</th><th>الخطر</th><th>الاحتمالية</th><th>التأثير</th><th>خطة التخفيف</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" placeholder="تراجع الطلب" /></td><td><input type="text" placeholder="متوسط" /></td><td><input type="text" placeholder="عالي" /></td><td><input type="text" placeholder="تنويع المنتجات" /></td></tr>
+          <tr><td>2</td><td><input type="text" placeholder="ارتفاع التكاليف" /></td><td><input type="text" placeholder="عالي" /></td><td><input type="text" placeholder="متوسط" /></td><td><input type="text" placeholder="عقود ثابتة مع الموردين" /></td></tr>
+          <tr><td>3</td><td><input type="text" placeholder="منافس جديد" /></td><td><input type="text" placeholder="متوسط" /></td><td><input type="text" placeholder="متوسط" /></td><td><input type="text" placeholder="بناء ولاء العملاء" /></td></tr>
+          <tr><td>4</td><td><input type="text" placeholder="تغير تنظيمي" /></td><td><input type="text" placeholder="منخفض" /></td><td><input type="text" placeholder="عالي" /></td><td><input type="text" placeholder="متابعة القوانين" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('risks-table')">+ إضافة</button><button onclick="removeRow('risks-table')">- حذف</button></div>
+      <div class="field-group" style="margin-top:1.5rem;"><label>خطة الطوارئ (Plan B)</label><textarea rows="3" placeholder="ماذا ستفعل إن فشل المشروع في تحقيق أهدافه خلال 6 أشهر؟"></textarea></div>
+    </div>
+
+    <!-- ========== PAGE 17: QUALITY + ESG + EXIT ========== -->
+    <div class="template-page" id="page-quality">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الجودة</div></div>
+      <div class="page-header"><div class="section-number">18</div><div><h2>الجودة والاستدامة وخطة الخروج</h2><p>معايير الجودة والتأثير الاجتماعي/البيئي</p></div></div>
+      <div class="field-group"><label>معايير الجودة</label><textarea rows="3" placeholder="كيف تضمن جودة المنتج/الخدمة؟ فحوصات، شكاوى العملاء، تحسين مستمر..."></textarea></div>
+      <div class="field-group"><label>التأثير الاجتماعي والبيئي (ESG)</label><textarea rows="3" placeholder="توظيف محلي، تقليل الهدر، التغليف المستدام، المسؤولية المجتمعية..."></textarea></div>
+      <div class="field-group"><label>خطة الخروج (Exit Strategy)</label><textarea rows="3" placeholder="البيع، الدمج، التوسع، التصفية... متى وكيف؟"></textarea></div>
+      <div class="field-group inline"><div class="field-group"><label>الأهداف الاجتماعية</label><textarea rows="2" placeholder="وظائف، تدريب، دعم المجتمع..."></textarea></div><div class="field-group"><label>الأهداف البيئية</label><textarea rows="2" placeholder="تقليل الكربون، إعادة التدوير..."></textarea></div></div>
+    </div>
+
+    <!-- ========== PAGE 18: CAPITAL + RESULTS ========== -->
+    <div class="template-page" id="page-capital">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — رأس المال</div></div>
+      <div class="page-header"><div class="section-number">19</div><div><h2>متطلبات رأس المال والنتائج</h2><p>الاستثمار الأولي والقرار النهائي</p></div></div>
+      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">الاستثمار الأولي</h3>
+      <table class="template-table" id="capital-table">
+        <thead><tr><th>م</th><th>بند الاستثمار</th><th>المبلغ (ريال)</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><input type="text" value="تراخيص وتسجيل" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="تأثيث ومعدات" /></td><td><input type="number" class="cap-input" id="cap-tools" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="تجهيز الموقع" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="مخزون أولي" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="تسويق إطلاق" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="رأس مال تشغيلي (3 أشهر)" /></td><td><input type="number" class="cap-input" id="cap-working" readonly tabindex="-1" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('capital-table'); setTimeout(calcCapital,50)">+ إضافة</button><button onclick="removeRow('capital-table'); setTimeout(calcCapital,50)">- حذف</button></div>
+      <div class="field-group inline" style="margin-top:1.5rem;">
+        <div class="field-group"><label>إجمالي رأس المال المطلوب</label><input type="number" id="total-capital" readonly tabindex="-1" placeholder="0" /></div>
+        <div class="field-group"><label>المصدر المتوقع</label><input type="text" placeholder="تمويل ذاتي / قرض / مستثمر / منصة" /></div>
+      </div>
+      <div class="field-group"><label>استراتيجية التمويل</label><textarea rows="3" placeholder="كيف ستؤمن التمويل؟ بأي شروط؟ متى؟"></textarea></div>
+      <div class="field-group"><label>النتائج الرئيسية</label><textarea rows="3" placeholder="أهم ما توصلت إليه من الدراسة..."></textarea></div>
+      <div class="field-group"><label>التوصيات والخطوات التالية</label><textarea rows="3" placeholder="ما الخطوة الأولى؟ من يبدأها؟ متى؟"></textarea></div>
+      <div class="field-group"><label>هل المشروع مجدي؟</label><select><option value="">اختر...</option><option value="yes">✅ نعم، مجدي</option><option value="no">❌ لا، غير مجدي</option><option value="conditional">⚠️ مجدي بشروط</option></select></div>
+      <div class="signature-grid">
+        <div class="signature-box"><label>إعداد وتوقيع</label><input type="text" placeholder="الاسم والتوقيع" /></div>
+        <div class="signature-box"><label>التاريخ</label><input type="date" /></div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE 20: EXECUTIVE DASHBOARD ========== -->
+    <div class="template-page" id="page-dashboard">
+      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">لوحة التحكم التنفيذية — ملخص المستثمر</div></div>
+      <div class="page-header"><div class="section-number">20</div><div><h2>لوحة التحكم التنفيذية</h2><p>ملخص المستثمر في صفحة واحدة</p></div></div>
+
+      <div style="text-align:center;margin-bottom:1.5rem;">
+        <h3 id="dash-project-name" style="font-size:1.1rem;color:var(--gold-bright);margin:0;">اسم المشروع</h3>
+        <p id="dash-date" style="font-size:0.8rem;color:var(--text-secondary);margin:0.25rem 0 0;">تاريخ الإعداد</p>
+      </div>
+
+      <!-- KPI Cards -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
+        <div style="background:rgba(212,168,83,0.08);border:1px solid var(--gold);border-radius:12px;padding:1rem;text-align:center;">
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">الإيرادات الشهرية</div>
+          <div id="dash-revenue" style="font-size:1.4rem;font-weight:800;color:var(--gold-bright);margin:0.25rem 0;">0</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);">ريال</div>
+        </div>
+        <div style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.3);border-radius:12px;padding:1rem;text-align:center;">
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">صافي الربح</div>
+          <div id="dash-profit" style="font-size:1.4rem;font-weight:800;color:#16a34a;margin:0.25rem 0;">0</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);">ريال/شهر</div>
+        </div>
+        <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:1rem;text-align:center;">
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">هامش الربح</div>
+          <div id="dash-margin" style="font-size:1.4rem;font-weight:800;color:#3b82f6;margin:0.25rem 0;">0%</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);">نسبة مئوية</div>
+        </div>
+        <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:1rem;text-align:center;">
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">فترة الاسترداد</div>
+          <div id="dash-payback" style="font-size:1.4rem;font-weight:800;color:#a855f7;margin:0.25rem 0;">0</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);">شهر</div>
+        </div>
+        <div style="background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.3);border-radius:12px;padding:1rem;text-align:center;">
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">العائد على الاستثمار</div>
+          <div id="dash-roi" style="font-size:1.4rem;font-weight:800;color:#eab308;margin:0.25rem 0;">0%</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);">سنوي</div>
+        </div>
+        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:1rem;text-align:center;">
+          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">نقطة التعادل</div>
+          <div id="dash-be" style="font-size:1.4rem;font-weight:800;color:#ef4444;margin:0.25rem 0;">0</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);">وحدة/شهر</div>
+        </div>
+      </div>
+
+      <!-- Health Score + Charts -->
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:1rem;margin-bottom:1.5rem;">
+        <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:1.25rem;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="width:100px;height:100px;border-radius:50%;background:conic-gradient(var(--gold) var(--dash-deg,0deg), rgba(255,255,255,0.05) 0deg);display:flex;align-items:center;justify-content:center;position:relative;">
+            <div style="width:82px;height:82px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;">
+              <span id="dash-score" style="font-size:1.5rem;font-weight:800;color:var(--gold);">0</span>
+            </div>
+          </div>
+          <div style="font-size:0.85rem;font-weight:700;color:var(--gold-bright);margin-top:0.75rem;" id="dash-score-label">جاري التحليل...</div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);" id="dash-score-desc">درجة صحة المشروع</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:0.75rem;"><canvas id="dash-chart-costs" height="140"></canvas></div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:0.75rem;"><canvas id="dash-chart-scenarios" height="140"></canvas></div>
+        </div>
+      </div>
+
+      <!-- SWOT Mini + Recommendations -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:1rem;">
+          <div style="font-size:0.85rem;font-weight:700;color:var(--gold);margin-bottom:0.5rem;">📋 أهم التوصيات</div>
+          <ol id="dash-recommendations" style="margin:0;padding:0 1rem;font-size:0.8rem;color:var(--text);line-height:1.7;"></ol>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.3);border-radius:8px;padding:0.6rem;">
+            <div style="font-size:0.65rem;color:#16a34a;font-weight:700;">القوة #1</div>
+            <div id="dash-swot-s" style="font-size:0.75rem;color:var(--text);margin-top:0.25rem;">-</div>
+          </div>
+          <div style="background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.3);border-radius:8px;padding:0.6rem;">
+            <div style="font-size:0.65rem;color:#dc2626;font-weight:700;">الضعف #1</div>
+            <div id="dash-swot-w" style="font-size:0.75rem;color:var(--text);margin-top:0.25rem;">-</div>
+          </div>
+          <div style="background:rgba(212,168,83,0.08);border:1px solid rgba(212,168,83,0.3);border-radius:8px;padding:0.6rem;">
+            <div style="font-size:0.65rem;color:var(--gold-bright);font-weight:700;">الفرصة #1</div>
+            <div id="dash-swot-o" style="font-size:0.75rem;color:var(--text);margin-top:0.25rem;">-</div>
+          </div>
+          <div style="background:rgba(100,116,139,0.08);border:1px solid rgba(100,116,139,0.3);border-radius:8px;padding:0.6rem;">
+            <div style="font-size:0.65rem;color:#94a3b8;font-weight:700;">التهديد #1</div>
+            <div id="dash-swot-t" style="font-size:0.75rem;color:var(--text);margin-top:0.25rem;">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cash Flow Mini Chart -->
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:0.75rem;margin-bottom:1rem;">
+        <canvas id="dash-chart-cashflow" height="100"></canvas>
+      </div>
+
+      <p style="text-align:center;font-size:0.75rem;color:var(--text-secondary);margin:0;">هذه اللوحة تُلخّص البيانات المدخلة في النموذج. للتفاصيل الكاملة، راجع الأقسام السابقة.</p>
+    </div>
+
+    <!-- Footer Disclaimer -->
+    <div class="template-page no-print" style="text-align:center;padding:2rem;">
+      <p style="color:var(--text-secondary);font-size:0.85rem;">
+        هذا النموذج مقدم من <strong style="color:var(--gold)">بوندز</strong> كأداة مساعدة فقط. لا يُعتبر استشارة مالية أو قانونية.<br/>
+        للحصول على دراسة جدوى مفصلة، <a href="../contact.html" style="color:var(--gold)">احجز استشارتك</a>.
+      </p>
+    </div>
+
+  </div>
+
+  <footer class="footer no-print"><div class="container" style="text-align:center;padding:2rem 0;"><p style="color:var(--text-secondary);font-size:0.85rem;">&copy; 2026 بوندز. جميع الحقوق محفوظة.</p></div></footer>
+
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+
+    // ===== Smart Analysis =====
+    let chartScenarios, chartCosts, chartCashFlow;
+    function runSmartAnalysis() {
+      const revenue = parseFloat(document.getElementById('total-revenue')?.value) || 0;
+      const fixed = parseFloat(document.getElementById('total-fixed')?.value) || 0;
+      const variable = parseFloat(document.getElementById('total-var')?.value) || 0;
+      const net = parseFloat(document.getElementById('net-profit')?.value) || 0;
+      const margin = parseFloat(document.getElementById('profit-margin')?.value) || 0;
+      const roi = parseFloat(document.getElementById('roi-percent')?.value) || 0;
+      const payback = parseFloat(document.getElementById('payback-period')?.value) || 0;
+      const beUnits = parseFloat(document.getElementById('break-even-units')?.value) || 0;
+      const totalQty = parseFloat(document.querySelector('#revenue-table .rev-total')?.closest('tr')?.querySelector('.rev-qty')?.value) || 1;
+      const salaryRatio = document.getElementById('hr-salary-ratio')?.value || '-';
+      const hrTotal = parseFloat(document.getElementById('hr-grand-total')?.textContent) || 0;
+
+      document.getElementById('smart-loading').style.display = 'none';
+      document.getElementById('smart-results').style.display = 'block';
+
+      // Calculate health score (0-100)
+      let score = 0;
+      if (margin >= 30) score += 25; else if (margin >= 15) score += 15; else if (margin > 0) score += 5;
+      if (roi >= 25) score += 25; else if (roi >= 15) score += 15; else if (roi > 0) score += 5;
+      if (payback > 0 && payback <= 12) score += 25; else if (payback > 0 && payback <= 24) score += 15; else if (payback > 0) score += 5;
+      if (revenue > 0 && fixed / revenue < 0.5) score += 15; else if (revenue > 0) score += 5;
+      if (net > 0) score += 10;
+      score = Math.min(100, score);
+
+      document.getElementById('smart-score').textContent = score;
+      document.querySelector('#smart-results').style.setProperty('--score-deg', (score * 3.6) + 'deg');
+
+      if (score >= 75) { document.getElementById('smart-score-label').textContent = 'مشروع واعد وصحي'; document.getElementById('smart-score-label').style.color = '#16a34a'; }
+      else if (score >= 50) { document.getElementById('smart-score-label').textContent = 'مشروع مجدي لكن يحتاج تحسين'; document.getElementById('smart-score-label').style.color = 'var(--gold-bright)'; }
+      else if (score > 0) { document.getElementById('smart-score-label').textContent = 'مشروع عالي المخاطر — راجع البيانات'; document.getElementById('smart-score-label').style.color = '#dc2626'; }
+      else { document.getElementById('smart-score-label').textContent = 'أدخل البيانات أولاً'; document.getElementById('smart-score-label').style.color = 'var(--text-secondary)'; }
+
+      // Strengths
+      const strengths = [];
+      if (margin >= 25) strengths.push('هامش ربح جيد (≥25%)');
+      if (roi >= 20) strengths.push('عائد استثمار ممتاز (≥20%)');
+      if (payback > 0 && payback <= 18) strengths.push('فترة استرداد مقبولة (≤18 شهر)');
+      if (net > 0) strengths.push('صافي ربح إيجابي');
+      if (beUnits > 0 && totalQty > 0 && beUnits / totalQty < 0.6) strengths.push('نقطة التعادل قابلة للتحقيق');
+      const sList = document.getElementById('smart-strengths');
+      sList.innerHTML = strengths.length ? strengths.map(s => '<li>' + s + '</li>').join('') : '<li>أدخل المزيد من البيانات لرؤية نقاط القوة</li>';
+
+      // Weaknesses
+      const weaknesses = [];
+      if (margin < 15 && margin > 0) weaknesses.push('هامش الربح منخفض — راجع التسعير أو التكاليف');
+      if (margin <= 0) weaknesses.push('هامش الربح سلبي — المشروع غير مربح حالياً');
+      if (roi < 15 && roi > 0) weaknesses.push('عائد الاستثمار منخفض');
+      if (payback > 36) weaknesses.push('فترة الاسترداد طويلة جداً (>36 شهر)');
+      if (revenue > 0 && fixed / revenue > 0.6) weaknesses.push('التكاليف الثابتة مرتفعة مقارنة بالإيرادات');
+      if (hrTotal > 0 && revenue > 0 && hrTotal / revenue > 0.35) weaknesses.push('نسبة الرواتب مرتفعة (>35% من الإيرادات)');
+      const wList = document.getElementById('smart-weaknesses');
+      wList.innerHTML = weaknesses.length ? weaknesses.map(w => '<li>' + w + '</li>').join('') : '<li>لا توجد نقاط ضعف واضحة — استمر في المراقبة</li>';
+
+      // Recommendations
+      const recs = [];
+      if (margin < 20) recs.push('راجع هيكل التكاليف: هل يمكن تقليل المواد الخام أو التفاوض مع الموردين؟');
+      if (margin < 20) recs.push('اختبر رفع السعر 5-10% على جزء من العملاء لقياس حساسية الطلب.');
+      if (fixed / revenue > 0.5) recs.push('التكاليف الثابتة تلتهم نصف إيراداتك. هل يمكن تقليل الإيجار أو العمل بنظام Hybrid؟');
+      if (payback > 24) recs.push('فترة الاسترداد طويلة. فكر في تقليل رأس المال الأولي أو زيادة الإيرادات.');
+      if (beUnits > 0 && totalQty > 0 && beUnits / totalQty > 0.8) recs.push('نقطة التعادل مرتفعة. زيادة الكمية المباعة أو تقليل التكلفة المتغيرة ضروري.');
+      if (roi < 15) recs.push('العائد منخفض. قارن مشروعك مع بدائل الاستثمار (صناديق، عقار...)');
+      if (net > 0 && net < fixed * 0.2) recs.push('هامش الأمان ضيق. احتفظ باحتياطي نقدي يغطي 3-6 أشهر.');
+      if (recs.length === 0) recs.push('المؤشرات جيدة بشكل عام. ركز على التنفيذ والمراقبة الدورية.');
+      recs.push('راجع هذا النموذج شهرياً وحدّث الأرقام الفعلية مقابل المتوقعة.');
+      document.getElementById('smart-recommendations').innerHTML = recs.map((r, i) => '<li>' + r + '</li>').join('');
+
+      // Benchmarks
+      document.getElementById('bm-margin').textContent = margin.toFixed(1) + '%';
+      document.getElementById('bm-margin-status').innerHTML = margin >= 25 ? '<span style="color:#16a34a">✅ ممتاز</span>' : margin >= 15 ? '<span style="color:var(--gold)">⚠️ مقبول</span>' : '<span style="color:#dc2626">❌ يحتاج تحسين</span>';
+      document.getElementById('bm-salary').textContent = hrTotal > 0 && revenue > 0 ? ((hrTotal / revenue) * 100).toFixed(1) + '%' : '-';
+      document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span style="color:#16a34a">✅</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-payback').textContent = payback > 0 ? payback.toFixed(1) + ' شهر' : '-';
+      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= 18 ? '<span style="color:#16a34a">✅</span>' : payback > 0 && payback <= 36 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-roi').textContent = roi.toFixed(1) + '%';
+      document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span style="color:#16a34a">✅</span>' : roi >= 10 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-be').textContent = totalQty > 0 ? ((beUnits / totalQty) * 100).toFixed(0) + '%' : '-';
+      document.getElementById('bm-be-status').innerHTML = totalQty > 0 && beUnits / totalQty < 0.6 ? '<span style="color:#16a34a">✅</span>' : totalQty > 0 && beUnits / totalQty < 0.9 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
+
+      renderCharts(revenue, fixed, variable, net);
+      updateDashboard(revenue, fixed, variable, net, marginPct, roi, paybackMonths, beUnits);
+    }
+
+    function updateDashboard(revenue, fixed, variable, net, marginPct, roi, paybackMonths, beUnits) {
+      const projectName = document.getElementById('cover-business-name')?.value || 'مشروع غير مسماًّى';
+      document.getElementById('dash-project-name').textContent = projectName;
+      document.getElementById('dash-date').textContent = new Date().toLocaleDateString('ar-SA');
+
+      document.getElementById('dash-revenue').textContent = Math.round(revenue).toLocaleString('ar-SA');
+      document.getElementById('dash-profit').textContent = Math.round(net).toLocaleString('ar-SA');
+      document.getElementById('dash-margin').textContent = (marginPct * 100).toFixed(1) + '%';
+      document.getElementById('dash-payback').textContent = paybackMonths < 999 ? paybackMonths.toFixed(1) : '∞';
+      document.getElementById('dash-roi').textContent = roi.toFixed(1) + '%';
+      document.getElementById('dash-be').textContent = Math.round(beUnits).toLocaleString('ar-SA');
+
+      // Health Score
+      const salaryRatio = revenue > 0 ? (fixed * 0.6) / revenue : 0;
+      const paybackScore = paybackMonths < 999 ? Math.max(0, Math.min(100, (36 - paybackMonths) / 36 * 100)) : 0;
+      const salaryRatioScore = Math.max(0, Math.min(100, (1 - salaryRatio) * 100));
+      const score = Math.min(100, Math.max(0, (marginPct * 30) + (roi * 0.3) + (paybackScore * 0.25) + (salaryRatioScore * 0.15)));
+      document.getElementById('dash-score').textContent = Math.round(score);
+      document.getElementById('dash-score').style.color = score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626';
+      document.getElementById('dash-score-label').textContent = score >= 75 ? 'مشروع ممتاز ✅' : score >= 50 ? 'يحتاج تحسين ⚠️' : 'مخاطر عالية ❌';
+      document.getElementById('dash-score-label').style.color = score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626';
+      const deg = Math.round(score / 100 * 360);
+      const scoreCircle = document.querySelector('#dash-score').closest('div[style*="conic-gradient"]');
+      if (scoreCircle) scoreCircle.style.background = 'conic-gradient(' + (score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626') + ' ' + deg + 'deg, rgba(255,255,255,0.05) 0deg)';
+
+      // Recommendations
+      const recs = [];
+      if (marginPct < 0.15) recs.push('الهامش منخفض — راجع التسعير أو خفّض التكاليف المتغيرة.');
+      if (paybackMonths > 24) recs.push('فترة الاسترداد طويلة — قد تحتاج تقليل رأس المال أو زيادة الإيرادات.');
+      if (roi < 15) recs.push('العائد على الاستثمار ضعيف — استكشف فرص لزيادة الكفاءة.');
+      if (salaryRatio > 0.35) recs.push('نسبة الرواتب مرتفعة — فكر في مرونة توظيف أو أتمتة.');
+      if (beUnits / (revenue > 0 ? revenue / document.querySelector('.rev-price')?.value || 1 : 1) > 0.8) recs.push('نقطة التعادل قريبة — خطر عدم التغطية في الأشهر الأولى.');
+      if (recs.length === 0) recs.push('المشروع في وضع صحي بشكل عام. واصل المراقبة المالية الشهرية.');
+      document.getElementById('dash-recommendations').innerHTML = recs.map(r => '<li>' + r + '</li>').join('');
+
+      // SWOT top items
+      const strengths = Array.from(document.querySelectorAll('.swot-cell:nth-child(1) input')).map(i => i.value).filter(Boolean);
+      const weaknesses = Array.from(document.querySelectorAll('.swot-cell:nth-child(2) input')).map(i => i.value).filter(Boolean);
+      const opportunities = Array.from(document.querySelectorAll('.swot-cell:nth-child(3) input')).map(i => i.value).filter(Boolean);
+      const threats = Array.from(document.querySelectorAll('.swot-cell:nth-child(4) input')).map(i => i.value).filter(Boolean);
+      document.getElementById('dash-swot-s').textContent = strengths[0] || 'غير محدد';
+      document.getElementById('dash-swot-w').textContent = weaknesses[0] || 'غير محدد';
+      document.getElementById('dash-swot-o').textContent = opportunities[0] || 'غير محدد';
+      document.getElementById('dash-swot-t').textContent = threats[0] || 'غير محدد';
+
+      // Cost Pie
+      const ctxCost = document.getElementById('dash-chart-costs');
+      if (dashChartCosts) dashChartCosts.destroy();
+      dashChartCosts = new Chart(ctxCost, {
+        type: 'doughnut',
+        data: { labels: ['ثابتة','متغيرة'], datasets: [{ data: [fixed, variable], backgroundColor: ['#3b82f6','#ef4444'], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: 'var(--text)', font: { size: 10 } } } } }
+      });
+
+      // Scenarios Bar
+      const ctxScen = document.getElementById('dash-chart-scenarios');
+      if (dashChartScenarios) dashChartScenarios.destroy();
+      dashChartScenarios = new Chart(ctxScen, {
+        type: 'bar',
+        data: { labels: ['متشائم','متوقع','متفائل'], datasets: [{ data: [net * 0.7, net, net * 1.3], backgroundColor: ['#dc2626','var(--gold)','#16a34a'], borderRadius: 4, borderSkipped: false }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: 'var(--text)', font: { size: 9 } }, grid: { display: false } }, y: { display: false } } }
+      });
+
+      // Cash Flow Line
+      const cashData = [];
+      for (let i = 1; i <= 12; i++) {
+        const rev = parseFloat(document.getElementById('cf-rev-' + i)?.value) || 0;
+        const cost = parseFloat(document.getElementById('cf-cost-' + i)?.value) || 0;
+        cashData.push(rev - cost);
+      }
+      const ctxCf = document.getElementById('dash-chart-cashflow');
+      if (dashChartCashFlow) dashChartCashFlow.destroy();
+      dashChartCashFlow = new Chart(ctxCf, {
+        type: 'line',
+        data: { labels: ['1','2','3','4','5','6','7','8','9','10','11','12'], datasets: [{ data: cashData, borderColor: 'var(--gold)', backgroundColor: 'rgba(212,168,83,0.1)', fill: true, tension: 0.3, pointRadius: 2, borderWidth: 2 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: 'var(--text-secondary)', font: { size: 9 } }, grid: { display: false } }, y: { display: false } } }
+      });
+    }
+
+    let dashChartCosts, dashChartScenarios, dashChartCashFlow;
+
+    function scrollToDashboard() {
+      document.getElementById('page-dashboard').scrollIntoView({ behavior: 'smooth' });
+      // Trigger update in case data changed
+      calcFinancials();
+    }
+
+    function renderCharts(revenue, fixed, variable, net) {
+      const pessimistic = net * 0.7;
+      const expected = net;
+      const optimistic = net * 1.3;
+
+      // Scenarios bar chart
+      const ctx1 = document.getElementById('chart-scenarios');
+      if (chartScenarios) chartScenarios.destroy();
+      chartScenarios = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: ['المتشائم', 'المتوقع', 'المتفائل'],
+          datasets: [{
+            label: 'صافي الربح شهرياً (ريال)',
+            data: [pessimistic, expected, optimistic],
+            backgroundColor: ['rgba(220,38,38,0.7)', 'rgba(212,168,83,0.7)', 'rgba(22,163,74,0.7)'],
+            borderColor: ['#dc2626', 'var(--gold)', '#16a34a'],
+            borderWidth: 1
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+
+      // Costs doughnut
+      const ctx2 = document.getElementById('chart-costs');
+      if (chartCosts) chartCosts.destroy();
+      chartCosts = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: ['تكاليف ثابتة', 'تكاليف متغيرة', 'صافي ربح'],
+          datasets: [{
+            data: [fixed, variable, Math.max(0, net)],
+            backgroundColor: ['rgba(220,38,38,0.6)', 'rgba(59,130,246,0.6)', 'rgba(22,163,74,0.6)'],
+            borderColor: ['#dc2626', '#3b82f6', '#16a34a'],
+            borderWidth: 1
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { labels: { color: 'var(--text)' } } } }
+      });
+
+      // Cash flow line chart
+      const cfData = [];
+      document.querySelectorAll('#cashflow-table tbody tr').forEach(row => {
+        const bal = parseFloat(row.querySelector('.cf-balance')?.value) || 0;
+        cfData.push(bal);
+      });
+      const ctx3 = document.getElementById('chart-cashflow');
+      if (chartCashFlow) chartCashFlow.destroy();
+      chartCashFlow = new Chart(ctx3, {
+        type: 'line',
+        data: {
+          labels: ['ش1','ش2','ش3','ش4','ش5','ش6','ش7','ش8','ش9','ش10','ش11','ش12'],
+          datasets: [{
+            label: 'الرصيد التراكمي (ريال)',
+            data: cfData.length ? cfData : [0,0,0,0,0,0,0,0,0,0,0,0],
+            borderColor: 'var(--gold)',
+            backgroundColor: 'rgba(212,168,83,0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { labels: { color: 'var(--text)' } } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
+      });
+    }
+
+    // ===== Progress Bar =====
+    function updateProgress() {
+      const pages = document.querySelectorAll('.template-page');
+      let filled = 0;
+      document.querySelectorAll('input, textarea, select').forEach(el => {
+        if (el.type === 'checkbox') { if (el.checked) filled++; }
+        else if (el.value && el.value.trim()) filled++;
+      });
+      const total = document.querySelectorAll('input, textarea, select').length;
+      const pct = total ? Math.min(100, Math.round((filled / total) * 100)) : 0;
+      document.getElementById('progressFill').style.width = pct + '%';
+    }
+    document.addEventListener('input', updateProgress);
+
+    // ===== Table helpers =====
+    function addRow(tableId) {
+      const table = document.getElementById(tableId);
+      const tbody = table.querySelector('tbody');
+      const firstRow = tbody.querySelector('tr');
+      const newRow = document.createElement('tr');
+      const cols = firstRow.children.length;
+      let html = '<td>' + (tbody.children.length + 1) + '</td>';
+      for (let i = 1; i < cols; i++) {
+        const input = firstRow.children[i].querySelector('input, select, textarea');
+        const type = input ? input.type : 'text';
+        const ph = input ? input.placeholder : '';
+        const cls = input ? input.className : '';
+        const oninp = input ? input.getAttribute('oninput') : '';
+        const read = input && input.hasAttribute('readonly') ? 'readonly tabindex="-1"' : '';
+        if (type === 'date') html += '<td><input type="date" /></td>';
+        else if (type === 'number') html += '<td><input type="number" class="' + cls + '" ' + read + (oninp ? ' oninput="' + oninp + '"' : '') + ' placeholder="' + ph + '" /></td>';
+        else html += '<td><input type="text" placeholder="' + ph + '" /></td>';
+      }
+      newRow.innerHTML = html;
+      tbody.appendChild(newRow);
+      renumberRows(tableId);
+    }
+    function removeRow(tableId) {
+      const tbody = document.getElementById(tableId).querySelector('tbody');
+      if (tbody.children.length > 1) tbody.removeChild(tbody.lastElementChild);
+      renumberRows(tableId);
+    }
+    function renumberRows(tableId) {
+      document.querySelectorAll('#' + tableId + ' tbody tr').forEach((r, i) => { if (r.children[0]) r.children[0].textContent = i + 1; });
+    }
+
+    // ===== Product margin =====
+    function calcProductMargin(input) {
+      const row = input.closest('tr');
+      const price = parseFloat(row.querySelector('.prod-price')?.value) || 0;
+      const cost = parseFloat(row.querySelector('.prod-cost')?.value) || 0;
+      const margin = row.querySelector('.prod-margin');
+      if (margin) margin.value = (price - cost).toFixed(2);
+    }
+    function addProductRow() {
+      const tbody = document.getElementById('products-table').querySelector('tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (tbody.children.length + 1) + '</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td>';
+      tbody.appendChild(tr);
+    }
+
+    // ===== HR =====
+    function calcHRRow(input) {
+      const row = input.closest('tr');
+      const count = parseFloat(row.querySelector('.hr-count')?.value) || 0;
+      const salary = parseFloat(row.querySelector('.hr-salary')?.value) || 0;
+      const total = row.querySelector('.hr-total');
+      if (total) total.value = (count * salary).toFixed(2);
+      calcHRGrandTotal();
+    }
+    function calcHRGrandTotal() {
+      let grand = 0, employees = 0;
+      document.querySelectorAll('#hr-table .hr-total').forEach(el => grand += parseFloat(el.value) || 0);
+      document.querySelectorAll('#hr-table .hr-count').forEach(el => employees += parseFloat(el.value) || 0);
+      document.getElementById('hr-grand-total').textContent = grand.toFixed(0);
+      document.getElementById('hr-total-employees').value = employees;
+      const rev = parseFloat(document.getElementById('total-revenue')?.value) || 0;
+      document.getElementById('hr-salary-ratio').value = rev > 0 ? ((grand / rev) * 100).toFixed(1) + '%' : '-';
+      document.getElementById('fc-salaries').value = grand.toFixed(2);
+      calcFinancials();
+    }
+    function addHRRow() {
+      const tbody = document.getElementById('hr-table').querySelector('tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (tbody.children.length + 1) + '</td><td><input type="text" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td>';
+      tbody.appendChild(tr);
+    }
+
+    // ===== Tools =====
+    function calcToolRow(input) {
+      const row = input.closest('tr');
+      const qty = parseFloat(row.querySelector('.tool-qty')?.value) || 0;
+      const price = parseFloat(row.querySelector('.tool-price')?.value) || 0;
+      const total = row.querySelector('.tool-total');
+      if (total) total.value = (qty * price).toFixed(2);
+      calcToolsGrandTotal();
+    }
+    function calcToolsGrandTotal() {
+      let grand = 0;
+      document.querySelectorAll('#tools-table .tool-total').forEach(el => grand += parseFloat(el.value) || 0);
+      document.getElementById('tools-grand-total').textContent = grand.toFixed(0);
+      document.getElementById('cap-tools').value = grand.toFixed(2);
+      calcCapital();
+    }
+    function addToolRow() {
+      const tbody = document.getElementById('tools-table').querySelector('tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (tbody.children.length + 1) + '</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" placeholder="شراء/إيجار" /></td>';
+      tbody.appendChild(tr);
+    }
+
+    // ===== Revenue =====
+    function calcRevenueRow(input) {
+      const row = input.closest('tr');
+      const qty = parseFloat(row.querySelector('.rev-qty')?.value) || 0;
+      const price = parseFloat(row.querySelector('.rev-price')?.value) || 0;
+      const total = row.querySelector('.rev-total');
+      if (total) total.value = (qty * price).toFixed(2);
+      calcFinancials();
+    }
+    function addRevenueRow() {
+      const tbody = document.getElementById('revenue-table').querySelector('tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (tbody.children.length + 1) + '</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td>';
+      tbody.appendChild(tr);
+    }
+
+    // ===== Financials core =====
+    function sumInputs(selector) {
+      let total = 0;
+      document.querySelectorAll(selector).forEach(el => total += parseFloat(el.value) || 0);
+      return total;
+    }
+    function calcFinancials() {
+      const fixed = sumInputs('#fixed-costs-table .fc-input');
+      const varCost = sumInputs('#var-costs-table .vc-input');
+      const revenue = sumInputs('#revenue-table .rev-total');
+      const totalQty = sumInputs('#revenue-table .rev-qty');
+      const net = revenue - fixed - varCost;
+      const margin = revenue > 0 ? (net / revenue) * 100 : 0;
+      const avgPrice = totalQty > 0 ? revenue / totalQty : 0;
+      const avgVarCost = totalQty > 0 ? varCost / totalQty : 0;
+      const contribution = avgPrice - avgVarCost;
+      const beUnits = contribution > 0 ? fixed / contribution : 0;
+
+      document.getElementById('total-fixed').value = fixed.toFixed(2);
+      document.getElementById('total-var').value = varCost.toFixed(2);
+      document.getElementById('total-revenue').value = revenue.toFixed(2);
+      document.getElementById('net-profit').value = net.toFixed(2);
+      document.getElementById('profit-margin').value = margin.toFixed(2);
+      document.getElementById('break-even-units').value = beUnits > 0 && isFinite(beUnits) ? Math.ceil(beUnits) : 0;
+
+      document.getElementById('total-fixed-display').textContent = fixed.toFixed(0);
+      document.getElementById('total-var-display').textContent = varCost.toFixed(0);
+      document.getElementById('total-revenue-display').textContent = revenue.toFixed(0);
+
+      document.getElementById('scenario-expected').textContent = net.toFixed(0);
+      document.getElementById('scenario-pessimistic').textContent = (net * 0.7).toFixed(0);
+      document.getElementById('scenario-optimistic').textContent = (net * 1.3).toFixed(0);
+
+      document.getElementById('cap-working').value = (fixed * 3).toFixed(2);
+      calcCapital();
+      calcROI();
+      calcSensitivity();
+      updateProgress();
+    }
+
+    // ===== Cash Flow =====
+    function calcCashFlow() {
+      let balance = 0;
+      const rows = document.querySelectorAll('#cashflow-table tbody tr');
+      rows.forEach(row => {
+        const rev = parseFloat(row.querySelector('.cf-rev')?.value) || 0;
+        const cost = parseFloat(row.querySelector('.cf-cost')?.value) || 0;
+        const net = rev - cost;
+        balance += net;
+        const netEl = row.querySelector('.cf-net');
+        const balEl = row.querySelector('.cf-balance');
+        if (netEl) netEl.value = net.toFixed(2);
+        if (balEl) balEl.value = balance.toFixed(2);
+      });
+    }
+    function autoFillCashFlow() {
+      const rev = parseFloat(document.getElementById('total-revenue')?.value) || 0;
+      const cost = parseFloat(document.getElementById('total-fixed')?.value) || 0;
+      const rows = document.querySelectorAll('#cashflow-table tbody tr');
+      rows.forEach((row, idx) => {
+        const growth = 1 + (idx * 0.02); // 2% monthly growth
+        const r = rev * growth;
+        const c = cost * growth;
+        const revInput = row.querySelector('.cf-rev');
+        const costInput = row.querySelector('.cf-cost');
+        if (revInput && !revInput.value) revInput.value = r.toFixed(2);
+        if (costInput && !costInput.value) costInput.value = c.toFixed(2);
+      });
+      calcCashFlow();
+    }
+
+    // ===== Capital =====
+    function calcCapital() {
+      const total = sumInputs('#capital-table .cap-input');
+      document.getElementById('total-capital').value = total.toFixed(2);
+      calcROI();
+    }
+    function linkLicensesToCapital() {
+      const total = sumInputs('#licenses-table .license-cost');
+      // Auto-fill licenses row in capital if exists
+      calcCapital();
+    }
+    function linkToCapital() {
+      const val = parseFloat(document.getElementById('cover-investment')?.value) || 0;
+      document.getElementById('capital-invested').value = val;
+      calcROI();
+    }
+
+    // ===== ROI & Payback =====
+    function calcROI() {
+      const net = parseFloat(document.getElementById('net-profit')?.value) || 0;
+      const capital = parseFloat(document.getElementById('capital-invested')?.value) || parseFloat(document.getElementById('total-capital')?.value) || 0;
+      const annual = net * 12;
+      const roi = capital > 0 ? (annual / capital) * 100 : 0;
+      const payback = net > 0 ? capital / net : 0;
+      document.getElementById('roi-percent').value = roi.toFixed(2);
+      document.getElementById('payback-period').value = payback > 0 && isFinite(payback) ? payback.toFixed(1) : 0;
+      document.getElementById('summary-capital').value = capital;
+      document.getElementById('summary-payback').value = payback > 0 && isFinite(payback) ? payback.toFixed(1) : 0;
+      document.getElementById('summary-roi').value = roi.toFixed(2);
+    }
+
+    // ===== Sensitivity =====
+    function calcSensitivity() {
+      const rev = parseFloat(document.getElementById('total-revenue')?.value) || 0;
+      const fixed = parseFloat(document.getElementById('total-fixed')?.value) || 0;
+      const varCost = parseFloat(document.getElementById('total-var')?.value) || 0;
+      const baseNet = rev - fixed - varCost;
+      const rows = document.querySelectorAll('#sensitivity-table tbody tr');
+      if (rows.length >= 1) {
+        rows[0].querySelector('.sens-base').value = baseNet.toFixed(0);
+        rows[0].querySelector('.sens-down').value = (baseNet * 0.9).toFixed(0);
+        rows[0].querySelector('.sens-up').value = (baseNet * 1.1).toFixed(0);
+      }
+      if (rows.length >= 2) {
+        rows[1].querySelector('.sens-base').value = baseNet.toFixed(0);
+        rows[1].querySelector('.sens-down').value = (baseNet * 0.85).toFixed(0);
+        rows[1].querySelector('.sens-up').value = (baseNet * 1.15).toFixed(0);
+      }
+      if (rows.length >= 3) {
+        rows[2].querySelector('.sens-base').value = baseNet.toFixed(0);
+        rows[2].querySelector('.sens-down').value = (baseNet * 1.1).toFixed(0); // lower fixed = higher profit
+        rows[2].querySelector('.sens-up').value = (baseNet * 0.9).toFixed(0);
+      }
+      if (rows.length >= 4) {
+        rows[3].querySelector('.sens-base').value = baseNet.toFixed(0);
+        rows[3].querySelector('.sens-down').value = (baseNet * 1.1).toFixed(0);
+        rows[3].querySelector('.sens-up').value = (baseNet * 0.9).toFixed(0);
+      }
+    }
+
+    // ===== Marketing links =====
+    function linkPriceToRevenue() {
+      const price = document.getElementById('marketing-price')?.value;
+      const firstRevPrice = document.querySelector('#revenue-table .rev-price');
+      if (firstRevPrice && price && !firstRevPrice.value) firstRevPrice.value = price;
+      calcFinancials();
+    }
+    function linkQtyToRevenue() {
+      const qty = document.getElementById('marketing-qty')?.value;
+      const firstRevQty = document.querySelector('#revenue-table .rev-qty');
+      if (firstRevQty && qty && !firstRevQty.value) firstRevQty.value = qty;
+      calcFinancials();
+    }
+
+    // ===== Draft save/load =====
+    function saveDraft() {
+      const data = {};
+      document.querySelectorAll('input, textarea, select').forEach((el, i) => {
+        data['f' + i] = el.type === 'checkbox' ? el.checked : el.value;
+      });
+      localStorage.setItem('bonds_feasibility_v2', JSON.stringify(data));
+      alert('تم حفظ المسودة بنجاح ✅');
+    }
+    function loadDraft() {
+      const raw = localStorage.getItem('bonds_feasibility_v2');
+      if (!raw) { alert('لا توجد مسودة محفوظة'); return; }
+      const data = JSON.parse(raw);
+      document.querySelectorAll('input, textarea, select').forEach((el, i) => {
+        const key = 'f' + i;
+        if (data[key] !== undefined) {
+          if (el.type === 'checkbox') el.checked = data[key];
+          else el.value = data[key];
+        }
+      });
+      calcFinancials();
+      calcCashFlow();
+      calcCapital();
+      calcHRGrandTotal();
+      calcToolsGrandTotal();
+      alert('تم استرجاع المسودة ✅');
+    }
+    function clearAll() {
+      if (!confirm('هل أنت متأكد من مسح جميع البيانات؟')) return;
+      document.querySelectorAll('input, textarea, select').forEach(el => {
+        if (el.type === 'checkbox') el.checked = false;
+        else if (!el.hasAttribute('readonly')) el.value = '';
+      });
+      calcFinancials();
+      calcCashFlow();
+      calcCapital();
+    }
+
+    // ===== Export to Excel =====
+    function exportToExcel() {
+      if (typeof XLSX === 'undefined') { alert('جاري تحميل مكتبة Excel...'); setTimeout(exportToExcel, 1000); return; }
+      const wb = XLSX.utils.book_new();
+      wb.Props = { Title: 'دراسة جدوى - بوندز', Subject: 'Feasibility Study', Author: 'Bonds Global', CreatedDate: new Date() };
+      const ws1 = XLSX.utils.aoa_to_sheet([
+        ['نموذج دراسة الجدوى المتكامل - بوندز'],
+        [],
+        ['المعلومات العامة'],
+        ['اسم المشروع', document.getElementById('cover-business-name')?.value || ''],
+        ['اسم صاحب النشاط', document.getElementById('cover-owner-name')?.value || ''],
+        ['الشكل القانوني', document.getElementById('cover-legal-form')?.value || ''],
+        ['تاريخ الإعداد', document.getElementById('cover-date')?.value || ''],
+        ['فكرة المشروع', document.getElementById('cover-idea')?.value || ''],
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws1, 'عام');
+      const ws2 = XLSX.utils.aoa_to_sheet([
+        ['التحليل المالي'],
+        ['التكاليف الثابتة/شهر', document.getElementById('total-fixed')?.value || 0],
+        ['التكاليف المتغيرة/شهر', document.getElementById('total-var')?.value || 0],
+        ['الإيرادات/شهر', document.getElementById('total-revenue')?.value || 0],
+        ['صافي الربح/شهر', document.getElementById('net-profit')?.value || 0],
+        ['هامش الربح %', document.getElementById('profit-margin')?.value || 0],
+        ['نقطة التعادل (وحدة)', document.getElementById('break-even-units')?.value || 0],
+        ['رأس المال المستثمر', document.getElementById('capital-invested')?.value || 0],
+        ['ROI %', document.getElementById('roi-percent')?.value || 0],
+        ['فترة الاسترداد (شهر)', document.getElementById('payback-period')?.value || 0],
+        [],
+        ['السيناريوهات'],
+        ['المتشائم', document.getElementById('scenario-pessimistic')?.textContent || 0],
+        ['المتوقع', document.getElementById('scenario-expected')?.textContent || 0],
+        ['المتفائل', document.getElementById('scenario-optimistic')?.textContent || 0],
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws2, 'مالي');
+      XLSX.writeFile(wb, 'bonds-feasibility-study.xlsx');
+    }
+
+    // ===== Init =====
+    document.getElementById('cover-date').valueAsDate = new Date();
+    document.getElementById('navToggle').addEventListener('click', function() {
+      document.getElementById('navLinks').classList.toggle('active');
+      this.setAttribute('aria-expanded', document.getElementById('navLinks').classList.contains('active'));
+    });
+    window.addEventListener('load', () => { calcFinancials(); updateProgress(); });
+  </script>
+</body>
+</html>

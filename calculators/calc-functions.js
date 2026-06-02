@@ -8,7 +8,18 @@
  *   - calculators/pricing.html → calculatePricing
  *   - calculators/cash-flow.html → calculateCashFlow
  *   - calculators/feasibility.html → calculateFeasibility
+ *   - calculators/restaurant.html → getUnitMultiplier, getEffectiveFee, formatNumber,
+ *                                   calculateHealthScore, generateSmartTips,
+ *                                   parseIngredientsCSVText, calculateSensitivity
  */
+
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    module.exports = factory();
+  } else {
+    root.BondsCalc = factory();
+  }
+}(typeof self !== 'undefined' ? self : this, function () {
 
 // ============================================================================
 // 1. Break-Even (from calculator.html)
@@ -372,14 +383,266 @@ function calculateFeasibility(setupCosts, monthlyCosts, revenue) {
 }
 
 // ============================================================================
+// 6. Restaurant Calculator Helpers (from calculators/restaurant.html)
+// ============================================================================
+
+var INGREDIENT_UNITS = [
+  { value: 'kg', label: 'كغ', factor: 1, priceLabel: 'لكغ' },
+  { value: 'g', label: 'غرام', factor: 0.001, priceLabel: 'لكغ' },
+  { value: 'mg', label: 'ملغ', factor: 0.000001, priceLabel: 'لكغ' },
+  { value: 'l', label: 'لتر', factor: 1, priceLabel: 'للتر' },
+  { value: 'ml', label: 'مل', factor: 0.001, priceLabel: 'للتر' },
+  { value: 'piece', label: 'قطعة', factor: 1, priceLabel: 'للقطعة' },
+  { value: 'box', label: 'علبة', factor: 1, priceLabel: 'للعلبة' },
+  { value: 'cup', label: 'كوب', factor: 1, priceLabel: 'للكوب' },
+  { value: 'spoon', label: 'ملعقة', factor: 1, priceLabel: 'للملعقة' }
+];
+
+function getUnitMultiplier(unitValue) {
+  var opt = INGREDIENT_UNITS.find(function(u) { return u.value === unitValue; });
+  return opt ? opt.factor : 1;
+}
+
+function getEffectiveFee(platformData, monthlyGMV) {
+  var baseFee = (platformData.fee || 0) + (platformData.serviceFee || 0);
+  var tiers = platformData.feeTiers;
+  if (!tiers || !monthlyGMV || monthlyGMV <= 0) return { fee: baseFee, tierApplied: false };
+  for (var i = 0; i < tiers.length; i++) {
+    var t = tiers[i];
+    if (monthlyGMV >= t.min && monthlyGMV <= t.max) {
+      return { fee: (t.fee || 0) + (platformData.serviceFee || 0), tierApplied: true, tierName: t.min + '-' + t.max };
+    }
+  }
+  return { fee: baseFee, tierApplied: false };
+}
+
+function formatNumber(n) {
+  if (n === undefined || n === null || isNaN(n)) return '—';
+  return Math.round(n).toLocaleString('en-US');
+}
+
+function calculateHealthScore(r, lang) {
+  lang = lang || 'ar';
+  var isEn = lang === 'en';
+  var inputs = r.inputs;
+  var score = 0;
+  var breakdown = [];
+
+  var labels = isEn
+    ? ['Profit Margin', 'Food Cost', 'Fee Burden', 'Break-Even Safety']
+    : ['هامش الربح', 'تكلفة الطعام', 'عبء العمولة', 'أمان التعادل'];
+  var icons = ['💰', '🍽️', '📱', '🛡️'];
+
+  // 1. Profit Margin (30% weight)
+  var marginScore = 0;
+  if (r.profitMargin >= 20) marginScore = 100;
+  else if (r.profitMargin >= 10) marginScore = 50 + (r.profitMargin - 10) * 5;
+  else if (r.profitMargin >= 0) marginScore = r.profitMargin * 5;
+  else marginScore = 0;
+  score += marginScore * 0.30;
+  breakdown.push({ label: labels[0], score: Math.round(marginScore), icon: icons[0] });
+
+  // 2. Food Cost (25% weight)
+  var foodScore = 0;
+  var fc = r.weightedFoodCostPct || 0;
+  if (fc <= 25) foodScore = 100;
+  else if (fc <= 30) foodScore = 100 - (fc - 25) * 5;
+  else if (fc <= 35) foodScore = 75 - (fc - 30) * 5;
+  else foodScore = Math.max(0, 50 - (fc - 35) * 3);
+  score += foodScore * 0.25;
+  breakdown.push({ label: labels[1], score: Math.round(foodScore), icon: icons[1] });
+
+  // 3. Platform Fee Burden (25% weight)
+  var avgFee = 0;
+  if (inputs.platforms.length > 0) {
+    var totalFee = inputs.platforms.reduce(function(sum, p) { return sum + p.fee + (p.serviceFee || 0); }, 0);
+    avgFee = totalFee / inputs.platforms.length;
+  }
+  var feeScore = 0;
+  if (avgFee <= 20) feeScore = 100;
+  else if (avgFee <= 25) feeScore = 100 - (avgFee - 20) * 5;
+  else if (avgFee <= 30) feeScore = 75 - (avgFee - 25) * 5;
+  else feeScore = Math.max(0, 50 - (avgFee - 30) * 3);
+  score += feeScore * 0.25;
+  breakdown.push({ label: labels[2], score: Math.round(feeScore), icon: icons[2] });
+
+  // 4. Break-Even Safety (20% weight)
+  var beScore = 0;
+  if (r.breakEvenDaily > 0) {
+    var ratio = inputs.dailyOrders / r.breakEvenDaily;
+    if (ratio >= 2) beScore = 100;
+    else if (ratio >= 1.5) beScore = 75 + (ratio - 1.5) * 50;
+    else if (ratio >= 1) beScore = 50 + (ratio - 1) * 50;
+    else beScore = Math.max(0, ratio * 50);
+  } else {
+    beScore = 100;
+  }
+  score += beScore * 0.20;
+  breakdown.push({ label: labels[3], score: Math.round(beScore), icon: icons[3] });
+
+  var finalScore = Math.round(Math.min(100, Math.max(0, score)));
+
+  var color = finalScore >= 80 ? '#16a34a' : (finalScore >= 50 ? '#d4a853' : '#dc2626');
+
+  var labelText = isEn
+    ? (finalScore >= 80 ? 'Excellent — Your restaurant is in great shape' :
+       finalScore >= 60 ? 'Good — There is room for small improvement' :
+       finalScore >= 40 ? 'Average — Review costs and pricing' :
+       'Weak — You need immediate operational intervention')
+    : (finalScore >= 80 ? 'ممتاز — مطعمك في وضع صحي جداً' :
+       finalScore >= 60 ? 'جيد — هناك مجال لتحسين بسيط' :
+       finalScore >= 40 ? 'متوسط — راجع التكاليف والأسعار' :
+       'ضعيف — تحتاج لتدخل فوري في النموذج التشغيلي');
+
+  return { finalScore, breakdown, labelText, color };
+}
+
+function generateSmartTips(r, currency, lang) {
+  lang = lang || 'ar';
+  var isEn = lang === 'en';
+  var tips = [];
+  var inputs = r.inputs;
+  currency = currency || '';
+
+  // Tip 1: Profit vs loss
+  if (r.netProfit < 0) {
+    var be = r.breakEvenDaily;
+    var needed = be - inputs.dailyOrders;
+    if (needed > 0) {
+      tips.push(isEn
+        ? 'You are currently losing money. Increasing daily orders by just ' + needed + ' reaches break-even.'
+        : 'أنت تخسر حالياً. زيادة الطلبات اليومية بـ ' + needed + ' طلب فقط تحقق لك نقطة التعادل.');
+    }
+    var priceBoost = Math.ceil((-r.netProfit / (inputs.dailyOrders * inputs.workingDays)) / (inputs.dailyOrders * inputs.workingDays) * 100);
+    if (priceBoost > 0 && priceBoost < 50) {
+      tips.push(isEn
+        ? 'Raising prices by ~' + priceBoost + '% achieves break-even without more orders.'
+        : 'زيادة سعر البيع ' + priceBoost + '% تقريباً يحقق التعادل بدون زيادة طلبات.');
+    }
+  } else {
+    tips.push(isEn
+      ? 'Your total profit is ' + formatNumber(Math.round(r.netProfit)) + ' ' + currency + '/month. Try scaling on your best platform (' + r.bestPlatform.name + ').'
+      : 'أرباحك الإجمالية ' + formatNumber(Math.round(r.netProfit)) + ' ' + currency + '/شهر. حاول زيادة الحجم على أفضل منصة (' + r.bestPlatform.name + ').');
+  }
+
+  // Tip 2: Best vs worst platform
+  if (r.worstPlatform && r.bestPlatform && r.worstPlatform.name !== r.bestPlatform.name) {
+    var diff = r.bestPlatform.monthlyProfit - r.worstPlatform.monthlyProfit;
+    if (diff > 0) {
+      tips.push(isEn
+        ? 'Gap between best (' + r.bestPlatform.name + ') and worst (' + r.worstPlatform.name + ') = ' + formatNumber(Math.round(diff)) + ' ' + currency + '/month.'
+        : 'الفرق بين أفضل منصة (' + r.bestPlatform.name + ') وأسوأها (' + r.worstPlatform.name + ') = ' + formatNumber(Math.round(diff)) + ' ' + currency + '/شهر.');
+    }
+  }
+
+  // Tip 3: Break-even analysis
+  if (r.breakEvenDaily > inputs.dailyOrders * 1.5) {
+    tips.push(isEn
+      ? 'Break-even is high (' + r.breakEvenDaily + ' orders/day). Review fixed costs or profit margin.'
+      : 'نقطة التعادل مرتفعة (' + r.breakEvenDaily + ' طلب/يوم). راجع التكاليف الثابتة أو هامش الربح.');
+  }
+
+  // Tip 4: Open vs closed model
+  var openProfit = 0, closedProfit = 0;
+  r.platformResults.forEach(function(p) {
+    var pm = inputs.platforms.find(function(x) { return x.name === p.name; });
+    if (pm) {
+      if (pm.operatingModel === 'open') openProfit += p.monthlyProfit;
+      else if (pm.operatingModel === 'closed') closedProfit += p.monthlyProfit;
+    }
+  });
+  if (openProfit > closedProfit && closedProfit > 0) {
+    tips.push(isEn
+      ? 'Open-courier model (like Mrsool) earns ' + formatNumber(Math.round(openProfit - closedProfit)) + ' ' + currency + ' more than closed-menu platforms.'
+      : 'نموذج المندوب المفتوح (مثل مرسول) يحقق ربحاً أعلى بـ ' + formatNumber(Math.round(openProfit - closedProfit)) + ' ' + currency + ' من القائمة المغلقة.');
+  }
+
+  // Tip 5: Food cost
+  if (r.weightedFoodCostPct > 35) {
+    tips.push(isEn
+      ? 'Food cost ratio is high (' + r.weightedFoodCostPct.toFixed(1) + '%). Ideal range is 25-30%.'
+      : 'نسبة تكلفة الطعام مرتفعة (' + r.weightedFoodCostPct.toFixed(1) + '%). المعدل المثالي 25-30%.');
+  }
+
+  return tips;
+}
+
+function parseIngredientsCSVText(text) {
+  var lines = text.split('\n').filter(function(l) { return l.trim(); });
+  var ingredients = [];
+  lines.forEach(function(line, idx) {
+    if (idx === 0 && line.toLowerCase().includes('ingredient')) return; // skip header
+    var parts = line.split(',');
+    if (parts.length >= 3) {
+      ingredients.push({ name: parts[0].trim(), unit: parts[1].trim(), price: parseFloat(parts[2]) || 0 });
+    }
+  });
+  return ingredients;
+}
+
+function calculateSensitivity(baseResult, commissionDelta, ordersDelta, priceDelta, costDelta, vatRate) {
+  var inputs = baseResult.inputs;
+  var adjustedPrice = baseResult.weightedPrice * (1 + priceDelta/100);
+  var adjustedCost = baseResult.weightedCost * (1 + costDelta/100);
+  var adjustedOrders = inputs.dailyOrders * (1 + ordersDelta/100);
+  var monthlyFixed = inputs.rent + inputs.salaries + inputs.utilities + inputs.licenses + inputs.cloudKitchen + inputs.marketing;
+  var dailyFixed = monthlyFixed / inputs.workingDays;
+  vatRate = vatRate || 0;
+
+  var platformResults = inputs.platforms.map(function(p) {
+    var ef = getEffectiveFee(p, inputs.monthlyGMV);
+    var totalFee = ef.fee + commissionDelta;
+    if (totalFee < 0) totalFee = 0;
+    var commissionValue = adjustedPrice * (totalFee / 100);
+    var vatValue = commissionValue * (vatRate / 100);
+    var pgFeeValue = adjustedPrice * ((p.paymentGatewayFee || 0) / 100);
+    var campaignValue = adjustedPrice * ((p.campaignDiscount || 0) / 100);
+    var totalDeduction = commissionValue + vatValue + pgFeeValue + campaignValue;
+    var platformPrice = adjustedPrice - totalDeduction;
+    var varCostPerOrder = adjustedCost + inputs.packaging + inputs.delivery;
+    var contributionPerOrder = platformPrice - varCostPerOrder;
+    var dailyProfit = contributionPerOrder * adjustedOrders - dailyFixed;
+    var monthlyProfit = dailyProfit * inputs.workingDays;
+    var breakEvenOrders = contributionPerOrder > 0 ? Math.ceil(dailyFixed / contributionPerOrder) : -1;
+    return {
+      name: p.name, monthlyProfit: monthlyProfit, breakEvenOrders: breakEvenOrders
+    };
+  });
+
+  var bestPlatform = platformResults.reduce(function(best, p) {
+    return (p.monthlyProfit > best.monthlyProfit) ? p : best;
+  }, platformResults[0] || { monthlyProfit: -Infinity });
+
+  var totalMonthlyRevenue = adjustedPrice * adjustedOrders * inputs.workingDays;
+  var totalMonthlyVarCost = (adjustedCost + inputs.packaging + inputs.delivery) * adjustedOrders * inputs.workingDays;
+  var netProfit = totalMonthlyRevenue - totalMonthlyVarCost - monthlyFixed;
+
+  return {
+    netProfit: netProfit,
+    bestPlatform: bestPlatform,
+    breakEvenDaily: platformResults.length > 0 && platformResults[0].breakEvenOrders > 0 ? platformResults[0].breakEvenOrders : -1
+  };
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-module.exports = {
+return {
   calculateBreakEven,
   calculateLoan,
   calculateDTI,
   calculatePricing,
   calculateCashFlow,
-  calculateFeasibility
+  calculateFeasibility,
+  INGREDIENT_UNITS,
+  getUnitMultiplier,
+  getEffectiveFee,
+  formatNumber,
+  calculateHealthScore,
+  generateSmartTips,
+  parseIngredientsCSVText,
+  calculateSensitivity
 };
+
+}));

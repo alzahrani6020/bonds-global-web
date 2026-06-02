@@ -4,7 +4,8 @@
 // Returns: Stars (النجوم), Engine (المحرك), Treasure (المكنوز), Stalled (المتعثرة)
 // ============================================
 
-const { createClient } = require('@supabase/supabase-js');
+const getSupabase = require('./lib/supabase');
+const { getCache, setCache } = require('./lib/cache');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -17,15 +18,13 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    res.status(500).json({ error: 'Supabase environment variables missing' });
+  let supabase;
+  try {
+    supabase = getSupabase();
+  } catch (e) {
+    res.status(500).json({ error: e.message });
     return;
   }
-
-  const supabase = createClient(supabaseUrl, supabaseKey);
 
   // GET: Return engineering matrix for a user
   if (req.method === 'GET') {
@@ -36,6 +35,14 @@ module.exports = async function handler(req, res) {
     }
 
     try {
+      // Check cache first (30 second TTL for matrix data)
+      const cacheKey = 'me_matrix_' + user_id;
+      const cached = getCache(cacheKey);
+      if (cached) {
+        res.status(200).json({ success: true, data: cached, cached: true });
+        return;
+      }
+
       // 1. Aggregate sales by menu_item
       const { data: salesAgg, error: sErr } = await supabase
         .from('sales_transactions')
@@ -54,22 +61,19 @@ module.exports = async function handler(req, res) {
         byItem[key].total_net += (s.net_revenue || s.quantity * s.unit_price);
       }
 
-      // 2. Fetch menu items
+      // 2. Fetch menu items and costs in parallel
       const menuItemIds = Object.keys(byItem);
       let menuMap = {};
-      if (menuItemIds.length > 0) {
-        const { data: menuData } = await supabase.from('menu_items').select('id, name, base_price').in('id', menuItemIds);
-        for (const m of (menuData || [])) menuMap[m.id] = m;
-      }
-
-      // 3. Fetch real costs from ingredients
       let costMap = {};
+
       if (menuItemIds.length > 0) {
-        const { data: costData } = await supabase
-          .from('menu_item_ingredients')
-          .select('menu_item_id, cost_share')
-          .in('menu_item_id', menuItemIds);
-        for (const c of (costData || [])) {
+        const [menuRes, costRes] = await Promise.all([
+          supabase.from('menu_items').select('id, name, base_price').in('id', menuItemIds),
+          supabase.from('menu_item_ingredients').select('menu_item_id, cost_share').in('menu_item_id', menuItemIds)
+        ]);
+
+        for (const m of (menuRes.data || [])) menuMap[m.id] = m;
+        for (const c of (costRes.data || [])) {
           if (!costMap[c.menu_item_id]) costMap[c.menu_item_id] = 0;
           costMap[c.menu_item_id] += (c.cost_share || 0);
         }
@@ -142,6 +146,8 @@ module.exports = async function handler(req, res) {
         }
       };
 
+      // Cache matrix for 30 seconds
+      setCache(cacheKey, matrix, 30000);
       res.status(200).json({ success: true, data: matrix });
     } catch (e) {
       res.status(500).json({ error: e.message });

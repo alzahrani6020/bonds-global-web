@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="shared-calculators.css" />
   <script src="shared-ui.js"></script>
+  <script src="shared-utils.js"></script>
+  <script src="shared-export.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <style>
     .feas-container { max-width: 900px; margin: 0 auto; padding: var(--space-8) var(--space-4); }
@@ -304,6 +306,9 @@ function calculateAll() {
       </div>`;
   }
 
+  // Store for exports
+  window._feasResult = { setupTotal, monthlyFixed, monthlyVariable, monthlyTotal, avgPrice, dailyOrders, workDays, monthlyRevenue, yearlyRevenue, monthlyProfit, yearlyProfit, profitMargin, beOrdersPerDay, beOrdersPerMonth, beRevenuePerMonth, roiMonths, pess, exp, opt, scenarios, verdict: monthlyProfit < 0 ? 'loss' : roiMonths > 24 ? 'warning' : 'profit' };
+
   // Render
   document.getElementById('resultContent').innerHTML = `
     ${verdictHTML}
@@ -349,10 +354,154 @@ function calculateAll() {
       <p>• يومياً: ${Math.ceil(beOrdersPerDay)} طلب | شهرياً: ${Math.ceil(beOrdersPerMonth)} طلب | إيراد: ${beRevenuePerMonth.toLocaleString('ar-SA')} ر.س</p>
     </div>
 
-    <div style="text-align:center;margin-top:var(--space-6);">
+    <div style="text-align:center;margin-top:var(--space-6);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
       <button class="bonds-btn bonds-btn-secondary" onclick="showTab('setup'); BondsUI.toast('🔄 ابدأ من جديد وجرّب أرقام جديدة', 'info');">🔄 جرب أرقام جديدة</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportExcelFeas()">📊 Excel</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportPDFFeas()">📄 PDF</button>
     </div>
   `;
+}
+
+async function exportExcelFeas() {
+  if (!window._feasResult) {
+    BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning');
+    return;
+  }
+  await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+  if (typeof XLSX === 'undefined') {
+    BondsUI.toast('❌ فشل تحميل مكتبة Excel', 'error');
+    return;
+  }
+  var d = window._feasResult;
+  var wb = XLSX.utils.book_new();
+  wb.Props = { Title: 'دراسة جدوى المطعم', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+  var inputsSheet = [
+    ['بند', 'القيمة'],
+    ['الترخيص والتسجيل', getVal('sLicense')],
+    ['التأثيث والديكور', getVal('sFurniture')],
+    ['المعدات والأجهزة', getVal('sEquipment')],
+    ['تصميم الهوية والتسويق', getVal('sMarketing')],
+    ['الأمن والسلامة', getVal('sSafety')],
+    ['مصاريف أخرى', getVal('sOther')],
+    ['', ''],
+    ['الإيجار الشهري', getVal('mRent')],
+    ['الرواتب والأجور', getVal('mSalaries')],
+    ['الكهرباء والماء', getVal('mUtilities')],
+    ['الغاز والإنترنت', getVal('mGasNet')],
+    ['تكلفة الموردين (مواد خام)', getVal('mSupplies')],
+    ['التسويق والإعلانات', getVal('mAds')],
+    ['صيانة ومصاريف متنوعة', getVal('mMisc')],
+    ['', ''],
+    ['متوسط سعر الطلب', d.avgPrice],
+    ['عدد الطلبات المتوقع / يوم', d.dailyOrders],
+    ['أيام العمل في الشهر', d.workDays]
+  ];
+  var ws1 = XLSX.utils.aoa_to_sheet(inputsSheet);
+  ws1['!cols'] = [{ wch: 32 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, ws1, 'المدخلات');
+
+  var resultsSheet = [
+    ['المؤشر', 'القيمة'],
+    ['تكلفة الافتتاح', d.setupTotal],
+    ['التكاليف الشهرية الثابتة', d.monthlyFixed],
+    ['التكاليف الشهرية المتغيرة', d.monthlyVariable],
+    ['إجمالي التكاليف الشهرية', d.monthlyTotal],
+    ['', ''],
+    ['الإيراد الشهري', d.monthlyRevenue],
+    ['الإيراد السنوي', d.yearlyRevenue],
+    ['', ''],
+    ['الربح الشهري', d.monthlyProfit],
+    ['الربح السنوي', d.yearlyProfit],
+    ['هامش الربح (%)', d.profitMargin.toFixed(2) + '%'],
+    ['', ''],
+    ['نقطة التعادل (يومياً)', Math.ceil(d.beOrdersPerDay)],
+    ['نقطة التعادل (شهرياً)', Math.ceil(d.beOrdersPerMonth)],
+    ['إيراد التعادل الشهري', d.beRevenuePerMonth],
+    ['', ''],
+    ['استرداد رأس المال (شهر)', d.roiMonths === Infinity ? '—' : Math.ceil(d.roiMonths)]
+  ];
+  var ws2 = XLSX.utils.aoa_to_sheet(resultsSheet);
+  ws2['!cols'] = [{ wch: 32 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, ws2, 'النتائج');
+
+  var scenSheet = [
+    ['السيناريو', 'الطلبات/يوم', 'الإيراد الشهري', 'الربح الشهري', 'الهامش'],
+    ['المتشائم (60%)', d.scenarios.pessimistic.dailyOrders, d.pess.revenue, d.pess.profit, d.pess.margin.toFixed(2) + '%'],
+    ['المتوقع (100%)', d.scenarios.expected.dailyOrders, d.exp.revenue, d.exp.profit, d.exp.margin.toFixed(2) + '%'],
+    ['المتفائل (140%)', d.scenarios.optimistic.dailyOrders, d.opt.revenue, d.opt.profit, d.opt.margin.toFixed(2) + '%']
+  ];
+  var ws3 = XLSX.utils.aoa_to_sheet(scenSheet);
+  ws3['!cols'] = [{ wch: 20 }, { wch: 16 }, { wch: 18 }, { wch: 18 }, { wch: 14 }];
+  XLSX.utils.book_append_sheet(wb, ws3, 'السيناريوهات');
+
+  XLSX.writeFile(wb, 'bonds-feasibility-study.xlsx');
+}
+
+function exportPDFFeas() {
+  if (!window._feasResult) {
+    BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning');
+    return;
+  }
+  var d = window._feasResult;
+  var verdictTitle = d.verdict === 'loss' ? 'تحذير: المشروع يتوقع خسارة شهرية' :
+                     d.verdict === 'warning' ? 'مربح لكن بطيء الاسترداد' : 'مشروع مربح ومبشر!';
+  var verdictColor = d.verdict === 'loss' ? '#ef4444' : d.verdict === 'warning' ? '#f59e0b' : '#22c55e';
+  var verdictBg = d.verdict === 'loss' ? 'loss' : d.verdict === 'warning' ? 'warn' : 'profit';
+
+  var content = `
+    <div class="verdict-box ${verdictBg}">
+      <div style="font-size:20px;font-weight:800;color:${verdictColor};">${verdictTitle}</div>
+    </div>
+
+    <h2>📈 النتائج الرئيسية</h2>
+    <div class="metric-grid">
+      <div class="metric-item"><div class="label">نقطة التعادل (يومياً)</div><div class="value">${Math.ceil(d.beOrdersPerDay)} طلب</div></div>
+      <div class="metric-item"><div class="label">نقطة التعادل (شهرياً)</div><div class="value">${Math.ceil(d.beOrdersPerMonth)} طلب</div></div>
+      <div class="metric-item"><div class="label">الربح الشهري</div><div class="value">${d.monthlyProfit.toLocaleString('ar-SA')} ر.س</div></div>
+      <div class="metric-item"><div class="label">هامش الربح</div><div class="value">${d.profitMargin.toFixed(1)}%</div></div>
+      <div class="metric-item"><div class="label">استرداد رأس المال</div><div class="value">${d.roiMonths === Infinity ? '—' : Math.ceil(d.roiMonths) + ' شهر'}</div></div>
+      <div class="metric-item"><div class="label">تكلفة الافتتاح</div><div class="value">${d.setupTotal.toLocaleString('ar-SA')} ر.س</div></div>
+    </div>
+
+    <h2>🎲 السيناريوهات</h2>
+    <div class="scenario-row">
+      <div class="scenario-item pess">
+        <div class="label" style="color:#ef4444;">المتشائم</div>
+        <div class="value" style="color:#ef4444;">${d.pess.profit.toLocaleString('ar-SA')} ر.س</div>
+        <div class="desc">${d.scenarios.pessimistic.dailyOrders} طلب/يوم | هامش: ${d.pess.margin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-item exp">
+        <div class="label" style="color:#b88a3a;">المتوقع</div>
+        <div class="value" style="color:#b88a3a;">${d.exp.profit.toLocaleString('ar-SA')} ر.س</div>
+        <div class="desc">${d.scenarios.expected.dailyOrders} طلب/يوم | هامش: ${d.exp.margin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-item opt">
+        <div class="label" style="color:#22c55e;">المتفائل</div>
+        <div class="value" style="color:#22c55e;">${d.opt.profit.toLocaleString('ar-SA')} ر.س</div>
+        <div class="desc">${d.scenarios.optimistic.dailyOrders} طلب/يوم | هامش: ${d.opt.margin.toFixed(1)}%</div>
+      </div>
+    </div>
+
+    <h2>📋 ملخص تفصيلي</h2>
+    <table>
+      <tr><th>البند</th><th>القيمة</th></tr>
+      <tr><td>الإيراد اليومي</td><td class="num">${(d.avgPrice * d.dailyOrders).toLocaleString('ar-SA')} ر.س</td></tr>
+      <tr><td>الإيراد الشهري</td><td class="num">${d.monthlyRevenue.toLocaleString('ar-SA')} ر.س</td></tr>
+      <tr><td>الإيراد السنوي</td><td class="num">${d.yearlyRevenue.toLocaleString('ar-SA')} ر.س</td></tr>
+      <tr><td>التكاليف الشهرية الثابتة</td><td class="num">${d.monthlyFixed.toLocaleString('ar-SA')} ر.س</td></tr>
+      <tr><td>التكاليف الشهرية المتغيرة</td><td class="num">${d.monthlyVariable.toLocaleString('ar-SA')} ر.س</td></tr>
+      <tr><td>إجمالي التكاليف الشهرية</td><td class="num">${d.monthlyTotal.toLocaleString('ar-SA')} ر.س</td></tr>
+      <tr><td>الربح الشهري</td><td class="num">${d.monthlyProfit.toLocaleString('ar-SA')} ر.س</td></tr>
+      <tr><td>الربح السنوي</td><td class="num">${d.yearlyProfit.toLocaleString('ar-SA')} ر.س</td></tr>
+      <tr><td>هامش الربح</td><td class="num">${d.profitMargin.toFixed(1)}%</td></tr>
+      <tr><td>نقطة التعادل (يومياً)</td><td class="num">${Math.ceil(d.beOrdersPerDay)} طلب</td></tr>
+      <tr><td>نقطة التعادل (شهرياً)</td><td class="num">${Math.ceil(d.beOrdersPerMonth)} طلب</td></tr>
+      <tr><td>إيراد التعادل الشهري</td><td class="num">${d.beRevenuePerMonth.toLocaleString('ar-SA')} ر.س</td></tr>
+      <tr><td>استرداد رأس المال</td><td class="num">${d.roiMonths === Infinity ? '—' : Math.ceil(d.roiMonths) + ' شهر'}</td></tr>
+    </table>
+  `;
+  openPrintWindow({ content: content, title: 'دراسة جدوى المطعم', headerTitle: 'تقرير دراسة جدوى المطعم' });
 }
 
 // ===== INIT =====

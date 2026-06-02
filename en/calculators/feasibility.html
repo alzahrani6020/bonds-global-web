@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
   <script src="../../calculators/shared-ui.js"></script>
+  <script src="../../calculators/shared-utils.js"></script>
+  <script src="../../calculators/shared-export.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <style>
     .feas-container { max-width: 900px; margin: 0 auto; padding: var(--space-8) var(--space-4); }
@@ -291,6 +293,8 @@ function calculateAll() {
       </div>`;
   }
 
+  window._feasResult = { setupTotal, monthlyFixed, monthlyVariable, monthlyTotal, avgPrice, dailyOrders, workDays, monthlyRevenue, yearlyRevenue, monthlyProfit, yearlyProfit, profitMargin, beOrdersPerDay, beOrdersPerMonth, beRevenuePerMonth, roiMonths, pess, exp, opt, scenarios, verdict: monthlyProfit < 0 ? 'loss' : roiMonths > 24 ? 'warning' : 'profit' };
+
   document.getElementById('resultContent').innerHTML = `
     ${verdictHTML}
 
@@ -335,10 +339,154 @@ function calculateAll() {
       <p>• Daily: ${Math.ceil(beOrdersPerDay)} orders | Monthly: ${Math.ceil(beOrdersPerMonth)} orders | Revenue: $${beRevenuePerMonth.toLocaleString('en-US')}</p>
     </div>
 
-    <div style="text-align:center;margin-top:var(--space-6);">
+    <div style="text-align:center;margin-top:var(--space-6);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
       <button class="bonds-btn bonds-btn-secondary" onclick="showTab('setup'); BondsUI.toast('🔄 Try new numbers', 'info');">🔄 Try New Numbers</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportExcelFeas()">📊 Excel</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportPDFFeas()">📄 PDF</button>
     </div>
   `;
+}
+
+async function exportExcelFeas() {
+  if (!window._feasResult) {
+    BondsUI.toast('⚠️ Please calculate results first', 'warning');
+    return;
+  }
+  await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+  if (typeof XLSX === 'undefined') {
+    BondsUI.toast('❌ Failed to load Excel library', 'error');
+    return;
+  }
+  var d = window._feasResult;
+  var wb = XLSX.utils.book_new();
+  wb.Props = { Title: 'Restaurant Feasibility Study', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+  var inputsSheet = [
+    ['Item', 'Value'],
+    ['License & Registration', getVal('sLicense')],
+    ['Furniture & Decor', getVal('sFurniture')],
+    ['Equipment & Appliances', getVal('sEquipment')],
+    ['Branding & Marketing', getVal('sMarketing')],
+    ['Safety & Security', getVal('sSafety')],
+    ['Other Expenses', getVal('sOther')],
+    ['', ''],
+    ['Monthly Rent', getVal('mRent')],
+    ['Salaries & Wages', getVal('mSalaries')],
+    ['Electricity & Water', getVal('mUtilities')],
+    ['Gas & Internet', getVal('mGasNet')],
+    ['Supplies (Raw Materials)', getVal('mSupplies')],
+    ['Marketing & Ads', getVal('mAds')],
+    ['Maintenance & Misc', getVal('mMisc')],
+    ['', ''],
+    ['Average Order Value', d.avgPrice],
+    ['Expected Daily Orders', d.dailyOrders],
+    ['Working Days per Month', d.workDays]
+  ];
+  var ws1 = XLSX.utils.aoa_to_sheet(inputsSheet);
+  ws1['!cols'] = [{ wch: 32 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Inputs');
+
+  var resultsSheet = [
+    ['Metric', 'Value'],
+    ['Setup Cost', d.setupTotal],
+    ['Monthly Fixed Costs', d.monthlyFixed],
+    ['Monthly Variable Costs', d.monthlyVariable],
+    ['Total Monthly Costs', d.monthlyTotal],
+    ['', ''],
+    ['Monthly Revenue', d.monthlyRevenue],
+    ['Yearly Revenue', d.yearlyRevenue],
+    ['', ''],
+    ['Monthly Profit', d.monthlyProfit],
+    ['Yearly Profit', d.yearlyProfit],
+    ['Profit Margin (%)', d.profitMargin.toFixed(2) + '%'],
+    ['', ''],
+    ['Break-even (daily)', Math.ceil(d.beOrdersPerDay)],
+    ['Break-even (monthly)', Math.ceil(d.beOrdersPerMonth)],
+    ['Break-even Revenue', d.beRevenuePerMonth],
+    ['', ''],
+    ['Payback Period (months)', d.roiMonths === Infinity ? '—' : Math.ceil(d.roiMonths)]
+  ];
+  var ws2 = XLSX.utils.aoa_to_sheet(resultsSheet);
+  ws2['!cols'] = [{ wch: 32 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Results');
+
+  var scenSheet = [
+    ['Scenario', 'Orders/Day', 'Monthly Revenue', 'Monthly Profit', 'Margin'],
+    ['Pessimistic (60%)', d.scenarios.pessimistic.dailyOrders, d.pess.revenue, d.pess.profit, d.pess.margin.toFixed(2) + '%'],
+    ['Expected (100%)', d.scenarios.expected.dailyOrders, d.exp.revenue, d.exp.profit, d.exp.margin.toFixed(2) + '%'],
+    ['Optimistic (140%)', d.scenarios.optimistic.dailyOrders, d.opt.revenue, d.opt.profit, d.opt.margin.toFixed(2) + '%']
+  ];
+  var ws3 = XLSX.utils.aoa_to_sheet(scenSheet);
+  ws3['!cols'] = [{ wch: 20 }, { wch: 16 }, { wch: 18 }, { wch: 18 }, { wch: 14 }];
+  XLSX.utils.book_append_sheet(wb, ws3, 'Scenarios');
+
+  XLSX.writeFile(wb, 'bonds-feasibility-study.xlsx');
+}
+
+function exportPDFFeas() {
+  if (!window._feasResult) {
+    BondsUI.toast('⚠️ Please calculate results first', 'warning');
+    return;
+  }
+  var d = window._feasResult;
+  var verdictTitle = d.verdict === 'loss' ? 'Warning: Project Expects Monthly Loss' :
+                     d.verdict === 'warning' ? 'Profitable but Slow Payback' : 'Profitable & Promising!';
+  var verdictColor = d.verdict === 'loss' ? '#ef4444' : d.verdict === 'warning' ? '#f59e0b' : '#22c55e';
+  var verdictBg = d.verdict === 'loss' ? 'loss' : d.verdict === 'warning' ? 'warn' : 'profit';
+
+  var content = `
+    <div class="verdict-box ${verdictBg}">
+      <div style="font-size:20px;font-weight:800;color:${verdictColor};">${verdictTitle}</div>
+    </div>
+
+    <h2>📈 Key Results</h2>
+    <div class="metric-grid">
+      <div class="metric-item"><div class="label">Break-even (daily)</div><div class="value">${Math.ceil(d.beOrdersPerDay)} orders</div></div>
+      <div class="metric-item"><div class="label">Break-even (monthly)</div><div class="value">${Math.ceil(d.beOrdersPerMonth)} orders</div></div>
+      <div class="metric-item"><div class="label">Monthly Profit</div><div class="value">$${d.monthlyProfit.toLocaleString('en-US')}</div></div>
+      <div class="metric-item"><div class="label">Profit Margin</div><div class="value">${d.profitMargin.toFixed(1)}%</div></div>
+      <div class="metric-item"><div class="label">Payback Period</div><div class="value">${d.roiMonths === Infinity ? '—' : Math.ceil(d.roiMonths) + ' months'}</div></div>
+      <div class="metric-item"><div class="label">Setup Cost</div><div class="value">$${d.setupTotal.toLocaleString('en-US')}</div></div>
+    </div>
+
+    <h2>🎲 Scenarios</h2>
+    <div class="scenario-row">
+      <div class="scenario-item pess">
+        <div class="label" style="color:#ef4444;">Pessimistic</div>
+        <div class="value" style="color:#ef4444;">$${d.pess.profit.toLocaleString('en-US')}</div>
+        <div class="desc">${d.scenarios.pessimistic.dailyOrders} orders/day | Margin: ${d.pess.margin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-item exp">
+        <div class="label" style="color:#b88a3a;">Expected</div>
+        <div class="value" style="color:#b88a3a;">$${d.exp.profit.toLocaleString('en-US')}</div>
+        <div class="desc">${d.scenarios.expected.dailyOrders} orders/day | Margin: ${d.exp.margin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-item opt">
+        <div class="label" style="color:#22c55e;">Optimistic</div>
+        <div class="value" style="color:#22c55e;">$${d.opt.profit.toLocaleString('en-US')}</div>
+        <div class="desc">${d.scenarios.optimistic.dailyOrders} orders/day | Margin: ${d.opt.margin.toFixed(1)}%</div>
+      </div>
+    </div>
+
+    <h2>📋 Detailed Summary</h2>
+    <table>
+      <tr><th>Item</th><th>Value</th></tr>
+      <tr><td>Daily Revenue</td><td class="num">$${(d.avgPrice * d.dailyOrders).toLocaleString('en-US')}</td></tr>
+      <tr><td>Monthly Revenue</td><td class="num">$${d.monthlyRevenue.toLocaleString('en-US')}</td></tr>
+      <tr><td>Yearly Revenue</td><td class="num">$${d.yearlyRevenue.toLocaleString('en-US')}</td></tr>
+      <tr><td>Monthly Fixed Costs</td><td class="num">$${d.monthlyFixed.toLocaleString('en-US')}</td></tr>
+      <tr><td>Monthly Variable Costs</td><td class="num">$${d.monthlyVariable.toLocaleString('en-US')}</td></tr>
+      <tr><td>Total Monthly Costs</td><td class="num">$${d.monthlyTotal.toLocaleString('en-US')}</td></tr>
+      <tr><td>Monthly Profit</td><td class="num">$${d.monthlyProfit.toLocaleString('en-US')}</td></tr>
+      <tr><td>Yearly Profit</td><td class="num">$${d.yearlyProfit.toLocaleString('en-US')}</td></tr>
+      <tr><td>Profit Margin</td><td class="num">${d.profitMargin.toFixed(1)}%</td></tr>
+      <tr><td>Break-even (daily)</td><td class="num">${Math.ceil(d.beOrdersPerDay)} orders</td></tr>
+      <tr><td>Break-even (monthly)</td><td class="num">${Math.ceil(d.beOrdersPerMonth)} orders</td></tr>
+      <tr><td>Break-even Revenue</td><td class="num">$${d.beRevenuePerMonth.toLocaleString('en-US')}</td></tr>
+      <tr><td>Payback Period</td><td class="num">${d.roiMonths === Infinity ? '—' : Math.ceil(d.roiMonths) + ' months'}</td></tr>
+    </table>
+  `;
+  openPrintWindow({ content: content, title: 'Restaurant Feasibility Report', headerTitle: 'Restaurant Feasibility Report — Bonds', lang: 'en' });
 }
 
 // ===== INIT =====

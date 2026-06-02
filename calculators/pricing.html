@@ -2,6 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
+  <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
+  <link rel="preconnect" href="https://embed.tawk.to" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>حاسبة تسعير المنتج | بوندز — استشارات مالية</title>
   <meta name="description" content="احسب سعر منتجك باحترافية: التكلفة المباشرة، التكاليف غير المباشرة، هامش الربح، الضريبة، والزكاة. أداة مجانية من بوندز." />
@@ -30,8 +32,8 @@
   <script src="shared-ui.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="shared-utils.js"></script>
-  <script src="shared-charts.js"></script>
-  <script src="shared-export.js"></script>
+  <script src="shared-charts.js" defer></script>
+  <script src="shared-export.js" defer></script>
   <style>
     @media (max-width: 640px) {
       .share-bar { flex-direction: column; }
@@ -56,7 +58,7 @@
   <header class="main-header" id="header">
     <div class="container main-header__inner">
       <a href="../index.html" class="logo-slot">
-        <img src="../assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" />
+        <img src="../assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
         <span class="logo-text">بوندز</span>
       </a>
       <nav class="main-nav" id="mainNav">
@@ -197,6 +199,7 @@
               <button onclick="copyShareLink('shareLink')" class="btn btn-outline" style="font-size: 0.8rem;">نسخ الرابط</button>
               <button onclick="window.print()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">🖨️ طباعة</button>
               <button onclick="exportExcel()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📊 Excel</button>
+              <button onclick="exportPDF()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📄 PDF</button>
             </div>
           </div>
 
@@ -600,6 +603,47 @@
       });
     }
 
+    function exportPDF() {
+      var last = window._lastPricingResult;
+      if (!last) {
+        BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning');
+        return;
+      }
+      var r = last.r;
+      var inputs = last.inputs;
+      var content = `
+        <h2>📊 نتائج التسعير</h2>
+        <div class="metric-grid">
+          <div class="metric-item"><div class="label">إجمالي التكلفة للوحدة</div><div class="value">${r.costPerUnit.toLocaleString('en-US')} ر.س</div></div>
+          <div class="metric-item"><div class="label">سعر البيع قبل الضريبة</div><div class="value">${r.priceBeforeTax.toLocaleString('en-US')} ر.س</div></div>
+          <div class="metric-item"><div class="label">الربح الصافي (للوحدة)</div><div class="value">${r.netProfitPerUnit.toLocaleString('en-US')} ر.س</div></div>
+          <div class="metric-item"><div class="label">الربح الشهري المستهدف</div><div class="value">${r.monthlyProfit.toLocaleString('en-US')} ر.س</div></div>
+          <div class="metric-item"><div class="label">هامش الربح الفعلي</div><div class="value">${r.actualMargin.toFixed(1)}%</div></div>
+          <div class="metric-item"><div class="label">سعر التعادل الأدنى</div><div class="value">${r.breakEvenPrice.toLocaleString('en-US')} ر.س</div></div>
+        </div>
+
+        <h2>📋 تفاصيل الحساب</h2>
+        <table>
+          <tr><th>البند</th><th>القيمة</th></tr>
+          <tr><td>التكلفة المباشرة</td><td class="num">${inputs.direct.toLocaleString('en-US')} ر.س</td></tr>
+          <tr><td>التكاليف غير المباشرة</td><td class="num">${inputs.overhead.toLocaleString('en-US')} ر.س</td></tr>
+          <tr><td>إجمالي التكلفة للوحدة</td><td class="num">${r.costPerUnit.toLocaleString('en-US')} ر.س</td></tr>
+          <tr><td>هامش الربح المستهدف</td><td class="num">${inputs.margin}%</td></tr>
+          <tr><td>سعر البيع قبل الضريبة</td><td class="num">${r.priceBeforeTax.toLocaleString('en-US')} ر.س</td></tr>
+          <tr><td>الربح قبل الضريبة</td><td class="num">${r.profitBeforeTax.toLocaleString('en-US')} ر.س</td></tr>
+          <tr><td>الضريبة (${inputs.taxRate}%)</td><td class="num">${r.taxAmount.toLocaleString('en-US')} ر.س</td></tr>
+          <tr><td>الربح بعد الضريبة</td><td class="num">${r.profitAfterTax.toLocaleString('en-US')} ر.س</td></tr>
+          <tr><td>الزكاة (${inputs.zakatRate}%)</td><td class="num">${r.zakatAmount.toLocaleString('en-US')} ر.س</td></tr>
+          <tr><td>الربح الصافي للوحدة</td><td class="num">${r.netProfitPerUnit.toLocaleString('en-US')} ر.س</td></tr>
+          <tr><td>حجم المبيعات الشهري</td><td class="num">${inputs.volume.toLocaleString('en-US')} وحدة</td></tr>
+          <tr><td>الربح الشهري المستهدف</td><td class="num">${r.monthlyProfit.toLocaleString('en-US')} ر.س</td></tr>
+          <tr><td>هامش الربح الفعلي</td><td class="num">${r.actualMargin.toFixed(2)}%</td></tr>
+          <tr><td>سعر التعادل الأدنى</td><td class="num">${r.breakEvenPrice.toLocaleString('en-US')} ر.س</td></tr>
+        </table>
+      `;
+      openPrintWindow({ content: content, title: 'تقرير تسعير المنتج', headerTitle: 'تقرير تسعير المنتج — بوندز' });
+    }
+
     async function exportExcel() {
       var inputs = getInputs();
       if (inputs.direct <= 0) {
@@ -704,6 +748,7 @@
           return;
         }
         var r = calculate(inputs);
+        window._lastPricingResult = { r: r, inputs: inputs };
         updateResults(r, inputs);
         saveToHistory(inputs, r);
         updateShareLink(inputs);
@@ -810,7 +855,20 @@
         });
     });
 
-    loadFromURL();
+    var calcSection = document.querySelector('.calc-grid');
+    if ('IntersectionObserver' in window && calcSection) {
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            loadFromURL();
+            io.disconnect();
+          }
+        });
+      }, { rootMargin: '200px' });
+      io.observe(calcSection);
+    } else {
+      loadFromURL();
+    }
     renderHistory();
   </script>
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
