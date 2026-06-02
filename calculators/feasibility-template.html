@@ -89,6 +89,44 @@
     .swot-box.t { background:rgba(100,116,139,0.08); border-color:rgba(100,116,139,0.3); }
     .swot-box.t h4 { color:#94a3b8; }
 
+    /* ===== Dashboard ===== */
+    .dash-header { text-align:center; margin-bottom:2rem; }
+    .dash-header h3 { font-size:1.15rem; color:var(--gold-bright); margin:0; }
+    .dash-header p { font-size:0.85rem; color:var(--text-secondary); margin:0.35rem 0 0; }
+
+    .dash-kpi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; margin-bottom:2rem; }
+    .dash-kpi-card { background:rgba(255,255,255,0.03); border-radius:14px; padding:1.25rem 1rem; text-align:center; transition:transform 0.2s, box-shadow 0.2s; }
+    .dash-kpi-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.2); }
+    .dash-kpi-label { font-size:0.8rem; color:var(--text-secondary); font-weight:600; letter-spacing:0.02em; text-transform:uppercase; }
+    .dash-kpi-value { font-size:1.5rem; font-weight:800; margin:0.35rem 0; line-height:1.2; }
+    .dash-kpi-unit { font-size:0.75rem; color:var(--text-secondary); }
+
+    .dash-main-grid { display:grid; grid-template-columns:1fr 2fr; gap:1.25rem; margin-bottom:2rem; }
+    .dash-panel { background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:14px; padding:1.25rem; }
+    .dash-panel-clean { background:rgba(255,255,255,0.02); border-radius:14px; padding:1.25rem; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+
+    .dash-score-ring { width:110px; height:110px; border-radius:50%; background:conic-gradient(var(--gold) 0deg, rgba(255,255,255,0.05) 0deg); display:flex; align-items:center; justify-content:center; position:relative; transition:background 0.6s ease; }
+    .dash-score-inner { width:90px; height:90px; border-radius:50%; background:var(--bg); display:flex; align-items:center; justify-content:center; }
+    .dash-score-text { font-size:1.6rem; font-weight:800; color:var(--gold); }
+    .dash-score-label { font-size:0.9rem; font-weight:700; margin-top:0.75rem; }
+    .dash-score-desc { font-size:0.8rem; color:var(--text-secondary); margin-top:0.25rem; }
+
+    .dash-charts-row { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
+    .dash-chart-box { background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:14px; padding:0.75rem; }
+
+    .dash-rec-panel { background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:14px; padding:1.25rem; }
+    .dash-rec-title { font-size:0.95rem; font-weight:700; color:var(--gold); margin-bottom:0.75rem; }
+    .dash-rec-list { margin:0; padding:0 1.25rem; font-size:0.85rem; color:var(--text); line-height:1.8; }
+
+    .dash-swot-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+    .dash-swot-item { background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; }
+    .dash-swot-label { font-size:0.7rem; font-weight:700; margin-bottom:0.35rem; letter-spacing:0.02em; }
+    .dash-swot-text { font-size:0.8rem; color:var(--text); line-height:1.4; }
+
+    .dash-bottom-grid { display:grid; grid-template-columns:2fr 1fr; gap:1.25rem; margin-bottom:2rem; }
+    .dash-cf-chart { background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:14px; padding:0.75rem; margin-bottom:1rem; }
+    .dash-footer-note { text-align:center; font-size:0.8rem; color:var(--text-secondary); margin:0; }
+
     .scenario-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin:1rem 0; }
     .scenario-card { border-radius:12px; padding:1.25rem; text-align:center; border:1px solid var(--border); }
     .scenario-pessimistic { background:rgba(220,38,38,0.08); border-color:rgba(220,38,38,0.3); }
@@ -655,94 +693,94 @@
       <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">لوحة التحكم التنفيذية — ملخص المستثمر</div></div>
       <div class="page-header"><div class="section-number">20</div><div><h2>لوحة التحكم التنفيذية</h2><p>ملخص المستثمر في صفحة واحدة</p></div></div>
 
-      <div style="text-align:center;margin-bottom:1.5rem;">
-        <h3 id="dash-project-name" style="font-size:1.1rem;color:var(--gold-bright);margin:0;">اسم المشروع</h3>
-        <p id="dash-date" style="font-size:0.8rem;color:var(--text-secondary);margin:0.25rem 0 0;">تاريخ الإعداد</p>
+      <div class="dash-header">
+        <h3 id="dash-project-name">اسم المشروع</h3>
+        <p id="dash-date">تاريخ الإعداد</p>
       </div>
 
       <!-- KPI Cards -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
-        <div style="background:rgba(212,168,83,0.08);border:1px solid var(--gold);border-radius:12px;padding:1rem;text-align:center;">
-          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">الإيرادات الشهرية</div>
-          <div id="dash-revenue" style="font-size:1.4rem;font-weight:800;color:var(--gold-bright);margin:0.25rem 0;">0</div>
-          <div style="font-size:0.7rem;color:var(--text-secondary);">ريال</div>
+      <div class="dash-kpi-grid">
+        <div class="dash-kpi-card">
+          <div class="dash-kpi-label">الإيرادات الشهرية</div>
+          <div class="dash-kpi-value" id="dash-revenue" style="color:var(--gold-bright);">0</div>
+          <div class="dash-kpi-unit">ريال</div>
         </div>
-        <div style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.3);border-radius:12px;padding:1rem;text-align:center;">
-          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">صافي الربح</div>
-          <div id="dash-profit" style="font-size:1.4rem;font-weight:800;color:#16a34a;margin:0.25rem 0;">0</div>
-          <div style="font-size:0.7rem;color:var(--text-secondary);">ريال/شهر</div>
+        <div class="dash-kpi-card">
+          <div class="dash-kpi-label">صافي الربح</div>
+          <div class="dash-kpi-value" id="dash-profit" style="color:#16a34a;">0</div>
+          <div class="dash-kpi-unit">ريال/شهر</div>
         </div>
-        <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:1rem;text-align:center;">
-          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">هامش الربح</div>
-          <div id="dash-margin" style="font-size:1.4rem;font-weight:800;color:#3b82f6;margin:0.25rem 0;">0%</div>
-          <div style="font-size:0.7rem;color:var(--text-secondary);">نسبة مئوية</div>
+        <div class="dash-kpi-card">
+          <div class="dash-kpi-label">هامش الربح</div>
+          <div class="dash-kpi-value" id="dash-margin" style="color:#3b82f6;">0%</div>
+          <div class="dash-kpi-unit">نسبة مئوية</div>
         </div>
-        <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:1rem;text-align:center;">
-          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">فترة الاسترداد</div>
-          <div id="dash-payback" style="font-size:1.4rem;font-weight:800;color:#a855f7;margin:0.25rem 0;">0</div>
-          <div style="font-size:0.7rem;color:var(--text-secondary);">شهر</div>
+        <div class="dash-kpi-card">
+          <div class="dash-kpi-label">فترة الاسترداد</div>
+          <div class="dash-kpi-value" id="dash-payback" style="color:#a855f7;">0</div>
+          <div class="dash-kpi-unit">شهر</div>
         </div>
-        <div style="background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.3);border-radius:12px;padding:1rem;text-align:center;">
-          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">العائد على الاستثمار</div>
-          <div id="dash-roi" style="font-size:1.4rem;font-weight:800;color:#eab308;margin:0.25rem 0;">0%</div>
-          <div style="font-size:0.7rem;color:var(--text-secondary);">سنوي</div>
+        <div class="dash-kpi-card">
+          <div class="dash-kpi-label">العائد على الاستثمار</div>
+          <div class="dash-kpi-value" id="dash-roi" style="color:#eab308;">0%</div>
+          <div class="dash-kpi-unit">سنوي</div>
         </div>
-        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:1rem;text-align:center;">
-          <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;">نقطة التعادل</div>
-          <div id="dash-be" style="font-size:1.4rem;font-weight:800;color:#ef4444;margin:0.25rem 0;">0</div>
-          <div style="font-size:0.7rem;color:var(--text-secondary);">وحدة/شهر</div>
+        <div class="dash-kpi-card">
+          <div class="dash-kpi-label">نقطة التعادل</div>
+          <div class="dash-kpi-value" id="dash-be" style="color:#ef4444;">0</div>
+          <div class="dash-kpi-unit">وحدة/شهر</div>
         </div>
       </div>
 
       <!-- Health Score + Charts -->
-      <div style="display:grid;grid-template-columns:1fr 2fr;gap:1rem;margin-bottom:1.5rem;">
-        <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:1.25rem;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-          <div style="width:100px;height:100px;border-radius:50%;background:conic-gradient(var(--gold) var(--dash-deg,0deg), rgba(255,255,255,0.05) 0deg);display:flex;align-items:center;justify-content:center;position:relative;">
-            <div style="width:82px;height:82px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;">
-              <span id="dash-score" style="font-size:1.5rem;font-weight:800;color:var(--gold);">0</span>
+      <div class="dash-main-grid">
+        <div class="dash-panel-clean">
+          <div class="dash-score-ring" id="dash-score-ring">
+            <div class="dash-score-inner">
+              <span class="dash-score-text" id="dash-score">0</span>
             </div>
           </div>
-          <div style="font-size:0.85rem;font-weight:700;color:var(--gold-bright);margin-top:0.75rem;" id="dash-score-label">جاري التحليل...</div>
-          <div style="font-size:0.7rem;color:var(--text-secondary);" id="dash-score-desc">درجة صحة المشروع</div>
+          <div class="dash-score-label" id="dash-score-label">جاري التحليل...</div>
+          <div class="dash-score-desc">درجة صحة المشروع</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-          <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:0.75rem;"><canvas id="dash-chart-costs" height="140"></canvas></div>
-          <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:0.75rem;"><canvas id="dash-chart-scenarios" height="140"></canvas></div>
+        <div class="dash-charts-row">
+          <div class="dash-chart-box"><canvas id="dash-chart-costs" height="140"></canvas></div>
+          <div class="dash-chart-box"><canvas id="dash-chart-scenarios" height="140"></canvas></div>
         </div>
       </div>
 
       <!-- SWOT Mini + Recommendations -->
-      <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem;">
-        <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:1rem;">
-          <div style="font-size:0.85rem;font-weight:700;color:var(--gold);margin-bottom:0.5rem;">📋 أهم التوصيات</div>
-          <ol id="dash-recommendations" style="margin:0;padding:0 1rem;font-size:0.8rem;color:var(--text);line-height:1.7;"></ol>
+      <div class="dash-bottom-grid">
+        <div class="dash-rec-panel">
+          <div class="dash-rec-title">📋 أهم التوصيات</div>
+          <ol class="dash-rec-list" id="dash-recommendations"></ol>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-          <div style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.3);border-radius:8px;padding:0.6rem;">
-            <div style="font-size:0.65rem;color:#16a34a;font-weight:700;">القوة #1</div>
-            <div id="dash-swot-s" style="font-size:0.75rem;color:var(--text);margin-top:0.25rem;">-</div>
+        <div class="dash-swot-grid">
+          <div class="dash-swot-item">
+            <div class="dash-swot-label" style="color:#16a34a;">القوة #1</div>
+            <div class="dash-swot-text" id="dash-swot-s">-</div>
           </div>
-          <div style="background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.3);border-radius:8px;padding:0.6rem;">
-            <div style="font-size:0.65rem;color:#dc2626;font-weight:700;">الضعف #1</div>
-            <div id="dash-swot-w" style="font-size:0.75rem;color:var(--text);margin-top:0.25rem;">-</div>
+          <div class="dash-swot-item">
+            <div class="dash-swot-label" style="color:#dc2626;">الضعف #1</div>
+            <div class="dash-swot-text" id="dash-swot-w">-</div>
           </div>
-          <div style="background:rgba(212,168,83,0.08);border:1px solid rgba(212,168,83,0.3);border-radius:8px;padding:0.6rem;">
-            <div style="font-size:0.65rem;color:var(--gold-bright);font-weight:700;">الفرصة #1</div>
-            <div id="dash-swot-o" style="font-size:0.75rem;color:var(--text);margin-top:0.25rem;">-</div>
+          <div class="dash-swot-item">
+            <div class="dash-swot-label" style="color:var(--gold-bright);">الفرصة #1</div>
+            <div class="dash-swot-text" id="dash-swot-o">-</div>
           </div>
-          <div style="background:rgba(100,116,139,0.08);border:1px solid rgba(100,116,139,0.3);border-radius:8px;padding:0.6rem;">
-            <div style="font-size:0.65rem;color:#94a3b8;font-weight:700;">التهديد #1</div>
-            <div id="dash-swot-t" style="font-size:0.75rem;color:var(--text);margin-top:0.25rem;">-</div>
+          <div class="dash-swot-item">
+            <div class="dash-swot-label" style="color:#94a3b8;">التهديد #1</div>
+            <div class="dash-swot-text" id="dash-swot-t">-</div>
           </div>
         </div>
       </div>
 
       <!-- Cash Flow Mini Chart -->
-      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:0.75rem;margin-bottom:1rem;">
+      <div class="dash-cf-chart">
         <canvas id="dash-chart-cashflow" height="100"></canvas>
       </div>
 
-      <p style="text-align:center;font-size:0.75rem;color:var(--text-secondary);margin:0;">هذه اللوحة تُلخّص البيانات المدخلة في النموذج. للتفاصيل الكاملة، راجع الأقسام السابقة.</p>
+      <p class="dash-footer-note">هذه اللوحة تُلخّص البيانات المدخلة في النموذج. للتفاصيل الكاملة، راجع الأقسام السابقة.</p>
     </div>
 
     <!-- Footer Disclaimer -->
@@ -868,8 +906,8 @@
       document.getElementById('dash-score-label').textContent = score >= 75 ? 'مشروع ممتاز ✅' : score >= 50 ? 'يحتاج تحسين ⚠️' : 'مخاطر عالية ❌';
       document.getElementById('dash-score-label').style.color = score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626';
       const deg = Math.round(score / 100 * 360);
-      const scoreCircle = document.querySelector('#dash-score').closest('div[style*="conic-gradient"]');
-      if (scoreCircle) scoreCircle.style.background = 'conic-gradient(' + (score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626') + ' ' + deg + 'deg, rgba(255,255,255,0.05) 0deg)';
+      const scoreRing = document.getElementById('dash-score-ring');
+      if (scoreRing) scoreRing.style.background = 'conic-gradient(' + (score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626') + ' ' + deg + 'deg, rgba(255,255,255,0.05) 0deg)';
 
       // Recommendations
       const recs = [];
