@@ -89,14 +89,18 @@
     .swot-box.t { background:rgba(100,116,139,0.08); border-color:rgba(100,116,139,0.3); }
     .swot-box.t h4 { color:#94a3b8; }
 
-    /* ===== Product Image Gallery ===== */
-    .image-gallery { margin-top:1rem; }
-    .gallery-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:1rem; margin-top:1rem; }
-    .gallery-item { position:relative; border-radius:12px; overflow:hidden; border:1px solid var(--border); aspect-ratio:1; }
+    /* ===== Universal Image Gallery ===== */
+    .section-gallery { margin-top:1.5rem; padding-top:1rem; border-top:1px dashed var(--border); }
+    .section-gallery-title { font-size:0.85rem; color:var(--gold); margin-bottom:0.5rem; font-weight:600; }
+    .gallery-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(120px,1fr)); gap:0.75rem; margin-top:0.5rem; }
+    .gallery-item { position:relative; border-radius:10px; overflow:hidden; border:1px solid var(--border); aspect-ratio:4/3; background:rgba(0,0,0,0.2); }
     .gallery-item img { width:100%; height:100%; object-fit:cover; display:block; }
-    .gallery-item .remove-img { position:absolute; top:4px; right:4px; background:rgba(220,38,38,0.9); color:#fff; border:none; width:24px; height:24px; border-radius:50%; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.2s; }
+    .gallery-item .remove-img { position:absolute; top:3px; left:3px; background:rgba(220,38,38,0.9); color:#fff; border:none; width:22px; height:22px; border-radius:50%; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.2s; z-index:2; }
     .gallery-item:hover .remove-img { opacity:1; }
-    @media print { .gallery-upload { display:none !important; } .gallery-item .remove-img { display:none !important; } }
+    .gallery-upload-btn { width:100%; padding:0.75rem; border:2px dashed var(--border); border-radius:10px; background:rgba(255,255,255,0.02); color:var(--text-secondary); font-family:inherit; font-size:0.85rem; cursor:pointer; transition:all 0.2s; margin-top:0.5rem; }
+    .gallery-upload-btn:hover { border-color:var(--gold); color:var(--gold); background:rgba(212,168,83,0.05); }
+    .gallery-compress-info { font-size:0.7rem; color:var(--text-secondary); margin-top:0.35rem; }
+    @media print { .gallery-upload-btn, .gallery-compress-info, .remove-img { display:none !important; } }
 
     /* ===== Research Modal ===== */
     #research-modal { display:none; position:fixed; inset:0; z-index:200; align-items:center; justify-content:center; }
@@ -314,16 +318,6 @@
       <div class="field-group inline" style="margin-top:1rem;">
         <div class="field-group"><label>القيمة المضافة</label><textarea rows="2" placeholder="ما الذي يميزك؟"></textarea></div>
         <div class="field-group"><label>فائدة العميل</label><textarea rows="2" placeholder="الفائدة المباشرة..."></textarea></div>
-      </div>
-
-      <!-- Product Images Gallery -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">معرض صور المنتجات</h3>
-      <div class="image-gallery" id="product-gallery">
-        <div class="gallery-upload no-print">
-          <input type="file" id="product-images" accept="image/*" multiple onchange="handleProductImages(this)" style="display:none;" />
-          <button class="btn-ghost" onclick="document.getElementById('product-images').click()" style="width:100%;padding:1.5rem;border:2px dashed var(--border);background:rgba(255,255,255,0.02);color:var(--text-secondary);">+ أضف صور المنتجات</button>
-        </div>
-        <div class="gallery-grid" id="gallery-grid"></div>
       </div>
     </div>
 
@@ -1827,39 +1821,90 @@
       XLSX.writeFile(wb, 'bonds-feasibility-study.xlsx');
     }
 
-    // ===== Product Image Gallery =====
-    let productImages = JSON.parse(localStorage.getItem('bonds_product_images') || '[]');
-    function renderGallery() {
-      const grid = document.getElementById('gallery-grid');
-      if (!grid) return;
-      grid.innerHTML = '';
-      productImages.forEach((src, i) => {
-        const div = document.createElement('div');
-        div.className = 'gallery-item';
-        div.innerHTML = `<img src="${src}" alt="منتج ${i+1}" /><button class="remove-img no-print" onclick="removeProductImage(${i})">&times;</button>`;
-        grid.appendChild(div);
-      });
-    }
-    function handleProductImages(input) {
-      if (!input.files) return;
-      Array.from(input.files).forEach(file => {
-        if (!file.type.startsWith('image/')) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-          productImages.push(e.target.result);
-          localStorage.setItem('bonds_product_images', JSON.stringify(productImages));
-          renderGallery();
+    // ===== Universal Image Gallery with Auto-Compression =====
+    const GALLERY_DB = 'bonds_galleries_v1';
+    let galleries = JSON.parse(localStorage.getItem(GALLERY_DB) || '{}');
+
+    function compressImage(file, maxWidth = 1200, quality = 0.7) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          let w = img.width, h = img.height;
+          if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+          canvas.width = w; canvas.height = h;
+          ctx.drawImage(img, 0, 0, w, h);
+          const mime = file.type === 'image/png' ? 'image/jpeg' : (file.type || 'image/jpeg');
+          resolve(canvas.toDataURL(mime, quality));
         };
+        const reader = new FileReader();
+        reader.onload = e => { img.src = e.target.result; };
         reader.readAsDataURL(file);
       });
-      input.value = '';
     }
-    function removeProductImage(index) {
-      productImages.splice(index, 1);
-      localStorage.setItem('bonds_product_images', JSON.stringify(productImages));
-      renderGallery();
+
+    function renderSectionGallery(pageId) {
+      const container = document.querySelector(`#${pageId} .section-gallery-mount`);
+      if (!container) return;
+      const grid = container.querySelector('.gallery-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      const images = galleries[pageId] || [];
+      images.forEach((src, i) => {
+        const div = document.createElement('div');
+        div.className = 'gallery-item';
+        div.innerHTML = `<img src="${src}" alt="صورة ${i+1}" loading="lazy" /><button class="remove-img no-print" onclick="removeGalleryImage('${pageId}', ${i})">&times;</button>`;
+        grid.appendChild(div);
+      });
+      const info = container.querySelector('.gallery-compress-info');
+      if (info) info.textContent = images.length ? `الصور المضغوطة: ${images.length} | الحجم التقريبي: ${Math.round(images.reduce((a,s)=>a+s.length,0)/1024)} KB` : '';
     }
-    window.addEventListener('load', renderGallery);
+
+    async function handleGalleryFiles(pageId, files) {
+      if (!files) return;
+      const imgs = galleries[pageId] || [];
+      for (const file of Array.from(files)) {
+        if (!file.type.startsWith('image/') && !file.name.match(/\.(jpg|jpeg|png|webp|gif|bmp|tiff|avif)$/i)) continue;
+        const compressed = await compressImage(file, 1200, 0.72);
+        imgs.push(compressed);
+      }
+      galleries[pageId] = imgs;
+      localStorage.setItem(GALLERY_DB, JSON.stringify(galleries));
+      renderSectionGallery(pageId);
+    }
+
+    function removeGalleryImage(pageId, index) {
+      const imgs = galleries[pageId] || [];
+      imgs.splice(index, 1);
+      galleries[pageId] = imgs;
+      localStorage.setItem(GALLERY_DB, JSON.stringify(galleries));
+      renderSectionGallery(pageId);
+    }
+
+    function initGalleries() {
+      const pages = ['page-cover','page-vision','page-products','page-tech-impact','page-country-economy','page-market-analysis','page-marketing','page-operations','page-legal','page-hr','page-smart'];
+      pages.forEach(pageId => {
+        const page = document.getElementById(pageId);
+        if (!page) return;
+        // Don't add if already exists
+        if (page.querySelector('.section-gallery-mount')) return;
+        const mount = document.createElement('div');
+        mount.className = 'section-gallery-mount';
+        mount.innerHTML = `
+          <div class="section-gallery">
+            <div class="section-gallery-title">📎 صور ومرفقات القسم</div>
+            <div class="gallery-grid"></div>
+            <input type="file" accept="image/*" multiple style="display:none;" onchange="handleGalleryFiles('${pageId}', this.files); this.value='';" />
+            <button class="gallery-upload-btn no-print" onclick="this.previousElementSibling.click()">+ إضافة صور (jpg png webp gif — تُضغط تلقائياً)</button>
+            <div class="gallery-compress-info"></div>
+          </div>`;
+        page.appendChild(mount);
+        renderSectionGallery(pageId);
+      });
+    }
+
+    window.addEventListener('load', initGalleries);
 
     // ===== Auto-Save every 30 seconds =====
     setInterval(() => {
