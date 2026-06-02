@@ -800,6 +800,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../../supabase-client.js"></script>
   <script src="../../calculators/country-platforms-data.js"></script>
+  <script src="../../calculators/feasibility-benchmarks.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script>
@@ -1374,7 +1375,53 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         }
       }
 
-      alert('Filled ' + (data.nameEn || data.name || code) + ' ✅\nLicenses: ' + (defaults[code]?.length || 0) + ' | VAT: ' + (data.vatRate || '-') + '% | Currency: ' + currencySymbol);
+      // 6. Benchmarks → HR, Fixed Costs, Capital
+      const bm = getBenchmark(code);
+      if (bm) {
+        const hrTable = document.getElementById('hr-table')?.querySelector('tbody');
+        if (hrTable && bm.salaries) {
+          hrTable.innerHTML = '';
+          let idx = 1;
+          Object.values(bm.salaries).forEach(s => {
+            hrTable.insertAdjacentHTML('beforeend',
+              '<tr><td>' + idx + '</td><td><input type="text" value="' + s.label + '" /></td><td><input type="number" value="1" /></td><td><input type="number" class="hr-salary" oninput="linkHRToFixedCosts()" value="' + s.avg + '" /></td></tr>');
+            idx++;
+          });
+          linkHRToFixedCosts();
+        }
+
+        const fcTable = document.getElementById('fixed-costs-table')?.querySelector('tbody');
+        if (fcTable && bm.rent) {
+          const existingFC = Array.from(fcTable.querySelectorAll('input[type="text"]')).map(i => i.value);
+          if (!existingFC.includes('Shop rent') && bm.rent.residential) {
+            fcTable.insertAdjacentHTML('beforeend',
+              '<tr><td>' + (fcTable.children.length + 1) + '</td><td><input type="text" value="Shop rent (' + bm.rent.residential.label + ')" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" value="' + Math.round(bm.rent.residential.avg / 12) + '" /></td></tr>');
+          }
+          if (bm.utilities) {
+            Object.values(bm.utilities).forEach(u => {
+              if (!existingFC.includes(u.label)) {
+                fcTable.insertAdjacentHTML('beforeend',
+                  '<tr><td>' + (fcTable.children.length + 1) + '</td><td><input type="text" value="' + u.label + '" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" value="' + u.monthly + '" /></td></tr>');
+              }
+            });
+          }
+          calcFinancials();
+        }
+
+        const capTable = document.getElementById('capital-table')?.querySelector('tbody');
+        if (capTable && bm.rent && bm.rent.deposit) {
+          const existingCap = Array.from(capTable.querySelectorAll('input[type="text"]')).map(i => i.value);
+          if (!existingCap.includes('Rent deposit')) {
+            const rentVal = bm.rent.residential ? Math.round(bm.rent.residential.avg / 12) : 0;
+            const depositVal = rentVal * bm.rent.deposit.months;
+            capTable.insertAdjacentHTML('beforeend',
+              '<tr><td>' + (capTable.children.length + 1) + '</td><td><input type="text" value="Rent deposit (' + bm.rent.deposit.months + ' months)" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" value="' + depositVal + '" /></td></tr>');
+            calcCapital();
+          }
+        }
+      }
+
+      alert('Filled ' + (data.nameEn || data.name || code) + ' ✅\nLicenses: ' + (defaults[code]?.length || 0) + ' | VAT: ' + (data.vatRate || '-') + '% | Currency: ' + currencySymbol + '\nSalaries: ' + (bm?.salaries ? Object.keys(bm.salaries).length : 0) + ' roles | Utilities: ' + (bm?.utilities ? Object.keys(bm.utilities).length : 0));
     }
 
     // ===== Supabase Smart Import =====

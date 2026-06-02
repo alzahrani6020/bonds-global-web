@@ -811,6 +811,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../supabase-client.js"></script>
   <script src="country-platforms-data.js"></script>
+  <script src="feasibility-benchmarks.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script>
@@ -1400,7 +1401,58 @@
         }
       }
 
-      alert('تم ملء ' + (data.name || code) + ' ✅\nالتراخيص: ' + (defaults[code]?.length || 0) + ' | VAT: ' + (data.vatRate || '-') + '% | العملة: ' + currencySymbol);
+      // 6. Benchmarks → HR, Fixed Costs, Capital
+      const bm = getBenchmark(code);
+      if (bm) {
+        // HR Salaries
+        const hrTable = document.getElementById('hr-table')?.querySelector('tbody');
+        if (hrTable && bm.salaries) {
+          hrTable.innerHTML = '';
+          let idx = 1;
+          Object.values(bm.salaries).forEach(s => {
+            hrTable.insertAdjacentHTML('beforeend',
+              '<tr><td>' + idx + '</td><td><input type="text" value="' + s.label + '" /></td><td><input type="number" value="1" /></td><td><input type="number" class="hr-salary" oninput="linkHRToFixedCosts()" value="' + s.avg + '" /></td></tr>');
+            idx++;
+          });
+          linkHRToFixedCosts();
+        }
+
+        // Fixed Costs — Rent & Utilities
+        const fcTable = document.getElementById('fixed-costs-table')?.querySelector('tbody');
+        if (fcTable && bm.rent) {
+          // Add rent row if not exists
+          const existingFC = Array.from(fcTable.querySelectorAll('input[type="text"]')).map(i => i.value);
+          if (!existingFC.includes('إيجار محل') && bm.rent.residential) {
+            fcTable.insertAdjacentHTML('beforeend',
+              '<tr><td>' + (fcTable.children.length + 1) + '</td><td><input type="text" value="إيجار محل (' + bm.rent.residential.label + ')" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" value="' + Math.round(bm.rent.residential.avg / 12) + '" /></td></tr>');
+          }
+          // Utilities
+          if (bm.utilities) {
+            Object.values(bm.utilities).forEach(u => {
+              if (!existingFC.includes(u.label)) {
+                fcTable.insertAdjacentHTML('beforeend',
+                  '<tr><td>' + (fcTable.children.length + 1) + '</td><td><input type="text" value="' + u.label + '" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" value="' + u.monthly + '" /></td></tr>');
+              }
+            });
+          }
+          calcFinancials();
+        }
+
+        // Capital — Rent deposit
+        const capTable = document.getElementById('capital-table')?.querySelector('tbody');
+        if (capTable && bm.rent && bm.rent.deposit) {
+          const existingCap = Array.from(capTable.querySelectorAll('input[type="text"]')).map(i => i.value);
+          if (!existingCap.includes('تأمين إيجار')) {
+            const rentVal = bm.rent.residential ? Math.round(bm.rent.residential.avg / 12) : 0;
+            const depositVal = rentVal * bm.rent.deposit.months;
+            capTable.insertAdjacentHTML('beforeend',
+              '<tr><td>' + (capTable.children.length + 1) + '</td><td><input type="text" value="تأمين إيجار (' + bm.rent.deposit.months + ' شهور)" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" value="' + depositVal + '" /></td></tr>');
+            calcCapital();
+          }
+        }
+      }
+
+      alert('تم ملء ' + (data.name || code) + ' ✅\nالتراخيص: ' + (defaults[code]?.length || 0) + ' | VAT: ' + (data.vatRate || '-') + '% | العملة: ' + currencySymbol + '\nرواتب: ' + (bm?.salaries ? Object.keys(bm.salaries).length : 0) + ' وظائف | مرافق: ' + (bm?.utilities ? Object.keys(bm.utilities).length : 0));
     }
 
     // ===== Supabase Smart Import =====
