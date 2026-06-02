@@ -215,6 +215,7 @@
 
   <!-- Toolbar -->
   <div class="template-toolbar no-print">
+    <div id="auto-save-indicator" style="position:absolute;top:0.3rem;left:0.5rem;font-size:0.7rem;color:var(--gold);opacity:0;transition:opacity 0.5s;">💾 تم الحفظ تلقائياً</div>
     <button onclick="window.print()">🖨️ طباعة / PDF</button>
     <button class="btn-ghost" onclick="clearAll()">🗑️ مسح الكل</button>
     <button class="btn-ghost" onclick="saveDraft()">💾 حفظ مسودة</button>
@@ -273,7 +274,7 @@
     <div class="template-page" id="page-summary">
       <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الملخص</div></div>
       <div class="page-header"><div class="section-number">2</div><div><h2>الملخص التنفيذي</h2><p>نظرة عامة على كامل الدراسة (يُفضل كتابته آخراً)</p></div></div>
-      <div class="field-group"><label>ملخص المشروع (3-5 أسطر)</label><textarea rows="5" placeholder="نظرة شاملة: الفكرة، السوق، الفرصة، والنتائج المتوقعة..."></textarea></div>
+      <div class="field-group"><label>ملخص المشروع (3-5 أسطر)</label><textarea id="exec-summary" rows="5" placeholder="نظرة شاملة: الفكرة، السوق، الفرصة، والنتائج المتوقعة..."></textarea><button class="btn-ghost no-print" style="margin-top:0.5rem;font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="autoGenerateSummary()">✨ توليد ملخص تلقائي</button></div>
       <div class="field-group inline-3">
         <div class="field-group"><label>رأس المال المطلوب (ريال)</label><input type="number" id="summary-capital" placeholder="0" /></div>
         <div class="field-group"><label>فترة الاسترداد (شهر)</label><input type="number" id="summary-payback" readonly tabindex="-1" placeholder="سيُحسب تلقائياً" /></div>
@@ -1806,6 +1807,78 @@
       XLSX.utils.book_append_sheet(wb, ws2, 'مالي');
       XLSX.writeFile(wb, 'bonds-feasibility-study.xlsx');
     }
+
+    // ===== Auto-Save every 30 seconds =====
+    setInterval(() => {
+      const data = {};
+      document.querySelectorAll('input, textarea, select').forEach((el, i) => {
+        data['f' + i] = el.type === 'checkbox' ? el.checked : el.value;
+      });
+      localStorage.setItem('bonds_feasibility_v2', JSON.stringify(data));
+      // Show subtle indicator
+      const indicator = document.getElementById('auto-save-indicator');
+      if (indicator) {
+        indicator.style.opacity = '1';
+        setTimeout(() => indicator.style.opacity = '0', 1500);
+      }
+    }, 30000);
+
+    // ===== Auto-fill SWOT from PESTLE =====
+    const pestleFields = ['pestle-political', 'pestle-economic', 'pestle-social', 'pestle-tech', 'pestle-legal', 'pestle-env'];
+    pestleFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('blur', () => {
+          if (!el.value) return;
+          const swotS = document.getElementById('swot-s');
+          const swotW = document.getElementById('swot-w');
+          const swotO = document.getElementById('swot-o');
+          const swotT = document.getElementById('swot-t');
+          // Map PESTLE to SWOT hints (only if SWOT is empty)
+          if (id === 'pestle-political' && swotO && !swotO.value) swotO.value = 'دعم حكومي: ' + el.value;
+          if (id === 'pestle-economic' && swotT && !swotT.value) swotT.value = 'ضغوط اقتصادية: ' + el.value;
+          if (id === 'pestle-social' && swotS && !swotS.value) swotS.value = 'طلب سوقي: ' + el.value;
+          if (id === 'pestle-technological' && swotO && !swotO.value.includes('تكنولوجيا')) swotO.value = (swotO.value || '') + '\nفرص تكنولوجية: ' + el.value;
+          if (id === 'pestle-legal' && swotT && !swotT.value.includes('قانون')) swotT.value = (swotT.value || '') + '\nتحديات قانونية: ' + el.value;
+          if (id === 'pestle-env' && swotT && !swotT.value.includes('بيئ')) swotT.value = (swotT.value || '') + '\nالتزامات بيئية: ' + el.value;
+        });
+      }
+    });
+
+    // ===== Auto-Generate Executive Summary =====
+    function autoGenerateSummary() {
+      const projectName = document.getElementById('cover-business-name')?.value || 'المشروع';
+      const idea = document.getElementById('cover-idea')?.value || '';
+      const country = document.getElementById('cover-country')?.options[document.getElementById('cover-country')?.selectedIndex]?.text || '';
+      const capital = document.getElementById('capital-invested')?.value || document.getElementById('summary-capital')?.value || 0;
+      const revenue = document.getElementById('total-revenue')?.value || 0;
+      const profit = document.getElementById('net-profit')?.value || 0;
+      const margin = document.getElementById('profit-margin')?.value || 0;
+      const roi = document.getElementById('roi-percent')?.value || document.getElementById('summary-roi')?.value || 0;
+      const payback = document.getElementById('payback-period')?.value || document.getElementById('summary-payback')?.value || 0;
+      const swotS = document.getElementById('swot-s')?.value?.split('\n')[0] || '';
+      const swotW = document.getElementById('swot-w')?.value?.split('\n')[0] || '';
+
+      let summary = '';
+      if (idea) summary += `فكرة المشروع: ${idea}. `;
+      summary += `يقام ${projectName} في ${country}. `;
+      if (capital) summary += `يتطلب رأس مال قدره ${Number(capital).toLocaleString()} ريال. `;
+      if (revenue) summary += `الإيرادات الشهرية المتوقعة ${Number(revenue).toLocaleString()} ريال `;
+      if (profit) summary += `بصافي ربح ${Number(profit).toLocaleString()} ريال (${margin}٪ هامش). `;
+      if (roi) summary += `العائد المتوقع ${roi}٪ `;
+      if (payback && payback > 0) summary += `وفترة استرداد ${Number(payback).toFixed(1)} شهر. `;
+      if (swotS) summary += `أبرز نقاط القوة: ${swotS}. `;
+      if (swotW) summary += `التجاوز الرئيسي: ${swotW}.`;
+
+      const el = document.getElementById('exec-summary');
+      if (el) {
+        el.value = summary.trim() || 'أكمل البيانات في الأقسام الأخرى لتوليد الملخص تلقائياً.';
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    // ===== Break-even auto-calc (already in calcFinancials) =====
+    // Already auto-calculated whenever revenue/fixed/variable costs change
 
     // ===== Init =====
     document.getElementById('cover-date').valueAsDate = new Date();

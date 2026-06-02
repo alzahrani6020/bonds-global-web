@@ -215,6 +215,7 @@
 
   <!-- Toolbar -->
   <div class="template-toolbar no-print">
+    <div id="auto-save-indicator" style="position:absolute;top:0.3rem;left:0.5rem;font-size:0.7rem;color:var(--gold);opacity:0;transition:opacity 0.5s;">💾 Auto-saved</div>
     <button onclick="window.print()">🖨️ Print / PDF</button>
     <button class="btn-ghost" onclick="clearAll()">🗑️ Clear All</button>
     <button class="btn-ghost" onclick="saveDraft()">💾 Save Draft</button>
@@ -262,7 +263,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <div class="template-page" id="page-summary">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Summary</div></div>
       <div class="page-header"><div class="section-number">2</div><div><h2>Executive Summary</h2><p>Overview of the entire study (best written last)</p></div></div>
-      <div class="field-group"><label>Project Summary (3-5 lines)</label><textarea rows="5" placeholder="Comprehensive overview: idea, market, opportunity, expected results..."></textarea></div>
+      <div class="field-group"><label>Project Summary (3-5 lines)</label><textarea id="exec-summary" rows="5" placeholder="Comprehensive overview: idea, market, opportunity, expected results..."></textarea><button class="btn-ghost no-print" style="margin-top:0.5rem;font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="autoGenerateSummary()">✨ Auto-generate summary</button></div>
       <div class="field-group inline-3">
         <div class="field-group"><label>Required Capital (SAR)</label><input type="number" id="summary-capital" placeholder="0" /></div>
         <div class="field-group"><label>Payback Period (months)</label><input type="number" id="summary-payback" readonly tabindex="-1" placeholder="Will be calculated automatically" /></div>
@@ -1771,6 +1772,71 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       ]);
       XLSX.utils.book_append_sheet(wb, ws2, 'مالي');
       XLSX.writeFile(wb, 'bonds-feasibility-study.xlsx');
+    }
+
+    // ===== Init =====
+    // ===== Auto-Save every 30 seconds =====
+    setInterval(() => {
+      const data = {};
+      document.querySelectorAll('input, textarea, select').forEach((el, i) => {
+        data['f' + i] = el.type === 'checkbox' ? el.checked : el.value;
+      });
+      localStorage.setItem('bonds_feasibility_v2', JSON.stringify(data));
+      const indicator = document.getElementById('auto-save-indicator');
+      if (indicator) { indicator.style.opacity = '1'; setTimeout(() => indicator.style.opacity = '0', 1500); }
+    }, 30000);
+
+    // ===== Auto-fill SWOT from PESTLE =====
+    const pestleFields = ['pestle-political', 'pestle-economic', 'pestle-social', 'pestle-tech', 'pestle-legal', 'pestle-env'];
+    pestleFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('blur', () => {
+          if (!el.value) return;
+          const swotS = document.getElementById('swot-s');
+          const swotW = document.getElementById('swot-w');
+          const swotO = document.getElementById('swot-o');
+          const swotT = document.getElementById('swot-t');
+          if (id === 'pestle-political' && swotO && !swotO.value) swotO.value = 'Government support: ' + el.value;
+          if (id === 'pestle-economic' && swotT && !swotT.value) swotT.value = 'Economic pressure: ' + el.value;
+          if (id === 'pestle-social' && swotS && !swotS.value) swotS.value = 'Market demand: ' + el.value;
+          if (id === 'pestle-technological' && swotO && !swotO.value.includes('tech')) swotO.value = (swotO.value || '') + '\nTech opportunities: ' + el.value;
+          if (id === 'pestle-legal' && swotT && !swotT.value.includes('legal')) swotT.value = (swotT.value || '') + '\nLegal challenges: ' + el.value;
+          if (id === 'pestle-env' && swotT && !swotT.value.includes('environment')) swotT.value = (swotT.value || '') + '\nEnvironmental obligations: ' + el.value;
+        });
+      }
+    });
+
+    // ===== Auto-Generate Executive Summary =====
+    function autoGenerateSummary() {
+      const projectName = document.getElementById('cover-business-name')?.value || 'The project';
+      const idea = document.getElementById('cover-idea')?.value || '';
+      const country = document.getElementById('cover-country')?.options[document.getElementById('cover-country')?.selectedIndex]?.text || '';
+      const capital = document.getElementById('capital-invested')?.value || document.getElementById('summary-capital')?.value || 0;
+      const revenue = document.getElementById('total-revenue')?.value || 0;
+      const profit = document.getElementById('net-profit')?.value || 0;
+      const margin = document.getElementById('profit-margin')?.value || 0;
+      const roi = document.getElementById('roi-percent')?.value || document.getElementById('summary-roi')?.value || 0;
+      const payback = document.getElementById('payback-period')?.value || document.getElementById('summary-payback')?.value || 0;
+      const swotS = document.getElementById('swot-s')?.value?.split('\n')[0] || '';
+      const swotW = document.getElementById('swot-w')?.value?.split('\n')[0] || '';
+
+      let summary = '';
+      if (idea) summary += `Project idea: ${idea}. `;
+      summary += `${projectName} will be established in ${country}. `;
+      if (capital) summary += `Requires capital of ${Number(capital).toLocaleString()} SAR. `;
+      if (revenue) summary += `Expected monthly revenue ${Number(revenue).toLocaleString()} SAR `;
+      if (profit) summary += `with net profit of ${Number(profit).toLocaleString()} SAR (${margin}% margin). `;
+      if (roi) summary += `Expected ROI ${roi}% `;
+      if (payback && payback > 0) summary += `and payback period of ${Number(payback).toFixed(1)} months. `;
+      if (swotS) summary += `Key strength: ${swotS}. `;
+      if (swotW) summary += `Main challenge: ${swotW}.`;
+
+      const el = document.getElementById('exec-summary');
+      if (el) {
+        el.value = summary.trim() || 'Complete other sections to auto-generate this summary.';
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
 
     // ===== Init =====
