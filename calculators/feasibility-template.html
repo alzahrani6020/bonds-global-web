@@ -89,6 +89,19 @@
     .swot-box.t { background:rgba(100,116,139,0.08); border-color:rgba(100,116,139,0.3); }
     .swot-box.t h4 { color:#94a3b8; }
 
+    /* ===== Image Search Modal ===== */
+    #image-search-modal { display:none; position:fixed; inset:0; z-index:200; align-items:center; justify-content:center; }
+    .imgsearch-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); }
+    .imgsearch-panel { position:relative; background:var(--bg-card); border:1px solid var(--border); border-radius:16px; width:92%; max-width:700px; max-height:90vh; overflow:auto; padding:0; box-shadow:0 20px 60px rgba(0,0,0,0.4); }
+    .imgsearch-header { display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); }
+    .imgsearch-header h3 { margin:0; font-size:1.1rem; color:var(--gold-bright); }
+    .imgsearch-close { background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer; }
+    .imgsearch-close:hover { color:var(--gold); }
+    .imgsearch-body { padding:1.5rem; }
+    .imgsearch-run { background:#38bdf8; color:#0a0f1a; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-weight:700; cursor:pointer; }
+    .imgsearch-run:hover { background:#7dd3fc; }
+    .imgsearch-run:disabled { opacity:0.6; }
+
     /* ===== Universal Image Gallery ===== */
     .section-gallery { margin-top:1.5rem; padding-top:1rem; border-top:1px dashed var(--border); }
     .section-gallery-title { font-size:0.85rem; color:var(--gold); margin-bottom:0.5rem; font-weight:600; }
@@ -1895,8 +1908,11 @@
           <div class="section-gallery">
             <div class="section-gallery-title">📎 صور ومرفقات القسم</div>
             <div class="gallery-grid"></div>
-            <input type="file" accept="image/*" multiple style="display:none;" onchange="handleGalleryFiles('${pageId}', this.files); this.value='';" />
-            <button class="gallery-upload-btn no-print" onclick="this.previousElementSibling.click()">+ إضافة صور (jpg png webp gif — تُضغط تلقائياً)</button>
+            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
+              <input type="file" accept="image/*" multiple style="display:none;" onchange="handleGalleryFiles('${pageId}', this.files); this.value='';" />
+              <button class="gallery-upload-btn no-print" style="flex:1;min-width:140px;margin-top:0;" onclick="this.previousElementSibling.click()">+ رفع صور</button>
+              <button class="gallery-upload-btn no-print" style="flex:1;min-width:140px;margin-top:0;background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.3);color:#38bdf8;" onclick="openImageSearch('${pageId}')">🔍 بحث عن صور</button>
+            </div>
             <div class="gallery-compress-info"></div>
           </div>`;
         page.appendChild(mount);
@@ -1973,6 +1989,94 @@
         el.value = summary.trim() || 'أكمل البيانات في الأقسام الأخرى لتوليد الملخص تلقائياً.';
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
+    }
+
+    // ===== Image Search Modal =====
+    let currentImageSearchPage = '';
+
+    function openImageSearch(pageId) {
+      currentImageSearchPage = pageId;
+      let modal = document.getElementById('image-search-modal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'image-search-modal';
+        modal.innerHTML = `
+          <div class="imgsearch-overlay" onclick="if(event.target===this)closeImageSearch()"></div>
+          <div class="imgsearch-panel">
+            <div class="imgsearch-header">
+              <h3>🔍 بحث عن صور</h3>
+              <button class="imgsearch-close" onclick="closeImageSearch()">&times;</button>
+            </div>
+            <div class="imgsearch-body">
+              <div class="field-group" style="display:flex;gap:0.5rem;">
+                <input type="text" id="imgsearch-query" placeholder="مثال: burger restaurant interior" style="flex:1;" />
+                <button class="imgsearch-run" onclick="searchImages()">بحث</button>
+              </div>
+              <div id="imgsearch-results" style="margin-top:1rem;"></div>
+              <div id="imgsearch-error" style="color:#f87171;font-size:0.85rem;margin-top:0.5rem;display:none;"></div>
+            </div>
+          </div>`;
+        document.body.appendChild(modal);
+      }
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      document.getElementById('imgsearch-results').innerHTML = '';
+      document.getElementById('imgsearch-error').style.display = 'none';
+    }
+
+    function closeImageSearch() {
+      const m = document.getElementById('image-search-modal');
+      if (m) { m.style.display = 'none'; document.body.style.overflow = ''; }
+    }
+
+    async function searchImages() {
+      const q = document.getElementById('imgsearch-query')?.value?.trim();
+      const btn = document.querySelector('.imgsearch-run');
+      const results = document.getElementById('imgsearch-results');
+      const error = document.getElementById('imgsearch-error');
+      if (!q) return;
+      btn.disabled = true;
+      btn.textContent = 'جاري البحث...';
+      results.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:1rem;">جاري البحث...</div>';
+      error.style.display = 'none';
+      try {
+        const res = await fetch('/api/image-search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: q, count: 12 }),
+        });
+        const data = await res.json();
+        if (!data.success) {
+          error.textContent = data.hint || (data.error + ' — أضف PEXELS_API_KEY في Vercel');
+          error.style.display = 'block';
+          results.innerHTML = '';
+          return;
+        }
+        results.innerHTML = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;">' +
+          data.images.map((img, i) => `
+            <div style="position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--border);aspect-ratio:1;cursor:pointer;" onclick="addSearchedImage('${img.full.replace(/'/g, "\\'")}')">
+              <img src="${img.thumb}" alt="${img.alt}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" />
+              <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);color:#fff;font-size:0.6rem;padding:2px 4px;text-align:center;">${img.photographer || ''}</div>
+            </div>
+          `).join('') + '</div>';
+      } catch (e) {
+        error.textContent = 'تعذر الاتصال بخدمة البحث عن الصور';
+        error.style.display = 'block';
+        results.innerHTML = '';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'بحث';
+      }
+    }
+
+    function addSearchedImage(url) {
+      if (!currentImageSearchPage || !url) return;
+      const imgs = galleries[currentImageSearchPage] || [];
+      imgs.push(url);
+      galleries[currentImageSearchPage] = imgs;
+      localStorage.setItem(GALLERY_DB, JSON.stringify(galleries));
+      renderSectionGallery(currentImageSearchPage);
+      closeImageSearch();
     }
 
     // ===== Break-even auto-calc (already in calcFinancials) =====
