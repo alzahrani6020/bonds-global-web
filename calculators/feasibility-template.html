@@ -89,6 +89,15 @@
     .swot-box.t { background:rgba(100,116,139,0.08); border-color:rgba(100,116,139,0.3); }
     .swot-box.t h4 { color:#94a3b8; }
 
+    /* ===== Product Image Gallery ===== */
+    .image-gallery { margin-top:1rem; }
+    .gallery-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:1rem; margin-top:1rem; }
+    .gallery-item { position:relative; border-radius:12px; overflow:hidden; border:1px solid var(--border); aspect-ratio:1; }
+    .gallery-item img { width:100%; height:100%; object-fit:cover; display:block; }
+    .gallery-item .remove-img { position:absolute; top:4px; right:4px; background:rgba(220,38,38,0.9); color:#fff; border:none; width:24px; height:24px; border-radius:50%; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.2s; }
+    .gallery-item:hover .remove-img { opacity:1; }
+    @media print { .gallery-upload { display:none !important; } .gallery-item .remove-img { display:none !important; } }
+
     /* ===== Research Modal ===== */
     #research-modal { display:none; position:fixed; inset:0; z-index:200; align-items:center; justify-content:center; }
     .research-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); }
@@ -305,6 +314,16 @@
       <div class="field-group inline" style="margin-top:1rem;">
         <div class="field-group"><label>القيمة المضافة</label><textarea rows="2" placeholder="ما الذي يميزك؟"></textarea></div>
         <div class="field-group"><label>فائدة العميل</label><textarea rows="2" placeholder="الفائدة المباشرة..."></textarea></div>
+      </div>
+
+      <!-- Product Images Gallery -->
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">معرض صور المنتجات</h3>
+      <div class="image-gallery" id="product-gallery">
+        <div class="gallery-upload no-print">
+          <input type="file" id="product-images" accept="image/*" multiple onchange="handleProductImages(this)" style="display:none;" />
+          <button class="btn-ghost" onclick="document.getElementById('product-images').click()" style="width:100%;padding:1.5rem;border:2px dashed var(--border);background:rgba(255,255,255,0.02);color:var(--text-secondary);">+ أضف صور المنتجات</button>
+        </div>
+        <div class="gallery-grid" id="gallery-grid"></div>
       </div>
     </div>
 
@@ -1807,6 +1826,40 @@
       XLSX.utils.book_append_sheet(wb, ws2, 'مالي');
       XLSX.writeFile(wb, 'bonds-feasibility-study.xlsx');
     }
+
+    // ===== Product Image Gallery =====
+    let productImages = JSON.parse(localStorage.getItem('bonds_product_images') || '[]');
+    function renderGallery() {
+      const grid = document.getElementById('gallery-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      productImages.forEach((src, i) => {
+        const div = document.createElement('div');
+        div.className = 'gallery-item';
+        div.innerHTML = `<img src="${src}" alt="منتج ${i+1}" /><button class="remove-img no-print" onclick="removeProductImage(${i})">&times;</button>`;
+        grid.appendChild(div);
+      });
+    }
+    function handleProductImages(input) {
+      if (!input.files) return;
+      Array.from(input.files).forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          productImages.push(e.target.result);
+          localStorage.setItem('bonds_product_images', JSON.stringify(productImages));
+          renderGallery();
+        };
+        reader.readAsDataURL(file);
+      });
+      input.value = '';
+    }
+    function removeProductImage(index) {
+      productImages.splice(index, 1);
+      localStorage.setItem('bonds_product_images', JSON.stringify(productImages));
+      renderGallery();
+    }
+    window.addEventListener('load', renderGallery);
 
     // ===== Auto-Save every 30 seconds =====
     setInterval(() => {
