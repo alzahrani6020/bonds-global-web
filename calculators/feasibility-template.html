@@ -202,6 +202,7 @@
     <button class="btn-ghost" onclick="saveDraft()">💾 حفظ مسودة</button>
     <button class="btn-ghost" onclick="loadDraft()">📂 استرجاع مسودة</button>
     <button class="btn-ghost" onclick="scrollToDashboard()">🎯 لوحة التحكم</button>
+    <button class="btn-ghost" id="btn-import-supabase" onclick="fillFromSupabase()" style="display:none;">📥 استيراد من بياناتي</button>
     <button class="btn-ghost" onclick="exportToExcel()">📊 تصدير Excel</button>
   </div>
 
@@ -806,6 +807,9 @@
 
   <footer class="footer no-print"><div class="container" style="text-align:center;padding:2rem 0;"><p style="color:var(--text-secondary);font-size:0.85rem;">&copy; 2026 بوندز. جميع الحقوق محفوظة.</p></div></footer>
 
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../supabase-client.js"></script>
   <script src="country-platforms-data.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -1399,6 +1403,139 @@
       alert('تم ملء ' + (data.name || code) + ' ✅\nالتراخيص: ' + (defaults[code]?.length || 0) + ' | VAT: ' + (data.vatRate || '-') + '% | العملة: ' + currencySymbol);
     }
 
+    // ===== Supabase Smart Import =====
+    let currentUser = null;
+    let sb = null;
+
+    async function initSupabase() {
+      if (!window.BondsAuth) return;
+      try {
+        const { data: userData } = await window.BondsAuth.getUser();
+        currentUser = userData?.user;
+        if (currentUser) {
+          sb = window.BondsAuth.getSupabase();
+          document.getElementById('btn-import-supabase').style.display = 'inline-block';
+        }
+      } catch (e) {
+        console.log('Supabase not initialized:', e);
+      }
+    }
+
+    async function fillFromSupabase() {
+      if (!currentUser || !sb) {
+        alert('يرجى تسجيل الدخول أولاً 🔐');
+        return;
+      }
+      const userId = currentUser.id;
+      let filledCount = 0;
+
+      // 1. Profile → Project Name
+      try {
+        const { data: profile } = await sb.from('profiles').select('restaurant_name').eq('id', userId).single();
+        if (profile?.restaurant_name) {
+          document.getElementById('cover-business-name').value = profile.restaurant_name;
+          filledCount++;
+        }
+      } catch (e) {}
+
+      // 2. Menu Items → Products page
+      try {
+        const { data: items } = await sb.from('menu_items').select('name, category, base_price').eq('user_id', userId).eq('is_active', true).order('name');
+        if (items?.length) {
+          const prodTable = document.getElementById('products-table')?.querySelector('tbody');
+          if (prodTable) {
+            prodTable.innerHTML = '';
+            items.forEach((item, i) => {
+              const price = item.base_price || 0;
+              const cost = Math.round(price * 0.35); // estimated COGS 35%
+              const margin = price > 0 ? ((price - cost) / price * 100).toFixed(1) : 0;
+              prodTable.insertAdjacentHTML('beforeend',
+                '<tr><td>' + (i+1) + '</td><td><input type="text" value="' + (item.name || '') + '" /></td><td><input type="text" value="' + (item.category || 'غير مصنف') + '" /></td><td><input type="number" value="' + price + '" /></td><td><input type="number" value="' + cost + '" /></td><td><input type="text" value="' + margin + '%" readonly tabindex="-1" /></td></tr>');
+            });
+            filledCount += items.length;
+          }
+        }
+      } catch (e) { console.log('menu_items error', e); }
+
+      // 3. Sales Transactions → Revenue
+      try {
+        const { data: sales } = await sb.from('sales_transactions')
+          .select('menu_item_id, quantity, total_revenue, net_revenue, transaction_date')
+          .eq('user_id', userId)
+          .gte('transaction_date', new Date(Date.now() - 90*86400000).toISOString()) // last 90 days
+          .order('transaction_date', { ascending: false });
+        if (sales?.length) {
+          // Aggregate by month
+          const monthly = {};
+          sales.forEach(s => {
+            const d = new Date(s.transaction_date);
+            const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+            monthly[key] = (monthly[key] || 0) + (s.total_revenue || 0);
+          });
+          // Fill revenue table first row with avg monthly
+          const months = Object.keys(monthly).sort();
+          const avgMonthly = months.length ? Math.round(months.reduce((sum, m) => sum + monthly[m], 0) / months.length) : 0;
+          const firstRevQty = document.querySelector('.rev-qty');
+          const firstRevPrice = document.querySelector('.rev-price');
+          if (firstRevQty && !firstRevQty.value) firstRevQty.value = Math.round(sales.reduce((s, t) => s + (t.quantity || 0), 0) / Math.max(1, months.length));
+          if (firstRevPrice && !firstRevPrice.value && firstRevQty.value) {
+            firstRevPrice.value = Math.round(avgMonthly / parseFloat(firstRevQty.value));
+          }
+          // Fill cash flow with actual monthly data
+          const cfKeys = Object.keys(monthly).slice(0, 12);
+          cfKeys.forEach((key, i) => {
+            const cell = document.getElementById('cf-rev-' + (i+1));
+            if (cell && !cell.value) cell.value = Math.round(monthly[key]);
+          });
+          filledCount++;
+        }
+      } catch (e) { console.log('sales error', e); }
+
+      // 4. Platforms → Variable Costs
+      try {
+        const { data: platforms } = await sb.from('platforms').select('name, commission_rate, service_fee_rate').eq('user_id', userId);
+        if (platforms?.length) {
+          const vcTable = document.getElementById('variable-costs-table')?.querySelector('tbody');
+          if (vcTable) {
+            platforms.forEach(p => {
+              const totalFee = (p.commission_rate || 0) + (p.service_fee_rate || 0);
+              const existing = Array.from(vcTable.querySelectorAll('input[type="text"]')).map(i => i.value);
+              if (!existing.includes('عمولة ' + p.name)) {
+                vcTable.insertAdjacentHTML('beforeend',
+                  '<tr><td>' + (vcTable.children.length + 1) + '</td><td><input type="text" value="عمولة ' + (p.name || '') + ' (' + totalFee + '%)" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>');
+              }
+            });
+            filledCount += platforms.length;
+          }
+        }
+      } catch (e) { console.log('platforms error', e); }
+
+      // 5. Engineering Scores → SWOT
+      try {
+        const { data: scores } = await sb.from('menu_engineering_scores')
+          .select('menu_item_id, category, recommendation, total_revenue, profit_margin_pct')
+          .eq('user_id', userId)
+          .order('total_revenue', { ascending: false });
+        if (scores?.length) {
+          const strengths = scores.filter(s => s.category === 'Star').slice(0, 3);
+          const weaknesses = scores.filter(s => s.category === 'Dog' || s.category === 'Stalled').slice(0, 3);
+          const swotS = document.querySelector('.swot-box.s textarea');
+          const swotW = document.querySelector('.swot-box.w textarea');
+          if (swotS && !swotS.value && strengths.length) {
+            swotS.value = strengths.map(s => '⭐ ' + s.recommendation).join('\n');
+            filledCount++;
+          }
+          if (swotW && !swotW.value && weaknesses.length) {
+            swotW.value = weaknesses.map(s => '⚠️ ' + s.recommendation).join('\n');
+            filledCount++;
+          }
+        }
+      } catch (e) { console.log('scores error', e); }
+
+      calcFinancials();
+      alert('تم الاستيراد من بياناتك ✅\nتم ملء ' + filledCount + ' خانة/بيان');
+    }
+
     // ===== ROI & Payback =====
     function calcROI() {
       const net = parseFloat(document.getElementById('net-profit')?.value) || 0;
@@ -1537,7 +1674,7 @@
       document.getElementById('navLinks').classList.toggle('active');
       this.setAttribute('aria-expanded', document.getElementById('navLinks').classList.contains('active'));
     });
-    window.addEventListener('load', () => { populateCountrySelect(); calcFinancials(); updateProgress(); });
+    window.addEventListener('load', () => { populateCountrySelect(); initSupabase(); calcFinancials(); updateProgress(); });
   </script>
 </body>
 </html>
