@@ -453,6 +453,16 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <div class="field-group"><label>Building Permit Status</label><select id="ba-license-status"><option value="valid">Valid</option><option value="expired">Expired</option><option value="no-license">None</option></select></div>
         <div class="field-group"><label>Building Compliance Certificate</label><select id="ba-compliance"><option value="yes">Compliant</option><option value="no">Non-compliant</option><option value="pending">Pending</option></select></div>
       </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Building Permit Number</label><input type="text" id="ba-license-number" placeholder="e.g. 4400123456" /></div>
+        <div class="field-group"><label>Permit Verification Date</label><input type="date" id="ba-license-verified-date" /></div>
+        <div class="field-group"><label>Permit Issuing Authority</label><input type="text" id="ba-license-issuer" placeholder="e.g. Jeddah Municipality" /></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Construction Insurance Policy No.</label><input type="text" id="ba-insurance-policy" placeholder="Policy number" /></div>
+        <div class="field-group"><label>Insurance Company</label><input type="text" id="ba-insurance-company" placeholder="e.g. Bupa / Tawuniya" /></div>
+        <div class="field-group"><label>Coverage Amount (SAR)</label><input type="number" id="ba-insurance-coverage" placeholder="0" /></div>
+      </div>
       <div class="field-group"><label>Violation &amp; Obligation Details</label><textarea id="ba-violation-details" rows="2" placeholder="Accumulated fines, stop-work orders, liens..."></textarea></div>
 
       <!-- 4. BOQ Table -->
@@ -624,6 +634,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <li><input type="checkbox" id="val-comp-4" /><span>Occupancy Permit</span></li>
         <li><input type="checkbox" id="val-comp-5" /><span>Saudi Authority for Accredited Valuers Certificate</span></li>
         <li><input type="checkbox" id="val-comp-6" /><span>Annual Maintenance Contract for Major Systems</span></li>
+        <li><input type="checkbox" id="val-comp-7" /><span>Building Fire &amp; Hazard Insurance Policy (Valid)</span></li>
+        <li><input type="checkbox" id="val-comp-8" /><span>Contractor &amp; Appraiser Liability Insurance</span></li>
       </div>
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B5. Architectural Design &amp; Functionality</h4>

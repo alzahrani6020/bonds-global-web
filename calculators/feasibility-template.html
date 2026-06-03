@@ -464,6 +464,16 @@
         <div class="field-group"><label>حالة رخصة البناء</label><select id="ba-license-status"><option value="valid">سارية</option><option value="expired">منتهية</option><option value="no-license">لا يوجد</option></select></div>
         <div class="field-group"><label>شهادة امتثال المباني</label><select id="ba-compliance"><option value="yes">مستوفاة</option><option value="no">غير مستوفاة</option><option value="pending">قيد الإجراء</option></select></div>
       </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>رقم رخصة البناء</label><input type="text" id="ba-license-number" placeholder="مثال: 4400123456" /></div>
+        <div class="field-group"><label>تاريخ التحقق من الرخصة</label><input type="date" id="ba-license-verified-date" /></div>
+        <div class="field-group"><label>جهة إصدار الرخصة</label><input type="text" id="ba-license-issuer" placeholder="مثال: أمانة جدة" /></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>رقم بوليصة التأمين الإنشائي</label><input type="text" id="ba-insurance-policy" placeholder="رقم الوثيقة" /></div>
+        <div class="field-group"><label>جهة التأمين</label><input type="text" id="ba-insurance-company" placeholder="مثال: بوبا / تكافل الراجحي" /></div>
+        <div class="field-group"><label>قيمة التغطية (ريال)</label><input type="number" id="ba-insurance-coverage" placeholder="0" /></div>
+      </div>
       <div class="field-group"><label>تفاصيل المخالفات والالتزامات</label><textarea id="ba-violation-details" rows="2" placeholder="غرامات تراكمية، قرارات إيقاف، حجوزات..."></textarea></div>
 
       <!-- 4. BOQ Table -->
@@ -658,6 +668,8 @@
         <li><input type="checkbox" id="val-comp-4" /><span>تصريح الاستخدام النهائي (Occupancy Permit)</span></li>
         <li><input type="checkbox" id="val-comp-5" /><span>شهادة التقييم من الهيئة السعودية للمقيمين</span></li>
         <li><input type="checkbox" id="val-comp-6" /><span>عقد الصيانة السنوية للأنظمة الرئيسية</span></li>
+        <li><input type="checkbox" id="val-comp-7" /><span>بوليصة تأمين المبنى ضد الحريق والأخطار (سارية)</span></li>
+        <li><input type="checkbox" id="val-comp-8" /><span>تأمين المسؤولية المدنية للمقاول والمقيم</span></li>
       </div>
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">ب5. التصميم المعماري والوظيفي (Architectural Design)</h4>
