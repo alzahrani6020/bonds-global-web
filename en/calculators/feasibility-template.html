@@ -536,6 +536,51 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <div class="field-group"><label>Total Project Cycle (months)</label><input type="number" id="ba-total-months" readonly tabindex="-1" placeholder="Will be calculated" /></div>
       </div>
       <div class="field-group"><label>Engineering Office Notes on Timeline</label><textarea id="ba-engineer-notes" rows="2" placeholder="Recommendations, warnings, essential conditions..."></textarea></div>
+
+      <!-- 8. Document Attachments -->
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">📎 Attached Documents</h3>
+      <table class="template-table" id="docs-table">
+        <thead><tr><th>Document</th><th>Attached</th><th>Reference No.</th><th>Expiry Date</th></tr></thead>
+        <tbody>
+          <tr><td>Electronic Title Deed</td><td><input type="checkbox" id="doc-deed" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-deed-ref" placeholder="Deed number" /></td><td><input type="date" id="doc-deed-expiry" /></td></tr>
+          <tr><td>Building Permit</td><td><input type="checkbox" id="doc-license" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-license-ref" placeholder="Permit number" /></td><td><input type="date" id="doc-license-expiry" /></td></tr>
+          <tr><td>Certified Engineering Report</td><td><input type="checkbox" id="doc-engineer" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-engineer-ref" placeholder="Report number" /></td><td><input type="date" id="doc-engineer-expiry" /></td></tr>
+          <tr><td>Construction Insurance Policy</td><td><input type="checkbox" id="doc-insurance" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-insurance-ref" placeholder="Policy number" /></td><td><input type="date" id="doc-insurance-expiry" /></td></tr>
+          <tr><td>Partnership / Profit-Sharing Contract</td><td><input type="checkbox" id="doc-contract" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-contract-ref" placeholder="Contract number" /></td><td><input type="date" id="doc-contract-expiry" /></td></tr>
+          <tr><td>Accredited Appraiser Certificate</td><td><input type="checkbox" id="doc-appraisal" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-appraisal-ref" placeholder="Certificate number" /></td><td><input type="date" id="doc-appraisal-expiry" /></td></tr>
+          <tr><td>Bank Statement (Last 6 Months)</td><td><input type="checkbox" id="doc-bank" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-bank-ref" placeholder="Account number" /></td><td><input type="date" id="doc-bank-expiry" /></td></tr>
+        </tbody>
+      </table>
+
+      <!-- 9. Funding Readiness Score -->
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">🎯 Funding Readiness Score</h3>
+      <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1rem;padding:1.5rem;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid var(--border);">
+        <div style="width:100px;height:100px;border-radius:50%;background:conic-gradient(var(--gold) var(--score-deg,0deg), rgba(255,255,255,0.05) 0deg);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;" id="funding-score-ring">
+          <div style="width:80px;height:80px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;">
+            <span id="funding-score" style="font-size:1.5rem;font-weight:800;color:var(--gold);">0</span>
+          </div>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:1rem;font-weight:700;color:var(--gold-bright);" id="funding-score-label">Incomplete</div>
+          <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;" id="funding-score-desc">Complete data and documents to calculate readiness</div>
+        </div>
+      </div>
+      <table class="template-table" id="funding-score-table">
+        <thead><tr><th>Criteria</th><th>Weight</th><th>Status</th><th>Points</th></tr></thead>
+        <tbody>
+          <tr><td>Clear &amp; Verified Title Deed</td><td>15</td><td><input type="checkbox" id="fs-deed" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-deed-score" readonly tabindex="-1" value="0" /></td></tr>
+          <tr><td>Valid Building Permit</td><td>15</td><td><input type="checkbox" id="fs-license" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-license-score" readonly tabindex="-1" value="0" /></td></tr>
+          <tr><td>Certified Engineering Report Attached</td><td>15</td><td><input type="checkbox" id="fs-engineer" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-engineer-score" readonly tabindex="-1" value="0" /></td></tr>
+          <tr><td>Valid Insurance Policy</td><td>10</td><td><input type="checkbox" id="fs-insurance" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-insurance-score" readonly tabindex="-1" value="0" /></td></tr>
+          <tr><td>Complete Financial Analysis (3 Scenarios)</td><td>15</td><td><input type="checkbox" id="fs-financial" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-financial-score" readonly tabindex="-1" value="0" /></td></tr>
+          <tr><td>Quantified Risk Analysis Prepared</td><td>15</td><td><input type="checkbox" id="fs-risk" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-risk-score" readonly tabindex="-1" value="0" /></td></tr>
+          <tr><td>Final Appraiser Recommendation Attached</td><td>15</td><td><input type="checkbox" id="fs-appraisal" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-appraisal-score" readonly tabindex="-1" value="0" /></td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:1rem;padding:1rem;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid var(--border);">
+        <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">📋 Bonds Recommendation:</div>
+        <div id="funding-recommendation" style="font-size:0.9rem;color:var(--text);">Complete the data first...</div>
+      </div>
     </div>
 
     <!-- ========== PAGE 5B: VALUATION STANDARDS ========== -->
@@ -1751,6 +1796,49 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         if (elProfit) elProfit.value = netProfit.toFixed(0);
         if (elYield) elYield.value = monthlyYield.toFixed(1);
       });
+    }
+
+    // ===== Funding Readiness Score =====
+    function calcFundingScore() {
+      const criteria = [
+        { id: 'fs-deed', weight: 15, scoreId: 'fs-deed-score' },
+        { id: 'fs-license', weight: 15, scoreId: 'fs-license-score' },
+        { id: 'fs-engineer', weight: 15, scoreId: 'fs-engineer-score' },
+        { id: 'fs-insurance', weight: 10, scoreId: 'fs-insurance-score' },
+        { id: 'fs-financial', weight: 15, scoreId: 'fs-financial-score' },
+        { id: 'fs-risk', weight: 15, scoreId: 'fs-risk-score' },
+        { id: 'fs-appraisal', weight: 15, scoreId: 'fs-appraisal-score' }
+      ];
+      let totalScore = 0;
+      criteria.forEach(c => {
+        const checked = document.getElementById(c.id)?.checked || false;
+        const score = checked ? c.weight : 0;
+        totalScore += score;
+        const elScore = document.getElementById(c.scoreId);
+        if (elScore) elScore.value = score;
+      });
+      // Update ring
+      const deg = Math.round(totalScore / 100 * 360);
+      const ring = document.getElementById('funding-score-ring');
+      const scoreText = document.getElementById('funding-score');
+      const label = document.getElementById('funding-score-label');
+      const desc = document.getElementById('funding-score-desc');
+      const rec = document.getElementById('funding-recommendation');
+      if (ring) ring.style.background = 'conic-gradient(' + (totalScore >= 70 ? '#16a34a' : totalScore >= 40 ? 'var(--gold)' : '#dc2626') + ' ' + deg + 'deg, rgba(255,255,255,0.05) 0deg)';
+      if (scoreText) {
+        scoreText.textContent = totalScore;
+        scoreText.style.color = totalScore >= 70 ? '#16a34a' : totalScore >= 40 ? 'var(--gold)' : '#dc2626';
+      }
+      if (label) {
+        label.textContent = totalScore >= 70 ? '✅ Ready for Funding' : totalScore >= 40 ? '⚠️ Needs Improvement' : '❌ Not Ready';
+        label.style.color = totalScore >= 70 ? '#16a34a' : totalScore >= 40 ? 'var(--gold-bright)' : '#dc2626';
+      }
+      if (desc) desc.textContent = totalScore >= 70 ? 'Study can be presented to banks and financing entities' : totalScore >= 40 ? 'Complete the missing items to raise readiness' : 'Data and documents are insufficient for financing';
+      if (rec) {
+        if (totalScore >= 70) rec.innerHTML = '<span style="color:#16a34a;font-weight:700;">✅ Study is ready for submission.</span> Attach it with your funding application.';
+        else if (totalScore >= 40) rec.innerHTML = '<span style="color:var(--gold);font-weight:700;">⚠️ Complete the following:</span><br/>' + criteria.filter(c => !document.getElementById(c.id)?.checked).map(c => '• ' + document.querySelector('label[for="' + c.id + '"]').textContent).join('<br/>');
+        else rec.innerHTML = '<span style="color:#dc2626;font-weight:700;">❌ Study is incomplete.</span> Start by filling the essential data and documents.';
+      }
     }
 
     // ===== Valuation Standards =====
