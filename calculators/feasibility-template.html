@@ -538,7 +538,21 @@
         </div>
       </div>
 
-      <!-- 6. Timeline -->
+      <!-- 6. Sale Period Scenarios -->
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">📊 سيناريوهات فترة البيع والتسييل</h3>
+      <table class="template-table" id="sale-scenarios-table">
+        <thead><tr><th>المعيار</th><th>متشائم</th><th>متوقع</th><th>متفائل</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:700;">فترة البيع (شهر)</td><td><input type="number" id="sale-pess-months" placeholder="مثال: 4" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-exp-months" placeholder="مثال: 2" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-opt-months" placeholder="مثال: 1" oninput="calcSaleScenarios()" /></td></tr>
+          <tr><td style="font-weight:700;">نسبة الخصم على السعر (%)</td><td><input type="number" id="sale-pess-discount" placeholder="مثال: 10" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-exp-discount" placeholder="0" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-opt-discount" placeholder="0" oninput="calcSaleScenarios()" /></td></tr>
+          <tr><td style="font-weight:700;">تكلفة التمويل خلال الفترة (ريال)</td><td><input type="number" id="sale-pess-financing" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-financing" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-financing" readonly tabindex="-1" /></td></tr>
+          <tr><td style="font-weight:700;">القيمة البيعية بعد الخصم (ريال)</td><td><input type="number" id="sale-pess-value" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-value" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-value" readonly tabindex="-1" /></td></tr>
+          <tr><td style="font-weight:700;">صافي الربح (ريال)</td><td><input type="number" id="sale-pess-profit" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-profit" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-profit" readonly tabindex="-1" /></td></tr>
+          <tr><td style="font-weight:700;">العائد الشهري (%)</td><td><input type="number" id="sale-pess-yield" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-yield" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-yield" readonly tabindex="-1" /></td></tr>
+        </tbody>
+      </table>
+
+      <!-- 7. Timeline -->
       <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">⏱️ الجدول الزمني المتوقع</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>فترة الإنجاز (شهر)</label><input type="number" id="ba-construction-months" placeholder="مثال: 2" /></div>
@@ -1753,6 +1767,34 @@
       const constructionMonths = parseFloat(document.getElementById('ba-construction-months')?.value) || 0;
       const saleMonths = parseFloat(document.getElementById('ba-sale-months')?.value) || 0;
       if (elTotalMonths) elTotalMonths.value = (constructionMonths + saleMonths).toFixed(1);
+      // Trigger sale scenarios update
+      calcSaleScenarios();
+    }
+
+    function calcSaleScenarios() {
+      const futureValue = parseFloat(document.getElementById('ba-future-value')?.value) || 0;
+      const totalCost = parseFloat(document.getElementById('ba-owner-value')?.value) || 0;
+      const companyCost = parseFloat(document.getElementById('ba-company-cost')?.value) || 0;
+      const allExpenses = parseFloat(document.getElementById('ba-shared-expenses')?.textContent) || 0;
+      const fullCost = totalCost + companyCost + allExpenses;
+      // Monthly financing cost (opportunity cost) — simplified as 1% of fullCost per month
+      const monthlyFinancingRate = 0.01;
+      ['pess', 'exp', 'opt'].forEach(scenario => {
+        const months = parseFloat(document.getElementById('sale-' + scenario + '-months')?.value) || 0;
+        const discountPct = parseFloat(document.getElementById('sale-' + scenario + '-discount')?.value) || 0;
+        const financingCost = fullCost * monthlyFinancingRate * months;
+        const discountedValue = futureValue * (1 - discountPct / 100);
+        const netProfit = discountedValue - fullCost - financingCost;
+        const monthlyYield = fullCost > 0 ? (netProfit / fullCost / (months || 1) * 100) : 0;
+        const elFinancing = document.getElementById('sale-' + scenario + '-financing');
+        const elValue = document.getElementById('sale-' + scenario + '-value');
+        const elProfit = document.getElementById('sale-' + scenario + '-profit');
+        const elYield = document.getElementById('sale-' + scenario + '-yield');
+        if (elFinancing) elFinancing.value = financingCost.toFixed(0);
+        if (elValue) elValue.value = discountedValue.toFixed(0);
+        if (elProfit) elProfit.value = netProfit.toFixed(0);
+        if (elYield) elYield.value = monthlyYield.toFixed(1);
+      });
     }
 
     // ===== Valuation Standards =====
