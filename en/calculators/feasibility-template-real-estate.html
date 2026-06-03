@@ -9,8 +9,6 @@
   <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../styles.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     :root { --gold:#d4a853; --gold-bright:#f0c96a; --bg:#0a0f1a; --bg-card:rgba(16,24,45,0.6); --text:#e8ecf4; --text-secondary:#94a3b8; --border:rgba(197,160,40,0.15); }
     body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; line-height:1.7; }
@@ -276,61 +274,6 @@
       </div>
     </div>
 
-    <!-- ========== PAGE IMPORT: AI FEASIBILITY IMPORTER ========== -->
-    <div class="template-page no-print" id="page-import" style="border:2px solid var(--gold); background:rgba(212,168,83,0.05);">
-      <div class="page-header"><div class="section-number" style="background:var(--gold);color:#0a0f1a;">🤖</div><div><h2 style="color:var(--gold-bright);">AI Feasibility Study Importer</h2><p>Upload a Word file or paste your study text and we will auto-fill the template</p></div></div>
-
-      <div class="field-group" style="margin-bottom:1rem;">
-        <label>📁 Upload File (Word .docx, PDF .pdf, or Text .txt)</label>
-        <input type="file" id="feasibility-file" accept=".docx,.pdf,.txt" onchange="handleFeasibilityFile(this)" style="padding:0.75rem; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; color:var(--text); width:100%;" />
-      </div>
-
-      <div class="field-group">
-        <label>📝 Or paste study text directly here</label>
-        <textarea id="feasibility-text" rows="6" placeholder="Copy the full text from your study and paste it here... Can be Arabic, English, or mixed.
-
-The text should include: project description, costs, revenue, competitors, SWOT, marketing, timeline..."></textarea>
-      </div>
-
-      <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem;">
-        <button onclick="analyzeFeasibilityText()" id="analyze-btn" style="background:linear-gradient(135deg,var(--gold),var(--gold-bright)); color:#0a0f1a; border:none; padding:0.8rem 2rem; border-radius:10px; font-weight:800; font-family:inherit; cursor:pointer; font-size:1rem;">
-          ✨ Analyze & Fill Template
-        </button>
-        <button class="btn-ghost" onclick="document.getElementById('feasibility-text').value='';document.getElementById('feasibility-file').value='';" style="padding:0.8rem 1.5rem; border-radius:10px; background:transparent; color:var(--gold); border:1px solid var(--gold); font-family:inherit; cursor:pointer;">
-          Clear
-        </button>
-      </div>
-
-      <div id="import-status" style="margin-top:1rem; font-size:0.85rem; color:var(--text-secondary); min-height:1.5rem;"></div>
-
-      <div style="margin-top:1.5rem; padding:1rem; background:rgba(255,255,255,0.02); border-radius:10px; border:1px solid var(--border);">
-        <p style="margin:0; font-size:0.8rem; color:var(--text-secondary);">
-          💡 <strong>Tips for best results:</strong><br>
-          • Make sure the text contains clear numbers (costs, revenue, investment).<br>
-          • Mention country, city, and sector clearly.<br>
-          • The longer and more detailed the text, the better the result.<br>
-          • Supports both Arabic and English languages.
-        </p>
-      </div>
-    </div>
-
-    <!-- ========== AI PREVIEW MODAL ========== -->
-    <div id="ai-preview-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; padding:1rem;">
-      <div style="background:var(--bg-card); backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; max-width:900px; width:100%; max-height:85vh; display:flex; flex-direction:column;">
-        <div style="padding:1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-          <h3 style="margin:0; color:var(--gold); font-size:1.2rem;">📋 Preview Extracted Data</h3>
-          <button onclick="closePreview()" style="background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer;">×</button>
-        </div>
-        <div id="ai-preview-content" style="padding:1.5rem; overflow-y:auto; flex:1;">
-          <!-- dynamically filled -->
-        </div>
-        <div style="padding:1.5rem; border-top:1px solid var(--border); display:flex; gap:1rem; justify-content:flex-end;">
-          <button onclick="closePreview()" class="btn-ghost" style="padding:0.7rem 1.5rem; border-radius:10px; background:transparent; color:var(--text-secondary); border:1px solid var(--border);">Cancel</button>
-          <button onclick="confirmFillFromPreview()" style="padding:0.7rem 1.5rem; border-radius:10px; background:var(--gold); color:#0a0f1a; border:none; font-weight:800; cursor:pointer;">✅ Fill Template with Selected</button>
-        </div>
-      </div>
-    </div>
-
     <!-- ========== PAGE 1: VISION & OBJECTIVES ========== -->
     <div class="template-page" id="page-vision">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Vision</div></div>
@@ -340,26 +283,6 @@ The text should include: project description, costs, revenue, competitors, SWOT,
       <div class="field-group"><label>SMART Objectives</label><textarea rows="4" placeholder="Specific, Measurable, Achievable, Relevant, Time-bound...
 Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="field-group"><label>Unique Selling Propositions (USP)</label><textarea rows="3" placeholder="What makes you unique and different from all competitors?"></textarea></div>
-    </div>
-
-    <!-- ========== PAGE 2: BUSINESS MODEL ========== -->
-    <div class="template-page" id="page-business-model">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Business Model</div></div>
-      <div class="page-header"><div class="section-number">2</div><div><h2>Detailed Business Model</h2><p>How you create value and generate revenue</p></div></div>
-      <div class="field-group"><label>Core Idea &amp; Value Proposition</label><textarea id="bm-value-prop" rows="3" placeholder="What problem do you solve? What unique value do you offer customers?"></textarea></div>
-      <div class="field-group inline">
-        <div class="field-group"><label>Partnership / Acquisition Model</label><textarea id="bm-partnership" rows="3" placeholder="Smart partnership, real estate joint venture, franchise, distribution..."></textarea></div>
-        <div class="field-group"><label>Monetization &amp; Exit Strategy</label><textarea id="bm-exit" rows="3" placeholder="Unit sales, deed liquidation, cash collection, profit distribution..."></textarea></div>
-      </div>
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Key Partners</label><textarea id="bm-partners" rows="2" placeholder="Suppliers, banks, contractors, financing platforms..."></textarea></div>
-        <div class="field-group"><label>Key Resources</label><textarea id="bm-resources" rows="2" placeholder="Capital, licenses, team, technologies..."></textarea></div>
-        <div class="field-group"><label>Marketing Channels</label><textarea id="bm-channels" rows="2" placeholder="Digital platforms, real estate brokerage, banks..."></textarea></div>
-      </div>
-      <div class="field-group inline">
-        <div class="field-group"><label>Key Cost Structure</label><textarea id="bm-cost-structure" rows="2" placeholder="Fixed costs, variable costs, setup, commissions..."></textarea></div>
-        <div class="field-group"><label>Revenue Streams</label><textarea id="bm-revenue-streams" rows="2" placeholder="Sales profits, commissions, management fees..."></textarea></div>
-      </div>
     </div>
 
     <!-- ========== PAGE 2: EXECUTIVE SUMMARY ========== -->
@@ -400,264 +323,10 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </div>
     </div>
 
-    <!-- ========== PAGE 4: DEEP MARKET ANALYSIS ========== -->
-    <div class="template-page" id="page-market-deep">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Deep Market Analysis</div></div>
-      <div class="page-header"><div class="section-number">4</div><div><h2>Deep Market Analysis</h2><p>Numbers, statistics &amp; industry trends</p></div></div>
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Total Market Size (TAM) — SAR</label><input type="number" id="market-tam" placeholder="0" /></div>
-        <div class="field-group"><label>Serviceable Market (SAM) — SAR</label><input type="number" id="market-sam" placeholder="0" /></div>
-        <div class="field-group"><label>Target Market (SOM) — SAR</label><input type="number" id="market-som" placeholder="0" /></div>
-      </div>
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Industry CAGR (%)</label><input type="number" id="market-cagr" placeholder="0" /></div>
-        <div class="field-group"><label>Market Gap / Distress Rate (%)</label><input type="number" id="market-gap" placeholder="0" /></div>
-        <div class="field-group"><label>Expected Annual Demand (units)</label><input type="number" id="market-demand" placeholder="0" /></div>
-      </div>
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">Official Market Data</h3>
-      <div class="field-group inline">
-        <div class="field-group"><label>Real Estate / Official Statistical Indicators</label><textarea id="market-indicators" rows="3" placeholder="Notary data, Real Estate Authority, Central Bank..."></textarea></div>
-        <div class="field-group"><label>Financing &amp; Purchasing Trends</label><textarea id="market-financing" rows="3" placeholder="Bank sales, housing support programs, customer preferences..."></textarea></div>
-      </div>
-      <div class="field-group"><label>Sales Benchmark &amp; Market Pricing</label><textarea id="market-pricing" rows="2" placeholder="Average prices in target neighborhoods, purchasing power..."></textarea></div>
-    </div>
-
-    <!-- ========== PAGE 5: BUILDING ASSESSMENT (Stalled Building) ========== -->
-    <div class="template-page" id="page-building-assessment">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Stalled Building Assessment</div></div>
-      <div class="page-header"><div class="section-number">5</div><div><h2>Stalled Building Assessment</h2><p>Engineering inspection, BOQ, profits &amp; share distribution</p></div></div>
-
-      <!-- 1. Basic Info -->
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Project / Building Name</label><input type="text" id="ba-name" placeholder="e.g. Al-Nakheel Tower" /></div>
-        <div class="field-group"><label>Location (District / City)</label><input type="text" id="ba-location" placeholder="e.g. Al-Rawda District, Jeddah" /></div>
-        <div class="field-group"><label>Electronic Deed Number</label><input type="text" id="ba-deed" placeholder="Deed Number" /></div>
-      </div>
-
-      <!-- 2. Current Status Assessment -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">📊 Initial Assessment of Current Building Status</h3>
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Actual Completion %</label><input type="number" id="ba-completion-now" min="0" max="100" placeholder="0-100" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>Current Market Value (SAR)</label><input type="number" id="ba-current-value" placeholder="0" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>Engineering Office Rating</label><select id="ba-engineer-rating" onchange="calcBuildingAssessment()"><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option></select></div>
-      </div>
-      <div class="field-group inline">
-        <div class="field-group"><label>Structural Safety Report</label><textarea id="ba-safety-report" rows="2" placeholder="Results of lab testing for concrete and steel..."></textarea></div>
-        <div class="field-group"><label>Discovered Structural Defects</label><textarea id="ba-defects" rows="2" placeholder="Corrosion, settlement, cracks, structural defects..."></textarea></div>
-      </div>
-
-      <!-- 3. Violations & Licenses -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">⚠️ Violations &amp; Licenses</h3>
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Any Municipal Violations?</label><select id="ba-violations"><option value="no">No</option><option value="yes">Yes</option></select></div>
-        <div class="field-group"><label>Building Permit Status</label><select id="ba-license-status"><option value="valid">Valid</option><option value="expired">Expired</option><option value="no-license">None</option></select></div>
-        <div class="field-group"><label>Building Compliance Certificate</label><select id="ba-compliance"><option value="yes">Compliant</option><option value="no">Non-compliant</option><option value="pending">Pending</option></select></div>
-      </div>
-      <div class="field-group"><label>Violation &amp; Obligation Details</label><textarea id="ba-violation-details" rows="2" placeholder="Accumulated fines, stop-work orders, liens..."></textarea></div>
-
-      <!-- 4. BOQ Table -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">📐 Bill of Quantities (BOQ)</h3>
-      <table class="template-table" id="boq-table">
-        <thead><tr><th>No.</th><th>Work Item</th><th>Unit</th><th>Quantity</th><th>Unit Price</th><th>Total</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td><input type="text" value="Smart Facade Finishing" /></td><td><input type="text" value="m²" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="Smart Systems &amp; Networks" /></td><td><input type="text" value="point" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="Insulation &amp; Pre-fab Materials" /></td><td><input type="text" value="m²" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="Final Touches &amp; Paint" /></td><td><input type="text" value="m²" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
-        </tbody>
-      </table>
-      <div class="table-actions no-print"><button onclick="addBOQRow()">+ Add Item</button><button onclick="removeRow('boq-table')">- Remove</button></div>
-      <div class="field-group" style="margin-top:0.5rem;"><label>Total Completion Cost: <span id="boq-grand-total" style="color:var(--gold);font-weight:800;">0</span> SAR</label></div>
-
-      <!-- 5. Profit Sharing Calculator -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">💰 Profit Sharing Calculator (Real Estate Partnership)</h3>
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Land + Skeleton Value (Owner's Share)</label><input type="number" id="ba-owner-value" placeholder="0" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>Completion Cost (Company's Share)</label><input type="number" id="ba-company-cost" placeholder="0" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>Expected Sale Value After Completion</label><input type="number" id="ba-future-value" placeholder="0" oninput="calcBuildingAssessment()" /></div>
-      </div>
-      <div class="scenario-grid" style="margin-top:1rem;">
-        <div class="scenario-card" style="border-left:4px solid #3b82f6;">
-          <div class="scenario-label" style="color:#3b82f6;">Owner's Share (%)</div>
-          <div class="scenario-value" id="ba-owner-share" style="color:#3b82f6;">0%</div>
-          <div class="scenario-desc">Asset Ownership Share</div>
-        </div>
-        <div class="scenario-card" style="border-left:4px solid #f59e0b;">
-          <div class="scenario-label" style="color:#f59e0b;">Company's Share (%)</div>
-          <div class="scenario-value" id="ba-company-share" style="color:#f59e0b;">0%</div>
-          <div class="scenario-desc">Completion &amp; Operations Share</div>
-        </div>
-        <div class="scenario-card" style="border-left:4px solid #16a34a;">
-          <div class="scenario-label" style="color:#16a34a;">Expected Net Profit</div>
-          <div class="scenario-value" id="ba-net-profit" style="color:#16a34a;">0</div>
-          <div class="scenario-desc">Saudi Riyals</div>
-        </div>
-        <div class="scenario-card" style="border-left:4px solid #dc2626;">
-          <div class="scenario-label" style="color:#dc2626;">Owner's Profit</div>
-          <div class="scenario-value" id="ba-owner-profit" style="color:#dc2626;">0</div>
-          <div class="scenario-desc">Saudi Riyals</div>
-        </div>
-        <div class="scenario-card" style="border-left:4px solid #8b5cf6;">
-          <div class="scenario-label" style="color:#8b5cf6;">Company's Profit</div>
-          <div class="scenario-value" id="ba-company-profit" style="color:#8b5cf6;">0</div>
-          <div class="scenario-desc">Saudi Riyals</div>
-        </div>
-      </div>
-
-      <!-- 6. Timeline -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">⏱️ Expected Timeline</h3>
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Construction Period (months)</label><input type="number" id="ba-construction-months" placeholder="e.g. 2" /></div>
-        <div class="field-group"><label>Sale &amp; Transfer Period (months)</label><input type="number" id="ba-sale-months" placeholder="e.g. 1.5" /></div>
-        <div class="field-group"><label>Total Project Cycle (months)</label><input type="number" id="ba-total-months" readonly tabindex="-1" placeholder="Will be calculated" /></div>
-      </div>
-      <div class="field-group"><label>Engineering Office Notes on Timeline</label><textarea id="ba-engineer-notes" rows="2" placeholder="Recommendations, warnings, essential conditions..."></textarea></div>
-    </div>
-
-    <!-- ========== PAGE 5B: VALUATION STANDARDS ========== -->
-    <div class="template-page" id="page-valuation-standards">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Professional Real Estate Valuation Standards</div></div>
-      <div class="page-header"><div class="section-number">5B</div><div><h2>Professional Real Estate Valuation Standards</h2><p>Saudi &amp; international standards for stalled and completed buildings</p></div></div>
-
-      <!-- A. Unfinished Building Assessment -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">🏗️ A. Unfinished Building Assessment (Under Construction)</h3>
-      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">Based on: Saudi Authority for Accredited Valuers (Taqeem) + International Valuation Standards (IVS) + Saudi Building Code (SBC)</p>
-
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Last Site Visit Date</label><input type="date" id="val-site-visit-date" /></div>
-        <div class="field-group"><label>Appraiser / Engineering Office Name</label><input type="text" id="val-appraiser-name" placeholder="e.g. Dar Al-Taqeem" /></div>
-        <div class="field-group"><label>Appraiser License Number</label><input type="text" id="val-license-no" placeholder="Authority license number" /></div>
-      </div>
-
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">A1. Structural Audit &amp; Safety</h4>
-      <table class="template-table" id="val-structural-table">
-        <thead><tr><th>No.</th><th>Inspection Item</th><th>Status</th><th>Recommendation</th><th>Estimated Cost (SAR)</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td><input type="text" value="Concrete Inspection (Hammer Test)" /></td><td><select><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="Rebar Inspection (Corrosion / Cover)" /></td><td><select><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="Foundation &amp; Settlement Check" /></td><td><select><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="Columns &amp; Beams Inspection" /></td><td><select><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>5</td><td><input type="text" value="Fire Safety Inspection" /></td><td><select><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
-        </tbody>
-      </table>
-      <div class="table-actions no-print"><button onclick="addRow('val-structural-table')">+ Add Item</button><button onclick="removeRow('val-structural-table')">- Remove</button></div>
-
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">A2. Work Breakdown Structure (WBS) — Completion %</h4>
-      <table class="template-table" id="val-wbs-table">
-        <thead><tr><th>No.</th><th>Work Item</th><th>Completion %</th><th>Estimated Completion Cost (SAR)</th><th>Notes</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td><input type="text" value="Excavation &amp; Foundations" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="Notes..." /></td></tr>
-          <tr><td>2</td><td><input type="text" value="Structural Frame (Skeleton)" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="Notes..." /></td></tr>
-          <tr><td>3</td><td><input type="text" value="Mechanical Systems (Plumbing)" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="Notes..." /></td></tr>
-          <tr><td>4</td><td><input type="text" value="Electrical Systems" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="Notes..." /></td></tr>
-          <tr><td>5</td><td><input type="text" value="HVAC &amp; Mechanical" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="Notes..." /></td></tr>
-          <tr><td>6</td><td><input type="text" value="Facade &amp; External Finishes" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="Notes..." /></td></tr>
-          <tr><td>7</td><td><input type="text" value="Internal Finishes" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="Notes..." /></td></tr>
-          <tr><td>8</td><td><input type="text" value="Flooring &amp; Final Paint" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="Notes..." /></td></tr>
-        </tbody>
-      </table>
-      <div class="table-actions no-print"><button onclick="addRow('val-wbs-table')">+ Add Item</button><button onclick="removeRow('val-wbs-table')">- Remove</button></div>
-
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">A3. Soft Costs &amp; Risk Premium</h4>
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Appraisal &amp; Engineering Consulting (SAR)</label><input type="number" id="val-consulting-cost" placeholder="0" oninput="calcValuationTotal()" /></div>
-        <div class="field-group"><label>Permits &amp; Licensing Fees (SAR)</label><input type="number" id="val-permit-cost" placeholder="0" oninput="calcValuationTotal()" /></div>
-        <div class="field-group"><label>Site Insurance During Completion (SAR)</label><input type="number" id="val-insurance-cost" placeholder="0" oninput="calcValuationTotal()" /></div>
-      </div>
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Construction Risk Reserve (%)</label><input type="number" id="val-risk-pct" placeholder="e.g. 10" min="0" max="50" oninput="calcValuationTotal()" /></div>
-        <div class="field-group"><label>Calculated Risk Reserve (SAR)</label><input type="number" id="val-risk-value" readonly tabindex="-1" placeholder="Will be calculated" /></div>
-        <div class="field-group"><label>Cost of Capital / Opportunity (%)</label><input type="number" id="val-opportunity-pct" placeholder="e.g. 8" min="0" max="30" oninput="calcValuationTotal()" /></div>
-      </div>
-
-      <!-- B. Post-Completion Assessment -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">🏠 B. Post-Completion Building Assessment</h3>
-      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">Comprehensive assessment of the completed building per quality, efficiency, and compliance standards</p>
-
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B1. Mechanical &amp; Electrical Systems (M&amp;E)</h4>
-      <table class="template-table" id="val-me-table">
-        <thead><tr><th>No.</th><th>System</th><th>Status</th><th>Remaining Useful Life (years)</th><th>Upgrade Cost (SAR)</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td><input type="text" value="Central HVAC System" /></td><td><select><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="Electrical System &amp; Panels" /></td><td><select><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="Plumbing &amp; Drainage" /></td><td><select><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="Fire Alarm &amp; Suppression" /></td><td><select><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>5</td><td><input type="text" value="Elevator Systems" /></td><td><select><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
-        </tbody>
-      </table>
-      <div class="table-actions no-print"><button onclick="addRow('val-me-table')">+ Add System</button><button onclick="removeRow('val-me-table')">- Remove</button></div>
-
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B2. Finishing Quality &amp; Materials</h4>
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Internal Finishing Quality</label><select id="val-finishing-internal"><option value="">Select...</option><option value="luxury">Luxury</option><option value="premium">Premium</option><option value="standard">Standard</option><option value="basic">Basic</option><option value="poor">Poor</option></select></div>
-        <div class="field-group"><label>External Facade Quality</label><select id="val-finishing-external"><option value="">Select...</option><option value="luxury">Luxury</option><option value="premium">Premium</option><option value="standard">Standard</option><option value="basic">Basic</option><option value="poor">Poor</option></select></div>
-        <div class="field-group"><label>Thermal &amp; Acoustic Insulation</label><select id="val-insulation"><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option></select></div>
-      </div>
-      <div class="field-group"><label>Notes on Finishing Quality &amp; Materials Used</label><textarea id="val-finishing-notes" rows="2" placeholder="Tile quality, paint, doors, windows..."></textarea></div>
-
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B3. Energy Efficiency &amp; Sustainability</h4>
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Energy Efficiency Rating (EER)</label><input type="text" id="val-eer" placeholder="e.g. 12.5" /></div>
-        <div class="field-group"><label>Sustainability / LEED Certificate</label><select id="val-leed"><option value="">Select...</option><option value="platinum">Platinum</option><option value="gold">Gold</option><option value="silver">Silver</option><option value="certified">Certified</option><option value="none">None</option></select></div>
-        <div class="field-group"><label>Expected Annual Consumption (kWh/m²)</label><input type="number" id="val-kwh" placeholder="0" /></div>
-      </div>
-
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B4. Legal Compliance &amp; Licenses</h4>
-      <div class="checklist">
-        <li><input type="checkbox" id="val-comp-1" /><span>Building Completion Certificate from Municipality</span></li>
-        <li><input type="checkbox" id="val-comp-2" /><span>Structural Safety Certificate from Civil Defense</span></li>
-        <li><input type="checkbox" id="val-comp-3" /><span>M&amp;E Systems Compliance Certificate</span></li>
-        <li><input type="checkbox" id="val-comp-4" /><span>Occupancy Permit</span></li>
-        <li><input type="checkbox" id="val-comp-5" /><span>Saudi Authority for Accredited Valuers Certificate</span></li>
-        <li><input type="checkbox" id="val-comp-6" /><span>Annual Maintenance Contract for Major Systems</span></li>
-      </div>
-
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B5. Architectural Design &amp; Functionality</h4>
-      <div class="field-group inline-3">
-        <div class="field-group"><label>Architectural Design Quality</label><select id="val-arch-quality"><option value="">Select...</option><option value="iconic">Iconic</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="average">Average</option><option value="poor">Poor</option></select></div>
-        <div class="field-group"><label>Space Efficiency (%)</label><input type="number" id="val-space-eff" min="0" max="100" placeholder="0-100" /></div>
-        <div class="field-group"><label>Future Modification Flexibility</label><select id="val-flexibility"><option value="">Select...</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
-      </div>
-
-      <!-- C. Comparison Table -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">📊 C. Comparison Table — Value Before &amp; After Completion</h3>
-      <table class="template-table" id="val-comparison-table">
-        <thead><tr><th>Metric</th><th>Current (Unfinished)</th><th>Expected (Completed)</th><th>Difference</th></tr></thead>
-        <tbody>
-          <tr><td style="font-weight:700;">Market Value (SAR)</td><td><input type="number" id="val-comp-current" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-value" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">Value/m² (SAR)</td><td><input type="number" id="val-comp-current-m2" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-m2" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-m2" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">Expected Yield (%)</td><td><input type="number" id="val-comp-current-yield" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-yield" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-yield" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">Liquidation Period (months)</td><td><input type="number" id="val-comp-current-liquidity" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-liquidity" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-liquidity" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">Risk Score (1-10)</td><td><input type="number" id="val-comp-current-risk" min="1" max="10" placeholder="1-10" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-risk" min="1" max="10" placeholder="1-10" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-risk" readonly tabindex="-1" /></td></tr>
-        </tbody>
-      </table>
-
-      <!-- Summary -->
-      <div class="scenario-grid" style="margin-top:1.5rem;">
-        <div class="scenario-card" style="border-left:4px solid #3b82f6;">
-          <div class="scenario-label" style="color:#3b82f6;">Total Appraisal &amp; Completion Costs</div>
-          <div class="scenario-value" id="val-total-costs" style="color:#3b82f6;">0</div>
-          <div class="scenario-desc">Saudi Riyals</div>
-        </div>
-        <div class="scenario-card" style="border-left:4px solid #f59e0b;">
-          <div class="scenario-label" style="color:#f59e0b;">Risk Reserve</div>
-          <div class="scenario-value" id="val-total-risk" style="color:#f59e0b;">0</div>
-          <div class="scenario-desc">Saudi Riyals</div>
-        </div>
-        <div class="scenario-card" style="border-left:4px solid #16a34a;">
-          <div class="scenario-label" style="color:#16a34a;">Net Value Added</div>
-          <div class="scenario-value" id="val-net-added" style="color:#16a34a;">0</div>
-          <div class="scenario-desc">Saudi Riyals</div>
-        </div>
-      </div>
-
-      <div class="field-group" style="margin-top:1rem;"><label>Appraiser's Final Notes &amp; Recommendations</label><textarea id="val-final-notes" rows="3" placeholder="Final appraisal summary, investor recommendations, and essential warnings..."></textarea></div>
-    </div>
-
-    <!-- ========== PAGE 5: TECHNOLOGICAL IMPACT ========== -->
+    <!-- ========== PAGE 4: TECHNOLOGICAL IMPACT ========== -->
     <div class="template-page" id="page-tech-impact">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Technological Impact</div></div>
-      <div class="page-header"><div class="section-number">6</div><div><h2>Technological Impact</h2><p>How technology affects your business</p></div></div>
+      <div class="page-header"><div class="section-number">4</div><div><h2>Technological Impact</h2><p>How technology affects your business</p></div></div>
       <div class="field-group"><label>Will you use technology in your business?</label><textarea id="tech-usage" rows="3" placeholder="POS, delivery apps, inventory management, social media, AI..."></textarea></div>
       <div class="field-group inline">
         <div class="field-group"><label>Positive Effects 🟢</label><textarea id="tech-positive" rows="3" placeholder="Efficiency gains, cost reduction, wider reach..."></textarea></div>
@@ -670,7 +339,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 5: COUNTRY ECONOMY ========== -->
     <div class="template-page" id="page-country-economy">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Country Economy</div></div>
-      <div class="page-header"><div class="section-number">7</div><div><h2>Country Economy</h2><p>The overall economic environment</p></div></div>
+      <div class="page-header"><div class="section-number">5</div><div><h2>Country Economy</h2><p>The overall economic environment</p></div></div>
       <div class="field-group inline">
         <div class="field-group"><label>GDP Growth — Last 3 Years</label><textarea id="econ-gdp" rows="2" placeholder="Annual growth rates..."></textarea></div>
         <div class="field-group"><label>Country Credit Rating</label><input type="text" id="econ-credit" placeholder="e.g. A+ / B / BBB-" /></div>
@@ -686,7 +355,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 6: MARKET ANALYSIS (PESTLE + SWOT + Porter + Persona) ========== -->
     <div class="template-page" id="page-market-analysis">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Market Analysis</div></div>
-      <div class="page-header"><div class="section-number">8</div><div><h2>Project Environment Analysis</h2><p>PESTLE + SWOT + Porter's Forces + Customer Persona</p></div></div>
+      <div class="page-header"><div class="section-number">6</div><div><h2>Project Environment Analysis</h2><p>PESTLE + SWOT + Porter's Forces + Customer Persona</p></div></div>
 
       <h3 style="font-size:1rem;color:var(--gold);margin:1rem 0 0.5rem;">A. PESTLE Analysis</h3>
       <div class="field-group inline-3">
@@ -731,7 +400,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 7: MARKETING STRATEGY (4Ps) ========== -->
     <div class="template-page" id="page-marketing">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Marketing</div></div>
-      <div class="page-header"><div class="section-number">9</div><div><h2>Marketing Strategy (4Ps)</h2><p>Clear plan to reach and convert customers</p></div></div>
+      <div class="page-header"><div class="section-number">7</div><div><h2>Marketing Strategy (4Ps)</h2><p>Clear plan to reach and convert customers</p></div></div>
       <div class="field-group"><label>Product — What you sell and how you present it</label><textarea id="marketing-product" rows="3" placeholder="Packaging, quality, ancillary services, warranty..."></textarea></div>
       <div class="field-group"><label>Price — Pricing strategy</label><textarea id="marketing-price-strategy" rows="3" placeholder="Value-based, competitive, penetration, premium..."></textarea></div>
       <div class="field-group inline">
@@ -749,7 +418,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 8: OPERATIONS & TIMELINE ========== -->
     <div class="template-page" id="page-operations">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Operations</div></div>
-      <div class="page-header"><div class="section-number">10</div><div><h2>Operations Plan & Timeline</h2><p>How you will manage operations daily and monthly</p></div></div>
+      <div class="page-header"><div class="section-number">6</div><div><h2>Operations Plan & Timeline</h2><p>How you will manage operations daily and monthly</p></div></div>
       <div class="field-group"><label>Business Location</label><textarea rows="2" placeholder="City, district, area, annual rent..."></textarea></div>
       <div class="field-group"><label>Working Hours</label><input type="text" placeholder="e.g. 8 AM - 12 AM, 7 days/week" /></div>
       <div class="field-group"><label>Production/Service Process Step by Step</label><textarea rows="4" placeholder="1. Receive order → 2. Prepare → 3. Package → 4. Deliver..."></textarea></div>
@@ -772,7 +441,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 9: LEGAL & INSURANCE ========== -->
     <div class="template-page" id="page-legal">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Legal</div></div>
-      <div class="page-header"><div class="section-number">11</div><div><h2>Licenses, Laws & Insurance</h2><p>Regulatory obligations and legal protection</p></div></div>
+      <div class="page-header"><div class="section-number">7</div><div><h2>Licenses, Laws & Insurance</h2><p>Regulatory obligations and legal protection</p></div></div>
       <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Required Licenses</h3>
       <table class="template-table" id="licenses-table">
         <thead><tr><th>م</th><th>License Name</th><th>Issuing Authority</th><th>Cost (SAR)</th><th>Issuance Duration</th></tr></thead>
@@ -791,7 +460,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 10: HUMAN RESOURCES ========== -->
     <div class="template-page" id="page-hr">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — HR</div></div>
-      <div class="page-header"><div class="section-number">12</div><div><h2>Human Resources</h2><p>Organizational structure and required workforce</p></div></div>
+      <div class="page-header"><div class="section-number">8</div><div><h2>Human Resources</h2><p>Organizational structure and required workforce</p></div></div>
       <div class="field-group"><label>Organizational Structure</label><textarea rows="3" placeholder="Who manages whom? How do decisions flow?"></textarea></div>
       <table class="template-table" id="hr-table">
         <thead><tr><th>م</th><th>Job Title</th><th>Count</th><th>Monthly Salary</th><th>Monthly Total</th></tr></thead>
@@ -806,34 +475,10 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="field-group inline"><div class="field-group"><label>Total Employees</label><input type="number" id="hr-total-employees" readonly tabindex="-1" placeholder="0" /></div><div class="field-group"><label>Salary/Revenue Ratio</label><input type="text" id="hr-salary-ratio" readonly tabindex="-1" placeholder="Will be calculated" /></div></div>
     </div>
 
-    <!-- ========== PAGE 11: ORGANIZATIONAL CHART ========== -->
-    <div class="template-page" id="page-org-chart">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Organizational Structure</div></div>
-      <div class="page-header"><div class="section-number">13</div><div><h2>Organizational Structure</h2><p>Legislative, Executive &amp; Support Authority</p></div></div>
-      <div class="field-group"><label>Organizational Chart (Text Description)</label><textarea id="org-chart-desc" rows="4" placeholder="General Assembly → Board of Directors → CEO → Executive Departments..."></textarea></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">Detailed Staffing Table</h3>
-      <table class="template-table" id="org-table">
-        <thead><tr><th>م</th><th>Job Title</th><th>Count</th><th>Monthly Salary (SAR)</th><th>Annual Total</th><th>Work Location</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td><input type="text" placeholder="Chairman of the Board" /></td><td><input type="number" value="1" /></td><td><input type="number" placeholder="Bonuses" /></td><td><input type="number" /></td><td><input type="text" placeholder="Meeting Room" /></td></tr>
-          <tr><td>2</td><td><input type="text" placeholder="Chief Executive Officer" /></td><td><input type="number" value="1" /></td><td><input type="number" /></td><td><input type="number" /></td><td><input type="text" placeholder="Main Office" /></td></tr>
-          <tr><td>3</td><td><input type="text" placeholder="Chief Financial Officer" /></td><td><input type="number" value="1" /></td><td><input type="number" /></td><td><input type="number" /></td><td><input type="text" placeholder="Main Office" /></td></tr>
-          <tr><td>4</td><td><input type="text" placeholder="Project Manager" /></td><td><input type="number" value="1" /></td><td><input type="number" /></td><td><input type="number" /></td><td><input type="text" placeholder="Office / Field" /></td></tr>
-          <tr><td>5</td><td><input type="text" placeholder="Field Engineer" /></td><td><input type="number" /></td><td><input type="number" /></td><td><input type="number" /></td><td><input type="text" placeholder="Field" /></td></tr>
-        </tbody>
-      </table>
-      <div class="table-actions no-print"><button onclick="addOrgRow()">+ Add Position</button><button onclick="removeRow('org-table')">- Remove</button></div>
-      <div class="field-group inline-3" style="margin-top:1rem;">
-        <div class="field-group"><label>Total Staff</label><input type="number" id="org-total-staff" readonly tabindex="-1" placeholder="0" /></div>
-        <div class="field-group"><label>Total Annual Salaries</label><input type="number" id="org-total-salaries" readonly tabindex="-1" placeholder="0" /></div>
-        <div class="field-group"><label>Salary Ratio from G&amp;A (%)</label><input type="number" id="org-salary-ga-ratio" readonly tabindex="-1" placeholder="Will be calculated" /></div>
-      </div>
-    </div>
-
-    <!-- ========== PAGE 12: TECHNICAL ========== -->
+    <!-- ========== PAGE 11: TECHNICAL ========== -->
     <div class="template-page" id="page-technical">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Technical</div></div>
-      <div class="page-header"><div class="section-number">14</div><div><h2>Technical Needs & Equipment</h2><p>What you need to run the project</p></div></div>
+      <div class="page-header"><div class="section-number">9</div><div><h2>Technical Needs & Equipment</h2><p>What you need to run the project</p></div></div>
       <table class="template-table" id="tools-table">
         <thead><tr><th>م</th><th>Equipment/Tool</th><th>Count</th><th>Unit Price</th><th>Total</th><th>Supply Method</th></tr></thead>
         <tbody>
@@ -850,7 +495,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 12: FIXED COSTS ========== -->
     <div class="template-page" id="page-fixed">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Fixed Costs</div></div>
-      <div class="page-header"><div class="section-number">15</div><div><h2>Monthly Fixed Costs</h2><p>Costs that do not change with production volume</p></div></div>
+      <div class="page-header"><div class="section-number">10</div><div><h2>Monthly Fixed Costs</h2><p>Costs that do not change with production volume</p></div></div>
       <table class="template-table" id="fixed-costs-table">
         <thead><tr><th>م</th><th>Cost Item</th><th>Monthly Amount (SAR)</th></tr></thead>
         <tbody>
@@ -869,7 +514,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 13: VARIABLE COSTS ========== -->
     <div class="template-page" id="page-variable">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Variable Costs</div></div>
-      <div class="page-header"><div class="section-number">16</div><div><h2>Variable Costs (Per Unit)</h2><p>Costs that scale with production volume</p></div></div>
+      <div class="page-header"><div class="section-number">11</div><div><h2>Variable Costs (Per Unit)</h2><p>Costs that scale with production volume</p></div></div>
       <table class="template-table" id="var-costs-table">
         <thead><tr><th>م</th><th>Cost Item</th><th>Per Unit (SAR)</th></tr></thead>
         <tbody>
@@ -886,7 +531,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 14: REVENUE ========== -->
     <div class="template-page" id="page-revenue">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Revenue</div></div>
-      <div class="page-header"><div class="section-number">17</div><div><h2>Expected Revenue</h2><p>Targeted monthly income sources</p></div></div>
+      <div class="page-header"><div class="section-number">12</div><div><h2>Expected Revenue</h2><p>Targeted monthly income sources</p></div></div>
       <table class="template-table" id="revenue-table">
         <thead><tr><th>م</th><th>Revenue Item</th><th>Qty/Month</th><th>Unit Price</th><th>Total</th></tr></thead>
         <tbody>
@@ -902,7 +547,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 15: CASH FLOW 12 MONTHS ========== -->
     <div class="template-page" id="page-cashflow">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Cash Flow</div></div>
-      <div class="page-header"><div class="section-number">18</div><div><h2>Expected Cash Flow (12 Months)</h2><p>Money in and out monthly</p></div></div>
+      <div class="page-header"><div class="section-number">13</div><div><h2>Expected Cash Flow (12 Months)</h2><p>Money in and out monthly</p></div></div>
       <table class="template-table" id="cashflow-table">
         <thead><tr><th>Month</th><th>Revenue</th><th>Costs</th><th>Net Flow</th><th>Cumulative Balance</th></tr></thead>
         <tbody>
@@ -927,7 +572,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 16: FINANCIAL ANALYSIS ========== -->
     <div class="template-page" id="page-financial">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Financial Analysis</div></div>
-      <div class="page-header"><div class="section-number">19</div><div><h2>Comprehensive Financial Analysis</h2><p>Numbers that determine the investment decision</p></div></div>
+      <div class="page-header"><div class="section-number">14</div><div><h2>Comprehensive Financial Analysis</h2><p>Numbers that determine the investment decision</p></div></div>
       <div class="field-group inline-3">
         <div class="field-group"><label>Total Fixed Costs/Month</label><input type="number" id="total-fixed" readonly tabindex="-1" placeholder="0" /></div>
         <div class="field-group"><label>Total Variable Costs/Month</label><input type="number" id="total-var" readonly tabindex="-1" placeholder="0" /></div>
@@ -986,42 +631,29 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <div class="scenario-desc">Monthly Net Profit</div>
         </div>
       </div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:2rem 0 0.75rem;">Key Investment Metrics</h3>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Expected Internal Rate of Return IRR (%)</label><input type="number" id="investment-irr" placeholder="35-42" /></div>
+        <div class="field-group"><label>Payback Period (months)</label><input type="number" id="investment-payback" placeholder="4" /></div>
+        <div class="field-group"><label>Break-Even (building/month)</label><input type="number" id="investment-breakeven" placeholder="8" /></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Book Value per Share at Inception (SAR)</label><input type="number" id="share-book-start" placeholder="23500" oninput="calcShareGrowth()" /></div>
+        <div class="field-group"><label>Expected Book Value after 1 Year (SAR)</label><input type="number" id="share-book-end" placeholder="37437" oninput="calcShareGrowth()" /></div>
+        <div class="field-group"><label>Capital Growth (%)</label><input type="number" id="share-growth" readonly tabindex="-1" placeholder="Will be calculated" /></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Capital Turnover Cycles/Year</label><input type="number" id="capital-cycles" placeholder="3" /></div>
+        <div class="field-group"><label>Total Target Buildings/Year</label><input type="number" id="target-buildings" placeholder="45" /></div>
+        <div class="field-group"><label>Average Net Return per Building (%)</label><input type="number" id="avg-return-per-building" placeholder="15" /></div>
+      </div>
     </div>
 
-    <!-- ========== PAGE 17: PRO FORMA FINANCIAL STATEMENTS ========== -->
-    <div class="template-page" id="page-proforma">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Pro Forma Financial Statements</div></div>
-      <div class="page-header"><div class="section-number">20</div><div><h2>Pro Forma Financial Statements</h2><p>First Year Financial Projections</p></div></div>
-
-      <h3 style="font-size:1rem;color:var(--gold);margin:1rem 0 0.5rem;">Pro Forma Income Statement</h3>
-      <table class="template-table" id="proforma-income">
-        <thead><tr><th>Item</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Year 1</th></tr></thead>
-        <tbody>
-          <tr><td style="font-weight:700;">Total Revenue</td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>Cost of Sales &amp; Execution</td><td><input type="number" class="pf-cogs" /></td><td><input type="number" class="pf-cogs" /></td><td><input type="number" class="pf-cogs" /></td><td><input type="number" class="pf-cogs" /></td><td><input type="number" class="pf-cogs-total" readonly tabindex="-1" /></td></tr>
-          <tr style="background:rgba(212,168,83,0.1);"><td style="font-weight:700;color:var(--gold);">Gross Profit</td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>G&amp;A Expenses</td><td><input type="number" class="pf-ga" /></td><td><input type="number" class="pf-ga" /></td><td><input type="number" class="pf-ga" /></td><td><input type="number" class="pf-ga" /></td><td><input type="number" class="pf-ga-total" readonly tabindex="-1" /></td></tr>
-          <tr style="background:rgba(212,168,83,0.1);"><td style="font-weight:700;color:var(--gold);">Net Profit Before Zakat</td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net-total" readonly tabindex="-1" /></td></tr>
-        </tbody>
-      </table>
-
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">Pro Forma Balance Sheet</h3>
-      <table class="template-table" id="proforma-balance">
-        <thead><tr><th colspan="2">Assets</th><th colspan="2">Equity &amp; Liabilities</th></tr></thead>
-        <tbody>
-          <tr><td>Current Assets (Cash + Receivables)</td><td><input type="number" class="pf-assets-c" /></td><td>Issued &amp; Paid-in Capital</td><td><input type="number" class="pf-equity-cap" /></td></tr>
-          <tr><td>Real Estate Assets Under Construction</td><td><input type="number" class="pf-assets-wip" /></td><td>Retained Earnings</td><td><input type="number" class="pf-equity-ret" /></td></tr>
-          <tr><td>Fixed Assets &amp; Equipment</td><td><input type="number" class="pf-assets-f" /></td><td>Current Liabilities</td><td><input type="number" class="pf-liab-c" /></td></tr>
-          <tr style="background:rgba(212,168,83,0.1);"><td style="font-weight:700;color:var(--gold);">Total Assets</td><td><input type="number" class="pf-assets-total" readonly tabindex="-1" /></td><td style="font-weight:700;color:var(--gold);">Total Equity + Liabilities</td><td><input type="number" class="pf-equity-total" readonly tabindex="-1" /></td></tr>
-        </tbody>
-      </table>
-      <div class="table-actions no-print"><button onclick="calcProForma()">🔄 Calculate Statements</button></div>
-    </div>
-
-    <!-- ========== PAGE 18: SMART ANALYSIS ========== -->
+    <!-- ========== PAGE 17: SMART ANALYSIS ========== -->
     <div class="template-page" id="page-smart">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — Smart Analysis</div></div>
-      <div class="page-header"><div class="section-number">21</div><div><h2>Smart Analysis & Recommendations</h2><p>Automated analysis of entered data with practical recommendations</p></div></div>
+      <div class="page-header"><div class="section-number">15</div><div><h2>Smart Analysis & Recommendations</h2><p>Automated analysis of entered data with practical recommendations</p></div></div>
 
       <div id="smart-loading" style="text-align:center;padding:2rem;">
         <p style="color:var(--text-secondary);">Fill in the costs and revenue data in previous pages to analyze automatically...</p>
@@ -1090,7 +722,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 18: SENSITIVITY + KPIs ========== -->
     <div class="template-page" id="page-sensitivity">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Sensitivity</div></div>
-      <div class="page-header"><div class="section-number">22</div><div><h2>Sensitivity Analysis & Indicators</h2><p>What if key variables change?</p></div></div>
+      <div class="page-header"><div class="section-number">16</div><div><h2>Sensitivity Analysis & Indicators</h2><p>What if key variables change?</p></div></div>
       <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Sensitivity Analysis (±10%)</h3>
       <table class="template-table" id="sensitivity-table">
         <thead><tr><th>Variable</th><th>-10%</th><th>Base</th><th>+10%</th></tr></thead>
@@ -1118,7 +750,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 19: RISKS ========== -->
     <div class="template-page" id="page-risks">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Risks</div></div>
-      <div class="page-header"><div class="section-number">23</div><div><h2>Risks & Mitigation Plans</h2><p>Identify risks early and prepare for them</p></div></div>
+      <div class="page-header"><div class="section-number">17</div><div><h2>Risks & Mitigation Plans</h2><p>Identify risks early and prepare for them</p></div></div>
       <table class="template-table" id="risks-table">
         <thead><tr><th>م</th><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation Plan</th></tr></thead>
         <tbody>
@@ -1135,7 +767,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 20: CAPABILITY ========== -->
     <div class="template-page" id="page-capability">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Capability</div></div>
-      <div class="page-header"><div class="section-number">24</div><div><h2>Capability & Readiness</h2><p>Do you have what it takes to succeed?</p></div></div>
+      <div class="page-header"><div class="section-number">20</div><div><h2>Capability & Readiness</h2><p>Do you have what it takes to succeed?</p></div></div>
       <div class="checklist">
         <li><input type="checkbox" /><span>Do you have the necessary skills to execute the business?</span></li>
         <li><input type="checkbox" /><span>Can you provide the required materials and tools?</span></li>
@@ -1150,7 +782,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- ========== PAGE 21: QUALITY + ESG + EXIT ========== -->
     <div class="template-page" id="page-quality">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Quality</div></div>
-      <div class="page-header"><div class="section-number">25</div><div><h2>Quality, Sustainability & Exit Plan</h2><p>Quality standards and social/environmental impact</p></div></div>
+      <div class="page-header"><div class="section-number">21</div><div><h2>Quality, Sustainability & Exit Plan</h2><p>Quality standards and social/environmental impact</p></div></div>
       <div class="field-group"><label>Quality Standards</label><textarea rows="3" placeholder="How do you ensure product/service quality? Inspections, complaints, continuous improvement..."></textarea></div>
       <div class="field-group"><label>Social & Environmental Impact (ESG)</label><textarea rows="3" placeholder="Local hiring, waste reduction, sustainable packaging, community responsibility..."></textarea></div>
       <div class="field-group"><label>Exit Strategy</label><textarea rows="3" placeholder="Sale, merger, expansion, liquidation... when and how?"></textarea></div>
@@ -1159,11 +791,40 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     <!-- ========== PAGE 22: CAPITAL + RESULTS ========== -->
     <div class="template-page" id="page-capital">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Capital</div></div>
-      <div class="page-header"><div class="section-number">26</div><div><h2>Capital Requirements & Results</h2><p>Initial investment and final decision</p></div></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Initial Investment</h3>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Capital & Partnership</div></div>
+      <div class="page-header"><div class="section-number">23</div><div><h2>Capital Structure & Partnership Model</h2><p>Share engineering, business model, and investment decision</p></div></div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Share Engineering & Ownership Distribution</h3>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Total Number of Shares</label><input type="number" id="cap-total-shares" value="2000" oninput="calcCapital()" /></div>
+        <div class="field-group"><label>Nominal Value per Share (SAR)</label><input type="number" id="cap-nominal-value" value="23500" oninput="calcCapital()" /></div>
+        <div class="field-group"><label>Issue Premium per Share (SAR)</label><input type="number" id="cap-premium" value="2000" oninput="calcCapital()" /></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Total Issued Capital (SAR)</label><input type="number" id="cap-total-nominal" readonly tabindex="-1" placeholder="0" /></div>
+        <div class="field-group"><label>Total Issue Premium (SAR)</label><input type="number" id="cap-total-premium" readonly tabindex="-1" placeholder="0" /></div>
+        <div class="field-group"><label>Total Subscription (SAR)</label><input type="number" id="cap-total-subscription" readonly tabindex="-1" placeholder="0" /></div>
+      </div>
+      <div class="field-group inline-3">
+        <div class="field-group"><label>Shareholders Percentage (%)</label><input type="number" id="cap-shareholders-pct" value="70" oninput="calcCapital()" /></div>
+        <div class="field-group"><label>Founder/Idea Percentage (%)</label><input type="number" id="cap-founder-pct" value="30" oninput="calcCapital()" /></div>
+        <div class="field-group"><label>Net Operating Liquidity (SAR)</label><input type="number" id="cap-net-liquidity" readonly tabindex="-1" placeholder="0" /></div>
+      </div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">Partnership Model & Financing</h3>
+      <div class="field-group"><label>Primary Business Model</label><textarea rows="2" placeholder="e.g., Real estate partnership — land & structure for completion & liquidation"></textarea></div>
+      <div class="field-group inline">
+        <div class="field-group"><label>Completion Cost per Building (SAR)</label><input type="number" id="cap-building-cost" placeholder="2500000" oninput="calcCapital()" /></div>
+        <div class="field-group"><label>Target Buildings per Year</label><input type="number" id="cap-buildings-target" placeholder="45" oninput="calcCapital()" /></div>
+      </div>
+      <div class="field-group inline">
+        <div class="field-group"><label>Target Net Return (%)</label><input type="number" id="cap-target-return" value="15" oninput="calcCapital()" /></div>
+        <div class="field-group"><label>Total Expected Revenue (SAR)</label><input type="number" id="cap-total-revenue" readonly tabindex="-1" placeholder="0" /></div>
+      </div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">Initial Investment & Expenses</h3>
       <table class="template-table" id="capital-table">
-        <thead><tr><th>م</th><th>Investment Item</th><th>Amount (SAR)</th></tr></thead>
+        <thead><tr><th>#</th><th>Investment Item</th><th>Amount (SAR)</th></tr></thead>
         <tbody>
           <tr><td>1</td><td><input type="text" value="Licenses & Registration" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
           <tr><td>2</td><td><input type="text" value="Furniture & Equipment" /></td><td><input type="number" class="cap-input" id="cap-tools" readonly tabindex="-1" /></td></tr>
@@ -1173,25 +834,52 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <tr><td>6</td><td><input type="text" value="Working Capital (3 months)" /></td><td><input type="number" class="cap-input" id="cap-working" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <div class="table-actions no-print"><button onclick="addRow('capital-table'); setTimeout(calcCapital,50)">+ إضافة</button><button onclick="removeRow('capital-table'); setTimeout(calcCapital,50)">- Remove</button></div>
+      <div class="table-actions no-print"><button onclick="addRow('capital-table'); setTimeout(calcCapital,50)">+ Add</button><button onclick="removeRow('capital-table'); setTimeout(calcCapital,50)">- Remove</button></div>
       <div class="field-group inline" style="margin-top:1.5rem;">
         <div class="field-group"><label>Total Required Capital</label><input type="number" id="total-capital" readonly tabindex="-1" placeholder="0" /></div>
-        <div class="field-group"><label>Expected Source</label><input type="text" placeholder="Self-funded / Loan / Investor / Platform" /></div>
+        <div class="field-group"><label>Expected Source</label><input type="text" placeholder="Self-funded / Loan / Investor / Crowdfunding Platform" /></div>
       </div>
       <div class="field-group"><label>Financing Strategy</label><textarea rows="3" placeholder="How will you secure funding? Under what terms? When?"></textarea></div>
       <div class="field-group"><label>Key Results</label><textarea rows="3" placeholder="Key findings from the study..."></textarea></div>
       <div class="field-group"><label>Recommendations & Next Steps</label><textarea rows="3" placeholder="What is the first step? Who starts it? When?"></textarea></div>
       <div class="field-group"><label>Is the project viable?</label><select><option value="">Select...</option><option value="yes">✅ Yes, Viable</option><option value="no">❌ No, Not Viable</option><option value="conditional">⚠️ Viable Under Conditions</option></select></div>
       <div class="signature-grid">
-        <div class="signature-box"><label>Prepared & Signed</label><input type="text" placeholder="الاسم والتوقيع" /></div>
+        <div class="signature-box"><label>Prepared & Signed</label><input type="text" placeholder="Name & Signature" /></div>
         <div class="signature-box"><label>Date</label><input type="date" /></div>
       </div>
     </div>
 
-    <!-- ========== PAGE 23: EXECUTIVE DASHBOARD ========== -->
+    <!-- ========== PAGE 22: GOVERNANCE ========== -->
+    <div class="template-page" id="page-governance">
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Governance</div></div>
+      <div class="page-header"><div class="section-number">22</div><div><h2>Corporate Governance & Shareholder Protection</h2><p>Governance structure, functional separation, and minority rights protection</p></div></div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Board of Directors & Executive Management Structure</h3>
+      <div class="field-group"><label>Board Composition</label><textarea rows="3" placeholder="Number of members, their expertise, supervisory and legislative role..."></textarea></div>
+      <div class="field-group inline">
+        <div class="field-group"><label>Separation of Executive Management from Board</label><select><option value="">Select...</option><option value="yes">✅ Yes, Separate</option><option value="no">❌ No, Overlapping</option><option value="partial">⚠️ Partial</option></select></div>
+        <div class="field-group"><label>Board Membership Term (years)</label><input type="number" placeholder="3" /></div>
+      </div>
+      <div class="field-group"><label>Key Board Authorities</label><textarea rows="3" placeholder="Budget approval, appointment/dismissal of executives, approval of major projects..."></textarea></div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">Shareholder Rights Protection (Minority Rights)</h3>
+      <div class="field-group"><label>Stipulated Minority Rights</label><textarea rows="3" placeholder="Access to financial reports, attendance at general assemblies, effective voting, no decisions harming their interests..."></textarea></div>
+      <div class="field-group inline">
+        <div class="field-group"><label>Minority Shareholders Percentage (%)</label><input type="number" id="gov-minority-pct" value="70" /></div>
+        <div class="field-group"><label>Founder/Management Percentage (%)</label><input type="number" id="gov-founder-pct" value="30" /></div>
+      </div>
+      <div class="field-group"><label>Shareholder Dispute Resolution Mechanism</label><textarea rows="2" placeholder="Arbitration, mediation, competent judicial authorities..."></textarea></div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">Regulatory Compliance & Oversight</h3>
+      <div class="field-group"><label>Approved Regulatory Bodies</label><textarea rows="2" placeholder="Capital Market Authority, Real Estate Authority, Ministry of Commerce..."></textarea></div>
+      <div class="field-group"><label>Required Regulatory Licenses</label><textarea rows="2" placeholder="Real estate developer license, Wafi subscription, crowdfunding platform qualification..."></textarea></div>
+      <div class="field-group"><label>Financial Disclosure & Transparency Mechanism</label><textarea rows="2" placeholder="Audited financial statements, quarterly reports, external auditor..."></textarea></div>
+    </div>
+
+    <!-- ========== PAGE 24: EXECUTIVE DASHBOARD ========== -->
     <div class="template-page" id="page-dashboard">
       <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Executive Dashboard — Investor Summary</div></div>
-      <div class="page-header"><div class="section-number">27</div><div><h2>Executive Dashboard</h2><p>One-page investor summary</p></div></div>
+      <div class="page-header"><div class="section-number">23</div><div><h2>Executive Dashboard</h2><p>One-page investor summary</p></div></div>
 
       <div class="dash-header">
         <h3 id="dash-project-name">Project Name</h3>
@@ -1386,7 +1074,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       document.getElementById('bm-be-status').innerHTML = totalQty > 0 && beUnits / totalQty < 0.6 ? '<span style="color:#16a34a">✅</span>' : totalQty > 0 && beUnits / totalQty < 0.9 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
 
       renderCharts(revenue, fixed, variable, net);
-      updateDashboard(revenue, fixed, variable, net, margin / 100, roi, payback, beUnits);
+      updateDashboard(revenue, fixed, variable, net, marginPct, roi, paybackMonths, beUnits);
     }
 
     function updateDashboard(revenue, fixed, variable, net, marginPct, roi, paybackMonths, beUnits) {
@@ -1645,161 +1333,6 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       tbody.appendChild(tr);
     }
 
-    // ===== BOQ (Building Assessment) =====
-    function calcBOQRow(input) {
-      const row = input.closest('tr');
-      const qty = parseFloat(row.querySelector('.boq-qty')?.value) || 0;
-      const price = parseFloat(row.querySelector('.boq-price')?.value) || 0;
-      const total = row.querySelector('.boq-total');
-      if (total) total.value = (qty * price).toFixed(2);
-      calcBOQGrandTotal();
-      calcBuildingAssessment();
-    }
-    function calcBOQGrandTotal() {
-      let grand = 0;
-      document.querySelectorAll('#boq-table .boq-total').forEach(el => grand += parseFloat(el.value) || 0);
-      document.getElementById('boq-grand-total').textContent = grand.toFixed(0);
-      document.getElementById('ba-company-cost').value = grand.toFixed(2);
-    }
-    function addBOQRow() {
-      const tbody = document.getElementById('boq-table').querySelector('tbody');
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (tbody.children.length + 1) + '</td><td><input type="text" /></td><td><input type="text" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td>';
-      tbody.appendChild(tr);
-    }
-    function calcBuildingAssessment() {
-      const ownerValue = parseFloat(document.getElementById('ba-owner-value')?.value) || 0;
-      const companyCost = parseFloat(document.getElementById('ba-company-cost')?.value) || 0;
-      const futureValue = parseFloat(document.getElementById('ba-future-value')?.value) || 0;
-      const totalCost = ownerValue + companyCost;
-      const netProfit = Math.max(0, futureValue - totalCost);
-      // Calculate shares based on cost contribution
-      let ownerShare = 0, companyShare = 0;
-      if (totalCost > 0) {
-        ownerShare = (ownerValue / totalCost) * 100;
-        companyShare = (companyCost / totalCost) * 100;
-      }
-      const ownerProfit = (netProfit * ownerShare) / 100;
-      const companyProfit = (netProfit * companyShare) / 100;
-      // Update UI
-      const elOwnerShare = document.getElementById('ba-owner-share');
-      const elCompanyShare = document.getElementById('ba-company-share');
-      const elNetProfit = document.getElementById('ba-net-profit');
-      const elOwnerProfit = document.getElementById('ba-owner-profit');
-      const elCompanyProfit = document.getElementById('ba-company-profit');
-      const elTotalMonths = document.getElementById('ba-total-months');
-      if (elOwnerShare) elOwnerShare.textContent = ownerShare.toFixed(1) + '%';
-      if (elCompanyShare) elCompanyShare.textContent = companyShare.toFixed(1) + '%';
-      if (elNetProfit) elNetProfit.textContent = netProfit.toFixed(0);
-      if (elOwnerProfit) elOwnerProfit.textContent = ownerProfit.toFixed(0);
-      if (elCompanyProfit) elCompanyProfit.textContent = companyProfit.toFixed(0);
-      // Total timeline
-      const constructionMonths = parseFloat(document.getElementById('ba-construction-months')?.value) || 0;
-      const saleMonths = parseFloat(document.getElementById('ba-sale-months')?.value) || 0;
-      if (elTotalMonths) elTotalMonths.value = (constructionMonths + saleMonths).toFixed(1);
-    }
-
-    // ===== Valuation Standards =====
-    function calcValuationTotal() {
-      // Sum structural audit costs
-      let structuralCost = 0;
-      document.querySelectorAll('#val-structural-table .val-cost').forEach(el => structuralCost += parseFloat(el.value) || 0);
-      // Sum WBS completion costs
-      let wbsCost = 0;
-      document.querySelectorAll('#val-wbs-table .val-wbs-cost').forEach(el => wbsCost += parseFloat(el.value) || 0);
-      // Soft costs
-      const consulting = parseFloat(document.getElementById('val-consulting-cost')?.value) || 0;
-      const permits = parseFloat(document.getElementById('val-permit-cost')?.value) || 0;
-      const insurance = parseFloat(document.getElementById('val-insurance-cost')?.value) || 0;
-      // M&E update costs
-      let meCost = 0;
-      document.querySelectorAll('#val-me-table .val-me-cost').forEach(el => meCost += parseFloat(el.value) || 0);
-      // Risk reserve
-      const riskPct = parseFloat(document.getElementById('val-risk-pct')?.value) || 0;
-      const subtotal = structuralCost + wbsCost + consulting + permits + insurance + meCost;
-      const riskValue = subtotal * (riskPct / 100);
-      const totalCost = subtotal + riskValue;
-      // Net added value
-      const currentValue = parseFloat(document.getElementById('val-comp-current')?.value) || 0;
-      const futureValue = parseFloat(document.getElementById('val-comp-future')?.value) || 0;
-      const netAdded = futureValue - currentValue - totalCost;
-      // Update UI
-      const elRiskValue = document.getElementById('val-risk-value');
-      const elTotalCosts = document.getElementById('val-total-costs');
-      const elTotalRisk = document.getElementById('val-total-risk');
-      const elNetAdded = document.getElementById('val-net-added');
-      if (elRiskValue) elRiskValue.value = riskValue.toFixed(0);
-      if (elTotalCosts) elTotalCosts.textContent = totalCost.toFixed(0);
-      if (elTotalRisk) elTotalRisk.textContent = riskValue.toFixed(0);
-      if (elNetAdded) elNetAdded.textContent = Math.max(0, netAdded).toFixed(0);
-    }
-    function calcValComparison() {
-      const current = parseFloat(document.getElementById('val-comp-current')?.value) || 0;
-      const future = parseFloat(document.getElementById('val-comp-future')?.value) || 0;
-      const currentM2 = parseFloat(document.getElementById('val-comp-current-m2')?.value) || 0;
-      const futureM2 = parseFloat(document.getElementById('val-comp-future-m2')?.value) || 0;
-      const currentYield = parseFloat(document.getElementById('val-comp-current-yield')?.value) || 0;
-      const futureYield = parseFloat(document.getElementById('val-comp-future-yield')?.value) || 0;
-      const currentLiq = parseFloat(document.getElementById('val-comp-current-liquidity')?.value) || 0;
-      const futureLiq = parseFloat(document.getElementById('val-comp-future-liquidity')?.value) || 0;
-      const currentRisk = parseFloat(document.getElementById('val-comp-current-risk')?.value) || 0;
-      const futureRisk = parseFloat(document.getElementById('val-comp-future-risk')?.value) || 0;
-      const elDiffValue = document.getElementById('val-comp-diff-value');
-      const elDiffM2 = document.getElementById('val-comp-diff-m2');
-      const elDiffYield = document.getElementById('val-comp-diff-yield');
-      const elDiffLiq = document.getElementById('val-comp-diff-liquidity');
-      const elDiffRisk = document.getElementById('val-comp-diff-risk');
-      if (elDiffValue) elDiffValue.value = (future - current).toFixed(0);
-      if (elDiffM2) elDiffM2.value = (futureM2 - currentM2).toFixed(0);
-      if (elDiffYield) elDiffYield.value = (futureYield - currentYield).toFixed(1);
-      if (elDiffLiq) elDiffLiq.value = (futureLiq - currentLiq).toFixed(1);
-      if (elDiffRisk) elDiffRisk.value = (currentRisk - futureRisk).toFixed(1);
-      calcValuationTotal();
-    }
-
-    // ===== Org Chart =====
-    function addOrgRow() {
-      const tbody = document.getElementById('org-table').querySelector('tbody');
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (tbody.children.length + 1) + '</td><td><input type="text" /></td><td><input type="number" /></td><td><input type="number" /></td><td><input type="number" /></td><td><input type="text" /></td>';
-      tbody.appendChild(tr);
-    }
-
-    // ===== Pro Forma =====
-    function calcProForma() {
-      // Income Statement
-      const revs = document.querySelectorAll('#proforma-income .pf-rev');
-      const cogss = document.querySelectorAll('#proforma-income .pf-cogs');
-      const gas = document.querySelectorAll('#proforma-income .pf-ga');
-      const grosses = document.querySelectorAll('#proforma-income .pf-gross');
-      const nets = document.querySelectorAll('#proforma-income .pf-net');
-      let totalRev = 0, totalCogs = 0, totalGa = 0, totalGross = 0, totalNet = 0;
-      for (let i = 0; i < 4; i++) {
-        const rev = parseFloat(revs[i]?.value) || 0;
-        const cogs = parseFloat(cogss[i]?.value) || 0;
-        const ga = parseFloat(gas[i]?.value) || 0;
-        const gross = rev - cogs;
-        const net = gross - ga;
-        if (grosses[i]) grosses[i].value = gross.toFixed(2);
-        if (nets[i]) nets[i].value = net.toFixed(2);
-        totalRev += rev; totalCogs += cogs; totalGa += ga; totalGross += gross; totalNet += net;
-      }
-      document.querySelector('#proforma-income .pf-rev-total').value = totalRev.toFixed(2);
-      document.querySelector('#proforma-income .pf-cogs-total').value = totalCogs.toFixed(2);
-      document.querySelector('#proforma-income .pf-gross-total').value = totalGross.toFixed(2);
-      document.querySelector('#proforma-income .pf-ga-total').value = totalGa.toFixed(2);
-      document.querySelector('#proforma-income .pf-net-total').value = totalNet.toFixed(2);
-      // Balance Sheet
-      const assetsC = parseFloat(document.querySelector('#proforma-balance .pf-assets-c')?.value) || 0;
-      const assetsWip = parseFloat(document.querySelector('#proforma-balance .pf-assets-wip')?.value) || 0;
-      const assetsF = parseFloat(document.querySelector('#proforma-balance .pf-assets-f')?.value) || 0;
-      const equityCap = parseFloat(document.querySelector('#proforma-balance .pf-equity-cap')?.value) || 0;
-      const equityRet = parseFloat(document.querySelector('#proforma-balance .pf-equity-ret')?.value) || 0;
-      const liabC = parseFloat(document.querySelector('#proforma-balance .pf-liab-c')?.value) || 0;
-      document.querySelector('#proforma-balance .pf-assets-total').value = (assetsC + assetsWip + assetsF).toFixed(2);
-      document.querySelector('#proforma-balance .pf-equity-total').value = (equityCap + equityRet + liabC).toFixed(2);
-    }
-
     // ===== Revenue =====
     function calcRevenueRow(input) {
       const row = input.closest('tr');
@@ -1891,7 +1424,47 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     function calcCapital() {
       const total = sumInputs('#capital-table .cap-input');
       document.getElementById('total-capital').value = total.toFixed(2);
+
+      // Share engineering calculations
+      const shares = parseFloat(document.getElementById('cap-total-shares')?.value) || 0;
+      const nominal = parseFloat(document.getElementById('cap-nominal-value')?.value) || 0;
+      const premium = parseFloat(document.getElementById('cap-premium')?.value) || 0;
+      const totalNominal = shares * nominal;
+      const totalPremium = shares * premium;
+      const totalSubscription = totalNominal + totalPremium;
+
+      if (document.getElementById('cap-total-nominal')) {
+        document.getElementById('cap-total-nominal').value = totalNominal.toFixed(2);
+        document.getElementById('cap-total-premium').value = totalPremium.toFixed(2);
+        document.getElementById('cap-total-subscription').value = totalSubscription.toFixed(2);
+      }
+
+      // Net operating liquidity
+      const shPct = parseFloat(document.getElementById('cap-shareholders-pct')?.value) || 0;
+      const netLiquidity = totalNominal * (shPct / 100);
+      if (document.getElementById('cap-net-liquidity')) {
+        document.getElementById('cap-net-liquidity').value = netLiquidity.toFixed(2);
+      }
+
+      // Expected revenue
+      const buildingCost = parseFloat(document.getElementById('cap-building-cost')?.value) || 0;
+      const buildings = parseFloat(document.getElementById('cap-buildings-target')?.value) || 0;
+      const targetReturn = parseFloat(document.getElementById('cap-target-return')?.value) || 0;
+      const totalRevenue = buildings * buildingCost * (1 + targetReturn / 100);
+      if (document.getElementById('cap-total-revenue')) {
+        document.getElementById('cap-total-revenue').value = totalRevenue.toFixed(2);
+      }
+
       calcROI();
+    }
+
+    function calcShareGrowth() {
+      const start = parseFloat(document.getElementById('share-book-start')?.value) || 0;
+      const end = parseFloat(document.getElementById('share-book-end')?.value) || 0;
+      if (start > 0 && end > 0) {
+        const growth = ((end - start) / start) * 100;
+        document.getElementById('share-growth').value = growth.toFixed(2);
+      }
     }
     function linkLicensesToCapital() {
       const total = sumInputs('#licenses-table .license-cost');
@@ -2301,54 +1874,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       calcFinancials();
       calcCashFlow();
       calcCapital();
-      localStorage.removeItem('bonds_feasibility_auto');
     }
-
-    // ===== Auto-Save =====
-    let _autoSaveDebounce = null;
-    function _doAutoSave() {
-      const data = {};
-      document.querySelectorAll('input, textarea, select').forEach((el, i) => {
-        data['f' + i] = el.type === 'checkbox' ? el.checked : el.value;
-      });
-      localStorage.setItem('bonds_feasibility_auto', JSON.stringify({ data, time: Date.now() }));
-      const indicator = document.getElementById('auto-save-indicator');
-      if (indicator) { indicator.style.opacity = '1'; setTimeout(() => indicator.style.opacity = '0', 2000); }
-    }
-    function triggerAutoSave() {
-      if (_autoSaveDebounce) clearTimeout(_autoSaveDebounce);
-      _autoSaveDebounce = setTimeout(_doAutoSave, 1500);
-    }
-    // Auto-restore on load
-    function autoRestore() {
-      const raw = localStorage.getItem('bonds_feasibility_auto');
-      if (!raw) return;
-      try {
-        const saved = JSON.parse(raw);
-        if (!saved || !saved.data) return;
-        const ageHours = (Date.now() - saved.time) / 3600000;
-        if (ageHours > 168) { localStorage.removeItem('bonds_feasibility_auto'); return; }
-        document.querySelectorAll('input, textarea, select').forEach((el, i) => {
-          const key = 'f' + i;
-          if (saved.data[key] !== undefined) {
-            if (el.type === 'checkbox') el.checked = saved.data[key];
-            else el.value = saved.data[key];
-          }
-        });
-        calcFinancials(); calcCashFlow(); calcCapital(); calcHRGrandTotal(); calcToolsGrandTotal();
-        const indicator = document.getElementById('auto-save-indicator');
-        if (indicator) { indicator.textContent = '💾 Restored auto-saved draft'; indicator.style.opacity = '1'; setTimeout(() => { indicator.style.opacity = '0'; indicator.textContent = '💾 Auto-saved'; }, 3000); }
-      } catch(e) { console.error('Auto-restore failed', e); }
-    }
-    // Start auto-save listeners
-    document.addEventListener('DOMContentLoaded', () => {
-      autoRestore();
-      document.querySelectorAll('input, textarea, select').forEach(el => {
-        el.addEventListener('input', triggerAutoSave);
-        el.addEventListener('change', triggerAutoSave);
-      });
-      setInterval(_doAutoSave, 30000); // Save every 30 seconds regardless
-    });
 
     // ===== Export to Excel =====
     function exportToExcel() {
@@ -2773,6 +2299,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         'page-market-analysis': 'competitors and market analysis',
         'page-marketing': 'marketing strategy',
         'page-legal': 'licenses and legal requirements',
+        'page-governance': 'corporate governance and shareholder protection',
         'page-smart': 'SWOT analysis'
       };
 
@@ -3152,386 +2679,6 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         if (rc) rc.value = e.target.value;
       }
     });
-
-    // ===== AI FEASIBILITY IMPORTER =====
-    async function handleFeasibilityFile(input) {
-      const file = input.files[0];
-      if (!file) return;
-      const status = document.getElementById('import-status');
-      status.textContent = 'Reading file...';
-      status.style.color = 'var(--gold-bright)';
-
-      try {
-        if (file.name.toLowerCase().endsWith('.docx') && window.mammoth) {
-          const arrayBuffer = await file.arrayBuffer();
-          const result = await mammoth.extractRawText({ arrayBuffer });
-          document.getElementById('feasibility-text').value = result.value;
-          status.textContent = '✅ Text extracted from Word file. Click "Analyze & Fill Template".';
-        } else if (file.name.toLowerCase().endsWith('.pdf')) {
-          if (!window.pdfjsLib) {
-            status.textContent = '⚠️ PDF library not loaded. Try refreshing or use .docx/.txt';
-            status.style.color = '#f87171';
-            return;
-          }
-          const arrayBuffer = await file.arrayBuffer();
-          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-          let extractedText = '';
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const content = await page.getTextContent();
-            extractedText += content.items.map(item => item.str).join(' ') + '\n';
-          }
-          document.getElementById('feasibility-text').value = extractedText;
-          status.textContent = '✅ Text extracted from PDF (' + pdf.numPages + ' pages). Click "Analyze & Fill Template".';
-        } else if (file.name.toLowerCase().endsWith('.txt')) {
-          const text = await file.text();
-          document.getElementById('feasibility-text').value = text;
-          status.textContent = '✅ Text file read. Click "Analyze & Fill Template".';
-        } else {
-          status.textContent = '⚠️ Only .docx, .pdf, and .txt supported — use https://convertio.co to convert.';
-          status.style.color = '#f87171';
-        }
-      } catch (e) {
-        status.textContent = '❌ Error reading file: ' + e.message;
-        status.style.color = '#f87171';
-      }
-    }
-
-    let _retryTimer = null;
-
-    async function analyzeFeasibilityText() {
-      const text = document.getElementById('feasibility-text')?.value?.trim();
-      const status = document.getElementById('import-status');
-      const btn = document.getElementById('analyze-btn');
-
-      if (!text || text.length < 100) {
-        status.textContent = '❌ Text too short (minimum 100 characters).';
-        status.style.color = '#f87171';
-        return;
-      }
-
-      if (_retryTimer) { clearInterval(_retryTimer); _retryTimer = null; }
-
-      btn.disabled = true;
-      btn.textContent = '⏳ Analyzing with AI...';
-      status.textContent = 'Sending text for analysis... This may take 10-30 seconds.';
-      status.style.color = 'var(--gold-bright)';
-
-      try {
-        const res = await fetch('/api/analyze-feasibility-v2?cb=' + Date.now(), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, lang: document.documentElement.lang || 'en' })
-        });
-        const data = await res.json();
-
-        if (data.success && data.analysis) {
-          window._pendingAnalysis = data.analysis;
-          showPreview(data.analysis);
-          status.textContent = '';
-        } else {
-          const err = data.error || '';
-          const retryMatch = err.match(/retry\s+in\s+([\d.]+)s/i);
-          if (retryMatch && (err.includes('quota') || err.includes('Quota') || err.includes('RESOURCE_EXHAUSTED') || err.includes('rate limit'))) {
-            let seconds = Math.ceil(parseFloat(retryMatch[1]));
-            status.style.color = '#f0c96a';
-            _retryTimer = setInterval(() => {
-              status.innerHTML = `⏳ Quota full. Retrying automatically in <strong>${seconds}</strong> seconds... <button onclick="clearInterval(_retryTimer);_retryTimer=null;analyzeFeasibilityText();" style="background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:6px;padding:2px 8px;cursor:pointer;font-family:inherit;">Retry now</button>`;
-              seconds--;
-              if (seconds < 0) { clearInterval(_retryTimer); _retryTimer = null; analyzeFeasibilityText(); }
-            }, 1000);
-          } else {
-            status.textContent = '⚠️ ' + (err || 'Analysis failed. Try again with a longer, more detailed text.');
-            status.style.color = '#f87171';
-            console.error('Analyze error:', data);
-          }
-        }
-      } catch (e) {
-        status.textContent = '❌ Connection error: ' + e.message;
-        status.style.color = '#f87171';
-        console.error(e);
-      } finally {
-        if (!_retryTimer) {
-          btn.disabled = false;
-          btn.textContent = '✨ Analyze & Fill Template';
-        }
-      }
-    }
-
-    // ========== AI PREVIEW FUNCTIONS ==========
-    function showPreview(d) {
-      const container = document.getElementById('ai-preview-content');
-      if (!container) return;
-
-      const fields = [];
-      const add = (label, value, key) => {
-        if (value === undefined || value === null || value === '' || (Array.isArray(value) && !value.length)) return;
-        const display = Array.isArray(value) ? value.join(', ') : String(value);
-        fields.push({ label, value: display, key });
-      };
-
-      add('Project Name', d.projectName, 'projectName');
-      add('Country', d.country, 'country');
-      add('City', d.city, 'city');
-      add('Sector', d.sector, 'sector');
-      add('Vision', d.vision, 'vision');
-      add('Products/Services', d.products, 'products');
-      add('Target Customers', d.targetCustomers, 'targetCustomers');
-      add('Investment', d.investment, 'investment');
-      add('Currency', d.currency, 'currency');
-      add('Fixed Costs', d.fixedCosts?.map(fc => `${fc.name}: ${fc.monthlyAmount}`).join(', '), 'fixedCosts');
-      add('Variable Costs', d.variableCosts?.map(vc => `${vc.name}: ${vc.unitCost}`).join(', '), 'variableCosts');
-      add('Revenue Streams', d.revenueStreams?.map(r => `${r.name}: ${r.unitPrice}`).join(', '), 'revenueStreams');
-      add('Employees', d.employees?.map(e => `${e.position} ×${e.count}`).join(', '), 'employees');
-      add('Product (Marketing)', d.marketing?.product, 'marketing.product');
-      add('Price (Marketing)', d.marketing?.price, 'marketing.price');
-      add('Place (Marketing)', d.marketing?.place, 'marketing.place');
-      add('Promotion (Marketing)', d.marketing?.promotion, 'marketing.promotion');
-      add('Strengths (SWOT)', d.swot?.strengths, 'swot.strengths');
-      add('Weaknesses (SWOT)', d.swot?.weaknesses, 'swot.weaknesses');
-      add('Opportunities (SWOT)', d.swot?.opportunities, 'swot.opportunities');
-      add('Threats (SWOT)', d.swot?.threats, 'swot.threats');
-      add('Competitors', d.competitors?.map(c => c.name).join(', '), 'competitors');
-      add('Risks', d.risks?.map(r => r.risk).join(', '), 'risks');
-      add('Licenses', d.legal?.licenses, 'legal.licenses');
-      add('Insurance', d.legal?.insurance, 'legal.insurance');
-      add('Taxes', d.legal?.taxes, 'legal.taxes');
-      add('Timeline', d.timeline, 'timeline');
-      add('Executive Summary', d.summary, 'summary');
-
-      if (!fields.length) {
-        container.innerHTML = '<p style="color:#f87171; text-align:center;">No clear data extracted from text. Try a longer, more detailed text.</p>';
-        document.getElementById('ai-preview-modal').style.display = 'flex';
-        return;
-      }
-
-      let html = '<table style="width:100%; border-collapse:collapse; font-size:0.9rem;">';
-      html += '<thead><tr style="border-bottom:2px solid var(--gold);"><th style="text-align:left; padding:0.75rem; color:var(--gold);"><input type="checkbox" id="preview-check-all" checked onchange="togglePreviewAll(this)"></th><th style="text-align:left; padding:0.75rem; color:var(--gold);">Field</th><th style="text-align:left; padding:0.75rem; color:var(--gold);">Extracted Value</th></tr></thead><tbody>';
-      fields.forEach((f, i) => {
-        html += `<tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:0.6rem; width:40px;"><input type="checkbox" class="preview-check" data-key="${f.key}" checked></td>
-          <td style="padding:0.6rem; color:var(--text-secondary); white-space:nowrap;">${f.label}</td>
-          <td style="padding:0.6rem; color:var(--text);">${f.value}</td>
-        </tr>`;
-      });
-      html += '</tbody></table>';
-      container.innerHTML = html;
-      document.getElementById('ai-preview-modal').style.display = 'flex';
-    }
-
-    function togglePreviewAll(chk) {
-      document.querySelectorAll('.preview-check').forEach(c => c.checked = chk.checked);
-    }
-
-    function closePreview() {
-      document.getElementById('ai-preview-modal').style.display = 'none';
-      window._pendingAnalysis = null;
-    }
-
-    function confirmFillFromPreview() {
-      const d = window._pendingAnalysis;
-      if (!d) return;
-      const checkedKeys = new Set();
-      document.querySelectorAll('.preview-check:checked').forEach(c => checkedKeys.add(c.dataset.key));
-      if (!checkedKeys.size) {
-        closePreview();
-        return;
-      }
-      fillTemplateFromAnalysis(d, checkedKeys);
-      closePreview();
-      const status = document.getElementById('import-status');
-      status.textContent = '✅ Template filled with selected data! Review and complete missing fields.';
-      status.style.color = '#4ade80';
-      document.getElementById('page-vision').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function fillTemplateFromAnalysis(d, checkedKeys) {
-      if (!d) return;
-      let filledCount = 0;
-      const shouldFill = (key) => !checkedKeys || checkedKeys.has(key);
-
-      // Cover
-      if (shouldFill('projectName') && d.projectName) { setVal('cover-business-name', d.projectName); filledCount++; }
-      if (shouldFill('country') && d.country) { setSelectText('cover-country', d.country); filledCount++; }
-      if (shouldFill('city') && d.city) { setVal('cover-city', d.city); filledCount++; }
-      if (shouldFill('sector') && d.sector) { setVal('cover-sector', d.sector); filledCount++; }
-      if (shouldFill('investment') && d.investment) { setVal('cover-investment', d.investment); filledCount++; }
-
-      // Vision
-      if (shouldFill('vision') && d.vision) { setVal('vision-mission', d.vision); filledCount++; }
-
-      // Executive Summary
-      if (shouldFill('summary') && d.summary) { setVal('exec-summary', d.summary); filledCount++; }
-
-      // Products
-      if (shouldFill('products') && d.products && d.products.length) {
-        const productsText = d.products.join('\n');
-        const prodArea = document.querySelector('#page-products textarea');
-        if (prodArea && !prodArea.value) { prodArea.value = productsText; filledCount++; }
-      }
-
-      // Marketing 4Ps
-      if (d.marketing) {
-        if (shouldFill('marketing.product') && d.marketing.product) { setVal('marketing-product', d.marketing.product); filledCount++; }
-        if (shouldFill('marketing.price') && d.marketing.price) { setVal('marketing-price-strategy', d.marketing.price); filledCount++; }
-        if (shouldFill('marketing.place') && d.marketing.place) { setVal('marketing-place', d.marketing.place); filledCount++; }
-        if (shouldFill('marketing.promotion') && d.marketing.promotion) { setVal('marketing-promotion', d.marketing.promotion); filledCount++; }
-      }
-
-      // SWOT
-      if (d.swot) {
-        if (shouldFill('swot.strengths') && d.swot.strengths && d.swot.strengths.length) { setVal('swot-s', d.swot.strengths.join('\n')); filledCount++; }
-        if (shouldFill('swot.weaknesses') && d.swot.weaknesses && d.swot.weaknesses.length) { setVal('swot-w', d.swot.weaknesses.join('\n')); filledCount++; }
-        if (shouldFill('swot.opportunities') && d.swot.opportunities && d.swot.opportunities.length) { setVal('swot-o', d.swot.opportunities.join('\n')); filledCount++; }
-        if (shouldFill('swot.threats') && d.swot.threats && d.swot.threats.length) { setVal('swot-t', d.swot.threats.join('\n')); filledCount++; }
-      }
-
-      // Competitors
-      if (shouldFill('competitors') && d.competitors && d.competitors.length) {
-        const table = document.getElementById('competitor-table');
-        d.competitors.forEach((c, i) => {
-          const rows = table?.querySelectorAll('tbody tr');
-          if (rows && rows[i]) {
-            const inputs = rows[i].querySelectorAll('input');
-            if (inputs[0] && c.name) inputs[0].value = c.name;
-            if (inputs[1] && c.strengths) inputs[1].value = c.strengths;
-            if (inputs[2] && c.weaknesses) inputs[2].value = c.weaknesses;
-          }
-        });
-        filledCount++;
-      }
-
-      // Legal
-      if (d.legal) {
-        if (shouldFill('legal.licenses') && d.legal.licenses && d.legal.licenses.length) {
-          const table = document.getElementById('licenses-table');
-          d.legal.licenses.forEach((l, i) => {
-            const rows = table?.querySelectorAll('tbody tr');
-            if (rows && rows[i]) {
-              const inputs = rows[i].querySelectorAll('input');
-              if (inputs[0]) inputs[0].value = l;
-            }
-          });
-        }
-        if (shouldFill('legal.insurance') && d.legal.insurance) { setVal('legal-insurance', d.legal.insurance); filledCount++; }
-        if (shouldFill('legal.taxes') && d.legal.taxes) { setVal('legal-taxes', d.legal.taxes); filledCount++; }
-      }
-
-      // Risks
-      if (shouldFill('risks') && d.risks && d.risks.length) {
-        const table = document.getElementById('risks-table');
-        d.risks.forEach((r, i) => {
-          const rows = table?.querySelectorAll('tbody tr');
-          if (rows && rows[i]) {
-            const inputs = rows[i].querySelectorAll('input, textarea');
-            if (inputs[0] && r.risk) inputs[0].value = r.risk;
-            if (inputs[1] && r.mitigation) inputs[1].value = r.mitigation;
-          }
-        });
-        filledCount++;
-      }
-
-      // Employees
-      if (shouldFill('employees') && d.employees && d.employees.length) {
-        const table = document.getElementById('hr-table');
-        d.employees.forEach((emp, i) => {
-          const rows = table?.querySelectorAll('tbody tr');
-          if (rows && rows[i]) {
-            const inputs = rows[i].querySelectorAll('input');
-            if (inputs[0] && emp.position) inputs[0].value = emp.position;
-            if (inputs[1] && emp.count) inputs[1].value = emp.count;
-            if (inputs[2] && emp.monthlySalary) inputs[2].value = emp.monthlySalary;
-            calcHRRow(inputs[2] || inputs[1]);
-          }
-        });
-        filledCount++;
-      }
-
-      // Fixed Costs
-      if (shouldFill('fixedCosts') && d.fixedCosts && d.fixedCosts.length) {
-        const table = document.getElementById('fixed-costs-table');
-        d.fixedCosts.forEach((fc, i) => {
-          const rows = table?.querySelectorAll('tbody tr');
-          if (rows && rows[i]) {
-            const inputs = rows[i].querySelectorAll('input');
-            if (inputs[0] && fc.name) inputs[0].value = fc.name;
-            if (inputs[1] && fc.monthlyAmount) inputs[1].value = fc.monthlyAmount;
-            calcFinancials();
-          }
-        });
-        filledCount++;
-      }
-
-      // Variable Costs
-      if (shouldFill('variableCosts') && d.variableCosts && d.variableCosts.length) {
-        const table = document.getElementById('var-costs-table');
-        d.variableCosts.forEach((vc, i) => {
-          const rows = table?.querySelectorAll('tbody tr');
-          if (rows && rows[i]) {
-            const inputs = rows[i].querySelectorAll('input');
-            if (inputs[0] && vc.name) inputs[0].value = vc.name;
-            if (inputs[1] && vc.unitCost) inputs[1].value = vc.unitCost;
-            calcFinancials();
-          }
-        });
-        filledCount++;
-      }
-
-      // Revenue
-      if (shouldFill('revenueStreams') && d.revenueStreams && d.revenueStreams.length) {
-        const table = document.getElementById('revenue-table');
-        d.revenueStreams.forEach((rev, i) => {
-          const rows = table?.querySelectorAll('tbody tr');
-          if (rows && rows[i]) {
-            const inputs = rows[i].querySelectorAll('input');
-            if (inputs[0] && rev.name) inputs[0].value = rev.name;
-            if (inputs[1] && rev.unitPrice) inputs[1].value = rev.unitPrice;
-            if (inputs[2] && rev.monthlyUnits) inputs[2].value = rev.monthlyUnits;
-            calcRevenueRow(inputs[2] || inputs[1]);
-          }
-        });
-        filledCount++;
-      }
-
-      // Investment link
-      if (d.investment) {
-        setVal('capital-invested', d.investment);
-        linkToCapital();
-      }
-
-      // Recalculate everything
-      calcFinancials();
-      calcCashFlow();
-      calcCapital();
-      runSmartAnalysis();
-      updateProgress();
-
-      alert('Filled ' + filledCount + ' fields from imported study ✅');
-    }
-
-    function setVal(id, value) {
-      const el = document.getElementById(id);
-      if (el && !el.value) el.value = value;
-    }
-
-    function setSelectText(selectId, text) {
-      const sel = document.getElementById(selectId);
-      if (!sel) return;
-      for (let i = 0; i < sel.options.length; i++) {
-        if (sel.options[i].text.includes(text) || sel.options[i].value.toLowerCase() === text.toLowerCase()) {
-          sel.selectedIndex = i;
-          return;
-        }
-      }
-    }
   </script>
-<script>
-  // Force unregister old service workers to prevent cached API responses
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(regs => {
-      regs.forEach(reg => reg.unregister());
-    });
-  }
-</script>
 </body>
 </html>

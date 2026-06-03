@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bonds-v35';
+const CACHE_NAME = 'bonds-v36';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -117,6 +117,12 @@ self.addEventListener('fetch', e => {
 
   // Skip cross-origin requests except CDN assets
   if (url.origin !== self.location.origin && !CDN_ASSETS.some(cdn => url.href === cdn)) {
+    return;
+  }
+
+  // Skip API routes — always go to network, never cache
+  if (url.pathname.startsWith('/api/')) {
+    e.respondWith(fetch(request));
     return;
   }
 
