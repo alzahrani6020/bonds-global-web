@@ -204,7 +204,7 @@
 
   <!-- Navbar -->
   <nav class="navbar no-print">
-    <a href="../../index.html" class="logo"><img src="../../assets/site-logo.webp" alt="بوندز" height="36" loading="lazy" decoding="async" /></a>
+    <a href="../../index.html" class="logo"><img src="../../assets/site-logo.webp" alt="Bonds" height="36" loading="lazy" decoding="async" /></a>
     <ul class="nav-links" id="navLinks">
       <li><a href="../../index.html">Home</a></li>
       <li class="dropdown">
@@ -235,7 +235,7 @@
       <li><a href="../../contact.html">Contact</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:0.75rem;">
-      <a href="../../calculators/feasibility-template.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;">AR</a>
+      <a href="/calculators/feasibility-template.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;">AR</a>
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme">🌙</button>
       <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">☰</button>
     </div>
@@ -244,7 +244,6 @@
   <!-- Toolbar -->
   <div class="template-toolbar no-print">
     <div id="auto-save-indicator" style="position:absolute;top:0.3rem;left:0.5rem;font-size:0.7rem;color:var(--gold);opacity:0;transition:opacity 0.5s;">💾 Auto-saved</div>
-    <button onclick="window.print()">🖨️ Print / PDF</button>
     <button class="btn-ghost" onclick="clearAll()">🗑️ Clear All</button>
     <button class="btn-ghost" onclick="saveDraft()">💾 Save Draft</button>
     <button class="btn-ghost" onclick="loadDraft()">📂 Load Draft</button>
@@ -252,21 +251,33 @@
     <button class="btn-ghost" id="btn-import-supabase" onclick="fillFromSupabase()" style="display:none;">📥 Import My Data</button>
     <button class="btn-ghost" onclick="openResearchModal()" style="color:#38bdf8;border-color:#38bdf8;">Smart Research</button>
     <button class="btn-ghost" onclick="exportToExcel()">📊 Export Excel</button>
+    <button class="btn-ghost" onclick="generateProfessionalPDF()" style="color:var(--gold);border-color:var(--gold);">📄 Professional PDF</button>
   </div>
 
   <div class="template-wrapper">
 
     <!-- ========== PAGE 0: COVER ========== -->
     <div class="template-page cover-page" id="page-cover">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Integrated Feasibility Study</div></div>
-      <img src="../../assets/site-logo.webp" alt="بوندز" class="no-print" loading="lazy" decoding="async" />
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Integrated Feasibility Study</div></div>
+      <img src="../../assets/site-logo.webp" alt="Bonds" class="no-print" loading="lazy" decoding="async" />
       <h1>Integrated Feasibility Study</h1>
       <p class="cover-subtitle">Integrated Feasibility Study Template</p>
       <div class="cover-meta">
         <div class="field-group"><label>Project / Business Name</label><input type="text" id="cover-business-name" placeholder="e.g. Al-Thawaqa Restaurant" /></div>
-        <div class="field-group"><label>Owner Name</label><input type="text" id="cover-owner-name" placeholder="الاسم الكامل" /></div>
+        <div class="field-group"><label>Owner Name</label><input type="text" id="cover-owner-name" placeholder="Full Name" /></div>
         <div class="field-group"><label>Legal Form</label><input type="text" id="cover-legal-form" placeholder="Sole Proprietorship / LLC" /></div>
         <div class="field-group"><label>Preparation Date</label><input type="date" id="cover-date" /></div>
+      </div>
+      <div class="field-group inline-2" style="max-width:520px;width:100%;margin-top:1rem;text-align:right;display:grid;grid-template-columns:2fr 1fr;gap:1rem;">
+        <div class="field-group" style="margin-bottom:0;">
+          <label>Country</label>
+          <select id="cover-country" onchange="fillFromCountry()">
+            <option value="">Select country...</option>
+          </select>
+        </div>
+        <div class="field-group" style="margin-bottom:0;">
+          <button type="button" class="btn-ghost" style="width:100%;padding:0.75rem;border-radius:10px;background:rgba(212,168,83,0.1);color:var(--gold);border:1px solid var(--gold);font-weight:700;cursor:pointer;font-family:inherit;" onclick="fillFromCountry()">🔄 Fill Data</button>
+        </div>
       </div>
       <div class="field-group" style="max-width:520px;width:100%;margin-top:1.5rem;text-align:right;">
         <label>Project Idea in One Sentence</label><textarea id="cover-idea" rows="2" placeholder="Brief description of the project idea..."></textarea>
@@ -333,7 +344,7 @@ The text should include: project description, costs, revenue, competitors, SWOT,
 
     <!-- ========== PAGE 1: VISION & OBJECTIVES ========== -->
     <div class="template-page" id="page-vision">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Vision</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Vision</div></div>
       <div class="page-header"><div class="section-number">1</div><div><h2>Vision, Mission & Objectives</h2><p>Why the project exists and what it aims to achieve</p></div></div>
       <div class="field-group"><label>Vision — Where do you see yourself in 5-10 years?</label><textarea rows="3" placeholder="Ambitious and specific vision for the future..."></textarea></div>
       <div class="field-group"><label>Mission — What is your core value?</label><textarea rows="3" placeholder="The fundamental purpose of the project..."></textarea></div>
@@ -364,7 +375,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     <!-- ========== PAGE 2: EXECUTIVE SUMMARY ========== -->
     <div class="template-page" id="page-summary">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Summary</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Summary</div></div>
       <div class="page-header"><div class="section-number">2</div><div><h2>Executive Summary</h2><p>Overview of the entire study (best written last)</p></div></div>
       <div class="field-group"><label>Project Summary (3-5 lines)</label><textarea id="exec-summary" rows="5" placeholder="Comprehensive overview: idea, market, opportunity, expected results..."></textarea><button class="btn-ghost no-print" style="margin-top:0.5rem;font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="autoGenerateSummary()">✨ Auto-generate summary</button></div>
       <div class="field-group inline-3">
@@ -381,19 +392,19 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     <!-- ========== PAGE 3: PRODUCTS & SERVICES ========== -->
     <div class="template-page" id="page-products">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Products</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Products</div></div>
       <div class="page-header"><div class="section-number">3</div><div><h2>Products & Services Description</h2><p>What you offer and how customers benefit</p></div></div>
       <div class="field-group"><label>Primary Product/Service Description</label><textarea rows="4" placeholder="Describe fundamentally what you sell..."></textarea></div>
       <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">Product Cards</h3>
       <table class="template-table" id="products-table">
-        <thead><tr><th>م</th><th>Product Name</th><th>Price (SAR)</th><th>Variable Cost</th><th>Contribution Margin</th></tr></thead>
+        <thead><tr><th>#</th><th>Product Name</th><th>Price (SAR)</th><th>Variable Cost</th><th>Contribution Margin</th></tr></thead>
         <tbody>
           <tr><td>1</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
           <tr><td>2</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
           <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <div class="table-actions no-print"><button onclick="addProductRow()">+ إضافة منتج</button><button onclick="removeRow('products-table')">- Remove</button></div>
+      <div class="table-actions no-print"><button onclick="addProductRow()">+ Add Product</button><button onclick="removeRow('products-table')">- Remove</button></div>
       <div class="field-group inline" style="margin-top:1rem;">
         <div class="field-group"><label>Added Value</label><textarea rows="2" placeholder="What differentiates you?"></textarea></div>
         <div class="field-group"><label>Customer Benefit</label><textarea rows="2" placeholder="Direct benefit..."></textarea></div>
@@ -486,6 +497,24 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <div class="field-group"><label>Completion Cost (Company's Share)</label><input type="number" id="ba-company-cost" placeholder="0" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>Expected Sale Value After Completion</label><input type="number" id="ba-future-value" placeholder="0" oninput="calcBuildingAssessment()" /></div>
       </div>
+      <div class="field-group inline-3" style="margin-top:1rem;">
+        <div class="field-group"><label>Admin & Marketing Expenses (SAR)</label><input type="number" id="ba-admin-expenses" placeholder="0" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>Platform Fees / Commissions (SAR)</label><input type="number" id="ba-platform-fees" placeholder="0" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>Property Tax / Zakat (SAR)</label><input type="number" id="ba-tax" placeholder="0" oninput="calcBuildingAssessment()" /></div>
+      </div>
+      <div class="field-group inline-3" style="margin-top:0.5rem;">
+        <div class="field-group"><label>External Office & Broker Commissions (SAR)</label><input type="number" id="ba-broker-fees" placeholder="0" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>Property Transfer Fees (SAR)</label><input type="number" id="ba-transfer-fees" placeholder="0" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>Other Expenses (SAR)</label><input type="number" id="ba-other-expenses" placeholder="0" oninput="calcBuildingAssessment()" /></div>
+      </div>
+      <div style="margin-top:0.75rem;padding:0.75rem;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:10px;">
+        <p style="margin:0 0 0.5rem;font-size:0.85rem;color:#f87171;font-weight:700;">⚠️ Additional expenses deducted exclusively for the company (completion risks)</p>
+        <div class="field-group inline-3" style="margin:0;">
+          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">Hidden Defects Treatment (SAR)</label><input type="number" id="ba-hidden-defects" placeholder="0" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
+          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">Interim Construction Emergencies (SAR)</label><input type="number" id="ba-emergency" placeholder="0" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
+          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">Unplanned Modifications (SAR)</label><input type="number" id="ba-unplanned" placeholder="0" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
+        </div>
+      </div>
       <div class="scenario-grid" style="margin-top:1rem;">
         <div class="scenario-card" style="border-left:4px solid #3b82f6;">
           <div class="scenario-label" style="color:#3b82f6;">Owner's Share (%)</div>
@@ -496,6 +525,11 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <div class="scenario-label" style="color:#f59e0b;">Company's Share (%)</div>
           <div class="scenario-value" id="ba-company-share" style="color:#f59e0b;">0%</div>
           <div class="scenario-desc">Completion &amp; Operations Share</div>
+        </div>
+        <div class="scenario-card" style="border-left:4px solid #64748b;">
+          <div class="scenario-label" style="color:#64748b;">Total Company Expenses</div>
+          <div class="scenario-value" id="ba-shared-expenses" style="color:#64748b;">0</div>
+          <div class="scenario-desc">Added to company share and deducted from owner</div>
         </div>
         <div class="scenario-card" style="border-left:4px solid #16a34a;">
           <div class="scenario-label" style="color:#16a34a;">Expected Net Profit</div>
@@ -747,16 +781,16 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <div class="field-group"><label>Country Credit Rating</label><input type="text" id="econ-credit" placeholder="e.g. A+ / B / BBB-" /></div>
       </div>
       <div class="field-group inline">
-        <div class="field-group"><label>State of Public Budget</label><textarea rows="2" placeholder="Surplus / Deficit — spending and revenues..."></textarea></div>
-        <div class="field-group"><label>Purchasing Power of Individuals</label><textarea rows="2" placeholder="Average income, consumer spending..."></textarea></div>
+        <div class="field-group"><label>State of Public Budget</label><textarea id="econ-budget" rows="2" placeholder="Surplus / Deficit — spending and revenues..."></textarea></div>
+        <div class="field-group"><label>Purchasing Power of Individuals</label><textarea id="econ-purchasing" rows="2" placeholder="Average income, consumer spending..."></textarea></div>
       </div>
-      <div class="field-group"><label>Economic Expectations for the Market</label><textarea rows="3" placeholder="Sector growth, investment trends, inflation..."></textarea></div>
-      <div class="field-group"><label>Impact of Government Decisions on Business</label><textarea rows="2" placeholder="Municipal fees, new taxes, government support..."></textarea></div>
+      <div class="field-group"><label>Economic Expectations for the Market</label><textarea id="econ-outlook" rows="3" placeholder="Sector growth, investment trends, inflation..."></textarea></div>
+      <div class="field-group"><label>Impact of Government Decisions on Business</label><textarea id="econ-government" rows="2" placeholder="Municipal fees, new taxes, government support..."></textarea></div>
     </div>
 
     <!-- ========== PAGE 6: MARKET ANALYSIS (PESTLE + SWOT + Porter + Persona) ========== -->
     <div class="template-page" id="page-market-analysis">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Market Analysis</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Market Analysis</div></div>
       <div class="page-header"><div class="section-number">8</div><div><h2>Project Environment Analysis</h2><p>PESTLE + SWOT + Porter's Forces + Customer Persona</p></div></div>
 
       <h3 style="font-size:1rem;color:var(--gold);margin:1rem 0 0.5rem;">A. PESTLE Analysis</h3>
@@ -801,7 +835,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     <!-- ========== PAGE 7: MARKETING STRATEGY (4Ps) ========== -->
     <div class="template-page" id="page-marketing">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Marketing</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Marketing</div></div>
       <div class="page-header"><div class="section-number">9</div><div><h2>Marketing Strategy (4Ps)</h2><p>Clear plan to reach and convert customers</p></div></div>
       <div class="field-group"><label>Product — What you sell and how you present it</label><textarea id="marketing-product" rows="3" placeholder="Packaging, quality, ancillary services, warranty..."></textarea></div>
       <div class="field-group"><label>Price — Pricing strategy</label><textarea id="marketing-price-strategy" rows="3" placeholder="Value-based, competitive, penetration, premium..."></textarea></div>
@@ -819,14 +853,14 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     <!-- ========== PAGE 8: OPERATIONS & TIMELINE ========== -->
     <div class="template-page" id="page-operations">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Operations</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Operations</div></div>
       <div class="page-header"><div class="section-number">10</div><div><h2>Operations Plan & Timeline</h2><p>How you will manage operations daily and monthly</p></div></div>
       <div class="field-group"><label>Business Location</label><textarea rows="2" placeholder="City, district, area, annual rent..."></textarea></div>
       <div class="field-group"><label>Working Hours</label><input type="text" placeholder="e.g. 8 AM - 12 AM, 7 days/week" /></div>
       <div class="field-group"><label>Production/Service Process Step by Step</label><textarea rows="4" placeholder="1. Receive order → 2. Prepare → 3. Package → 4. Deliver..."></textarea></div>
       <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">Detailed Timeline</h3>
       <table class="template-table" id="timeline-table">
-        <thead><tr><th>م</th><th>Task</th><th>Expected Date</th><th>Responsible</th><th>Status</th></tr></thead>
+        <thead><tr><th>#</th><th>Task</th><th>Expected Date</th><th>Responsible</th><th>Status</th></tr></thead>
         <tbody>
           <tr><td>1</td><td><input type="text" value="Complete Study" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" value="In Progress" /></td></tr>
           <tr><td>2</td><td><input type="text" value="Funding Acquisition" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
@@ -837,16 +871,16 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <tr><td>7</td><td><input type="text" value="Grand Opening" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
         </tbody>
       </table>
-      <div class="table-actions no-print"><button onclick="addRow('timeline-table')">+ إضافة</button><button onclick="removeRow('timeline-table')">- Remove</button></div>
+      <div class="table-actions no-print"><button onclick="addRow('timeline-table')">+ Add</button><button onclick="removeRow('timeline-table')">- Remove</button></div>
     </div>
 
     <!-- ========== PAGE 9: LEGAL & INSURANCE ========== -->
     <div class="template-page" id="page-legal">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Legal</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Legal</div></div>
       <div class="page-header"><div class="section-number">11</div><div><h2>Licenses, Laws & Insurance</h2><p>Regulatory obligations and legal protection</p></div></div>
       <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Required Licenses</h3>
       <table class="template-table" id="licenses-table">
-        <thead><tr><th>م</th><th>License Name</th><th>Issuing Authority</th><th>Cost (SAR)</th><th>Issuance Duration</th></tr></thead>
+        <thead><tr><th>#</th><th>License Name</th><th>Issuing Authority</th><th>Cost (SAR)</th><th>Issuance Duration</th></tr></thead>
         <tbody>
           <tr><td>1</td><td><input type="text" value="Commercial Registration" /></td><td><input type="text" value="Ministry of Commerce" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="1-3 days" /></td></tr>
           <tr><td>2</td><td><input type="text" value="Municipal License" /></td><td><input type="text" value="Municipality" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="2-4 weeks" /></td></tr>
@@ -854,26 +888,26 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <tr><td>4</td><td><input type="text" value="Health Certificate" /></td><td><input type="text" value="Municipality" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="3-5 days" /></td></tr>
         </tbody>
       </table>
-      <div class="table-actions no-print"><button onclick="addRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">+ إضافة</button><button onclick="removeRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">- Remove</button></div>
+      <div class="table-actions no-print"><button onclick="addRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">+ Add</button><button onclick="removeRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">- Remove</button></div>
       <div class="field-group" style="margin-top:1rem;"><label>Required Insurances</label><textarea id="legal-insurance" rows="3" placeholder="Property insurance, liability insurance, employee insurance..."></textarea></div>
       <div class="field-group"><label>Expected Tax Obligations</label><textarea id="legal-taxes" rows="2" placeholder="VAT 15%, Zakat 2.5%, income tax if applicable..."></textarea></div>
     </div>
 
     <!-- ========== PAGE 10: HUMAN RESOURCES ========== -->
     <div class="template-page" id="page-hr">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — HR</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — HR</div></div>
       <div class="page-header"><div class="section-number">12</div><div><h2>Human Resources</h2><p>Organizational structure and required workforce</p></div></div>
       <div class="field-group"><label>Organizational Structure</label><textarea rows="3" placeholder="Who manages whom? How do decisions flow?"></textarea></div>
       <table class="template-table" id="hr-table">
-        <thead><tr><th>م</th><th>Job Title</th><th>Count</th><th>Monthly Salary</th><th>Monthly Total</th></tr></thead>
+        <thead><tr><th>#</th><th>Job Title</th><th>Count</th><th>Monthly Salary</th><th>Monthly Total</th></tr></thead>
         <tbody>
           <tr><td>1</td><td><input type="text" value="Manager" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
           <tr><td>2</td><td><input type="text" value="Employee" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
           <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <div class="table-actions no-print"><button onclick="addHRRow()">+ إضافة</button><button onclick="removeRow('hr-table')">- Remove</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>Total Monthly Salaries: <span id="hr-grand-total" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+      <div class="table-actions no-print"><button onclick="addHRRow()">+ Add</button><button onclick="removeRow('hr-table')">- Remove</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>Total Monthly Salaries: <span id="hr-grand-total" style="color:var(--gold);font-weight:800;">0</span> SAR</label></div>
       <div class="field-group inline"><div class="field-group"><label>Total Employees</label><input type="number" id="hr-total-employees" readonly tabindex="-1" placeholder="0" /></div><div class="field-group"><label>Salary/Revenue Ratio</label><input type="text" id="hr-salary-ratio" readonly tabindex="-1" placeholder="Will be calculated" /></div></div>
     </div>
 
@@ -884,7 +918,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="field-group"><label>Organizational Chart (Text Description)</label><textarea id="org-chart-desc" rows="4" placeholder="General Assembly → Board of Directors → CEO → Executive Departments..."></textarea></div>
       <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">Detailed Staffing Table</h3>
       <table class="template-table" id="org-table">
-        <thead><tr><th>م</th><th>Job Title</th><th>Count</th><th>Monthly Salary (SAR)</th><th>Annual Total</th><th>Work Location</th></tr></thead>
+        <thead><tr><th>#</th><th>Job Title</th><th>Count</th><th>Monthly Salary (SAR)</th><th>Annual Total</th><th>Work Location</th></tr></thead>
         <tbody>
           <tr><td>1</td><td><input type="text" placeholder="Chairman of the Board" /></td><td><input type="number" value="1" /></td><td><input type="number" placeholder="Bonuses" /></td><td><input type="number" /></td><td><input type="text" placeholder="Meeting Room" /></td></tr>
           <tr><td>2</td><td><input type="text" placeholder="Chief Executive Officer" /></td><td><input type="number" value="1" /></td><td><input type="number" /></td><td><input type="number" /></td><td><input type="text" placeholder="Main Office" /></td></tr>
@@ -903,46 +937,46 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     <!-- ========== PAGE 12: TECHNICAL ========== -->
     <div class="template-page" id="page-technical">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Technical</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Technical</div></div>
       <div class="page-header"><div class="section-number">14</div><div><h2>Technical Needs & Equipment</h2><p>What you need to run the project</p></div></div>
       <table class="template-table" id="tools-table">
-        <thead><tr><th>م</th><th>Equipment/Tool</th><th>Count</th><th>Unit Price</th><th>Total</th><th>Supply Method</th></tr></thead>
+        <thead><tr><th>#</th><th>Equipment/Tool</th><th>Count</th><th>Unit Price</th><th>Total</th><th>Supply Method</th></tr></thead>
         <tbody>
           <tr><td>1</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" placeholder="Buy/Rent" /></td></tr>
           <tr><td>2</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" /></td></tr>
           <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" /></td></tr>
         </tbody>
       </table>
-      <div class="table-actions no-print"><button onclick="addToolRow()">+ إضافة</button><button onclick="removeRow('tools-table')">- Remove</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>Total Equipment Cost: <span id="tools-grand-total" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+      <div class="table-actions no-print"><button onclick="addToolRow()">+ Add</button><button onclick="removeRow('tools-table')">- Remove</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>Total Equipment Cost: <span id="tools-grand-total" style="color:var(--gold);font-weight:800;">0</span> SAR</label></div>
       <div class="field-group"><label>Required Technical Systems</label><textarea rows="3" placeholder="POS, inventory management, CRM, website, app..."></textarea></div>
     </div>
 
     <!-- ========== PAGE 12: FIXED COSTS ========== -->
     <div class="template-page" id="page-fixed">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Fixed Costs</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Fixed Costs</div></div>
       <div class="page-header"><div class="section-number">15</div><div><h2>Monthly Fixed Costs</h2><p>Costs that do not change with production volume</p></div></div>
       <table class="template-table" id="fixed-costs-table">
-        <thead><tr><th>م</th><th>Cost Item</th><th>Monthly Amount (SAR)</th></tr></thead>
+        <thead><tr><th>#</th><th>Cost Item</th><th>Monthly Amount (SAR)</th></tr></thead>
         <tbody>
           <tr><td>1</td><td><input type="text" value="Rent" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
           <tr><td>2</td><td><input type="text" value="Salaries" /></td><td><input type="number" class="fc-input" id="fc-salaries" readonly tabindex="-1" /></td></tr>
           <tr><td>3</td><td><input type="text" value="Utilities" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="التأمين" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="Insurance" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
           <tr><td>5</td><td><input type="text" value="Tech Subscriptions" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
           <tr><td>6</td><td><input type="text" value="License Fees" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
         </tbody>
       </table>
-      <div class="table-actions no-print"><button onclick="addRow('fixed-costs-table'); setTimeout(calcFinancials,50)">+ إضافة</button><button onclick="removeRow('fixed-costs-table'); setTimeout(calcFinancials,50)">- Remove</button></div>
+      <div class="table-actions no-print"><button onclick="addRow('fixed-costs-table'); setTimeout(calcFinancials,50)">+ Add</button><button onclick="removeRow('fixed-costs-table'); setTimeout(calcFinancials,50)">- Remove</button></div>
       <div class="field-group" style="margin-top:1rem;"><label>Total Fixed Costs: <span id="total-fixed-display" style="color:var(--gold);font-weight:800;">0</span> SAR/month</label></div>
     </div>
 
     <!-- ========== PAGE 13: VARIABLE COSTS ========== -->
     <div class="template-page" id="page-variable">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Variable Costs</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Variable Costs</div></div>
       <div class="page-header"><div class="section-number">16</div><div><h2>Variable Costs (Per Unit)</h2><p>Costs that scale with production volume</p></div></div>
       <table class="template-table" id="var-costs-table">
-        <thead><tr><th>م</th><th>Cost Item</th><th>Per Unit (SAR)</th></tr></thead>
+        <thead><tr><th>#</th><th>Cost Item</th><th>Per Unit (SAR)</th></tr></thead>
         <tbody>
           <tr><td>1</td><td><input type="text" value="Raw Materials" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
           <tr><td>2</td><td><input type="text" value="Packaging" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
@@ -950,45 +984,45 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <tr><td>4</td><td><input type="text" value="Delivery Fees" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
         </tbody>
       </table>
-      <div class="table-actions no-print"><button onclick="addRow('var-costs-table'); setTimeout(calcFinancials,50)">+ إضافة</button><button onclick="removeRow('var-costs-table'); setTimeout(calcFinancials,50)">- Remove</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>Total Variable Cost Per Unit: <span id="total-var-display" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+      <div class="table-actions no-print"><button onclick="addRow('var-costs-table'); setTimeout(calcFinancials,50)">+ Add</button><button onclick="removeRow('var-costs-table'); setTimeout(calcFinancials,50)">- Remove</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>Total Variable Cost Per Unit: <span id="total-var-display" style="color:var(--gold);font-weight:800;">0</span> SAR</label></div>
     </div>
 
     <!-- ========== PAGE 14: REVENUE ========== -->
     <div class="template-page" id="page-revenue">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Revenue</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Revenue</div></div>
       <div class="page-header"><div class="section-number">17</div><div><h2>Expected Revenue</h2><p>Targeted monthly income sources</p></div></div>
       <table class="template-table" id="revenue-table">
-        <thead><tr><th>م</th><th>Revenue Item</th><th>Qty/Month</th><th>Unit Price</th><th>Total</th></tr></thead>
+        <thead><tr><th>#</th><th>Revenue Item</th><th>Qty/Month</th><th>Unit Price</th><th>Total</th></tr></thead>
         <tbody>
           <tr><td>1</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
           <tr><td>2</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
           <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <div class="table-actions no-print"><button onclick="addRevenueRow()">+ إضافة</button><button onclick="removeRow('revenue-table'); setTimeout(calcFinancials,50)">- Remove</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>Total Monthly Revenue: <span id="total-revenue-display" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+      <div class="table-actions no-print"><button onclick="addRevenueRow()">+ Add</button><button onclick="removeRow('revenue-table'); setTimeout(calcFinancials,50)">- Remove</button></div>
+      <div class="field-group" style="margin-top:1rem;"><label>Total Monthly Revenue: <span id="total-revenue-display" style="color:var(--gold);font-weight:800;">0</span> SAR</label></div>
     </div>
 
     <!-- ========== PAGE 15: CASH FLOW 12 MONTHS ========== -->
     <div class="template-page" id="page-cashflow">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Cash Flow</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Cash Flow</div></div>
       <div class="page-header"><div class="section-number">18</div><div><h2>Expected Cash Flow (12 Months)</h2><p>Money in and out monthly</p></div></div>
       <table class="template-table" id="cashflow-table">
         <thead><tr><th>Month</th><th>Revenue</th><th>Costs</th><th>Net Flow</th><th>Cumulative Balance</th></tr></thead>
         <tbody>
-          <tr><td>الشهر 1</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 2</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 3</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 4</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 5</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 6</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 7</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 8</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 9</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 10</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 11</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 12</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>Month 1</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>Month 2</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>Month 3</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>Month 4</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>Month 5</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>Month 6</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>Month 7</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>Month 8</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>Month 9</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>Month 10</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>Month 11</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>Month 12</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
       <p style="text-align:center;font-size:0.85rem;color:var(--text-secondary);">💡 Fill first 3 months manually, then click "Auto Fill" for the rest of the year</p>
@@ -997,7 +1031,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     <!-- ========== PAGE 16: FINANCIAL ANALYSIS ========== -->
     <div class="template-page" id="page-financial">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Financial Analysis</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Financial Analysis</div></div>
       <div class="page-header"><div class="section-number">19</div><div><h2>Comprehensive Financial Analysis</h2><p>Numbers that determine the investment decision</p></div></div>
       <div class="field-group inline-3">
         <div class="field-group"><label>Total Fixed Costs/Month</label><input type="number" id="total-fixed" readonly tabindex="-1" placeholder="0" /></div>
@@ -1091,7 +1125,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     <!-- ========== PAGE 18: SMART ANALYSIS ========== -->
     <div class="template-page" id="page-smart">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — Smart Analysis</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Smart Analysis</div></div>
       <div class="page-header"><div class="section-number">21</div><div><h2>Smart Analysis & Recommendations</h2><p>Automated analysis of entered data with practical recommendations</p></div></div>
 
       <div id="smart-loading" style="text-align:center;padding:2rem;">
@@ -1137,11 +1171,11 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <table class="template-table" id="benchmark-table">
             <thead><tr><th>Indicator</th><th>Your Project</th><th>Optimal Benchmark</th><th>Rating</th></tr></thead>
             <tbody>
-              <tr><td>هامش الربح</td><td id="bm-margin">-</td><td>25-40%</td><td id="bm-margin-status">-</td></tr>
+              <tr><td>Profit Margin</td><td id="bm-margin">-</td><td>25-40%</td><td id="bm-margin-status">-</td></tr>
               <tr><td>Salary/Revenue Ratio</td><td id="bm-salary">-</td><td>&lt;30%</td><td id="bm-salary-status">-</td></tr>
-              <tr><td>فترة الاسترداد</td><td id="bm-payback">-</td><td>&lt;18 شهر</td><td id="bm-payback-status">-</td></tr>
-              <tr><td>العائد على الاستثمار</td><td id="bm-roi">-</td><td>&gt;20%</td><td id="bm-roi-status">-</td></tr>
-              <tr><td>Break-Even/الإنتاج المتوقع</td><td id="bm-be">-</td><td>&lt;60%</td><td id="bm-be-status">-</td></tr>
+              <tr><td>Payback Period</td><td id="bm-payback">-</td><td>&lt;18 month</td><td id="bm-payback-status">-</td></tr>
+              <tr><td>ROI</td><td id="bm-roi">-</td><td>&gt;20%</td><td id="bm-roi-status">-</td></tr>
+              <tr><td>Break-Even/Expected Production</td><td id="bm-be">-</td><td>&lt;60%</td><td id="bm-be-status">-</td></tr>
             </tbody>
           </table>
         </div>
@@ -1160,7 +1194,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     <!-- ========== PAGE 18: SENSITIVITY + KPIs ========== -->
     <div class="template-page" id="page-sensitivity">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Sensitivity</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Sensitivity</div></div>
       <div class="page-header"><div class="section-number">22</div><div><h2>Sensitivity Analysis & Indicators</h2><p>What if key variables change?</p></div></div>
       <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Sensitivity Analysis (±10%)</h3>
       <table class="template-table" id="sensitivity-table">
@@ -1188,10 +1222,10 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     <!-- ========== PAGE 19: RISKS ========== -->
     <div class="template-page" id="page-risks">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Risks</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Risks</div></div>
       <div class="page-header"><div class="section-number">23</div><div><h2>Risks & Mitigation Plans</h2><p>Identify risks early and prepare for them</p></div></div>
       <table class="template-table" id="risks-table">
-        <thead><tr><th>م</th><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation Plan</th></tr></thead>
+        <thead><tr><th>#</th><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation Plan</th></tr></thead>
         <tbody>
           <tr><td>1</td><td><input type="text" placeholder="Demand Decline" /></td><td><input type="text" placeholder="Medium" /></td><td><input type="text" placeholder="High" /></td><td><input type="text" placeholder="Diversify Products" /></td></tr>
           <tr><td>2</td><td><input type="text" placeholder="Rising Costs" /></td><td><input type="text" placeholder="High" /></td><td><input type="text" placeholder="Medium" /></td><td><input type="text" placeholder="Fixed Contracts with Suppliers" /></td></tr>
@@ -1199,7 +1233,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <tr><td>4</td><td><input type="text" placeholder="Regulatory Change" /></td><td><input type="text" placeholder="Low" /></td><td><input type="text" placeholder="High" /></td><td><input type="text" placeholder="Monitor Laws" /></td></tr>
         </tbody>
       </table>
-      <div class="table-actions no-print"><button onclick="addRow('risks-table')">+ إضافة</button><button onclick="removeRow('risks-table')">- Remove</button></div>
+      <div class="table-actions no-print"><button onclick="addRow('risks-table')">+ Add</button><button onclick="removeRow('risks-table')">- Remove</button></div>
       <div class="field-group" style="margin-top:1.5rem;"><label>Emergency Plan (Plan B)</label><textarea rows="3" placeholder="What will you do if the project fails to meet goals within 6 months?"></textarea></div>
     </div>
 
@@ -1220,7 +1254,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     <!-- ========== PAGE 21: QUALITY + ESG + EXIT ========== -->
     <div class="template-page" id="page-quality">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Quality</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Quality</div></div>
       <div class="page-header"><div class="section-number">25</div><div><h2>Quality, Sustainability & Exit Plan</h2><p>Quality standards and social/environmental impact</p></div></div>
       <div class="field-group"><label>Quality Standards</label><textarea rows="3" placeholder="How do you ensure product/service quality? Inspections, complaints, continuous improvement..."></textarea></div>
       <div class="field-group"><label>Social & Environmental Impact (ESG)</label><textarea rows="3" placeholder="Local hiring, waste reduction, sustainable packaging, community responsibility..."></textarea></div>
@@ -1230,11 +1264,11 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     <!-- ========== PAGE 22: CAPITAL + RESULTS ========== -->
     <div class="template-page" id="page-capital">
-      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">Feasibility Study — Capital</div></div>
+      <div class="template-header-print"><img src="../../assets/site-logo.webp" alt="Bonds" /><div class="doc-title">Feasibility Study — Capital</div></div>
       <div class="page-header"><div class="section-number">26</div><div><h2>Capital Requirements & Results</h2><p>Initial investment and final decision</p></div></div>
       <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Initial Investment</h3>
       <table class="template-table" id="capital-table">
-        <thead><tr><th>م</th><th>Investment Item</th><th>Amount (SAR)</th></tr></thead>
+        <thead><tr><th>#</th><th>Investment Item</th><th>Amount (SAR)</th></tr></thead>
         <tbody>
           <tr><td>1</td><td><input type="text" value="Licenses & Registration" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
           <tr><td>2</td><td><input type="text" value="Furniture & Equipment" /></td><td><input type="number" class="cap-input" id="cap-tools" readonly tabindex="-1" /></td></tr>
@@ -1244,7 +1278,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <tr><td>6</td><td><input type="text" value="Working Capital (3 months)" /></td><td><input type="number" class="cap-input" id="cap-working" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <div class="table-actions no-print"><button onclick="addRow('capital-table'); setTimeout(calcCapital,50)">+ إضافة</button><button onclick="removeRow('capital-table'); setTimeout(calcCapital,50)">- Remove</button></div>
+      <div class="table-actions no-print"><button onclick="addRow('capital-table'); setTimeout(calcCapital,50)">+ Add</button><button onclick="removeRow('capital-table'); setTimeout(calcCapital,50)">- Remove</button></div>
       <div class="field-group inline" style="margin-top:1.5rem;">
         <div class="field-group"><label>Total Required Capital</label><input type="number" id="total-capital" readonly tabindex="-1" placeholder="0" /></div>
         <div class="field-group"><label>Expected Source</label><input type="text" placeholder="Self-funded / Loan / Investor / Platform" /></div>
@@ -1254,7 +1288,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="field-group"><label>Recommendations & Next Steps</label><textarea rows="3" placeholder="What is the first step? Who starts it? When?"></textarea></div>
       <div class="field-group"><label>Is the project viable?</label><select><option value="">Select...</option><option value="yes">✅ Yes, Viable</option><option value="no">❌ No, Not Viable</option><option value="conditional">⚠️ Viable Under Conditions</option></select></div>
       <div class="signature-grid">
-        <div class="signature-box"><label>Prepared & Signed</label><input type="text" placeholder="الاسم والتوقيع" /></div>
+        <div class="signature-box"><label>Prepared & Signed</label><input type="text" placeholder="Name & Signature" /></div>
         <div class="signature-box"><label>Date</label><input type="date" /></div>
       </div>
     </div>
@@ -1357,7 +1391,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <!-- Footer Disclaimer -->
     <div class="template-page no-print" style="text-align:center;padding:2rem;">
       <p style="color:var(--text-secondary);font-size:0.85rem;">
-        This template is provided by <strong style="color:var(--gold)">بوندز</strong> as an assistive tool only. Not financial or legal advice.<br/>
+        This template is provided by <strong style="color:var(--gold)">Bonds</strong> as an assistive tool only. Not financial or legal advice.<br/>
         For a detailed feasibility study, <a href="../../contact.html" style="color:var(--gold)">book your consultation</a>.
       </p>
     </div>
@@ -1372,23 +1406,25 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
   <script src="../../calculators/country-platforms-data.js"></script>
   <script src="../../calculators/feasibility-benchmarks.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script>
 
     // ===== Smart Analysis =====
     let chartScenarios, chartCosts, chartCashFlow;
     function runSmartAnalysis() {
-      const revenue = parseFloat(document.getElementById('total-revenue')?.value) || 0;
-      const fixed = parseFloat(document.getElementById('total-fixed')?.value) || 0;
-      const variable = parseFloat(document.getElementById('total-var')?.value) || 0;
-      const net = parseFloat(document.getElementById('net-profit')?.value) || 0;
-      const margin = parseFloat(document.getElementById('profit-margin')?.value) || 0;
-      const roi = parseFloat(document.getElementById('roi-percent')?.value) || 0;
-      const payback = parseFloat(document.getElementById('payback-period')?.value) || 0;
-      const beUnits = parseFloat(document.getElementById('break-even-units')?.value) || 0;
-      const totalQty = parseFloat(document.querySelector('#revenue-table .rev-total')?.closest('tr')?.querySelector('.rev-qty')?.value) || 1;
+      const revenue = parseNumber(document.getElementById('total-revenue')?.value) || 0;
+      const fixed = parseNumber(document.getElementById('total-fixed')?.value) || 0;
+      const variable = parseNumber(document.getElementById('total-var')?.value) || 0;
+      const net = parseNumber(document.getElementById('net-profit')?.value) || 0;
+      const margin = parseNumber(document.getElementById('profit-margin')?.value) || 0;
+      const roi = parseNumber(document.getElementById('roi-percent')?.value) || 0;
+      const payback = parseNumber(document.getElementById('payback-period')?.value) || 0;
+      const beUnits = parseNumber(document.getElementById('break-even-units')?.value) || 0;
+      const totalQty = parseNumber(document.querySelector('#revenue-table .rev-total')?.closest('tr')?.querySelector('.rev-qty')?.value) || 1;
       const salaryRatio = document.getElementById('hr-salary-ratio')?.value || '-';
-      const hrTotal = parseFloat(document.getElementById('hr-grand-total')?.textContent) || 0;
+      const hrTotal = parseNumber(document.getElementById('hr-grand-total')?.textContent);
 
       document.getElementById('smart-loading').style.display = 'none';
       document.getElementById('smart-results').style.display = 'block';
@@ -1405,10 +1441,10 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       document.getElementById('smart-score').textContent = score;
       document.querySelector('#smart-results').style.setProperty('--score-deg', (score * 3.6) + 'deg');
 
-      if (score >= 75) { document.getElementById('smart-score-label').textContent = 'مشروع واعد وصحي'; document.getElementById('smart-score-label').style.color = '#16a34a'; }
+      if (score >= 75) { document.getElementById('smart-score-label').textContent = 'Promising & Healthy Project'; document.getElementById('smart-score-label').style.color = '#16a34a'; }
       else if (score >= 50) { document.getElementById('smart-score-label').textContent = 'Viable but needs improvement'; document.getElementById('smart-score-label').style.color = 'var(--gold-bright)'; }
-      else if (score > 0) { document.getElementById('smart-score-label').textContent = 'مشروع High المخاطر — راجع البيانات'; document.getElementById('smart-score-label').style.color = '#dc2626'; }
-      else { document.getElementById('smart-score-label').textContent = 'أدخل البيانات أولاً'; document.getElementById('smart-score-label').style.color = 'var(--text-secondary)'; }
+      else if (score > 0) { document.getElementById('smart-score-label').textContent = 'High Risk Project — Review Data'; document.getElementById('smart-score-label').style.color = '#dc2626'; }
+      else { document.getElementById('smart-score-label').textContent = 'Enter Data First'; document.getElementById('smart-score-label').style.color = 'var(--text-secondary)'; }
 
       // Strengths
       const strengths = [];
@@ -1416,29 +1452,29 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       if (roi >= 20) strengths.push('Excellent ROI (≥20%)');
       if (payback > 0 && payback <= 18) strengths.push('Acceptable payback (≤18 months)');
       if (net > 0) strengths.push('Positive net profit');
-      if (beUnits > 0 && totalQty > 0 && beUnits / totalQty < 0.6) strengths.push('Break-Even قابلة للتحقيق');
+      if (beUnits > 0 && totalQty > 0 && beUnits / totalQty < 0.6) strengths.push('Achievable Break-Even');
       const sList = document.getElementById('smart-strengths');
-      sList.innerHTML = strengths.length ? strengths.map(s => '<li>' + s + '</li>').join('') : '<li>أدخل المزيد من البيانات لرؤية نقاط Force</li>';
+      sList.innerHTML = strengths.length ? strengths.map(s => '<li>' + s + '</li>').join('') : '<li>Enter more data to see strengths</li>';
 
       // Weaknesses
       const weaknesses = [];
-      if (margin < 15 && margin > 0) weaknesses.push('هامش الربح Low — راجع التسعير أو التكاليف');
-      if (margin <= 0) weaknesses.push('هامش الربح سلبي — المشروع غير مربح حالياً');
-      if (roi < 15 && roi > 0) weaknesses.push('عائد الاستثمار Low');
+      if (margin < 15 && margin > 0) weaknesses.push('Low Profit Margin — Review pricing or costs');
+      if (margin <= 0) weaknesses.push('Negative Profit Margin — Project currently unprofitable');
+      if (roi < 15 && roi > 0) weaknesses.push('Low ROI');
       if (payback > 36) weaknesses.push('Payback period too long (>36 months)');
-      if (revenue > 0 && fixed / revenue > 0.6) weaknesses.push('Fixed Costs مرتفعة مقارنة بالإيرادات');
-      if (hrTotal > 0 && revenue > 0 && hrTotal / revenue > 0.35) weaknesses.push('نسبة Salaries مرتفعة (>35% من الإيرادات)');
+      if (revenue > 0 && fixed / revenue > 0.6) weaknesses.push('High Fixed Costs relative to revenue');
+      if (hrTotal > 0 && revenue > 0 && hrTotal / revenue > 0.35) weaknesses.push('High salary ratio (>35% of revenue)');
       const wList = document.getElementById('smart-weaknesses');
       wList.innerHTML = weaknesses.length ? weaknesses.map(w => '<li>' + w + '</li>').join('') : '<li>No clear weaknesses — continue monitoring</li>';
 
       // Recommendations
       const recs = [];
       if (margin < 20) recs.push('Review cost structure: Can you reduce raw materials or negotiate with suppliers?');
-      if (margin < 20) recs.push('اختبر رفع Price 5-10% على جزء من العملاء لقياس حساسية الطلب.');
-      if (fixed / revenue > 0.5) recs.push('Fixed Costs تلتهم نصف إيراداتك. هل يمكن تقليل Rent أو العمل بنظام Hybrid؟');
+      if (margin < 20) recs.push('Test raising Price 5-10% on some customers to measure demand sensitivity.');
+      if (fixed / revenue > 0.5) recs.push('Fixed Costs consume half your revenue. Can you reduce Rent or work Hybrid?');
       if (payback > 24) recs.push('Payback period is long. Consider reducing initial capital or increasing revenue.');
-      if (beUnits > 0 && totalQty > 0 && beUnits / totalQty > 0.8) recs.push('Break-Even مرتفعة. زيادة Quantity Sold أو تقليل Variable Cost ضروري.');
-      if (roi < 15) recs.push('العائد Low. قارن مشروعك مع بدائل الاستثمار (صناديق، عقار...)');
+      if (beUnits > 0 && totalQty > 0 && beUnits / totalQty > 0.8) recs.push('High Break-Even. Increasing Quantity Sold or reducing Variable Cost is necessary.');
+      if (roi < 15) recs.push('Low return. Compare your project with investment alternatives (funds, real estate...)');
       if (net > 0 && net < fixed * 0.2) recs.push('Safety margin is tight. Keep a cash reserve covering 3-6 months.');
       if (recs.length === 0) recs.push('Indicators are generally good. Focus on execution and periodic monitoring.');
       recs.push('Review this template monthly and update actual vs. expected numbers.');
@@ -1449,7 +1485,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       document.getElementById('bm-margin-status').innerHTML = margin >= 25 ? '<span style="color:#16a34a">✅ Excellent</span>' : margin >= 15 ? '<span style="color:var(--gold)">⚠️ Acceptable</span>' : '<span style="color:#dc2626">❌ Needs Improvement</span>';
       document.getElementById('bm-salary').textContent = hrTotal > 0 && revenue > 0 ? ((hrTotal / revenue) * 100).toFixed(1) + '%' : '-';
       document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span style="color:#16a34a">✅</span>' : '<span style="color:#dc2626">❌</span>';
-      document.getElementById('bm-payback').textContent = payback > 0 ? payback.toFixed(1) + ' شهر' : '-';
+      document.getElementById('bm-payback').textContent = payback > 0 ? payback.toFixed(1) + ' month' : '-';
       document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= 18 ? '<span style="color:#16a34a">✅</span>' : payback > 0 && payback <= 36 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
       document.getElementById('bm-roi').textContent = roi.toFixed(1) + '%';
       document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span style="color:#16a34a">✅</span>' : roi >= 10 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
@@ -1520,8 +1556,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
       const cashData = [];
       for (let i = 1; i <= 12; i++) {
-        const rev = parseFloat(document.getElementById('cf-rev-' + i)?.value) || 0;
-        const cost = parseFloat(document.getElementById('cf-cost-' + i)?.value) || 0;
+        const rev = parseNumber(document.getElementById('cf-rev-' + i)?.value) || 0;
+        const cost = parseNumber(document.getElementById('cf-cost-' + i)?.value) || 0;
         cashData.push(rev - cost);
       }
       const ctxCf = document.getElementById('dash-chart-cashflow');
@@ -1551,7 +1587,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       chartScenarios = new Chart(ctx1, {
         type: 'bar',
         data: {
-          labels: ['المتشائم', 'المتوقع', 'المتفائل'],
+          labels: ['Pessimistic', 'Expected', 'Optimistic'],
           datasets: [{
             label: 'Monthly Net Profit (SAR)',
             data: [pessimistic, expected, optimistic],
@@ -1569,7 +1605,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       chartCosts = new Chart(ctx2, {
         type: 'doughnut',
         data: {
-          labels: ['تكاليف ثابتة', 'تكاليف متغيرة', 'صافي ربح'],
+          labels: ['Fixed Costs', 'Variable Costs', 'Net Profit'],
           datasets: [{
             data: [fixed, variable, Math.max(0, net)],
             backgroundColor: ['rgba(220,38,38,0.6)', 'rgba(59,130,246,0.6)', 'rgba(22,163,74,0.6)'],
@@ -1583,7 +1619,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       // Cash flow line chart
       const cfData = [];
       document.querySelectorAll('#cashflow-table tbody tr').forEach(row => {
-        const bal = parseFloat(row.querySelector('.cf-balance')?.value) || 0;
+        const bal = parseNumber(row.querySelector('.cf-balance')?.value) || 0;
         cfData.push(bal);
       });
       const ctx3 = document.getElementById('chart-cashflow');
@@ -1591,9 +1627,9 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       chartCashFlow = new Chart(ctx3, {
         type: 'line',
         data: {
-          labels: ['ش1','ش2','ش3','ش4','ش5','ش6','ش7','ش8','ش9','ش10','ش11','ش12'],
+          labels: ['M1','M2','M3','M4','M5','M6','M7','M8','M9','M10','M11','M12'],
           datasets: [{
-            label: 'Cumulative Balance (ريال)',
+            label: 'Cumulative Balance (SAR)',
             data: cfData.length ? cfData : [0,0,0,0,0,0,0,0,0,0,0,0],
             borderColor: 'var(--gold)',
             backgroundColor: 'rgba(212,168,83,0.1)',
@@ -1654,8 +1690,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     // ===== Product margin =====
     function calcProductMargin(input) {
       const row = input.closest('tr');
-      const price = parseFloat(row.querySelector('.prod-price')?.value) || 0;
-      const cost = parseFloat(row.querySelector('.prod-cost')?.value) || 0;
+      const price = parseNumber(row.querySelector('.prod-price')?.value) || 0;
+      const cost = parseNumber(row.querySelector('.prod-cost')?.value) || 0;
       const margin = row.querySelector('.prod-margin');
       if (margin) margin.value = (price - cost).toFixed(2);
     }
@@ -1667,21 +1703,34 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     }
 
     // ===== HR =====
+    function parseNumber(val) {
+      if (!val) return 0;
+      let str = String(val);
+      // تحويل الأرقام العربية إلى إنجليزية
+      const arabicNums = '٠١٢٣٤٥٦٧٨٩';
+      const englishNums = '0123456789';
+      for (let i = 0; i < 10; i++) {
+        str = str.split(arabicNums[i]).join(englishNums[i]);
+      }
+      // إزالة الفواصل والمسافات
+      str = str.replace(/[,،]/g, '').replace(/\s/g, '');
+      return parseFloat(str) || 0;
+    }
     function calcHRRow(input) {
       const row = input.closest('tr');
-      const count = parseFloat(row.querySelector('.hr-count')?.value) || 0;
-      const salary = parseFloat(row.querySelector('.hr-salary')?.value) || 0;
+      const count = parseNumber(row.querySelector('.hr-count')?.value);
+      const salary = parseNumber(row.querySelector('.hr-salary')?.value);
       const total = row.querySelector('.hr-total');
       if (total) total.value = (count * salary).toFixed(2);
       calcHRGrandTotal();
     }
     function calcHRGrandTotal() {
       let grand = 0, employees = 0;
-      document.querySelectorAll('#hr-table .hr-total').forEach(el => grand += parseFloat(el.value) || 0);
-      document.querySelectorAll('#hr-table .hr-count').forEach(el => employees += parseFloat(el.value) || 0);
-      document.getElementById('hr-grand-total').textContent = grand.toFixed(0);
+      document.querySelectorAll('#hr-table .hr-total').forEach(el => grand += parseNumber(el.value));
+      document.querySelectorAll('#hr-table .hr-count').forEach(el => employees += parseNumber(el.value));
+      document.getElementById('hr-grand-total').textContent = grand.toLocaleString('en-US', {maximumFractionDigits: 0});
       document.getElementById('hr-total-employees').value = employees;
-      const rev = parseFloat(document.getElementById('total-revenue')?.value) || 0;
+      const rev = parseNumber(document.getElementById('total-revenue')?.value);
       document.getElementById('hr-salary-ratio').value = rev > 0 ? ((grand / rev) * 100).toFixed(1) + '%' : '-';
       document.getElementById('fc-salaries').value = grand.toFixed(2);
       calcFinancials();
@@ -1696,16 +1745,16 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     // ===== Tools =====
     function calcToolRow(input) {
       const row = input.closest('tr');
-      const qty = parseFloat(row.querySelector('.tool-qty')?.value) || 0;
-      const price = parseFloat(row.querySelector('.tool-price')?.value) || 0;
+      const qty = parseNumber(row.querySelector('.tool-qty')?.value);
+      const price = parseNumber(row.querySelector('.tool-price')?.value);
       const total = row.querySelector('.tool-total');
       if (total) total.value = (qty * price).toFixed(2);
       calcToolsGrandTotal();
     }
     function calcToolsGrandTotal() {
       let grand = 0;
-      document.querySelectorAll('#tools-table .tool-total').forEach(el => grand += parseFloat(el.value) || 0);
-      document.getElementById('tools-grand-total').textContent = grand.toFixed(0);
+      document.querySelectorAll('#tools-table .tool-total').forEach(el => grand += parseNumber(el.value));
+      document.getElementById('tools-grand-total').textContent = grand.toLocaleString('en-US', {maximumFractionDigits: 0});
       document.getElementById('cap-tools').value = grand.toFixed(2);
       calcCapital();
     }
@@ -1719,8 +1768,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     // ===== BOQ (Building Assessment) =====
     function calcBOQRow(input) {
       const row = input.closest('tr');
-      const qty = parseFloat(row.querySelector('.boq-qty')?.value) || 0;
-      const price = parseFloat(row.querySelector('.boq-price')?.value) || 0;
+      const qty = parseNumber(row.querySelector('.boq-qty')?.value);
+      const price = parseNumber(row.querySelector('.boq-price')?.value);
       const total = row.querySelector('.boq-total');
       if (total) total.value = (qty * price).toFixed(2);
       calcBOQGrandTotal();
@@ -1728,8 +1777,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     }
     function calcBOQGrandTotal() {
       let grand = 0;
-      document.querySelectorAll('#boq-table .boq-total').forEach(el => grand += parseFloat(el.value) || 0);
-      document.getElementById('boq-grand-total').textContent = grand.toFixed(0);
+      document.querySelectorAll('#boq-table .boq-total').forEach(el => grand += parseNumber(el.value));
+      document.getElementById('boq-grand-total').textContent = grand.toLocaleString('en-US', {maximumFractionDigits: 0});
       document.getElementById('ba-company-cost').value = grand.toFixed(2);
     }
     function addBOQRow() {
@@ -1739,9 +1788,9 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       tbody.appendChild(tr);
     }
     function calcBuildingAssessment() {
-      const ownerValue = parseFloat(document.getElementById('ba-owner-value')?.value) || 0;
-      const companyCost = parseFloat(document.getElementById('ba-company-cost')?.value) || 0;
-      const futureValue = parseFloat(document.getElementById('ba-future-value')?.value) || 0;
+      const ownerValue = parseNumber(document.getElementById('ba-owner-value')?.value) || 0;
+      const companyCost = parseNumber(document.getElementById('ba-company-cost')?.value) || 0;
+      const futureValue = parseNumber(document.getElementById('ba-future-value')?.value) || 0;
       const totalCost = ownerValue + companyCost;
       const netProfit = Math.max(0, futureValue - totalCost);
       // Calculate shares based on cost contribution
@@ -1765,24 +1814,24 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       if (elOwnerProfit) elOwnerProfit.textContent = ownerProfit.toFixed(0);
       if (elCompanyProfit) elCompanyProfit.textContent = companyProfit.toFixed(0);
       // Total timeline
-      const constructionMonths = parseFloat(document.getElementById('ba-construction-months')?.value) || 0;
-      const saleMonths = parseFloat(document.getElementById('ba-sale-months')?.value) || 0;
+      const constructionMonths = parseNumber(document.getElementById('ba-construction-months')?.value) || 0;
+      const saleMonths = parseNumber(document.getElementById('ba-sale-months')?.value) || 0;
       if (elTotalMonths) elTotalMonths.value = (constructionMonths + saleMonths).toFixed(1);
       // Trigger sale scenarios update
       calcSaleScenarios();
     }
 
     function calcSaleScenarios() {
-      const futureValue = parseFloat(document.getElementById('ba-future-value')?.value) || 0;
-      const totalCost = parseFloat(document.getElementById('ba-owner-value')?.value) || 0;
-      const companyCost = parseFloat(document.getElementById('ba-company-cost')?.value) || 0;
-      const allExpenses = parseFloat(document.getElementById('ba-shared-expenses')?.textContent) || 0;
+      const futureValue = parseNumber(document.getElementById('ba-future-value')?.value) || 0;
+      const totalCost = parseNumber(document.getElementById('ba-owner-value')?.value) || 0;
+      const companyCost = parseNumber(document.getElementById('ba-company-cost')?.value) || 0;
+      const allExpenses = parseNumber(document.getElementById('ba-shared-expenses')?.textContent);
       const fullCost = totalCost + companyCost + allExpenses;
       // Monthly financing cost (opportunity cost) — simplified as 1% of fullCost per month
       const monthlyFinancingRate = 0.01;
       ['pess', 'exp', 'opt'].forEach(scenario => {
-        const months = parseFloat(document.getElementById('sale-' + scenario + '-months')?.value) || 0;
-        const discountPct = parseFloat(document.getElementById('sale-' + scenario + '-discount')?.value) || 0;
+        const months = parseNumber(document.getElementById('sale-' + scenario + '-months')?.value) || 0;
+        const discountPct = parseNumber(document.getElementById('sale-' + scenario + '-discount')?.value) || 0;
         const financingCost = fullCost * monthlyFinancingRate * months;
         const discountedValue = futureValue * (1 - discountPct / 100);
         const netProfit = discountedValue - fullCost - financingCost;
@@ -1845,25 +1894,25 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     function calcValuationTotal() {
       // Sum structural audit costs
       let structuralCost = 0;
-      document.querySelectorAll('#val-structural-table .val-cost').forEach(el => structuralCost += parseFloat(el.value) || 0);
+      document.querySelectorAll('#val-structural-table .val-cost').forEach(el => structuralCost += parseNumber(el.value));
       // Sum WBS completion costs
       let wbsCost = 0;
-      document.querySelectorAll('#val-wbs-table .val-wbs-cost').forEach(el => wbsCost += parseFloat(el.value) || 0);
+      document.querySelectorAll('#val-wbs-table .val-wbs-cost').forEach(el => wbsCost += parseNumber(el.value));
       // Soft costs
-      const consulting = parseFloat(document.getElementById('val-consulting-cost')?.value) || 0;
-      const permits = parseFloat(document.getElementById('val-permit-cost')?.value) || 0;
-      const insurance = parseFloat(document.getElementById('val-insurance-cost')?.value) || 0;
+      const consulting = parseNumber(document.getElementById('val-consulting-cost')?.value) || 0;
+      const permits = parseNumber(document.getElementById('val-permit-cost')?.value) || 0;
+      const insurance = parseNumber(document.getElementById('val-insurance-cost')?.value) || 0;
       // M&E update costs
       let meCost = 0;
-      document.querySelectorAll('#val-me-table .val-me-cost').forEach(el => meCost += parseFloat(el.value) || 0);
+      document.querySelectorAll('#val-me-table .val-me-cost').forEach(el => meCost += parseNumber(el.value));
       // Risk reserve
-      const riskPct = parseFloat(document.getElementById('val-risk-pct')?.value) || 0;
+      const riskPct = parseNumber(document.getElementById('val-risk-pct')?.value) || 0;
       const subtotal = structuralCost + wbsCost + consulting + permits + insurance + meCost;
       const riskValue = subtotal * (riskPct / 100);
       const totalCost = subtotal + riskValue;
       // Net added value
-      const currentValue = parseFloat(document.getElementById('val-comp-current')?.value) || 0;
-      const futureValue = parseFloat(document.getElementById('val-comp-future')?.value) || 0;
+      const currentValue = parseNumber(document.getElementById('val-comp-current')?.value) || 0;
+      const futureValue = parseNumber(document.getElementById('val-comp-future')?.value) || 0;
       const netAdded = futureValue - currentValue - totalCost;
       // Update UI
       const elRiskValue = document.getElementById('val-risk-value');
@@ -1876,16 +1925,16 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       if (elNetAdded) elNetAdded.textContent = Math.max(0, netAdded).toFixed(0);
     }
     function calcValComparison() {
-      const current = parseFloat(document.getElementById('val-comp-current')?.value) || 0;
-      const future = parseFloat(document.getElementById('val-comp-future')?.value) || 0;
-      const currentM2 = parseFloat(document.getElementById('val-comp-current-m2')?.value) || 0;
-      const futureM2 = parseFloat(document.getElementById('val-comp-future-m2')?.value) || 0;
-      const currentYield = parseFloat(document.getElementById('val-comp-current-yield')?.value) || 0;
-      const futureYield = parseFloat(document.getElementById('val-comp-future-yield')?.value) || 0;
-      const currentLiq = parseFloat(document.getElementById('val-comp-current-liquidity')?.value) || 0;
-      const futureLiq = parseFloat(document.getElementById('val-comp-future-liquidity')?.value) || 0;
-      const currentRisk = parseFloat(document.getElementById('val-comp-current-risk')?.value) || 0;
-      const futureRisk = parseFloat(document.getElementById('val-comp-future-risk')?.value) || 0;
+      const current = parseNumber(document.getElementById('val-comp-current')?.value) || 0;
+      const future = parseNumber(document.getElementById('val-comp-future')?.value) || 0;
+      const currentM2 = parseNumber(document.getElementById('val-comp-current-m2')?.value) || 0;
+      const futureM2 = parseNumber(document.getElementById('val-comp-future-m2')?.value) || 0;
+      const currentYield = parseNumber(document.getElementById('val-comp-current-yield')?.value) || 0;
+      const futureYield = parseNumber(document.getElementById('val-comp-future-yield')?.value) || 0;
+      const currentLiq = parseNumber(document.getElementById('val-comp-current-liquidity')?.value) || 0;
+      const futureLiq = parseNumber(document.getElementById('val-comp-future-liquidity')?.value) || 0;
+      const currentRisk = parseNumber(document.getElementById('val-comp-current-risk')?.value) || 0;
+      const futureRisk = parseNumber(document.getElementById('val-comp-future-risk')?.value) || 0;
       const elDiffValue = document.getElementById('val-comp-diff-value');
       const elDiffM2 = document.getElementById('val-comp-diff-m2');
       const elDiffYield = document.getElementById('val-comp-diff-yield');
@@ -1917,9 +1966,9 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       const nets = document.querySelectorAll('#proforma-income .pf-net');
       let totalRev = 0, totalCogs = 0, totalGa = 0, totalGross = 0, totalNet = 0;
       for (let i = 0; i < 4; i++) {
-        const rev = parseFloat(revs[i]?.value) || 0;
-        const cogs = parseFloat(cogss[i]?.value) || 0;
-        const ga = parseFloat(gas[i]?.value) || 0;
+        const rev = parseNumber(revs[i]?.value);
+        const cogs = parseNumber(cogss[i]?.value);
+        const ga = parseNumber(gas[i]?.value);
         const gross = rev - cogs;
         const net = gross - ga;
         if (grosses[i]) grosses[i].value = gross.toFixed(2);
@@ -1932,12 +1981,12 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       document.querySelector('#proforma-income .pf-ga-total').value = totalGa.toFixed(2);
       document.querySelector('#proforma-income .pf-net-total').value = totalNet.toFixed(2);
       // Balance Sheet
-      const assetsC = parseFloat(document.querySelector('#proforma-balance .pf-assets-c')?.value) || 0;
-      const assetsWip = parseFloat(document.querySelector('#proforma-balance .pf-assets-wip')?.value) || 0;
-      const assetsF = parseFloat(document.querySelector('#proforma-balance .pf-assets-f')?.value) || 0;
-      const equityCap = parseFloat(document.querySelector('#proforma-balance .pf-equity-cap')?.value) || 0;
-      const equityRet = parseFloat(document.querySelector('#proforma-balance .pf-equity-ret')?.value) || 0;
-      const liabC = parseFloat(document.querySelector('#proforma-balance .pf-liab-c')?.value) || 0;
+      const assetsC = parseNumber(document.querySelector('#proforma-balance .pf-assets-c')?.value) || 0;
+      const assetsWip = parseNumber(document.querySelector('#proforma-balance .pf-assets-wip')?.value) || 0;
+      const assetsF = parseNumber(document.querySelector('#proforma-balance .pf-assets-f')?.value) || 0;
+      const equityCap = parseNumber(document.querySelector('#proforma-balance .pf-equity-cap')?.value) || 0;
+      const equityRet = parseNumber(document.querySelector('#proforma-balance .pf-equity-ret')?.value) || 0;
+      const liabC = parseNumber(document.querySelector('#proforma-balance .pf-liab-c')?.value) || 0;
       document.querySelector('#proforma-balance .pf-assets-total').value = (assetsC + assetsWip + assetsF).toFixed(2);
       document.querySelector('#proforma-balance .pf-equity-total').value = (equityCap + equityRet + liabC).toFixed(2);
     }
@@ -1945,8 +1994,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     // ===== Revenue =====
     function calcRevenueRow(input) {
       const row = input.closest('tr');
-      const qty = parseFloat(row.querySelector('.rev-qty')?.value) || 0;
-      const price = parseFloat(row.querySelector('.rev-price')?.value) || 0;
+      const qty = parseNumber(row.querySelector('.rev-qty')?.value);
+      const price = parseNumber(row.querySelector('.rev-price')?.value);
       const total = row.querySelector('.rev-total');
       if (total) total.value = (qty * price).toFixed(2);
       calcFinancials();
@@ -1961,7 +2010,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     // ===== Financials core =====
     function sumInputs(selector) {
       let total = 0;
-      document.querySelectorAll(selector).forEach(el => total += parseFloat(el.value) || 0);
+      document.querySelectorAll(selector).forEach(el => total += parseNumber(el.value));
       return total;
     }
     function calcFinancials() {
@@ -2003,8 +2052,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       let balance = 0;
       const rows = document.querySelectorAll('#cashflow-table tbody tr');
       rows.forEach(row => {
-        const rev = parseFloat(row.querySelector('.cf-rev')?.value) || 0;
-        const cost = parseFloat(row.querySelector('.cf-cost')?.value) || 0;
+        const rev = parseNumber(row.querySelector('.cf-rev')?.value) || 0;
+        const cost = parseNumber(row.querySelector('.cf-cost')?.value) || 0;
         const net = rev - cost;
         balance += net;
         const netEl = row.querySelector('.cf-net');
@@ -2014,8 +2063,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       });
     }
     function autoFillCashFlow() {
-      const rev = parseFloat(document.getElementById('total-revenue')?.value) || 0;
-      const cost = parseFloat(document.getElementById('total-fixed')?.value) || 0;
+      const rev = parseNumber(document.getElementById('total-revenue')?.value) || 0;
+      const cost = parseNumber(document.getElementById('total-fixed')?.value) || 0;
       const rows = document.querySelectorAll('#cashflow-table tbody tr');
       rows.forEach((row, idx) => {
         const growth = 1 + (idx * 0.02); // 2% monthly growth
@@ -2041,7 +2090,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       calcCapital();
     }
     function linkToCapital() {
-      const val = parseFloat(document.getElementById('cover-investment')?.value) || 0;
+      const val = parseNumber(document.getElementById('cover-investment')?.value) || 0;
       document.getElementById('capital-invested').value = val;
       calcROI();
     }
@@ -2294,7 +2343,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           const firstRevPrice = document.querySelector('.rev-price');
           if (firstRevQty && !firstRevQty.value) firstRevQty.value = Math.round(sales.reduce((s, t) => s + (t.quantity || 0), 0) / Math.max(1, months.length));
           if (firstRevPrice && !firstRevPrice.value && firstRevQty.value) {
-            firstRevPrice.value = Math.round(avgMonthly / parseFloat(firstRevQty.value));
+            firstRevPrice.value = Math.round(avgMonthly / parseNumber(firstRevQty.value));
           }
           const cfKeys = Object.keys(monthly).slice(0, 12);
           cfKeys.forEach((key, i) => {
@@ -2352,8 +2401,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     // ===== ROI & Payback =====
     function calcROI() {
-      const net = parseFloat(document.getElementById('net-profit')?.value) || 0;
-      const capital = parseFloat(document.getElementById('capital-invested')?.value) || parseFloat(document.getElementById('total-capital')?.value) || 0;
+      const net = parseNumber(document.getElementById('net-profit')?.value) || 0;
+      const capital = parseNumber(document.getElementById('capital-invested')?.value) || parseNumber(document.getElementById('total-capital')?.value);
       const annual = net * 12;
       const roi = capital > 0 ? (annual / capital) * 100 : 0;
       const payback = net > 0 ? capital / net : 0;
@@ -2366,9 +2415,9 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     // ===== Sensitivity =====
     function calcSensitivity() {
-      const rev = parseFloat(document.getElementById('total-revenue')?.value) || 0;
-      const fixed = parseFloat(document.getElementById('total-fixed')?.value) || 0;
-      const varCost = parseFloat(document.getElementById('total-var')?.value) || 0;
+      const rev = parseNumber(document.getElementById('total-revenue')?.value) || 0;
+      const fixed = parseNumber(document.getElementById('total-fixed')?.value) || 0;
+      const varCost = parseNumber(document.getElementById('total-var')?.value) || 0;
       const baseNet = rev - fixed - varCost;
       const rows = document.querySelectorAll('#sensitivity-table tbody tr');
       if (rows.length >= 1) {
@@ -2492,40 +2541,272 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       setInterval(_doAutoSave, 30000); // Save every 30 seconds regardless
     });
 
+    // ===== Professional PDF Export =====
+    async function generateProfessionalPDF() {
+      if (typeof jspdf === 'undefined' || typeof html2canvas === 'undefined') {
+        alert('Loading PDF libraries... please wait');
+        setTimeout(generateProfessionalPDF, 2000);
+        return;
+      }
+      const { jsPDF } = jspdf;
+      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+      const projectName = document.getElementById('cover-business-name')?.value || 'Unnamed Project';
+      const today = new Date().toLocaleDateString('en-GB');
+      const score = parseInt(document.getElementById('funding-score')?.textContent) || 0;
+
+      function addText(text, x, y, options) {
+        doc.setFont('helvetica');
+        doc.text(text, x, y, options || {});
+      }
+
+      // PAGE 1: COVER
+      doc.setFillColor(10, 15, 26);
+      doc.rect(0, 0, 210, 297, 'F');
+      doc.setTextColor(212, 168, 83);
+      doc.setFontSize(28);
+      addText('BONDS', 105, 80, { align: 'center' });
+      doc.setFontSize(12);
+      addText('Global', 105, 88, { align: 'center' });
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(22);
+      addText('Real Estate Feasibility Study', 105, 120, { align: 'center' });
+      doc.setFontSize(14);
+      addText('Professional Investment Analysis', 105, 130, { align: 'center' });
+      doc.setTextColor(212, 168, 83);
+      doc.setFontSize(16);
+      addText(projectName, 105, 160, { align: 'center' });
+      doc.setTextColor(200, 200, 200);
+      doc.setFontSize(11);
+      addText('Prepared: ' + today, 105, 180, { align: 'center' });
+      if (score >= 70) {
+        doc.setDrawColor(22, 163, 74);
+        doc.setTextColor(22, 163, 74);
+        doc.setLineWidth(1.5);
+        doc.roundedRect(55, 200, 100, 25, 5, 5, 'D');
+        addText('✓ Ready for Funding Submission', 105, 215, { align: 'center' });
+      }
+      doc.setTextColor(150, 150, 150);
+      doc.setFontSize(9);
+      addText('Generated by Bonds Template — bonds-global.com', 105, 280, { align: 'center' });
+
+      // PAGE 2: TABLE OF CONTENTS
+      doc.addPage();
+      doc.setFillColor(250, 250, 250);
+      doc.rect(0, 0, 210, 297, 'F');
+      doc.setTextColor(10, 15, 26);
+      doc.setFontSize(18);
+      addText('Table of Contents', 20, 20);
+      doc.setDrawColor(212, 168, 83);
+      doc.setLineWidth(0.5);
+      doc.line(20, 25, 190, 25);
+      const toc = [
+        ['1', 'Executive Summary'],
+        ['2', 'Project Description & Location'],
+        ['3', 'Engineering & Structural Assessment'],
+        ['4', 'Bill of Quantities & Costs'],
+        ['5', 'Profit Sharing Calculator'],
+        ['6', 'Real Estate Valuation Standards'],
+        ['7', 'Financial Analysis & Scenarios'],
+        ['8', 'Funding Readiness Score'],
+        ['9', 'Final Recommendation']
+      ];
+      let y = 40;
+      toc.forEach(([num, title]) => {
+        doc.setTextColor(100, 100, 100);
+        doc.setFontSize(11);
+        addText(num, 20, y);
+        doc.setTextColor(10, 15, 26);
+        addText(title, 190, y, { align: 'right' });
+        doc.setDrawColor(220, 220, 220);
+        doc.line(20, y + 2, 190, y + 2);
+        y += 12;
+      });
+
+      // PAGE 3: EXECUTIVE SUMMARY
+      doc.addPage();
+      doc.setFillColor(250, 250, 250);
+      doc.rect(0, 0, 210, 297, 'F');
+      doc.setTextColor(10, 15, 26);
+      doc.setFontSize(16);
+      addText('1. Executive Summary', 20, 20);
+      doc.line(20, 25, 190, 25);
+      doc.setFontSize(11);
+      doc.setTextColor(60, 60, 60);
+      const summaryLines = [
+        'Project Name: ' + projectName,
+        'Location: ' + (document.getElementById('ba-location')?.value || 'Not specified'),
+        'Current Completion: ' + (document.getElementById('ba-completion-now')?.value || '0') + '%',
+        'Current Market Value: ' + (document.getElementById('ba-current-value')?.value || '0') + ' SAR',
+        'Estimated Completion Cost: ' + (document.getElementById('boq-grand-total')?.textContent || '0') + ' SAR',
+        'Expected Sale Value: ' + (document.getElementById('ba-future-value')?.value || '0') + ' SAR',
+        '',
+        'Owner Share: ' + (document.getElementById('ba-owner-share')?.textContent || '0%'),
+        'Company Share: ' + (document.getElementById('ba-company-share')?.textContent || '0%'),
+        'Expected Net Profit: ' + (document.getElementById('ba-net-profit')?.textContent || '0') + ' SAR',
+        '',
+        'Funding Readiness Score: ' + score + '/100'
+      ];
+      y = 40;
+      summaryLines.forEach(line => {
+        addText(line, 20, y);
+        y += 7;
+      });
+
+      // PAGE 4: FINANCIAL SCENARIOS
+      doc.addPage();
+      doc.setFillColor(250, 250, 250);
+      doc.rect(0, 0, 210, 297, 'F');
+      doc.setTextColor(10, 15, 26);
+      doc.setFontSize(16);
+      addText('2. Financial Scenarios', 20, 20);
+      doc.line(20, 25, 190, 25);
+      doc.setFillColor(212, 168, 83);
+      doc.rect(20, 35, 170, 10, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
+      addText('Metric', 25, 41);
+      addText('Pessimistic', 80, 41, { align: 'center' });
+      addText('Expected', 120, 41, { align: 'center' });
+      addText('Optimistic', 160, 41, { align: 'center' });
+      const scenarios = [
+        ['Sale Period (months)', document.getElementById('sale-pess-months')?.value || '-', document.getElementById('sale-exp-months')?.value || '-', document.getElementById('sale-opt-months')?.value || '-'],
+        ['Sale Value (SAR)', document.getElementById('sale-pess-value')?.value || '-', document.getElementById('sale-exp-value')?.value || '-', document.getElementById('sale-opt-value')?.value || '-'],
+        ['Net Profit (SAR)', document.getElementById('sale-pess-profit')?.value || '-', document.getElementById('sale-exp-profit')?.value || '-', document.getElementById('sale-opt-profit')?.value || '-']
+      ];
+      y = 50;
+      scenarios.forEach(([label, pess, exp, opt]) => {
+        doc.setTextColor(60, 60, 60);
+        addText(label, 25, y);
+        addText(pess, 80, y, { align: 'center' });
+        addText(exp, 120, y, { align: 'center' });
+        addText(opt, 160, y, { align: 'center' });
+        doc.setDrawColor(220, 220, 220);
+        doc.line(20, y + 2, 190, y + 2);
+        y += 10;
+      });
+
+      // PAGE 5: FUNDING READINESS
+      doc.addPage();
+      doc.setFillColor(250, 250, 250);
+      doc.rect(0, 0, 210, 297, 'F');
+      doc.setTextColor(10, 15, 26);
+      doc.setFontSize(16);
+      addText('3. Funding Readiness Score', 20, 20);
+      doc.line(20, 25, 190, 25);
+      doc.setDrawColor(212, 168, 83);
+      doc.setLineWidth(2);
+      doc.circle(105, 70, 25);
+      doc.setTextColor(212, 168, 83);
+      doc.setFontSize(24);
+      addText(score + '', 105, 75, { align: 'center' });
+      doc.setFontSize(10);
+      addText('/ 100', 105, 82, { align: 'center' });
+      doc.setFontSize(14);
+      if (score >= 70) {
+        doc.setTextColor(22, 163, 74);
+        addText('✓ Ready for Funding', 105, 110, { align: 'center' });
+      } else if (score >= 40) {
+        doc.setTextColor(212, 168, 83);
+        addText('⚠ Needs Improvement', 105, 110, { align: 'center' });
+      } else {
+        doc.setTextColor(220, 38, 38);
+        addText('❌ Not Ready', 105, 110, { align: 'center' });
+      }
+      y = 130;
+      doc.setFillColor(212, 168, 83);
+      doc.rect(20, y, 170, 8, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(9);
+      addText('Criteria', 25, y + 5);
+      addText('Weight', 100, y + 5, { align: 'center' });
+      addText('Status', 160, y + 5, { align: 'center' });
+      y += 12;
+      const fsCriteria = [
+        ['Title Deed', 15, 'fs-deed'],
+        ['Building Permit', 15, 'fs-license'],
+        ['Engineering Report', 15, 'fs-engineer'],
+        ['Insurance', 10, 'fs-insurance'],
+        ['Financial Analysis', 15, 'fs-financial'],
+        ['Risk Analysis', 15, 'fs-risk'],
+        ['Appraiser Recommendation', 15, 'fs-appraisal']
+      ];
+      fsCriteria.forEach(([label, weight, id]) => {
+        const checked = document.getElementById(id)?.checked;
+        doc.setTextColor(60, 60, 60);
+        addText(label, 25, y);
+        addText(weight + '', 100, y, { align: 'center' });
+        doc.setTextColor(checked ? 22 : 220, checked ? 163 : 38, checked ? 74 : 38);
+        addText(checked ? '✓' : '✗', 160, y, { align: 'center' });
+        doc.setDrawColor(220, 220, 220);
+        doc.line(20, y + 2, 190, y + 2);
+        y += 10;
+      });
+
+      // PAGE 6: DISCLAIMER & SIGNATURE
+      doc.addPage();
+      doc.setFillColor(250, 250, 250);
+      doc.rect(0, 0, 210, 297, 'F');
+      doc.setTextColor(100, 100, 100);
+      doc.setFontSize(10);
+      addText('Disclaimer:', 20, 30);
+      doc.setFontSize(9);
+      const disclaimer = 'This report is generated by the Bonds template as an auxiliary tool only. All input data is the sole responsibility of the user. This report does not constitute financial, legal, or engineering advice. Professional consultation is recommended before making investment decisions.';
+      const splitDisclaimer = doc.splitTextToSize(disclaimer, 170);
+      addText(splitDisclaimer, 20, 40);
+      doc.setDrawColor(150, 150, 150);
+      doc.setLineWidth(0.5);
+      doc.rect(20, 180, 80, 40);
+      doc.rect(110, 180, 80, 40);
+      doc.setTextColor(60, 60, 60);
+      doc.setFontSize(10);
+      addText('Appraiser / Engineer Signature', 60, 230, { align: 'center' });
+      addText('Investor / Owner Signature', 150, 230, { align: 'center' });
+      doc.setFontSize(8);
+      addText('Name: _______________', 60, 240, { align: 'center' });
+      addText('Date: _______________', 60, 248, { align: 'center' });
+      addText('Name: _______________', 150, 240, { align: 'center' });
+      addText('Date: _______________', 150, 248, { align: 'center' });
+      doc.setTextColor(150, 150, 150);
+      doc.setFontSize(8);
+      addText('Bonds — bonds-global.com — ' + today, 105, 285, { align: 'center' });
+
+      doc.save('bonds-feasibility-' + projectName.replace(/\s+/g, '-') + '-' + today.replace(/\//g, '-') + '.pdf');
+    }
+
     // ===== Export to Excel =====
     function exportToExcel() {
-      if (typeof XLSX === 'undefined') { alert('جاري تحميل مكتبة Excel...'); setTimeout(exportToExcel, 1000); return; }
+      if (typeof XLSX === 'undefined') { alert('Loading Excel library...'); setTimeout(exportToExcel, 1000); return; }
       const wb = XLSX.utils.book_new();
-      wb.Props = { Title: 'دراسة جدوى - بوندز', Subject: 'Feasibility Study', Author: 'Bonds Global', CreatedDate: new Date() };
+      wb.Props = { Title: 'Feasibility Study - Bonds', Subject: 'Feasibility Study', Author: 'Bonds Global', CreatedDate: new Date() };
       const ws1 = XLSX.utils.aoa_to_sheet([
-        ['Integrated Feasibility Study - بوندز'],
+        ['Integrated Feasibility Study - Bonds'],
         [],
-        ['المعلومات العامة'],
-        ['اسم المشروع', document.getElementById('cover-business-name')?.value || ''],
+        ['General Information'],
+        ['Project Name', document.getElementById('cover-business-name')?.value || ''],
         ['Owner Name', document.getElementById('cover-owner-name')?.value || ''],
         ['Legal Form', document.getElementById('cover-legal-form')?.value || ''],
         ['Preparation Date', document.getElementById('cover-date')?.value || ''],
-        ['فكرة المشروع', document.getElementById('cover-idea')?.value || ''],
+        ['Project Idea', document.getElementById('cover-idea')?.value || ''],
       ]);
-      XLSX.utils.book_append_sheet(wb, ws1, 'عام');
+      XLSX.utils.book_append_sheet(wb, ws1, 'General');
       const ws2 = XLSX.utils.aoa_to_sheet([
         ['Financial Analysis'],
-        ['Fixed Costs/شهر', document.getElementById('total-fixed')?.value || 0],
-        ['Variable Costs/شهر', document.getElementById('total-var')?.value || 0],
-        ['الإيرادات/شهر', document.getElementById('total-revenue')?.value || 0],
-        ['صافي الربح/شهر', document.getElementById('net-profit')?.value || 0],
-        ['هامش الربح %', document.getElementById('profit-margin')?.value || 0],
-        ['Break-Even (وحدة)', document.getElementById('break-even-units')?.value || 0],
-        ['رأس المال المستثمر', document.getElementById('capital-invested')?.value || 0],
+        ['Fixed Costs/month', document.getElementById('total-fixed')?.value || 0],
+        ['Variable Costs/month', document.getElementById('total-var')?.value || 0],
+        ['Revenue/month', document.getElementById('total-revenue')?.value || 0],
+        ['Net Profit/month', document.getElementById('net-profit')?.value || 0],
+        ['Profit Margin %', document.getElementById('profit-margin')?.value || 0],
+        ['Break-Even (units)', document.getElementById('break-even-units')?.value || 0],
+        ['Capital Invested', document.getElementById('capital-invested')?.value || 0],
         ['ROI %', document.getElementById('roi-percent')?.value || 0],
         ['Payback Period (months)', document.getElementById('payback-period')?.value || 0],
         [],
-        ['السيناريوهات'],
-        ['المتشائم', document.getElementById('scenario-pessimistic')?.textContent || 0],
-        ['المتوقع', document.getElementById('scenario-expected')?.textContent || 0],
-        ['المتفائل', document.getElementById('scenario-optimistic')?.textContent || 0],
+        ['Scenarios'],
+        ['Pessimistic', document.getElementById('scenario-pessimistic')?.textContent || 0],
+        ['Expected', document.getElementById('scenario-expected')?.textContent || 0],
+        ['Optimistic', document.getElementById('scenario-optimistic')?.textContent || 0],
       ]);
-      XLSX.utils.book_append_sheet(wb, ws2, 'مالي');
+      XLSX.utils.book_append_sheet(wb, ws2, 'Financial');
       XLSX.writeFile(wb, 'bonds-feasibility-study.xlsx');
     }
 
@@ -2579,9 +2860,9 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       let summary = '';
       if (idea) summary += `Project idea: ${idea}. `;
       summary += `${projectName} will be established in ${country}. `;
-      if (capital) summary += `Requires capital of ${Number(capital).toLocaleString()} SAR. `;
-      if (revenue) summary += `Expected monthly revenue ${Number(revenue).toLocaleString()} SAR `;
-      if (profit) summary += `with net profit of ${Number(profit).toLocaleString()} SAR (${margin}% margin). `;
+      if (capital) summary += `Requires capital of ${Number(capital).toLocaleString('en-US')} SAR. `;
+      if (revenue) summary += `Expected monthly revenue ${Number(revenue).toLocaleString('en-US')} SAR `;
+      if (profit) summary += `with net profit of ${Number(profit).toLocaleString('en-US')} SAR (${margin}% margin). `;
       if (roi) summary += `Expected ROI ${roi}% `;
       if (payback && payback > 0) summary += `and payback period of ${Number(payback).toFixed(1)} months. `;
       if (swotS) summary += `Key strength: ${swotS}. `;
@@ -3118,6 +3399,23 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
                 <div class="field-group">
                   <label>City (optional)</label>
                   <input type="text" id="research-city" placeholder="e.g. Riyadh" />
+                </div>
+                <div class="field-group">
+                  <label>Sector</label>
+                  <select id="research-sector">
+                    <option value="restaurant">Restaurant / Café</option>
+                    <option value="retail">Retail / Store</option>
+                    <option value="manufacturing">Manufacturing / Factory</option>
+                    <option value="services">Professional Services</option>
+                    <option value="tech">Tech / Software</option>
+                    <option value="health">Health / Clinic</option>
+                    <option value="education">Education / Training</option>
+                    <option value="logistics">Logistics / Delivery</option>
+                    <option value="nonprofit">Non-profit / Association</option>
+                    <option value="entertainment">Entertainment / Tourism</option>
+                    <option value="real_estate">Real Estate</option>
+                    <option value="other">Other</option>
+                  </select>
                 </div>
                 <div class="field-group">
                   <label>Research Type</label>

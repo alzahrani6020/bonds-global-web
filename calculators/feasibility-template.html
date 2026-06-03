@@ -235,7 +235,7 @@
       <li><a href="../contact.html">تواصل</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:0.75rem;">
-      <a href="../en/calculators/feasibility-template.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;">EN</a>
+      <a href="/en/calculators/feasibility-template.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;">EN</a>
       <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
       <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">☰</button>
     </div>
@@ -244,14 +244,14 @@
   <!-- Toolbar -->
   <div class="template-toolbar no-print">
     <div id="auto-save-indicator" style="position:absolute;top:0.3rem;left:0.5rem;font-size:0.7rem;color:var(--gold);opacity:0;transition:opacity 0.5s;">💾 تم الحفظ تلقائياً</div>
-    <button onclick="window.print()">🖨️ طباعة / PDF</button>
     <button class="btn-ghost" onclick="clearAll()">🗑️ مسح الكل</button>
     <button class="btn-ghost" onclick="saveDraft()">💾 حفظ مسودة</button>
     <button class="btn-ghost" onclick="loadDraft()">📂 استرجاع مسودة</button>
     <button class="btn-ghost" onclick="scrollToDashboard()">🎯 لوحة التحكم</button>
     <button class="btn-ghost" id="btn-import-supabase" onclick="fillFromSupabase()" style="display:none;">📥 استيراد من بياناتي</button>
-    <button class="btn-ghost" onclick="openResearchModal()" style="background:#38bdf8;color:#0a0f1a;border-color:#38bdf8;font-weight:800;">🔍 بحث ذكي</button>
+    <button class="btn-ghost" onclick="openResearchModal()" style="color:#38bdf8;border-color:#38bdf8;">🔍 بحث ذكي</button>
     <button class="btn-ghost" onclick="exportToExcel()">📊 تصدير Excel</button>
+    <button class="btn-ghost" onclick="generateProfessionalPDF()" style="color:var(--gold);border-color:var(--gold);">📄 تصدير PDF احترافي</button>
   </div>
 
   <div class="template-wrapper">
@@ -1407,22 +1407,24 @@
   <script src="feasibility-benchmarks.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
 
     // ===== Smart Analysis =====
     let chartScenarios, chartCosts, chartCashFlow;
     function runSmartAnalysis() {
-      const revenue = parseFloat(document.getElementById('total-revenue')?.value) || 0;
-      const fixed = parseFloat(document.getElementById('total-fixed')?.value) || 0;
-      const variable = parseFloat(document.getElementById('total-var')?.value) || 0;
-      const net = parseFloat(document.getElementById('net-profit')?.value) || 0;
-      const margin = parseFloat(document.getElementById('profit-margin')?.value) || 0;
-      const roi = parseFloat(document.getElementById('roi-percent')?.value) || 0;
-      const payback = parseFloat(document.getElementById('payback-period')?.value) || 0;
-      const beUnits = parseFloat(document.getElementById('break-even-units')?.value) || 0;
-      const totalQty = parseFloat(document.querySelector('#revenue-table .rev-total')?.closest('tr')?.querySelector('.rev-qty')?.value) || 1;
+      const revenue = parseNumber(document.getElementById('total-revenue')?.value) || 0;
+      const fixed = parseNumber(document.getElementById('total-fixed')?.value) || 0;
+      const variable = parseNumber(document.getElementById('total-var')?.value) || 0;
+      const net = parseNumber(document.getElementById('net-profit')?.value) || 0;
+      const margin = parseNumber(document.getElementById('profit-margin')?.value) || 0;
+      const roi = parseNumber(document.getElementById('roi-percent')?.value) || 0;
+      const payback = parseNumber(document.getElementById('payback-period')?.value) || 0;
+      const beUnits = parseNumber(document.getElementById('break-even-units')?.value) || 0;
+      const totalQty = parseNumber(document.querySelector('#revenue-table .rev-total')?.closest('tr')?.querySelector('.rev-qty')?.value) || 1;
       const salaryRatio = document.getElementById('hr-salary-ratio')?.value || '-';
-      const hrTotal = parseFloat(document.getElementById('hr-grand-total')?.textContent) || 0;
+      const hrTotal = parseNumber(document.getElementById('hr-grand-total')?.textContent);
 
       document.getElementById('smart-loading').style.display = 'none';
       document.getElementById('smart-results').style.display = 'block';
@@ -1560,8 +1562,8 @@
       // Cash Flow Line
       const cashData = [];
       for (let i = 1; i <= 12; i++) {
-        const rev = parseFloat(document.getElementById('cf-rev-' + i)?.value) || 0;
-        const cost = parseFloat(document.getElementById('cf-cost-' + i)?.value) || 0;
+        const rev = parseNumber(document.getElementById('cf-rev-' + i)?.value) || 0;
+        const cost = parseNumber(document.getElementById('cf-cost-' + i)?.value) || 0;
         cashData.push(rev - cost);
       }
       const ctxCf = document.getElementById('dash-chart-cashflow');
@@ -1624,7 +1626,7 @@
       // Cash flow line chart
       const cfData = [];
       document.querySelectorAll('#cashflow-table tbody tr').forEach(row => {
-        const bal = parseFloat(row.querySelector('.cf-balance')?.value) || 0;
+        const bal = parseNumber(row.querySelector('.cf-balance')?.value) || 0;
         cfData.push(bal);
       });
       const ctx3 = document.getElementById('chart-cashflow');
@@ -1695,8 +1697,8 @@
     // ===== Product margin =====
     function calcProductMargin(input) {
       const row = input.closest('tr');
-      const price = parseFloat(row.querySelector('.prod-price')?.value) || 0;
-      const cost = parseFloat(row.querySelector('.prod-cost')?.value) || 0;
+      const price = parseNumber(row.querySelector('.prod-price')?.value) || 0;
+      const cost = parseNumber(row.querySelector('.prod-cost')?.value) || 0;
       const margin = row.querySelector('.prod-margin');
       if (margin) margin.value = (price - cost).toFixed(2);
     }
@@ -1708,21 +1710,34 @@
     }
 
     // ===== HR =====
+    function parseNumber(val) {
+      if (!val) return 0;
+      let str = String(val);
+      // تحويل الأرقام العربية إلى إنجليزية
+      const arabicNums = '٠١٢٣٤٥٦٧٨٩';
+      const englishNums = '0123456789';
+      for (let i = 0; i < 10; i++) {
+        str = str.split(arabicNums[i]).join(englishNums[i]);
+      }
+      // إزالة الفواصل والمسافات
+      str = str.replace(/[,،]/g, '').replace(/\s/g, '');
+      return parseFloat(str) || 0;
+    }
     function calcHRRow(input) {
       const row = input.closest('tr');
-      const count = parseFloat(row.querySelector('.hr-count')?.value) || 0;
-      const salary = parseFloat(row.querySelector('.hr-salary')?.value) || 0;
+      const count = parseNumber(row.querySelector('.hr-count')?.value);
+      const salary = parseNumber(row.querySelector('.hr-salary')?.value);
       const total = row.querySelector('.hr-total');
       if (total) total.value = (count * salary).toFixed(2);
       calcHRGrandTotal();
     }
     function calcHRGrandTotal() {
       let grand = 0, employees = 0;
-      document.querySelectorAll('#hr-table .hr-total').forEach(el => grand += parseFloat(el.value) || 0);
-      document.querySelectorAll('#hr-table .hr-count').forEach(el => employees += parseFloat(el.value) || 0);
-      document.getElementById('hr-grand-total').textContent = grand.toFixed(0);
+      document.querySelectorAll('#hr-table .hr-total').forEach(el => grand += parseNumber(el.value));
+      document.querySelectorAll('#hr-table .hr-count').forEach(el => employees += parseNumber(el.value));
+      document.getElementById('hr-grand-total').textContent = grand.toLocaleString('ar-SA', {maximumFractionDigits: 0});
       document.getElementById('hr-total-employees').value = employees;
-      const rev = parseFloat(document.getElementById('total-revenue')?.value) || 0;
+      const rev = parseNumber(document.getElementById('total-revenue')?.value);
       document.getElementById('hr-salary-ratio').value = rev > 0 ? ((grand / rev) * 100).toFixed(1) + '%' : '-';
       document.getElementById('fc-salaries').value = grand.toFixed(2);
       calcFinancials();
@@ -1737,16 +1752,16 @@
     // ===== Tools =====
     function calcToolRow(input) {
       const row = input.closest('tr');
-      const qty = parseFloat(row.querySelector('.tool-qty')?.value) || 0;
-      const price = parseFloat(row.querySelector('.tool-price')?.value) || 0;
+      const qty = parseNumber(row.querySelector('.tool-qty')?.value);
+      const price = parseNumber(row.querySelector('.tool-price')?.value);
       const total = row.querySelector('.tool-total');
       if (total) total.value = (qty * price).toFixed(2);
       calcToolsGrandTotal();
     }
     function calcToolsGrandTotal() {
       let grand = 0;
-      document.querySelectorAll('#tools-table .tool-total').forEach(el => grand += parseFloat(el.value) || 0);
-      document.getElementById('tools-grand-total').textContent = grand.toFixed(0);
+      document.querySelectorAll('#tools-table .tool-total').forEach(el => grand += parseNumber(el.value));
+      document.getElementById('tools-grand-total').textContent = grand.toLocaleString('ar-SA', {maximumFractionDigits: 0});
       document.getElementById('cap-tools').value = grand.toFixed(2);
       calcCapital();
     }
@@ -1760,8 +1775,8 @@
     // ===== Building Assessment (BOQ + Profit Sharing) =====
     function calcBOQRow(input) {
       const row = input.closest('tr');
-      const qty = parseFloat(row.querySelector('.boq-qty')?.value) || 0;
-      const price = parseFloat(row.querySelector('.boq-price')?.value) || 0;
+      const qty = parseNumber(row.querySelector('.boq-qty')?.value);
+      const price = parseNumber(row.querySelector('.boq-price')?.value);
       const total = row.querySelector('.boq-total');
       if (total) total.value = (qty * price).toFixed(2);
       calcBOQGrandTotal();
@@ -1769,8 +1784,8 @@
     }
     function calcBOQGrandTotal() {
       let grand = 0;
-      document.querySelectorAll('#boq-table .boq-total').forEach(el => grand += parseFloat(el.value) || 0);
-      document.getElementById('boq-grand-total').textContent = grand.toFixed(0);
+      document.querySelectorAll('#boq-table .boq-total').forEach(el => grand += parseNumber(el.value));
+      document.getElementById('boq-grand-total').textContent = grand.toLocaleString('ar-SA', {maximumFractionDigits: 0});
       document.getElementById('ba-company-cost').value = grand.toFixed(2);
     }
     function addBOQRow() {
@@ -1780,18 +1795,18 @@
       tbody.appendChild(tr);
     }
     function calcBuildingAssessment() {
-      const ownerValue = parseFloat(document.getElementById('ba-owner-value')?.value) || 0;
-      const companyCost = parseFloat(document.getElementById('ba-company-cost')?.value) || 0;
-      const futureValue = parseFloat(document.getElementById('ba-future-value')?.value) || 0;
-      const adminExpenses = parseFloat(document.getElementById('ba-admin-expenses')?.value) || 0;
-      const platformFees = parseFloat(document.getElementById('ba-platform-fees')?.value) || 0;
-      const tax = parseFloat(document.getElementById('ba-tax')?.value) || 0;
-      const brokerFees = parseFloat(document.getElementById('ba-broker-fees')?.value) || 0;
-      const transferFees = parseFloat(document.getElementById('ba-transfer-fees')?.value) || 0;
-      const otherExpenses = parseFloat(document.getElementById('ba-other-expenses')?.value) || 0;
-      const hiddenDefects = parseFloat(document.getElementById('ba-hidden-defects')?.value) || 0;
-      const emergency = parseFloat(document.getElementById('ba-emergency')?.value) || 0;
-      const unplanned = parseFloat(document.getElementById('ba-unplanned')?.value) || 0;
+      const ownerValue = parseNumber(document.getElementById('ba-owner-value')?.value) || 0;
+      const companyCost = parseNumber(document.getElementById('ba-company-cost')?.value) || 0;
+      const futureValue = parseNumber(document.getElementById('ba-future-value')?.value) || 0;
+      const adminExpenses = parseNumber(document.getElementById('ba-admin-expenses')?.value) || 0;
+      const platformFees = parseNumber(document.getElementById('ba-platform-fees')?.value) || 0;
+      const tax = parseNumber(document.getElementById('ba-tax')?.value) || 0;
+      const brokerFees = parseNumber(document.getElementById('ba-broker-fees')?.value) || 0;
+      const transferFees = parseNumber(document.getElementById('ba-transfer-fees')?.value) || 0;
+      const otherExpenses = parseNumber(document.getElementById('ba-other-expenses')?.value) || 0;
+      const hiddenDefects = parseNumber(document.getElementById('ba-hidden-defects')?.value) || 0;
+      const emergency = parseNumber(document.getElementById('ba-emergency')?.value) || 0;
+      const unplanned = parseNumber(document.getElementById('ba-unplanned')?.value) || 0;
       // ALL pre-sale expenses add to company's share and reduce owner's share
       const allCompanyExpenses = adminExpenses + platformFees + tax + brokerFees + transferFees + otherExpenses + hiddenDefects + emergency + unplanned;
       // Company cost includes ALL expenses → increases company's share in the asset
@@ -1821,24 +1836,24 @@
       if (elOwnerProfit) elOwnerProfit.textContent = ownerProfit.toFixed(0);
       if (elCompanyProfit) elCompanyProfit.textContent = Math.max(0, companyProfit).toFixed(0);
       // Total timeline
-      const constructionMonths = parseFloat(document.getElementById('ba-construction-months')?.value) || 0;
-      const saleMonths = parseFloat(document.getElementById('ba-sale-months')?.value) || 0;
+      const constructionMonths = parseNumber(document.getElementById('ba-construction-months')?.value) || 0;
+      const saleMonths = parseNumber(document.getElementById('ba-sale-months')?.value) || 0;
       if (elTotalMonths) elTotalMonths.value = (constructionMonths + saleMonths).toFixed(1);
       // Trigger sale scenarios update
       calcSaleScenarios();
     }
 
     function calcSaleScenarios() {
-      const futureValue = parseFloat(document.getElementById('ba-future-value')?.value) || 0;
-      const totalCost = parseFloat(document.getElementById('ba-owner-value')?.value) || 0;
-      const companyCost = parseFloat(document.getElementById('ba-company-cost')?.value) || 0;
-      const allExpenses = parseFloat(document.getElementById('ba-shared-expenses')?.textContent) || 0;
+      const futureValue = parseNumber(document.getElementById('ba-future-value')?.value) || 0;
+      const totalCost = parseNumber(document.getElementById('ba-owner-value')?.value) || 0;
+      const companyCost = parseNumber(document.getElementById('ba-company-cost')?.value) || 0;
+      const allExpenses = parseNumber(document.getElementById('ba-shared-expenses')?.textContent);
       const fullCost = totalCost + companyCost + allExpenses;
       // Monthly financing cost (opportunity cost) — simplified as 1% of fullCost per month
       const monthlyFinancingRate = 0.01;
       ['pess', 'exp', 'opt'].forEach(scenario => {
-        const months = parseFloat(document.getElementById('sale-' + scenario + '-months')?.value) || 0;
-        const discountPct = parseFloat(document.getElementById('sale-' + scenario + '-discount')?.value) || 0;
+        const months = parseNumber(document.getElementById('sale-' + scenario + '-months')?.value) || 0;
+        const discountPct = parseNumber(document.getElementById('sale-' + scenario + '-discount')?.value) || 0;
         const financingCost = fullCost * monthlyFinancingRate * months;
         const discountedValue = futureValue * (1 - discountPct / 100);
         const netProfit = discountedValue - fullCost - financingCost;
@@ -1901,25 +1916,25 @@
     function calcValuationTotal() {
       // Sum structural audit costs
       let structuralCost = 0;
-      document.querySelectorAll('#val-structural-table .val-cost').forEach(el => structuralCost += parseFloat(el.value) || 0);
+      document.querySelectorAll('#val-structural-table .val-cost').forEach(el => structuralCost += parseNumber(el.value));
       // Sum WBS completion costs
       let wbsCost = 0;
-      document.querySelectorAll('#val-wbs-table .val-wbs-cost').forEach(el => wbsCost += parseFloat(el.value) || 0);
+      document.querySelectorAll('#val-wbs-table .val-wbs-cost').forEach(el => wbsCost += parseNumber(el.value));
       // Soft costs
-      const consulting = parseFloat(document.getElementById('val-consulting-cost')?.value) || 0;
-      const permits = parseFloat(document.getElementById('val-permit-cost')?.value) || 0;
-      const insurance = parseFloat(document.getElementById('val-insurance-cost')?.value) || 0;
+      const consulting = parseNumber(document.getElementById('val-consulting-cost')?.value) || 0;
+      const permits = parseNumber(document.getElementById('val-permit-cost')?.value) || 0;
+      const insurance = parseNumber(document.getElementById('val-insurance-cost')?.value) || 0;
       // M&E update costs
       let meCost = 0;
-      document.querySelectorAll('#val-me-table .val-me-cost').forEach(el => meCost += parseFloat(el.value) || 0);
+      document.querySelectorAll('#val-me-table .val-me-cost').forEach(el => meCost += parseNumber(el.value));
       // Risk reserve
-      const riskPct = parseFloat(document.getElementById('val-risk-pct')?.value) || 0;
+      const riskPct = parseNumber(document.getElementById('val-risk-pct')?.value) || 0;
       const subtotal = structuralCost + wbsCost + consulting + permits + insurance + meCost;
       const riskValue = subtotal * (riskPct / 100);
       const totalCost = subtotal + riskValue;
       // Net added value
-      const currentValue = parseFloat(document.getElementById('val-comp-current')?.value) || 0;
-      const futureValue = parseFloat(document.getElementById('val-comp-future')?.value) || 0;
+      const currentValue = parseNumber(document.getElementById('val-comp-current')?.value) || 0;
+      const futureValue = parseNumber(document.getElementById('val-comp-future')?.value) || 0;
       const netAdded = futureValue - currentValue - totalCost;
       // Update UI
       const elRiskValue = document.getElementById('val-risk-value');
@@ -1932,16 +1947,16 @@
       if (elNetAdded) elNetAdded.textContent = Math.max(0, netAdded).toFixed(0);
     }
     function calcValComparison() {
-      const current = parseFloat(document.getElementById('val-comp-current')?.value) || 0;
-      const future = parseFloat(document.getElementById('val-comp-future')?.value) || 0;
-      const currentM2 = parseFloat(document.getElementById('val-comp-current-m2')?.value) || 0;
-      const futureM2 = parseFloat(document.getElementById('val-comp-future-m2')?.value) || 0;
-      const currentYield = parseFloat(document.getElementById('val-comp-current-yield')?.value) || 0;
-      const futureYield = parseFloat(document.getElementById('val-comp-future-yield')?.value) || 0;
-      const currentLiq = parseFloat(document.getElementById('val-comp-current-liquidity')?.value) || 0;
-      const futureLiq = parseFloat(document.getElementById('val-comp-future-liquidity')?.value) || 0;
-      const currentRisk = parseFloat(document.getElementById('val-comp-current-risk')?.value) || 0;
-      const futureRisk = parseFloat(document.getElementById('val-comp-future-risk')?.value) || 0;
+      const current = parseNumber(document.getElementById('val-comp-current')?.value) || 0;
+      const future = parseNumber(document.getElementById('val-comp-future')?.value) || 0;
+      const currentM2 = parseNumber(document.getElementById('val-comp-current-m2')?.value) || 0;
+      const futureM2 = parseNumber(document.getElementById('val-comp-future-m2')?.value) || 0;
+      const currentYield = parseNumber(document.getElementById('val-comp-current-yield')?.value) || 0;
+      const futureYield = parseNumber(document.getElementById('val-comp-future-yield')?.value) || 0;
+      const currentLiq = parseNumber(document.getElementById('val-comp-current-liquidity')?.value) || 0;
+      const futureLiq = parseNumber(document.getElementById('val-comp-future-liquidity')?.value) || 0;
+      const currentRisk = parseNumber(document.getElementById('val-comp-current-risk')?.value) || 0;
+      const futureRisk = parseNumber(document.getElementById('val-comp-future-risk')?.value) || 0;
       const elDiffValue = document.getElementById('val-comp-diff-value');
       const elDiffM2 = document.getElementById('val-comp-diff-m2');
       const elDiffYield = document.getElementById('val-comp-diff-yield');
@@ -1973,9 +1988,9 @@
       const nets = document.querySelectorAll('#proforma-income .pf-net');
       let totalRev = 0, totalCogs = 0, totalGa = 0, totalGross = 0, totalNet = 0;
       for (let i = 0; i < 4; i++) {
-        const rev = parseFloat(revs[i]?.value) || 0;
-        const cogs = parseFloat(cogss[i]?.value) || 0;
-        const ga = parseFloat(gas[i]?.value) || 0;
+        const rev = parseNumber(revs[i]?.value) || 0;
+        const cogs = parseNumber(cogss[i]?.value) || 0;
+        const ga = parseNumber(gas[i]?.value) || 0;
         const gross = rev - cogs;
         const net = gross - ga;
         if (grosses[i]) grosses[i].value = gross.toFixed(2);
@@ -1988,12 +2003,12 @@
       document.querySelector('#proforma-income .pf-ga-total').value = totalGa.toFixed(2);
       document.querySelector('#proforma-income .pf-net-total').value = totalNet.toFixed(2);
       // Balance Sheet
-      const assetsC = parseFloat(document.querySelector('#proforma-balance .pf-assets-c')?.value) || 0;
-      const assetsWip = parseFloat(document.querySelector('#proforma-balance .pf-assets-wip')?.value) || 0;
-      const assetsF = parseFloat(document.querySelector('#proforma-balance .pf-assets-f')?.value) || 0;
-      const equityCap = parseFloat(document.querySelector('#proforma-balance .pf-equity-cap')?.value) || 0;
-      const equityRet = parseFloat(document.querySelector('#proforma-balance .pf-equity-ret')?.value) || 0;
-      const liabC = parseFloat(document.querySelector('#proforma-balance .pf-liab-c')?.value) || 0;
+      const assetsC = parseNumber(document.querySelector('#proforma-balance .pf-assets-c')?.value) || 0;
+      const assetsWip = parseNumber(document.querySelector('#proforma-balance .pf-assets-wip')?.value) || 0;
+      const assetsF = parseNumber(document.querySelector('#proforma-balance .pf-assets-f')?.value) || 0;
+      const equityCap = parseNumber(document.querySelector('#proforma-balance .pf-equity-cap')?.value) || 0;
+      const equityRet = parseNumber(document.querySelector('#proforma-balance .pf-equity-ret')?.value) || 0;
+      const liabC = parseNumber(document.querySelector('#proforma-balance .pf-liab-c')?.value) || 0;
       document.querySelector('#proforma-balance .pf-assets-total').value = (assetsC + assetsWip + assetsF).toFixed(2);
       document.querySelector('#proforma-balance .pf-equity-total').value = (equityCap + equityRet + liabC).toFixed(2);
     }
@@ -2001,8 +2016,8 @@
     // ===== Revenue =====
     function calcRevenueRow(input) {
       const row = input.closest('tr');
-      const qty = parseFloat(row.querySelector('.rev-qty')?.value) || 0;
-      const price = parseFloat(row.querySelector('.rev-price')?.value) || 0;
+      const qty = parseNumber(row.querySelector('.rev-qty')?.value);
+      const price = parseNumber(row.querySelector('.rev-price')?.value);
       const total = row.querySelector('.rev-total');
       if (total) total.value = (qty * price).toFixed(2);
       calcFinancials();
@@ -2017,7 +2032,7 @@
     // ===== Financials core =====
     function sumInputs(selector) {
       let total = 0;
-      document.querySelectorAll(selector).forEach(el => total += parseFloat(el.value) || 0);
+      document.querySelectorAll(selector).forEach(el => total += parseNumber(el.value));
       return total;
     }
     function calcFinancials() {
@@ -2059,8 +2074,8 @@
       let balance = 0;
       const rows = document.querySelectorAll('#cashflow-table tbody tr');
       rows.forEach(row => {
-        const rev = parseFloat(row.querySelector('.cf-rev')?.value) || 0;
-        const cost = parseFloat(row.querySelector('.cf-cost')?.value) || 0;
+        const rev = parseNumber(row.querySelector('.cf-rev')?.value) || 0;
+        const cost = parseNumber(row.querySelector('.cf-cost')?.value) || 0;
         const net = rev - cost;
         balance += net;
         const netEl = row.querySelector('.cf-net');
@@ -2070,8 +2085,8 @@
       });
     }
     function autoFillCashFlow() {
-      const rev = parseFloat(document.getElementById('total-revenue')?.value) || 0;
-      const cost = parseFloat(document.getElementById('total-fixed')?.value) || 0;
+      const rev = parseNumber(document.getElementById('total-revenue')?.value) || 0;
+      const cost = parseNumber(document.getElementById('total-fixed')?.value) || 0;
       const rows = document.querySelectorAll('#cashflow-table tbody tr');
       rows.forEach((row, idx) => {
         const growth = 1 + (idx * 0.02); // 2% monthly growth
@@ -2097,7 +2112,7 @@
       calcCapital();
     }
     function linkToCapital() {
-      const val = parseFloat(document.getElementById('cover-investment')?.value) || 0;
+      const val = parseNumber(document.getElementById('cover-investment')?.value) || 0;
       document.getElementById('capital-invested').value = val;
       calcROI();
     }
@@ -2365,7 +2380,7 @@
           const firstRevPrice = document.querySelector('.rev-price');
           if (firstRevQty && !firstRevQty.value) firstRevQty.value = Math.round(sales.reduce((s, t) => s + (t.quantity || 0), 0) / Math.max(1, months.length));
           if (firstRevPrice && !firstRevPrice.value && firstRevQty.value) {
-            firstRevPrice.value = Math.round(avgMonthly / parseFloat(firstRevQty.value));
+            firstRevPrice.value = Math.round(avgMonthly / parseNumber(firstRevQty.value));
           }
           // Fill cash flow with actual monthly data
           const cfKeys = Object.keys(monthly).slice(0, 12);
@@ -2424,8 +2439,8 @@
 
     // ===== ROI & Payback =====
     function calcROI() {
-      const net = parseFloat(document.getElementById('net-profit')?.value) || 0;
-      const capital = parseFloat(document.getElementById('capital-invested')?.value) || parseFloat(document.getElementById('total-capital')?.value) || 0;
+      const net = parseNumber(document.getElementById('net-profit')?.value) || 0;
+      const capital = parseNumber(document.getElementById('capital-invested')?.value) || parseNumber(document.getElementById('total-capital')?.value);
       const annual = net * 12;
       const roi = capital > 0 ? (annual / capital) * 100 : 0;
       const payback = net > 0 ? capital / net : 0;
@@ -2438,9 +2453,9 @@
 
     // ===== Sensitivity =====
     function calcSensitivity() {
-      const rev = parseFloat(document.getElementById('total-revenue')?.value) || 0;
-      const fixed = parseFloat(document.getElementById('total-fixed')?.value) || 0;
-      const varCost = parseFloat(document.getElementById('total-var')?.value) || 0;
+      const rev = parseNumber(document.getElementById('total-revenue')?.value) || 0;
+      const fixed = parseNumber(document.getElementById('total-fixed')?.value) || 0;
+      const varCost = parseNumber(document.getElementById('total-var')?.value) || 0;
       const baseNet = rev - fixed - varCost;
       const rows = document.querySelectorAll('#sensitivity-table tbody tr');
       if (rows.length >= 1) {
@@ -2563,6 +2578,253 @@
       });
       setInterval(_doAutoSave, 30000); // Save every 30 seconds regardless
     });
+
+    // ===== Professional PDF Export =====
+    async function generateProfessionalPDF() {
+      if (typeof jspdf === 'undefined' || typeof html2canvas === 'undefined') {
+        alert('جاري تحميل مكتبات PDF... يرجى الانتظار');
+        setTimeout(generateProfessionalPDF, 2000);
+        return;
+      }
+      const { jsPDF } = jspdf;
+      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+      const projectName = document.getElementById('cover-business-name')?.value || 'مشروع غير مسماًّى';
+      const today = new Date().toLocaleDateString('ar-SA');
+      const score = parseInt(document.getElementById('funding-score')?.textContent) || 0;
+
+      // Helper: add Arabic text (RTL support workaround)
+      function addText(text, x, y, options) {
+        doc.setFont('helvetica');
+        doc.text(text, x, y, options || {});
+      }
+
+      // ===== PAGE 1: COVER =====
+      doc.setFillColor(10, 15, 26);
+      doc.rect(0, 0, 210, 297, 'F');
+      // Logo placeholder
+      doc.setTextColor(212, 168, 83);
+      doc.setFontSize(28);
+      addText('BONDS', 105, 80, { align: 'center' });
+      doc.setFontSize(12);
+      addText('Global', 105, 88, { align: 'center' });
+      // Title
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(22);
+      addText('دراسة جدوى عقارية', 105, 120, { align: 'center' });
+      doc.setFontSize(14);
+      addText('Professional Feasibility Study', 105, 130, { align: 'center' });
+      // Project name
+      doc.setTextColor(212, 168, 83);
+      doc.setFontSize(16);
+      addText(projectName, 105, 160, { align: 'center' });
+      // Date
+      doc.setTextColor(200, 200, 200);
+      doc.setFontSize(11);
+      addText('تاريخ الإعداد: ' + today, 105, 180, { align: 'center' });
+      // Stamp
+      if (score >= 70) {
+        doc.setDrawColor(22, 163, 74);
+        doc.setTextColor(22, 163, 74);
+        doc.setLineWidth(1.5);
+        doc.roundedRect(65, 200, 80, 25, 5, 5, 'D');
+        addText('✓ صالح للعرض على الجهات التمويلية', 105, 215, { align: 'center' });
+      }
+      // Footer
+      doc.setTextColor(150, 150, 150);
+      doc.setFontSize(9);
+      addText('هذا التقرير مُعد بواسطة نموذج بوندز — bonds-global.com', 105, 280, { align: 'center' });
+
+      // ===== PAGE 2: TABLE OF CONTENTS =====
+      doc.addPage();
+      doc.setFillColor(250, 250, 250);
+      doc.rect(0, 0, 210, 297, 'F');
+      doc.setTextColor(10, 15, 26);
+      doc.setFontSize(18);
+      addText('فهرس المحتويات', 190, 20, { align: 'right' });
+      doc.setDrawColor(212, 168, 83);
+      doc.setLineWidth(0.5);
+      doc.line(20, 25, 190, 25);
+      const toc = [
+        ['1', 'ملخص تنفيذي'],
+        ['2', 'وصف المشروع والموقع'],
+        ['3', 'التقييم الهندسي والإنشائي'],
+        ['4', 'جدول الكميات والتكاليف'],
+        ['5', 'حاسبة توزيع الأرباح'],
+        ['6', 'معايير التقييم العقاري'],
+        ['7', 'التحليل المالي والسيناريوهات'],
+        ['8', 'مؤشر الجاهزية للتمويل'],
+        ['9', 'التوصية النهائية']
+      ];
+      let y = 40;
+      toc.forEach(([num, title]) => {
+        doc.setTextColor(100, 100, 100);
+        doc.setFontSize(11);
+        addText(num, 20, y);
+        doc.setTextColor(10, 15, 26);
+        addText(title, 190, y, { align: 'right' });
+        doc.setDrawColor(220, 220, 220);
+        doc.line(20, y + 2, 190, y + 2);
+        y += 12;
+      });
+
+      // ===== PAGE 3: EXECUTIVE SUMMARY =====
+      doc.addPage();
+      doc.setFillColor(250, 250, 250);
+      doc.rect(0, 0, 210, 297, 'F');
+      doc.setTextColor(10, 15, 26);
+      doc.setFontSize(16);
+      addText('1. ملخص تنفيذي', 190, 20, { align: 'right' });
+      doc.line(20, 25, 190, 25);
+      doc.setFontSize(11);
+      doc.setTextColor(60, 60, 60);
+      const summaryLines = [
+        'اسم المشروع: ' + projectName,
+        'الموقع: ' + (document.getElementById('ba-location')?.value || 'غير محدد'),
+        'نسبة الإنجاز الحالية: ' + (document.getElementById('ba-completion-now')?.value || '0') + '%',
+        'القيمة السوقية الراهنة: ' + (document.getElementById('ba-current-value')?.value || '0') + ' ريال',
+        'التكلفة التقديرية للإكمال: ' + (document.getElementById('boq-grand-total')?.textContent || '0') + ' ريال',
+        'القيمة البيعية المتوقعة: ' + (document.getElementById('ba-future-value')?.value || '0') + ' ريال',
+        '',
+        'حصة المالك: ' + (document.getElementById('ba-owner-share')?.textContent || '0%'),
+        'حصة الشركة: ' + (document.getElementById('ba-company-share')?.textContent || '0%'),
+        'صافي الربح المتوقع: ' + (document.getElementById('ba-net-profit')?.textContent || '0') + ' ريال',
+        '',
+        'درجة الجاهزية للتمويل: ' + score + '/100'
+      ];
+      y = 40;
+      summaryLines.forEach(line => {
+        addText(line, 190, y, { align: 'right' });
+        y += 7;
+      });
+
+      // ===== PAGE 4: FINANCIAL SCENARIOS =====
+      doc.addPage();
+      doc.setFillColor(250, 250, 250);
+      doc.rect(0, 0, 210, 297, 'F');
+      doc.setTextColor(10, 15, 26);
+      doc.setFontSize(16);
+      addText('2. السيناريوهات المالية', 190, 20, { align: 'right' });
+      doc.line(20, 25, 190, 25);
+      // Table header
+      doc.setFillColor(212, 168, 83);
+      doc.rect(20, 35, 170, 10, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
+      addText('المعيار', 180, 41, { align: 'right' });
+      addText('متشائم', 130, 41, { align: 'center' });
+      addText('متوقع', 90, 41, { align: 'center' });
+      addText('متفائل', 50, 41, { align: 'center' });
+      // Table rows
+      const scenarios = [
+        ['فترة البيع (شهر)', document.getElementById('sale-pess-months')?.value || '-', document.getElementById('sale-exp-months')?.value || '-', document.getElementById('sale-opt-months')?.value || '-'],
+        ['القيمة البيعية (ريال)', document.getElementById('sale-pess-value')?.value || '-', document.getElementById('sale-exp-value')?.value || '-', document.getElementById('sale-opt-value')?.value || '-'],
+        ['صافي الربح (ريال)', document.getElementById('sale-pess-profit')?.value || '-', document.getElementById('sale-exp-profit')?.value || '-', document.getElementById('sale-opt-profit')?.value || '-']
+      ];
+      y = 50;
+      scenarios.forEach(([label, pess, exp, opt]) => {
+        doc.setTextColor(60, 60, 60);
+        addText(label, 180, y, { align: 'right' });
+        addText(pess, 130, y, { align: 'center' });
+        addText(exp, 90, y, { align: 'center' });
+        addText(opt, 50, y, { align: 'center' });
+        doc.setDrawColor(220, 220, 220);
+        doc.line(20, y + 2, 190, y + 2);
+        y += 10;
+      });
+
+      // ===== PAGE 5: FUNDING READINESS =====
+      doc.addPage();
+      doc.setFillColor(250, 250, 250);
+      doc.rect(0, 0, 210, 297, 'F');
+      doc.setTextColor(10, 15, 26);
+      doc.setFontSize(16);
+      addText('3. مؤشر الجاهزية للتمويل', 190, 20, { align: 'right' });
+      doc.line(20, 25, 190, 25);
+      // Score circle
+      doc.setDrawColor(212, 168, 83);
+      doc.setLineWidth(2);
+      doc.circle(105, 70, 25);
+      doc.setTextColor(212, 168, 83);
+      doc.setFontSize(24);
+      addText(score + '', 105, 75, { align: 'center' });
+      doc.setFontSize(10);
+      addText('من 100', 105, 82, { align: 'center' });
+      // Status
+      doc.setFontSize(14);
+      if (score >= 70) {
+        doc.setTextColor(22, 163, 74);
+        addText('✓ جاهز للتمويل', 105, 110, { align: 'center' });
+      } else if (score >= 40) {
+        doc.setTextColor(212, 168, 83);
+        addText('⚠ يحتاج تحسين', 105, 110, { align: 'center' });
+      } else {
+        doc.setTextColor(220, 38, 38);
+        addText('❌ غير جاهز', 105, 110, { align: 'center' });
+      }
+      // Criteria table
+      y = 130;
+      doc.setFillColor(212, 168, 83);
+      doc.rect(20, y, 170, 8, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(9);
+      addText('المعيار', 180, y + 5, { align: 'right' });
+      addText('الوزن', 100, y + 5, { align: 'center' });
+      addText('الحالة', 40, y + 5, { align: 'center' });
+      y += 12;
+      const fsCriteria = [
+        ['صك الملكية', 15, 'fs-deed'],
+        ['رخصة البناء', 15, 'fs-license'],
+        ['التقرير الهندسي', 15, 'fs-engineer'],
+        ['التأمين', 10, 'fs-insurance'],
+        ['التحليل المالي', 15, 'fs-financial'],
+        ['تحليل المخاطر', 15, 'fs-risk'],
+        ['توصية المقيّم', 15, 'fs-appraisal']
+      ];
+      fsCriteria.forEach(([label, weight, id]) => {
+        const checked = document.getElementById(id)?.checked;
+        doc.setTextColor(60, 60, 60);
+        addText(label, 180, y, { align: 'right' });
+        addText(weight + '', 100, y, { align: 'center' });
+        doc.setTextColor(checked ? 22 : 220, checked ? 163 : 38, checked ? 74 : 38);
+        addText(checked ? '✓' : '✗', 40, y, { align: 'center' });
+        doc.setDrawColor(220, 220, 220);
+        doc.line(20, y + 2, 190, y + 2);
+        y += 10;
+      });
+
+      // ===== PAGE 6: DISCLAIMER & SIGNATURE =====
+      doc.addPage();
+      doc.setFillColor(250, 250, 250);
+      doc.rect(0, 0, 210, 297, 'F');
+      doc.setTextColor(100, 100, 100);
+      doc.setFontSize(10);
+      addText('إخلاء مسؤولية:', 190, 30, { align: 'right' });
+      doc.setFontSize(9);
+      const disclaimer = 'هذا التقرير مُعد بواسطة نموذج بوندز كأداة مساعدة فقط. البيانات المُدخلة هي مسؤولية المستخدم. لا يُعتبر هذا التقرير استشارة مالية أو قانونية أو هندسية. يُنصح بمراجعة جهات متخصصة قبل اتخاذ قرارات استثمارية.';
+      const splitDisclaimer = doc.splitTextToSize(disclaimer, 170);
+      addText(splitDisclaimer, 190, 40, { align: 'right' });
+      // Signature boxes
+      doc.setDrawColor(150, 150, 150);
+      doc.setLineWidth(0.5);
+      doc.rect(20, 180, 80, 40);
+      doc.rect(110, 180, 80, 40);
+      doc.setTextColor(60, 60, 60);
+      doc.setFontSize(10);
+      addText('توقيع المقيم / المهندس', 60, 230, { align: 'center' });
+      addText('توقيع المستثمر / المالك', 150, 230, { align: 'center' });
+      doc.setFontSize(8);
+      addText('الاسم: _______________', 60, 240, { align: 'center' });
+      addText('التاريخ: _______________', 60, 248, { align: 'center' });
+      addText('الاسم: _______________', 150, 240, { align: 'center' });
+      addText('التاريخ: _______________', 150, 248, { align: 'center' });
+      // Footer
+      doc.setTextColor(150, 150, 150);
+      doc.setFontSize(8);
+      addText('بوندز — bonds-global.com — ' + today, 105, 285, { align: 'center' });
+
+      // Save
+      doc.save('bonds-feasibility-' + projectName.replace(/\s+/g, '-') + '-' + today.replace(/\//g, '-') + '.pdf');
+    }
 
     // ===== Export to Excel =====
     function exportToExcel() {
@@ -2745,9 +3007,9 @@
       let summary = '';
       if (idea) summary += `فكرة المشروع: ${idea}. `;
       summary += `يقام ${projectName} في ${country}. `;
-      if (capital) summary += `يتطلب رأس مال قدره ${Number(capital).toLocaleString()} ريال. `;
-      if (revenue) summary += `الإيرادات الشهرية المتوقعة ${Number(revenue).toLocaleString()} ريال `;
-      if (profit) summary += `بصافي ربح ${Number(profit).toLocaleString()} ريال (${margin}٪ هامش). `;
+      if (capital) summary += `يتطلب رأس مال قدره ${Number(capital).toLocaleString('ar-SA')} ريال. `;
+      if (revenue) summary += `الإيرادات الشهرية المتوقعة ${Number(revenue).toLocaleString('ar-SA')} ريال `;
+      if (profit) summary += `بصافي ربح ${Number(profit).toLocaleString('ar-SA')} ريال (${margin}٪ هامش). `;
       if (roi) summary += `العائد المتوقع ${roi}٪ `;
       if (payback && payback > 0) summary += `وفترة استرداد ${Number(payback).toFixed(1)} شهر. `;
       if (swotS) summary += `أبرز نقاط القوة: ${swotS}. `;
