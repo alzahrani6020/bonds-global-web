@@ -45,8 +45,17 @@ async function updateBankTransfer(sb, body) {
   if (!request) throw new Error('Request not found');
   await sb.from('bank_transfer_requests').update({ status: action, updated_at: new Date().toISOString() }).eq('id', id);
   if (action === 'verified') {
-    const { data: users } = await sb.from('profiles').select('id').eq('email', request.email).limit(1);
-    if (users?.length) await sb.from('profiles').update({ tier: request.tier, updated_at: new Date().toISOString() }).eq('id', users[0].id);
+    // Find user by email (profiles first, then auth fallback)
+    let userId = null;
+    const { data: profileUsers } = await sb.from('profiles').select('id').eq('email', request.email).limit(1);
+    if (profileUsers?.length) {
+      userId = profileUsers[0].id;
+    } else {
+      const { data: authList } = await sb.auth.admin.listUsers();
+      const authUser = (authList?.users || []).find(u => u.email === request.email);
+      if (authUser) userId = authUser.id;
+    }
+    if (userId) await sb.from('profiles').update({ tier: request.tier, updated_at: new Date().toISOString() }).eq('id', userId);
   }
   return { success: true };
 }
@@ -100,7 +109,10 @@ async function getAnalytics(sb, admin) {
   if (!admin) throw new Error('Admin required');
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const { count: totalUsers } = await sb.from('profiles').select('*', { count: 'exact', head: true });
+  const { data: authList } = await sb.auth.admin.listUsers();
+  const authUsers = authList?.users || [];
+  const totalUsers = authUsers.length;
+
   const { count: proUsers } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'pro');
   const { count: entUsers } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'enterprise');
 
@@ -116,7 +128,7 @@ async function getAnalytics(sb, admin) {
   const stripeRevenue = (activeSubs || []).reduce((sum, s) => sum + (s.tier === 'enterprise' ? 212 : s.tier === 'pro' ? 82 : 0), 0);
 
   return {
-    users: { total: totalUsers || 0, pro: proUsers || 0, enterprise: entUsers || 0, free: (totalUsers || 0) - (proUsers || 0) - (entUsers || 0) },
+    users: { total: totalUsers, pro: proUsers || 0, enterprise: entUsers || 0, free: Math.max(0, totalUsers - (proUsers || 0) - (entUsers || 0)) },
     usage: { total: usageData?.length || 0, byCalculator: calcStats },
     revenue: { stripe: stripeRevenue, bank: bankRevenue, total: stripeRevenue + bankRevenue },
     pendingTransfers: pendingTransfers?.length || 0,
@@ -209,9 +221,31 @@ async function removeRole(sb, body, admin) {
 
 // ── Users ───────────────────────────────────────────────────
 async function getUsers(sb) {
-  const { data, error } = await sb.from('profiles').select('id, restaurant_name, email, phone, country, tier, status, created_at').order('created_at', { ascending: false });
-  if (error) throw error;
-  return { success: true, recentUsers: data || [] };
+  const { data: authList, error: authErr } = await sb.auth.admin.listUsers();
+  if (authErr) throw authErr;
+  const authUsers = authList?.users || [];
+
+  const { data: profileList, error: profileErr } = await sb.from('profiles').select('id, restaurant_name, email, phone, country, tier, status, created_at');
+  if (profileErr) throw profileErr;
+
+  const profileMap = {};
+  (profileList || []).forEach(p => profileMap[p.id] = p);
+
+  const merged = authUsers.map(u => {
+    const p = profileMap[u.id] || {};
+    return {
+      id: u.id,
+      restaurant_name: p.restaurant_name || u.user_metadata?.restaurant_name || 'مستخدم جديد',
+      email: u.email,
+      phone: p.phone || u.phone || '',
+      country: p.country || u.user_metadata?.country || '',
+      tier: p.tier || 'free',
+      status: p.status || 'active',
+      created_at: u.created_at
+    };
+  }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  return { success: true, recentUsers: merged };
 }
 
 async function updateUser(sb, body, admin) {
@@ -252,22 +286,43 @@ async function getSubscriptions(sb) {
 
 // ── Stats ───────────────────────────────────────────────────
 async function getStats(sb) {
+  // Get auth users for accurate count
+  const { data: authList, error: authErr } = await sb.auth.admin.listUsers();
+  const authUsers = authList?.users || [];
+
   const [
-    { count: usersCount },
     { count: proCount },
     { count: enterpriseCount },
     { count: scenariosCount },
-    { data: recentUsers },
     { data: recentSubs }
   ] = await Promise.all([
-    sb.from('profiles').select('*', { count: 'exact', head: true }),
     sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'pro'),
     sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'enterprise'),
     sb.from('scenarios').select('*', { count: 'exact', head: true }),
-    sb.from('profiles').select('id, restaurant_name, email, phone, country, tier, status, created_at').order('created_at', { ascending: false }).limit(10),
     sb.from('subscriptions').select('user_id, tier, status, current_period_end, created_at').order('created_at', { ascending: false }).limit(10)
   ]);
-  const totalUsers = usersCount || 0;
+
+  // Build profile map
+  const { data: profileList } = await sb.from('profiles').select('id, restaurant_name, email, phone, country, tier, status, created_at').order('created_at', { ascending: false });
+  const profileMap = {};
+  (profileList || []).forEach(p => profileMap[p.id] = p);
+
+  // Merge auth users with profiles for recentUsers
+  const recentUsers = authUsers.slice(0, 10).map(u => {
+    const p = profileMap[u.id] || {};
+    return {
+      id: u.id,
+      restaurant_name: p.restaurant_name || u.user_metadata?.restaurant_name || 'مستخدم جديد',
+      email: u.email,
+      phone: p.phone || u.phone || '',
+      country: p.country || u.user_metadata?.country || '',
+      tier: p.tier || 'free',
+      status: p.status || 'active',
+      created_at: u.created_at
+    };
+  });
+
+  const totalUsers = authUsers.length;
   const proUsers = proCount || 0;
   const enterpriseUsers = enterpriseCount || 0;
   const freeUsers = Math.max(0, totalUsers - proUsers - enterpriseUsers);
@@ -281,7 +336,7 @@ async function getStats(sb) {
       conversionRate: totalUsers > 0 ? ((proUsers + enterpriseUsers) / totalUsers * 100).toFixed(1) : '0.0',
       arpu: totalUsers > 0 ? (monthlyRevenue / totalUsers).toFixed(2) : '0.00'
     },
-    recentUsers: recentUsers || [],
+    recentUsers,
     recentSubscriptions: recentSubs || [],
     generatedAt: new Date().toISOString()
   };
