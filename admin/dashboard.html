@@ -280,7 +280,7 @@
 
     async function fetchStats() {
       try {
-        const res = await fetch('/api/admin-stats');
+        const res = await fetch('/api/admin?action=stats');
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         if (!data.success) throw new Error(data.error || 'Unknown error');
@@ -517,7 +517,8 @@
       }
     });
 
-    window.addEventListener('load',
+    window.addEventListener('load', initDashboard);
+    window.addEventListener('load', updateMsgBadge);
 
     function updateMsgBadge() {
       try {
@@ -527,8 +528,6 @@
         if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'inline-block' : 'none'; }
       } catch(e) {}
     }
-    window.addEventListener('load', updateMsgBadge);
- initDashboard);
   </script>
 
 </body>
