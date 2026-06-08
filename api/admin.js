@@ -182,9 +182,26 @@ async function updateMessage(sb, body) {
 
 // ── Roles ───────────────────────────────────────────────────
 async function getRoles(sb) {
-  const { data, error } = await sb.from('admin_roles').select('*, profiles:user_id(restaurant_name, email)').order('created_at', { ascending: false });
+  const { data: roles, error } = await sb.from('admin_roles').select('*').order('created_at', { ascending: false });
   if (error) throw error;
-  return { success: true, roles: data || [] };
+
+  // Get user emails/names manually since FK relationship may not be in schema cache
+  const userIds = (roles || []).map(r => r.user_id).filter(Boolean);
+  let profileMap = {};
+  if (userIds.length) {
+    const { data: profiles } = await sb.from('profiles').select('id, email, restaurant_name').in('id', userIds);
+    (profiles || []).forEach(p => profileMap[p.id] = p);
+  }
+
+  const merged = (roles || []).map(r => ({
+    ...r,
+    profiles: {
+      email: profileMap[r.user_id]?.email || r.user_id,
+      restaurant_name: profileMap[r.user_id]?.restaurant_name || 'مستخدم'
+    }
+  }));
+
+  return { success: true, roles: merged };
 }
 
 async function addRole(sb, body, admin) {
