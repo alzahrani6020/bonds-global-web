@@ -179,9 +179,21 @@ async function addRole(sb, body, admin) {
   if (!admin) throw new Error('Admin required');
   const { email, role } = body;
   if (!email || !role) throw new Error('email and role required');
-  const { data: users } = await sb.from('profiles').select('id').eq('email', email).limit(1);
-  if (!users?.length) throw new Error('User not found');
-  const { error } = await sb.from('admin_roles').insert({ user_id: users[0].id, role }).select().single();
+
+  // 1. Try profiles table first
+  let { data: users } = await sb.from('profiles').select('id').eq('email', email).limit(1);
+  let targetId = users?.[0]?.id;
+
+  // 2. Fallback: search auth.users via admin API
+  if (!targetId) {
+    const { data: listData, error: listErr } = await sb.auth.admin.listUsers();
+    if (listErr) throw listErr;
+    const authUser = (listData?.users || []).find(u => u.email === email);
+    if (!authUser) throw new Error('User not found');
+    targetId = authUser.id;
+  }
+
+  const { error } = await sb.from('admin_roles').insert({ user_id: targetId, role }).select().single();
   if (error) throw error;
   return { success: true };
 }
