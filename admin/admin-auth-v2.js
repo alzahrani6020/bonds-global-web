@@ -138,6 +138,9 @@
 
   window.retryAdminAuth = verifyAdmin;
 
+  // Safety: always remove overlay after 3s so cached old versions don't block forever
+  setTimeout(removeOverlay, 3000);
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', verifyAdmin);
   } else {

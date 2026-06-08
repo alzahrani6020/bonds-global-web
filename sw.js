@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bonds-v48';
+const CACHE_NAME = 'bonds-v49';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -58,7 +58,8 @@ const STATIC_ASSETS = [
   '/methodology.html',
   '/reports/validation.html',
   '/reports/en/validation.html',
-  '/reports/calculator-validation.xlsx'
+  '/reports/calculator-validation.xlsx',
+  '/admin/admin-auth-v2.js'
 ];
 
 const CDN_ASSETS = [
