@@ -95,6 +95,7 @@
     const userId = await getUserId();
 
     const server = await checkServer(calc, userId);
+    if (server?.admin) return; // Admins bypass all limits
     if (server) {
       if (!server.allowed) { showBlockOverlay(calc, isFeas); return; }
       if (server.used > getLocalUses(calc)) setLocalUses(calc, server.used);
@@ -106,7 +107,8 @@
       return;
     }
 
-    setLocalUses(calc, localUses + 1);
+    // DO NOT increment on page load — only when user actually calculates
+    // setLocalUses(calc, localUses + 1);
     if (userId) {
       fetch('/api/usage?action=log', {
         method: 'POST',
