@@ -23,6 +23,9 @@
     .form-group input,.form-group select,.form-group textarea{width:100%;padding:var(--space-3) var(--space-4);background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text);font-family:inherit;font-size:1rem;transition:border-color 0.2s}
     .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--gold)}
     .form-group input::placeholder,.form-group textarea::placeholder{color:#666}
+    .form-group input:disabled,.form-group select:disabled,.form-group textarea:disabled{opacity:0.5;cursor:not-allowed;border-color:transparent;background:rgba(255,255,255,0.03)}
+    .edit-bar{display:flex;justify-content:flex-end;gap:10px;margin-bottom:var(--space-4)}
+    .edit-bar .btn{width:auto;padding:8px 20px;font-size:0.9rem}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
     @media(max-width:480px){.row{grid-template-columns:1fr}}
     .time-selects{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
@@ -59,6 +62,11 @@
       <div class="success-msg" id="successMsg">✅ تم حفظ التغييرات بنجاح</div>
       <div class="error-msg" id="errorMsg"></div>
       <div class="info-msg" id="infoMsg"></div>
+
+      <div class="edit-bar">
+        <button type="button" class="btn btn-secondary" id="btnEdit" onclick="toggleEdit(true)">✏️ تعديل الملف</button>
+        <button type="button" class="btn btn-primary" id="btnCancel" style="display:none;" onclick="toggleEdit(false)">❌ إلغاء</button>
+      </div>
 
       <form id="profileForm">
         <h2>🖼️ الشعار والصورة</h2>
@@ -208,7 +216,7 @@
           </div>
         </div>
 
-        <button type="submit" class="btn btn-primary" id="saveBtn" style="margin-top:var(--space-4)">
+        <button type="submit" class="btn btn-primary" id="saveBtn" style="margin-top:var(--space-4);display:none;">
           <span class="spinner" id="saveSpinner"></span>
           <span id="saveText">حفظ التغييرات</span>
         </button>
@@ -307,6 +315,40 @@
         showError('خطأ في التحقق من الجلسة. أعد تحميل الصفحة.');
         return;
       }
+
+      // View/edit toggle
+      let isEditing = false;
+      let originalValues = {};
+      window.toggleEdit = function(enable) {
+        isEditing = enable;
+        const editBtn = document.getElementById('btnEdit');
+        const cancelBtn = document.getElementById('btnCancel');
+        const saveBtn = document.getElementById('saveBtn');
+        const fields = ['restaurantName','phone','country','city','neighborhood','businessType','employeeCount','bio','needs','avatarUrl'];
+        const timeIds = ['peakStartH','peakStartM','peakStartAmpm','peakEndH','peakEndM','peakEndAmpm','rushStartH','rushStartM','rushStartAmpm','rushEndH','rushEndM','rushEndAmpm'];
+
+        if (enable) {
+          // Store original values for cancel
+          fields.forEach(id => { originalValues[id] = document.getElementById(id)?.value || ''; });
+          editBtn.style.display = 'none';
+          cancelBtn.style.display = 'inline-flex';
+          saveBtn.style.display = 'flex';
+        } else {
+          // Restore original values
+          fields.forEach(id => { const el = document.getElementById(id); if(el) el.value = originalValues[id] || ''; });
+          editBtn.style.display = 'inline-flex';
+          cancelBtn.style.display = 'none';
+          saveBtn.style.display = 'none';
+        }
+
+        fields.forEach(id => { const el = document.getElementById(id); if (el) el.disabled = !enable; });
+        timeIds.forEach(id => { const el = document.getElementById(id); if (el) el.disabled = !enable; });
+        document.getElementById('uploadBtn').disabled = !enable;
+        document.getElementById('avatarFile').disabled = !enable;
+      };
+
+      // Start in view mode
+      toggleEdit(false);
 
       // Fill email
       document.getElementById('email').value = user.email || '';
