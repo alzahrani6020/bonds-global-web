@@ -45,6 +45,11 @@ module.exports = async function handler(req, res) {
       if (userId) {
         const { data: profile } = await sb.from('profiles').select('tier').eq('id', userId).single();
         if (profile?.tier) tier = profile.tier;
+        // Admins bypass limits
+        const { data: adminRole } = await sb.from('admin_roles').select('role').eq('user_id', userId).single();
+        if (adminRole?.role) {
+          return res.status(200).json({ allowed: true, remaining: Infinity, tier, admin: adminRole.role });
+        }
       }
       if (tier !== 'free') return res.status(200).json({ allowed: true, remaining: Infinity, tier });
 
