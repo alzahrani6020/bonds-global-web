@@ -24,7 +24,7 @@ async function verifyAdminStrict(req, sb) {
   const token = authHeader.slice(7);
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
-  // Owner fallback
+  // Owner fallback — always super_admin
   if (user.email === 'iiffund.dev@gmail.com') return user;
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role || !['super_admin', 'admin'].includes(role.role)) return null;

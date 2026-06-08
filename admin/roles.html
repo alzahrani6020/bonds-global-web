@@ -257,7 +257,7 @@
       try {
         const res = await fetch('/api/admin?action=roles', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (window.__ADMIN_TOKEN || '') },
           body: JSON.stringify({ action: 'add', email, role })
         });
         const data = await res.json();
@@ -277,7 +277,7 @@
       try {
         const res = await fetch('/api/admin?action=roles', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (window.__ADMIN_TOKEN || '') },
           body: JSON.stringify({ action: 'remove', id })
         });
         const data = await res.json();

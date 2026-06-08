@@ -366,7 +366,7 @@
       try {
         const res = await fetch('/api/admin?action=users', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (window.__ADMIN_TOKEN || '') },
           body: JSON.stringify({ action: 'update', id, tier, status })
         });
         const data = await res.json();
@@ -381,7 +381,7 @@
       try {
         const res = await fetch('/api/admin?action=users', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (window.__ADMIN_TOKEN || '') },
           body: JSON.stringify({ action: 'delete', id })
         });
         const data = await res.json();
