@@ -255,9 +255,16 @@
       const role = document.getElementById('newAdminRole').value;
       if (!email) return alert('أدخل البريد الإلكتروني');
       try {
+        // Fallback: get token directly from Supabase client if __ADMIN_TOKEN not set
+        let token = window.__ADMIN_TOKEN || '';
+        if (!token && typeof supabase !== 'undefined' && window.__ENV?.SUPABASE_URL) {
+          const client = supabase.createClient(window.__ENV.SUPABASE_URL, window.__ENV.SUPABASE_ANON_KEY);
+          const { data: { session } } = await client.auth.getSession();
+          token = session?.access_token || '';
+        }
         const res = await fetch('/api/admin?action=roles', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (window.__ADMIN_TOKEN || '') },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ action: 'add', email, role })
         });
         const data = await res.json();
@@ -275,9 +282,15 @@
     async function removeAdmin(id) {
       if (!confirm('هل أنت متأكد من إزالة هذا المشرف؟')) return;
       try {
+        let token = window.__ADMIN_TOKEN || '';
+        if (!token && typeof supabase !== 'undefined' && window.__ENV?.SUPABASE_URL) {
+          const client = supabase.createClient(window.__ENV.SUPABASE_URL, window.__ENV.SUPABASE_ANON_KEY);
+          const { data: { session } } = await client.auth.getSession();
+          token = session?.access_token || '';
+        }
         const res = await fetch('/api/admin?action=roles', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (window.__ADMIN_TOKEN || '') },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ action: 'remove', id })
         });
         const data = await res.json();
