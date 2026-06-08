@@ -63,7 +63,7 @@
 - **الإنجليزية**: `Inter` أو `system-ui`
 
 ### الألوان الثابتة للشعار
-- لا تغيّر نسبة `assets/شعار بوندز.jpg`
+- لا تغيّر نسبة `assets/bonds-logo-v2.webp`
 - لا تضغط الصورة بفقدان الجودة
 
 ---
@@ -85,7 +85,7 @@
   <!-- Open Graph -->
   <meta property="og:title" content="..." />
   <meta property="og:description" content="..." />
-  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-v2.webp" />
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <!-- Styles -->
@@ -187,11 +187,11 @@ module.exports = async function handler(req, res) {
 ## 7. المصادقة والاشتراكات (Auth)
 
 ### 7.1 مستويات الاشتراك
-| المستوى | السعر | المميزات |
-|---------|-------|----------|
+| المستوى | السعر (شامل VAT 15%) | المميزات |
+|---------|----------------------|----------|
 | `free` | مجاني | 3 سيناريوهات، 5 دول، تصدير Excel |
-| `pro` | $19/شهر | سيناريوهات غير محدودة، 22 دولة، تصدير PDF |
-| `enterprise` | $49/شهر | Pro + webhooks + دعم أولوي |
+| `pro` | **82 ر.س/شهر** (71 + 11 ضريبة) | سيناريوهات غير محدودة، 22 دولة، تصدير PDF |
+| `enterprise` | **212 ر.س/شهر** (184 + 28 ضريبة) | Pro + webhooks + دعم أولوي |
 
 ### 7.2 كيف تتحقق من الصلاحيات في الحاسبة
 ```javascript
@@ -255,7 +255,7 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 
 3. **لا تحذف**:
    - ملفات في `supabase/migrations/` (تاريخ قاعدة البيانات)
-   - `assets/شعار بوندز.jpg` (الشعار الأصلي)
+   - `assets/شعار بوندز.jpg` (الشعار الأصلي — أرشيف)
 
 4. **لا تنسَ** عند تعديل حاسبة:
    - النسخة الإنجليزية (إن وجدت)
@@ -291,8 +291,17 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - `recipe_ingredients` — ربط الوصفات بالمكونات
 
 ### 11.2 Stripe — المنتجات
-- Bonds Pro: سعر شهري `$19`
-- Bonds Enterprise: سعر شهري `$49`
+- Bonds Pro: سعر شهري **71 ر.س** (إجمالي 82 ر.س شامل VAT 15%)
+- Bonds Enterprise: سعر شهري **184 ر.س** (إجمالي 212 ر.س شامل VAT 15%)
+- العملة: SAR (الريال السعودي)
+- الضريبة: VAT 15% (يتم تطبيقها عبر `STRIPE_TAX_RATE_ID` env var)
+
+### 11.3 Moyasar — SADAD / التحويل البنكي
+- Bonds Pro: **82 ر.س** (شامل VAT 15%)
+- Bonds Enterprise: **212 ر.س** (شامل VAT 15%)
+- بوابة ثانوية للدفع عبر SADAD أو التحويل البنكي
+- لا تدعم الاشتراكات التلقائية (يدوي التجديد)
+- API: `api/moyasar-checkout.js` + `api/moyasar-verify.js`
 
 ### 11.3 البلدان المدعومة
 22 دولة عربية وعالمية. البيانات في `calculators/country-platforms-data.js`.

@@ -17,5 +17,5 @@ module.exports = function handler(req, res) {
     APP_URL: process.env.NEXT_PUBLIC_APP_URL || '',
   };
 
-  res.send(`window.__ENV = ${JSON.stringify(env)};`);
+  res.status(200).end(`window.__ENV = ${JSON.stringify(env)};`);
 };

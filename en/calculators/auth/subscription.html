@@ -49,7 +49,7 @@
 <body>
   <div class="container">
     <div class="logo">
-      <img src="../../assets/bonds-logo-opt.jpg" alt="Bonds" />
+      <img src="../../assets/bonds-logo-header.webp" alt="Bonds" />
       <span>Bonds</span>
     </div>
 
@@ -73,7 +73,7 @@
         <div class="plan-grid">
           <div class="plan-card">
             <h3>Free</h3>
-            <div class="price">$0 <span>/month</span></div>
+            <div class="price">SAR 0 <span>/month</span></div>
             <ul>
               <li>3 scenarios</li>
               <li>5 countries</li>
@@ -83,25 +83,29 @@
           </div>
           <div class="plan-card recommended">
             <h3>Pro 🌟</h3>
-            <div class="price">$19 <span>/month</span></div>
+            <div class="price">SAR 82 <span>/month</span></div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">incl. VAT 15% (71 + 11 tax)</div>
             <ul>
               <li>Unlimited scenarios</li>
               <li>22 countries</li>
               <li>PDF export</li>
               <li>Health score history</li>
             </ul>
-            <button class="btn btn-primary btn-block" id="btnPro" onclick="upgrade('pro')">Upgrade to Pro</button>
+            <button class="btn btn-primary btn-block" id="btnPro" onclick="upgrade('pro')" style="margin-bottom:0.5rem;">💳 Upgrade to Pro</button>
+            <button class="btn btn-secondary btn-block" id="btnProSadad" onclick="moyasarUpgrade('pro')" style="border-color:rgba(200,164,92,0.4);color:var(--gold);">🏦 Pay via SADAD</button>
           </div>
           <div class="plan-card">
             <h3>Enterprise 🏢</h3>
-            <div class="price">$49 <span>/month</span></div>
+            <div class="price">SAR 212 <span>/month</span></div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">incl. VAT 15% (184 + 28 tax)</div>
             <ul>
               <li>All Pro features</li>
               <li>Webhooks</li>
               <li>Priority support</li>
               <li>API access</li>
             </ul>
-            <button class="btn btn-primary btn-block" id="btnEnterprise" onclick="upgrade('enterprise')">Upgrade to Enterprise</button>
+            <button class="btn btn-primary btn-block" id="btnEnterprise" onclick="upgrade('enterprise')" style="margin-bottom:0.5rem;">💳 Upgrade to Enterprise</button>
+            <button class="btn btn-secondary btn-block" id="btnEntSadad" onclick="moyasarUpgrade('enterprise')" style="border-color:rgba(100,100,255,0.4);color:#88f;">🏦 Pay via SADAD</button>
           </div>
         </div>
       </div>
@@ -191,6 +195,26 @@
 
       window.upgrade = function(tier){
         window.location.href = '../../pricing.html?plan='+tier;
+      };
+      window.moyasarUpgrade = async function(tier){
+        var {data: s} = await window.BondsAuth.getSession();
+        if(!s?.session){window.location.href='index.html?redirect='+encodeURIComponent(window.location.pathname);return;}
+        try{
+          var res = await fetch('/api/moyasar-checkout',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+              tier:tier,
+              userId:s.session.user.id,
+              email:s.session.user.email,
+              successUrl:location.origin+'/calculators/auth/subscription.html?moyasar=success',
+              cancelUrl:location.origin+'/pricing.html?canceled=1'
+            })
+          });
+          var json = await res.json();
+          if(json.url) window.location.href = json.url;
+          else alert(json.error || 'Error creating SADAD invoice');
+        }catch(e){console.error(e);alert('Unable to connect to server');}
       };
       window.openBilling = function(){
         alert('You will be redirected to Stripe billing portal.');

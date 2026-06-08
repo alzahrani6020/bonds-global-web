@@ -9,18 +9,18 @@
   <meta name="description" content="Flexible financial consulting packages for business owners. We send a custom quote based on service scope and sector." />
   <meta property="og:title" content="Pricing &amp; Packages | Bonds" />
   <meta property="og:description" content="Flexible financial consulting packages for business owners. We send a custom quote based on service scope." />
-  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-v2.webp" />
   <meta property="og:url" content="https://bonds-global.com/en/pricing.html" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Pricing &amp; Packages | Bonds" />
   <meta name="twitter:description" content="Flexible financial consulting packages for business owners. We send a custom quote based on service scope." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-v2.webp" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" as="style" />
   <link rel="preload" href="https://fonts.gstatic.com/s/cairo/v28/SLXVc1nY6HkvangtZmpcWmhzfHNZlDcf8Q.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="../assets/site-logo.webp" as="image" type="image/webp" />
+  <link rel="preload" href="../assets/bonds-logo-header.webp" as="image" type="image/webp" />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="/api/env"></script>
   <script defer src="/_vercel/insights/script.js"></script>
@@ -49,8 +49,7 @@
   <header class="main-header" id="header">
     <div class="container main-header__inner">
       <a href="index.html" class="logo-slot">
-        <img src="../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
-        <span class="logo-text">Bonds</span>
+        <img src="../assets/bonds-logo-header.webp" alt="Bonds" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
       </a>
       <nav class="main-nav" id="mainNav">
         <ul>
@@ -151,8 +150,9 @@
             <p style="font-size: var(--text-sm); color: var(--cream-200); line-height: 1.7;">For growing restaurants that need deep analysis</p>
           </div>
           <div style="position: relative; z-index: 1; margin-bottom: var(--space-6);">
-            <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--gold-400);">$19</div>
-            <div style="font-size: var(--text-sm); color: var(--cream-300);">/month</div>
+            <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--gold-400);">SAR 82</div>
+            <div style="font-size: var(--text-sm); color: var(--cream-300);">/month (incl. VAT 15%)</div>
+            <div style="font-size: var(--text-xs); color: var(--cream-300); opacity: 0.8; margin-top: 0.25rem;">SAR 71 + SAR 11 tax</div>
           </div>
           <ul style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-8); flex-grow: 1;">
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--cream-200);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Unlimited scenarios</li>
@@ -161,7 +161,8 @@
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--cream-200);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Health Score archive + chart</li>
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--cream-200);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Share scenarios</li>
           </ul>
-          <button id="btnPro" class="btn btn-primary" style="width: 100%; position: relative; z-index: 1;" data-price="pro">Subscribe Pro</button>
+          <button id="btnPro" class="btn btn-primary" style="width: 100%; position: relative; z-index: 1; margin-bottom: 0.5rem;" data-price="pro">💳 Subscribe Pro</button>
+          <button class="btn btn-outline" style="width: 100%; position: relative; z-index: 1; border-color: rgba(197,160,40,0.4); color: var(--gold-400);" data-price="pro" onclick="showBankModal('pro')">🏦 Direct Bank Transfer</button>
         </div>
 
         <!-- Enterprise -->
@@ -172,8 +173,9 @@
             <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7;">For chains and large groups</p>
           </div>
           <div style="margin-bottom: var(--space-6);">
-            <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--navy-950);">$49</div>
-            <div style="font-size: var(--text-sm); color: var(--text-muted);">/month</div>
+            <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--navy-950);">SAR 212</div>
+            <div style="font-size: var(--text-sm); color: var(--text-muted);">/month (incl. VAT 15%)</div>
+            <div style="font-size: var(--text-xs); color: var(--text-muted); margin-top: 0.25rem;">SAR 184 + SAR 28 tax</div>
           </div>
           <ul style="display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-8); flex-grow: 1;">
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-secondary);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-500)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Everything in Pro</li>
@@ -182,7 +184,8 @@
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-secondary);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-500)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Priority support</li>
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-secondary);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-500)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Multiple sub-accounts</li>
           </ul>
-          <button id="btnEnterprise" class="btn btn-outline" style="width: 100%;" data-price="enterprise">Subscribe Enterprise</button>
+          <button id="btnEnterprise" class="btn btn-outline" style="width: 100%; margin-bottom: 0.5rem;" data-price="enterprise">💳 Subscribe Enterprise</button>
+          <button class="btn btn-outline" style="width: 100%; border-color: rgba(100,100,255,0.4); color: #88f;" data-price="enterprise" onclick="showBankModal('enterprise')">🏦 Direct Bank Transfer</button>
         </div>
       </div>
     </div>
@@ -305,8 +308,7 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="logo-slot">
-            <img src="../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" loading="lazy" />
-            <span class="logo-text" style="color: var(--white);">Bonds</span>
+            <img src="../assets/bonds-logo-header.webp" alt="Bonds" class="site-logo" width="577" height="567" loading="lazy" />
           </div>
           <p>Financial consulting for business owners and SMEs in Egypt and Saudi Arabia.</p>
         </div>
@@ -405,6 +407,8 @@
             priceId: PRICE_MAP[tier],
             userId: s.session.user.id,
             email: s.session.user.email,
+            currency: 'SAR',
+            vatPercent: 15,
             successUrl: location.origin + '/calculators/restaurant.html?subscribed=1',
             cancelUrl: location.origin + '/pricing.html?canceled=1'
           })
@@ -416,6 +420,28 @@
     }
     document.getElementById('btnPro')?.addEventListener('click', () => checkout('pro'));
     document.getElementById('btnEnterprise')?.addEventListener('click', () => checkout('enterprise'));
+
+    window.moyasarCheckout = async function(tier) {
+      const { data: s } = await window.BondsAuth.getSession();
+      if (!s?.session) { window.location.href = 'calculators/auth/?redirect=' + encodeURIComponent(location.pathname); return; }
+      if (typeof gtag !== 'undefined') gtag('event', 'begin_checkout', { tier: tier, method: 'moyasar' });
+      try {
+        const res = await fetch('/api/moyasar-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tier: tier,
+            userId: s.session.user.id,
+            email: s.session.user.email,
+            successUrl: location.origin + '/calculators/auth/subscription.html?moyasar=success',
+            cancelUrl: location.origin + '/pricing.html?canceled=1'
+          })
+        });
+        const json = await res.json();
+        if (json.url) window.location.href = json.url;
+        else alert(json.error || 'Error creating SADAD invoice');
+      } catch(e) { console.error(e); alert('Unable to connect to server'); }
+    };
   })();
   </script>
   <script src="../script.js" defer></script>
@@ -424,5 +450,85 @@
   <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
 <!-- Tawk.to Live Chat -->
 <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
+
+<!-- Bank Transfer Modal -->
+<div id="bankModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;padding:1rem;direction:ltr;">
+  <div style="background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius-lg);max-width:480px;width:100%;padding:2rem;position:relative;">
+    <button onclick="document.getElementById('bankModal').style.display='none'" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-secondary);">×</button>
+    <h3 style="font-family:var(--font-display);font-size:1.25rem;font-weight:800;color:var(--navy-950);margin-bottom:1rem;text-align:center;">🏦 Direct Bank Transfer</h3>
+    <div style="background:rgba(212,168,83,0.08);border:1px solid rgba(197,160,40,0.2);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;">
+      <div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:0.5rem;">Bank: <strong style="color:var(--text);">Arab Bank</strong></div>
+      <div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:0.5rem;">Account: <strong style="color:var(--text);">Thiqat Al-Dhahabiya General Services Office</strong></div>
+      <div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:0.5rem;">Amount: <strong id="bankAmount" style="color:var(--gold);font-size:1.1rem;"></strong></div>
+      <div style="display:flex;align-items:center;gap:0.5rem;background:rgba(0,0,0,0.2);padding:0.75rem 1rem;border-radius:8px;margin-top:0.75rem;">
+        <code id="bankIban" style="font-size:0.8rem;color:var(--gold);font-family:monospace;letter-spacing:0.5px;">SA2015000607139491540009</code>
+        <button onclick="navigator.clipboard.writeText('SA2015000607139491540009')" style="background:var(--gold);color:var(--bg);border:none;padding:0.25rem 0.75rem;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:700;">Copy</button>
+      </div>
+    </div>
+    <form id="bankForm" onsubmit="submitBank(event)">
+      <input type="hidden" id="bankTier" name="tier">
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.4rem;">Full Name</label>
+        <input type="text" id="bankName" required style="width:100%;padding:0.75rem 1rem;border-radius:10px;border:1px solid var(--border-light);background:rgba(255,255,255,0.03);color:var(--text);font-size:0.9rem;">
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.4rem;">Email</label>
+        <input type="email" id="bankEmail" required style="width:100%;padding:0.75rem 1rem;border-radius:10px;border:1px solid var(--border-light);background:rgba(255,255,255,0.03);color:var(--text);font-size:0.9rem;">
+      </div>
+      <div style="margin-bottom:1.5rem;">
+        <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.4rem;">Phone Number</label>
+        <input type="tel" id="bankPhone" required style="width:100%;padding:0.75rem 1rem;border-radius:10px;border:1px solid var(--border-light);background:rgba(255,255,255,0.03);color:var(--text);font-size:0.9rem;">
+      </div>
+      <button type="submit" id="bankSubmitBtn" class="btn btn-primary" style="width:100%;">✅ Confirm — Transfer Done</button>
+    </form>
+    <div id="bankSuccess" style="display:none;text-align:center;padding:1rem;">
+      <div style="font-size:3rem;margin-bottom:0.5rem;">🎉</div>
+      <p style="color:var(--text);font-weight:700;">Request received!</p>
+      <p style="color:var(--text-secondary);font-size:0.85rem;">We will activate your subscription within 24 hours after verifying the transfer.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function showBankModal(tier) {
+  document.getElementById('bankTier').value = tier;
+  document.getElementById('bankAmount').textContent = tier === 'enterprise' ? '212 SAR / month' : '82 SAR / month';
+  document.getElementById('bankModal').style.display = 'flex';
+  document.getElementById('bankForm').style.display = 'block';
+  document.getElementById('bankSuccess').style.display = 'none';
+}
+
+async function submitBank(e) {
+  e.preventDefault();
+  const btn = document.getElementById('bankSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  try {
+    const res = await fetch('/api/bank-transfer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('bankName').value,
+        email: document.getElementById('bankEmail').value,
+        phone: document.getElementById('bankPhone').value,
+        tier: document.getElementById('bankTier').value,
+      }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('bankForm').style.display = 'none';
+      document.getElementById('bankSuccess').style.display = 'block';
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (err) {
+    alert('Error: ' + (err.message || 'Failed to submit'));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✅ Confirm — Transfer Done';
+  }
+}
+</script>
 </body>
 </html>

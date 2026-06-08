@@ -49,7 +49,7 @@
 <body>
   <div class="container">
     <div class="logo">
-      <img src="../../assets/bonds-logo-opt.jpg" alt="Bonds" />
+      <img src="../../../assets/bonds-logo-v2.webp" alt="Bonds" />
       <span>Bonds</span>
     </div>
 
@@ -76,7 +76,7 @@
         <div class="plan-grid">
           <div class="plan-card">
             <h3>مجاني</h3>
-            <div class="price">$0 <span>/شهر</span></div>
+            <div class="price">0 ر.س <span>/شهر</span></div>
             <ul>
               <li>3 سيناريوهات</li>
               <li>5 دول</li>
@@ -86,25 +86,29 @@
           </div>
           <div class="plan-card recommended">
             <h3>Pro 🌟</h3>
-            <div class="price">$19 <span>/شهر</span></div>
+            <div class="price">82 ر.س <span>/شهر</span></div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">شامل VAT 15% (71 + 11 ضريبة)</div>
             <ul>
               <li>سيناريوهات غير محدودة</li>
               <li>22 دولة</li>
               <li>تصدير PDF</li>
               <li>تاريخ التقييم الصحي</li>
             </ul>
-            <button class="btn btn-primary btn-block" id="btnPro" onclick="upgrade('pro')">الترقية إلى Pro</button>
+            <button class="btn btn-primary btn-block" id="btnPro" onclick="upgrade('pro')" style="margin-bottom:0.5rem;">💳 الترقية إلى Pro</button>
+            <button class="btn btn-secondary btn-block" id="btnProBank" onclick="bankUpgrade('pro')" style="border-color:rgba(200,164,92,0.4);color:var(--gold);">🏦 تحويل بنكي مباشر</button>
           </div>
           <div class="plan-card">
             <h3>Enterprise 🏢</h3>
-            <div class="price">$49 <span>/شهر</span></div>
+            <div class="price">212 ر.س <span>/شهر</span></div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">شامل VAT 15% (184 + 28 ضريبة)</div>
             <ul>
               <li>كل مميزات Pro</li>
               <li>Webhooks</li>
               <li>دعم أولوي</li>
               <li>API access</li>
             </ul>
-            <button class="btn btn-primary btn-block" id="btnEnterprise" onclick="upgrade('enterprise')">الترقية إلى Enterprise</button>
+            <button class="btn btn-primary btn-block" id="btnEnterprise" onclick="upgrade('enterprise')" style="margin-bottom:0.5rem;">💳 الترقية إلى Enterprise</button>
+            <button class="btn btn-secondary btn-block" id="btnEntBank" onclick="bankUpgrade('enterprise')" style="border-color:rgba(100,100,255,0.4);color:#88f;">🏦 تحويل بنكي مباشر</button>
           </div>
         </div>
       </div>
@@ -184,33 +188,73 @@
       async function loadUsage(){
         var sb = window.BondsAuth.getSupabase();
         if(!sb||!_user)return;
+        // Scenarios count
         var res = await sb.from('scenarios').select('id',{count:'exact',head:true}).eq('user_id',_user.id);
-        var count = res.count||0;
-        var limit = _tier==='free'?3:'∞';
-        var html = '<div class="stat-row"><span>السيناريوهات المحفوظة</span><span>'+count+' / '+limit+'</span></div>';
+        var scenCount = res.count||0;
+        var scenLimit = _tier==='free'?3:'∞';
+        // Calculator usage
+        var usageRes = await sb.from('usage_logs').select('calculator').eq('user_id',_user.id).gte('created_at', new Date(Date.now()-30*86400000).toISOString());
+        var calcUses = {};
+        (usageRes.data||[]).forEach(function(r){ calcUses[r.calculator] = (calcUses[r.calculator]||0)+1; });
+        var calcHtml = '';
+        for(var c in calcUses){ calcHtml += '<div class="stat-row"><span style="font-size:0.85rem">'+c+'</span><span>'+calcUses[c]+' مرة</span></div>'; }
+        if(!calcHtml) calcHtml = '<div class="stat-row"><span>لا يوجد استخدام مسجل</span><span>-</span></div>';
+
+        var html = '<div class="stat-row"><span>السيناريوهات المحفوظة</span><span>'+scenCount+' / '+scenLimit+'</span></div>';
         html += '<div class="stat-row"><span>الدول المتاحة</span><span>'+(_tier==='free'?'5':'22')+'</span></div>';
         html += '<div class="stat-row"><span>تصدير PDF</span><span>'+(_tier==='free'?'❌':'✅')+'</span></div>';
+        html += '<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);"><strong style="color:var(--gold);font-size:0.9rem;">📊 استخدام الحاسبات (30 يوم)</strong></div>';
+        html += calcHtml;
         document.getElementById('usageStats').innerHTML = html;
       }
 
       window.upgrade = function(tier){
         window.location.href = '../../pricing.html?plan='+tier;
       };
-      window.openBilling = function(){
-        alert('سيتم توجيهك إلى بوابة Stripe لإدارة الفواتير.');
+      window.bankUpgrade = function(tier){
+        window.location.href = '../../pricing.html?plan='+tier;
+      };
+      window.openBilling = async function(){
+        try {
+          var res = await fetch('/api/billing?action=portal', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({userId: _user.id})
+          });
+          var json = await res.json();
+          if(json.url) window.location.href = json.url;
+          else alert('لا يوجد ربط بـ Stripe');
+        } catch(e){ alert('تعذر الاتصال'); }
       };
       window.cancelSub = async function(){
         if(!confirm('هل أنت متأكد من إلغاء الاشتراك؟ ستبقى مميزاتك حتى نهاية الفترة المدفوعة.'))return;
-        var sb = window.BondsAuth.getSupabase();
-        if(!sb)return;
-        var {error} = await sb.from('subscriptions').update({cancel_at_period_end:true}).eq('user_id',_user.id);
-        if(error){showError(error.message);return;}
-        alert('تم طلب إلغاء الاشتراك. ستبقى مميزاتك حتى نهاية الفترة المدفوعة.');
-        location.reload();
+        try {
+          var res = await fetch('/api/billing?action=cancel', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({userId: _user.id})
+          });
+          if(res.ok){
+            alert('تم طلب إلغاء الاشتراك. ستبقى مميزاتك حتى نهاية الفترة المدفوعة.');
+            location.reload();
+          } else throw new Error('Failed');
+        } catch(e){ showError('فشل إلغاء الاشتراك'); }
       };
 
       init();
     })();
   </script>
+<script>
+function updateDateTime() {
+  const now = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const dateStr = now.toLocaleDateString('ar-SA', options);
+  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+  const el = document.getElementById('header-datetime');
+  if (el) el.textContent = dateStr + ' | ' + timeStr;
+}
+setInterval(updateDateTime, 60000);
+updateDateTime();
+</script>
 </body>
 </html>

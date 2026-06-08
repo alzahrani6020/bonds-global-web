@@ -7,7 +7,7 @@
   <meta name="description" content="احسب جدوى مطعمك قبل الافتتاح: التكاليف، الإيرادات، نقطة التعادل، والسيناريوهات المتشائمة والمتفائلة. أداة مجانية من بوندز." />
   <meta property="og:title" content="حاسبة جدوى المطعم | بوندز" />
   <meta property="og:description" content="هل فكرة مطعمك مربحة؟ احسب قبل ما تدفع ريال." />
-  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-v2.webp" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -518,5 +518,18 @@ const onboard = new BondsUI.Onboarding([
 ]);
 setTimeout(() => onboard.start(), 600);
 </script>
+<script>
+function updateDateTime() {
+  const now = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const dateStr = now.toLocaleDateString('ar-SA', options);
+  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+  const el = document.getElementById('header-datetime');
+  if (el) el.textContent = dateStr + ' | ' + timeStr;
+}
+setInterval(updateDateTime, 60000);
+updateDateTime();
+</script>
+<script src="usage-guard.js"></script>
 </body>
 </html>

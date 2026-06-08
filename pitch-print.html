@@ -322,7 +322,7 @@
     <div class="stat-grid" style="max-width:520px;margin:1.5rem auto;">
       <div class="stat-box"><div class="num">7</div><div class="label">حاسبات متخصصة</div></div>
       <div class="stat-box"><div class="num">22</div><div class="label">دولة مدعومة</div></div>
-      <div class="stat-box"><div class="num">$0→$49</div><div class="label">السعر/الشهر</div></div>
+      <div class="stat-box"><div class="num">0→212 ر.س</div><div class="label">السعر/الشهر</div></div>
     </div>
     <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1.5rem;">Pitch Deck — 2026</p>
   </div>
@@ -427,7 +427,7 @@
       <div class="info-card">
         <div class="icon">💵</div>
         <h4>سعر منافس جداً</h4>
-        <p>MarketMan يبدأ من $239/شهر. بوندز: مجاني → $49/شهر.</p>
+        <p>MarketMan يبدأ من $239/شهر. بوندز: مجاني → 212 ر.س/شهر (شامل VAT).</p>
       </div>
     </div>
   </div>
@@ -468,17 +468,17 @@
       </div>
       <div class="info-card" style="border-top:3px solid var(--gold);">
         <div class="icon">⭐</div>
-        <h4>Pro — $19/شهر</h4>
+        <h4>Pro — 82 ر.س/شهر</h4>
         <p>سيناريوهات غير محدودة<br>22 دولة<br>PDF export<br>حفظ في السحابة</p>
       </div>
       <div class="info-card" style="border-top:3px solid #22c55e;">
         <div class="icon">🏢</div>
-        <h4>Enterprise — $49/شهر</h4>
+        <h4>Enterprise — 212 ر.س/شهر</h4>
         <p>Pro + API access<br>White-label<br>دعم أولوي<br>تقارير مخصصة</p>
       </div>
     </div>
     <div class="stat-grid" style="max-width:520px;margin:1.25rem auto;">
-      <div class="stat-box"><div class="num">$19</div><div class="label">سعر Pro (أرخص من MarketMan بـ 12x)</div></div>
+      <div class="stat-box"><div class="num">82 ر.س</div><div class="label">سعر Pro (أرخص من MarketMan بـ 12x)</div></div>
       <div class="stat-box"><div class="num">85%</div><div class="label">هامش ربح SaaS المتوقع</div></div>
     </div>
   </div>
@@ -571,5 +571,17 @@
   </div>
 </div>
 
+<script>
+function updateDateTime() {
+  const now = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const dateStr = now.toLocaleDateString('ar-SA', options);
+  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+  const el = document.getElementById('header-datetime');
+  if (el) el.textContent = dateStr + ' | ' + timeStr;
+}
+setInterval(updateDateTime, 60000);
+updateDateTime();
+</script>
 </body>
 </html>

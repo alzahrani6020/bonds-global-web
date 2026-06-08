@@ -1,7 +1,7 @@
 // ============================================
 // Stripe Checkout Session Creator
 // POST /api/create-checkout
-// Body: { priceId, userId, email, successUrl, cancelUrl }
+// Body: { priceId, userId, email, successUrl, cancelUrl, currency, vatPercent }
 // ============================================
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -23,7 +23,7 @@ module.exports = async function handler(req, res) {
   }
 
   // Input validation
-  const { priceId, userId, email, successUrl, cancelUrl } = req.body || {};
+  const { priceId, userId, email, successUrl, cancelUrl, currency, vatPercent } = req.body || {};
 
   if (!priceId || typeof priceId !== 'string' || !priceId.startsWith('price_')) {
     res.status(400).json({ error: 'Invalid or missing priceId' });
@@ -49,6 +49,14 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    // Build subscription_data with metadata and optional tax rate
+    const subscriptionData = {
+      metadata: { supabaseUserId: userId, currency: currency || 'SAR', vatPercent: vatPercent || 15 }
+    };
+    if (process.env.STRIPE_TAX_RATE_ID) {
+      subscriptionData.default_tax_rates = [process.env.STRIPE_TAX_RATE_ID];
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
       payment_method_types: ['card'],
@@ -57,9 +65,7 @@ module.exports = async function handler(req, res) {
         quantity: 1,
       }],
       mode: 'subscription',
-      subscription_data: {
-        metadata: { supabaseUserId: userId }
-      },
+      subscription_data: subscriptionData,
       success_url: successUrl || `${process.env.NEXT_PUBLIC_APP_URL}/calculators/auth/?success=1`,
       cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_APP_URL}/pricing.html?canceled=1`,
       client_reference_id: userId,

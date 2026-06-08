@@ -9,17 +9,17 @@
   <meta name="description" content="كل الصيغ الرياضية المستخدمة في حاسبات بوندز: نقطة التعادل، التسعير، التدفق النقدي، والقرض. مكتوبة بوضوح تام وقابلة للتحقق." />
   <meta property="og:title" content="منهجية الحساب والشفافية | بوندز" />
   <meta property="og:description" content="كل الصيغ الرياضية المستخدمة في حاسبات بوندز، مكتوبة بوضوح تام وقابلة للتحقق." />
-  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-v2.webp" />
   <meta property="og:url" content="https://bonds-global.com/methodology.html" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="منهجية الحساب والشفافية | بوندز" />
   <meta name="twitter:description" content="كل الصيغ الرياضية المستخدمة في حاسبات بوندز، مكتوبة بوضوح تام وقابلة للتحقق." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-v2.webp" />
   <link rel="canonical" href="https://bonds-global.com/methodology.html" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="assets/site-logo.webp" as="image" type="image/webp" />
+  <link rel="preload" href="assets/bonds-logo-v2.webp" as="image" type="image/webp" />
   <script defer src="/_vercel/insights/script.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
@@ -69,12 +69,12 @@
   <header class="main-header" id="header">
     <div class="container main-header__inner">
       <a href="index.html" class="logo-slot">
-        <img src="assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
-        <span class="logo-text">بوندز</span>
+        <img src="assets/bonds-logo-v2.webp" alt="بوندز" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
       </a>
       <nav class="main-nav" id="mainNav">
         <ul>
           <li><a href="index.html">الرئيسية</a></li>
+          <li><a href="about.html">من نحن</a></li>
           <li class="dropdown">
             <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
               الخدمات
@@ -88,8 +88,6 @@
               <a href="services.html#research">الاستبيانات والبحوث</a>
             </div>
           </li>
-          <li><a href="pricing.html">الأسعار</a></li>
-          <li><a href="about.html">من نحن</a></li>
           <li class="dropdown">
             <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
               الحاسبات
@@ -101,10 +99,14 @@
               <a href="calculators/pricing.html">تسعير المنتج</a>
               <a href="calculators/loan.html">القرض والتمويل</a>
               <a href="calculators/restaurant.html">المطاعم والسحابي</a>
+              <a href="calculators/menu-engineering.html">هندسة المنيو</a>
+              <a href="calculators/feasibility.html">جدوى المطعم</a>
+              <a href="calculators/invoice-analyzer.html">تحليل الفواتير</a>
+              <a href="calculators/feasibility-template.html">نموذج دراسة الجدوى</a>
             </div>
           </li>
+          <li><a href="pricing.html">الأسعار</a></li>
           <li><a href="blog/index.html">مقالات</a></li>
-          <li><a href="faq.html">الأسئلة الشائعة</a></li>
           <li><a href="contact.html">تواصل</a></li>
         </ul>
       </nav>
@@ -464,8 +466,7 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="logo-slot">
-            <img src="assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" loading="lazy" />
-            <span class="logo-text" style="color: var(--white);">بوندز</span>
+            <img src="assets/bonds-logo-v2.webp" alt="بوندز" class="site-logo" width="577" height="567" loading="lazy" />
           </div>
           <p>استشارات مالية لأصحاب المشاريع والشركات الصغيرة والمتوسطة في مصر والسعودية.</p>
         </div>
@@ -540,5 +541,17 @@
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
   <!-- Tawk.to Live Chat -->
   <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
+<script>
+function updateDateTime() {
+  const now = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const dateStr = now.toLocaleDateString('ar-SA', options);
+  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+  const el = document.getElementById('header-datetime');
+  if (el) el.textContent = dateStr + ' | ' + timeStr;
+}
+setInterval(updateDateTime, 60000);
+updateDateTime();
+</script>
 </body>
 </html>

@@ -32,7 +32,7 @@
   <div class="auth-container">
     <div class="auth-card">
       <div class="logo">
-        <img src="../../assets/bonds-logo-opt.jpg" alt="Bonds" />
+        <img src="../../../assets/bonds-logo-v2.webp" alt="Bonds" />
         <span>Bonds</span>
       </div>
       <div id="errorMsg" class="error-msg"></div>
@@ -75,5 +75,17 @@
       });
     })();
   </script>
+<script>
+function updateDateTime() {
+  const now = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const dateStr = now.toLocaleDateString('ar-SA', options);
+  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+  const el = document.getElementById('header-datetime');
+  if (el) el.textContent = dateStr + ' | ' + timeStr;
+}
+setInterval(updateDateTime, 60000);
+updateDateTime();
+</script>
 </body>
 </html>

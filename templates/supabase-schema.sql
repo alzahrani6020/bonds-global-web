@@ -9,6 +9,8 @@
 create table if not exists public.profiles (
   id uuid references auth.users on delete cascade primary key,
   restaurant_name text,
+  email text,
+  phone text,
   country text,
   language text default 'ar',
   tier text default 'free' check (tier in ('free','pro','enterprise')),
@@ -37,13 +39,19 @@ create policy "Users can update own profile"
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, restaurant_name, country, language)
+  insert into public.profiles (id, restaurant_name, email, phone, country, language)
   values (
     new.id,
     new.raw_user_meta_data->>'restaurant_name',
+    new.email,
+    new.phone,
     new.raw_user_meta_data->>'country',
     coalesce(new.raw_user_meta_data->>'language', 'ar')
-  );
+  )
+  on conflict (id) do update set
+    email = excluded.email,
+    phone = excluded.phone,
+    updated_at = now();
   return new;
 end;
 $$ language plpgsql security definer;

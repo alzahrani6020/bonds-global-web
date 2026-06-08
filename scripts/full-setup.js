@@ -127,8 +127,8 @@ async function main() {
     });
     const proPrice = await stripe.prices.create({
       product: proProduct.id,
-      unit_amount: 1900, // $19.00
-      currency: 'usd',
+      unit_amount: 7100, // SAR 71.00
+      currency: 'sar',
       recurring: { interval: 'month' }
     });
     console.log(`  ✅ Pro Plan     — Price ID: ${proPrice.id}`);
@@ -140,8 +140,8 @@ async function main() {
     });
     const entPrice = await stripe.prices.create({
       product: entProduct.id,
-      unit_amount: 4900, // $49.00
-      currency: 'usd',
+      unit_amount: 18400, // SAR 184.00
+      currency: 'sar',
       recurring: { interval: 'month' }
     });
     console.log(`  ✅ Enterprise   — Price ID: ${entPrice.id}`);

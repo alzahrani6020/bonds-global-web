@@ -9,24 +9,25 @@
   <meta name="description" content="Specialized financial consulting for commercial enterprises, factories, tourism, agriculture, and more in Egypt and Saudi Arabia." />
   <meta property="og:title" content="Bonds | Financial Consulting" />
   <meta property="og:description" content="Specialized financial consulting for commercial enterprises, factories, tourism, agriculture, and more in Egypt and Saudi Arabia." />
-  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-v2.webp" />
   <meta property="og:url" content="https://bonds-global.com/en/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Bonds | Financial Consulting" />
   <meta name="twitter:description" content="Specialized financial consulting for commercial enterprises, factories, tourism, agriculture, and more in Egypt and Saudi Arabia." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-v2.webp" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" as="style" />
   <link rel="preload" href="https://fonts.gstatic.com/s/cairo/v28/SLXVc1nY6HkvangtZmpcWmhzfHNZlDcf8Q.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="../assets/site-logo.webp" as="image" type="image/webp" />
+  <link rel="preload" href="../assets/bonds-logo-header.webp" as="image" type="image/webp" />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script defer src="/_vercel/insights/script.js"></script>
   <!-- Google Analytics -->
   <!-- Google Analytics: replace G-XXXXXXXXXX with your real tracking ID -->
   <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script> -->
   <!-- <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script> -->
+  <link rel="preload" href="../styles.css" as="style" />
   <link rel="stylesheet" href="../styles.css" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
   <link rel="manifest" href="/manifest.json" />
@@ -41,7 +42,7 @@
     "name": "Bonds Financial Consulting",
     "alternateName": "Bonds Global",
     "url": "https://bonds-global.com",
-    "logo": "https://bonds-global.com/assets/site-logo.webp",
+    "logo": "https://bonds-global.com/assets/bonds-logo-v2.webp",
     "description": "Specialized financial consulting for commercial and industrial enterprises in Egypt and Saudi Arabia.",
     "foundingDate": "2025",
     "address": [
@@ -98,8 +99,7 @@
   <header class="main-header" id="header">
     <div class="container main-header__inner">
       <a href="index.html" class="logo-slot">
-        <img src="../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
-        <span class="logo-text">Bonds</span>
+        <img src="../assets/bonds-logo-header.webp" alt="Bonds" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
       </a>
       <nav class="main-nav" id="mainNav">
         <ul>
@@ -123,6 +123,31 @@
           <li><a href="about.html">About Us</a></li>
           <li class="dropdown">
             <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              Guides
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="sectors/manufacturing.html">🏭 Saudi Arabia</a>
+              <a href="sectors/manufacturing-eg.html">🏭 Egypt</a>
+              <a href="sectors/manufacturing-ae.html">🏭 UAE</a>
+              <a href="sectors/manufacturing-jo.html">🏭 Jordan</a>
+              <a href="sectors/manufacturing-om.html">🏭 Oman</a>
+              <a href="sectors/manufacturing-bh.html">🏭 Bahrain</a>
+              <a href="sectors/manufacturing-kw.html">🏭 Kuwait</a>
+              <a href="sectors/manufacturing-qa.html">🏭 Qatar</a>
+              <a href="sectors/manufacturing-ma.html">🏭 Morocco</a>
+              <a href="sectors/manufacturing-tn.html">🏭 Tunisia</a>
+              <a href="sectors/manufacturing-iq.html">🏭 Iraq</a>
+              <a href="sectors/manufacturing-sd.html">🏭 Sudan</a>
+              <a href="sectors/manufacturing-ly.html">🏭 Libya</a>
+              <a href="sectors/manufacturing-dz.html">🏭 Algeria</a>
+              <a href="sectors/manufacturing-lb.html">🏭 Lebanon</a>
+              <a href="sectors/manufacturing-ye.html">🏭 Yemen</a>
+              <a href="sectors/manufacturing-sy.html">🏭 Syria</a>
+            </div>
+          </li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
               Calculators
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </span>
@@ -136,6 +161,24 @@
               <a href="calculators/feasibility.html">Feasibility</a>
               <a href="calculators/invoice-analyzer.html">🧾 Invoice Analyzer</a>
               <a href="calculators/feasibility-template.html">Feasibility Study Template</a>
+              <div style="border-top:1px solid var(--border); margin:0.4rem 0;"></div>
+              <a href="calculators/factory-cost.html">🏭 Factory Cost - Saudi Arabia</a>
+              <a href="calculators/factory-cost-eg.html">🏭 Factory Cost - Egypt</a>
+              <a href="calculators/factory-cost-ae.html">🏭 Factory Cost - UAE</a>
+              <a href="calculators/factory-cost-jo.html">🏭 Factory Cost - Jordan</a>
+              <a href="calculators/factory-cost-om.html">🏭 Factory Cost - Oman</a>
+              <a href="calculators/factory-cost-bh.html">🏭 Factory Cost - Bahrain</a>
+              <a href="calculators/factory-cost-kw.html">🏭 Factory Cost - Kuwait</a>
+              <a href="calculators/factory-cost-qa.html">🏭 Factory Cost - Qatar</a>
+              <a href="calculators/factory-cost-ma.html">🏭 Factory Cost - Morocco</a>
+              <a href="calculators/factory-cost-tn.html">🏭 Factory Cost - Tunisia</a>
+              <a href="calculators/factory-cost-iq.html">🏭 Factory Cost - Iraq</a>
+              <a href="calculators/factory-cost-sd.html">🏭 Factory Cost - Sudan</a>
+              <a href="calculators/factory-cost-ly.html">🏭 Factory Cost - Libya</a>
+              <a href="calculators/factory-cost-dz.html">🏭 Factory Cost - Algeria</a>
+              <a href="calculators/factory-cost-lb.html">🏭 Factory Cost - Lebanon</a>
+              <a href="calculators/factory-cost-ye.html">🏭 Factory Cost - Yemen</a>
+              <a href="calculators/factory-cost-sy.html">🏭 Factory Cost - Syria</a>
             </div>
           </li>
           <li><a href="blog/index.html">Insights</a></li>
@@ -633,8 +676,7 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="logo-slot">
-            <img src="../assets/site-logo.webp" alt="Bonds" class="site-logo" width="577" height="567" loading="lazy" />
-            <span class="logo-text" style="color: var(--white);">Bonds</span>
+            <img src="../assets/bonds-logo-header.webp" alt="Bonds" class="site-logo" width="577" height="567" loading="lazy" />
           </div>
           <p>Financial consulting for business owners and SMEs in Egypt and Saudi Arabia.</p>
         </div>

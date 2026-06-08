@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bonds-v36';
+const CACHE_NAME = 'bonds-v43';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -11,8 +11,8 @@ const STATIC_ASSETS = [
   '/privacy.html',
   '/styles.css',
   '/script.js',
-  '/assets/site-logo.webp',
-  '/assets/bonds-logo-opt.jpg',
+  '/assets/bonds-logo-v2.webp',
+  '/assets/bonds-logo-header.webp',
   '/assets/bonds-mark.svg',
   '/manifest.json',
   '/calculators/shared-calculators.css',

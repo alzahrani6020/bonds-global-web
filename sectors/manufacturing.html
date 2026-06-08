@@ -3,441 +3,505 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>استشارات مالية للمصانع والتصنيع | بوندز — استشارات مالية</title>
-  <meta name="description" content="استشارات مالية متخصصة لمصانع وشركات التصنيع في مصر والسعودية: تحليل تكاليف، إدارة مخزون، تمويل تصدير، وتحسين هامش الربح." />
-  <meta property="og:title" content="استشارات مالية للمصانع والتصنيع | بوندز" />
-  <meta property="og:description" content="حلول مالية عملية للمصانع: تقليل التكاليف، تحسين التدفق النقدي، ودراسات جدوى لخطوط الإنتاج." />
-  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
-  <meta property="og:url" content="https://bonds-global.com/sectors/manufacturing.html" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="استشارات مالية للمصانع والتصنيع | بوندز" />
-  <meta name="twitter:description" content="حلول مالية عملية للمصانع: تقليل التكاليف، تحسين التدفق النقدي، ودراسات جدوى لخطوط الإنتاج." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <title>دليل الاستثمار الصناعي | بوندز</title>
+  <meta name="description" content="دليل شامل للاستثمار في المدن الصناعية السعودية - اشتراطات البناء، التكاليف، رحلة المستثمر" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="../assets/site-logo.webp" as="image" type="image/webp" />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <script defer src="/_vercel/insights/script.js"></script>
-  <link rel="stylesheet" href="../styles.css" />
-  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
   <style>
-    .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
-    .service-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
-    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; }
-    .icon-box { width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, var(--gold), var(--gold-dim)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem; }
-    .testimonial-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); position: relative; }
-    .testimonial-card::before { content: "“"; position: absolute; top: 1rem; right: 1.5rem; font-size: 4rem; color: var(--gold); opacity: 0.25; line-height: 1; }
-    .lead-form { display: flex; flex-wrap: wrap; gap: var(--space-3); }
-    .lead-form input, .lead-form select, .lead-form textarea { flex: 1; min-width: 180px; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.95rem; outline: none; transition: all 0.3s; }
-    .lead-form input:focus, .lead-form select:focus, .lead-form textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
-    .lead-form textarea { width: 100%; min-height: 120px; resize: vertical; }
-    @media (max-width: 768px) { .pain-grid, .service-grid, .stat-grid { grid-template-columns: 1fr; } }
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6;
+      --shadow: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Vazirmatn',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+    a { color:var(--gold); text-decoration:none; }
+
+    /* Header */
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); font-size:1.1rem; }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+
+    /* Hero */
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2.2rem; font-weight:800; margin-bottom:1rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; font-size:1.05rem; }
+
+    /* Container */
+    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
+    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
+
+    /* Cards */
+    .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-bottom:3rem; }
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
+    .card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:var(--shadow); }
+    .card__icon { width:48px; height:48px; border-radius:12px; background:rgba(212,168,83,0.1); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1rem; }
+    .card__title { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; }
+    .card__text { font-size:0.85rem; color:var(--text-secondary); line-height:1.7; }
+
+    /* Tables */
+    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:3rem; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:right; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(16,24,45,0.9); border-bottom:1px solid var(--border); }
+    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
+    tr:hover td { background:rgba(212,168,40,0.05); }
+
+    /* Journey Timeline */
+    .timeline { display:flex; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
+    .stage { display:flex; gap:1.5rem; }
+    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .stage__content { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
+    .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
+    .stage__list { list-style:none; }
+    .stage__list li { padding:0.5rem 0; color:var(--text-secondary); font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
+    .stage__list li::before { content:'✓'; color:var(--success); font-weight:700; }
+
+    /* Fees */
+    .fee-highlight { background:rgba(212,168,83,0.08); border-radius:8px; padding:0.35rem 0.75rem; font-weight:700; color:var(--gold); white-space:nowrap; }
+
+    @media (max-width:768px) {
+      .hero h1 { font-size:1.5rem; }
+      .stage { flex-direction:column; }
+      .header__nav { display:none; }
+    }
   </style>
 </head>
-<body style="font-family:Vazirmatn,system-ui,sans-serif">
+<body>
 
-  <!-- Top Bar -->
-  <div class="topbar">
-    <div class="container topbar__inner">
-      <span>استشارتك الأولى مجانية — احجز الآن</span>
-      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب سريع →</a>
-    </div>
-  </div>
-
-  <!-- Header -->
-  <header class="main-header" id="header">
-    <div class="container main-header__inner">
-      <a href="../index.html" class="logo-slot">
-        <img src="../assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
-        <span class="logo-text">بوندز</span>
+  <header class="header">
+    <div class="header__inner">
+      <a href="../index.html" class="header__logo">
+        <img src="../assets/bonds-logo-header.webp" alt="بوندز" />
+        <span>بوندز</span>
       </a>
-      <nav class="main-nav" id="mainNav">
-        <ul>
-          <li><a href="../index.html">الرئيسية</a></li>
-          <li class="dropdown">
-            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
-              الخدمات
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-            <div class="dropdown-menu">
-              <a href="../services.html#analysis">التحليل المالي</a>
-              <a href="../services.html#cashflow">إدارة التدفقات النقدية</a>
-              <a href="../services.html#feasibility">دراسات الجدوى</a>
-              <a href="../services.html#risk">تحليل المخاطر</a>
-              <a href="../services.html#research">الاستبيانات والبحوث</a>
-            </div>
-          </li>
-          <li><a href="../pricing.html">الأسعار</a></li>
-          <li><a href="../about.html">من نحن</a></li>
-          <li class="dropdown">
-            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
-              الحاسبات
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </span>
-            <div class="dropdown-menu">
-              <a href="../calculator.html">نقطة التعادل</a>
-              <a href="../calculators/cash-flow.html">تدفق النقد</a>
-              <a href="../calculators/pricing.html">تسعير المنتج</a>
-              <a href="../calculators/loan.html">القرض والتمويل</a>
-            </div>
-          </li>
-          <li><a href="../index.html#insights">مقالات</a></li>
-          <li><a href="../faq.html">الأسئلة الشائعة</a></li>
-          <li><a href="../contact.html">تواصل</a></li>
-        </ul>
+      <nav class="header__nav">
+        <a href="../index.html">الرئيسية</a>
+        <a href="../calculators/factory-cost.html">حاسبة المصنع</a>
+        <a href="../suppliers-guide.html">دليل المورد</a>
+        <a href="../partner-portal-guide.html">بوابة شريك</a>
+        <a href="../contact.html">تواصل</a>
       </nav>
-      <div class="header-actions">
-        <a href="en/manufacturing.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">EN</a>
-        <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
-        <a href="../contact.html" class="btn btn-primary hidden-mobile">احجز استشارتك</a>
-        <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
     </div>
   </header>
 
-  <!-- Hero -->
-  <section class="hero" style="min-height: 55vh; padding: var(--space-20) 0;">
-    <div class="hero__orb hero__orb--1" style="width: 320px; height: 320px;"></div>
-    <div class="hero__orb hero__orb--2" style="width: 260px; height: 260px;"></div>
-    <div class="container hero__content reveal">
-      <span class="hero__eyebrow">قطاع التصنيع</span>
-      <h1 class="hero__title">استشارات مالية متخصصة <span class="text-gradient">لمصانع وشركات التصنيع</span></h1>
-      <p class="hero__desc">نعيد هيكلة تكاليف الإنتاج ونحسن التدفق النقدي لمصانعك — بدءاً من التشخيص المالي حتى تنفيذ خطة التحسين.</p>
-      <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);margin-top:var(--space-8);justify-content:center;">
-        <a href="#assessment" class="btn btn-primary btn-lg">احجز استشارة مجانية لتقييم مصنعك</a>
-        <a href="../calculators/cash-flow.html" class="btn btn-outline btn-lg">جرب حاسبة تدفق النقد المخصصة للمصانع</a>
-      </div>
-    </div>
+  <section class="hero">
+    <h1>دليل الاستثمار الصناعي في السعودية</h1>
+    <p>كل ما يحتاجه المستثمر من اشتراطات البناء، التكاليف، ورحلة الاستثمار في المدن الصناعية التابعة لـ "مدن"</p>
+    <div style="margin-top:1rem; font-size:0.8rem; color:var(--text-muted);"><a href="https://modon.gov.sa/ar/Pages/default.aspx" target="_blank" rel="noopener" style="color:var(--gold);">موقع مدن الرسمي ↗</a></div>
   </section>
 
-  <!-- Pain Points -->
-  <section class="section" style="background: var(--bg-secondary);">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section__eyebrow">تحديات المصانع</span>
-        <h2 class="section__title">ألم التصنيع المالي اللي بنحله</h2>
-        <p class="section__subtitle">مصانع كتير بتمرّ بتحديات مالية متكررة. إحنا بنبدأ من هنا.</p>
+  <div class="container">
+
+    <!-- Standards -->
+    <h2 class="section-title">📐 معايير واشتراطات البناء</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">صالات الإنتاج</div>
+        <div class="card__text">مناسبة لجميع المهام الميكانيكية لخطوط الإنتاج حسب نوعية الصناعة.</div>
       </div>
-      <div class="pain-grid">
-        <div class="card reveal">
-          <div class="icon-box">📈</div>
-          <h3 class="card__title">ارتفاع تكاليف الخامات</h3>
-          <p class="card__text">تقلبات أسعار المدخلات بتأكل هامش الربح. بنحلل تكوين التكلفة ونقترح بدائل وتحسينات.</p>
+      <div class="card">
+        <div class="card__icon">📦</div>
+        <div class="card__title">مستودع المواد الخام</div>
+        <div class="card__text">30% - 40% من مساحة البناء، تزيد مع زيادة حجم المصنع.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📦</div>
+        <div class="card__title">مستودع المنتجات</div>
+        <div class="card__text">30% - 40% من مساحة البناء، تزيد مع زيادة حجم المصنع.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🧑‍💼</div>
+        <div class="card__title">خدمات العاملين</div>
+        <div class="card__text">دورات مياه – مصلى – إسعافات أولية – صالة طعام – غرفة تبديل الملابس.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">التغذية بالكهرباء</div>
+        <div class="card__text">غرفة الكهرباء للجهد المتوسط والمنخفض + غرفة القاطع الرئيسي.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🛡️</div>
+        <div class="card__title">الأمن والسلامة</div>
+        <div class="card__text">خزانات إطفاء احتياطية + نظام إطفاء + إنذار حريق.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🚧</div>
+        <div class="card__title">الطرق الداخلية</div>
+        <div class="card__text">تسهيل الحركة بين وحدات المصانع وربطها بالطرق الرئيسية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📏</div>
+        <div class="card__title">الارتدادات النظامية</div>
+        <div class="card__text">أمامي: 13.5م على الأقل | جانبي وخلفي: 6م على الأقل.</div>
+      </div>
+    </div>
+
+    <!-- Electricity -->
+    <h2 class="section-title">⚡ تعرفة الكهرباء</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>نوع التعرفة</th><th>شرائح الاستهلاك</th><th>السعر</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>صناعي</strong></td><td>—</td><td><span class="fee-highlight">20 هللة/ك.و.س</span></td></tr>
+          <tr><td><strong>سكني</strong></td><td>1 - 6,000 ك.و.س/شهر</td><td>18 هللة/ك.و.س</td></tr>
+          <tr><td><strong>سكني</strong></td><td>أكثر من 6,000 ك.و.س/شهر</td><td>30 هللة/ك.و.س</td></tr>
+          <tr><td><strong>تجاري</strong></td><td>1 - 6,000 ك.و.س/شهر</td><td>22 هللة/ك.و.س</td></tr>
+          <tr><td><strong>تجاري</strong></td><td>أكثر من 6,000 ك.و.س/شهر</td><td>32 هللة/ك.و.س</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- City Fees -->
+    <h2 class="section-title">💰 رسوم المدن الصناعية</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>الخدمة</th><th>المقابل المالي</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>إصدار رخصة تطوير (أول مرة)</td><td><span style="color:var(--success);font-weight:700;">بدون مقابل</span></td></tr>
+          <tr><td>تجديد رخصة تطوير</td><td><span class="fee-highlight">10 هللات/م²</span></td></tr>
+          <tr><td>إصدار رخصة تشغيل (كل 5 سنوات)</td><td><span class="fee-highlight">5 هللات/م²</span></td></tr>
+          <tr><td>الإشراف على مشغل المدينة</td><td><span class="fee-highlight">20 هللة/م² سنوياً</span></td></tr>
+          <tr><td>اعتماد مخططات المصانع والمنشآت</td><td><span class="fee-highlight">1 ريال/م²</span> (حد أدنى 5,000 ريال – حد أعلى 25,000 ريال)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Journey -->
+    <h2 class="section-title">🗺️ رحلة المستثمر (5 مراحل)</h2>
+    <div class="timeline">
+      <div class="stage">
+        <div class="stage__num">1</div>
+        <div class="stage__content">
+          <div class="stage__title">مرحلة الطلب</div>
+          <ul class="stage__list">
+            <li>طلب رخصة المستثمر الأجنبي – منصة استثمر في السعودية</li>
+            <li>استخراج سجل تجاري – المركز السعودي للأعمال</li>
+            <li>طلب ترخيص صناعي تحت التأسيس – منصة صناعي</li>
+            <li>طلب ترخيص تأسيسي للصناعات العسكرية</li>
+            <li>طلب الحصول على قرض صناعي – منصة ابتداء</li>
+            <li>تقديم طلب تعاقد – منصة شريك</li>
+          </ul>
         </div>
-        <div class="card reveal reveal-delay-1">
-          <div class="icon-box">📦</div>
-          <h3 class="card__title">إدارة المخزون والتوريد</h3>
-          <p class="card__text">مخزون راكد أو نقص مفاجئ في المواد الأولية بيوقف الإنتاج. نبني نظام تحكم فعّال.</p>
+      </div>
+      <div class="stage">
+        <div class="stage__num">2</div>
+        <div class="stage__content">
+          <div class="stage__title">مرحلة اعتماد المخططات</div>
+          <ul class="stage__list">
+            <li>توقيع العقد – المدينة الصناعية</li>
+            <li>اعتماد مخططات (عام + سلامة) – منصة شريك</li>
+            <li>تصريح بنائي للإنشاء – منصة التصاريح البيئية</li>
+          </ul>
         </div>
-        <div class="card reveal reveal-delay-2">
-          <div class="icon-box">⚙️</div>
-          <h3 class="card__title">إهلاك الآلات والمعدات</h3>
-          <p class="card__text">تكاليف الصيانة والإهلاك بتتراكم بدون تخطيط. نوزع التكاليف بحكمة عبر دورة الإنتاج.</p>
+      </div>
+      <div class="stage">
+        <div class="stage__num">3</div>
+        <div class="stage__content">
+          <div class="stage__title">مرحلة البناء</div>
+          <ul class="stage__list">
+            <li>طلب رخصة البناء – منصة شريك</li>
+            <li>ترقية الترخيص الصناعي إلى الإنشاء – منصة صناعي</li>
+          </ul>
         </div>
-        <div class="card reveal">
-          <div class="icon-box">💸</div>
-          <h3 class="card__title">فجوات التدفق النقدي</h3>
-          <p class="card__text">الفترة بين دفع الخامات وتحصيل المستحقات بتضغط السيولة. نحسّن دورة النقد.</p>
+      </div>
+      <div class="stage">
+        <div class="stage__num">4</div>
+        <div class="stage__content">
+          <div class="stage__title">مرحلة الخدمات العامة</div>
+          <ul class="stage__list">
+            <li>طلب إيصال التيار الكهربائي – منصة شريك</li>
+            <li>طلب تأييد التأشيرات – منصة صناعي</li>
+          </ul>
         </div>
-        <div class="card reveal reveal-delay-1">
-          <div class="icon-box">🚢</div>
-          <h3 class="card__title">تمويل التصدير والاستيراد</h3>
-          <p class="card__text">حاجة ضغوط مالية في عمليات الاستيراد والتصدير. نرتب التمويل التجاري المناسب.</p>
+      </div>
+      <div class="stage">
+        <div class="stage__num">5</div>
+        <div class="stage__content">
+          <div class="stage__title">مرحلة التشغيل</div>
+          <ul class="stage__list">
+            <li>طلب شهادة إتمام وإشغال البناء – منصة شريك</li>
+            <li>طلب تصريح بيئي تشغيلي – منصة التصاريح البيئية</li>
+            <li>ترقية الترخيص إلى منتج – منصة صناعي</li>
+            <li>طلب ترخيص مزاولة النشاط الغذائي – منصة غذاء</li>
+            <li>طلب تصريح مزاولة النشاط العسكري</li>
+            <li>طلب الإعفاء الجمركي – منصة صناعي</li>
+          </ul>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- Services -->
-  <section class="section">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section__eyebrow">خدماتنا للمصانع</span>
-        <h2 class="section__title">حلول مالية مصممة لبيئة التصنيع</h2>
+    <!-- Products -->
+    <h2 class="section-title">📦 المنتجات اللوجستية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">الأراضي اللوجستية</div>
+        <div class="card__text">أراضٍ بمساحات مختلفة لممارسة الأنشطة اللوجستية في المدن الصناعية.</div>
       </div>
-      <div class="service-grid">
-        <div class="card reveal">
-          <div class="icon-box">📊</div>
-          <h3 class="card__title">تحليل تكاليف الإنتاج</h3>
-          <p class="card__text">تفكيك تكلفة الوحدة إلى مواد مباشرة، أجور، وتكاليف صناعية غير مباشرة. نحدد نقاط التسريب ونقترح توفير فوري.</p>
-        </div>
-        <div class="card reveal reveal-delay-1">
-          <div class="icon-box">🔗</div>
-          <h3 class="card__title">إدارة المخزون والتوريد</h3>
-          <p class="card__text">تصميم مستويات أمان للمخزون، دوران مستدام، وتحسين علاقات الموردين لتقليل Lead Time.</p>
-        </div>
-        <div class="card reveal reveal-delay-2">
-          <div class="icon-box">🏭</div>
-          <h3 class="card__title">دراسات جدوى لخطوط إنتاج جديدة</h3>
-          <p class="card__text">تقييم جدوى إضافة خط إنتاج جديد أو توسيع الطاقة الإنتاجية — بأرقام واقعية ومخاطر محسوبة.</p>
-        </div>
-        <div class="card reveal">
-          <div class="icon-box">🌍</div>
-          <h3 class="card__title">تمويل التصدير والاستيراد</h3>
-          <p class="card__text">ترتيب خطابات ضمان، تمويل موردين، وتحسين شروط الدفع مع العملاء الدوليين.</p>
-        </div>
-        <div class="card reveal reveal-delay-1">
-          <div class="icon-box">📈</div>
-          <h3 class="card__title">تحسين هامش الربح الصناعي</h3>
-          <p class="card__text">إعادة هيكلة التسعير، تقليل الهدر، ورفع كفاءة الموارد لتحقيق ربحية أعلى من نفس الإيرادات.</p>
-        </div>
+      <div class="card">
+        <div class="card__icon">📦</div>
+        <div class="card__title">ساحات حاوية</div>
+        <div class="card__text">مساحات متعددة لتخزين وإدارة وتنظيم الحاويات + ساحات مفتوحة للبضائع.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⛽</div>
+        <div class="card__title">محطات وقود</div>
+        <div class="card__text">أراضٍ لإنشاء محطات وقود متكاملة للشركات البترولية المؤهلة.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏢</div>
+        <div class="card__title">مستودعات</div>
+        <div class="card__text">وحدات لوجستية جاهزة للتأجير بمساحات متنوعة.</div>
       </div>
     </div>
-  </section>
 
-  <!-- Case Study -->
-  <section class="section" style="background: var(--bg-secondary);">
-    <div class="container">
-      <div class="grid-2" style="align-items: center; gap: var(--space-16);">
-        <div class="reveal">
-          <span class="section__eyebrow">دراسة حالة</span>
-          <h2 class="section__title" style="text-align: right;">مصنع بلاستيك: خفضنا التكاليف 30%</h2>
-          <div style="color: var(--text-secondary); line-height: 1.9; margin-top: var(--space-6);">
-            <p style="margin-bottom: var(--space-4);">مصنع بلاستيك متوسط في الرياض كان بيعاني من تراكم المخزون الراكد وارتفاع تكاليف الصيانة غير المخطط لها. هامش الربح انخفض لأقل من 8%.</p>
-            <p style="margin-bottom: var(--space-4);"><strong style="color: var(--gold);">التشخيص:</strong> تكلفة المواد الأولية كانت أعلى من المتوسط بنسبة 18% بسبب عدم التفاوض الجماعي مع الموردين. كمان كان فيه فقد في الخام أثناء الإنتاج بسبب ضبط الماكينات.</p>
-            <p style="margin-bottom: var(--space-4);"><strong style="color: var(--gold);">التدخل:</strong> أعدنا هيكلة قائمة الموردين، فاوضنا عقود سنوية بأسعار ثابتة، وصممنا جدول صيانة وقائية. كمان حللنا دورة النقد وقصرنا فترة التحصيل.</p>
-            <p><strong style="color: var(--gold);">النتيجة:</strong> خفض إجمالي التكاليف 30% خلال 6 شهور، وارتفع هامش الربح لـ 19%.</p>
-          </div>
-        </div>
-        <div class="reveal reveal-delay-1">
-          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
-              <div style="text-align: center; padding: var(--space-6); background: var(--bg-secondary); border-radius: var(--radius); transition: transform var(--transition);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                <div style="font-size: var(--text-3xl); font-weight: 900; color: var(--gold); margin-bottom: var(--space-1);">30%</div>
-                <div style="font-size: var(--text-sm); color: var(--text-secondary);">خفض التكاليف</div>
-              </div>
-              <div style="text-align: center; padding: var(--space-6); background: var(--bg-secondary); border-radius: var(--radius); transition: transform var(--transition);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                <div style="font-size: var(--text-3xl); font-weight: 900; color: var(--gold); margin-bottom: var(--space-1);">19%</div>
-                <div style="font-size: var(--text-sm); color: var(--text-secondary);">هامش الربح الجديد</div>
-              </div>
-              <div style="text-align: center; padding: var(--space-6); background: var(--bg-secondary); border-radius: var(--radius); transition: transform var(--transition);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                <div style="font-size: var(--text-3xl); font-weight: 900; color: var(--gold); margin-bottom: var(--space-1);">6</div>
-                <div style="font-size: var(--text-sm); color: var(--text-secondary);">شهور تنفيذ</div>
-              </div>
-              <div style="text-align: center; padding: var(--space-6); background: var(--bg-secondary); border-radius: var(--radius); transition: transform var(--transition);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                <div style="font-size: var(--text-3xl); font-weight: 900; color: var(--gold); margin-bottom: var(--space-1);">-40%</div>
-                <div style="font-size: var(--text-sm); color: var(--text-secondary);">مخزون راكد</div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <h2 class="section-title">🏢 المنتجات الاستثمارية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🛒</div>
+        <div class="card__title">الخدمات التجارية</div>
+        <div class="card__text">أراضٍ للمجمعات التجارية والمراكز الترفيهية في المدن الصناعية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🎓</div>
+        <div class="card__title">الخدمات التدريبية</div>
+        <div class="card__text">أراضٍ لإنشاء مراكز تدريبية وتعليمية لنقل المعارف في المدن الصناعية.</div>
       </div>
     </div>
-  </section>
 
-  <!-- Stats -->
-  <section class="section">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section__eyebrow">أرقام تتكلم</span>
-        <h2 class="section__title">متوسط النتائج لعملائنا من المصانع</h2>
-      </div>
-      <div class="stat-grid">
-        <div class="card reveal" style="text-align:center;">
-          <div style="font-size: var(--text-4xl); font-weight: 900; color: var(--gold); margin-bottom: var(--space-2);">25%</div>
-          <div style="font-size: var(--text-lg); font-weight: 700; color: var(--text); margin-bottom: var(--space-2);">تقليل التكاليف</div>
-          <p class="card__text">متوسط خفض التكاليف التشغيلية لعملاء التصنيع خلال أول 12 شهر.</p>
-        </div>
-        <div class="card reveal reveal-delay-1" style="text-align:center;">
-          <div style="font-size: var(--text-4xl); font-weight: 900; color: var(--gold); margin-bottom: var(--space-2);">40%</div>
-          <div style="font-size: var(--text-lg); font-weight: 700; color: var(--text); margin-bottom: var(--space-2);">أسرع في التحصيل</div>
-          <p class="card__text">تقليل دورة التحصيل (DSO) بنسبة 40% بعد إعادة هيكلة شروط الدفع.</p>
-        </div>
-        <div class="card reveal reveal-delay-2" style="text-align:center;">
-          <div style="font-size: var(--text-4xl); font-weight: 900; color: var(--gold); margin-bottom: var(--space-2);">3×</div>
-          <div style="font-size: var(--text-lg); font-weight: 700; color: var(--text); margin-bottom: var(--space-2);">دوران المخزون</div>
-          <p class="card__text">تحسين معدل دوران المخزون 3 مرات مقارنةً بالوضع قبل التدخل.</p>
-        </div>
-        <div class="card reveal" style="text-align:center;">
-          <div style="font-size: var(--text-4xl); font-weight: 900; color: var(--gold); margin-bottom: var(--space-2);">95%</div>
-          <div style="font-size: var(--text-lg); font-weight: 700; color: var(--text); margin-bottom: var(--space-2);">رضا العملاء</div>
-          <p class="card__text">نسبة رضا عملاء قطاع التصنيع عن جودة التوصيات والتنفيذ.</p>
-        </div>
-      </div>
+    <!-- Completion Certificate -->
+    <h2 class="section-title">📋 شهادة إتمام وإشغال البناء</h2>
+    <div class="section__content" style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; margin-bottom:3rem;">
+      <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold);">مستندات طلب الإصدار</h3>
+      <ul style="list-style:none; margin-bottom:1.5rem;">
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> مخطط سلامة معتمد من "مدن"</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> شهادة إتمام أعمال العزل</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> نموذج اختبار أنظمة السلامة وحصر الكميات</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> شهادة سلامة التوصيلات والتمديدات الكهربائية</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> عقد صيانة لأنظمة الإطفاء والإنذار (مقاول معتمد)</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> شهادة تشغيل بيئية</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> ترخيص صناعي (للموقع الصناعي)</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> تصريح تأسيسي للمنشآت العسكرية (إن وجد)</li>
+      </ul>
+
+      <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold);">مستندات تجديد رخصة التشغيل</h3>
+      <ul style="list-style:none; margin-bottom:1.5rem;">
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> مخططات سلامة معتمدة من "مدن" / الدفاع المدني</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> عقد صيانة دورية لأنظمة الإطفاء والإنذار</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> نموذج اختبار أنظمة السلامة وحصر الكميات</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> موظف سلامة مؤهل ومصنف</li>
+      </ul>
     </div>
-  </section>
 
-  <!-- Testimonial -->
-  <section class="section" style="background: var(--bg-secondary);">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section__eyebrow">شهادة عميل</span>
-        <h2 class="section__title">مصنعو بن ثقة</h2>
-      </div>
-      <div class="reveal" style="max-width: 800px; margin: 0 auto;">
-        <div class="testimonial-card">
-          <p style="font-size: 1.1rem; line-height: 1.9; color: var(--text); margin-bottom: var(--space-6); position: relative; z-index: 1;">
-            كنت شاكك في البداية إن استشارة مالية تقدر تغير أي حاجة في مصنع يشتغل من 15 سنة. بس فريق بوندز دخل في تفاصيل التكاليف اللي أنا نفسي ما كنتش شايفها. اكتشفنا إن فيه خامات بنشتريها بسعر أعلى 22% من السوق بسبب عدم التجميع. خلال 4 شهور رجعنا نربح بشكل مستقر وهامش الربح ارتفع بشكل ملحوظ.
-          </p>
-          <div style="display: flex; align-items: center; gap: var(--space-4);">
-            <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-dim)); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: var(--bg);">ع</div>
-            <div>
-              <div style="font-weight: 800; color: var(--text);">عبدالرحمن الخالدي</div>
-              <div style="font-size: 0.85rem; color: var(--text-secondary);">المدير المالي — مصنع الخالدي للمنتجات المعدنية</div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- High Risk Facilities -->
+    <h2 class="section-title">⚠️ متطلبات المنشآت ذات الخطورة العالية</h2>
+    <div class="section__content" style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; margin-bottom:3rem;">
+      <p style="color:var(--text-secondary); margin-bottom:1rem;">تشمل المنشآت غير الملتزمة باشتراطات السلامة:</p>
+      <ul style="list-style:none; display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:0.5rem;">
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> تصنيع/تخزين المواد الكيميائية</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> تصنيع/تخزين الخشب والفلين والأثاث</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> تصنيع/تخزين الورق ومنتجاته</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> غازات مضغوطة قابلة للاشتعال (LPG, أكسجين, استلين)</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> أنشطة الصهر والحرارة العالية</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> غلايات صناعية (غاز/ديزل)</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> منشآت غير ملتزمة بالسلامة بشكل متكرر</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> منشآت آيلة للسقوط أو وقعت بها حوادث</li>
+      </ul>
+      <h4 style="margin-top:1.5rem; margin-bottom:0.75rem; color:var(--gold);">الاشتراطات الإضافية:</h4>
+      <ul style="list-style:none;">
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--danger);">•</span> التعاقد مع مكتب هندسي معتمد لفحص أنظمة السلامة</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--danger);">•</span> الإفصاح عن المواد الخطرة في نظام "شريك"</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--danger);">•</span> موظف سلامة مؤهل ومختص في السلامة والصحة المهنية</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--danger);">•</span> حراسة أمنية (سعودي الجنسية)</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--danger);">•</span> كاميرات مراقبة داخلية وخارجية (تسجيل لمدة شهرين)</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--danger);">•</span> نظام تحكم بتسجيل بيانات الدخول والخروج</li>
+      </ul>
     </div>
-  </section>
 
-  <!-- Lead Capture / CTA -->
-  <section class="section" id="assessment">
-    <div class="container">
-      <div class="reveal" style="max-width: 720px; margin: 0 auto;">
-        <div class="section-header" style="margin-bottom: var(--space-8);">
-          <span class="section__eyebrow">ابدأ الآن</span>
-          <h2 class="section__title">احجز استشارة مجانية لتقييم مصنعك</h2>
-          <p class="section__subtitle">املأ البيانات ونرجع نتواصل معاك خلال 24 ساعة. الاستشارة الأولى مجانية تماماً بدون التزام.</p>
-        </div>
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" class="lead-form">
-            <input type="text" name="name" required placeholder="الاسم الكامل" style="flex: 1 1 45%;" />
-            <input type="email" name="email" required placeholder="البريد الإلكتروني" style="flex: 1 1 45%;" />
-            <input type="tel" name="phone" required placeholder="رقم الجوال" style="flex: 1 1 45%;" />
-            <input type="text" name="company" placeholder="اسم المصنع / الشركة" style="flex: 1 1 45%;" />
-            <select name="employees" style="flex: 1 1 45%;">
-              <option value="">عدد العاملين</option>
-              <option value="1-20">1–20</option>
-              <option value="21-100">21–100</option>
-              <option value="101-500">101–500</option>
-              <option value="500+">500+</option>
-            </select>
-            <select name="country" style="flex: 1 1 45%;">
-              <option value="">الدولة</option>
-              <option value="saudi-arabia">السعودية</option>
-              <option value="egypt">مصر</option>
-              <option value="other">أخرى</option>
-            </select>
-            <textarea name="message" placeholder="اشرح لنا أكبر تحدي مالي بتواجهه في مصنعك حالياً..." style="flex: 1 1 100%;"></textarea>
-            <input type="hidden" name="source" value="manufacturing_sector_ar" />
-            <button type="submit" class="btn btn-primary" style="flex-shrink: 0; width: 100%; margin-top: var(--space-2);">أرسل الطلب — استشارة مجانية</button>
-          </form>
-          <p id="leadCaptureSuccess" style="display:none; color: #16a34a; margin-top: var(--space-4); font-weight: 700; text-align: center;">✓ تم الإرسال! فريقنا هيتواصل معاك خلال 24 ساعة.</p>
-        </div>
-      </div>
+    <!-- Inspection -->
+    <h2 class="section-title">🔍 الزيارة التفتيشية</h2>
+    <div class="section__content" style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; margin-bottom:3rem;">
+      <p style="color:var(--text-secondary); margin-bottom:1rem;">لإصدار شهادة الإتمام أو تجديد التشغيل، يتم التحقق من:</p>
+      <ul style="list-style:none;">
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> مطابقة التراخيص</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> عمل أنظمة مكافحة الحريق والإخلاء وارتباطها بلوحة تحكم رئيسية</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> مطابقة نظام مكافحة الحريق لمخطط السلامة المعتمد</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> وجود موظف سلامة لإدارة نظام السلامة</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> فحص المرافق والمكاتب الإدارية</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> سلامة خطوط الإنتاج والمعدات الكهربائية</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> سلامة الأرضيات والتهوية وقياس الضوضاء</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> تطبيق اشتراطات مناولة ونقل وتخزين المواد الكيميائية</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> عدم وجود تخزين غير آمن أو مخالفات في الارتدادات</li>
+      </ul>
     </div>
-  </section>
 
-  <!-- Calculator CTA -->
-  <section class="cta-section">
-    <div class="container">
-      <h2 class="reveal">عايز تفحص وضع مصنعك بنفسك؟</h2>
-      <p class="reveal reveal-delay-1">جرب حاسبة تدفق النقد المخصصة للمصانع — أداة مجانية تقدر من خلالها تقييم سيولة مصنعك بسرعة.</p>
-      <div style="display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: center;">
-        <a href="../calculators/cash-flow.html" class="btn btn-primary btn-lg reveal reveal-delay-2">جرب حاسبة تدفق النقد →</a>
-        <a href="../calculator.html" class="btn btn-outline btn-lg reveal reveal-delay-2">حاسبة نقطة التعادل</a>
-      </div>
+    <!-- IP Clinic -->
+    <h2 class="section-title">💡 العيادات الاستشارية للملكية الفكرية</h2>
+    <div class="section__content" style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; margin-bottom:3rem;">
+      <p style="color:var(--text-secondary); margin-bottom:1rem;">
+        خدمة مقدمة بالتعاون بين <strong style="color:var(--gold);">"مدن"</strong> و<strong style="color:var(--gold);">الهيئة السعودية للملكية الفكرية</strong> 
+        لتعزيز مسارات اكتساب حقوق الملكية الفكرية واستغلالها لتوليد قيم اقتصادية.
+      </p>
+      <h4 style="margin-bottom:0.75rem; color:var(--gold);">الخدمات المقدمة (مجاناً):</h4>
+      <ul style="list-style:none; margin-bottom:1.5rem;">
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> الإرشاد في مجال الملكية الفكرية</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> الدعم في اكتساب حقوق الملكية الفكرية</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> استغلال الملكية الفكرية لتوليد عوائد مالية</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> المساعدة في الحصول على حق حصري للمنتج الصناعي</li>
+      </ul>
+      <h4 style="margin-bottom:0.75rem; color:var(--gold);">الفئات المستهدفة:</h4>
+      <ul style="list-style:none;">
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> المشاريع القائمة على الابتكار</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> المنتجات الصناعية المبتكرة</li>
+        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> القطاع الصناعي الراغب في حماية منتجاته</li>
+      </ul>
     </div>
-  </section>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <div class="logo-slot">
-            <img src="../assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" loading="lazy" />
-            <span class="logo-text" style="color: var(--white);">بوندز</span>
-          </div>
-          <p>استشارات مالية لأصحاب المشاريع والشركات الصغيرة والمتوسطة في مصر والسعودية.</p>
-        </div>
-        <div>
-          <h4 class="footer-title">الصفحات</h4>
-          <div class="footer-links">
-            <a href="../index.html">الرئيسية</a>
-            <a href="../services.html">الخدمات</a>
-            <a href="../about.html">من نحن</a>
-            <a href="../faq.html">الأسئلة الشائعة</a>
-            <a href="../contact.html">تواصل معنا</a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">الخدمات</h4>
-          <div class="footer-links">
-            <a href="../services.html#analysis">التحليل المالي</a>
-            <a href="../services.html">التدفقات النقدية</a>
-            <a href="../services.html#feasibility">دراسات الجدوى</a>
-            <a href="../services.html#risk">تحليل المخاطر</a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">السجلات التجارية</h4>
-          <div class="footer-links">
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">مصر: س.ت 39733</span>
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">السعودية: ر.و.م 7042125869</span>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">تواصل</h4>
-          <div class="footer-links">
-            <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب: +966 56 756 6616</a>
-            <a href="mailto:info@bonds-global.com">info@bonds-global.com</a>
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">الشيخ زايد، الجيزة، مصر <br>جدة، شارع قريش</span>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <span>© <span id="y">2025</span> بوندز للاستشارات المالية — جميع الحقوق محفوظة.</span>
-        <div style="display: flex; gap: var(--space-6);">
-          <a href="../privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a>
-          <a href="#" style="color: var(--text-muted);">إخلاء المسؤولية</a>
-        </div>
-      </div>
+    <!-- License Types -->
+    <h2 class="section-title">📜 أنواع الرخص التشغيلية ومدتها</h2>
+    <div class="table-wrap" style="margin-bottom:3rem;">
+      <table>
+        <thead>
+          <tr><th>النوع</th><th>المدة</th><th>الوصف</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>شهادة إتمام وإشغال البناء</strong></td>
+            <td><span style="color:var(--success);font-weight:700;">سنة</span></td>
+            <td>للمصانع الجديدة التي أكملت البناء وانطبقت عليها الاشتراطات</td>
+          </tr>
+          <tr>
+            <td><strong>تجديد قصير المدى</strong></td>
+            <td><span style="color:var(--warning);font-weight:700;">6 أشهر</span></td>
+            <td>للمنشآت ذات الملاحظات الكثيرة مع جدول زمني للتصحيح</td>
+          </tr>
+          <tr>
+            <td><strong>تجديد متوسط المدى</strong></td>
+            <td><span style="color:var(--info);font-weight:700;">1 سنة</span></td>
+            <td>للمنشآت ذات ملاحظات متوسطة الخطورة</td>
+          </tr>
+          <tr>
+            <td><strong>تجديد طويل المدى</strong></td>
+            <td><span style="color:var(--success);font-weight:700;">3 سنوات</span></td>
+            <td>للمنشآت التي لا توجد عليها ملاحظات وتم تطبيق جميع معايير السلامة</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-  </footer>
 
-  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
-
-  <div class="cookie-banner" id="cookieBanner">
-    <div class="container cookie-banner__inner">
-      <p class="cookie-banner__text">نستخدم ملفات تعريف الارتباط (Cookies) لتحسين تجربتك وتحليل الزيارات. <a href="../privacy.html">سياسة الخصوصية</a></p>
-      <div class="cookie-banner__actions">
-        <button class="btn btn-primary" style="font-size:0.8rem;padding:var(--space-2) var(--space-4);" onclick="acceptCookies()">موافق</button>
-        <button class="btn btn-outline" style="font-size:0.8rem;padding:var(--space-2) var(--space-4);" onclick="declineCookies()">رفض</button>
-      </div>
+    <!-- Industrial Cities List -->
+    <h2 class="section-title">🏙️ المدن الصناعية (35 مدينة)</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">الرياض</div><div class="card__text">المدينة الصناعية الأولى والثانية والثالثة</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">الخرج</div><div class="card__text">المدينة الصناعية بالخرج</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">سدير</div><div class="card__text">مدينة سدير للصناعة والأعمال</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">ضرماء</div><div class="card__text">المدينة الصناعية بضرماء</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">القصيم</div><div class="card__text">المدينة الأولى والثانية + واحة مدن بالقصيم</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">حائل</div><div class="card__text">المدينة الصناعية بحائل</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">الزلفي</div><div class="card__text">المدينة الصناعية بالزلفي</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">شقراء</div><div class="card__text">المدينة الصناعية بشقراء</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">مكة</div><div class="card__text">المدينة الصناعية بمكة المكرمة</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">جدة</div><div class="card__text">المدينة الأولى والثانية والثالثة + واحة مدن بجدة</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">رابغ</div><div class="card__text">المدينة الصناعية برابغ</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">المدينة المنورة</div><div class="card__text">المدينة الصناعية بالمدينة المنورة</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">ينبع</div><div class="card__text">واحة مدن بينبع</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">تبوك</div><div class="card__text">المدينة الصناعية بتبوك</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">عسير</div><div class="card__text">المدينة الصناعية بعسير</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">نجران</div><div class="card__text">المدينة الصناعية بنجران</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">جازان</div><div class="card__text">المدينة الصناعية بجازان</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">الباحة</div><div class="card__text">المدينة الصناعية بالباحة</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">الدمام</div><div class="card__text">المدينة الأولى والثانية والثالثة بالدمام</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">الأحساء</div><div class="card__text">المدينة الأولى والثانية + واحة مدن بالأحساء</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">حفر الباطن</div><div class="card__text">المدينة الصناعية بحفر الباطن</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">الجوف</div><div class="card__text">واحة مدن بالجوف</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">وادي الشمال</div><div class="card__text">المدينة الصناعية بوادي الشمال</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">عرعر</div><div class="card__text">المدينة الصناعية بعرعر</div></div>
     </div>
+
+    <!-- E-Services -->
+    <h2 class="section-title">💻 خدمات مدن الإلكترونية</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">🏗️</div><div class="card__title">طلب منتج صناعي</div><div class="card__text">أرض مصنع، هنجر، مستودع، أو مركز خدمات مشتركة</div></div>
+      <div class="card"><div class="card__icon">🚛</div><div class="card__title">طلب منتج لوجستي</div><div class="card__text">مستودعات باردة وجافة، خدمات لوجستية متكاملة</div></div>
+      <div class="card"><div class="card__icon">🛎️</div><div class="card__title">طلب منتج خدمي</div><div class="card__text">الخدمات التجارية والغذائية داخل المدن الصناعية</div></div>
+      <div class="card"><div class="card__icon">📋</div><div class="card__title">إدارة رخصة التشغيل</div><div class="card__text">تجديد ومراجعة رخص التشغيل إلكترونياً</div></div>
+      <div class="card"><div class="card__icon">🏢</div><div class="card__title">طلب تأهيل مكتب استشاري</div><div class="card__text">تسجيل وتأهيل مكاتب الاستشارات الهندسية</div></div>
+      <div class="card"><div class="card__icon">💰</div><div class="card__title">خدمات تمويلية</div><div class="card__text">حلول تمويلية ومشاريع متوسطة وصغيرة</div></div>
+    </div>
+
+    <!-- Factory Requirements -->
+    <h2 class="section-title">📋 متطلبات إنشاء مصنع</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>المتطلب</th><th>التفاصيل</th></tr></thead>
+        <tbody>
+          <tr><td><strong>الترخيص المبدئي</strong></td><td>الحصول على ترخيص صناعي مبدئي من وزارة الصناعة والثروة المعدنية</td></tr>
+          <tr><td><strong>السجل التجاري</strong></td><td>استخراج سجل تجاري صناعي من المركز السعودي للأعمال</td></tr>
+          <tr><td><strong>الموافقات الحكومية</strong></td><td>موافقات من الجهات الحكومية المعنية حسب نوع النشاط</td></tr>
+          <tr><td><strong>العقد مع مدن</strong></td><td>توقيع عقد تأجير أو امتلاك أرض/مصنع داخل المدينة الصناعية</td></tr>
+          <tr><td><strong>الاشتراطات الفنية</strong></td><td>الالتزام بالمواصفات القياسية الخليجية واللوائح الفنية المعتمدة</td></tr>
+          <tr><td><strong>التأمين</strong></td><td>تأمين المصنع والعمالة ضد المخاطر الصناعية</td></tr>
+          <tr><td><strong>الزيارة الميدانية</strong></td><td>إجراء زيارة تفتيش من قبل فرق مدن للتحقق من الاشتراطات</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Contact -->
+    <div style="text-align:center; padding:2rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:3rem;">
+      <h3 style="font-size:1.2rem; font-weight:800; margin-bottom:0.5rem;">📞 خدمة عملاء مدن</h3>
+      <p style="color:var(--text-secondary); font-size:1.1rem; direction:ltr;">800-249-9944</p>
+      <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">موقع حكومي مسجل لدى هيئة الحكومة الرقمية</p>
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align:center; padding:3rem 1.5rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); margin-top:2rem;">
+      <h3 style="font-size:1.3rem; font-weight:800; margin-bottom:1rem;">تحتاج دراسة جدوى لمصنعك؟</h3>
+      <p style="color:var(--text-secondary); margin-bottom:1.5rem;">فريق بوندز جاهز لمساعدتك في حساب التكاليف والعوائد.</p>
+      <a href="../contact.html" style="display:inline-block; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; padding:0.9rem 2.5rem; border-radius:12px; text-decoration:none;">احجز استشارتك المجانية →</a>
+    </div>
+
   </div>
 
-  <script src="../script.js" defer></script>
-  <script>
-    function acceptCookies(){localStorage.setItem('cookies','accepted');document.getElementById('cookieBanner').classList.remove('is-visible');}
-    function declineCookies(){localStorage.setItem('cookies','declined');document.getElementById('cookieBanner').classList.remove('is-visible');}
-    if(!localStorage.getItem('cookies')){setTimeout(function(){document.getElementById('cookieBanner').classList.add('is-visible');},1500);}
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:2rem; margin-top:3rem;">
+      <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:1rem; color:var(--gold);">📚 اقرأ أيضاً</h3>
+      <div style="display:flex; flex-wrap:wrap; gap:1rem;">
+      <div class="card"><div class="card__icon">🇱🇾</div><div class="card__title"><a href="manufacturing-ly.html">الاستثمار الصناعي في ليبيا</a></div><div class="card__text">دليل المناطق الصناعية الليبية</div></div>
+      <div class="card"><div class="card__icon">🇩🇿</div><div class="card__title"><a href="manufacturing-dz.html">الاستثمار الصناعي في الجزائر</a></div><div class="card__text">دليل المناطق الصناعية الجزائرية</div></div>
+      <div class="card"><div class="card__icon">🇱🇧</div><div class="card__title"><a href="manufacturing-lb.html">الاستثمار الصناعي في لبنان</a></div><div class="card__text">دليل المناطق الصناعية اللبنانية</div></div>
+      <div class="card"><div class="card__icon">🇾🇪</div><div class="card__title"><a href="manufacturing-ye.html">الاستثمار الصناعي في اليمن</a></div><div class="card__text">دليل المناطق الصناعية اليمنية</div></div>
+      <div class="card"><div class="card__icon">🇸🇾</div><div class="card__title"><a href="manufacturing-sy.html">الاستثمار الصناعي في سوريا</a></div><div class="card__text">دليل المناطق الصناعية السورية</div></div>
+        <a href="../calculators/factory-cost.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">🏭 حاسبة تكلفة المصنع</a>
+        <a href="../suppliers-guide.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">📦 دليل المورد</a>
+        <a href="../partner-portal-guide.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">🔑 دليل بوابة شريك</a>
+        <a href="manufacturing-eg.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">🇪🇬 الاستثمار الصناعي - مصر</a>
+        <a href="manufacturing-ae.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">🇦🇪 الاستثمار الصناعي - الإمارات</a>
+      </div>
+    </div>
 
-    // Lead capture form handler
-    document.getElementById('leadCaptureForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var form = this;
-      var btn = form.querySelector('button[type="submit"]');
-      var originalText = btn.textContent;
-      btn.textContent = 'جاري الإرسال...';
-      btn.disabled = true;
-      fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' }})
-        .then(function(r) {
-          if (r.ok) {
-            form.style.display = 'none';
-            document.getElementById('leadCaptureSuccess').style.display = 'block';
-          } else {
-            alert('حدث خطأ، حاول مرة أخرى.');
-            btn.textContent = originalText;
-            btn.disabled = false;
-          }
-        })
-        .catch(function() {
-          alert('حدث خطأ، حاول مرة أخرى.');
-          btn.textContent = originalText;
-          btn.disabled = false;
-        });
-    });
-  </script>
-  <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
-  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);">↑</button>
-  <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
-  <!-- Tawk.to Live Chat -->
-  <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
+  </div>
+
+  <footer style="text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem;">
+    <div style="margin-bottom:0.75rem;">
+      <span style="color:var(--gold); font-weight:700;">ممثل بوندز في السعودية:</span>
+      <a href="https://thiqqah.live/" target="_blank" rel="noopener" style="color:var(--text-secondary); font-weight:600;">ثقة الذهبية ↗</a>
+    </div>
+    <p>© 2026 بوندز للاستشارات المالية. البيانات مأخوذة من الهيئة السعودية للمدن الصناعية (مدن).</p>
+  </footer>
+
 </body>
 </html>

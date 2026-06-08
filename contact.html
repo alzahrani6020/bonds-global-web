@@ -9,18 +9,18 @@
   <meta name="description" content="احجز استشارتك المجانية مع بوندز. نوصل عبر واتساب أو نموذج التواصل." />
   <meta property="og:title" content="تواصل معنا | بوندز" />
   <meta property="og:description" content="احجز استشارتك المجانية. تواصل عبر الواتساب أو البريد الإلكتروني." />
-  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-v2.webp" />
   <meta property="og:url" content="https://bonds-global.com/contact.html" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="تواصل معنا | بوندز" />
   <meta name="twitter:description" content="احجز استشارتك المجانية. تواصل عبر الواتساب أو البريد الإلكتروني." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-v2.webp" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" as="style" />
   <link rel="preload" href="https://fonts.gstatic.com/s/cairo/v28/SLXVc1nY6HkvangtZmpcWmhzfHNZlDcf8Q.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="assets/site-logo.webp" as="image" type="image/webp" />
+  <link rel="preload" href="assets/bonds-logo-v2.webp" as="image" type="image/webp" />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script defer src="/_vercel/insights/script.js"></script>
   <!-- Google Analytics -->
@@ -48,12 +48,12 @@
   <header class="main-header" id="header">
     <div class="container main-header__inner">
       <a href="index.html" class="logo-slot">
-        <img src="assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
-        <span class="logo-text">بوندز</span>
+        <img src="assets/bonds-logo-v2.webp" alt="بوندز" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
       </a>
       <nav class="main-nav" id="mainNav">
         <ul>
           <li><a href="index.html">الرئيسية</a></li>
+          <li><a href="about.html">من نحن</a></li>
           <li class="dropdown">
             <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
               الخدمات
@@ -67,12 +67,26 @@
               <a href="services.html#research">الاستبيانات والبحوث</a>
             </div>
           </li>
-          <li><a href="calculators/feasibility-template.html" style="color:var(--gold);font-weight:600;">دراسة جدوى</a></li>
+          <li class="dropdown">
+            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+              الحاسبات
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </span>
+            <div class="dropdown-menu">
+              <a href="calculator.html">نقطة التعادل</a>
+              <a href="calculators/cash-flow.html">تدفق النقد</a>
+              <a href="calculators/pricing.html">تسعير المنتج</a>
+              <a href="calculators/loan.html">القرض والتمويل</a>
+              <a href="calculators/restaurant.html">المطاعم والسحابي</a>
+              <a href="calculators/menu-engineering.html">هندسة المنيو</a>
+              <a href="calculators/feasibility.html">جدوى المطعم</a>
+              <a href="calculators/invoice-analyzer.html">تحليل الفواتير</a>
+              <a href="calculators/feasibility-template.html">نموذج دراسة الجدوى</a>
+            </div>
+          </li>
           <li><a href="pricing.html">الأسعار</a></li>
-          <li><a href="about.html">من نحن</a></li>
           <li><a href="blog/index.html">مقالات</a></li>
-          <li><a href="faq.html">الأسئلة الشائعة</a></li>
-          <li><a href="contact.html" class="active">تواصل</a></li>
+          <li><a href="contact.html">تواصل</a></li>
         </ul>
       </nav>
       <div class="header-actions">
@@ -219,8 +233,7 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="logo-slot">
-            <img src="assets/site-logo.webp" alt="بوندز" class="site-logo" width="577" height="567" loading="lazy" />
-            <span class="logo-text" style="color: var(--white);">بوندز</span>
+            <img src="assets/bonds-logo-v2.webp" alt="بوندز" class="site-logo" width="577" height="567" loading="lazy" />
           </div>
           <p>استشارات مالية لأصحاب المشاريع والشركات الصغيرة والمتوسطة في مصر والسعودية.</p>
         </div>
@@ -289,13 +302,52 @@
   </script>
   <script src="script.js" defer></script>
   <script>
-    document.getElementById('contactForm').addEventListener('submit', function(e) {
-      var name = this.name.value;
-      var phone = this.phone.value;
-      var email = this.email.value;
-      var sector = this.sector.value;
-      var service = this.service.value;
-      var message = this.message.value;
+    document.getElementById('contactForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn = this.querySelector('button[type="submit"]');
+      var originalText = btn.textContent;
+      btn.textContent = 'جارِ الإرسال...';
+      btn.disabled = true;
+      // Save values before reset
+      var wName = this.name.value;
+      var wPhone = this.phone.value;
+      var wEmail = this.email.value;
+      var wSector = this.sector.value;
+      var wService = this.service.value;
+      var wMessage = this.message.value;
+      try {
+        var res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: wName,
+            phone: wPhone,
+            email: wEmail,
+            sector: wSector,
+            service: wService,
+            message: wMessage
+          })
+        });
+        var data = await res.json();
+        if (data.success) {
+          btn.textContent = '✓ تم الإرسال بنجاح';
+          btn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+          this.reset();
+          setTimeout(function(){ btn.textContent = originalText; btn.style.background = ''; btn.disabled = false; }, 3000);
+        } else {
+          throw new Error(data.error || 'فشل الإرسال');
+        }
+      } catch(err) {
+        btn.textContent = '⚠ ' + err.message;
+        setTimeout(function(){ btn.textContent = originalText; btn.disabled = false; }, 3000);
+      }
+      // Also open WhatsApp
+      var name = wName;
+      var phone = wPhone;
+      var email = wEmail;
+      var sector = wSector;
+      var service = wService;
+      var message = wMessage;
       var text = 'مرحباً، اسمي ' + name + '%0Aرقمي: ' + phone + '%0Aالبريد: ' + email + '%0Aالقطاع: ' + sector + '%0Aالخدمة المطلوبة: ' + service + '%0Aالرسالة: ' + message;
       window.open('https://wa.me/966567566616?text=' + text, '_blank');
     });
@@ -305,5 +357,17 @@
   <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
 <!-- Tawk.to Live Chat -->
 <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
+<script>
+function updateDateTime() {
+  const now = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const dateStr = now.toLocaleDateString('ar-SA', options);
+  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+  const el = document.getElementById('header-datetime');
+  if (el) el.textContent = dateStr + ' | ' + timeStr;
+}
+setInterval(updateDateTime, 60000);
+updateDateTime();
+</script>
 </body>
 </html>

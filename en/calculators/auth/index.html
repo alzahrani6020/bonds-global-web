@@ -81,7 +81,7 @@
   <div class="auth-container">
     <div class="auth-card">
       <div class="logo">
-        <img src="../../assets/bonds-logo-opt.jpg" alt="Bonds" />
+        <img src="../../assets/bonds-logo-header.webp" alt="Bonds" />
         <span>Bonds</span>
       </div>
 
@@ -198,16 +198,8 @@
         }
       }, 500);
 
-      // If already logged in, redirect
-      (async function checkLoggedIn() {
-        try {
-          const { data } = await window.BondsAuth.getUser();
-          if (data?.user) {
-            const redirectTo = window.BondsAuth.getRedirectUrl();
-            window.location.href = redirectTo;
-          }
-        } catch (e) {}
-      })();
+      // Auto-redirect disabled to prevent loops. User must click login manually.
+      // Redirect only happens after successful login (see login handler below).
 
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {

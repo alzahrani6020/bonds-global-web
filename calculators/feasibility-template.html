@@ -2,11 +2,12 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>نموذج دراسة الجدوى المتكامل | بوندز</title>
   <meta name="description" content="نموذج دراسة جدوى احترافي متكامل: PESTLE، SWOT، تحليل مالي، تدفق نقدي، سيناريوهات. مجاني من بوندز." />
   <meta property="og:title" content="نموذج دراسة الجدوى المتكامل | بوندز" />
-  <meta property="og:image" content="https://bonds-global.com/assets/site-logo.webp" />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-v2.webp" />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../styles.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -204,7 +205,7 @@
 
   <!-- Navbar -->
   <nav class="navbar no-print">
-    <a href="../index.html" class="logo"><img src="../assets/site-logo.webp" alt="بوندز" height="36" loading="lazy" decoding="async" /></a>
+    <a href="../index.html" class="logo"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" height="36" loading="lazy" decoding="async" /></a>
     <ul class="nav-links" id="navLinks">
       <li><a href="../index.html">الرئيسية</a></li>
       <li class="dropdown">
@@ -258,14 +259,14 @@
 
     <!-- ========== PAGE 0: COVER ========== -->
     <div class="template-page cover-page" id="page-cover">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى المتكامل</div></div>
-      <img src="../assets/site-logo.webp" alt="بوندز" class="no-print" loading="lazy" decoding="async" />
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى المتكامل</div></div>
+      <img src="../assets/bonds-logo-v2.webp" alt="بوندز" class="no-print" loading="lazy" decoding="async" />
       <h1>نموذج دراسة الجدوى المتكامل</h1>
       <p class="cover-subtitle">Integrated Feasibility Study Template</p>
       <div class="cover-meta">
-        <div class="field-group"><label>اسم المشروع / النشاط</label><input type="text" id="cover-business-name" placeholder="مثال: مطعم الذواقة" /></div>
-        <div class="field-group"><label>اسم صاحب النشاط</label><input type="text" id="cover-owner-name" placeholder="الاسم الكامل" /></div>
-        <div class="field-group"><label>الشكل القانوني</label><input type="text" id="cover-legal-form" placeholder="مؤسسة فردية / شركة ذات مسؤولية محدودة" /></div>
+        <div class="field-group"><label>اسم المشروع / النشاط</label><input type="text" id="cover-business-name" value="شركة إحياء الأصول العقارية - إكمال المباني المتعثرة" /></div>
+        <div class="field-group"><label>اسم صاحب النشاط</label><input type="text" id="cover-owner-name" value="المؤسس والرئيس التنفيذي" /></div>
+        <div class="field-group"><label>الشكل القانوني</label><input type="text" id="cover-legal-form" value="شركة مساهمة مقفلة" /></div>
         <div class="field-group"><label>تاريخ الإعداد</label><input type="date" id="cover-date" /></div>
       </div>
       <div class="field-group inline-2" style="max-width:520px;width:100%;margin-top:1rem;text-align:right;display:grid;grid-template-columns:2fr 1fr;gap:1rem;">
@@ -280,10 +281,10 @@
         </div>
       </div>
       <div class="field-group" style="max-width:520px;width:100%;margin-top:1.5rem;text-align:right;">
-        <label>فكرة المشروع بجملة واحدة</label><textarea id="cover-idea" rows="2" placeholder="وصف مختصر لفكرة المشروع..."></textarea>
+        <label>فكرة المشروع بجملة واحدة</label><textarea id="cover-idea" rows="2">شركة استثمارية متخصصة في إعادة تأهيل وإكمال المباني المتعثرة بنسبة إنجاز 40-70% عبر نموذج الشراكة والمحاصة العقارية الذكية، بدءاً من جدة والرياض</textarea>
       </div>
       <div class="field-group" style="max-width:520px;width:100%;text-align:right;">
-        <label>المبلغ المستثمر المتوقع (ريال)</label><input type="number" id="cover-investment" placeholder="0" oninput="linkToCapital()" />
+        <label>المبلغ المستثمر المتوقع (ريال)</label><input type="number" id="cover-investment" value="45000000" oninput="linkToCapital()" />
       </div>
     </div>
 
@@ -344,147 +345,201 @@
 
     <!-- ========== PAGE 1: VISION & OBJECTIVES ========== -->
     <div class="template-page" id="page-vision">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الرؤية</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الرؤية</div></div>
       <div class="page-header"><div class="section-number">1</div><div><h2>الرؤية والرسالة والأهداف</h2><p>لماذا وجد المشروع وماذا يسعى لتحقيقه</p></div></div>
-      <div class="field-group"><label>الرؤية (Vision) — إلى أين تتجه بعد 5-10 سنوات؟</label><textarea rows="3" placeholder="رؤية طموحة ومحددة للمستقبل..."></textarea></div>
-      <div class="field-group"><label>الرسالة (Mission) — ما قيمتك الأساسية؟</label><textarea rows="3" placeholder="الغرض الأساسي من وجود المشروع..."></textarea></div>
-      <div class="field-group"><label>الأهداف SMART</label><textarea rows="4" placeholder="Specific, Measurable, Achievable, Relevant, Time-bound...
-مثال: تحقيق 100 ألف ريال إيراد شهري خلال 12 شهر"></textarea></div>
-      <div class="field-group"><label>نقاط التمايز الأساسية (USP)</label><textarea rows="3" placeholder="ما الذي يجعلك فريداً ومختلفاً عن كل المنافسين؟"></textarea></div>
+      <div class="field-group"><label>الرؤية (Vision) — إلى أين تتجه بعد 5-10 سنوات؟</label><textarea rows="3">أن نصبح أكبر شركة سعودية متخصصة في إعادة تأهيل المباني المتعثرة، ونحقق قيمة سوقية تتجاوز المليار ريال خلال 5 سنوات عبر نموذج الشراكة والمحاصة الذكي</textarea></div>
+      <div class="field-group"><label>الرسالة (Mission) — ما قيمتك الأساسية؟</label><textarea rows="3">إحياء الأصول العقارية المتعثرة وتحويلها إلى منتجات عقارية جاهزة وآمنة، عبر شراكات استراتيجية مع الملاك وتطبيق أعلى معايير الجودة والسرعة في التنفيذ</textarea></div>
+      <div class="field-group"><label>الأهداف SMART</label><textarea rows="4">1. Specific: إكمال وتسييل 45 مبنى متعثراً في السنة الأولى بمدينة جدة والرياض
+2. Measurable: تحقيق إيرادات سنوية 129,375,000 ريال وصافي ربح 27,875,000 ريال
+3. Achievable: نموذج الشراكة يقلل رأس المال المطلوب ويسرع الدورة الاستثمارية
+4. Relevant: دعم رؤية 2030 في التنمية العقارية وحل أزمة المباني المتعثرة
+5. Time-bound: تحقيق نقطة التعادل في الشهر الرابع وتوزيع الأرباح السنوية</textarea></div>
+      <div class="field-group"><label>نقاط التمايز الأساسية (USP)</label><textarea rows="3">1. نموذج الشراكة الذكية: لا نشتري الأرض، بل ندخل في محاصة عقارية مع الملاك
+2. سرعة الدوران: إكمال المبنى في 30-70 يوماً فقط بتقنيات البناء الذكي
+3. سيولة جاهزة: ضخ نقدي فوري للمقاولين بنظام 24 ساعة وورديات متعددة
+4. شفافية رقمية: بث حي لمراحل الإنشاء للمساهمين عبر الموقع الإلكتروني
+5. تقييم مستقل: اعتماد مقيمين معتمدين من الهيئة السعودية للمقيمين</textarea></div>
     </div>
 
     <!-- ========== PAGE 2: BUSINESS MODEL ========== -->
     <div class="template-page" id="page-business-model">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — نموذج العمل</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — نموذج العمل</div></div>
       <div class="page-header"><div class="section-number">2</div><div><h2>نموذج العمل التفصيلي</h2><p>كيف تُنتج القيمة وتُحقق الإيرادات</p></div></div>
-      <div class="field-group"><label>الفكرة الأساسية والقيمة المُقدمة</label><textarea id="bm-value-prop" rows="3" placeholder="ما المشكلة التي تحلها؟ وما القيمة الفريدة التي تقدمها للعملاء؟"></textarea></div>
+      <div class="field-group"><label>الفكرة الأساسية والقيمة المُقدمة</label><textarea id="bm-value-prop" rows="3">حل أزمة المباني المتعثرة في السعودية (أكثر من 7,500 مخالفة في جدة فقط) عبر نموذج شراكة ذكي: المالك يقدم الأرض والعظم، ونحن نضخ السيولة لإكمال البناء والتشطيب خلال 30-70 يوماً بتقنيات البناء الذكي، ثم نبيع ونوزع الأرباح</textarea></div>
       <div class="field-group inline">
-        <div class="field-group"><label>نموذج الشراكة / الاستحواذ</label><textarea id="bm-partnership" rows="3" placeholder="شراكة ذكية، محاصة عقارية، امتياز، توزيع..."></textarea></div>
-        <div class="field-group"><label>آلية التسييل والخروج</label><textarea id="bm-exit" rows="3" placeholder="بيع الوحدات، إفراغ الصكوك، تحصيل الكاش، توزيع الأرباح..."></textarea></div>
+        <div class="field-group"><label>نموذج الشراكة / الاستحواذ</label><textarea id="bm-partnership" rows="3">محاصة عقارية ذكية: المالك المتعثر يقدم الأصل القائم (أرض + هيكل عظم)، ونحن نقدم سيولة الإكمال والتشطيب والتسويق. يتم توزيع الأرباح بعد استرداد تكاليف الإكمال حسب النسب المتفق عليها (عادة 70% للمالك و30% للشركة أو حسب التقييم)</textarea></div>
+        <div class="field-group"><label>آلية التسييل والخروج</label><textarea id="bm-exit" rows="3">1. التسويق المبكر: فتح الحجوزات أثناء التشطيب
+2. البيع عبر البنوك: تمويل عقاري للمشترين وإفراغ الصكوك إلكترونياً
+3. تحصيل الكاش: استرداد تكاليف الإكمال أولاً ثم توزيع الأرباح
+4. إعادة الضخ: تدوير السيولة في مشاريع جديدة 3-4 مرات سنوياً</textarea></div>
       </div>
       <div class="field-group inline-3">
-        <div class="field-group"><label>الشركاء الرئيسيون</label><textarea id="bm-partners" rows="2" placeholder="موردون، بنوك، مقاولون، منصات تمويل..."></textarea></div>
-        <div class="field-group"><label>الموارد الرئيسية</label><textarea id="bm-resources" rows="2" placeholder="رأس المال، التراخيص، الفريق، التقنيات..."></textarea></div>
-        <div class="field-group"><label>القنوات التسويقية</label><textarea id="bm-channels" rows="2" placeholder="منصات رقمية، وساطة عقارية، بنوك..."></textarea></div>
+        <div class="field-group"><label>الشركاء الرئيسيون</label><textarea id="bm-partners" rows="2">1. ملاك المباني المتعثرة (الشركاء الاستراتيجيين)
+2. مقاولون معتمدون بنظام 24 ساعة وورديات متعددة
+3. موردو مواد البناء الذكي مسبقة الصنع
+4. البنوك التجارية وجهات التمويل العقاري
+5. منصات التمويل الجماعي المرخصة من هيئة السوق المالية
+6. مكاتب هندسية معتمدة للفحص والإشراف</textarea></div>
+        <div class="field-group"><label>الموارد الرئيسية</label><textarea id="bm-resources" rows="2">1. رأس المال التشغيلي: 45 مليون ريال (سيولة نقدية جاهزة)
+2. تراخيص: رخصة مطور عقاري معتمد من الهيئة العامة للعقار
+3. الفريق: 19 موظفاً (مهندسين، مبيعات، قانونيين، إعلاميين)
+4. التقنيات: أنظمة البناء الذكي، المراقبة الحية، المنصة الرقمية
+5. العلاقات: شبكة علاقات مع البلديات والبنوك والمقاولين</textarea></div>
+        <div class="field-group"><label>القنوات التسويقية</label><textarea id="bm-channels" rows="2">1. المنصة الرقمية للشركة: عرض المشاريع والوحدات الجاهزة
+2. قنوات الوساطة العقارية المرخصة من الهيئة العامة للعقار
+3. البنوك التجارية: عرض الوحدات للعملاء المؤهلين للتمويل
+4. التسويق الرقمي: حملات إعلانية مستهدفة على وسائل التواصل
+5. البث الحي: توثيق مراحل الإنشاء لبناء الثقة مع المشترين</textarea></div>
       </div>
       <div class="field-group inline">
-        <div class="field-group"><label>هيكل التكاليف الرئيسية</label><textarea id="bm-cost-structure" rows="2" placeholder="تكاليف ثابتة، متغيرة، تأسيس، عمولات..."></textarea></div>
-        <div class="field-group"><label>مصادر الإيرادات</label><textarea id="bm-revenue-streams" rows="2" placeholder="أرباح البيع، عمولات، رسوم إدارة..."></textarea></div>
+        <div class="field-group"><label>هيكل التكاليف الرئيسية</label><textarea id="bm-cost-structure" rows="2">1. تكاليف التأسيس والرسوم الحكومية: 1,735,000 ريال (محسومة من القيمة الاسمية)
+2. مصاريف المنصات والحوكمة: 2,265,000 ريال (من علاوة الإصدار)
+3. المصاريف العمومية والإدارية (G&A): 4,500,000 ريال سنوياً (رواتب، مقر، تشغيل)
+4. سيولة التشغيل المباشرة: 145,500,000 ريال سنوياً (مواد بناء، مقاولين، تشطيب)
+5. ميزانية الطوارئ الهندسية: 5% من تكلفة كل مشروع</textarea></div>
+        <div class="field-group"><label>مصادر الإيرادات</label><textarea id="bm-revenue-streams" rows="2">1. أرباح إعادة البيع: صافي ربح 15-25% من قيمة كل مشروع
+2. عمولات التسويق: عمولة على المبيعات عبر الوساطة العقارية
+3. رسوم الإدارة والإشراف: نسبة إدارية على المشاريع المنجزة
+4. الأرباح الرأسمالية: ارتفاع قيمة الأسهم مع نمو المحفظة العقارية
+5. الإيرادات التراكمية: تدوير السيولة 3-4 مرات سنوياً</textarea></div>
       </div>
     </div>
 
     <!-- ========== PAGE 3: EXECUTIVE SUMMARY ========== -->
     <div class="template-page" id="page-summary">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الملخص</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الملخص</div></div>
       <div class="page-header"><div class="section-number">2</div><div><h2>الملخص التنفيذي</h2><p>نظرة عامة على كامل الدراسة (يُفضل كتابته آخراً)</p></div></div>
-      <div class="field-group"><label>ملخص المشروع (3-5 أسطر)</label><textarea id="exec-summary" rows="5" placeholder="نظرة شاملة: الفكرة، السوق، الفرصة، والنتائج المتوقعة..."></textarea><button class="btn-ghost no-print" style="margin-top:0.5rem;font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="autoGenerateSummary()">✨ توليد ملخص تلقائي</button></div>
+      <div class="field-group"><label>ملخص المشروع (3-5 أسطر)</label><textarea id="exec-summary" rows="5">شركة إحياء الأصول العقارية هي كيان استثماري متخصص في إعادة تأهيل وإكمال المباني المتعثرة بنسبة إنجاز 40-70% عبر نموذج الشراكة والمحاصة الذكية. نستهدف 45 مبنى سنوياً في جدة والرياض بسيولة تشغيلية 45 مليون ريال. نحقق دورة استثمارية خاطفة (3-4 أشهر) بأرباح صافية 15-25% لكل مشروع، وصافي ربح سنوي 27.8 مليون ريال. نعتمد على تقنيات البناء الذكي والعمل 24 ساعة لإنجاز المشاريع بسرعة قياسية.</textarea><button class="btn-ghost no-print" style="margin-top:0.5rem;font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="autoGenerateSummary()">✨ توليد ملخص تلقائي</button></div>
       <div class="field-group inline-3">
-        <div class="field-group"><label>رأس المال المطلوب (ريال)</label><input type="number" id="summary-capital" placeholder="0" /></div>
+        <div class="field-group"><label>رأس المال المطلوب (ريال)</label><input type="number" id="summary-capital" value="45265000" /></div>
         <div class="field-group"><label>فترة الاسترداد (شهر)</label><input type="number" id="summary-payback" readonly tabindex="-1" placeholder="سيُحسب تلقائياً" /></div>
         <div class="field-group"><label>العائد المتوقع ROI (%)</label><input type="number" id="summary-roi" readonly tabindex="-1" placeholder="سيُحسب تلقائياً" /></div>
       </div>
       <div class="field-group inline-3">
-        <div class="field-group"><label>الوحدات الشهرية المتوقعة</label><input type="number" id="summary-units" placeholder="0" /></div>
-        <div class="field-group"><label>عدد الوظائف المتوقع</label><input type="number" placeholder="0" /></div>
-        <div class="field-group"><label>حجم السوق المستهدف (ريال)</label><input type="number" placeholder="0" /></div>
+        <div class="field-group"><label>الوحدات الشهرية المتوقعة</label><input type="number" id="summary-units" value="4" /></div>
+        <div class="field-group"><label>عدد الوظائف المتوقع</label><input type="number" value="25" /></div>
+        <div class="field-group"><label>حجم السوق المستهدف (ريال)</label><input type="number" value="45000000000" /></div>
       </div>
     </div>
 
     <!-- ========== PAGE 3: PRODUCTS & SERVICES ========== -->
     <div class="template-page" id="page-products">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — المنتجات</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — المنتجات</div></div>
       <div class="page-header"><div class="section-number">3</div><div><h2>وصف المنتجات والخدمات</h2><p>ما تقدمه وكيف يستفيد العملاء</p></div></div>
-      <div class="field-group"><label>وصف المنتج/الخدمة الأساسية</label><textarea rows="4" placeholder="صف جذرياً ما تبيعه..."></textarea></div>
+      <div class="field-group"><label>وصف المنتج/الخدمة الأساسية</label><textarea rows="4">شركة إحياء الأصول العقارية تقدم حلاً شاملاً لإعادة تأهيل المباني المتعثرة:
+• تقييم هندسي ومالي شامل للمبنى المتعثر
+• إبرام عقود محاصة عقارية (شراكة) مع الملاك
+• إكمال البناء والتشطيب بجودة عالية
+• تسويق وبيع الوحدات المكتملة
+• إدارة أملاك للمستثمرين</textarea></div>
       <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">بطاقات المنتجات</h3>
       <table class="template-table" id="products-table">
         <thead><tr><th>م</th><th>اسم المنتج</th><th>السعر (ريال)</th><th>التكلفة المتغيرة</th><th>هامش المساهمة</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
-          <tr><td>2</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
-          <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="إعادة تأهيل مبنى متعثر" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" value="3500000" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" value="2425000" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="خدمات إدارة أملاك" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" value="25000" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" value="5000" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="تقييم عقاري احترافي" /></td><td><input type="number" class="prod-price" oninput="calcProductMargin(this)" value="15000" /></td><td><input type="number" class="prod-cost" oninput="calcProductMargin(this)" value="3000" /></td><td><input type="number" class="prod-margin" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addProductRow()">+ إضافة منتج</button><button onclick="removeRow('products-table')">- حذف</button></div>
       <div class="field-group inline" style="margin-top:1rem;">
-        <div class="field-group"><label>القيمة المضافة</label><textarea rows="2" placeholder="ما الذي يميزك؟"></textarea></div>
-        <div class="field-group"><label>فائدة العميل</label><textarea rows="2" placeholder="الفائدة المباشرة..."></textarea></div>
+        <div class="field-group"><label>القيمة المضافة</label><textarea rows="2">• نموذج المحاصة العقارية الذكية (تقاسم الأرباح)
+• سرعة التنفيذ (3-4 أشهر لكل مشروع)
+• ضمان هيكلي 10 سنوات
+• فريق هندسي متخصص في المباني المتعثرة</textarea></div>
+        <div class="field-group"><label>فائدة العميل</label><textarea rows="2">• للمالك: تحويل مبنى متعثر إلى أصل منتج بدون تكلفة
+• للمشتري: سكن جديد بسعر أقل 15-20% من السوق
+• للمستثمر: عائد 35-42% سنوياً
+• للمجتمع: تقليل المباني المتعثرة وتحسين المشهد الحضري</textarea></div>
       </div>
     </div>
 
     <!-- ========== PAGE 4: DEEP MARKET ANALYSIS ========== -->
     <div class="template-page" id="page-market-deep">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — تحليل السوق العميق</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — تحليل السوق العميق</div></div>
       <div class="page-header"><div class="section-number">4</div><div><h2>تحليل السوق العميق</h2><p>أرقام وإحصائيات واتجاهات القطاع</p></div></div>
       <div class="field-group inline-3">
-        <div class="field-group"><label>حجم السوق الكلي (TAM) — ريال</label><input type="number" id="market-tam" placeholder="0" /></div>
-        <div class="field-group"><label>الحجم المُتاح (SAM) — ريال</label><input type="number" id="market-sam" placeholder="0" /></div>
-        <div class="field-group"><label>الحجم المستهدف (SOM) — ريال</label><input type="number" id="market-som" placeholder="0" /></div>
+        <div class="field-group"><label>حجم السوق الكلي (TAM) — ريال</label><input type="number" id="market-tam" value="750000000000" /></div>
+        <div class="field-group"><label>الحجم المُتاح (SAM) — ريال</label><input type="number" id="market-sam" value="150000000000" /></div>
+        <div class="field-group"><label>الحجم المستهدف (SOM) — ريال</label><input type="number" id="market-som" value="45000000000" /></div>
       </div>
       <div class="field-group inline-3">
-        <div class="field-group"><label>معدل النمو السنوي للقطاع (%)</label><input type="number" id="market-cagr" placeholder="0" /></div>
-        <div class="field-group"><label>نسبة التعثر / الفجوة في السوق (%)</label><input type="number" id="market-gap" placeholder="0" /></div>
-        <div class="field-group"><label>الطلب السنوي المتوقع (وحدة)</label><input type="number" id="market-demand" placeholder="0" /></div>
+        <div class="field-group"><label>معدل النمو السنوي للقطاع (%)</label><input type="number" id="market-cagr" value="8.5" /></div>
+        <div class="field-group"><label>نسبة التعثر / الفجوة في السوق (%)</label><input type="number" id="market-gap" value="12" /></div>
+        <div class="field-group"><label>الطلب السنوي المتوقع (وحدة)</label><input type="number" id="market-demand" value="150000" /></div>
       </div>
       <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">بيانات السوق الرسمية</h3>
       <div class="field-group inline">
-        <div class="field-group"><label>المؤشرات العقارية / الإحصائية الرسمية</label><textarea id="market-indicators" rows="3" placeholder="بيانات كتابة العدل، الهيئة العامة للعقار، البنك المركزي..."></textarea></div>
-        <div class="field-group"><label>توجهات التمويل والشراء</label><textarea id="market-financing" rows="3" placeholder="مبيعات البنوك، برامج الدعم السكني، ذائقة العملاء..."></textarea></div>
+        <div class="field-group"><label>المؤشرات العقارية / الإحصائية الرسمية</label><textarea id="market-indicators" rows="3">• أكثر من 3000 مبنى متعثر في السعودية بحاجة لإعادة تأهيل
+• 1.5 مليون أسرة سعودية بحاجة لمسكن (برنامج الإسكان)
+• متوسط سعر المتر المربع في جدة: 5,500-8,000 ريال
+• نمو قروض الرهن العقاري 25% سنوياً</textarea></div>
+        <div class="field-group"><label>توجهات التمويل والشراء</label><textarea id="market-financing" rows="3">• برنامج سكني يدعم 70% من قيمة المسكن
+• صناديق الاستثمار العقاري REITs تنمو بـ 15% سنوياً
+• تزايد الطلب على الشقق الصغيرة والمتوسطة
+• توجه نحو الشراكة بين البنوك والمطورين</textarea></div>
       </div>
-      <div class="field-group"><label>المرجعية البيعية والتسعير السوقي</label><textarea id="market-pricing" rows="2" placeholder="متوسط الأسعار في الأحياء المستهدفة، القدرة الشرائية..."></textarea></div>
+      <div class="field-group"><label>المرجعية البيعية والتسعير السوقي</label><textarea id="market-pricing" rows="2">• متوسط سعر الشقة 3 غرف في جدة: 750,000-1,200,000 ريال
+• متوسط سعر الفيلا: 2,500,000-4,000,000 ريال
+• عائد الإيجار السنوي: 5-7% من قيمة العقار
+• القدرة الشرائية للفئة المستهدفة: 15,000-40,000 ريال/شهر</textarea></div>
     </div>
 
     <!-- ========== PAGE 5: BUILDING ASSESSMENT (Stalled Building) ========== -->
     <div class="template-page" id="page-building-assessment">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — تقييم المبنى غير المكتمل</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — تقييم المبنى غير المكتمل</div></div>
       <div class="page-header"><div class="section-number">5</div><div><h2>تقييم البناء غير المكتمل</h2><p>فحص هندسي، كميات، أرباح، وتوزيع النسب</p></div></div>
 
       <!-- 1. Basic Info -->
       <div class="field-group inline-3">
-        <div class="field-group"><label>اسم المشروع / المبنى</label><input type="text" id="ba-name" placeholder="مثال: عمارة النخيل" /></div>
-        <div class="field-group"><label>الموقع (الحي / المدينة)</label><input type="text" id="ba-location" placeholder="مثال: حي الروضة، جدة" /></div>
-        <div class="field-group"><label>رقم الصك الإلكتروني</label><input type="text" id="ba-deed" placeholder="رقم الصك" /></div>
+        <div class="field-group"><label>اسم المشروع / المبنى</label><input type="text" id="ba-name" value="عمارة الأمل السكنية" /></div>
+        <div class="field-group"><label>الموقع (الحي / المدينة)</label><input type="text" id="ba-location" value="حي الروضة، جدة" /></div>
+        <div class="field-group"><label>رقم الصك الإلكتروني</label><input type="text" id="ba-deed" value="1012345678" /></div>
       </div>
 
       <!-- 2. Current Status Assessment -->
       <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">📊 التقييم الأولي لوضع المبنى الراهن</h3>
       <div class="field-group inline-3">
-        <div class="field-group"><label>نسبة الإنجاز الفعلي (%)</label><input type="number" id="ba-completion-now" min="0" max="100" placeholder="0-100" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>القيمة السوقية الراهنة (ريال)</label><input type="number" id="ba-current-value" placeholder="0" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>تقييم المكتب الهندسي</label><select id="ba-engineer-rating" onchange="calcBuildingAssessment()"><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good">جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option></select></div>
+        <div class="field-group"><label>نسبة الإنجاز الفعلي (%)</label><input type="number" id="ba-completion-now" min="0" max="100" value="65" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>القيمة السوقية الراهنة (ريال)</label><input type="number" id="ba-current-value" value="1800000" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>تقييم المكتب الهندسي</label><select id="ba-engineer-rating" onchange="calcBuildingAssessment()"><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option></select></div>
       </div>
       <div class="field-group inline">
-        <div class="field-group"><label>تقرير السلامة الإنشائية</label><textarea id="ba-safety-report" rows="2" placeholder="نتيجة الفحص المخبري للخرسانة والحديد..."></textarea></div>
-        <div class="field-group"><label>العيوب الجوهرية المكتشفة</label><textarea id="ba-defects" rows="2" placeholder="تآكل، هبوط، تشققات، عيوب في الهيكل..."></textarea></div>
+        <div class="field-group"><label>تقرير السلامة الإنشائية</label><textarea id="ba-safety-report" rows="2">الهيكل الإنشائي سليم بنسبة 95%. خرسانة الأعمدة بقوة 35 MPa. حديد التسليح غير متآكل. لا يوجد هبوط في الأساسات.</textarea></div>
+        <div class="field-group"><label>العيوب الجوهرية المكتشفة</label><textarea id="ba-defects" rows="2">تشققات سطحية في بعض الجدران الداخلية. نظام السباكة يحتاج لاستبدال جزئي. الواجهات الخارجية غير مكتملة.</textarea></div>
       </div>
 
       <!-- 3. Violations & Licenses -->
       <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">⚠️ المخالفات والتراخيص</h3>
       <div class="field-group inline-3">
-        <div class="field-group"><label>هل يوجد مخالفات بلدية؟</label><select id="ba-violations"><option value="no">لا</option><option value="yes">نعم</option></select></div>
-        <div class="field-group"><label>حالة رخصة البناء</label><select id="ba-license-status"><option value="valid">سارية</option><option value="expired">منتهية</option><option value="no-license">لا يوجد</option></select></div>
-        <div class="field-group"><label>شهادة امتثال المباني</label><select id="ba-compliance"><option value="yes">مستوفاة</option><option value="no">غير مستوفاة</option><option value="pending">قيد الإجراء</option></select></div>
+        <div class="field-group"><label>هل يوجد مخالفات بلدية؟</label><select id="ba-violations"><option value="no" selected>لا</option><option value="yes">نعم</option></select></div>
+        <div class="field-group"><label>حالة رخصة البناء</label><select id="ba-license-status"><option value="valid" selected>سارية</option><option value="expired">منتهية</option><option value="no-license">لا يوجد</option></select></div>
+        <div class="field-group"><label>شهادة امتثال المباني</label><select id="ba-compliance"><option value="yes">مستوفاة</option><option value="no">غير مستوفاة</option><option value="pending" selected>قيد الإجراء</option></select></div>
       </div>
       <div class="field-group inline-3">
-        <div class="field-group"><label>رقم رخصة البناء</label><input type="text" id="ba-license-number" placeholder="مثال: 4400123456" /></div>
-        <div class="field-group"><label>تاريخ التحقق من الرخصة</label><input type="date" id="ba-license-verified-date" /></div>
-        <div class="field-group"><label>جهة إصدار الرخصة</label><input type="text" id="ba-license-issuer" placeholder="مثال: أمانة جدة" /></div>
+        <div class="field-group"><label>رقم رخصة البناء</label><input type="text" id="ba-license-number" value="4400123456" /></div>
+        <div class="field-group"><label>تاريخ التحقق من الرخصة</label><input type="date" id="ba-license-verified-date" value="2026-05-15" /></div>
+        <div class="field-group"><label>جهة إصدار الرخصة</label><input type="text" id="ba-license-issuer" value="أمانة محافظة جدة" /></div>
       </div>
       <div class="field-group inline-3">
-        <div class="field-group"><label>رقم بوليصة التأمين الإنشائي</label><input type="text" id="ba-insurance-policy" placeholder="رقم الوثيقة" /></div>
-        <div class="field-group"><label>جهة التأمين</label><input type="text" id="ba-insurance-company" placeholder="مثال: بوبا / تكافل الراجحي" /></div>
-        <div class="field-group"><label>قيمة التغطية (ريال)</label><input type="number" id="ba-insurance-coverage" placeholder="0" /></div>
+        <div class="field-group"><label>رقم بوليصة التأمين الإنشائي</label><input type="text" id="ba-insurance-policy" value="POL-2026-001234" /></div>
+        <div class="field-group"><label>جهة التأمين</label><input type="text" id="ba-insurance-company" value="تكافل الراجحي" /></div>
+        <div class="field-group"><label>قيمة التغطية (ريال)</label><input type="number" id="ba-insurance-coverage" value="2500000" /></div>
       </div>
-      <div class="field-group"><label>تفاصيل المخالفات والالتزامات</label><textarea id="ba-violation-details" rows="2" placeholder="غرامات تراكمية، قرارات إيقاف، حجوزات..."></textarea></div>
+      <div class="field-group"><label>تفاصيل المخالفات والالتزامات</label><textarea id="ba-violation-details" rows="2">لا توجد مخالفات بلدية. رخصة البناء سارية. شهادة الامتثال قيد الإجراء.</textarea></div>
 
       <!-- 4. BOQ Table -->
       <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">📐 جدول الكميات (Bill of Quantities)</h3>
       <table class="template-table" id="boq-table">
         <thead><tr><th>م</th><th>بند الأعمال</th><th>الوحدة</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="تشطيب الواجهات الذكية" /></td><td><input type="text" value="م2" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="الأنظمة الذكية والشبكات" /></td><td><input type="text" value="نقطة" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="العزل والمواد مسبقة الصنع" /></td><td><input type="text" value="م2" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="اللمسات النهائية والدهانات" /></td><td><input type="text" value="م2" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="تشطيب الواجهات الخارجية" /></td><td><input type="text" value="م2" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" value="850" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" value="450" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="الأنظمة الكهربائية والسباكة" /></td><td><input type="text" value="شقة" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" value="12" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" value="35000" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="التشطيبات الداخلية" /></td><td><input type="text" value="م2" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" value="1200" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" value="380" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="الأرضيات والدهانات النهائية" /></td><td><input type="text" value="م2" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" value="1200" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" value="220" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="الأبواب والنوافذ" /></td><td><input type="text" value="عدد" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" value="48" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" value="2500" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="المطابخ والأدوات الصحية" /></td><td><input type="text" value="شقة" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" value="12" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" value="18000" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>7</td><td><input type="text" value="أعمال إضافية وطوارئ" /></td><td><input type="text" value=" lumpsum" /></td><td><input type="number" class="boq-qty" oninput="calcBOQRow(this)" value="1" /></td><td><input type="number" class="boq-price" oninput="calcBOQRow(this)" value="200000" /></td><td><input type="number" class="boq-total" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addBOQRow()">+ إضافة بند</button><button onclick="removeRow('boq-table')">- حذف</button></div>
@@ -493,26 +548,26 @@
       <!-- 5. Profit Sharing Calculator -->
       <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">💰 حاسبة توزيع الأرباح (المحاصة العقارية)</h3>
       <div class="field-group inline-3">
-        <div class="field-group"><label>قيمة الأرض + العظم (حصة المالك)</label><input type="number" id="ba-owner-value" placeholder="0" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>تكلفة الإكمال (حصة الشركة)</label><input type="number" id="ba-company-cost" placeholder="0" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>القيمة البيعية المتوقعة بعد الإكمال</label><input type="number" id="ba-future-value" placeholder="0" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>قيمة الأرض + العظم (حصة المالك)</label><input type="number" id="ba-owner-value" value="1800000" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>تكلفة الإكمال (حصة الشركة)</label><input type="number" id="ba-company-cost" value="1200000" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>القيمة البيعية المتوقعة بعد الإكمال</label><input type="number" id="ba-future-value" value="3500000" oninput="calcBuildingAssessment()" /></div>
       </div>
       <div class="field-group inline-3" style="margin-top:1rem;">
-        <div class="field-group"><label>المصاريف الإدارية والتسويقية (ريال)</label><input type="number" id="ba-admin-expenses" placeholder="0" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>رسوم المنصة / العمولات (ريال)</label><input type="number" id="ba-platform-fees" placeholder="0" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>الضريبة العقارية / الزكاة (ريال)</label><input type="number" id="ba-tax" placeholder="0" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>المصاريف الإدارية والتسويقية (ريال)</label><input type="number" id="ba-admin-expenses" value="150000" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>رسوم المنصة / العمولات (ريال)</label><input type="number" id="ba-platform-fees" value="70000" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>الضريبة العقارية / الزكاة (ريال)</label><input type="number" id="ba-tax" value="87500" oninput="calcBuildingAssessment()" /></div>
       </div>
       <div class="field-group inline-3" style="margin-top:0.5rem;">
-        <div class="field-group"><label>عمولات مكاتب خارجية ومسوقين (ريال)</label><input type="number" id="ba-broker-fees" placeholder="0" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>رسوم التصرفات العقارية (ريال)</label><input type="number" id="ba-transfer-fees" placeholder="0" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>مصاريف أخرى (ريال)</label><input type="number" id="ba-other-expenses" placeholder="0" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>عمولات مكاتب خارجية ومسوقين (ريال)</label><input type="number" id="ba-broker-fees" value="105000" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>رسوم التصرفات العقارية (ريال)</label><input type="number" id="ba-transfer-fees" value="175000" oninput="calcBuildingAssessment()" /></div>
+        <div class="field-group"><label>مصاريف أخرى (ريال)</label><input type="number" id="ba-other-expenses" value="50000" oninput="calcBuildingAssessment()" /></div>
       </div>
       <div style="margin-top:0.75rem;padding:0.75rem;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:10px;">
         <p style="margin:0 0 0.5rem;font-size:0.85rem;color:#f87171;font-weight:700;">⚠️ مصاريف إضافية تُحسم حصرياً لصالح الشركة (مخاطر الإكمال)</p>
         <div class="field-group inline-3" style="margin:0;">
-          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">معالجة عيوب خفية (ريال)</label><input type="number" id="ba-hidden-defects" placeholder="0" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
-          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">طوارئ إنشائية بينية (ريال)</label><input type="number" id="ba-emergency" placeholder="0" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
-          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">تعديلات غير مخطط لها (ريال)</label><input type="number" id="ba-unplanned" placeholder="0" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
+          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">معالجة عيوب خفية (ريال)</label><input type="number" id="ba-hidden-defects" value="50000" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
+          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">طوارئ إنشائية بينية (ريال)</label><input type="number" id="ba-emergency" value="75000" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
+          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">تعديلات غير مخطط لها (ريال)</label><input type="number" id="ba-unplanned" value="25000" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
         </div>
       </div>
       <div class="scenario-grid" style="margin-top:1rem;">
@@ -565,24 +620,26 @@
       <!-- 7. Timeline -->
       <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">⏱️ الجدول الزمني المتوقع</h3>
       <div class="field-group inline-3">
-        <div class="field-group"><label>فترة الإنجاز (شهر)</label><input type="number" id="ba-construction-months" placeholder="مثال: 2" /></div>
-        <div class="field-group"><label>فترة البيع والإفراغ (شهر)</label><input type="number" id="ba-sale-months" placeholder="مثال: 1.5" /></div>
+        <div class="field-group"><label>فترة الإنجاز (شهر)</label><input type="number" id="ba-construction-months" value="3" /></div>
+        <div class="field-group"><label>فترة البيع والإفراغ (شهر)</label><input type="number" id="ba-sale-months" value="2" /></div>
         <div class="field-group"><label>إجمالي دورة المشروع (شهر)</label><input type="number" id="ba-total-months" readonly tabindex="-1" placeholder="سيُحسب" /></div>
       </div>
-      <div class="field-group"><label>ملاحظات المكتب الهندسي على الجدول الزمني</label><textarea id="ba-engineer-notes" rows="2" placeholder="توصيات، تحذيرات، شروط جوهرية..."></textarea></div>
+      <div class="field-group"><label>ملاحظات المكتب الهندسي على الجدول الزمني</label><textarea id="ba-engineer-notes" rows="2">• فترة الإنجاز 3 أشهر قابلة للتنفيذ بناءً على نسبة الإنجاز الحالية 65%
+• يُنصح ببدء التسويق المسبق في الشهر الثاني من الإنجاز
+• ضرورة استلام شهادة الإتمام قبل بدء عمليات البيع الرسمي</textarea></div>
 
       <!-- 8. Document Attachments -->
       <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">📎 المستندات المُرفقة</h3>
       <table class="template-table" id="docs-table">
         <thead><tr><th>المستند</th><th>مُرفق</th><th>رقم المرجع</th><th>تاريخ الصلاحية</th></tr></thead>
         <tbody>
-          <tr><td>صك الملكية الإلكتروني</td><td><input type="checkbox" id="doc-deed" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-deed-ref" placeholder="رقم الصك" /></td><td><input type="date" id="doc-deed-expiry" /></td></tr>
-          <tr><td>رخصة البناء</td><td><input type="checkbox" id="doc-license" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-license-ref" placeholder="رقم الرخصة" /></td><td><input type="date" id="doc-license-expiry" /></td></tr>
-          <tr><td>التقرير الهندسي المعتمد</td><td><input type="checkbox" id="doc-engineer" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-engineer-ref" placeholder="رقم التقرير" /></td><td><input type="date" id="doc-engineer-expiry" /></td></tr>
-          <tr><td>بوليصة التأمين الإنشائي</td><td><input type="checkbox" id="doc-insurance" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-insurance-ref" placeholder="رقم الوثيقة" /></td><td><input type="date" id="doc-insurance-expiry" /></td></tr>
-          <tr><td>عقد الشراكة / المحاصة</td><td><input type="checkbox" id="doc-contract" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-contract-ref" placeholder="رقم العقد" /></td><td><input type="date" id="doc-contract-expiry" /></td></tr>
-          <tr><td>شهادة التقييم من مقيّم معتمد</td><td><input type="checkbox" id="doc-appraisal" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-appraisal-ref" placeholder="رقم الشهادة" /></td><td><input type="date" id="doc-appraisal-expiry" /></td></tr>
-          <tr><td>كشف حساب بنكي (آخر 6 أشهر)</td><td><input type="checkbox" id="doc-bank" onchange="calcFundingScore()" /></td><td><input type="text" id="doc-bank-ref" placeholder="رقم الحساب" /></td><td><input type="date" id="doc-bank-expiry" /></td></tr>
+          <tr><td>صك الملكية الإلكتروني</td><td><input type="checkbox" id="doc-deed" onchange="calcFundingScore()" checked /></td><td><input type="text" id="doc-deed-ref" value="1012345678" /></td><td><input type="date" id="doc-deed-expiry" value="2026-12-31" /></td></tr>
+          <tr><td>رخصة البناء</td><td><input type="checkbox" id="doc-license" onchange="calcFundingScore()" checked /></td><td><input type="text" id="doc-license-ref" value="4400123456" /></td><td><input type="date" id="doc-license-expiry" value="2027-06-30" /></td></tr>
+          <tr><td>التقرير الهندسي المعتمد</td><td><input type="checkbox" id="doc-engineer" onchange="calcFundingScore()" checked /></td><td><input type="text" id="doc-engineer-ref" value="ENG-2026-001" /></td><td><input type="date" id="doc-engineer-expiry" value="2026-12-31" /></td></tr>
+          <tr><td>بوليصة التأمين الإنشائي</td><td><input type="checkbox" id="doc-insurance" onchange="calcFundingScore()" checked /></td><td><input type="text" id="doc-insurance-ref" value="POL-2026-001234" /></td><td><input type="date" id="doc-insurance-expiry" value="2027-06-30" /></td></tr>
+          <tr><td>عقد الشراكة / المحاصة</td><td><input type="checkbox" id="doc-contract" onchange="calcFundingScore()" checked /></td><td><input type="text" id="doc-contract-ref" value="CTR-2026-001" /></td><td><input type="date" id="doc-contract-expiry" value="2027-12-31" /></td></tr>
+          <tr><td>شهادة التقييم من مقيّم معتمد</td><td><input type="checkbox" id="doc-appraisal" onchange="calcFundingScore()" checked /></td><td><input type="text" id="doc-appraisal-ref" value="APP-2026-001" /></td><td><input type="date" id="doc-appraisal-expiry" value="2026-12-31" /></td></tr>
+          <tr><td>كشف حساب بنكي (آخر 6 أشهر)</td><td><input type="checkbox" id="doc-bank" onchange="calcFundingScore()" checked /></td><td><input type="text" id="doc-bank-ref" value="SA0380000000608010167519" /></td><td><input type="date" id="doc-bank-expiry" value="2026-06-30" /></td></tr>
         </tbody>
       </table>
 
@@ -602,24 +659,24 @@
       <table class="template-table" id="funding-score-table">
         <thead><tr><th>المعيار</th><th>الوزن</th><th>الحالة</th><th>النقاط</th></tr></thead>
         <tbody>
-          <tr><td>صك الملكية واضح ومُتحقق</td><td>15</td><td><input type="checkbox" id="fs-deed" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-deed-score" readonly tabindex="-1" value="0" /></td></tr>
-          <tr><td>رخصة البناء سارية المفعول</td><td>15</td><td><input type="checkbox" id="fs-license" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-license-score" readonly tabindex="-1" value="0" /></td></tr>
-          <tr><td>تقرير هندسي معتمد مُرفق</td><td>15</td><td><input type="checkbox" id="fs-engineer" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-engineer-score" readonly tabindex="-1" value="0" /></td></tr>
-          <tr><td>بوليصة تأمين سارية</td><td>10</td><td><input type="checkbox" id="fs-insurance" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-insurance-score" readonly tabindex="-1" value="0" /></td></tr>
-          <tr><td>تحليل مالي مكتمل (3 سيناريوهات)</td><td>15</td><td><input type="checkbox" id="fs-financial" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-financial-score" readonly tabindex="-1" value="0" /></td></tr>
-          <tr><td>تحليل مخاطر كمي مُعد</td><td>15</td><td><input type="checkbox" id="fs-risk" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-risk-score" readonly tabindex="-1" value="0" /></td></tr>
-          <tr><td>توصية مقيّم نهائية مُرفقة</td><td>15</td><td><input type="checkbox" id="fs-appraisal" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-appraisal-score" readonly tabindex="-1" value="0" /></td></tr>
+          <tr><td>صك الملكية واضح ومُتحقق</td><td>15</td><td><input type="checkbox" id="fs-deed" onchange="calcFundingScore()" checked /></td><td><input type="number" id="fs-deed-score" readonly tabindex="-1" value="15" /></td></tr>
+          <tr><td>رخصة البناء سارية المفعول</td><td>15</td><td><input type="checkbox" id="fs-license" onchange="calcFundingScore()" checked /></td><td><input type="number" id="fs-license-score" readonly tabindex="-1" value="15" /></td></tr>
+          <tr><td>تقرير هندسي معتمد مُرفق</td><td>15</td><td><input type="checkbox" id="fs-engineer" onchange="calcFundingScore()" checked /></td><td><input type="number" id="fs-engineer-score" readonly tabindex="-1" value="15" /></td></tr>
+          <tr><td>بوليصة تأمين سارية</td><td>10</td><td><input type="checkbox" id="fs-insurance" onchange="calcFundingScore()" checked /></td><td><input type="number" id="fs-insurance-score" readonly tabindex="-1" value="10" /></td></tr>
+          <tr><td>تحليل مالي مكتمل (3 سيناريوهات)</td><td>15</td><td><input type="checkbox" id="fs-financial" onchange="calcFundingScore()" checked /></td><td><input type="number" id="fs-financial-score" readonly tabindex="-1" value="15" /></td></tr>
+          <tr><td>تحليل مخاطر كمي مُعد</td><td>15</td><td><input type="checkbox" id="fs-risk" onchange="calcFundingScore()" checked /></td><td><input type="number" id="fs-risk-score" readonly tabindex="-1" value="15" /></td></tr>
+          <tr><td>توصية مقيّم نهائية مُرفقة</td><td>15</td><td><input type="checkbox" id="fs-appraisal" onchange="calcFundingScore()" checked /></td><td><input type="number" id="fs-appraisal-score" readonly tabindex="-1" value="15" /></td></tr>
         </tbody>
       </table>
       <div style="margin-top:1rem;padding:1rem;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid var(--border);">
         <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">📋 توصية بوندز:</div>
-        <div id="funding-recommendation" style="font-size:0.9rem;color:var(--text);">أكمل البيانات أولاً...</div>
+        <div id="funding-recommendation" style="font-size:0.9rem;color:var(--text);">المشروع جاهز للتمويل بنسبة 100%. جميع المستندات والتحليلات مكتملة. يُنصح بالتقدم للبنوك التجارية أو صناديق الاستثمار العقاري.</div>
       </div>
     </div>
 
     <!-- ========== PAGE 5B: VALUATION STANDARDS ========== -->
     <div class="template-page" id="page-valuation-standards">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — معايير التقييم العقاري الاحترافي</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — معايير التقييم العقاري الاحترافي</div></div>
       <div class="page-header"><div class="section-number">5B</div><div><h2>معايير التقييم العقاري الاحترافي</h2><p>معايير سعودية ودولية لتقييم المباني المتعثرة والمكتملة</p></div></div>
 
       <!-- A. Unfinished Building Assessment -->
@@ -627,20 +684,20 @@
       <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">مبني على: معايير الهيئة السعودية للمقيمين المعتمدين (تقييم) + معايير التقييم الدولية IVS + كود البناء السعودي SBC</p>
 
       <div class="field-group inline-3">
-        <div class="field-group"><label>تاريخ آخر زيارة ميدانية</label><input type="date" id="val-site-visit-date" /></div>
-        <div class="field-group"><label>اسم المقيم / المكتب الهندسي</label><input type="text" id="val-appraiser-name" placeholder="مثال: مكتب دار التقييم" /></div>
-        <div class="field-group"><label>رقم ترخيص المقيم</label><input type="text" id="val-license-no" placeholder="رقم الترخيص من الهيئة" /></div>
+        <div class="field-group"><label>تاريخ آخر زيارة ميدانية</label><input type="date" id="val-site-visit-date" value="2026-05-15" /></div>
+        <div class="field-group"><label>اسم المقيم / المكتب الهندسي</label><input type="text" id="val-appraiser-name" value="مكتب دار التقييم المعتمد" /></div>
+        <div class="field-group"><label>رقم ترخيص المقيم</label><input type="text" id="val-license-no" value="TAQ-2019-00456" /></div>
       </div>
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">أ1. التدقيق الإنشائي والسلامة (Structural Audit)</h4>
       <table class="template-table" id="val-structural-table">
         <thead><tr><th>م</th><th>بند الفحص</th><th>الحالة</th><th>التوصية</th><th>التكلفة التقديرية (ريال)</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="فحص الخرسانة (اختبار المطرقة)" /></td><td><select><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good">جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" placeholder="توصية..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="فحص حديد التسليح (التآكل / الغطاء)" /></td><td><select><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good">جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" placeholder="توصية..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="فحص الأساسات والهبوط" /></td><td><select><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good">جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" placeholder="توصية..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="فحص الأعمدة والكمرات" /></td><td><select><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good">جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" placeholder="توصية..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>5</td><td><input type="text" value="فحص السلامة ضد الحريق" /></td><td><select><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good">جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" placeholder="توصية..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="فحص الخرسانة (اختبار المطرقة)" /></td><td><select><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="لا يحتاج تدخل" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="5000" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="فحص حديد التسليح (التآكل / الغطاء)" /></td><td><select><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="تغطية بعض المناطق المكشوفة" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="8000" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="فحص الأساسات والهبوط" /></td><td><select><option value="">اختر...</option><option value="excellent" selected>ممتاز</option><option value="good">جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="لا يوجد هبوط" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="3000" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="فحص الأعمدة والكمرات" /></td><td><select><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="صيانة طلاء وقائي" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="4000" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="فحص السلامة ضد الحريق" /></td><td><select><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good">جيد</option><option value="fair" selected>مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="تركيب أنظمة إنذار وإطفاء" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="15000" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('val-structural-table')">+ إضافة بند</button><button onclick="removeRow('val-structural-table')">- حذف</button></div>
@@ -649,28 +706,28 @@
       <table class="template-table" id="val-wbs-table">
         <thead><tr><th>م</th><th>بند العمل</th><th>نسبة الإنجاز (%)</th><th>التكلفة التقديرية للإكمال (ريال)</th><th>الملاحظات</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="أعمال الحفر والأساسات" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="ملاحظات..." /></td></tr>
-          <tr><td>2</td><td><input type="text" value="الهيكل الإنشائي (عظم)" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="ملاحظات..." /></td></tr>
-          <tr><td>3</td><td><input type="text" value="الأنظمة الميكانيكية (سباكة)" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="ملاحظات..." /></td></tr>
-          <tr><td>4</td><td><input type="text" value="الأنظمة الكهربائية" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="ملاحظات..." /></td></tr>
-          <tr><td>5</td><td><input type="text" value="التكييف والأنظمة الميكانيكية" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="ملاحظات..." /></td></tr>
-          <tr><td>6</td><td><input type="text" value="الواجهات والتشطيبات الخارجية" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="ملاحظات..." /></td></tr>
-          <tr><td>7</td><td><input type="text" value="التشطيبات الداخلية" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="ملاحظات..." /></td></tr>
-          <tr><td>8</td><td><input type="text" value="الأرضيات والدهانات النهائية" /></td><td><input type="number" min="0" max="100" placeholder="0-100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" /></td><td><input type="text" placeholder="ملاحظات..." /></td></tr>
+          <tr><td>1</td><td><input type="text" value="أعمال الحفر والأساسات" /></td><td><input type="number" min="0" max="100" value="100" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" value="0" /></td><td><input type="text" value="مكتمل" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="الهيكل الإنشائي (عظم)" /></td><td><input type="number" min="0" max="100" value="85" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" value="150000" /></td><td><input type="text" value="بعض التشققات السطحية" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="الأنظمة الميكانيكية (سباكة)" /></td><td><input type="number" min="0" max="100" value="60" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" value="180000" /></td><td><input type="text" value="يحتاج استبدال جزئي" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="الأنظمة الكهربائية" /></td><td><input type="number" min="0" max="100" value="70" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" value="120000" /></td><td><input type="text" value="تحديث اللوحات" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="التكييف والأنظمة الميكانيكية" /></td><td><input type="number" min="0" max="100" value="50" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" value="200000" /></td><td><input type="text" value="تركيب جديد" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="الواجهات والتشطيبات الخارجية" /></td><td><input type="number" min="0" max="100" value="40" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" value="280000" /></td><td><input type="text" value="غير مكتمل" /></td></tr>
+          <tr><td>7</td><td><input type="text" value="التشطيبات الداخلية" /></td><td><input type="number" min="0" max="100" value="30" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" value="350000" /></td><td><input type="text" value="غير مكتمل" /></td></tr>
+          <tr><td>8</td><td><input type="text" value="الأرضيات والدهانات النهائية" /></td><td><input type="number" min="0" max="100" value="20" /></td><td><input type="number" class="val-wbs-cost" oninput="calcValuationTotal()" value="250000" /></td><td><input type="text" value="غير مكتمل" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('val-wbs-table')">+ إضافة بند</button><button onclick="removeRow('val-wbs-table')">- حذف</button></div>
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">أ3. التكاليف الناعمة والمخاطر (Soft Costs &amp; Risk Premium)</h4>
       <div class="field-group inline-3">
-        <div class="field-group"><label>تكلفة التقييم والاستشارات الهندسية (ريال)</label><input type="number" id="val-consulting-cost" placeholder="0" oninput="calcValuationTotal()" /></div>
-        <div class="field-group"><label>رسوم التراخيص والتصاريح (ريال)</label><input type="number" id="val-permit-cost" placeholder="0" oninput="calcValuationTotal()" /></div>
-        <div class="field-group"><label>تأمين الموقع خلال الإكمال (ريال)</label><input type="number" id="val-insurance-cost" placeholder="0" oninput="calcValuationTotal()" /></div>
+        <div class="field-group"><label>تكلفة التقييم والاستشارات الهندسية (ريال)</label><input type="number" id="val-consulting-cost" value="25000" oninput="calcValuationTotal()" /></div>
+        <div class="field-group"><label>رسوم التراخيص والتصاريح (ريال)</label><input type="number" id="val-permit-cost" value="15000" oninput="calcValuationTotal()" /></div>
+        <div class="field-group"><label>تأمين الموقع خلال الإكمال (ريال)</label><input type="number" id="val-insurance-cost" value="20000" oninput="calcValuationTotal()" /></div>
       </div>
       <div class="field-group inline-3">
-        <div class="field-group"><label>احتياطي مخاطر الإنشاء (%)</label><input type="number" id="val-risk-pct" placeholder="مثال: 10" min="0" max="50" oninput="calcValuationTotal()" /></div>
+        <div class="field-group"><label>احتياطي مخاطر الإنشاء (%)</label><input type="number" id="val-risk-pct" value="10" min="0" max="50" oninput="calcValuationTotal()" /></div>
         <div class="field-group"><label>قيمة الاحتياطي المحسوب (ريال)</label><input type="number" id="val-risk-value" readonly tabindex="-1" placeholder="سيُحسب" /></div>
-        <div class="field-group"><label>تكلفة التمويل البديل / الفرصة (%)</label><input type="number" id="val-opportunity-pct" placeholder="مثال: 8" min="0" max="30" oninput="calcValuationTotal()" /></div>
+        <div class="field-group"><label>تكلفة التمويل البديل / الفرصة (%)</label><input type="number" id="val-opportunity-pct" value="8" min="0" max="30" oninput="calcValuationTotal()" /></div>
       </div>
 
       <!-- B. Post-Completion Assessment -->
@@ -681,47 +738,47 @@
       <table class="template-table" id="val-me-table">
         <thead><tr><th>م</th><th>النظام</th><th>الحالة</th><th>العمر الافتراضي المتبقي (سنة)</th><th>تكلفة التحديث (ريال)</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="نظام التكييف المركزي" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair">يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" placeholder="سنوات" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="نظام الكهرباء واللوحات" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair">يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" placeholder="سنوات" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="نظام السباكة والصرف" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair">يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" placeholder="سنوات" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="نظام الإنذار والإطفاء" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair">يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" placeholder="سنوات" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>5</td><td><input type="text" value="نظام المصاعد" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair">يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" placeholder="سنوات" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="نظام التكييف المركزي" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair" selected>يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" value="8" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="180000" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="نظام الكهرباء واللوحات" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good" selected>جيد</option><option value="fair">يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" value="12" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="120000" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="نظام السباكة والصرف" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair" selected>يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" value="10" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="150000" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="نظام الإنذار والإطفاء" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair">يحتاج صيانة</option><option value="poor" selected>يحتاج استبدال</option></select></td><td><input type="number" value="0" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="80000" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="نظام المصاعد" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good" selected>جيد</option><option value="fair">يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" value="15" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="200000" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('val-me-table')">+ إضافة نظام</button><button onclick="removeRow('val-me-table')">- حذف</button></div>
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">ب2. جودة التشطيبات والمواد (Finishing Quality)</h4>
       <div class="field-group inline-3">
-        <div class="field-group"><label>درجة جودة التشطيبات الداخلية</label><select id="val-finishing-internal"><option value="">اختر...</option><option value="luxury">فاخرة</option><option value="premium">ممتازة</option><option value="standard">عادية</option><option value="basic">أساسية</option><option value="poor">ضعيفة</option></select></div>
-        <div class="field-group"><label>درجة جودة الواجهات الخارجية</label><select id="val-finishing-external"><option value="">اختر...</option><option value="luxury">فاخرة</option><option value="premium">ممتازة</option><option value="standard">عادية</option><option value="basic">أساسية</option><option value="poor">ضعيفة</option></select></div>
-        <div class="field-group"><label>جودة العزل الحراري والصوتي</label><select id="val-insulation"><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good">جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option></select></div>
+        <div class="field-group"><label>درجة جودة التشطيبات الداخلية</label><select id="val-finishing-internal"><option value="">اختر...</option><option value="luxury">فاخرة</option><option value="premium" selected>ممتازة</option><option value="standard">عادية</option><option value="basic">أساسية</option><option value="poor">ضعيفة</option></select></div>
+        <div class="field-group"><label>درجة جودة الواجهات الخارجية</label><select id="val-finishing-external"><option value="">اختر...</option><option value="luxury">فاخرة</option><option value="premium" selected>ممتازة</option><option value="standard">عادية</option><option value="basic">أساسية</option><option value="poor">ضعيفة</option></select></div>
+        <div class="field-group"><label>جودة العزل الحراري والصوتي</label><select id="val-insulation"><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option></select></div>
       </div>
-      <div class="field-group"><label>ملاحظات على جودة التشطيبات والمواد المستخدمة</label><textarea id="val-finishing-notes" rows="2" placeholder="نوعية البلاط، الدهانات، الأبواب، النوافذ..."></textarea></div>
+      <div class="field-group"><label>ملاحظات على جودة التشطيبات والمواد المستخدمة</label><textarea id="val-finishing-notes" rows="2">بلاط بورسلان إيطالي، دهانات جوتنز، أبواب خشبية بلوط، نوافذ ألمنيوم مزدوج، مقابض إيطالية</textarea></div>
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">ب3. الكفاءة الطاقية والاستدامة (Energy Efficiency)</h4>
       <div class="field-group inline-3">
-        <div class="field-group"><label>تصنيف الكفاءة الطاقية (EER)</label><input type="text" id="val-eer" placeholder="مثال: 12.5" /></div>
-        <div class="field-group"><label>شهادة الاستدامة / LEED</label><select id="val-leed"><option value="">اختر...</option><option value="platinum">بلاتيني</option><option value="gold">ذهبي</option><option value="silver">فضي</option><option value="certified">معتمد</option><option value="none">لا يوجد</option></select></div>
-        <div class="field-group"><label>الاستهلاك السنوي المتوقع (kWh/م2)</label><input type="number" id="val-kwh" placeholder="0" /></div>
+        <div class="field-group"><label>تصنيف الكفاءة الطاقية (EER)</label><input type="text" id="val-eer" value="13.2" /></div>
+        <div class="field-group"><label>شهادة الاستدامة / LEED</label><select id="val-leed"><option value="">اختر...</option><option value="platinum">بلاتيني</option><option value="gold">ذهبي</option><option value="silver">فضي</option><option value="certified" selected>معتمد</option><option value="none">لا يوجد</option></select></div>
+        <div class="field-group"><label>الاستهلاك السنوي المتوقع (kWh/م2)</label><input type="number" id="val-kwh" value="145" /></div>
       </div>
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">ب4. الامتثال القانوني والتراخيص (Legal Compliance)</h4>
       <div class="checklist">
-        <li><input type="checkbox" id="val-comp-1" /><span>شهادة إتمام البناء من البلدية</span></li>
-        <li><input type="checkbox" id="val-comp-2" /><span>شهادة السلامة الإنشائية من الدفاع المدني</span></li>
-        <li><input type="checkbox" id="val-comp-3" /><span>شهادة امتثال أنظمة M&amp;E</span></li>
-        <li><input type="checkbox" id="val-comp-4" /><span>تصريح الاستخدام النهائي (Occupancy Permit)</span></li>
-        <li><input type="checkbox" id="val-comp-5" /><span>شهادة التقييم من الهيئة السعودية للمقيمين</span></li>
-        <li><input type="checkbox" id="val-comp-6" /><span>عقد الصيانة السنوية للأنظمة الرئيسية</span></li>
-        <li><input type="checkbox" id="val-comp-7" /><span>بوليصة تأمين المبنى ضد الحريق والأخطار (سارية)</span></li>
-        <li><input type="checkbox" id="val-comp-8" /><span>تأمين المسؤولية المدنية للمقاول والمقيم</span></li>
+        <li><input type="checkbox" id="val-comp-1" checked /><span>شهادة إتمام البناء من البلدية</span></li>
+        <li><input type="checkbox" id="val-comp-2" checked /><span>شهادة السلامة الإنشائية من الدفاع المدني</span></li>
+        <li><input type="checkbox" id="val-comp-3" checked /><span>شهادة امتثال أنظمة M&amp;E</span></li>
+        <li><input type="checkbox" id="val-comp-4" checked /><span>تصريح الاستخدام النهائي (Occupancy Permit)</span></li>
+        <li><input type="checkbox" id="val-comp-5" checked /><span>شهادة التقييم من الهيئة السعودية للمقيمين</span></li>
+        <li><input type="checkbox" id="val-comp-6" checked /><span>عقد الصيانة السنوية للأنظمة الرئيسية</span></li>
+        <li><input type="checkbox" id="val-comp-7" checked /><span>بوليصة تأمين المبنى ضد الحريق والأخطار (سارية)</span></li>
+        <li><input type="checkbox" id="val-comp-8" checked /><span>تأمين المسؤولية المدنية للمقاول والمقيم</span></li>
       </div>
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">ب5. التصميم المعماري والوظيفي (Architectural Design)</h4>
       <div class="field-group inline-3">
-        <div class="field-group"><label>جودة التصميم المعماري</label><select id="val-arch-quality"><option value="">اختر...</option><option value="iconic">أيقوني</option><option value="excellent">ممتاز</option><option value="good">جيد</option><option value="average">عادي</option><option value="poor">ضعيف</option></select></div>
-        <div class="field-group"><label>كفاءة استخدام المساحة (%)</label><input type="number" id="val-space-eff" min="0" max="100" placeholder="0-100" /></div>
-        <div class="field-group"><label>مدى مرونة التعديل المستقبلي</label><select id="val-flexibility"><option value="">اختر...</option><option value="high">مرتفع</option><option value="medium">متوسط</option><option value="low">منخفض</option></select></div>
+        <div class="field-group"><label>جودة التصميم المعماري</label><select id="val-arch-quality"><option value="">اختر...</option><option value="iconic">أيقوني</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="average">عادي</option><option value="poor">ضعيف</option></select></div>
+        <div class="field-group"><label>كفاءة استخدام المساحة (%)</label><input type="number" id="val-space-eff" min="0" max="100" value="85" /></div>
+        <div class="field-group"><label>مدى مرونة التعديل المستقبلي</label><select id="val-flexibility"><option value="">اختر...</option><option value="high" selected>مرتفع</option><option value="medium">متوسط</option><option value="low">منخفض</option></select></div>
       </div>
 
       <!-- C. Comparison Table -->
@@ -729,11 +786,11 @@
       <table class="template-table" id="val-comparison-table">
         <thead><tr><th>المعيار</th><th>الوضع الحالي (غير مكتمل)</th><th>الوضع المتوقع (مكتمل)</th><th>الفرق</th></tr></thead>
         <tbody>
-          <tr><td style="font-weight:700;">القيمة السوقية (ريال)</td><td><input type="number" id="val-comp-current" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-value" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">القيمة/م2 (ريال)</td><td><input type="number" id="val-comp-current-m2" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-m2" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-m2" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">معدل العائد المتوقع (%)</td><td><input type="number" id="val-comp-current-yield" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-yield" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-yield" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">فترة التسييل (شهر)</td><td><input type="number" id="val-comp-current-liquidity" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-liquidity" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-liquidity" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">درجة المخاطر (1-10)</td><td><input type="number" id="val-comp-current-risk" min="1" max="10" placeholder="1-10" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-risk" min="1" max="10" placeholder="1-10" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-risk" readonly tabindex="-1" /></td></tr>
+          <tr><td style="font-weight:700;">القيمة السوقية (ريال)</td><td><input type="number" id="val-comp-current" value="1800000" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future" value="3500000" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-value" readonly tabindex="-1" /></td></tr>
+          <tr><td style="font-weight:700;">القيمة/م2 (ريال)</td><td><input type="number" id="val-comp-current-m2" value="1800" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-m2" value="3500" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-m2" readonly tabindex="-1" /></td></tr>
+          <tr><td style="font-weight:700;">معدل العائد المتوقع (%)</td><td><input type="number" id="val-comp-current-yield" value="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-yield" value="15" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-yield" readonly tabindex="-1" /></td></tr>
+          <tr><td style="font-weight:700;">فترة التسييل (شهر)</td><td><input type="number" id="val-comp-current-liquidity" value="24" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-liquidity" value="2" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-liquidity" readonly tabindex="-1" /></td></tr>
+          <tr><td style="font-weight:700;">درجة المخاطر (1-10)</td><td><input type="number" id="val-comp-current-risk" min="1" max="10" value="7" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-risk" min="1" max="10" value="3" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-risk" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
 
@@ -756,154 +813,264 @@
         </div>
       </div>
 
-      <div class="field-group" style="margin-top:1rem;"><label>ملاحظات المقيم النهائية والتوصيات</label><textarea id="val-final-notes" rows="3" placeholder="الخلاصة النهائية للتقييم، التوصيات للمستثمر، والتحذيرات الجوهرية..."></textarea></div>
+      <div class="field-group" style="margin-top:1rem;"><label>ملاحظات المقيم النهائية والتوصيات</label><textarea id="val-final-notes" rows="3">الخلاصة: المبنى في حالة جيدة بنسبة إنجاز 65%. الهيكل الإنشائي سليم. التكلفة التقديرية للإكمال 1.2 مليون ريال. القيمة البيعية المتوقعة بعد الإكمال 3.5 مليون ريال. صافي الربح المتوقع 500,000 ريال. التوصية: المضي في الصفقة مع احتياطي مخاطر 10%.</textarea></div>
     </div>
 
     <!-- ========== PAGE 6: TECHNOLOGICAL IMPACT ========== -->
     <div class="template-page" id="page-tech-impact">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الأثر التكنولوجي</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الأثر التكنولوجي</div></div>
       <div class="page-header"><div class="section-number">6</div><div><h2>الأثر التكنولوجي</h2><p>كيف تؤثر التكنولوجيا على مشروعك</p></div></div>
-      <div class="field-group"><label>هل ستستخدم تكنولوجيا في عملك؟</label><textarea id="tech-usage" rows="3" placeholder="POS، تطبيق توصيل، إدارة مخزون، سوشال ميديا، AI..."></textarea></div>
+      <div class="field-group"><label>هل ستستخدم تكنولوجيا في عملك؟</label><textarea id="tech-usage" rows="3">• نظام BIM للتصميم الهندسي ثلاثي الأبعاد
+• منصة رقمية لإدارة المشاريع والمتابعة اللحظية
+• IoT لمراقبة جودة البناء والسلامة
+• الذكاء الاصطناعي لتقييم المباني المتعثرة
+• تطبيق جوال للعملاء لمتابعة مشاريعهم</textarea></div>
       <div class="field-group inline">
-        <div class="field-group"><label>التأثيرات الإيجابية 🟢</label><textarea id="tech-positive" rows="3" placeholder="زيادة الكفاءة، تقليل التكاليف، وصول أوسع..."></textarea></div>
-        <div class="field-group"><label>التأثيرات السلبية 🔴</label><textarea id="tech-negative" rows="3" placeholder="تكاليف صيانة، مخاطر اختراق، اعتمادية على المنصات..."></textarea></div>
+        <div class="field-group"><label>التأثيرات الإيجابية 🟢</label><textarea id="tech-positive" rows="3">• تقليل وقت التقييم الهندسي بنسبة 40%
+• مراقبة لحظية لمعدلات الإنجاز
+• تحليل بيانات السوق لتحديد أفضل المشاريع
+• تقليل الأخطاء الإنشائية بنسبة 30%
+• وصول أوسع للعملاء عبر المنصة الرقمية</textarea></div>
+        <div class="field-group"><label>التأثيرات السلبية 🔴</label><textarea id="tech-negative" rows="3">• تكاليف صيانة البنية التحتية التقنية
+• الحاجة لتحديث مستمر للأنظمة
+• مخاطر الأمن السيبراني
+• اعتمادية على جودة الإنترنت في مواقع المشاريع</textarea></div>
       </div>
-      <div class="field-group"><label>كيف ستستفيد من التكنولوجيا لصالحك؟</label><textarea id="tech-benefit" rows="3" placeholder="أتمتة الطلبات، تحليل البيانات، تسويق رقمي..."></textarea></div>
-      <div class="field-group"><label>هل منتجاتك/خدماتك ستتأثر بتطور التكنولوجيا في المستقبل القريب؟</label><textarea id="tech-future" rows="2" placeholder="مخاطر الاستبدال، فرص ابتكار..."></textarea></div>
+      <div class="field-group"><label>كيف ستستفيد من التكنولوجيا لصالحك؟</label><textarea id="tech-benefit" rows="3">• أتمتة عمليات التقييم والفحص الهندسي
+• تحليل البيانات العقارية لتحديد أفضل الفرص
+• تسويق رقمي مستهدف للعملاء المحتملين
+• إدارة علاقات العملاء (CRM) متكاملة
+• تقارير مالية وإدارية آلية</textarea></div>
+      <div class="field-group"><label>هل منتجاتك/خدماتك ستتأثر بتطور التكنولوجيا في المستقبل القريب؟</label><textarea id="tech-future" rows="2">• تقنيات البناء ثلاثية الأبعاد (3D Printing) قد تقلل تكاليف البناء
+• البلوكتشين قد يُبسط عمليات نقل الملكية
+• الطائرات بدون طيار للمسح الجوي للمباني
+• الذكاء الاصطناعي للتنبؤ بأسعار العقارات</textarea></div>
     </div>
 
     <!-- ========== PAGE 5: COUNTRY ECONOMY ========== -->
     <div class="template-page" id="page-country-economy">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الاقتصاد الكلي</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الاقتصاد الكلي</div></div>
       <div class="page-header"><div class="section-number">7</div><div><h2>الاقتصاد الكلي للدولة</h2><p>البيئة الاقتصادية العامة</p></div></div>
       <div class="field-group inline">
-        <div class="field-group"><label>نمو الناتج المحلي الإجمالي (GDP) — آخر 3 سنوات</label><textarea id="econ-gdp" rows="2" placeholder="نسب النمو السنوية..."></textarea></div>
-        <div class="field-group"><label>التصنيف الائتماني للدولة</label><input type="text" id="econ-credit" placeholder="مثال: A+ / B / BBB-" /></div>
+        <div class="field-group"><label>نمو الناتج المحلي الإجمالي (GDP) — آخر 3 سنوات</label><textarea id="econ-gdp" rows="2">2023: 0.8% | 2024: 1.4% | 2025: 4.4% (توقعات)
+نمو قطاع العقارات: 8-12% سنوياً</textarea></div>
+        <div class="field-group"><label>التصنيف الائتماني للدولة</label><input type="text" id="econ-credit" value="A (Fitch) / A1 (Moody's)" /></div>
       </div>
       <div class="field-group inline">
-        <div class="field-group"><label>حالة الميزانية العامة</label><textarea id="econ-budget" rows="2" placeholder="فائض / عجز — الإنفاق والإيرادات..."></textarea></div>
-        <div class="field-group"><label>القدرة الشرائية للأفراد</label><textarea id="econ-purchasing" rows="2" placeholder="متوسط الدخل، الإنفاق الاستهلاكي..."></textarea></div>
+        <div class="field-group"><label>حالة الميزانية العامة</label><textarea id="econ-budget" rows="2">فائض متوقع 2026: 2.5% من الناتج المحلي
+الإيرادات: 1.2 تريليون ريال
+الإنفاق: 1.1 تريليون ريال</textarea></div>
+        <div class="field-group"><label>القدرة الشرائية للأفراد</label><textarea id="econ-purchasing" rows="2">متوسط الدخل الشهري للأسر السعودية: 15,000 ريال
+الإنفاق على الإسكان: 35% من الدخل
+نسبة التملك العقاري: 60% (هدف رؤية 2030: 70%)</textarea></div>
       </div>
-      <div class="field-group"><label>التوقعات الاقتصادية للسوق</label><textarea id="econ-outlook" rows="3" placeholder="نمو القطاع، توجهات الاستثمار، التضخم..."></textarea></div>
-      <div class="field-group"><label>تأثير القرارات الحكومية على النشاط</label><textarea id="econ-government" rows="2" placeholder="رسوم بلدية، ضرائب جديدة، دعم حكومي..."></textarea></div>
+      <div class="field-group"><label>التوقعات الاقتصادية للسوق</label><textarea id="econ-outlook" rows="3">• نمو قطاع الإسكان 8-12% سنوياً حتى 2030
+• برنامج الإسكان يستهدف 1.5 مليون أسرة
+• ارتفاع أسعار العقارات في جدة والرياض 10-15% سنوياً
+• نمو قروض الرهن العقاري 25% سنوياً
+• تدفق استثمارات أجنبية في القطاع العقاري</textarea></div>
+      <div class="field-group"><label>تأثير القرارات الحكومية على النشاط</label><textarea id="econ-government" rows="2">• دعم برنامج الإسكان للمطورين (أراضي مجانية، تسهيلات)
+• تخفيض رسوم التراخيص البلدية للمشاريع السكنية
+• إعفاء ضريبي للمستثمرين في المباني المتعثرة
+• تسهيل إجراءات نقل الملكية إلكترونياً</textarea></div>
     </div>
 
     <!-- ========== PAGE 6: MARKET ANALYSIS (PESTLE + SWOT + Porter + Persona) ========== -->
     <div class="template-page" id="page-market-analysis">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — تحليل السوق</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — تحليل السوق</div></div>
       <div class="page-header"><div class="section-number">8</div><div><h2>تحليل بيئة المشروع</h2><p>PESTLE + SWOT + قوى بورتر + شخصية العميل</p></div></div>
 
       <h3 style="font-size:1rem;color:var(--gold);margin:1rem 0 0.5rem;">أ. تحليل PESTLE</h3>
       <div class="field-group inline-3">
-        <div class="field-group"><label>سياسي (Political)</label><textarea id="pestle-political" rows="2" placeholder="القوانين، الدعم الحكومي، الاستقرار..."></textarea></div>
-        <div class="field-group"><label>اقتصادي (Economic)</label><textarea id="pestle-economic" rows="2" placeholder="النمو، التضخم، القدرة الشرائية..."></textarea></div>
-        <div class="field-group"><label>اجتماعي (Social)</label><textarea id="pestle-social" rows="2" placeholder="الثقافة، التركيبة السكانية، الاتجاهات..."></textarea></div>
+        <div class="field-group"><label>سياسي (Political)</label><textarea id="pestle-political" rows="2">رؤية 2030 ودعم القطاع العقاري، برنامج الإسكان، استقرار سياسي، دعم حكومي لإعادة تأهيل المباني المتعثرة</textarea></div>
+        <div class="field-group"><label>اقتصادي (Economic)</label><textarea id="pestle-economic" rows="2">نمو الناتج المحلي 4.4%، ارتفاع أسعار العقارات 8-12% سنوياً، توفر التمويل العقاري، سيولة بنكية عالية</textarea></div>
+        <div class="field-group"><label>اجتماعي (Social)</label><textarea id="pestle-social" rows="2">نمو السكان 2.5%، زيادة الطلب على الإسكان، توجه نحو الملكية، ثقافة الاستثمار العقاري متنامية</textarea></div>
       </div>
       <div class="field-group inline-3">
-        <div class="field-group"><label>تكنولوجي (Technological)</label><textarea id="pestle-tech" rows="2" placeholder="الابتكار، الأتمتة، التحول الرقمي..."></textarea></div>
-        <div class="field-group"><label>قانوني (Legal)</label><textarea id="pestle-legal" rows="2" placeholder="التراخيص، الضرائب، حماية المستهلك..."></textarea></div>
-        <div class="field-group"><label>بيئي (Environmental)</label><textarea id="pestle-env" rows="2" placeholder="الاستدامة، التغير المناخي، الموارد..."></textarea></div>
+        <div class="field-group"><label>تكنولوجي (Technological)</label><textarea id="pestle-tech" rows="2">BIM للتصميم، IoT للمباني الذكية، منصات التمويل الجماعي، تقنيات البناء السريع، الذكاء الاصطناعي للتقييم</textarea></div>
+        <div class="field-group"><label>قانوني (Legal)</label><textarea id="pestle-legal" rows="2">نظام الملكية العقارية، قوانين الرهن العقاري، تراخيص البناء، ضريبة التصرفات العقارية 5%، قوانين الشراكة</textarea></div>
+        <div class="field-group"><label>بيئي (Environmental)</label><textarea id="pestle-env" rows="2">معايير الكفاءة الطاقية، شهادات الاستدامة LEED، إعادة التدوير، تقليل البصمة الكربونية، العزل الحراري</textarea></div>
       </div>
 
       <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">ب. تحليل SWOT</h3>
       <div class="swot-grid">
-        <div class="swot-box s"><h4>✅ نقاط القوة (Strengths)</h4><textarea id="swot-s" rows="4" placeholder="ما تمتلكه من ميزات داخلية..."></textarea></div>
-        <div class="swot-box w"><h4>⚠️ نقاط الضعف (Weaknesses)</h4><textarea id="swot-w" rows="4" placeholder="ما تحتاج لتحسينه داخلياً..."></textarea></div>
-        <div class="swot-box o"><h4>🌟 الفرص (Opportunities)</h4><textarea id="swot-o" rows="4" placeholder="عوامل خارجية يمكن الاستفادة منها..."></textarea></div>
-        <div class="swot-box t"><h4>⛔ التهديدات (Threats)</h4><textarea id="swot-t" rows="4" placeholder="عوامل خارجية قد تؤثر سلباً..."></textarea></div>
+        <div class="swot-box s"><h4>✅ نقاط القوة (Strengths)</h4><textarea id="swot-s" rows="4">1. نموذج المحاصة العقارية الذكية (تقاسم الأرباح)
+2. فريق هندسي متخصص في المباني المتعثرة
+3. علاقات حكومية قوية مع البلديات والهيئة العقارية
+4. سرعة التنفيذ (3-4 أشهر لكل مشروع)
+5. رأس مال كافٍ (45 مليون ريال)
+6. قاعدة بيانات شاملة للمباني المتعثرة</textarea></div>
+        <div class="swot-box w"><h4>⚠️ نقاط الضعف (Weaknesses)</h4><textarea id="swot-w" rows="4">1. شركة جديدة نسبياً في السوق
+2. الاعتماد على شركاء ممولين خارجيين
+3. تعقيد الإجراءات الحكومية لبعض المشاريع
+4. الحاجة لتوظيف مهندسين ذوي خبرة خاصة
+5. المخاطر الإنشائية غير المتوقعة في المباني المتعثرة</textarea></div>
+        <div class="swot-box o"><h4>🌟 الفرص (Opportunities)</h4><textarea id="swot-o" rows="4">1. أكثر من 3000 مبنى متعثر في السعودية بحاجة لإعادة تأهيل
+2. دعم حكومي متزايد للقطاع العقاري (رؤية 2030)
+3. نمو الطلب على الإسكان (1.5 مليون أسرة بحاجة لمسكن)
+4. تطوير منصات التمويل الجماعي العقاري
+5. شراكات مع البنوك لتمويل المشاريع</textarea></div>
+        <div class="swot-box t"><h4>⛔ التهديدات (Threats)</h4><textarea id="swot-t" rows="4">1. تقلبات أسعار مواد البناء
+2. تغييرات في اللوائح والأنظمة البلدية
+3. منافسة شركات تطوير عقاري كبرى
+4. تأخر إصدار التراخيص الحكومية
+5. تباطؤ في سوق العقارات أو تغير معدلات الفائدة</textarea></div>
       </div>
 
       <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">ج. تحليل قوى بورتر التنافسية</h3>
       <table class="template-table" id="porter-table">
         <thead><tr><th>القوة</th><th>الشدة (1-5)</th><th>التوضيح</th></tr></thead>
         <tbody>
-          <tr><td>قوة المنافسين الحاليين</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="عدد المنافسين، حدة التنافس..." /></td></tr>
-          <tr><td>تهديد الداخلين الجدد</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="حواجز الدخول، التراخيص..." /></td></tr>
-          <tr><td>قوة الموردين</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="عدد الموردين، بدائلهم..." /></td></tr>
-          <tr><td>قوة المشترين</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="خيارات العميل، حساسية السعر..." /></td></tr>
-          <tr><td>تهديد البدائل</td><td><input type="number" min="1" max="5" placeholder="1-5" /></td><td><input type="text" placeholder="منتجات/خدمات بديلة..." /></td></tr>
+          <tr><td>قوة المنافسين الحاليين</td><td><input type="number" min="1" max="5" value="3" /></td><td><input type="text" value="شركات تطوير عقاري كبرى (روشن، دار الأركان) لكن تركزها على مشاريع جديدة" /></td></tr>
+          <tr><td>تهديد الداخلين الجدد</td><td><input type="number" min="1" max="5" value="2" /></td><td><input type="text" value="حواجز دخول عالية: رأس مال كبير، علاقات حكومية، خبرة تقنية" /></td></tr>
+          <tr><td>قوة الموردين</td><td><input type="number" min="1" max="5" value="2" /></td><td><input type="text" value="موردون متعددون، سوق مواد البناء تنافسي، عقود طويلة الأجل" /></td></tr>
+          <tr><td>قوة المشترين</td><td><input type="number" min="1" max="5" value="3" /></td><td><input type="text" value="خيارات متعددة للمشترين لكن الطلب يفوق العرض في الإسكان" /></td></tr>
+          <tr><td>تهديد البدائل</td><td><input type="number" min="1" max="5" value="2" /></td><td><input type="text" value="الإيجار بديل مؤقت، لكن الملكية العقارية تبقى الاستثمار المفضل" /></td></tr>
         </tbody>
       </table>
 
       <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">د. شخصية العميل المثالية (Persona)</h3>
       <div class="field-group inline-3">
-        <div class="field-group"><label>العمر / الجنس / الموقع</label><input type="text" placeholder="مثال: 25-40 سنة، ذكور وإناث، الرياض" /></div>
-        <div class="field-group"><label>الدخل الشهري التقديري</label><input type="text" placeholder="5,000 - 15,000 ريال" /></div>
-        <div class="field-group"><label>الاحتياجات والآلام</label><input type="text" placeholder="ما يعانون منه ويحتاجون لحله" /></div>
+        <div class="field-group"><label>العمر / الجنس / الموقع</label><input type="text" value="30-50 سنة، ذكور وإناث، جدة والرياض والدمام" /></div>
+        <div class="field-group"><label>الدخل الشهري التقديري</label><input type="text" value="20,000 - 60,000 ريال" /></div>
+        <div class="field-group"><label>الاحتياجات والآلام</label><input type="text" value="صعوبة العثور على سكن جديد بسعر معقول، خوف من شراء مباني متعثرة بدون ضمانات" /></div>
       </div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">هـ. تحليل المنافسين التفصيلي</h3>
+      <table class="template-table" id="competitors-table">
+        <thead><tr><th>المنافس</th><th>النشاط</th><th>نقاط القوة</th><th>نقاط الضعف</th><th>حصة السوق</th></tr></thead>
+        <tbody>
+          <tr><td><input type="text" value="روشن للتطوير العقاري" /></td><td><input type="text" value="مشاريع سكنية ضخمة" /></td><td><input type="text" value="علامة تجارية قوية، تمويل ضخم" /></td><td><input type="text" value="لا يتعامل مع المباني المتعثرة" /></td><td><input type="text" value="15%" /></td></tr>
+          <tr><td><input type="text" value="دار الأركان" /></td><td><input type="text" value="تطوير عقاري متكامل" /></td><td><input type="text" value="خبرة 20+ سنة، محفظة واسعة" /></td><td><input type="text" value="تركيز على المشاريع الجديدة فقط" /></td><td><input type="text" value="12%" /></td></tr>
+          <tr><td><input type="text" value="شركة إعمار" /></td><td><input type="text" value="تطوير فاخر" /></td><td><input type="text" value="جودة عالية، تصاميم مميزة" /></td><td><input type="text" value="أسعار مرتفعة، لا يستهدف المتعثر" /></td><td><input type="text" value="8%" /></td></tr>
+          <tr><td><input type="text" value="مطورون محليون" /></td><td><input type="text" value="مشاريع صغيرة" /></td><td><input type="text" value="مرونة، معرفة السوق المحلي" /></td><td><input type="text" value="نقص السيولة، لا يملكون نموذج المحاصة" /></td><td><input type="text" value="5%" /></td></tr>
+          <tr><td><input type="text" value="شركة إحياء الأصول" /></td><td><input type="text" value="إعادة تأهيل المباني المتعثرة" /></td><td><input type="text" value="نموذج المحاصة، سرعة التنفيذ، ضمانات" /></td><td><input type="text" value="شركة جديدة، بناء الثقة" /></td><td><input type="text" value="هدف: 3%" /></td></tr>
+        </tbody>
+      </table>
+      <div class="table-actions no-print"><button onclick="addRow('competitors-table')">+ إضافة منافس</button><button onclick="removeRow('competitors-table')">- حذف</button></div>
     </div>
 
     <!-- ========== PAGE 7: MARKETING STRATEGY (4Ps) ========== -->
     <div class="template-page" id="page-marketing">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التسويق</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التسويق</div></div>
       <div class="page-header"><div class="section-number">9</div><div><h2>استراتيجية التسويق (4Ps)</h2><p>خطة واضحة للوصول إلى العميل وتحويله</p></div></div>
-      <div class="field-group"><label>المنتج (Product) — ما تبيعه وكيف تُقدمه</label><textarea id="marketing-product" rows="3" placeholder="العبوة، الجودة، الخدمات الملحقة، الضمان..."></textarea></div>
-      <div class="field-group"><label>السعر (Price) — استراتيجية التسعير</label><textarea id="marketing-price-strategy" rows="3" placeholder="تسعير قيمة، تنافسي، اختراقي، فاخر..."></textarea></div>
+      <div class="field-group"><label>المنتج (Product) — ما تبيعه وكيف تُقدمه</label><textarea id="marketing-product" rows="3">وحدات سكنية وتجارية مكتملة التشطيب بجودة عالية، مع ضمان هيكلي 10 سنوات، خدمات إدارة أملاك، تقييم احترافي شامل</textarea></div>
+      <div class="field-group"><label>السعر (Price) — استراتيجية التسعير</label><textarea id="marketing-price-strategy" rows="3">تسعير قيمة: سعر أقل 15-20% من السوق لجذب المشترين السريعين، دفعات مرنة، خصم للكاش 5%</textarea></div>
       <div class="field-group inline">
-        <div class="field-group"><label>السعر المتوقع للوحدة (ريال)</label><input type="number" id="marketing-price" placeholder="0" oninput="linkPriceToRevenue()" /></div>
-        <div class="field-group"><label>الكمية المتوقعة شهرياً</label><input type="number" id="marketing-qty" placeholder="0" oninput="linkQtyToRevenue()" /></div>
+        <div class="field-group"><label>السعر المتوقع للوحدة (ريال)</label><input type="number" id="marketing-price" value="2875000" oninput="linkPriceToRevenue()" /></div>
+        <div class="field-group"><label>الكمية المتوقعة شهرياً</label><input type="number" id="marketing-qty" value="4" oninput="linkQtyToRevenue()" /></div>
       </div>
-      <div class="field-group"><label>المكان (Place) — قنوات البيع والتوزيع</label><textarea id="marketing-place" rows="3" placeholder="منصات توصيل، موقع فعلي، متجر إلكتروني، وكلاء..."></textarea></div>
-      <div class="field-group"><label>الترويج (Promotion) — خطة الوصول</label><textarea id="marketing-promotion" rows="4" placeholder="السوشيال ميديا، الإعلانات المدفوعة، التسويق بالمحتوى، العروض الترويجية..."></textarea></div>
+      <div class="field-group"><label>المكان (Place) — قنوات البيع والتوزيع</label><textarea id="marketing-place" rows="3">مكاتب بيع في المشاريع، منصات عقارية (بيت.كوم، عقار)، وساطة عقارية، بنوك (تمويل عقاري)</textarea></div>
+      <div class="field-group"><label>الترويج (Promotion) — خطة الوصول</label><textarea id="marketing-promotion" rows="4">حملات رقمية مستهدفة (فيسبوك، إنستغرام، سناب شات)، معارض عقارية، شراكات مع البنوك، برنامج إحالة (عمولة 2%)، محتوى تعليمي عن الاستثمار العقاري</textarea></div>
       <div class="field-group inline">
-        <div class="field-group"><label>ميزانية التسويق الشهرية</label><input type="number" placeholder="0" /></div>
-        <div class="field-group"><label>تكلفة اكتساب عميل (CAC)</label><input type="number" placeholder="0" /></div>
+        <div class="field-group"><label>ميزانية التسويق الشهرية</label><input type="number" value="150000" /></div>
+        <div class="field-group"><label>تكلفة اكتساب عميل (CAC)</label><input type="number" value="8000" /></div>
       </div>
     </div>
 
     <!-- ========== PAGE 8: OPERATIONS & TIMELINE ========== -->
     <div class="template-page" id="page-operations">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التشغيل</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التشغيل</div></div>
       <div class="page-header"><div class="section-number">10</div><div><h2>خطة التشغيل والجدول الزمني</h2><p>كيف ستُدير العمليات يومياً وشهرياً</p></div></div>
-      <div class="field-group"><label>موقع النشاط</label><textarea rows="2" placeholder="المدينة، الحي، المساحة، الإيجار السنوي..."></textarea></div>
-      <div class="field-group"><label>ساعات العمل</label><input type="text" placeholder="مثال: 8 صباحاً - 12 ليلاً، 7 أيام/أسبوع" /></div>
-      <div class="field-group"><label>عملية الإنتاج/الخدمة خطوة بخطوة</label><textarea rows="4" placeholder="1. استلام الطلب → 2. التحضير → 3. التغليف → 4. التوصيل..."></textarea></div>
+      <div class="field-group"><label>موقع النشاط</label><textarea rows="2">المركز الرئيسي: جدة، حي الصفا، برج إداري 500 م². المشاريع: مواقع متعددة في جدة والرياض والدمام</textarea></div>
+      <div class="field-group"><label>ساعات العمل</label><input type="text" value="8:00 ص - 6:00 م، الأحد - الخميس. الموقع: 24/7" /></div>
+      <div class="field-group"><label>عملية الإنتاج/الخدمة خطوة بخطوة</label><textarea rows="4">1. تقييم المبنى المتعثر (فحص هندسي + تقييم مالي)
+2. التفاوض مع المالك وإبرام عقد المحاصة (30% مالك / 70% شركة)
+3. استخراج التراخيص اللازمة من البلدية
+4. إعداد خطة الإكمال والتشطيب (3-4 أشهر)
+5. تنفيذ الأعمال الإنشائية والتشطيبية
+6. الفحص النهائي واستلام شهادة الإتمام
+7. التسويق وبيع الوحدات
+8. توزيع الأرباح حسب نسبة الشراكة</textarea></div>
       <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">الجدول الزمني التفصيلي</h3>
       <table class="template-table" id="timeline-table">
         <thead><tr><th>م</th><th>المهمة</th><th>التاريخ المتوقع</th><th>المسؤول</th><th>الحالة</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="إتمام الدراسة" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" value="قيد التنفيذ" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="الحصول على التمويل" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="استخراج التراخيص" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="تجهيز الموقع" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
-          <tr><td>5</td><td><input type="text" value="التوظيف" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
-          <tr><td>6</td><td><input type="text" value="الافتتاح التجريبي" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
-          <tr><td>7</td><td><input type="text" value="الافتتاح الرسمي" /></td><td><input type="date" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="إتمام الدراسة والتسجيل" /></td><td><input type="date" value="2026-06-30" /></td><td><input type="text" value="الرئيس التنفيذي" /></td><td><input type="text" value="قيد التنفيذ" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="الحصول على التمويل" /></td><td><input type="date" value="2026-07-31" /></td><td><input type="text" value="المدير المالي" /></td><td><input type="text" value="مخطط" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="استخراج التراخيص" /></td><td><input type="date" value="2026-08-15" /></td><td><input type="text" value="أخصائي علاقات حكومية" /></td><td><input type="text" value="مخطط" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="تجهيز المقر الرئيسي" /></td><td><input type="date" value="2026-08-31" /></td><td><input type="text" value="مدير التشغيل" /></td><td><input type="text" value="مخطط" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="التوظيف والتدريب" /></td><td><input type="date" value="2026-09-15" /></td><td><input type="text" value="مسؤول الموارد البشرية" /></td><td><input type="text" value="مخطط" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="توقيع أول عقود شراكة" /></td><td><input type="date" value="2026-09-30" /></td><td><input type="text" value="مدير الاستثمار" /></td><td><input type="text" value="مخطط" /></td></tr>
+          <tr><td>7</td><td><input type="text" value="بدء أول مشروع إعادة تأهيل" /></td><td><input type="date" value="2026-10-01" /></td><td><input type="text" value="مدير التشغيل" /></td><td><input type="text" value="مخطط" /></td></tr>
+          <tr><td>8</td><td><input type="text" value="الافتتاح الرسمي والتسويق" /></td><td><input type="date" value="2026-10-15" /></td><td><input type="text" value="مدير التطوير" /></td><td><input type="text" value="مخطط" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('timeline-table')">+ إضافة</button><button onclick="removeRow('timeline-table')">- حذف</button></div>
+
+      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">🗺️ خريطة المشاريع المستهدفة</h3>
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-top:1rem;">
+        <table class="template-table" id="projects-map-table">
+          <thead><tr><th>المدينة</th><th>الحي</th><th>عدد المباني المتعثرة</th><th>متوسط التكلفة</th><th>الأولوية</th></tr></thead>
+          <tbody>
+            <tr><td><input type="text" value="جدة" /></td><td><input type="text" value="حي الروضة" /></td><td><input type="number" value="45" /></td><td><input type="number" value="2500000" /></td><td><input type="text" value="عالية" /></td></tr>
+            <tr><td><input type="text" value="جدة" /></td><td><input type="text" value="حي الصفا" /></td><td><input type="number" value="32" /></td><td><input type="number" value="2800000" /></td><td><input type="text" value="عالية" /></td></tr>
+            <tr><td><input type="text" value="جدة" /></td><td><input type="text" value="حي المحمدية" /></td><td><input type="number" value="28" /></td><td><input type="number" value="2200000" /></td><td><input type="text" value="متوسطة" /></td></tr>
+            <tr><td><input type="text" value="الرياض" /></td><td><input type="text" value="حي النرجس" /></td><td><input type="number" value="38" /></td><td><input type="number" value="3000000" /></td><td><input type="text" value="عالية" /></td></tr>
+            <tr><td><input type="text" value="الرياض" /></td><td><input type="text" value="حي الياسمين" /></td><td><input type="number" value="25" /></td><td><input type="number" value="2700000" /></td><td><input type="text" value="متوسطة" /></td></tr>
+            <tr><td><input type="text" value="الدمام" /></td><td><input type="text" value="حي الفيصلية" /></td><td><input type="number" value="18" /></td><td><input type="number" value="2000000" /></td><td><input type="text" value="منخفضة" /></td></tr>
+          </tbody>
+        </table>
+        <div class="table-actions no-print"><button onclick="addRow('projects-map-table')">+ إضافة موقع</button><button onclick="removeRow('projects-map-table')">- حذف</button></div>
+        <p style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.5rem;">📊 إجمالي المباني المتعثرة المستهدفة: 186 مبنى | المتوسط: 2,533,333 ريال</p>
+      </div>
     </div>
 
     <!-- ========== PAGE 9: LEGAL & INSURANCE ========== -->
     <div class="template-page" id="page-legal">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — القانون</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — القانون</div></div>
       <div class="page-header"><div class="section-number">11</div><div><h2>التراخيص والقوانين والتأمين</h2><p>الالتزامات التنظيمية والحماية القانونية</p></div></div>
       <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">التراخيص المطلوبة</h3>
       <table class="template-table" id="licenses-table">
         <thead><tr><th>م</th><th>اسم الترخيص</th><th>الجهة المصدرة</th><th>التكلفة (ريال)</th><th>مدة الإصدار</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="سجل تجاري" /></td><td><input type="text" value="وزارة التجارة" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="1-3 أيام" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="رخصة بلدية" /></td><td><input type="text" value="البلدية" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="2-4 أسابيع" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="تصريح دفاع مدني" /></td><td><input type="text" value="الدفاع المدني" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="1 أسبوع" /></td></tr>
-        <tr><td>4</td><td><input type="text" value="شهادة صحية" /></td><td><input type="text" value="البلدية" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" /></td><td><input type="text" value="3-5 أيام" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="سجل تجاري" /></td><td><input type="text" value="وزارة التجارة" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" value="5000" /></td><td><input type="text" value="1-3 أيام" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="ترخيص مكتب هندسي" /></td><td><input type="text" value="هيئة المهندسين" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" value="15000" /></td><td><input type="text" value="2-4 أسابيع" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="ترخيص مقاول إنشائي" /></td><td><input type="text" value="وزارة الشؤون البلدية" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" value="25000" /></td><td><input type="text" value="3-6 أسابيع" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="ترخيص وساطة عقارية" /></td><td><input type="text" value="الهيئة العامة للعقار" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" value="10000" /></td><td><input type="text" value="1-2 أسابيع" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="شهادة تصنيف مقاول" /></td><td><input type="text" value="منشآت" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" value="20000" /></td><td><input type="text" value="2-4 أسابيع" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="تصريح بيئي" /></td><td><input type="text" value="الهيئة العامة للأرصاد" /></td><td><input type="number" class="license-cost" oninput="linkLicensesToCapital()" value="8000" /></td><td><input type="text" value="1-2 أسابيع" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">+ إضافة</button><button onclick="removeRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">- حذف</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>التأمينات المطلوبة</label><textarea id="legal-insurance" rows="3" placeholder="تأمين الممتلكات، تأمين المسؤولية المدنية، تأمين الموظفين..."></textarea></div>
-      <div class="field-group"><label>الالتزامات الضريبية المتوقعة</label><textarea id="legal-taxes" rows="2" placeholder="VAT 15%، Zakat 2.5%، ضريبة الدخل إن وجدت..."></textarea></div>
+      <div class="field-group" style="margin-top:1rem;"><label>التأمينات المطلوبة</label><textarea id="legal-insurance" rows="3">• تأمين مسؤولية مدنية (2 مليون ريال)
+• تأمين المباني قيد الإنشاء (10 مليون ريال)
+• تأمين المركبات والمعدات
+• تأمين طبي للموظفين (تأمين طبي شامل)
+• تأمين أخطاء مهنية للمهندسين</textarea></div>
+      <div class="field-group"><label>الالتزامات الضريبية المتوقعة</label><textarea id="legal-taxes" rows="2">• ضريبة القيمة المضافة VAT 15% على المبيعات
+• زكاة 2.5% على رأس المال والأرباح
+• ضريبة التصرفات العقارية 5% على البيع
+• ضريبة الاستقطاع 2.5% على المقاولات</textarea></div>
     </div>
 
     <!-- ========== PAGE 10: HUMAN RESOURCES ========== -->
     <div class="template-page" id="page-hr">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الموارد البشرية</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الموارد البشرية</div></div>
       <div class="page-header"><div class="section-number">12</div><div><h2>الموارد البشرية</h2><p>الهيكل التنظيمي والقوى العاملة المطلوبة</p></div></div>
-      <div class="field-group"><label>الهيكل التنظيمي</label><textarea rows="3" placeholder="من يُدير من؟ كيف تتدفق القرارات؟"></textarea></div>
+      <div class="field-group"><label>الهيكل التنظيمي</label><textarea rows="3">الجمعية العمومية ← مجلس إدارة (5 أعضاء) ← الرئيس التنفيذي ← 4 إدارات تنفيذية (الاستثمار، التشغيل، المالية، التطوير)</textarea></div>
       <table class="template-table" id="hr-table">
         <thead><tr><th>م</th><th>المسمى الوظيفي</th><th>العدد</th><th>الراتب الشهري</th><th>إجمالي شهري</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="مدير" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="موظف" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="الرئيس التنفيذي (CEO)" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="1" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="80000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="مدير الاستثمار العقاري" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="1" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="45000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="مدير التشغيل والمشاريع" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="1" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="40000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="المدير المالي" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="1" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="35000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="مدير التطوير والتسويق" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="1" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="35000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="مهندس مدني رئيسي" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="2" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="25000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>7</td><td><input type="text" value="مهندس معماري" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="1" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="22000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>8</td><td><input type="text" value="محاسب مالي" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="2" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="15000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>9</td><td><input type="text" value="أخصائي علاقات حكومية" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="2" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="18000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>10</td><td><input type="text" value="مسؤول المشتريات والعقود" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="2" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="16000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>11</td><td><input type="text" value="منسق مشاريع" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="2" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="14000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>12</td><td><input type="text" value="مسؤول الموارد البشرية" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="1" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="18000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>13</td><td><input type="text" value="مسؤول تقنية المعلومات" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="1" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="20000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>14</td><td><input type="text" value="أخصائي تسويق رقمي" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="2" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="14000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>15</td><td><input type="text" value="سكرتير تنفيذي" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="1" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="12000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>16</td><td><input type="text" value="موظف استقبال" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="1" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="8000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>17</td><td><input type="text" value="سائق" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="1" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="6000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>18</td><td><input type="text" value="عامل صيانة" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="1" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="7000" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>19</td><td><input type="text" value="أمن وحماية" /></td><td><input type="number" class="hr-count" oninput="calcHRRow(this)" value="2" /></td><td><input type="number" class="hr-salary" oninput="calcHRRow(this)" value="5500" /></td><td><input type="number" class="hr-total" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addHRRow()">+ إضافة</button><button onclick="removeRow('hr-table')">- حذف</button></div>
@@ -913,18 +1080,27 @@
 
     <!-- ========== PAGE 11: ORGANIZATIONAL CHART ========== -->
     <div class="template-page" id="page-org-chart">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الهيكل التنظيمي</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الهيكل التنظيمي</div></div>
       <div class="page-header"><div class="section-number">13</div><div><h2>الهيكل التنظيمي والوظيفي</h2><p>السلطة التشريعية، التنفيذية، والمساندة</p></div></div>
-      <div class="field-group"><label>الهيكل التنظيمي البياني (وصف نصي)</label><textarea id="org-chart-desc" rows="4" placeholder="الجمعية العمومية → مجلس الإدارة → CEO → الإدارات التنفيذية..."></textarea></div>
+      <div class="field-group"><label>الهيكل التنظيمي البياني (وصف نصي)</label><textarea id="org-chart-desc" rows="4">الجمعية العمومية (المساهمون) ← مجلس الإدارة (5 أعضاء: رئيس + 4 أعضاء) ← الرئيس التنفيذي CEO ← 4 إدارات رئيسية:
+• إدارة الاستثمار العقاري (تقييم، شراكات، صفقات)
+• إدارة التشغيل والمشاريع (إشراف، مقاولون، جودة)
+• الإدارة المالية والإدارية (محاسبة، موارد بشرية، قانون)
+• إدارة التطوير والتسويق (تخطيط، تسويق، علاقات حكومية)</textarea></div>
       <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">جدول الملاك الوظيفي التفصيلي</h3>
       <table class="template-table" id="org-table">
         <thead><tr><th>م</th><th>المسمى الوظيفي</th><th>العدد</th><th>الراتب الشهري (ريال)</th><th>الإجمالي السنوي</th><th>مقر العمل</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" placeholder="رئيس مجلس الإدارة" /></td><td><input type="number" value="1" /></td><td><input type="number" placeholder="مكافآت" /></td><td><input type="number" /></td><td><input type="text" placeholder="قاعة الاجتماعات" /></td></tr>
-          <tr><td>2</td><td><input type="text" placeholder="الرئيس التنفيذي CEO" /></td><td><input type="number" value="1" /></td><td><input type="number" /></td><td><input type="number" /></td><td><input type="text" placeholder="المكتب الرئيسي" /></td></tr>
-          <tr><td>3</td><td><input type="text" placeholder="المدير المالي CFO" /></td><td><input type="number" value="1" /></td><td><input type="number" /></td><td><input type="number" /></td><td><input type="text" placeholder="المكتب الرئيسي" /></td></tr>
-          <tr><td>4</td><td><input type="text" placeholder="مدير المشاريع" /></td><td><input type="number" value="1" /></td><td><input type="number" /></td><td><input type="number" /></td><td><input type="text" placeholder="مكتب/ميدان" /></td></tr>
-          <tr><td>5</td><td><input type="text" placeholder="مهندس ميداني" /></td><td><input type="number" /></td><td><input type="number" /></td><td><input type="number" /></td><td><input type="text" placeholder="الميدان" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="رئيس مجلس الإدارة" /></td><td><input type="number" value="1" /></td><td><input type="number" value="25000" /></td><td><input type="number" value="300000" /></td><td><input type="text" value="المكتب الرئيسي" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="الرئيس التنفيذي CEO" /></td><td><input type="number" value="1" /></td><td><input type="number" value="80000" /></td><td><input type="number" value="960000" /></td><td><input type="text" value="المكتب الرئيسي" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="مدير الاستثمار العقاري" /></td><td><input type="number" value="1" /></td><td><input type="number" value="45000" /></td><td><input type="number" value="540000" /></td><td><input type="text" value="المكتب الرئيسي" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="مدير التشغيل والمشاريع" /></td><td><input type="number" value="1" /></td><td><input type="number" value="40000" /></td><td><input type="number" value="480000" /></td><td><input type="text" value="المكتب الرئيسي/الميدان" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="المدير المالي" /></td><td><input type="number" value="1" /></td><td><input type="number" value="35000" /></td><td><input type="number" value="420000" /></td><td><input type="text" value="المكتب الرئيسي" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="مدير التطوير والتسويق" /></td><td><input type="number" value="1" /></td><td><input type="number" value="35000" /></td><td><input type="number" value="420000" /></td><td><input type="text" value="المكتب الرئيسي" /></td></tr>
+          <tr><td>7</td><td><input type="text" value="مهندس مدني" /></td><td><input type="number" value="2" /></td><td><input type="number" value="25000" /></td><td><input type="number" value="600000" /></td><td><input type="text" value="الميدان" /></td></tr>
+          <tr><td>8</td><td><input type="text" value="مهندس معماري" /></td><td><input type="number" value="1" /></td><td><input type="number" value="22000" /></td><td><input type="number" value="264000" /></td><td><input type="text" value="المكتب الرئيسي" /></td></tr>
+          <tr><td>9</td><td><input type="text" value="محاسب مالي" /></td><td><input type="number" value="2" /></td><td><input type="number" value="15000" /></td><td><input type="number" value="360000" /></td><td><input type="text" value="المكتب الرئيسي" /></td></tr>
+          <tr><td>10</td><td><input type="text" value="أخصائي علاقات حكومية" /></td><td><input type="number" value="2" /></td><td><input type="number" value="18000" /></td><td><input type="number" value="432000" /></td><td><input type="text" value="المكتب الرئيسي" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addOrgRow()">+ إضافة منصب</button><button onclick="removeRow('org-table')">- حذف</button></div>
@@ -937,34 +1113,44 @@
 
     <!-- ========== PAGE 12: TECHNICAL ========== -->
     <div class="template-page" id="page-technical">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التقني</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التقني</div></div>
       <div class="page-header"><div class="section-number">14</div><div><h2>الاحتياجات التقنية والمعدات</h2><p>ما تحتاجه لتشغيل المشروع</p></div></div>
       <table class="template-table" id="tools-table">
         <thead><tr><th>م</th><th>المعدة/الأداة</th><th>العدد</th><th>سعر الوحدة</th><th>الإجمالي</th><th>طريقة التوريد</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" placeholder="شراء/إيجار" /></td></tr>
-          <tr><td>2</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" /></td></tr>
-          <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="أجهزة كمبيوتر ومحطات عمل" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" value="25" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" value="8000" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" value="شراء" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="طابعات وآلات تصوير" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" value="5" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" value="5000" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" value="شراء" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="أجهزة قياس ومساحة" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" value="4" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" value="15000" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" value="شراء" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="سيارات الشركة" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" value="5" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" value="120000" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" value="إيجار" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="أثاث مكتبي" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" value="1" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" value="200000" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" value="شراء" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="معدات سلامة ميدانية" /></td><td><input type="number" class="tool-qty" oninput="calcToolRow(this)" value="10" /></td><td><input type="number" class="tool-price" oninput="calcToolRow(this)" value="3000" /></td><td><input type="number" class="tool-total" readonly tabindex="-1" /></td><td><input type="text" value="شراء" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addToolRow()">+ إضافة</button><button onclick="removeRow('tools-table')">- حذف</button></div>
       <div class="field-group" style="margin-top:1rem;"><label>إجمالي تكلفة المعدات: <span id="tools-grand-total" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
-      <div class="field-group"><label>الأنظمة التقنية المطلوبة</label><textarea rows="3" placeholder="POS، نظام إدارة المخزون، CRM، موقع إلكتروني، تطبيق..."></textarea></div>
+      <div class="field-group"><label>الأنظمة التقنية المطلوبة</label><textarea rows="3">• نظام ERP لإدارة المشاريع والموارد (SAP/Oracle)
+• منصة CRM لإدارة علاقات العملاء (Salesforce)
+• نظام BIM للتصميم الهندسي (Autodesk Revit)
+• منصة إدارة المستندات الإلكترونية
+• تطبيق جوال للعملاء والمستثمرين
+• نظام مراقبة CCTV للمشاريع
+• خوادم سحابية للنسخ الاحتياطي</textarea></div>
     </div>
 
     <!-- ========== PAGE 12: FIXED COSTS ========== -->
     <div class="template-page" id="page-fixed">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التكاليف الثابتة</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التكاليف الثابتة</div></div>
       <div class="page-header"><div class="section-number">15</div><div><h2>التكاليف الثابتة الشهرية</h2><p>التكاليف التي لا تتغير مع حجم الإنتاج</p></div></div>
       <table class="template-table" id="fixed-costs-table">
         <thead><tr><th>م</th><th>بند التكلفة</th><th>المبلغ الشهري (ريال)</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="الإيجار" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="الرواتب" /></td><td><input type="number" class="fc-input" id="fc-salaries" readonly tabindex="-1" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="المرافق" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="التأمين" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
-          <tr><td>5</td><td><input type="text" value="اشتراكات تقنية" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
-          <tr><td>6</td><td><input type="text" value="رسوم تراخيص" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="إيجار المقر الرئيسي" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" value="25000" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="الرواتب والأجور" /></td><td><input type="number" class="fc-input" id="fc-salaries" readonly tabindex="-1" value="236500" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="المرافق والخدمات" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" value="8000" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="التأمينات الاجتماعية" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" value="15000" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="اشتراكات تقنية وبرمجيات" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" value="5000" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="رسوم تراخيص حكومية" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" value="3000" /></td></tr>
+          <tr><td>7</td><td><input type="text" value="تسويق وإعلان" /></td><td><input type="number" class="fc-input" oninput="calcFinancials()" value="20000" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('fixed-costs-table'); setTimeout(calcFinancials,50)">+ إضافة</button><button onclick="removeRow('fixed-costs-table'); setTimeout(calcFinancials,50)">- حذف</button></div>
@@ -973,15 +1159,17 @@
 
     <!-- ========== PAGE 13: VARIABLE COSTS ========== -->
     <div class="template-page" id="page-variable">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التكاليف المتغيرة</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التكاليف المتغيرة</div></div>
       <div class="page-header"><div class="section-number">16</div><div><h2>التكاليف المتغيرة (لكل وحدة)</h2><p>التكاليف التي تتناسب مع حجم الإنتاج</p></div></div>
       <table class="template-table" id="var-costs-table">
         <thead><tr><th>م</th><th>بند التكلفة</th><th>للوحدة (ريال)</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="مواد خام" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="تغليف" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="عمولات منصات" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="رسوم توصيل" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="مواد بناء وتشطيب ذكي" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" value="1200000" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="أجور مقاولين وعمالة" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" value="800000" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="عمولات وساطة عقارية" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" value="150000" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="رسوم هندسية وإشراف" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" value="100000" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="رسوم بلدية وشهادات امتثال" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" value="50000" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="ميزانية طوارئ إنشائية" /></td><td><input type="number" class="vc-input" oninput="calcFinancials()" value="125000" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('var-costs-table'); setTimeout(calcFinancials,50)">+ إضافة</button><button onclick="removeRow('var-costs-table'); setTimeout(calcFinancials,50)">- حذف</button></div>
@@ -990,14 +1178,15 @@
 
     <!-- ========== PAGE 14: REVENUE ========== -->
     <div class="template-page" id="page-revenue">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الإيرادات</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الإيرادات</div></div>
       <div class="page-header"><div class="section-number">17</div><div><h2>الإيرادات المتوقعة</h2><p>مصادر الدخل الشهرية المستهدفة</p></div></div>
       <table class="template-table" id="revenue-table">
         <thead><tr><th>م</th><th>بند الإيراد</th><th>الكمية/شهر</th><th>سعر الوحدة</th><th>الإجمالي</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>2</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>3</td><td><input type="text" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="بيع وحدات سكنية مكتملة" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" value="3.75" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" value="2875000" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="إيجار وحدات تجارية" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" value="2" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" value="150000" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="خدمات إدارة أملاك للعملاء" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" value="5" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" value="25000" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="عائد استثمار صندوق عقاري" /></td><td><input type="number" class="rev-qty" oninput="calcRevenueRow(this)" value="1" /></td><td><input type="number" class="rev-price" oninput="calcRevenueRow(this)" value="500000" /></td><td><input type="number" class="rev-total" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRevenueRow()">+ إضافة</button><button onclick="removeRow('revenue-table'); setTimeout(calcFinancials,50)">- حذف</button></div>
@@ -1006,23 +1195,23 @@
 
     <!-- ========== PAGE 15: CASH FLOW 12 MONTHS ========== -->
     <div class="template-page" id="page-cashflow">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التدفق النقدي</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التدفق النقدي</div></div>
       <div class="page-header"><div class="section-number">18</div><div><h2>التدفق النقدي المتوقع (12 شهر)</h2><p>الأموال الداخلة والخارجة شهرياً</p></div></div>
       <table class="template-table" id="cashflow-table">
         <thead><tr><th>الشهر</th><th>الإيرادات</th><th>التكاليف</th><th>صافي التدفق</th><th>الرصيد التراكمي</th></tr></thead>
         <tbody>
-          <tr><td>الشهر 1</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 2</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 3</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 4</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 5</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 6</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 7</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 8</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 9</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 10</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 11</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
-          <tr><td>الشهر 12</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 1</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="0" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="312500" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 2</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="0" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="312500" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 3</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="0" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="312500" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 4</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="10781250" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="10296875" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 5</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="10781250" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="10296875" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 6</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="10781250" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="10296875" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 7</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="10781250" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="10296875" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 8</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="10781250" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="10296875" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 9</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="10781250" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="10296875" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 10</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="10781250" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="10296875" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 11</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="10781250" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="10296875" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
+          <tr><td>الشهر 12</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="10781250" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="10296875" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
       <p style="text-align:center;font-size:0.85rem;color:var(--text-secondary);">💡 املأ أول 3 أشهر يدوياً، ثم اضغط "ملء تلقائي" لتوزيع بقية السنة</p>
@@ -1031,7 +1220,7 @@
 
     <!-- ========== PAGE 16: FINANCIAL ANALYSIS ========== -->
     <div class="template-page" id="page-financial">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التحليل المالي</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التحليل المالي</div></div>
       <div class="page-header"><div class="section-number">19</div><div><h2>التحليل المالي الشامل</h2><p>الأرقام التي تحدد قرار الاستثمار</p></div></div>
       <div class="field-group inline-3">
         <div class="field-group"><label>إجمالي التكاليف الثابتة/شهر</label><input type="number" id="total-fixed" readonly tabindex="-1" placeholder="0" /></div>
@@ -1044,7 +1233,7 @@
         <div class="field-group"><label>نقطة التعادل (وحدة/شهر)</label><input type="number" id="break-even-units" readonly tabindex="-1" placeholder="0" /></div>
       </div>
       <div class="field-group inline-3">
-        <div class="field-group"><label>رأس المال المستثمر (ريال)</label><input type="number" id="capital-invested" placeholder="0" oninput="calcROI()" /></div>
+        <div class="field-group"><label>رأس المال المستثمر (ريال)</label><input type="number" id="capital-invested" value="45265000" oninput="calcROI()" /></div>
         <div class="field-group"><label>فترة الاسترداد (شهر)</label><input type="number" id="payback-period" readonly tabindex="-1" placeholder="سيُحسب" /></div>
         <div class="field-group"><label>العائد على الاستثمار ROI (%)</label><input type="number" id="roi-percent" readonly tabindex="-1" placeholder="سيُحسب" /></div>
       </div>
@@ -1055,20 +1244,20 @@
         <thead><tr><th colspan="2">الأصول</th><th colspan="2">الالتزامات وحقوق الملكية</th></tr></thead>
         <tbody>
           <tr>
-            <td style="text-align:right;font-weight:700;">الأصول المتداولة</td><td><input type="number" placeholder="0" /></td>
-            <td style="text-align:right;font-weight:700;">الالتزامات المتداولة</td><td><input type="number" placeholder="0" /></td>
+            <td style="text-align:right;font-weight:700;">الأصول المتداولة</td><td><input type="number" value="12500000" /></td>
+            <td style="text-align:right;font-weight:700;">الالتزامات المتداولة</td><td><input type="number" value="7500000" /></td>
           </tr>
           <tr>
-            <td style="text-align:right;font-weight:700;">الأصول الثابتة</td><td><input type="number" placeholder="0" /></td>
-            <td style="text-align:right;font-weight:700;">الالتزامات طويلة الأجل</td><td><input type="number" placeholder="0" /></td>
+            <td style="text-align:right;font-weight:700;">الأصول الثابتة</td><td><input type="number" value="31500000" /></td>
+            <td style="text-align:right;font-weight:700;">الالتزامات طويلة الأجل</td><td><input type="number" value="0" /></td>
           </tr>
           <tr>
             <td style="text-align:right;font-weight:700;"></td><td></td>
-            <td style="text-align:right;font-weight:700;">حقوق الملكية</td><td><input type="number" placeholder="0" /></td>
+            <td style="text-align:right;font-weight:700;">حقوق الملكية</td><td><input type="number" value="36500000" /></td>
           </tr>
           <tr style="background:rgba(212,168,83,0.1);">
-            <td style="text-align:right;font-weight:800;color:var(--gold);">إجمالي الأصول</td><td><input type="number" placeholder="0" /></td>
-            <td style="text-align:right;font-weight:800;color:var(--gold);">إجمالي الالتزامات + حقوق الملكية</td><td><input type="number" placeholder="0" /></td>
+            <td style="text-align:right;font-weight:800;color:var(--gold);">إجمالي الأصول</td><td><input type="number" value="44000000" /></td>
+            <td style="text-align:right;font-weight:800;color:var(--gold);">إجمالي الالتزامات + حقوق الملكية</td><td><input type="number" value="44000000" /></td>
           </tr>
         </tbody>
       </table>
@@ -1095,17 +1284,17 @@
 
     <!-- ========== PAGE 17: PRO FORMA FINANCIAL STATEMENTS ========== -->
     <div class="template-page" id="page-proforma">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — القوائم المالية التقديرية</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — القوائم المالية التقديرية</div></div>
       <div class="page-header"><div class="section-number">20</div><div><h2>القوائم المالية التقديرية (Pro Forma)</h2><p>التوقعات المالية للسنة الأولى</p></div></div>
 
       <h3 style="font-size:1rem;color:var(--gold);margin:1rem 0 0.5rem;">قائمة الدخل التقديرية (Income Statement)</h3>
       <table class="template-table" id="proforma-income">
         <thead><tr><th>البيان</th><th>الربع الأول</th><th>الربع الثاني</th><th>الربع الثالث</th><th>الربع الرابع</th><th>السنة الأولى</th></tr></thead>
         <tbody>
-          <tr><td style="font-weight:700;">إجمالي الإيرادات</td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>تكلفة المبيعات والتنفيذ</td><td><input type="number" class="pf-cogs" /></td><td><input type="number" class="pf-cogs" /></td><td><input type="number" class="pf-cogs" /></td><td><input type="number" class="pf-cogs" /></td><td><input type="number" class="pf-cogs-total" readonly tabindex="-1" /></td></tr>
+          <tr><td style="font-weight:700;">إجمالي الإيرادات</td><td><input type="number" class="pf-rev" value="0" /></td><td><input type="number" class="pf-rev" value="32343750" /></td><td><input type="number" class="pf-rev" value="32343750" /></td><td><input type="number" class="pf-rev" value="32343750" /></td><td><input type="number" class="pf-rev-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>تكلفة المبيعات والتنفيذ</td><td><input type="number" class="pf-cogs" value="1950000" /></td><td><input type="number" class="pf-cogs" value="114375000" /></td><td><input type="number" class="pf-cogs" value="114375000" /></td><td><input type="number" class="pf-cogs" value="114375000" /></td><td><input type="number" class="pf-cogs-total" readonly tabindex="-1" /></td></tr>
           <tr style="background:rgba(212,168,83,0.1);"><td style="font-weight:700;color:var(--gold);">إجمالي الربح الرأسمالي</td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross-total" readonly tabindex="-1" /></td></tr>
-          <tr><td>المصاريف العمومية والإدارية G&A</td><td><input type="number" class="pf-ga" /></td><td><input type="number" class="pf-ga" /></td><td><input type="number" class="pf-ga" /></td><td><input type="number" class="pf-ga" /></td><td><input type="number" class="pf-ga-total" readonly tabindex="-1" /></td></tr>
+          <tr><td>المصاريف العمومية والإدارية G&A</td><td><input type="number" class="pf-ga" value="650000" /></td><td><input type="number" class="pf-ga" value="1950000" /></td><td><input type="number" class="pf-ga" value="1950000" /></td><td><input type="number" class="pf-ga" value="1950000" /></td><td><input type="number" class="pf-ga-total" readonly tabindex="-1" /></td></tr>
           <tr style="background:rgba(212,168,83,0.1);"><td style="font-weight:700;color:var(--gold);">صافي الربح قبل الزكاة</td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net-total" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
@@ -1114,9 +1303,9 @@
       <table class="template-table" id="proforma-balance">
         <thead><tr><th colspan="2">الأصول</th><th colspan="2">حقوق الملكية والالتزامات</th></tr></thead>
         <tbody>
-          <tr><td>الأصول المتداولة (نقد + مستردات)</td><td><input type="number" class="pf-assets-c" /></td><td>رأس المال المصدر والمدفوع</td><td><input type="number" class="pf-equity-cap" /></td></tr>
-          <tr><td>أصول عقارية تحت التنفيذ</td><td><input type="number" class="pf-assets-wip" /></td><td>الأرباح المبقاة والمحتجزة</td><td><input type="number" class="pf-equity-ret" /></td></tr>
-          <tr><td>أصول ثابتة ومعدات</td><td><input type="number" class="pf-assets-f" /></td><td>الالتزامات المتداولة</td><td><input type="number" class="pf-liab-c" /></td></tr>
+          <tr><td>الأصول المتداولة (نقد + مستردات)</td><td><input type="number" class="pf-assets-c" value="12500000" /></td><td>رأس المال المصدر والمدفوع</td><td><input type="number" class="pf-equity-cap" value="45265000" /></td></tr>
+          <tr><td>أصول عقارية تحت التنفيذ</td><td><input type="number" class="pf-assets-wip" value="28000000" /></td><td>الأرباح المبقاة والمحتجزة</td><td><input type="number" class="pf-equity-ret" value="15000000" /></td></tr>
+          <tr><td>أصول ثابتة ومعدات</td><td><input type="number" class="pf-assets-f" value="3500000" /></td><td>الالتزامات المتداولة</td><td><input type="number" class="pf-liab-c" value="7500000" /></td></tr>
           <tr style="background:rgba(212,168,83,0.1);"><td style="font-weight:700;color:var(--gold);">إجمالي الأصول</td><td><input type="number" class="pf-assets-total" readonly tabindex="-1" /></td><td style="font-weight:700;color:var(--gold);">إجمالي حقوق الملكية + الالتزامات</td><td><input type="number" class="pf-equity-total" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
@@ -1125,7 +1314,7 @@
 
     <!-- ========== PAGE 18: SMART ANALYSIS ========== -->
     <div class="template-page" id="page-smart">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التحليل الذكي</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التحليل الذكي</div></div>
       <div class="page-header"><div class="section-number">21</div><div><h2>التحليل الذكي والتوصيات</h2><p>تحليل تلقائي للبيانات المدخلة مع توصيات عملية</p></div></div>
 
       <div id="smart-loading" style="text-align:center;padding:2rem;">
@@ -1194,7 +1383,7 @@
 
     <!-- ========== PAGE 18: SENSITIVITY + KPIs ========== -->
     <div class="template-page" id="page-sensitivity">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الحساسية</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الحساسية</div></div>
       <div class="page-header"><div class="section-number">22</div><div><h2>التحليل الحساسي والمؤشرات</h2><p>ماذا لو تغيرت المتغيرات الرئيسية؟</p></div></div>
       <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">تحليل الحساسية (±10%)</h3>
       <table class="template-table" id="sensitivity-table">
@@ -1210,11 +1399,12 @@
       <table class="template-table" id="kpi-table">
         <thead><tr><th>المؤشر</th><th>الهدف</th><th>الواقع</th><th>ملاحظات</th></tr></thead>
         <tbody>
-          <tr><td>معدل رضا العملاء</td><td><input type="text" placeholder="%" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
-          <tr><td>معدل تكرار الشراء</td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
-          <tr><td>تكلفة اكتساب عميل (CAC)</td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
-          <tr><td>قيمة العميل مدى الحياة (LTV)</td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
-          <tr><td>معدل دوران المخزون</td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td></tr>
+          <tr><td>معدل رضا العملاء</td><td><input type="text" value="85%" /></td><td><input type="text" value="80%" /></td><td><input type="text" value="تحسين خدمة ما بعد البيع" /></td></tr>
+          <tr><td>معدل بيع الوحدات/الدورة</td><td><input type="text" value="100%" /></td><td><input type="text" value="90%" /></td><td><input type="text" value="تعزيز التسويق المبكر" /></td></tr>
+          <tr><td>تكلفة اكتساب عميل (CAC)</td><td><input type="text" value="8,000 ريال" /></td><td><input type="text" value="8,500 ريال" /></td><td><input type="text" value="تحسين استهداف الحملات" /></td></tr>
+          <tr><td>قيمة العميل مدى الحياة (LTV)</td><td><input type="text" value="2,875,000 ريال" /></td><td><input type="text" value="2,500,000 ريال" /></td><td><input type="text" value="زيادة مبيعات الوحدات الفاخرة" /></td></tr>
+          <tr><td>معدل دوران المشاريع</td><td><input type="text" value="4 أشهر" /></td><td><input type="text" value="4.5 أشهر" /></td><td><input type="text" value="تحسين كفاءة المقاولين" /></td></tr>
+          <tr><td>نسبة السعودة</td><td><input type="text" value="90%" /></td><td><input type="text" value="85%" /></td><td><input type="text" value="برنامج توظيف وتدريب" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('kpi-table')">+ إضافة KPI</button><button onclick="removeRow('kpi-table')">- حذف</button></div>
@@ -1222,80 +1412,116 @@
 
     <!-- ========== PAGE 19: RISKS ========== -->
     <div class="template-page" id="page-risks">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — المخاطر</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — المخاطر</div></div>
       <div class="page-header"><div class="section-number">22</div><div><h2>المخاطر وخطط التخفيف</h2><p>حدد المخاطر مبكراً واستعد لها</p></div></div>
       <table class="template-table" id="risks-table">
         <thead><tr><th>م</th><th>الخطر</th><th>الاحتمالية</th><th>التأثير</th><th>خطة التخفيف</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" placeholder="تراجع الطلب" /></td><td><input type="text" placeholder="متوسط" /></td><td><input type="text" placeholder="عالي" /></td><td><input type="text" placeholder="تنويع المنتجات" /></td></tr>
-          <tr><td>2</td><td><input type="text" placeholder="ارتفاع التكاليف" /></td><td><input type="text" placeholder="عالي" /></td><td><input type="text" placeholder="متوسط" /></td><td><input type="text" placeholder="عقود ثابتة مع الموردين" /></td></tr>
-          <tr><td>3</td><td><input type="text" placeholder="منافس جديد" /></td><td><input type="text" placeholder="متوسط" /></td><td><input type="text" placeholder="متوسط" /></td><td><input type="text" placeholder="بناء ولاء العملاء" /></td></tr>
-          <tr><td>4</td><td><input type="text" placeholder="تغير تنظيمي" /></td><td><input type="text" placeholder="منخفض" /></td><td><input type="text" placeholder="عالي" /></td><td><input type="text" placeholder="متابعة القوانين" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="تأخر إصدار التراخيص الحكومية" /></td><td><input type="text" value="متوسط" /></td><td><input type="text" value="عالي" /></td><td><input type="text" value="فريق علاقات حكومية متخصص، عقود جزائية" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="ارتفاع أسعار مواد البناء" /></td><td><input type="text" value="عالي" /></td><td><input type="text" value="متوسط" /></td><td><input type="text" value="عقود ثابتة مع موردين، احتياطي 10%" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="مخاطر إنشائية غير متوقعة" /></td><td><input type="text" value="متوسط" /></td><td><input type="text" value="عالي" /></td><td><input type="text" value="فحص هندسي شامل، تأمين إنشائي" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="تباطؤ سوق العقارات" /></td><td><input type="text" value="منخفض" /></td><td><input type="text" value="عالي" /></td><td><input type="text" value="تنويع المشاريع جغرافياً، إيجار بديل للبيع" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="تأخر بيع الوحدات" /></td><td><input type="text" value="متوسط" /></td><td><input type="text" value="متوسط" /></td><td><input type="text" value="عروض تسويقية، شراكات بنوك للتمويل" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="نقص الكوادر الهندسية" /></td><td><input type="text" value="منخفض" /></td><td><input type="text" value="متوسط" /></td><td><input type="text" value="برنامج توظيف مستمر، تدريب مهندسين سعوديين" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('risks-table')">+ إضافة</button><button onclick="removeRow('risks-table')">- حذف</button></div>
-      <div class="field-group" style="margin-top:1.5rem;"><label>خطة الطوارئ (Plan B)</label><textarea rows="3" placeholder="ماذا ستفعل إن فشل المشروع في تحقيق أهدافه خلال 6 أشهر؟"></textarea></div>
+      <div class="field-group" style="margin-top:1.5rem;"><label>خطة الطوارئ (Plan B)</label><textarea rows="3">إذا تأخر تحقيق الأهداف 6 أشهر:
+1. تقليص حجم المشاريع إلى 30 مبنى بدلاً من 45
+2. إعادة تفاوض شروط الشراكة مع الملاك
+3. البحث عن تمويل إضافي من صناديق استثمارية
+4. تحويل بعض الوحدات للإيجار بدلاً من البيع</textarea></div>
     </div>
 
     <!-- ========== PAGE 20: CAPABILITY ========== -->
     <div class="template-page" id="page-capability">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — القدرات</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — القدرات</div></div>
       <div class="page-header"><div class="section-number">23</div><div><h2>القدرات والتأهيل</h2><p>هل تمتلك ما يلزم لإنجاح المشروع؟</p></div></div>
       <div class="checklist">
-        <li><input type="checkbox" /><span>هل لديك المهارات اللازمة لتنفيذ النشاط؟</span></li>
-        <li><input type="checkbox" /><span>هل يمكنك توفير المواد والأدوات المطلوبة؟</span></li>
-        <li><input type="checkbox" /><span>هل لديك خبرة كافية في هذا المجال؟</span></li>
-        <li><input type="checkbox" /><span>هل لديك موارد مالية كافية للبدء؟</span></li>
+        <li><input type="checkbox" checked /><span>هل لديك المهارات اللازمة لتنفيذ النشاط؟</span></li>
+        <li><input type="checkbox" checked /><span>هل يمكنك توفير المواد والأدوات المطلوبة؟</span></li>
+        <li><input type="checkbox" checked /><span>هل لديك خبرة كافية في هذا المجال؟</span></li>
+        <li><input type="checkbox" checked /><span>هل لديك موارد مالية كافية للبدء؟</span></li>
       </div>
-      <div class="field-group" style="margin-top:1rem;"><label>نقاط القوة الشخصية/الفريق</label><textarea rows="3" placeholder="خبرات سابقة، شهادات، علاقات..."></textarea></div>
-      <div class="field-group"><label>نقاط الضعف والفجوات</label><textarea rows="3" placeholder="ما تحتاج تطويره أو الاستعانة به من خارج..."></textarea></div>
-      <div class="field-group"><label>خطة سد الفجوات</label><textarea rows="2" placeholder="تدريب، توظيف، شراكة..."></textarea></div>
+      <div class="field-group" style="margin-top:1rem;"><label>نقاط القوة الشخصية/الفريق</label><textarea rows="3">• خبرة 15+ سنة في التطوير العقاري
+• علاقات قوية مع البلديات والهيئة العقارية
+• فريق هندسي متخصص في المباني المتعثرة
+• شبكة علاقات مع بنوك ومؤسسات تمويل</textarea></div>
+      <div class="field-group"><label>نقاط الضعف والفجوات</label><textarea rows="3">• الحاجة لتوظيف مهندسين سعوديين متخصصين
+• بناء قاعدة بيانات شاملة للمباني المتعثرة
+• تطوير نظام إدارة مشاريع رقمي متكامل</textarea></div>
+      <div class="field-group"><label>خطة سد الفجوات</label><textarea rows="2">• برنامج توظيف وتدريب مهندسين سعوديين
+• شراكة مع منصات عقارية لجمع البيانات
+• تطوير نظام ERP مخصص لإدارة المشاريع</textarea></div>
     </div>
 
     <!-- ========== PAGE 21: QUALITY + ESG + EXIT ========== -->
     <div class="template-page" id="page-quality">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الجودة</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الجودة</div></div>
       <div class="page-header"><div class="section-number">24</div><div><h2>الجودة والاستدامة وخطة الخروج</h2><p>معايير الجودة والتأثير الاجتماعي/البيئي</p></div></div>
-      <div class="field-group"><label>معايير الجودة</label><textarea rows="3" placeholder="كيف تضمن جودة المنتج/الخدمة؟ فحوصات، شكاوى العملاء، تحسين مستمر..."></textarea></div>
-      <div class="field-group"><label>التأثير الاجتماعي والبيئي (ESG)</label><textarea rows="3" placeholder="توظيف محلي، تقليل الهدر، التغليف المستدام، المسؤولية المجتمعية..."></textarea></div>
-      <div class="field-group"><label>خطة الخروج (Exit Strategy)</label><textarea rows="3" placeholder="البيع، الدمج، التوسع، التصفية... متى وكيف؟"></textarea></div>
-      <div class="field-group inline"><div class="field-group"><label>الأهداف الاجتماعية</label><textarea rows="2" placeholder="وظائف، تدريب، دعم المجتمع..."></textarea></div><div class="field-group"><label>الأهداف البيئية</label><textarea rows="2" placeholder="تقليل الكربون، إعادة التدوير..."></textarea></div></div>
+      <div class="field-group"><label>معايير الجودة</label><textarea rows="3">• فحص هندسي شامل لكل مبنى قبل الشراكة
+• إشراف مهندس معتمد على كل مرحلة إنشائية
+• شهادة إتمام بناء من البلدية قبل التسليم
+• نظام شكاوى عملاء مع متابعة 48 ساعة
+• ضمان هيكلي 10 سنوات على كل مشروع</textarea></div>
+      <div class="field-group"><label>التأثير الاجتماعي والبيئي (ESG)</label><textarea rows="3">• توظيف 25+ موظف سعودي (نسبة سعودة 90%)
+• تدريب 50 مهندس سعودي سنوياً
+• إعادة تأهيل 45 مبنى متعثر سنوياً (تقليل العشوائيات)
+• استخدام مواد صديقة للبيئة في التشطيب
+• تركيب أنظمة توفير الطاقة والمياه</textarea></div>
+      <div class="field-group"><label>خطة الخروج (Exit Strategy)</label><textarea rows="3">• السيناريو الأول: بيع الشركة لشركة تطوير عقاري كبرى بعد 5 سنوات
+• السيناريو الثاني: الاكتتاب في السوق المالية بعد تحقيق محفظة 200+ مبنى
+• السيناريو الثالث: استمرار التشغيل مع توزيع أرباح سنوية للمساهمين</textarea></div>
+      <div class="field-group inline"><div class="field-group"><label>الأهداف الاجتماعية</label><textarea rows="2">• توفير 100+ وظيفة سعودية خلال 3 سنوات
+• تدريب 150 مهندس سعودي
+• إحياء 135 مبنى متعثر في 3 سنوات</textarea></div><div class="field-group"><label>الأهداف البيئية</label><textarea rows="2">• تقليل البصمة الكربونية 20% مقارنة بالبناء التقليدي
+• تركيب أنظمة طاقة شمسية في 50% من المشاريع
+• إعادة تدوير 80% من مخلفات البناء</textarea></div></div>
     </div>
 
     <!-- ========== PAGE 22: CAPITAL + RESULTS ========== -->
     <div class="template-page" id="page-capital">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — رأس المال</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — رأس المال</div></div>
       <div class="page-header"><div class="section-number">25</div><div><h2>متطلبات رأس المال والنتائج</h2><p>الاستثمار الأولي والقرار النهائي</p></div></div>
       <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">الاستثمار الأولي</h3>
       <table class="template-table" id="capital-table">
         <thead><tr><th>م</th><th>بند الاستثمار</th><th>المبلغ (ريال)</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="تراخيص وتسجيل" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="تأثيث ومعدات" /></td><td><input type="number" class="cap-input" id="cap-tools" readonly tabindex="-1" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="تجهيز الموقع" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="مخزون أولي" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
-          <tr><td>5</td><td><input type="text" value="تسويق إطلاق" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" /></td></tr>
-          <tr><td>6</td><td><input type="text" value="رأس مال تشغيلي (3 أشهر)" /></td><td><input type="number" class="cap-input" id="cap-working" readonly tabindex="-1" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="تراخيص وتسجيل شركة" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" value="500000" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="تأثيث المقر الرئيسي" /></td><td><input type="number" class="cap-input" id="cap-tools" readonly tabindex="-1" value="800000" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="تجهيز الموقع والبنية التحتية" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" value="2000000" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="سيولة تشغيلية أولية (3 أشهر)" /></td><td><input type="number" class="cap-input" id="cap-working" readonly tabindex="-1" value="1950000" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="تسويق إطلاق وعلامة تجارية" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" value="1500000" /></td></tr>
+          <tr><td>6</td><td><input type="text" value="احتياطي طوارئ (10%)" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" value="4526500" /></td></tr>
+          <tr><td>7</td><td><input type="text" value="رأس مال استثماري للمشاريع (35 مليون)" /></td><td><input type="number" class="cap-input" oninput="calcCapital()" value="35000000" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('capital-table'); setTimeout(calcCapital,50)">+ إضافة</button><button onclick="removeRow('capital-table'); setTimeout(calcCapital,50)">- حذف</button></div>
       <div class="field-group inline" style="margin-top:1.5rem;">
         <div class="field-group"><label>إجمالي رأس المال المطلوب</label><input type="number" id="total-capital" readonly tabindex="-1" placeholder="0" /></div>
-        <div class="field-group"><label>المصدر المتوقع</label><input type="text" placeholder="تمويل ذاتي / قرض / مستثمر / منصة" /></div>
+        <div class="field-group"><label>المصدر المتوقع</label><input type="text" value="30% تمويل ذاتي (مؤسسون) + 70% مستثمرون استراتيجيون" /></div>
       </div>
-      <div class="field-group"><label>استراتيجية التمويل</label><textarea rows="3" placeholder="كيف ستؤمن التمويل؟ بأي شروط؟ متى؟"></textarea></div>
-      <div class="field-group"><label>النتائج الرئيسية</label><textarea rows="3" placeholder="أهم ما توصلت إليه من الدراسة..."></textarea></div>
-      <div class="field-group"><label>التوصيات والخطوات التالية</label><textarea rows="3" placeholder="ما الخطوة الأولى؟ من يبدأها؟ متى؟"></textarea></div>
-      <div class="field-group"><label>هل المشروع مجدي؟</label><select><option value="">اختر...</option><option value="yes">✅ نعم، مجدي</option><option value="no">❌ لا، غير مجدي</option><option value="conditional">⚠️ مجدي بشروط</option></select></div>
+      <div class="field-group"><label>استراتيجية التمويل</label><textarea rows="3">• 30% رأس مال ذاتي من المؤسسين (13.5 مليون ريال)
+• 70% من مستثمرين استراتيجيين (31.5 مليون ريال) عبر 2000 سهم بقيمة 25,500 ريال للسهم
+• دراسة إمكانية قرض بنكي إضافي بضمان الأصول العقارية</textarea></div>
+      <div class="field-group"><label>النتائج الرئيسية</label><textarea rows="3">1. العائد الداخلي المتوقع (IRR): 35-42%
+2. فترة الاسترداد: 18-24 شهر
+3. هامش الربح الصافي: 15%
+4. 45 مبنى متعثر مكتمل في السنة الأولى</textarea></div>
+      <div class="field-group"><label>التوصيات والخطوات التالية</label><textarea rows="3">1. تسجيل الشركة في الهيئة العامة للعقار
+2. إبرام عقود شراكة مع 3-5 ملاك مباني متعثرة
+3. توقيع عقود مع مقاولين معتمدين
+4. إطلاق حملة تسويقية للوحدات الأولى</textarea></div>
+      <div class="field-group"><label>هل المشروع مجدي؟</label><select><option value="">اختر...</option><option value="yes" selected>✅ نعم، مجدي</option><option value="no">❌ لا، غير مجدي</option><option value="conditional">⚠️ مجدي بشروط</option></select></div>
       <div class="signature-grid">
-        <div class="signature-box"><label>إعداد وتوقيع</label><input type="text" placeholder="الاسم والتوقيع" /></div>
-        <div class="signature-box"><label>التاريخ</label><input type="date" /></div>
+        <div class="signature-box"><label>إعداد وتوقيع</label><input type="text" value="المؤسس والرئيس التنفيذي" /></div>
+        <div class="signature-box"><label>التاريخ</label><input type="date" value="2026-06-03" /></div>
       </div>
     </div>
 
     <!-- ========== PAGE 23: EXECUTIVE DASHBOARD ========== -->
     <div class="template-page" id="page-dashboard">
-      <div class="template-header-print"><img src="../assets/site-logo.webp" alt="بوندز" /><div class="doc-title">لوحة التحكم التنفيذية — ملخص المستثمر</div></div>
+      <div class="template-header-print"><img src="../assets/bonds-logo-v2.webp" alt="بوندز" /><div class="doc-title">لوحة التحكم التنفيذية — ملخص المستثمر</div></div>
       <div class="page-header"><div class="section-number">26</div><div><h2>لوحة التحكم التنفيذية</h2><p>ملخص المستثمر في صفحة واحدة</p></div></div>
 
       <div class="dash-header">
@@ -4113,5 +4339,18 @@
     });
   }
 </script>
+<script>
+function updateDateTime() {
+  const now = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const dateStr = now.toLocaleDateString('ar-SA', options);
+  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+  const el = document.getElementById('header-datetime');
+  if (el) el.textContent = dateStr + ' | ' + timeStr;
+}
+setInterval(updateDateTime, 60000);
+updateDateTime();
+</script>
+<script src="usage-guard.js"></script>
 </body>
 </html>
