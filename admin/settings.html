@@ -93,7 +93,7 @@
       const { data: userData } = await window.BondsAuth?.getUser?.() || {};
       const user = userData?.user;
       if (!user) {
-        window.location.href = '../calculators/auth/index.html?redirect=' + encodeURIComponent(location.pathname);
+        document.getElementById('loading').textContent = 'يجب تسجيل الدخول للوصول إلى لوحة التحكم';
         return;
       }
       token = userData.session?.access_token || '';
