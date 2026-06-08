@@ -477,7 +477,8 @@
       }
     });
 
-    window.addEventListener('load',
+    window.addEventListener('load', initDashboard);
+    window.addEventListener('load', updateMsgBadge);
 
     function updateMsgBadge() {
       try {
@@ -487,8 +488,6 @@
         if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'inline-block' : 'none'; }
       } catch(e) {}
     }
-    window.addEventListener('load', updateMsgBadge);
- initDashboard);
   </script>
 
 </body>
