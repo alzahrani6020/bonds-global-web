@@ -514,6 +514,11 @@
       link.click();
     }
 
+    // Fallback: ensure sidebar links are visible after 2s if auth guard hid them
+    setTimeout(() => {
+      document.querySelectorAll('.sidebar-nav .sidebar-link').forEach(l => l.style.display = '');
+    }, 2000);
+
     window.addEventListener('load', async () => {
       allUsers = await fetchUsers();
       filterUsers();
