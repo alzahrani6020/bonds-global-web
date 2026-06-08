@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>المستخدمين | لوحة التحكم | بوندز</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6; --danger: #ef4444;
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Vazirmatn', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+    .admin-layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 260px; background: var(--bg-secondary); border-left: 1px solid var(--border);
+      padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;
+      position: fixed; right: 0; top: 0; bottom: 0; z-index: 100;
+    }
+    .sidebar-brand { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .sidebar-brand img { height: 40px; width: auto; border-radius: 6px; }
+    .sidebar-brand span { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+    .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; border-radius: 12px; color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s; }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(212,168,83,0.1); color: var(--gold); }
+    .sidebar-link svg { width: 20px; height: 20px; opacity: 0.7; }
+    .sidebar-footer { padding-top: 1rem; border-top: 1px solid var(--border); }
+    .sidebar-user { display: flex; align-items: center; gap: 0.75rem; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #0a0f1a; font-size: 0.85rem; }
+    .user-info { display: flex; flex-direction: column; }
+    .user-name { font-weight: 700; font-size: 0.85rem; }
+    .user-role { font-size: 0.75rem; color: var(--text-muted); }
+
+    .main-content { flex: 1; margin-right: 260px; padding: 2rem; }
+    .page-header { margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 800; }
+    .page-header p { color: var(--text-secondary); font-size: 0.9rem; }
+
+    .search-bar { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .search-input { flex: 1; max-width: 400px; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 0.9rem; }
+    .search-input::placeholder { color: var(--text-muted); }
+    .btn-sm { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
+    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #0a0f1a; }
+    .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--border); }
+
+    .table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
+    .table-header h3 { font-size: 1rem; font-weight: 700; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { text-align: right; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: rgba(16,24,45,0.9); }
+    .data-table td { padding: 1rem 1.5rem; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+    .data-table tr:hover td { background: rgba(212,168,83,0.05); }
+    .user-cell { display: flex; align-items: center; gap: 0.75rem; }
+    .user-cell__avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #0a0f1a; font-size: 0.8rem; }
+    .user-cell__name { font-weight: 700; color: var(--text); }
+    .user-cell__email { font-size: 0.75rem; color: var(--text-muted); }
+    .badge { display: inline-block; padding: 0.3rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
+    .badge--free { background: rgba(100,116,139,0.15); color: var(--text-secondary); }
+    .badge--pro { background: rgba(212,168,83,0.15); color: var(--gold); }
+    .badge--enterprise { background: rgba(168,85,247,0.15); color: #a855f7; }
+    .badge--active { background: rgba(34,197,94,0.15); color: var(--success); }
+    .badge--pending { background: rgba(234,179,8,0.15); color: var(--warning); }
+    .badge--inactive { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem; }
+    .page-btn { min-width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
+    .page-btn:hover, .page-btn.active { background: rgba(212,168,83,0.15); color: var(--gold); border-color: var(--gold); }
+
+    .loading { color: var(--text-muted); font-style: italic; text-align: center; padding: 2rem; }
+    .demo-badge { display: inline-block; background: rgba(234,179,8,0.2); color: var(--warning); font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; margin-right: 0.5rem; }
+
+    @media (max-width: 1024px) {
+      .sidebar { width: 80px; padding: 1rem; }
+      .sidebar-brand span, .sidebar-link span, .user-info { display: none; }
+      .sidebar-link { justify-content: center; padding: 0.85rem; }
+      .main-content { margin-right: 80px; }
+    }
+    @media (max-width: 768px) {
+      .data-table th, .data-table td { padding: 0.75rem; font-size: 0.8rem; }
+      .user-cell__email { display: none; }
+    }
+  </style>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="admin-auth.js"></script>
+</head>
+<body>
+
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="../assets/bonds-logo-header.webp" alt="بوندز" />
+        <span>بوندز</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>الرئيسية</span>
+        </a>
+        <a href="users.html" class="sidebar-link active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>المستخدمين</span>
+        </a>
+        <a href="subscriptions.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <span>الاشتراكات</span>
+        </a>
+        <a href="messages.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>الرسائل</span> <span id="msgBadge" style="display:none;background:#ef4444;color:#fff;font-size:0.65rem;padding:0.1rem 0.4rem;border-radius:50px;margin-right:auto;">0</span>
+        </a>
+        <a href="roles.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>الصلاحيات</span>
+        </a>
+        <a href="analytics.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+          <span>التحليلات</span>
+        </a>
+        <a href="../calculators/dashboard.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>موقع المستخدم</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar">م</div>
+          <div class="user-info">
+            <span class="user-name">مدير النظام</span>
+            <span class="user-role">Admin</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1>المستخدمين <span id="demoIndicator" class="demo-badge" style="display:none;">Demo</span></h1>
+          <p>إدارة وعرض جميع مستخدمي المنصة</p>
+        </div>
+        <button class="btn-sm btn-primary" onclick="refreshData()">↻ تحديث</button>
+        <button class="btn-sm btn-secondary" onclick="exportCSV()">⬇ تصدير CSV</button>
+      </div>
+
+      <div class="search-bar">
+        <input type="text" class="search-input" id="searchInput" placeholder="البحث بالاسم أو البريد..." oninput="filterUsers()" />
+        <select class="search-input" id="tierFilter" onchange="filterUsers()" style="max-width:160px;">
+          <option value="">كل الخطط</option>
+          <option value="free">Free</option>
+          <option value="pro">Pro</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+        <select class="search-input" id="statusFilter" onchange="filterUsers()" style="max-width:160px;">
+          <option value="">كل الحالات</option>
+          <option value="active">نشط</option>
+          <option value="inactive">غير نشط</option>
+          <option value="pending">معلق</option>
+        </select>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <h3>👤 قائمة المستخدمين</h3>
+          <span id="usersCount" style="color:var(--text-muted);font-size:0.85rem;">—</span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>المستخدم</th>
+              <th>البريد / الهاتف</th>
+              <th>الدولة</th>
+              <th>الخطة</th>
+              <th>الحالة</th>
+              <th>تاريخ التسجيل</th>
+            </tr>
+          </thead>
+          <tbody id="usersTable">
+            <tr><td colspan="6" class="loading">جارِ التحميل...</td></tr>
+          </tbody>
+        </table>
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let allUsers = [];
+    let filteredUsers = [];
+    let currentPage = 1;
+    const pageSize = 10;
+
+    async function fetchUsers() {
+      try {
+        const res = await fetch('/api/admin-stats');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+        if (data.demo) document.getElementById('demoIndicator').style.display = 'inline-block';
+        return data.recentUsers || [];
+      } catch (e) {
+        document.getElementById('demoIndicator').style.display = 'inline-block';
+        return [
+          { id: '1', restaurant_name: 'أحمد محمد', email: 'ahmed@example.com', phone: '+966501234567', country: 'SA', tier: 'pro', status: 'active', created_at: '2026-06-07T00:00:00Z' },
+          { id: '2', restaurant_name: 'سارة عبدالله', email: 'sara@example.com', phone: '+971501234567', country: 'AE', tier: 'enterprise', status: 'active', created_at: '2026-06-06T00:00:00Z' },
+          { id: '3', restaurant_name: 'محمد علي', email: 'mohammed@example.com', phone: '+201012345678', country: 'EG', tier: 'free', status: 'active', created_at: '2026-06-05T00:00:00Z' },
+          { id: '4', restaurant_name: 'فاطمة الزهراء', email: 'fatima@example.com', phone: '+962791234567', country: 'JO', tier: 'pro', status: 'pending', created_at: '2026-06-04T00:00:00Z' },
+          { id: '5', restaurant_name: 'خالد عمر', email: 'khaled@example.com', phone: '+96550123456', country: 'KW', tier: 'free', status: 'active', created_at: '2026-06-03T00:00:00Z' },
+          { id: '6', restaurant_name: 'نورا سالم', email: 'nora@example.com', phone: '+97450123456', country: 'QA', tier: 'pro', status: 'active', created_at: '2026-06-02T00:00:00Z' },
+          { id: '7', restaurant_name: 'يوسف إبراهيم', email: 'youssef@example.com', phone: '+97350123456', country: 'BH', tier: 'free', status: 'inactive', created_at: '2026-06-01T00:00:00Z' },
+          { id: '8', restaurant_name: 'ليلى حسن', email: 'layla@example.com', phone: '+96850123456', country: 'OM', tier: 'enterprise', status: 'active', created_at: '2026-05-30T00:00:00Z' },
+        ];
+      }
+    }
+
+    function tierBadge(tier) {
+      const map = { free: 'badge--free', pro: 'badge--pro', enterprise: 'badge--enterprise' };
+      const labels = { free: 'Free', pro: 'Pro', enterprise: 'Enterprise' };
+      return `<span class="badge ${map[tier] || 'badge--free'}">${labels[tier] || tier}</span>`;
+    }
+
+    function statusBadge(status) {
+      const map = { active: 'badge--active', inactive: 'badge--inactive', pending: 'badge--pending', trialing: 'badge--warning', past_due: 'badge--danger' };
+      const labels = { active: 'نشط', inactive: 'غير نشط', pending: 'معلق', trialing: 'تجريبي', past_due: 'متأخر' };
+      return `<span class="badge ${map[status] || 'badge--pending'}">${labels[status] || status}</span>`;
+    }
+
+    function countryLabel(code) {
+      const map = { SA: 'السعودية', AE: 'الإمارات', EG: 'مصر', KW: 'الكويت', QA: 'قطر', BH: 'البحرين', OM: 'عمان', JO: 'الأردن', IQ: 'العراق', LB: 'لبنان', MA: 'المغرب', DZ: 'الجزائر', TN: 'تونس', TR: 'تركيا', US: 'أمريكا', GB: 'بريطانيا', IN: 'الهند' };
+      return map[code] || code;
+    }
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('usersTable');
+      const start = (currentPage - 1) * pageSize;
+      const page = filteredUsers.slice(start, start + pageSize);
+
+      if (page.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="loading">لا يوجد نتائج</td></tr>';
+        document.getElementById('usersCount').textContent = '0 مستخدم';
+        return;
+      }
+
+      tbody.innerHTML = page.map(u => {
+        const name = u.restaurant_name || 'مستخدم جديد';
+        return `
+          <tr>
+            <td>
+              <div class="user-cell">
+                <div class="user-cell__avatar">${name.charAt(0)}</div>
+                <div>
+                  <div class="user-cell__name">${name}</div>
+                  <div class="user-cell__email">${u.id.slice(0, 8)}...</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div style="font-size:0.8rem;color:var(--text);">${u.email || '-'}</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);">${u.phone || ''}</div>
+            </td>
+            <td>${countryLabel(u.country)}</td>
+            <td>${tierBadge(u.tier)}</td>
+            <td>${statusBadge(u.status)}</td>
+            <td>${formatDate(u.created_at)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('usersCount').textContent = filteredUsers.length + ' مستخدم';
+      renderPagination();
+    }
+
+    function renderPagination() {
+      const totalPages = Math.ceil(filteredUsers.length / pageSize);
+      const container = document.getElementById('pagination');
+      if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+      let html = '';
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function goToPage(p) { currentPage = p; renderTable(); }
+
+    function filterUsers() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const tier = document.getElementById('tierFilter').value;
+      const status = document.getElementById('statusFilter').value;
+
+      filteredUsers = allUsers.filter(u => {
+        const name = (u.restaurant_name || '').toLowerCase();
+        const matchQ = !q || name.includes(q) || u.id.includes(q);
+        const matchTier = !tier || u.tier === tier;
+        const matchStatus = !status || u.status === status;
+        return matchQ && matchTier && matchStatus;
+      });
+
+      currentPage = 1;
+      renderTable();
+    }
+
+    async function refreshData() {
+      document.getElementById('usersTable').innerHTML = '<tr><td colspan="6" class="loading">جارِ التحديث...</td></tr>';
+      allUsers = await fetchUsers();
+      filterUsers();
+    }
+
+    window.addEventListener('load', async () => {
+
+    function exportCSV() {
+      const headers = ['Name','Country','Plan','Status','Joined'];
+      const rows = filteredUsers.map(u => [
+        u.restaurant_name || 'New User',
+        u.country || '',
+        u.tier || 'free',
+        u.status || 'active',
+        new Date(u.created_at).toISOString().slice(0,10)
+      ]);
+      let csv = '﻿' + headers.join(',') + '
+';
+      rows.forEach(r => { csv += r.map(x => '"' + String(x).replace(/"/g,'""') + '"').join(',') + '
+'; });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'bonds-users-' + new Date().toISOString().slice(0,10) + '.csv';
+      link.click();
+    }
+
+    function updateMsgBadge() {
+      try {
+        const msgs = JSON.parse(localStorage.getItem('bonds_contact_messages') || '[]');
+        const unread = msgs.filter(m => !m.read).length;
+        const badge = document.getElementById('msgBadge');
+        if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'inline-block' : 'none'; }
+      } catch(e) {}
+    }
+    window.addEventListener('load', updateMsgBadge);
+
+      allUsers = await fetchUsers();
+      filterUsers();
+    });
+  </script>
+
+</body>
+</html>

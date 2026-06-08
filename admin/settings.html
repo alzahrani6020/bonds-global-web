@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>الإعدادات | بوندز</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/api/env"></script>
+  <script src="../supabase-client.js"></script>
+  <script src="../auth-guard.js"></script>
+  <script src="admin-auth.js"></script>
+  <style>
+    body { background: var(--bg); color: var(--text); font-family: 'Vazirmatn', sans-serif; min-height: 100vh; }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-sidebar { width: 260px; background: var(--surface); border-left: 1px solid var(--border); padding: 2rem 1rem; position: fixed; inset: 0 auto 0 0; overflow-y: auto; }
+    .admin-sidebar a { display: block; padding: 0.75rem 1rem; border-radius: 8px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; margin-bottom: 0.25rem; transition: all 0.2s; }
+    .admin-sidebar a:hover, .admin-sidebar a.active { background: rgba(212,168,83,0.1); color: var(--gold); }
+    .admin-main { flex: 1; margin-right: 260px; padding: 2rem; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .admin-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--gold); }
+    .card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; }
+    .card h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 1rem; color: var(--text); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.4rem; }
+    .form-group input { width: 100%; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid var(--border-light); background: rgba(255,255,255,0.03); color: var(--text); font-size: 0.9rem; }
+    .btn-save { background: var(--gold); color: var(--bg); border: none; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 800; cursor: pointer; }
+    .btn-save:hover { opacity: 0.9; }
+    .success-msg { color: #22c55e; font-size: 0.9rem; margin-top: 0.5rem; }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { margin-right: 0; } .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div style="padding: 0 1rem 1.5rem;"><img src="../assets/bonds-logo-v2.webp" alt="Bonds" style="height: 32px;"></div>
+      <a href="dashboard.html">📊 لوحة التحكم</a>
+      <a href="users.html">👥 المستخدمين</a>
+      <a href="subscriptions.html">💳 الاشتراكات</a>
+      <a href="bank-transfers.html">🏦 التحويلات البنكية</a>
+      <a href="exceptions.html">⭐ استثناءات العملاء</a>
+      <a href="settings.html" class="active">⚙️ الإعدادات</a>
+      <a href="analytics.html">📈 الإحصائيات</a>
+      <a href="messages.html">📨 الرسائل</a>
+      <a href="roles.html">🔐 الأدوار</a>
+      <a href="../index.html" style="margin-top: 2rem; color: #ef4444;">🚪 خروج</a>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>⚙️ الإعدادات</h1>
+        <div id="adminInfo" style="font-size: 0.85rem; color: var(--text-secondary);"></div>
+      </div>
+
+      <div class="card">
+        <h3>📊 حدود الاستخدام المجانية</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>استخدامات الحاسبات المجانية</label>
+            <input type="number" id="calcLimit" value="3" min="0">
+          </div>
+          <div class="form-group">
+            <label>استخدامات دراسة الجدوى المجانية</label>
+            <input type="number" id="feasLimit" value="1" min="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>💰 الأسعار (ريال سعودي)</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>سعر Pro / شهر</label>
+            <input type="number" id="pricePro" value="82" min="0">
+          </div>
+          <div class="form-group">
+            <label>سعر Enterprise / شهر</label>
+            <input type="number" id="priceEnt" value="212" min="0">
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-save" onclick="saveSettings()">💾 حفظ التغييرات</button>
+      <div id="saveMsg"></div>
+    </main>
+  </div>
+
+  <script>
+    let token = '';
+
+    async function init() {
+      const { data: userData } = await window.BondsAuth?.getUser?.() || {};
+      const user = userData?.user;
+      if (!user) {
+        window.location.href = '../calculators/auth/index.html?redirect=' + encodeURIComponent(location.pathname);
+        return;
+      }
+      token = userData.session?.access_token || '';
+      document.getElementById('adminInfo').textContent = user.email;
+      loadSettings();
+    }
+
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/admin?action=settings', { headers: { 'Authorization': 'Bearer ' + token } });
+        const settings = await res.json();
+        if (settings.calc_limit) document.getElementById('calcLimit').value = settings.calc_limit;
+        if (settings.feas_limit) document.getElementById('feasLimit').value = settings.feas_limit;
+        if (settings.price_pro_sar) document.getElementById('pricePro').value = settings.price_pro_sar;
+        if (settings.price_enterprise_sar) document.getElementById('priceEnt').value = settings.price_enterprise_sar;
+      } catch (e) { console.error(e); }
+    }
+
+    async function saveSettings() {
+      const btn = document.querySelector('.btn-save');
+      btn.disabled = true; btn.textContent = 'جاري الحفظ...';
+
+      try {
+        const res = await fetch('/api/admin?action=settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({
+            calc_limit: document.getElementById('calcLimit').value,
+            feas_limit: document.getElementById('feasLimit').value,
+            price_pro_sar: document.getElementById('pricePro').value,
+            price_enterprise_sar: document.getElementById('priceEnt').value,
+          }),
+        });
+        if (res.ok) {
+          document.getElementById('saveMsg').textContent = '✅ تم الحفظ بنجاح';
+          setTimeout(() => document.getElementById('saveMsg').textContent = '', 3000);
+        } else {
+          throw new Error('Failed');
+        }
+      } catch (e) {
+        document.getElementById('saveMsg').textContent = '❌ فشل الحفظ';
+      } finally {
+        btn.disabled = false; btn.textContent = '💾 حفظ التغييرات';
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

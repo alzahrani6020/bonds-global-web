@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>الإحصائيات | بوندز</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/api/env"></script>
+  <script src="../supabase-client.js"></script>
+  <script src="../auth-guard.js"></script>
+  <script src="admin-auth.js"></script>
+  <style>
+    body { background: var(--bg); color: var(--text); font-family: 'Vazirmatn', sans-serif; min-height: 100vh; }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-sidebar { width: 260px; background: var(--surface); border-left: 1px solid var(--border); padding: 2rem 1rem; position: fixed; inset: 0 auto 0 0; overflow-y: auto; }
+    .admin-sidebar a { display: block; padding: 0.75rem 1rem; border-radius: 8px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; margin-bottom: 0.25rem; transition: all 0.2s; }
+    .admin-sidebar a:hover, .admin-sidebar a.active { background: rgba(212,168,83,0.1); color: var(--gold); }
+    .admin-main { flex: 1; margin-right: 260px; padding: 2rem; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .admin-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--gold); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; text-align: center; }
+    .stat-card .value { font-size: 2rem; font-weight: 900; color: var(--gold); margin-bottom: 0.25rem; }
+    .stat-card .label { font-size: 0.85rem; color: var(--text-secondary); }
+    .card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; }
+    .card h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 1rem; color: var(--text); }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { text-align: right; padding: 1rem; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    .data-table td { padding: 1rem; font-size: 0.9rem; border-bottom: 1px solid var(--border); }
+    .bar { height: 8px; background: rgba(212,168,83,0.15); border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
+    .bar-fill { height: 100%; background: var(--gold); border-radius: 4px; }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { margin-right: 0; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div style="padding: 0 1rem 1.5rem;"><img src="../assets/bonds-logo-v2.webp" alt="Bonds" style="height: 32px;"></div>
+      <a href="dashboard.html">📊 لوحة التحكم</a>
+      <a href="users.html">👥 المستخدمين</a>
+      <a href="subscriptions.html">💳 الاشتراكات</a>
+      <a href="bank-transfers.html">🏦 التحويلات البنكية</a>
+      <a href="exceptions.html">⭐ استثناءات العملاء</a>
+      <a href="settings.html">⚙️ الإعدادات</a>
+      <a href="analytics.html" class="active">📈 الإحصائيات</a>
+      <a href="messages.html">📨 الرسائل</a>
+      <a href="roles.html">🔐 الأدوار</a>
+      <a href="../index.html" style="margin-top: 2rem; color: #ef4444;">🚪 خروج</a>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>📈 الإحصائيات</h1>
+        <div id="adminInfo" style="font-size: 0.85rem; color: var(--text-secondary);"></div>
+      </div>
+
+      <div id="loading" style="text-align:center;padding:3rem;">جاري التحميل...</div>
+
+      <div id="content" style="display:none">
+        <!-- Overview -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="value" id="totalUsers">0</div>
+            <div class="label">إجمالي المستخدمين</div>
+          </div>
+          <div class="stat-card">
+            <div class="value" id="proUsers">0</div>
+            <div class="label">Pro</div>
+          </div>
+          <div class="stat-card">
+            <div class="value" id="entUsers">0</div>
+            <div class="label">Enterprise</div>
+          </div>
+          <div class="stat-card">
+            <div class="value" id="totalRevenue">0</div>
+            <div class="label">إيرادات شهرية (ر.س)</div>
+          </div>
+          <div class="stat-card">
+            <div class="value" id="totalUses">0</div>
+            <div class="label">استخدامات (30 يوم)</div>
+          </div>
+          <div class="stat-card">
+            <div class="value" id="pendingTransfers">0</div>
+            <div class="label">تحويلات معلقة</div>
+          </div>
+        </div>
+
+        <!-- Calculator Usage -->
+        <div class="card">
+          <h3>📊 أكثر الحاسبات استخداماً</h3>
+          <div id="calcUsage"></div>
+        </div>
+
+        <!-- Revenue Breakdown -->
+        <div class="card">
+          <h3>💰 تفصيل الإيرادات</h3>
+          <div class="data-table">
+            <table>
+              <tr><td>Stripe (اشتراكات نشطة)</td><td id="stripeRev" style="font-weight:800;color:var(--gold);">0 ر.س</td></tr>
+              <tr><td>تحويلات بنكية (مُفعّلة)</td><td id="bankRev" style="font-weight:800;color:var(--gold);">0 ر.س</td></tr>
+              <tr><td><strong>الإجمالي</strong></td><td id="totalRev" style="font-weight:800;color:var(--gold);">0 ر.س</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let token = '';
+
+    async function init() {
+      const { data: userData } = await window.BondsAuth?.getUser?.() || {};
+      const user = userData?.user;
+      if (!user) {
+        window.location.href = '../calculators/auth/index.html?redirect=' + encodeURIComponent(location.pathname);
+        return;
+      }
+      token = userData.session?.access_token || '';
+      document.getElementById('adminInfo').textContent = user.email;
+      loadAnalytics();
+    }
+
+    async function loadAnalytics() {
+      try {
+        const res = await fetch('/api/admin?action=analytics', { headers: { 'Authorization': 'Bearer ' + token } });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+
+        document.getElementById('totalUsers').textContent = data.users.total;
+        document.getElementById('proUsers').textContent = data.users.pro;
+        document.getElementById('entUsers').textContent = data.users.enterprise;
+        document.getElementById('totalRevenue').textContent = data.revenue.total;
+        document.getElementById('totalUses').textContent = data.usage.total;
+        document.getElementById('pendingTransfers').textContent = data.pendingTransfers;
+
+        // Calculator usage bars
+        const calcData = data.usage.byCalculator;
+        const max = Math.max(...Object.values(calcData), 1);
+        let calcHtml = '';
+        for (const [name, count] of Object.entries(calcData).sort((a,b) => b[1]-a[1])) {
+          const pct = Math.round((count / max) * 100);
+          calcHtml += `<div style="margin-bottom:1rem;">
+            <div style="display:flex;justify-content:space-between;font-size:0.9rem;margin-bottom:0.3rem;">
+              <span>${name}</span><span style="color:var(--gold);font-weight:700;">${count}</span>
+            </div>
+            <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+          </div>`;
+        }
+        document.getElementById('calcUsage').innerHTML = calcHtml || '<p style="color:var(--text-secondary);">لا يوجد بيانات</p>';
+
+        document.getElementById('stripeRev').textContent = data.revenue.stripe + ' ر.س';
+        document.getElementById('bankRev').textContent = data.revenue.bank + ' ر.س';
+        document.getElementById('totalRev').textContent = data.revenue.total + ' ر.س';
+      } catch (e) {
+        document.getElementById('loading').textContent = 'خطأ في التحميل';
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+// ============================================
+// Admin Auth Guard
+// Include this script in all admin pages
+// Loads Supabase, verifies admin access
+// ============================================
+
+(function() {
+  const AUTH_CONTAINER_ID = 'admin-auth-guard';
+
+  function createOverlay() {
+    if (document.getElementById(AUTH_CONTAINER_ID)) return;
+    const div = document.createElement('div');
+    div.id = AUTH_CONTAINER_ID;
+    div.innerHTML = `
+      <div id="admin-auth-overlay" style="position:fixed;inset:0;background:#0a0f1a;z-index:9999;display:flex;align-items:center;justify-content:center;font-family:Vazirmatn,Inter,system-ui,sans-serif;">
+        <div style="text-align:center;max-width:400px;padding:2rem;">
+          <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
+          <h2 style="color:#e8ecf4;margin-bottom:0.5rem;">التحقق من الصلاحيات...</h2>
+          <p id="admin-auth-status" style="color:#94a3b8;">جارِ التحقق من صلاحية الوصول الإداري</p>
+          <button id="admin-auth-login" style="display:none;margin-top:1.5rem;padding:0.75rem 2rem;border-radius:10px;border:none;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0a0f1a;font-weight:800;font-size:0.9rem;cursor:pointer;" onclick="
+          const isEn = document.documentElement.lang === 'en';
+          const loginPath = isEn ? '../../en/calculators/auth/index.html' : '../calculators/auth/index.html';
+          window.location.href = loginPath + '?redirect=' + encodeURIComponent(location.href)
+">تسجيل الدخول</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(div);
+  }
+
+  function setStatus(text, showLogin) {
+    const el = document.getElementById('admin-auth-status');
+    if (el) el.textContent = text;
+    const btn = document.getElementById('admin-auth-login');
+    if (btn) btn.style.display = showLogin ? 'inline-block' : 'none';
+  }
+
+  function removeOverlay() {
+    const el = document.getElementById(AUTH_CONTAINER_ID);
+    if (el) el.remove();
+  }
+
+  async function verifyAdmin() {
+    createOverlay();
+
+    // Wait for Supabase library
+    let attempts = 0;
+    while (typeof supabase === 'undefined' && attempts < 50) {
+      await new Promise(r => setTimeout(r, 100));
+      attempts++;
+    }
+    if (typeof supabase === 'undefined') {
+      setStatus('فشل تحميل مكتبة المصادقة', true);
+      return;
+    }
+
+    // Get session
+    const client = supabase.createClient(window.__ENV?.SUPABASE_URL || '', window.__ENV?.SUPABASE_ANON_KEY || '');
+    const { data: { session } } = await client.auth.getSession();
+
+    if (!session) {
+      setStatus('يجب تسجيل الدخول للوصول إلى لوحة التحكم', true);
+      return;
+    }
+
+    setStatus('جارِ التحقق من صلاحية المسؤول...');
+
+    try {
+      const res = await fetch('/api/admin?action=verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token }
+      });
+      const data = await res.json();
+
+      if (!data.success || !data.isAdmin) {
+        setStatus('ليس لديك صلاحية الوصول إلى لوحة التحكم الإدارية', true);
+        return;
+      }
+
+      // Store permissions globally
+      window.__ADMIN_ROLE = data.role || 'viewer';
+      window.__ADMIN_PERMS = data.permissions || [];
+      function hasPerm(p) { return window.__ADMIN_PERMS.includes(p); }
+
+      // Apply sidebar permissions
+      document.querySelectorAll('.sidebar-nav .sidebar-link').forEach(link => {
+        const href = link.getAttribute('href') || '';
+        let required = null;
+        if (href.includes('users')) required = 'users';
+        if (href.includes('subscriptions')) required = 'subscriptions';
+        if (href.includes('messages')) required = 'messages';
+        if (href.includes('roles')) required = 'roles';
+        if (href.includes('analytics')) required = 'analytics';
+        if (required && !hasPerm(required)) link.style.display = 'none';
+      });
+
+      // Show admin badge
+      if (data.demo) {
+        const header = document.querySelector('.page-header h1');
+        if (header && !document.getElementById('admin-demo-badge')) {
+          const badge = document.createElement('span');
+          badge.id = 'admin-demo-badge';
+          badge.className = 'demo-badge';
+          badge.style.cssText = 'display:inline-block;background:rgba(234,179,8,0.2);color:#eab308;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:4px;margin-right:0.5rem;';
+          badge.textContent = 'Demo ACL';
+          header.appendChild(badge);
+        }
+      }
+
+      // Hide write actions for viewers
+      if (!hasPerm('users_write')) {
+        document.querySelectorAll('.btn-danger, [onclick*="delete"]').forEach(b => b.style.display = 'none');
+      }
+      if (!hasPerm('export')) {
+        document.querySelectorAll('[onclick*="exportCSV"]').forEach(b => b.style.display = 'none');
+      }
+
+      removeOverlay();
+      window.dispatchEvent(new Event('admin-auth-ready'));
+
+    } catch (e) {
+      console.error('[AdminAuth]', e);
+      setStatus('خطأ في التحقق من الصلاحيات', true);
+    }
+  }
+
+  // Expose for manual retry
+  window.retryAdminAuth = verifyAdmin;
+
+  // Run when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', verifyAdmin);
+  } else {
+    verifyAdmin();
+  }
+})();

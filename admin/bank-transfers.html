@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>طلبات التحويل البنكي | بوندز</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/api/env"></script>
+  <script src="../supabase-client.js"></script>
+  <script src="../auth-guard.js"></script>
+  <script src="admin-auth.js"></script>
+  <style>
+    body { background: var(--bg); color: var(--text); font-family: 'Vazirmatn', sans-serif; min-height: 100vh; }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-sidebar { width: 260px; background: var(--surface); border-left: 1px solid var(--border); padding: 2rem 1rem; position: fixed; inset: 0 auto 0 0; overflow-y: auto; }
+    .admin-sidebar a { display: block; padding: 0.75rem 1rem; border-radius: 8px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; margin-bottom: 0.25rem; transition: all 0.2s; }
+    .admin-sidebar a:hover, .admin-sidebar a.active { background: rgba(212,168,83,0.1); color: var(--gold); }
+    .admin-main { flex: 1; margin-right: 260px; padding: 2rem; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .admin-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--gold); }
+    .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .status-pending { background: rgba(234,179,8,0.15); color: #eab308; }
+    .status-verified { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .status-rejected { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { text-align: right; padding: 1rem; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+    .data-table td { padding: 1rem; font-size: 0.9rem; border-bottom: 1px solid var(--border); }
+    .data-table tr:hover { background: rgba(255,255,255,0.02); }
+    .btn-sm { padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; }
+    .btn-verify { background: var(--gold); color: var(--bg); }
+    .btn-verify:hover { opacity: 0.9; }
+    .btn-reject { background: transparent; color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+    .btn-reject:hover { background: rgba(239,68,68,0.1); }
+    .empty-state { text-align: center; padding: 4rem; color: var(--text-secondary); }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { margin-right: 0; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div style="padding: 0 1rem 1.5rem;">
+        <img src="../assets/bonds-logo-v2.webp" alt="Bonds" style="height: 32px;">
+      </div>
+      <a href="dashboard.html">📊 لوحة التحكم</a>
+      <a href="users.html">👥 المستخدمين</a>
+      <a href="subscriptions.html">💳 الاشتراكات</a>
+      <a href="bank-transfers.html" class="active">🏦 التحويلات البنكية</a>
+      <a href="analytics.html">📈 الإحصائيات</a>
+      <a href="messages.html">📨 الرسائل</a>
+      <a href="roles.html">🔐 الأدوار</a>
+      <a href="../index.html" style="margin-top: 2rem; color: #ef4444;">🚪 خروج</a>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>🏦 طلبات التحويل البنكي</h1>
+        <div id="adminInfo" style="font-size: 0.85rem; color: var(--text-secondary);"></div>
+      </div>
+
+      <div id="loading" style="text-align:center;padding:3rem;">جاري التحميل...</div>
+      <div id="tableContainer" style="display:none;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th>الاسم</th>
+              <th>البريد</th>
+              <th>الجوال</th>
+              <th>الباقة</th>
+              <th>المبلغ</th>
+              <th>الحالة</th>
+              <th>إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="requestsBody"></tbody>
+        </table>
+      </div>
+      <div id="emptyState" class="empty-state" style="display:none;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+        <p>لا توجد طلبات تحويل بنكي حالياً</p>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    async function init() {
+      const { data: userData } = await window.BondsAuth?.getUser?.() || {};
+      const user = userData?.user;
+      if (!user) {
+        window.location.href = '../calculators/auth/index.html?redirect=' + encodeURIComponent(location.pathname);
+        return;
+      }
+      const token = userData.session?.access_token || '';
+      document.getElementById('adminInfo').textContent = user.email;
+      loadRequests(token);
+    }
+
+    async function loadRequests(token) {
+      try {
+        const res = await fetch('/api/admin?action=bank-transfers', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const json = await res.json();
+
+        document.getElementById('loading').style.display = 'none';
+
+        if (!json.data?.length) {
+          document.getElementById('emptyState').style.display = 'block';
+          return;
+        }
+
+        const tbody = document.getElementById('requestsBody');
+        tbody.innerHTML = json.data.map(r => {
+          const date = new Date(r.created_at).toLocaleDateString('ar-SA');
+          const statusClass = r.status === 'pending' ? 'status-pending' : r.status === 'verified' ? 'status-verified' : 'status-rejected';
+          const statusText = r.status === 'pending' ? 'قيد الانتظار' : r.status === 'verified' ? 'مُفعل' : 'مرفوض';
+          const actions = r.status === 'pending'
+            ? `<button class="btn-sm btn-verify" onclick="updateStatus('${r.id}', 'verified', '${token}')">✅ تفعيل</button>
+               <button class="btn-sm btn-reject" onclick="updateStatus('${r.id}', 'rejected', '${token}')">❌ رفض</button>`
+            : '<span style="color:var(--text-secondary);font-size:0.8rem;">—</span>';
+          return `<tr>
+            <td>${date}</td>
+            <td style="font-weight:700;">${escapeHtml(r.name)}</td>
+            <td>${escapeHtml(r.email)}</td>
+            <td>${escapeHtml(r.phone || '-')}</td>
+            <td><span style="text-transform:uppercase;font-weight:700;color:var(--gold);">${r.tier}</span></td>
+            <td>${r.amount_sar} ر.س</td>
+            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            <td style="display:flex;gap:0.5rem;">${actions}</td>
+          </tr>`;
+        }).join('');
+
+        document.getElementById('tableContainer').style.display = 'block';
+      } catch (e) {
+        document.getElementById('loading').textContent = 'خطأ في التحميل';
+      }
+    }
+
+    async function updateStatus(id, action, token) {
+      if (!confirm(action === 'verified' ? 'تأكيد تفعيل هذا الاشتراك؟' : 'تأكيد رفض هذا الطلب؟')) return;
+      try {
+        const res = await fetch('/api/admin?action=bank-transfers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ id, action })
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert(action === 'verified' ? '✅ تم التفعيل' : '❌ تم الرفض');
+          location.reload();
+        } else {
+          alert(json.error || 'خطأ');
+        }
+      } catch (e) {
+        alert('فشل الاتصال');
+      }
+    }
+
+    function escapeHtml(t) {
+      const d = document.createElement('div');
+      d.textContent = t;
+      return d.innerHTML;
+    }
+
+    init();
+  </script>
+</body>
+</html>

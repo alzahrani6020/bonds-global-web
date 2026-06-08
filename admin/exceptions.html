@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>استثناءات العملاء | بوندز</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/api/env"></script>
+  <script src="../supabase-client.js"></script>
+  <script src="../auth-guard.js"></script>
+  <script src="admin-auth.js"></script>
+  <style>
+    body { background: var(--bg); color: var(--text); font-family: 'Vazirmatn', sans-serif; min-height: 100vh; }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-sidebar { width: 260px; background: var(--surface); border-left: 1px solid var(--border); padding: 2rem 1rem; position: fixed; inset: 0 auto 0 0; overflow-y: auto; }
+    .admin-sidebar a { display: block; padding: 0.75rem 1rem; border-radius: 8px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; margin-bottom: 0.25rem; transition: all 0.2s; }
+    .admin-sidebar a:hover, .admin-sidebar a.active { background: rgba(212,168,83,0.1); color: var(--gold); }
+    .admin-main { flex: 1; margin-right: 260px; padding: 2rem; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .admin-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--gold); }
+    .card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; }
+    .card h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 1rem; color: var(--text); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.4rem; }
+    .form-group input, .form-group select { width: 100%; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid var(--border-light); background: rgba(255,255,255,0.03); color: var(--text); font-size: 0.9rem; }
+    .btn-add { background: var(--gold); color: var(--bg); border: none; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 800; cursor: pointer; }
+    .data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .data-table th { text-align: right; padding: 1rem; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    .data-table td { padding: 1rem; font-size: 0.9rem; border-bottom: 1px solid var(--border); }
+    .btn-del { background: transparent; color: #ef4444; border: 1px solid rgba(239,68,68,0.3); padding: 0.3rem 0.7rem; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
+    .empty { text-align: center; padding: 3rem; color: var(--text-secondary); }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { margin-right: 0; } .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div style="padding: 0 1rem 1.5rem;"><img src="../assets/bonds-logo-v2.webp" alt="Bonds" style="height: 32px;"></div>
+      <a href="dashboard.html">📊 لوحة التحكم</a>
+      <a href="users.html">👥 المستخدمين</a>
+      <a href="subscriptions.html">💳 الاشتراكات</a>
+      <a href="bank-transfers.html">🏦 التحويلات البنكية</a>
+      <a href="exceptions.html" class="active">⭐ استثناءات العملاء</a>
+      <a href="settings.html">⚙️ الإعدادات</a>
+      <a href="analytics.html">📈 الإحصائيات</a>
+      <a href="messages.html">📨 الرسائل</a>
+      <a href="roles.html">🔐 الأدوار</a>
+      <a href="../index.html" style="margin-top: 2rem; color: #ef4444;">🚪 خروج</a>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>⭐ استثناءات العملاء</h1>
+        <div id="adminInfo" style="font-size: 0.85rem; color: var(--text-secondary);"></div>
+      </div>
+
+      <div class="card">
+        <h3>➕ إضافة استثناء</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>معرف المستخدم (UUID)</label>
+            <input type="text" id="excUserId" placeholder="uuid من صفحة المستخدمين">
+          </div>
+          <div class="form-group">
+            <label>الحاسبة</label>
+            <select id="excCalc">
+              <option value="all">جميع الحاسبات</option>
+              <option value="cash-flow">Cash Flow</option>
+              <option value="feasibility">دراسة الجدوى</option>
+              <option value="break-even">نقطة التعادل</option>
+              <option value="restaurant">مطعم</option>
+              <option value="menu-engineering">هندسة المنيو</option>
+              <option value="dish-margin">هامش الطبق</option>
+              <option value="loan">القروض</option>
+              <option value="pricing">التسعير</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>الحد الجديد</label>
+            <input type="number" id="excLimit" value="9999" min="0">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label>السبب</label>
+          <input type="text" id="excReason" placeholder="مثال: عميل VIP, عرض ترويجي..." style="width:100%;">
+        </div>
+        <button class="btn-add" onclick="addException()">➕ إضافة استثناء</button>
+        <div id="addMsg"></div>
+      </div>
+
+      <div class="card">
+        <h3>📋 الاستثناءات الحالية</h3>
+        <div id="loading" style="text-align:center;padding:2rem;">جاري التحميل...</div>
+        <div id="tableWrap" style="display:none;">
+          <table class="data-table">
+            <thead>
+              <tr><th>المستخدم</th><th>الحاسبة</th><th>الحد</th><th>السبب</th><th>التاريخ</th><th>حذف</th></tr>
+            </thead>
+            <tbody id="excBody"></tbody>
+          </table>
+        </div>
+        <div id="emptyState" class="empty" style="display:none;">لا توجد استثناءات</div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let token = '';
+
+    async function init() {
+      const { data: userData } = await window.BondsAuth?.getUser?.() || {};
+      const user = userData?.user;
+      if (!user) {
+        window.location.href = '../calculators/auth/index.html?redirect=' + encodeURIComponent(location.pathname);
+        return;
+      }
+      token = userData.session?.access_token || '';
+      document.getElementById('adminInfo').textContent = user.email;
+      loadExceptions();
+    }
+
+    async function loadExceptions() {
+      try {
+        const res = await fetch('/api/admin?action=exceptions', { headers: { 'Authorization': 'Bearer ' + token } });
+        const json = await res.json();
+        document.getElementById('loading').style.display = 'none';
+
+        if (!json.data?.length) {
+          document.getElementById('emptyState').style.display = 'block';
+          return;
+        }
+
+        const tbody = document.getElementById('excBody');
+        tbody.innerHTML = json.data.map(e => {
+          const date = new Date(e.created_at).toLocaleDateString('ar-SA');
+          const user = e.profiles?.restaurant_name || e.profiles?.email || e.user_id.substring(0,8);
+          return `<tr>
+            <td>${user}</td>
+            <td>${e.calculator === 'all' ? 'الكل' : e.calculator}</td>
+            <td style="color:var(--gold);font-weight:800;">${e.limit_override}</td>
+            <td>${e.reason || '-'}</td>
+            <td>${date}</td>
+            <td><button class="btn-del" onclick="deleteExc('${e.id}')">🗑 حذف</button></td>
+          </tr>`;
+        }).join('');
+        document.getElementById('tableWrap').style.display = 'block';
+      } catch (e) { document.getElementById('loading').textContent = 'خطأ في التحميل'; }
+    }
+
+    async function addException() {
+      const btn = document.querySelector('.btn-add');
+      btn.disabled = true; btn.textContent = 'جاري الإضافة...';
+
+      try {
+        const res = await fetch('/api/admin?action=exceptions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({
+            user_id: document.getElementById('excUserId').value.trim(),
+            calculator: document.getElementById('excCalc').value,
+            limit_override: parseInt(document.getElementById('excLimit').value),
+            reason: document.getElementById('excReason').value,
+          }),
+        });
+        if (res.ok) {
+          document.getElementById('addMsg').textContent = '✅ تم الإضافة';
+          setTimeout(() => { document.getElementById('addMsg').textContent = ''; location.reload(); }, 1000);
+        } else throw new Error('Failed');
+      } catch (e) {
+        document.getElementById('addMsg').textContent = '❌ فشل الإضافة — تأكد من UUID';
+      } finally {
+        btn.disabled = false; btn.textContent = '➕ إضافة استثناء';
+      }
+    }
+
+    async function deleteExc(id) {
+      if (!confirm('حذف هذا الاستثناء؟')) return;
+      try {
+        const res = await fetch('/api/admin?action=exceptions?id=' + id, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token },
+        });
+        if (res.ok) location.reload();
+      } catch (e) { alert('فشل الحذف'); }
+    }
+
+    init();
+  </script>
+</body>
+</html>
