@@ -63,6 +63,30 @@
       <div class="error-msg" id="errorMsg"></div>
       <div class="info-msg" id="infoMsg"></div>
 
+      <script>
+      // Inline toggleEdit — runs immediately, no dependency on async script below
+      (function(){
+        var _orig = {};
+        window.toggleEdit = function(enable) {
+          var editBtn = document.getElementById('btnEdit');
+          var cancelBtn = document.getElementById('btnCancel');
+          var saveBtn = document.getElementById('saveBtn');
+          var fields = ['restaurantName','phone','country','city','neighborhood','businessType','employeeCount','bio','needs','avatarUrl'];
+          var timeIds = ['peakStartH','peakStartM','peakStartAmpm','peakEndH','peakEndM','peakEndAmpm','rushStartH','rushStartM','rushStartAmpm','rushEndH','rushEndM','rushEndAmpm'];
+          if (enable) {
+            fields.forEach(function(id){ var el=document.getElementById(id); if(el) _orig[id]=el.value||''; });
+            editBtn.style.display='none'; cancelBtn.style.display='inline-flex'; saveBtn.style.display='flex';
+          } else {
+            fields.forEach(function(id){ var el=document.getElementById(id); if(el) el.value=_orig[id]||''; });
+            editBtn.style.display='inline-flex'; cancelBtn.style.display='none'; saveBtn.style.display='none';
+          }
+          fields.forEach(function(id){ var el=document.getElementById(id); if(el) el.disabled=!enable; });
+          timeIds.forEach(function(id){ var el=document.getElementById(id); if(el) el.disabled=!enable; });
+          document.getElementById('uploadBtn').disabled=!enable;
+          document.getElementById('avatarFile').disabled=!enable;
+        };
+      })();
+      </script>
       <div class="edit-bar">
         <button type="button" class="btn btn-secondary" id="btnEdit" onclick="toggleEdit(true)">✏️ تعديل الملف</button>
         <button type="button" class="btn btn-primary" id="btnCancel" style="display:none;" onclick="toggleEdit(false)">❌ إلغاء</button>
