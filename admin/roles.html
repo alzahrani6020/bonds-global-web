@@ -200,23 +200,23 @@
     ];
 
     async function fetchRoles() {
-      try {
-        let token = window.__ADMIN_TOKEN || '';
-        if (!token && typeof supabase !== 'undefined' && window.__ENV?.SUPABASE_URL) {
-          const client = supabase.createClient(window.__ENV.SUPABASE_URL, window.__ENV.SUPABASE_ANON_KEY);
-          const { data: { session } } = await client.auth.getSession();
-          token = session?.access_token || '';
-        }
-        const res = await fetch('/api/admin?action=roles', {
-          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error);
-        return data.roles || [];
-      } catch (e) {
-        return DEMO_ROLES;
+      let token = window.__ADMIN_TOKEN || '';
+      if (!token && typeof supabase !== 'undefined' && window.__ENV?.SUPABASE_URL) {
+        const client = supabase.createClient(window.__ENV.SUPABASE_URL, window.__ENV.SUPABASE_ANON_KEY);
+        const { data: { session } } = await client.auth.getSession();
+        token = session?.access_token || '';
       }
+      if (!token) throw new Error('No token — please login');
+      const res = await fetch('/api/admin?action=roles', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error('HTTP ' + res.status + ': ' + errText);
+      }
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      return data.roles || [];
     }
 
     function roleBadge(role) {
@@ -231,13 +231,13 @@
     }
 
     async function renderRoles() {
-      const roles = await fetchRoles();
       const tbody = document.getElementById('rolesTable');
-
-      if (roles.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="loading">لا يوجد مشرفين مسجّلين</td></tr>';
-        return;
-      }
+      try {
+        const roles = await fetchRoles();
+        if (roles.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="loading">لا يوجد مشرفين مسجّلين</td></tr>';
+          return;
+        }
 
       tbody.innerHTML = roles.map(r => {
         const name = r.profiles?.restaurant_name || 'مستخدم';
@@ -261,6 +261,10 @@
           </tr>
         `;
       }).join('');
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="4" style="color:var(--danger);text-align:center;padding:2rem;">خطأ: ' + e.message + '</td></tr>';
+        console.error('[Roles]', e);
+      }
     }
 
     async function addAdmin() {
