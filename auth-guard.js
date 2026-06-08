@@ -25,6 +25,11 @@
 
     updateUI(user, profile);
 
+    // Check profile completion once per session
+    if (user && profile) {
+      checkProfileCompletion(user, profile);
+    }
+
     // Listen for auth state changes
     const sb = window.BondsAuth.getSupabase();
     if (sb) {
@@ -40,6 +45,84 @@
         updateUI(u, pr);
       });
     }
+  }
+
+  function isProfileComplete(profile) {
+    return profile && profile.city && profile.business_type && profile.bio && profile.needs && profile.employee_count;
+  }
+
+  async function checkProfileCompletion(user, profile) {
+    if (sessionStorage.getItem('bonds_profile_checked')) return;
+    sessionStorage.setItem('bonds_profile_checked', '1');
+    if (isProfileComplete(profile)) return;
+
+    // Show profile completion modal
+    const modal = document.createElement('div');
+    modal.id = 'profileCompleteModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(10,15,26,0.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:99999;padding:1rem;';
+    modal.innerHTML = `
+      <div style="background:#0d1321;border:1px solid rgba(212,168,83,0.25);border-radius:20px;max-width:480px;width:100%;padding:2rem;box-shadow:0 20px 60px rgba(0,0,0,0.6);position:relative;overflow:hidden;font-family:Vazirmatn,system-ui,sans-serif;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#d4a853,#f0c96a,#d4a853);"></div>
+        <div style="font-size:3rem;margin-bottom:0.75rem;text-align:center;">👋</div>
+        <h2 style="text-align:center;color:#d4a853;font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;">أكمل معلوماتك</h2>
+        <p style="text-align:center;color:#94a3b8;font-size:0.9rem;margin-bottom:1.5rem;line-height:1.7;">ساعدنا في تقديم استشارة أفضل بإكمال بياناتك الأساسية.</p>
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div>
+            <label style="display:block;color:#94a3b8;font-size:0.8rem;font-weight:700;margin-bottom:0.35rem;">المدينة</label>
+            <input type="text" id="pcm_city" placeholder="مثال: الرياض" style="width:100%;padding:0.75rem 1rem;border-radius:10px;border:1px solid rgba(212,168,83,0.2);background:rgba(255,255,255,0.03);color:#e8ecf4;font-family:inherit;font-size:0.9rem;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;color:#94a3b8;font-size:0.8rem;font-weight:700;margin-bottom:0.35rem;">النشاط التجاري</label>
+            <input type="text" id="pcm_business" placeholder="مثال: مطعم، مقهى، مصنع..." style="width:100%;padding:0.75rem 1rem;border-radius:10px;border:1px solid rgba(212,168,83,0.2);background:rgba(255,255,255,0.03);color:#e8ecf4;font-family:inherit;font-size:0.9rem;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;color:#94a3b8;font-size:0.8rem;font-weight:700;margin-bottom:0.35rem;">عدد الرواد / الموظفين</label>
+            <input type="number" id="pcm_employees" placeholder="0" style="width:100%;padding:0.75rem 1rem;border-radius:10px;border:1px solid rgba(212,168,83,0.2);background:rgba(255,255,255,0.03);color:#e8ecf4;font-family:inherit;font-size:0.9rem;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;color:#94a3b8;font-size:0.8rem;font-weight:700;margin-bottom:0.35rem;">نبذة عن عملك</label>
+            <textarea id="pcm_bio" placeholder="وصف مختصر للنشاط..." style="width:100%;padding:0.75rem 1rem;border-radius:10px;border:1px solid rgba(212,168,83,0.2);background:rgba(255,255,255,0.03);color:#e8ecf4;font-family:inherit;font-size:0.9rem;outline:none;min-height:70px;resize:vertical;"></textarea>
+          </div>
+          <div>
+            <label style="display:block;color:#94a3b8;font-size:0.8rem;font-weight:700;margin-bottom:0.35rem;">احتياجاتك (لتقييم الاستشارة)</label>
+            <textarea id="pcm_needs" placeholder="ما تحتاجه من الاستشارة..." style="width:100%;padding:0.75rem 1rem;border-radius:10px;border:1px solid rgba(212,168,83,0.2);background:rgba(255,255,255,0.03);color:#e8ecf4;font-family:inherit;font-size:0.9rem;outline:none;min-height:70px;resize:vertical;"></textarea>
+          </div>
+        </div>
+        <div id="pcm_error" style="color:#ef4444;font-size:0.85rem;margin-top:0.75rem;text-align:center;display:none;"></div>
+        <div style="display:flex;gap:0.75rem;justify-content:center;margin-top:1.5rem;">
+          <button id="pcm_save" style="flex:1;padding:0.75rem;border-radius:10px;border:none;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0a0f1a;font-weight:800;font-size:0.95rem;cursor:pointer;transition:all 0.3s;">💾 حفظ المعلومات</button>
+          <button id="pcm_skip" style="padding:0.75rem 1.25rem;border-radius:10px;border:1px solid rgba(212,168,83,0.2);background:transparent;color:#94a3b8;font-weight:700;font-size:0.9rem;cursor:pointer;">لاحقاً</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.querySelector('#pcm_skip').addEventListener('click', () => modal.remove());
+    modal.querySelector('#pcm_save').addEventListener('click', async () => {
+      const city = document.getElementById('pcm_city').value.trim();
+      const business_type = document.getElementById('pcm_business').value.trim();
+      const employee_count = parseInt(document.getElementById('pcm_employees').value) || 0;
+      const bio = document.getElementById('pcm_bio').value.trim();
+      const needs = document.getElementById('pcm_needs').value.trim();
+      const errEl = document.getElementById('pcm_error');
+
+      if (!city || !business_type || !bio || !needs) {
+        errEl.textContent = 'يرجى ملء جميع الحقول المطلوبة';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const sb = window.BondsAuth.getSupabase();
+      if (!sb) { errEl.textContent = 'خطأ في الاتصال'; errEl.style.display = 'block'; return; }
+
+      const { error } = await sb.from('profiles').update({ city, business_type, employee_count, bio, needs, updated_at: new Date().toISOString() }).eq('id', user.id);
+      if (error) {
+        errEl.textContent = 'خطأ: ' + error.message;
+        errEl.style.display = 'block';
+        return;
+      }
+      modal.remove();
+    });
   }
 
   function updateUI(user, profile) {
