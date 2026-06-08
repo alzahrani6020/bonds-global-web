@@ -242,7 +242,7 @@ async function getUsers(sb) {
   if (authErr) throw authErr;
   const authUsers = authList?.users || [];
 
-  const { data: profileList, error: profileErr } = await sb.from('profiles').select('id, restaurant_name, email, phone, country, tier, status, created_at');
+  const { data: profileList, error: profileErr } = await sb.from('profiles').select('id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, tier, status, created_at');
   if (profileErr) throw profileErr;
 
   const profileMap = {};
@@ -256,6 +256,11 @@ async function getUsers(sb) {
       email: u.email,
       phone: p.phone || u.phone || '',
       country: p.country || u.user_metadata?.country || '',
+      city: p.city || '',
+      business_type: p.business_type || '',
+      bio: p.bio || '',
+      needs: p.needs || '',
+      employee_count: p.employee_count || 0,
       tier: p.tier || 'free',
       status: p.status || 'active',
       created_at: u.created_at
@@ -267,11 +272,16 @@ async function getUsers(sb) {
 
 async function updateUser(sb, body, admin) {
   if (!admin) throw new Error('Admin required');
-  const { id, tier, status } = body;
+  const { id, tier, status, city, business_type, bio, needs, employee_count } = body;
   if (!id) throw new Error('id required');
   const updates = {};
-  if (tier) updates.tier = tier;
-  if (status) updates.status = status;
+  if (tier !== undefined) updates.tier = tier;
+  if (status !== undefined) updates.status = status;
+  if (city !== undefined) updates.city = city;
+  if (business_type !== undefined) updates.business_type = business_type;
+  if (bio !== undefined) updates.bio = bio;
+  if (needs !== undefined) updates.needs = needs;
+  if (employee_count !== undefined) updates.employee_count = employee_count;
   updates.updated_at = new Date().toISOString();
   const { error } = await sb.from('profiles').update(updates).eq('id', id);
   if (error) throw error;
@@ -283,6 +293,15 @@ async function deleteUser(sb, body, admin) {
   const { id } = body;
   if (!id) throw new Error('id required');
   const { error } = await sb.from('profiles').delete().eq('id', id);
+  if (error) throw error;
+  return { success: true };
+}
+
+async function resetPassword(sb, body, admin) {
+  if (!admin) throw new Error('Admin required');
+  const { id, password } = body;
+  if (!id || !password || password.length < 6) throw new Error('id and password (min 6 chars) required');
+  const { error } = await sb.auth.admin.updateUserById(id, { password });
   if (error) throw error;
   return { success: true };
 }
@@ -436,6 +455,7 @@ module.exports = async function handler(req, res) {
         const subAction = req.body?.action;
         if (subAction === 'update') return res.status(200).json(await updateUser(sb, req.body, admin));
         if (subAction === 'delete') return res.status(200).json(await deleteUser(sb, req.body, admin));
+        if (subAction === 'reset-password') return res.status(200).json(await resetPassword(sb, req.body, admin));
         return res.status(400).json({ error: 'Invalid sub-action' });
       }
       if (action === 'messages') {

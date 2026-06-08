@@ -1,0 +1,1 @@
+-- ============================================-- Add extended profile fields for admin user view-- ============================================ALTER TABLE public.profiles  ADD COLUMN IF NOT EXISTS city text,  ADD COLUMN IF NOT EXISTS business_type text,  ADD COLUMN IF NOT EXISTS bio text,  ADD COLUMN IF NOT EXISTS needs text,  ADD COLUMN IF NOT EXISTS employee_count integer;
