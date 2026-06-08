@@ -107,14 +107,16 @@
       return;
     }
 
-    // DO NOT increment on page load — only when user actually calculates
-    // setLocalUses(calc, localUses + 1);
-    if (userId) {
-      fetch('/api/usage?action=log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, calculator: calc }),
-      }).catch(() => {});
+    // Increment usage counter (page load counts as usage for free users)
+    if (!server?.admin) {
+      setLocalUses(calc, localUses + 1);
+      if (userId) {
+        fetch('/api/usage?action=log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, calculator: calc }),
+        }).catch(() => {});
+      }
     }
   }
 
