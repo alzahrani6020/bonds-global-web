@@ -26,8 +26,9 @@
     updateUI(user, profile);
 
     // Check profile completion once per session
-    if (user && profile) {
-      checkProfileCompletion(user, profile);
+    if (user) {
+      const pr = profile || {};
+      checkProfileCompletion(user, pr);
     }
 
     // Listen for auth state changes
@@ -52,9 +53,15 @@
   }
 
   async function checkProfileCompletion(user, profile) {
-    if (sessionStorage.getItem('bonds_profile_checked')) return;
-    sessionStorage.setItem('bonds_profile_checked', '1');
-    if (isProfileComplete(profile)) return;
+    // Use localStorage with date to show once per day max
+    const lastCheck = localStorage.getItem('bonds_profile_checked_at');
+    const today = new Date().toISOString().slice(0,10);
+    if (lastCheck === today) return;
+
+    if (isProfileComplete(profile)) {
+      localStorage.setItem('bonds_profile_checked_at', today);
+      return;
+    }
 
     // Show profile completion modal
     const modal = document.createElement('div');
@@ -97,7 +104,10 @@
     `;
     document.body.appendChild(modal);
 
-    modal.querySelector('#pcm_skip').addEventListener('click', () => modal.remove());
+    modal.querySelector('#pcm_skip').addEventListener('click', () => {
+      localStorage.setItem('bonds_profile_checked_at', new Date().toISOString().slice(0,10));
+      modal.remove();
+    });
     modal.querySelector('#pcm_save').addEventListener('click', async () => {
       const city = document.getElementById('pcm_city').value.trim();
       const business_type = document.getElementById('pcm_business').value.trim();
@@ -115,12 +125,16 @@
       const sb = window.BondsAuth.getSupabase();
       if (!sb) { errEl.textContent = 'خطأ في الاتصال'; errEl.style.display = 'block'; return; }
 
-      const { error } = await sb.from('profiles').update({ city, business_type, employee_count, bio, needs, updated_at: new Date().toISOString() }).eq('id', user.id);
+      const { error } = await sb.from('profiles').upsert({
+        id: user.id, city, business_type, employee_count, bio, needs,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'id' });
       if (error) {
         errEl.textContent = 'خطأ: ' + error.message;
         errEl.style.display = 'block';
         return;
       }
+      localStorage.setItem('bonds_profile_checked_at', new Date().toISOString().slice(0,10));
       modal.remove();
     });
   }
