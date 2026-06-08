@@ -89,12 +89,18 @@
         .eq('user_id', session.user.id)
         .single();
 
+      let role;
       if (roleError || !roleRow) {
-        setStatus('ليس لديك صلاحية الوصول إلى لوحة التحكم الإدارية', true);
-        return;
+        // Fallback: owner email gets super_admin if no role record exists
+        if (session.user.email === 'iiffund.dev@gmail.com') {
+          role = 'super_admin';
+        } else {
+          setStatus('ليس لديك صلاحية الوصول إلى لوحة التحكم الإدارية', true);
+          return;
+        }
+      } else {
+        role = roleRow.role;
       }
-
-      const role = roleRow.role;
       const perms = ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.viewer;
       window.__ADMIN_ROLE = role;
       window.__ADMIN_PERMS = perms;

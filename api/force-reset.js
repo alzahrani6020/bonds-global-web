@@ -40,6 +40,20 @@ module.exports = async function handler(req, res) {
 
     if (updateError) throw updateError;
 
+    // Ensure admin role exists
+    const { data: existingRole } = await sb
+      .from('admin_roles')
+      .select('role')
+      .eq('user_id', profile.id)
+      .single();
+
+    if (!existingRole) {
+      await sb.from('admin_roles').insert({
+        user_id: profile.id,
+        role: 'super_admin'
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: 'تم تغيير كلمة المرور بنجاح! يمكنك تسجيل الدخول الآن.'
