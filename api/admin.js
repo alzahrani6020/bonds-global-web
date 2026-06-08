@@ -145,6 +145,77 @@ async function verifyAdminUser(req, sb) {
   return { user, role: role.role };
 }
 
+// ── Messages ────────────────────────────────────────────────
+async function getMessages(sb) {
+  const { data, error } = await sb.from('contact_messages').select('*').order('created_at', { ascending: false });
+  if (error) throw error;
+  return { success: true, messages: data || [] };
+}
+
+async function updateMessage(sb, body) {
+  const { action: subAction, id } = body;
+  if (!id) throw new Error('id required');
+  if (subAction === 'mark_read') {
+    const { error } = await sb.from('contact_messages').update({ read: true }).eq('id', id);
+    if (error) throw error;
+    return { success: true };
+  }
+  if (subAction === 'delete') {
+    const { error } = await sb.from('contact_messages').delete().eq('id', id);
+    if (error) throw error;
+    return { success: true };
+  }
+  throw new Error('Invalid sub-action');
+}
+
+// ── Roles ───────────────────────────────────────────────────
+async function getRoles(sb) {
+  const { data, error } = await sb.from('admin_roles').select('*, profiles:user_id(restaurant_name, email)').order('created_at', { ascending: false });
+  if (error) throw error;
+  return { success: true, roles: data || [] };
+}
+
+async function addRole(sb, body, admin) {
+  if (!admin) throw new Error('Admin required');
+  const { email, role } = body;
+  if (!email || !role) throw new Error('email and role required');
+  const { data: users } = await sb.from('profiles').select('id').eq('email', email).limit(1);
+  if (!users?.length) throw new Error('User not found');
+  const { error } = await sb.from('admin_roles').insert({ user_id: users[0].id, role }).select().single();
+  if (error) throw error;
+  return { success: true };
+}
+
+async function removeRole(sb, body, admin) {
+  if (!admin) throw new Error('Admin required');
+  const { id } = body;
+  if (!id) throw new Error('id required');
+  const { error } = await sb.from('admin_roles').delete().eq('id', id);
+  if (error) throw error;
+  return { success: true };
+}
+
+// ── Users ───────────────────────────────────────────────────
+async function getUsers(sb) {
+  const { data, error } = await sb.from('profiles').select('id, restaurant_name, email, phone, country, tier, status, created_at').order('created_at', { ascending: false });
+  if (error) throw error;
+  return { success: true, recentUsers: data || [] };
+}
+
+// ── Subscriptions ───────────────────────────────────────────
+async function getSubscriptions(sb) {
+  const { data: subs, error: subsError } = await sb.from('subscriptions').select('user_id, tier, status, current_period_end, created_at').order('created_at', { ascending: false });
+  if (subsError) throw subsError;
+  const { count: proCount } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'pro');
+  const { count: entCount } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'enterprise');
+  const monthlyRevenue = (proCount || 0) * 82 + (entCount || 0) * 212;
+  return {
+    success: true,
+    stats: { proUsers: proCount || 0, enterpriseUsers: entCount || 0, monthlyRevenue },
+    recentSubscriptions: subs || []
+  };
+}
+
 // ── Stats ───────────────────────────────────────────────────
 async function getStats(sb) {
   const [
@@ -208,6 +279,14 @@ module.exports = async function handler(req, res) {
         return res.status(200).json(await getExceptions(sb, admin));
       }
       if (action === 'stats') { return res.status(200).json(await getStats(sb)); }
+      if (action === 'messages') { return res.status(200).json(await getMessages(sb)); }
+      if (action === 'roles') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getRoles(sb));
+      }
+      if (action === 'users') { return res.status(200).json(await getUsers(sb)); }
+      if (action === 'subscriptions') { return res.status(200).json(await getSubscriptions(sb)); }
       if (action === 'analytics') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
@@ -243,6 +322,19 @@ module.exports = async function handler(req, res) {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await createException(sb, req.body, admin));
+      }
+      if (action === 'messages') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await updateMessage(sb, req.body));
+      }
+      if (action === 'roles') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const subAction = req.body?.action;
+        if (subAction === 'add') return res.status(200).json(await addRole(sb, req.body, admin));
+        if (subAction === 'remove') return res.status(200).json(await removeRole(sb, req.body, admin));
+        return res.status(400).json({ error: 'Invalid sub-action' });
       }
       return res.status(400).json({ error: 'Unknown action' });
     }

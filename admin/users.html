@@ -201,7 +201,7 @@
 
     async function fetchUsers() {
       try {
-        const res = await fetch('/api/admin-stats');
+        const res = await fetch('/api/admin?action=users');
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         if (!data.success) throw new Error(data.error);
