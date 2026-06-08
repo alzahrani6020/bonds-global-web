@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>دليل بوابة شريك | بوندز</title>
+  <meta name="description" content="دليل مستخدم بوابة شريك - التسجيل وإدارة المنشأة والمفوضين" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6;
+      --radius: 16px; --shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Vazirmatn',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.8; }
+    a { color:var(--gold); text-decoration:none; }
+
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; position:sticky; top:0; z-index:100; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2rem; font-weight:800; margin-bottom:0.75rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; }
+    .hero .meta { margin-top:1rem; font-size:0.8rem; color:var(--text-muted); }
+
+    .container { max-width:1000px; margin:0 auto; padding:3rem 1.5rem; }
+    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
+
+    .step { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:2rem; margin-bottom:2rem; transition:0.3s; }
+    .step:hover { border-color:var(--gold); box-shadow:var(--shadow); }
+    .step__header { display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem; }
+    .step__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .step__title { font-size:1.2rem; font-weight:800; }
+    .step__list { list-style:none; }
+    .step__list li { padding:0.75rem 0; color:var(--text-secondary); display:flex; align-items:flex-start; gap:0.75rem; border-bottom:1px solid var(--border); }
+    .step__list li:last-child { border-bottom:none; }
+    .step__list li::before { content:attr(data-num); background:rgba(212,168,83,0.15); color:var(--gold); font-weight:700; width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0; margin-top:0.1rem; }
+    .step__note { background:rgba(234,179,8,0.1); border:1px solid var(--border); border-radius:8px; padding:1rem; margin-top:1rem; font-size:0.85rem; color:var(--text-secondary); }
+    .step__note strong { color:var(--warning); }
+
+    .btn-primary { display:inline-block; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; padding:0.9rem 2.5rem; border-radius:12px; text-decoration:none; }
+
+    @media (max-width:768px) {
+      .hero h1 { font-size:1.4rem; }
+      .header__nav { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="index.html" class="header__logo">
+        <img src="assets/bonds-logo-header.webp" alt="بوندز" />
+        <span>بوندز</span>
+      </a>
+      <nav class="header__nav">
+        <a href="index.html">الرئيسية</a>
+        <a href="sectors/manufacturing.html">الاستثمار الصناعي</a>
+        <a href="calculators/factory-cost.html">حاسبة المصنع</a>
+        <a href="suppliers-guide.html">دليل المورد</a>
+        <a href="contact.html">تواصل</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>دليل مستخدم بوابة شريك</h1>
+    <p>خطوات التسجيل وإدارة المنشأة والمفوضين في بوابة شريك السعودية</p>
+    <div class="meta">يناير 2026 | دليل المستخدم الرسمي | <a href="https://modon.gov.sa/ar/Pages/default.aspx" target="_blank" rel="noopener" style="color:var(--gold);">موقع مدن الرسمي ↗</a></div>
+  </section>
+
+  <div class="container">
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step__header">
+        <div class="step__num">1</div>
+        <h2 class="step__title">تسجيل الدخول في النفاذ الوطني الموحد</h2>
+      </div>
+      <ul class="step__list">
+        <li data-num="1">يقوم مالك المنشأة (صاحب المنشأة) بالدخول إلى النفاذ الوطني الموحّد</li>
+        <li data-num="2">الضغط على "تسجيل الدخول" أو "تسجيل جديد"</li>
+        <li data-num="3">إدخال البريد الإلكتروني وكلمة المرور الخاصة بالنفاذ الوطني، ثم تسجيل الدخول</li>
+        <li data-num="4">إكمال التسجيل وإدخال البريد الإلكتروني وكلمة المرور وتأكيدها والضغط على "تقديم الطلب"</li>
+        <li data-num="5">استلام رابط تأكيد على البريد الإلكتروني المسجل لتأكيد البريد</li>
+        <li data-num="6">إدخال رمز التأكيد المستلم على الجوال لتأكيد رقم الجوال</li>
+        <li data-num="7">ظهور رسالة التأكيد وإرسال رابط تأكيد البريد</li>
+        <li data-num="8">الضغط على الرابط المستلم على البريد الإلكتروني لتأكيد الحساب</li>
+      </ul>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step__header">
+        <div class="step__num">2</div>
+        <h2 class="step__title">تسجيل الدخول إلى بوابة شريك وتسجيل بيانات المنشأة</h2>
+      </div>
+      <ul class="step__list">
+        <li data-num="1">تسجيل الدخول من خلال الإيميل وكلمة المرور أو من خلال النفاذ الوطني الموحد</li>
+        <li data-num="2">استلام رسالة نصية برمز تأكيد الدخول وإدخاله ثم الضغط على "تأكيد"
+          <div class="step__note">
+            <strong>ملاحظة:</strong> في حالة عدم استلام الرمز، اضغط "إعادة إرسال". ولتغيير رقم الجوال اضغط "تغيير رقم الجوال".
+          </div>
+        </li>
+        <li data-num="3">اختيار "إدارة حساباتي"</li>
+        <li data-num="4">الضغط على "إضافة بيانات منشأة جديدة"</li>
+        <li data-num="5">تحديد الرقم الوطني الموحد من القائمة المنسدلة لاسترداد البيانات، ثم الضغط على "حفظ"</li>
+        <li data-num="6">تحديث بيانات قسم "معلومات المنشأة" والضغط على "حفظ البيانات"</li>
+        <li data-num="7">اختيار قسم "معلومات السجل التجاري" والضغط على "تحديث بيانات السجل والرقم الضريبي"</li>
+      </ul>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step__header">
+        <div class="step__num">3</div>
+        <h2 class="step__title">إضافة معلومات الترخيص الصناعي (في حال وجود ترخيص)</h2>
+      </div>
+      <ul class="step__list">
+        <li data-num="1">اختيار قسم "معلومات الترخيص الصناعي" والضغط على "إضافة ترخيص صناعي"</li>
+        <li data-num="2">إدخال "رقم الترخيص الصناعي" ثم الضغط على "بحث"، ثم الضغط على "إضافة"</li>
+        <li data-num="3">ستتم إضافة الترخيص إلى المنشأة ويمكن مراجعته أو حذفه</li>
+      </ul>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step__header">
+        <div class="step__num">4</div>
+        <h2 class="step__title">إضافة أو إزالة مفوضين إلى المنشأة</h2>
+      </div>
+      <ul class="step__list">
+        <li data-num="1">فتح "قائمة المفوضين"</li>
+        <li data-num="2">الضغط على "إضافة مفوض جديد"</li>
+        <li data-num="3">إضافة بيانات المفوض ثم الضغط على "إضافة"</li>
+        <li data-num="4">يتم إضافة المفوض ويمكن حذفه أو إضافة مفوض جديد</li>
+      </ul>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step">
+      <div class="step__header">
+        <div class="step__num">5</div>
+        <h2 class="step__title">إضافة أو إزالة جهة اتصال للمنشأة</h2>
+      </div>
+      <ul class="step__list">
+        <li data-num="1">فتح "قائمة مفوضين وجهات اتصال للمنشأة"</li>
+        <li data-num="2">الضغط على "إضافتي كجهة اتصال" أو "إضافة جهة اتصال"</li>
+        <li data-num="3">إضافة البيانات الخاصة بجهة الاتصال ثم الضغط على "إضافة"</li>
+        <li data-num="4">يتم إضافة جهة الاتصال ويمكن حذفها أو إضافة جهة جديدة
+          <div class="step__note">
+            <strong>ملاحظة:</strong> في حالة عدم رغبة صاحب المنشأة في إضافة أو إزالة جهة اتصال، سيتم الإبقاء على جهة الاتصال الحالية.
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div style="text-align:center; padding:2rem 0;">
+      <a href="index.html" class="btn-primary">← العودة للرئيسية</a>
+    </div>
+
+  </div>
+
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:2rem; margin-top:3rem;">
+      <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:1rem; color:var(--gold);">📚 اقرأ أيضاً</h3>
+      <div style="display:flex; flex-wrap:wrap; gap:1rem;">
+        <a href="sectors/manufacturing.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">🏭 دليل الاستثمار الصناعي</a>
+        <a href="suppliers-guide.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">📦 دليل المورد</a>
+        <a href="calculators/factory-cost.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">💰 حاسبة تكلفة المصنع</a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer style="text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border);">
+    <div style="margin-bottom:0.75rem;">
+      <span style="color:var(--gold); font-weight:700;">ممثل بوندز في السعودية:</span>
+      <a href="https://thiqqah.live/" target="_blank" rel="noopener" style="color:var(--text-secondary); font-weight:600;">ثقة الذهبية ↗</a>
+    </div>
+    <p>© 2026 بوندز للاستشارات المالية.</p>
+  </footer>
+
+</body>
+</html>

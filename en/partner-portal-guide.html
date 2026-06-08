@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Partner Portal Guide | Bonds</title>
+  <meta name="description" content="Step-by-step guide for registering and managing a company on the Saudi Partner Portal" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6;
+      --radius: 16px; --shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.8; }
+    a { color:var(--gold); text-decoration:none; }
+
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; position:sticky; top:0; z-index:100; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2rem; font-weight:800; margin-bottom:0.75rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; }
+    .hero .meta { margin-top:1rem; font-size:0.8rem; color:var(--text-muted); }
+
+    .container { max-width:1000px; margin:0 auto; padding:3rem 1.5rem; }
+    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
+
+    .step { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:2rem; margin-bottom:2rem; transition:0.3s; }
+    .step:hover { border-color:var(--gold); box-shadow:var(--shadow); }
+    .step__header { display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem; }
+    .step__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .step__title { font-size:1.2rem; font-weight:800; }
+    .step__list { list-style:none; }
+    .step__list li { padding:0.75rem 0; color:var(--text-secondary); display:flex; align-items:flex-start; gap:0.75rem; border-bottom:1px solid var(--border); }
+    .step__list li:last-child { border-bottom:none; }
+    .step__list li::before { content:attr(data-num); background:rgba(212,168,83,0.15); color:var(--gold); font-weight:700; width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0; margin-top:0.1rem; }
+    .step__note { background:rgba(234,179,8,0.1); border:1px solid var(--border); border-radius:8px; padding:1rem; margin-top:1rem; font-size:0.85rem; color:var(--text-secondary); }
+    .step__note strong { color:var(--warning); }
+
+    .btn-primary { display:inline-block; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; padding:0.9rem 2.5rem; border-radius:12px; text-decoration:none; }
+
+    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
+
+    @media (max-width:768px) {
+      .hero h1 { font-size:1.4rem; }
+      .header__nav { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="../en/index.html" class="header__logo">
+        <img src="../assets/bonds-logo-header.webp" alt="Bonds" />
+        <span>Bonds</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../en/index.html">Home</a>
+        <a href="../sectors/manufacturing.html">Industrial Guide</a>
+        <a href="../en/contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Partner Portal User Guide</h1>
+    <p>Registration steps and company management on the Saudi Partner Portal</p>
+    <div class="meta">January 2026 | Official User Guide | <a href="https://modon.gov.sa/ar/Pages/default.aspx" target="_blank" rel="noopener">Official MODON Website ↗</a></div>
+  </section>
+
+  <div class="container">
+
+    <div class="step">
+      <div class="step__header">
+        <div class="step__num">1</div>
+        <h2 class="step__title">National Single Sign-On (Nafath) Login</h2>
+      </div>
+      <ul class="step__list">
+        <li data-num="1">The business owner accesses the National Single Sign-On portal</li>
+        <li data-num="2">Clicks "Login" or "Register"</li>
+        <li data-num="3">Enters email and password for Nafath, then logs in</li>
+        <li data-num="4">Completes registration by entering email, password, and confirmation, then submits</li>
+        <li data-num="5">Receives a verification link via registered email</li>
+        <li data-num="6">Enters the mobile verification code to confirm phone number</li>
+        <li data-num="7">Confirmation message appears and email verification link is sent</li>
+        <li data-num="8">Clicks the email link to confirm the account</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <div class="step__header">
+        <div class="step__num">2</div>
+        <h2 class="step__title">Partner Portal Login & Company Registration</h2>
+      </div>
+      <ul class="step__list">
+        <li data-num="1">Login via email/password or National Single Sign-On</li>
+        <li data-num="2">Receives SMS with verification code, enters it, and clicks "Confirm"
+          <div class="step__note"><strong>Note:</strong> If code not received, click "Resend". To change phone number, click "Change Phone Number".</div>
+        </li>
+        <li data-num="3">Selects "Manage My Accounts"</li>
+        <li data-num="4">Clicks "Add New Company Data"</li>
+        <li data-num="5">Selects the Unified National Number from dropdown to retrieve data, then clicks "Save"</li>
+        <li data-num="6">Updates "Company Information" section and clicks "Save Data"</li>
+        <li data-num="7">Selects "Commercial Registration Information" and clicks "Update CR and VAT Data"</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <div class="step__header">
+        <div class="step__num">3</div>
+        <h2 class="step__title">Add Industrial License Information (if applicable)</h2>
+      </div>
+      <ul class="step__list">
+        <li data-num="1">Select "Industrial License Information" and click "Add Industrial License"</li>
+        <li data-num="2">Enters "Industrial License Number" then clicks "Search", then clicks "Add"</li>
+        <li data-num="3">License is added to the company and can be reviewed or deleted</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <div class="step__header">
+        <div class="step__num">4</div>
+        <h2 class="step__title">Add or Remove Delegates</h2>
+      </div>
+      <ul class="step__list">
+        <li data-num="1">Open "Delegates List"</li>
+        <li data-num="2">Click "Add New Delegate"</li>
+        <li data-num="3">Enter delegate data then click "Add"</li>
+        <li data-num="4">Delegate is added and can be deleted or replaced</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <div class="step__header">
+        <div class="step__num">5</div>
+        <h2 class="step__title">Add or Remove Contact Person</h2>
+      </div>
+      <ul class="step__list">
+        <li data-num="1">Open "Delegates and Contacts List"</li>
+        <li data-num="2">Click "Add Me as Contact" or "Add Contact Person"</li>
+        <li data-num="3">Enter contact person data then click "Add"</li>
+        <li data-num="4">Contact person is added and can be deleted or replaced
+          <div class="step__note"><strong>Note:</strong> If the owner does not wish to add or remove a contact, the current contact will be retained.</div>
+        </li>
+      </ul>
+    </div>
+
+    <div style="text-align:center; padding:2rem 0;">
+      <a href="../en/index.html" class="btn-primary">← Back to Home</a>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="margin-bottom:0.75rem;">
+      <span style="color:var(--gold); font-weight:700;">Bonds KSA Representative:</span>
+      <a href="https://thiqqah.live/" target="_blank" rel="noopener" style="color:var(--text-secondary); font-weight:600;">Thiqqah Gold ↗</a>
+    </div>
+    <p>© 2026 Bonds Financial Consultancy.</p>
+  </footer>
+
+</body>
+</html>

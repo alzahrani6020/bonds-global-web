@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Industrial Investment Guide in Jordan | Bonds</title>
+  <meta name="description" content="Comprehensive guide for industrial investment in the Hashemite Kingdom of Jordan - Investment Commission, development zones, licenses, and costs" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6;
+      --shadow: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+    a { color:var(--gold); text-decoration:none; }
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); font-size:1.1rem; }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2.2rem; font-weight:800; margin-bottom:1rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; font-size:1.05rem; }
+    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
+    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-bottom:3rem; }
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
+    .card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:var(--shadow); }
+    .card__icon { width:48px; height:48px; border-radius:12px; background:rgba(212,168,83,0.1); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1rem; }
+    .card__title { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; }
+    .card__text { font-size:0.85rem; color:var(--text-secondary); line-height:1.7; }
+    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:3rem; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(16,24,45,0.9); border-bottom:1px solid var(--border); }
+    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
+    tr:hover td { background:rgba(212,168,40,0.05); }
+    .fee-highlight { background:rgba(212,168,83,0.08); border-radius:8px; padding:0.35rem 0.75rem; font-weight:700; color:var(--gold); white-space:nowrap; }
+    .timeline { display:flex; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
+    .stage { display:flex; gap:1.5rem; }
+    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .stage__content { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
+    .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
+    .stage__list { list-style:none; }
+    .stage__list li { padding:0.5rem 0; color:var(--text-secondary); font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
+    .stage__list li::before { content:'✓'; color:var(--success); font-weight:700; }
+    .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin:1rem 0; }
+    .note strong { color:var(--warning); }
+    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
+    @media (max-width:768px) { .hero h1 { font-size:1.5rem; } .stage { flex-direction:column; } .header__nav { display:none; } }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="../../en/index.html" class="header__logo">
+        <img src="../../assets/bonds-logo-header.webp" alt="Bonds" />
+        <span>Bonds</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../../en/index.html">Home</a>
+        <a href="manufacturing.html">Saudi Arabia</a>
+        <a href="manufacturing-eg.html">Egypt</a>
+        <a href="manufacturing-ae.html">UAE</a>
+        <a href="manufacturing-jo.html">Jordan</a>
+        <a href="../../en/contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Industrial Investment Guide in Jordan</h1>
+    <p>Everything an investor needs: authorities, industrial zones, licenses, and costs in the Hashemite Kingdom of Jordan</p>
+  </section>
+
+  <div class="container">
+
+    <h2 class="section-title">🏛️ Key Government Authorities</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Jordan Investment Commission (JIC)</div>
+        <div class="card__text">The main body for promoting and facilitating investment. Issues investment licenses and grants incentives to investors. Provides one-stop shop services.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌊</div>
+        <div class="card__title">Aqaba Special Economic Zone Authority (ASEZA)</div>
+        <div class="card__text">Manages the Aqaba Special Economic Zone. Grants tax and customs duty exemptions. Special legislative system for the zone.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏗️</div>
+        <div class="card__title">Jordan Industrial Estates Company (JIEC)</div>
+        <div class="card__text">Development and management of industrial cities. Includes 12 industrial cities. Provides industrial land at subsidized prices with full infrastructure.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">National Electric Power Company (NEPCO)</div>
+        <div class="card__text">The sole entity for purchasing and transmitting electricity. Sells to distribution companies. Electricity pricing is subject to the Energy and Minerals Regulatory Commission.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">💧</div>
+        <div class="card__title">Water Authority of Jordan (WAJ)</div>
+        <div class="card__text">Manages water resources and sewage. Provides water services to industrial zones at subsidized prices.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📋</div>
+        <div class="card__title">Ministry of Industry and Trade</div>
+        <div class="card__text">Industrial activity licensing. Consumer protection. Product quality control. Industrial certificate authentication.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">⚡ Industrial Electricity Tariffs</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Subscription Type</th><th>Voltage</th><th>Tariff (fils/kWh)</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Industrial - Low Voltage</strong></td><td>220/380V</td><td><span class="fee-highlight">95 - 105 fils</span></td><td>Monthly consumption up to 20,000 kWh</td></tr>
+          <tr><td><strong>Industrial - Medium Voltage</strong></td><td>11 kV</td><td><span class="fee-highlight">85 - 95 fils</span></td><td>For medium and large factories</td></tr>
+          <tr><td><strong>Industrial - High Voltage</strong></td><td>33/66 kV</td><td><span class="fee-highlight">75 - 85 fils</span></td><td>For energy-intensive industries</td></tr>
+          <tr><td><strong>Aqaba Special Economic Zone</strong></td><td>All voltages</td><td><span class="fee-highlight">80 fils</span></td><td>Unified tariff for the special zone</td></tr>
+          <tr><td><strong>Transmission and distribution fees</strong></td><td>-</td><td><span class="fee-highlight">+15 - 20 fils</span></td><td>Added to the bill</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>Note:</strong> Tariffs are subject to decisions by the Energy and Minerals Regulatory Commission (EMRC). Large factories can negotiate direct supply contracts. Monthly fuel surcharges apply.
+    </div>
+
+    <h2 class="section-title">🏙️ Industrial Cities and Key Zones</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Al-Hassan Industrial City - Irbid</div>
+        <div class="card__text">Largest industrial city in Jordan. 500+ factories. 70,000+ workers. Specializations: garments, pharmaceuticals, engineering, food. Near Syrian and Iraqi borders.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Sahab Industrial City</div>
+        <div class="card__text">Near the capital Amman. 300+ factories. Specializations: engineering, plastics, chemicals, food. First industrial city in Jordan (1980).</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Al-Qastal Industrial City</div>
+        <div class="card__text">Between Amman and Zarqa. 200+ factories. Specializations: construction, finishing materials, engineering industries. Strategic location on the desert highway.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚓</div>
+        <div class="card__title">Aqaba Special Economic Zone</div>
+        <div class="card__text">100% tax exemption for 25 years. Customs duties only 5%. Exemption from income and sales tax. Aqaba Port (Jordan's largest port).</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Al-Muwaqqar Industrial City</div>
+        <div class="card__text">Newest industrial city. Modern design and advanced infrastructure. Specializations: technology, logistics, advanced industries.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Al-Zarqa Industrial City</div>
+        <div class="card__text">Specializations: chemicals, plastics, engineering industries. Near the Amman-Zarqa international highway.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Al-Karak Industrial City</div>
+        <div class="card__text">Southern Jordan. Specializations: mining, food industries, dairy products. Land at competitive prices.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Al-Maan Industrial City</div>
+        <div class="card__text">Southern Jordan. Specializations: phosphate and metal industries. Near phosphate mines.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🗺️ Industrial Investor Journey</h2>
+    <div class="timeline">
+      <div class="stage">
+        <div class="stage__num">1</div>
+        <div class="stage__content">
+          <div class="stage__title">Initial License</div>
+          <ul class="stage__list">
+            <li>Submit investment license application to the Investment Commission</li>
+            <li>Economic feasibility study for the project</li>
+            <li>Obtain approval from the Ministry of Industry and Trade</li>
+            <li>Register the company with the Ministry of Industry</li>
+            <li>Duration: 2-4 weeks</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">2</div>
+        <div class="stage__content">
+          <div class="stage__title">Land Allocation and Site</div>
+          <ul class="stage__list">
+            <li>Select the appropriate industrial city</li>
+            <li>Submit land allocation application to the Industrial Estates Company</li>
+            <li>Pay reservation and security fees (5-10%)</li>
+            <li>Sign lease or purchase contract</li>
+            <li>Duration: 2-6 weeks</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">3</div>
+        <div class="stage__content">
+          <div class="stage__title">Building Permit and Construction</div>
+          <ul class="stage__list">
+            <li>Submit approved engineering drawings to the city municipality</li>
+            <li>Obtain building permit</li>
+            <li>Civil Defense approval</li>
+            <li>Project execution by approved contractor</li>
+            <li>Duration: 3-8 months depending on project</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">4</div>
+        <div class="stage__content">
+          <div class="stage__title">Final Operation</div>
+          <ul class="stage__list">
+            <li>Building completion certificate</li>
+            <li>Civil Defense safety inspection</li>
+            <li>Electricity and water connection</li>
+            <li>Obtain final operating license</li>
+            <li>Duration: 2-4 weeks</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">💰 Industrial Costs and Fees</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Approximate Cost</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Investment license fees</strong></td><td><span class="fee-highlight">500 - 2,000 JOD</span></td><td>Depending on capital</td></tr>
+          <tr><td><strong>Industrial land rent</strong></td><td><span class="fee-highlight">1 - 3 JOD/m²/year</span></td><td>Depending on city and location</td></tr>
+          <tr><td><strong>Industrial land purchase</strong></td><td><span class="fee-highlight">20 - 50 JOD/m²</span></td><td>For full ownership</td></tr>
+          <tr><td><strong>Electricity connection fees</strong></td><td><span class="fee-highlight">50 - 150 JOD/kW</span></td><td>Depending on required capacity</td></tr>
+          <tr><td><strong>Municipal fees</strong></td><td><span class="fee-highlight">1 - 2% of building value</span></td><td>Licensing and inspection fees</td></tr>
+          <tr><td><strong>Water and sewage fees</strong></td><td><span class="fee-highlight">0.5 - 1.5 JOD/m³</span></td><td>Depending on zone</td></tr>
+          <tr><td><strong>License renewal fees</strong></td><td><span class="fee-highlight">Annually</span></td><td>Percentage of capital</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">📋 Requirements for Setting Up a Factory in Jordan</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Requirement</th><th>Issuing Authority</th><th>Duration</th><th>Cost</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Investment license</strong></td><td>Investment Commission</td><td>2-4 weeks</td><td>500 - 2,000 JOD</td></tr>
+          <tr><td><strong>Company registration</strong></td><td>Ministry of Industry and Trade</td><td>3-7 days</td><td>100 - 300 JOD</td></tr>
+          <tr><td><strong>Industrial land allocation</strong></td><td>Jordan Industrial Estates Company</td><td>2-4 weeks</td><td>Depending on area</td></tr>
+          <tr><td><strong>Building permit</strong></td><td>Industrial City Municipality</td><td>2-4 weeks</td><td>1-2% of building value</td></tr>
+          <tr><td><strong>Environmental approval</strong></td><td>Ministry of Environment</td><td>2-4 weeks</td><td>200 - 500 JOD</td></tr>
+          <tr><td><strong>Civil Defense approval</strong></td><td>Civil Defense</td><td>1-2 weeks</td><td>200 - 400 JOD</td></tr>
+          <tr><td><strong>Operating license</strong></td><td>Ministry of Industry and Trade</td><td>3-5 days</td><td>100 - 200 JOD</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">🏗️ Industrial Building Requirements</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">📐</div>
+        <div class="card__title">Building Ratios</div>
+        <div class="card__text">Building ratio: 40-60% depending on activity. Green spaces: 10%. Factory height: up to 12 meters for light industries, 18 meters for heavy industries.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🚒</div>
+        <div class="card__title">Safety Requirements</div>
+        <div class="card__text">At least two emergency exits. 4 meters distance between buildings. Fire water tank. Fire alarm system. Compliance with Jordanian Civil Defense standards.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌿</div>
+        <div class="card__title">Environmental Requirements</div>
+        <div class="card__text">Environmental impact assessment for medium and high-impact industries. Waste treatment before discharge. Emission monitoring. Compliance with Jordanian Ministry of Environment standards.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">👷</div>
+        <div class="card__title">Labor Requirements</div>
+        <div class="card__text">3.5 m² per worker. Separate sanitary facilities. Kitchen and prayer room. Compliance with Jordanian labor law. Preference for Jordanian workers.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">📞 Key Contact Information</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Jordan Investment Commission</div>
+        <div class="card__text">Website: jic.gov.jo<br>Phone: +962 6 560 7400<br>Email: info@jic.gov.jo</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌊</div>
+        <div class="card__title">Aqaba Special Economic Zone Authority</div>
+        <div class="card__text">Website: aseza.jo<br>Phone: +962 3 209 1000<br>Email: info@aseza.jo</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏗️</div>
+        <div class="card__title">Jordan Industrial Estates Company</div>
+        <div class="card__text">Website: jiec.com.jo<br>Phone: +962 6 530 1271<br>Email: info@jiec.com.jo</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">National Electric Power Company</div>
+        <div class="card__text">Website: nepco.com.jo<br>Phone: 119<br>Email: info@nepco.com.jo</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">💧</div>
+        <div class="card__title">Water Authority of Jordan</div>
+        <div class="card__text">Website: mwi.gov.jo<br>Phone: 117116<br>Email: info@mwi.gov.jo</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📋</div>
+        <div class="card__title">Ministry of Industry and Trade</div>
+        <div class="card__text">Website: mot.gov.jo<br>Phone: +962 6 560 8200<br>Email: info@mot.gov.jo</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🔗 Other Investment Guides</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">🇸🇦</div><div class="card__title"><a href="manufacturing.html">Industrial Investment in Saudi Arabia</a></div><div class="card__text">Saudi MODON industrial cities guide - 35 industrial cities</div></div>
+      <div class="card"><div class="card__icon">🇪🇬</div><div class="card__title"><a href="manufacturing-eg.html">Industrial Investment in Egypt</a></div><div class="card__text">Industrial Development Authority guide - 147 zones</div></div>
+      <div class="card"><div class="card__icon">🇦🇪</div><div class="card__title"><a href="manufacturing-ae.html">Industrial Investment in UAE</a></div><div class="card__text">UAE free zones and industrial areas guide</div></div>
+      <div class="card"><div class="card__icon">🇱🇾</div><div class="card__title"><a href="manufacturing-ly.html">Industrial Investment in Libya</a></div><div class="card__text">Libyan industrial zones guide</div></div>
+      <div class="card"><div class="card__icon">🇩🇿</div><div class="card__title"><a href="manufacturing-dz.html">Industrial Investment in Algeria</a></div><div class="card__text">Algerian industrial zones guide</div></div>
+      <div class="card"><div class="card__icon">🇱🇧</div><div class="card__title"><a href="manufacturing-lb.html">Industrial Investment in Lebanon</a></div><div class="card__text">Lebanese industrial zones guide</div></div>
+      <div class="card"><div class="card__icon">🇾🇪</div><div class="card__title"><a href="manufacturing-ye.html">Industrial Investment in Yemen</a></div><div class="card__text">Yemeni industrial zones guide</div></div>
+      <div class="card"><div class="card__icon">🇸🇾</div><div class="card__title"><a href="manufacturing-sy.html">Industrial Investment in Syria</a></div><div class="card__text">Syrian industrial zones guide</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title"><a href="../../en/calculators/factory-cost-jo.html">Factory Cost Calculator - Jordan</a></div><div class="card__text">Calculate the cost of setting up your factory in Jordan</div></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>© 2026 Bonds Financial Consulting. Data sourced from official Jordanian government bodies.</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة التحكم | بوندز</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --danger: #ef4444;
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px; --radius-lg: 24px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Vazirmatn', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; overflow-x: hidden; }
+
+    .main-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(10,15,26,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .main-header__inner { max-width: 1280px; margin: 0 auto; padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+    .header-brand img { height: 52px; width: auto; border-radius: 6px; }
+    .header-left { display: flex; align-items: center; gap: 0.75rem; }
+    .header-link { color: var(--text-secondary); font-weight: 600; font-size: 0.8rem; text-decoration: none; padding: 0.35rem 0.75rem; transition: all 0.3s; }
+    .header-link:hover { color: var(--gold); }
+    .btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #0a0f1a; font-weight: 800; padding: 0.5rem 1rem; border-radius: 10px; text-decoration: none; font-size: 0.8rem; box-shadow: 0 4px 15px rgba(212,168,83,0.35); transition: all 0.3s; }
+    .btn-gold:hover { transform: translateY(-2px); }
+
+    .dashboard { padding-top: 100px; max-width: 1280px; margin: 0 auto; padding-left: 1.5rem; padding-right: 1.5rem; padding-bottom: 4rem; }
+    .dashboard-header { margin-bottom: 2rem; }
+    .dashboard-header h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .dashboard-header p { color: var(--text-secondary); font-size: 0.95rem; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2.5rem; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; transition: all 0.3s; }
+    .stat-card:hover { border-color: var(--border-hover); transform: translateY(-3px); }
+    .stat-card__icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(212,168,83,0.1); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 1rem; }
+    .stat-card__num { font-size: 1.6rem; font-weight: 800; color: var(--gold); line-height: 1; margin-bottom: 0.35rem; }
+    .stat-card__label { font-size: 0.8rem; color: var(--text-secondary); }
+
+    .sub-card { background: linear-gradient(135deg, rgba(212,168,83,0.15), rgba(16,24,45,0.8)); border: 1px solid var(--gold); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+    .sub-info h2 { font-size: 1.3rem; font-weight: 800; color: var(--gold); margin-bottom: 0.5rem; }
+    .sub-info p { color: var(--text-secondary); font-size: 0.9rem; }
+    .sub-badge { display: inline-block; background: var(--gold); color: #0a0f1a; font-weight: 800; font-size: 0.75rem; padding: 0.35rem 1rem; border-radius: 50px; margin-bottom: 0.75rem; }
+    .progress-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 1rem; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-bright)); border-radius: 4px; transition: width 0.5s ease; }
+    .progress-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+    .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
+
+    .calc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 2.5rem; }
+    .calc-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-decoration: none; color: inherit; transition: all 0.3s; display: block; }
+    .calc-card:hover { border-color: var(--gold); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(212,168,83,0.15); }
+    .calc-card__icon { width: 48px; height: 48px; border-radius: 12px; background: rgba(212,168,83,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem; }
+    .calc-card__title { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .calc-card__desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; }
+
+    .factory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 2.5rem; }
+    .factory-chip { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem; text-decoration: none; color: var(--text); font-size: 0.85rem; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem; }
+    .factory-chip:hover { border-color: var(--gold); background: rgba(212,168,83,0.08); }
+    .factory-chip__flag { font-size: 1.1rem; }
+
+    .table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 2.5rem; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table thead { background: rgba(16,24,45,0.9); }
+    .data-table th { text-align: right; padding: 1rem 1.25rem; font-size: 0.8rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+    .data-table td { padding: 1rem 1.25rem; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+    .data-table tr:hover td { background: rgba(212,168,83,0.05); color: var(--text); }
+    .status { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
+    .status--active { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .status--draft { background: rgba(234,179,8,0.15); color: #eab308; }
+
+    .profile-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; }
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .form-group label { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); }
+    .form-group input { padding: 0.9rem 1rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 0.9rem; outline: none; transition: all 0.3s; }
+    .form-group input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
+
+    .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+    .empty-state__icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+    @media (max-width: 900px) { .stats-row { grid-template-columns: repeat(2, 1fr); } .calc-grid { grid-template-columns: repeat(2, 1fr); } .factory-grid { grid-template-columns: repeat(2, 1fr); } .profile-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .stats-row { grid-template-columns: 1fr; } .calc-grid { grid-template-columns: 1fr; } .factory-grid { grid-template-columns: 1fr; } .sub-card { flex-direction: column; text-align: center; } }
+  </style>
+</head>
+<body>
+
+  <header class="main-header">
+    <div class="main-header__inner">
+      <a href="../index.html" class="header-brand"><img src="../assets/bonds-logo-header.webp" alt="بوندز" /></a>
+      <div class="header-left">
+        <a href="../index.html" class="header-link">الرئيسية</a>
+        <a href="auth/account.html" class="header-link">الملف الشخصي</a>
+        <a href="auth/subscription.html" class="btn-gold">ترقية الاشتراك</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div class="dashboard-header">
+      <h1>لوحة التحكم</h1>
+      <p id="welcomeMsg">مرحباً بك، هنا ملخص حسابك وآخر نشاطاتك.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-card__icon">🧮</div>
+        <div class="stat-card__num" id="statCalcs">0</div>
+        <div class="stat-card__label">حاسبة مستخدمة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon">📁</div>
+        <div class="stat-card__num" id="statScenarios">0</div>
+        <div class="stat-card__label">سيناريو محفوظ</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon">🌍</div>
+        <div class="stat-card__num" id="statCountries">0</div>
+        <div class="stat-card__label">دولة مستخدمة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon">📅</div>
+        <div class="stat-card__num" id="statDays">∞</div>
+        <div class="stat-card__label">يوم متبقي (مجاني)</div>
+      </div>
+    </div>
+
+    <!-- Subscription -->
+    <div class="sub-card" id="subCard">
+      <div class="sub-info">
+        <span class="sub-badge" id="subBadge">الخطة المجانية</span>
+        <h2 id="subTitle">اشترك في Bonds Pro</h2>
+        <p id="subDesc">سيناريوهات غير محدودة، 22 دولة، تصدير PDF، ودعم أولوي.</p>
+        <div class="progress-bar"><div class="progress-fill" id="usageBar" style="width:0%"></div></div>
+        <div class="progress-labels"><span id="usageText">0 / 3 سيناريوهات مستخدمة</span><span>مجاني</span></div>
+      </div>
+      <a href="auth/subscription.html" class="btn-gold" style="font-size:0.95rem;padding:0.75rem 2rem;">ترقية الآن — 82 ر.س/شهر (شامل VAT)</a>
+    </div>
+
+    <!-- Factory Calculators -->
+    <h2 class="section-title">🏭 حاسبات تكلفة المصنع (17 دولة)</h2>
+    <div class="factory-grid">
+      <a href="factory-cost.html" class="factory-chip"><span class="factory-chip__flag">🇸🇦</span> السعودية</a>
+      <a href="factory-cost-eg.html" class="factory-chip"><span class="factory-chip__flag">🇪🇬</span> مصر</a>
+      <a href="factory-cost-ae.html" class="factory-chip"><span class="factory-chip__flag">🇦🇪</span> الإمارات</a>
+      <a href="factory-cost-jo.html" class="factory-chip"><span class="factory-chip__flag">🇯🇴</span> الأردن</a>
+      <a href="factory-cost-om.html" class="factory-chip"><span class="factory-chip__flag">🇴🇲</span> عمان</a>
+      <a href="factory-cost-bh.html" class="factory-chip"><span class="factory-chip__flag">🇧🇭</span> البحرين</a>
+      <a href="factory-cost-kw.html" class="factory-chip"><span class="factory-chip__flag">🇰🇼</span> الكويت</a>
+      <a href="factory-cost-qa.html" class="factory-chip"><span class="factory-chip__flag">🇶🇦</span> قطر</a>
+      <a href="factory-cost-ma.html" class="factory-chip"><span class="factory-chip__flag">🇲🇦</span> المغرب</a>
+      <a href="factory-cost-tn.html" class="factory-chip"><span class="factory-chip__flag">🇹🇳</span> تونس</a>
+      <a href="factory-cost-iq.html" class="factory-chip"><span class="factory-chip__flag">🇮🇶</span> العراق</a>
+      <a href="factory-cost-sd.html" class="factory-chip"><span class="factory-chip__flag">🇸🇩</span> السودان</a>
+      <a href="factory-cost-ly.html" class="factory-chip"><span class="factory-chip__flag">🇱🇾</span> ليبيا</a>
+      <a href="factory-cost-dz.html" class="factory-chip"><span class="factory-chip__flag">🇩🇿</span> الجزائر</a>
+      <a href="factory-cost-lb.html" class="factory-chip"><span class="factory-chip__flag">🇱🇧</span> لبنان</a>
+      <a href="factory-cost-ye.html" class="factory-chip"><span class="factory-chip__flag">🇾🇪</span> اليمن</a>
+      <a href="factory-cost-sy.html" class="factory-chip"><span class="factory-chip__flag">🇸🇾</span> سوريا</a>
+    </div>
+
+    <!-- Quick Calculators -->
+    <h2 class="section-title">⚡ الحاسبات السريعة</h2>
+    <div class="calc-grid">
+      <a href="restaurant.html" class="calc-card">
+        <div class="calc-card__icon">🍽️</div>
+        <div class="calc-card__title">حاسبة المطاعم</div>
+        <div class="calc-card__desc">4 نماذج عمل × 22 دولة × 179 منصة</div>
+      </a>
+      <a href="dish-margin.html" class="calc-card">
+        <div class="calc-card__icon">🍔</div>
+        <div class="calc-card__title">ربحية الوجبة</div>
+        <div class="calc-card__desc">احسب ربح كل صنف قبل الإضافة</div>
+      </a>
+      <a href="../calculator.html" class="calc-card">
+        <div class="calc-card__icon">📊</div>
+        <div class="calc-card__title">نقطة التعادل</div>
+        <div class="calc-card__desc">كم طلب تحتاج لتغطية المصاريف</div>
+      </a>
+      <a href="cash-flow.html" class="calc-card">
+        <div class="calc-card__icon">💰</div>
+        <div class="calc-card__title">تدفق النقد</div>
+        <div class="calc-card__desc">توقع فواتيرك 12 شهر قادمة</div>
+      </a>
+      <a href="pricing.html" class="calc-card">
+        <div class="calc-card__icon">🏷️</div>
+        <div class="calc-card__title">تسعير المنتج</div>
+        <div class="calc-card__desc">احسب السعر الأمثل للمنتج</div>
+      </a>
+      <a href="loan.html" class="calc-card">
+        <div class="calc-card__icon">🏦</div>
+        <div class="calc-card__title">القرض والتمويل</div>
+        <div class="calc-card__desc">قارن بين 4 أنواع قروض</div>
+      </a>
+    </div>
+
+    <!-- Recent Calculations -->
+    <h2 class="section-title">🕒 آخر التقديرات</h2>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>الحاسبة</th><th>الدولة</th><th>النتيجة</th><th>التاريخ</th><th>الإجراء</th></tr>
+        </thead>
+        <tbody id="recentTable">
+          <tr><td colspan="5" class="empty-state"><div class="empty-state__icon">📭</div>لا توجد تقديرات حديثة. ابدأ بحساب جديد!</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Saved Scenarios -->
+    <h2 class="section-title">📁 السيناريوهات المحفوظة</h2>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>الاسم</th><th>النوع</th><th>التاريخ</th><th>الحالة</th><th>الإجراء</th></tr>
+        </thead>
+        <tbody id="scenariosTable">
+          <tr><td colspan="5" class="empty-state"><div class="empty-state__icon">📭</div>لا توجد سيناريوهات محفوظة.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Profile -->
+    <h2 class="section-title">👤 الملف الشخصي</h2>
+    <div class="profile-card">
+      <div class="profile-grid">
+        <div class="form-group">
+          <label>الاسم الكامل</label>
+          <input type="text" id="profileName" value="" placeholder="اسمك" />
+        </div>
+        <div class="form-group">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="profileEmail" value="" placeholder="بريدك" />
+        </div>
+        <div class="form-group">
+          <label>اسم الشركة</label>
+          <input type="text" id="profileCompany" value="" placeholder="شركتك" />
+        </div>
+        <div class="form-group">
+          <label>رقم الهاتف</label>
+          <input type="tel" id="profilePhone" value="" placeholder="+966..." />
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Load stats from localStorage
+    function loadStats() {
+      const calcs = JSON.parse(localStorage.getItem('bonds_recent_calcs') || '[]');
+      const scenarios = JSON.parse(localStorage.getItem('bonds_scenarios') || '[]');
+      const countries = new Set(calcs.map(c => c.country).filter(Boolean));
+      
+      document.getElementById('statCalcs').textContent = calcs.length;
+      document.getElementById('statScenarios').textContent = scenarios.length;
+      document.getElementById('statCountries').textContent = countries.size;
+      
+      // Usage bar
+      const usage = Math.min(scenarios.length, 3);
+      const pct = (usage / 3) * 100;
+      document.getElementById('usageBar').style.width = pct + '%';
+      document.getElementById('usageText').textContent = `${usage} / 3 سيناريوهات مستخدمة`;
+      
+      // Sub card color
+      if (usage >= 3) {
+        document.getElementById('subBadge').textContent = 'الحد الأقصى';
+        document.getElementById('subTitle').textContent = 'وصلت للحد الأقصى!';
+        document.getElementById('subDesc').textContent = ' Upgrade to Pro for unlimited scenarios.';
+      }
+    }
+
+    // Load recent calculations
+    function loadRecent() {
+      const calcs = JSON.parse(localStorage.getItem('bonds_recent_calcs') || '[]');
+      const tbody = document.getElementById('recentTable');
+      
+      if (calcs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state__icon">📭</div>لا توجد تقديرات حديثة. ابدأ بحساب جديد!</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = calcs.slice(0, 5).map(c => `
+        <tr>
+          <td><strong>${c.calcName || 'حاسبة'}</strong></td>
+          <td>${c.country || '—'}</td>
+          <td style="color:var(--gold);font-weight:700;">${c.result || '—'}</td>
+          <td>${c.date || '—'}</td>
+          <td><a href="${c.url || '#'}" style="color:var(--gold);font-weight:700;">فتح</a></td>
+        </tr>
+      `).join('');
+    }
+
+    // Load saved scenarios
+    function loadScenarios() {
+      const scenarios = JSON.parse(localStorage.getItem('bonds_scenarios') || '[]');
+      const tbody = document.getElementById('scenariosTable');
+      
+      if (scenarios.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state__icon">📭</div>لا توجد سيناريوهات محفوظة.</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = scenarios.map(s => `
+        <tr>
+          <td><strong>${s.name || 'سيناريو'}</strong></td>
+          <td>${s.type || '—'}</td>
+          <td>${s.date || '—'}</td>
+          <td><span class="status status--active">نشط</span></td>
+          <td><a href="#" style="color:var(--gold);font-weight:700;">فتح</a></td>
+        </tr>
+      `).join('');
+    }
+
+    // Load profile
+    function loadProfile() {
+      const profile = JSON.parse(localStorage.getItem('bonds_profile') || '{}');
+      if (profile.name) document.getElementById('profileName').value = profile.name;
+      if (profile.email) document.getElementById('profileEmail').value = profile.email;
+      if (profile.company) document.getElementById('profileCompany').value = profile.company;
+      if (profile.phone) document.getElementById('profilePhone').value = profile.phone;
+      if (profile.name) document.getElementById('welcomeMsg').textContent = `مرحباً ${profile.name}، هنا ملخص حسابك وآخر نشاطاتك.`;
+    }
+
+    // Save profile on change
+    ['profileName','profileEmail','profileCompany','profilePhone'].forEach(id => {
+      document.getElementById(id)?.addEventListener('change', () => {
+        const profile = {
+          name: document.getElementById('profileName').value,
+          email: document.getElementById('profileEmail').value,
+          company: document.getElementById('profileCompany').value,
+          phone: document.getElementById('profilePhone').value
+        };
+        localStorage.setItem('bonds_profile', JSON.stringify(profile));
+      });
+    });
+
+    
+    // Check admin status
+    async function checkAdmin() {
+      try {
+        const client = supabase.createClient(window.__ENV?.SUPABASE_URL || '', window.__ENV?.SUPABASE_ANON_KEY || '');
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return;
+        const res = await fetch('/api/admin-verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token }
+        });
+        const data = await res.json();
+        if (data.success && data.isAdmin) {
+          const link = document.getElementById('adminLink');
+          if (link) link.style.display = 'block';
+        }
+      } catch(e) {}
+    }
+    window.addEventListener('load', checkAdmin);
+window.addEventListener('load', () => {
+      loadStats();
+      loadRecent();
+      loadScenarios();
+      loadProfile();
+    });
+  </script>
+
+<script src="usage-guard.js"></script>
+</body>
+</html>

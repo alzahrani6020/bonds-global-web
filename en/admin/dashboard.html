@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard | Bonds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/png" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6; --danger: #ef4444;
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+    .admin-layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 260px; background: var(--bg-secondary); border-right: 1px solid var(--border);
+      padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;
+      position: fixed; left: 0; top: 0; bottom: 0; z-index: 100;
+    }
+    .sidebar-brand { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .sidebar-brand img { height: 40px; width: auto; border-radius: 6px; }
+    .sidebar-brand span { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+    .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; border-radius: 12px; color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s; }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(212,168,83,0.1); color: var(--gold); }
+    .sidebar-link svg { width: 20px; height: 20px; opacity: 0.7; }
+    .sidebar-footer { padding-top: 1rem; border-top: 1px solid var(--border); }
+    .sidebar-user { display: flex; align-items: center; gap: 0.75rem; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #0a0f1a; font-size: 0.85rem; }
+    .user-info { display: flex; flex-direction: column; }
+    .user-name { font-weight: 700; font-size: 0.85rem; }
+    .user-role { font-size: 0.75rem; color: var(--text-muted); }
+
+    .main-content { flex: 1; margin-left: 260px; padding: 2rem; }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .page-header p { color: var(--text-secondary); font-size: 0.9rem; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; transition: all 0.3s; }
+    .stat-card:hover { border-color: var(--border-hover); transform: translateY(-3px); }
+    .stat-card__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .stat-card__icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+    .stat-card__icon--users { background: rgba(59,130,246,0.1); }
+    .stat-card__icon--revenue { background: rgba(34,197,94,0.1); }
+    .stat-card__icon--pro { background: rgba(212,168,83,0.1); }
+    .stat-card__icon--calcs { background: rgba(168,85,247,0.1); }
+    .stat-card__icon--conversion { background: rgba(239,68,68,0.1); }
+    .stat-card__icon--arpu { background: rgba(14,165,233,0.1); }
+    .stat-card__change { font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.5rem; border-radius: 6px; }
+    .change-up { background: rgba(34,197,94,0.15); color: var(--success); }
+    .change-down { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .stat-card__num { font-size: 1.7rem; font-weight: 800; line-height: 1; margin-bottom: 0.35rem; }
+    .stat-card__label { font-size: 0.8rem; color: var(--text-secondary); }
+
+    .section-row { display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; margin-bottom: 2rem; }
+    .chart-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
+    .chart-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
+    .chart-box { height: 260px; }
+    .chart-box canvas { max-height: 260px; }
+
+    .table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 2rem; }
+    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
+    .table-header h3 { font-size: 1rem; font-weight: 700; }
+    .btn-sm { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
+    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #0a0f1a; }
+    .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--border); }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { text-align: left; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: rgba(16,24,45,0.9); }
+    .data-table td { padding: 1rem 1.5rem; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+    .data-table tr:hover td { background: rgba(212,168,83,0.05); }
+    .user-cell { display: flex; align-items: center; gap: 0.75rem; }
+    .user-cell__avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #0a0f1a; font-size: 0.75rem; }
+    .user-cell__name { font-weight: 700; color: var(--text); }
+    .user-cell__email { font-size: 0.75rem; color: var(--text-muted); }
+    .badge { display: inline-block; padding: 0.3rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
+    .badge--free { background: rgba(100,116,139,0.15); color: var(--text-secondary); }
+    .badge--pro { background: rgba(212,168,83,0.15); color: var(--gold); }
+    .badge--enterprise { background: rgba(168,85,247,0.15); color: #a855f7; }
+    .badge--active { background: rgba(34,197,94,0.15); color: var(--success); }
+    .badge--pending { background: rgba(234,179,8,0.15); color: var(--warning); }
+    .badge--inactive { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+    .loading { color: var(--text-muted); font-style: italic; text-align: center; padding: 2rem; }
+    .demo-badge { display: inline-block; background: rgba(234,179,8,0.2); color: var(--warning); font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; margin-left: 0.5rem; }
+
+    @media (max-width: 1024px) {
+      .sidebar { width: 80px; padding: 1rem; }
+      .sidebar-brand span, .sidebar-link span, .user-info { display: none; }
+      .sidebar-link { justify-content: center; padding: 0.85rem; }
+      .main-content { margin-left: 80px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .section-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+  </style>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../admin/admin-auth.js"></script>
+</head>
+<body>
+
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="../../assets/bonds-logo-header.webp" alt="Bonds" />
+        <span>Bonds</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="sidebar-link active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="users.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Users</span>
+        </a>
+        <a href="subscriptions.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <span>Subscriptions</span>
+        </a>
+        <a href="messages.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Messages</span> <span id="msgBadge" style="display:none;background:#ef4444;color:#fff;font-size:0.65rem;padding:0.1rem 0.4rem;border-radius:50px;margin-left:auto;">0</span>
+        </a>
+        <a href="roles.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Roles</span>
+        </a>
+        <a href="analytics.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+          <span>Analytics</span>
+        </a>
+        <a href="../../en/calculators/dashboard.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>User Site</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar">A</div>
+          <div class="user-info">
+            <span class="user-name">Administrator</span>
+            <span class="user-role">Admin</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Admin Dashboard <span id="demoIndicator" class="demo-badge" style="display:none;">Demo</span></h1>
+        <p>Platform overview and performance metrics</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card__header">
+            <div class="stat-card__icon stat-card__icon--users">👥</div>
+            <span class="stat-card__change change-up" id="usersChange">+12%</span>
+          </div>
+          <div class="stat-card__num" id="usersNum">—</div>
+          <div class="stat-card__label">Total Users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__header">
+            <div class="stat-card__icon stat-card__icon--revenue">💰</div>
+            <span class="stat-card__change change-up" id="revenueChange">+8.5%</span>
+          </div>
+          <div class="stat-card__num" id="revenueNum">—</div>
+          <div class="stat-card__label">Monthly Revenue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__header">
+            <div class="stat-card__icon stat-card__icon--pro">⭐</div>
+            <span class="stat-card__change change-up" id="proChange">+5%</span>
+          </div>
+          <div class="stat-card__num" id="proNum">—</div>
+          <div class="stat-card__label">Pro Subscribers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__header">
+            <div class="stat-card__icon stat-card__icon--calcs">🧮</div>
+            <span class="stat-card__change change-up" id="calcChange">+18%</span>
+          </div>
+          <div class="stat-card__num" id="calcNum">—</div>
+          <div class="stat-card__label">Calculations This Month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__header">
+            <div class="stat-card__icon stat-card__icon--conversion">📈</div>
+            <span class="stat-card__change change-up" id="convChange">+2.3%</span>
+          </div>
+          <div class="stat-card__num" id="convNum">—</div>
+          <div class="stat-card__label">Free→Pro Conversion</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__header">
+            <div class="stat-card__icon stat-card__icon--arpu">💵</div>
+            <span class="stat-card__change change-up" id="arpuChange">+4.1%</span>
+          </div>
+          <div class="stat-card__num" id="arpuNum">—</div>
+          <div class="stat-card__label">ARPU</div>
+        </div>
+      </div>
+
+      <div class="section-row">
+        <div class="chart-card">
+          <h3>📈 Monthly Revenue (6 Months)</h3>
+          <div class="chart-box"><canvas id="revenueChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>📊 Subscription Distribution</h3>
+          <div class="chart-box"><canvas id="subsChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <h3>🕒 Recent Activity</h3>
+          <button class="btn-sm btn-primary" onclick="refreshData()">Refresh</button>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>User</th><th>Activity</th><th>Details</th><th>Time</th></tr>
+          </thead>
+          <tbody id="activityTable">
+            <tr><td colspan="4" class="loading">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <h3>👤 Latest Users</h3>
+          <a href="users.html" class="btn-sm btn-primary">View All</a>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>User</th><th>Country</th><th>Plan</th><th>Status</th><th>Joined</th></tr>
+          </thead>
+          <tbody id="usersTable">
+            <tr><td colspan="5" class="loading">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const DEMO_DATA = {
+      users: { total: 1247, change: '+12%', changeUp: true },
+      revenue: { total: '$14,250', change: '+8.5%', changeUp: true },
+      pro: { total: 186, change: '+5%', changeUp: true },
+      calcs: { total: '8,432', change: '+18%', changeUp: true },
+      conversion: { total: '14.9%', change: '+2.3%', changeUp: true },
+      arpu: { total: '$11.4', change: '+4.1%', changeUp: true },
+      monthlyRevenue: [8200, 9500, 10200, 11800, 13100, 14250],
+      subscriptionSplit: [65, 20, 15]
+    };
+
+    let isDemo = false;
+    let revenueChart = null;
+    let subsChart = null;
+
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/admin-stats');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Unknown error');
+        return data;
+      } catch (e) {
+        console.warn('[Admin] API failed, using demo data:', e.message);
+        return null;
+      }
+    }
+
+    function formatNum(n) { return typeof n === 'number' ? n.toLocaleString('en-US') : n; }
+    function formatCurrency(n) { return typeof n === 'number' ? '$' + n.toLocaleString('en-US') : n; }
+
+    function tierBadge(tier) {
+      const map = { free: 'badge--free', pro: 'badge--pro', enterprise: 'badge--enterprise' };
+      return `<span class="badge ${map[tier] || 'badge--free'}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>`;
+    }
+
+    function statusBadge(status) {
+      const map = { active: 'badge--active', inactive: 'badge--inactive', pending: 'badge--pending', trialing: 'badge--warning', past_due: 'badge--danger' };
+      return `<span class="badge ${map[status] || 'badge--pending'}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+    }
+
+    function timeAgo(dateStr) {
+      const d = new Date(dateStr);
+      const now = new Date();
+      const diff = Math.floor((now - d) / 60000);
+      if (diff < 1) return 'Just now';
+      if (diff < 60) return `${diff}m ago`;
+      const hrs = Math.floor(diff / 60);
+      if (hrs < 24) return `${hrs}h ago`;
+      const days = Math.floor(hrs / 24);
+      return `${days}d ago`;
+    }
+
+    function countryLabel(code) {
+      const map = { SA: 'Saudi Arabia', AE: 'UAE', EG: 'Egypt', KW: 'Kuwait', QA: 'Qatar', BH: 'Bahrain', OM: 'Oman', JO: 'Jordan', IQ: 'Iraq', LB: 'Lebanon', MA: 'Morocco', DZ: 'Algeria', TN: 'Tunisia', TR: 'Turkey', US: 'USA', GB: 'UK', IN: 'India' };
+      return map[code] || code;
+    }
+
+    function updateStatsFromApi(data) {
+      isDemo = !!data.demo;
+      document.getElementById('demoIndicator').style.display = isDemo ? 'inline-block' : 'none';
+      const s = data.stats;
+      document.getElementById('usersNum').textContent = formatNum(s.totalUsers);
+      document.getElementById('revenueNum').textContent = formatCurrency(s.monthlyRevenue);
+      document.getElementById('proNum').textContent = formatNum(s.proUsers);
+      document.getElementById('calcNum').textContent = formatNum(s.totalScenarios);
+      document.getElementById('convNum').textContent = s.conversionRate + '%';
+      document.getElementById('arpuNum').textContent = '$' + s.arpu;
+      if (subsChart) {
+        subsChart.data.datasets[0].data = [s.freeUsers, s.proUsers, s.enterpriseUsers];
+        subsChart.update();
+      }
+    }
+
+    function updateStatsFallback() {
+      isDemo = true;
+      document.getElementById('demoIndicator').style.display = 'inline-block';
+      document.getElementById('usersNum').textContent = formatNum(DEMO_DATA.users.total);
+      document.getElementById('revenueNum').textContent = DEMO_DATA.revenue.total;
+      document.getElementById('proNum').textContent = formatNum(DEMO_DATA.pro.total);
+      document.getElementById('calcNum').textContent = DEMO_DATA.calcs.total;
+      document.getElementById('convNum').textContent = DEMO_DATA.conversion.total;
+      document.getElementById('arpuNum').textContent = DEMO_DATA.arpu.total;
+    }
+
+    function renderUsers(users) {
+      const tbody = document.getElementById('usersTable');
+      if (!users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="loading">No users found</td></tr>';
+        return;
+      }
+      tbody.innerHTML = users.map(u => {
+        const name = u.restaurant_name || 'New User';
+        return `<tr>
+          <td><div class="user-cell"><div class="user-cell__avatar">${name.charAt(0)}</div><div class="user-cell__name">${name}</div></div></td>
+          <td>${countryLabel(u.country)}</td>
+          <td>${tierBadge(u.tier)}</td>
+          <td>${statusBadge(u.status)}</td>
+          <td style="color:var(--text-muted);font-size:0.8rem;">${timeAgo(u.created_at)}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderActivities(users) {
+      const tbody = document.getElementById('activityTable');
+      const activities = (users || []).slice(0, 5).map(u => {
+        const actions = ['New signup', 'Factory calc', 'Saved scenario', 'Upgraded'];
+        const details = ['Via website', 'Feasibility study', 'New project', 'Free → Pro'];
+        const idx = Math.floor(Math.random() * actions.length);
+        return { user: u.restaurant_name || 'User', action: actions[idx], detail: details[idx], time: timeAgo(u.created_at) };
+      });
+      if (activities.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="loading">No recent activity</td></tr>';
+        return;
+      }
+      tbody.innerHTML = activities.map(a => `<tr>
+        <td><div class="user-cell"><div class="user-cell__avatar">${a.user.charAt(0)}</div><div class="user-cell__name">${a.user}</div></div></td>
+        <td>${a.action}</td>
+        <td>${a.detail}</td>
+        <td style="color:var(--text-muted);font-size:0.8rem;">${a.time}</td>
+      </tr>`).join('');
+    }
+
+    async function initDashboard() {
+      const data = await fetchStats();
+      if (data && data.stats) {
+        updateStatsFromApi(data);
+        renderUsers(data.recentUsers);
+        renderActivities(data.recentUsers);
+      } else {
+        updateStatsFallback();
+        renderDemoUsers();
+        renderDemoActivities();
+      }
+    }
+
+    function renderDemoUsers() {
+      const demoUsers = [
+        { restaurant_name: 'Ahmad Mohammed', country: 'SA', tier: 'pro', status: 'active', created_at: new Date(Date.now() - 300000).toISOString() },
+        { restaurant_name: 'Sara Abdullah', country: 'AE', tier: 'enterprise', status: 'active', created_at: new Date(Date.now() - 86400000).toISOString() },
+        { restaurant_name: 'Mohammed Ali', country: 'EG', tier: 'free', status: 'active', created_at: new Date(Date.now() - 172800000).toISOString() },
+        { restaurant_name: 'Fatima Zahra', country: 'JO', tier: 'pro', status: 'pending', created_at: new Date(Date.now() - 259200000).toISOString() },
+      ];
+      renderUsers(demoUsers);
+    }
+
+    function renderDemoActivities() {
+      const tbody = document.getElementById('activityTable');
+      const ACTIVITIES = [
+        { user: 'Ahmad Mohammed', action: 'Factory calc', detail: 'Saudi Arabia - 500m²', time: '5m ago' },
+        { user: 'Sara Abdullah', action: 'Saved scenario', detail: 'Feasibility - Egypt', time: '12m ago' },
+        { user: 'Mohammed Ali', action: 'Upgraded', detail: 'Free → Pro', time: '30m ago' },
+        { user: 'Fatima Zahra', action: 'Cash flow calc', detail: '12 months - Jordan', time: '1h ago' },
+        { user: 'Khaled Omar', action: 'New signup', detail: 'Via Google', time: '2h ago' },
+      ];
+      tbody.innerHTML = ACTIVITIES.map(a => `<tr>
+        <td><div class="user-cell"><div class="user-cell__avatar">${a.user.charAt(0)}</div><div class="user-cell__name">${a.user}</div></div></td>
+        <td>${a.action}</td>
+        <td>${a.detail}</td>
+        <td style="color:var(--text-muted);font-size:0.8rem;">${a.time}</td>
+      </tr>`).join('');
+    }
+
+    function refreshData() {
+      document.getElementById('activityTable').innerHTML = '<tr><td colspan="4" class="loading">Refreshing...</td></tr>';
+      document.getElementById('usersTable').innerHTML = '<tr><td colspan="5" class="loading">Refreshing...</td></tr>';
+      initDashboard();
+    }
+
+    const revCtx = document.getElementById('revenueChart').getContext('2d');
+    revenueChart = new Chart(revCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Revenue ($)',
+          data: DEMO_DATA.monthlyRevenue,
+          borderColor: '#d4a853',
+          backgroundColor: 'rgba(212,168,83,0.1)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#d4a853',
+          pointBorderColor: '#0a0f1a',
+          pointBorderWidth: 2,
+          pointRadius: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+          x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+
+    const subsCtx = document.getElementById('subsChart').getContext('2d');
+    subsChart = new Chart(subsCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Free', 'Pro', 'Enterprise'],
+        datasets: [{
+          data: DEMO_DATA.subscriptionSplit,
+          backgroundColor: ['#64748b', '#d4a853', '#a855f7'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 }, padding: 15 } }
+        }
+      }
+    });
+
+    window.addEventListener('load',
+
+    function updateMsgBadge() {
+      try {
+        const msgs = JSON.parse(localStorage.getItem('bonds_contact_messages') || '[]');
+        const unread = msgs.filter(m => !m.read).length;
+        const badge = document.getElementById('msgBadge');
+        if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'inline-block' : 'none'; }
+      } catch(e) {}
+    }
+    window.addEventListener('load', updateMsgBadge);
+ initDashboard);
+  </script>
+
+</body>
+</html>

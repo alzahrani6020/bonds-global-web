@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>دليل الاستثمار الصناعي في قطر | بوندز</title>
+  <meta name="description" content="دليل شامل للاستثمار الصناعي في دولة قطر - هيئة المناطق الحرة، مدينة راس لفان الصناعية، التراخيص، التكاليف" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6;
+      --shadow: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Vazirmatn',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+    a { color:var(--gold); text-decoration:none; }
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); font-size:1.1rem; }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2.2rem; font-weight:800; margin-bottom:1rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; font-size:1.05rem; }
+    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
+    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-bottom:3rem; }
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
+    .card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:var(--shadow); }
+    .card__icon { width:48px; height:48px; border-radius:12px; background:rgba(212,168,83,0.1); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1rem; }
+    .card__title { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; }
+    .card__text { font-size:0.85rem; color:var(--text-secondary); line-height:1.7; }
+    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:3rem; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:right; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(16,24,45,0.9); border-bottom:1px solid var(--border); }
+    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
+    tr:hover td { background:rgba(212,168,40,0.05); }
+    .fee-highlight { background:rgba(212,168,83,0.08); border-radius:8px; padding:0.35rem 0.75rem; font-weight:700; color:var(--gold); white-space:nowrap; }
+    .timeline { display:flex; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
+    .stage { display:flex; gap:1.5rem; }
+    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .stage__content { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
+    .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
+    .stage__list { list-style:none; }
+    .stage__list li { padding:0.5rem 0; color:var(--text-secondary); font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
+    .stage__list li::before { content:'✓'; color:var(--success); font-weight:700; }
+    .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin:1rem 0; }
+    .note strong { color:var(--warning); }
+    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
+    @media (max-width:768px) { .hero h1 { font-size:1.5rem; } .stage { flex-direction:column; } .header__nav { display:none; } }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="../index.html" class="header__logo">
+        <img src="../assets/bonds-logo-header.webp" alt="بوندز" />
+        <span>بوندز</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../index.html">الرئيسية</a>
+        <a href="manufacturing.html">السعودية</a>
+        <a href="manufacturing-eg.html">مصر</a>
+        <a href="manufacturing-ae.html">الإمارات</a>
+        <a href="../contact.html">تواصل</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>دليل الاستثمار الصناعي في قطر</h1>
+    <p>كل ما يحتاجه المستثمر من هيئات، مدن صناعية، تراخيص، وتكاليف في دولة قطر</p>
+  </section>
+
+  <div class="container">
+
+    <h2 class="section-title">🏛️ الهيئات الحكومية الرئيسية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">وزارة التجارة والصناعة</div>
+        <div class="card__text">الجهة الرئيسية للتجارة والصناعة. تصدر التراخيص الصناعية. تشرف على الأنشطة الاقتصادية. تطوير السياسات الصناعية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌐</div>
+        <div class="card__title">هيئة المناطق الحرة (QFC / QFZA)</div>
+        <div class="card__text">إدارة المناطق الحرة في قطر. تمنح تراخيص استثمار أجنبي 100%. نظام قانوني مبني على القانون البريطاني.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🔬</div>
+        <div class="card__title">هيئة قطر للبحث والتطوير (QRDI)</div>
+        <div class="card__text">دعم البحث العلمي والتطوير التقني. تمويل المشاريع المبتكرة. شراكة بين القطاعين العام والخاص.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">شركة كهرماء (Kahramaa)</div>
+        <div class="card__text">الجهة الوحيدة لتزويد الكهرباء والماء. تسعير يخضع لمجلس الوزراء. خدمات الشباك الواحد.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏗️</div>
+        <div class="card__title">جهاز التخطيط والإحصاء</div>
+        <div class="card__text">وضع الخطط التنموية. إصدار التصاريح الإحصائية. دعم صناعة اتخاذ القرار.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌿</div>
+        <div class="card__title">وزارة البيئة والتغير المناخي</div>
+        <div class="card__text">حماية البيئة. إصدار التصاريح البيئية. مراقبة الانبعاثات الصناعية. استراتيجية التنمية المستدامة.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">⚡ تعريفة الكهرباء الصناعية</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>نوع الاشتراك</th><th>الجهد</th><th>التعريفة (درهم/ك.و.س)</th><th>ملاحظات</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>صناعي - جهد منخفض</strong></td><td>240/415 فولت</td><td><span class="fee-highlight">0.11 - 0.13 ريال</span></td><td>للمصانع الصغيرة</td></tr>
+          <tr><td><strong>صناعي - جهد متوسط</strong></td><td>11 كيلوفولت</td><td><span class="fee-highlight">0.09 - 0.11 ريال</span></td><td>للمصانع المتوسطة والكبيرة</td></tr>
+          <tr><td><strong>صناعي - جهد عالٍ</strong></td><td>66 كيلوفولت</td><td><span class="fee-highlight">0.07 - 0.09 ريال</span></td><td>للصناعات كثيفة الاستهلاك</td></tr>
+          <tr><td><strong>مناطق حرة</strong></td><td>جميع الجهود</td><td><span class="fee-highlight">تعريفة خاصة</span></td><td>تفاوض مع كهرماء</td></tr>
+          <tr><td><strong>رسوم الوقود</strong></td><td>-</td><td><span class="fee-highlight">+0.02 ريال</span></td><td>تضاف على الفاتورة</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>ملاحظة:</strong> قطر تتميز بأسعار كهرباء تنافسية بفضل وفرة الغاز الطبيعي. كهرماء تقدم خدمات الشباك الواحد للتوصيل السريع. المصانع الكبيرة يمكنها التفاوض على عقود توريد طويلة الأجل.
+    </div>
+
+    <h2 class="section-title">🏙️ المدن الصناعية الرئيسية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">مدينة راس لفان الصناعية</div>
+        <div class="card__text">أكبر مدينة صناعية في قطر. 120 كم². تخصصات: البتروكيماويات، الغاز الطبيعي المسال، الصناعات الثقيلة. أكبر مصدّر للغاز المسال في العالم.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">مدينة مسيعيد الصناعية</div>
+        <div class="card__text">جنوب قطر. 52 كم². تخصصات: البتروكيماويات، الصلب، الأسمدة، صناعة الأسمنت. ميناء مسيعيد الصناعي.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة أم الحول الصناعية</div>
+        <div class="card__text">قرب الدوحة. تخصصات: الصناعات الخفيفة والمتوسطة، التجميع، التعبئة. قرب مطار حمد الدولي وميناء حمد.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة البرزان الصناعية</div>
+        <div class="card__text">تخصصات: الصناعات الدفاعية والأمنية. تملكها شركة البرزان القابضة. شراكات دولية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة الدحيل الصناعية</div>
+        <div class="card__text">وسط قطر. تخصصات: الصناعات الهندسية، البلاستيك، الكيماويات. مناسبة للمشاريع المتوسطة.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة الوكرة الصناعية</div>
+        <div class="card__text">جنوب شرق قطر. تخصصات: الصناعات البحرية، السفن، الصناعات المرتبطة بالموانئ.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة الخور الصناعية</div>
+        <div class="card__text">شمال قطر. تخصصات: الصناعات الغذائية، المنتجات الاستهلاكية. قرب مدينة الخور.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة الشحانية الصناعية</div>
+        <div class="card__text">غرب قطر. تخصصات: التخزين واللوجستيات، الصناعات الخفيفة. قرب منطقة الشحانية للمواشي.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🗺️ رحلة المستثمر الصناعي</h2>
+    <div class="timeline">
+      <div class="stage">
+        <div class="stage__num">1</div>
+        <div class="stage__content">
+          <div class="stage__title">الترخيص الأولي</div>
+          <ul class="stage__list">
+            <li>تقديم طلب ترخيص صناعي لوزارة التجارة والصناعة</li>
+            <li>الحصول على موافقة هيئة المناطق الحرة (للمناطق الحرة)</li>
+            <li>تسجيل الشركة في وزارة التجارة</li>
+            <li>دراسة جدوى للمشروع</li>
+            <li>المدة: 2-4 أسابيع</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">2</div>
+        <div class="stage__content">
+          <div class="stage__title">تخصيص الأرض والموقع</div>
+          <ul class="stage__list">
+            <li>اختيار المدينة الصناعية المناسبة</li>
+            <li>تقديم طلب تخصيص أرض لوزارة البلدية أو إدارة المدينة</li>
+            <li>دفع رسوم الحجز والتأمين (10-20%)</li>
+            <li>توقيع عقد الإيجار أو البيع</li>
+            <li>المدة: 2-6 أسابيع</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">3</div>
+        <div class="stage__content">
+          <div class="stage__title">ترخيص البناء والتشييد</div>
+          <ul class="stage__list">
+            <li>تقديم مخططات هندسية معتمدة للبلدية</li>
+            <li>الحصول على تصريح البناء</li>
+            <li>موافقة الدفاع المدني</li>
+            <li>تنفيذ المشروع من قبل مقاول معتمد</li>
+            <li>المدة: 3-8 أشهر حسب المشروع</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">4</div>
+        <div class="stage__content">
+          <div class="stage__title">التشغيل النهائي</div>
+          <ul class="stage__list">
+            <li>شهادة إتمام البناء</li>
+            <li>فحص السلامة من الدفاع المدني</li>
+            <li>توصيل الكهرباء والماء من كهرماء</li>
+            <li>الحصول على رخصة التشغيل النهائية</li>
+            <li>المدة: 2-4 أسابيع</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">💰 التكاليف والرسوم الصناعية</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>البند</th><th>التكلفة التقريبية</th><th>ملاحظات</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>رسوم الترخيص الصناعي</strong></td><td><span class="fee-highlight">1,000 - 5,000 ريال</span></td><td>حسب نوع النشاط</td></tr>
+          <tr><td><strong>إيجار الأرض الصناعية</strong></td><td><span class="fee-highlight">3 - 8 ريال/م²/سنة</span></td><td>حسب المدينة</td></tr>
+          <tr><td><strong>بيع الأرض الصناعية</strong></td><td><span class="fee-highlight">40 - 100 ريال/م²</span></td><td>للملكية الكاملة</td></tr>
+          <tr><td><strong>رسوم توصيل كهرباء</strong></td><td><span class="fee-highlight">100 - 300 ريال/كيلوواط</span></td><td>حسب القدرة</td></tr>
+          <tr><td><strong>رسوم المناطق الحرة</strong></td><td><span class="fee-highlight">10,000 - 30,000 ريال/سنة</span></td><td>تشمل الترخيص والتسجيل</td></tr>
+          <tr><td><strong>رسوم المياه والصرف</strong></td><td><span class="fee-highlight">2 - 5 ريال/م³</span></td><td>حسب الاستهلاك</td></tr>
+          <tr><td><strong>رسوم تجديد الترخيص</strong></td><td><span class="fee-highlight">سنوياً</span></td><td>نسبة من الترخيص الأصلي</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">📋 متطلبات إنشاء مصنع في قطر</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>المتطلب</th><th>الجهة المصدرة</th><th>المدة</th><th>التكلفة</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>الترخيص الصناعي</strong></td><td>وزارة التجارة والصناعة</td><td>2-4 أسابيع</td><td>1,000 - 5,000 ريال</td></tr>
+          <tr><td><strong>تسجيل الشركة</strong></td><td>وزارة التجارة والصناعة</td><td>3-7 أيام</td><td>500 - 1,500 ريال</td></tr>
+          <tr><td><strong>تخصيص أرض صناعية</strong></td><td>وزارة البلدية / إدارة المدينة</td><td>2-6 أسابيع</td><td>حسب المساحة</td></tr>
+          <tr><td><strong>تصريح البناء</strong></td><td>البلدية</td><td>2-4 أسابيع</td><td>1-2% من قيمة البناء</td></tr>
+          <tr><td><strong>موافقة بيئية</strong></td><td>وزارة البيئة</td><td>2-4 أسابيع</td><td>500 - 2,000 ريال</td></tr>
+          <tr><td><strong>موافقة الدفاع المدني</strong></td><td>المديرية العامة للدفاع المدني</td><td>1-2 أسابيع</td><td>500 - 1,000 ريال</td></tr>
+          <tr><td><strong>رخصة التشغيل</strong></td><td>وزارة التجارة والصناعة</td><td>3-5 أيام</td><td>500 - 1,000 ريال</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">🏗️ اشتراطات البناء الصناعي</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">📐</div>
+        <div class="card__title">النسب البنائية</div>
+        <div class="card__text">نسبة البناء: 50-65%. مساحات خضراء: 10%. ارتفاع المصانع: حتى 15 متر.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🚒</div>
+        <div class="card__title">اشتراطات السلامة</div>
+        <div class="card__text">مخرجين طوارئ. مسافة 6 أمتار بين المباني. خزان مياه إطفاء. نظام إنذار حريق.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌿</div>
+        <div class="card__title">الاشتراطات البيئية</div>
+        <div class="card__text">دراسة تقييم الأثر البيئي. معالجة المخلفات. مراقبة الانبعاثات. التزام بمعايير وزارة البيئة القطرية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">👷</div>
+        <div class="card__title">اشتراطات العمالة</div>
+        <div class="card__text">مساحة 3.5 م²/عامل. مرافق صحية. امتثال لقانون العمل القطري. برنامج قطرization للعمالة الوطنية.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">📞 معلومات التواصل الرئيسية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">وزارة التجارة والصناعة</div>
+        <div class="card__text">الموقع: motc.gov.qa<br>الهاتف: +974 44 04 0000<br>البريد: info@motc.gov.qa</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌐</div>
+        <div class="card__title">هيئة المناطق الحرة (QFZA)</div>
+        <div class="card__text">الموقع: qfza.gov.qa<br>الهاتف: +974 40 11 0000<br>البريد: info@qfza.gov.qa</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">شركة كهرماء</div>
+        <div class="card__text">الموقع: km.qa<br>الهاتف: 991<br>البريد: info@km.qa</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌿</div>
+        <div class="card__title">وزارة البيئة والتغير المناخي</div>
+        <div class="card__text">الموقع: mme.gov.qa<br>الهاتف: +974 44 04 0000<br>البريد: info@mme.gov.qa</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏗️</div>
+        <div class="card__title">جهاز التخطيط والإحصاء</div>
+        <div class="card__text">الموقع: psa.gov.qa<br>الهاتف: +974 44 04 0000<br>البريد: info@psa.gov.qa</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🔬</div>
+        <div class="card__title">هيئة قطر للبحث والتطوير</div>
+        <div class="card__text">الموقع: qrdi.org.qa<br>الهاتف: +974 44 91 0000<br>البريد: info@qrdi.org.qa</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🔗 أدلة استثمارية أخرى</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">🇸🇦</div><div class="card__title"><a href="manufacturing.html">الاستثمار الصناعي في السعودية</a></div><div class="card__text">دليل مدن الصناعية السعودية - 35 مدينة صناعية</div></div>
+      <div class="card"><div class="card__icon">🇪🇬</div><div class="card__title"><a href="manufacturing-eg.html">الاستثمار الصناعي في مصر</a></div><div class="card__text">دليل الهيئة العامة للتنمية الصناعية - 147 منطقة</div></div>
+      <div class="card"><div class="card__icon">🇦🇪</div><div class="card__title"><a href="manufacturing-ae.html">الاستثمار الصناعي في الإمارات</a></div><div class="card__text">دليل المناطق الحرة والصناعية الإماراتية</div></div>
+      <div class="card"><div class="card__icon">🇱🇾</div><div class="card__title"><a href="manufacturing-ly.html">الاستثمار الصناعي في ليبيا</a></div><div class="card__text">دليل المناطق الصناعية الليبية</div></div>
+      <div class="card"><div class="card__icon">🇩🇿</div><div class="card__title"><a href="manufacturing-dz.html">الاستثمار الصناعي في الجزائر</a></div><div class="card__text">دليل المناطق الصناعية الجزائرية</div></div>
+      <div class="card"><div class="card__icon">🇱🇧</div><div class="card__title"><a href="manufacturing-lb.html">الاستثمار الصناعي في لبنان</a></div><div class="card__text">دليل المناطق الصناعية اللبنانية</div></div>
+      <div class="card"><div class="card__icon">🇾🇪</div><div class="card__title"><a href="manufacturing-ye.html">الاستثمار الصناعي في اليمن</a></div><div class="card__text">دليل المناطق الصناعية اليمنية</div></div>
+      <div class="card"><div class="card__icon">🇸🇾</div><div class="card__title"><a href="manufacturing-sy.html">الاستثمار الصناعي في سوريا</a></div><div class="card__text">دليل المناطق الصناعية السورية</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title"><a href="../calculators/factory-cost-qa.html">حاسبة تكلفة المصنع - قطر</a></div><div class="card__text">احسب تكلفة إنشاء مصنعك في قطر</div></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>© 2026 بوندز للاستشارات المالية. البيانات مأخوذة من الجهات الحكومية القطرية الرسمية.</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>دليل الاستثمار الصناعي في البحرين | بوندز</title>
+  <meta name="description" content="دليل شامل للاستثمار الصناعي في مملكة البحرين - وزارة الصناعة والتجارة، هيئة البحرين للتنمية الاقتصادية، المناطق الصناعية، التراخيص" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6;
+      --shadow: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Vazirmatn',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+    a { color:var(--gold); text-decoration:none; }
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); font-size:1.1rem; }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2.2rem; font-weight:800; margin-bottom:1rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; font-size:1.05rem; }
+    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
+    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-bottom:3rem; }
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
+    .card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:var(--shadow); }
+    .card__icon { width:48px; height:48px; border-radius:12px; background:rgba(212,168,83,0.1); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1rem; }
+    .card__title { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; }
+    .card__text { font-size:0.85rem; color:var(--text-secondary); line-height:1.7; }
+    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:3rem; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:right; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(16,24,45,0.9); border-bottom:1px solid var(--border); }
+    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
+    tr:hover td { background:rgba(212,168,40,0.05); }
+    .fee-highlight { background:rgba(212,168,83,0.08); border-radius:8px; padding:0.35rem 0.75rem; font-weight:700; color:var(--gold); white-space:nowrap; }
+    .timeline { display:flex; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
+    .stage { display:flex; gap:1.5rem; }
+    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .stage__content { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
+    .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
+    .stage__list { list-style:none; }
+    .stage__list li { padding:0.5rem 0; color:var(--text-secondary); font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
+    .stage__list li::before { content:'✓'; color:var(--success); font-weight:700; }
+    .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin:1rem 0; }
+    .note strong { color:var(--warning); }
+    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
+    @media (max-width:768px) { .hero h1 { font-size:1.5rem; } .stage { flex-direction:column; } .header__nav { display:none; } }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="../index.html" class="header__logo">
+        <img src="../assets/bonds-logo-header.webp" alt="بوندز" />
+        <span>بوندز</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../index.html">الرئيسية</a>
+        <a href="manufacturing.html">السعودية</a>
+        <a href="manufacturing-eg.html">مصر</a>
+        <a href="manufacturing-ae.html">الإمارات</a>
+        <a href="../contact.html">تواصل</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>دليل الاستثمار الصناعي في البحرين</h1>
+    <p>كل ما يحتاجه المستثمر من هيئات، مناطق صناعية، تراخيص، وتكاليف في مملكة البحرين</p>
+  </section>
+
+  <div class="container">
+
+    <h2 class="section-title">🏛️ الهيئات الحكومية الرئيسية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">وزارة الصناعة والتجارة (MOIC)</div>
+        <div class="card__text">الجهة الرئيسية للصناعة والتجارة. تصدر التراخيص الصناعية. تشرف على الأنشطة الاقتصادية. تدير سجل الشركات التجارية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📈</div>
+        <div class="card__title">هيئة البحرين للتنمية الاقتصادية (EDB)</div>
+        <div class="card__text">ترويج الاستثمار الأجنبي المباشر. تقدم الدعم للمستثمرين. تنسيق مع الجهات الحكومية لتسهيل الإجراءات.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏦</div>
+        <div class="card__title">بنك البحرين للتنمية (BDB)</div>
+        <div class="card__text">تمويل المشاريع الصناعية والتجارية. قروض ميسرة للمشاريع الصغيرة والمتوسطة. ضمانات ائتمانية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">هيئة الكهرباء والماء (EWA)</div>
+        <div class="card__text">الجهة الوحيدة لتزويد الكهرباء والماء. تسعير يخضع لمجلس الوزراء. خدمات الشباك الواحد للتوصيل.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌊</div>
+        <div class="card__title">هيئة تنظيم قطاع المياه والطاقة (WERA)</div>
+        <div class="card__text">تنظيم ومراقبة قطاعي المياه والطاقة. وضع السياسات التسعيرية. ضمان جودة الخدمات.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📋</div>
+        <div class="card__title">هيئة البحرين للاستثمار (BIA)</div>
+        <div class="card__text">إصدار تراخيص المناطق الحرة. ترويج الاستثمار في البحرين. تقدم خدمات الشباك الواحد للمستثمرين.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">⚡ تعريفة الكهرباء الصناعية</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>نوع الاشتراك</th><th>الجهد</th><th>التعريفة (فلس/ك.و.س)</th><th>ملاحظات</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>صناعي - جهد منخفض</strong></td><td>230/400 فولت</td><td><span class="fee-highlight">17 - 20 فلس</span></td><td>للمصانع الصغيرة</td></tr>
+          <tr><td><strong>صناعي - جهد متوسط</strong></td><td>11 كيلوفولت</td><td><span class="fee-highlight">15 - 18 فلس</span></td><td>للمصانع المتوسطة والكبيرة</td></tr>
+          <tr><td><strong>صناعي - جهد عالٍ</strong></td><td>66 كيلوفولت</td><td><span class="fee-highlight">12 - 15 فلس</span></td><td>للصناعات كثيفة الاستهلاك</td></tr>
+          <tr><td><strong>مناطق حرة</strong></td><td>جميع الجهود</td><td><span class="fee-highlight">تعريفة خاصة</span></td><td>تفاوض مع إدارة المنطقة</td></tr>
+          <tr><td><strong>رسوم الوقود</strong></td><td>-</td><td><span class="fee-highlight">+3 - 5 فلس</span></td><td>تضاف على الفاتورة شهرياً</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>ملاحظة:</strong> البحرين تتميز بأقل تعريفة كهرباء صناعية في المنطقة (بفضل الدعم الحكومي). المصانع الكبيرة يمكنها التفاوض على عقود توريد مباشرة. تطبق رسوم وقود شهرية متغيرة.
+    </div>
+
+    <h2 class="section-title">🏙️ المناطق الصناعية الرئيسية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏗️</div>
+        <div class="card__title">خليج البحرين للأعمال (Bahrain Business Bay)</div>
+        <div class="card__text">أحدث منطقة استثمارية متكاملة. تضم مناطق صناعية وتجارية وسكنية. بنية تحتية متطورة. قرب مطار البحرين الدولي.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة العسكر الصناعية</div>
+        <div class="card__text">أكبر منطقة صناعية في البحرين. 700+ مصنع. تخصصات: الألمنيوم، الصناعات الكيميائية، البلاستيك، الهندسة.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة الحد الصناعية</div>
+        <div class="card__text">قرب ميناء سلمان. تخصصات: الصناعات البحرية، الهندسة، اللوجستيات. موقع استراتيجي للاستيراد والتصدير.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة المعامير الصناعية</div>
+        <div class="card__text">تخصصات: الصناعات الخفيفة، التجميع، التعبئة والتغليف. مناسبة للمشاريع الصغيرة والمتوسطة.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة سترة الصناعية</div>
+        <div class="card__text">قرب سترة الصناعية القديمة. تخصصات: الصناعات التقليدية، السفن، الخدمات البحرية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">مصفاة ألبا (ALBA)</div>
+        <div class="card__text">أكبر مصفاة ألمنيوم في العالم خارج الصين. منطقة صناعية ضخمة. تخصصات: الألمنيوم والصناعات المرتبطة به.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة سلماباد الصناعية</div>
+        <div class="card__text">وسط البحرين. تخصصات: الصناعات الغذائية، المنتجات الاستهلاكية، التخزين واللوجستيات.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">مدينة حمد الصناعية</div>
+        <div class="card__text">شمال البحرين. تخصصات: الصناعات الثقيلة، مصانع الأسمنت، المواد الكيميائية.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🗺️ رحلة المستثمر الصناعي</h2>
+    <div class="timeline">
+      <div class="stage">
+        <div class="stage__num">1</div>
+        <div class="stage__content">
+          <div class="stage__title">الترخيص الأولي</div>
+          <ul class="stage__list">
+            <li>تقديم طلب ترخيص صناعي لوزارة الصناعة والتجارة</li>
+            <li>تسجيل الشركة في سجل الشركات التجارية</li>
+            <li>الحصول على موافقة البلدية</li>
+            <li>دراسة جدوى للمشروع (للمصانع المتوسطة والكبيرة)</li>
+            <li>المدة: 1-3 أسابيع</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">2</div>
+        <div class="stage__content">
+          <div class="stage__title">تخصيص الأرض والموقع</div>
+          <ul class="stage__list">
+            <li>اختيار المنطقة الصناعية المناسبة</li>
+            <li>تقديم طلب تخصيص أرض لوزارة الأشغال أو البلدية</li>
+            <li>دفع رسوم الحجز والتأمين</li>
+            <li>توقيع عقد الإيجار أو البيع</li>
+            <li>المدة: 2-4 أسابيع</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">3</div>
+        <div class="stage__content">
+          <div class="stage__title">ترخيص البناء والتشييد</div>
+          <ul class="stage__list">
+            <li>تقديم مخططات هندسية معتمدة للبلدية</li>
+            <li>الحصول على تصريح البناء</li>
+            <li>موافقة الدفاع المدني</li>
+            <li>تنفيذ المشروع من قبل مقاول معتمد</li>
+            <li>المدة: 3-6 أشهر حسب المشروع</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">4</div>
+        <div class="stage__content">
+          <div class="stage__title">التشغيل النهائي</div>
+          <ul class="stage__list">
+            <li>شهادة إتمام البناء</li>
+            <li>فحص السلامة من الدفاع المدني</li>
+            <li>توصيل الكهرباء والماء من هيئة EWA</li>
+            <li>الحصول على رخصة التشغيل النهائية</li>
+            <li>المدة: 1-2 أسابيع</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">💰 التكاليف والرسوم الصناعية</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>البند</th><th>التكلفة التقريبية</th><th>ملاحظات</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>رسوم الترخيص الصناعي</strong></td><td><span class="fee-highlight">100 - 500 دينار</span></td><td>حسب نوع النشاط</td></tr>
+          <tr><td><strong>إيجار الأرض الصناعية</strong></td><td><span class="fee-highlight">1 - 3 دينار/م²/سنة</span></td><td>حسب المنطقة</td></tr>
+          <tr><td><strong>بيع الأرض الصناعية</strong></td><td><span class="fee-highlight">15 - 40 دينار/م²</span></td><td>للملكية الكاملة</td></tr>
+          <tr><td><strong>رسوم توصيل كهرباء</strong></td><td><span class="fee-highlight">50 - 120 دينار/كيلوواط</span></td><td>حسب القدرة</td></tr>
+          <tr><td><strong>رسوم المناطق الحرة</strong></td><td><span class="fee-highlight">1,500 - 5,000 دينار/سنة</span></td><td>تشمل الترخيص والتسجيل</td></tr>
+          <tr><td><strong>رسوم المياه والصرف</strong></td><td><span class="fee-highlight">0.3 - 0.7 دينار/م³</span></td><td>حسب الاستهلاك</td></tr>
+          <tr><td><strong>رسوم تجديد الترخيص</strong></td><td><span class="fee-highlight">سنوياً</span></td><td>نسبة من الترخيص الأصلي</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">📋 متطلبات إنشاء مصنع في البحرين</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>المتطلب</th><th>الجهة المصدرة</th><th>المدة</th><th>التكلفة</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>الترخيص الصناعي</strong></td><td>وزارة الصناعة والتجارة</td><td>1-3 أسابيع</td><td>100 - 500 دينار</td></tr>
+          <tr><td><strong>تسجيل الشركة</strong></td><td>وزارة الصناعة والتجارة</td><td>3-5 أيام</td><td>50 - 150 دينار</td></tr>
+          <tr><td><strong>تخصيص أرض صناعية</strong></td><td>وزارة الأشغال / البلدية</td><td>2-4 أسابيع</td><td>حسب المساحة</td></tr>
+          <tr><td><strong>تصريح البناء</strong></td><td>البلدية</td><td>2-4 أسابيع</td><td>1-2% من قيمة البناء</td></tr>
+          <tr><td><strong>موافقة بيئية</strong></td><td>المجلس الأعلى للبيئة</td><td>2-4 أسابيع</td><td>100 - 300 دينار</td></tr>
+          <tr><td><strong>موافقة الدفاع المدني</strong></td><td>الإدارة العامة للدفاع المدني</td><td>1-2 أسابيع</td><td>100 - 250 دينار</td></tr>
+          <tr><td><strong>رخصة التشغيل</strong></td><td>وزارة الصناعة والتجارة</td><td>3-5 أيام</td><td>50 - 150 دينار</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">🏗️ اشتراطات البناء الصناعي</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">📐</div>
+        <div class="card__title">النسب البنائية</div>
+        <div class="card__text">نسبة البناء: 50-70%. مساحات خضراء: 10%. ارتفاع المصانع: حتى 12 متر للصناعات الخفيفة.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🚒</div>
+        <div class="card__title">اشتراطات السلامة</div>
+        <div class="card__text">مخرجين طوارئ. مسافة 4 أمتار بين المباني. خزان مياه إطفاء. نظام إنذار حريق. امتثال لمعايير الدفاع المدني البحريني.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌿</div>
+        <div class="card__title">الاشتراطات البيئية</div>
+        <div class="card__text">دراسة تقييم الأثر البيئي. معالجة المخلفات قبل الصرف. مراقبة الانبعاثات. التزام بمعايير المجلس الأعلى للبيئة.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">👷</div>
+        <div class="card__title">اشتراطات العمالة</div>
+        <div class="card__text">مساحة 3.5 م²/عامل. مرافق صحية. مطبخ ومصلى. امتثال لقانون العمل البحريني. برنامج تمكين العمالة الوطنية.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">📞 معلومات التواصل الرئيسية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">وزارة الصناعة والتجارة</div>
+        <div class="card__text">الموقع: moic.gov.bh<br>الهاتف: +973 17 360 000<br>البريد: info@moic.gov.bh</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📈</div>
+        <div class="card__title">هيئة البحرين للتنمية الاقتصادية</div>
+        <div class="card__text">الموقع: bahrainedb.com<br>الهاتف: +973 17 559 000<br>البريد: info@bahrainedb.com</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏦</div>
+        <div class="card__title">بنك البحرين للتنمية</div>
+        <div class="card__text">الموقع: bdb-bh.com<br>الهاتف: +973 17 558 000<br>البريد: info@bdb-bh.com</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">هيئة الكهرباء والماء</div>
+        <div class="card__text">الموقع: ewa.bh<br>الهاتف: 1753<br>البريد: info@ewa.bh</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌿</div>
+        <div class="card__title">المجلس الأعلى للبيئة</div>
+        <div class="card__text">الموقع: cepa.gov.bh<br>الهاتف: +973 17 827 400<br>البريد: info@cepa.gov.bh</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📋</div>
+        <div class="card__title">هيئة البحرين للاستثمار</div>
+        <div class="card__text">الموقع: bia.bh<br>الهاتف: +973 17 558 000<br>البريد: info@bia.bh</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🔗 أدلة استثمارية أخرى</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">🇸🇦</div><div class="card__title"><a href="manufacturing.html">الاستثمار الصناعي في السعودية</a></div><div class="card__text">دليل مدن الصناعية السعودية - 35 مدينة صناعية</div></div>
+      <div class="card"><div class="card__icon">🇪🇬</div><div class="card__title"><a href="manufacturing-eg.html">الاستثمار الصناعي في مصر</a></div><div class="card__text">دليل الهيئة العامة للتنمية الصناعية - 147 منطقة</div></div>
+      <div class="card"><div class="card__icon">🇦🇪</div><div class="card__title"><a href="manufacturing-ae.html">الاستثمار الصناعي في الإمارات</a></div><div class="card__text">دليل المناطق الحرة والصناعية الإماراتية</div></div>
+      <div class="card"><div class="card__icon">🇱🇾</div><div class="card__title"><a href="manufacturing-ly.html">الاستثمار الصناعي في ليبيا</a></div><div class="card__text">دليل المناطق الصناعية الليبية</div></div>
+      <div class="card"><div class="card__icon">🇩🇿</div><div class="card__title"><a href="manufacturing-dz.html">الاستثمار الصناعي في الجزائر</a></div><div class="card__text">دليل المناطق الصناعية الجزائرية</div></div>
+      <div class="card"><div class="card__icon">🇱🇧</div><div class="card__title"><a href="manufacturing-lb.html">الاستثمار الصناعي في لبنان</a></div><div class="card__text">دليل المناطق الصناعية اللبنانية</div></div>
+      <div class="card"><div class="card__icon">🇾🇪</div><div class="card__title"><a href="manufacturing-ye.html">الاستثمار الصناعي في اليمن</a></div><div class="card__text">دليل المناطق الصناعية اليمنية</div></div>
+      <div class="card"><div class="card__icon">🇸🇾</div><div class="card__title"><a href="manufacturing-sy.html">الاستثمار الصناعي في سوريا</a></div><div class="card__text">دليل المناطق الصناعية السورية</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title"><a href="../calculators/factory-cost-bh.html">حاسبة تكلفة المصنع - البحرين</a></div><div class="card__text">احسب تكلفة إنشاء مصنعك في البحرين</div></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>© 2026 بوندز للاستشارات المالية. البيانات مأخوذة من الجهات الحكومية البحرينية الرسمية.</p>
+  </footer>
+
+</body>
+</html>

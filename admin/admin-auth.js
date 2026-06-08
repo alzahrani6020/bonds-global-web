@@ -1,11 +1,14 @@
 // ============================================
-// Admin Auth Guard
-// Include this script in all admin pages
-// Loads Supabase, verifies admin access
+// Admin Auth Guard — Client-side only (no API call)
 // ============================================
-
 (function() {
   const AUTH_CONTAINER_ID = 'admin-auth-guard';
+  const ROLE_PERMISSIONS = {
+    super_admin: ['users', 'subscriptions', 'messages', 'roles', 'analytics', 'users_write', 'export'],
+    admin: ['users', 'subscriptions', 'messages', 'analytics', 'users_write', 'export'],
+    support: ['users', 'messages', 'analytics'],
+    viewer: ['analytics']
+  };
 
   function createOverlay() {
     if (document.getElementById(AUTH_CONTAINER_ID)) return;
@@ -18,10 +21,10 @@
           <h2 style="color:#e8ecf4;margin-bottom:0.5rem;">التحقق من الصلاحيات...</h2>
           <p id="admin-auth-status" style="color:#94a3b8;">جارِ التحقق من صلاحية الوصول الإداري</p>
           <button id="admin-auth-login" style="display:none;margin-top:1.5rem;padding:0.75rem 2rem;border-radius:10px;border:none;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0a0f1a;font-weight:800;font-size:0.9rem;cursor:pointer;" onclick="
-          const isEn = document.documentElement.lang === 'en';
-          const loginPath = isEn ? '../../en/calculators/auth/index.html' : '../calculators/auth/index.html';
-          window.location.href = loginPath + '?redirect=' + encodeURIComponent(location.href)
-">تسجيل الدخول</button>
+            const isEn = document.documentElement.lang === 'en';
+            const loginPath = isEn ? '../../en/calculators/auth/index.html' : '../calculators/auth/index.html';
+            window.location.href = loginPath + '?redirect=' + encodeURIComponent(location.href)
+          ">تسجيل الدخول</button>
         </div>
       </div>
     `;
@@ -54,10 +57,23 @@
       return;
     }
 
-    // Get session
-    const client = supabase.createClient(window.__ENV?.SUPABASE_URL || '', window.__ENV?.SUPABASE_ANON_KEY || '');
-    const { data: { session } } = await client.auth.getSession();
+    // Wait for window.__ENV
+    let envAttempts = 0;
+    while ((!window.__ENV?.SUPABASE_URL || !window.__ENV?.SUPABASE_ANON_KEY) && envAttempts < 30) {
+      await new Promise(r => setTimeout(r, 100));
+      envAttempts++;
+    }
+    const env = window.__ENV || {};
+    if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+      setStatus('لم يتم إعداد البيئة (api/env)', true);
+      return;
+    }
 
+    // Create client with ANON key (no API call needed)
+    const client = supabase.createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+
+    // Get session
+    const { data: { session } } = await client.auth.getSession();
     if (!session) {
       setStatus('يجب تسجيل الدخول للوصول إلى لوحة التحكم', true);
       return;
@@ -65,21 +81,23 @@
 
     setStatus('جارِ التحقق من صلاحية المسؤول...');
 
+    // Direct query to admin_roles (RLS is off by default, token is validated server-side)
     try {
-      const res = await fetch('/api/admin?action=verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token }
-      });
-      const data = await res.json();
+      const { data: roleRow, error: roleError } = await client
+        .from('admin_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .single();
 
-      if (!data.success || !data.isAdmin) {
+      if (roleError || !roleRow) {
         setStatus('ليس لديك صلاحية الوصول إلى لوحة التحكم الإدارية', true);
         return;
       }
 
-      // Store permissions globally
-      window.__ADMIN_ROLE = data.role || 'viewer';
-      window.__ADMIN_PERMS = data.permissions || [];
+      const role = roleRow.role;
+      const perms = ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.viewer;
+      window.__ADMIN_ROLE = role;
+      window.__ADMIN_PERMS = perms;
       function hasPerm(p) { return window.__ADMIN_PERMS.includes(p); }
 
       // Apply sidebar permissions
@@ -94,20 +112,6 @@
         if (required && !hasPerm(required)) link.style.display = 'none';
       });
 
-      // Show admin badge
-      if (data.demo) {
-        const header = document.querySelector('.page-header h1');
-        if (header && !document.getElementById('admin-demo-badge')) {
-          const badge = document.createElement('span');
-          badge.id = 'admin-demo-badge';
-          badge.className = 'demo-badge';
-          badge.style.cssText = 'display:inline-block;background:rgba(234,179,8,0.2);color:#eab308;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:4px;margin-right:0.5rem;';
-          badge.textContent = 'Demo ACL';
-          header.appendChild(badge);
-        }
-      }
-
-      // Hide write actions for viewers
       if (!hasPerm('users_write')) {
         document.querySelectorAll('.btn-danger, [onclick*="delete"]').forEach(b => b.style.display = 'none');
       }
@@ -124,10 +128,8 @@
     }
   }
 
-  // Expose for manual retry
   window.retryAdminAuth = verifyAdmin;
 
-  // Run when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', verifyAdmin);
   } else {

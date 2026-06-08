@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>دليل الاستثمار الصناعي في مصر | بوندز</title>
+  <meta name="description" content="دليل شامل للاستثمار الصناعي في مصر - الهيئة العامة للتنمية الصناعية، المناطق الصناعية، التراخيص، التكاليف" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6;
+      --shadow: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Vazirmatn',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+    a { color:var(--gold); text-decoration:none; }
+
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); font-size:1.1rem; }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2.2rem; font-weight:800; margin-bottom:1rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; font-size:1.05rem; }
+
+    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
+    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
+
+    .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-bottom:3rem; }
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
+    .card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:var(--shadow); }
+    .card__icon { width:48px; height:48px; border-radius:12px; background:rgba(212,168,83,0.1); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1rem; }
+    .card__title { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; }
+    .card__text { font-size:0.85rem; color:var(--text-secondary); line-height:1.7; }
+
+    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:3rem; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:right; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(16,24,45,0.9); border-bottom:1px solid var(--border); }
+    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
+    tr:hover td { background:rgba(212,168,40,0.05); }
+    .fee-highlight { background:rgba(212,168,83,0.08); border-radius:8px; padding:0.35rem 0.75rem; font-weight:700; color:var(--gold); white-space:nowrap; }
+
+    .timeline { display:flex; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
+    .stage { display:flex; gap:1.5rem; }
+    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .stage__content { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
+    .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
+    .stage__list { list-style:none; }
+    .stage__list li { padding:0.5rem 0; color:var(--text-secondary); font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
+    .stage__list li::before { content:'✓'; color:var(--success); font-weight:700; }
+
+    .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin:1rem 0; }
+    .note strong { color:var(--warning); }
+
+    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
+
+    @media (max-width:768px) {
+      .hero h1 { font-size:1.5rem; }
+      .stage { flex-direction:column; }
+      .header__nav { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="../index.html" class="header__logo">
+        <img src="../assets/bonds-logo-header.webp" alt="بوندز" />
+        <span>بوندز</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../index.html">الرئيسية</a>
+        <a href="manufacturing.html">السعودية</a>
+        <a href="../contact.html">تواصل</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>دليل الاستثمار الصناعي في مصر</h1>
+    <p>كل ما يحتاجه المستثمر من هيئات، مناطق صناعية، تراخيص، وتكاليف في جمهورية مصر العربية</p>
+  </section>
+
+  <div class="container">
+
+    <h2 class="section-title">🏛️ الهيئات الحكومية الرئيسية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">الهيئة العامة للتنمية الصناعية (IDA)</div>
+        <div class="card__text">الجهة المسؤولة عن تنفيذ السياسات الصناعية ومنح التراخيص الصناعية. تأسست 2005.<br><br>
+        📍 العنوان: 42 محور السلام، شارع 90، القاهرة<br>
+        🌐 <a href="https://www.ida.gov.eg" target="_blank">www.ida.gov.eg</a><br>
+        📞 +20 110 920 25XX</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏢</div>
+        <div class="card__title">الهيئة العامة للاستثمار (GAFI)</div>
+        <div class="card__text">بوابة الاستثمار في مصر. تقدم خدمات التأسيس والتراخيص للشركات المحلية والأجنبية.<br><br>
+        🌐 <a href="https://www.gafi.gov.eg" target="_blank">www.gafi.gov.eg</a></div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏘️</div>
+        <div class="card__title">هيئة المجتمعات العمرانية الجديدة</div>
+        <div class="card__text">تطوير وتخصيص الأراضي الصناعية في المدن الجديدة (6 أكتوبر، العبور، بدر، العاشر من رمضان...)</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">وزارة الكهرباء والطاقة المتجددة</div>
+        <div class="card__text">تزويد المصانع بالكهرباء عبر شركات التوزيع التسع. الجهد المتوسط للمصانع الكبيرة.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">💧</div>
+        <div class="card__title">الشركة القابضة لمياه الشرب والصرف الصحي</div>
+        <div class="card__text">توصيل مياه الشرب والصرف الصحي للمناطق الصناعية عبر شركاتها التابعة في المحافظات.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🔬</div>
+        <div class="card__title">جهاز تنمية المشروعات المتوسطة والصغيرة</div>
+        <div class="card__text">تمويل المشروعات الصغيرة، المجمعات الصناعية، والتيسيرات التمويلية للماكينات.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">⚡ تعريفة الكهرباء الصناعية</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>نوع الجهد</th><th>السعر (2025)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>الجهد المتوسط</strong> (مصانع كبيرة)</td><td><span class="fee-highlight">138.9 قرش/ك.و.س</span></td></tr>
+          <tr><td><strong>الجهد المنخفض</strong> (مصانع صغيرة)</td><td><span class="fee-highlight">150 قرش/ك.و.س</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">🏙️ أبرز المناطق الصناعية (147 منطقة في 26 محافظة)</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">العاشر من رمضان</div><div class="card__text">أكبر تجمع صناعي في مصر. 5 مناطق صناعية على مساحة 21,468 فدان. أنشطة متنوعة: هندسية، غذائية، نسيج.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">مدينة السادات</div><div class="card__text">5 مناطق صناعية على 7,456 فدان. موقع استراتيجي قرب القاهرة والإسكندرية.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">6 أكتوبر</div><div class="card__title">5 مناطق صناعية. أبو رواش، توسعات أكتوبر، منطقة المطورين.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">بدر</div><div class="card__text">الروبيكي، شرق وغرب الروبيكي. منطقة صناعات ثقيلة وخفيفة.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">العبور</div><div class="card__text">منطقة صناعية متكاملة في مدينة العبور الجديدة.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">برج العرب الجديدة</div><div class="card__text">الإسكندرية. منطقة صناعية كبرى قرب ميناء الإسكندرية.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">بورسعيد</div><div class="card__text">8 مناطق صناعية على 33,490 فدان. منطقة حرة وميناء شرق بورسعيد.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">المنطقة الاقتصادية لقناة السويس</div><div class="card__text">مناطق صناعية ولوجستية ضخمة حول قناة السويس.</div></div>
+    </div>
+
+    <h2 class="section-title">📋 إجراءات ترخيص المصنع</h2>
+    <div class="timeline">
+      <div class="stage">
+        <div class="stage__num">1</div>
+        <div class="stage__content">
+          <div class="stage__title">الترخيص المبدئي</div>
+          <ul class="stage__list">
+            <li>تقديم طلب إلكتروني عبر موقع الهيئة <a href="https://www.ida.gov.eg" target="_blank">ida.gov.eg</a></li>
+            <li>دراسة الجدوى المبسطة (نموذج ملامح المشروع)</li>
+            <li>سداد جدية حجز 10% من قيمة الأرض</li>
+            <li>الحصول على الترخيص المبدئي خلال 7 أيام (ترخيص بالاختيار)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">2</div>
+        <div class="stage__content">
+          <div class="stage__title">الموافقات والتخصيص</div>
+          <ul class="stage__list">
+            <li>تخصيص الأرض من الهيئة العامة للتنمية الصناعية أو هيئة المجتمعات العمرانية</li>
+            <li>الموافقة البيئية من جهاز شؤون البيئة</li>
+            <li>موافقة الدفاع المدني (الحماية المدنية)</li>
+            <li>سداد باقي قيمة الأرض أو الإيجار</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">3</div>
+        <div class="stage__content">
+          <div class="stage__title">ترخيص البناء</div>
+          <ul class="stage__list">
+            <li>تقديم المخططات الهندسية للهيئة العامة للتنمية الصناعية</li>
+            <li>النسب البنائية: 40% حد أدنى - 65% حد أقصى</li>
+            <li>موافقة الارتفاعات (7 أيام للمناطق خارج الارتفاق الجوي)</li>
+            <li>استخراج رخصة البناء من المحلية</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">4</div>
+        <div class="stage__content">
+          <div class="stage__title">التشغيل</div>
+          <ul class="stage__list">
+            <li>تركيب العدادات (كهرباء - مياه - صرف)</li>
+            <li>الزيارة الميدانية للتفتيش</li>
+            <li>استخراج رخصة التشغيل النهائية</li>
+            <li>بدء الإنتاج (الجدول الزمني: 36 شهراً كحد أقصى من التخصيص)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">💰 التكاليف والرسوم</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>البند</th><th>التكلفة / المدة</th></tr></thead>
+        <tbody>
+          <tr><td>كراسة الشروط (الشهر العقاري)</td><td><span class="fee-highlight">300 جنيه</span></td></tr>
+          <tr><td>جدية الحجز</td><td><span class="fee-highlight">10%</span> من قيمة الأرض</td></tr>
+          <tr><td>التكاليف المعيارية</td><td><span style="color:var(--success);font-weight:700;">مخفضة 50%</span></td></tr>
+          <tr><td>رسوم تقديم العروض</td><td><span style="color:var(--success);font-weight:700;">إعفاء نهائي</span></td></tr>
+          <tr><td>سعر الكهرباء (جهد متوسط)</td><td><span class="fee-highlight">138.9 قرش/ك.و.س</span></td></tr>
+          <tr><td>سعر الكهرباء (جهد منخفض)</td><td><span class="fee-highlight">150 قرش/ك.و.س</span></td></tr>
+          <tr><td>مدة استخراج الترخيص المبدئي</td><td><span class="fee-highlight">7 أيام</span></td></tr>
+          <tr><td>مدة استخراج الترخيص المسبق</td><td><span class="fee-highlight">7 شهور</span> (حسب القانون)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">🏗️ اشتراطات البناء الصناعي</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">📐</div><div class="card__title">النسب البنائية</div><div class="card__text">الحد الأدنى 40% والحد الأقصى 65%. بعض الأنشطة لها نسب خاصة (قرار 461 لسنة 2018).</div></div>
+      <div class="card"><div class="card__icon">🏗️</div><div class="card__title">الارتفاعات</div><div class="card__text">موافقة ارتفاعات خلال 7 أيام للمناطق خارج الارتفاق الجوي. 15 يوم للحالات الخاصة.</div></div>
+      <div class="card"><div class="card__icon">🚧</div><div class="card__title">الجدول الزمني</div><div class="card__text">استخراج رخصة بناء خلال 4-6 أشهر. إنهاء الأساسات خلال 12 شهر. بدء الإنتاج خلال 36 شهر.</div></div>
+      <div class="card"><div class="card__icon">🛡️</div><div class="card__title">السلامة والبيئة</div><div class="card__text">موافقة الحماية المدنية + موافقة بيئية. اشتراطات GSP للصناعات الدوائية.</div></div>
+    </div>
+
+    <h2 class="section-title">📞 معلومات التواصل</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>الجهة</th><th>الموقع / التواصل</th></tr></thead>
+        <tbody>
+          <tr><td><strong>الهيئة العامة للتنمية الصناعية</strong></td><td><a href="https://www.ida.gov.eg" target="_blank">www.ida.gov.eg</a> | 42 محور السلام، القاهرة</td></tr>
+          <tr><td><strong>الهيئة العامة للاستثمار</strong></td><td><a href="https://www.gafi.gov.eg" target="_blank">www.gafi.gov.eg</a></td></tr>
+          <tr><td><strong>بوابة الحكومة المصرية</strong></td><td><a href="https://www.egypt.gov.eg" target="_blank">www.egypt.gov.eg</a></td></tr>
+          <tr><td><strong>شركة الكهرباء</strong></td><td><a href="https://www.moee.gov.eg" target="_blank">www.moee.gov.eg</a></td></tr>
+          <tr><td><strong>الشركة القابضة للمياه</strong></td><td><a href="https://www.hcww.com.eg" target="_blank">www.hcww.com.eg</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      ⚠️ هذه البيانات مبنية على قانون 10 لسنة 2017 وتعديلاته لتيسير الإجراءات الصناعية. الأسعار والرسوم تخضع للتحديث الدوري. يُنصح بالتواصل المباشر مع الهيئة العامة للتنمية الصناعية لأحدث التفاصيل.
+    </div>
+
+    <h2 class="section-title">🔗 أدلة استثمارية أخرى</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🇸🇦</div>
+        <div class="card__title"><a href="manufacturing.html">الاستثمار الصناعي في السعودية</a></div>
+        <div class="card__text">دليل مدن الصناعية السعودية - 35 مدينة صناعية، رسوم مدن، التراخيص</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🇦🇪</div>
+        <div class="card__title"><a href="manufacturing-ae.html">الاستثمار الصناعي في الإمارات</a></div>
+        <div class="card__text">دليل المناطق الحرة والصناعية الإماراتية - كيزاد، جافزا، راكز</div>
+      </div>
+      <div class="card"><div class="card__icon">🇱🇾</div><div class="card__title"><a href="manufacturing-ly.html">الاستثمار الصناعي في ليبيا</a></div><div class="card__text">دليل المناطق الصناعية الليبية</div></div>
+      <div class="card"><div class="card__icon">🇩🇿</div><div class="card__title"><a href="manufacturing-dz.html">الاستثمار الصناعي في الجزائر</a></div><div class="card__text">دليل المناطق الصناعية الجزائرية</div></div>
+      <div class="card"><div class="card__icon">🇱🇧</div><div class="card__title"><a href="manufacturing-lb.html">الاستثمار الصناعي في لبنان</a></div><div class="card__text">دليل المناطق الصناعية اللبنانية</div></div>
+      <div class="card"><div class="card__icon">🇾🇪</div><div class="card__title"><a href="manufacturing-ye.html">الاستثمار الصناعي في اليمن</a></div><div class="card__text">دليل المناطق الصناعية اليمنية</div></div>
+      <div class="card"><div class="card__icon">🇸🇾</div><div class="card__title"><a href="manufacturing-sy.html">الاستثمار الصناعي في سوريا</a></div><div class="card__text">دليل المناطق الصناعية السورية</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title"><a href="../calculators/factory-cost-eg.html">حاسبة تكلفة المصنع - مصر</a></div><div class="card__text">احسب تكلفة إنشاء مصنعك في مصر بشكل تفاعلي</div></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="margin-bottom:0.75rem;">
+      <span style="color:var(--gold); font-weight:700;">ممثل بوندز في السعودية:</span>
+      <a href="https://thiqqah.live/" target="_blank" rel="noopener" style="color:var(--text-secondary); font-weight:600;">ثقة الذهبية ↗</a>
+    </div>
+    <p>© 2026 بوندز للاستشارات المالية. البيانات مأخوذة من الهيئة العامة للتنمية الصناعية المصرية.</p>
+  </footer>
+
+</body>
+</html>

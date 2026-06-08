@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Industrial Investment Guide | Bonds</title>
+  <meta name="description" content="Complete guide for industrial investment in Saudi MODON cities - building standards, costs, fees, and investor journey" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6;
+      --shadow: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+    a { color:var(--gold); text-decoration:none; }
+
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); font-size:1.1rem; }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2.2rem; font-weight:800; margin-bottom:1rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; font-size:1.05rem; }
+    .hero a { color:var(--gold); font-size:0.8rem; }
+
+    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
+    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
+
+    .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-bottom:3rem; }
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
+    .card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:var(--shadow); }
+    .card__icon { width:48px; height:48px; border-radius:12px; background:rgba(212,168,83,0.1); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1rem; }
+    .card__title { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; }
+    .card__text { font-size:0.85rem; color:var(--text-secondary); line-height:1.7; }
+
+    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:3rem; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(16,24,45,0.9); border-bottom:1px solid var(--border); }
+    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
+    tr:hover td { background:rgba(212,168,40,0.05); }
+    .fee-highlight { background:rgba(212,168,83,0.08); border-radius:8px; padding:0.35rem 0.75rem; font-weight:700; color:var(--gold); white-space:nowrap; }
+
+    .timeline { display:flex; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
+    .stage { display:flex; gap:1.5rem; }
+    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .stage__content { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
+    .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
+    .stage__list { list-style:none; }
+    .stage__list li { padding:0.5rem 0; color:var(--text-secondary); font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
+    .stage__list li::before { content:'✓'; color:var(--success); font-weight:700; }
+
+    .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin:1rem 0; }
+    .note strong { color:var(--warning); }
+
+    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
+
+    @media (max-width:768px) {
+      .hero h1 { font-size:1.5rem; }
+      .stage { flex-direction:column; }
+      .header__nav { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="../../en/index.html" class="header__logo">
+        <img src="../../assets/bonds-logo-header.webp" alt="Bonds" />
+        <span>Bonds</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../../en/index.html">Home</a>
+        <a href="../../en/calculators/dashboard.html">Dashboard</a>
+        <a href="../../en/contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Industrial Investment Guide in Saudi Arabia</h1>
+    <p>Everything an investor needs: building standards, costs, fees, and the investment journey in MODON industrial cities</p>
+    <div style="margin-top:1rem;"><a href="https://modon.gov.sa/ar/Pages/default.aspx" target="_blank" rel="noopener">Official MODON Website ↗</a></div>
+  </section>
+
+  <div class="container">
+
+    <h2 class="section-title">📐 Building Standards & Requirements</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Production Halls</div><div class="card__text">Suitable for all mechanical tasks of production lines according to industry type.</div></div>
+      <div class="card"><div class="card__icon">📦</div><div class="card__title">Raw Materials Warehouse</div><div class="card__text">30% - 40% of building area, increases with factory size.</div></div>
+      <div class="card"><div class="card__icon">📦</div><div class="card__title">Finished Goods Warehouse</div><div class="card__text">30% - 40% of building area, increases with factory size.</div></div>
+      <div class="card"><div class="card__icon">🧑‍💼</div><div class="card__title">Worker Services</div><div class="card__text">Restrooms, prayer room, first aid, dining hall, changing rooms.</div></div>
+      <div class="card"><div class="card__icon">⚡</div><div class="card__title">Electricity Supply</div><div class="card__text">Medium and low voltage rooms + main breaker room.</div></div>
+      <div class="card"><div class="card__icon">🛡️</div><div class="card__title">Security & Safety</div><div class="card__text">Backup fire tanks + fire suppression + alarm system.</div></div>
+      <div class="card"><div class="card__icon">🚧</div><div class="card__title">Internal Roads</div><div class="card__text">Facilitate movement between factory units and main roads.</div></div>
+      <div class="card"><div class="card__icon">📏</div><div class="card__title">Setbacks</div><div class="card__text">Front: at least 13.5m | Sides & Rear: at least 6m.</div></div>
+    </div>
+
+    <h2 class="section-title">⚡ Electricity Tariffs</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tariff Type</th><th>Consumption Brackets</th><th>Price</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Industrial</strong></td><td>—</td><td><span class="fee-highlight">20 halalas/kWh</span></td></tr>
+          <tr><td><strong>Residential</strong></td><td>1 - 6,000 kWh/month</td><td>18 halalas/kWh</td></tr>
+          <tr><td><strong>Residential</strong></td><td>More than 6,000 kWh/month</td><td>30 halalas/kWh</td></tr>
+          <tr><td><strong>Commercial</strong></td><td>1 - 6,000 kWh/month</td><td>22 halalas/kWh</td></tr>
+          <tr><td><strong>Commercial</strong></td><td>More than 6,000 kWh/month</td><td>32 halalas/kWh</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">💰 MODON City Fees</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Service</th><th>Fee</th></tr></thead>
+        <tbody>
+          <tr><td>Development License (first time)</td><td><span style="color:var(--success);font-weight:700;">Free</span></td></tr>
+          <tr><td>Development License Renewal</td><td><span class="fee-highlight">10 halalas/m²</span></td></tr>
+          <tr><td>Operating License (every 5 years)</td><td><span class="fee-highlight">5 halalas/m²</span></td></tr>
+          <tr><td>City Operator Supervision</td><td><span class="fee-highlight">20 halalas/m² annually</span></td></tr>
+          <tr><td>Factory Plan Approval</td><td><span class="fee-highlight">1 SAR/m²</span> (min 5,000 SAR – max 25,000 SAR)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">🗺️ Investor Journey (5 Stages)</h2>
+    <div class="timeline">
+      <div class="stage"><div class="stage__num">1</div><div class="stage__content"><div class="stage__title">Application Stage</div><ul class="stage__list"><li>Foreign Investor License – Invest Saudi</li><li>Commercial Registration – Saudi Business Center</li><li>Industrial License Application – Sanaie Platform</li><li>Contract Submission – Shariq Platform</li></ul></div></div>
+      <div class="stage"><div class="stage__num">2</div><div class="stage__content"><div class="stage__title">Construction Stage</div><ul class="stage__list"><li>Building Permit from Municipality</li><li>Plan Approval from MODON</li><li>Building Completion Certificate</li><li>Utility Connections (Electricity, Water)</li></ul></div></div>
+      <div class="stage"><div class="stage__num">3</div><div class="stage__content"><div class="stage__title">Equipment Stage</div><ul class="stage__list"><li>Equipment Installation</li><li>Safety System Setup</li><li>Pre-Operation Inspection</li></ul></div></div>
+      <div class="stage"><div class="stage__num">4</div><div class="stage__content"><div class="stage__title">Licensing Stage</div><ul class="stage__list"><li>Operating License Application</li><li>Final Inspection Visit</li><li>Environmental Compliance</li></ul></div></div>
+      <div class="stage"><div class="stage__num">5</div><div class="stage__content"><div class="stage__title">Operation Stage</div><ul class="stage__list"><li>Production Start</li><li>Periodic Inspections</li><li>License Renewal (every 5 years)</li></ul></div></div>
+    </div>
+
+    <h2 class="section-title">🏙️ Industrial Cities (35 Cities)</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Riyadh</div><div class="card__text">1st, 2nd & 3rd Industrial Cities</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Jeddah</div><div class="card__text">1st, 2nd & 3rd Industrial Cities + Modon Oasis</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Dammam</div><div class="card__text">1st, 2nd & 3rd Industrial Cities</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Al-Ahsa</div><div class="card__text">1st & 2nd Industrial Cities + Modon Oasis</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Qassim</div><div class="card__text">1st & 2nd Industrial Cities + Modon Oasis</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Makkah</div><div class="card__text">Makkah Industrial City</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Madinah</div><div class="card__text">Madinah Industrial City</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Tabuk, Asir, Najran, Jazan, Hail</div><div class="card__text">Industrial Cities in all regions</div></div>
+    </div>
+
+    <h2 class="section-title">💻 MODON E-Services</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">🏗️</div><div class="card__title">Industrial Product Request</div><div class="card__text">Land, hangar, warehouse, or shared service center</div></div>
+      <div class="card"><div class="card__icon">🚛</div><div class="card__title">Logistics Product Request</div><div class="card__text">Cold & dry storage, integrated logistics services</div></div>
+      <div class="card"><div class="card__icon">🛎️</div><div class="card__title">Service Product Request</div><div class="card__text">Commercial & food services inside industrial cities</div></div>
+      <div class="card"><div class="card__icon">📋</div><div class="card__title">Operating License Management</div><div class="card__text">Renew and review operating licenses online</div></div>
+      <div class="card"><div class="card__icon">💰</div><div class="card__title">Financial Services</div><div class="card__text">Financing solutions for SMEs</div></div>
+    </div>
+
+    <h2 class="section-title">📋 Factory Setup Requirements</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Requirement</th><th>Details</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Initial License</strong></td><td>Obtain preliminary industrial license from Ministry of Industry</td></tr>
+          <tr><td><strong>Commercial Registration</strong></td><td>Industrial CR from Saudi Business Center</td></tr>
+          <tr><td><strong>Government Approvals</strong></td><td>Approvals from relevant authorities based on activity type</td></tr>
+          <tr><td><strong>MODON Contract</strong></td><td>Lease or purchase agreement within industrial city</td></tr>
+          <tr><td><strong>Technical Standards</strong></td><td>Compliance with GCC standards and approved technical regulations</td></tr>
+          <tr><td><strong>Insurance</strong></td><td>Factory and worker insurance against industrial risks</td></tr>
+          <tr><td><strong>Site Inspection</strong></td><td>Inspection visit by MODON teams to verify compliance</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="text-align:center; padding:2rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:3rem;">
+      <h3 style="font-size:1.2rem; font-weight:800; margin-bottom:0.5rem;">📞 MODON Customer Service</h3>
+      <p style="color:var(--text-secondary); font-size:1.1rem; direction:ltr;">800-249-9944</p>
+    </div>
+
+    <div style="text-align:center; padding:3rem 1.5rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius);">
+      <h3 style="font-size:1.3rem; font-weight:800; margin-bottom:1rem;">Need a Feasibility Study for Your Factory?</h3>
+      <p style="color:var(--text-secondary); margin-bottom:1.5rem;">Bonds team is ready to help you calculate costs and returns.</p>
+      <a href="../../en/contact.html" style="display:inline-block; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; padding:0.9rem 2.5rem; border-radius:12px; text-decoration:none;">Book Free Consultation →</a>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="margin-bottom:0.75rem;">
+      <span style="color:var(--gold); font-weight:700;">Bonds KSA Representative:</span>
+      <a href="https://thiqqah.live/" target="_blank" rel="noopener" style="color:var(--text-secondary); font-weight:600;">Thiqqah Gold ↗</a>
+    </div>
+    <p>© 2026 Bonds Financial Consultancy. Data sourced from Saudi Authority for Industrial Cities (MODON).</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>حاسبة تكلفة المصنع المتقدمة - العراق | بوندز</title>
+  <meta name="description" content="احسب تكلفة إنشاء مصنع في العراق - رواتب، تأمين، مواد خام، سيناريوهات" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6; --danger: #ef4444;
+      --radius: 16px; --shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Vazirmatn',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+    a { color:var(--gold); text-decoration:none; }
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; position:sticky; top:0; z-index:100; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2rem; font-weight:800; margin-bottom:0.75rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; }
+    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
+    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
+    .calc-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+    @media (max-width:768px) { .calc-grid { grid-template-columns:1fr; } }
+    .input-group { margin-bottom:1.25rem; }
+    .input-group label { display:block; font-size:0.85rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.5rem; }
+    .input-group input, .input-group select {
+      width:100%; padding:1rem 1.25rem; border-radius:12px; border:1px solid var(--border);
+      background:rgba(255,255,255,0.03); color:var(--text); font-family:inherit; font-size:1rem; transition:0.3s;
+    }
+    .input-group input:focus, .input-group select:focus { outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(212,168,83,0.1); }
+    .input-group small { color:var(--text-muted); font-size:0.75rem; display:block; margin-top:0.25rem; }
+    .input-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    @media (max-width:768px) { .input-row { grid-template-columns:1fr; } }
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
+    .card:hover { border-color:var(--gold); box-shadow:var(--shadow); }
+    .scenario-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:2rem; }
+    @media (max-width:768px) { .scenario-cards { grid-template-columns:1fr; } }
+    .scenario-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; text-align:center; }
+    .scenario-card.pessimistic { border-color:rgba(239,68,68,0.3); }
+    .scenario-card.expected { border-color:var(--gold); }
+    .scenario-card.optimistic { border-color:rgba(34,197,94,0.3); }
+    .scenario-card .scenario-label { font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-bottom:0.5rem; }
+    .scenario-card.pessimistic .scenario-label { color:var(--danger); }
+    .scenario-card.expected .scenario-label { color:var(--gold); }
+    .scenario-card.optimistic .scenario-label { color:var(--success); }
+    .scenario-card .scenario-value { font-size:1.5rem; font-weight:800; }
+    .results { display:none; }
+    .results.show { display:block; animation:fadeIn 0.5s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .result-summary { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem; }
+    .result-box { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; text-align:center; }
+    .result-box .value { font-size:1.6rem; font-weight:800; color:var(--gold); }
+    .result-box .label { font-size:0.8rem; color:var(--text-secondary); margin-top:0.25rem; }
+    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:2rem; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:right; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(16,24,45,0.9); border-bottom:1px solid var(--border); }
+    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
+    tr:hover td { background:rgba(212,168,40,0.05); }
+    td strong { color:var(--text); }
+    .total-row td { font-weight:800; color:var(--gold); background:rgba(212,168,83,0.08); }
+    .btn-primary { display:inline-block; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; padding:0.9rem 2.5rem; border-radius:12px; text-decoration:none; border:none; cursor:pointer; font-family:inherit; font-size:1rem; }
+    .btn-primary:hover { opacity:0.9; }
+    .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin-top:1rem; }
+    .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem; }
+    @media (max-width:768px) { .chart-grid { grid-template-columns:1fr; } }
+    .chart-box { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
+    .chart-box canvas { max-height:300px; }
+    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header__inner">
+      <a href="../index.html" class="header__logo">
+        <img src="../assets/bonds-logo-header.webp" alt="بوندز" />
+        <span>بوندز</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../index.html">الرئيسية</a>
+        <a href="../sectors/manufacturing-iq.html">الاستثمار الصناعي</a>
+        <a href="../contact.html">تواصل</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>حاسبة تكلفة المصنع المتقدمة - العراق</h1>
+    <p>قدر تكاليف إنشاء وتشغيل مصنعك في العراق بدقة - رواتب، تأمين، مواد خام، و3 سيناريوهات</p>
+  </section>
+
+  <div class="container">
+    <div class="calc-grid">
+      <div class="card">
+        <h2 class="section-title">📝 بيانات المصنع</h2>
+        <div class="input-group">
+          <label for="city">المنطقة الصناعية</label>
+          <select id="city">
+            <option value="bismaya">المدينة الصناعية بسماية</option>
+            <option value="basra">المدينة الصناعية بالبصرة</option>
+            <option value="sadr">مدينة الصدر الصناعية</option>
+            <option value="najaf">المدينة الصناعية بالنجف</option>
+            <option value="karbala">المدينة الصناعية بكربلاء</option>
+            <option value="erbil">منطقة أربيل الصناعية</option>
+            <option value="sulaymaniyah">منطقة السليمانية الصناعية</option>
+            <option value="mosul">منطقة الموصل الصناعية</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="industry">نوع الصناعة</label>
+          <select id="industry">
+            <option value="food">غذائية ومشروبات</option>
+            <option value="plastic">بلاستيك وبتروكيماويات</option>
+            <option value="metal">معدنية وحدادة</option>
+            <option value="electronics">إلكترونيات وتقنية</option>
+            <option value="textile">نسيج وألبسة</option>
+            <option value="furniture">أثاث وخشب</option>
+            <option value="pharma">أدوية ومستحضرات</option>
+            <option value="building">مواد بناء وسيراميك</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="area">مساحة المصنع (م²)</label>
+          <input type="number" id="area" value="500" min="50" step="50" />
+        </div>
+        <div class="input-group">
+          <label for="type">نوع المنشأة</label>
+          <select id="type">
+            <option value="land">أرض صناعية (بناء خاص)</option>
+            <option value="hangar">مستودع/هنجر جاهز</option>
+            <option value="ready">مصنع جاهز (جاهز للتشغيل)</option>
+            <option value="build">بناء حسب الطلب</option>
+          </select>
+        </div>
+        <h3 style="font-size:1rem; font-weight:700; color:var(--gold); margin:1.5rem 0 1rem;">👷 العمالة</h3>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="localWorkers">عمالة محلية</label>
+            <input type="number" id="localWorkers" value="3" min="0" />
+          </div>
+          <div class="input-group">
+            <label for="expatWorkers">عمالة وافدة</label>
+            <input type="number" id="expatWorkers" value="7" min="0" />
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="localSalary">متوسط الراتب المحلي (IQD)</label>
+            <input type="number" id="localSalary" value="800000" min="0" step="500" />
+          </div>
+          <div class="input-group">
+            <label for="expatSalary">متوسط راتب الوافد (IQD)</label>
+            <input type="number" id="expatSalary" value="500000" min="0" step="500" />
+          </div>
+        </div>
+        <h3 style="font-size:1rem; font-weight:700; color:var(--gold); margin:1.5rem 0 1rem;">⚡ خدمات وتشغيل</h3>
+        <div class="input-group">
+          <label for="voltage">نوع الجهد</label>
+          <select id="voltage">
+            <option value="medium">جهد متوسط (مصانع كبيرة)</option>
+            <option value="low">جهد منخفض (مصانع صغيرة)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="electricity">استهلاك الكهرباء الشهري (ك.و.س)</label>
+          <input type="number" id="electricity" value="5000" min="0" step="500" />
+        </div>
+        <div class="input-group">
+          <label for="water">استهلاك الماء الشهري (م³)</label>
+          <input type="number" id="water" value="50" min="0" step="10" />
+        </div>
+        <div class="input-group">
+          <label for="monthlyProduction">الإنتاج الشهري (وحدة)</label>
+          <input type="number" id="monthlyProduction" value="10000" min="0" step="1000" />
+          <small>لحساب تكلفة الوحدة ونقطة التعادل</small>
+        </div>
+        <h3 style="font-size:1rem; font-weight:700; color:var(--gold); margin:1.5rem 0 1rem;">📊 نسب ورسوم</h3>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="maintenancePct">نسبة الصيانة السنوية (%)</label>
+            <input type="number" id="maintenancePct" value="3" min="0" max="20" step="0.5" />
+          </div>
+          <div class="input-group">
+            <label for="insurancePct">تأمين الممتلكات (%)</label>
+            <input type="number" id="insurancePct" value="0.15" min="0" max="2" step="0.05" />
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="rawMaterialPct">مواد خام (% من الإيرادات)</label>
+            <input type="number" id="rawMaterialPct" value="35" min="0" max="80" step="5" />
+          </div>
+          <div class="input-group">
+            <label for="unitPrice">سعر بيع الوحدة (IQD)</label>
+            <input type="number" id="unitPrice" value="10" min="0" step="0.5" />
+          </div>
+        </div>
+        <button class="btn-primary" onclick="calculate()" style="width:100%;">احسب التكلفة التفصيلية 💰</button>
+      </div>
+
+      <div class="results" id="results">
+        <h2 class="section-title">📊 السيناريوهات</h2>
+        <div class="scenario-cards">
+          <div class="scenario-card pessimistic">
+            <div class="scenario-label">تشاؤم</div>
+            <div class="scenario-value" id="pessimisticYearly">0</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">سنوي</div>
+          </div>
+          <div class="scenario-card expected">
+            <div class="scenario-label">متوقع</div>
+            <div class="scenario-value" id="expectedYearly">0</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">سنوي</div>
+          </div>
+          <div class="scenario-card optimistic">
+            <div class="scenario-label">تفاؤم</div>
+            <div class="scenario-value" id="optimisticYearly">0</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">سنوي</div>
+          </div>
+        </div>
+        <div class="result-summary">
+          <div class="result-box"><div class="value" id="totalMonthly">0</div><div class="label">الشهري (IQD)</div></div>
+          <div class="result-box"><div class="value" id="totalYearly">0</div><div class="label">السنوي (IQD)</div></div>
+          <div class="result-box"><div class="value" id="setupCost">0</div><div class="label">تكلفة التأسيس</div></div>
+          <div class="result-box"><div class="value" id="costPerUnit">0</div><div class="label">تكلفة الوحدة</div></div>
+        </div>
+        <div class="result-summary" style="margin-bottom:1rem;">
+          <div class="result-box"><div class="value" id="breakEvenUnits">0</div><div class="label">نقطة التعادل (وحدة/شهر)</div></div>
+          <div class="result-box"><div class="value" id="breakEvenRevenue">0</div><div class="label">إيراد التعادل (شهري)</div></div>
+          <div class="result-box"><div class="value" id="profitMargin">0</div><div class="label">هامش الربح المتوقع</div></div>
+          <div class="result-box"><div class="value" id="paybackMonths">0</div><div class="label">فترة استرداد رأس المال (شهر)</div></div>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-box">
+            <h3 style="font-size:0.9rem; font-weight:700; margin-bottom:1rem; color:var(--gold);">توزيع التكاليف الشهرية</h3>
+            <canvas id="costPieChart"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3 style="font-size:0.9rem; font-weight:700; margin-bottom:1rem; color:var(--gold);">مقارنة السيناريوهات</h3>
+            <canvas id="scenarioBarChart"></canvas>
+          </div>
+        </div>
+        <h2 class="section-title">📋 تفصيل التكاليف الشهرية</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>البند</th><th>الشهري</th><th>السنوي</th><th>النسبة</th></tr></thead>
+            <tbody id="breakdownTable"></tbody>
+          </table>
+        </div>
+        <h2 class="section-title">🏗️ تكاليف التأسيس (مرة واحدة)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>البند</th><th>التكلفة</th><th>ملاحظات</th></tr></thead>
+            <tbody id="setupTable"></tbody>
+          </table>
+        </div>
+        <div class="note">
+          ⚠️ هذه التقديرات تقريبية بناءً على بيانات الجهات الحكومية ومتوسطات السوق في العراق. الأسعار الفعلية تختلف حسب الموقع والنشاط والمفاوضات.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer style="text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem;">
+    <p>© 2026 بوندز للاستشارات المالية. بيانات العراق.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+const cities = {
+      bismaya:      { name: 'المدينة الصناعية بسماية',     land: 5, warehouse: 35, ready: 50, elecLow: 0.065, elecMed: 0.050, water: 1.0, license: 1000000 },
+      basra:        { name: 'المدينة الصناعية بالبصرة',     land: 4, warehouse: 30, ready: 42, elecLow: 0.065, elecMed: 0.050, water: 1.2, license: 900000 },
+      sadr:         { name: 'مدينة الصدر الصناعية',         land: 3, warehouse: 25, ready: 35, elecLow: 0.070, elecMed: 0.055, water: 0.8, license: 700000 },
+      najaf:        { name: 'المدينة الصناعية بالنجف',      land: 3, warehouse: 22, ready: 32, elecLow: 0.065, elecMed: 0.050, water: 0.8, license: 600000 },
+      karbala:      { name: 'المدينة الصناعية بكربلاء',     land: 3, warehouse: 22, ready: 32, elecLow: 0.065, elecMed: 0.050, water: 0.8, license: 600000 },
+      erbil:        { name: 'منطقة أربيل الصناعية',         land: 4, warehouse: 28, ready: 40, elecLow: 0.080, elecMed: 0.065, water: 1.0, license: 800000 },
+      sulaymaniyah: { name: 'منطقة السليمانية الصناعية',    land: 3, warehouse: 22, ready: 32, elecLow: 0.080, elecMed: 0.065, water: 0.9, license: 700000 },
+      mosul:        { name: 'منطقة الموصل الصناعية',        land: 2, warehouse: 18, ready: 26, elecLow: 0.070, elecMed: 0.055, water: 0.7, license: 500000 }
+    };
+
+    const typeMultipliers = {
+      land: 1,
+      hangar: 1.3,
+      ready: 1.8,
+      build: 2.5
+    };
+
+    const industryProfiles = {
+      food: { rawMatPct: 35, elecMult: 1.0, name: 'غذائية' },
+      plastic: { rawMatPct: 50, elecMult: 1.4, name: 'بلاستيك' },
+      metal: { rawMatPct: 42, elecMult: 1.6, name: 'معدنية' },
+      electronics: { rawMatPct: 32, elecMult: 0.8, name: 'إلكترونيات' },
+      textile: { rawMatPct: 36, elecMult: 1.0, name: 'نسيج' },
+      furniture: { rawMatPct: 30, elecMult: 0.7, name: 'أثاث' },
+      pharma: { rawMatPct: 28, elecMult: 0.9, name: 'أدوية' },
+      building: { rawMatPct: 38, elecMult: 1.3, name: 'مواد بناء' }
+    };
+
+    let costPieChart = null;
+    let scenarioBarChart = null;
+
+    function fmt(n) {
+      return Math.round(n).toLocaleString('ar-IQ');
+    }
+
+    function calculate() {
+      const cityKey = document.getElementById('city').value;
+      const industryKey = document.getElementById('industry').value;
+      const area = parseFloat(document.getElementById('area').value) || 0;
+      const type = document.getElementById('type').value;
+      const localWorkers = parseInt(document.getElementById('localWorkers').value) || 0;
+      const expatWorkers = parseInt(document.getElementById('expatWorkers').value) || 0;
+      const localSalary = parseFloat(document.getElementById('localSalary').value) || 0;
+      const expatSalary = parseFloat(document.getElementById('expatSalary').value) || 0;
+      const electricity = parseFloat(document.getElementById('electricity').value) || 0;
+      const water = parseFloat(document.getElementById('water').value) || 0;
+      const monthlyProduction = parseFloat(document.getElementById('monthlyProduction').value) || 0;
+      const maintenancePct = parseFloat(document.getElementById('maintenancePct').value) || 0;
+      const insurancePct = parseFloat(document.getElementById('insurancePct').value) || 0;
+      const rawMaterialPct = parseFloat(document.getElementById('rawMaterialPct').value) || 0;
+      const unitPrice = parseFloat(document.getElementById('unitPrice').value) || 0;
+
+      const city = cities[cityKey];
+      const mult = typeMultipliers[type];
+      const industry = industryProfiles[industryKey];
+
+      const effectiveRawMatPct = rawMaterialPct > 0 ? rawMaterialPct : industry.rawMatPct;
+
+      // City rent
+      let rentPerM2 = city.rent || 0;
+      // For countries with per-type rent
+      if (city.land !== undefined) {
+        if (type === 'land') rentPerM2 = city.land;
+        else if (type === 'hangar') rentPerM2 = city.warehouse || city.hangar || city.ready;
+        else if (type === 'ready') rentPerM2 = city.ready;
+        else rentPerM2 = city.land;
+      }
+
+      const rentMonthly = rentPerM2 * area * mult / 12;
+      
+      // Electricity
+      let elecRate = 0.20;
+      if (city.elecLow !== undefined) {
+        const voltage = document.getElementById('voltage');
+        elecRate = voltage && voltage.value === 'medium' ? (city.elecMed || city.elecLow) : city.elecLow;
+      }
+      const electricityMonthly = electricity * elecRate * industry.elecMult;
+
+      // Water
+      let waterRate = 1.5;
+      if (city.water !== undefined) waterRate = city.water;
+      const waterMonthly = water * waterRate;
+
+      const supervisionMonthly = area * 0.20 / 12;
+      const licenseMonthly = area * 0.05 / 12 / 5;
+
+      // Labor
+      const localPayroll = localWorkers * localSalary;
+      const expatPayroll = expatWorkers * expatSalary;
+      const gosiLocal = localPayroll * 0.0;
+      const gosiExpat = expatPayroll * 0.0;
+      const expatFees = expatWorkers * 0;
+      const totalLabor = localPayroll + expatPayroll + gosiLocal + gosiExpat + expatFees;
+
+      // Maintenance & Insurance
+      const facilityValue = area * rentPerM2 * mult * 10;
+      const maintenanceMonthly = (facilityValue * maintenancePct / 100) / 12;
+      const insuranceMonthly = (facilityValue * insurancePct / 100) / 12;
+
+      // Raw materials
+      const monthlyRevenue = monthlyProduction * unitPrice;
+      const rawMaterialMonthly = monthlyRevenue * (effectiveRawMatPct / 100);
+
+      const totalMonthly = rentMonthly + electricityMonthly + waterMonthly + supervisionMonthly + licenseMonthly + totalLabor + maintenanceMonthly + insuranceMonthly + rawMaterialMonthly;
+      const totalYearly = totalMonthly * 12;
+
+      // Setup costs
+      const planApproval = Math.min(Math.max(area * 1, 5000), 25000);
+      const deposit = area * rentPerM2 * mult * 2;
+      const electricityConnection = Math.min(Math.max(electricity * 0.5, 3000), 50000);
+      const civilDefense = 2000;
+      const buildingPermit = area * 2;
+      const basicInsurance = facilityValue * 0.05;
+      const miscSetup = 15000;
+      const setupCost = planApproval + deposit + electricityConnection + civilDefense + buildingPermit + basicInsurance + miscSetup;
+
+      // Scenarios
+      const pessimistic = totalYearly * 1.25;
+      const optimistic = totalYearly * 0.85;
+
+      // Break even
+      const unitCost = monthlyProduction > 0 ? totalMonthly / monthlyProduction : 0;
+      const breakEvenUnits = (unitPrice > unitCost && unitCost > 0) ? Math.ceil(totalMonthly / unitPrice) : 0;
+      const breakEvenRevenue = breakEvenUnits * unitPrice;
+      const profitMargin = monthlyRevenue > 0 ? ((monthlyRevenue - totalMonthly) / monthlyRevenue * 100) : 0;
+      const paybackMonths = (monthlyRevenue > totalMonthly && totalMonthly > 0) ? Math.ceil(setupCost / (monthlyRevenue - totalMonthly)) : 0;
+
+      // Update UI
+      document.getElementById('pessimisticYearly').textContent = fmt(pessimistic) + ' IQD';
+      document.getElementById('expectedYearly').textContent = fmt(totalYearly) + ' IQD';
+      document.getElementById('optimisticYearly').textContent = fmt(optimistic) + ' IQD';
+
+      document.getElementById('totalMonthly').textContent = fmt(totalMonthly) + ' IQD';
+      document.getElementById('totalYearly').textContent = fmt(totalYearly) + ' IQD';
+      document.getElementById('setupCost').textContent = fmt(setupCost) + ' IQD';
+      document.getElementById('costPerUnit').textContent = unitCost > 0 ? fmt(unitCost) + ' IQD' : '—';
+      document.getElementById('breakEvenUnits').textContent = breakEvenUnits > 0 ? fmt(breakEvenUnits) : '—';
+      document.getElementById('breakEvenRevenue').textContent = breakEvenRevenue > 0 ? fmt(breakEvenRevenue) + ' IQD' : '—';
+      document.getElementById('profitMargin').textContent = profitMargin > 0 ? profitMargin.toFixed(1) + '%' : '—';
+      document.getElementById('paybackMonths').textContent = paybackMonths > 0 ? fmt(paybackMonths) : '—';
+
+      // Breakdown table
+      const pct = v => totalMonthly > 0 ? (v / totalMonthly * 100).toFixed(1) + '%' : '0%';
+      const tbody = document.getElementById('breakdownTable');
+      tbody.innerHTML = `
+        <tr><td><strong>إيجار ${city.name || city.name}</strong></td><td>${fmt(rentMonthly)}</td><td>${fmt(rentMonthly*12)}</td><td>${pct(rentMonthly)}</td></tr>
+        <tr><td>كهرباء (${fmt(electricity)} ك.و.س)</td><td>${fmt(electricityMonthly)}</td><td>${fmt(electricityMonthly*12)}</td><td>${pct(electricityMonthly)}</td></tr>
+        <tr><td>ماء (${fmt(water)} م³)</td><td>${fmt(waterMonthly)}</td><td>${fmt(waterMonthly*12)}</td><td>${pct(waterMonthly)}</td></tr>
+        <tr><td>رواتب محلية (${fmt(localWorkers)} عامل)</td><td>${fmt(localPayroll)}</td><td>${fmt(localPayroll*12)}</td><td>${pct(localPayroll)}</td></tr>
+        <tr><td>رواتب وافدة (${fmt(expatWorkers)} عامل)</td><td>${fmt(expatPayroll)}</td><td>${fmt(expatPayroll*12)}</td><td>${pct(expatPayroll)}</td></tr>
+        <tr><td>تأمين اجتماعي</td><td>${fmt(gosiLocal+gosiExpat)}</td><td>${fmt((gosiLocal+gosiExpat)*12)}</td><td>${pct(gosiLocal+gosiExpat)}</td></tr>
+        <tr><td>رسوم إقامة وافدين</td><td>${fmt(expatFees)}</td><td>${fmt(expatFees*12)}</td><td>${pct(expatFees)}</td></tr>
+        <tr><td>مواد خام (${industry.name})</td><td>${fmt(rawMaterialMonthly)}</td><td>${fmt(rawMaterialMonthly*12)}</td><td>${pct(rawMaterialMonthly)}</td></tr>
+        <tr><td>صيانة (${maintenancePct}%)</td><td>${fmt(maintenanceMonthly)}</td><td>${fmt(maintenanceMonthly*12)}</td><td>${pct(maintenanceMonthly)}</td></tr>
+        <tr><td>تأمين ممتلكات (${insurancePct}%)</td><td>${fmt(insuranceMonthly)}</td><td>${fmt(insuranceMonthly*12)}</td><td>${pct(insuranceMonthly)}</td></tr>
+        <tr><td>إشراف + رخصة</td><td>${fmt(supervisionMonthly+licenseMonthly)}</td><td>${fmt((supervisionMonthly+licenseMonthly)*12)}</td><td>${pct(supervisionMonthly+licenseMonthly)}</td></tr>
+        <tr class="total-row"><td><strong>الإجمالي</strong></td><td><strong>${fmt(totalMonthly)}</strong></td><td><strong>${fmt(totalYearly)}</strong></td><td><strong>100%</strong></td></tr>
+      `;
+
+      // Setup table
+      const stbody = document.getElementById('setupTable');
+      stbody.innerHTML = `
+        <tr><td>رسوم اعتماد مخططات</td><td>${fmt(planApproval)} IQD</td><td>${area} م² × 1 IQD (حد أدنى 5,000 – أعلى 25,000)</td></tr>
+        <tr><td>تأمين/وديعة (شهرين)</td><td>${fmt(deposit)} IQD</td><td>شهرين إيجار</td></tr>
+        <tr><td>رسوم توصيل كهرباء</td><td>${fmt(electricityConnection)} IQD</td><td>حسب الاستهلاك</td></tr>
+        <tr><td>فحص الدفاع المدني</td><td>${fmt(civilDefense)} IQD</td><td>ثابت</td></tr>
+        <tr><td>رسوم تصريح بناء</td><td>${fmt(buildingPermit)} IQD</td><td>${area} م² × 2 IQD</td></tr>
+        <tr><td>تأمين أساسي</td><td>${fmt(basicInsurance)} IQD</td><td>5% من قيمة المنشأة</td></tr>
+        <tr><td>مصاريف متنوعة</td><td>${fmt(miscSetup)} IQD</td><td>تجهيزات، أثاث، IT...</td></tr>
+        <tr class="total-row"><td><strong>إجمالي التأسيس</strong></td><td><strong>${fmt(setupCost)} IQD</strong></td><td></td></tr>
+      `;
+
+      // Charts
+      updateCharts({
+        rentMonthly, electricityMonthly, waterMonthly,
+        localPayroll, expatPayroll, gosiLocal, gosiExpat, expatFees,
+        rawMaterialMonthly, maintenanceMonthly, insuranceMonthly,
+        supervisionMonthly, licenseMonthly,
+        pessimistic, totalYearly, optimistic
+      });
+
+      document.getElementById('results').classList.add('show');
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (typeof trackCalculation === 'function') {
+        trackCalculation('factory-cost-iq', 'IQ', 
+          { area: area, workers: totalWorkers, industry: industryKey },
+          { monthly: Math.round(totalMonthly), yearly: Math.round(totalYearly) },
+          'expected'
+        );
+      }
+    }
+
+    function updateCharts(data) {
+      const labels = ['إيجار', 'كهرباء', 'ماء', 'رواتب محلية', 'رواتب وافدة', 'تأمين', 'إقامات', 'مواد خام', 'صيانة', 'تأمين ممتلكات', 'إشراف'];
+      const values = [
+        data.rentMonthly, data.electricityMonthly, data.waterMonthly,
+        data.localPayroll, data.expatPayroll, data.gosiLocal+data.gosiExpat,
+        data.expatFees, data.rawMaterialMonthly, data.maintenanceMonthly,
+        data.insuranceMonthly, data.supervisionMonthly+data.licenseMonthly
+      ];
+      const colors = ['#d4a853','#f0c96a','#94a3b8','#22c55e','#16a34a','#3b82f6','#ef4444','#eab308','#a855f7','#ec4899','#64748b'];
+
+      const pieCtx = document.getElementById('costPieChart').getContext('2d');
+      if (costPieChart) costPieChart.destroy();
+      costPieChart = new Chart(pieCtx, {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 11 } } } }
+        }
+      });
+
+      const barCtx = document.getElementById('scenarioBarChart').getContext('2d');
+      if (scenarioBarChart) scenarioBarChart.destroy();
+      scenarioBarChart = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+          labels: ['تشاؤم', 'متوقع', 'تفاؤم'],
+          datasets: [{ label: 'التكلفة السنوية', data: [data.pessimistic, data.totalYearly, data.optimistic], backgroundColor: ['rgba(239,68,68,0.7)', 'rgba(212,168,83,0.7)', 'rgba(34,197,94,0.7)'], borderRadius: 8 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+            x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+    }
+
+    window.addEventListener('load', calculate);
+  </script>
+  <script src="../admin/analytics-tracker.js"></script>
+<script src="usage-guard.js"></script>
+</body>
+</html>

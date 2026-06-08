@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>دليل الاستثمار الصناعي في لبنان | بوندز</title>
+  <meta name="description" content="دليل شامل للاستثمار الصناعي في الجمهورية اللبنانية - وزارة الصناعة، IDAL، المناطق الصناعية، التراخيص" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root { --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7); --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030; --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b; --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4); --success: #22c55e; --warning: #eab308; --info: #3b82f6; --shadow: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Vazirmatn',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+    a { color:var(--gold); text-decoration:none; }
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); font-size:1.1rem; }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2.2rem; font-weight:800; margin-bottom:1rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; font-size:1.05rem; }
+    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
+    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-bottom:3rem; }
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
+    .card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:var(--shadow); }
+    .card__icon { width:48px; height:48px; border-radius:12px; background:rgba(212,168,83,0.1); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1rem; }
+    .card__title { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; }
+    .card__text { font-size:0.85rem; color:var(--text-secondary); line-height:1.7; }
+    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:3rem; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:right; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(16,24,45,0.9); border-bottom:1px solid var(--border); }
+    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
+    tr:hover td { background:rgba(212,168,40,0.05); }
+    .fee-highlight { background:rgba(212,168,83,0.08); border-radius:8px; padding:0.35rem 0.75rem; font-weight:700; color:var(--gold); white-space:nowrap; }
+    .timeline { display:flex; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
+    .stage { display:flex; gap:1.5rem; }
+    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .stage__content { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
+    .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
+    .stage__list { list-style:none; }
+    .stage__list li { padding:0.5rem 0; color:var(--text-secondary); font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
+    .stage__list li::before { content:'✓'; color:var(--success); font-weight:700; }
+    .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin:1rem 0; }
+    .note strong { color:var(--warning); }
+    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
+    @media (max-width:768px) { .hero h1 { font-size:1.5rem; } .stage { flex-direction:column; } .header__nav { display:none; } }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="../index.html" class="header__logo">
+        <img src="../assets/bonds-logo-header.webp" alt="بوندز" />
+        <span>بوندز</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../index.html">الرئيسية</a>
+        <a href="manufacturing.html">السعودية</a>
+        <a href="manufacturing-eg.html">مصر</a>
+        <a href="manufacturing-ae.html">الإمارات</a>
+        <a href="../contact.html">تواصل</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>دليل الاستثمار الصناعي في لبنان</h1>
+    <p>كل ما يحتاجه المستثمر من هيئات، مناطق صناعية، تراخيص، وتكاليف في الجمهورية اللبنانية</p>
+  </section>
+
+  <div class="container">
+
+    <h2 class="section-title">🏛️ الهيئات الحكومية الرئيسية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">وزارة الصناعة</div>
+        <div class="card__text">الجهة الرئيسية للصناعة. تصدر التراخيص الصناعية. تطوير السياسات الصناعية. دعم الصادرات.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📈</div>
+        <div class="card__title">هيئة إدارة الاستثمار (IDAL)</div>
+        <div class="card__text">ترويج الاستثمار الأجنبي المباشر. تمنح الحوافز والإعفاءات الضريبية. تنسيق مع الجهات الحكومية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">كهرباء لبنان (EDL)</div>
+        <div class="card__text">الجهة الرسمية لتوليد وتوزيع الكهرباء. تعاني من أزمة حادة. قطع يومي يصل إلى 22 ساعة.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌊</div>
+        <div class="card__title">المؤسسة العامة لمياه لبنان</div>
+        <div class="card__text">إدارة الموارد المائية. تزويد المصانع بالمياه. محطات معالجة المياه.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌿</div>
+        <div class="card__title">وزارة البيئة</div>
+        <div class="card__text">حماية البيئة. إصدار التصاريح البيئية. مراقبة الانبعاثات الصناعية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📋</div>
+        <div class="card__title">اتحاد غرف التجارة والصناعة</div>
+        <div class="card__text">تسجيل الشركات التجارية. دعم المستثمرين. توفير المعلومات التجارية والصناعية.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">⚡ تعريفة الكهرباء الصناعية</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>نوع الاشتراك</th><th>الجهد</th><th>التعريفة (دولار/ك.و.س)</th><th>ملاحظات</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>صناعي - جهد منخفض</strong></td><td>220/380 فولت</td><td><span class="fee-highlight">0.08 - 0.12</span></td><td>نادراً ما تتوفر</td></tr>
+          <tr><td><strong>صناعي - جهد متوسط</strong></td><td>11 - 33 كيلوفولت</td><td><span class="fee-highlight">0.07 - 0.10</span></td><td>للمصانع الكبيرة</td></tr>
+          <tr><td><strong>مولدات خاصة (مازوت)</strong></td><td>-</td><td><span class="fee-highlight">0.25 - 0.40</span></td><td>المصدر الأساسي للكهرباء</td></tr>
+          <tr><td><strong>مولدات خاصة (بنزين)</strong></td><td>-</td><td><span class="fee-highlight">0.35 - 0.50</span></td><td>أغلى لكن متاح</td></tr>
+          <tr><td><strong>طاقة شمسية</strong></td><td>-</td><td><span class="fee-highlight">0.15 - 0.20</span></td><td>بديل متزايد الشعبية</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>ملاحظة:</strong> لبنان يعاني من أزمة كهرباء حادة. EDL تقدم كهرباء 2-4 ساعات يومياً فقط. معظم المصانع تعتمد كلياً على المولدات الخاصة أو الطاقة الشمسية. أسعار المازوت والبنزين بالدولار.
+    </div>
+
+    <h2 class="section-title">🏙️ المناطق الصناعية الرئيسية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة صيدا الصناعية</div>
+        <div class="card__text">جنوب لبنان. 200+ مصنع. تخصصات: الصناعات الغذائية، النسيج، البلاستيك. قرب ميناء صيدا.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة طرابلس الصناعية</div>
+        <div class="card__text">شمال لبنان. تخصصات: الصناعات الغذائية، النسيج، البناء. قرب ميناء طرابلس.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة زحلة الصناعية</div>
+        <div class="card__text">البقاع (وسط لبنان). تخصصات: الصناعات الغذائية، النبيذ، الزراعة والتصنيع.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة بيروت الصناعية</div>
+        <div class="card__text">العاصمة. تخصصات: الصناعات الخفيفة، التجميع، التكنولوجيا. أغلى مناطق لبنان.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة جونيه الصناعية</div>
+        <div class="card__text">جبل لبنان. تخصصات: الصناعات الخفيفة، التعبئة، السياحة الصناعية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة حلبا الصناعية</div>
+        <div class="card__text">عكار (شمال لبنان). تخصصات: الصناعات الغذائية، الزراعة، التخزين. أراضي بأسعار تنافسية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة زوق مصبح الصناعية</div>
+        <div class="card__text">كسروان (شمال بيروت). تخصصات: الصناعات الميكانيكية، البلاستيك، التخزين.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة جزين الصناعية</div>
+        <div class="card__text">جنوب لبنان. تخصصات: الصناعات الزراعية، التعبئة، التخزين البارد.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🗺️ رحلة المستثمر الصناعي</h2>
+    <div class="timeline">
+      <div class="stage">
+        <div class="stage__num">1</div>
+        <div class="stage__content">
+          <div class="stage__title">الترخيص الأولي</div>
+          <ul class="stage__list">
+            <li>تقديم طلب ترخيص صناعي لوزارة الصناعة</li>
+            <li>الحصول على موافقة IDAL (للاستثمار الأجنبي)</li>
+            <li>تسجيل الشركة في السجل التجاري</li>
+            <li>دراسة جدوى للمشروع</li>
+            <li>المدة: 2-4 أسابيع</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">2</div>
+        <div class="stage__content">
+          <div class="stage__title">تخصيص الأرض والموقع</div>
+          <ul class="stage__list">
+            <li>اختيار المنطقة الصناعية المناسبة</li>
+            <li>تقديم طلب تخصيص أرض لإدارة المنطقة</li>
+            <li>دفع رسوم الحجز والتأمين (5-10%)</li>
+            <li>توقيع عقد الإيجار أو البيع</li>
+            <li>المدة: 2-4 أسابيع</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">3</div>
+        <div class="stage__content">
+          <div class="stage__title">ترخيص البناء والتشييد</div>
+          <ul class="stage__list">
+            <li>تقديم مخططات هندسية معتمدة للبلدية</li>
+            <li>الحصول على رخصة البناء</li>
+            <li>موافقة الدفاع المدني</li>
+            <li>تنفيذ المشروع من قبل مقاول معتمد</li>
+            <li>المدة: 3-6 أشهر حسب المشروع</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">4</div>
+        <div class="stage__content">
+          <div class="stage__title">التشغيل النهائي</div>
+          <ul class="stage__list">
+            <li>شهادة إتمام البناء</li>
+            <li>فحص السلامة من الدفاع المدني</li>
+            <li>تركيب مولد خاص أو طاقة شمسية</li>
+            <li>الحصول على رخصة التشغيل النهائية</li>
+            <li>المدة: 2-4 أسابيع</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">💰 التكاليف والرسوم الصناعية</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>البند</th><th>التكلفة التقريبية</th><th>ملاحظات</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>رسوم الترخيص الصناعي</strong></td><td><span class="fee-highlight">500 - 2,000 دولار</span></td><td>حسب نوع النشاط</td></tr>
+          <tr><td><strong>إيجار الأرض الصناعية</strong></td><td><span class="fee-highlight">30 - 100 دولار/م²/سنة</span></td><td>حسب المنطقة</td></tr>
+          <tr><td><strong>بيع الأرض الصناعية</strong></td><td><span class="fee-highlight">500 - 2,000 دولار/م²</span></td><td>للملكية الكاملة</td></tr>
+          <tr><td><strong>رسوم توصيل كهرباء</strong></td><td><span class="fee-highlight">1,000 - 5,000 دولار</span></td><td>نادراً ما يتم</td></tr>
+          <tr><td><strong>مولد كهرباء خاص</strong></td><td><span class="fee-highlight">20,000 - 100,000 دولار</span></td><td>ضرورة وليس ترفاً</td></tr>
+          <tr><td><strong>نظام طاقة شمسية</strong></td><td><span class="fee-highlight">50,000 - 200,000 دولار</span></td><td>بديل متزايد الشعبية</td></tr>
+          <tr><td><strong>رسوم المياه والصرف</strong></td><td><span class="fee-highlight">1 - 3 دولار/م³</span></td><td>حسب الاستهلاك</td></tr>
+          <tr><td><strong>رسوم تجديد الترخيص</strong></td><td><span class="fee-highlight">سنوياً</span></td><td>نسبة من الترخيص الأصلي</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">📋 متطلبات إنشاء مصنع في لبنان</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>المتطلب</th><th>الجهة المصدرة</th><th>المدة</th><th>التكلفة</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>الترخيص الصناعي</strong></td><td>وزارة الصناعة</td><td>2-4 أسابيع</td><td>500 - 2,000 دولار</td></tr>
+          <tr><td><strong>تسجيل الشركة</strong></td><td>السجل التجاري</td><td>3-7 أيام</td><td>200 - 500 دولار</td></tr>
+          <tr><td><strong>تخصيص أرض صناعية</strong></td><td>إدارة المنطقة الصناعية</td><td>2-4 أسابيع</td><td>حسب المساحة</td></tr>
+          <tr><td><strong>رخصة البناء</strong></td><td>البلدية</td><td>2-4 أسابيع</td><td>1-2% من قيمة البناء</td></tr>
+          <tr><td><strong>موافقة بيئية</strong></td><td>وزارة البيئة</td><td>2-4 أسابيع</td><td>500 - 2,000 دولار</td></tr>
+          <tr><td><strong>تركيب مولد/طاقة شمسية</strong></td><td>شركات خاصة</td><td>1-4 أسابيع</td><td>20,000 - 200,000 دولار</td></tr>
+          <tr><td><strong>رخصة التشغيل</strong></td><td>وزارة الصناعة</td><td>3-5 أيام</td><td>200 - 500 دولار</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">🏗️ اشتراطات البناء الصناعي</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">📐</div>
+        <div class="card__title">النسب البنائية</div>
+        <div class="card__text">نسبة البناء: 50-70%. مساحات خضراء: 10%. ارتفاع المصانع: حتى 12 متر.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🚒</div>
+        <div class="card__title">اشتراطات السلامة</div>
+        <div class="card__text">مخرجين طوارئ. مسافة 4 أمتار بين المباني. خزان مياه إطفاء. نظام إنذار حريق.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌿</div>
+        <div class="card__title">الاشتراطات البيئية</div>
+        <div class="card__text">دراسة تقييم الأثر البيئي. معالجة المخلفات. مراقبة الانبعاثات. التزام بمعايير وزارة البيئة.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">👷</div>
+        <div class="card__title">اشتراطات العمالة</div>
+        <div class="card__text">مساحة 3.5 م²/عامل. مرافق صحية. امتثال لقانون العمل اللبناني. تشغيل اللبنانيين.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">📞 معلومات التواصل الرئيسية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">وزارة الصناعة</div>
+        <div class="card__text">الموقع: industry.gov.lb<br>الهاتف: +961 1 985 000<br>البريد: info@industry.gov.lb</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📈</div>
+        <div class="card__title">هيئة IDAL</div>
+        <div class="card__text">الموقع: idal.com.lb<br>الهاتف: +961 1 985 100<br>البريد: info@idal.com.lb</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">كهرباء لبنان</div>
+        <div class="card__text">الموقع: edl.gov.lb<br>الهاتف: 1701<br>البريد: info@edl.gov.lb</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌊</div>
+        <div class="card__title">مياه لبنان</div>
+        <div class="card__text">الموقع: water.gov.lb<br>الهاتف: 1758<br>البريد: info@water.gov.lb</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌿</div>
+        <div class="card__title">وزارة البيئة</div>
+        <div class="card__text">الموقع: environment.gov.lb<br>الهاتف: +961 1 985 200<br>البريد: info@environment.gov.lb</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📋</div>
+        <div class="card__title">اتحاد الغرف اللبنانية</div>
+        <div class="card__text">الموقع: cci.org.lb<br>الهاتف: +961 1 985 300<br>البريد: info@cci.org.lb</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🔗 أدلة استثمارية أخرى</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">🇸🇦</div><div class="card__title"><a href="manufacturing.html">الاستثمار الصناعي في السعودية</a></div><div class="card__text">دليل مدن الصناعية السعودية</div></div>
+      <div class="card"><div class="card__icon">🇪🇬</div><div class="card__title"><a href="manufacturing-eg.html">الاستثمار الصناعي في مصر</a></div><div class="card__text">دليل الهيئة العامة للتنمية الصناعية</div></div>
+      <div class="card"><div class="card__icon">🇦🇪</div><div class="card__title"><a href="manufacturing-ae.html">الاستثمار الصناعي في الإمارات</a></div><div class="card__text">دليل المناطق الحرة والصناعية الإماراتية</div></div>
+      <div class="card"><div class="card__icon">🇲🇦</div><div class="card__title"><a href="manufacturing-ma.html">الاستثمار الصناعي في المغرب</a></div><div class="card__text">دليل المناطق الصناعية المغربية</div></div>
+      <div class="card"><div class="card__icon">🇹🇳</div><div class="card__title"><a href="manufacturing-tn.html">الاستثمار الصناعي في تونس</a></div><div class="card__text">دليل المناطق الصناعية التونسية</div></div>
+      <div class="card"><div class="card__icon">🇱🇾</div><div class="card__title"><a href="manufacturing-ly.html">الاستثمار الصناعي في ليبيا</a></div><div class="card__text">دليل المناطق الصناعية الليبية</div></div>
+      <div class="card"><div class="card__icon">🇩🇿</div><div class="card__title"><a href="manufacturing-dz.html">الاستثمار الصناعي في الجزائر</a></div><div class="card__text">دليل المناطق الصناعية الجزائرية</div></div>
+      <div class="card"><div class="card__icon">🇾🇪</div><div class="card__title"><a href="manufacturing-ye.html">الاستثمار الصناعي في اليمن</a></div><div class="card__text">دليل المناطق الصناعية اليمنية</div></div>
+      <div class="card"><div class="card__icon">🇸🇾</div><div class="card__title"><a href="manufacturing-sy.html">الاستثمار الصناعي في سوريا</a></div><div class="card__text">دليل المناطق الصناعية السورية</div></div>
+      <div class="card"><div class="card__icon">🇯🇴</div><div class="card__title"><a href="manufacturing-jo.html">الاستثمار الصناعي في الأردن</a></div><div class="card__text">دليل المدن الصناعية الأردنية</div></div>
+      <div class="card"><div class="card__icon">🇴🇲</div><div class="card__title"><a href="manufacturing-om.html">الاستثمار الصناعي في عمان</a></div><div class="card__text">دليل المناطق الحرة والصناعية العمانية</div></div>
+      <div class="card"><div class="card__icon">🇧🇭</div><div class="card__title"><a href="manufacturing-bh.html">الاستثمار الصناعي في البحرين</a></div><div class="card__text">دليل المناطق الصناعية البحرينية</div></div>
+      <div class="card"><div class="card__icon">🇰🇼</div><div class="card__title"><a href="manufacturing-kw.html">الاستثمار الصناعي في الكويت</a></div><div class="card__text">دليل المناطق الصناعية الكويتية</div></div>
+      <div class="card"><div class="card__icon">🇶🇦</div><div class="card__title"><a href="manufacturing-qa.html">الاستثمار الصناعي في قطر</a></div><div class="card__text">دليل المدن الصناعية القطرية</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title"><a href="../calculators/factory-cost-lb.html">حاسبة تكلفة المصنع - لبنان</a></div><div class="card__text">احسب تكلفة إنشاء مصنعك في لبنان</div></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>© 2026 بوندز للاستشارات المالية. البيانات مأخوذة من الجهات الحكومية اللبنانية الرسمية.</p>
+  </footer>
+
+</body>
+</html>

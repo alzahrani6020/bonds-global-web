@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Industrial Investment Guide in Egypt | Bonds</title>
+  <meta name="description" content="Comprehensive guide for industrial investment in Egypt - Industrial Development Authority, industrial zones, licenses, and costs" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6;
+      --shadow: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+    a { color:var(--gold); text-decoration:none; }
+
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); font-size:1.1rem; }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2.2rem; font-weight:800; margin-bottom:1rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; font-size:1.05rem; }
+
+    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
+    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
+
+    .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-bottom:3rem; }
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
+    .card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:var(--shadow); }
+    .card__icon { width:48px; height:48px; border-radius:12px; background:rgba(212,168,83,0.1); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1rem; }
+    .card__title { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; }
+    .card__text { font-size:0.85rem; color:var(--text-secondary); line-height:1.7; }
+
+    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:3rem; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(16,24,45,0.9); border-bottom:1px solid var(--border); }
+    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
+    tr:hover td { background:rgba(212,168,40,0.05); }
+    .fee-highlight { background:rgba(212,168,83,0.08); border-radius:8px; padding:0.35rem 0.75rem; font-weight:700; color:var(--gold); white-space:nowrap; }
+
+    .timeline { display:flex; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
+    .stage { display:flex; gap:1.5rem; }
+    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .stage__content { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
+    .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
+    .stage__list { list-style:none; }
+    .stage__list li { padding:0.5rem 0; color:var(--text-secondary); font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
+    .stage__list li::before { content:'✓'; color:var(--success); font-weight:700; }
+
+    .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin:1rem 0; }
+    .note strong { color:var(--warning); }
+
+    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
+
+    @media (max-width:768px) {
+      .hero h1 { font-size:1.5rem; }
+      .stage { flex-direction:column; }
+      .header__nav { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="../../en/index.html" class="header__logo">
+        <img src="../../assets/bonds-logo-header.webp" alt="Bonds" />
+        <span>Bonds</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../../en/index.html">Home</a>
+        <a href="manufacturing.html">Saudi Arabia</a>
+        <a href="manufacturing-eg.html">Egypt</a>
+        <a href="manufacturing-ae.html">UAE</a>
+        <a href="../../en/contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Industrial Investment Guide in Egypt</h1>
+    <p>Everything an investor needs: authorities, industrial zones, licenses, and costs in the Arab Republic of Egypt</p>
+  </section>
+
+  <div class="container">
+
+    <h2 class="section-title">🏛️ Key Government Authorities</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Industrial Development Authority (IDA)</div>
+        <div class="card__text">The body responsible for implementing industrial policies and issuing industrial licenses. Established 2005.<br><br>
+        📍 Address: 42 Al-Salam Axis, 90th Street, Cairo<br>
+        🌐 <a href="https://www.ida.gov.eg" target="_blank">www.ida.gov.eg</a><br>
+        📞 +20 110 920 25XX</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏢</div>
+        <div class="card__title">General Authority for Investment (GAFI)</div>
+        <div class="card__text">Egypt's investment gateway. Provides incorporation and licensing services for local and foreign companies.<br><br>
+        🌐 <a href="https://www.gafi.gov.eg" target="_blank">www.gafi.gov.eg</a></div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏘️</div>
+        <div class="card__title">New Urban Communities Authority</div>
+        <div class="card__text">Development and allocation of industrial land in new cities (6th of October, El Obour, Badr, 10th of Ramadan...)</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">Ministry of Electricity and Renewable Energy</div>
+        <div class="card__text">Supplies factories with electricity through nine distribution companies. Medium voltage for large factories.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">💧</div>
+        <div class="card__title">Holding Company for Water and Wastewater</div>
+        <div class="card__text">Provides drinking water and sewage connections to industrial zones through its subsidiaries in the governorates.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🔬</div>
+        <div class="card__title">Small and Medium Enterprises Development Agency</div>
+        <div class="card__text">Financing for small projects, industrial complexes, and facilitations for machinery.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">⚡ Industrial Electricity Tariffs</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Voltage Type</th><th>Price (2025)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Medium Voltage</strong> (large factories)</td><td><span class="fee-highlight">138.9 piaster/kWh</span></td></tr>
+          <tr><td><strong>Low Voltage</strong> (small factories)</td><td><span class="fee-highlight">150 piaster/kWh</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">🏙️ Key Industrial Zones (147 zones in 26 governorates)</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">10th of Ramadan</div><div class="card__text">Largest industrial cluster in Egypt. 5 industrial zones across 21,468 feddans. Diverse activities: engineering, food, textiles.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Sadat City</div><div class="card__text">5 industrial zones across 7,456 feddans. Strategic location near Cairo and Alexandria.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">6th of October</div><div class="card__text">5 industrial zones. Abu Rawash, October expansions, developers zone.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Badr</div><div class="card__text">Al-Robeky, East and West Robeky. Heavy and light industries zone.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">El Obour</div><div class="card__text">Integrated industrial zone in New Obour City.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Borg El Arab New City</div><div class="card__text">Alexandria. Major industrial zone near Alexandria Port.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Port Said</div><div class="card__text">8 industrial zones across 33,490 feddans. Free zone and East Port Said port.</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title">Suez Canal Economic Zone</div><div class="card__text">Massive industrial and logistics zones around the Suez Canal.</div></div>
+    </div>
+
+    <h2 class="section-title">📋 Factory Licensing Procedures</h2>
+    <div class="timeline">
+      <div class="stage">
+        <div class="stage__num">1</div>
+        <div class="stage__content">
+          <div class="stage__title">Preliminary License</div>
+          <ul class="stage__list">
+            <li>Submit electronic application via the authority website <a href="https://www.ida.gov.eg" target="_blank">ida.gov.eg</a></li>
+            <li>Simplified feasibility study (project outline form)</li>
+            <li>Pay 10% reservation deposit of land value</li>
+            <li>Obtain preliminary license within 7 days (license by selection)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">2</div>
+        <div class="stage__content">
+          <div class="stage__title">Approvals and Allocation</div>
+          <ul class="stage__list">
+            <li>Land allocation from the Industrial Development Authority or New Urban Communities Authority</li>
+            <li>Environmental approval from the Environmental Affairs Agency</li>
+            <li>Civil Defense approval</li>
+            <li>Pay remaining land value or rent</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">3</div>
+        <div class="stage__content">
+          <div class="stage__title">Building License</div>
+          <ul class="stage__list">
+            <li>Submit engineering drawings to the Industrial Development Authority</li>
+            <li>Building ratios: 40% minimum - 65% maximum</li>
+            <li>Height approval (7 days for areas outside aerial easement)</li>
+            <li>Obtain building permit from the local authority</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">4</div>
+        <div class="stage__content">
+          <div class="stage__title">Operation</div>
+          <ul class="stage__list">
+            <li>Install meters (electricity - water - sewage)</li>
+            <li>Field inspection visit</li>
+            <li>Obtain final operating license</li>
+            <li>Start production (timeline: 36 months maximum from allocation)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">💰 Costs and Fees</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Item</th><th>Cost / Duration</th></tr></thead>
+        <tbody>
+          <tr><td>Conditions booklet (Notary Public)</td><td><span class="fee-highlight">300 EGP</span></td></tr>
+          <tr><td>Reservation deposit</td><td><span class="fee-highlight">10%</span> of land value</td></tr>
+          <tr><td>Standard costs</td><td><span style="color:var(--success);font-weight:700;">50% reduced</span></td></tr>
+          <tr><td>Bid submission fees</td><td><span style="color:var(--success);font-weight:700;">Fully exempt</span></td></tr>
+          <tr><td>Electricity price (medium voltage)</td><td><span class="fee-highlight">138.9 piaster/kWh</span></td></tr>
+          <tr><td>Electricity price (low voltage)</td><td><span class="fee-highlight">150 piaster/kWh</span></td></tr>
+          <tr><td>Preliminary license issuance duration</td><td><span class="fee-highlight">7 days</span></td></tr>
+          <tr><td>Prior license issuance duration</td><td><span class="fee-highlight">7 months</span> (by law)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">🏗️ Industrial Building Requirements</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">📐</div><div class="card__title">Building Ratios</div><div class="card__text">Minimum 40% and maximum 65%. Some activities have special ratios (Resolution 461 of 2018).</div></div>
+      <div class="card"><div class="card__icon">🏗️</div><div class="card__title">Heights</div><div class="card__text">Height approval within 7 days for areas outside aerial easement. 15 days for special cases.</div></div>
+      <div class="card"><div class="card__icon">🚧</div><div class="card__title">Timeline</div><div class="card__text">Building permit within 4-6 months. Foundation completion within 12 months. Production start within 36 months.</div></div>
+      <div class="card"><div class="card__icon">🛡️</div><div class="card__title">Safety and Environment</div><div class="card__text">Civil Defense approval + environmental approval. GSP requirements for pharmaceutical industries.</div></div>
+    </div>
+
+    <h2 class="section-title">📞 Contact Information</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Authority</th><th>Website / Contact</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Industrial Development Authority</strong></td><td><a href="https://www.ida.gov.eg" target="_blank">www.ida.gov.eg</a> | 42 Al-Salam Axis, Cairo</td></tr>
+          <tr><td><strong>General Authority for Investment</strong></td><td><a href="https://www.gafi.gov.eg" target="_blank">www.gafi.gov.eg</a></td></tr>
+          <tr><td><strong>Egypt Government Portal</strong></td><td><a href="https://www.egypt.gov.eg" target="_blank">www.egypt.gov.eg</a></td></tr>
+          <tr><td><strong>Electricity Company</strong></td><td><a href="https://www.moee.gov.eg" target="_blank">www.moee.gov.eg</a></td></tr>
+          <tr><td><strong>Water Holding Company</strong></td><td><a href="https://www.hcww.com.eg" target="_blank">www.hcww.com.eg</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      ⚠️ This data is based on Law No. 10 of 2017 and its amendments to facilitate industrial procedures. Prices and fees are subject to periodic updates. It is recommended to contact the Industrial Development Authority directly for the latest details.
+    </div>
+
+    <h2 class="section-title">🔗 Other Investment Guides</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🇸🇦</div>
+        <div class="card__title"><a href="manufacturing.html">Industrial Investment in Saudi Arabia</a></div>
+        <div class="card__text">Saudi MODON industrial cities guide - 35 industrial cities, MODON fees, licenses</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🇦🇪</div>
+        <div class="card__title"><a href="manufacturing-ae.html">Industrial Investment in UAE</a></div>
+        <div class="card__text">UAE free zones and industrial areas guide - KIZAD, JAFZA, RAKEZ</div>
+      </div>
+      <div class="card"><div class="card__icon">🇱🇾</div><div class="card__title"><a href="manufacturing-ly.html">Industrial Investment in Libya</a></div><div class="card__text">Libyan industrial zones guide</div></div>
+      <div class="card"><div class="card__icon">🇩🇿</div><div class="card__title"><a href="manufacturing-dz.html">Industrial Investment in Algeria</a></div><div class="card__text">Algerian industrial zones guide</div></div>
+      <div class="card"><div class="card__icon">🇱🇧</div><div class="card__title"><a href="manufacturing-lb.html">Industrial Investment in Lebanon</a></div><div class="card__text">Lebanese industrial zones guide</div></div>
+      <div class="card"><div class="card__icon">🇾🇪</div><div class="card__title"><a href="manufacturing-ye.html">Industrial Investment in Yemen</a></div><div class="card__text">Yemeni industrial zones guide</div></div>
+      <div class="card"><div class="card__icon">🇸🇾</div><div class="card__title"><a href="manufacturing-sy.html">Industrial Investment in Syria</a></div><div class="card__text">Syrian industrial zones guide</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title"><a href="../../en/calculators/factory-cost-eg.html">Factory Cost Calculator - Egypt</a></div><div class="card__text">Calculate the cost of setting up your factory in Egypt interactively</div></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="margin-bottom:0.75rem;">
+      <span style="color:var(--gold); font-weight:700;">Bonds KSA Representative:</span>
+      <a href="https://thiqqah.live/" target="_blank" rel="noopener" style="color:var(--text-secondary); font-weight:600;">Thiqqah Gold ↗</a>
+    </div>
+    <p>© 2026 Bonds Financial Consulting. Data sourced from official Egyptian government bodies.</p>
+  </footer>
+
+</body>
+</html>

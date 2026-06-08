@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>دليل المورد | بوندز</title>
+  <meta name="description" content="دليل المستخدم لإدارة حساب المورد في الهيئة السعودية للمدن الصناعية (مدن)" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --radius: 16px; --shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Vazirmatn',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.8; }
+    a { color:var(--gold); text-decoration:none; }
+
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; position:sticky; top:0; z-index:100; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2rem; font-weight:800; margin-bottom:0.75rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; }
+    .hero .meta { margin-top:1rem; font-size:0.8rem; color:var(--text-muted); }
+
+    .container { max-width:1000px; margin:0 auto; padding:3rem 1.5rem; }
+
+    .toc { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; margin-bottom:3rem; }
+    .toc h2 { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
+    .toc ol { list-style:none; counter-reset:item; }
+    .toc li { counter-increment:item; padding:0.5rem 0; display:flex; align-items:center; gap:0.75rem; }
+    .toc li::before { content:counter(item); background:var(--gold); color:#0a0f1a; font-weight:800; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0; }
+    .toc a { color:var(--text-secondary); transition:0.3s; }
+    .toc a:hover { color:var(--gold); }
+
+    .section { margin-bottom:3rem; }
+    .section-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem; }
+    .section__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .section__title { font-size:1.3rem; font-weight:800; }
+    .section__path { background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1rem; font-size:0.85rem; color:var(--gold); margin-bottom:1rem; display:inline-block; }
+    .section__content { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; }
+    .section__content ul { list-style:none; }
+    .section__content li { padding:0.5rem 0; color:var(--text-secondary); display:flex; align-items:flex-start; gap:0.5rem; }
+    .section__content li::before { content:'•'; color:var(--gold); font-weight:700; }
+
+    .btn-primary { display:inline-block; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; padding:0.9rem 2.5rem; border-radius:12px; text-decoration:none; margin-top:2rem; }
+
+    @media (max-width:768px) {
+      .hero h1 { font-size:1.4rem; }
+      .header__nav { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="index.html" class="header__logo">
+        <img src="assets/bonds-logo-header.webp" alt="بوندز" />
+        <span>بوندز</span>
+      </a>
+      <nav class="header__nav">
+        <a href="index.html">الرئيسية</a>
+        <a href="sectors/manufacturing.html">الاستثمار الصناعي</a>
+        <a href="calculators/factory-cost.html">حاسبة المصنع</a>
+        <a href="partner-portal-guide.html">بوابة شريك</a>
+        <a href="contact.html">تواصل</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>دليل المستخدم لإدارة حساب المورد</h1>
+    <p>دليل شامل لإدارة حساب المورد في بوابة الموردين التابعة للهيئة السعودية للمدن الصناعية ومناطق التقنية (مدن)</p>
+    <div class="meta">نوفمبر 2023 | Saudi Authority for Industrial Cities and Technology Zones | <a href="https://modon.gov.sa/ar/Pages/default.aspx" target="_blank" rel="noopener" style="color:var(--gold);">موقع مدن الرسمي ↗</a></div>
+  </section>
+
+  <div class="container">
+
+    <div class="toc">
+      <h2>جدول السياقات</h2>
+      <ol>
+        <li><a href="#home">الصفحة الرئيسية</a></li>
+        <li><a href="#general">معلومات عامة عن الشركة</a></li>
+        <li><a href="#profile">ملف الشركة</a></li>
+        <li><a href="#addresses">دليل العناوين</a></li>
+        <li><a href="#contacts">دليل الاتصال</a></li>
+        <li><a href="#classifications">تصنيفات الأعمال</a></li>
+        <li><a href="#products">المنتجات والخدمات</a></li>
+        <li><a href="#banking">التفاصيل البنكية</a></li>
+      </ol>
+    </div>
+
+    <div class="section" id="home">
+      <div class="section-header">
+        <div class="section__num">1</div>
+        <h2 class="section__title">الصفحة الرئيسية</h2>
+      </div>
+      <div class="section__path">المسار: تسجيل الدخول إلى بوابة الموردين ← الصفحة الرئيسية ← الإدارة</div>
+      <div class="section__content">
+        <ul>
+          <li>يقوم المورد بتسجيل الدخول إلى بوابة الموردين</li>
+          <li>الوصول السريع للمعلومات على مستوى الشركة</li>
+          <li>إدارة الحساب والخدمات من لوحة تحكم مركزية</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="general">
+      <div class="section-header">
+        <div class="section__num">2</div>
+        <h2 class="section__title">معلومات عامة عن الشركة</h2>
+      </div>
+      <div class="section__path">المسار: بوابة الموردين ← الصفحة الرئيسية ← الإدارة ← عام</div>
+      <div class="section__content">
+        <ul>
+          <li>عرض سريع للمعلومات على مستوى الشركة</li>
+          <li>إضافة مرفقات إلى الملف الشخصي للشركة</li>
+          <li>تحديث البيانات الأساسية بسهولة</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="profile">
+      <div class="section-header">
+        <div class="section__num">3</div>
+        <h2 class="section__title">ملف الشركة</h2>
+      </div>
+      <div class="section__path">المسار: بوابة الموردين ← الصفحة الرئيسية ← الإدارة ← ملف تعريف الشركة</div>
+      <div class="section__content">
+        <ul>
+          <li>تحديد/تحديث المعلومات التفصيلية عن الشركة الموردة</li>
+          <li>رقم السجل التجاري والموقع واسم المشروع</li>
+          <li>استخدام شريط التنقل على اليسار للوصول للصفحات المختلفة</li>
+          <li>صفحة المؤسسة تحدد تفاصيل عالية المستوى عن الشركة</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="addresses">
+      <div class="section-header">
+        <div class="section__num">4</div>
+        <h2 class="section__title">دليل العناوين</h2>
+      </div>
+      <div class="section__path">المسار: بوابة الموردين ← الصفحة الرئيسية ← الإدارة ← دفتر العناوين</div>
+      <div class="section__content">
+        <ul>
+          <li>إدخال معلومات مواقع الشركة (شراء، دفع، عروض أسعار)</li>
+          <li>إنشاء وتعديل عناوين متعددة</li>
+          <li>حذف عنوان عبر أيقونة سلة المهملات</li>
+          <li>تحديث عنوان عبر أيقونة قلم الرصاص</li>
+          <li>إضافة عنوان جديد عبر زر "إنشاء"</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="contacts">
+      <div class="section-header">
+        <div class="section__num">5</div>
+        <h2 class="section__title">دليل الاتصال</h2>
+      </div>
+      <div class="section__path">المسار: بوابة الموردين ← الصفحة الرئيسية ← الإدارة ← دليل جهات الاتصال</div>
+      <div class="section__content">
+        <ul>
+          <li>سرد موظفي الشركة كجهات اتصال مع مدن</li>
+          <li>حذف جهة اتصال عبر أيقونة سلة المهملات</li>
+          <li>تحديث معلومات الاتصال عبر أيقونة قلم الرصاص</li>
+          <li>إدارة معلومات العنوان لجهة الاتصال عبر أيقونة العناوين</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="classifications">
+      <div class="section-header">
+        <div class="section__num">6</div>
+        <h2 class="section__title">تصنيفات الأعمال</h2>
+      </div>
+      <div class="section__path">المسار: بوابة الموردين ← الصفحة الرئيسية ← الإدارة ← تصنيفات الأعمال</div>
+      <div class="section__content">
+        <ul>
+          <li>إضافة/تحديث التصنيفات المناسبة لعملك</li>
+          <li>الذهاب إلى صفحة المعلومات العامة ← تصنيفات الأعمال</li>
+          <li>تحديد جميع التصنيفات التي تنطبق على الشركة</li>
+          <li>مساعدة مدن في إنشاء قوائم دعوة الموردين</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="products">
+      <div class="section-header">
+        <div class="section__num">7</div>
+        <h2 class="section__title">المنتجات والخدمات</h2>
+      </div>
+      <div class="section__path">المسار: بوابة الموردين ← الصفحة الرئيسية ← الإدارة ← المنتجات والخدمات</div>
+      <div class="section__content">
+        <ul>
+          <li>مجموعات فئات المنتجات والخدمات التي تستخدمها مدن</li>
+          <li>تصفح قائمة السلع والخدمات واختيار ما ينطبق على عملك</li>
+          <li>مساعدة مدن في إنشاء قوائم دعوة الموردين لطلبات عروض الأسعار</li>
+          <li>إعداد التقارير وقوائم الموردين المؤهلين</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="banking">
+      <div class="section-header">
+        <div class="section__num">8</div>
+        <h2 class="section__title">التفاصيل البنكية</h2>
+      </div>
+      <div class="section__path">المسار: بوابة الموردين ← الصفحة الرئيسية ← الإدارة ← التفاصيل البنكية</div>
+      <div class="section__content">
+        <ul>
+          <li>إنشاء والاحتفاظ بتفاصيل الحساب البنكي للدفعات</li>
+          <li>تعريف الحسابات لبنك معين وفرع ورقم حساب محدد</li>
+          <li>النظام يتحقق من صحة الإدخالات ويمنع التكرار</li>
+          <li>مسؤولو المشتريات في مدن يوافقون على التفاصيل البنكية</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="text-align:center; padding:2rem 0;">
+      <a href="sectors/manufacturing.html" class="btn-primary">← العودة لدليل الاستثمار الصناعي</a>
+    </div>
+
+  </div>
+
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:2rem; margin-top:3rem;">
+      <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:1rem; color:var(--gold);">📚 اقرأ أيضاً</h3>
+      <div style="display:flex; flex-wrap:wrap; gap:1rem;">
+        <a href="sectors/manufacturing.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">🏭 دليل الاستثمار الصناعي</a>
+        <a href="partner-portal-guide.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">🔑 دليل بوابة شريك</a>
+        <a href="calculators/factory-cost.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">💰 حاسبة تكلفة المصنع</a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer style="text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border);">
+    <div style="margin-bottom:0.75rem;">
+      <span style="color:var(--gold); font-weight:700;">ممثل بوندز في السعودية:</span>
+      <a href="https://thiqqah.live/" target="_blank" rel="noopener" style="color:var(--text-secondary); font-weight:600;">ثقة الذهبية ↗</a>
+    </div>
+    <p>© 2026 بوندز للاستشارات المالية. الدليل مأخوذ من الهيئة السعودية للمدن الصناعية (مدن).</p>
+  </footer>
+
+</body>
+</html>

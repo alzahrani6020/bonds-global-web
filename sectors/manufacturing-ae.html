@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>دليل الاستثمار الصناعي في الإمارات | بوندز</title>
+  <meta name="description" content="دليل شامل للاستثمار الصناعي في الإمارات العربية المتحدة - وزارة الصناعة والتكنولوجيا المتقدمة، المناطق الحرة والصناعية، التراخيص، التكاليف" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6;
+      --shadow: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Vazirmatn',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+    a { color:var(--gold); text-decoration:none; }
+
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); font-size:1.1rem; }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2.2rem; font-weight:800; margin-bottom:1rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; font-size:1.05rem; }
+
+    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
+    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
+
+    .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-bottom:3rem; }
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
+    .card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:var(--shadow); }
+    .card__icon { width:48px; height:48px; border-radius:12px; background:rgba(212,168,83,0.1); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1rem; }
+    .card__title { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; }
+    .card__text { font-size:0.85rem; color:var(--text-secondary); line-height:1.7; }
+
+    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:3rem; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:right; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(16,24,45,0.9); border-bottom:1px solid var(--border); }
+    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
+    tr:hover td { background:rgba(212,168,40,0.05); }
+    .fee-highlight { background:rgba(212,168,83,0.08); border-radius:8px; padding:0.35rem 0.75rem; font-weight:700; color:var(--gold); white-space:nowrap; }
+
+    .timeline { display:flex; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
+    .stage { display:flex; gap:1.5rem; }
+    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .stage__content { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
+    .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
+    .stage__list { list-style:none; }
+    .stage__list li { padding:0.5rem 0; color:var(--text-secondary); font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
+    .stage__list li::before { content:'✓'; color:var(--success); font-weight:700; }
+
+    .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin:1rem 0; }
+    .note strong { color:var(--warning); }
+
+    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
+
+    @media (max-width:768px) {
+      .hero h1 { font-size:1.5rem; }
+      .stage { flex-direction:column; }
+      .header__nav { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="../index.html" class="header__logo">
+        <img src="../assets/bonds-logo-header.webp" alt="بوندز" />
+        <span>بوندز</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../index.html">الرئيسية</a>
+        <a href="manufacturing.html">السعودية</a>
+        <a href="manufacturing-eg.html">مصر</a>
+        <a href="../contact.html">تواصل</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>دليل الاستثمار الصناعي في الإمارات</h1>
+    <p>كل ما يحتاجه المستثمر من هيئات، مناطق حرة وصناعية، تراخيص، وتكاليف في دولة الإمارات العربية المتحدة</p>
+  </section>
+
+  <div class="container">
+
+    <h2 class="section-title">🏛️ الهيئات الحكومية الرئيسية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">وزارة الصناعة والتكنولوجيا المتقدمة</div>
+        <div class="card__text">الجهة الرئيسية لتنظيم القطاع الصناعي وتطويره. تشرف على الاستراتيجية الوطنية للصناعة والتكنولوجيا المتقدمة وتصنيف المصانع.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📋</div>
+        <div class="card__title">دائرة التنمية الاقتصادية - أبوظبي</div>
+        <div class="card__text">تصدر الرخص الصناعية في إمارة أبوظبي وتنظم الأنشطة الاقتصادية. تدير برامج تخصيص الأراضي الصناعية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌆</div>
+        <div class="card__title">دائرة التنمية الاقتصادية - دبي</div>
+        <div class="card__text">تنظم القطاع الصناعي في دبي وتصدر التراخيص. تشرف على المناطق الصناعية والحرة في الإمارة.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">مؤسسات الكهرباء والماء</div>
+        <div class="card__text">ديوا (دبي)، أدك وأادك (أبوظبي)، سوا (الشارقة)، فيوا (الإمارات الشمالية). تقدم خدمات الكهرباء والماء للمصانع.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌊</div>
+        <div class="card__title">مناطق رأس الخيمة الاقتصادية (RAKEZ)</div>
+        <div class="card__text">إحدى أكبر المناطق الاقتصادية في الإمارات. تضم مناطق صناعية متنوعة وتوفر حلولاً متكاملة للمستثمرين.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🤝</div>
+        <div class="card__title">مجلس التوطين (Nafis)</div>
+        <div class="card__text">برنامج حكومي لزيادة مشاركة المواطنين في القطاع الخاص. يقدم دعماً للمنشآت التي توظف كوادر إماراتية.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">⚡ تعريفة الكهرباء الصناعية</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>شركة الخدمات</th><th>الجهد</th><th>التعريفة (فلس/ك.و.س)</th><th>ملاحظات</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>ديوا (DEWA)</strong></td><td>منخفض</td><td><span class="fee-highlight">38.5 فلس</span></td><td>دبي - تشمل رسوم الوقود المسطحة</td></tr>
+          <tr><td><strong>ديوا (DEWA)</strong></td><td>متوسط</td><td><span class="fee-highlight">36.0 فلس</span></td><td>دبي - لاستهلاك أعلى من 10 ميجاوات</td></tr>
+          <tr><td><strong>أدك (ADDC)</strong></td><td>منخفض</td><td><span class="fee-highlight">37.5 فلس</span></td><td>أبوظبي - المنطقة الرئيسية</td></tr>
+          <tr><td><strong>أادك (AADC)</strong></td><td>منخفض</td><td><span class="fee-highlight">37.5 فلس</span></td><td>أبوظبي - المنطقة الشرقية</td></tr>
+          <tr><td><strong>سوا (SEWA)</strong></td><td>منخفض</td><td><span class="fee-highlight">35.0 فلس</span></td><td>الشارقة - أقل تعريفة في الإمارات</td></tr>
+          <tr><td><strong>فيوا (FEWA)</strong></td><td>منخفض</td><td><span class="fee-highlight">36.5 فلس</span></td><td>الإمارات الشمالية</td></tr>
+          <tr><td><strong>اتحاد الماء والكهرباء</strong></td><td>منخفض</td><td><span class="fee-highlight">40.0 فلس</span></td><td>الفجيرة ومناطق محددة</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>ملاحظة:</strong> الأسعار تشمل رسوم الوقود المسطحة (Fuel Surcharge). للمصانع الكبيرة (فوق 10 ميجاوات) يمكن التفاوض على تعريفة خاصة. دبي تفرض رسوم إضافية للتسعير الحر (Grid Access) بنسبة 5%.
+    </div>
+
+    <h2 class="section-title">🏙️ المناطق الصناعية والحرة الرئيسية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏗️</div>
+        <div class="card__title">منطقة خليفة الصناعية (KIZAD)</div>
+        <div class="card__text">أكبر منطقة صناعية متكاملة في الإمارات. تربط بميناء خليفة (أعمق ميناء اصطناعي بالعالم). مساحة 417 كم². تضم قطاعات: الألمنيوم، الصلب، البتروكيماويات، الخدمات اللوجستية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🚢</div>
+        <div class="card__title">منطقة جبل علي الحرة (JAFZA)</div>
+        <div class="card__text">أكبر منطقة حرة في العالم من حيث التجارة. تضم 9,500+ شركة من 135 دولة. إعفاء ضريبي 100% لمدة 50 سنة. قرب ميناء جبل علي (أكبر ميناء بالمنطقة).</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">المنطقة الصناعية بأبوظبي (ICAD)</div>
+        <div class="card__text">5 مراكز صناعية في أبوظبي (ICAD I-V). تضم 1,200+ مصنع. تركز على الصناعات الثقيلة والمتوسطة. تملكها وتحكمها كادم (KEZAD Group).</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏘️</div>
+        <div class="card__title">مدينة دبي الصناعية (DIP)</div>
+        <div class="card__text">أكبر مجمع صناعي في دبي. 720+ مصنع. مساحة 28 كم². تشمل: المصانع، المستودعات، المكاتب، السكن العمالي.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚓</div>
+        <div class="card__title">مناطق رأس الخيمة الاقتصادية (RAKEZ)</div>
+        <div class="card__text">15,000+ شركة من 100 دولة. 8 مناطق متخصصة. أقل تكلفة تشغيل في الإمارات. قرب مطار رأس الخيمة وميناء صقر.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌊</div>
+        <div class="card__title">المنطقة الحرة بالفجيرة</div>
+        <div class="card__text">الوصول المباشر إلى خليج عمان. بدون قناة السويس. ميناء الفجيرة (أقرب ميناء للسفن القادمة من آسيا). تركز على الصناعات الخفيفة واللوجستية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏗️</div>
+        <div class="card__title">منطقة الحمرية الحرة (HFZA)</div>
+        <div class="card__text">أكبر منطقة حرة في الشارقة. 7,600+ شركة. ميناء الحمرية (أعمق ميناء بالإمارات). ترخص خلال 24 ساعة. تخصصات: الصناعات الخفيفة والمتوسطة.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">منطقة العين الصناعية</div>
+        <div class="card__text">موقع استراتيجي قرب الحدود العمانية والسعودية. أراضي صناعية بأسعار تنافسية. مناسبة للصناعات الغذائية والتعبئة.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🗺️ رحلة المستثمر الصناعي</h2>
+    <div class="timeline">
+      <div class="stage">
+        <div class="stage__num">1</div>
+        <div class="stage__content">
+          <div class="stage__title">الترخيص الأولي والموافقات</div>
+          <ul class="stage__list">
+            <li>تقديم طلب ترخيص صناعي لدائرة التنمية الاقتصادية</li>
+            <li>الحصول على موافقة وزارة الصناعة والتكنولوجيا المتقدمة</li>
+            <li>موافقة بلدية المنطقة على الموقع</li>
+            <li>دراسة الأثر البيئي (للصناعات المتوسطة والعالية)</li>
+            <li>المدة: 2-4 أسابيع</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">2</div>
+        <div class="stage__content">
+          <div class="stage__title">تخصيص الأرض أو المنشأة</div>
+          <ul class="stage__list">
+            <li>اختيار المنطقة الصناعية أو الحرة المناسبة</li>
+            <li>توقيع عقد الإيجار أو الشراء مع الجهة المطورة</li>
+            <li>دفع رسوم التسجيل والتأمين (10-20% من قيمة العقد)</li>
+            <li>استلام الموقع وبدء أعمال التجهيز</li>
+            <li>المدة: 2-6 أسابيع</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">3</div>
+        <div class="stage__content">
+          <div class="stage__title">ترخيص البناء والتشييد</div>
+          <ul class="stage__list">
+            <li>تقديم مخططات هندسية معتمدة للبلدية</li>
+            <li>الحصول على تصريح البناء (Building Permit)</li>
+            <li>تصريح الحفر والردم إن لزم</li>
+            <li>مراقبة البناء من قبل المقاول المعتمد</li>
+            <li>المدة: 2-6 أشهر حسب حجم المنشأة</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">4</div>
+        <div class="stage__content">
+          <div class="stage__title">الترخيص النهائي والتشغيل</div>
+          <ul class="stage__list">
+            <li>شهادة إتمام البناء (Building Completion Certificate)</li>
+            <li>فحص الدفاع المدني للسلامة</li>
+            <li>توصيل الكهرباء والماء من مزود الخدمة</li>
+            <li>الحصول على الرخصة النهائية للتشغيل</li>
+            <li>المدة: 2-4 أسابيع</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">💰 التكاليف والرسوم الصناعية</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>البند</th><th>التكلفة التقريبية</th><th>ملاحظات</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>رسوم الترخيص الصناعي</strong></td><td><span class="fee-highlight">2,500 - 15,000 درهم</span></td><td>حسب نوع النشاط وإمارة الترخيص</td></tr>
+          <tr><td><strong>رسوم المنطقة الحرة</strong></td><td><span class="fee-highlight">15,000 - 50,000 درهم/سنة</span></td><td>تشمل الرخصة والتسجيل</td></tr>
+          <tr><td><strong>إيجار الأرض الصناعية</strong></td><td><span class="fee-highlight">15 - 45 درهم/م²/سنة</span></td><td>حسب الموقع والمنطقة</td></tr>
+          <tr><td><strong>إيجار المصنع الجاهز</strong></td><td><span class="fee-highlight">180 - 350 درهم/م²/سنة</span></td><td>حسب الجودة والموقع</td></tr>
+          <tr><td><strong>رسوم توصيل الكهرباء</strong></td><td><span class="fee-highlight">150 - 400 درهم/كيلو واط</span></td><td>دفعة واحدة (Connection Fee)</td></tr>
+          <tr><td><strong>ضمان بنكي</strong></td><td><span class="fee-highlight">10-20% من قيمة العقد</span></td><td>للأراضي الصناعية التابعة للحكومة</td></tr>
+          <tr><td><strong>تأمين عام</strong></td><td><span class="fee-highlight">1-3% من رأس المال</span></td><td>إلزامي للمصانع</td></tr>
+          <tr><td><strong>رسوم تجديد الرخصة</strong></td><td><span class="fee-highlight">سنوياً (نفس قيمة الترخيص)</span></td><td>مع تعديلات حسب النشاط</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">🏗️ اشتراطات البناء الصناعي</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">📐</div>
+        <div class="card__title">النسب البنائية</div>
+        <div class="card__text">نسبة البناء: 50-70% من إجمالي المساحة. ارتفاع المصانع: 12-18 متر للصناعات الخفيفة، حتى 30 متر للصناعات الثقيلة. مساحات خضراء: 10-15% إلزامية.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🚒</div>
+        <div class="card__title">اشتراطات الدفاع المدني</div>
+        <div class="card__text">مخرجين طوارئ على الأقل. مسافة 6 أمتار بين المباني. خزان مياه إطفاء (1000-5000 لتر). نظام إنذار حريق متصل بالدفاع المدني. ممرات إخلاء واضحة.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌿</div>
+        <div class="card__title">الاشتراطات البيئية</div>
+        <div class="card__text">دراسة تقييم الأثر البيئي (EIA) للصناعات المتوسطة والعالية. معالجة المخلفات السائلة قبل الصرف. مراقبة الانبعاثات الهوائية. التزام بمعايير الهيئة الاتحادية للبيئة.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">👷</div>
+        <div class="card__title">اشتراطات العمالة</div>
+        <div class="card__text">سكن عمالي منفصل للمصانع الكبيرة (100+ عامل). مساحة 3.5 م²/عامل. مطبخ ومرافق صحية. امتثال لمعايير وزارة الموارد البشرية والتوطين.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">📋 متطلبات إنشاء مصنع في الإمارات</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>المتطلب</th><th>الجهة المصدرة</th><th>المدة</th><th>التكلفة</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>الرخصة التجارية/الصناعية</strong></td><td>دائرة التنمية الاقتصادية</td><td>3-7 أيام</td><td>2,500 - 15,000 درهم</td></tr>
+          <tr><td><strong>موافقة وزارة الصناعة</strong></td><td>MOIAT</td><td>5-10 أيام</td><td>مجاني</td></tr>
+          <tr><td><strong>دراسة الأثر البيئي</strong></td><td>الهيئة الاتحادية للبيئة</td><td>2-4 أسابيع</td><td>5,000 - 20,000 درهم</td></tr>
+          <tr><td><strong>تصريح البناء</strong></td><td>البلدية</td><td>2-4 أسابيع</td><td>1-2% من قيمة البناء</td></tr>
+          <tr><td><strong>شهادة إتمام البناء</strong></td><td>البلدية + الاستشاري</td><td>1-2 أسابيع</td><td>5,000 - 15,000 درهم</td></tr>
+          <tr><td><strong>موافقة الدفاع المدني</strong></td><td>الدفاع المدني</td><td>1-2 أسابيع</td><td>2,000 - 5,000 درهم</td></tr>
+          <tr><td><strong>الرخصة النهائية للتشغيل</strong></td><td>دائرة التنمية الاقتصادية</td><td>3-5 أيام</td><td>1,000 - 3,000 درهم</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">📞 معلومات التواصل الرئيسية</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">وزارة الصناعة والتكنولوجيا المتقدمة</div>
+        <div class="card__text">الموقع: moiat.gov.ae<br>الهاتف: 800-MOIAT<br>البريد: info@moiat.gov.ae</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📋</div>
+        <div class="card__title">دائرة التنمية الاقتصادية - أبوظبي</div>
+        <div class="card__text">الموقع: added.gov.ae<br>الهاتف: +971 2 677 7777<br>المركز الواحد: Tamm Abu Dhabi</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌆</div>
+        <div class="card__title">دائرة التنمية الاقتصادية - دبي</div>
+        <div class="card__text">الموقع: ded.ae<br>الهاتف: +971 4 206 5555<br>مراكز السعادة للمتعاملين</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">ديوا (دبي)</div>
+        <div class="card__text">الموقع: dewa.gov.ae<br>الهاتف: 991<br>تطبيق: DEWA Smart App</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏗️</div>
+        <div class="card__title">كيزاد (KIZAD / KEZAD Group)</div>
+        <div class="card__text">الموقع: kezadgroup.com<br>الهاتف: +971 2 495 8000<br>البريد: info@kezadgroup.com</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌊</div>
+        <div class="card__title">جافزا (JAFZA)</div>
+        <div class="card__text">الموقع: jafza.ae<br>الهاتف: +971 4 881 1111<br>البريد: info@jafza.ae</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🔗 أدلة استثمارية أخرى</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">🇸🇦</div><div class="card__title"><a href="manufacturing.html">الاستثمار الصناعي في السعودية</a></div><div class="card__text">دليل مدن الصناعية السعودية - 35 مدينة صناعية</div></div>
+      <div class="card"><div class="card__icon">🇪🇬</div><div class="card__title"><a href="manufacturing-eg.html">الاستثمار الصناعي في مصر</a></div><div class="card__text">دليل الهيئة العامة للتنمية الصناعية - 147 منطقة</div></div>
+      <div class="card"><div class="card__icon">🇯🇴</div><div class="card__title"><a href="manufacturing-jo.html">الاستثمار الصناعي في الأردن</a></div><div class="card__text">دليل المدن الصناعية الأردنية - 12 مدينة</div></div>
+      <div class="card"><div class="card__icon">🇴🇲</div><div class="card__title"><a href="manufacturing-om.html">الاستثمار الصناعي في عمان</a></div><div class="card__text">دليل المناطق الحرة والصناعية العمانية</div></div>
+      <div class="card"><div class="card__icon">🇧🇭</div><div class="card__title"><a href="manufacturing-bh.html">الاستثمار الصناعي في البحرين</a></div><div class="card__text">دليل المناطق الصناعية البحرينية</div></div>
+      <div class="card"><div class="card__icon">🇰🇼</div><div class="card__title"><a href="manufacturing-kw.html">الاستثمار الصناعي في الكويت</a></div><div class="card__text">دليل المناطق الصناعية الكويتية</div></div>
+      <div class="card"><div class="card__icon">🇶🇦</div><div class="card__title"><a href="manufacturing-qa.html">الاستثمار الصناعي في قطر</a></div><div class="card__text">دليل المدن الصناعية القطرية</div></div>
+      <div class="card"><div class="card__icon">🇱🇾</div><div class="card__title"><a href="manufacturing-ly.html">الاستثمار الصناعي في ليبيا</a></div><div class="card__text">دليل المناطق الصناعية الليبية</div></div>
+      <div class="card"><div class="card__icon">🇩🇿</div><div class="card__title"><a href="manufacturing-dz.html">الاستثمار الصناعي في الجزائر</a></div><div class="card__text">دليل المناطق الصناعية الجزائرية</div></div>
+      <div class="card"><div class="card__icon">🇱🇧</div><div class="card__title"><a href="manufacturing-lb.html">الاستثمار الصناعي في لبنان</a></div><div class="card__text">دليل المناطق الصناعية اللبنانية</div></div>
+      <div class="card"><div class="card__icon">🇾🇪</div><div class="card__title"><a href="manufacturing-ye.html">الاستثمار الصناعي في اليمن</a></div><div class="card__text">دليل المناطق الصناعية اليمنية</div></div>
+      <div class="card"><div class="card__icon">🇸🇾</div><div class="card__title"><a href="manufacturing-sy.html">الاستثمار الصناعي في سوريا</a></div><div class="card__text">دليل المناطق الصناعية السورية</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title"><a href="../calculators/factory-cost-ae.html">حاسبة تكلفة المصنع - الإمارات</a></div><div class="card__text">احسب تكلفة إنشاء مصنعك في الإمارات</div></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>© 2026 بوندز للاستشارات المالية. البيانات مأخوذة من الجهات الحكومية الإماراتية الرسمية.</p>
+  </footer>
+
+</body>
+</html>

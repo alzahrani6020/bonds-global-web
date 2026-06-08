@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Industrial Investment Guide in Lebanon | Bonds</title>
+  <meta name="description" content="Complete guide for industrial investment in Lebanon - Ministry of Industry, IDAL, industrial zones, licenses, and costs" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root { --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7); --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030; --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b; --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4); --success: #22c55e; --warning: #eab308; --info: #3b82f6; --shadow: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+    a { color:var(--gold); text-decoration:none; }
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); font-size:1.1rem; }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2.2rem; font-weight:800; margin-bottom:1rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; font-size:1.05rem; }
+    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
+    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-bottom:3rem; }
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
+    .card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:var(--shadow); }
+    .card__icon { width:48px; height:48px; border-radius:12px; background:rgba(212,168,83,0.1); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1rem; }
+    .card__title { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; }
+    .card__text { font-size:0.85rem; color:var(--text-secondary); line-height:1.7; }
+    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:3rem; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(16,24,45,0.9); border-bottom:1px solid var(--border); }
+    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
+    tr:hover td { background:rgba(212,168,40,0.05); }
+    .fee-highlight { background:rgba(212,168,83,0.08); border-radius:8px; padding:0.35rem 0.75rem; font-weight:700; color:var(--gold); white-space:nowrap; }
+    .timeline { display:flex; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
+    .stage { display:flex; gap:1.5rem; }
+    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .stage__content { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
+    .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
+    .stage__list { list-style:none; }
+    .stage__list li { padding:0.5rem 0; color:var(--text-secondary); font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
+    .stage__list li::before { content:'✓'; color:var(--success); font-weight:700; }
+    .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin:1rem 0; }
+    .note strong { color:var(--warning); }
+    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
+    @media (max-width:768px) { .hero h1 { font-size:1.5rem; } .stage { flex-direction:column; } .header__nav { display:none; } }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="../../en/index.html" class="header__logo">
+        <img src="../../assets/bonds-logo-header.webp" alt="Bonds" />
+        <span>Bonds</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../../en/index.html">Home</a>
+        <a href="manufacturing.html">Saudi Arabia</a>
+        <a href="manufacturing-eg.html">Egypt</a>
+        <a href="manufacturing-ae.html">UAE</a>
+        <a href="../../en/contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Industrial Investment Guide in Lebanon</h1>
+    <p>Everything an investor needs: government bodies, industrial zones, licenses, and costs in the Lebanese Republic</p>
+  </section>
+
+  <div class="container">
+
+    <h2 class="section-title">🏛️ Key Government Bodies</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Ministry of Industry</div>
+        <div class="card__text">The main authority for industry. Issues industrial licenses. Develops industrial policies. Supports exports.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📈</div>
+        <div class="card__title">Investment Development Authority (IDAL)</div>
+        <div class="card__text">Promotes foreign direct investment. Grants incentives and tax exemptions. Coordinates with government bodies.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">Electricité du Liban (EDL)</div>
+        <div class="card__text">The official body for electricity generation and distribution. Suffers from severe crisis. Daily power cuts reach 22 hours.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌊</div>
+        <div class="card__title">Lebanese Water Authority</div>
+        <div class="card__text">Manages water resources. Supplies factories with water. Operates water treatment plants.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌿</div>
+        <div class="card__title">Ministry of Environment</div>
+        <div class="card__text">Environmental protection. Issues environmental permits. Monitors industrial emissions.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📋</div>
+        <div class="card__title">Lebanese Chambers of Commerce</div>
+        <div class="card__text">Commercial registration of companies. Investor support. Provides commercial and industrial information.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">⚡ Industrial Electricity Tariffs</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Subscription Type</th><th>Voltage</th><th>Tariff (USD/kWh)</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Industrial - Low Voltage</strong></td><td>220/380V</td><td><span class="fee-highlight">0.08 - 0.12</span></td><td>Rarely available</td></tr>
+          <tr><td><strong>Industrial - Medium Voltage</strong></td><td>11 - 33 kV</td><td><span class="fee-highlight">0.07 - 0.10</span></td><td>For large factories</td></tr>
+          <tr><td><strong>Private Generator (Diesel)</strong></td><td>-</td><td><span class="fee-highlight">0.25 - 0.40</span></td><td>Primary power source</td></tr>
+          <tr><td><strong>Private Generator (Gasoline)</strong></td><td>-</td><td><span class="fee-highlight">0.35 - 0.50</span></td><td>More expensive but available</td></tr>
+          <tr><td><strong>Solar Power</strong></td><td>-</td><td><span class="fee-highlight">0.15 - 0.20</span></td><td>Growing alternative</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>Note:</strong> Lebanon suffers from a severe electricity crisis. EDL provides only 2-4 hours of power daily. Most factories rely entirely on private generators or solar power. Fuel prices are in USD.
+    </div>
+
+    <h2 class="section-title">🏙️ Main Industrial Zones</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Sidon Industrial Zone</div>
+        <div class="card__text">South Lebanon. 200+ factories. Specializations: food, textiles, plastics. Near Sidon port.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Tripoli Industrial Zone</div>
+        <div class="card__text">North Lebanon. Specializations: food, textiles, building materials. Near Tripoli port.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Zahle Industrial Zone</div>
+        <div class="card__text">Bekaa (central Lebanon). Specializations: food, wine, agriculture and processing.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Beirut Industrial Zone</div>
+        <div class="card__text">Capital. Specializations: light industry, assembly, technology. Most expensive area in Lebanon.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Jounieh Industrial Zone</div>
+        <div class="card__text">Mount Lebanon. Specializations: light industry, packaging, industrial tourism.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Halba Industrial Zone</div>
+        <div class="card__text">Akkar (north Lebanon). Specializations: food, agriculture, storage. Competitive land prices.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Zouk Mosbeh Industrial Zone</div>
+        <div class="card__text">Keserwan (north of Beirut). Specializations: mechanical, plastics, storage.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Jezzine Industrial Zone</div>
+        <div class="card__text">South Lebanon. Specializations: agriculture, packaging, cold storage.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🗺️ Investor Journey</h2>
+    <div class="timeline">
+      <div class="stage">
+        <div class="stage__num">1</div>
+        <div class="stage__content">
+          <div class="stage__title">Initial Licensing</div>
+          <ul class="stage__list">
+            <li>Submit industrial license application to Ministry of Industry</li>
+            <li>Obtain IDAL approval (for foreign investment)</li>
+            <li>Register company in commercial registry</li>
+            <li>Prepare project feasibility study</li>
+            <li>Duration: 2-4 weeks</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">2</div>
+        <div class="stage__content">
+          <div class="stage__title">Land Allocation & Location</div>
+          <ul class="stage__list">
+            <li>Select suitable industrial zone</li>
+            <li>Submit land allocation request to zone administration</li>
+            <li>Pay reservation and security deposit fees (5-10%)</li>
+            <li>Sign lease or purchase contract</li>
+            <li>Duration: 2-4 weeks</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">3</div>
+        <div class="stage__content">
+          <div class="stage__title">Construction Permits</div>
+          <ul class="stage__list">
+            <li>Submit certified engineering plans to municipality</li>
+            <li>Obtain building permit</li>
+            <li>Obtain civil defense approval</li>
+            <li>Execute project through approved contractor</li>
+            <li>Duration: 3-6 months depending on project</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage__num">4</div>
+        <div class="stage__content">
+          <div class="stage__title">Final Operation</div>
+          <ul class="stage__list">
+            <li>Building completion certificate</li>
+            <li>Civil defense safety inspection</li>
+            <li>Install private generator or solar system</li>
+            <li>Obtain final operating license</li>
+            <li>Duration: 2-4 weeks</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">💰 Industrial Costs & Fees</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Approximate Cost</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Industrial License Fee</strong></td><td><span class="fee-highlight">500 - 2,000 USD</span></td><td>Depends on activity type</td></tr>
+          <tr><td><strong>Industrial Land Rent</strong></td><td><span class="fee-highlight">30 - 100 USD/m²/year</span></td><td>Depends on zone</td></tr>
+          <tr><td><strong>Industrial Land Purchase</strong></td><td><span class="fee-highlight">500 - 2,000 USD/m²</span></td><td>Full ownership</td></tr>
+          <tr><td><strong>Electricity Connection Fee</strong></td><td><span class="fee-highlight">1,000 - 5,000 USD</span></td><td>Rarely completed</td></tr>
+          <tr><td><strong>Private Generator</strong></td><td><span class="fee-highlight">20,000 - 100,000 USD</span></td><td>Critical necessity</td></tr>
+          <tr><td><strong>Solar Power System</strong></td><td><span class="fee-highlight">50,000 - 200,000 USD</span></td><td>Growing alternative</td></tr>
+          <tr><td><strong>Water & Sewage Fees</strong></td><td><span class="fee-highlight">1 - 3 USD/m³</span></td><td>Depends on consumption</td></tr>
+          <tr><td><strong>License Renewal Fee</strong></td><td><span class="fee-highlight">Annual</span></td><td>Percentage of original license</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">📋 Requirements for Setting Up a Factory in Lebanon</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Requirement</th><th>Issuing Authority</th><th>Duration</th><th>Cost</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Industrial License</strong></td><td>Ministry of Industry</td><td>2-4 weeks</td><td>500 - 2,000 USD</td></tr>
+          <tr><td><strong>Company Registration</strong></td><td>Commercial Registry</td><td>3-7 days</td><td>200 - 500 USD</td></tr>
+          <tr><td><strong>Land Allocation</strong></td><td>Industrial Zone Administration</td><td>2-4 weeks</td><td>Depends on area</td></tr>
+          <tr><td><strong>Building Permit</strong></td><td>Municipality</td><td>2-4 weeks</td><td>1-2% of building value</td></tr>
+          <tr><td><strong>Environmental Approval</strong></td><td>Ministry of Environment</td><td>2-4 weeks</td><td>500 - 2,000 USD</td></tr>
+          <tr><td><strong>Generator/Solar Installation</strong></td><td>Private Companies</td><td>1-4 weeks</td><td>20,000 - 200,000 USD</td></tr>
+          <tr><td><strong>Operating License</strong></td><td>Ministry of Industry</td><td>3-5 days</td><td>200 - 500 USD</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">🏗️ Industrial Building Standards</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">📐</div>
+        <div class="card__title">Building Ratios</div>
+        <div class="card__text">Building ratio: 50-70%. Green spaces: 10%. Factory height: up to 12 meters.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🚒</div>
+        <div class="card__title">Safety Requirements</div>
+        <div class="card__text">Two emergency exits. 4-meter distance between buildings. Fire water tank. Fire alarm system.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌿</div>
+        <div class="card__title">Environmental Standards</div>
+        <div class="card__text">Environmental impact assessment. Waste treatment. Emission monitoring. Compliance with Ministry of Environment standards.</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">👷</div>
+        <div class="card__title">Labor Requirements</div>
+        <div class="card__text">3.5 m² per worker. Sanitary facilities. Compliance with Lebanese labor law. Employment of Lebanese workers.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">📞 Key Contact Information</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card__icon">🏭</div>
+        <div class="card__title">Ministry of Industry</div>
+        <div class="card__text">Website: industry.gov.lb<br>Phone: +961 1 985 000<br>Email: info@industry.gov.lb</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📈</div>
+        <div class="card__title">IDAL</div>
+        <div class="card__text">Website: idal.com.lb<br>Phone: +961 1 985 100<br>Email: info@idal.com.lb</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">⚡</div>
+        <div class="card__title">Electricité du Liban</div>
+        <div class="card__text">Website: edl.gov.lb<br>Phone: 1701<br>Email: info@edl.gov.lb</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌊</div>
+        <div class="card__title">Lebanese Water Authority</div>
+        <div class="card__text">Website: water.gov.lb<br>Phone: 1758<br>Email: info@water.gov.lb</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">🌿</div>
+        <div class="card__title">Ministry of Environment</div>
+        <div class="card__text">Website: environment.gov.lb<br>Phone: +961 1 985 200<br>Email: info@environment.gov.lb</div>
+      </div>
+      <div class="card">
+        <div class="card__icon">📋</div>
+        <div class="card__title">Lebanese Chambers of Commerce</div>
+        <div class="card__text">Website: cci.org.lb<br>Phone: +961 1 985 300<br>Email: info@cci.org.lb</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🔗 Other Investment Guides</h2>
+    <div class="cards">
+      <div class="card"><div class="card__icon">🇸🇦</div><div class="card__title"><a href="manufacturing.html">Industrial Investment in Saudi Arabia</a></div><div class="card__text">Guide to Saudi MODON industrial cities</div></div>
+      <div class="card"><div class="card__icon">🇪🇬</div><div class="card__title"><a href="manufacturing-eg.html">Industrial Investment in Egypt</a></div><div class="card__text">Guide to the Industrial Development Authority</div></div>
+      <div class="card"><div class="card__icon">🇦🇪</div><div class="card__title"><a href="manufacturing-ae.html">Industrial Investment in UAE</a></div><div class="card__text">Guide to UAE free zones and industrial areas</div></div>
+      <div class="card"><div class="card__icon">🇱🇾</div><div class="card__title"><a href="manufacturing-ly.html">Industrial Investment in Libya</a></div><div class="card__text">Guide to Libyan industrial zones</div></div>
+      <div class="card"><div class="card__icon">🇩🇿</div><div class="card__title"><a href="manufacturing-dz.html">Industrial Investment in Algeria</a></div><div class="card__text">Guide to Algerian industrial zones</div></div>
+      <div class="card"><div class="card__icon">🇾🇪</div><div class="card__title"><a href="manufacturing-ye.html">Industrial Investment in Yemen</a></div><div class="card__text">Guide to Yemeni industrial zones</div></div>
+      <div class="card"><div class="card__icon">🇸🇾</div><div class="card__title"><a href="manufacturing-sy.html">Industrial Investment in Syria</a></div><div class="card__text">Guide to Syrian industrial zones</div></div>
+      <div class="card"><div class="card__icon">🇯🇴</div><div class="card__title"><a href="manufacturing-jo.html">Industrial Investment in Jordan</a></div><div class="card__text">Guide to Jordanian industrial cities</div></div>
+      <div class="card"><div class="card__icon">🇴🇲</div><div class="card__title"><a href="manufacturing-om.html">Industrial Investment in Oman</a></div><div class="card__text">Guide to Omani free zones and industrial areas</div></div>
+      <div class="card"><div class="card__icon">🇧🇭</div><div class="card__title"><a href="manufacturing-bh.html">Industrial Investment in Bahrain</a></div><div class="card__text">Guide to Bahraini industrial zones</div></div>
+      <div class="card"><div class="card__icon">🇰🇼</div><div class="card__title"><a href="manufacturing-kw.html">Industrial Investment in Kuwait</a></div><div class="card__text">Guide to Kuwaiti industrial zones</div></div>
+      <div class="card"><div class="card__icon">🇶🇦</div><div class="card__title"><a href="manufacturing-qa.html">Industrial Investment in Qatar</a></div><div class="card__text">Guide to Qatari industrial cities</div></div>
+      <div class="card"><div class="card__icon">🏭</div><div class="card__title"><a href="../../en/calculators/factory-cost-lb.html">Factory Cost Calculator - Lebanon</a></div><div class="card__text">Calculate the cost of setting up your factory in Lebanon</div></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>© 2026 Bonds Financial Consulting. Data sourced from official Lebanese government bodies.</p>
+  </footer>
+
+</body>
+</html>

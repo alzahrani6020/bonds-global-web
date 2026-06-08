@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Supplier Guide | Bonds</title>
+  <meta name="description" content="Step-by-step guide for managing supplier accounts on the MODON Supplier Portal" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
+      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
+      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --radius: 16px; --shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.8; }
+    a { color:var(--gold); text-decoration:none; }
+
+    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; position:sticky; top:0; z-index:100; }
+    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .header__logo { display:flex; align-items:center; gap:0.75rem; }
+    .header__logo img { height:40px; border-radius:6px; }
+    .header__logo span { font-weight:800; color:var(--gold); }
+    .header__nav { display:flex; gap:1.5rem; }
+    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
+    .header__nav a:hover { color:var(--gold); }
+
+    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
+    .hero h1 { font-size:2rem; font-weight:800; margin-bottom:0.75rem; }
+    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; }
+    .hero .meta { margin-top:1rem; font-size:0.8rem; color:var(--text-muted); }
+
+    .container { max-width:1000px; margin:0 auto; padding:3rem 1.5rem; }
+
+    .toc { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; margin-bottom:3rem; }
+    .toc h2 { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
+    .toc ol { list-style:none; counter-reset:item; }
+    .toc li { counter-increment:item; padding:0.5rem 0; display:flex; align-items:center; gap:0.75rem; }
+    .toc li::before { content:counter(item); background:var(--gold); color:#0a0f1a; font-weight:800; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0; }
+    .toc a { color:var(--text-secondary); transition:0.3s; }
+    .toc a:hover { color:var(--gold); }
+
+    .section { margin-bottom:3rem; }
+    .section-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem; }
+    .section__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .section__title { font-size:1.3rem; font-weight:800; }
+    .section__path { background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1rem; font-size:0.85rem; color:var(--gold); margin-bottom:1rem; display:inline-block; }
+    .section__content { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; }
+    .section__content ul { list-style:none; }
+    .section__content li { padding:0.5rem 0; color:var(--text-secondary); display:flex; align-items:flex-start; gap:0.5rem; }
+    .section__content li::before { content:'•'; color:var(--gold); font-weight:700; }
+
+    .btn-primary { display:inline-block; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; padding:0.9rem 2.5rem; border-radius:12px; text-decoration:none; margin-top:2rem; }
+
+    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
+
+    @media (max-width:768px) {
+      .hero h1 { font-size:1.4rem; }
+      .header__nav { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="../en/index.html" class="header__logo">
+        <img src="../assets/bonds-logo-header.webp" alt="Bonds" />
+        <span>Bonds</span>
+      </a>
+      <nav class="header__nav">
+        <a href="../en/index.html">Home</a>
+        <a href="../en/sectors/manufacturing.html">Industrial Guide</a>
+        <a href="../en/contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Supplier Account Management Guide</h1>
+    <p>A comprehensive guide for managing supplier accounts on the MODON Supplier Portal</p>
+    <div class="meta">November 2023 | Saudi Authority for Industrial Cities and Technology Zones | <a href="https://modon.gov.sa/ar/Pages/default.aspx" target="_blank" rel="noopener">Official MODON Website ↗</a></div>
+  </section>
+
+  <div class="container">
+
+    <div class="toc">
+      <h2>Table of Contents</h2>
+      <ol>
+        <li><a href="#home">Home Page</a></li>
+        <li><a href="#general">General Company Information</a></li>
+        <li><a href="#profile">Company Profile</a></li>
+        <li><a href="#addresses">Address Directory</a></li>
+        <li><a href="#contacts">Contact Directory</a></li>
+        <li><a href="#classifications">Business Classifications</a></li>
+        <li><a href="#products">Products & Services</a></li>
+        <li><a href="#banking">Banking Details</a></li>
+      </ol>
+    </div>
+
+    <div class="section" id="home">
+      <div class="section-header">
+        <div class="section__num">1</div>
+        <h2 class="section__title">Home Page</h2>
+      </div>
+      <div class="section__path">Path: Login to Supplier Portal → Home → Management</div>
+      <div class="section__content">
+        <ul>
+          <li>Supplier logs in to the Supplier Portal</li>
+          <li>Quick access to company-level information</li>
+          <li>Manage account and services from a centralized dashboard</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="general">
+      <div class="section-header">
+        <div class="section__num">2</div>
+        <h2 class="section__title">General Company Information</h2>
+      </div>
+      <div class="section__path">Path: Supplier Portal → Home → Management → General</div>
+      <div class="section__content">
+        <ul>
+          <li>Quick view of company-level information</li>
+          <li>Add attachments to company profile</li>
+          <li>Update basic data easily</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="profile">
+      <div class="section-header">
+        <div class="section__num">3</div>
+        <h2 class="section__title">Company Profile</h2>
+      </div>
+      <div class="section__path">Path: Supplier Portal → Home → Management → Company Profile</div>
+      <div class="section__content">
+        <ul>
+          <li>Define/update detailed supplier company information</li>
+          <li>Commercial registration number, location, and project name</li>
+          <li>Use left navigation bar to access different pages</li>
+          <li>Organization page defines high-level company details</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="addresses">
+      <div class="section-header">
+        <div class="section__num">4</div>
+        <h2 class="section__title">Address Directory</h2>
+      </div>
+      <div class="section__path">Path: Supplier Portal → Home → Management → Address Book</div>
+      <div class="section__content">
+        <ul>
+          <li>Enter company location information (purchase, payment, quotes)</li>
+          <li>Create and modify multiple addresses</li>
+          <li>Delete address via trash icon</li>
+          <li>Update address via pencil icon</li>
+          <li>Add new address via "Create" button</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="contacts">
+      <div class="section-header">
+        <div class="section__num">5</div>
+        <h2 class="section__title">Contact Directory</h2>
+      </div>
+      <div class="section__path">Path: Supplier Portal → Home → Management → Contact Directory</div>
+      <div class="section__content">
+        <ul>
+          <li>List company employees as contacts with MODON</li>
+          <li>Delete contact via trash icon</li>
+          <li>Update contact information via pencil icon</li>
+          <li>Manage contact address information via address icon</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="classifications">
+      <div class="section-header">
+        <div class="section__num">6</div>
+        <h2 class="section__title">Business Classifications</h2>
+      </div>
+      <div class="section__path">Path: Supplier Portal → Home → Management → Business Classifications</div>
+      <div class="section__content">
+        <ul>
+          <li>Add/update classifications appropriate to your business</li>
+          <li>Go to General Information → Business Classifications</li>
+          <li>Select all classifications applicable to the company</li>
+          <li>Help MODON create supplier invitation lists</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="products">
+      <div class="section-header">
+        <div class="section__num">7</div>
+        <h2 class="section__title">Products & Services</h2>
+      </div>
+      <div class="section__path">Path: Supplier Portal → Home → Management → Products & Services</div>
+      <div class="section__content">
+        <ul>
+          <li>Register products and services offered by the company</li>
+          <li>Link products to appropriate classifications</li>
+          <li>Update product details and specifications</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="banking">
+      <div class="section-header">
+        <div class="section__num">8</div>
+        <h2 class="section__title">Banking Details</h2>
+      </div>
+      <div class="section__path">Path: Supplier Portal → Home → Management → Banking</div>
+      <div class="section__content">
+        <ul>
+          <li>Add and manage bank account information</li>
+          <li>IBAN, bank name, and account details</li>
+          <li>Required for payment processing</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="text-align:center; padding:2rem 0;">
+      <a href="../en/index.html" class="btn-primary">← Back to Home</a>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="margin-bottom:0.75rem;">
+      <span style="color:var(--gold); font-weight:700;">Bonds KSA Representative:</span>
+      <a href="https://thiqqah.live/" target="_blank" rel="noopener" style="color:var(--text-secondary); font-weight:600;">Thiqqah Gold ↗</a>
+    </div>
+    <p>© 2026 Bonds Financial Consultancy.</p>
+  </footer>
+
+</body>
+</html>
