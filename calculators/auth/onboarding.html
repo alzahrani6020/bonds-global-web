@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>أكمل معلوماتك | بوندز</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root { --bg:#0a0f1a; --bg-card:rgba(16,24,45,0.7); --gold:#d4a853; --gold-bright:#f0c96a; --text:#e8ecf4; --text-secondary:#94a3b8; --text-muted:#64748b; --border:rgba(197,160,40,0.15); --danger:#ef4444; --success:#22c55e; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Vazirmatn',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1rem; }
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:20px; max-width:460px; width:100%; padding:2rem; box-shadow:0 20px 60px rgba(0,0,0,0.5); position:relative; overflow:hidden; }
+    .card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--gold),var(--gold-bright),var(--gold)); }
+    .icon { font-size:2.5rem; text-align:center; margin-bottom:0.75rem; line-height:1; }
+    h1 { text-align:center; color:var(--gold); font-size:1.25rem; font-weight:800; margin-bottom:0.5rem; }
+    p { text-align:center; color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem; line-height:1.7; }
+    .form-group { margin-bottom:1rem; }
+    label { display:block; color:var(--text-secondary); font-size:0.8rem; font-weight:700; margin-bottom:0.35rem; }
+    input, textarea, select { width:100%; padding:0.7rem 1rem; border-radius:10px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:var(--text); font-family:inherit; font-size:0.9rem; outline:none; transition:border-color 0.3s; }
+    input:focus, textarea:focus, select:focus { border-color:var(--gold); }
+    textarea { min-height:60px; resize:vertical; }
+    .btn { width:100%; padding:0.8rem; border-radius:10px; border:none; background:linear-gradient(135deg,var(--gold),var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:0.95rem; cursor:pointer; transition:all 0.3s; margin-top:0.5rem; }
+    .btn:hover { transform:translateY(-2px); }
+    .btn-secondary { background:transparent; color:var(--text-secondary); border:1px solid var(--border); margin-top:0.5rem; }
+    .error { color:var(--danger); font-size:0.85rem; margin-top:0.75rem; text-align:center; display:none; }
+    .success { color:var(--success); font-size:0.9rem; text-align:center; margin-top:1rem; display:none; }
+    .progress { display:flex; gap:0.5rem; justify-content:center; margin-bottom:1.5rem; }
+    .dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.1); }
+    .dot.active { background:var(--gold); }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="icon">👋</div>
+    <h1>أكمل معلوماتك</h1>
+    <p>ساعدنا في تقديم استشارة مخصصة بإكمال بياناتك الأساسية.</p>
+
+    <div class="progress">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+
+    <form id="onboardingForm">
+      <div class="form-group">
+        <label>المدينة *</label>
+        <input type="text" id="city" placeholder="مثال: الرياض" required />
+      </div>
+      <div class="form-group">
+        <label>النشاط التجاري *</label>
+        <input type="text" id="business_type" placeholder="مثال: مطعم، مقهى، مصنع..." required />
+      </div>
+      <div class="form-group">
+        <label>عدد الرواد / الموظفين *</label>
+        <input type="number" id="employee_count" placeholder="0" min="0" required />
+      </div>
+      <div class="form-group">
+        <label>نبذة عن عملك *</label>
+        <textarea id="bio" placeholder="وصف مختصر..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label>احتياجاتك (لتقييم الاستشارة) *</label>
+        <textarea id="needs" placeholder="ما تحتاجه من الاستشارة..." required></textarea>
+      </div>
+
+      <button type="submit" class="btn">💾 حفظ والمتابعة</button>
+      <button type="button" class="btn btn-secondary" onclick="skipOnboarding()">لاحقاً</button>
+      <div class="error" id="errorMsg"></div>
+      <div class="success" id="successMsg">✅ تم الحفظ! جارِ التوجيه...</div>
+    </form>
+  </div>
+
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth.js"></script>
+  <script>
+    const sb = BondsAuth.getSupabase();
+    let userId = null;
+
+    async function init() {
+      const { data: { user } } = await BondsAuth.getUser();
+      if (!user) return location.href = 'index.html';
+      userId = user.id;
+
+      const { data: profile } = await BondsAuth.getProfile(user.id);
+      if (profile?.city && profile?.business_type && profile?.bio && profile?.needs) {
+        return redirectAfterComplete();
+      }
+    }
+    init();
+
+    document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const err = document.getElementById('errorMsg');
+      const success = document.getElementById('successMsg');
+
+      const city = document.getElementById('city').value.trim();
+      const business_type = document.getElementById('business_type').value.trim();
+      const employee_count = parseInt(document.getElementById('employee_count').value) || 0;
+      const bio = document.getElementById('bio').value.trim();
+      const needs = document.getElementById('needs').value.trim();
+
+      if (!city || !business_type || !bio || !needs) {
+        err.textContent = 'يرجى ملء جميع الحقول المطلوبة';
+        err.style.display = 'block';
+        return;
+      }
+
+      const { error } = await sb.from('profiles').upsert({
+        id: userId, city, business_type, employee_count, bio, needs,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'id' });
+
+      if (error) {
+        err.textContent = 'خطأ: ' + error.message;
+        err.style.display = 'block';
+        return;
+      }
+
+      err.style.display = 'none';
+      success.style.display = 'block';
+      setTimeout(redirectAfterComplete, 1200);
+    });
+
+    function skipOnboarding() {
+      localStorage.setItem('bonds_onboarding_skipped', new Date().toISOString().slice(0,10));
+      redirectAfterComplete();
+    }
+
+    function redirectAfterComplete() {
+      const redirect = sessionStorage.getItem('auth_redirect') || '/calculators/dashboard.html';
+      sessionStorage.removeItem('auth_redirect');
+      location.href = redirect;
+    }
+  </script>
+
+</body>
+</html>

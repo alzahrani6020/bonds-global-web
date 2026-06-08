@@ -191,7 +191,8 @@
 
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="admin-auth-v2.js"></script>
+  <script src="/bonds-auth.js"></script>
+  <script>BondsAuth.initAdminGuard();</script>
   <script>
     const DEMO_ROLES = [
       { id: 'demo-1', user_id: 'user-1', role: 'super_admin', created_at: '2026-01-01T00:00:00Z', profiles: { restaurant_name: 'أحمد المشرف', email: 'super@example.com' } },

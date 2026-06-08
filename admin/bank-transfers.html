@@ -8,9 +8,10 @@
   <link rel="stylesheet" href="../styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/api/env"></script>
-  <script src="../supabase-client.js"></script>
+  <script src="..//bonds-auth.js"></script>
   <script src="../auth-guard.js"></script>
-  <script src="admin-auth-v2.js"></script>
+  <script src="/bonds-auth.js"></script>
+  <script>BondsAuth.initAdminGuard();</script>
   <style>
     body { background: var(--bg); color: var(--text); font-family: 'Vazirmatn', sans-serif; min-height: 100vh; }
     .admin-layout { display: flex; min-height: 100vh; }

@@ -367,7 +367,23 @@
         }
         showSuccess('تم تسجيل الدخول! جاري التوجيه...');
         if (typeof gtag !== 'undefined') gtag('event', 'login', { method: 'email' });
-        setTimeout(() => window.location.href = redirectTo, 800);
+        // Check if onboarding needed
+        const user = data?.user;
+        if (user) {
+          window.BondsAuth.getProfile(user.id).then(({ data: profile }) => {
+            const needsOnboarding = !profile || !profile.city || !profile.business_type || !profile.bio || !profile.needs;
+            if (needsOnboarding) {
+              sessionStorage.setItem('auth_redirect', redirectTo);
+              window.location.href = 'onboarding.html';
+            } else {
+              window.location.href = redirectTo;
+            }
+          }).catch(() => {
+            window.location.href = redirectTo;
+          });
+        } else {
+          setTimeout(() => window.location.href = redirectTo, 800);
+        }
       });
 
       // OTP Login
