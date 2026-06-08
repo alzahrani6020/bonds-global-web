@@ -320,6 +320,7 @@
       let isEditing = false;
       let originalValues = {};
       window.toggleEdit = function(enable) {
+        console.log('[Profile] toggleEdit called with enable=', enable);
         isEditing = enable;
         const editBtn = document.getElementById('btnEdit');
         const cancelBtn = document.getElementById('btnCancel');
@@ -328,23 +329,34 @@
         const timeIds = ['peakStartH','peakStartM','peakStartAmpm','peakEndH','peakEndM','peakEndAmpm','rushStartH','rushStartM','rushStartAmpm','rushEndH','rushEndM','rushEndAmpm'];
 
         if (enable) {
-          // Store original values for cancel
-          fields.forEach(id => { originalValues[id] = document.getElementById(id)?.value || ''; });
+          fields.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) originalValues[id] = el.value || '';
+          });
           editBtn.style.display = 'none';
           cancelBtn.style.display = 'inline-flex';
           saveBtn.style.display = 'flex';
         } else {
-          // Restore original values
-          fields.forEach(id => { const el = document.getElementById(id); if(el) el.value = originalValues[id] || ''; });
+          fields.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.value = originalValues[id] || '';
+          });
           editBtn.style.display = 'inline-flex';
           cancelBtn.style.display = 'none';
           saveBtn.style.display = 'none';
         }
 
-        fields.forEach(id => { const el = document.getElementById(id); if (el) el.disabled = !enable; });
-        timeIds.forEach(id => { const el = document.getElementById(id); if (el) el.disabled = !enable; });
+        fields.forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) { el.disabled = !enable; console.log('[Profile] Set', id, 'disabled=', !enable); }
+        });
+        timeIds.forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) { el.disabled = !enable; console.log('[Profile] Set', id, 'disabled=', !enable); }
+        });
         document.getElementById('uploadBtn').disabled = !enable;
         document.getElementById('avatarFile').disabled = !enable;
+        console.log('[Profile] toggleEdit done. Buttons:', 'edit=', editBtn.style.display, 'cancel=', cancelBtn.style.display, 'save=', saveBtn.style.display);
       };
 
       // Start in view mode
