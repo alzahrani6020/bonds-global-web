@@ -37,6 +37,13 @@
     return sb.from('profiles').select('*').eq('id', userId).single();
   }
 
+  async function updateProfile(userId, fields) {
+    const sb = getSupabase();
+    if (!sb || !userId) return { data: null, error: new Error('Not initialized') };
+    const payload = { ...fields, id: userId, updated_at: new Date().toISOString() };
+    return sb.from('profiles').upsert(payload, { onConflict: 'id' });
+  }
+
   async function getSubscription(userId) {
     const sb = getSupabase();
     if (!sb || !userId) return { data: null, error: new Error('Not initialized') };
@@ -196,7 +203,7 @@
 
   // ── Exports ───────────────────────────────────────────────
   window.BondsAuth = {
-    getSupabase, getUser, getSession, getProfile, getSubscription, getAdminRole,
+    getSupabase, getUser, getSession, getProfile, updateProfile, getSubscription, getAdminRole,
     signUp, signIn, signOut, checkFeatureAccess,
     initSiteAuth, initAdminGuard
   };

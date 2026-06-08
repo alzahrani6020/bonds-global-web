@@ -20,9 +20,9 @@
     h2{font-size:1rem;font-weight:700;margin-bottom:var(--space-4);color:var(--text);border-bottom:1px solid var(--border);padding-bottom:var(--space-3)}
     .form-group{margin-bottom:var(--space-4)}
     .form-group label{display:block;margin-bottom:var(--space-3);font-size:0.9rem;font-weight:500;color:var(--text-secondary)}
-    .form-group input,.form-group select{width:100%;padding:var(--space-3) var(--space-4);background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text);font-family:inherit;font-size:1rem;transition:border-color 0.2s}
-    .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--gold)}
-    .form-group input::placeholder{color:#666}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:var(--space-3) var(--space-4);background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text);font-family:inherit;font-size:1rem;transition:border-color 0.2s}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--gold)}
+    .form-group input::placeholder,.form-group textarea::placeholder{color:#666}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
     @media(max-width:480px){.row{grid-template-columns:1fr}}
     .time-selects{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
@@ -98,13 +98,76 @@
         <h2>📍 الموقع</h2>
         <div class="row">
           <div class="form-group">
+            <label for="country">الدولة</label>
+            <select id="country">
+              <option value="">اختر الدولة</option>
+              <option value="SA">🇸🇦 السعودية</option>
+              <option value="AE">🇦🇪 الإمارات</option>
+              <option value="EG">🇪🇬 مصر</option>
+              <option value="KW">🇰🇼 الكويت</option>
+              <option value="QA">🇶🇦 قطر</option>
+              <option value="BH">🇧🇭 البحرين</option>
+              <option value="OM">🇴🇲 عمان</option>
+              <option value="JO">🇯🇴 الأردن</option>
+              <option value="IQ">🇮🇶 العراق</option>
+              <option value="LY">🇱🇾 ليبيا</option>
+              <option value="TN">🇹🇳 تونس</option>
+              <option value="DZ">🇩🇿 الجزائر</option>
+              <option value="MA">🇲🇦 المغرب</option>
+              <option value="LB">🇱🇧 لبنان</option>
+              <option value="YE">🇾🇪 اليمن</option>
+              <option value="SD">🇸🇩 السودان</option>
+              <option value="TR">🇹🇷 تركيا</option>
+              <option value="US">🇺🇸 الولايات المتحدة</option>
+              <option value="GB">🇬🇧 بريطانيا</option>
+              <option value="DE">🇩🇪 ألمانيا</option>
+              <option value="FR">🇫🇷 فرنسا</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label for="city">المدينة</label>
             <input type="text" id="city" placeholder="مثال: الرياض">
           </div>
+        </div>
+        <div class="row">
           <div class="form-group">
             <label for="neighborhood">الحي / المنطقة</label>
             <input type="text" id="neighborhood" placeholder="مثال: العليا">
           </div>
+          <div class="form-group">
+            <label for="businessType">نوع النشاط التجاري</label>
+            <select id="businessType">
+              <option value="">اختر النشاط</option>
+              <option value="restaurant">مطعم / مطعم سريع</option>
+              <option value="cafe">مقهى</option>
+              <option value="bakery">مخبز / حلويات</option>
+              <option value="food_truck">عربة طعام</option>
+              <option value="catering">تموين</option>
+              <option value="retail">متجر تجزئة</option>
+              <option value="manufacturing">تصنيع غذائي</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+        </div>
+
+        <h2>👥 الفريق والنبذة</h2>
+        <div class="row">
+          <div class="form-group">
+            <label for="employeeCount">عدد الموظفين</label>
+            <input type="number" id="employeeCount" min="0" placeholder="مثال: 12">
+          </div>
+          <div class="form-group">
+            <label for="phone">رقم الجوال</label>
+            <input type="tel" id="phone" placeholder="05xxxxxxxx" dir="ltr">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="bio">نبذة عن المشروع</label>
+          <textarea id="bio" rows="3" placeholder="اكتب نبذة مختصرة عن مشروعك..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="needs">الاحتياجات والخدمات المطلوبة</label>
+          <textarea id="needs" rows="3" placeholder="مثال: تحليل مالي، دراسة جدوى، تسعير..."></textarea>
         </div>
 
         <h2>⏰ أوقات الذروة والزحام</h2>
@@ -157,7 +220,7 @@
 
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/supabase-client.js?v=5"></script>
+  <script src="/bonds-auth.js?v=2"></script>
   <script>
     (async () => {
       const successMsg = document.getElementById('successMsg');
@@ -263,8 +326,13 @@
       if (profile) {
         document.getElementById('restaurantName').value = profile.restaurant_name || '';
         document.getElementById('phone').value = profile.phone || '';
+        document.getElementById('country').value = profile.country || '';
         document.getElementById('city').value = profile.city || '';
         document.getElementById('neighborhood').value = profile.neighborhood || '';
+        document.getElementById('businessType').value = profile.business_type || '';
+        document.getElementById('employeeCount').value = profile.employee_count || '';
+        document.getElementById('bio').value = profile.bio || '';
+        document.getElementById('needs').value = profile.needs || '';
         setTimeDropdowns('peakStart', profile.peak_hours_start);
         setTimeDropdowns('peakEnd', profile.peak_hours_end);
         setTimeDropdowns('rushStart', profile.rush_hours_start);
@@ -440,8 +508,13 @@
             id: user.id,
             restaurant_name: document.getElementById('restaurantName').value.trim(),
             phone: document.getElementById('phone').value.trim(),
+            country: document.getElementById('country').value.trim(),
             city: document.getElementById('city').value.trim(),
             neighborhood: document.getElementById('neighborhood').value.trim(),
+            business_type: document.getElementById('businessType').value.trim(),
+            employee_count: parseInt(document.getElementById('employeeCount').value) || null,
+            bio: document.getElementById('bio').value.trim(),
+            needs: document.getElementById('needs').value.trim(),
             peak_hours_start: getTimeDropdowns('peakStart'),
             peak_hours_end: getTimeDropdowns('peakEnd'),
             rush_hours_start: getTimeDropdowns('rushStart'),
