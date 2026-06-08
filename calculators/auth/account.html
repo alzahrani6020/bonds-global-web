@@ -57,7 +57,50 @@
           <div class="info-row"><span class="label">الاسم</span><span class="value" id="accName">—</span></div>
           <div class="info-row"><span class="label">البريد</span><span class="value" id="accEmail">—</span></div>
           <div class="info-row"><span class="label">الدولة</span><span class="value" id="accCountry">—</span></div>
+          <div class="info-row"><span class="label">المدينة</span><span class="value" id="accCity">—</span></div>
+          <div class="info-row"><span class="label">النشاط التجاري</span><span class="value" id="accBiz">—</span></div>
+          <div class="info-row"><span class="label">عدد الرواد</span><span class="value" id="accEmp">—</span></div>
+          <div class="info-row"><span class="label">نبذة</span><span class="value" id="accBio" style="white-space:pre-wrap;font-size:0.85rem;">—</span></div>
+          <div class="info-row"><span class="label">احتياجات</span><span class="value" id="accNeeds" style="white-space:pre-wrap;font-size:0.85rem;">—</span></div>
           <div class="info-row"><span class="label">اللغة</span><span class="value" id="accLang">—</span></div>
+          <div style="margin-top:1rem;"><button class="btn btn-primary" onclick="toggleEdit()">✏️ تعديل</button></div>
+        </div>
+
+        <!-- Edit Form -->
+        <div id="profileEdit" style="display:none;">
+          <div class="info-row" style="flex-direction:column;align-items:stretch;gap:0.5rem;border:none;padding:0.75rem 0;">
+            <label style="color:var(--text-secondary);font-size:0.85rem;font-weight:700;">الاسم</label>
+            <input type="text" id="editName" style="padding:0.6rem 0.9rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);font-family:inherit;">
+          </div>
+          <div class="info-row" style="flex-direction:column;align-items:stretch;gap:0.5rem;border:none;padding:0.75rem 0;">
+            <label style="color:var(--text-secondary);font-size:0.85rem;font-weight:700;">الدولة</label>
+            <input type="text" id="editCountry" style="padding:0.6rem 0.9rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);font-family:inherit;">
+          </div>
+          <div class="info-row" style="flex-direction:column;align-items:stretch;gap:0.5rem;border:none;padding:0.75rem 0;">
+            <label style="color:var(--text-secondary);font-size:0.85rem;font-weight:700;">المدينة</label>
+            <input type="text" id="editCity" style="padding:0.6rem 0.9rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);font-family:inherit;">
+          </div>
+          <div class="info-row" style="flex-direction:column;align-items:stretch;gap:0.5rem;border:none;padding:0.75rem 0;">
+            <label style="color:var(--text-secondary);font-size:0.85rem;font-weight:700;">النشاط التجاري</label>
+            <input type="text" id="editBiz" style="padding:0.6rem 0.9rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);font-family:inherit;">
+          </div>
+          <div class="info-row" style="flex-direction:column;align-items:stretch;gap:0.5rem;border:none;padding:0.75rem 0;">
+            <label style="color:var(--text-secondary);font-size:0.85rem;font-weight:700;">عدد الرواد / الموظفين</label>
+            <input type="number" id="editEmp" style="padding:0.6rem 0.9rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);font-family:inherit;">
+          </div>
+          <div class="info-row" style="flex-direction:column;align-items:stretch;gap:0.5rem;border:none;padding:0.75rem 0;">
+            <label style="color:var(--text-secondary);font-size:0.85rem;font-weight:700;">نبذة عن عملك</label>
+            <textarea id="editBio" rows="3" style="padding:0.6rem 0.9rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);font-family:inherit;resize:vertical;"></textarea>
+          </div>
+          <div class="info-row" style="flex-direction:column;align-items:stretch;gap:0.5rem;border:none;padding:0.75rem 0;">
+            <label style="color:var(--text-secondary);font-size:0.85rem;font-weight:700;">احتياجاتك</label>
+            <textarea id="editNeeds" rows="3" style="padding:0.6rem 0.9rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);font-family:inherit;resize:vertical;"></textarea>
+          </div>
+          <div id="editMsg" style="color:#ef4444;font-size:0.85rem;text-align:center;margin-top:0.5rem;display:none;"></div>
+          <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+            <button class="btn btn-primary" onclick="saveProfile()">💾 حفظ</button>
+            <button class="btn btn-secondary" onclick="toggleEdit()">إلغاء</button>
+          </div>
         </div>
       </div>
 
@@ -131,7 +174,51 @@
       document.getElementById('accName').textContent = profile?.restaurant_name || user.user_metadata?.restaurant_name || '—';
       document.getElementById('accEmail').textContent = user.email;
       document.getElementById('accCountry').textContent = profile?.country || user.user_metadata?.country || '—';
+      document.getElementById('accCity').textContent = profile?.city || '—';
+      document.getElementById('accBiz').textContent = profile?.business_type || '—';
+      document.getElementById('accEmp').textContent = profile?.employee_count || '—';
+      document.getElementById('accBio').textContent = profile?.bio || '—';
+      document.getElementById('accNeeds').textContent = profile?.needs || '—';
       document.getElementById('accLang').textContent = profile?.language === 'en' ? 'English' : 'العربية';
+
+      window.__currentProfile = profile;
+
+      function toggleEdit() {
+        const view = document.getElementById('profileContent');
+        const edit = document.getElementById('profileEdit');
+        const isEdit = edit.style.display === 'block';
+        view.style.display = isEdit ? 'block' : 'none';
+        edit.style.display = isEdit ? 'none' : 'block';
+        if (!isEdit) {
+          document.getElementById('editName').value = profile?.restaurant_name || '';
+          document.getElementById('editCountry').value = profile?.country || '';
+          document.getElementById('editCity').value = profile?.city || '';
+          document.getElementById('editBiz').value = profile?.business_type || '';
+          document.getElementById('editEmp').value = profile?.employee_count || '';
+          document.getElementById('editBio').value = profile?.bio || '';
+          document.getElementById('editNeeds').value = profile?.needs || '';
+        }
+      }
+      window.toggleEdit = toggleEdit;
+
+      async function saveProfile() {
+        const msg = document.getElementById('editMsg');
+        msg.style.display = 'none';
+        const updates = {
+          restaurant_name: document.getElementById('editName').value.trim(),
+          country: document.getElementById('editCountry').value.trim(),
+          city: document.getElementById('editCity').value.trim(),
+          business_type: document.getElementById('editBiz').value.trim(),
+          employee_count: parseInt(document.getElementById('editEmp').value) || 0,
+          bio: document.getElementById('editBio').value.trim(),
+          needs: document.getElementById('editNeeds').value.trim(),
+          updated_at: new Date().toISOString()
+        };
+        const { error } = await sb.from('profiles').update(updates).eq('id', user.id);
+        if (error) { msg.textContent = 'خطأ: ' + error.message; msg.style.display = 'block'; return; }
+        location.reload();
+      }
+      window.saveProfile = saveProfile;
 
       // Load subscription
       const { data: sub } = await window.BondsAuth.getSubscription(user.id);
