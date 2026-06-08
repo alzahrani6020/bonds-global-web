@@ -10,7 +10,7 @@
   <script src="/api/env"></script>
   <script src="../supabase-client.js"></script>
   <script src="../auth-guard.js"></script>
-  <script src="admin-auth.js"></script>
+  <script src="admin-auth-v2.js"></script>
   <style>
     body { background: var(--bg); color: var(--text); font-family: 'Vazirmatn', sans-serif; min-height: 100vh; }
     .admin-layout { display: flex; min-height: 100vh; }
@@ -115,7 +115,7 @@
       const { data: userData } = await window.BondsAuth?.getUser?.() || {};
       const user = userData?.user;
       if (!user) {
-        // Let admin-auth.js handle the overlay; do NOT redirect to prevent loops
+        // Let admin-auth-v2.js handle the overlay; do NOT redirect to prevent loops
         document.getElementById('loading').textContent = 'يجب تسجيل الدخول للوصول إلى لوحة التحكم';
         return;
       }
