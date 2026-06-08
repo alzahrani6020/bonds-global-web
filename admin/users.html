@@ -74,6 +74,15 @@
     .pagination { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem; }
     .page-btn { min-width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
     .page-btn:hover, .page-btn.active { background: rgba(212,168,83,0.15); color: var(--gold); border-color: var(--gold); }
+    .btn-action { padding: 0.3rem 0.6rem; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem; margin-left: 0.25rem; }
+    .btn-edit { background: rgba(59,130,246,0.15); color: #3b82f6; }
+    .btn-delete { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; width: 90%; max-width: 400px; }
+    .modal h3 { margin-bottom: 1rem; color: var(--gold); }
+    .modal select { width: 100%; padding: 0.75rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+    .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
 
     .loading { color: var(--text-muted); font-style: italic; text-align: center; padding: 2rem; }
     .demo-badge { display: inline-block; background: rgba(234,179,8,0.2); color: var(--warning); font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; margin-right: 0.5rem; }
@@ -182,13 +191,38 @@
               <th>الخطة</th>
               <th>الحالة</th>
               <th>تاريخ التسجيل</th>
+          <th>إجراءات</th>
             </tr>
           </thead>
           <tbody id="usersTable">
-            <tr><td colspan="6" class="loading">جارِ التحميل...</td></tr>
+            <tr><td colspan="7" class="loading">جارِ التحميل...</td></tr>
           </tbody>
         </table>
         <div class="pagination" id="pagination"></div>
+      </div>
+
+      <!-- Edit Modal -->
+      <div class="modal-overlay" id="editModal" onclick="if(event.target===this)closeEditModal()">
+        <div class="modal">
+          <h3>تعديل المستخدم</h3>
+          <input type="hidden" id="editUserId">
+          <label style="display:block;margin-bottom:0.5rem;color:var(--text-secondary);font-size:0.85rem;">الخطة</label>
+          <select id="editTier">
+            <option value="free">Free</option>
+            <option value="pro">Pro</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+          <label style="display:block;margin-bottom:0.5rem;color:var(--text-secondary);font-size:0.85rem;">الحالة</label>
+          <select id="editStatus">
+            <option value="active">نشط</option>
+            <option value="inactive">غير نشط</option>
+            <option value="pending">معلق</option>
+          </select>
+          <div class="modal-actions">
+            <button class="btn-sm btn-secondary" onclick="closeEditModal()">إلغاء</button>
+            <button class="btn-sm btn-primary" onclick="saveUserEdit()">حفظ</button>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -276,6 +310,10 @@
             <td>${tierBadge(u.tier)}</td>
             <td>${statusBadge(u.status)}</td>
             <td>${formatDate(u.created_at)}</td>
+            <td>
+              <button class="btn-action btn-edit" onclick="showEditModal('${u.id}', '${u.tier}', '${u.status}')">✏️</button>
+              <button class="btn-action btn-delete" onclick="deleteUser('${u.id}', '${name.replace(/'/g, "\\'")}')">🗑️</button>
+            </td>
           </tr>
         `;
       }).join('');

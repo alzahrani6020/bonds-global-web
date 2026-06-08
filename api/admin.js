@@ -202,6 +202,28 @@ async function getUsers(sb) {
   return { success: true, recentUsers: data || [] };
 }
 
+async function updateUser(sb, body, admin) {
+  if (!admin) throw new Error('Admin required');
+  const { id, tier, status } = body;
+  if (!id) throw new Error('id required');
+  const updates = {};
+  if (tier) updates.tier = tier;
+  if (status) updates.status = status;
+  updates.updated_at = new Date().toISOString();
+  const { error } = await sb.from('profiles').update(updates).eq('id', id);
+  if (error) throw error;
+  return { success: true };
+}
+
+async function deleteUser(sb, body, admin) {
+  if (!admin) throw new Error('Admin required');
+  const { id } = body;
+  if (!id) throw new Error('id required');
+  const { error } = await sb.from('profiles').delete().eq('id', id);
+  if (error) throw error;
+  return { success: true };
+}
+
 // ── Subscriptions ───────────────────────────────────────────
 async function getSubscriptions(sb) {
   const { data: subs, error: subsError } = await sb.from('subscriptions').select('user_id, tier, status, current_period_end, created_at').order('created_at', { ascending: false });
@@ -287,6 +309,7 @@ module.exports = async function handler(req, res) {
       }
       if (action === 'users') { return res.status(200).json(await getUsers(sb)); }
       if (action === 'subscriptions') { return res.status(200).json(await getSubscriptions(sb)); }
+      if (action === 'subscriptions') { return res.status(200).json(await getSubscriptions(sb)); }
       if (action === 'analytics') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
@@ -322,6 +345,14 @@ module.exports = async function handler(req, res) {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await createException(sb, req.body, admin));
+      }
+      if (action === 'users') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const subAction = req.body?.action;
+        if (subAction === 'update') return res.status(200).json(await updateUser(sb, req.body, admin));
+        if (subAction === 'delete') return res.status(200).json(await deleteUser(sb, req.body, admin));
+        return res.status(400).json({ error: 'Invalid sub-action' });
       }
       if (action === 'messages') {
         const admin = await verifyAdmin(req, sb);

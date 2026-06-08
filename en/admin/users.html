@@ -74,6 +74,15 @@
     .pagination { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem; }
     .page-btn { min-width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
     .page-btn:hover, .page-btn.active { background: rgba(212,168,83,0.15); color: var(--gold); border-color: var(--gold); }
+    .btn-action { padding: 0.3rem 0.6rem; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem; margin-left: 0.25rem; }
+    .btn-edit { background: rgba(59,130,246,0.15); color: #3b82f6; }
+    .btn-delete { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; width: 90%; max-width: 400px; }
+    .modal h3 { margin-bottom: 1rem; color: var(--gold); }
+    .modal select { width: 100%; padding: 0.75rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+    .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
 
     .loading { color: var(--text-muted); font-style: italic; text-align: center; padding: 2rem; }
     .demo-badge { display: inline-block; background: rgba(234,179,8,0.2); color: var(--warning); font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; margin-left: 0.5rem; }
@@ -182,13 +191,38 @@
               <th>Plan</th>
               <th>Status</th>
               <th>Joined</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="usersTable">
-            <tr><td colspan="6" class="loading">Loading...</td></tr>
+            <tr><td colspan="7" class="loading">Loading...</td></tr>
           </tbody>
         </table>
         <div class="pagination" id="pagination"></div>
+      </div>
+
+      <!-- Edit Modal -->
+      <div class="modal-overlay" id="editModal" onclick="if(event.target===this)closeEditModal()">
+        <div class="modal">
+          <h3>Edit User</h3>
+          <input type="hidden" id="editUserId">
+          <label style="display:block;margin-bottom:0.5rem;color:var(--text-secondary);font-size:0.85rem;">Plan</label>
+          <select id="editTier">
+            <option value="free">Free</option>
+            <option value="pro">Pro</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+          <label style="display:block;margin-bottom:0.5rem;color:var(--text-secondary);font-size:0.85rem;">Status</label>
+          <select id="editStatus">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="pending">Pending</option>
+          </select>
+          <div class="modal-actions">
+            <button class="btn-sm btn-secondary" onclick="closeEditModal()">Cancel</button>
+            <button class="btn-sm btn-primary" onclick="saveUserEdit()">Save</button>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -248,7 +282,7 @@
       const page = filteredUsers.slice(start, start + pageSize);
 
       if (page.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="loading">No results found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="loading">No results found</td></tr>';
         document.getElementById('usersCount').textContent = '0 users';
         return;
       }
@@ -274,6 +308,10 @@
             <td>${tierBadge(u.tier)}</td>
             <td>${statusBadge(u.status)}</td>
             <td>${formatDate(u.created_at)}</td>
+            <td>
+              <button class="btn-action btn-edit" onclick="showEditModal('${u.id}', '${u.tier}', '${u.status}')">✏️</button>
+              <button class="btn-action btn-delete" onclick="deleteUser('${u.id}', '${name.replace(/'/g, "\\'")}')">🗑️</button>
+            </td>
           </tr>
         `;
       }).join('');
@@ -313,8 +351,47 @@
       renderTable();
     }
 
+    async function showEditModal(id, currentTier, currentStatus) {
+      document.getElementById('editUserId').value = id;
+      document.getElementById('editTier').value = currentTier;
+      document.getElementById('editStatus').value = currentStatus;
+      document.getElementById('editModal').classList.add('active');
+    }
+    function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
+
+    async function saveUserEdit() {
+      const id = document.getElementById('editUserId').value;
+      const tier = document.getElementById('editTier').value;
+      const status = document.getElementById('editStatus').value;
+      try {
+        const res = await fetch('/api/admin?action=users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'update', id, tier, status })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+        closeEditModal();
+        await refreshData();
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    async function deleteUser(id, name) {
+      if (!confirm('Are you sure you want to delete user "' + name + '"?')) return;
+      try {
+        const res = await fetch('/api/admin?action=users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'delete', id })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+        await refreshData();
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+
     async function refreshData() {
-      document.getElementById('usersTable').innerHTML = '<tr><td colspan="6" class="loading">Refreshing...</td></tr>';
+      document.getElementById('usersTable').innerHTML = '<tr><td colspan="7" class="loading">Refreshing...</td></tr>';
       allUsers = await fetchUsers();
       filterUsers();
     }
