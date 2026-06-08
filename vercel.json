@@ -10,6 +10,10 @@
       "destination": "/api/$1.js"
     },
     {
+      "source": "/api/force-reset",
+      "destination": "/api/force-reset.js"
+    },
+    {
       "source": "/api/analyze-feasibility-v2",
       "destination": "/api/analyze-feasibility.js"
     },
