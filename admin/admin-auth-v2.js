@@ -105,6 +105,7 @@
       window.__ADMIN_ROLE = role;
       window.__ADMIN_PERMS = perms;
       window.__ADMIN_TOKEN = session.access_token || '';
+      window.__ADMIN_USER = session.user;
       function hasPerm(p) { return window.__ADMIN_PERMS.includes(p); }
 
       // Apply sidebar permissions
