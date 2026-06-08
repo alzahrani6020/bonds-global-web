@@ -458,12 +458,10 @@ module.exports = async function handler(req, res) {
         const { data: { user }, error } = await sb.auth.getUser(token);
         if (error || !user) return res.status(403).json({ error: 'Invalid token' });
         if (user.email !== 'iiffund.dev@gmail.com') return res.status(403).json({ error: 'Not authorized' });
-        // Ensure super_admin role exists
-        const { data: existing } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
-        if (!existing) {
-          const { error: insertErr } = await sb.from('admin_roles').insert({ user_id: user.id, role: 'super_admin', granted_by: user.id });
-          if (insertErr) return res.status(500).json({ error: insertErr.message });
-        }
+        // Upsert super_admin (insert or update)
+        const { error: upsertErr } = await sb.from('admin_roles')
+          .upsert({ user_id: user.id, role: 'super_admin', granted_by: user.id }, { onConflict: 'user_id' });
+        if (upsertErr) return res.status(500).json({ error: upsertErr.message });
         return res.status(200).json({ success: true, role: 'super_admin' });
       }
       return res.status(400).json({ error: 'Unknown action' });
