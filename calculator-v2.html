@@ -1582,32 +1582,6 @@ updateDateTime();
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
-  <script>
-    (function(){
-      function initHeaderAuth(){
-        var container = document.getElementById('authContainer');
-        if(!container || !window.BondsAuth) return;
-        window.BondsAuth.getUser().then(function(res){
-          var user = res.data && res.data.user;
-          if(!user){
-            container.innerHTML = '<a href="/auth-v2.html" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;text-decoration:none;padding:0.4rem 0.8rem;border:1px solid var(--border);border-radius:6px;">تسجيل الدخول</a>';
-            return;
-          }
-          var name = user.user_metadata && user.user_metadata.restaurant_name || user.email.split('@')[0];
-          var initial = name.charAt(0).toUpperCase();
-          container.innerHTML = '<div style="position:relative;display:flex;align-items:center;gap:0.5rem;cursor:pointer;" onclick="var d=this.querySelector(\'.dd\');d.style.display=d.style.display===\'block\'?\'none\':\'block\';">'+initial+'<span style="color:var(--gold);font-weight:700;font-size:0.85rem;">'+name+'</span><span style="font-size:0.7rem;color:var(--text-secondary);">▼</span><div class="dd" style="position:absolute;top:calc(100% + 6px);right:0;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:6px 0;min-width:160px;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:9999;"><a href="/calculators/auth/profile.html" style="display:block;padding:8px 14px;color:var(--text);text-decoration:none;font-size:0.8rem;">👤 الملف الشخصي</a><a href="/calculators/auth/subscription.html" style="display:block;padding:8px 14px;color:var(--text);text-decoration:none;font-size:0.8rem;">💎 الاشتراك</a><div style="height:1px;background:var(--border);margin:4px 0;"></div><a href="#" onclick="window.BondsAuth.signOut().then(function(){location.reload()});return false;" style="display:block;padding:8px 14px;color:#ff8a8a;text-decoration:none;font-size:0.8rem;">🚪 تسجيل الخروج</a></div></div>';
-        });
-        document.addEventListener('click', function(e){
-          var dd = document.querySelector('.dd');
-          if(dd && !e.target.closest('#authContainer')) dd.style.display = 'none';
-        });
-      }
-      if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', initHeaderAuth);
-      } else {
-        initHeaderAuth();
-      }
-    })();
-  </script>
+  <script>window.BondsAuth && window.BondsAuth.initSiteAuth('authContainer');</script>
 </body>
 </html>
