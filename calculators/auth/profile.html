@@ -68,6 +68,7 @@
       (function(){
         var _orig = {};
         window.toggleEdit = function(enable) {
+          alert('toggleEdit called: ' + enable);
           var editBtn = document.getElementById('btnEdit');
           var cancelBtn = document.getElementById('btnCancel');
           var saveBtn = document.getElementById('saveBtn');
