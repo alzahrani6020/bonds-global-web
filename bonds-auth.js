@@ -59,11 +59,12 @@
   function getRedirectUrl() {
     const params = new URLSearchParams(window.location.search);
     const fromParam = params.get('redirect');
+    const fallback = '/calculator.html';
     if (fromParam) {
       try { sessionStorage.setItem('auth_redirect', fromParam); } catch(e) {}
       return fromParam;
     }
-    try { return sessionStorage.getItem('auth_redirect') || ''; } catch(e) { return ''; }
+    try { return sessionStorage.getItem('auth_redirect') || fallback; } catch(e) { return fallback; }
   }
 
   function clearRedirectUrl() {
