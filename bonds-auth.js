@@ -59,12 +59,18 @@
   function getRedirectUrl() {
     const params = new URLSearchParams(window.location.search);
     const fromParam = params.get('redirect');
-    const fallback = '/calculator.html';
+    const fallback = (typeof window !== 'undefined' && window.location ? window.location.origin : '') + '/calculator.html';
     if (fromParam) {
       try { sessionStorage.setItem('auth_redirect', fromParam); } catch(e) {}
       return fromParam;
     }
-    try { return sessionStorage.getItem('auth_redirect') || fallback; } catch(e) { return fallback; }
+    try {
+      let stored = sessionStorage.getItem('auth_redirect');
+      if (stored && stored.startsWith('/') && !stored.startsWith('//')) {
+        stored = (typeof window !== 'undefined' && window.location ? window.location.origin : '') + stored;
+      }
+      return stored || fallback;
+    } catch(e) { return fallback; }
   }
 
   function clearRedirectUrl() {
