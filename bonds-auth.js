@@ -66,6 +66,9 @@
     }
     try {
       let stored = sessionStorage.getItem('auth_redirect');
+      if (stored) {
+        try { stored = decodeURIComponent(stored); } catch(e) {}
+      }
       if (stored && stored.startsWith('/') && !stored.startsWith('//')) {
         stored = (typeof window !== 'undefined' && window.location ? window.location.origin : '') + stored;
       }
@@ -149,7 +152,7 @@
       if (!user) {
         const isEn = location.pathname.startsWith('/en/');
         const authUrl = isEn ? '/en/calculators/auth/login.html' : '/calculators/auth/login.html';
-        container.innerHTML = `<a href="${authUrl}" class="btn btn-secondary" style="font-size:0.85rem;padding:0.5rem 1rem;" onclick="sessionStorage.setItem('auth_redirect','${encodeURIComponent(location.pathname)}')">تسجيل الدخول</a>`;
+        container.innerHTML = `<a href="${authUrl}" class="btn btn-secondary" style="font-size:0.85rem;padding:0.5rem 1rem;" onclick="sessionStorage.setItem('auth_redirect',location.pathname)">تسجيل الدخول</a>`;
         return;
       }
 
