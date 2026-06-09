@@ -56,6 +56,20 @@
     return sb.from('admin_roles').select('role').eq('user_id', userId).single();
   }
 
+  function getRedirectUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const fromParam = params.get('redirect');
+    if (fromParam) {
+      try { sessionStorage.setItem('auth_redirect', fromParam); } catch(e) {}
+      return fromParam;
+    }
+    try { return sessionStorage.getItem('auth_redirect') || ''; } catch(e) { return ''; }
+  }
+
+  function clearRedirectUrl() {
+    sessionStorage.removeItem('auth_redirect');
+  }
+
   async function signUp(email, password, metadata) {
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
@@ -66,6 +80,18 @@
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
     return sb.auth.signInWithPassword({ email, password });
+  }
+
+  async function signInWithOTP(email, options) {
+    const sb = getSupabase();
+    if (!sb) return { error: new Error('Not initialized') };
+    return sb.auth.signInWithOtp({ email, options: options || {} });
+  }
+
+  async function signInWithOAuth(provider, options) {
+    const sb = getSupabase();
+    if (!sb) return { error: new Error('Not initialized') };
+    return sb.auth.signInWithOAuth({ provider, options: options || {} });
   }
 
   async function signOut() {
@@ -204,7 +230,8 @@
   // ── Exports ───────────────────────────────────────────────
   window.BondsAuth = {
     getSupabase, getUser, getSession, getProfile, updateProfile, getSubscription, getAdminRole,
-    signUp, signIn, signOut, checkFeatureAccess,
+    signUp, signIn, signInWithOTP, signInWithOAuth, signOut, checkFeatureAccess,
+    getRedirectUrl, clearRedirectUrl,
     initSiteAuth, initAdminGuard
   };
 })();
