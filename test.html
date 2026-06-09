@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>اختبار النظام | بوندز</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: Vazirmatn, sans-serif; background: #0c0c0c; color: #f5f5f5; padding: 2rem; max-width: 800px; margin: 0 auto; }
+    h1 { color: #c8a45c; }
+    .test { background: #141414; border: 1px solid #2a2a2a; border-radius: 12px; padding: 1rem; margin: 1rem 0; }
+    .pass { color: #4ade80; font-weight: 700; }
+    .fail { color: #f87171; font-weight: 700; }
+    .warn { color: #fbbf24; font-weight: 700; }
+    pre { background: #050a15; padding: 1rem; border-radius: 8px; overflow: auto; font-size: 0.85rem; direction: ltr; text-align: left; }
+    button { background: #c8a45c; color: #0c0c0c; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 1rem; }
+    button:hover { filter: brightness(1.1); }
+  </style>
+</head>
+<body>
+  <h1>🔧 اختبار النظام</h1>
+  <p>هذه الصفحة تُثبت ما إذا كان كل شيء يعمل أم لا.</p>
+
+  <div class="test">
+    <h3>1. مكتبة Supabase</h3>
+    <div id="t1">جاري الفحص...</div>
+  </div>
+
+  <div class="test">
+    <h3>2. إعدادات البيئة (api/env)</h3>
+    <div id="t2">جاري الفحص...</div>
+    <pre id="t2d"></pre>
+  </div>
+
+  <div class="test">
+    <h3>3. bonds-auth-2026.js</h3>
+    <div id="t3">جاري الفحص...</div>
+  </div>
+
+  <div class="test">
+    <h3>4. الجلسة الحالية</h3>
+    <div id="t4">جاري الفحص...</div>
+    <pre id="t4d"></pre>
+  </div>
+
+  <div class="test">
+    <h3>5. المستخدم</h3>
+    <div id="t5">جاري الفحص...</div>
+    <pre id="t5d"></pre>
+  </div>
+
+  <button onclick="location.reload()">إعادة الفحص</button>
+  <button onclick="localStorage.clear();sessionStorage.clear();location.reload()" style="background:#dc2626;color:white;">مسح البيانات وإعادة الفحص</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/api/env"></script>
+  <script src="/bonds-auth-2026.js"></script>
+  <script>
+    async function runTests() {
+      // Test 1: Supabase library
+      const t1 = document.getElementById('t1');
+      if (typeof supabase !== 'undefined' && supabase.createClient) {
+        t1.innerHTML = '<span class="pass">✅ PASS</span> — مكتبة Supabase محملة ومتاحة';
+      } else {
+        t1.innerHTML = '<span class="fail">❌ FAIL</span> — مكتبة Supabase غير محملة!';
+      }
+
+      // Test 2: ENV
+      const t2 = document.getElementById('t2');
+      const t2d = document.getElementById('t2d');
+      const env = window.__ENV || {};
+      if (env.SUPABASE_URL && env.SUPABASE_ANON_KEY) {
+        t2.innerHTML = '<span class="pass">✅ PASS</span> — إعدادات Supabase محملة';
+        t2d.textContent = 'URL: ' + env.SUPABASE_URL + '\nKey (آخر 20): ...' + env.SUPABASE_ANON_KEY.slice(-20);
+      } else {
+        t2.innerHTML = '<span class="fail">❌ FAIL</span> — إعدادات Supabase فارغة!';
+        t2d.textContent = JSON.stringify(env, null, 2);
+      }
+
+      // Test 3: BondsAuth
+      const t3 = document.getElementById('t3');
+      if (window.BondsAuth && window.BondsAuth.getSupabase && window.BondsAuth.getSupabase()) {
+        t3.innerHTML = '<span class="pass">✅ PASS</span> — bonds-auth-2026.js يعمل وSupabase Client جاهز';
+      } else if (window.BondsAuth) {
+        t3.innerHTML = '<span class="warn">⚠️ WARN</span> — bonds-auth-2026.js محمل لكن Supabase Client غير جاهز';
+      } else {
+        t3.innerHTML = '<span class="fail">❌ FAIL</span> — bonds-auth-2026.js غير محمل!';
+      }
+
+      // Test 4: Session
+      const t4 = document.getElementById('t4');
+      const t4d = document.getElementById('t4d');
+      try {
+        const sb = window.BondsAuth ? window.BondsAuth.getSupabase() : null;
+        if (sb) {
+          const { data, error } = await sb.auth.getSession();
+          if (data.session) {
+            t4.innerHTML = '<span class="pass">✅ PASS</span> — أنت مسجل دخول!';
+            t4d.textContent = 'User ID: ' + data.session.user.id + '\nEmail: ' + data.session.user.email + '\nCreated: ' + data.session.user.created_at;
+          } else {
+            t4.innerHTML = '<span class="warn">⚠️ لا توجد جلسة</span> — لم تسجل دخول بعد';
+            t4d.textContent = 'localStorage مفاتيح ذات صلة:\n';
+            for (let i = 0; i < localStorage.length; i++) {
+              const k = localStorage.key(i);
+              if (k && k.startsWith('sb-')) t4d.textContent += k + ': ' + localStorage.getItem(k).substring(0, 50) + '...\n';
+            }
+          }
+        } else {
+          t4.innerHTML = '<span class="fail">❌ FAIL</span> — لا يمكن فحص الجلسة (Supabase غير جاهز)';
+        }
+      } catch (e) {
+        t4.innerHTML = '<span class="fail">❌ ERROR</span> — ' + e.message;
+      }
+
+      // Test 5: User
+      const t5 = document.getElementById('t5');
+      const t5d = document.getElementById('t5d');
+      try {
+        const { data, error } = await window.BondsAuth.getUser();
+        if (data.user) {
+          t5.innerHTML = '<span class="pass">✅ PASS</span> — مستخدم موجود';
+          t5d.textContent = JSON.stringify({ id: data.user.id, email: data.user.email, confirmed: !!data.user.email_confirmed_at, metadata: data.user.user_metadata }, null, 2);
+        } else {
+          t5.innerHTML = '<span class="warn">⚠️ لا يوجد مستخدم</span>';
+        }
+      } catch (e) {
+        t5.innerHTML = '<span class="fail">❌ ERROR</span> — ' + e.message;
+      }
+    }
+
+    window.addEventListener('load', runTests);
+  </script>
+</body>
+</html>
