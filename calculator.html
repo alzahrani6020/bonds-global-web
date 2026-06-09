@@ -126,6 +126,7 @@
         </ul>
       </nav>
       <div class="header-actions">
+        <div id="authContainer" style="display:flex;align-items:center;"></div>
         <a href="en/calculator.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">EN</a>
         <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
         <a href="contact.html" class="btn btn-primary hidden-mobile">احجز استشارتك</a>
@@ -1578,5 +1579,8 @@ function updateDateTime() {
 setInterval(updateDateTime, 60000);
 updateDateTime();
 </script>
+  <script src="/api/env"></script>
+  <script src="/bonds-auth.js?v=999"></script>
+  <script>window.BondsAuth && window.BondsAuth.initSiteAuth('authContainer');</script>
 </body>
 </html>
