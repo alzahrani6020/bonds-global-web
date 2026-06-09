@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../../styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg">
+  <script>if(!sessionStorage.getItem('pf_v2')){sessionStorage.setItem('pf_v2','1');location.replace(location.pathname+'?_='+Date.now());}</script>
   <style>
     :root{--gold:#c8a45c;--gold-light:#f5efe3;--bg:#0c0c0c;--bg-card:#141414;--bg-elevated:#1c1c1c;--border:#2a2a2a;--text:#f5f5f5;--text-secondary:#9a9a9a;--radius-lg:16px;--radius-md:10px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px}
     *{box-sizing:border-box;margin:0;padding:0}
@@ -81,10 +82,12 @@
             for (i=0; i<fields.length; i++) { id=fields[i]; el=document.getElementById(id); if(el) el.value=_orig[id]||''; }
             editBtn.style.display='inline-flex'; cancelBtn.style.display='none'; saveBtn.style.display='none';
           }
-          for (i=0; i<fields.length; i++) { id=fields[i]; el=document.getElementById(id); if(el) el.disabled=!enable; }
-          for (i=0; i<timeIds.length; i++) { id=timeIds[i]; el=document.getElementById(id); if(el) el.disabled=!enable; }
-          document.getElementById('uploadBtn').disabled=!enable;
-          document.getElementById('avatarFile').disabled=!enable;
+          for (i=0; i<fields.length; i++) { id=fields[i]; el=document.getElementById(id); if(el) { if(enable) el.removeAttribute('disabled'); else el.setAttribute('disabled','disabled'); } }
+          for (i=0; i<timeIds.length; i++) { id=timeIds[i]; el=document.getElementById(id); if(el) { if(enable) el.removeAttribute('disabled'); else el.setAttribute('disabled','disabled'); } }
+          var uploadBtn = document.getElementById('uploadBtn');
+          var avatarFile = document.getElementById('avatarFile');
+          if(uploadBtn) { if(enable) uploadBtn.removeAttribute('disabled'); else uploadBtn.setAttribute('disabled','disabled'); }
+          if(avatarFile) { if(enable) avatarFile.removeAttribute('disabled'); else avatarFile.setAttribute('disabled','disabled'); }
         };
       })();
       </script>
