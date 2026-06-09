@@ -73,7 +73,7 @@
   async function signUp(email, password, metadata) {
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
-    return sb.auth.signUp({ email, password, options: { data: metadata || {}, emailRedirectTo: location.origin + '/calculators/auth/confirmed.html' } });
+    return sb.auth.signUp({ email, password, options: { data: metadata || {}, emailRedirectTo: 'https://bonds-global.com/calculators/auth/confirmed.html' } });
   }
 
   async function signIn(email, password) {
@@ -91,7 +91,7 @@
   async function signInWithOAuth(provider, options) {
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
-    return sb.auth.signInWithOAuth({ provider, options: options || {} });
+    return sb.auth.signInWithOAuth({ provider, options: { ...(options || {}), redirectTo: 'https://bonds-global.com/calculators/auth/confirmed.html' } });
   }
 
   async function signOut() {

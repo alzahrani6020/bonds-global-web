@@ -445,7 +445,7 @@
         const sb = window.BondsAuth.getSupabase();
         if (!sb) { showError('النظام غير جاهز'); return; }
         const { error } = await sb.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + '/calculators/auth/reset.html'
+          redirectTo: 'https://bonds-global.com/calculators/auth/reset.html'
         });
         if (error) { showError(error.message); return; }
         showSuccess('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك 📧');
@@ -458,7 +458,7 @@
         if (!sb) { showError('النظام غير جاهز'); return; }
         const { error } = await sb.auth.signInWithOAuth({
           provider: 'google',
-          options: { redirectTo: window.location.origin + redirectTo }
+          options: { redirectTo: 'https://bonds-global.com' + redirectTo }
         });
         window.BondsAuth.clearRedirectUrl();
         if (error) showError(error.message);
