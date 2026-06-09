@@ -68,21 +68,21 @@
       (function(){
         var _orig = {};
         window.toggleEdit = function(enable) {
-          alert('toggleEdit called: ' + enable);
           var editBtn = document.getElementById('btnEdit');
           var cancelBtn = document.getElementById('btnCancel');
           var saveBtn = document.getElementById('saveBtn');
           var fields = ['restaurantName','phone','country','city','neighborhood','businessType','employeeCount','bio','needs','avatarUrl'];
           var timeIds = ['peakStartH','peakStartM','peakStartAmpm','peakEndH','peakEndM','peakEndAmpm','rushStartH','rushStartM','rushStartAmpm','rushEndH','rushEndM','rushEndAmpm'];
+          var i, el, id;
           if (enable) {
-            fields.forEach(function(id){ var el=document.getElementById(id); if(el) _orig[id]=el.value||''; });
+            for (i=0; i<fields.length; i++) { id=fields[i]; el=document.getElementById(id); if(el) _orig[id]=el.value||''; }
             editBtn.style.display='none'; cancelBtn.style.display='inline-flex'; saveBtn.style.display='flex';
           } else {
-            fields.forEach(function(id){ var el=document.getElementById(id); if(el) el.value=_orig[id]||''; });
+            for (i=0; i<fields.length; i++) { id=fields[i]; el=document.getElementById(id); if(el) el.value=_orig[id]||''; }
             editBtn.style.display='inline-flex'; cancelBtn.style.display='none'; saveBtn.style.display='none';
           }
-          fields.forEach(function(id){ var el=document.getElementById(id); if(el) el.disabled=!enable; });
-          timeIds.forEach(function(id){ var el=document.getElementById(id); if(el) el.disabled=!enable; });
+          for (i=0; i<fields.length; i++) { id=fields[i]; el=document.getElementById(id); if(el) el.disabled=!enable; }
+          for (i=0; i<timeIds.length; i++) { id=timeIds[i]; el=document.getElementById(id); if(el) el.disabled=!enable; }
           document.getElementById('uploadBtn').disabled=!enable;
           document.getElementById('avatarFile').disabled=!enable;
         };
@@ -341,51 +341,8 @@
         return;
       }
 
-      // View/edit toggle
-      let isEditing = false;
-      let originalValues = {};
-      window.toggleEdit = function(enable) {
-        console.log('[Profile] toggleEdit called with enable=', enable);
-        isEditing = enable;
-        const editBtn = document.getElementById('btnEdit');
-        const cancelBtn = document.getElementById('btnCancel');
-        const saveBtn = document.getElementById('saveBtn');
-        const fields = ['restaurantName','phone','country','city','neighborhood','businessType','employeeCount','bio','needs','avatarUrl'];
-        const timeIds = ['peakStartH','peakStartM','peakStartAmpm','peakEndH','peakEndM','peakEndAmpm','rushStartH','rushStartM','rushStartAmpm','rushEndH','rushEndM','rushEndAmpm'];
-
-        if (enable) {
-          fields.forEach(function(id) {
-            var el = document.getElementById(id);
-            if (el) originalValues[id] = el.value || '';
-          });
-          editBtn.style.display = 'none';
-          cancelBtn.style.display = 'inline-flex';
-          saveBtn.style.display = 'flex';
-        } else {
-          fields.forEach(function(id) {
-            var el = document.getElementById(id);
-            if (el) el.value = originalValues[id] || '';
-          });
-          editBtn.style.display = 'inline-flex';
-          cancelBtn.style.display = 'none';
-          saveBtn.style.display = 'none';
-        }
-
-        fields.forEach(function(id) {
-          var el = document.getElementById(id);
-          if (el) { el.disabled = !enable; console.log('[Profile] Set', id, 'disabled=', !enable); }
-        });
-        timeIds.forEach(function(id) {
-          var el = document.getElementById(id);
-          if (el) { el.disabled = !enable; console.log('[Profile] Set', id, 'disabled=', !enable); }
-        });
-        document.getElementById('uploadBtn').disabled = !enable;
-        document.getElementById('avatarFile').disabled = !enable;
-        console.log('[Profile] toggleEdit done. Buttons:', 'edit=', editBtn.style.display, 'cancel=', cancelBtn.style.display, 'save=', saveBtn.style.display);
-      };
-
-      // Start in view mode
-      toggleEdit(false);
+      // Start in view mode (toggleEdit is defined inline above the form)
+      if (window.toggleEdit) window.toggleEdit(false);
 
       // Fill email
       document.getElementById('email').value = user.email || '';
