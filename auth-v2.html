@@ -61,18 +61,19 @@
         <div class="form-group"><label>كلمة المرور * (8 أحرف)</label><input type="password" id="sp" required minlength="8" placeholder="••••••••" dir="ltr"></div>
         <div class="form-group"><label>تأكيد كلمة المرور *</label><input type="password" id="sc" required placeholder="أعد كتابة كلمة المرور" dir="ltr"></div>
         <div class="row">
-          <div class="form-group"><label>الدولة</label><input type="text" id="sco" placeholder="السعودية"></div>
-          <div class="form-group"><label>المدينة</label><input type="text" id="sci" placeholder="الرياض"></div>
+          <div class="form-group"><label>الدولة *</label><input type="text" id="sco" required placeholder="السعودية"></div>
+          <div class="form-group"><label>المدينة *</label><input type="text" id="sci" required placeholder="الرياض"></div>
         </div>
         <div class="row">
-          <div class="form-group"><label>رقم الجوال</label><input type="tel" id="sph" placeholder="05xxxxxxxx" dir="ltr"></div>
-          <div class="form-group"><label>نوع النشاط</label>
-            <select id="sbt"><option value="">اختر</option><option value="restaurant">مطعم</option><option value="cafe">مقهى</option><option value="bakery">مخبز</option><option value="food_truck">عربة طعام</option><option value="catering">تموين</option><option value="retail">متجر</option><option value="manufacturing">تصنيع</option><option value="other">أخرى</option></select>
+          <div class="form-group"><label>رقم الجوال *</label><input type="tel" id="sph" required placeholder="05xxxxxxxx" dir="ltr"></div>
+          <div class="form-group"><label>نوع النشاط *</label>
+            <select id="sbt" required><option value="">اختر</option><option value="restaurant">مطعم</option><option value="cafe">مقهى</option><option value="bakery">مخبز</option><option value="food_truck">عربة طعام</option><option value="catering">تموين</option><option value="retail">متجر</option><option value="manufacturing">تصنيع</option><option value="other">أخرى</option></select>
           </div>
         </div>
         <div class="form-group"><label>عدد الموظفين</label><input type="number" id="sec" min="0" placeholder="12"></div>
         <div class="form-group"><label>نبذة عن المشروع</label><textarea id="sbio" rows="2" placeholder="اكتب نبذة مختصرة..."></textarea></div>
         <div class="form-group"><label>الاحتياجات</label><textarea id="sne" rows="2" placeholder="مثال: تحليل مالي..."></textarea></div>
+        <div class="form-group" style="display:none"><input type="text" id="website" tabindex="-1" autocomplete="off"></div>
         <button type="submit" class="btn" id="sb">إنشاء حساب</button>
       </form>
     </div>
@@ -133,6 +134,26 @@
       const pass = document.getElementById('sp').value;
       const conf = document.getElementById('sc').value;
       const name = document.getElementById('sn').value.trim();
+      const phone = document.getElementById('sph').value.trim();
+      const country = document.getElementById('sco').value.trim();
+      const city = document.getElementById('sci').value.trim();
+      const biz = document.getElementById('sbt').value;
+      const honeypot = document.getElementById('website').value;
+      
+      // Bot check
+      if(honeypot){ showError('تم رفض الطلب'); btn.disabled=false; return false; }
+      
+      // Validate required fields
+      if(!phone){ showError('رقم الجوال مطلوب'); btn.disabled=false; return false; }
+      if(!country){ showError('الدولة مطلوبة'); btn.disabled=false; return false; }
+      if(!city){ showError('المدينة مطلوبة'); btn.disabled=false; return false; }
+      if(!biz){ showError('نوع النشاط مطلوب'); btn.disabled=false; return false; }
+      
+      // Phone validation: Saudi or international
+      const saPhone = /^05\d{8}$/;
+      const intlPhone = /^\+\d{7,15}$/;
+      if(!saPhone.test(phone) && !intlPhone.test(phone)){ showError('رقم الجوال غير صحيح (05xxxxxxxx أو +966xxxxxxx)'); btn.disabled=false; return false; }
+      
       if(pass.length<8){ showError('كلمة المرور يجب أن تكون 8 أحرف'); btn.disabled=false; return false; }
       if(pass!==conf){ showError('كلمة المرور غير متطابقة'); btn.disabled=false; return false; }
       const { data, error } = await sb.auth.signUp({
