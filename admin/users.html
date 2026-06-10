@@ -276,10 +276,13 @@
           <input type="hidden" id="resetUserId">
           <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1rem;">سيتم تغيير كلمة المرور مباشرة بدون إرسال بريد.</p>
           <label>كلمة المرور الجديدة (6 أحرف على الأقل)</label>
-          <input type="text" id="resetPassword" placeholder="******">
+          <div style="position:relative;margin-bottom:1rem;">
+            <input type="text" id="resetPassword" placeholder="أدخل كلمة المرور الجديدة..." style="width:100%;padding-left:2.5rem;">
+            <button type="button" onclick="togglePasswordVisibility()" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-secondary);font-size:1rem;" title="إظهار/إخفاء">👁️</button>
+          </div>
           <div class="modal-actions">
             <button class="btn-sm btn-secondary" onclick="closeResetModal()">إلغاء</button>
-            <button class="btn-sm btn-primary" onclick="confirmResetPassword()">تغيير</button>
+            <button class="btn-sm btn-primary" onclick="confirmResetPassword()">تغيير وحفظ</button>
           </div>
         </div>
       </div>
@@ -496,6 +499,11 @@
     }
     function closeResetModal() { document.getElementById('resetModal').classList.remove('active'); }
 
+    function togglePasswordVisibility() {
+      const input = document.getElementById('resetPassword');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
     async function confirmResetPassword() {
       const id = document.getElementById('resetUserId').value;
       const password = document.getElementById('resetPassword').value;
@@ -508,7 +516,7 @@
           body: JSON.stringify({ action: 'reset-password', id, password })
         });
         const data = await res.json();
-        if (data.success) { alert('✅ تم تغيير كلمة المرور'); closeResetModal(); }
+        if (data.success) { alert('✅ تم تغيير كلمة المرور بنجاح\n\nكلمة المرور الجديدة: ' + password); closeResetModal(); }
         else alert(data.error || 'فشل');
       } catch (e) { alert('خطأ'); }
     }
