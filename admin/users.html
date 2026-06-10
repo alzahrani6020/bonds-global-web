@@ -504,6 +504,22 @@
       input.type = input.type === 'password' ? 'text' : 'password';
     }
 
+    function copyToClipboard(text) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(function() {
+          alert('📋 تم نسخ كلمة المرور إلى الحافظة');
+        });
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        alert('📋 تم نسخ كلمة المرور إلى الحافظة');
+      }
+    }
+
     async function confirmResetPassword() {
       const id = document.getElementById('resetUserId').value;
       const password = document.getElementById('resetPassword').value;
@@ -516,7 +532,12 @@
           body: JSON.stringify({ action: 'reset-password', id, password })
         });
         const data = await res.json();
-        if (data.success) { alert('✅ تم تغيير كلمة المرور بنجاح\n\nكلمة المرور الجديدة: ' + password); closeResetModal(); }
+        if (data.success) {
+          if (confirm('✅ تم تغيير كلمة المرور بنجاح\n\nكلمة المرور الجديدة: ' + password + '\n\nهل تريد نسخها الآن؟')) {
+            copyToClipboard(password);
+          }
+          closeResetModal();
+        }
         else alert(data.error || 'فشل');
       } catch (e) { alert('خطأ'); }
     }
