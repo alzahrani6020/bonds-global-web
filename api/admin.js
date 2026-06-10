@@ -263,7 +263,8 @@ async function getUsers(sb) {
       employee_count: p.employee_count || 0,
       tier: p.tier || 'free',
       status: p.status || 'active',
-      created_at: u.created_at
+      created_at: u.created_at,
+      last_sign_in_at: u.last_sign_in_at || null
     };
   }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
