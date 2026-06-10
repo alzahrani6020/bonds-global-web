@@ -3,7 +3,7 @@
  * POST → stores request + sends admin notification
  */
 
-const getSupabase = require('./lib/supabase');
+const getSupabase = require('../lib/api/supabase');
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'iiffund.dev@gmail.com';
 
 async function sendAdminNotification(request) {

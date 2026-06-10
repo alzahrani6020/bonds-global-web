@@ -3,7 +3,7 @@
  * Routes: /api/admin?action=bank-transfers|settings|exceptions|analytics
  */
 
-const getSupabase = require('./lib/supabase');
+const getSupabase = require('../lib/api/supabase');
 
 async function verifyAdmin(req, sb) {
   const authHeader = req.headers.authorization;

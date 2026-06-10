@@ -4,7 +4,7 @@
  * POST /api/usage?action=log
  */
 
-const getSupabase = require('./lib/supabase');
+const getSupabase = require('../lib/api/supabase');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
