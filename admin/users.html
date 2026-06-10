@@ -107,6 +107,7 @@
   </style>
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
   <script>BondsAuth.initAdminGuard();</script>
 </head>
@@ -167,7 +168,8 @@
         </div>
         <div style="display:flex;gap:0.5rem;">
           <button class="btn-sm btn-primary" onclick="refreshData()">↻ تحديث</button>
-          <button class="btn-sm btn-secondary" onclick="exportCSV()">⬇ تصدير CSV</button>
+          <button class="btn-sm btn-secondary" onclick="exportCSV()">⬇ CSV</button>
+          <button class="btn-sm btn-primary" onclick="exportExcel()">📊 Excel</button>
         </div>
       </div>
 
@@ -555,6 +557,26 @@
         if (data.success) refreshData();
         else alert(data.error || 'فشل الحذف');
       } catch (e) { alert('خطأ في الحذف'); }
+    }
+
+    function exportExcel() {
+      const headers = ['الاسم','البريد','الجوال','الدولة','المدينة','النشاط','الموظفين','الخطة','الحالة','تاريخ التسجيل'];
+      const rows = filteredUsers.map(u => [
+        u.restaurant_name || 'New User',
+        u.email || '',
+        u.phone || '',
+        u.country || '',
+        u.city || '',
+        u.business_type || '',
+        u.employee_count || '',
+        u.tier || 'free',
+        u.status || 'active',
+        u.created_at ? u.created_at.split('T')[0] : ''
+      ]);
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'المستخدمين');
+      XLSX.writeFile(wb, 'bonds-users.xlsx');
     }
 
     function exportCSV() {

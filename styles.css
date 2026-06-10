@@ -45,3 +45,25 @@
 .dropdown-menu::-webkit-scrollbar-thumb:hover {
   background: var(--gold);
 }
+
+/* Multi-column dropdown for large menus */
+@media (min-width: 900px) {
+  .dropdown-menu {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    max-height: 420px;
+    min-width: 520px;
+    gap: 0;
+    padding: 0.5rem 1rem;
+  }
+  .dropdown-menu a {
+    width: 50%;
+    box-sizing: border-box;
+    padding: 0.6rem 0.5rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
