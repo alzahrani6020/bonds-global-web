@@ -156,13 +156,16 @@ async function getPageViews(sb) {
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  // Views by section/page (last 7 days)
+  // Views by section/page/day (last 7 days)
   const { data: views7 } = await sb.from('page_views').select('page, section, created_at').gte('created_at', sevenDaysAgo);
   const sectionStats = {};
   const pageStats = {};
+  const dayStats = {};
   (views7 || []).forEach(v => {
     sectionStats[v.section || v.page || 'unknown'] = (sectionStats[v.section || v.page || 'unknown'] || 0) + 1;
     pageStats[v.page || 'unknown'] = (pageStats[v.page || 'unknown'] || 0) + 1;
+    const day = v.created_at?.split('T')[0] || 'unknown';
+    dayStats[day] = (dayStats[day] || 0) + 1;
   });
 
   // Sessions duration (last 30 days)
@@ -184,7 +187,7 @@ async function getPageViews(sb) {
 
   return {
     success: true,
-    views7d: { total: views7?.length || 0, bySection: sectionStats, byPage: pageStats },
+    views7d: { total: views7?.length || 0, bySection: sectionStats, byPage: pageStats, byDay: dayStats },
     sessions30d: { total: sessions?.length || 0, byPage: avgDurationByPage }
   };
 }

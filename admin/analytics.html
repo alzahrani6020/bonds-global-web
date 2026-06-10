@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="/api/env"></script>
   <script src="..//bonds-auth-2026.js"></script>
   <script src="../auth-guard.js"></script>
@@ -106,16 +107,24 @@
           <div id="dayUsage"></div>
         </div>
 
-        <!-- Page Views by Section -->
+        <!-- Page Views Line Chart -->
         <div class="card">
-          <h3>🗺️ خارطة الاستخدام — الأقسام (7 أيام)</h3>
-          <div id="sectionUsage"></div>
+          <h3>📈 المشاهدات اليومية (7 أيام)</h3>
+          <canvas id="dayChart" height="100"></canvas>
         </div>
 
-        <!-- Page Views by Page -->
-        <div class="card">
-          <h3>🌐 خارطة الاستخدام — الصفحات (7 أيام)</h3>
-          <div id="pageUsage"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+          <!-- Page Views by Section -->
+          <div class="card">
+            <h3>🗺️ الأقسام (7 أيام)</h3>
+            <canvas id="sectionChart"></canvas>
+          </div>
+
+          <!-- Page Views by Page -->
+          <div class="card">
+            <h3>🌐 الصفحات (7 أيام)</h3>
+            <div id="pageUsage"></div>
+          </div>
         </div>
 
         <!-- Session Duration by Page -->
@@ -242,26 +251,62 @@
         const data = await res.json();
         if (!res.ok || !data.success) return;
 
-        // Section usage
-        const sectionData = data.views7d?.bySection || {};
-        let sectionHtml = '';
-        if (Object.keys(sectionData).length) {
-          const maxS = Math.max(...Object.values(sectionData), 1);
-          for (const [name, count] of Object.entries(sectionData).sort((a,b) => b[1]-a[1])) {
-            const pct = Math.round((count / maxS) * 100);
-            sectionHtml += `<div style="margin-bottom:0.75rem;">
-              <div style="display:flex;justify-content:space-between;font-size:0.9rem;margin-bottom:0.2rem;">
-                <span>${name}</span><span style="color:var(--gold);font-weight:700;">${count}</span>
-              </div>
-              <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
-            </div>`;
-          }
+        // Day chart (line)
+        const dayData = data.views7d?.byDay || {};
+        const sortedDays = Object.entries(dayData).sort((a,b) => a[0].localeCompare(b[0]));
+        if (sortedDays.length) {
+          new Chart(document.getElementById('dayChart'), {
+            type: 'line',
+            data: {
+              labels: sortedDays.map(d => d[0]),
+              datasets: [{
+                label: 'المشاهدات',
+                data: sortedDays.map(d => d[1]),
+                borderColor: '#d4a853',
+                backgroundColor: 'rgba(212,168,83,0.1)',
+                fill: true,
+                tension: 0.4
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+              }
+            }
+          });
         } else {
-          sectionHtml = '<p style="color:var(--text-secondary);">لا يوجد بيانات تتبع بعد</p>';
+          document.getElementById('dayChart').parentElement.innerHTML = '<p style="color:var(--text-secondary);">لا يوجد بيانات تتبع بعد</p>';
         }
-        document.getElementById('sectionUsage').innerHTML = sectionHtml;
 
-        // Page usage
+        // Section chart (doughnut)
+        const sectionData = data.views7d?.bySection || {};
+        if (Object.keys(sectionData).length) {
+          const colors = ['#d4a853','#3b82f6','#10b981','#ef4444','#8b5cf6','#f59e0b','#ec4899','#06b6d4'];
+          new Chart(document.getElementById('sectionChart'), {
+            type: 'doughnut',
+            data: {
+              labels: Object.keys(sectionData),
+              datasets: [{
+                data: Object.values(sectionData),
+                backgroundColor: colors,
+                borderWidth: 0
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { position: 'right', labels: { color: '#e8ecf4', font: { family: 'Vazirmatn' } } }
+              }
+            }
+          });
+        } else {
+          document.getElementById('sectionChart').parentElement.innerHTML = '<p style="color:var(--text-secondary);">لا يوجد بيانات تتبع بعد</p>';
+        }
+
+        // Page usage bars
         const pageData = data.views7d?.byPage || {};
         let pageHtml = '';
         if (Object.keys(pageData).length) {
