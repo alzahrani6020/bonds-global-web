@@ -83,4 +83,9 @@
 
   window.addEventListener('beforeunload', endSession);
   window.addEventListener('pagehide', endSession);
+
+  // Fix long dropdown menus overflow
+  var style = document.createElement('style');
+  style.textContent = '.dropdown-menu { max-height: 70vh !important; overflow-y: auto !important; scrollbar-width: thin; scrollbar-color: #a08030 transparent; } .dropdown-menu::-webkit-scrollbar { width: 5px; } .dropdown-menu::-webkit-scrollbar-thumb { background: #a08030; border-radius: 10px; }';
+  document.head.appendChild(style);
 })();
