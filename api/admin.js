@@ -116,9 +116,24 @@ async function getAnalytics(sb, admin) {
   const { count: proUsers } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'pro');
   const { count: entUsers } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'enterprise');
 
-  const { data: usageData } = await sb.from('usage_logs').select('calculator').gte('created_at', thirtyDaysAgo);
+  const { data: usageData } = await sb.from('usage_logs').select('calculator, user_id, created_at').gte('created_at', thirtyDaysAgo);
   const calcStats = {};
-  (usageData || []).forEach(u => { calcStats[u.calculator] = (calcStats[u.calculator] || 0) + 1; });
+  const userStats = {};
+  const dayStats = {};
+  (usageData || []).forEach(u => {
+    calcStats[u.calculator] = (calcStats[u.calculator] || 0) + 1;
+    userStats[u.user_id] = (userStats[u.user_id] || 0) + 1;
+    const day = u.created_at?.split('T')[0] || 'unknown';
+    dayStats[day] = (dayStats[day] || 0) + 1;
+  });
+
+  // Top users
+  const topUserIds = Object.entries(userStats).sort((a,b) => b[1] - a[1]).slice(0, 10).map(([id]) => id);
+  let topUsers = [];
+  if (topUserIds.length) {
+    const { data: topProfiles } = await sb.from('profiles').select('id, restaurant_name, email').in('id', topUserIds);
+    topUsers = (topProfiles || []).map(p => ({ name: p.restaurant_name || p.email || '—', count: userStats[p.id] || 0 }));
+  }
 
   const { data: pendingTransfers } = await sb.from('bank_transfer_requests').select('*').eq('status', 'pending');
   const { data: verifiedTransfers } = await sb.from('bank_transfer_requests').select('amount_sar').eq('status', 'verified');
@@ -129,12 +144,50 @@ async function getAnalytics(sb, admin) {
 
   return {
     users: { total: totalUsers, pro: proUsers || 0, enterprise: entUsers || 0, free: Math.max(0, totalUsers - (proUsers || 0) - (entUsers || 0)) },
-    usage: { total: usageData?.length || 0, byCalculator: calcStats },
+    usage: { total: usageData?.length || 0, byCalculator: calcStats, byDay: dayStats, topUsers },
     revenue: { stripe: stripeRevenue, bank: bankRevenue, total: stripeRevenue + bankRevenue },
     pendingTransfers: pendingTransfers?.length || 0,
   };
 }
 
+
+// ── Page Views & Sessions ───────────────────────────────────
+async function getPageViews(sb) {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+  // Views by section/page (last 7 days)
+  const { data: views7 } = await sb.from('page_views').select('page, section, created_at').gte('created_at', sevenDaysAgo);
+  const sectionStats = {};
+  const pageStats = {};
+  (views7 || []).forEach(v => {
+    sectionStats[v.section || v.page || 'unknown'] = (sectionStats[v.section || v.page || 'unknown'] || 0) + 1;
+    pageStats[v.page || 'unknown'] = (pageStats[v.page || 'unknown'] || 0) + 1;
+  });
+
+  // Sessions duration (last 30 days)
+  const { data: sessions } = await sb.from('page_sessions').select('page, duration_seconds, started_at').gte('started_at', thirtyDaysAgo);
+  const pageDuration = {};
+  const pageSessionCount = {};
+  (sessions || []).forEach(s => {
+    const p = s.page || 'unknown';
+    pageDuration[p] = (pageDuration[p] || 0) + (s.duration_seconds || 0);
+    pageSessionCount[p] = (pageSessionCount[p] || 0) + 1;
+  });
+  const avgDurationByPage = Object.keys(pageDuration).map(p => ({
+    page: p,
+    totalSeconds: pageDuration[p],
+    sessions: pageSessionCount[p],
+    avgSeconds: Math.round(pageDuration[p] / pageSessionCount[p]),
+    avgMinutes: (pageDuration[p] / pageSessionCount[p] / 60).toFixed(1)
+  })).sort((a, b) => b.totalSeconds - a.totalSeconds);
+
+  return {
+    success: true,
+    views7d: { total: views7?.length || 0, bySection: sectionStats, byPage: pageStats },
+    sessions30d: { total: sessions?.length || 0, byPage: avgDurationByPage }
+  };
+}
 
 // ── Verify Admin ────────────────────────────────────────────
 const ROLE_PERMISSIONS = {
@@ -418,6 +471,11 @@ module.exports = async function handler(req, res) {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await getAnalytics(sb, admin));
+      }
+      if (action === 'page-views') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getPageViews(sb));
       }
       return res.status(400).json({ error: 'Unknown action' });
     }

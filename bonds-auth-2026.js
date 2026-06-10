@@ -244,4 +244,5 @@
     getRedirectUrl, clearRedirectUrl,
     initSiteAuth, initAdminGuard
   };
+
 })();

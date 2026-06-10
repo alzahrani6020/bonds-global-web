@@ -18,6 +18,10 @@
       "destination": "/api/analyze-feasibility.js"
     },
     {
+      "source": "/api/track",
+      "destination": "/api/track.js"
+    },
+    {
       "source": "/break-even-explained.html",
       "destination": "/blog/break-even-explained.html"
     },
