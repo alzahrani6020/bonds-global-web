@@ -43,10 +43,12 @@ ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.page_sessions ENABLE ROW LEVEL SECURITY;
 
 -- Allow anonymous inserts (tracking beacon from any visitor)
+DROP POLICY IF EXISTS "Allow anonymous page view inserts" ON public.page_views;
 CREATE POLICY "Allow anonymous page view inserts"
   ON public.page_views FOR INSERT
   WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow anonymous session inserts" ON public.page_sessions;
 CREATE POLICY "Allow anonymous session inserts"
   ON public.page_sessions FOR INSERT
   WITH CHECK (true);
