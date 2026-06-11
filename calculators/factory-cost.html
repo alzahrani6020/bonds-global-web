@@ -166,7 +166,7 @@
 
         <div class="input-group">
           <label for="area">مساحة المصنع (م²)</label>
-          <input type="number" id="area" value="500" min="50" step="50" />
+          <input type="number" id="area" placeholder="500" min="50" step="50" />
           <small>الحد الأدنى للمصانع الصغيرة 50 م²</small>
         </div>
 
@@ -184,39 +184,39 @@
         <div class="input-row">
           <div class="input-group">
             <label for="saudiWorkers">عمالة سعودية</label>
-            <input type="number" id="saudiWorkers" value="3" min="0" />
+            <input type="number" id="saudiWorkers" placeholder="3" min="0" />
           </div>
           <div class="input-group">
             <label for="expatWorkers">عمالة وافدة</label>
-            <input type="number" id="expatWorkers" value="7" min="0" />
+            <input type="number" id="expatWorkers" placeholder="7" min="0" />
           </div>
         </div>
         <div class="input-row">
           <div class="input-group">
             <label for="saudiSalary">متوسط راتب سعودي (ريال)</label>
-            <input type="number" id="saudiSalary" value="6000" min="0" step="500" />
+            <input type="number" id="saudiSalary" placeholder="6000" min="0" step="500" />
           </div>
           <div class="input-group">
             <label for="expatSalary">متوسط راتب وافد (ريال)</label>
-            <input type="number" id="expatSalary" value="2500" min="0" step="500" />
+            <input type="number" id="expatSalary" placeholder="2500" min="0" step="500" />
           </div>
         </div>
 
         <h3 style="font-size:1rem; font-weight:700; color:var(--gold); margin:1.5rem 0 1rem;">⚡ خدمات وتشغيل</h3>
         <div class="input-group">
           <label for="electricity">استهلاك الكهرباء الشهري (ك.و.س)</label>
-          <input type="number" id="electricity" value="5000" min="0" step="500" />
+          <input type="number" id="electricity" placeholder="5000" min="0" step="500" />
           <small>متوسط المصنع الصغير 3,000 - 10,000 ك.و.س/شهر</small>
         </div>
 
         <div class="input-group">
           <label for="water">استهلاك الماء الشهري (م³)</label>
-          <input type="number" id="water" value="50" min="0" step="10" />
+          <input type="number" id="water" placeholder="50" min="0" step="10" />
         </div>
 
         <div class="input-group">
           <label for="monthlyProduction">الإنتاج الشهري (وحدة)</label>
-          <input type="number" id="monthlyProduction" value="10000" min="0" step="1000" />
+          <input type="number" id="monthlyProduction" placeholder="10000" min="0" step="1000" />
           <small>لحساب تكلفة الوحدة ونقطة التعادل</small>
         </div>
 
@@ -224,21 +224,21 @@
         <div class="input-row">
           <div class="input-group">
             <label for="maintenancePct">نسبة الصيانة السنوية (%)</label>
-            <input type="number" id="maintenancePct" value="3" min="0" max="20" step="0.5" />
+            <input type="number" id="maintenancePct" placeholder="3" min="0" max="20" step="0.5" />
           </div>
           <div class="input-group">
             <label for="insurancePct">تأمين الممتلكات (%)</label>
-            <input type="number" id="insurancePct" value="0.15" min="0" max="2" step="0.05" />
+            <input type="number" id="insurancePct" placeholder="0.15" min="0" max="2" step="0.05" />
           </div>
         </div>
         <div class="input-row">
           <div class="input-group">
             <label for="rawMaterialPct">مواد خام (% من الإيرادات)</label>
-            <input type="number" id="rawMaterialPct" value="35" min="0" max="80" step="5" />
+            <input type="number" id="rawMaterialPct" placeholder="35" min="0" max="80" step="5" />
           </div>
           <div class="input-group">
             <label for="unitPrice">سعر بيع الوحدة (ريال)</label>
-            <input type="number" id="unitPrice" value="10" min="0" step="0.5" />
+            <input type="number" id="unitPrice" placeholder="10" min="0" step="0.5" />
           </div>
         </div>
 
@@ -617,7 +617,7 @@
       });
     }
 
-    window.addEventListener('load', calculate);
+    // User must click the calculate button
   </script>
 
   <script src="../admin/analytics-tracker.js"></script>
