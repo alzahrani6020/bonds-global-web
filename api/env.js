@@ -15,6 +15,7 @@ module.exports = function handler(req, res) {
     STRIPE_PRICE_PRO: process.env.STRIPE_PRICE_PRO || '',
     STRIPE_PRICE_ENTERPRISE: process.env.STRIPE_PRICE_ENTERPRISE || '',
     APP_URL: process.env.NEXT_PUBLIC_APP_URL || '',
+    SENTRY_DSN: process.env.SENTRY_DSN || '',
   };
 
   res.status(200).end(`window.__ENV = ${JSON.stringify(env)};`);
