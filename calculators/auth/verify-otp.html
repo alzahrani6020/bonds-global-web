@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <title>تأكيد البريد الإلكتروني — Bonds</title>
+  <link rel="stylesheet" href="../../styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg" />
+  <script>if(!sessionStorage.getItem('otp_v2')){sessionStorage.setItem('otp_v2','1');location.replace(location.pathname+location.search+'&_='+Date.now());}</script>
+  <style>
+    :root{--gold:#c8a45c;--gold-light:#f5efe3;--bg:#0c0c0c;--bg-card:#141414;--bg-elevated:#1c1c1c;--border:#2a2a2a;--text:#f5f5f5;--text-secondary:#9a9a9a;--radius-lg:16px;--radius-md:10px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;--space-10:40px}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Tajawal','Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:var(--space-4)}
+    .auth-container{width:100%;max-width:420px}
+    .auth-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-8) var(--space-6);text-align:center}
+    .logo{display:flex;align-items:center;justify-content:center;gap:var(--space-3);margin-bottom:var(--space-6)}
+    .logo img{height:40px}
+    .logo span{font-weight:800;font-size:1.4rem;color:var(--gold);letter-spacing:-0.5px}
+    h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gold)}
+    .subtitle{color:var(--text-secondary);font-size:0.9rem;margin-bottom:var(--space-6);line-height:1.7}
+    .otp-inputs{display:flex;gap:var(--space-3);justify-content:center;direction:ltr;margin-bottom:var(--space-4)}
+    .otp-inputs input{width:48px;height:56px;text-align:center;font-size:1.5rem;font-weight:700;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text);transition:border-color 0.2s}
+    .otp-inputs input:focus{outline:none;border-color:var(--gold)}
+    .btn{width:100%;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:var(--space-3)}
+    .btn:disabled{opacity:0.6;cursor:not-allowed}
+    .btn-primary{background:var(--gold);color:#0c0c0c}
+    .btn-primary:hover:not(:disabled){background:#d4b76a;transform:translateY(-1px)}
+    .btn-secondary{background:var(--bg-elevated);color:var(--text);border:1px solid var(--border);margin-top:var(--space-3)}
+    .btn-secondary:hover:not(:disabled){border-color:var(--gold)}
+    .error-msg{background:#3a1515;color:#ff8a8a;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
+    .success-msg{background:#153a1f;color:#8affa0;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
+    .info-msg{background:#1a2a4a;color:#8ab4ff;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
+    .back-link{display:block;text-align:center;margin-top:var(--space-6);color:var(--text-secondary);font-size:0.9rem;text-decoration:none}
+    .back-link:hover{color:var(--gold)}
+    .spinner{width:16px;height:16px;border:2px solid rgba(12,12,12,0.3);border-top-color:#0c0c0c;border-radius:50%;animation:spin 0.8s linear infinite;display:none}
+    .btn.loading .spinner{display:inline-block}
+    .btn.loading .btn-text{opacity:0.7}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:480px){.auth-card{padding:var(--space-6) var(--space-4)}.otp-inputs input{width:42px;height:50px}}
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="logo">
+        <img src="../../assets/bonds-logo.jpg" alt="Bonds" />
+        <span>Bonds</span>
+      </div>
+      <h1>تأكيد البريد الإلكتروني</h1>
+      <p class="subtitle" id="subtitle">أدخل الرمز المؤلف من 6 أرقام الذي أرسلناه إلى بريدك الإلكتروني.</p>
+
+      <div id="errorMsg" class="error-msg"></div>
+      <div id="successMsg" class="success-msg"></div>
+      <div id="infoMsg" class="info-msg"></div>
+
+      <form id="otpForm">
+        <div class="otp-inputs" id="otpInputs">
+          <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Digit 1" />
+          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2" />
+          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 3" />
+          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 4" />
+          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 5" />
+          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 6" />
+        </div>
+        <button type="submit" class="btn btn-primary" id="verifyBtn">
+          <span class="spinner"></span>
+          <span class="btn-text">تحقق من الرمز</span>
+        </button>
+      </form>
+
+      <button type="button" class="btn btn-secondary" id="resendBtn">
+        <span class="spinner"></span>
+        <span class="btn-text">إعادة إرسال الرمز</span>
+      </button>
+
+      <a href="./index.html" class="back-link">← العودة لتسجيل الدخول</a>
+    </div>
+  </div>
+
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js"></script>
+  <script>
+    (function() {
+      'use strict';
+
+      const params = new URLSearchParams(window.location.search);
+      const email = params.get('email') || sessionStorage.getItem('otp_email') || '';
+      sessionStorage.setItem('otp_email', email);
+
+      const subtitle = document.getElementById('subtitle');
+      if (email) {
+        subtitle.innerHTML = 'أدخل الرمز المؤلف من 6 أرقام الذي أرسلناه إلى <strong style="color:var(--gold)">' + escapeHtml(email) + '</strong>';
+      }
+
+      const inputs = Array.from(document.querySelectorAll('#otpInputs input'));
+      const errorMsg = document.getElementById('errorMsg');
+      const successMsg = document.getElementById('successMsg');
+      const infoMsg = document.getElementById('infoMsg');
+
+      function showError(msg) { errorMsg.textContent = msg; errorMsg.style.display = 'block'; successMsg.style.display = 'none'; infoMsg.style.display = 'none'; }
+      function showSuccess(msg) { successMsg.textContent = msg; successMsg.style.display = 'block'; errorMsg.style.display = 'none'; infoMsg.style.display = 'none'; }
+      function showInfo(msg) { infoMsg.textContent = msg; infoMsg.style.display = 'block'; errorMsg.style.display = 'none'; successMsg.style.display = 'none'; }
+
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function setLoading(btnId, loading) {
+        const btn = document.getElementById(btnId);
+        btn.disabled = loading;
+        btn.classList.toggle('loading', loading);
+      }
+
+      function getToken() {
+        return inputs.map(i => i.value.trim()).join('');
+      }
+
+      // OTP input behavior
+      inputs.forEach((input, idx) => {
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !input.value && idx > 0) {
+            inputs[idx - 1].focus();
+          }
+        });
+        input.addEventListener('input', (e) => {
+          const val = input.value.replace(/[^0-9]/g, '');
+          input.value = val.slice(0, 1);
+          if (val && idx < inputs.length - 1) {
+            inputs[idx + 1].focus();
+          }
+          if (getToken().length === 6) {
+            document.getElementById('otpForm').dispatchEvent(new Event('submit'));
+          }
+        });
+        input.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+          paste.split('').forEach((digit, i) => { if (inputs[i]) inputs[i].value = digit; });
+          const nextIdx = Math.min(paste.length, inputs.length - 1);
+          inputs[nextIdx].focus();
+          if (paste.length === 6) {
+            document.getElementById('otpForm').dispatchEvent(new Event('submit'));
+          }
+        });
+      });
+
+      // Verify
+      document.getElementById('otpForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = getToken();
+        if (token.length !== 6) { showError('الرجاء إدخال الرمز كاملاً (6 أرقام)'); return; }
+        if (!email) { showError('البريد الإلكتروني مفقود. عد إلى صفحة التسجيل.'); return; }
+
+        setLoading('verifyBtn', true);
+        hideMessages();
+
+        try {
+          const { data, error } = await window.BondsAuth.verifyOTP(email, token, 'email');
+          if (error) {
+            setLoading('verifyBtn', false);
+            const msg = error.message || '';
+            if (msg.includes('Token has expired')) {
+              showError('الرمز منتهي الصلاحية. اضغط "إعادة إرسال الرمز".');
+            } else if (msg.includes('Invalid token') || msg.includes('token')) {
+              showError('الرمز غير صحيح. تأكد من إدخاله بشكل صحيح.');
+            } else {
+              showError(msg);
+            }
+            return;
+          }
+
+          showSuccess('تم التحقق من البريد الإلكتروني ✅');
+
+          // Set password if stored from signup
+          const pendingPassword = sessionStorage.getItem('otp_pending_password');
+          if (pendingPassword) {
+            const { error: pwError } = await window.BondsAuth.updateUser({ password: pendingPassword });
+            if (pwError) {
+              console.warn('[OTP] Password set warning:', pwError);
+              // Not fatal; user can reset password later
+            }
+            sessionStorage.removeItem('otp_pending_password');
+          }
+
+          // Save/update profile
+          const user = data?.user;
+          if (user) {
+            const metadata = {
+              id: user.id,
+              restaurant_name: sessionStorage.getItem('otp_pending_name') || user.user_metadata?.restaurant_name || '',
+              phone: sessionStorage.getItem('otp_pending_phone') || user.user_metadata?.phone || '',
+              language: 'ar'
+            };
+            try {
+              await window.BondsAuth.updateProfile(user.id, metadata);
+            } catch (profileErr) {
+              console.warn('[OTP] Profile update warning:', profileErr);
+            }
+            sessionStorage.removeItem('otp_pending_name');
+            sessionStorage.removeItem('otp_pending_phone');
+          }
+
+          sessionStorage.removeItem('otp_email');
+
+          // Track signup
+          if (typeof gtag !== 'undefined') gtag('event', 'sign_up', { method: 'email_otp' });
+
+          showSuccess('تم إنشاء حسابك بنجاح! جاري التوجيه...');
+          setTimeout(() => {
+            window.location.href = './onboarding.html';
+          }, 1000);
+        } catch (err) {
+          setLoading('verifyBtn', false);
+          showError('خطأ غير متوقع: ' + (err?.message || String(err)));
+        }
+      });
+
+      // Resend
+      document.getElementById('resendBtn').addEventListener('click', async () => {
+        if (!email) { showError('البريد الإلكتروني مفقود. عد إلى صفحة التسجيل.'); return; }
+        setLoading('resendBtn', true);
+        hideMessages();
+        const { error } = await window.BondsAuth.signInWithOTP(email, { shouldCreateUser: false });
+        setLoading('resendBtn', false);
+        if (error) { showError(error.message); return; }
+        showInfo('تم إعادة إرسال الرمز 📧 تحقق من بريدك (و Possibly spam folder).');
+      });
+
+      function hideMessages() { errorMsg.style.display = 'none'; successMsg.style.display = 'none'; infoMsg.style.display = 'none'; }
+    })();
+  </script>
+  <script src="../../page-tracker-v2.js"></script>
+</body>
+</html>

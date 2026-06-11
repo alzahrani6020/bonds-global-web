@@ -170,6 +170,13 @@
             </div>
             <div class="match-label" id="matchLabel"></div>
           </div>
+          <div class="form-group" style="display:flex;align-items:flex-start;gap:0.6rem;margin-top:1rem">
+            <input type="checkbox" id="termsAccept" required style="width:auto;margin-top:0.25rem;accent-color:var(--gold)">
+            <label for="termsAccept" style="font-size:0.85rem;line-height:1.6;font-weight:400;color:var(--text-secondary);margin:0">
+              أوافق على <a href="../../terms.html" target="_blank" class="link">شروط الاستخدام</a> و
+              <a href="../../privacy.html" target="_blank" class="link">سياسة الخصوصية</a> *
+            </label>
+          </div>
           <button type="submit" class="btn btn-primary" id="signupBtn">
             <span class="spinner"></span>
             <span class="btn-text">إنشاء حساب</span>
@@ -430,7 +437,7 @@
         if (error) showError(error.message);
       });
 
-      // Signup
+      // Signup (OTP-based email verification)
       document.getElementById('signupForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         hideMessages();
@@ -440,15 +447,23 @@
         const confirm = document.getElementById('signupPasswordConfirm').value;
         const name = document.getElementById('signupName').value.trim();
         const phone = document.getElementById('signupPhone').value.trim();
+        const termsAccepted = document.getElementById('termsAccept').checked;
 
+        if (!termsAccepted) { showError('يجب الموافقة على شروط الاستخدام وسياسة الخصوصية'); setLoading('signupBtn', false); return; }
+        if (!/^05\d{8}$/.test(phone)) { showError('رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام'); setLoading('signupBtn', false); return; }
         if (password.length < 8) { showError('كلمة المرور يجب أن تكون 8 أحرف على الأقل'); setLoading('signupBtn', false); return; }
         if (password !== confirm) { showError('كلمة المرور غير متطابقة'); setLoading('signupBtn', false); return; }
         if (checkStrength(password) < 3) { showError('كلمة المرور ضعيفة — أضف أرقام ورموز'); setLoading('signupBtn', false); return; }
 
-        const { data, error } = await window.BondsAuth.signUp(email, password, {
-          restaurant_name: name,
-          phone: phone,
-          language: 'ar'
+        // Store pending data for after OTP verification
+        sessionStorage.setItem('otp_pending_password', password);
+        sessionStorage.setItem('otp_pending_name', name);
+        sessionStorage.setItem('otp_pending_phone', phone);
+        sessionStorage.setItem('otp_email', email);
+
+        const { error } = await window.BondsAuth.signInWithOTP(email, {
+          shouldCreateUser: true,
+          data: { restaurant_name: name, phone: phone, language: 'ar' }
         });
         setLoading('signupBtn', false);
 
@@ -461,8 +476,11 @@
           }
           return;
         }
-        if (typeof gtag !== 'undefined') gtag('event', 'sign_up', { method: 'email' });
-        window.location.href = './verify-email.html';
+
+        showSuccess('تم إرسال رمز التحقق إلى بريدك 📧');
+        setTimeout(() => {
+          window.location.href = './verify-otp.html?email=' + encodeURIComponent(email);
+        }, 800);
       });
     })();
   </script>

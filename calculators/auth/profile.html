@@ -9,46 +9,61 @@
   <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg">
   <script>if(!sessionStorage.getItem('pf_v2')){sessionStorage.setItem('pf_v2','1');location.replace(location.pathname+'?_='+Date.now());}</script>
   <style>
-    :root{--gold:#c8a45c;--gold-light:#f5efe3;--bg:#0c0c0c;--bg-card:#141414;--bg-elevated:#1c1c1c;--border:#2a2a2a;--text:#f5f5f5;--text-secondary:#9a9a9a;--radius-lg:16px;--radius-md:10px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px}
+    :root{
+      --gold:#c8a45c;--gold-light:#f5efe3;--gold-dim:#8a7340;
+      --bg:#f8f6f2;--bg-white:#ffffff;--bg-card:#ffffff;--bg-elevated:#f5f5f5;
+      --border:#e8e4de;--border-light:#f0ede8;
+      --text:#1a1a1a;--text-secondary:#555555;--text-muted:#888888;
+      --danger:#dc2626;--success:#16a34a;--info:#2563eb;
+      --radius-lg:16px;--radius-md:12px;--space-2:8px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;--space-10:40px
+    }
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Tajawal','Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:var(--space-4)}
-    .container{width:100%;max-width:600px;margin:0 auto}
-    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-8) var(--space-6);margin-bottom:var(--space-6)}
+    .container{width:100%;max-width:720px;margin:0 auto;padding-top:var(--space-4)}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-8) var(--space-6);margin-bottom:var(--space-6);box-shadow:0 4px 24px rgba(0,0,0,0.04)}
     .logo{display:flex;align-items:center;justify-content:center;gap:var(--space-3);margin-bottom:var(--space-6)}
-    .logo img{height:40px}
-    .logo span{font-weight:800;font-size:1.4rem;color:var(--gold)}
-    h1{font-size:1.3rem;font-weight:800;margin-bottom:var(--space-6);color:var(--gold);text-align:center}
-    h2{font-size:1rem;font-weight:700;margin-bottom:var(--space-4);color:var(--text);border-bottom:1px solid var(--border);padding-bottom:var(--space-3)}
+    .logo img{height:44px;border-radius:8px}
+    .logo span{font-weight:800;font-size:1.5rem;color:var(--gold);letter-spacing:-0.5px}
+    h1{font-size:1.4rem;font-weight:800;margin-bottom:var(--space-6);color:var(--text);text-align:center}
+    h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:var(--text);border-bottom:1px solid var(--border);padding-bottom:var(--space-3);display:flex;align-items:center;gap:0.5rem}
     .form-group{margin-bottom:var(--space-4)}
-    .form-group label{display:block;margin-bottom:var(--space-3);font-size:0.9rem;font-weight:500;color:var(--text-secondary)}
-    .form-group input,.form-group select,.form-group textarea{width:100%;padding:var(--space-3) var(--space-4);background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text);font-family:inherit;font-size:1rem;transition:border-color 0.2s}
-    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--gold)}
-    .form-group input::placeholder,.form-group textarea::placeholder{color:#666}
-    .form-group input:disabled,.form-group select:disabled,.form-group textarea:disabled{opacity:0.5;cursor:not-allowed;border-color:transparent;background:rgba(255,255,255,0.03)}
+    .form-group label{display:block;margin-bottom:var(--space-2);font-size:0.88rem;font-weight:600;color:var(--text-secondary)}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:var(--space-3) var(--space-4);background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text);font-family:inherit;font-size:1rem;transition:all 0.2s}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,164,92,0.12)}
+    .form-group input::placeholder,.form-group textarea::placeholder{color:var(--text-muted)}
+    .form-group input:disabled,.form-group select:disabled,.form-group textarea:disabled{opacity:0.65;cursor:not-allowed;background:var(--bg-elevated);border-color:transparent}
     .edit-bar{display:flex;justify-content:flex-end;gap:10px;margin-bottom:var(--space-4)}
     .edit-bar .btn{width:auto;padding:8px 20px;font-size:0.9rem}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
-    @media(max-width:480px){.row{grid-template-columns:1fr}}
+    @media(max-width:560px){.row{grid-template-columns:1fr}}
     .time-selects{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
     .time-selects select{padding:10px 8px;font-size:0.95rem;text-align:center}
-    .avatar-preview{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--gold);margin:0 auto var(--space-4);display:block;background:var(--bg-elevated)}
-    .avatar-placeholder{width:80px;height:80px;border-radius:50%;background:var(--gold);color:#0c0c0c;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.5rem;margin:0 auto var(--space-4);border:3px solid var(--gold)}
+    .avatar-preview{width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid var(--gold);margin:0 auto var(--space-4);display:block;background:var(--bg-elevated)}
+    .avatar-placeholder{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:2rem;margin:0 auto var(--space-4);border:3px solid var(--gold)}
     .avatar-actions{display:flex;flex-direction:column;gap:10px;align-items:center;margin-bottom:var(--space-4)}
     .avatar-actions .btn-secondary{background:var(--bg-elevated);color:var(--text);border:1px solid var(--border);width:auto;padding:8px 16px;font-size:0.85rem}
-    .avatar-actions .btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
-    .avatar-actions .or-text{color:var(--text-secondary);font-size:0.8rem}
+    .avatar-actions .btn-secondary:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+    .avatar-actions .or-text{color:var(--text-muted);font-size:0.8rem}
     .btn{width:100%;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:var(--space-3)}
-    .btn-primary{background:var(--gold);color:#0c0c0c}
-    .btn-primary:hover:not(:disabled){background:#d4b76a;transform:translateY(-1px)}
+    .btn-primary{background:var(--gold);color:#fff}
+    .btn-primary:hover:not(:disabled){background:var(--gold-dim);transform:translateY(-1px)}
+    .btn-secondary{background:var(--bg-white);color:var(--text);border:1px solid var(--border)}
+    .btn-secondary:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
     .btn:disabled{opacity:0.6;cursor:not-allowed}
-    .success-msg{background:#153a1f;color:#8affa0;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
-    .error-msg{background:#3a1515;color:#ff8a8a;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
-    .info-msg{background:#1a2a4a;color:#8ab4ff;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
+    .success-msg{background:#dcfce7;color:#166534;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none;border:1px solid #bbf7d0}
+    .error-msg{background:#fee2e2;color:#991b1b;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none;border:1px solid #fecaca}
+    .info-msg{background:#dbeafe;color:#1e40af;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none;border:1px solid #bfdbfe}
     .back-link{display:block;text-align:center;color:var(--text-secondary);text-decoration:none;margin-top:var(--space-6);font-size:0.9rem}
     .back-link:hover{color:var(--gold)}
-    .spinner{width:18px;height:18px;border:2px solid rgba(12,12,12,0.3);border-top-color:#0c0c0c;border-radius:50%;animation:spin 1s linear infinite;display:none}
-    .upload-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;display:none}
+    .link-row{display:flex;justify-content:center;gap:var(--space-4);margin-top:var(--space-4);flex-wrap:wrap}
+    .link-row a{color:var(--gold);text-decoration:none;font-size:0.85rem;font-weight:600}
+    .link-row a:hover{text-decoration:underline}
+    .required{color:var(--danger)}
+    .hint{font-size:0.78rem;color:var(--text-muted);margin-top:0.25rem}
+    .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.4);border-top-color:currentColor;border-radius:50%;animation:spin 1s linear infinite;display:none}
+    .upload-spinner{width:14px;height:14px;border:2px solid rgba(26,26,26,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;display:none}
     @keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:560px){.card{padding:var(--space-6) var(--space-4)}.edit-bar{justify-content:center}}
   </style>
 </head>
 <body>
@@ -72,7 +87,7 @@
           var editBtn = document.getElementById('btnEdit');
           var cancelBtn = document.getElementById('btnCancel');
           var saveBtn = document.getElementById('saveBtn');
-          var fields = ['restaurantName','phone','country','city','neighborhood','businessType','employeeCount','bio','needs','avatarUrl'];
+          var fields = ['restaurantName','phone','country','city','neighborhood','businessType','employeeCount','branchCount','bio','needs','avatarUrl'];
           var timeIds = ['peakStartH','peakStartM','peakStartAmpm','peakEndH','peakEndM','peakEndAmpm','rushStartH','rushStartM','rushStartAmpm','rushEndH','rushEndM','rushEndAmpm'];
           var i, el, id;
           if (enable) {
@@ -93,15 +108,15 @@
       </script>
       <div class="edit-bar">
         <button type="button" class="btn btn-secondary" id="btnEdit" onclick="toggleEdit(true)">✏️ تعديل الملف</button>
-        <button type="button" class="btn btn-primary" id="btnCancel" style="display:none;" onclick="toggleEdit(false)">❌ إلغاء</button>
+        <button type="button" class="btn btn-primary" id="btnCancel" style="display:none;background:var(--text-secondary);color:#fff" onclick="toggleEdit(false)">❌ إلغاء</button>
       </div>
 
       <form id="profileForm">
         <h2>🖼️ الشعار والصورة</h2>
         <div id="avatarContainer"></div>
         <div class="avatar-actions">
-          <input type="file" id="avatarFile" accept="image/*" style="display:none">
-          <button type="button" class="btn btn-secondary" id="uploadBtn" onclick="document.getElementById('avatarFile').click()">
+          <input type="file" id="avatarFile" accept="image/*" style="display:none" disabled>
+          <button type="button" class="btn btn-secondary" id="uploadBtn" onclick="document.getElementById('avatarFile').click()" disabled>
             <span class="upload-spinner" id="uploadSpinner"></span>
             <span id="uploadText">📤 رفع صورة من الجهاز</span>
           </button>
@@ -109,33 +124,34 @@
         </div>
         <div class="form-group">
           <label for="avatarUrl">رابط الشعار (رابط مباشر)</label>
-          <input type="url" id="avatarUrl" placeholder="https://example.com/logo.png" dir="ltr">
+          <input type="url" id="avatarUrl" placeholder="https://example.com/logo.png" dir="ltr" disabled>
           <div style="margin-top:8px;text-align:center">
-            <a href="#" id="reportLink" style="color:#ff8a8a;font-size:0.8rem;text-decoration:none;display:none" onclick="reportImage(event)">🚨 بلّغ عن صورة مخالفة</a>
+            <a href="#" id="reportLink" style="color:var(--danger);font-size:0.8rem;text-decoration:none;display:none" onclick="reportImage(event)">🚨 بلّغ عن صورة مخالفة</a>
           </div>
         </div>
 
         <h2>🏢 معلومات التواصل</h2>
         <div class="form-group">
-          <label for="restaurantName">اسم المطعم / الشركة *</label>
-          <input type="text" id="restaurantName" required placeholder="مثال: مطعم الذواقة">
+          <label for="restaurantName">اسم المطعم / الشركة <span class="required">*</span></label>
+          <input type="text" id="restaurantName" required placeholder="مثال: مطعم الذواقة" disabled>
         </div>
         <div class="row">
           <div class="form-group">
             <label for="email">البريد الإلكتروني</label>
-            <input type="email" id="email" disabled dir="ltr" style="opacity:0.6">
+            <input type="email" id="email" disabled dir="ltr" style="opacity:0.7">
           </div>
           <div class="form-group">
-            <label for="phone2">رقم الجوال</label>
-            <input type="tel" id="phone2" placeholder="05xxxxxxxx" dir="ltr">
+            <label for="phone">رقم الجوال <span class="required">*</span></label>
+            <input type="tel" id="phone" required placeholder="05xxxxxxxx" dir="ltr" disabled>
+            <div class="hint">يجب أن يبدأ بـ 05 ويتكون من 10 أرقام</div>
           </div>
         </div>
 
-        <h2>📍 الموقع</h2>
+        <h2>📍 الموقع والنشاط</h2>
         <div class="row">
           <div class="form-group">
-            <label for="country">الدولة</label>
-            <select id="country">
+            <label for="country">الدولة <span class="required">*</span></label>
+            <select id="country" required disabled>
               <option value="">اختر الدولة</option>
               <option value="SA">🇸🇦 السعودية</option>
               <option value="AE">🇦🇪 الإمارات</option>
@@ -161,18 +177,18 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="city">المدينة</label>
-            <input type="text" id="city" placeholder="مثال: الرياض">
+            <label for="city">المدينة <span class="required">*</span></label>
+            <input type="text" id="city" required placeholder="مثال: الرياض" disabled>
           </div>
         </div>
         <div class="row">
           <div class="form-group">
             <label for="neighborhood">الحي / المنطقة</label>
-            <input type="text" id="neighborhood" placeholder="مثال: العليا">
+            <input type="text" id="neighborhood" placeholder="مثال: العليا" disabled>
           </div>
           <div class="form-group">
-            <label for="businessType">نوع النشاط التجاري</label>
-            <select id="businessType">
+            <label for="businessType">نوع النشاط التجاري <span class="required">*</span></label>
+            <select id="businessType" required disabled>
               <option value="">اختر النشاط</option>
               <option value="restaurant">مطعم / مطعم سريع</option>
               <option value="cafe">مقهى</option>
@@ -189,25 +205,21 @@
         <h2>👥 الفريق والنبذة</h2>
         <div class="row">
           <div class="form-group">
-            <label for="employeeCount">عدد الموظفين</label>
-            <input type="number" id="employeeCount" min="0" placeholder="مثال: 12">
+            <label for="employeeCount">عدد الموظفين <span class="required">*</span></label>
+            <input type="number" id="employeeCount" min="0" required placeholder="مثال: 12" disabled>
           </div>
           <div class="form-group">
-            <label for="branchCount">عدد فروع المنشأة</label>
-            <input type="number" id="branchCount" min="1" placeholder="مثال: 1">
-          </div>
-          <div class="form-group">
-            <label for="phone">رقم الجوال</label>
-            <input type="tel" id="phone" placeholder="05xxxxxxxx" dir="ltr">
+            <label for="branchCount">عدد فروع المنشأة <span class="required">*</span></label>
+            <input type="number" id="branchCount" min="1" required placeholder="مثال: 1" disabled>
           </div>
         </div>
         <div class="form-group">
-          <label for="bio">نبذة عن المشروع</label>
-          <textarea id="bio" rows="3" placeholder="اكتب نبذة مختصرة عن مشروعك..."></textarea>
+          <label for="bio">نبذة عن المشروع <span class="required">*</span></label>
+          <textarea id="bio" rows="3" required placeholder="اكتب نبذة مختصرة عن مشروعك..." disabled></textarea>
         </div>
         <div class="form-group">
-          <label for="needs">الاحتياجات والخدمات المطلوبة</label>
-          <textarea id="needs" rows="3" placeholder="مثال: تحليل مالي، دراسة جدوى، تسعير..."></textarea>
+          <label for="needs">الاحتياجات والخدمات المطلوبة <span class="required">*</span></label>
+          <textarea id="needs" rows="3" required placeholder="مثال: تحليل مالي، دراسة جدوى، تسعير..." disabled></textarea>
         </div>
 
         <h2>⏰ أوقات الذروة والزحام</h2>
@@ -215,17 +227,17 @@
           <div class="form-group">
             <label>وقت الذروة — البداية</label>
             <div class="time-selects">
-              <select id="peakStartH"></select>
-              <select id="peakStartM"></select>
-              <select id="peakStartAmpm"></select>
+              <select id="peakStartH" disabled></select>
+              <select id="peakStartM" disabled></select>
+              <select id="peakStartAmpm" disabled></select>
             </div>
           </div>
           <div class="form-group">
             <label>وقت الذروة — النهاية</label>
             <div class="time-selects">
-              <select id="peakEndH"></select>
-              <select id="peakEndM"></select>
-              <select id="peakEndAmpm"></select>
+              <select id="peakEndH" disabled></select>
+              <select id="peakEndM" disabled></select>
+              <select id="peakEndAmpm" disabled></select>
             </div>
           </div>
         </div>
@@ -233,17 +245,17 @@
           <div class="form-group">
             <label>وقت الزحام — البداية</label>
             <div class="time-selects">
-              <select id="rushStartH"></select>
-              <select id="rushStartM"></select>
-              <select id="rushStartAmpm"></select>
+              <select id="rushStartH" disabled></select>
+              <select id="rushStartM" disabled></select>
+              <select id="rushStartAmpm" disabled></select>
             </div>
           </div>
           <div class="form-group">
             <label>وقت الزحام — النهاية</label>
             <div class="time-selects">
-              <select id="rushEndH"></select>
-              <select id="rushEndM"></select>
-              <select id="rushEndAmpm"></select>
+              <select id="rushEndH" disabled></select>
+              <select id="rushEndM" disabled></select>
+              <select id="rushEndAmpm" disabled></select>
             </div>
           </div>
         </div>
@@ -254,7 +266,14 @@
         </button>
       </form>
 
-      <a href="./subscription.html" class="back-link">← العودة إلى الاشتراك</a>
+      <div class="link-row">
+        <a href="./subscription.html">💎 إدارة الاشتراك</a>
+        <a href="./reset.html">🔑 تغيير كلمة المرور</a>
+        <a href="../../terms.html" target="_blank">📋 شروط الاستخدام</a>
+        <a href="../../privacy.html" target="_blank">🛡️ سياسة الخصوصية</a>
+      </div>
+
+      <a href="../../calculator.html" class="back-link">← العودة للحاسبة</a>
     </div>
   </div>
 
@@ -348,7 +367,7 @@
         return;
       }
 
-      // Start in view mode (toggleEdit is defined inline above the form)
+      // Start in view mode
       if (window.toggleEdit) window.toggleEdit(false);
 
       // Fill email
@@ -373,8 +392,8 @@
         document.getElementById('city').value = profile.city || '';
         document.getElementById('neighborhood').value = profile.neighborhood || '';
         document.getElementById('businessType').value = profile.business_type || '';
-        document.getElementById('employeeCount').value = profile.employee_count || '';
-        document.getElementById('branchCount').value = profile.branch_count || '';
+        document.getElementById('employeeCount').value = profile.employee_count ?? '';
+        document.getElementById('branchCount').value = profile.branch_count ?? '';
         document.getElementById('bio').value = profile.bio || '';
         document.getElementById('needs').value = profile.needs || '';
         setTimeDropdowns('peakStart', profile.peak_hours_start);
@@ -534,7 +553,6 @@
       // Save profile
       document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        console.log('[Profile] Save started');
         hideMessages();
         setLoading(true);
 
@@ -548,10 +566,17 @@
             return;
           }
 
+          const phone = document.getElementById('phone').value.trim();
+          if (!/^05\d{8}$/.test(phone)) {
+            setLoading(false);
+            showError('رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام');
+            return;
+          }
+
           const updates = {
             id: user.id,
             restaurant_name: document.getElementById('restaurantName').value.trim(),
-            phone: document.getElementById('phone').value.trim(),
+            phone: phone,
             country: document.getElementById('country').value.trim(),
             city: document.getElementById('city').value.trim(),
             neighborhood: document.getElementById('neighborhood').value.trim(),
@@ -566,11 +591,9 @@
             rush_hours_end: getTimeDropdowns('rushEnd'),
             avatar_url: document.getElementById('avatarUrl').value.trim()
           };
-          console.log('[Profile] Upsert payload:', updates);
 
           const sb = window.BondsAuth.getSupabase();
           const { data, error } = await sb.from('profiles').upsert(updates, { onConflict: 'id' });
-          console.log('[Profile] Upsert result:', { data, error });
 
           setLoading(false);
           if (error) {
@@ -594,7 +617,6 @@
                 restaurant_name: updates.restaurant_name
               }
             });
-            console.log('[Profile] Auth metadata updated');
           } catch (metaErr) {
             console.warn('[Profile] Failed to update auth metadata:', metaErr);
           }
@@ -617,18 +639,6 @@
       function hideMessages() { successMsg.style.display = 'none'; errorMsg.style.display = 'none'; infoMsg.style.display = 'none'; }
     })();
   </script>
-<script>
-function updateDateTime() {
-  const now = new Date();
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const dateStr = now.toLocaleDateString('ar-SA', options);
-  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
-  const el = document.getElementById('header-datetime');
-  if (el) el.textContent = dateStr + ' | ' + timeStr;
-}
-setInterval(updateDateTime, 60000);
-updateDateTime();
-</script>
   <script src="../../page-tracker-v2.js"></script>
 </body>
 </html>

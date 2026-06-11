@@ -98,6 +98,18 @@
     return sb.auth.signInWithOtp({ email, options: options || {} });
   }
 
+  async function verifyOTP(email, token, type) {
+    const sb = getSupabase();
+    if (!sb) return { error: new Error('Not initialized') };
+    return sb.auth.verifyOtp({ email, token, type: type || 'email' });
+  }
+
+  async function updateUser(attributes) {
+    const sb = getSupabase();
+    if (!sb) return { error: new Error('Not initialized') };
+    return sb.auth.updateUser(attributes || {});
+  }
+
   async function signInWithOAuth(provider, options) {
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
@@ -240,7 +252,7 @@
   // ── Exports ───────────────────────────────────────────────
   window.BondsAuth = {
     getSupabase, getUser, getSession, getProfile, updateProfile, getSubscription, getAdminRole,
-    signUp, signIn, signInWithOTP, signInWithOAuth, signOut, checkFeatureAccess,
+    signUp, signIn, signInWithOTP, verifyOTP, updateUser, signInWithOAuth, signOut, checkFeatureAccess,
     getRedirectUrl, clearRedirectUrl,
     initSiteAuth, initAdminGuard
   };

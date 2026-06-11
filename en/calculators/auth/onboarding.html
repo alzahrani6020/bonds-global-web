@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Complete Your Profile | Bonds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../../../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root{--gold:#c8a45c;--gold-light:#f5efe3;--bg:#0c0c0c;--bg-card:#141414;--bg-elevated:#1c1c1c;--border:#2a2a2a;--text:#f5f5f5;--text-secondary:#9a9a9a;--danger:#ef4444;--success:#22c55e;--radius-lg:16px;--radius-md:10px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;--space-10:40px}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:var(--space-4)}
+    .auth-container{width:100%;max-width:520px}
+    .auth-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-8) var(--space-6)}
+    .logo{display:flex;align-items:center;justify-content:center;gap:var(--space-3);margin-bottom:var(--space-6)}
+    .logo img{height:40px}
+    .logo span{font-weight:800;font-size:1.4rem;color:var(--gold);letter-spacing:-0.5px}
+    h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-bottom:0.5rem}
+    .subtitle{text-align:center;color:var(--text-secondary);font-size:0.9rem;margin-bottom:var(--space-6);line-height:1.7}
+    .form-group{margin-bottom:var(--space-4)}
+    .form-group label{display:block;margin-bottom:var(--space-3);font-size:0.9rem;font-weight:500;color:var(--text-secondary)}
+    .form-group input, .form-group select, .form-group textarea{width:100%;padding:var(--space-3) var(--space-4);background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text);font-family:inherit;font-size:1rem;transition:border-color 0.2s}
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus{outline:none;border-color:var(--gold)}
+    .form-group input::placeholder{color:#666}
+    .form-group textarea{min-height:80px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
+    .btn{width:100%;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:var(--space-3)}
+    .btn:disabled{opacity:0.6;cursor:not-allowed}
+    .btn-primary{background:var(--gold);color:#0c0c0c}
+    .btn-primary:hover:not(:disabled){background:#d4b76a;transform:translateY(-1px)}
+    .error-msg{background:#3a1515;color:#ff8a8a;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
+    .success-msg{background:#153a1f;color:#8affa0;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
+    .progress{display:flex;gap:0.5rem;justify-content:center;margin-bottom:var(--space-6)}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
+    .dot.active{background:var(--gold)}
+    .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:currentColor;border-radius:50%;animation:spin 0.8s linear infinite;display:none}
+    .btn.loading .spinner{display:inline-block}
+    .btn.loading .btn-text{opacity:0.7}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:480px){.auth-card{padding:var(--space-6) var(--space-4)}.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="logo">
+        <img src="../../../assets/bonds-logo.jpg" alt="Bonds" />
+        <span>Bonds</span>
+      </div>
+
+      <h1>Complete Your Business Profile</h1>
+      <p class="subtitle">Accurate information helps us provide personalized consulting for you.</p>
+
+      <div class="progress">
+        <div class="dot active"></div>
+        <div class="dot active"></div>
+        <div class="dot"></div>
+      </div>
+
+      <div id="errorMsg" class="error-msg"></div>
+      <div id="successMsg" class="success-msg"></div>
+
+      <form id="onboardingForm">
+        <div class="form-group">
+          <label for="restaurantName">Restaurant / Company Name *</label>
+          <input type="text" id="restaurantName" required placeholder="e.g. Gourmet Restaurant" />
+        </div>
+
+        <div class="row">
+          <div class="form-group">
+            <label for="country">Country *</label>
+            <select id="country" required>
+              <option value="">Select country</option>
+              <option value="SA">🇸🇦 Saudi Arabia</option>
+              <option value="AE">🇦🇪 UAE</option>
+              <option value="EG">🇪🇬 Egypt</option>
+              <option value="KW">🇰🇼 Kuwait</option>
+              <option value="QA">🇶🇦 Qatar</option>
+              <option value="BH">🇧🇭 Bahrain</option>
+              <option value="OM">🇴🇲 Oman</option>
+              <option value="JO">🇯🇴 Jordan</option>
+              <option value="IQ">🇮🇶 Iraq</option>
+              <option value="LY">🇱🇾 Libya</option>
+              <option value="TN">🇹🇳 Tunisia</option>
+              <option value="DZ">🇩🇿 Algeria</option>
+              <option value="MA">🇲🇦 Morocco</option>
+              <option value="LB">🇱🇧 Lebanon</option>
+              <option value="YE">🇾🇪 Yemen</option>
+              <option value="SD">🇸🇩 Sudan</option>
+              <option value="TR">🇹🇷 Turkey</option>
+              <option value="US">🇺🇸 United States</option>
+              <option value="GB">🇬🇧 United Kingdom</option>
+              <option value="DE">🇩🇪 Germany</option>
+              <option value="FR">🇫🇷 France</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="city">City *</label>
+            <input type="text" id="city" required placeholder="e.g. Riyadh" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="form-group">
+            <label for="businessType">Business Type *</label>
+            <select id="businessType" required>
+              <option value="">Select type</option>
+              <option value="restaurant">Restaurant / Fast Food</option>
+              <option value="cafe">Cafe</option>
+              <option value="bakery">Bakery / Sweets</option>
+              <option value="food_truck">Food Truck</option>
+              <option value="catering">Catering</option>
+              <option value="retail">Retail Store</option>
+              <option value="manufacturing">Food Manufacturing</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input type="tel" id="phone" required placeholder="05xxxxxxxx" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="form-group">
+            <label for="employeeCount">Number of Employees *</label>
+            <input type="number" id="employeeCount" required min="0" placeholder="e.g. 12" />
+          </div>
+          <div class="form-group">
+            <label for="branchCount">Number of Branches *</label>
+            <input type="number" id="branchCount" required min="1" placeholder="e.g. 1" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="bio">Business Bio *</label>
+          <textarea id="bio" required rows="3" placeholder="Write a short description of your business..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="needs">Needs & Required Services *</label>
+          <textarea id="needs" required rows="3" placeholder="e.g. financial analysis, feasibility study, pricing..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="saveBtn">
+          <span class="spinner"></span>
+          <span class="btn-text">💾 Save &amp; Continue</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js"></script>
+
+  <script>
+    (function() {
+      'use strict';
+
+      const errorMsg = document.getElementById('errorMsg');
+      const successMsg = document.getElementById('successMsg');
+      const saveBtn = document.getElementById('saveBtn');
+
+      function showError(msg) {
+        errorMsg.textContent = msg;
+        errorMsg.style.display = 'block';
+        successMsg.style.display = 'none';
+      }
+      function showSuccess(msg) {
+        successMsg.textContent = msg;
+        successMsg.style.display = 'block';
+        errorMsg.style.display = 'none';
+      }
+      function setLoading(loading) {
+        saveBtn.disabled = loading;
+        saveBtn.classList.toggle('loading', loading);
+      }
+
+      function isValidPhone(phone) {
+        return /^05\d{8}$/.test(phone.replace(/\s+/g, ''));
+      }
+
+      async function init() {
+        const { data: { user } } = await window.BondsAuth.getUser();
+        if (!user) return location.href = 'index.html';
+
+        document.getElementById('restaurantName').value = user.user_metadata?.restaurant_name || '';
+        document.getElementById('phone').value = user.user_metadata?.phone || '';
+
+        const { data: profile } = await window.BondsAuth.getProfile(user.id);
+        if (profile) {
+          if (profile.restaurant_name) document.getElementById('restaurantName').value = profile.restaurant_name;
+          if (profile.country) document.getElementById('country').value = profile.country;
+          if (profile.city) document.getElementById('city').value = profile.city;
+          if (profile.business_type) document.getElementById('businessType').value = profile.business_type;
+          if (profile.phone) document.getElementById('phone').value = profile.phone;
+          if (profile.employee_count !== null && profile.employee_count !== undefined) document.getElementById('employeeCount').value = profile.employee_count;
+          if (profile.branch_count !== null && profile.branch_count !== undefined) document.getElementById('branchCount').value = profile.branch_count;
+          if (profile.bio) document.getElementById('bio').value = profile.bio;
+          if (profile.needs) document.getElementById('needs').value = profile.needs;
+        }
+      }
+      init();
+
+      document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        const { data: { user } } = await window.BondsAuth.getUser();
+        if (!user) {
+          setLoading(false);
+          return location.href = 'index.html';
+        }
+
+        const phone = document.getElementById('phone').value.trim().replace(/\s+/g, '');
+        if (!isValidPhone(phone)) {
+          setLoading(false);
+          return showError('Phone number must start with 05 and be 10 digits');
+        }
+
+        const payload = {
+          id: user.id,
+          restaurant_name: document.getElementById('restaurantName').value.trim(),
+          country: document.getElementById('country').value,
+          city: document.getElementById('city').value.trim(),
+          business_type: document.getElementById('businessType').value,
+          phone: phone,
+          employee_count: parseInt(document.getElementById('employeeCount').value) || 0,
+          branch_count: parseInt(document.getElementById('branchCount').value) || 1,
+          bio: document.getElementById('bio').value.trim(),
+          needs: document.getElementById('needs').value.trim(),
+          language: 'en'
+        };
+
+        const { error } = await window.BondsAuth.updateProfile(user.id, payload);
+        setLoading(false);
+
+        if (error) {
+          showError('Save error: ' + (error.message || error));
+          return;
+        }
+
+        showSuccess('✅ Saved! Redirecting...');
+        const redirect = sessionStorage.getItem('auth_redirect') || '/en/calculators/dashboard.html';
+        sessionStorage.removeItem('auth_redirect');
+        setTimeout(() => location.href = redirect, 1000);
+      });
+    })();
+  </script>
+
+  <script src="../../../page-tracker-v2.js"></script>
+</body>
+</html>

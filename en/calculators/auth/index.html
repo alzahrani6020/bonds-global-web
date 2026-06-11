@@ -167,7 +167,14 @@
           </div>
           <div class="form-group">
             <label for="signupCountry">Country</label>
-            <input type="text" id="signupCountry" placeholder="e.g. Saudi Arabia" />
+            <input type="text" id="signupCountry" required placeholder="e.g. Saudi Arabia" />
+          </div>
+          <div class="form-group" style="display:flex;align-items:flex-start;gap:0.6rem;margin-top:1rem">
+            <input type="checkbox" id="termsAccept" required style="width:auto;margin-top:0.25rem;accent-color:var(--gold)">
+            <label for="termsAccept" style="font-size:0.85rem;line-height:1.6;font-weight:400;color:var(--text-secondary);margin:0">
+              I agree to the <a href="../../terms.html" target="_blank" class="link">Terms of Use</a> and
+              <a href="../../privacy.html" target="_blank" class="link">Privacy Policy</a> *
+            </label>
           </div>
           <button type="submit" class="btn btn-primary" id="signupBtn">
             <span class="spinner"></span>
@@ -412,15 +419,22 @@
         const confirm = document.getElementById('signupPasswordConfirm').value;
         const name = document.getElementById('signupName').value.trim();
         const country = document.getElementById('signupCountry').value.trim();
+        const termsAccepted = document.getElementById('termsAccept').checked;
 
+        if (!termsAccepted) { showError('You must agree to the Terms of Use and Privacy Policy'); setLoading('signupBtn', false); return; }
         if (password.length < 8) { showError('Password must be at least 8 characters'); setLoading('signupBtn', false); return; }
         if (password !== confirm) { showError('Passwords do not match'); setLoading('signupBtn', false); return; }
         if (checkStrength(password) < 3) { showError('Password is too weak — add numbers and symbols'); setLoading('signupBtn', false); return; }
 
-        const { data, error } = await window.BondsAuth.signUp(email, password, {
-          restaurant_name: name,
-          country: country,
-          language: 'en'
+        // Store pending data for after OTP verification
+        sessionStorage.setItem('otp_pending_password', password);
+        sessionStorage.setItem('otp_pending_name', name);
+        sessionStorage.setItem('otp_pending_country', country);
+        sessionStorage.setItem('otp_email', email);
+
+        const { error } = await window.BondsAuth.signInWithOTP(email, {
+          shouldCreateUser: true,
+          data: { restaurant_name: name, country: country, language: 'en' }
         });
         setLoading('signupBtn', false);
 
@@ -428,8 +442,10 @@
           showError(error.message.includes('already registered') ? 'This email is already registered' : error.message);
           return;
         }
-        if (typeof gtag !== 'undefined') gtag('event', 'sign_up', { method: 'email' });
-        window.location.href = './verify-email.html';
+        showSuccess('Verification code sent to your email 📧');
+        setTimeout(() => {
+          window.location.href = './verify-otp.html?email=' + encodeURIComponent(email);
+        }, 800);
       });
     })();
   </script>

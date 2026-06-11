@@ -16,6 +16,7 @@
   <url><loc>https://bonds-global.com/pitch.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://bonds-global.com/pricing.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://bonds-global.com/privacy.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bonds-global.com/terms.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://bonds-global.com/proof.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://bonds-global.com/services.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://bonds-global.com/suppliers-guide.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -42,6 +43,7 @@
   <url><loc>https://bonds-global.com/calculators/auth/index.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/auth/index.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/auth/onboarding.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/calculators/auth/verify-otp.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/auth/profile.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/auth/reset.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/auth/subscription.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -91,6 +93,7 @@
   <url><loc>https://bonds-global.com/en/calculators/auth/confirmed.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/auth/index.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/auth/profile.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/en/calculators/auth/verify-otp.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/auth/reset.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/auth/subscription.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/auth/verify-email.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -132,6 +135,7 @@
   <url><loc>https://bonds-global.com/en/pitch.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/pricing.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/privacy.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/en/terms.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/sectors/manufacturing-ae.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/sectors/manufacturing-bh.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/sectors/manufacturing-dz.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
