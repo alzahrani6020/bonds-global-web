@@ -504,5 +504,12 @@
   </footer>
 
   <script src="../page-tracker-v2.js"></script>
+<script>
+(function(){
+  var map={'🇸🇦':'sa','🇪🇬':'eg','🇦🇪':'ae','🇱🇾':'ly','🇩🇿':'dz','🇱🇧':'lb','🇾🇪':'ye','🇸🇾':'sy','🇧🇭':'bh','🇹🇳':'tn','🇲🇦':'ma','🇯🇴':'jo','🇮🇶':'iq','🇴🇲':'om','🇶🇦':'qa','🇰🇼':'kw','🇸🇩':'sd'};
+  function fix(){document.querySelectorAll('.card__icon').forEach(function(el){var t=el.textContent.trim();if(map[t]){el.innerHTML='<img src="https://flagcdn.com/48x36/'+map[t]+'.png" width="32" height="24" alt="" style="border-radius:4px;box-shadow:0 2px 4px rgba(0,0,0,0.2);display:block;">';}});}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();
+})();
+</script>
 </body>
 </html>
