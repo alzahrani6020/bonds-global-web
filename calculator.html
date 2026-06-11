@@ -64,6 +64,7 @@
       .section { padding: 0 !important; }
       canvas { max-height: 280px !important; }
       a { text-decoration: none; color: #000; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
   </style>
 
@@ -1352,7 +1353,7 @@
             .negative { color: #dc2626; font-weight: bold; }
             .footer { font-size: 11px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 20px; }
             .chart-img { max-width: 100%; height: auto; margin: 15px 0; page-break-inside: avoid; }
-            @media print { body { padding: 20px; } .chart-img { max-height: 280px; } }
+            @media print { body { padding: 20px; } .chart-img { max-height: 280px; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
           </style>
         </head>
         <body>
