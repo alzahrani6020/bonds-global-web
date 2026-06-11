@@ -211,7 +211,9 @@
       position: relative;
       padding-top: 80px;
       padding-bottom: 120px;
-      background: url('assets/bonds-logo.jpg') center top / cover no-repeat;
+      background: radial-gradient(ellipse at 50% 0%, rgba(30,40,70,0.4) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 80%, rgba(212,168,83,0.04) 0%, transparent 50%),
+                  linear-gradient(180deg, var(--bg) 0%, var(--bg-secondary, #0d1321) 100%);
       overflow: hidden;
     }
     .hero::after {
@@ -229,7 +231,11 @@
       z-index: 2;
     }
     .hero__logo {
-      display: none;
+      width: 120px;
+      height: auto;
+      margin: 0 auto 1.5rem;
+      opacity: 0.9;
+      filter: drop-shadow(0 0 30px rgba(212,168,83,0.15));
     }
     .hero__eyebrow {
       display: inline-flex;
@@ -605,6 +611,7 @@
       <div class="gold-line"></div>
     </div>
     <div class="hero__content">
+      <img src="assets/bonds-mark.svg" class="hero__logo" alt="بوندز" width="120" height="120" />
       <div class="hero__eyebrow">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         Trusted by 150+ businesses in Egypt & KSA
