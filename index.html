@@ -227,21 +227,34 @@
       align-items: center;
       justify-content: center;
       position: relative;
+      min-height: 500px;
     }
     .hero__right::before {
       content: '';
       position: absolute;
-      width: 400px;
-      height: 400px;
+      width: 450px;
+      height: 450px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(184,149,78,0.08) 0%, transparent 70%);
+      background: radial-gradient(circle at 30% 30%, rgba(184,149,78,0.12) 0%, rgba(245,240,232,0.6) 50%, transparent 70%);
       z-index: 0;
     }
+    .hero__right::after {
+      content: '';
+      position: absolute;
+      right: -20px;
+      top: 10%;
+      width: 3px;
+      height: 80%;
+      background: linear-gradient(180deg, transparent, var(--gold), transparent);
+      opacity: 0.3;
+      border-radius: 3px;
+    }
     .hero__right img {
-      max-width: 380px;
+      max-width: 420px;
       position: relative;
       z-index: 1;
-      filter: drop-shadow(0 20px 60px rgba(184,149,78,0.15));
+      filter: drop-shadow(0 30px 80px rgba(184,149,78,0.2));
+      border-radius: 20px;
     }
 
     /* Gold flowing lines */
@@ -777,7 +790,7 @@
     </div>
     <div class="partners-grid">
       <div class="partner-card">
-        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop" alt="مشروع صناعي" />
+        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop&q=80" alt="مشروع صناعي" loading="lazy" />
         <div class="partner-card__overlay">
           <span class="partner-card__tag">+</span>
           <div class="partner-card__title">مشروع صناعي</div>
@@ -785,7 +798,7 @@
         </div>
       </div>
       <div class="partner-card">
-        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop" alt="مشروع عقاري" />
+        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop&q=80" alt="مشروع عقاري" loading="lazy" />
         <div class="partner-card__overlay">
           <span class="partner-card__tag">+</span>
           <div class="partner-card__title">مشروع عقاري</div>
@@ -793,7 +806,7 @@
         </div>
       </div>
       <div class="partner-card">
-        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop" alt="مشروع تجاري" />
+        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop&q=80" alt="مشروع تجاري" loading="lazy" />
         <div class="partner-card__overlay">
           <span class="partner-card__tag">+</span>
           <div class="partner-card__title">مشروع تجاري</div>
@@ -845,7 +858,7 @@
   <section class="contact-section">
     <div class="contact-grid">
       <div class="contact-left">
-        <img src="assets/bonds-logo.jpg" alt="بوندز" />
+        <img src="https://images.unsplash.com/photo-1517842645767-c639042777db?w=600&h=400&fit=crop&q=80" alt="لقاء استشاري" loading="lazy" />
       </div>
       <div class="contact-right">
         <h2>لنبدأ محادثة عن أهدافك</h2>
