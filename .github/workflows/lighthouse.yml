@@ -1,5 +1,8 @@
 name: Lighthouse CI
 
+# Disabled: can be run locally with `npx lhci autorun`
+if: false
+
 on:
   push:
     branches: [main, master]

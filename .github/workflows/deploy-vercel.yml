@@ -1,5 +1,8 @@
 name: Deploy to Vercel
 
+# Disabled: Vercel auto-deploys from GitHub integration
+if: false
+
 on:
   push:
     branches: [main, master]
