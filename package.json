@@ -8,6 +8,7 @@
     "deploy": "vercel --prod",
     "test": "jest",
     "audit": "node scripts/site-audit.js",
+    "install-hooks": "node scripts/install-hooks.js",
     "setup:supabase": "node scripts/setup-supabase.js",
     "setup:stripe": "node scripts/setup-stripe.js"
   },
