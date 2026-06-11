@@ -107,7 +107,7 @@
     .worst-platform { background: rgba(220,38,38,0.05) !important; }
     .platform-focus-bar { display: flex; gap: var(--space-3); align-items: center; margin-top: var(--space-4); flex-wrap: wrap; }
     .platform-focus-bar select { flex: 1; min-width: 200px; }
-    .platform-calc-btn { font-size: 0.75rem; padding: 0.25rem 0.5rem; background: var(--gold); color: #0a0f1a; border: none; border-radius: 4px; cursor: pointer; font-weight: 700; margin-right: auto; white-space: nowrap; }
+    .platform-calc-btn { font-size: 0.75rem; padding: 0.25rem 0.5rem; background: var(--gold); color: #f5f0e8; border: none; border-radius: 4px; cursor: pointer; font-weight: 700; margin-right: auto; white-space: nowrap; }
     .platform-calc-btn:hover { background: var(--gold-bright); }
     .side-by-side-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-4); margin-top: var(--space-6); }
     .platform-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-4); }
@@ -144,7 +144,7 @@
     .quota-bar { width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; margin-top:6px; }
     .quota-bar>div { height:100%; border-radius:3px; transition:width 0.4s, background 0.4s; }
     .quota-bar.safe>div { background:#16a34a; }
-    .quota-bar.warn>div { background:#d4a853; }
+    .quota-bar.warn>div { background:#b8954e; }
     .quota-bar.danger>div { background:#dc2626; }
     .upgrade-btn-inline { background:var(--gold); color:#0c0c0c; border:none; padding:0.3rem 0.8rem; border-radius:6px; font-weight:700; font-size:0.8rem; cursor:pointer; text-decoration:none; transition:all 0.2s; }
     .upgrade-btn-inline:hover { background:#d4b76a; }
@@ -1566,7 +1566,7 @@
         var tr = document.createElement('tr');
         if (isBest) tr.className = 'best-platform';
         if (isWorst) tr.className = 'worst-platform';
-        var setupNote = p.setupFee ? '<span style="color:#d4a853;font-size:0.7rem;display:block;margin-top:2px;">تأسيس ' + formatNumber(p.setupFee) + ' (شهري ' + formatNumber(Math.round(p.setupFeeMonthly)) + ')</span>' : '';
+        var setupNote = p.setupFee ? '<span style="color:#b8954e;font-size:0.7rem;display:block;margin-top:2px;">تأسيس ' + formatNumber(p.setupFee) + ' (شهري ' + formatNumber(Math.round(p.setupFeeMonthly)) + ')</span>' : '';
         tr.innerHTML = `
           <td><strong>${p.name}</strong>${setupNote}</td>
           <td>${p.fee}${p.serviceFee ? '+' + p.serviceFee : ''}%</td>
@@ -1686,7 +1686,7 @@
 
       if (bd) {
         bd.innerHTML = breakdown.map(function(b) {
-          var c = b.score >= 80 ? '#16a34a' : (b.score >= 50 ? '#d4a853' : '#dc2626');
+          var c = b.score >= 80 ? '#16a34a' : (b.score >= 50 ? '#b8954e' : '#dc2626');
           return '<div class="health-item"><div class="h-label">' + b.icon + ' ' + b.label + '</div><div class="h-score" style="color:' + c + '">' + b.score + '</div></div>';
         }).join('');
       }
@@ -1757,7 +1757,7 @@
       container.innerHTML = '';
       if (!url) return;
       loadLib('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js').then(function() {
-        new QRCode(container, { text: url, width: 160, height: 160, colorDark: '#d4a853', colorLight: '#0a0f1a', correctLevel: QRCode.CorrectLevel.M });
+        new QRCode(container, { text: url, width: 160, height: 160, colorDark: '#b8954e', colorLight: '#f5f0e8', correctLevel: QRCode.CorrectLevel.M });
       });
     }
 
@@ -1958,8 +1958,8 @@
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-              y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-              x: { ticks: { color: '#e8ecf4', font: { family: 'Vazirmatn' } }, grid: { display: false } }
+              y: { ticks: { color: '#555555' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+              x: { ticks: { color: '#1a1a1a', font: { family: 'Vazirmatn' } }, grid: { display: false } }
             }
           }
         });
@@ -1980,7 +1980,7 @@
             labels: ['مكونات', 'تغليف', 'توصيل', 'عمولة المنصة', 'تكاليف ثابتة'],
             datasets: [{
               data: [foodCostTotal, packagingTotal, deliveryTotal, platformFeeTotal, r.monthlyFixed],
-              backgroundColor: ['#d4a853', '#3b82f6', '#8b5cf6', '#ef4444', '#64748b'],
+              backgroundColor: ['#b8954e', '#3b82f6', '#8b5cf6', '#ef4444', '#888888'],
               borderWidth: 0
             }]
           },
@@ -1988,7 +1988,7 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { position: 'bottom', labels: { color: '#e8ecf4', font: { family: 'Vazirmatn' } } }
+              legend: { position: 'bottom', labels: { color: '#1a1a1a', font: { family: 'Vazirmatn' } } }
             }
           }
         });
@@ -2015,18 +2015,18 @@
             datasets: [
               { label: 'الإيرادات', data: beRevenue, borderColor: '#16a34a', tension: 0.3, fill: false },
               { label: 'إجمالي التكاليف', data: beCosts, borderColor: '#dc2626', tension: 0.3, fill: false },
-              { label: 'الربح', data: beProfit, borderColor: '#d4a853', tension: 0.3, fill: false }
+              { label: 'الربح', data: beProfit, borderColor: '#b8954e', tension: 0.3, fill: false }
             ]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { labels: { color: '#e8ecf4', font: { family: 'Vazirmatn' } } }
+              legend: { labels: { color: '#1a1a1a', font: { family: 'Vazirmatn' } } }
             },
             scales: {
-              y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-              x: { ticks: { color: '#e8ecf4', font: { family: 'Vazirmatn' } }, grid: { display: false } }
+              y: { ticks: { color: '#555555' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+              x: { ticks: { color: '#1a1a1a', font: { family: 'Vazirmatn' } }, grid: { display: false } }
             }
           }
         });
@@ -2552,7 +2552,7 @@
           impactEl.style.color = '#dc2626';
         } else if (wasteRate > 5) {
           impactEl.innerHTML = '🟡 هدر متوسط — يُحسّن بمراقبة الجودة.';
-          impactEl.style.color = '#d4a853';
+          impactEl.style.color = '#b8954e';
         } else {
           impactEl.innerHTML = '🟢 هدر منخفض — أداء ممتاز.';
           impactEl.style.color = '#16a34a';

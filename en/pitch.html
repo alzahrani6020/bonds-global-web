@@ -24,13 +24,13 @@
     }
   </script>
   <style>
-    :root { --slide-bg: #0a0f1a; --slide-card: rgba(16,24,45,0.7); }
+    :root { --slide-bg: #f5f0e8; --slide-card: rgba(255,255,255,0.85); }
     body { background: var(--slide-bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; margin: 0; overflow-x: hidden; }
 
     /* Navigation */
-    .pitch-nav { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 0.5rem; background: rgba(10,15,26,0.9); border: 1px solid var(--border); border-radius: 999px; padding: 0.5rem 1rem; backdrop-filter: blur(12px); }
+    .pitch-nav { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 0.5rem; background: rgba(245,240,232,0.9); border: 1px solid var(--border); border-radius: 999px; padding: 0.5rem 1rem; backdrop-filter: blur(12px); }
     .pitch-nav button { background: transparent; color: var(--text-muted); border: none; padding: 0.4rem 0.8rem; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 0.8rem; transition: all 0.2s; }
-    .pitch-nav button:hover, .pitch-nav button.active { background: var(--gold); color: #0a0f1a; }
+    .pitch-nav button:hover, .pitch-nav button.active { background: var(--gold); color: #f5f0e8; }
     .pitch-nav .arrow { font-size: 1rem; padding: 0.4rem 0.6rem; }
 
     /* Slides */
@@ -76,7 +76,7 @@
 
     /* Progress bar */
     .progress-track { background: rgba(255,255,255,0.05); border-radius: 999px; height: 6px; margin: 1rem 0; overflow: hidden; }
-    .progress-fill { background: linear-gradient(90deg, var(--gold), #f0c96a); height: 100%; border-radius: 999px; transition: width 1s ease; }
+    .progress-fill { background: linear-gradient(90deg, var(--gold), #d4b87a); height: 100%; border-radius: 999px; transition: width 1s ease; }
 
     /* Ask box */
     .ask-box { background: linear-gradient(135deg, rgba(212,168,83,0.15), rgba(34,197,94,0.1)); border: 2px solid var(--gold); border-radius: 16px; padding: 2rem; text-align: center; margin: 1.5rem 0; }
@@ -101,7 +101,7 @@
 <body>
 
 <!-- PDF Link -->
-<a href="pitch-print.html" id="pdfLink" style="position:fixed;top:1.5rem;right:1.5rem;z-index:1001;background:rgba(10,15,26,0.9);border:1px solid var(--border);border-radius:999px;padding:0.5rem 1rem;color:var(--gold);font-size:0.8rem;font-weight:700;text-decoration:none;backdrop-filter:blur(12px);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">🖨️ PDF Version</a>
+<a href="pitch-print.html" id="pdfLink" style="position:fixed;top:1.5rem;right:1.5rem;z-index:1001;background:rgba(245,240,232,0.9);border:1px solid var(--border);border-radius:999px;padding:0.5rem 1rem;color:var(--gold);font-size:0.8rem;font-weight:700;text-decoration:none;backdrop-filter:blur(12px);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">🖨️ PDF Version</a>
 
 <!-- Navigation -->
 <div class="pitch-nav">
@@ -271,7 +271,7 @@
     <div class="slide-tag">Business Model</div>
     <h2>Freemium SaaS — Monetize Value</h2>
     <div class="card-grid">
-      <div class="info-card" style="border-top:3px solid #94a3b8;">
+      <div class="info-card" style="border-top:3px solid #555555;">
         <div class="icon">🆓</div>
         <h4>Free</h4>
         <p>3 Scenarios<br>5 Countries<br>Excel Export<br><strong>Goal:</strong> User Acquisition</p>

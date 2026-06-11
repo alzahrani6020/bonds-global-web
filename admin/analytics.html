@@ -262,7 +262,7 @@
               datasets: [{
                 label: 'المشاهدات',
                 data: sortedDays.map(d => d[1]),
-                borderColor: '#d4a853',
+                borderColor: '#b8954e',
                 backgroundColor: 'rgba(212,168,83,0.1)',
                 fill: true,
                 tension: 0.4
@@ -272,8 +272,8 @@
               responsive: true,
               plugins: { legend: { display: false } },
               scales: {
-                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                x: { ticks: { color: '#555555' }, grid: { color: 'rgba(0,0,0,0.05)' } },
+                y: { ticks: { color: '#555555' }, grid: { color: 'rgba(0,0,0,0.05)' } }
               }
             }
           });
@@ -284,7 +284,7 @@
         // Section chart (doughnut)
         const sectionData = data.views7d?.bySection || {};
         if (Object.keys(sectionData).length) {
-          const colors = ['#d4a853','#3b82f6','#10b981','#ef4444','#8b5cf6','#f59e0b','#ec4899','#06b6d4'];
+          const colors = ['#b8954e','#3b82f6','#10b981','#ef4444','#8b5cf6','#f59e0b','#ec4899','#06b6d4'];
           new Chart(document.getElementById('sectionChart'), {
             type: 'doughnut',
             data: {
@@ -298,7 +298,7 @@
             options: {
               responsive: true,
               plugins: {
-                legend: { position: 'right', labels: { color: '#e8ecf4', font: { family: 'Vazirmatn' } } }
+                legend: { position: 'right', labels: { color: '#1a1a1a', font: { family: 'Vazirmatn' } } }
               }
             }
           });

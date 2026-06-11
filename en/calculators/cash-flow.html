@@ -582,7 +582,7 @@
           datasets: [{
             label: 'Closing Balance',
             data: data,
-            borderColor: '#d4a853',
+            borderColor: '#b8954e',
             backgroundColor: 'rgba(212,168,83,0.1)',
             pointBackgroundColor: pointColors,
             pointBorderColor: pointColors,
@@ -596,7 +596,7 @@
           maintainAspectRatio: false,
           interaction: { intersect: false, mode: 'index' },
           plugins: {
-            legend: { labels: { color: '#e8ecf4', font: { family: 'Vazirmatn' } } },
+            legend: { labels: { color: '#1a1a1a', font: { family: 'Vazirmatn' } } },
             tooltip: {
               callbacks: {
                 label: function(context) {
@@ -606,8 +606,8 @@
             }
           },
           scales: {
-            x: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-            y: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            x: { ticks: { color: '#555555', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#555555', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
           }
         }
       });
@@ -866,10 +866,10 @@
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
             body { font-family: Vazirmatn, Arial, sans-serif; background: #fff; color: #1a1a1a; padding: 40px; max-width: 1100px; margin: 0 auto; }
-            h1 { color: #0a0f1a; margin: 0; font-size: 28px; text-align: center; }
-            .header { text-align: center; border-bottom: 3px solid #d4a853; padding-bottom: 15px; margin-bottom: 25px; }
+            h1 { color: #f5f0e8; margin: 0; font-size: 28px; text-align: center; }
+            .header { text-align: center; border-bottom: 3px solid #b8954e; padding-bottom: 15px; margin-bottom: 25px; }
             .header p { color: #666; margin: 5px 0; font-size: 14px; }
-            h3 { color: #d4a853; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 25px; }
+            h3 { color: #b8954e; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 25px; }
             .footer { font-size: 11px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 20px; }
             .chart-img { max-width: 100%; height: auto; margin: 15px 0; page-break-inside: avoid; }
             @media print { body { padding: 20px; } .chart-img { max-height: 280px; } }

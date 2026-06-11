@@ -11,10 +11,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
-      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
-      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
-      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --bg: #f5f0e8; --bg-secondary: #ffffff; --bg-card: rgba(255,255,255,0.85);
+      --gold: #b8954e; --gold-bright: #d4b87a; --gold-dim: #8a7340;
+      --text: #1a1a1a; --text-secondary: #555555; --text-muted: #888888;
+      --border: rgba(0,0,0,0.08); --border-hover: rgba(184,149,78,0.4);
       --success: #22c55e; --warning: #eab308; --info: #3b82f6; --danger: #ef4444;
       --shadow-lg: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
     }
@@ -36,7 +36,7 @@
     .sidebar-link svg { width: 20px; height: 20px; opacity: 0.7; }
     .sidebar-footer { padding-top: 1rem; border-top: 1px solid var(--border); }
     .sidebar-user { display: flex; align-items: center; gap: 0.75rem; }
-    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #0a0f1a; font-size: 0.85rem; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #f5f0e8; font-size: 0.85rem; }
     .user-info { display: flex; flex-direction: column; }
     .user-name { font-weight: 700; font-size: 0.85rem; }
     .user-role { font-size: 0.75rem; color: var(--text-muted); }
@@ -73,14 +73,14 @@
     .table-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
     .table-header h3 { font-size: 1rem; font-weight: 700; }
     .btn-sm { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
-    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #0a0f1a; }
+    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #f5f0e8; }
     .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--border); }
     .data-table { width: 100%; border-collapse: collapse; }
-    .data-table th { text-align: right; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: rgba(16,24,45,0.9); }
+    .data-table th { text-align: right; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.9); }
     .data-table td { padding: 1rem 1.5rem; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
     .data-table tr:hover td { background: rgba(212,168,83,0.05); }
     .user-cell { display: flex; align-items: center; gap: 0.75rem; }
-    .user-cell__avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #0a0f1a; font-size: 0.75rem; }
+    .user-cell__avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #f5f0e8; font-size: 0.75rem; }
     .user-cell__name { font-weight: 700; color: var(--text); }
     .user-cell__email { font-size: 0.75rem; color: var(--text-muted); }
     .badge { display: inline-block; padding: 0.3rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
@@ -475,12 +475,12 @@
         datasets: [{
           label: 'الإيرادات ($)',
           data: DEMO_DATA.monthlyRevenue,
-          borderColor: '#d4a853',
+          borderColor: '#b8954e',
           backgroundColor: 'rgba(212,168,83,0.1)',
           fill: true,
           tension: 0.4,
-          pointBackgroundColor: '#d4a853',
-          pointBorderColor: '#0a0f1a',
+          pointBackgroundColor: '#b8954e',
+          pointBorderColor: '#f5f0e8',
           pointBorderWidth: 2,
           pointRadius: 5
         }]
@@ -490,8 +490,8 @@
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-          x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#555555' } },
+          x: { grid: { display: false }, ticks: { color: '#555555' } }
         }
       }
     });
@@ -504,7 +504,7 @@
         labels: ['Free', 'Pro', 'Enterprise'],
         datasets: [{
           data: DEMO_DATA.subscriptionSplit,
-          backgroundColor: ['#64748b', '#d4a853', '#a855f7'],
+          backgroundColor: ['#888888', '#b8954e', '#a855f7'],
           borderWidth: 0
         }]
       },
@@ -513,7 +513,7 @@
         maintainAspectRatio: false,
         cutout: '65%',
         plugins: {
-          legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 }, padding: 15 } }
+          legend: { position: 'bottom', labels: { color: '#555555', font: { size: 11 }, padding: 15 } }
         }
       }
     });

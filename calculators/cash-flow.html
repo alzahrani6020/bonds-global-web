@@ -535,7 +535,7 @@
           datasets: [{
             label: 'الرصيد الختامي',
             data: data,
-            borderColor: '#d4a853',
+            borderColor: '#b8954e',
             backgroundColor: 'rgba(212,168,83,0.1)',
             pointBackgroundColor: pointColors,
             pointBorderColor: pointColors,
@@ -549,7 +549,7 @@
           maintainAspectRatio: false,
           interaction: { intersect: false, mode: 'index' },
           plugins: {
-            legend: { labels: { color: '#e8ecf4', font: { family: 'Vazirmatn' } } },
+            legend: { labels: { color: '#1a1a1a', font: { family: 'Vazirmatn' } } },
             tooltip: {
               callbacks: {
                 label: function(context) {
@@ -559,8 +559,8 @@
             }
           },
           scales: {
-            x: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-            y: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            x: { ticks: { color: '#555555', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(0,0,0,0.05)' } },
+            y: { ticks: { color: '#555555', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(0,0,0,0.05)' } }
           }
         }
       });

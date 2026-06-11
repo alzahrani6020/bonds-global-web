@@ -558,7 +558,7 @@
       if (inputs.monthlyIncome > 0) {
         var dti = (r.installment / inputs.monthlyIncome) * 100;
         dtiEl.textContent = dti.toFixed(1) + '%';
-        dtiEl.style.color = dti > 30 ? '#dc2626' : (dti > 20 ? '#d4a853' : '#16a34a');
+        dtiEl.style.color = dti > 30 ? '#dc2626' : (dti > 20 ? '#b8954e' : '#16a34a');
       } else {
         dtiEl.textContent = '—';
         dtiEl.style.color = 'var(--text)';
@@ -613,7 +613,7 @@
           labels: ['أصل الدين', 'Interest'],
           datasets: [{
             data: [r.netLoan, r.totalInterest],
-            backgroundColor: ['#d4a853', '#3b82f6'],
+            backgroundColor: ['#b8954e', '#3b82f6'],
             borderColor: 'var(--bg-card)',
             borderWidth: 2
           }]
@@ -624,7 +624,7 @@
           plugins: {
             legend: {
               position: 'bottom',
-              labels: { color: '#e8ecf4', font: { family: 'Vazirmatn', size: 14 }, padding: 20 }
+              labels: { color: '#1a1a1a', font: { family: 'Vazirmatn', size: 14 }, padding: 20 }
             },
             tooltip: {
               callbacks: {
@@ -662,7 +662,7 @@
           datasets: [{
             label: 'Remaining Balance',
             data: balanceData,
-            borderColor: '#d4a853',
+            borderColor: '#b8954e',
             backgroundColor: 'rgba(212,168,83,0.1)',
             tension: 0.4,
             fill: true,
@@ -674,7 +674,7 @@
           maintainAspectRatio: false,
           interaction: { intersect: false, mode: 'index' },
           plugins: {
-            legend: { labels: { color: '#e8ecf4', font: { family: 'Vazirmatn' } } },
+            legend: { labels: { color: '#1a1a1a', font: { family: 'Vazirmatn' } } },
             tooltip: {
               callbacks: {
                 label: function(context) {
@@ -684,8 +684,8 @@
             }
           },
           scales: {
-            x: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: inputs.frequency === 'monthly' ? 'Month' : 'Quarter', color: '#94a3b8' } },
-            y: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            x: { ticks: { color: '#555555', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: inputs.frequency === 'monthly' ? 'Month' : 'Quarter', color: '#555555' } },
+            y: { ticks: { color: '#555555', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
           }
         }
       });
@@ -986,10 +986,10 @@
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
             body { font-family: Vazirmatn, Arial, sans-serif; background: #fff; color: #1a1a1a; padding: 40px; max-width: 800px; margin: 0 auto; }
-            h1 { color: #0a0f1a; margin: 0; font-size: 28px; text-align: center; }
-            .header { text-align: center; border-bottom: 3px solid #d4a853; padding-bottom: 15px; margin-bottom: 25px; }
+            h1 { color: #f5f0e8; margin: 0; font-size: 28px; text-align: center; }
+            .header { text-align: center; border-bottom: 3px solid #b8954e; padding-bottom: 15px; margin-bottom: 25px; }
             .header p { color: #666; margin: 5px 0; font-size: 14px; }
-            h3 { color: #d4a853; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 25px; }
+            h3 { color: #b8954e; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 25px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
             th, td { padding: 8px; border: 1px solid #ddd; }
             th { background: #f5f5f5; }

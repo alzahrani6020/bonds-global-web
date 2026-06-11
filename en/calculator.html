@@ -722,7 +722,7 @@
           datasets: [
             { label: 'Revenue', data: revenueData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', tension: 0.4, fill: true },
             { label: 'Costs', data: costData, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.1)', tension: 0.4, fill: true },
-            { label: 'Break-Even Point', data: labels.map(function(q) { return (r.breakEvenUnits > 0 && q === r.breakEvenUnits) ? r.breakEvenAmount : null; }), borderColor: '#d4a853', backgroundColor: '#d4a853', pointRadius: 8, showLine: false }
+            { label: 'Break-Even Point', data: labels.map(function(q) { return (r.breakEvenUnits > 0 && q === r.breakEvenUnits) ? r.breakEvenAmount : null; }), borderColor: '#b8954e', backgroundColor: '#b8954e', pointRadius: 8, showLine: false }
           ]
         },
         options: {
@@ -730,7 +730,7 @@
           maintainAspectRatio: false,
           interaction: { intersect: false, mode: 'index' },
           plugins: {
-            legend: { labels: { color: '#e8ecf4', font: { family: 'Vazirmatn' } } },
+            legend: { labels: { color: '#1a1a1a', font: { family: 'Vazirmatn' } } },
             tooltip: {
               callbacks: {
                 label: function(context) {
@@ -740,8 +740,8 @@
             }
           },
           scales: {
-            x: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-            y: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            x: { ticks: { color: '#555555', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(0,0,0,0.05)' } },
+            y: { ticks: { color: '#555555', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(0,0,0,0.05)' } }
           }
         }
       });
@@ -762,7 +762,7 @@
           labels: ['Fixed Costs', 'Variable Costs'],
           datasets: [{
             data: [fixedCost, varTotal],
-            backgroundColor: ['#d4a853', '#3b82f6'],
+            backgroundColor: ['#b8954e', '#3b82f6'],
             borderColor: 'var(--bg-card)',
             borderWidth: 2
           }]
@@ -773,7 +773,7 @@
           plugins: {
             legend: {
               position: 'bottom',
-              labels: { color: '#e8ecf4', font: { family: 'Vazirmatn', size: 14 }, padding: 20 }
+              labels: { color: '#1a1a1a', font: { family: 'Vazirmatn', size: 14 }, padding: 20 }
             },
             tooltip: {
               callbacks: {
@@ -890,7 +890,7 @@
           datasets: [{
             label: 'Net Profit (SAR)',
             data: [p.netProfit, r.netProfit, o.netProfit],
-            backgroundColor: ['#dc2626', '#d4a853', '#16a34a'],
+            backgroundColor: ['#dc2626', '#b8954e', '#16a34a'],
             borderRadius: 6,
             borderSkipped: false
           }]
@@ -909,8 +909,8 @@
             }
           },
           scales: {
-            x: { ticks: { color: '#e8ecf4', font: { family: 'system-ui' } }, grid: { display: false } },
-            y: { ticks: { color: '#94a3b8', font: { family: 'system-ui' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            x: { ticks: { color: '#1a1a1a', font: { family: 'system-ui' } }, grid: { display: false } },
+            y: { ticks: { color: '#555555', font: { family: 'system-ui' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(0,0,0,0.05)' } }
           }
         }
       });

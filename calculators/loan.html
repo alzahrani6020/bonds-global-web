@@ -539,7 +539,7 @@
       if (inputs.monthlyIncome > 0) {
         var dti = (r.installment / inputs.monthlyIncome) * 100;
         dtiEl.textContent = dti.toFixed(1) + '%';
-        dtiEl.style.color = dti > 30 ? '#dc2626' : (dti > 20 ? '#d4a853' : '#16a34a');
+        dtiEl.style.color = dti > 30 ? '#dc2626' : (dti > 20 ? '#b8954e' : '#16a34a');
       } else {
         dtiEl.textContent = '—';
         dtiEl.style.color = 'var(--text)';
@@ -594,7 +594,7 @@
           labels: ['أصل الدين', 'الفائدة'],
           datasets: [{
             data: [r.netLoan, r.totalInterest],
-            backgroundColor: ['#d4a853', '#3b82f6'],
+            backgroundColor: ['#b8954e', '#3b82f6'],
             borderColor: 'var(--bg-card)',
             borderWidth: 2
           }]
@@ -605,7 +605,7 @@
           plugins: {
             legend: {
               position: 'bottom',
-              labels: { color: '#e8ecf4', font: { family: 'Vazirmatn', size: 14 }, padding: 20 }
+              labels: { color: '#1a1a1a', font: { family: 'Vazirmatn', size: 14 }, padding: 20 }
             },
             tooltip: {
               callbacks: {
@@ -643,7 +643,7 @@
           datasets: [{
             label: 'الرصيد المتبقي',
             data: balanceData,
-            borderColor: '#d4a853',
+            borderColor: '#b8954e',
             backgroundColor: 'rgba(212,168,83,0.1)',
             tension: 0.4,
             fill: true,
@@ -655,7 +655,7 @@
           maintainAspectRatio: false,
           interaction: { intersect: false, mode: 'index' },
           plugins: {
-            legend: { labels: { color: '#e8ecf4', font: { family: 'Vazirmatn' } } },
+            legend: { labels: { color: '#1a1a1a', font: { family: 'Vazirmatn' } } },
             tooltip: {
               callbacks: {
                 label: function(context) {
@@ -665,8 +665,8 @@
             }
           },
           scales: {
-            x: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: inputs.frequency === 'monthly' ? 'الشهر' : 'الربع', color: '#94a3b8' } },
-            y: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            x: { ticks: { color: '#555555', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(0,0,0,0.05)' }, title: { display: true, text: inputs.frequency === 'monthly' ? 'الشهر' : 'الربع', color: '#555555' } },
+            y: { ticks: { color: '#555555', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(0,0,0,0.05)' } }
           }
         }
       });

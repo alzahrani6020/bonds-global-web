@@ -10,10 +10,10 @@
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/png" />
   <style>
     :root {
-      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
-      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
-      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
-      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --bg: #f5f0e8; --bg-secondary: #ffffff; --bg-card: rgba(255,255,255,0.85);
+      --gold: #b8954e; --gold-bright: #d4b87a; --gold-dim: #8a7340;
+      --text: #1a1a1a; --text-secondary: #555555; --text-muted: #888888;
+      --border: rgba(0,0,0,0.08); --border-hover: rgba(184,149,78,0.4);
       --success: #22c55e; --warning: #eab308; --info: #3b82f6; --danger: #ef4444;
       --shadow-lg: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
     }
@@ -35,7 +35,7 @@
     .sidebar-link svg { width: 20px; height: 20px; opacity: 0.7; }
     .sidebar-footer { padding-top: 1rem; border-top: 1px solid var(--border); }
     .sidebar-user { display: flex; align-items: center; gap: 0.75rem; }
-    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #0a0f1a; font-size: 0.85rem; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #f5f0e8; font-size: 0.85rem; }
     .user-info { display: flex; flex-direction: column; }
     .user-name { font-weight: 700; font-size: 0.85rem; }
     .user-role { font-size: 0.75rem; color: var(--text-muted); }
@@ -52,7 +52,7 @@
     .stat-card__label { font-size: 0.8rem; color: var(--text-secondary); }
 
     .btn-sm { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
-    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #0a0f1a; }
+    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #f5f0e8; }
     .btn-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
 
     .message-list { display: flex; flex-direction: column; gap: 1rem; }

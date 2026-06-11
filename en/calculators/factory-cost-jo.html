@@ -11,10 +11,10 @@
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/png" />
   <style>
     :root {
-      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
-      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
-      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
-      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --bg: #f5f0e8; --bg-secondary: #ffffff; --bg-card: rgba(255,255,255,0.85);
+      --gold: #b8954e; --gold-bright: #d4b87a; --gold-dim: #8a7340;
+      --text: #1a1a1a; --text-secondary: #555555; --text-muted: #888888;
+      --border: rgba(0,0,0,0.08); --border-hover: rgba(184,149,78,0.4);
       --success: #22c55e; --warning: #eab308; --info: #3b82f6; --danger: #ef4444;
       --radius: 16px; --shadow: 0 10px 40px rgba(0,0,0,0.4);
     }
@@ -68,12 +68,12 @@
     .result-box .label { font-size:0.8rem; color:var(--text-secondary); margin-top:0.25rem; }
     .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:2rem; }
     table { width:100%; border-collapse:collapse; }
-    th { text-align:left; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(16,24,45,0.9); border-bottom:1px solid var(--border); }
+    th { text-align:left; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(184,149,78,0.15); border-bottom:1px solid var(--border); }
     td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
     tr:hover td { background:rgba(212,168,40,0.05); }
     td strong { color:var(--text); }
     .total-row td { font-weight:800; color:var(--gold); background:rgba(212,168,83,0.08); }
-    .btn-primary { display:inline-block; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; padding:0.9rem 2.5rem; border-radius:12px; text-decoration:none; border:none; cursor:pointer; font-family:inherit; font-size:1rem; }
+    .btn-primary { display:inline-block; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#1a1a1a; font-weight:800; padding:0.9rem 2.5rem; border-radius:12px; text-decoration:none; border:none; cursor:pointer; font-family:inherit; font-size:1rem; }
     .btn-primary:hover { opacity:0.9; }
     .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin-top:1rem; }
     .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem; }
@@ -468,7 +468,7 @@ const cities = {
         data.expatFees, data.rawMaterialMonthly, data.maintenanceMonthly,
         data.insuranceMonthly, data.supervisionMonthly+data.licenseMonthly
       ];
-      const colors = ['#d4a853','#f0c96a','#94a3b8','#22c55e','#16a34a','#3b82f6','#ef4444','#eab308','#a855f7','#ec4899','#64748b'];
+      const colors = ['#b8954e','#d4b87a','#555555','#22c55e','#16a34a','#3b82f6','#ef4444','#eab308','#a855f7','#ec4899','#888888'];
 
       const pieCtx = document.getElementById('costPieChart').getContext('2d');
       if (costPieChart) costPieChart.destroy();
@@ -477,7 +477,7 @@ const cities = {
         data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }] },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 11 } } } }
+          plugins: { legend: { position: 'right', labels: { color: '#555555', font: { size: 11 } } } }
         }
       });
 
@@ -493,8 +493,8 @@ const cities = {
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-            x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+            y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#555555' } },
+            x: { grid: { display: false }, ticks: { color: '#555555' } }
           }
         }
       });

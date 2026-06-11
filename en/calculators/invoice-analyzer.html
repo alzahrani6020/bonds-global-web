@@ -17,17 +17,17 @@
   <script src="../../calculators/db-client-auto.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <style>
-    :root { --gold:#d4a853; --green:#22c55e; --red:#ef4444; --orange:#f59e0b; }
-    body { background:#0a0f1a; color:#e2e8f0; font-family:'Vazirmatn',system-ui,sans-serif; margin:0; padding:2rem 1rem; }
+    :root { --gold:#b8954e; --green:#22c55e; --red:#ef4444; --orange:#f59e0b; }
+    body { background: #f5f0e8; color:#e2e8f0; font-family:'Vazirmatn',system-ui,sans-serif; margin:0; padding:2rem 1rem; }
     .container { max-width:960px; margin:0 auto; }
     .invoice-card {
-      background:linear-gradient(135deg, rgba(16,24,45,0.9), rgba(10,15,26,0.95));
+      background:linear-gradient(135deg, rgba(255,255,255,0.9), rgba(245,240,232,0.95));
       border:1px solid rgba(212,168,83,0.2); border-radius:16px;
       padding:1.5rem; margin-bottom:1.5rem; position:relative; overflow:hidden;
     }
     .invoice-card::before {
       content:''; position:absolute; top:0; left:0; right:0; height:3px;
-      background:linear-gradient(90deg, var(--gold), #f0c96a);
+      background:linear-gradient(90deg, var(--gold), #d4b87a);
     }
     .invoice-header {
       display:flex; justify-content:space-between; align-items:center;
@@ -49,7 +49,7 @@
       font-size:0.95rem;
     }
     .invoice-line:last-child { border-bottom:none; }
-    .invoice-line .label { color:#94a3b8; }
+    .invoice-line .label { color:#555555; }
     .invoice-line .value { font-weight:700; font-family:monospace; font-size:1rem; }
     .invoice-line.positive .value { color:var(--green); }
     .invoice-line.negative .value { color:var(--red); }
@@ -65,7 +65,7 @@
     }
     @media(max-width:640px){ .volume-grid { grid-template-columns:1fr; } }
     .input-group label {
-      display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:0.4rem; font-weight:600;
+      display:block; font-size:0.8rem; color:#555555; margin-bottom:0.4rem; font-weight:600;
     }
     .input-group input, .input-group select {
       width:100%; padding:0.7rem 1rem; border-radius:10px; border:1px solid rgba(255,255,255,0.08);
@@ -73,20 +73,20 @@
       box-sizing:border-box; transition:border-color 0.2s;
     }
     .input-group input:focus, .input-group select:focus { outline:none; border-color:var(--gold); }
-    .input-group select option { background:#0a0f1a; color:#e2e8f0; }
+    .input-group select option { background: #f5f0e8; color:#e2e8f0; }
     .summary-grid {
       display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin:1.5rem 0;
     }
     @media(max-width:900px){ .summary-grid { grid-template-columns:repeat(2,1fr); } }
     @media(max-width:640px){ .summary-grid { grid-template-columns:1fr; } }
     .summary-card {
-      background:rgba(16,24,45,0.7); border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.85); border:1px solid rgba(255,255,255,0.08);
       border-radius:12px; padding:1.25rem; text-align:center; transition:all 0.3s;
     }
     .summary-card:hover { border-color:rgba(212,168,83,0.3); transform:translateY(-2px); }
     .summary-card .icon { font-size:1.5rem; margin-bottom:0.5rem; }
     .summary-card .num { font-size:1.6rem; font-weight:900; color:var(--gold); font-family:monospace; }
-    .summary-card .label { font-size:0.75rem; color:#64748b; margin-top:0.25rem; }
+    .summary-card .label { font-size:0.75rem; color:#888888; margin-top:0.25rem; }
     .summary-card .sub { font-size:0.7rem; color:#475569; margin-top:0.15rem; }
     .promo-box {
       background:linear-gradient(135deg, rgba(239,68,68,0.08), rgba(245,158,11,0.08));
@@ -95,7 +95,7 @@
     }
     .promo-box h3 { margin:0 0 0.75rem; font-size:1rem; color:var(--red); display:flex; align-items:center; gap:0.5rem; }
     .promo-row { display:flex; justify-content:space-between; padding:0.4rem 0; font-size:0.9rem; }
-    .promo-row .label { color:#94a3b8; }
+    .promo-row .label { color:#555555; }
     .promo-row .value { font-weight:700; }
     .promo-row.highlight { padding:0.6rem 0; margin-top:0.5rem; border-top:1px dashed rgba(255,255,255,0.1); }
     .promo-row.highlight .value { color:var(--orange); font-size:1.1rem; }
@@ -104,13 +104,13 @@
     }
     @media(max-width:640px){ .compare-grid { grid-template-columns:1fr; } }
     .compare-card {
-      background:rgba(16,24,45,0.7); border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.85); border:1px solid rgba(255,255,255,0.08);
       border-radius:12px; padding:1.25rem;
     }
     .compare-card.winner { border-color:rgba(34,197,94,0.3); background:rgba(34,197,94,0.05); }
     .compare-card h4 { margin:0 0 0.75rem; font-size:0.95rem; }
     .compare-card .big { font-size:1.8rem; font-weight:900; font-family:monospace; }
-    .compare-card .desc { font-size:0.8rem; color:#64748b; margin-top:0.3rem; }
+    .compare-card .desc { font-size:0.8rem; color:#888888; margin-top:0.3rem; }
     .inputs-grid {
       display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin:1.5rem 0;
     }
@@ -120,7 +120,7 @@
       display:flex; align-items:center; gap:0.5rem;
     }
     .btn-calc {
-      background:linear-gradient(135deg, var(--gold), #f0c96a); color:#0a0f1a;
+      background:linear-gradient(135deg, var(--gold), #d4b87a); color:#f5f0e8;
       border:none; padding:0.9rem 2rem; border-radius:10px; font-family:inherit;
       font-weight:800; font-size:1rem; cursor:pointer; transition:all 0.2s;
       display:block; width:100%; margin:1rem 0;
@@ -131,7 +131,7 @@
       margin-top:0.5rem;
     }
     .btn-calc.secondary:hover { background:rgba(212,168,83,0.1); }
-    .empty-state { text-align:center; padding:3rem 1rem; color:#64748b; }
+    .empty-state { text-align:center; padding:3rem 1rem; color:#888888; }
     .empty-state .icon { font-size:3rem; margin-bottom:1rem; opacity:0.5; }
 
     .platform-table-wrap { overflow-x:auto; margin:1.5rem 0; }
@@ -166,7 +166,7 @@
     @media(max-width:640px){ .platform-selector-row { grid-template-columns:1fr; } }
 
     .auto-fill-note {
-      font-size:0.8rem; color:#64748b; margin-top:0.5rem; text-align:center;
+      font-size:0.8rem; color:#888888; margin-top:0.5rem; text-align:center;
     }
 
     #compareAllSection { display:none; }
@@ -178,7 +178,7 @@
   <h1 style="text-align:center; font-size:clamp(1.5rem,4vw,2.2rem); font-weight:900; color:var(--gold); margin-bottom:0.5rem;">
     🧾 Invoice Analyzer
   </h1>
-  <p style="text-align:center; color:#94a3b8; margin-bottom:1rem; font-size:0.95rem;">
+  <p style="text-align:center; color:#555555; margin-bottom:1rem; font-size:0.95rem;">
     Select country &amp; platform — or enter manually. See profit per order, daily, monthly, and yearly
   </p>
   <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:0.75rem 1rem; margin-bottom:1.5rem; text-align:center; font-size:0.85rem; color:#f59e0b; line-height:1.6;">
@@ -275,8 +275,8 @@
       </div>
       <div class="receipt-dots">• • • • • • • • • •</div>
       <div class="invoice-line" style="border-top:1px dashed rgba(255,255,255,0.1); padding-top:0.6rem;">
-        <span class="label" style="color:#94a3b8; font-weight:600;">💰 Revenue After Discount</span>
-        <span class="value" style="color:#94a3b8; font-weight:700;" id="valAfterDiscount">0.00</span>
+        <span class="label" style="color:#555555; font-weight:600;">💰 Revenue After Discount</span>
+        <span class="value" style="color:#555555; font-weight:700;" id="valAfterDiscount">0.00</span>
       </div>
       <div class="invoice-line negative">
         <span class="label">└ Platform Commission</span>
@@ -332,7 +332,7 @@
       </div>
       <div class="invoice-line" style="padding-top:0.3rem;">
         <span class="label" style="font-size:0.8rem;">Profit Margin</span>
-        <span class="value" style="font-size:0.85rem; color:#94a3b8;" id="valMargin">0%</span>
+        <span class="value" style="font-size:0.85rem; color:#555555;" id="valMargin">0%</span>
       </div>
     </div>
 
@@ -420,7 +420,7 @@
   <!-- Compare All Platforms Section -->
   <div id="compareAllSection">
     <div class="section-title">⚖️ Compare All Platforms in Country</div>
-    <p style="color:#94a3b8; font-size:0.85rem; margin:-0.5rem 0 1rem;">
+    <p style="color:#555555; font-size:0.85rem; margin:-0.5rem 0 1rem;">
       Same order (same price + same cost) on every platform in the country
     </p>
     <div class="platform-table-wrap">
@@ -441,7 +441,7 @@
         <tbody id="platformTableBody"></tbody>
       </table>
     </div>
-    <p style="text-align:center; color:#64748b; font-size:0.75rem; margin-top:0.5rem;">
+    <p style="text-align:center; color:#888888; font-size:0.75rem; margin-top:0.5rem;">
       ⚠️ Numbers are estimates. Actual commissions and fees vary based on individual agreements between each restaurant and platform.
     </p>
   </div>

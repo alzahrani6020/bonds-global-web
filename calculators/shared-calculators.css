@@ -80,7 +80,7 @@
 
 .bonds-btn-primary {
   background: linear-gradient(135deg, var(--bonds-gold), #b8943f);
-  color: #0a0f1a;
+  color: #1a1a1a;
 }
 
 .bonds-btn-primary:hover {
@@ -216,7 +216,7 @@
 
 .bonds-tab.active {
   background: var(--bonds-gold);
-  color: #0a0f1a;
+  color: #1a1a1a;
   border-color: var(--bonds-gold);
 }
 

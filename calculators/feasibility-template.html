@@ -13,7 +13,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
-    :root { --gold:#d4a853; --gold-bright:#f0c96a; --bg:#0a0f1a; --bg-card:rgba(16,24,45,0.6); --text:#e8ecf4; --text-secondary:#94a3b8; --border:rgba(197,160,40,0.15); }
+    :root { --gold:#b8954e; --gold-bright:#d4b87a; --bg:#f5f0e8; --bg-card:rgba(255,255,255,0.85); --text:#1a1a1a; --text-secondary:#555555; --border:rgba(0,0,0,0.08); }
     body { background:var(--bg); color:var(--text); font-family:'Vazirmatn',sans-serif; line-height:1.7; }
     @media print {
       body { background:#fff !important; color:#000 !important; }
@@ -31,10 +31,10 @@
     @page { size:A4; margin:1.5cm; }
 
     .template-toolbar { position:sticky; top:0; z-index:100; background:var(--bg-card); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); padding:0.75rem 1.5rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
-    .template-toolbar button { background:var(--gold); color:#0a0f1a; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-weight:700; font-family:inherit; cursor:pointer; transition:all 0.2s; }
+    .template-toolbar button { background:var(--gold); color:#f5f0e8; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-weight:700; font-family:inherit; cursor:pointer; transition:all 0.2s; }
     .template-toolbar button:hover { background:var(--gold-bright); transform:translateY(-1px); }
     .template-toolbar .btn-ghost { background:transparent; color:var(--gold); border:1px solid var(--gold); }
-    .template-toolbar .btn-ghost:hover { background:var(--gold); color:#0a0f1a; }
+    .template-toolbar .btn-ghost:hover { background:var(--gold); color:#f5f0e8; }
 
     .template-wrapper { max-width:960px; margin:0 auto; padding:2rem 1rem; }
     .template-page { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:2.5rem; margin-bottom:2rem; page-break-inside:avoid; }
@@ -42,7 +42,7 @@
     .template-header-print img { height:48px; }
     .template-header-print .doc-title { font-size:1.1rem; font-weight:700; color:var(--text-secondary); }
     .page-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:2px solid var(--gold); }
-    .section-number { width:40px; height:40px; border-radius:50%; background:var(--gold); color:#0a0f1a; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.1rem; flex-shrink:0; }
+    .section-number { width:40px; height:40px; border-radius:50%; background:var(--gold); color:#f5f0e8; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.1rem; flex-shrink:0; }
     .page-header h2 { margin:0; font-size:1.3rem; font-weight:700; color:var(--gold-bright); }
     .page-header p { margin:0; color:var(--text-secondary); font-size:0.9rem; }
 
@@ -64,7 +64,7 @@
 
     .table-actions { display:flex; gap:0.5rem; margin-top:0.5rem; justify-content:center; }
     .table-actions button { background:rgba(212,168,83,0.15); color:var(--gold); border:1px solid var(--gold); padding:0.3rem 0.8rem; border-radius:6px; font-family:inherit; font-size:0.8rem; cursor:pointer; transition:all 0.2s; }
-    .table-actions button:hover { background:var(--gold); color:#0a0f1a; }
+    .table-actions button:hover { background:var(--gold); color:#f5f0e8; }
 
     .cover-page { text-align:center; padding:4rem 2rem; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:70vh; }
     .cover-page img { height:80px; margin-bottom:2rem; }
@@ -90,7 +90,7 @@
     .swot-box.o { background:rgba(212,168,83,0.08); border-color:rgba(212,168,83,0.3); }
     .swot-box.o h4 { color:var(--gold-bright); }
     .swot-box.t { background:rgba(100,116,139,0.08); border-color:rgba(100,116,139,0.3); }
-    .swot-box.t h4 { color:#94a3b8; }
+    .swot-box.t h4 { color:#555555; }
 
     /* ===== Image Search Modal ===== */
     #image-search-modal { display:none; position:fixed; inset:0; z-index:200; align-items:center; justify-content:center; }
@@ -101,7 +101,7 @@
     .imgsearch-close { background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer; }
     .imgsearch-close:hover { color:var(--gold); }
     .imgsearch-body { padding:1.5rem; }
-    .imgsearch-run { background:#38bdf8; color:#0a0f1a; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-weight:700; cursor:pointer; }
+    .imgsearch-run { background:#38bdf8; color:#f5f0e8; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-weight:700; cursor:pointer; }
     .imgsearch-run:hover { background:#7dd3fc; }
     .imgsearch-run:disabled { opacity:0.6; }
 
@@ -127,13 +127,13 @@
     .research-close { background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer; line-height:1; }
     .research-close:hover { color:var(--gold); }
     .research-body { padding:1.5rem; }
-    .research-run { width:100%; background:#38bdf8; color:#0a0f1a; border:none; padding:0.8rem; border-radius:10px; font-weight:700; font-family:inherit; font-size:0.95rem; cursor:pointer; margin-top:0.5rem; }
+    .research-run { width:100%; background:#38bdf8; color:#f5f0e8; border:none; padding:0.8rem; border-radius:10px; font-weight:700; font-family:inherit; font-size:0.95rem; cursor:pointer; margin-top:0.5rem; }
     .research-run:hover { background:#7dd3fc; }
     .research-run:disabled { opacity:0.6; cursor:not-allowed; }
-    .research-apply { width:100%; background:var(--gold); color:#0a0f1a; border:none; padding:0.75rem; border-radius:10px; font-weight:700; font-family:inherit; font-size:0.9rem; cursor:pointer; margin-top:0.75rem; }
+    .research-apply { width:100%; background:var(--gold); color:#f5f0e8; border:none; padding:0.75rem; border-radius:10px; font-weight:700; font-family:inherit; font-size:0.9rem; cursor:pointer; margin-top:0.75rem; }
     .research-apply:hover { background:var(--gold-bright); }
     .research-spinner { display:inline-flex; align-items:center; gap:0.5rem; }
-    .research-spinner::before { content:''; width:14px; height:14px; border:2px solid rgba(10,15,26,0.3); border-top-color:#0a0f1a; border-radius:50%; animation:spin 0.8s linear infinite; display:inline-block; vertical-align:middle; }
+    .research-spinner::before { content:''; width:14px; height:14px; border:2px solid rgba(245,240,232,0.3); border-top-color:#f5f0e8; border-radius:50%; animation:spin 0.8s linear infinite; display:inline-block; vertical-align:middle; }
     @keyframes spin { to { transform:rotate(360deg); } }
 
     /* ===== Dashboard ===== */
@@ -290,7 +290,7 @@
 
     <!-- ========== PAGE IMPORT: AI FEASIBILITY IMPORTER ========== -->
     <div class="template-page no-print" id="page-import" style="border:2px solid var(--gold); background:rgba(212,168,83,0.05);">
-      <div class="page-header"><div class="section-number" style="background:var(--gold);color:#0a0f1a;">🤖</div><div><h2 style="color:var(--gold-bright);">استيراد دراسة جدوى بالذكاء الاصطناعي</h2><p>ارفع ملف Word أو الصق نص الدراسة وسنملأ القالب تلقائياً</p></div></div>
+      <div class="page-header"><div class="section-number" style="background:var(--gold);color:#f5f0e8;">🤖</div><div><h2 style="color:var(--gold-bright);">استيراد دراسة جدوى بالذكاء الاصطناعي</h2><p>ارفع ملف Word أو الصق نص الدراسة وسنملأ القالب تلقائياً</p></div></div>
 
       <div class="field-group" style="margin-bottom:1rem;">
         <label>📁 رفع ملف (Word .docx أو PDF .pdf أو نص .txt)</label>
@@ -305,7 +305,7 @@
       </div>
 
       <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem;">
-        <button onclick="analyzeFeasibilityText()" id="analyze-btn" style="background:linear-gradient(135deg,var(--gold),var(--gold-bright)); color:#0a0f1a; border:none; padding:0.8rem 2rem; border-radius:10px; font-weight:800; font-family:inherit; cursor:pointer; font-size:1rem;">
+        <button onclick="analyzeFeasibilityText()" id="analyze-btn" style="background:linear-gradient(135deg,var(--gold),var(--gold-bright)); color:#f5f0e8; border:none; padding:0.8rem 2rem; border-radius:10px; font-weight:800; font-family:inherit; cursor:pointer; font-size:1rem;">
           ✨ تحليل وملء القالب
         </button>
         <button class="btn-ghost" onclick="document.getElementById('feasibility-text').value='';document.getElementById('feasibility-file').value='';" style="padding:0.8rem 1.5rem; border-radius:10px; background:transparent; color:var(--gold); border:1px solid var(--gold); font-family:inherit; cursor:pointer;">
@@ -338,7 +338,7 @@
         </div>
         <div style="padding:1.5rem; border-top:1px solid var(--border); display:flex; gap:1rem; justify-content:flex-end;">
           <button onclick="closePreview()" class="btn-ghost" style="padding:0.7rem 1.5rem; border-radius:10px; background:transparent; color:var(--text-secondary); border:1px solid var(--border);">إلغاء</button>
-          <button onclick="confirmFillFromPreview()" style="padding:0.7rem 1.5rem; border-radius:10px; background:var(--gold); color:#0a0f1a; border:none; font-weight:800; cursor:pointer;">✅ ملء القالب بالمحدد</button>
+          <button onclick="confirmFillFromPreview()" style="padding:0.7rem 1.5rem; border-radius:10px; background:var(--gold); color:#f5f0e8; border:none; font-weight:800; cursor:pointer;">✅ ملء القالب بالمحدد</button>
         </div>
       </div>
     </div>
@@ -581,9 +581,9 @@
           <div class="scenario-value" id="ba-company-share" style="color:#f59e0b;">0%</div>
           <div class="scenario-desc">نسبة الإكمال والتشغيل</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #64748b;">
-          <div class="scenario-label" style="color:#64748b;">إجمالي مصاريف الشركة</div>
-          <div class="scenario-value" id="ba-shared-expenses" style="color:#64748b;">0</div>
+        <div class="scenario-card" style="border-left:4px solid #888888;">
+          <div class="scenario-label" style="color:#888888;">إجمالي مصاريف الشركة</div>
+          <div class="scenario-value" id="ba-shared-expenses" style="color:#888888;">0</div>
           <div class="scenario-desc">تُضاف لحصة الشركة وتُحسم من المالك</div>
         </div>
         <div class="scenario-card" style="border-left:4px solid #16a34a;">
@@ -1600,7 +1600,7 @@
             <div class="dash-swot-text" id="dash-swot-o">-</div>
           </div>
           <div class="dash-swot-item">
-            <div class="dash-swot-label" style="color:#94a3b8;">التهديد #1</div>
+            <div class="dash-swot-label" style="color:#555555;">التهديد #1</div>
             <div class="dash-swot-text" id="dash-swot-t">-</div>
           </div>
         </div>
@@ -4040,7 +4040,7 @@
           const retryMatch = err.match(/retry\s+in\s+([\d.]+)s/i);
           if (retryMatch && (err.includes('quota') || err.includes('Quota') || err.includes('RESOURCE_EXHAUSTED') || err.includes('rate limit'))) {
             let seconds = Math.ceil(parseFloat(retryMatch[1]));
-            status.style.color = '#f0c96a';
+            status.style.color = '#d4b87a';
             _retryTimer = setInterval(() => {
               status.innerHTML = `⏳ الكوتا ممتلئة. إعادة المحاولة تلقائياً بعد <strong>${seconds}</strong> ثانية... <button onclick="clearInterval(_retryTimer);_retryTimer=null;analyzeFeasibilityText();" style="background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:6px;padding:2px 8px;cursor:pointer;font-family:inherit;">إعادة الآن</button>`;
               seconds--;

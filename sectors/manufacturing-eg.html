@@ -11,10 +11,10 @@
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
   <style>
     :root {
-      --bg: #0a0f1a; --bg-secondary: #0d1321; --bg-card: rgba(16,24,45,0.7);
-      --gold: #d4a853; --gold-bright: #f0c96a; --gold-dim: #a08030;
-      --text: #e8ecf4; --text-secondary: #94a3b8; --text-muted: #64748b;
-      --border: rgba(197,160,40,0.15); --border-hover: rgba(197,160,40,0.4);
+      --bg: #f5f0e8; --bg-secondary: #ffffff; --bg-card: rgba(255,255,255,0.85);
+      --gold: #b8954e; --gold-bright: #d4b87a; --gold-dim: #8a7340;
+      --text: #1a1a1a; --text-secondary: #555555; --text-muted: #888888;
+      --border: rgba(0,0,0,0.08); --border-hover: rgba(184,149,78,0.4);
       --success: #22c55e; --warning: #eab308; --info: #3b82f6;
       --shadow: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
     }
@@ -22,7 +22,7 @@
     body { font-family:'Vazirmatn',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
     a { color:var(--gold); text-decoration:none; }
 
-    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
+    .header { background:#ffffff; border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
     .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
     .header__logo { display:flex; align-items:center; gap:0.75rem; }
     .header__logo img { height:40px; border-radius:6px; }
@@ -47,14 +47,14 @@
 
     .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:3rem; }
     table { width:100%; border-collapse:collapse; }
-    th { text-align:right; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(16,24,45,0.9); border-bottom:1px solid var(--border); }
+    th { text-align:right; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(255,255,255,0.9); border-bottom:1px solid var(--border); }
     td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
     tr:hover td { background:rgba(212,168,40,0.05); }
     .fee-highlight { background:rgba(212,168,83,0.08); border-radius:8px; padding:0.35rem 0.75rem; font-weight:700; color:var(--gold); white-space:nowrap; }
 
     .timeline { display:flex; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
     .stage { display:flex; gap:1.5rem; }
-    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#0a0f1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#1a1a1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .stage__content { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
     .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
     .stage__list { list-style:none; }
