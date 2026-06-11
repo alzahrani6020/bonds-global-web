@@ -11,6 +11,7 @@
     "setup:stripe": "node scripts/setup-stripe.js"
   },
   "dependencies": {
+    "@sentry/node": "^10.57.0",
     "@supabase/supabase-js": "^2.106.2",
     "nodemailer": "^8.0.10",
     "stripe": "^15.12.0"

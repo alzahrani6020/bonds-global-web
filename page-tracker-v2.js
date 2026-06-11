@@ -5,6 +5,20 @@
 (function() {
   'use strict';
 
+  // Sentry error tracking (loads if DSN is available)
+  const SENTRY_DSN = window.__ENV?.SENTRY_DSN || '';
+  if (SENTRY_DSN && typeof window.Sentry === 'undefined') {
+    var s = document.createElement('script');
+    s.src = 'https://js.sentry-cdn.com/' + SENTRY_DSN.split('/').pop() + '.min.js';
+    s.crossOrigin = 'anonymous';
+    s.onload = function() {
+      if (window.Sentry) {
+        window.Sentry.init({ dsn: SENTRY_DSN, environment: 'production' });
+      }
+    };
+    document.head.appendChild(s);
+  }
+
   const TRACK_ENDPOINT = '/api/track';
   let sessionStart = Date.now();
   let currentPage = location.pathname;
