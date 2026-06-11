@@ -126,8 +126,8 @@
             <input type="email" id="email" disabled dir="ltr" style="opacity:0.6">
           </div>
           <div class="form-group">
-            <label for="phone">رقم الجوال</label>
-            <input type="tel" id="phone" placeholder="05xxxxxxxx" dir="ltr">
+            <label for="phone2">رقم الجوال</label>
+            <input type="tel" id="phone2" placeholder="05xxxxxxxx" dir="ltr">
           </div>
         </div>
 
@@ -406,18 +406,18 @@
           sb.storage.from('avatars').download(path).then(({ data, error }) => {
             if (!error && data) {
               const blobUrl = URL.createObjectURL(data);
-              container.innerHTML = `<img src="${blobUrl}" alt="logo" class="avatar-preview" id="avatarImg"><div class="avatar-placeholder" style="display:none">${(name||'ب').charAt(0)}</div>`;
+              container.innerHTML = `<img src="${blobUrl}" alt="logo" class="avatar-preview" ><div class="avatar-placeholder" style="display:none">${(name||'ب').charAt(0)}</div>`;
               if (reportLink) reportLink.style.display = 'inline';
             } else {
-              container.innerHTML = `<img src="${url}" alt="logo" class="avatar-preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" id="avatarImg"><div class="avatar-placeholder" style="display:none">${(name||'ب').charAt(0)}</div>`;
+              container.innerHTML = `<img src="${url}" alt="logo" class="avatar-preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" ><div class="avatar-placeholder" style="display:none">${(name||'ب').charAt(0)}</div>`;
               if (reportLink) reportLink.style.display = 'inline';
             }
           }).catch(() => {
-            container.innerHTML = `<img src="${url}" alt="logo" class="avatar-preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" id="avatarImg"><div class="avatar-placeholder" style="display:none">${(name||'ب').charAt(0)}</div>`;
+            container.innerHTML = `<img src="${url}" alt="logo" class="avatar-preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" ><div class="avatar-placeholder" style="display:none">${(name||'ب').charAt(0)}</div>`;
             if (reportLink) reportLink.style.display = 'inline';
           });
         } else {
-          container.innerHTML = `<img src="${url}" alt="logo" class="avatar-preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" id="avatarImg"><div class="avatar-placeholder" style="display:none">${(name||'ب').charAt(0)}</div>`;
+          container.innerHTML = `<img src="${url}" alt="logo" class="avatar-preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" ><div class="avatar-placeholder" style="display:none">${(name||'ب').charAt(0)}</div>`;
           if (reportLink) reportLink.style.display = 'inline';
         }
       }

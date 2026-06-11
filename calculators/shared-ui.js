@@ -274,5 +274,5 @@
     el.dataset.hintAdded = '1';
   };
 
-  console.log('✅ BondsUI loaded: toast, validate, auto-save, progress, onboarding, demo-data');
+  // BondsUI loaded
 })();

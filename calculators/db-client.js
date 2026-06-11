@@ -35,7 +35,7 @@
   var BondsDB = {
     init: function() {
       return openDB().then(function() {
-        console.log('[BondsDB] Ready');
+        // BondsDB Ready
         return true;
       }).catch(function(e) {
         console.error('[BondsDB] Failed:', e);
