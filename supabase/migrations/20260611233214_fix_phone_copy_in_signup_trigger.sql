@@ -1,10 +1,10 @@
 -- ============================================
--- Fix: copy phone from user_metadata during signup
+-- Fix: copy all signup metadata from auth.users to profiles
 -- Previous trigger used new.phone which is only set for phone-auth users.
--- Email/password signups store phone in raw_user_meta_data->>'phone'.
+-- Email/password signups store all extra fields in raw_user_meta_data.
 -- ============================================
 
--- 1. Fix the trigger function to read phone from user_metadata
+-- 1. Fix the trigger function to read phone (and all fields) from user_metadata
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
@@ -47,9 +47,40 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- 3. Backfill missing phone numbers from user_metadata for existing profiles
-UPDATE public.profiles p
-SET phone = COALESCE(u.raw_user_meta_data->>'phone', u.phone)
+-- 3. Create missing profiles for existing auth users
+INSERT INTO public.profiles (
+  id, restaurant_name, country, city, business_type, bio, needs, employee_count,
+  language, email, phone, tier, status, created_at
+)
+SELECT
+  u.id,
+  u.raw_user_meta_data->>'restaurant_name',
+  u.raw_user_meta_data->>'country',
+  u.raw_user_meta_data->>'city',
+  u.raw_user_meta_data->>'business_type',
+  u.raw_user_meta_data->>'bio',
+  u.raw_user_meta_data->>'needs',
+  (u.raw_user_meta_data->>'employee_count')::int,
+  COALESCE(u.raw_user_meta_data->>'language', 'ar'),
+  u.email,
+  COALESCE(u.raw_user_meta_data->>'phone', u.phone),
+  'free',
+  'active',
+  u.created_at
 FROM auth.users u
-WHERE p.id = u.id
-  AND (p.phone IS NULL OR p.phone = '');
+LEFT JOIN public.profiles p ON u.id = p.id
+WHERE p.id IS NULL;
+
+-- 4. Backfill all missing profile fields from user_metadata for existing profiles
+UPDATE public.profiles p
+SET
+  restaurant_name = COALESCE(NULLIF(p.restaurant_name, ''), u.raw_user_meta_data->>'restaurant_name'),
+  country = COALESCE(NULLIF(p.country, ''), u.raw_user_meta_data->>'country'),
+  city = COALESCE(NULLIF(p.city, ''), u.raw_user_meta_data->>'city'),
+  business_type = COALESCE(NULLIF(p.business_type, ''), u.raw_user_meta_data->>'business_type'),
+  bio = COALESCE(NULLIF(p.bio, ''), u.raw_user_meta_data->>'bio'),
+  needs = COALESCE(NULLIF(p.needs, ''), u.raw_user_meta_data->>'needs'),
+  employee_count = COALESCE(p.employee_count, (u.raw_user_meta_data->>'employee_count')::int),
+  phone = COALESCE(NULLIF(p.phone, ''), u.raw_user_meta_data->>'phone', u.phone)
+FROM auth.users u
+WHERE p.id = u.id;
