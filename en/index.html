@@ -2,277 +2,274 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
-  <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
-  <link rel="preconnect" href="https://embed.tawk.to" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bonds | Financial Consulting</title>
-  <meta name="description" content="Specialized financial consulting for commercial enterprises, factories, tourism, agriculture, and more in Egypt and Saudi Arabia." />
-  <meta property="og:title" content="Bonds | Financial Consulting" />
-  <meta property="og:description" content="Specialized financial consulting for commercial enterprises, factories, tourism, agriculture, and more in Egypt and Saudi Arabia." />
+  <title>Bonds | Financial & Management Consulting</title>
+  <meta name="description" content="We provide integrated financial and strategic solutions to help companies and investors achieve sustainable growth and maximize value." />
+  <meta property="og:title" content="Bonds | Financial & Management Consulting" />
+  <meta property="og:description" content="We provide integrated financial and strategic solutions to help companies and investors achieve sustainable growth and maximize value." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo.jpg" />
   <meta property="og:url" content="https://bonds-global.com/en/" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Bonds | Financial Consulting" />
-  <meta name="twitter:description" content="Specialized financial consulting for commercial enterprises, factories, tourism, agriculture, and more in Egypt and Saudi Arabia." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" as="style" />
-  <link rel="preload" href="https://fonts.gstatic.com/s/cairo/v28/SLXVc1nY6HkvangtZmpcWmhzfHNZlDcf8Q.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="../assets/bonds-logo.jpg" as="image" type="image/webp" />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <script defer src="/_vercel/insights/script.js"></script>
-  <!-- Google Analytics -->
-  <!-- Google Analytics: replace G-XXXXXXXXXX with your real tracking ID -->
-  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script> -->
-  <!-- <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script> -->
-  <link rel="preload" href="../styles.css" as="style" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../styles.css" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
   <style>
-    /* ===== Shine Effect on Logo ===== */
-    .logo-slot {
-      position: relative;
-      overflow: hidden;
-      border-radius: 6px;
-      display: inline-block;
+    :root {
+      --bg: #f5f0e8;
+      --bg-white: #ffffff;
+      --bg-dark: #1a1a1a;
+      --gold: #b8954e;
+      --gold-light: #d4b87a;
+      --text: #1a1a1a;
+      --text-secondary: #555555;
+      --text-muted: #888888;
+      --border: #e8e4de;
     }
-    .logo-slot::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 50%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(212,168,83,0.2), rgba(255,255,255,0.1), rgba(212,168,83,0.2), transparent);
-      animation: logoShine 1.8s ease-in-out 0.5s forwards;
-      pointer-events: none;
-    }
-    @keyframes logoShine {
-      0% { left: -100%; }
-      100% { left: 200%; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
     }
 
-    /* ===== Gold Flowing Lines in Hero ===== */
+    .main-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: rgba(245,240,232,0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .main-header__inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0.75rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+    .header-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+    .header-brand img { height: 50px; width: auto; }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-name { font-size: 1.3rem; font-weight: 800; color: var(--text); letter-spacing: 2px; }
+    .brand-tagline { font-size: 0.6rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; }
+
+    .main-nav ul { display: flex; align-items: center; gap: 2rem; list-style: none; }
+    .main-nav a { color: var(--text); font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: all 0.3s; }
+    .main-nav a:hover, .main-nav a.active { color: var(--gold); }
+    .dropdown { position: relative; }
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      left: 0;
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.5rem;
+      min-width: 220px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+      z-index: 1001;
+    }
+    .dropdown:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+    .dropdown-menu a { display: block; padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.78rem; color: var(--text); }
+    .dropdown-menu a:hover { background: rgba(184,149,78,0.08); color: var(--gold); }
+
+    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+    .btn-header { background: var(--text); color: #fff; font-weight: 700; padding: 0.5rem 1.25rem; border-radius: 8px; text-decoration: none; font-size: 0.8rem; transition: all 0.3s; }
+    .btn-header:hover { background: var(--gold); }
+    .lang-switch { color: var(--text-muted); font-weight: 700; font-size: 0.8rem; padding: 0.35rem 0.75rem; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; }
+    .lang-switch:hover { color: var(--gold); border-color: var(--gold); }
+    .nav-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; }
+    .nav-toggle span { display: block; width: 24px; height: 2px; background: var(--text); }
+
     .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      background: var(--bg);
+      padding-top: 80px;
       position: relative;
       overflow: hidden;
     }
-    .gold-lines {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      pointer-events: none;
-      z-index: 1;
-    }
-    .gold-line {
-      position: absolute;
-      height: 1px;
+    .hero__inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
       width: 100%;
-      background: linear-gradient(90deg, transparent, rgba(212,168,83,0.06), rgba(212,168,83,0.12), rgba(212,168,83,0.06), transparent);
-      animation: flowLine linear infinite;
     }
-    .gold-line:nth-child(1) { top: 22%; animation-duration: 20s; animation-delay: 0s; }
-    .gold-line:nth-child(2) { top: 38%; animation-duration: 24s; animation-delay: -6s; }
-    .gold-line:nth-child(3) { top: 52%; animation-duration: 18s; animation-delay: -12s; }
-    .gold-line:nth-child(4) { top: 68%; animation-duration: 22s; animation-delay: -3s; }
-    .gold-line:nth-child(5) { top: 84%; animation-duration: 19s; animation-delay: -9s; }
-    @keyframes flowLine {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
+    .hero__left { text-align: left; }
+    .hero__eyebrow { display: inline-block; color: var(--gold); font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.5rem; }
+    .hero__title { font-size: 3.2rem; font-weight: 900; line-height: 1.2; color: var(--text); margin-bottom: 1.5rem; }
+    .hero__title span { color: var(--gold); }
+    .hero__divider { width: 80px; height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); margin-bottom: 1.5rem; border-radius: 2px; }
+    .hero__desc { font-size: 1rem; color: var(--text-secondary); max-width: 480px; margin-bottom: 2rem; line-height: 1.9; }
+    .hero__actions { display: flex; gap: 1rem; }
+    .btn-primary { background: var(--text); color: #fff; font-weight: 700; padding: 0.9rem 2rem; border-radius: 8px; text-decoration: none; font-size: 0.9rem; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; border: none; cursor: pointer; }
+    .btn-primary:hover { background: var(--gold); }
+    .btn-outline { background: transparent; color: var(--text); border: 1.5px solid var(--text); padding: 0.85rem 2rem; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.9rem; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .btn-outline:hover { background: var(--text); color: #fff; }
+    .hero__right { display: flex; align-items: center; justify-content: center; position: relative; }
+    .hero__right::before { content: ''; position: absolute; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(184,149,78,0.08) 0%, transparent 70%); z-index: 0; }
+    .hero__right img { max-width: 380px; position: relative; z-index: 1; filter: drop-shadow(0 20px 60px rgba(184,149,78,0.15)); }
 
-    /* ===== Elegant Card Hover ===== */
-    .card {
-      position: relative;
-      overflow: hidden;
+    .gold-lines { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+    .gold-line { position: absolute; height: 1px; width: 100%; background: linear-gradient(90deg, transparent, rgba(184,149,78,0.08), rgba(184,149,78,0.15), rgba(184,149,78,0.08), transparent); animation: flowLine linear infinite; }
+    .gold-line:nth-child(1) { top: 25%; animation-duration: 20s; }
+    .gold-line:nth-child(2) { top: 40%; animation-duration: 24s; animation-delay: -6s; }
+    .gold-line:nth-child(3) { top: 55%; animation-duration: 18s; animation-delay: -12s; }
+    .gold-line:nth-child(4) { top: 70%; animation-duration: 22s; animation-delay: -3s; }
+    .gold-line:nth-child(5) { top: 85%; animation-duration: 19s; animation-delay: -9s; }
+    @keyframes flowLine { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+    .stats-section { background: var(--bg-white); border-radius: 40px 40px 0 0; margin-top: -40px; position: relative; z-index: 10; padding: 4rem 2rem; }
+    .stats-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+    .stat-item { text-align: center; padding: 1.5rem; position: relative; }
+    .stat-item:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 20%; height: 60%; width: 1px; background: var(--border); }
+    .stat-icon { width: 48px; height: 48px; margin: 0 auto 0.75rem; color: var(--gold); }
+    .stat-num { font-size: 2.2rem; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 0.5rem; }
+    .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+
+    .section { padding: 5rem 2rem; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .section-header { text-align: center; margin-bottom: 3rem; }
+    .section__eyebrow { display: inline-block; color: var(--gold); font-weight: 800; font-size: 0.75rem; margin-bottom: 0.75rem; letter-spacing: 2px; text-transform: uppercase; }
+    .section__title { font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: var(--text); }
+    .section__subtitle { color: var(--text-secondary); max-width: 600px; margin: 0 auto; font-size: 0.95rem; }
+
+    .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .service-card { background: var(--bg-white); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; transition: all 0.4s ease; position: relative; overflow: hidden; }
+    .service-card:hover { transform: translateY(-5px); box-shadow: 0 20px 60px rgba(0,0,0,0.06); }
+    .service-card::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); transition: width 0.5s ease, left 0.5s ease; }
+    .service-card:hover::after { width: 60%; left: 20%; }
+    .service-card__icon { width: 56px; height: 56px; border-radius: 14px; border: 1.5px solid var(--gold); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: var(--gold); }
+    .service-card__title { font-size: 1rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text); }
+    .service-card__text { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.8; margin-bottom: 1rem; }
+    .service-card__link { color: var(--gold); font-weight: 700; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem; }
+    .service-card__link:hover { gap: 0.6rem; }
+
+    .partners-section { background: var(--bg-white); padding: 5rem 2rem; }
+    .partners-header { display: flex; align-items: center; justify-content: space-between; max-width: 1100px; margin: 0 auto 2rem; }
+    .partners-header h3 { font-size: 1.5rem; font-weight: 800; }
+    .partners-header a { color: var(--text); font-size: 0.85rem; text-decoration: none; font-weight: 600; }
+    .partners-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .partner-card { border-radius: 16px; overflow: hidden; position: relative; aspect-ratio: 4/3; }
+    .partner-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+    .partner-card:hover img { transform: scale(1.05); }
+    .partner-card__overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.7) 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 1.5rem; color: #fff; }
+    .partner-card__tag { display: inline-flex; align-items: center; gap: 0.3rem; background: var(--gold); color: #fff; padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; width: fit-content; margin-bottom: 0.75rem; }
+    .partner-card__title { font-size: 1rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .partner-card__desc { font-size: 0.75rem; opacity: 0.9; }
+
+    .why-section { background: var(--bg-dark); color: #fff; padding: 5rem 2rem; text-align: center; }
+    .why-section .section__title { color: #fff; }
+    .why-section .section__subtitle { color: rgba(255,255,255,0.6); }
+    .why-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2rem; max-width: 1100px; margin: 3rem auto 0; }
+    .why-item { text-align: center; }
+    .why-item__icon { width: 56px; height: 56px; border-radius: 50%; border: 1.5px solid rgba(184,149,78,0.4); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: var(--gold); }
+    .why-item__title { font-size: 0.9rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .why-item__text { font-size: 0.75rem; color: rgba(255,255,255,0.6); line-height: 1.7; }
+
+    .contact-section { background: var(--bg); padding: 5rem 2rem; }
+    .contact-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+    .contact-left img { width: 100%; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); }
+    .contact-right h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 1rem; color: var(--text); }
+    .contact-right p { color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.9rem; line-height: 1.8; }
+
+    .footer { background: var(--bg-dark); color: rgba(255,255,255,0.6); padding: 4rem 2rem 2rem; }
+    .footer-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr; gap: 2rem; }
+    .footer-brand img { height: 50px; margin-bottom: 1rem; }
+    .footer-brand p { font-size: 0.8rem; line-height: 1.8; color: rgba(255,255,255,0.5); }
+    .footer-title { font-size: 0.8rem; font-weight: 800; color: #fff; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+    .footer-links { display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-links a, .footer-links span { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.78rem; transition: color 0.3s; }
+    .footer-links a:hover { color: var(--gold); }
+    .footer-bottom { max-width: 1100px; margin: 3rem auto 0; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+    .footer-socials { display: flex; gap: 0.75rem; }
+    .footer-socials a { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.8rem; transition: all 0.3s; }
+    .footer-socials a:hover { border-color: var(--gold); color: var(--gold); }
+
+    @media (max-width: 900px) {
+      .main-nav { display: none; }
+      .nav-toggle { display: flex; }
+      .hero__inner { grid-template-columns: 1fr; text-align: center; }
+      .hero__left { order: 2; }
+      .hero__right { order: 1; }
+      .hero__right img { max-width: 250px; }
+      .hero__title { font-size: 2.2rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .services-grid { grid-template-columns: 1fr; }
+      .partners-grid { grid-template-columns: 1fr; }
+      .why-grid { grid-template-columns: repeat(2, 1fr); }
+      .contact-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: repeat(2, 1fr); }
     }
-    .card::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 50%;
-      width: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      transition: width 0.5s ease, left 0.5s ease;
-      z-index: 1;
-    }
-    .card:hover::after {
-      width: 70%;
-      left: 15%;
-    }
-    .card:hover {
-      transform: translateY(-5px) !important;
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .why-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .hero__actions { flex-direction: column; }
     }
   </style>
-  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#0a0f1a" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Bonds" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Bonds Financial Consulting",
-    "alternateName": "Bonds Global",
-    "url": "https://bonds-global.com",
-    "logo": "https://bonds-global.com/assets/bonds-logo.jpg",
-    "description": "Specialized financial consulting for commercial and industrial enterprises in Egypt and Saudi Arabia.",
-    "foundingDate": "2025",
-    "address": [
-      {
-        "@type": "PostalAddress",
-        "addressCountry": "EG",
-        "addressLocality": "Sheikh Zayed, Giza",
-        "streetAddress": "Sheikh Zayed, Giza, Egypt <br>Jeddah, Quraish Street"
-      },
-      {
-        "@type": "PostalAddress",
-        "addressCountry": "SA",
-        "addressLocality": "Saudi Arabia"
-      }
-    ],
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": "+966567566616",
-      "contactType": "customer service",
-      "availableLanguage": ["Arabic", "English"]
-    },
-    "sameAs": [
-      "https://wa.me/966567566616"
-    ]
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "url": "https://bonds-global.com/en/",
-    "name": "Bonds Global Financial Consulting",
-    "alternateName": "بوندز للاستشارات المالية",
-    "inLanguage": ["en", "ar"],
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://bonds-global.com/en/faq.html?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
-  }
-  </script>
 </head>
-<body style="font-family:Vazirmatn,system-ui,sans-serif">
+<body>
 
-  <!-- Top Bar -->
-  <div class="topbar">
-    <div class="container topbar__inner">
-      <span>Your first consultation is free — Book now</span>
-      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">Quick WhatsApp &rarr;</a>
-    </div>
-  </div>
-
-  <!-- Header -->
-  <header class="main-header" id="header">
-    <div class="container main-header__inner">
-      <a href="index.html" class="logo-slot">
-        <img src="../assets/bonds-logo.jpg" alt="Bonds" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
+  <header class="main-header">
+    <div class="main-header__inner">
+      <a href="index.html" class="header-brand">
+        <img src="../assets/bonds-logo.jpg" alt="Bonds" />
+        <div class="brand-text">
+          <span class="brand-name">BONDS</span>
+          <span class="brand-tagline">CONSULTING</span>
+        </div>
       </a>
-      <nav class="main-nav" id="mainNav">
+      <nav class="main-nav">
         <ul>
           <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="services.html">Services</a></li>
           <li class="dropdown">
-            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
-              Services
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
+            <span class="dropdown-toggle" style="cursor:pointer;">Guides ▾</span>
             <div class="dropdown-menu">
-              <a href="services.html#analysis">Financial Analysis</a>
-              <a href="services.html#cashflow">Cash Flow Management</a>
-              <a href="services.html#feasibility">Feasibility Studies</a>
-              <a href="services.html#risk">Risk Analysis</a>
-              <a href="services.html#research">Surveys &amp; Research</a>
-            </div>
-          </li>
-          <li><a href="pitch.html">Pitch Deck</a></li>
-          <li><a href="calculators/feasibility-template.html" style="color:var(--gold);font-weight:600;">Feasibility Study</a></li>
-          <li><a href="pricing.html">Pricing</a></li>
-          <li><a href="about.html">About Us</a></li>
-          <li class="dropdown">
-            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
-              Guides
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </span>
-            <div class="dropdown-menu">
-              <a href="sectors/manufacturing.html">🏭 Saudi Arabia</a>
-              <a href="sectors/manufacturing-eg.html">🏭 Egypt</a>
-              <a href="sectors/manufacturing-ae.html">🏭 UAE</a>
-              <a href="sectors/manufacturing-jo.html">🏭 Jordan</a>
-              <a href="sectors/manufacturing-om.html">🏭 Oman</a>
-              <a href="sectors/manufacturing-bh.html">🏭 Bahrain</a>
-              <a href="sectors/manufacturing-kw.html">🏭 Kuwait</a>
-              <a href="sectors/manufacturing-qa.html">🏭 Qatar</a>
-              <a href="sectors/manufacturing-ma.html">🏭 Morocco</a>
-              <a href="sectors/manufacturing-tn.html">🏭 Tunisia</a>
-              <a href="sectors/manufacturing-iq.html">🏭 Iraq</a>
-              <a href="sectors/manufacturing-sd.html">🏭 Sudan</a>
-              <a href="sectors/manufacturing-ly.html">🏭 Libya</a>
-              <a href="sectors/manufacturing-dz.html">🏭 Algeria</a>
-              <a href="sectors/manufacturing-lb.html">🏭 Lebanon</a>
-              <a href="sectors/manufacturing-ye.html">🏭 Yemen</a>
-              <a href="sectors/manufacturing-sy.html">🏭 Syria</a>
+              <a href="sectors/manufacturing.html">Saudi Arabia</a>
+              <a href="sectors/manufacturing-eg.html">Egypt</a>
+              <a href="sectors/manufacturing-ae.html">UAE</a>
+              <a href="sectors/manufacturing-jo.html">Jordan</a>
             </div>
           </li>
           <li class="dropdown">
-            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
-              Calculators
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </span>
+            <span class="dropdown-toggle" style="cursor:pointer;">Calculators ▾</span>
             <div class="dropdown-menu">
               <a href="calculator.html">Break-Even</a>
               <a href="calculators/cash-flow.html">Cash Flow</a>
               <a href="calculators/pricing.html">Pricing</a>
-              <a href="calculators/loan.html">Loan & Financing</a>
-              <a href="calculators/restaurant.html">Restaurant & Cloud</a>
-              <a href="calculators/menu-engineering.html">Menu Engineering</a>
-              <a href="calculators/feasibility.html">Feasibility</a>
-              <a href="calculators/invoice-analyzer.html">🧾 Invoice Analyzer</a>
-              <a href="calculators/feasibility-template.html">Feasibility Study Template</a>
-              <div style="border-top:1px solid var(--border); margin:0.4rem 0;"></div>
-              <a href="calculators/factory-cost.html">🏭 Factory Cost - Saudi Arabia</a>
-              <a href="calculators/factory-cost-eg.html">🏭 Factory Cost - Egypt</a>
-              <a href="calculators/factory-cost-ae.html">🏭 Factory Cost - UAE</a>
-              <a href="calculators/factory-cost-jo.html">🏭 Factory Cost - Jordan</a>
-              <a href="calculators/factory-cost-om.html">🏭 Factory Cost - Oman</a>
-              <a href="calculators/factory-cost-bh.html">🏭 Factory Cost - Bahrain</a>
-              <a href="calculators/factory-cost-kw.html">🏭 Factory Cost - Kuwait</a>
-              <a href="calculators/factory-cost-qa.html">🏭 Factory Cost - Qatar</a>
-              <a href="calculators/factory-cost-ma.html">🏭 Factory Cost - Morocco</a>
-              <a href="calculators/factory-cost-tn.html">🏭 Factory Cost - Tunisia</a>
-              <a href="calculators/factory-cost-iq.html">🏭 Factory Cost - Iraq</a>
-              <a href="calculators/factory-cost-sd.html">🏭 Factory Cost - Sudan</a>
-              <a href="calculators/factory-cost-ly.html">🏭 Factory Cost - Libya</a>
-              <a href="calculators/factory-cost-dz.html">🏭 Factory Cost - Algeria</a>
-              <a href="calculators/factory-cost-lb.html">🏭 Factory Cost - Lebanon</a>
-              <a href="calculators/factory-cost-ye.html">🏭 Factory Cost - Yemen</a>
-              <a href="calculators/factory-cost-sy.html">🏭 Factory Cost - Syria</a>
+              <a href="calculators/loan.html">Loan</a>
             </div>
           </li>
           <li><a href="../blog/index.html">Insights</a></li>
-          <li><a href="faq.html">FAQ</a></li>
           <li><a href="contact.html">Contact</a></li>
-          <li><a href="../index.html">العربية</a></li>
         </ul>
       </nav>
       <div class="header-actions">
-        <a href="../index.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">العربية</a>
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
-        <a href="calculators/auth/index.html" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;text-decoration:none;transition:all 0.3s;">Sign In</a>
-        <a href="contact.html" class="btn btn-primary hidden-mobile">Book Your Consultation</a>
-        <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
+        <a href="../index.html" class="lang-switch">العربية</a>
+        <a href="contact.html" class="btn-header">Book Consultation</a>
+        <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
       </div>
     </div>
   </header>
 
-  <!-- Hero -->
   <section class="hero">
     <div class="gold-lines">
       <div class="gold-line"></div>
@@ -281,605 +278,270 @@
       <div class="gold-line"></div>
       <div class="gold-line"></div>
     </div>
-    <div class="hero__orb hero__orb--1"></div>
-    <div class="hero__orb hero__orb--2"></div>
-    <div class="container hero__content">
-      <span class="hero__eyebrow reveal">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        Trusted by 150+ businesses in Egypt &amp; KSA
-      </span>
-      <h1 class="hero__title reveal reveal-delay-1">
-        Your Partner in Organizing <span class="text-gradient">Finances</span><br />
-        and Making <span class="text-gradient">Growth</span> Decisions
-      </h1>
-      <p class="hero__desc reveal reveal-delay-2">
-        Specialized financial consulting for commercial enterprises, factories, tourism, agriculture, and more — starting from your current position and building actionable plans.
-      </p>
-      <div class="hero__actions reveal reveal-delay-3">
-        <a href="contact.html" class="btn btn-primary btn-lg">Book Your Free Consultation &rarr;</a>
-        <a href="https://calendly.com/iiffund-dev/30min" target="_blank" rel="noopener" class="btn btn-outline btn-lg">📅 Book Directly</a>
+    <div class="hero__inner">
+      <div class="hero__left">
+        <span class="hero__eyebrow">BONDS CONSULTING</span>
+        <h1 class="hero__title">Toward Decisions<br />That Create Real Value</h1>
+        <div class="hero__divider"></div>
+        <p class="hero__desc">
+          We provide integrated financial and strategic solutions to help companies and investors achieve sustainable growth and maximize value.
+        </p>
+        <div class="hero__actions">
+          <a href="contact.html" class="btn-primary">Book Consultation ←</a>
+          <a href="services.html" class="btn-outline">Explore Services ←</a>
+        </div>
+      </div>
+      <div class="hero__right">
+        <img src="../assets/bonds-logo.jpg" alt="Bonds" />
       </div>
     </div>
   </section>
 
-  <!-- Stats Bar -->
-  <section class="stats-bar">
-    <div class="container">
-      <div class="stats-grid">
-        <div class="stat-item reveal">
-          <span class="stat-item__num" data-target="97" data-suffix="%">0</span>
-          <span class="stat-item__label">Client Satisfaction</span>
-        </div>
-        <div class="stat-item reveal reveal-delay-1">
-          <span class="stat-item__num" data-target="150" data-prefix="+" data-suffix="">0</span>
-          <span class="stat-item__label">Clients Served</span>
-        </div>
-        <div class="stat-item reveal reveal-delay-2">
-          <span class="stat-item__num" data-target="2" data-suffix="B+ SAR" data-prefix="+" data-multiplier="1">0</span>
-          <span class="stat-item__label">Assets Under Study</span>
-        </div>
-        <div class="stat-item reveal reveal-delay-3">
-          <span class="stat-item__num" data-target="500" data-prefix="+" data-suffix="">0</span>
-          <span class="stat-item__label">Studies Completed</span>
-        </div>
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-num" data-target="97" data-suffix="%">0</div>
+        <div class="stat-label">Client Satisfaction</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">👥</div>
+        <div class="stat-num" data-target="150" data-prefix="+" data-suffix="">0</div>
+        <div class="stat-label">Clients Served</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">📈</div>
+        <div class="stat-num" data-target="2" data-prefix="+" data-suffix="B SAR">0</div>
+        <div class="stat-label">Assets Under Study</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">📋</div>
+        <div class="stat-num" data-target="500" data-prefix="+" data-suffix="">0</div>
+        <div class="stat-label">Studies Completed</div>
       </div>
     </div>
   </section>
 
-  <!-- Services -->
-  <section class="section" style="background: var(--cream-100);">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section__eyebrow">Our Services</span>
-        <h2 class="section__title">Comprehensive Financial &amp; Managerial Solutions</h2>
-        <p class="section__subtitle">From financial analysis to market research — we cover your needs at your current stage.</p>
-      </div>
-      <div class="services-grid">
-        <div class="card reveal">
-          <div class="card__icon">
-            <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-          </div>
-          <h3 class="card__title">Financial Analysis</h3>
-          <p class="card__text">Reading statements, liquidity and profitability indicators, and comparing actual vs. planned performance.</p>
-        </div>
-        <div class="card reveal reveal-delay-1">
-          <div class="card__icon">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-          </div>
-          <h3 class="card__title">Cash Flow Management</h3>
-          <p class="card__text">Cash inflow and outflow mapping, payment prioritization, and early warning of liquidity shortages.</p>
-        </div>
-        <div class="card reveal reveal-delay-2">
-          <div class="card__icon">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          </div>
-          <h3 class="card__title">Budgeting &amp; Forecasting</h3>
-          <p class="card__text">Realistic monthly and quarterly budgets with actual vs. planned comparison.</p>
-        </div>
-        <div class="card reveal">
-          <div class="card__icon">
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </div>
-          <h3 class="card__title">Feasibility Studies</h3>
-          <p class="card__text">Clear cost and revenue estimates with risk analysis — for all sectors.</p>
-        </div>
-        <div class="card reveal reveal-delay-1">
-          <div class="card__icon">
-            <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          </div>
-          <h3 class="card__title">Risk Analysis</h3>
-          <p class="card__text">Identifying financial and operational risks and creating plans to handle them.</p>
-        </div>
-        <div class="card reveal reveal-delay-2">
-          <div class="card__icon">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          </div>
-          <h3 class="card__title">Surveys &amp; Research</h3>
-          <p class="card__text">Designing surveys and market studies for data-driven decision making.</p>
-        </div>
-      </div>
-      <div class="text-center" style="margin-top: var(--space-12);">
-        <a href="services.html" class="btn btn-secondary btn-lg reveal">View All Services &amp; Sectors</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Why Us -->
   <section class="section">
     <div class="container">
-      <div class="section-header reveal">
-        <span class="section__eyebrow">Why Us</span>
-        <h2 class="section__title">We Build Your Financial Decisions on Real Data</h2>
-        <p class="section__subtitle">No generic theories or unmeasurable promises — we start from your current numbers and create trackable plans.</p>
-      </div>
-      <div class="grid-3">
-        <div class="card reveal">
-          <div class="card__icon">
-            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M6 8l2 2 4-4"/></svg>
-          </div>
-          <h3 class="card__title">Accurate Diagnosis</h3>
-          <p class="card__text">We read your financial statements and identify strengths and weaknesses with precision — no random estimates.</p>
+        <div class="section-header">
+            <span class="section__eyebrow">Our Services</span>
+            <h2 class="section__title">Comprehensive Solutions for Your Goals</h2>
         </div>
-        <div class="card reveal reveal-delay-1">
-          <div class="card__icon">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          </div>
-          <h3 class="card__title">Actionable Plans</h3>
-          <p class="card__text">Every recommendation comes with practical steps and a timeline — not just a theoretical report.</p>
-        </div>
-        <div class="card reveal reveal-delay-2">
-          <div class="card__icon">
-            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-          </div>
-          <h3 class="card__title">Full Confidentiality</h3>
-          <p class="card__text">Your data is protected by the highest privacy standards — no sharing or disclosure to any third party.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Process -->
-  <section class="section process-section">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section__eyebrow">How We Work</span>
-        <h2 class="section__title">Your Journey With Us in 4 Steps</h2>
-        <p class="section__subtitle">A clear process from first contact to delivery of the action plan.</p>
-      </div>
-      <div class="process-timeline">
-        <div class="process-step reveal">
-          <div class="process-step__num">1</div>
-          <h3 class="process-step__title">Free Discovery</h3>
-          <p class="process-step__desc">We listen to your current situation and determine if we are the right fit to help you — no commitment.</p>
-        </div>
-        <div class="process-step reveal reveal-delay-1">
-          <div class="process-step__num">2</div>
-          <h3 class="process-step__title">Accurate Diagnosis</h3>
-          <p class="process-step__desc">We request financial documents and analyze the data to identify strengths and weaknesses.</p>
-        </div>
-        <div class="process-step reveal reveal-delay-2">
-          <div class="process-step__num">3</div>
-          <h3 class="process-step__title">Custom Plan</h3>
-          <p class="process-step__desc">We design practical recommendations with a clear timeline and measurable KPIs.</p>
-        </div>
-        <div class="process-step reveal reveal-delay-3">
-          <div class="process-step__num">4</div>
-          <h3 class="process-step__title">Follow-Up &amp; Implementation</h3>
-          <p class="process-step__desc">We help you implement the plan and evaluate results periodically until you achieve your goals.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Sectors -->
-  <section class="section" style="background: var(--cream-100);">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section__eyebrow">Sectors</span>
-        <h2 class="section__title">We Serve All Economic Sectors</h2>
-        <p class="section__subtitle">Our expertise spans diverse sectors — we understand the challenges of every industry and build the right solutions for it.</p>
-      </div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-4);">
-        <div class="reveal" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
-          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </div>
-          <div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">Trade &amp; Retail</h3>
-            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">Shops, retail chains, e-commerce</p>
-          </div>
-        </div>
-        <div class="reveal reveal-delay-1" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
-          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          </div>
-          <div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">Industry &amp; Manufacturing</h3>
-            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">Manufacturing, production, distribution, supply chains</p>
-          </div>
-        </div>
-        <div class="reveal reveal-delay-2" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
-          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-7a2 2 0 012-2h4a2 2 0 012 2v7"/></svg>
-          </div>
-          <div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">Tourism &amp; Hospitality</h3>
-            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">Hotels, restaurants, travel agencies, entertainment</p>
-          </div>
-        </div>
-        <div class="reveal" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
-          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          </div>
-          <div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">Agriculture &amp; Food</h3>
-            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">Farms, food processing, distribution, export</p>
-          </div>
-        </div>
-        <div class="reveal reveal-delay-1" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
-          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-          </div>
-          <div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">Professional Services</h3>
-            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">Legal, accounting, consulting, training</p>
-          </div>
-        </div>
-        <div class="reveal reveal-delay-2" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
-          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-          </div>
-          <div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">Real Estate &amp; Construction</h3>
-            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">Real estate development, contracting, property management</p>
-          </div>
-        </div>
-        <div class="reveal" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
-          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
-          </div>
-          <div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">Technology &amp; Software</h3>
-            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">SaaS, applications, digital solutions, AI</p>
-          </div>
-        </div>
-        <div class="reveal reveal-delay-1" style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius); transition: all var(--transition); cursor: default;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--border-gold)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='var(--border-light)';this.style.boxShadow='none'">
-          <div style="width: 52px; height: 52px; border-radius: var(--radius); background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17H2a3 3 0 003-3V9a7 7 0 0114 0v5a3 3 0 003 3zm-8.27 4a2 2 0 01-3.46 0"/></svg>
-          </div>
-          <div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-1);">Healthcare</h3>
-            <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6;">Clinics, hospitals, pharmacies, laboratories</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonials -->
-  <section class="section">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section__eyebrow">Client Testimonials</span>
-        <h2 class="section__title">What Our Clients Say About Us</h2>
-        <p class="section__subtitle">Real experiences from business owners and companies we have worked with.</p>
-      </div>
-      <div class="testimonials-grid">
-        <div class="testimonial reveal">
-          <div class="testimonial__stars">★★★★★</div>
-          <p class="testimonial__text">"Bonds helped us understand the reality of our financial position within one week. The plan they provided was realistic and immediately actionable."</p>
-          <div class="testimonial__author">
-            <div class="testimonial__avatar">M</div>
-            <div>
-              <div class="testimonial__name">Mohamed Al-Ali</div>
-              <div class="testimonial__role">Retail Store Owner — Cairo</div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-card__icon">🛡️</div>
+                <h3 class="service-card__title">Risk & Governance</h3>
+                <p class="service-card__text">Effectively manage risks and enhance compliance efficiency</p>
+                <a href="services.html" class="service-card__link">←</a>
             </div>
-          </div>
-        </div>
-        <div class="testimonial reveal reveal-delay-1">
-          <div class="testimonial__stars">★★★★★</div>
-          <p class="testimonial__text">"The consultation was practical, not theoretical. They identified our cash flow weaknesses and gave us a clear 90-day roadmap."</p>
-          <div class="testimonial__author">
-            <div class="testimonial__avatar">S</div>
-            <div>
-              <div class="testimonial__name">Sara Mahmoud</div>
-              <div class="testimonial__role">Professional Services Director — Sheikh Zayed</div>
+            <div class="service-card">
+                <div class="service-card__icon">📊</div>
+                <h3 class="service-card__title">Financial Consulting</h3>
+                <p class="service-card__text">Financial solutions that support your decisions and enhance performance</p>
+                <a href="services.html" class="service-card__link">←</a>
             </div>
-          </div>
-        </div>
-        <div class="testimonial reveal reveal-delay-2">
-          <div class="testimonial__stars">★★★★★</div>
-          <p class="testimonial__text">"We worked with Bonds before expanding our factory. Their preliminary feasibility study saved us from entering a major investment before we were ready."</p>
-          <div class="testimonial__author">
-            <div class="testimonial__avatar">A</div>
-            <div>
-              <div class="testimonial__name">Ahmed Hussein</div>
-              <div class="testimonial__role">Co-Founder — Industrial Company — 6th of October</div>
+            <div class="service-card">
+                <div class="service-card__icon">📋</div>
+                <h3 class="service-card__title">Feasibility Studies</h3>
+                <p class="service-card__text">Accurate studies to help you evaluate investment opportunities</p>
+                <a href="services.html" class="service-card__link">←</a>
             </div>
-          </div>
+            <div class="service-card">
+                <div class="service-card__icon">🏢</div>
+                <h3 class="service-card__title">Business Valuation</h3>
+                <p class="service-card__text">Accurate valuation of businesses according to highest global standards</p>
+                <a href="services.html" class="service-card__link">←</a>
+            </div>
+            <div class="service-card">
+                <div class="service-card__icon">🔄</div>
+                <h3 class="service-card__title">Corporate Restructuring</h3>
+                <p class="service-card__text">Redesign organizational and financial structures to increase efficiency</p>
+                <a href="services.html" class="service-card__link">←</a>
+            </div>
+            <div class="service-card">
+                <div class="service-card__icon">🤝</div>
+                <h3 class="service-card__title">Management Consulting</h3>
+                <p class="service-card__text">Innovative management solutions to improve operations and performance</p>
+                <a href="services.html" class="service-card__link">←</a>
+            </div>
+        </div>
+    </div>
+  </section>
+
+  <section class="partners-section">
+    <div class="partners-header">
+      <h3>Partnerships That Make an Impact</h3>
+      <a href="services.html">View All Projects →</a>
+    </div>
+    <div class="partners-grid">
+      <div class="partner-card">
+        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop" alt="Industrial Project" />
+        <div class="partner-card__overlay">
+          <span class="partner-card__tag">+</span>
+          <div class="partner-card__title">Industrial Project</div>
+          <div class="partner-card__desc">Feasibility study and financial valuation</div>
+        </div>
+      </div>
+      <div class="partner-card">
+        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop" alt="Real Estate Project" />
+        <div class="partner-card__overlay">
+          <span class="partner-card__tag">+</span>
+          <div class="partner-card__title">Real Estate Project</div>
+          <div class="partner-card__desc">Financial consulting and funding structure</div>
+        </div>
+      </div>
+      <div class="partner-card">
+        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop" alt="Commercial Project" />
+        <div class="partner-card__overlay">
+          <span class="partner-card__tag">+</span>
+          <div class="partner-card__title">Commercial Project</div>
+          <div class="partner-card__desc">Feasibility study and financial planning</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Insights -->
-  <section class="section" id="insights" style="background: var(--cream-100);">
+  <section class="why-section">
     <div class="container">
-      <div class="section-header reveal">
-        <span class="section__eyebrow">Insights &amp; Ideas</span>
-        <h2 class="section__title">Latest From Us</h2>
-        <p class="section__subtitle">Practical analysis and financial advice you can apply immediately in your business.</p>
+      <div class="section-header">
+        <span class="section__eyebrow">Why Bonds?</span>
+        <h2 class="section__title">Why Bonds?</h2>
+        <p class="section__subtitle">We combine deep expertise, precise analysis, and strategic understanding to deliver real and sustainable plans.</p>
       </div>
-      <div class="grid-3">
-        <article class="card reveal" style="padding: 0; overflow: hidden;">
-          <div style="height: 180px; background: linear-gradient(135deg, var(--navy-800), var(--navy-600)); display: flex; align-items: center; justify-content: center;">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-          </div>
-          <div style="padding: var(--space-6);">
-            <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">Cash Flow</div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">Paper Profit &amp; Empty Wallet: Why?</h3>
-            <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">70% of small businesses show profits in reports yet suffer from liquidity. The difference between accounting profit and cash profit, and how to protect your company from a sudden payment crisis.</p>
-            <a href="../blog/en/cash-flow-mistakes.html" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">Read Article &rarr;</a>
-          </div>
-        </article>
-        <article class="card reveal reveal-delay-1" style="padding: 0; overflow: hidden;">
-          <div style="height: 180px; background: linear-gradient(135deg, var(--navy-700), var(--navy-500)); display: flex; align-items: center; justify-content: center;">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          </div>
-          <div style="padding: var(--space-6);">
-            <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">Feasibility Studies</div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">Before Expanding: 5 Questions That Protect Your Capital</h3>
-            <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">Rapid expansion is a killer for small businesses. The practical checklist we use with our clients before any investment decision — from market analysis to break-even point.</p>
-            <a href="../blog/en/break-even-explained.html" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">Read Article &rarr;</a>
-          </div>
-        </article>
-        <article class="card reveal reveal-delay-2" style="padding: 0; overflow: hidden;">
-          <div style="height: 180px; background: linear-gradient(135deg, var(--navy-600), var(--navy-800)); display: flex; align-items: center; justify-content: center;">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          </div>
-          <div style="padding: var(--space-6);">
-            <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">Pricing</div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">How to Price Your Product? A Simple Formula to Protect Your Margin</h3>
-            <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">Random pricing silently eats your profits. How to calculate true cost, break-even point, and target profit margin — with a practical example from the Saudi market.</p>
-            <a href="../blog/en/pricing-strategy.html" style="font-size: var(--text-sm); font-weight: 700; color: var(--gold-600); display: inline-flex; align-items: center; gap: var(--space-2);">Read Article &rarr;</a>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- Case Studies -->
-  <section class="section">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section__eyebrow">Success Stories</span>
-        <h2 class="section__title">Real Results for Our Clients</h2>
-        <p class="section__subtitle">Challenges faced by real companies and our solutions — names withheld for confidentiality.</p>
-      </div>
-      <div class="grid-3">
-        <div class="card reveal" style="padding: 0; overflow: hidden;">
-          <div style="height: 160px; background: linear-gradient(135deg, #1e3a5f, #2c5e99); display: flex; align-items: center; justify-content: center;">
-            <span style="font-size: 3rem; font-weight: 900; color: var(--gold);">🏭</span>
-          </div>
-          <div style="padding: var(--space-6);">
-            <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">Manufacturing Sector</div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">Plastic Factory: From Loss to Break-Even</h3>
-            <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">We discovered that 3 out of 5 production lines were silently losing money. We redistributed costs and reduced fixed costs by 30%.</p>
-            <div style="display: flex; gap: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--border-light);">
-              <div><div style="font-size: var(--text-xl); font-weight: 900; color: var(--gold);">30%</div><div style="font-size: var(--text-xs); color: var(--text-muted);">Cost Reduction</div></div>
-              <div><div style="font-size: var(--text-xl); font-weight: 900; color: var(--gold);">5</div><div style="font-size: var(--text-xs); color: var(--text-muted);">Months to Break-Even</div></div>
-            </div>
-          </div>
+      <div class="why-grid">
+        <div class="why-item">
+          <div class="why-item__icon">🔒</div>
+          <div class="why-item__title">Full Confidentiality</div>
+          <div class="why-item__text">Complete commitment to protecting client data</div>
         </div>
-        <div class="card reveal reveal-delay-1" style="padding: 0; overflow: hidden;">
-          <div style="height: 160px; background: linear-gradient(135deg, #1a365d, #234a7a); display: flex; align-items: center; justify-content: center;">
-            <span style="font-size: 3rem; font-weight: 900; color: var(--gold);">🏪</span>
-          </div>
-          <div style="padding: var(--space-6);">
-            <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">Retail Sector</div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">E-Commerce Store: The Missing Liquidity</h3>
-            <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">Profits on paper but an empty wallet. We analyzed the collection cycle and reduced cash receipt time by 18 days.</p>
-            <div style="display: flex; gap: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--border-light);">
-              <div><div style="font-size: var(--text-xl); font-weight: 900; color: var(--gold);">18</div><div style="font-size: var(--text-xs); color: var(--text-muted);">Days Collection Cycle</div></div>
-              <div><div style="font-size: var(--text-xl); font-weight: 900; color: var(--gold);">+40%</div><div style="font-size: var(--text-xs); color: var(--text-muted);">Liquidity Improvement</div></div>
-            </div>
-          </div>
+        <div class="why-item">
+          <div class="why-item__icon">⏱️</div>
+          <div class="why-item__title">Fast Execution</div>
+          <div class="why-item__text">We respect timelines and focus on results</div>
         </div>
-        <div class="card reveal reveal-delay-2" style="padding: 0; overflow: hidden;">
-          <div style="height: 160px; background: linear-gradient(135deg, #12233d, #1a365d); display: flex; align-items: center; justify-content: center;">
-            <span style="font-size: 3rem; font-weight: 900; color: var(--gold);">🌾</span>
-          </div>
-          <div style="padding: var(--space-6);">
-            <div style="font-size: var(--text-xs); color: var(--gold-600); font-weight: 700; margin-bottom: var(--space-2);">Agriculture Sector</div>
-            <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-2); line-height: 1.4;">Poultry Farm: The Right Expansion Decision</h3>
-            <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4);">Before expanding, we studied the feasibility in detail. We discovered that expansion at this time carried high risk and saved capital.</p>
-            <div style="display: flex; gap: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--border-light);">
-              <div><div style="font-size: var(--text-xl); font-weight: 900; color: var(--gold);">2M</div><div style="font-size: var(--text-xs); color: var(--text-muted);">SAR Saved</div></div>
-              <div><div style="font-size: var(--text-xl); font-weight: 900; color: var(--gold);">✓</div><div style="font-size: var(--text-xs); color: var(--text-muted);">Right Decision</div></div>
-            </div>
-          </div>
+        <div class="why-item">
+          <div class="why-item__icon">💎</div>
+          <div class="why-item__title">Professional Models</div>
+          <div class="why-item__text">High-quality documents and reports</div>
+        </div>
+        <div class="why-item">
+          <div class="why-item__icon">📊</div>
+          <div class="why-item__title">Data-Driven Decisions</div>
+          <div class="why-item__text">Professional analysis to support decision-making</div>
+        </div>
+        <div class="why-item">
+          <div class="why-item__icon">👤</div>
+          <div class="why-item__title">Practical Experience</div>
+          <div class="why-item__text">Specialized team with local and global expertise</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Newsletter -->
-  <section class="section" style="background: linear-gradient(135deg, var(--navy-900), var(--navy-700)); color: var(--white); position: relative; overflow: hidden;">
-    <div style="position: absolute; inset: 0; background: radial-gradient(circle at 30% 50%, rgba(197,160,40,0.08), transparent 50%);"></div>
-    <div class="container" style="position: relative; z-index: 1;">
-      <div class="reveal" style="max-width: 640px; margin-inline: auto; text-align: center;">
-        <span style="display: inline-block; color: var(--gold-300); font-size: var(--text-xs); font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-3);">Weekly Newsletter</span>
-        <h2 style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; margin-bottom: var(--space-4); line-height: 1.2;">Financial Insights in Your Inbox Every Week</h2>
-        <p style="color: var(--cream-200); opacity: 0.9; margin-bottom: var(--space-8); font-size: var(--text-lg);">Practical tips on cash flow management, financial analysis, and growth decision-making — no fluff.</p>
-        <form id="newsletterForm" action="https://formspree.io/f/mykvdana" method="POST" style="display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: center;">
-          <input type="email" name="email" required placeholder="Your email address" style="flex: 1; min-width: 240px; padding: var(--space-3) var(--space-5); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.08); color: var(--white); font-family: inherit; font-size: var(--text-sm); outline: none; backdrop-filter: blur(8px);" />
-          <input type="hidden" name="source" value="newsletter_homepage_en" />
-          <button type="submit" class="btn btn-primary" style="font-size: var(--text-base);">Subscribe Now</button>
-        </form>
-        <p id="newsletterSuccess" style="display:none; color: var(--gold-300); margin-top: var(--space-4); font-weight: 700;">✓ Subscribed successfully! Check your email for confirmation.</p>
-        <p style="font-size: var(--text-xs); color: var(--cream-300); opacity: 0.6; margin-top: var(--space-4);">No spam. You can unsubscribe at any time.</p>
+  <section class="contact-section">
+    <div class="contact-grid">
+      <div class="contact-left">
+        <img src="../assets/bonds-logo.jpg" alt="Bonds" />
+      </div>
+      <div class="contact-right">
+        <h2>Let's Start a Conversation About Your Goals</h2>
+        <p>Our team is ready to help you build a strategy for sustainable growth and value.</p>
+        <a href="contact.html" class="btn-primary">Book Consultation ←</a>
       </div>
     </div>
   </section>
 
-  <!-- FAQ -->
-  <section class="section faq-section">
-    <div class="container">
-      <div class="section-header reveal">
-        <span class="section__eyebrow">FAQ</span>
-        <h2 class="section__title">Everything You Want to Know</h2>
-      </div>
-      <div class="faq-list">
-        <details class="faq-item reveal" open>
-          <summary>How do I get started and what happens after submitting a request?</summary>
-          <div class="faq-item__content">
-            Through the contact form or WhatsApp. We aim to respond within <strong>2–3 business days</strong> to confirm the service type or request additional information.
-          </div>
-        </details>
-        <details class="faq-item reveal reveal-delay-1">
-          <summary>How long does the consultation or project take?</summary>
-          <div class="faq-item__content">
-            It varies by scope: a discovery session may be one or two sessions; financial analysis or budgeting may take from a few weeks to two months.
-          </div>
-        </details>
-        <details class="faq-item reveal reveal-delay-2">
-          <summary>How is pricing determined?</summary>
-          <div class="faq-item__content">
-            Usually as a <strong>package or phased</strong> approach based on scope, or as a written proposal after understanding the request. We prefer transparency in every client's quote.
-          </div>
-        </details>
-        <details class="faq-item reveal reveal-delay-3">
-          <summary>Do you guarantee investment returns or financing approval?</summary>
-          <div class="faq-item__content">
-            <strong>No.</strong> We provide analysis and consulting based on your information; the decision and results remain your responsibility.
-          </div>
-        </details>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="cta-section">
-    <div class="container">
-      <h2 class="reveal">Ready to Organize Your Finances<br />and Build Your Plan?</h2>
-      <p class="reveal reveal-delay-1">Book your free consultation now — we'll listen to your situation and determine if we are the right fit to help you.</p>
-      <div class="hero__actions reveal reveal-delay-2">
-        <a href="contact.html" class="btn btn-primary btn-lg">Book Your Free Consultation &rarr;</a>
-        <a href="https://calendly.com/iiffund-dev/30min" target="_blank" rel="noopener" class="btn btn-outline btn-lg">📅 Book Directly</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
   <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <div class="logo-slot">
-            <img src="../assets/bonds-logo.jpg" alt="Bonds" class="site-logo" width="577" height="567" loading="lazy" />
-          </div>
-          <p>Financial consulting for business owners and SMEs in Egypt and Saudi Arabia.</p>
-        </div>
-        <div>
-          <h4 class="footer-title">Pages</h4>
-          <div class="footer-links">
-            <a href="index.html">Home</a>
-            <a href="services.html">Services</a>
-            <a href="about.html">About Us</a>
-            <a href="faq.html">FAQ</a>
-            <a href="methodology.html">Methodology</a>
-            <a href="contact.html">Contact Us</a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">Services</h4>
-          <div class="footer-links">
-            <a href="services.html#analysis">Financial Analysis</a>
-            <a href="services.html">Cash Flow</a>
-            <a href="services.html#feasibility">Feasibility Studies</a>
-            <a href="services.html#risk">Risk Analysis</a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">Commercial Registrations</h4>
-          <div class="footer-links">
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">Egypt: CR 39733</span>
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">Saudi Arabia: URN 7042125869</span>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">Contact</h4>
-          <div class="footer-links">
-            <a href="https://wa.me/966567566616" target="_blank" rel="noopener">WhatsApp: +966 56 756 6616</a>
-            <a href="mailto:info@bonds-global.com">info@bonds-global.com</a>
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">Sheikh Zayed, Giza, Egypt <br>Jeddah, Quraish Street</span>
-          </div>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="../assets/bonds-logo.jpg" alt="Bonds" />
+        <p>BONDS<br />Financial & Management Consulting</p>
+      </div>
+      <div>
+        <div class="footer-title">Services</div>
+        <div class="footer-links">
+          <a href="services.html">Financial Consulting</a>
+          <a href="services.html">Management Consulting</a>
+          <a href="services.html">Feasibility Studies</a>
+          <a href="services.html">Business Valuation</a>
+          <a href="services.html">Corporate Restructuring</a>
+          <a href="services.html">Risk & Governance</a>
         </div>
       </div>
-      <div class="footer-bottom">
-        <span>&copy; <span id="y">2025</span> Bonds Financial Consulting &mdash; All rights reserved.</span>
-        <div style="display: flex; gap: var(--space-6);">
-          <a href="privacy.html" style="color: var(--text-muted);">Privacy Policy</a>
-          <a href="faq.html" style="color: var(--text-muted);">FAQ</a>
+      <div>
+        <div class="footer-title">About Bonds</div>
+        <div class="footer-links">
+          <a href="about.html">About Us</a>
+          <a href="about.html">Our Values</a>
+          <a href="about.html">Our Team</a>
+          <a href="about.html">Partners</a>
         </div>
+      </div>
+      <div>
+        <div class="footer-title">Knowledge Center</div>
+        <div class="footer-links">
+          <a href="../blog/index.html">Articles</a>
+          <a href="../blog/index.html">Reports</a>
+          <a href="../blog/index.html">FAQ</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-title">Contact</div>
+        <div class="footer-links">
+          <span>+966 11 123 4567</span>
+          <span>info@bonds-global.com</span>
+          <span>Riyadh, Saudi Arabia</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>All rights reserved. Bonds Financial & Management Consulting © 2026</span>
+      <div class="footer-socials">
+        <a href="#">in</a>
+        <a href="#">X</a>
+        <a href="#">📷</a>
       </div>
     </div>
   </footer>
 
-  <!-- WhatsApp Float -->
-  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp">💬</a>
-
-  <div class="cookie-banner" id="cookieBanner">
-    <div class="container cookie-banner__inner">
-      <p class="cookie-banner__text">We use cookies to improve your experience and analyze visits. <a href="privacy.html">Privacy Policy</a></p>
-      <div class="cookie-banner__actions">
-        <button class="btn btn-primary" style="font-size:0.8rem;padding:var(--space-2) var(--space-4);" onclick="acceptCookies()">Accept</button>
-        <button class="btn btn-outline" style="font-size:0.8rem;padding:var(--space-2) var(--space-4);" onclick="declineCookies()">Decline</button>
-      </div>
-    </div>
-  </div>
   <script>
-    function acceptCookies(){localStorage.setItem('cookies','accepted');document.getElementById('cookieBanner').classList.remove('is-visible');}
-    function declineCookies(){localStorage.setItem('cookies','declined');document.getElementById('cookieBanner').classList.remove('is-visible');}
-    if(!localStorage.getItem('cookies')){setTimeout(function(){document.getElementById('cookieBanner').classList.add('is-visible');},1500);}
-
-    document.getElementById('newsletterForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var form = this;
-      var btn = form.querySelector('button[type="submit"]');
-      var originalText = btn.textContent;
-      btn.textContent = 'Sending...';
-      btn.disabled = true;
-      fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' }})
-        .then(function(r) { if(r.ok) { form.style.display='none'; document.getElementById('newsletterSuccess').style.display='block'; } else { alert('An error occurred. Please try again.'); btn.textContent=originalText; btn.disabled=false; }})
-        .catch(function() { alert('An error occurred. Please try again.'); btn.textContent=originalText; btn.disabled=false; });
-    });
-  </script>
-  <script>
-  (function(){
-    "use strict";
-    if(!('IntersectionObserver' in window)) return;
-    var counters = document.querySelectorAll('.stat-item__num[data-target]');
-    if(!counters.length) return;
-    function animateCounter(el){
-      var target = parseFloat(el.getAttribute('data-target'));
-      if(isNaN(target)) return;
-      var suffix = el.getAttribute('data-suffix') || '';
-      var prefix = el.getAttribute('data-prefix') || '';
-      var duration = 2000;
-      var start = performance.now();
-      function step(now){
-        var p = Math.min(1, (now - start) / duration);
-        var eased = 1 - Math.pow(1 - p, 4);
-        var current = target * eased;
-        if(suffix === '%'){
-          el.textContent = prefix + Math.round(current) + suffix;
-        } else if(suffix.indexOf('B') !== -1){
-          el.textContent = prefix + current.toFixed(1) + suffix;
-        } else {
-          el.textContent = prefix + Math.round(current) + suffix;
+    (function(){
+      var counters = document.querySelectorAll('[data-target]');
+      if(!counters.length || !('IntersectionObserver' in window)) return;
+      function animateCounter(el){
+        var target = parseFloat(el.getAttribute('data-target'));
+        if(isNaN(target)) return;
+        var suffix = el.getAttribute('data-suffix') || '';
+        var prefix = el.getAttribute('data-prefix') || '';
+        var duration = 2000;
+        var start = performance.now();
+        function step(now){
+          var p = Math.min(1, (now - start) / duration);
+          var eased = 1 - Math.pow(1 - p, 4);
+          var current = target * eased;
+          if(suffix === '%'){
+            el.textContent = prefix + Math.round(current) + suffix;
+          } else if(suffix.indexOf('B') !== -1){
+            el.textContent = prefix + current.toFixed(1) + suffix;
+          } else {
+            el.textContent = prefix + Math.round(current) + suffix;
+          }
+          if(p < 1) requestAnimationFrame(step);
         }
-        if(p < 1) requestAnimationFrame(step);
+        requestAnimationFrame(step);
       }
-      requestAnimationFrame(step);
-    }
-    var observer = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if(entry.isIntersecting){
-          animateCounter(entry.target);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.4 });
-    counters.forEach(function(c){ observer.observe(c); });
-  })();
+      var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){
+            animateCounter(entry.target);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.4 });
+      counters.forEach(function(c){ observer.observe(c); });
+    })();
   </script>
-  <script src="../script.js" defer></script>
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}</script>
-  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);">↑</button>
-  <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
-<!-- Tawk.to Live Chat -->
-<script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
   <script src="../page-tracker-v2.js"></script>
 </body>
 </html>

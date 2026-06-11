@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>بوندز | استشارات مالية</title>
-  <meta name="description" content="استشارات مالية متخصصة للمنشآت التجارية، المصانع، السياحة، الزراعة، والمزيد في مصر والسعودية." />
-  <meta property="og:title" content="بوندز | استشارات مالية متخصصة" />
-  <meta property="og:description" content="استشارات مالية متخصصة للمنشآت التجارية، المصانع، السياحة، الزراعة، والمزيد في مصر والسعودية." />
+  <title>بوندز | للاستشارات المالية والإدارية</title>
+  <meta name="description" content="نقدم حلولاً مالية وإستراتيجية تكاملية نساعد الشركات والمستثمرين على تحقيق النمو المستدام وتعظيم القيمة." />
+  <meta property="og:title" content="بوندز | للاستشارات المالية والإدارية" />
+  <meta property="og:description" content="نقدم حلولاً مالية وإستراتيجية تكاملية نساعد الشركات والمستثمرين على تحقيق النمو المستدام وتعظيم القيمة." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo.jpg" />
   <meta property="og:url" content="https://bonds-global.com" />
   <meta property="og:type" content="website" />
@@ -14,19 +14,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="preload" href="styles.css" as="style" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
   <style>
     :root {
-      --bg: #0a0f1a;
-      --bg-card: rgba(16,24,45,0.7);
-      --gold: #d4a853;
-      --gold-bright: #f0c96a;
-      --gold-dim: #a08030;
-      --text: #e8ecf4;
-      --text-secondary: #94a3b8;
-      --border: rgba(197,160,40,0.15);
+      --bg: #f5f0e8;
+      --bg-white: #ffffff;
+      --bg-dark: #1a1a1a;
+      --gold: #b8954e;
+      --gold-light: #d4b87a;
+      --gold-dim: #8a7340;
+      --text: #1a1a1a;
+      --text-secondary: #555555;
+      --text-muted: #888888;
+      --border: #e8e4de;
+      --border-light: rgba(0,0,0,0.06);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -43,93 +45,35 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 1000;
-      background: rgba(10,15,26,0.92);
+      background: rgba(245,240,232,0.95);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
     }
     .main-header__inner {
       max-width: 1280px;
       margin: 0 auto;
-      padding: 0.75rem 1.5rem;
+      padding: 0.75rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1.5rem;
     }
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-shrink: 0;
-    }
-    .btn-gold {
-      background: linear-gradient(135deg, var(--gold), var(--gold-bright));
-      color: #0a0f1a !important;
-      font-weight: 800;
-      padding: 0.6rem 1.25rem;
-      border-radius: 10px;
-      text-decoration: none;
-      font-size: 0.85rem;
-      box-shadow: 0 4px 15px rgba(212,168,83,0.35);
-      transition: all 0.3s ease;
-      white-space: nowrap;
-    }
-    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(212,168,83,0.5); }
-    .header-login {
-      color: var(--text-secondary);
-      font-weight: 600;
-      font-size: 0.8rem;
-      text-decoration: none;
-      padding: 0.35rem 0.75rem;
-      transition: all 0.3s;
-      white-space: nowrap;
-    }
-    .header-login:hover { color: var(--gold); }
-    .theme-toggle {
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--gold);
-      width: 36px; height: 36px;
-      cursor: pointer;
-      font-size: 1.1rem;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.3s;
-    }
-    .theme-toggle:hover { border-color: var(--gold); }
-    .header-datetime {
-      color: var(--text-secondary);
-      font-size: 0.72rem;
-      font-weight: 500;
-      padding: 0.35rem 0.75rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: rgba(16,24,45,0.5);
-      white-space: nowrap;
-    }
-    .lang-switch {
-      color: var(--text-secondary);
-      font-weight: 700;
-      font-size: 0.8rem;
-      padding: 0.35rem 0.75rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      text-decoration: none;
-      background: rgba(16,24,45,0.5);
-      transition: all 0.3s;
-    }
-    .lang-switch:hover { color: var(--gold); border-color: var(--gold); }
+    .header-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; flex-shrink: 0; }
+    .header-brand img { height: 50px; width: auto; }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-name { font-size: 1.3rem; font-weight: 800; color: var(--text); letter-spacing: 2px; line-height: 1; }
+    .brand-tagline { font-size: 0.6rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; }
 
     .main-nav ul {
       display: flex;
       align-items: center;
-      gap: 1.25rem;
+      gap: 2rem;
       list-style: none;
     }
     .main-nav a, .dropdown-toggle {
-      color: var(--text-secondary);
+      color: var(--text);
       font-weight: 600;
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       text-decoration: none;
       transition: all 0.3s;
       cursor: pointer;
@@ -137,14 +81,14 @@
       align-items: center;
       gap: 0.3rem;
     }
-    .main-nav a:hover, .main-nav a.active, .dropdown-toggle:hover { color: var(--gold); }
+    .main-nav a:hover, .main-nav a.active { color: var(--gold); }
     .dropdown { position: relative; }
     .dropdown svg { width: 10px; height: 10px; }
     .dropdown-menu {
       position: absolute;
       top: calc(100% + 0.5rem);
       right: 0;
-      background: var(--bg-card);
+      background: var(--bg-white);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 0.5rem;
@@ -155,6 +99,7 @@
       transition: all 0.3s ease;
       backdrop-filter: blur(16px);
       z-index: 1001;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
     }
     .dropdown:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
     .dropdown-menu a {
@@ -162,210 +107,235 @@
       padding: 0.6rem 1rem;
       border-radius: 8px;
       font-size: 0.78rem;
+      color: var(--text);
     }
-    .dropdown-menu a:hover { background: rgba(212,168,83,0.1); color: var(--gold); }
+    .dropdown-menu a:hover { background: rgba(184,149,78,0.08); color: var(--gold); }
 
-    .header-brand {
-      display: flex;
-      align-items: center;
+    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+    .btn-header {
+      background: var(--text);
+      color: #fff;
+      font-weight: 700;
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
       text-decoration: none;
-      flex-shrink: 0;
-    }
-    .brand-name {
-      font-size: 1.5rem;
-      font-weight: 900;
-      color: var(--gold);
-      letter-spacing: 4px;
-      line-height: 1;
-    }
-    .brand-tagline {
-      font-size: 0.65rem;
-      font-weight: 600;
-      color: var(--gold-dim);
-      letter-spacing: 0.5px;
-    }
-
-    .nav-toggle {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 4px;
-    }
-    .nav-toggle span {
-      display: block;
-      width: 24px; height: 2px;
-      background: var(--gold);
-      border-radius: 2px;
+      font-size: 0.8rem;
       transition: all 0.3s;
     }
+    .btn-header:hover { background: var(--gold); }
+    .lang-switch {
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    .lang-switch:hover { color: var(--gold); border-color: var(--gold); }
+    .nav-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+    .nav-toggle span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; }
 
     /* ===== Hero ===== */
     .hero {
       min-height: 100vh;
       display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      position: relative;
+      align-items: center;
+      background: var(--bg);
       padding-top: 80px;
-      padding-bottom: 120px;
-      background: radial-gradient(ellipse at 50% 0%, rgba(30,40,70,0.4) 0%, transparent 60%),
-                  radial-gradient(ellipse at 80% 80%, rgba(212,168,83,0.04) 0%, transparent 50%),
-                  linear-gradient(180deg, var(--bg) 0%, var(--bg-secondary, #0d1321) 100%);
+      position: relative;
       overflow: hidden;
     }
-    .hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(10,15,26,0.3) 0%, rgba(10,15,26,0.1) 40%, rgba(10,15,26,0.7) 80%, rgba(10,15,26,0.95) 100%);
-      pointer-events: none;
-    }
-    .hero__content {
-      text-align: center;
-      max-width: 800px;
-      padding: 2rem;
-      position: relative;
-      z-index: 2;
-    }
-    .hero__logo {
-      width: 120px;
-      height: auto;
-      margin: 0 auto 1.5rem;
-      opacity: 0.9;
-      filter: drop-shadow(0 0 30px rgba(212,168,83,0.15));
-    }
-    .hero__eyebrow {
-      display: inline-flex;
+    .hero__inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
       align-items: center;
-      gap: 0.5rem;
-      background: rgba(16,24,45,0.85);
-      border: 1px solid var(--border);
-      padding: 0.6rem 1.25rem;
-      border-radius: 50px;
-      font-size: 0.85rem;
-      font-weight: 700;
+      width: 100%;
+    }
+    .hero__left { text-align: right; }
+    .hero__eyebrow {
+      display: inline-block;
       color: var(--gold);
-      margin-bottom: 2rem;
-      backdrop-filter: blur(8px);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero__title {
+      font-size: 3.2rem;
+      font-weight: 900;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+    .hero__title span { color: var(--gold); }
+    .hero__divider {
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      margin-bottom: 1.5rem;
+      border-radius: 2px;
     }
     .hero__desc {
-      font-size: 1.15rem;
+      font-size: 1rem;
       color: var(--text-secondary);
-      max-width: 550px;
-      margin: 0 auto 2.5rem;
+      max-width: 480px;
+      margin-bottom: 2rem;
       line-height: 1.9;
     }
-    .hero__actions {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
+    .hero__actions { display: flex; gap: 1rem; }
     .btn-primary {
-      background: linear-gradient(135deg, var(--gold), var(--gold-bright));
-      color: #0a0f1a;
-      font-weight: 800;
+      background: var(--text);
+      color: #fff;
+      font-weight: 700;
       padding: 0.9rem 2rem;
-      border-radius: 12px;
+      border-radius: 8px;
       text-decoration: none;
-      font-size: 0.95rem;
-      box-shadow: 0 6px 25px rgba(212,168,83,0.35);
-      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      transition: all 0.3s;
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
       border: none;
       cursor: pointer;
     }
-    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 35px rgba(212,168,83,0.5); }
-    .btn-outline-gold {
+    .btn-primary:hover { background: var(--gold); }
+    .btn-outline {
       background: transparent;
-      color: var(--gold);
-      border: 1.5px solid var(--gold);
+      color: var(--text);
+      border: 1.5px solid var(--text);
       padding: 0.85rem 2rem;
-      border-radius: 12px;
+      border-radius: 8px;
       font-weight: 700;
       text-decoration: none;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       transition: all 0.3s;
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      white-space: nowrap;
     }
-    .btn-outline-gold:hover { background: var(--gold); color: #0a0f1a; }
+    .btn-outline:hover { background: var(--text); color: #fff; }
 
-    /* ===== Stats Bar ===== */
+    .hero__right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .hero__right::before {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(184,149,78,0.08) 0%, transparent 70%);
+      z-index: 0;
+    }
+    .hero__right img {
+      max-width: 380px;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 20px 60px rgba(184,149,78,0.15));
+    }
+
+    /* Gold flowing lines */
+    .gold-lines {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .gold-line {
+      position: absolute;
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(90deg, transparent, rgba(184,149,78,0.08), rgba(184,149,78,0.15), rgba(184,149,78,0.08), transparent);
+      animation: flowLine linear infinite;
+    }
+    .gold-line:nth-child(1) { top: 25%; animation-duration: 20s; }
+    .gold-line:nth-child(2) { top: 40%; animation-duration: 24s; animation-delay: -6s; }
+    .gold-line:nth-child(3) { top: 55%; animation-duration: 18s; animation-delay: -12s; }
+    .gold-line:nth-child(4) { top: 70%; animation-duration: 22s; animation-delay: -3s; }
+    .gold-line:nth-child(5) { top: 85%; animation-duration: 19s; animation-delay: -9s; }
+    @keyframes flowLine {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* ===== Stats ===== */
     .stats-section {
-      padding: 0 1.5rem 4rem;
+      background: var(--bg-white);
+      border-radius: 40px 40px 0 0;
+      margin-top: -40px;
       position: relative;
       z-index: 10;
-    }
-    .stats-bar {
-      max-width: 1100px;
-      margin: -40px auto 0;
-      background: linear-gradient(135deg, rgba(16,24,45,0.95), rgba(10,15,26,0.98));
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 2rem 3rem;
-      backdrop-filter: blur(16px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      padding: 4rem 2rem;
     }
     .stats-grid {
+      max-width: 1100px;
+      margin: 0 auto;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 2rem;
     }
     .stat-item {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      justify-content: center;
+      text-align: center;
+      padding: 1.5rem;
+      position: relative;
     }
+    .stat-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 20%;
+      height: 60%;
+      width: 1px;
+      background: var(--border);
+    }
+    [dir="rtl"] .stat-item:not(:last-child)::after { left: auto; right: 0; }
     .stat-icon {
-      width: 50px; height: 50px;
-      border-radius: 14px;
-      background: rgba(212,168,83,0.1);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-      flex-shrink: 0;
-    }
-    .stat-content { text-align: right; }
-    .stat-num {
-      font-size: 1.7rem;
-      font-weight: 800;
+      width: 48px; height: 48px;
+      margin: 0 auto 0.75rem;
       color: var(--gold);
+    }
+    .stat-num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
       line-height: 1;
+      margin-bottom: 0.5rem;
     }
     .stat-label {
-      font-size: 0.78rem;
-      color: var(--text-secondary);
-      margin-top: 0.35rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
     }
 
-    /* ===== Calculators Section ===== */
-    .section { padding: 4rem 1.5rem; }
+    /* ===== Section Headers ===== */
+    .section { padding: 5rem 2rem; }
     .container { max-width: 1200px; margin: 0 auto; }
     .section-header { text-align: center; margin-bottom: 3rem; }
     .section__eyebrow {
       display: inline-block;
       color: var(--gold);
-      font-weight: 700;
-      font-size: 0.85rem;
+      font-weight: 800;
+      font-size: 0.75rem;
       margin-bottom: 0.75rem;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
     }
     .section__title {
       font-size: 2rem;
       font-weight: 800;
       margin-bottom: 0.75rem;
+      color: var(--text);
     }
     .section__subtitle {
       color: var(--text-secondary);
@@ -373,126 +343,253 @@
       margin: 0 auto;
       font-size: 0.95rem;
     }
-    .cards-grid {
+
+    /* ===== Services ===== */
+    .services-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
     }
-    .card {
-      background: var(--bg-card);
+    .service-card {
+      background: var(--bg-white);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 2rem;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      color: inherit;
-      display: block;
-    }
-    .card {
+      transition: all 0.4s ease;
       position: relative;
       overflow: hidden;
     }
-    .card::after {
+    .service-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+    }
+    .service-card::after {
       content: '';
       position: absolute;
       bottom: 0; left: 50%;
       width: 0; height: 2px;
       background: linear-gradient(90deg, transparent, var(--gold), transparent);
       transition: width 0.5s ease, left 0.5s ease;
-      z-index: 1;
     }
-    .card:hover::after {
-      width: 70%;
-      left: 15%;
+    .service-card:hover::after {
+      width: 60%;
+      left: 20%;
     }
-    .card:hover {
-      transform: translateY(-5px);
-      border-color: var(--gold);
-      box-shadow: 0 10px 40px rgba(212,168,83,0.15);
-    }
-
-    /* ===== Shine Effect on Logo ===== */
-    .header-brand {
-      position: relative;
-      overflow: hidden;
-      border-radius: 6px;
-    }
-    .header-brand::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 50%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(212,168,83,0.2), rgba(255,255,255,0.1), rgba(212,168,83,0.2), transparent);
-      animation: logoShine 1.8s ease-in-out 0.5s forwards;
-      pointer-events: none;
-    }
-    @keyframes logoShine {
-      0% { left: -100%; }
-      100% { left: 200%; }
-    }
-
-    /* ===== Gold Flowing Lines in Hero ===== */
-    .gold-lines {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      pointer-events: none;
-      z-index: 1;
-    }
-    .gold-line {
-      position: absolute;
-      height: 1px;
-      width: 100%;
-      background: linear-gradient(90deg, transparent, rgba(212,168,83,0.06), rgba(212,168,83,0.12), rgba(212,168,83,0.06), transparent);
-      animation: flowLine linear infinite;
-    }
-    .gold-line:nth-child(1) { top: 22%; animation-duration: 20s; animation-delay: 0s; }
-    .gold-line:nth-child(2) { top: 38%; animation-duration: 24s; animation-delay: -6s; }
-    .gold-line:nth-child(3) { top: 52%; animation-duration: 18s; animation-delay: -12s; }
-    .gold-line:nth-child(4) { top: 68%; animation-duration: 22s; animation-delay: -3s; }
-    .gold-line:nth-child(5) { top: 84%; animation-duration: 19s; animation-delay: -9s; }
-    @keyframes flowLine {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-    .card__icon {
-      width: 48px; height: 48px;
-      border-radius: 12px;
-      background: rgba(212,168,83,0.1);
+    .service-card__icon {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      border: 1.5px solid var(--gold);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
       margin-bottom: 1.25rem;
+      color: var(--gold);
     }
-    .card__title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .card__text { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.7; }
+    .service-card__title { font-size: 1rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text); }
+    .service-card__text { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.8; margin-bottom: 1rem; }
+    .service-card__link {
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: gap 0.3s;
+    }
+    .service-card__link:hover { gap: 0.6rem; }
+
+    /* ===== Partners ===== */
+    .partners-section { background: var(--bg-white); padding: 5rem 2rem; }
+    .partners-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1100px;
+      margin: 0 auto 2rem;
+    }
+    .partners-header h3 { font-size: 1.5rem; font-weight: 800; }
+    .partners-header a { color: var(--text); font-size: 0.85rem; text-decoration: none; font-weight: 600; }
+    .partners-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .partner-card {
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 4/3;
+    }
+    .partner-card img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .partner-card:hover img { transform: scale(1.05); }
+    .partner-card__overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.7) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.5rem;
+      color: #fff;
+    }
+    .partner-card__tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: var(--gold);
+      color: #fff;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      width: fit-content;
+      margin-bottom: 0.75rem;
+    }
+    .partner-card__title { font-size: 1rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .partner-card__desc { font-size: 0.75rem; opacity: 0.9; }
+
+    /* ===== Why Us (Dark) ===== */
+    .why-section {
+      background: var(--bg-dark);
+      color: #fff;
+      padding: 5rem 2rem;
+      text-align: center;
+    }
+    .why-section .section__title { color: #fff; }
+    .why-section .section__subtitle { color: rgba(255,255,255,0.6); }
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2rem;
+      max-width: 1100px;
+      margin: 3rem auto 0;
+    }
+    .why-item { text-align: center; }
+    .why-item__icon {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(184,149,78,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      color: var(--gold);
+    }
+    .why-item__title { font-size: 0.9rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .why-item__text { font-size: 0.75rem; color: rgba(255,255,255,0.6); line-height: 1.7; }
+
+    /* ===== Contact ===== */
+    .contact-section {
+      background: var(--bg);
+      padding: 5rem 2rem;
+    }
+    .contact-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    .contact-left img {
+      width: 100%;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    }
+    .contact-right h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+    .contact-right p {
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
 
     /* ===== Footer ===== */
     .footer {
-      background: rgba(16,24,45,0.5);
-      border-top: 1px solid var(--border);
-      padding: 3rem 1.5rem;
-      text-align: center;
-      color: var(--text-secondary);
-      font-size: 0.85rem;
+      background: var(--bg-dark);
+      color: rgba(255,255,255,0.6);
+      padding: 4rem 2rem 2rem;
     }
+    .footer-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
+      gap: 2rem;
+    }
+    .footer-brand img { height: 50px; margin-bottom: 1rem; }
+    .footer-brand p { font-size: 0.8rem; line-height: 1.8; color: rgba(255,255,255,0.5); }
+    .footer-title { font-size: 0.8rem; font-weight: 800; color: #fff; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+    .footer-links { display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-links a, .footer-links span {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      font-size: 0.78rem;
+      transition: color 0.3s;
+    }
+    .footer-links a:hover { color: var(--gold); }
+    .footer-bottom {
+      max-width: 1100px;
+      margin: 3rem auto 0;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+    }
+    .footer-socials { display: flex; gap: 0.75rem; }
+    .footer-socials a {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+    }
+    .footer-socials a:hover { border-color: var(--gold); color: var(--gold); }
 
     /* ===== Responsive ===== */
     @media (max-width: 900px) {
       .main-nav { display: none; }
-      .header-datetime, .header-login { display: none; }
-      .brand-name { font-size: 1.1rem; letter-spacing: 2px; }
-      .hero__logo { width: 160px; }
-      .hero__desc { font-size: 1rem; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-      .stats-bar { padding: 1.5rem; margin: -20px 0.5rem 0; }
       .nav-toggle { display: flex; }
+      .hero__inner { grid-template-columns: 1fr; text-align: center; }
+      .hero__left { order: 2; }
+      .hero__right { order: 1; }
+      .hero__right img { max-width: 250px; }
+      .hero__title { font-size: 2.2rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .services-grid { grid-template-columns: 1fr; }
+      .partners-grid { grid-template-columns: 1fr; }
+      .why-grid { grid-template-columns: repeat(2, 1fr); }
+      .contact-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 480px) {
       .stats-grid { grid-template-columns: 1fr; }
-      .hero__actions { flex-direction: column; width: 100%; }
-      .hero__actions a { width: 100%; justify-content: center; }
+      .why-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .hero__actions { flex-direction: column; }
+      .partners-header { flex-direction: column; gap: 0.5rem; text-align: center; }
     }
   </style>
 </head>
@@ -502,51 +599,40 @@
   <header class="main-header" id="header">
     <div class="main-header__inner">
       <a href="index.html" class="header-brand">
-        <img src="assets/bonds-logo.jpg" alt="بوندز" width="1536" height="1024" style="height:65px;width:auto;border-radius:6px;" />
+        <img src="assets/bonds-logo.jpg" alt="بوندز" />
+        <div class="brand-text">
+          <span class="brand-name">بوندز</span>
+          <span class="brand-tagline">BONDS CONSULTING</span>
+        </div>
       </a>
       <nav class="main-nav" id="mainNav">
         <ul>
           <li><a href="index.html" class="active">الرئيسية</a></li>
           <li><a href="about.html">من نحن</a></li>
-          <li class="dropdown">
-            <span class="dropdown-toggle">
-              الخدمات
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-            <div class="dropdown-menu">
-              <a href="services.html#analysis">التحليل المالي</a>
-              <a href="services.html#cashflow">إدارة التدفقات النقدية</a>
-              <a href="services.html#feasibility">دراسات الجدوى</a>
-              <a href="services.html#risk">تحليل المخاطر</a>
-              <a href="services.html#research">الاستبيانات والبحوث</a>
-            </div>
-          </li>
+          <li><a href="services.html">خدماتنا</a></li>
           <li class="dropdown">
             <span class="dropdown-toggle">
               الأدلة
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </span>
             <div class="dropdown-menu">
-              <a href="sectors/manufacturing.html">🏭 الاستثمار الصناعي - السعودية</a>
-              <a href="sectors/manufacturing-eg.html">🏭 الاستثمار الصناعي - مصر</a>
-              <a href="sectors/manufacturing-ae.html">🏭 الاستثمار الصناعي - الإمارات</a>
-              <a href="sectors/manufacturing-jo.html">🏭 الاستثمار الصناعي - الأردن</a>
-              <a href="sectors/manufacturing-om.html">🏭 الاستثمار الصناعي - عمان</a>
-              <a href="sectors/manufacturing-bh.html">🏭 الاستثمار الصناعي - البحرين</a>
-              <a href="sectors/manufacturing-kw.html">🏭 الاستثمار الصناعي - الكويت</a>
-              <a href="sectors/manufacturing-qa.html">🏭 الاستثمار الصناعي - قطر</a>
-              <a href="sectors/manufacturing-ma.html">🏭 الاستثمار الصناعي - المغرب</a>
-              <a href="sectors/manufacturing-tn.html">🏭 الاستثمار الصناعي - تونس</a>
-              <a href="sectors/manufacturing-iq.html">🏭 الاستثمار الصناعي - العراق</a>
-              <a href="sectors/manufacturing-sd.html">🏭 الاستثمار الصناعي - السودان</a>
-              <a href="sectors/manufacturing-ly.html">🏭 الاستثمار الصناعي - ليبيا</a>
-              <a href="sectors/manufacturing-dz.html">🏭 الاستثمار الصناعي - الجزائر</a>
-              <a href="sectors/manufacturing-lb.html">🏭 الاستثمار الصناعي - لبنان</a>
-              <a href="sectors/manufacturing-ye.html">🏭 الاستثمار الصناعي - اليمن</a>
-              <a href="sectors/manufacturing-sy.html">🏭 الاستثمار الصناعي - سوريا</a>
-              <div style="border-top:1px solid var(--border); margin:0.4rem 0;"></div>
-              <a href="suppliers-guide.html">📦 دليل المورد</a>
-              <a href="partner-portal-guide.html">🔑 بوابة شريك</a>
+              <a href="sectors/manufacturing.html">🏭 السعودية</a>
+              <a href="sectors/manufacturing-eg.html">🏭 مصر</a>
+              <a href="sectors/manufacturing-ae.html">🏭 الإمارات</a>
+              <a href="sectors/manufacturing-jo.html">🏭 الأردن</a>
+              <a href="sectors/manufacturing-om.html">🏭 عمان</a>
+              <a href="sectors/manufacturing-bh.html">🏭 البحرين</a>
+              <a href="sectors/manufacturing-kw.html">🏭 الكويت</a>
+              <a href="sectors/manufacturing-qa.html">🏭 قطر</a>
+              <a href="sectors/manufacturing-ma.html">🏭 المغرب</a>
+              <a href="sectors/manufacturing-tn.html">🏭 تونس</a>
+              <a href="sectors/manufacturing-iq.html">🏭 العراق</a>
+              <a href="sectors/manufacturing-sd.html">🏭 السودان</a>
+              <a href="sectors/manufacturing-ly.html">🏭 ليبيا</a>
+              <a href="sectors/manufacturing-dz.html">🏭 الجزائر</a>
+              <a href="sectors/manufacturing-lb.html">🏭 لبنان</a>
+              <a href="sectors/manufacturing-ye.html">🏭 اليمن</a>
+              <a href="sectors/manufacturing-sy.html">🏭 سوريا</a>
             </div>
           </li>
           <li class="dropdown">
@@ -565,39 +651,19 @@
               <a href="calculators/invoice-analyzer.html">تحليل الفواتير</a>
               <a href="calculators/feasibility-template.html">نموذج دراسة الجدوى</a>
               <div style="border-top:1px solid var(--border); margin:0.4rem 0;"></div>
-              <a href="calculators/factory-cost.html">🏭 حاسبة تكلفة المصنع - السعودية</a>
-              <a href="calculators/factory-cost-eg.html">🏭 حاسبة تكلفة المصنع - مصر</a>
-              <a href="calculators/factory-cost-ae.html">🏭 حاسبة تكلفة المصنع - الإمارات</a>
-              <a href="calculators/factory-cost-jo.html">🏭 حاسبة تكلفة المصنع - الأردن</a>
-              <a href="calculators/factory-cost-om.html">🏭 حاسبة تكلفة المصنع - عمان</a>
-              <a href="calculators/factory-cost-bh.html">🏭 حاسبة تكلفة المصنع - البحرين</a>
-              <a href="calculators/factory-cost-kw.html">🏭 حاسبة تكلفة المصنع - الكويت</a>
-              <a href="calculators/factory-cost-qa.html">🏭 حاسبة تكلفة المصنع - قطر</a>
-              <a href="calculators/factory-cost-ma.html">🏭 حاسبة تكلفة المصنع - المغرب</a>
-              <a href="calculators/factory-cost-tn.html">🏭 حاسبة تكلفة المصنع - تونس</a>
-              <a href="calculators/factory-cost-iq.html">🏭 حاسبة تكلفة المصنع - العراق</a>
-              <a href="calculators/factory-cost-sd.html">🏭 حاسبة تكلفة المصنع - السودان</a>
-              <a href="calculators/factory-cost-ly.html">🏭 حاسبة تكلفة المصنع - ليبيا</a>
-              <a href="calculators/factory-cost-dz.html">🏭 حاسبة تكلفة المصنع - الجزائر</a>
-              <a href="calculators/factory-cost-lb.html">🏭 حاسبة تكلفة المصنع - لبنان</a>
-              <a href="calculators/factory-cost-ye.html">🏭 حاسبة تكلفة المصنع - اليمن</a>
-              <a href="calculators/factory-cost-sy.html">🏭 حاسبة تكلفة المصنع - سوريا</a>
+              <a href="calculators/factory-cost.html">🏭 المصانع - السعودية</a>
+              <a href="calculators/factory-cost-eg.html">🏭 المصانع - مصر</a>
             </div>
           </li>
-          <li><a href="pricing.html">الأسعار</a></li>
           <li><a href="blog/index.html">مقالات</a></li>
-          <li><a href="contact.html">تواصل</a></li>
+          <li><a href="contact.html">تواصل معنا</a></li>
         </ul>
       </nav>
-      <div class="header-left">
-        <div id="authContainer" style="display:flex;align-items:center;"><a href="calculators/auth/index.html" class="header-login">تسجيل الدخول</a></div>
-        <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">☀️</button>
-        <span id="header-datetime" class="header-datetime"></span>
+      <div class="header-actions">
         <a href="en/index.html" class="lang-switch">EN</a>
+        <a href="contact.html" class="btn-header">احجز استشارة</a>
+        <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
       </div>
-      <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
     </div>
   </header>
 
@@ -610,196 +676,284 @@
       <div class="gold-line"></div>
       <div class="gold-line"></div>
     </div>
-    <div class="hero__content">
-      <img src="assets/bonds-mark.svg" class="hero__logo" alt="بوندز" width="120" height="120" />
-      <div class="hero__eyebrow">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        Trusted by 150+ businesses in Egypt & KSA
+    <div class="hero__inner">
+      <div class="hero__left">
+        <span class="hero__eyebrow">BONDS CONSULTING</span>
+        <h1 class="hero__title">نحو قرارات<br />تصنع قيمة حقيقية</h1>
+        <div class="hero__divider"></div>
+        <p class="hero__desc">
+          نقدم حلولاً مالية وإستراتيجية تكاملية نساعد الشركات والمستثمرين على تحقيق النمو المستدام وتعظيم القيمة.
+        </p>
+        <div class="hero__actions">
+          <a href="contact.html" class="btn-primary">احجز استشارة ←</a>
+          <a href="services.html" class="btn-outline">استكشف خدماتنا ←</a>
+        </div>
       </div>
-      <p class="hero__desc">
-        أحسب ربحية مشروعك، نقطة تعادلك، تدفقك النقدي، وأفضل منصة توصيل – مجاناً، فورياً، وبدون تسجيل.
-      </p>
-      <div class="hero__actions">
-        <a href="contact.html" class="btn-primary">📅 احجز استشارتك المجانية</a>
-        <a href="#calculators" class="btn-outline-gold">🧮 جرب الحاسبات →</a>
+      <div class="hero__right">
+        <img src="assets/bonds-logo.jpg" alt="بوندز" />
       </div>
     </div>
   </section>
 
   <!-- Stats -->
   <section class="stats-section">
-    <div class="stats-bar">
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-icon">⭐</div>
-          <div class="stat-content">
-            <div class="stat-num" data-target="97" data-suffix="%">0</div>
-            <div class="stat-label">معدل رضا العملاء</div>
-          </div>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-num" data-target="97" data-suffix="%">0</div>
+        <div class="stat-label">معدل رضا العملاء</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">👥</div>
+        <div class="stat-num" data-target="150" data-prefix="+" data-suffix="">0</div>
+        <div class="stat-label">عميل من القطاع الخاص والعام</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">📈</div>
+        <div class="stat-num" data-target="2" data-prefix="+" data-suffix=" مليار ريال">0</div>
+        <div class="stat-label">أصول تحت دراستها</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">📋</div>
+        <div class="stat-num" data-target="500" data-prefix="+" data-suffix="">0</div>
+        <div class="stat-label">دراسة واستشارة منجزة</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section__eyebrow">خدماتنا</span>
+        <h2 class="section__title">حلول متكاملة لتحقيق أهدافك</h2>
+      </div>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-card__icon">🛡️</div>
+          <h3 class="service-card__title">إدارة المخاطر والحوكمة</h3>
+          <p class="service-card__text">نساعدك على إدارة المخاطر بفعالية وتعزيز الامتثال بكفاءة</p>
+          <a href="services.html" class="service-card__link">←</a>
         </div>
-        <div class="stat-item">
-          <div class="stat-icon">👥</div>
-          <div class="stat-content">
-            <div class="stat-num" data-target="150" data-prefix="+" data-suffix="">0</div>
-            <div class="stat-label">عميل من القطاع الخاص والعام</div>
-          </div>
+        <div class="service-card">
+          <div class="service-card__icon">📊</div>
+          <h3 class="service-card__title">الاستشارات المالية</h3>
+          <p class="service-card__text">حلول مالية تدعم قراراتك وتعزز الأداء المالي</p>
+          <a href="services.html" class="service-card__link">←</a>
         </div>
-        <div class="stat-item">
-          <div class="stat-icon">📈</div>
-          <div class="stat-content">
-            <div class="stat-num" data-target="2" data-suffix=" مليار ريال" data-multiplier="1" data-prefix="+">0</div>
-            <div class="stat-label">أصول تحت دراستها</div>
-          </div>
+        <div class="service-card">
+          <div class="service-card__icon">📋</div>
+          <h3 class="service-card__title">دراسات الجدوى</h3>
+          <p class="service-card__text">دراسات دقيقة تساعدك على تقييم الفرص الاستثمارية</p>
+          <a href="services.html" class="service-card__link">←</a>
         </div>
-        <div class="stat-item">
-          <div class="stat-icon">📋</div>
-          <div class="stat-content">
-            <div class="stat-num" data-target="500" data-prefix="+" data-suffix="">0</div>
-            <div class="stat-label">دراسة واستشارة منجزة</div>
-          </div>
+        <div class="service-card">
+          <div class="service-card__icon">🏢</div>
+          <h3 class="service-card__title">تقييم المنشآت</h3>
+          <p class="service-card__text">تقييم دقيق للمنشآت وفقاً لأعلى المعايير العالمية</p>
+          <a href="services.html" class="service-card__link">←</a>
+        </div>
+        <div class="service-card">
+          <div class="service-card__icon">🔄</div>
+          <h3 class="service-card__title">إعادة هيكلة الشركات</h3>
+          <p class="service-card__text">إعادة تصميم الهياكل التنظيمية والمالية لرفع الكفاءة والقيمة</p>
+          <a href="services.html" class="service-card__link">←</a>
+        </div>
+        <div class="service-card">
+          <div class="service-card__icon">🤝</div>
+          <h3 class="service-card__title">الاستشارات الإدارية</h3>
+          <p class="service-card__text">حلول إدارية مبتكرة لتحسين العمليات وزيادة الأداء</p>
+          <a href="services.html" class="service-card__link">←</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Calculators -->
-  <section class="section" id="calculators">
+  <!-- Partners -->
+  <section class="partners-section">
+    <div class="partners-header">
+      <h3>شراكات تصنع أثراً</h3>
+      <a href="services.html">استعرض جميع المشاريع →</a>
+    </div>
+    <div class="partners-grid">
+      <div class="partner-card">
+        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop" alt="مشروع صناعي" />
+        <div class="partner-card__overlay">
+          <span class="partner-card__tag">+</span>
+          <div class="partner-card__title">مشروع صناعي</div>
+          <div class="partner-card__desc">دراسة جدوى وتقييم مالي</div>
+        </div>
+      </div>
+      <div class="partner-card">
+        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop" alt="مشروع عقاري" />
+        <div class="partner-card__overlay">
+          <span class="partner-card__tag">+</span>
+          <div class="partner-card__title">مشروع عقاري</div>
+          <div class="partner-card__desc">استشارات مالية وهيكلة تمويل</div>
+        </div>
+      </div>
+      <div class="partner-card">
+        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop" alt="مشروع تجاري" />
+        <div class="partner-card__overlay">
+          <span class="partner-card__tag">+</span>
+          <div class="partner-card__title">مشروع تجاري</div>
+          <div class="partner-card__desc">دراسة جدوى وتخطيط مالي</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Us -->
+  <section class="why-section">
     <div class="container">
       <div class="section-header">
-        <span class="section__eyebrow">حاسباتنا الأكثر استخداماً</span>
-        <h2 class="section__title">احسب فوراً — بدون تسجيل</h2>
-        <p class="section__subtitle">أدوات مالية احترافية للمطاعم والشركات. نتائج فورية، تصدير PDF/Excel، ومشاركة واتساب.</p>
+        <span class="section__eyebrow">لماذا بوندز؟</span>
+        <h2 class="section__title">لماذا بوندز؟</h2>
+        <p class="section__subtitle">نجمع بين الخبرة العميقة والتحليل الدقيق والفهم الاستراتيجي لتقدم لك خطة حقيقية ومستدامة.</p>
       </div>
-      <div class="cards-grid">
-        <a href="calculators/restaurant.html" class="card">
-          <div class="card__icon">🍽️</div>
-          <h3 class="card__title">حاسبة المطاعم</h3>
-          <p class="card__text">4 نماذج عمل (تقليدي، سحابي، كافيه، حلويات) × 22 دولة × 179 منصة توصيل.</p>
-        </a>
-        <a href="calculators/dish-margin.html" class="card">
-          <div class="card__icon">🍔</div>
-          <h3 class="card__title">ربحية الوجبة</h3>
-          <p class="card__text">احسب ربح كل صنف قبل ما تضيفه للمنيو. مقارنة ديناميكية بين كل المنصات.</p>
-        </a>
-        <a href="calculator.html" class="card">
-          <div class="card__icon">📊</div>
-          <h3 class="card__title">نقطة التعادل</h3>
-          <p class="card__text">كم طلب تحتاج يومياً لتغطية مصاريفك؟ حاسبة عامة لأي نشاط تجاري.</p>
-        </a>
-        <a href="calculators/cash-flow.html" class="card">
-          <div class="card__icon">💰</div>
-          <h3 class="card__title">تدفق النقد</h3>
-          <p class="card__text">توقع فواتيرك ومدفوعاتك 12 شهر قادمة. اكتشف متى تنفذ قبل ما يصير.</p>
-        </a>
-        <a href="calculators/pricing.html" class="card">
-          <div class="card__icon">🏷️</div>
-          <h3 class="card__title">تسعير المنتج</h3>
-          <p class="card__text">احسب السعر الأمثل بناءً على التكلفة والمنافسة والهامش المستهدف.</p>
-        </a>
-        <a href="calculators/loan.html" class="card">
-          <div class="card__icon">🏦</div>
-          <h3 class="card__title">القرض والتمويل</h3>
-          <p class="card__text">قارن بين 4 أنواع قروض، احسب القسط الشهري، ونسبة الدين للدخل.</p>
-        </a>
-        <a href="calculators/factory-cost.html" class="card">
-          <div class="card__icon">🏭</div>
-          <h3 class="card__title">تكلفة المصنع</h3>
-          <p class="card__text">قدر تكلفة إنشاء مصنع في مدن صناعية سعودية — إيجار، كهرباء، رسوم تراخيص.</p>
-        </a>
+      <div class="why-grid">
+        <div class="why-item">
+          <div class="why-item__icon">🔒</div>
+          <div class="why-item__title">سرية تامة</div>
+          <div class="why-item__text">الالتزام كامل بحماية بيانات عملائنا</div>
+        </div>
+        <div class="why-item">
+          <div class="why-item__icon">⏱️</div>
+          <div class="why-item__title">سرعة التنفيذ</div>
+          <div class="why-item__text">نلتزم بالوقت ونركز على النتائج</div>
+        </div>
+        <div class="why-item">
+          <div class="why-item__icon">💎</div>
+          <div class="why-item__title">نماذج احترافية</div>
+          <div class="why-item__text">مستندات وتقارير عالية الجودة</div>
+        </div>
+        <div class="why-item">
+          <div class="why-item__icon">📊</div>
+          <div class="why-item__title">قرارات مبنية على البيانات</div>
+          <div class="why-item__text">تحليل احترافي يدعم اتخاذ القرار</div>
+        </div>
+        <div class="why-item">
+          <div class="why-item__icon">👤</div>
+          <div class="why-item__title">خبرة عملية</div>
+          <div class="why-item__text">فريق متخصص بخبرة محلية ودولية واسعة</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact-section">
+    <div class="contact-grid">
+      <div class="contact-left">
+        <img src="assets/bonds-logo.jpg" alt="بوندز" />
+      </div>
+      <div class="contact-right">
+        <h2>لنبدأ محادثة عن أهدافك</h2>
+        <p>فريقنا على استعداد ليوم احتياطيات ووضع استراتيجية تحقق لك النمو والقيمة المستدامة.</p>
+        <a href="contact.html" class="btn-primary">احجز استشارة ←</a>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
   <footer class="footer">
-    <div style="margin-bottom:0.75rem;">
-      <span style="color:var(--gold); font-weight:700;">ممثل بوندز في السعودية:</span>
-      <a href="https://thiqqah.live/" target="_blank" rel="noopener" style="color:var(--text-secondary); font-weight:600;">ثقة الذهبية ↗</a>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="assets/bonds-logo.jpg" alt="بوندز" />
+        <p>بوندز BONDS<br />للاستشارات المالية والإدارية</p>
+      </div>
+      <div>
+        <div class="footer-title">خدماتنا</div>
+        <div class="footer-links">
+          <a href="services.html">الاستشارات المالية</a>
+          <a href="services.html">الاستشارات الإدارية</a>
+          <a href="services.html">دراسات الجدوى</a>
+          <a href="services.html">تقييم المنشآت</a>
+          <a href="services.html">إعادة هيكلة الشركات</a>
+          <a href="services.html">إدارة المخاطر والحوكمة</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-title">عن بوندز</div>
+        <div class="footer-links">
+          <a href="about.html">من نحن</a>
+          <a href="about.html">قيمنا</a>
+          <a href="about.html">فريقنا</a>
+          <a href="about.html">شركاؤنا</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-title">المركز المعرفي</div>
+        <div class="footer-links">
+          <a href="blog/index.html">المقالات</a>
+          <a href="blog/index.html">الأدلة والتقارير</a>
+          <a href="blog/index.html">الأسئلة الشائعة</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-title">تواصل معنا</div>
+        <div class="footer-links">
+          <span>+966 11 123 4567</span>
+          <span>info@bonds-global.com</span>
+          <span>الرياض، المملكة العربية السعودية</span>
+        </div>
+      </div>
     </div>
-    <p>© <span id="y">2026</span> بوندز للاستشارات المالية. جميع الحقوق محفوظة.</p>
-    <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+    <div class="footer-bottom">
+      <span>جميع الحقوق محفوظة. بوندز للاستشارات المالية والإدارية © 2026</span>
+      <div class="footer-socials">
+        <a href="#">in</a>
+        <a href="#">X</a>
+        <a href="#">📷</a>
+      </div>
+    </div>
   </footer>
 
   <script>
-    // DateTime
-    function updateDateTime() {
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
-      const el = document.getElementById('header-datetime');
-      if (el) el.textContent = dateStr + ' | ' + timeStr;
-    }
-    setInterval(updateDateTime, 60000);
-    updateDateTime();
-
-    // Theme Toggle
-    const themeToggle = document.getElementById('themeToggle');
-    const html = document.documentElement;
-    const savedTheme = localStorage.getItem('theme');
-    function applyTheme(theme) {
-      if (theme === 'dark') {
-        html.setAttribute('data-theme', 'dark');
-        if (themeToggle) themeToggle.textContent = '☀️';
-      } else {
-        html.removeAttribute('data-theme');
-        if (themeToggle) themeToggle.textContent = '🌙';
-      }
-    }
-    if (savedTheme) applyTheme(savedTheme);
-    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) applyTheme('dark');
-    if (themeToggle) {
-      themeToggle.addEventListener('click', function() {
-        const isDark = html.getAttribute('data-theme') === 'dark';
-        const next = isDark ? 'light' : 'dark';
-        applyTheme(next);
-        localStorage.setItem('theme', next);
-      });
-    }
-
-    // Mobile Nav
-    const navToggle = document.getElementById('navToggle');
-    const mainNav = document.getElementById('mainNav');
-    if (navToggle && mainNav) {
-      navToggle.addEventListener('click', function() {
-        const isOpen = mainNav.classList.toggle('open');
-        navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      });
-    }
-
     // Counter Animation
-    const counters = document.querySelectorAll('[data-target]');
-    if (counters.length && 'IntersectionObserver' in window) {
-      function animateCounter(el) {
-        const target = parseFloat(el.getAttribute('data-target'));
-        if (isNaN(target)) return;
-        const suffix = el.getAttribute('data-suffix') || '';
-        const prefix = el.getAttribute('data-prefix') || '';
-        const duration = 2000;
-        const start = performance.now();
-        function step(now) {
-          const p = Math.min(1, (now - start) / duration);
-          const eased = 1 - Math.pow(1 - p, 4);
-          const current = target * eased;
-          if (suffix === '%') {
+    (function(){
+      var counters = document.querySelectorAll('[data-target]');
+      if(!counters.length || !('IntersectionObserver' in window)) return;
+      function animateCounter(el){
+        var target = parseFloat(el.getAttribute('data-target'));
+        if(isNaN(target)) return;
+        var suffix = el.getAttribute('data-suffix') || '';
+        var prefix = el.getAttribute('data-prefix') || '';
+        var duration = 2000;
+        var start = performance.now();
+        function step(now){
+          var p = Math.min(1, (now - start) / duration);
+          var eased = 1 - Math.pow(1 - p, 4);
+          var current = target * eased;
+          if(suffix === '%'){
             el.textContent = prefix + Math.round(current) + suffix;
-          } else if (suffix.includes('مليار')) {
+          } else if(suffix.indexOf('مليار') !== -1){
             el.textContent = prefix + current.toFixed(1) + suffix;
           } else {
             el.textContent = prefix + Math.round(current) + suffix;
           }
-          if (p < 1) requestAnimationFrame(step);
+          if(p < 1) requestAnimationFrame(step);
         }
         requestAnimationFrame(step);
       }
-      const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) {
+      var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){
             animateCounter(entry.target);
             observer.unobserve(entry.target);
           }
         });
       }, { threshold: 0.4 });
-      counters.forEach(function(c) { observer.observe(c); });
+      counters.forEach(function(c){ observer.observe(c); });
+    })();
+
+    // Mobile Nav
+    var navToggle = document.getElementById('navToggle');
+    var mainNav = document.getElementById('mainNav');
+    if(navToggle && mainNav){
+      navToggle.addEventListener('click', function(){
+        mainNav.classList.toggle('open');
+      });
     }
   </script>
 
