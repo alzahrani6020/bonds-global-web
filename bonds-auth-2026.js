@@ -249,6 +249,23 @@
     });
   }
 
+  // ── Auto-init site auth header ────────────────────────────
+  (function autoInitSiteAuth() {
+    function inject() {
+      const headerActions = document.querySelector('.header-actions');
+      if (!headerActions || document.getElementById('authContainer')) return;
+      const authContainer = document.createElement('div');
+      authContainer.id = 'authContainer';
+      headerActions.insertBefore(authContainer, headerActions.firstChild);
+      initSiteAuth('authContainer');
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', inject);
+    } else {
+      inject();
+    }
+  })();
+
   // ── Exports ───────────────────────────────────────────────
   window.BondsAuth = {
     getSupabase, getUser, getSession, getProfile, updateProfile, getSubscription, getAdminRole,
