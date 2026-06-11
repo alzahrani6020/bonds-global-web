@@ -168,22 +168,22 @@
           </div>
           <div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
             <div class="form-group">
-              <label for="signupCountry">الدولة</label>
-              <input type="text" id="signupCountry" placeholder="مثال: السعودية" />
+              <label for="signupCountry">الدولة *</label>
+              <input type="text" id="signupCountry" required placeholder="مثال: السعودية" />
             </div>
             <div class="form-group">
-              <label for="signupCity">المدينة</label>
-              <input type="text" id="signupCity" placeholder="مثال: الرياض" />
+              <label for="signupCity">المدينة *</label>
+              <input type="text" id="signupCity" required placeholder="مثال: الرياض" />
             </div>
           </div>
           <div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
             <div class="form-group">
-              <label for="signupPhone">رقم الجوال</label>
-              <input type="tel" id="signupPhone" placeholder="05xxxxxxxx" dir="ltr" />
+              <label for="signupPhone">رقم الجوال *</label>
+              <input type="tel" id="signupPhone" required placeholder="05xxxxxxxx" dir="ltr" />
             </div>
             <div class="form-group">
-              <label for="signupBusinessType">نوع النشاط</label>
-              <select id="signupBusinessType" style="width:100%;padding:12px 16px;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;color:#f5f5f5;font-family:inherit;font-size:1rem;">
+              <label for="signupBusinessType">نوع النشاط *</label>
+              <select id="signupBusinessType" required style="width:100%;padding:12px 16px;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;color:#f5f5f5;font-family:inherit;font-size:1rem;">
                 <option value="">اختر النشاط</option>
                 <option value="restaurant">مطعم / مطعم سريع</option>
                 <option value="cafe">مقهى</option>
@@ -197,16 +197,16 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="signupEmployeeCount">عدد الموظفين</label>
-            <input type="number" id="signupEmployeeCount" min="0" placeholder="مثال: 12" />
+            <label for="signupEmployeeCount">عدد الموظفين *</label>
+            <input type="number" id="signupEmployeeCount" required min="0" placeholder="مثال: 12" />
           </div>
           <div class="form-group">
-            <label for="signupBio">نبذة عن المشروع</label>
-            <textarea id="signupBio" rows="2" placeholder="اكتب نبذة مختصرة..." style="width:100%;padding:12px 16px;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;color:#f5f5f5;font-family:inherit;font-size:1rem;resize:vertical;"></textarea>
+            <label for="signupBio">نبذة عن المشروع *</label>
+            <textarea id="signupBio" required rows="2" placeholder="اكتب نبذة مختصرة..." style="width:100%;padding:12px 16px;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;color:#f5f5f5;font-family:inherit;font-size:1rem;resize:vertical;"></textarea>
           </div>
           <div class="form-group">
-            <label for="signupNeeds">الاحتياجات والخدمات المطلوبة</label>
-            <textarea id="signupNeeds" rows="2" placeholder="مثال: تحليل مالي، دراسة جدوى..." style="width:100%;padding:12px 16px;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;color:#f5f5f5;font-family:inherit;font-size:1rem;resize:vertical;"></textarea>
+            <label for="signupNeeds">الاحتياجات والخدمات المطلوبة *</label>
+            <textarea id="signupNeeds" required rows="2" placeholder="مثال: تحليل مالي، دراسة جدوى..." style="width:100%;padding:12px 16px;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;color:#f5f5f5;font-family:inherit;font-size:1rem;resize:vertical;"></textarea>
           </div>
           <button type="submit" class="btn btn-primary" id="signupBtn">
             <span class="spinner"></span>
@@ -482,6 +482,7 @@
         const phone = document.getElementById('signupPhone').value.trim();
         const businessType = document.getElementById('signupBusinessType').value;
         const employeeCount = document.getElementById('signupEmployeeCount').value;
+        const branchCount = document.getElementById('signupBranchCount').value;
         const bio = document.getElementById('signupBio').value.trim();
         const needs = document.getElementById('signupNeeds').value.trim();
 
@@ -496,6 +497,7 @@
           phone: phone,
           business_type: businessType,
           employee_count: employeeCount,
+          branch_count: branchCount,
           bio: bio,
           needs: needs,
           language: 'ar'

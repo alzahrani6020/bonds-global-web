@@ -203,6 +203,7 @@
                 <th>الدولة / المدينة</th>
                 <th>النشاط</th>
                 <th>الرواد</th>
+                <th>الفروع</th>
                 <th>الخطة</th>
                 <th>الحالة</th>
                 <th>التسجيل</th>
@@ -211,7 +212,7 @@
               </tr>
             </thead>
             <tbody id="usersTable">
-              <tr><td colspan="10" class="loading">جارِ التحميل...</td></tr>
+              <tr><td colspan="11" class="loading">جارِ التحميل...</td></tr>
             </tbody>
           </table>
         </div>
@@ -246,6 +247,9 @@
 
           <label>عدد الرواد / الموظفين</label>
           <input type="number" id="editEmployeeCount" placeholder="0">
+
+          <label>عدد الفروع</label>
+          <input type="number" id="editBranchCount" placeholder="1">
 
           <label>نبذة عن العمل</label>
           <textarea id="editBio" placeholder="وصف مختصر للنشاط..."></textarea>
@@ -353,7 +357,7 @@
       const page = filteredUsers.slice(start, start + pageSize);
 
       if (page.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" class="loading">لا يوجد نتائج</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" class="loading">لا يوجد نتائج</td></tr>';
         document.getElementById('usersCount').textContent = '0 مستخدم';
         return;
       }
@@ -375,6 +379,7 @@
             <td>${countryLabel(u.country)}<br><span style="font-size:0.75rem;color:var(--text-muted)">${u.city || ''}</span></td>
             <td><span style="font-size:0.8rem">${u.business_type || '-'}</span></td>
             <td>${u.employee_count || '-'}</td>
+            <td>${u.branch_count || '-'}</td>
             <td>${tierBadge(u.tier)}</td>
             <td>${statusBadge(u.status)}</td>
             <td>${formatDate(u.created_at)}</td>
@@ -427,7 +432,7 @@
     }
 
     async function refreshData() {
-      document.getElementById('usersTable').innerHTML = '<tr><td colspan="10" class="loading">جارِ التحديث...</td></tr>';
+      document.getElementById('usersTable').innerHTML = '<tr><td colspan="11" class="loading">جارِ التحديث...</td></tr>';
       allUsers = await fetchUsers();
       filterUsers();
     }
@@ -443,6 +448,7 @@
         <div><strong>المدينة:</strong> ${user.city || '—'}</div>
         <div><strong>النشاط:</strong> ${user.business_type || '—'}</div>
         <div><strong>عدد الرواد:</strong> ${user.employee_count || '—'}</div>
+        <div><strong>عدد الفروع:</strong> ${user.branch_count || '—'}</div>
         <div><strong>الخطة:</strong> ${user.tier || 'free'}</div>
         <div><strong>الحالة:</strong> ${user.status || 'active'}</div>
         <div><strong>نبذة:</strong> ${user.bio || '—'}</div>
@@ -462,6 +468,7 @@
       document.getElementById('editCity').value = user.city || '';
       document.getElementById('editBusinessType').value = user.business_type || '';
       document.getElementById('editEmployeeCount').value = user.employee_count || '';
+      document.getElementById('editBranchCount').value = user.branch_count || '';
       document.getElementById('editBio').value = user.bio || '';
       document.getElementById('editNeeds').value = user.needs || '';
       document.getElementById('editModal').classList.add('active');
@@ -477,6 +484,7 @@
         city: document.getElementById('editCity').value,
         business_type: document.getElementById('editBusinessType').value,
         employee_count: parseInt(document.getElementById('editEmployeeCount').value) || 0,
+        branch_count: parseInt(document.getElementById('editBranchCount').value) || 1,
         bio: document.getElementById('editBio').value,
         needs: document.getElementById('editNeeds').value
       };

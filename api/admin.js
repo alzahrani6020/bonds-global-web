@@ -298,7 +298,7 @@ async function getUsers(sb) {
   if (authErr) throw authErr;
   const authUsers = authList?.users || [];
 
-  const { data: profileList, error: profileErr } = await sb.from('profiles').select('id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, tier, status, created_at');
+  const { data: profileList, error: profileErr } = await sb.from('profiles').select('id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, branch_count, tier, status, created_at');
   if (profileErr) throw profileErr;
 
   const profileMap = {};
@@ -317,6 +317,7 @@ async function getUsers(sb) {
       bio: p.bio || u.user_metadata?.bio || '',
       needs: p.needs || u.user_metadata?.needs || '',
       employee_count: p.employee_count || parseInt(u.user_metadata?.employee_count) || 0,
+      branch_count: p.branch_count || parseInt(u.user_metadata?.branch_count) || 1,
       tier: p.tier || 'free',
       status: p.status || 'active',
       created_at: u.created_at,

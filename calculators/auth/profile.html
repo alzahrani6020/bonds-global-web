@@ -193,6 +193,10 @@
             <input type="number" id="employeeCount" min="0" placeholder="مثال: 12">
           </div>
           <div class="form-group">
+            <label for="branchCount">عدد فروع المنشأة</label>
+            <input type="number" id="branchCount" min="1" placeholder="مثال: 1">
+          </div>
+          <div class="form-group">
             <label for="phone">رقم الجوال</label>
             <input type="tel" id="phone" placeholder="05xxxxxxxx" dir="ltr">
           </div>
@@ -370,6 +374,7 @@
         document.getElementById('neighborhood').value = profile.neighborhood || '';
         document.getElementById('businessType').value = profile.business_type || '';
         document.getElementById('employeeCount').value = profile.employee_count || '';
+        document.getElementById('branchCount').value = profile.branch_count || '';
         document.getElementById('bio').value = profile.bio || '';
         document.getElementById('needs').value = profile.needs || '';
         setTimeDropdowns('peakStart', profile.peak_hours_start);
@@ -552,6 +557,7 @@
             neighborhood: document.getElementById('neighborhood').value.trim(),
             business_type: document.getElementById('businessType').value.trim(),
             employee_count: parseInt(document.getElementById('employeeCount').value) || null,
+            branch_count: parseInt(document.getElementById('branchCount').value) || null,
             bio: document.getElementById('bio').value.trim(),
             needs: document.getElementById('needs').value.trim(),
             peak_hours_start: getTimeDropdowns('peakStart'),
