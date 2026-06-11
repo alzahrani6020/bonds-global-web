@@ -40,7 +40,7 @@
   <url><loc>https://bonds-global.com/calculators/auth/debug.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/auth/diagnose.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/auth/index.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/auth/login.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/calculators/auth/index.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/auth/onboarding.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/auth/profile.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/auth/reset.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>

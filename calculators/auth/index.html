@@ -133,18 +133,22 @@
       <div id="signupPanel" class="tab-panel">
         <form id="signupForm">
           <div class="form-group">
-            <label for="signupName">اسم المطعم / الشركة</label>
-            <input type="text" id="signupName" required placeholder="مثال: مطعم الذواقة" />
+            <label for="signupName">اسم المطعم / الشركة *</label>
+            <input type="text" id="signupName" required autocomplete="organization" placeholder="مثال: مطعم الذواقة" />
           </div>
           <div class="form-group">
-            <label for="signupEmail">البريد الإلكتروني</label>
-            <input type="email" id="signupEmail" required placeholder="your@email.com" dir="ltr" />
+            <label for="signupEmail">البريد الإلكتروني *</label>
+            <input type="email" id="signupEmail" required autocomplete="email" placeholder="your@email.com" dir="ltr" />
           </div>
           <div class="form-group">
-            <label for="signupPassword">كلمة المرور</label>
+            <label for="signupPhone">رقم الجوال *</label>
+            <input type="tel" id="signupPhone" required autocomplete="tel" placeholder="05xxxxxxxx" dir="ltr" />
+          </div>
+          <div class="form-group">
+            <label for="signupPassword">كلمة المرور *</label>
             <div class="password-row">
               <div class="pw-wrap" style="flex:1">
-                <input type="password" id="signupPassword" required minlength="8" placeholder="8 أحرف على الأقل" dir="ltr" />
+                <input type="password" id="signupPassword" required minlength="8" autocomplete="new-password" placeholder="8 أحرف على الأقل" dir="ltr" />
                 <button type="button" class="pw-toggle" data-target="signupPassword" title="إظهار/إخفاء">👁️</button>
               </div>
               <button type="button" class="btn-small" id="genPwBtn" title="توليد كلمة مرور قوية">🔐 توليد</button>
@@ -159,58 +163,12 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="signupPasswordConfirm">تأكيد كلمة المرور</label>
+            <label for="signupPasswordConfirm">تأكيد كلمة المرور *</label>
             <div class="pw-wrap">
-              <input type="password" id="signupPasswordConfirm" required placeholder="أعد كتابة كلمة المرور" dir="ltr" />
+              <input type="password" id="signupPasswordConfirm" required autocomplete="new-password" placeholder="أعد كتابة كلمة المرور" dir="ltr" />
               <button type="button" class="pw-toggle" data-target="signupPasswordConfirm" title="إظهار/إخفاء">👁️</button>
             </div>
             <div class="match-label" id="matchLabel"></div>
-          </div>
-          <div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-            <div class="form-group">
-              <label for="signupCountry">الدولة *</label>
-              <input type="text" id="signupCountry" required placeholder="مثال: السعودية" />
-            </div>
-            <div class="form-group">
-              <label for="signupCity">المدينة *</label>
-              <input type="text" id="signupCity" required placeholder="مثال: الرياض" />
-            </div>
-          </div>
-          <div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-            <div class="form-group">
-              <label for="signupPhone">رقم الجوال *</label>
-              <input type="tel" id="signupPhone" required placeholder="05xxxxxxxx" dir="ltr" />
-            </div>
-            <div class="form-group">
-              <label for="signupBusinessType">نوع النشاط *</label>
-              <select id="signupBusinessType" required style="width:100%;padding:12px 16px;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;color:#f5f5f5;font-family:inherit;font-size:1rem;">
-                <option value="">اختر النشاط</option>
-                <option value="restaurant">مطعم / مطعم سريع</option>
-                <option value="cafe">مقهى</option>
-                <option value="bakery">مخبز / حلويات</option>
-                <option value="food_truck">عربة طعام</option>
-                <option value="catering">تموين</option>
-                <option value="retail">متجر تجزئة</option>
-                <option value="manufacturing">تصنيع غذائي</option>
-                <option value="other">أخرى</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="signupEmployeeCount">عدد الموظفين *</label>
-            <input type="number" id="signupEmployeeCount" required min="0" placeholder="مثال: 12" />
-          </div>
-          <div class="form-group">
-            <label for="signupBranchCount">عدد فروع المنشأة *</label>
-            <input type="number" id="signupBranchCount" required min="1" placeholder="مثال: 1" />
-          </div>
-          <div class="form-group">
-            <label for="signupBio">نبذة عن المشروع *</label>
-            <textarea id="signupBio" required rows="2" placeholder="اكتب نبذة مختصرة..." style="width:100%;padding:12px 16px;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;color:#f5f5f5;font-family:inherit;font-size:1rem;resize:vertical;"></textarea>
-          </div>
-          <div class="form-group">
-            <label for="signupNeeds">الاحتياجات والخدمات المطلوبة *</label>
-            <textarea id="signupNeeds" required rows="2" placeholder="مثال: تحليل مالي، دراسة جدوى..." style="width:100%;padding:12px 16px;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;color:#f5f5f5;font-family:inherit;font-size:1rem;resize:vertical;"></textarea>
           </div>
           <button type="submit" class="btn btn-primary" id="signupBtn">
             <span class="spinner"></span>
@@ -481,14 +439,7 @@
         const password = document.getElementById('signupPassword').value;
         const confirm = document.getElementById('signupPasswordConfirm').value;
         const name = document.getElementById('signupName').value.trim();
-        const country = document.getElementById('signupCountry').value.trim();
-        const city = document.getElementById('signupCity').value.trim();
         const phone = document.getElementById('signupPhone').value.trim();
-        const businessType = document.getElementById('signupBusinessType').value;
-        const employeeCount = document.getElementById('signupEmployeeCount').value;
-        const branchCount = document.getElementById('signupBranchCount').value;
-        const bio = document.getElementById('signupBio').value.trim();
-        const needs = document.getElementById('signupNeeds').value.trim();
 
         if (password.length < 8) { showError('كلمة المرور يجب أن تكون 8 أحرف على الأقل'); setLoading('signupBtn', false); return; }
         if (password !== confirm) { showError('كلمة المرور غير متطابقة'); setLoading('signupBtn', false); return; }
@@ -496,14 +447,7 @@
 
         const { data, error } = await window.BondsAuth.signUp(email, password, {
           restaurant_name: name,
-          country: country,
-          city: city,
           phone: phone,
-          business_type: businessType,
-          employee_count: employeeCount,
-          branch_count: branchCount,
-          bio: bio,
-          needs: needs,
           language: 'ar'
         });
         setLoading('signupBtn', false);

@@ -151,7 +151,7 @@
       const user = userData?.user;
       if (!user) {
         const isEn = location.pathname.startsWith('/en/');
-        const authUrl = isEn ? '/en/calculators/auth/login.html' : '/calculators/auth/login.html';
+        const authUrl = isEn ? '/en/calculators/auth/index.html' : '/calculators/auth/index.html';
         container.innerHTML = `<a href="${authUrl}" class="btn btn-secondary" style="font-size:0.85rem;padding:0.5rem 1rem;" onclick="sessionStorage.setItem('auth_redirect',location.pathname)">تسجيل الدخول</a>`;
         return;
       }
@@ -197,7 +197,7 @@
           <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
           <h2 style="color:#1a1a1a;margin-bottom:0.5rem;">التحقق من الصلاحيات...</h2>
           <p id="${overlayId}-status" style="color:#555555;">جارِ التحقق</p>
-          <button id="${overlayId}-login" style="display:none;margin-top:1.5rem;padding:0.75rem 2rem;border-radius:10px;border:none;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#1a1a1a;font-weight:800;cursor:pointer;" onclick="location.href='/calculators/auth/login.html?redirect='+encodeURIComponent(location.href)">تسجيل الدخول</button>
+          <button id="${overlayId}-login" style="display:none;margin-top:1.5rem;padding:0.75rem 2rem;border-radius:10px;border:none;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#1a1a1a;font-weight:800;cursor:pointer;" onclick="location.href='/calculators/auth/index.html?redirect='+encodeURIComponent(location.href)">تسجيل الدخول</button>
         </div>
       </div>`;
     document.body.appendChild(div);

@@ -53,17 +53,43 @@
 
       if (user) {
         // Email confirmed and session active
-        card.innerHTML = `
-          <span class="icon">🎉</span>
-          <h1>تم تأكيد حسابك!</h1>
-          <p>
-            مرحباً <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
-            تم تأكيد حسابك في <span class="brand">Bonds للاستشارات المالية</span> بنجاح.<br>
-            يمكنك الآن استخدام جميع الخدمات.
-          </p>
-          <a href="/calculators/restaurant.html" class="btn">الذهاب إلى الآلة الحاسبة</a>
-          <a href="/calculators/auth/subscription.html" class="btn btn-secondary">إدارة الاشتراك</a>
-        `;
+        // Check if onboarding is needed
+        window.BondsAuth.getProfile(user.id).then(({ data: profile }) => {
+          const needsOnboarding = !profile || !profile.city || !profile.business_type || !profile.bio || !profile.needs;
+          if (needsOnboarding) {
+            card.innerHTML = `
+              <span class="icon">🎉</span>
+              <h1>تم تأكيد حسابك!</h1>
+              <p>
+                مرحباً <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
+                تم تأكيد حسابك بنجاح. بقي خطوة أخيرة لإكمال ملفك.
+              </p>
+              <a href="/calculators/auth/onboarding.html" class="btn">أكمل معلوماتك</a>
+            `;
+          } else {
+            card.innerHTML = `
+              <span class="icon">🎉</span>
+              <h1>تم تأكيد حسابك!</h1>
+              <p>
+                مرحباً <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
+                تم تأكيد حسابك في <span class="brand">Bonds للاستشارات المالية</span> بنجاح.<br>
+                يمكنك الآن استخدام جميع الخدمات.
+              </p>
+              <a href="/calculators/dashboard.html" class="btn">لوحة التحكم</a>
+            `;
+          }
+        }).catch(() => {
+          card.innerHTML = `
+            <span class="icon">🎉</span>
+            <h1>تم تأكيد حسابك!</h1>
+            <p>
+              مرحباً <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
+              تم تأكيد حسابك بنجاح.
+            </p>
+            <a href="/calculators/auth/onboarding.html" class="btn">أكمل معلوماتك</a>
+          `;
+        });
+        return;
       } else {
         // No session — maybe already confirmed or token expired
         card.innerHTML = `
