@@ -18,6 +18,16 @@ function isRateLimited(ip) {
   return entry.count > RATE_LIMIT_MAX;
 }
 
+// Periodic cleanup to prevent unbounded memory growth
+setInterval(function() {
+  const now = Date.now();
+  for (const ip in requestCounts) {
+    if (now - requestCounts[ip].resetAt > RATE_LIMIT_WINDOW_MS) {
+      delete requestCounts[ip];
+    }
+  }
+}, RATE_LIMIT_WINDOW_MS);
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');

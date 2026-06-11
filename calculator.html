@@ -496,7 +496,8 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© <span id="y">2025</span> بوندز للاستشارات المالية — جميع الحقوق محفوظة.</span>
+        <span>© <span id="y">2026</span> بوندز للاستشارات المالية — جميع الحقوق محفوظة.</span>
+        <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
         <div style="display: flex; gap: var(--space-6);">
           <a href="privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a>
           <a href="faq.html" style="color: var(--text-muted);">الأسئلة الشائعة</a>
@@ -1048,6 +1049,10 @@
         loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf'),
         loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js')
       ]);
+      if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+        alert('فشل تحميل مكتبة PDF. حاول مرة أخرى.');
+        return;
+      }
       var r = calculate(inputs);
       await loadChartJS();
       var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
@@ -1418,16 +1423,6 @@
           </div>
           <script>window.onload = function() { setTimeout(function() { window.print(); }, 500); };</scr${''}ipt>
         <script>
-function updateDateTime() {
-  const now = new Date();
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const dateStr = now.toLocaleDateString('ar-SA', options);
-  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
-  const el = document.getElementById('header-datetime');
-  if (el) el.textContent = dateStr + ' | ' + timeStr;
-}
-setInterval(updateDateTime, 60000);
-updateDateTime();
 </scr${''}ipt>
 </body>
         </html>
@@ -1568,16 +1563,6 @@ updateDateTime();
 <!-- Tawk.to Live Chat -->
 <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
 <script>
-function updateDateTime() {
-  const now = new Date();
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const dateStr = now.toLocaleDateString('ar-SA', options);
-  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
-  const el = document.getElementById('header-datetime');
-  if (el) el.textContent = dateStr + ' | ' + timeStr;
-}
-setInterval(updateDateTime, 60000);
-updateDateTime();
 </script>
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>

@@ -49,7 +49,7 @@ module.exports = async function handler(req, res) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
-        const userId = session.client_reference_id || session.subscription_metadata?.supabaseUserId;
+        const userId = session.client_reference_id || session.metadata?.supabaseUserId;
         const stripeCustomerId = session.customer;
         const stripeSubscriptionId = session.subscription;
 

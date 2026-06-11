@@ -38,6 +38,17 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  // Prevent open redirects
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
+  if (successUrl && !successUrl.startsWith(APP_URL)) {
+    res.status(400).json({ error: 'Invalid successUrl' });
+    return;
+  }
+  if (cancelUrl && !cancelUrl.startsWith(APP_URL)) {
+    res.status(400).json({ error: 'Invalid cancelUrl' });
+    return;
+  }
+
   try {
     // Create or retrieve Stripe Customer
     const customers = await stripe.customers.list({ email: email, limit: 1 });

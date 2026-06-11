@@ -679,10 +679,13 @@
       if (chart) { chart.destroy(); chart = null; }
     }
 
-    function exportExcel() {
+    async function exportExcel() {
       var months = getMonthData();
       if (typeof XLSX === 'undefined') {
-        BondsUI.toast('❌ مكتبة Excel غير محملة. حاول تحديث الصفحة.', 'error');
+        await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+      }
+      if (typeof XLSX === 'undefined') {
+        BondsUI.toast('❌ فشل تحميل مكتبة Excel', 'error');
         return;
       }
       var wb = XLSX.utils.book_new();
@@ -867,16 +870,6 @@
 <!-- Tawk.to Live Chat -->
 <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
 <script>
-function updateDateTime() {
-  const now = new Date();
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const dateStr = now.toLocaleDateString('ar-SA', options);
-  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
-  const el = document.getElementById('header-datetime');
-  if (el) el.textContent = dateStr + ' | ' + timeStr;
-}
-setInterval(updateDateTime, 60000);
-updateDateTime();
 </script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>

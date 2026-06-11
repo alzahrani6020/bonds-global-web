@@ -6,6 +6,10 @@
   const AUTH_PAGES = ['/calculators/auth/', '/en/calculators/auth/', '/auth.html'];
 
   async function initAuth() {
+    if (!window.BondsAuth) {
+      console.warn('[AuthGuard] BondsAuth not loaded');
+      return;
+    }
     // Validate session with SERVER (not just localStorage)
     const { data: userData, error: userError } = await window.BondsAuth.getUser();
     const user = userData?.user;
@@ -32,6 +36,7 @@
     }
 
     // Listen for auth state changes
+    if (!window.BondsAuth) return;
     const sb = window.BondsAuth.getSupabase();
     if (sb) {
       sb.auth.onAuthStateChange(async (event, session) => {
