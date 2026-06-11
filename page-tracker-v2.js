@@ -6,7 +6,7 @@
   'use strict';
 
   // Sentry error tracking (loads if DSN is available)
-  const SENTRY_DSN = window.__ENV?.SENTRY_DSN || '';
+  const SENTRY_DSN = window.__ENV?.SENTRY_DSN || 'https://623c9a5455e3452ead250190551e8806@o4511546038681600.ingest.us.sentry.io/4511546102054912';
   if (SENTRY_DSN && typeof window.Sentry === 'undefined') {
     var s = document.createElement('script');
     s.src = 'https://js.sentry-cdn.com/' + SENTRY_DSN.split('/').pop() + '.min.js';
