@@ -5,14 +5,14 @@
 
 /* ===== CSS VARIABLES FALLBACK ===== */
 :root {
-  --bonds-gold: #d4a853;
-  --bonds-gold-bright: #f0c96a;
-  --bonds-bg: #0a0f1a;
-  --bonds-bg-card: rgba(16,24,45,0.6);
-  --bonds-border: rgba(197,160,40,0.15);
-  --bonds-text: #e8ecf4;
-  --bonds-text-secondary: #94a3b8;
-  --bonds-text-muted: #64748b;
+  --bonds-gold: #b8954e;
+  --bonds-gold-bright: #d4b87a;
+  --bonds-bg: #f5f0e8;
+  --bonds-bg-card: rgba(255,255,255,0.85);
+  --bonds-border: rgba(0,0,0,0.08);
+  --bonds-text: #1a1a1a;
+  --bonds-text-secondary: #555555;
+  --bonds-text-muted: #888888;
   --bonds-radius: 12px;
   --bonds-radius-lg: 16px;
   --bonds-space-1: 0.25rem;

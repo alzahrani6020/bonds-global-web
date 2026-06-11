@@ -29,8 +29,8 @@
     const colors = {
       success: 'background:#22c55e;color:#fff;',
       error:   'background:#ef4444;color:#fff;',
-      warning: 'background:#f59e0b;color:#0a0f1a;',
-      info:    'background:var(--gold);color:#0a0f1a;'
+      warning: 'background:#f59e0b;color:#1a1a1a;',
+      info:    'background:var(--gold);color:#1a1a1a;'
     };
     toast.style.cssText = colors[type] + 'padding:0.75rem 1.25rem;border-radius:8px;font-weight:700;font-size:0.9rem;pointer-events:auto;box-shadow:0 4px 12px rgba(0,0,0,0.3);opacity:0;transform:translateY(-10px);transition:all 0.3s;min-width:280px;text-align:center;';
     toast.textContent = message;
@@ -221,7 +221,7 @@
         </div>
         <div style="display:flex;gap:0.75rem;justify-content:center;">
           ${idx > 0 ? `<button onclick="window.__bondsOnboard.prev()" style="background:transparent;color:var(--text);border:1px solid var(--border);padding:0.6rem 1.2rem;border-radius:8px;font-weight:700;cursor:pointer;">← السابق</button>` : ''}
-          <button onclick="window.__bondsOnboard.next()" style="background:var(--gold);color:#0a0f1a;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-weight:800;cursor:pointer;font-size:1rem;">${nextLabel}</button>
+          <button onclick="window.__bondsOnboard.next()" style="background:var(--gold);color:#1a1a1a;border:none;padding:0.6rem 1.5rem;border-radius:8px;font-weight:800;cursor:pointer;font-size:1rem;">${nextLabel}</button>
         </div>
       </div>
     `;
@@ -257,7 +257,7 @@
         <div style="font-size:3rem;margin-bottom:1rem;opacity:0.5;">${opts.icon || '📭'}</div>
         <p style="font-size:1rem;font-weight:600;margin-bottom:0.5rem;">${opts.title || 'لا توجد بيانات بعد'}</p>
         <p style="font-size:0.85rem;margin-bottom:1rem;">${opts.desc || 'ابدأ بإضافة البيانات لترى النتائج هنا'}</p>
-        ${opts.action ? `<button onclick="${opts.action}" style="background:var(--gold);color:#0a0f1a;border:none;padding:0.5rem 1rem;border-radius:8px;font-weight:700;cursor:pointer;">${opts.actionLabel || 'ابدأ الآن'}</button>` : ''}
+        ${opts.action ? `<button onclick="${opts.action}" style="background:var(--gold);color:#1a1a1a;border:none;padding:0.5rem 1rem;border-radius:8px;font-weight:700;cursor:pointer;">${opts.actionLabel || 'ابدأ الآن'}</button>` : ''}
       </div>
     `;
   };

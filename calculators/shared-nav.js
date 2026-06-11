@@ -52,7 +52,7 @@
 
     containers.forEach(function(container) {
       container.innerHTML =
-        '<span class="dropdown-toggle" style="cursor:pointer;color:#94a3b8;font-weight:600;position:relative;">' +
+        '<span class="dropdown-toggle" style="cursor:pointer;color:#555555;font-weight:600;position:relative;">' +
         label +
         ' <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-' + (isRTL ? 'right' : 'left') + ':4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
         '</span>' + html;

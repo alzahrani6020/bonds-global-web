@@ -111,7 +111,7 @@ function openPrintWindow(options) {
     '@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800;900&display=swap");' +
     '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap");' +
     'body { font-family: ' + (lang === 'en' ? 'Inter' : 'Vazirmatn') + ', Arial, sans-serif; background: #fff; color: #1a1a1a; padding: 32px; max-width: 1100px; margin: 0 auto; line-height: 1.6; }' +
-    'h1 { color: #0a0f1a; margin: 0; font-size: 22px; text-align: center; font-weight: 900; }' +
+    'h1 { color: #1a1a1a; margin: 0; font-size: 22px; text-align: center; font-weight: 900; }' +
     '.header { text-align: center; border-bottom: 3px solid #d4a853; padding-bottom: 16px; margin-bottom: 24px; }' +
     '.header p { color: #555; margin: 4px 0; font-size: 14px; }' +
     '.header .site-name { font-size: 14px; font-weight: 700; color: #444; letter-spacing: 0.3px; }' +

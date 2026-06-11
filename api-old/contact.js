@@ -72,8 +72,8 @@ ${message}
       `.trim();
 
       const emailHtml = `
-<div dir="rtl" style="font-family:Vazirmatn,system-ui,sans-serif;line-height:1.6;color:#0a0f1a;">
-  <h2 style="color:#d4a853;">📩 رسالة تواصل جديدة</h2>
+<div dir="rtl" style="font-family:Vazirmatn,system-ui,sans-serif;line-height:1.6;color:#1a1a1a;">
+  <h2 style="color:#b8954e;">📩 رسالة تواصل جديدة</h2>
   <table style="width:100%;border-collapse:collapse;margin:1rem 0;">
     <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الاسم</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${name}</td></tr>
     <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">البريد</td><td style="padding:0.5rem;border-bottom:1px solid #eee;"><a href="mailto:${email}">${email}</a></td></tr>
@@ -85,8 +85,8 @@ ${message}
     <p style="margin:0;font-weight:700;">الرسالة:</p>
     <p style="margin:0.5rem 0 0;">${message.replace(/\n/g, '<br>')}</p>
   </div>
-  <p style="margin-top:1.5rem;font-size:0.85rem;color:#94a3b8;">
-    <a href="https://bonds-global.com/admin/messages.html" style="color:#d4a853;">فتح لوحة التحكم →</a>
+  <p style="margin-top:1.5rem;font-size:0.85rem;color:#555555;">
+    <a href="https://bonds-global.com/admin/messages.html" style="color:#b8954e;">فتح لوحة التحكم →</a>
   </p>
 </div>
       `;

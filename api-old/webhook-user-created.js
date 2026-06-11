@@ -39,17 +39,17 @@ module.exports = async function handler(req, res) {
       `.trim();
 
       const html = `
-<div dir="rtl" style="font-family:Vazirmatn,system-ui,sans-serif;line-height:1.6;color:#0a0f1a;">
+<div dir="rtl" style="font-family:Vazirmatn,system-ui,sans-serif;line-height:1.6;color:#1a1a1a;">
   <h2 style="color:#22c55e;">✅ عميل جديد مسجل</h2>
   <table style="width:100%;border-collapse:collapse;margin:1rem 0;">
     <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الاسم</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${restaurant_name || '-'}</td></tr>
     <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">البريد</td><td style="padding:0.5rem;border-bottom:1px solid #eee;"><a href="mailto:${email}">${email}</a></td></tr>
     <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الهاتف</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${phone || '-'}</td></tr>
     <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الدولة</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${country || '-'}</td></tr>
-    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الخطة</td><td style="padding:0.5rem;border-bottom:1px solid #eee;"><span style="background:#d4a85320;color:#d4a853;padding:0.2rem 0.6rem;border-radius:50px;font-size:0.8rem;">${tier || 'free'}</span></td></tr>
+    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الخطة</td><td style="padding:0.5rem;border-bottom:1px solid #eee;"><span style="background:#b8954e20;color:#b8954e;padding:0.2rem 0.6rem;border-radius:50px;font-size:0.8rem;">${tier || 'free'}</span></td></tr>
   </table>
-  <p style="margin-top:1.5rem;font-size:0.85rem;color:#94a3b8;">
-    <a href="https://bonds-global.com/admin/users.html" style="color:#d4a853;">فتح لوحة المستخدمين →</a>
+  <p style="margin-top:1.5rem;font-size:0.85rem;color:#555555;">
+    <a href="https://bonds-global.com/admin/users.html" style="color:#b8954e;">فتح لوحة المستخدمين →</a>
   </p>
 </div>
       `;

@@ -192,12 +192,12 @@
     const div = document.createElement('div');
     div.id = overlayId;
     div.innerHTML = `
-      <div id="${overlayId}-box" style="position:fixed;inset:0;background:#0a0f1a;z-index:9999;display:flex;align-items:center;justify-content:center;font-family:Vazirmatn,system-ui,sans-serif;">
+      <div id="${overlayId}-box" style="position:fixed;inset:0;background:#1a1a1a;z-index:9999;display:flex;align-items:center;justify-content:center;font-family:Vazirmatn,system-ui,sans-serif;">
         <div style="text-align:center;max-width:400px;padding:2rem;">
           <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
-          <h2 style="color:#e8ecf4;margin-bottom:0.5rem;">التحقق من الصلاحيات...</h2>
-          <p id="${overlayId}-status" style="color:#94a3b8;">جارِ التحقق</p>
-          <button id="${overlayId}-login" style="display:none;margin-top:1.5rem;padding:0.75rem 2rem;border-radius:10px;border:none;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0a0f1a;font-weight:800;cursor:pointer;" onclick="location.href='/calculators/auth/login.html?redirect='+encodeURIComponent(location.href)">تسجيل الدخول</button>
+          <h2 style="color:#1a1a1a;margin-bottom:0.5rem;">التحقق من الصلاحيات...</h2>
+          <p id="${overlayId}-status" style="color:#555555;">جارِ التحقق</p>
+          <button id="${overlayId}-login" style="display:none;margin-top:1.5rem;padding:0.75rem 2rem;border-radius:10px;border:none;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#1a1a1a;font-weight:800;cursor:pointer;" onclick="location.href='/calculators/auth/login.html?redirect='+encodeURIComponent(location.href)">تسجيل الدخول</button>
         </div>
       </div>`;
     document.body.appendChild(div);

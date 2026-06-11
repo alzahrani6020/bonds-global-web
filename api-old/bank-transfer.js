@@ -12,7 +12,7 @@ async function sendAdminNotification(request) {
   try {
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-        <h2 style="color: #d4a853;">🏦 طلب تحويل بنكي جديد</h2>
+        <h2 style="color: #b8954e;">🏦 طلب تحويل بنكي جديد</h2>
         <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
           <tr><td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">الاسم</td><td style="padding: 10px; border: 1px solid #ddd;">${request.name}</td></tr>
           <tr><td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">البريد</td><td style="padding: 10px; border: 1px solid #ddd;">${request.email}</td></tr>
@@ -20,7 +20,7 @@ async function sendAdminNotification(request) {
           <tr><td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">الباقة</td><td style="padding: 10px; border: 1px solid #ddd;">${request.tier}</td></tr>
           <tr><td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">المبلغ</td><td style="padding: 10px; border: 1px solid #ddd;">${request.amount_sar} ر.س</td></tr>
         </table>
-        <a href="https://bonds-global.com/admin/bank-transfers.html" style="display: inline-block; background: #d4a853; color: #0a0f1a; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">الذهاب إلى لوحة التحكم</a>
+        <a href="https://bonds-global.com/admin/bank-transfers.html" style="display: inline-block; background: #b8954e; color: #1a1a1a; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">الذهاب إلى لوحة التحكم</a>
       </div>
     `;
 

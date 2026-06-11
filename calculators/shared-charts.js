@@ -20,7 +20,7 @@ function loadChartJS() {
 // ===== 2. Apply Bonds Dark Theme Defaults =====
 function applyChartDarkTheme() {
   if (typeof Chart === 'undefined' || Chart.defaults._bondsThemed) return;
-  Chart.defaults.color = '#e8ecf4';
+  Chart.defaults.color = '#1a1a1a';
   Chart.defaults.font.family = 'Vazirmatn';
   Chart.defaults._bondsThemed = true;
 }
@@ -35,7 +35,7 @@ function safeDestroyChart(chartInstance) {
 // ===== 4. Common Scale Config =====
 function getBondsScales(yTitle) {
   return {
-    x: { ticks: { color: '#e8ecf4', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-    y: { ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(255,255,255,0.05)' }, title: yTitle ? { display: true, text: yTitle, color: '#94a3b8' } : undefined }
+    x: { ticks: { color: '#1a1a1a', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(0,0,0,0.05)' } },
+    y: { ticks: { color: '#555555', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(0,0,0,0.05)' }, title: yTitle ? { display: true, text: yTitle, color: '#555555' } : undefined }
   };
 }
