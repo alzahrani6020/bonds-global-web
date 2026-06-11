@@ -264,6 +264,7 @@
       </nav>
       <div class="header-actions">
         <a href="../index.html" class="lang-switch">العربية</a>
+        <div id="authContainer"></div>
         <a href="contact.html" class="btn-header">Book Consultation</a>
         <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
       </div>
@@ -543,6 +544,10 @@
       counters.forEach(function(c){ observer.observe(c); });
     })();
   </script>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js"></script>
+  <script>window.BondsAuth && window.BondsAuth.initSiteAuth('authContainer');</script>
   <script src="../page-tracker-v2.js"></script>
 </body>
 </html>
