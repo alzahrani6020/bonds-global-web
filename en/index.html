@@ -29,6 +29,79 @@
   <!-- <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script> -->
   <link rel="preload" href="../styles.css" as="style" />
   <link rel="stylesheet" href="../styles.css" />
+  <style>
+    /* ===== Shine Effect on Logo ===== */
+    .logo-slot {
+      position: relative;
+      overflow: hidden;
+      border-radius: 6px;
+      display: inline-block;
+    }
+    .logo-slot::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(212,168,83,0.2), rgba(255,255,255,0.1), rgba(212,168,83,0.2), transparent);
+      animation: logoShine 1.8s ease-in-out 0.5s forwards;
+      pointer-events: none;
+    }
+    @keyframes logoShine {
+      0% { left: -100%; }
+      100% { left: 200%; }
+    }
+
+    /* ===== Gold Flowing Lines in Hero ===== */
+    .hero {
+      position: relative;
+      overflow: hidden;
+    }
+    .gold-lines {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .gold-line {
+      position: absolute;
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(90deg, transparent, rgba(212,168,83,0.06), rgba(212,168,83,0.12), rgba(212,168,83,0.06), transparent);
+      animation: flowLine linear infinite;
+    }
+    .gold-line:nth-child(1) { top: 22%; animation-duration: 20s; animation-delay: 0s; }
+    .gold-line:nth-child(2) { top: 38%; animation-duration: 24s; animation-delay: -6s; }
+    .gold-line:nth-child(3) { top: 52%; animation-duration: 18s; animation-delay: -12s; }
+    .gold-line:nth-child(4) { top: 68%; animation-duration: 22s; animation-delay: -3s; }
+    .gold-line:nth-child(5) { top: 84%; animation-duration: 19s; animation-delay: -9s; }
+    @keyframes flowLine {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* ===== Elegant Card Hover ===== */
+    .card {
+      position: relative;
+      overflow: hidden;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 50%;
+      width: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      transition: width 0.5s ease, left 0.5s ease;
+      z-index: 1;
+    }
+    .card:hover::after {
+      width: 70%;
+      left: 15%;
+    }
+    .card:hover {
+      transform: translateY(-5px) !important;
+    }
+  </style>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#0a0f1a" />
@@ -201,6 +274,13 @@
 
   <!-- Hero -->
   <section class="hero">
+    <div class="gold-lines">
+      <div class="gold-line"></div>
+      <div class="gold-line"></div>
+      <div class="gold-line"></div>
+      <div class="gold-line"></div>
+      <div class="gold-line"></div>
+    </div>
     <div class="hero__orb hero__orb--1"></div>
     <div class="hero__orb hero__orb--2"></div>
     <div class="container hero__content">
@@ -227,20 +307,20 @@
     <div class="container">
       <div class="stats-grid">
         <div class="stat-item reveal">
-          <span class="stat-item__num" data-target="22">0</span>
-          <span class="stat-item__label">Arab Countries</span>
+          <span class="stat-item__num" data-target="97" data-suffix="%">0</span>
+          <span class="stat-item__label">Client Satisfaction</span>
         </div>
         <div class="stat-item reveal reveal-delay-1">
-          <span class="stat-item__num" data-target="179">0</span>
-          <span class="stat-item__label">Delivery Platforms</span>
+          <span class="stat-item__num" data-target="150" data-prefix="+" data-suffix="">0</span>
+          <span class="stat-item__label">Clients Served</span>
         </div>
         <div class="stat-item reveal reveal-delay-2">
-          <span class="stat-item__num" data-target="6">0</span>
-          <span class="stat-item__label">Free Calculators</span>
+          <span class="stat-item__num" data-target="2" data-suffix="B+ SAR" data-prefix="+" data-multiplier="1">0</span>
+          <span class="stat-item__label">Assets Under Study</span>
         </div>
         <div class="stat-item reveal reveal-delay-3">
-          <span class="stat-item__num" data-target="150">0</span>
-          <span class="stat-item__label">Consultations Delivered</span>
+          <span class="stat-item__num" data-target="500" data-prefix="+" data-suffix="">0</span>
+          <span class="stat-item__label">Studies Completed</span>
         </div>
       </div>
     </div>
@@ -754,6 +834,45 @@
         .then(function(r) { if(r.ok) { form.style.display='none'; document.getElementById('newsletterSuccess').style.display='block'; } else { alert('An error occurred. Please try again.'); btn.textContent=originalText; btn.disabled=false; }})
         .catch(function() { alert('An error occurred. Please try again.'); btn.textContent=originalText; btn.disabled=false; });
     });
+  </script>
+  <script>
+  (function(){
+    "use strict";
+    if(!('IntersectionObserver' in window)) return;
+    var counters = document.querySelectorAll('.stat-item__num[data-target]');
+    if(!counters.length) return;
+    function animateCounter(el){
+      var target = parseFloat(el.getAttribute('data-target'));
+      if(isNaN(target)) return;
+      var suffix = el.getAttribute('data-suffix') || '';
+      var prefix = el.getAttribute('data-prefix') || '';
+      var duration = 2000;
+      var start = performance.now();
+      function step(now){
+        var p = Math.min(1, (now - start) / duration);
+        var eased = 1 - Math.pow(1 - p, 4);
+        var current = target * eased;
+        if(suffix === '%'){
+          el.textContent = prefix + Math.round(current) + suffix;
+        } else if(suffix.indexOf('B') !== -1){
+          el.textContent = prefix + current.toFixed(1) + suffix;
+        } else {
+          el.textContent = prefix + Math.round(current) + suffix;
+        }
+        if(p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          animateCounter(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    counters.forEach(function(c){ observer.observe(c); });
+  })();
   </script>
   <script src="../script.js" defer></script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}</script>

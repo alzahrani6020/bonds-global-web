@@ -382,10 +382,72 @@
       color: inherit;
       display: block;
     }
+    .card {
+      position: relative;
+      overflow: hidden;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 50%;
+      width: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      transition: width 0.5s ease, left 0.5s ease;
+      z-index: 1;
+    }
+    .card:hover::after {
+      width: 70%;
+      left: 15%;
+    }
     .card:hover {
       transform: translateY(-5px);
       border-color: var(--gold);
       box-shadow: 0 10px 40px rgba(212,168,83,0.15);
+    }
+
+    /* ===== Shine Effect on Logo ===== */
+    .header-brand {
+      position: relative;
+      overflow: hidden;
+      border-radius: 6px;
+    }
+    .header-brand::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(212,168,83,0.2), rgba(255,255,255,0.1), rgba(212,168,83,0.2), transparent);
+      animation: logoShine 1.8s ease-in-out 0.5s forwards;
+      pointer-events: none;
+    }
+    @keyframes logoShine {
+      0% { left: -100%; }
+      100% { left: 200%; }
+    }
+
+    /* ===== Gold Flowing Lines in Hero ===== */
+    .gold-lines {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .gold-line {
+      position: absolute;
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(90deg, transparent, rgba(212,168,83,0.06), rgba(212,168,83,0.12), rgba(212,168,83,0.06), transparent);
+      animation: flowLine linear infinite;
+    }
+    .gold-line:nth-child(1) { top: 22%; animation-duration: 20s; animation-delay: 0s; }
+    .gold-line:nth-child(2) { top: 38%; animation-duration: 24s; animation-delay: -6s; }
+    .gold-line:nth-child(3) { top: 52%; animation-duration: 18s; animation-delay: -12s; }
+    .gold-line:nth-child(4) { top: 68%; animation-duration: 22s; animation-delay: -3s; }
+    .gold-line:nth-child(5) { top: 84%; animation-duration: 19s; animation-delay: -9s; }
+    @keyframes flowLine {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
     }
     .card__icon {
       width: 48px; height: 48px;
@@ -535,6 +597,13 @@
 
   <!-- Hero -->
   <section class="hero">
+    <div class="gold-lines">
+      <div class="gold-line"></div>
+      <div class="gold-line"></div>
+      <div class="gold-line"></div>
+      <div class="gold-line"></div>
+      <div class="gold-line"></div>
+    </div>
     <div class="hero__content">
       <div class="hero__eyebrow">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -555,31 +624,31 @@
     <div class="stats-bar">
       <div class="stats-grid">
         <div class="stat-item">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-content">
+            <div class="stat-num" data-target="97" data-suffix="%">0</div>
+            <div class="stat-label">معدل رضا العملاء</div>
+          </div>
+        </div>
+        <div class="stat-item">
           <div class="stat-icon">👥</div>
           <div class="stat-content">
-            <div class="stat-num" data-target="150">0</div>
-            <div class="stat-label">عميل راضٍ</div>
+            <div class="stat-num" data-target="150" data-prefix="+" data-suffix="">0</div>
+            <div class="stat-label">عميل من القطاع الخاص والعام</div>
           </div>
         </div>
         <div class="stat-item">
           <div class="stat-icon">📈</div>
           <div class="stat-content">
-            <div class="stat-num" data-target="98">0</div>
-            <div class="stat-label">دقة في النتائج</div>
+            <div class="stat-num" data-target="2" data-suffix=" مليار ريال" data-multiplier="1" data-prefix="+">0</div>
+            <div class="stat-label">أصول تحت دراستها</div>
           </div>
         </div>
         <div class="stat-item">
-          <div class="stat-icon">⚡</div>
+          <div class="stat-icon">📋</div>
           <div class="stat-content">
-            <div class="stat-num" data-target="3">0</div>
-            <div class="stat-label">نتائج فورية خلال ثوانٍ</div>
-          </div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-icon">🛡️</div>
-          <div class="stat-content">
-            <div class="stat-num">100%</div>
-            <div class="stat-label">بياناتك محمية بالكامل</div>
+            <div class="stat-num" data-target="500" data-prefix="+" data-suffix="">0</div>
+            <div class="stat-label">دراسة واستشارة منجزة</div>
           </div>
         </div>
       </div>
@@ -694,17 +763,23 @@
     const counters = document.querySelectorAll('[data-target]');
     if (counters.length && 'IntersectionObserver' in window) {
       function animateCounter(el) {
-        const target = parseInt(el.getAttribute('data-target'), 10);
-        if (!target || isNaN(target)) return;
-        const duration = 1800;
+        const target = parseFloat(el.getAttribute('data-target'));
+        if (isNaN(target)) return;
+        const suffix = el.getAttribute('data-suffix') || '';
+        const prefix = el.getAttribute('data-prefix') || '';
+        const duration = 2000;
         const start = performance.now();
         function step(now) {
           const p = Math.min(1, (now - start) / duration);
           const eased = 1 - Math.pow(1 - p, 4);
-          const current = Math.round(target * eased);
-          if (target === 98) el.textContent = current + '%';
-          else if (target === 3) el.textContent = current + ' ث';
-          else el.textContent = current + '+';
+          const current = target * eased;
+          if (suffix === '%') {
+            el.textContent = prefix + Math.round(current) + suffix;
+          } else if (suffix.includes('مليار')) {
+            el.textContent = prefix + current.toFixed(1) + suffix;
+          } else {
+            el.textContent = prefix + Math.round(current) + suffix;
+          }
           if (p < 1) requestAnimationFrame(step);
         }
         requestAnimationFrame(step);
@@ -716,7 +791,7 @@
             observer.unobserve(entry.target);
           }
         });
-      }, { threshold: 0.5 });
+      }, { threshold: 0.4 });
       counters.forEach(function(c) { observer.observe(c); });
     }
   </script>
