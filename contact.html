@@ -32,45 +32,55 @@
     gtag('config', 'G-XXXXXXXXXX');
   </script>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="header-footer.css" />
   <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
 
-  <!-- Top Bar -->
-  <div class="topbar">
-    <div class="container topbar__inner">
-      <span>استشارتك الأولى مجانية — احجز الآن</span>
-      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب سريع →</a>
-    </div>
-  </div>
-
   <!-- Header -->
   <header class="main-header" id="header">
-    <div class="container main-header__inner">
-      <a href="index.html" class="logo-slot">
-        <img src="assets/bonds-logo.jpg" alt="بوندز" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
+    <div class="main-header__inner">
+      <a href="index.html" class="header-brand">
+        <img src="assets/bonds-logo.jpg" alt="بوندز" />
+        <div class="brand-text">
+          <span class="brand-name">بوندز</span>
+          <span class="brand-tagline">BONDS CONSULTING</span>
+        </div>
       </a>
       <nav class="main-nav" id="mainNav">
         <ul>
-          <li><a href="index.html">الرئيسية</a></li>
+          <li><a href="index.html" class="active">الرئيسية</a></li>
           <li><a href="about.html">من نحن</a></li>
+          <li><a href="services.html">خدماتنا</a></li>
           <li class="dropdown">
-            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
-              الخدمات
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="dropdown-toggle">
+              الأدلة
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </span>
             <div class="dropdown-menu">
-              <a href="services.html#analysis">التحليل المالي</a>
-              <a href="services.html#cashflow">إدارة التدفقات النقدية</a>
-              <a href="services.html#feasibility">دراسات الجدوى</a>
-              <a href="services.html#risk">تحليل المخاطر</a>
-              <a href="services.html#research">الاستبيانات والبحوث</a>
+              <a href="sectors/manufacturing.html">🏭 السعودية</a>
+              <a href="sectors/manufacturing-eg.html">🏭 مصر</a>
+              <a href="sectors/manufacturing-ae.html">🏭 الإمارات</a>
+              <a href="sectors/manufacturing-jo.html">🏭 الأردن</a>
+              <a href="sectors/manufacturing-om.html">🏭 عمان</a>
+              <a href="sectors/manufacturing-bh.html">🏭 البحرين</a>
+              <a href="sectors/manufacturing-kw.html">🏭 الكويت</a>
+              <a href="sectors/manufacturing-qa.html">🏭 قطر</a>
+              <a href="sectors/manufacturing-ma.html">🏭 المغرب</a>
+              <a href="sectors/manufacturing-tn.html">🏭 تونس</a>
+              <a href="sectors/manufacturing-iq.html">🏭 العراق</a>
+              <a href="sectors/manufacturing-sd.html">🏭 السودان</a>
+              <a href="sectors/manufacturing-ly.html">🏭 ليبيا</a>
+              <a href="sectors/manufacturing-dz.html">🏭 الجزائر</a>
+              <a href="sectors/manufacturing-lb.html">🏭 لبنان</a>
+              <a href="sectors/manufacturing-ye.html">🏭 اليمن</a>
+              <a href="sectors/manufacturing-sy.html">🏭 سوريا</a>
             </div>
           </li>
           <li class="dropdown">
-            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
+            <span class="dropdown-toggle">
               الحاسبات
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </span>
             <div class="dropdown-menu">
               <a href="calculator.html">نقطة التعادل</a>
@@ -82,19 +92,19 @@
               <a href="calculators/feasibility.html">جدوى المطعم</a>
               <a href="calculators/invoice-analyzer.html">تحليل الفواتير</a>
               <a href="calculators/feasibility-template.html">نموذج دراسة الجدوى</a>
+              <div style="border-top:1px solid var(--border); margin:0.4rem 0;"></div>
+              <a href="calculators/factory-cost.html">🏭 المصانع - السعودية</a>
+              <a href="calculators/factory-cost-eg.html">🏭 المصانع - مصر</a>
             </div>
           </li>
-          <li><a href="pricing.html">الأسعار</a></li>
           <li><a href="blog/index.html">مقالات</a></li>
-          <li><a href="contact.html">تواصل</a></li>
+          <li><a href="contact.html">تواصل معنا</a></li>
         </ul>
       </nav>
       <div class="header-actions">
-        <a href="en/contact.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">EN</a>
-        <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
-        <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
+        <a href="en/index.html" class="lang-switch">EN</a>
+        <a href="contact.html" class="btn-header">احجز استشارة</a>
+        <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
       </div>
     </div>
   </header>
@@ -229,56 +239,54 @@
 
   <!-- Footer -->
   <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <div class="logo-slot">
-            <img src="assets/bonds-logo.jpg" alt="بوندز" class="site-logo" width="577" height="567" loading="lazy" />
-          </div>
-          <p>استشارات مالية لأصحاب المشاريع والشركات الصغيرة والمتوسطة في مصر والسعودية.</p>
-        </div>
-        <div>
-          <h4 class="footer-title">الصفحات</h4>
-          <div class="footer-links">
-            <a href="index.html">الرئيسية</a>
-            <a href="services.html">الخدمات</a>
-            <a href="about.html">من نحن</a>
-            <a href="faq.html">الأسئلة الشائعة</a>
-            <a href="methodology.html">منهجية الحساب</a>
-            <a href="contact.html">تواصل معنا</a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">الخدمات</h4>
-          <div class="footer-links">
-            <a href="services.html#analysis">التحليل المالي</a>
-            <a href="services.html">التدفقات النقدية</a>
-            <a href="services.html#feasibility">دراسات الجدوى</a>
-            <a href="services.html#risk">تحليل المخاطر</a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">السجلات التجارية</h4>
-          <div class="footer-links">
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">مصر: س.ت 39733</span>
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">السعودية: ر.و.م 7042125869</span>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">تواصل</h4>
-          <div class="footer-links">
-            <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب: +966 56 756 6616</a>
-            <a href="mailto:info@bonds-global.com">info@bonds-global.com</a>
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">الشيخ زايد، الجيزة، مصر <br>جدة، شارع قريش</span>
-          </div>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="assets/bonds-logo.jpg" alt="بوندز" />
+        <p>بوندز BONDS<br />للاستشارات المالية والإدارية</p>
+      </div>
+      <div>
+        <div class="footer-title">خدماتنا</div>
+        <div class="footer-links">
+          <a href="services.html">الاستشارات المالية</a>
+          <a href="services.html">الاستشارات الإدارية</a>
+          <a href="services.html">دراسات الجدوى</a>
+          <a href="services.html">تقييم المنشآت</a>
+          <a href="services.html">إعادة هيكلة الشركات</a>
+          <a href="services.html">إدارة المخاطر والحوكمة</a>
         </div>
       </div>
-      <div class="footer-bottom">
-        <span>© <span id="y">2025</span> بوندز للاستشارات المالية — جميع الحقوق محفوظة.</span>
-        <div style="display: flex; gap: var(--space-6);">
-          <a href="privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a>
-          <a href="faq.html" style="color: var(--text-muted);">الأسئلة الشائعة</a>
+      <div>
+        <div class="footer-title">عن بوندز</div>
+        <div class="footer-links">
+          <a href="about.html">من نحن</a>
+          <a href="about.html">قيمنا</a>
+          <a href="about.html">فريقنا</a>
+          <a href="about.html">شركاؤنا</a>
         </div>
+      </div>
+      <div>
+        <div class="footer-title">المركز المعرفي</div>
+        <div class="footer-links">
+          <a href="blog/index.html">المقالات</a>
+          <a href="blog/index.html">الأدلة والتقارير</a>
+          <a href="blog/index.html">الأسئلة الشائعة</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-title">تواصل معنا</div>
+        <div class="footer-links">
+          <span>+966 11 123 4567</span>
+          <span>info@bonds-global.com</span>
+          <span>الرياض، المملكة العربية السعودية</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>جميع الحقوق محفوظة. بوندز للاستشارات المالية والإدارية © 2026</span>
+      <div class="footer-socials">
+        <a href="#">in</a>
+        <a href="#">X</a>
+        <a href="#">📷</a>
       </div>
     </div>
   </footer>
