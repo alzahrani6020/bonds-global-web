@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تقرير Bonds Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container report-page">
+    <div class="cta-bar no-print" style="margin-bottom:24px">
+      <button onclick="window.print()" class="btn btn-primary">تحميل / طباعة PDF</button>
+      <a href="index.html" class="btn btn-outline">حاسبة جديدة</a>
+    </div>
+
+    <div id="report-content" class="report-print">
+      <h1>تقرير جدوى احترافي</h1>
+      <p class="subtitle">Bonds Pro · جاري التحميل...</p>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    let p = {};
+    try {
+      const saved = JSON.parse(localStorage.getItem('bonds_pro_last_input') || '{}');
+      p = Object.assign({}, saved, Object.fromEntries(params));
+    } catch (e) {
+      p = Object.fromEntries(params);
+    }
+
+    if (!p.sector || !p.activity || !p.capital || !p.revenue) {
+      document.getElementById('report-content').innerHTML = '<h1>بيانات ناقصة</h1><p>يرجى العودة للحاسبة وإدخال بيانات المشروع.</p><a href="index.html" class="btn btn-primary">العودة</a>';
+    } else if (!p.paid) {
+      document.getElementById('report-content').innerHTML = '<h1>التقرير مدفوع</h1><p>يرجى إتمام الدفع لعرض التقرير الكامل.</p><a href="index.html" class="btn btn-primary">العودة للحاسبة</a>';
+    } else {
+      const qs = new URLSearchParams({ sector: p.sector, activity: p.activity, capital: p.capital, revenue: p.revenue, format: 'html' });
+      fetch('/api/pro-report?' + qs.toString())
+        .then(r => r.text())
+        .then(html => {
+          document.getElementById('report-content').innerHTML = html;
+        })
+        .catch(err => {
+          document.getElementById('report-content').innerHTML = '<h1>خطأ</h1><p>' + err.message + '</p>';
+        });
+    }
+  </script>
+</body>
+</html>

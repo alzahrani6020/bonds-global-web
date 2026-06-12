@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة التحكم | بوندز برو</title>
+  <meta name="description" content="لوحة تحكم بوندز برو — مشاريعك، تقاريرك، واشتراكاتك." />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../calculators/shared-calculators.css" />
+  <link rel="stylesheet" href="pro.css" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+</head>
+<body style="font-family:Vazirmatn,system-ui,sans-serif">
+  <div id="site-header"></div>
+
+  <section class="section">
+    <div class="pro-dashboard">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom: var(--space-6);">
+        <h1>لوحة التحكم</h1>
+        <button id="logoutBtn" class="bonds-btn bonds-btn-outline">تسجيل الخروج</button>
+      </div>
+
+      <div class="pro-grid">
+        <div class="pro-sidebar">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">معلومات الحساب</h3>
+          <p id="userEmail" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: var(--space-4);">—</p>
+          <div id="subscriptionStatus" style="background: rgba(184,149,78,0.1); border: 1px solid rgba(184,149,78,0.3); color: var(--gold); padding: var(--space-3); border-radius: 10px; font-size: 0.85rem; font-weight: 700;">
+            حالة الاشتراك: غير مشترك
+          </div>
+          <div style="margin-top: var(--space-6);">
+            <a href="index.html#pricing" class="bonds-btn bonds-btn-primary" style="width:100%;">ترقية الاشتراك</a>
+          </div>
+        </div>
+
+        <div class="pro-main">
+          <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--text);">إنشاء تقرير جديد</h2>
+
+          <form id="reportForm">
+            <div class="bonds-form-row">
+              <div class="bonds-form-group">
+                <label>اسم المشروع</label>
+                <input type="text" id="projectName" class="bonds-input" required placeholder="مثال: عيادة الأسرة" />
+              </div>
+              <div class="bonds-form-group">
+                <label>القطاع</label>
+                <select id="sector" class="bonds-input" required>
+                  <option value="medical">القطاع الصحي</option>
+                  <option value="industrial">الصناعي</option>
+                  <option value="logistics">اللوجستي</option>
+                </select>
+              </div>
+              <div class="bonds-form-group">
+                <label>النشاط</label>
+                <select id="activity" class="bonds-input" required>
+                  <option value="clinic">عيادة</option>
+                  <option value="dental">مركز أسنان</option>
+                  <option value="pharmacy">صيدلية</option>
+                  <option value="lab">مختبر</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="bonds-form-row">
+              <div class="bonds-form-group">
+                <label>رأس المال (ر.س)</label>
+                <input type="number" id="capital" class="bonds-input" required min="1000" placeholder="1000000" />
+              </div>
+              <div class="bonds-form-group">
+                <label>الإيراد السنوي المتوقع (ر.س)</label>
+                <input type="number" id="revenue" class="bonds-input" required min="1000" placeholder="1500000" />
+              </div>
+            </div>
+
+            <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top: var(--space-4);">
+              <button type="button" id="analyzeBtn" class="bonds-btn bonds-btn-primary">تحليل المشروع</button>
+              <button type="button" id="payBtn" class="bonds-btn bonds-btn-secondary" disabled>💳 شراء التقرير (49 ر.س)</button>
+            </div>
+          </form>
+
+          <div id="resultBox" class="pro-result-box" style="display:none;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--gold); margin-bottom: var(--space-4);">نتيجة التحليل</h3>
+            <div class="metric-row">
+              <div class="metric-box"><div class="label">ROI</div><div class="value" id="resRoi">—</div></div>
+              <div class="metric-box"><div class="label">المخاطر</div><div class="value" id="resRisk">—</div></div>
+              <div class="metric-box"><div class="label">فترة الاسترداد</div><div class="value" id="resBe">—</div></div>
+              <div class="metric-box"><div class="label">التقييم</div><div class="value" id="resLevel">—</div></div>
+            </div>
+            <p id="resMessage" style="margin-top: var(--space-4); font-weight: 700;"></p>
+            <p id="resAction" style="color: var(--text-secondary);"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="site-footer"></div>
+
+  <script src="../site-layout.js"></script>
+  <script src="pro-engine.js"></script>
+  <script>
+    const env = window.__ENV || {};
+    const supabase = window.supabase.createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+    let currentResult = null;
+
+    async function init() {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUser = session.user;
+      document.getElementById('userEmail').textContent = currentUser.email;
+      loadSubscription();
+    }
+
+    async function loadSubscription() {
+      const { data, error } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .single();
+
+      const statusBox = document.getElementById('subscriptionStatus');
+      if (data && data.status === 'active') {
+        statusBox.textContent = 'حالة الاشتراك: نشط';
+        document.getElementById('payBtn').textContent = '📄 تحميل التقرير';
+      }
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', async function() {
+      await supabase.auth.signOut();
+      window.location.href = 'login.html';
+    });
+
+    document.getElementById('sector').addEventListener('change', function() {
+      const sector = this.value;
+      const activitySelect = document.getElementById('activity');
+      activitySelect.innerHTML = '';
+      const activities = {
+        medical: { clinic: 'عيادة', dental: 'مركز أسنان', pharmacy: 'صيدلية', lab: 'مختبر' },
+        industrial: { food_factory: 'مصنع غذائي', chemical: 'مصنع كيماويات' },
+        logistics: { warehouse: 'مستودع', cold_storage: 'تخزين مبرد' }
+      };
+      for (const [k, v] of Object.entries(activities[sector] || {})) {
+        const opt = document.createElement('option');
+        opt.value = k;
+        opt.textContent = v;
+        activitySelect.appendChild(opt);
+      }
+    });
+
+    document.getElementById('analyzeBtn').addEventListener('click', async function() {
+      const payload = {
+        sector: document.getElementById('sector').value,
+        activity: document.getElementById('activity').value,
+        capital: parseFloat(document.getElementById('capital').value) || 0,
+        revenue: parseFloat(document.getElementById('revenue').value) || 0
+      };
+
+      if (!payload.capital || !payload.revenue) {
+        alert('أدخل رأس المال والإيرادات');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/pro-calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        currentResult = data;
+
+        document.getElementById('resultBox').style.display = 'block';
+        document.getElementById('resRoi').textContent = data.result.roi + '%';
+        document.getElementById('resRisk').textContent = data.result.risk;
+        document.getElementById('resBe').textContent = data.result.breakEvenMonths + ' شهر';
+        document.getElementById('resLevel').textContent = data.ai.level;
+        document.getElementById('resMessage').textContent = data.ai.message;
+        document.getElementById('resAction').textContent = data.ai.action;
+        document.getElementById('payBtn').disabled = false;
+      } catch (err) {
+        alert('حدث خطأ في التحليل');
+      }
+    });
+
+    document.getElementById('payBtn').addEventListener('click', async function() {
+      if (!currentResult) return;
+      localStorage.setItem('bonds_pro_report', JSON.stringify(currentResult));
+      window.location.href = 'report.html';
+    });
+
+    init();
+  </script>
+  <script src="../page-tracker-v2.js"></script>
+</body>
+</html>

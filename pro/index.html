@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bonds Pro | دراسة جدوى احترافية</title>
+  <meta name="description" content="احصل على دراسة جدوى احترافية مدعومة بتحليل ذكي خلال دقائق." />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="navbar no-print">
+      <a href="index.html" class="logo">Bonds Pro</a>
+      <nav>
+        <a href="index.html">الرئيسية</a>
+        <a href="login.html">تسجيل الدخول</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>دراسة جدوى احترافية في دقائق</h1>
+      <p>أدخل بيانات مشروعك، واحصل على تحليل مالي، درجة جاهزية، وتقرير PDF جاهز للعرض على المستثمرين.</p>
+    </section>
+
+    <div class="card">
+      <h2 style="margin-top:0">بيانات المشروع</h2>
+      <form id="pro-form" class="form-grid">
+        <div>
+          <label for="sector">القطاع</label>
+          <select id="sector" required>
+            <option value="" disabled selected>اختر القطاع</option>
+            <option value="medical">طبي / صحي</option>
+            <option value="restaurant">مطعم / مقهى</option>
+            <option value="retail">تجارة Retail</option>
+            <option value="tech">تقنية / SaaS</option>
+            <option value="real_estate">عقارات</option>
+            <option value="education">تعليم / تدريب</option>
+            <option value="logistics">خدمات لوجستية</option>
+            <option value="beauty">تجميل / عناية</option>
+            <option value="fitness">رياضة / لياقة</option>
+            <option value="manufacturing">تصنيع</option>
+          </select>
+        </div>
+        <div>
+          <label for="activity">النشاط التفصيلي</label>
+          <input type="text" id="activity" placeholder="مثال: عيادة أسنان في الرياض" required />
+        </div>
+        <div>
+          <label for="capital">رأس المال المستثمر (ر.س)</label>
+          <input type="number" id="capital" min="0" placeholder="500000" required />
+        </div>
+        <div>
+          <label for="revenue">الإيرادات الشهرية المتوقعة (ر.س)</label>
+          <input type="number" id="revenue" min="0" placeholder="80000" required />
+        </div>
+      </form>
+      <div class="cta-bar">
+        <button type="button" id="analyze-btn" class="btn btn-primary">حلّل المشروع مجاناً</button>
+        <a href="login.html" class="btn btn-outline">تسجيل الدخول</a>
+      </div>
+    </div>
+
+    <div id="result-section" class="result-section card">
+      <div style="text-align:center">
+        <div id="score-ring" class="score-ring" style="--score-deg:0deg"><span id="score-value">0</span></div>
+        <h2 id="verdict-text">-</h2>
+        <p id="verdict-desc" style="color:var(--text-secondary)">-</p>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi"><div class="label">الربح الشهري</div><div id="kpi-profit" class="value">-</div></div>
+        <div class="kpi"><div class="label">مدة الاسترداد</div><div id="kpi-roi" class="value">-</div></div>
+        <div class="kpi"><div class="label">مخاطر القطاع</div><div id="kpi-risk" class="value">-</div></div>
+      </div>
+
+      <h3>التوصيات</h3>
+      <ul id="recommendations" class="recommendations"></ul>
+
+      <div class="pricing">
+        <div class="price-card card">
+          <h3>تقرير واحد</h3>
+          <div class="price">49 <span>ر.س</span></div>
+          <ul>
+            <li>تقرير PDF كامل</li>
+            <li>تحليل مالي مفصل</li>
+            <li>صالح لمرة واحدة</li>
+          </ul>
+          <button class="btn btn-primary buy-btn" data-plan="single">اشترِ التقرير</button>
+        </div>
+        <div class="price-card card featured">
+          <h3>اشتراك شهري</h3>
+          <div class="price">199 <span>ر.س/شهر</span></div>
+          <ul>
+            <li>تقارير غير محدودة</li>
+            <li>مقارنة السيناريوهات</li>
+            <li>دعم.priority</li>
+          </ul>
+          <button class="btn btn-primary buy-btn" data-plan="monthly">ابدأ الاشتراك</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
