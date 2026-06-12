@@ -2513,7 +2513,7 @@
           document.getElementById('btn-import-supabase').style.display = 'inline-block';
         }
       } catch (e) {
-        console.log('Supabase not initialized:', e);
+        
       }
     }
 
@@ -2551,7 +2551,7 @@
             filledCount += items.length;
           }
         }
-      } catch (e) { console.log('menu_items error', e); }
+      } catch (e) {  }
 
       // 3. Sales Transactions → Revenue
       try {
@@ -2585,7 +2585,7 @@
           });
           filledCount++;
         }
-      } catch (e) { console.log('sales error', e); }
+      } catch (e) {  }
 
       // 4. Platforms → Variable Costs
       try {
@@ -2604,7 +2604,7 @@
             filledCount += platforms.length;
           }
         }
-      } catch (e) { console.log('platforms error', e); }
+      } catch (e) {  }
 
       // 5. Engineering Scores → SWOT
       try {
@@ -2626,7 +2626,7 @@
             filledCount++;
           }
         }
-      } catch (e) { console.log('scores error', e); }
+      } catch (e) {  }
 
       calcFinancials();
       alert('تم الاستيراد من بياناتك ✅\nتم ملء ' + filledCount + ' خانة/بيان');
@@ -2762,7 +2762,7 @@
         calcFinancials(); calcCashFlow(); calcCapital(); calcHRGrandTotal(); calcToolsGrandTotal();
         const indicator = document.getElementById('auto-save-indicator');
         if (indicator) { indicator.textContent = '💾 تم استرجاع المسودة المحفوظة تلقائياً'; indicator.style.opacity = '1'; setTimeout(() => { indicator.style.opacity = '0'; indicator.textContent = '💾 تم الحفظ تلقائياً'; }, 3000); }
-      } catch(e) { console.error('Auto-restore failed', e); }
+      } catch(e) {  }
     }
     // Start auto-save listeners
     document.addEventListener('DOMContentLoaded', () => {
@@ -3554,7 +3554,7 @@
         resultDiv.style.display = 'block';
 
       } catch (err) {
-        console.error(err);
+        
         errorDiv.textContent = 'تعذر الاتصال بوكيل البحث. حاول مرة أخرى.';
         errorDiv.style.display = 'block';
       } finally {
@@ -3771,7 +3771,7 @@
           output.parentElement.appendChild(sourcesDiv);
         }
       } catch (err) {
-        console.error(err);
+        
         errorDiv.textContent = 'تعذر الاتصال بوكيل البحث. حاول مرة أخرى أو املأ البيانات يدوياً.';
         errorDiv.style.display = 'block';
       } finally {
@@ -4018,13 +4018,13 @@
           } else {
             status.textContent = '⚠️ ' + (err || 'فشل التحليل. حاول مرة أخرى بنص أطول وأكثر تفصيلاً.');
             status.style.color = '#f87171';
-            console.error('Analyze error:', data);
+            
           }
         }
       } catch (e) {
         status.textContent = '❌ خطأ في الاتصال: ' + e.message;
         status.style.color = '#f87171';
-        console.error(e);
+        
       } finally {
         if (!_retryTimer) {
           btn.disabled = false;

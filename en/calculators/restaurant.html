@@ -1113,8 +1113,7 @@
           actual_fee: parseFloat(actualFee),
           notes: 'User verified from invoice'
         }, { onConflict: 'user_id,country,platform_id' }).then(function(res) {
-          if (res.error) console.error('Correction save error:', res.error);
-        });
+});
       }
 
       BondsUI.toast('✅ Correction saved. It will appear next to the commission in the table.', 'success');
@@ -1136,7 +1135,7 @@
               corrections[c.platform_id] = { actualFee: c.actual_fee, isCloud: true };
             });
           }
-        } catch(e) { console.error('Cloud corrections load error', e); }
+        } catch(e) {  }
       }
 
       // Merge with local corrections
@@ -1727,8 +1726,7 @@
           },
           inputs_snapshot: r.inputs
         }).then(function(res) {
-          if (res.error) console.error('Health score save error:', res.error);
-        });
+});
       }
     }
 
@@ -1820,8 +1818,7 @@
           inputs: inputs,
           results: _lastResult || null
         }).then(function(res) {
-          if (res.error) console.error('Supabase save error:', res.error);
-        });
+});
       }
 
       dbGet(_sessionsKey).then(function(sessions) {
@@ -1860,7 +1857,7 @@
               };
             });
           }
-        } catch(e) { console.error('Cloud load error', e); }
+        } catch(e) {  }
       }
 
       // Fallback: local sessions
@@ -1934,7 +1931,7 @@
         try {
           var sb = window.BondsAuth.getSupabase();
           await sb.from('scenarios').delete().eq('id', id).eq('user_id', _currentUser.id);
-        } catch(e) { console.error('Cloud delete error', e); }
+        } catch(e) {  }
       }
       // Delete local
       var sessions = await dbGet(_sessionsKey);
@@ -2050,7 +2047,7 @@
             }
           }
         });
-      }).catch(function(e) { console.error('Chart error:', e); });
+      }).catch(function(e) {  });
     }
 
     // ===== Main Calculate =====
@@ -2076,7 +2073,7 @@
         document.getElementById('sensitivitySection').style.display = 'block';
         updateSensitivityDisplay();
       } catch (err) {
-        console.error('Calculate error:', err);
+        
         BondsUI.toast('❌ Calculation error: ' + err.message, 'error');
       }
     }
@@ -2565,7 +2562,7 @@
         calculateAll();
         window.scrollTo({ top: document.getElementById('calc').offsetTop - 80, behavior: 'smooth' });
         return true;
-      } catch(e) { console.error('Cloud load error', e); BondsUI.toast('❌ Failed to load scenario', 'error'); return false; }
+      } catch(e) {  BondsUI.toast('❌ Failed to load scenario', 'error'); return false; }
     }
 
     function loadFromURL() {

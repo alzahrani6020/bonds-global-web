@@ -1665,7 +1665,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           document.getElementById('btn-import-supabase').style.display = 'inline-block';
         }
       } catch (e) {
-        console.log('Supabase not initialized:', e);
+        
       }
     }
 
@@ -1703,7 +1703,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
             filledCount += items.length;
           }
         }
-      } catch (e) { console.log('menu_items error', e); }
+      } catch (e) {  }
 
       // 3. Sales Transactions → Revenue
       try {
@@ -1734,7 +1734,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           });
           filledCount++;
         }
-      } catch (e) { console.log('sales error', e); }
+      } catch (e) {  }
 
       // 4. Platforms → Variable Costs
       try {
@@ -1753,7 +1753,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
             filledCount += platforms.length;
           }
         }
-      } catch (e) { console.log('platforms error', e); }
+      } catch (e) {  }
 
       // 5. Engineering Scores → SWOT
       try {
@@ -1775,7 +1775,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
             filledCount++;
           }
         }
-      } catch (e) { console.log('scores error', e); }
+      } catch (e) {  }
 
       calcFinancials();
       alert('Import complete ✅\n' + filledCount + ' fields filled from your data');
@@ -2397,7 +2397,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         resultDiv.style.display = 'block';
 
       } catch (err) {
-        console.error(err);
+        
         errorDiv.textContent = 'Could not connect to research agent. Please try again.';
         errorDiv.style.display = 'block';
       } finally {
@@ -2588,7 +2588,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           output.parentElement.appendChild(sourcesDiv);
         }
       } catch (err) {
-        console.error(err);
+        
         errorDiv.textContent = 'Could not connect to research agent. Please try again or fill data manually.';
         errorDiv.style.display = 'block';
       } finally {

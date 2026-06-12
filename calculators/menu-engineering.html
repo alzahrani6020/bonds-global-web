@@ -241,7 +241,7 @@ function populateCountries() {
     sel.innerHTML = '<option value="">اختر الدولة...</option>' +
       countries.map(([code, c]) => `<option value="${code}">${c.flag} ${c.name}</option>`).join('');
   } catch (e) {
-    console.error('populateCountries error:', e);
+    
   }
 }
 
@@ -354,17 +354,17 @@ async function seedDemoData() {
 async function loadAllData() {
   try {
     const { data: p, error: pe } = await sb.from('platforms').select('*').eq('user_id', currentUser.id).order('name');
-    if (pe) console.error('loadAllData platforms:', pe);
+    if (pe) 
     platforms = p || [];
     renderPlatforms();
 
     const { data: i, error: ie } = await sb.from('ingredients').select('*').eq('user_id', currentUser.id).order('name');
-    if (ie) console.error('loadAllData ingredients:', ie);
+    if (ie) 
     ingredients = i || [];
     renderIngredients();
 
     const { data: m, error: me } = await sb.from('menu_items').select('*').eq('user_id', currentUser.id).order('name');
-    if (me) console.error('loadAllData menu_items:', me);
+    if (me) 
     menuItems = m || [];
     renderMenuItems();
 
@@ -372,7 +372,7 @@ async function loadAllData() {
     await renderMenuItemIngredients();
     await renderSales();
   } catch (e) {
-    console.error('loadAllData error:', e);
+    
     BondsUI.toast('❌ خطأ في تحميل البيانات: ' + e.message, 'error', 5000);
   }
 }
@@ -397,10 +397,10 @@ async function addPlatform() {
       user_id: currentUser.id, code, name, commission_rate: commission,
       service_fee_rate: service, payment_gateway_fee: gateway, delivery_fee: delivery
     });
-    if (error) { console.error('addPlatform error:', error); return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
+    if (error) {  return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await loadAllData();
   } catch (e) {
-    console.error('addPlatform catch:', e);
+    
     BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }
@@ -431,10 +431,10 @@ async function addIngredient() {
     const { error } = await sb.from('ingredients').insert({
       user_id: currentUser.id, name, unit, current_price: cost, category
     });
-    if (error) { console.error('addIngredient error:', error); return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
+    if (error) {  return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await loadAllData();
   } catch (e) {
-    console.error('addIngredient catch:', e);
+    
     BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }
@@ -464,10 +464,10 @@ async function addMenuItem() {
     const { error } = await sb.from('menu_items').insert({
       user_id: currentUser.id, name, category, base_price: price
     });
-    if (error) { console.error('addMenuItem error:', error); return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
+    if (error) {  return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await loadAllData();
   } catch (e) {
-    console.error('addMenuItem catch:', e);
+    
     BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }
@@ -494,10 +494,10 @@ async function addMenuItemIngredient() {
     const { error } = await sb.from('menu_item_ingredients').insert({
       menu_item_id: menuItemId, ingredient_id: ingredientId, quantity_needed: qty, unit
     });
-    if (error) { console.error('addMenuItemIngredient error:', error); return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
+    if (error) {  return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await renderMenuItemIngredients();
   } catch (e) {
-    console.error('addMenuItemIngredient catch:', e);
+    
     BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }
@@ -521,7 +521,7 @@ async function renderMenuItemIngredients() {
     }).join('');
   }
   } catch (e) {
-    console.error('renderMenuItemIngredients error:', e);
+    
   }
 }
 
@@ -539,11 +539,11 @@ async function addSale() {
       user_id: currentUser.id, menu_item_id: menuItemId,
       platform_id: platformId, quantity: qty, unit_price: price
     });
-    if (error) { console.error('addSale error:', error); return BondsUI.toast('❌ خطأ في الحفظ: ' + (error.message || JSON.stringify(error)), 'error'); }
+    if (error) {  return BondsUI.toast('❌ خطأ في الحفظ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await renderSales();
     await loadMatrix();
   } catch (e) {
-    console.error('addSale catch:', e);
+    
     BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }

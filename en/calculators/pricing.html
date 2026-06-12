@@ -795,10 +795,10 @@
         loadChartJS().then(function() {
           updateChart(r);
         }).catch(function(e) {
-          console.error('Chart.js load error:', e);
+          
         });
       } catch (err) {
-        console.error('Calculate error:', err);
+        
         BondsUI.toast('❌ Calculation error: ' + err.message, 'error');
       }
     }

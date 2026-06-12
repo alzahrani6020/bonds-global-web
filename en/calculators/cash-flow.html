@@ -667,10 +667,10 @@
         loadChartJS().then(function() {
           updateChart(months);
         }).catch(function(e) {
-          console.error('Chart.js load error:', e);
+          
         });
       } catch (err) {
-        console.error('Calculate error:', err);
+        
         BondsUI.toast('❌ حدث خطأ في الحساب: ' + err.message, 'error');
       }
     }
