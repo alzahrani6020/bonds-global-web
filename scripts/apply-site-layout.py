@@ -73,9 +73,9 @@ def process_file(file_path: Path, dry_run: bool = False) -> bool:
         new_html = BODY_END_RE.sub(f'{script_tag}\n</body>', new_html, count=1)
 
     # Add header-footer.css if not present
-    css_href = f'{prefix}header-footer.css'
+    css_href = f'{prefix}header-footer.css?v=2'
     css_tag = f'<link rel="stylesheet" href="{css_href}" />'
-    if css_href not in new_html and 'header-footer.css' not in new_html:
+    if 'header-footer.css' not in new_html:
         new_html = HEAD_END_RE.sub(f'{css_tag}\n</head>', new_html, count=1)
 
     if dry_run:
