@@ -196,48 +196,13 @@
       .template-toolbar { position:relative; }
     }
   </style>
+<link rel="stylesheet" href="../../header-footer.css" />
 </head>
 <body>
   <div class="progress-bar no-print"><div id="progressFill"></div></div>
 
   <!-- Navbar -->
-  <nav class="navbar no-print">
-    <a href="../../index.html" class="logo"><img src="../../assets/bonds-logo.jpg" alt="بوندز" height="36" loading="lazy" decoding="async" /></a>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="../../index.html">Home</a></li>
-      <li class="dropdown">
-        <span class="dropdown-toggle">Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        <div class="dropdown-menu">
-          <a href="../../services.html#analysis">Financial Analysis</a>
-          <a href="../../services.html#cashflow">Cash Flow Management</a>
-          <a href="../../services.html#feasibility">Feasibility Studies</a>
-          <a href="../../calculator.html">Break-Even</a>
-        </div>
-      </li>
-      <li class="dropdown">
-        <span class="dropdown-toggle">Calculators <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-        <div class="dropdown-menu">
-          <a href="../../calculator.html">Break-Even</a>
-          <a href="cash-flow.html">Cash Flow</a>
-          <a href="pricing.html">Product Pricing</a>
-          <a href="loan.html">Loan & Finance</a>
-          <a href="restaurant.html">Restaurants & Cloud</a>
-          <a href="menu-engineering.html">Menu Engineering</a>
-          <a href="feasibility.html">Restaurant Feasibility</a>
-          <a href="invoice-analyzer.html">Invoice Analyzer</a>
-          <a href="feasibility-template.html">Feasibility Study</a>
-        </div>
-      </li>
-      <li><a href="../../blog/index.html">Blog</a></li>
-      <li><a href="../../faq.html">FAQ</a></li>
-      <li><a href="../../contact.html">Contact</a></li>
-    </ul>
-    <div style="display:flex;align-items:center;gap:0.75rem;">
-      <a href="../../calculators/feasibility-template.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;">AR</a>
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme">🌙</button>
-      <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">☰</button>
-    </div>
-  </nav>
+  <div id="site-header"></div>
 
   <!-- Toolbar -->
   <div class="template-toolbar no-print">
@@ -981,7 +946,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
   </div>
 
-  <footer class="footer no-print"><div class="container" style="text-align:center;padding:2rem 0;"><p style="color:var(--text-secondary);font-size:0.85rem;">&copy; 2026 Bonds. All rights reserved.</p></div></footer>
+  <div id="site-footer"></div>
 
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -2682,5 +2647,6 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
   </script>
 <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
+<script src="../../site-layout.js"></script>
 </body>
 </html>

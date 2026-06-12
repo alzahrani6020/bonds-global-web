@@ -96,6 +96,7 @@
 
   <script src="../../calculators/db-client.js"></script>
   
+<link rel="stylesheet" href="../../header-footer.css" />
 </head>
 <body style="font-family:Inter,system-ui,sans-serif">
 
@@ -108,58 +109,7 @@
   </div>
 
   <!-- Header -->
-  <header class="main-header" id="header">
-    <div class="container main-header__inner">
-      <a href="../../index.html" class="logo-slot">
-        <img src="../../assets/bonds-logo.jpg" alt="Bonds" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
-      </a>
-      <nav class="main-nav" id="mainNav">
-        <ul>
-          <li><a href="../../index.html">Home</a></li>
-          <li class="dropdown">
-            <span class="dropdown-toggle" style="position:relative;color:var(--text-secondary);font-weight:600;font-size:var(--text-sm);padding:var(--space-2) 0;">
-              Services
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-            <div class="dropdown-menu">
-              <a href="../../services.html#analysis">Financial Analysis</a>
-              <a href="../../services.html#cashflow">Cash Flow Management</a>
-              <a href="../../services.html#feasibility">Feasibility Studies</a>
-              <a href="../../services.html#risk">Risk Analysis</a>
-              <a href="../../services.html#research">Surveys & Research</a>
-            </div>
-          </li>
-          <li><a href="../../pricing.html">Pricing</a></li>
-          <li><a href="../../about.html">About</a></li>
-          <li class="dropdown">
-            <span class="dropdown-toggle" style="position:relative;color:var(--text-secondary);font-weight:600;font-size:var(--text-sm);padding:var(--space-2) 0;">
-              Calculators
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </span>
-            <div class="dropdown-menu">
-              <a href="../../calculator.html">Break-Even</a>
-              <a href="cash-flow.html">Cash Flow</a>
-              <a href="pricing.html">Product Pricing</a>
-              <a href="loan.html">Loan & Finance</a>
-              <a href="restaurant.html?model=traditional">🏢 Traditional Restaurant</a>
-              <a href="restaurant.html?model=cloud">☁️ Cloud Kitchen</a>
-              <a href="restaurant.html?model=cafe">☕ Café</a>
-              <a href="restaurant.html?model=dessert">🍰 Dessert Shop</a>
-              <a href="dish-margin.html">🍽️ Dish Margin</a>
-              <a href="feasibility.html">🚀 Feasibility</a>
-              <a href="invoice-analyzer.html">🧾 Invoice Analyzer</a>
-            </div>
-          </li>
-          <li><a href="../../blog/en/index.html">Blog</a></li>
-          <li><a href="../../faq.html">FAQ</a></li>
-        </ul>
-        <button class="btn btn-primary hidden-print" onclick="window.location.href='../../contact.html'">Free Consultation</button>
-      </nav>
-      <button class="mobile-menu-btn hidden-print" onclick="document.getElementById('mainNav').classList.toggle('open')" aria-label="Menu">
-        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-    </div>
-  </header>
+  <div id="site-header"></div>
 
   <!-- Hero -->
   <section class="hero" style="padding-top: 8rem; padding-bottom: 3rem;">
@@ -436,53 +386,7 @@
   </section>
 
   <!-- Footer -->
-  <footer class="main-footer">
-    <div class="container">
-      <div class="footer-grid" style="grid-template-columns: 1.5fr repeat(3, 1fr); gap: 3rem; padding-bottom: 3rem; border-bottom: 1px solid var(--border);">
-        <div>
-          <a href="../../index.html" class="logo-slot" style="margin-bottom: 1.5rem; display: inline-flex;">
-            <img src="../../assets/bonds-logo.jpg" alt="Bonds" class="site-logo" width="577" height="567" style="width: 48px; height: 48px;" />
-          </a>
-          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.8; max-width: 280px;">We turn your financial data into clear decisions. Specialized financial consulting for restaurants and startups.</p>
-        </div>
-        <div>
-          <h4 class="footer-title">Links</h4>
-          <div class="footer-links">
-            <a href="../../services.html">Services</a>
-            <a href="../../pricing.html">Pricing</a>
-            <a href="../../about.html">About</a>
-            <a href="../../blog/en/index.html">Blog</a>
-            <a href="../../contact.html">Contact</a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">Calculators</h4>
-          <div class="footer-links">
-            <a href="../../calculator.html">Break-Even</a>
-            <a href="cash-flow.html">Cash Flow</a>
-            <a href="pricing.html">Product Pricing</a>
-            <a href="loan.html">Loan & Finance</a>
-            <a href="restaurant.html">Restaurants</a>
-            <a href="dish-margin.html">Dish Margin</a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">Business Registrations</h4>
-          <div class="footer-links">
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">Egypt: Reg. 39733</span>
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">KSA: CR 7042125869</span>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <span>© <span id="y">2025</span> Bonds Global Financial Consulting — All rights reserved.</span>
-        <div style="display: flex; gap: var(--space-6);">
-          <a href="../../privacy.html" style="color: var(--text-muted);">Privacy Policy</a>
-          <a href="#" style="color: var(--text-muted);">Disclaimer</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <div id="site-footer"></div>
 
   <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp">💬</a>
 
@@ -1236,5 +1140,6 @@
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}</script>
 <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
+<script src="../../site-layout.js"></script>
 </body>
 </html>

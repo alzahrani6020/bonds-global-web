@@ -42,6 +42,7 @@
 
   <script src="db-client.js"></script>
   
+<link rel="stylesheet" href="../header-footer.css" />
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
 
@@ -54,61 +55,7 @@
   </div>
 
   <!-- Header -->
-  <header class="main-header" id="header">
-    <div class="container main-header__inner">
-      <a href="../index.html" class="logo-slot">
-        <img src="../assets/bonds-logo.jpg" alt="بوندز" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
-      </a>
-      <nav class="main-nav" id="mainNav">
-        <ul>
-          <li><a href="../index.html">الرئيسية</a></li>
-          <li><a href="../about.html">من نحن</a></li>
-          <li class="dropdown">
-            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
-              الخدمات
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-            <div class="dropdown-menu">
-              <a href="../services.html#analysis">التحليل المالي</a>
-              <a href="../services.html#cashflow">إدارة التدفقات النقدية</a>
-              <a href="../services.html#feasibility">دراسات الجدوى</a>
-              <a href="../services.html#risk">تحليل المخاطر</a>
-              <a href="../services.html#research">الاستبيانات والبحوث</a>
-            </div>
-          </li>
-          <li class="dropdown">
-            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
-              الحاسبات
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </span>
-            <div class="dropdown-menu">
-              <a href="../calculator.html">نقطة التعادل</a>
-              <a href="../calculators/cash-flow.html">تدفق النقد</a>
-              <a href="../calculators/pricing.html">تسعير المنتج</a>
-              <a href="../calculators/loan.html">القرض والتمويل</a>
-              <a href="../calculators/restaurant.html">المطاعم والسحابي</a>
-              <a href="../calculators/menu-engineering.html">هندسة المنيو</a>
-              <a href="../calculators/feasibility.html">جدوى المطعم</a>
-              <a href="../calculators/invoice-analyzer.html">تحليل الفواتير</a>
-              <a href="../calculators/factory-cost.html">🏭 تكلفة المصنع</a>
-              <a href="../calculators/feasibility-template.html">نموذج دراسة الجدوى</a>
-            </div>
-          </li>
-          <li><a href="../pricing.html">الأسعار</a></li>
-          <li><a href="../blog/index.html">مقالات</a></li>
-          <li><a href="../contact.html">تواصل</a></li>
-        </ul>
-      </nav>
-      <div class="header-actions">
-        <a href="../en/calculators/cash-flow.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.3s;">EN</a>
-        <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
-        <a href="../contact.html" class="btn btn-primary hidden-mobile">احجز استشارتك</a>
-        <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
-    </div>
-  </header>
+  <div id="site-header"></div>
 
   <!-- Hero -->
   <section class="hero" style="min-height: 35vh; padding: var(--space-20) 0;">
@@ -286,59 +233,7 @@
     </div>
   </section>
 
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <div class="logo-slot">
-            <img src="../assets/bonds-logo.jpg" alt="بوندز" class="site-logo" width="577" height="567" loading="lazy" />
-          </div>
-          <p>استشارات مالية لأصحاب المشاريع والشركات الصغيرة والمتوسطة في مصر والسعودية.</p>
-        </div>
-        <div>
-          <h4 class="footer-title">الصفحات</h4>
-          <div class="footer-links">
-            <a href="../index.html">الرئيسية</a>
-            <a href="../services.html">الخدمات</a>
-            <a href="../about.html">من نحن</a>
-            <a href="../faq.html">الأسئلة الشائعة</a>
-            <a href="../contact.html">تواصل معنا</a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">الخدمات</h4>
-          <div class="footer-links">
-            <a href="../services.html#analysis">التحليل المالي</a>
-            <a href="../services.html">التدفقات النقدية</a>
-            <a href="../services.html#feasibility">دراسات الجدوى</a>
-            <a href="../services.html#risk">تحليل المخاطر</a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">السجلات التجارية</h4>
-          <div class="footer-links">
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">مصر: س.ت 39733</span>
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">السعودية: ر.و.م 7042125869</span>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">تواصل</h4>
-          <div class="footer-links">
-            <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب: +966 56 756 6616</a>
-            <a href="mailto:info@bonds-global.com">info@bonds-global.com</a>
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">الشيخ زايد، الجيزة، مصر <br>جدة، شارع قريش</span>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <span>© <span id="y">2025</span> بوندز للاستشارات المالية — جميع الحقوق محفوظة.</span>
-        <div style="display: flex; gap: var(--space-6);">
-          <a href="../privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a>
-          <a href="#" style="color: var(--text-muted);">إخلاء المسؤولية</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <div id="site-footer"></div>
 
   <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
 
@@ -876,5 +771,6 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
+<script src="../site-layout.js"></script>
 </body>
 </html>

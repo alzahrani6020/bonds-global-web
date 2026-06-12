@@ -87,19 +87,11 @@
     @media (max-width: 900px) { .stats-row { grid-template-columns: repeat(2, 1fr); } .calc-grid { grid-template-columns: repeat(2, 1fr); } .factory-grid { grid-template-columns: repeat(2, 1fr); } .profile-grid { grid-template-columns: 1fr; } }
     @media (max-width: 600px) { .stats-row { grid-template-columns: 1fr; } .calc-grid { grid-template-columns: 1fr; } .factory-grid { grid-template-columns: 1fr; } .sub-card { flex-direction: column; text-align: center; } }
   </style>
+<link rel="stylesheet" href="../../header-footer.css" />
 </head>
 <body>
 
-  <header class="main-header">
-    <div class="main-header__inner">
-      <a href="../../en/index.html" class="header-brand"><img src="../../assets/bonds-logo.jpg" alt="Bonds" /></a>
-      <div class="header-left">
-        <a href="../../en/index.html" class="header-link">Home</a>
-        <a href="auth/account.html" class="header-link">Profile</a>
-        <a href="auth/subscription.html" class="btn-gold">Upgrade</a>
-      </div>
-    </div>
-  </header>
+  <div id="site-header"></div>
 
   <main class="dashboard">
     <div class="dashboard-header">
@@ -331,5 +323,6 @@ window.addEventListener('load', () => { loadStats(); loadRecent(); loadScenarios
 
 <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
+<script src="../../site-layout.js"></script>
 </body>
 </html>

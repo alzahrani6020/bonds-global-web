@@ -94,3 +94,8 @@
 .main-nav .dropdown-toggle.active {
   color: var(--gold);
 }
+
+/* Print rules for injected layout */
+@media print {
+  .no-print { display: none !important; }
+}

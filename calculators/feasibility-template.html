@@ -199,48 +199,13 @@
       .template-toolbar { position:relative; }
     }
   </style>
+<link rel="stylesheet" href="../header-footer.css" />
 </head>
 <body>
   <div class="progress-bar no-print"><div id="progressFill"></div></div>
 
   <!-- Navbar -->
-  <nav class="navbar no-print">
-    <a href="../index.html" class="logo"><img src="../assets/bonds-logo.jpg" alt="بوندز" height="36" loading="lazy" decoding="async" /></a>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="../index.html">الرئيسية</a></li>
-      <li class="dropdown">
-        <span class="dropdown-toggle">الخدمات <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        <div class="dropdown-menu">
-          <a href="../services.html#analysis">التحليل المالي</a>
-          <a href="../services.html#cashflow">إدارة التدفقات النقدية</a>
-          <a href="../services.html#feasibility">دراسات الجدوى</a>
-          <a href="../calculator.html">نقطة التعادل</a>
-        </div>
-      </li>
-      <li class="dropdown">
-        <span class="dropdown-toggle">الحاسبات <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-        <div class="dropdown-menu">
-          <a href="../calculator.html">نقطة التعادل</a>
-          <a href="cash-flow.html">تدفق النقد</a>
-          <a href="pricing.html">تسعير المنتج</a>
-          <a href="loan.html">القرض والتمويل</a>
-          <a href="restaurant.html">المطاعم والسحابي</a>
-          <a href="menu-engineering.html">هندسة المنيو</a>
-          <a href="feasibility.html">جدوى المطعم</a>
-          <a href="invoice-analyzer.html">تحليل الفواتير</a>
-          <a href="feasibility-template.html">نموذج دراسة الجدوى</a>
-        </div>
-      </li>
-      <li><a href="../blog/index.html">المدونة</a></li>
-      <li><a href="../faq.html">الأسئلة</a></li>
-      <li><a href="../contact.html">تواصل</a></li>
-    </ul>
-    <div style="display:flex;align-items:center;gap:0.75rem;">
-      <a href="/en/calculators/feasibility-template.html" class="lang-switch" style="color:var(--text-secondary);font-weight:600;font-size:0.85rem;padding:0.25rem 0.5rem;border:1px solid var(--border);border-radius:6px;text-decoration:none;">EN</a>
-      <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع">🌙</button>
-      <button class="nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">☰</button>
-    </div>
-  </nav>
+  <div id="site-header"></div>
 
   <!-- Toolbar -->
   <div class="template-toolbar no-print">
@@ -1624,7 +1589,7 @@
 
   </div>
 
-  <footer class="footer no-print"><div class="container" style="text-align:center;padding:2rem 0;"><p style="color:var(--text-secondary);font-size:0.85rem;">&copy; 2026 بوندز. جميع الحقوق محفوظة.</p></div></footer>
+  <div id="site-footer"></div>
 
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -4353,5 +4318,6 @@ updateDateTime();
 </script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
+<script src="../site-layout.js"></script>
 </body>
 </html>

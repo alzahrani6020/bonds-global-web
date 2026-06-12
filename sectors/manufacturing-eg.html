@@ -72,22 +72,11 @@
       .header__nav { display:none; }
     }
   </style>
+<link rel="stylesheet" href="../header-footer.css" />
 </head>
 <body>
 
-  <header class="header">
-    <div class="header__inner">
-      <a href="../index.html" class="header__logo">
-        <img src="../assets/bonds-logo.jpg" alt="بوندز" />
-        <span>بوندز</span>
-      </a>
-      <nav class="header__nav">
-        <a href="../index.html">الرئيسية</a>
-        <a href="manufacturing.html">السعودية</a>
-        <a href="../contact.html">تواصل</a>
-      </nav>
-    </div>
-  </header>
+  <div id="site-header"></div>
 
   <section class="hero">
     <h1>دليل الاستثمار الصناعي في مصر</h1>
@@ -274,13 +263,7 @@
 
   </div>
 
-  <footer>
-    <div style="margin-bottom:0.75rem;">
-      <span style="color:var(--gold); font-weight:700;">ممثل بوندز في السعودية:</span>
-      <a href="https://thiqqah.live/" target="_blank" rel="noopener" style="color:var(--text-secondary); font-weight:600;">ثقة الذهبية ↗</a>
-    </div>
-    <p>© 2026 بوندز للاستشارات المالية. البيانات مأخوذة من الهيئة العامة للتنمية الصناعية المصرية.</p>
-  </footer>
+  <div id="site-footer"></div>
 
   <script src="../page-tracker-v2.js"></script>
 <script>
@@ -290,5 +273,6 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();
 })();
 </script>
+<script src="../site-layout.js"></script>
 </body>
 </html>

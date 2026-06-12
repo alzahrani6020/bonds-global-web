@@ -52,24 +52,11 @@
     footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
     @media (max-width:768px) { .hero h1 { font-size:1.5rem; } .stage { flex-direction:column; } .header__nav { display:none; } }
   </style>
+<link rel="stylesheet" href="../header-footer.css" />
 </head>
 <body>
 
-  <header class="header">
-    <div class="header__inner">
-      <a href="../index.html" class="header__logo">
-        <img src="../assets/bonds-logo.jpg" alt="بوندز" />
-        <span>بوندز</span>
-      </a>
-      <nav class="header__nav">
-        <a href="../index.html">الرئيسية</a>
-        <a href="manufacturing.html">السعودية</a>
-        <a href="manufacturing-eg.html">مصر</a>
-        <a href="manufacturing-ae.html">الإمارات</a>
-        <a href="../contact.html">تواصل</a>
-      </nav>
-    </div>
-  </header>
+  <div id="site-header"></div>
 
   <section class="hero">
     <h1>دليل الاستثمار الصناعي في سوريا</h1>
@@ -347,9 +334,7 @@
 
   </div>
 
-  <footer>
-    <p>© 2026 بوندز للاستشارات المالية. البيانات مأخوذة من الجهات الحكومية السورية الرسمية.</p>
-  </footer>
+  <div id="site-footer"></div>
 
   <script src="../page-tracker-v2.js"></script>
 <script>
@@ -359,5 +344,6 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();
 })();
 </script>
+<script src="../site-layout.js"></script>
 </body>
 </html>

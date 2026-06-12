@@ -32,6 +32,7 @@
 
   <script src="db-client.js"></script>
   
+<link rel="stylesheet" href="../header-footer.css" />
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
 
@@ -44,56 +45,7 @@
   </div>
 
   <!-- Header -->
-  <header class="main-header" id="header">
-    <div class="container main-header__inner">
-      <a href="../index.html" class="logo-slot">
-        <img src="../assets/bonds-logo.jpg" alt="بوندز" class="site-logo" width="577" height="567" fetchpriority="high" decoding="async" />
-      </a>
-      <nav class="main-nav" id="mainNav">
-        <ul>
-          <li><a href="../index.html">الرئيسية</a></li>
-          <li><a href="../about.html">من نحن</a></li>
-          <li class="dropdown">
-            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
-              الخدمات
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-            <div class="dropdown-menu">
-              <a href="../services.html#analysis">التحليل المالي</a>
-              <a href="../services.html#cashflow">إدارة التدفقات النقدية</a>
-              <a href="../services.html#feasibility">دراسات الجدوى</a>
-              <a href="../services.html#risk">تحليل المخاطر</a>
-              <a href="../services.html#research">الاستبيانات والبحوث</a>
-            </div>
-          </li>
-          <li class="dropdown">
-            <span class="dropdown-toggle" style="position: relative; color: var(--text-secondary); font-weight: 600; font-size: var(--text-sm); padding: var(--space-2) 0;">
-              الحاسبات
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </span>
-            <div class="dropdown-menu">
-              <a href="../calculator.html">نقطة التعادل</a>
-              <a href="../calculators/cash-flow.html">تدفق النقد</a>
-              <a href="../calculators/pricing.html">تسعير المنتج</a>
-              <a href="../calculators/loan.html">القرض والتمويل</a>
-              <a href="../calculators/restaurant.html">المطاعم والسحابي</a>
-              <a href="../calculators/menu-engineering.html">هندسة المنيو</a>
-              <a href="../calculators/feasibility.html">جدوى المطعم</a>
-              <a href="../calculators/invoice-analyzer.html">تحليل الفواتير</a>
-              <a href="../calculators/factory-cost.html">🏭 تكلفة المصنع</a>
-              <a href="../calculators/feasibility-template.html">نموذج دراسة الجدوى</a>
-            </div>
-          </li>
-          <li><a href="../pricing.html">الأسعار</a></li>
-          <li><a href="../blog/index.html">مقالات</a></li>
-          <li><a href="../contact.html">تواصل</a></li>
-        </ul>
-      </nav>
-      <button class="mobile-menu-btn hidden-print" onclick="document.getElementById('mainNav').classList.toggle('open')" aria-label="القائمة">
-        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-    </div>
-  </header>
+  <div id="site-header"></div>
 
   <!-- Hero -->
   <section class="hero" style="padding-top: 8rem; padding-bottom: 3rem;">
@@ -380,53 +332,7 @@
   </section>
 
   <!-- Footer -->
-  <footer class="main-footer">
-    <div class="container">
-      <div class="footer-grid" style="grid-template-columns: 1.5fr repeat(3, 1fr); gap: 3rem; padding-bottom: 3rem; border-bottom: 1px solid var(--border);">
-        <div>
-          <a href="../index.html" class="logo-slot" style="margin-bottom: 1.5rem; display: inline-flex;">
-            <img src="../assets/bonds-logo.jpg" alt="بوندز" class="site-logo" width="577" height="567" style="width: 48px; height: 48px;" loading="lazy" />
-          </a>
-          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.8; max-width: 280px;">نحول بياناتك المالية إلى قرارات واضحة. استشارات مالية متخصصة للمطاعم والشركات الناشئة.</p>
-        </div>
-        <div>
-          <h4 class="footer-title">الروابط</h4>
-          <div class="footer-links">
-            <a href="../services.html">الخدمات</a>
-            <a href="../pricing.html">الأسعار</a>
-            <a href="../about.html">من نحن</a>
-            <a href="../blog/index.html">المدونة</a>
-            <a href="../contact.html">تواصل معنا</a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">الحاسبات</h4>
-          <div class="footer-links">
-            <a href="../calculator.html">نقطة التعادل</a>
-            <a href="cash-flow.html">تدفق النقد</a>
-            <a href="pricing.html">تسعير المنتج</a>
-            <a href="loan.html">القرض والتمويل</a>
-            <a href="restaurant.html">المطاعم والسحابي</a>
-            <a href="dish-margin.html">ربحية الوجبة</a>
-          </div>
-        </div>
-        <div>
-          <h4 class="footer-title">السجلات التجارية</h4>
-          <div class="footer-links">
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">مصر: س.ت 39733</span>
-            <span style="color: var(--text-muted); font-size: var(--text-sm);">السعودية: ر.و.م 7042125869</span>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <span>© <span id="y">2025</span> بوندز للاستشارات المالية — جميع الحقوق محفوظة.</span>
-        <div style="display: flex; gap: var(--space-6);">
-          <a href="../privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a>
-          <a href="#" style="color: var(--text-muted);">إخلاء المسؤولية</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <div id="site-footer"></div>
 
   <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
 
@@ -1216,5 +1122,6 @@ updateDateTime();
 </script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
+<script src="../site-layout.js"></script>
 </body>
 </html>

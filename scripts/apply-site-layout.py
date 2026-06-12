@@ -22,12 +22,21 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
+# Match common header variants: main-header, simple header, or navbar header (feasibility templates)
 HEADER_RE = re.compile(
     r'<header\b[^>]*\bclass="[^"]*main-header[^"]*"[^>]*>.*?</header>',
     re.DOTALL | re.IGNORECASE,
 )
+SIMPLE_HEADER_RE = re.compile(
+    r'<header\b[^>]*\bclass="[^"]*\bheader\b[^"]*"[^>]*>.*?</header>',
+    re.DOTALL | re.IGNORECASE,
+)
+NAVBAR_RE = re.compile(
+    r'<nav\b[^>]*\bclass="[^"]*navbar[^"]*"[^>]*>.*?</nav>',
+    re.DOTALL | re.IGNORECASE,
+)
 FOOTER_RE = re.compile(
-    r'<footer\b[^>]*\bclass="[^"]*footer[^"]*"[^>]*>.*?</footer>',
+    r'<footer\b[^>]*>.*?</footer>',
     re.DOTALL | re.IGNORECASE,
 )
 BODY_END_RE = re.compile(r'</body>', re.IGNORECASE)
@@ -52,8 +61,10 @@ def process_file(file_path: Path, dry_run: bool = False) -> bool:
 
     prefix = relative_prefix(file_path)
 
-    # Replace existing header/footer with placeholders
+    # Replace existing header/footer with placeholders (try each header style once)
     new_html = HEADER_RE.sub('<div id="site-header"></div>', html, count=1)
+    new_html = SIMPLE_HEADER_RE.sub('<div id="site-header"></div>', new_html, count=1)
+    new_html = NAVBAR_RE.sub('<div id="site-header"></div>', new_html, count=1)
     new_html = FOOTER_RE.sub('<div id="site-footer"></div>', new_html, count=1)
 
     # Add site-layout.js before </body>

@@ -82,21 +82,10 @@
     .chart-box canvas { max-height:300px; }
     footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
   </style>
+<link rel="stylesheet" href="../header-footer.css" />
 </head>
 <body>
-  <header class="header">
-    <div class="header__inner">
-      <a href="../index.html" class="header__logo">
-        <img src="../assets/bonds-logo.jpg" alt="بوندز" />
-        <span>بوندز</span>
-      </a>
-      <nav class="header__nav">
-        <a href="../index.html">الرئيسية</a>
-        <a href="../sectors/manufacturing-bh.html">الاستثمار الصناعي</a>
-        <a href="../contact.html">تواصل</a>
-      </nav>
-    </div>
-  </header>
+  <div id="site-header"></div>
 
   <section class="hero">
     <h1>حاسبة تكلفة المصنع المتقدمة - البحرين</h1>
@@ -515,5 +504,6 @@ const cities = {
   <script src="../admin/analytics-tracker.js"></script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
+<script src="../site-layout.js"></script>
 </body>
 </html>

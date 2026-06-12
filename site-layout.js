@@ -296,16 +296,58 @@
     if (head) head.appendChild(link);
   }
 
+  function initThemeToggle() {
+    if (document.getElementById('themeToggle')) return;
+    const headerActions = document.querySelector('.header-actions');
+    if (!headerActions) return;
+
+    const html = document.documentElement;
+    const savedTheme = localStorage.getItem('theme');
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+      } else {
+        html.removeAttribute('data-theme');
+      }
+    }
+
+    if (savedTheme) applyTheme(savedTheme);
+
+    const btn = document.createElement('button');
+    btn.id = 'themeToggle';
+    btn.className = 'theme-toggle';
+    btn.setAttribute('aria-label', 'Toggle theme');
+    btn.textContent = html.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+    btn.style.cssText = 'background:transparent;border:1px solid var(--border);border-radius:8px;padding:0.4rem 0.6rem;cursor:pointer;font-size:1rem;color:var(--text-secondary);';
+
+    btn.addEventListener('click', function () {
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      const next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      btn.textContent = next === 'dark' ? '☀️' : '🌙';
+      localStorage.setItem('theme', next);
+    });
+
+    headerActions.insertBefore(btn, headerActions.firstChild);
+  }
+
+  function shouldNoPrint() {
+    return document.querySelector('.template-toolbar, .progress-bar.no-print') !== null;
+  }
+
   function inject() {
     const lang = detectLang();
     const base = getBase();
     ensureLayoutCSS(base);
 
+    const noPrint = shouldNoPrint();
     const headerContainer = document.getElementById('site-header');
     const footerContainer = document.getElementById('site-footer');
 
     if (headerContainer) {
       headerContainer.innerHTML = buildHeader(lang, base);
+      if (noPrint) headerContainer.classList.add('no-print');
       const navToggle = document.getElementById('navToggle');
       const mainNav = document.getElementById('mainNav');
       if (navToggle && mainNav) {
@@ -318,6 +360,7 @@
 
     if (footerContainer) {
       footerContainer.innerHTML = buildFooter(lang, base);
+      if (noPrint) footerContainer.classList.add('no-print');
     }
 
     setActiveLinks();
@@ -325,6 +368,8 @@
     if (window.BondsAuth && window.BondsAuth.initSiteAuth) {
       window.BondsAuth.initSiteAuth('authContainer');
     }
+
+    initThemeToggle();
   }
 
   if (document.readyState === 'loading') {
