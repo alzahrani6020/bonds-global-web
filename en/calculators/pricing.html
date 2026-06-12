@@ -6,15 +6,15 @@
   <link rel="preconnect" href="https://embed.tawk.to" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Product Pricing Calculator | Bonds — Financial Consulting</title>
-  <meta name="description" content="Calculate your product price professionally: direct costs, overhead, profit margin, tax, and zakat. A free tool from Bonds." />
+  <meta name="description" content="Calculate your product price professionally: direct costs, overhead, packaging, delivery, customer acquisition cost, platform fee, profit margin, tax, and zakat. A free tool from Bonds." />
   <meta property="og:title" content="Product Pricing Calculator | Bonds" />
-  <meta property="og:description" content="Calculate your product price professionally: direct costs, overhead, profit margin, tax, and zakat." />
+  <meta property="og:description" content="Calculate your product price professionally: direct costs, overhead, packaging, delivery, customer acquisition cost, platform fee, profit margin, tax, and zakat." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo.jpg" />
   <meta property="og:url" content="https://bonds-global.com/en/calculators/pricing.html" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Product Pricing Calculator | Bonds" />
-  <meta name="twitter:description" content="Calculate your product price professionally: direct costs, overhead, profit margin, tax, and zakat." />
+  <meta name="twitter:description" content="Calculate your product price professionally: direct costs, overhead, packaging, delivery, customer acquisition cost, platform fee, profit margin, tax, and zakat." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -32,6 +32,7 @@
   <script src="../../calculators/shared-ui.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="../../calculators/shared-utils.js"></script>
+  <script src="../../calculators/calc-functions.js"></script>
   <style>
     .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
     @media (max-width: 640px) { .calc-grid { grid-template-columns: 1fr; } }
@@ -82,7 +83,7 @@
     <div class="container hero__content reveal">
       <span class="hero__eyebrow">Free Tool</span>
       <h1 class="hero__title">Product <span class="text-gradient">Pricing Calculator</span></h1>
-      <p class="hero__desc">Set your product price smartly: from direct cost to the final price after tax and zakat.</p>
+      <p class="hero__desc">Set your product price smartly: full cost, platform fee, packaging, delivery, customer acquisition cost, tax, and zakat.</p>
     </div>
   </section>
 
@@ -94,32 +95,51 @@
         <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
           <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Pricing Data</h2>
           <div class="calc-input-group">
-            <label>Direct Cost per Unit (materials + labor)</label>
+            <label>Direct Cost per Unit (materials + labor) <abbr title="Cost that changes directly with each unit produced: raw materials + direct labor">ⓘ</abbr></label>
             <input type="number" id="directCost" placeholder="e.g. 150" min="0" />
           </div>
           <div class="calc-input-group">
-            <label>Overhead Cost per Unit</label>
+            <label>Overhead Cost per Unit <abbr title="Operating costs not tied to a single unit; divide monthly overhead by production volume">ⓘ</abbr></label>
             <input type="number" id="overheadCost" placeholder="e.g. 50" min="0" />
           </div>
           <div class="calc-input-group">
-            <label>Monthly Fixed Costs (rent + admin salaries)</label>
+            <label>Monthly Fixed Costs (rent + admin salaries) <abbr title="Fixed monthly costs even if no units sell: rent, admin salaries, utilities">ⓘ</abbr></label>
             <input type="number" id="monthlyFixed" placeholder="e.g. 20000" min="0" />
           </div>
           <div class="calc-input-group">
-            <label>Desired Profit Margin (%)</label>
+            <label>Desired Profit Margin (%) <abbr title="Desired profit as a percentage of selling price before platform fee (e.g., 25% means profit = 25% of price)">ⓘ</abbr></label>
             <input type="number" id="desiredMargin" placeholder="e.g. 25" min="0" max="100" value="25" />
           </div>
           <div class="calc-input-group">
-            <label>Tax Rate (%)</label>
+            <label>Tax Rate (%) <abbr title="Value Added Tax (VAT) rate — applied only on positive profit">ⓘ</abbr></label>
             <input type="number" id="taxRate" placeholder="e.g. 15" min="0" max="100" value="15" />
           </div>
           <div class="calc-input-group">
-            <label>Zakat Rate (%)</label>
+            <label>Zakat Rate (%) <abbr title="Annual Zakat rate due — applied only on positive profit">ⓘ</abbr></label>
             <input type="number" id="zakatRate" placeholder="e.g. 2.5" min="0" max="100" value="2.5" />
           </div>
           <div class="calc-input-group">
-            <label>Target Monthly Sales Volume</label>
+            <label>Target Monthly Sales Volume <abbr title="Number of units you expect to sell monthly; used to calculate monthly profit and minimum break-even price">ⓘ</abbr></label>
             <input type="number" id="monthlyVolume" placeholder="e.g. 500" min="0" />
+          </div>
+          <div style="margin: var(--space-4) 0; padding: var(--space-4); background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius);">
+            <p style="font-size: 0.85rem; color: var(--gold); font-weight: 700; margin-bottom: var(--space-3);">🚚 Sales &amp; Delivery Costs (Optional)</p>
+            <div class="calc-input-group">
+              <label style="font-size:0.85rem;">Platform Fee (%) <abbr title="Commission deducted by sales/delivery platform (e.g., HungerStation, Jahez, Amazon)">ⓘ</abbr></label>
+              <input type="number" id="platformFee" placeholder="e.g. 20" min="0" max="100" value="0" />
+            </div>
+            <div class="calc-input-group">
+              <label style="font-size:0.85rem;">Packaging Cost per Unit <abbr title="Box/bag/stickers cost per unit">ⓘ</abbr></label>
+              <input type="number" id="packagingCost" placeholder="e.g. 3" min="0" value="0" />
+            </div>
+            <div class="calc-input-group">
+              <label style="font-size:0.85rem;">Delivery Cost per Unit <abbr title="What you pay the delivery company per order (if not included in platform fee)">ⓘ</abbr></label>
+              <input type="number" id="deliveryCost" placeholder="e.g. 5" min="0" value="0" />
+            </div>
+            <div class="calc-input-group">
+              <label style="font-size:0.85rem;">Customer Acquisition Cost (CAC) per Unit <abbr title="Total marketing & advertising spend ÷ number of units sold">ⓘ</abbr></label>
+              <input type="number" id="cac" placeholder="e.g. 2" min="0" value="0" />
+            </div>
           </div>
           <button onclick="calculateAll()" class="btn btn-primary" style="width: 100%;">Calculate Results</button>
           <button onclick="loadExample()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">🧮 Try an Example</button>
@@ -132,12 +152,24 @@
             <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Results</h2>
             <div id="resultsArea" style="display: flex; flex-direction: column; gap: var(--space-3);">
               <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Total Cost per Unit</span>
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Base Cost per Unit</span>
                 <span id="resCostPerUnit" style="font-weight: 800; color: var(--text);">—</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Selling Price before Tax</span>
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Total Cost per Unit</span>
+                <span id="resTotalCostPerUnit" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Selling Price before Fees</span>
+                <span id="resPriceBeforeFees" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Selling Price before Tax (Platform Price)</span>
                 <span id="resPriceBeforeTax" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Platform Fee</span>
+                <span id="resPlatformFee" style="font-weight: 800; color: #dc2626;">—</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
                 <span style="color: var(--text-secondary); font-size: 0.9rem;">Profit before Tax (per unit)</span>
@@ -175,7 +207,7 @@
             </div>
             <div class="share-bar">
               <input type="text" id="shareLink" readonly placeholder="Share link..." />
-              <button onclick="copyLink()" class="btn btn-outline" style="font-size: 0.8rem;">Copy Link</button>
+              <button onclick="copyShareLink('shareLink')" class="btn btn-outline" style="font-size: 0.8rem;">Copy Link</button>
               <button onclick="window.print()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">🖨️ Print</button>
               <button onclick="exportExcel()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📊 Excel</button>
               <button onclick="exportPDF()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📄 PDF</button>
@@ -202,13 +234,13 @@
 
           <!-- Lead Capture -->
           <div id="leadCaptureBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);">
-            <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">💾 Save Your Results & Get a Gift</h4>
+            <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">💾 Save Your Results &amp; Get a Gift</h4>
             <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4);">Send these results to your email + a free Cash Flow Forecast template.</p>
             <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
               <input type="text" name="name" required placeholder="Name" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
               <input type="email" name="email" required placeholder="Email" style="flex: 2; min-width: 180px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
               <input type="tel" name="phone" placeholder="Phone (optional)" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
-              <input type="hidden" name="source" value="pricing_calculator_lead" />
+              <input type="hidden" name="source" value="pricing_calculator_lead_en" />
               <input type="hidden" name="calc_data" id="leadCalcData" />
               <button type="submit" class="btn btn-primary" style="flex-shrink: 0;">Send Me the Results</button>
             </form>
@@ -255,13 +287,16 @@
           <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📐 Mathematical Formulas</h3>
           <div style="display: flex; flex-direction: column; gap: var(--space-3); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
             <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
-              Total Cost = Direct Cost + Overhead Cost
+              Total Cost = Direct + Overhead + Packaging + Delivery + CAC
             </div>
             <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
-              Selling Price = Cost ÷ (1 − Desired Profit Margin)
+              Selling Price before Fees = Total Cost ÷ (1 − Desired Margin)
             </div>
             <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
-              Net Profit = Profit − Tax − Zakat
+              Platform Selling Price = Price before Fees ÷ (1 − Platform Fee)
+            </div>
+            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+              Net Profit = Net Revenue − Total Cost − Tax − Zakat
             </div>
           </div>
         </div>
@@ -276,25 +311,32 @@
               <span>Overhead Cost</span><strong>50 SAR</strong>
             </div>
             <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+              <span>Packaging + Delivery + CAC</span><strong>23 SAR</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+              <span>Platform Fee</span><strong>20%</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
               <span>Desired Profit Margin</span><strong>25%</strong>
             </div>
             <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
               <span>Sales Volume</span><strong>500 units</strong>
             </div>
             <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0;">
-              <span>Expected Result</span><strong style="color: var(--gold);">Selling Price 267 SAR</strong>
+              <span>Expected Result</span><strong style="color: var(--gold);">Platform Selling Price ≈ 372 SAR</strong>
             </div>
           </div>
         </div>
       </div>
       <div class="grid-2" style="margin-top: var(--space-8);">
         <div class="card reveal">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">⚠️ Warnings & Clarifications</h3>
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">⚠️ Warnings &amp; Clarifications</h3>
           <ul style="font-size: 0.9rem; color: var(--text-secondary); line-height: 2; padding-left: var(--space-4);">
             <li>This is an <strong>estimation tool</strong> and not a substitute for a licensed accountant.</li>
             <li>Results depend on the <strong>accuracy of your inputs</strong>.</li>
             <li>Tax and zakat are calculated on net profit.</li>
-            <li>Break-even price = total cost per unit (minimum).</li>
+            <li>Break-even price = total cost per unit + monthly fixed cost ÷ sales volume.</li>
+            <li>Platforms deduct a fee that is added on top of the price before tax.</li>
             <li>The formula is based on the internationally recognized <strong>profit margin on price</strong> principle.</li>
           </ul>
         </div>
@@ -375,7 +417,11 @@
         taxRate: parseFloat(document.getElementById('taxRate').value) || 0,
         zakatRate: parseFloat(document.getElementById('zakatRate').value) || 0,
         volume: parseFloat(document.getElementById('monthlyVolume').value) || 0,
-        monthlyFixed: parseFloat(document.getElementById('monthlyFixed').value) || 0
+        monthlyFixed: parseFloat(document.getElementById('monthlyFixed').value) || 0,
+        platformFeePct: parseFloat(document.getElementById('platformFee').value) || 0,
+        packagingCostPerUnit: parseFloat(document.getElementById('packagingCost').value) || 0,
+        deliveryCostPerUnit: parseFloat(document.getElementById('deliveryCost').value) || 0,
+        cacPerUnit: parseFloat(document.getElementById('cac').value) || 0
       };
     }
 
@@ -383,25 +429,23 @@
     function calculate(inputs) {
       var memoKey = _calcMemo.key(inputs);
       if (_calcMemo.has(memoKey)) return _calcMemo.get(memoKey);
-      var costPerUnit = inputs.direct + inputs.overhead;
-      var priceBeforeTax = 0;
-      if (inputs.margin < 100) {
-        priceBeforeTax = costPerUnit / (1 - (inputs.margin / 100));
-      }
-      var profitBeforeTax = priceBeforeTax - costPerUnit;
-      var taxAmount = profitBeforeTax > 0 ? profitBeforeTax * (inputs.taxRate / 100) : 0;
-      var profitAfterTax = profitBeforeTax - taxAmount;
-      var zakatAmount = profitAfterTax > 0 ? profitAfterTax * (inputs.zakatRate / 100) : 0;
-      var netProfitPerUnit = profitAfterTax - zakatAmount;
-      var monthlyProfit = netProfitPerUnit * inputs.volume;
-      var actualMargin = priceBeforeTax > 0 ? (netProfitPerUnit / priceBeforeTax) * 100 : 0;
-      var breakEvenPrice = costPerUnit + (inputs.volume > 0 ? inputs.monthlyFixed / inputs.volume : 0);
-      return { costPerUnit, priceBeforeTax, profitBeforeTax, taxAmount, profitAfterTax, zakatAmount, netProfitPerUnit, monthlyProfit, actualMargin, breakEvenPrice, monthlyFixed: inputs.monthlyFixed };
+      var options = {
+        platformFeePct: inputs.platformFeePct,
+        deliveryCostPerUnit: inputs.deliveryCostPerUnit,
+        packagingCostPerUnit: inputs.packagingCostPerUnit,
+        cacPerUnit: inputs.cacPerUnit
+      };
+      var result = calculatePricing(inputs.direct, inputs.overhead, inputs.margin, inputs.taxRate, inputs.zakatRate, inputs.volume, inputs.monthlyFixed, options);
+      _calcMemo.set(memoKey, result);
+      return result;
     }
 
     function updateResults(r, inputs) {
       document.getElementById('resCostPerUnit').textContent = formatNumberAR(r.costPerUnit) + ' SAR';
+      document.getElementById('resTotalCostPerUnit').textContent = formatNumberAR(r.totalCostPerUnit) + ' SAR';
+      document.getElementById('resPriceBeforeFees').textContent = formatNumberAR(r.priceBeforeFees) + ' SAR';
       document.getElementById('resPriceBeforeTax').textContent = formatNumberAR(r.priceBeforeTax) + ' SAR';
+      document.getElementById('resPlatformFee').textContent = formatNumberAR(r.platformFeeAmount) + ' SAR (' + inputs.platformFeePct.toFixed(1) + '%)';
 
       var profitBeforeTaxEl = document.getElementById('resProfitBeforeTax');
       profitBeforeTaxEl.textContent = formatNumberAR(r.profitBeforeTax) + ' SAR';
@@ -462,20 +506,23 @@
       analysisBox.style.display = 'block';
 
       var stepsHTML = '';
-      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 1:</strong> Total Cost = ' + formatNumberAR(inputs.direct) + ' + ' + formatNumberAR(inputs.overhead) + ' = <strong>' + formatNumberAR(r.costPerUnit) + ' SAR</strong></div>';
-      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 2:</strong> Selling Price = ' + formatNumberAR(r.costPerUnit) + ' ÷ (1 − ' + inputs.margin + '%) = <strong>' + formatNumberAR(r.priceBeforeTax) + ' SAR</strong></div>';
-      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 3:</strong> Profit before Tax = ' + formatNumberAR(r.priceBeforeTax) + ' − ' + formatNumberAR(r.costPerUnit) + ' = <strong>' + formatNumberAR(r.profitBeforeTax) + ' SAR</strong></div>';
-      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 4:</strong> Tax = ' + formatNumberAR(r.profitBeforeTax) + ' × ' + inputs.taxRate + '% = <strong>' + formatNumberAR(r.taxAmount) + ' SAR</strong></div>';
-      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 5:</strong> Zakat = ' + formatNumberAR(r.profitAfterTax) + ' × ' + inputs.zakatRate + '% = <strong>' + formatNumberAR(r.zakatAmount) + ' SAR</strong></div>';
-      stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>Step 6:</strong> Net Profit = ' + formatNumberAR(r.profitAfterTax) + ' − ' + formatNumberAR(r.zakatAmount) + ' = <strong>' + formatNumberAR(r.netProfitPerUnit) + ' SAR</strong></div>';
+      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 1:</strong> Base Cost = ' + formatNumberAR(inputs.direct) + ' + ' + formatNumberAR(inputs.overhead) + ' = <strong>' + formatNumberAR(r.costPerUnit) + ' SAR</strong></div>';
+      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 2:</strong> Total Cost = ' + formatNumberAR(r.costPerUnit) + ' + ' + formatNumberAR(inputs.packagingCostPerUnit + inputs.deliveryCostPerUnit + inputs.cacPerUnit) + ' = <strong>' + formatNumberAR(r.totalCostPerUnit) + ' SAR</strong></div>';
+      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 3:</strong> Selling Price before Fees = ' + formatNumberAR(r.totalCostPerUnit) + ' ÷ (1 − ' + inputs.margin + '%) = <strong>' + formatNumberAR(r.priceBeforeFees) + ' SAR</strong></div>';
+      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 4:</strong> Platform Selling Price = ' + formatNumberAR(r.priceBeforeFees) + ' ÷ (1 − ' + inputs.platformFeePct + '%) = <strong>' + formatNumberAR(r.priceBeforeTax) + ' SAR</strong></div>';
+      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 5:</strong> Platform Fee = ' + formatNumberAR(r.priceBeforeTax) + ' × ' + inputs.platformFeePct + '% = <strong>' + formatNumberAR(r.platformFeeAmount) + ' SAR</strong></div>';
+      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 6:</strong> Profit before Tax = ' + formatNumberAR(r.priceBeforeTax) + ' − ' + formatNumberAR(r.platformFeeAmount) + ' − ' + formatNumberAR(r.totalCostPerUnit) + ' = <strong>' + formatNumberAR(r.profitBeforeTax) + ' SAR</strong></div>';
+      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 7:</strong> Tax = ' + formatNumberAR(r.profitBeforeTax) + ' × ' + inputs.taxRate + '% = <strong>' + formatNumberAR(r.taxAmount) + ' SAR</strong></div>';
+      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 8:</strong> Zakat = ' + formatNumberAR(r.profitAfterTax) + ' × ' + inputs.zakatRate + '% = <strong>' + formatNumberAR(r.zakatAmount) + ' SAR</strong></div>';
+      stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>Step 9:</strong> Net Profit = ' + formatNumberAR(r.profitAfterTax) + ' − ' + formatNumberAR(r.zakatAmount) + ' = <strong>' + formatNumberAR(r.netProfitPerUnit) + ' SAR</strong></div>';
       stepsArea.innerHTML = stepsHTML;
 
       if (inputs.margin >= 100) {
         analysisText.innerHTML = '<strong style="color:#dc2626">Warning:</strong> Desired profit margin is 100% or more — the price is mathematically infinite. Reduce the margin to less than 100%.';
       } else if (r.actualMargin < inputs.margin * 0.5) {
-        analysisText.innerHTML = 'Tax and zakat consume a large portion of the profit margin. The actual margin (' + r.actualMargin.toFixed(1) + '%) is much lower than the target (' + inputs.margin + '%). Consider increasing the margin or reviewing the tax structure.';
+        analysisText.innerHTML = 'Platform fee, tax, and zakat consume a large portion of your profit margin. The actual margin (' + r.actualMargin.toFixed(1) + '%) is much lower than the target (' + inputs.margin + '%). Consider increasing the margin or reviewing your cost structure.';
       } else {
-        analysisText.innerHTML = 'Each unit sold at <strong>' + formatNumberAR(r.priceBeforeTax) + ' SAR</strong> generates a net profit of <strong>' + formatNumberAR(r.netProfitPerUnit) + ' SAR</strong>. When selling <strong>' + formatNumberAR(inputs.volume) + '</strong> units per month, the net monthly profit = <strong>' + formatNumberAR(r.monthlyProfit) + ' SAR</strong>.';
+        analysisText.innerHTML = 'Each unit sold on the platform at <strong>' + formatNumberAR(r.priceBeforeTax) + ' SAR</strong> generates a net profit of <strong>' + formatNumberAR(r.netProfitPerUnit) + ' SAR</strong>. When selling <strong>' + formatNumberAR(inputs.volume) + '</strong> units per month, the net monthly profit = <strong>' + formatNumberAR(r.monthlyProfit) + ' SAR</strong>.';
       }
 
       // Smart Alert CTA
@@ -501,7 +548,11 @@
         date: new Date().toLocaleString('en-US'),
         direct: inputs.direct, overhead: inputs.overhead, margin: inputs.margin,
         taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, volume: inputs.volume,
-        costPerUnit: r.costPerUnit, priceBeforeTax: r.priceBeforeTax,
+        platformFeePct: inputs.platformFeePct, packagingCostPerUnit: inputs.packagingCostPerUnit,
+        deliveryCostPerUnit: inputs.deliveryCostPerUnit, cacPerUnit: inputs.cacPerUnit,
+        costPerUnit: r.costPerUnit, totalCostPerUnit: r.totalCostPerUnit,
+        priceBeforeFees: r.priceBeforeFees, priceBeforeTax: r.priceBeforeTax,
+        platformFeeAmount: r.platformFeeAmount,
         netProfitPerUnit: r.netProfitPerUnit, monthlyProfit: r.monthlyProfit,
         actualMargin: r.actualMargin
       });
@@ -513,10 +564,10 @@
       pricingChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['Cost', 'Selling Price', 'Net Profit'],
+          labels: ['Total Cost', 'Platform Selling Price', 'Net Profit'],
           datasets: [{
             label: 'Amount (SAR)',
-            data: [r.costPerUnit, r.priceBeforeTax, r.netProfitPerUnit],
+            data: [r.totalCostPerUnit, r.priceBeforeTax, r.netProfitPerUnit],
             backgroundColor: ['#dc2626', '#3b82f6', '#16a34a'],
             borderRadius: 8,
             borderSkipped: false
@@ -554,12 +605,15 @@
       var content = `
         <h2>📊 Pricing Results</h2>
         <div class="metric-grid">
-          <div class="metric-item"><div class="label">Total Cost per Unit</div><div class="value">${r.costPerUnit.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-item"><div class="label">Base Cost per Unit</div><div class="value">${r.costPerUnit.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-item"><div class="label">Total Cost per Unit</div><div class="value">${r.totalCostPerUnit.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-item"><div class="label">Selling Price before Fees</div><div class="value">${r.priceBeforeFees.toLocaleString('en-US')} SAR</div></div>
           <div class="metric-item"><div class="label">Selling Price before Tax</div><div class="value">${r.priceBeforeTax.toLocaleString('en-US')} SAR</div></div>
-          <div class="metric-item"><div class="label">Net Profit per Unit</div><div class="value">${r.netProfitPerUnit.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-item"><div class="label">Platform Fee (${inputs.platformFeePct.toFixed(1)}%)</div><div class="value">${r.platformFeeAmount.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-item"><div class="label">Net Profit (per unit)</div><div class="value">${r.netProfitPerUnit.toLocaleString('en-US')} SAR</div></div>
           <div class="metric-item"><div class="label">Target Monthly Profit</div><div class="value">${r.monthlyProfit.toLocaleString('en-US')} SAR</div></div>
           <div class="metric-item"><div class="label">Actual Profit Margin</div><div class="value">${r.actualMargin.toFixed(1)}%</div></div>
-          <div class="metric-item"><div class="label">Break-Even Price</div><div class="value">${r.breakEvenPrice.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-item"><div class="label">Minimum Break-Even Price</div><div class="value">${r.breakEvenPrice.toLocaleString('en-US')} SAR</div></div>
         </div>
 
         <h2>📋 Calculation Details</h2>
@@ -567,8 +621,15 @@
           <tr><th>Item</th><th>Value</th></tr>
           <tr><td>Direct Cost</td><td class="num">${inputs.direct.toLocaleString('en-US')} SAR</td></tr>
           <tr><td>Overhead Cost</td><td class="num">${inputs.overhead.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Total Cost per Unit</td><td class="num">${r.costPerUnit.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Desired Margin</td><td class="num">${inputs.margin}%</td></tr>
+          <tr><td>Packaging Cost</td><td class="num">${inputs.packagingCostPerUnit.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Delivery Cost</td><td class="num">${inputs.deliveryCostPerUnit.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Customer Acquisition Cost</td><td class="num">${inputs.cacPerUnit.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Base Cost per Unit</td><td class="num">${r.costPerUnit.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Total Cost per Unit</td><td class="num">${r.totalCostPerUnit.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Platform Fee</td><td class="num">${inputs.platformFeePct.toFixed(1)}%</td></tr>
+          <tr><td>Desired Profit Margin</td><td class="num">${inputs.margin}%</td></tr>
+          <tr><td>Selling Price before Fees</td><td class="num">${r.priceBeforeFees.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Platform Fee Amount</td><td class="num">${r.platformFeeAmount.toLocaleString('en-US')} SAR</td></tr>
           <tr><td>Selling Price before Tax</td><td class="num">${r.priceBeforeTax.toLocaleString('en-US')} SAR</td></tr>
           <tr><td>Profit before Tax</td><td class="num">${r.profitBeforeTax.toLocaleString('en-US')} SAR</td></tr>
           <tr><td>Tax (${inputs.taxRate}%)</td><td class="num">${r.taxAmount.toLocaleString('en-US')} SAR</td></tr>
@@ -578,7 +639,7 @@
           <tr><td>Monthly Sales Volume</td><td class="num">${inputs.volume.toLocaleString('en-US')} units</td></tr>
           <tr><td>Target Monthly Profit</td><td class="num">${r.monthlyProfit.toLocaleString('en-US')} SAR</td></tr>
           <tr><td>Actual Profit Margin</td><td class="num">${r.actualMargin.toFixed(2)}%</td></tr>
-          <tr><td>Break-Even Price</td><td class="num">${r.breakEvenPrice.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Minimum Break-Even Price</td><td class="num">${r.breakEvenPrice.toLocaleString('en-US')} SAR</td></tr>
         </table>
       `;
       openPrintWindow({ content: content, title: 'Product Pricing Report', headerTitle: 'Product Pricing Report — Bonds', lang: 'en' });
@@ -603,13 +664,20 @@
         ['Item', 'Value'],
         ['Direct Cost per Unit', parseFloat(inputs.direct).toFixed(2)],
         ['Overhead Cost per Unit', parseFloat(inputs.overhead).toFixed(2)],
+        ['Packaging Cost per Unit', parseFloat(inputs.packagingCostPerUnit).toFixed(2)],
+        ['Delivery Cost per Unit', parseFloat(inputs.deliveryCostPerUnit).toFixed(2)],
+        ['Customer Acquisition Cost per Unit', parseFloat(inputs.cacPerUnit).toFixed(2)],
+        ['Platform Fee (%)', inputs.platformFeePct.toFixed(1) + '%'],
         ['Desired Profit Margin (%)', inputs.margin + '%'],
         ['Tax Rate (%)', inputs.taxRate + '%'],
         ['Zakat Rate (%)', inputs.zakatRate + '%'],
         ['Target Sales Volume', inputs.volume],
         ['', ''],
-        ['Total Cost per Unit', r.costPerUnit.toFixed(2)],
+        ['Base Cost per Unit', r.costPerUnit.toFixed(2)],
+        ['Total Cost per Unit', r.totalCostPerUnit.toFixed(2)],
+        ['Selling Price before Fees', r.priceBeforeFees.toFixed(2)],
         ['Selling Price before Tax', r.priceBeforeTax.toFixed(2)],
+        ['Platform Fee', r.platformFeeAmount.toFixed(2)],
         ['Profit before Tax', r.profitBeforeTax.toFixed(2)],
         ['Tax', r.taxAmount.toFixed(2)],
         ['Profit after Tax', r.profitAfterTax.toFixed(2)],
@@ -620,30 +688,32 @@
         ['Minimum Break-Even Price', r.breakEvenPrice.toFixed(2)]
       ];
       var ws = XLSX.utils.aoa_to_sheet(wsData);
-      ws['!cols'] = [{ wch: 32 }, { wch: 18 }];
+      ws['!cols'] = [{ wch: 36 }, { wch: 18 }];
       XLSX.utils.book_append_sheet(wb, ws, 'Results');
       XLSX.writeFile(wb, 'bonds-product-pricing.xlsx');
     }
 
     function saveToHistory(inputs, r) {
-      dbGet('pricingHistory').then(function(history) {
+      dbGet('pricingHistory_en').then(function(history) {
         history = history || [];
         history.unshift({
           date: new Date().toLocaleString('en-US'),
           direct: inputs.direct, overhead: inputs.overhead, margin: inputs.margin,
+          packagingCostPerUnit: inputs.packagingCostPerUnit, deliveryCostPerUnit: inputs.deliveryCostPerUnit,
+          cacPerUnit: inputs.cacPerUnit, platformFeePct: inputs.platformFeePct,
           price: r.priceBeforeTax, netProfit: r.netProfitPerUnit
         });
         if (history.length > 50) history.pop();
-        dbSet('pricingHistory', history).then(renderHistory);
+        dbSet('pricingHistory_en', history).then(renderHistory);
       });
     }
 
     function renderHistory() {
-      dbGet('pricingHistory').then(function(history) {
+      dbGet('pricingHistory_en').then(function(history) {
         history = history || [];
         var list = document.getElementById('historyList');
         if (history.length === 0) {
-          list.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No previous calculations</p>';
+          BondsUI.emptyState('historyList', { icon: '📭', title: 'No previous calculations', desc: 'Calculate a result to see it here' });
           return;
         }
         list.innerHTML = '';
@@ -655,6 +725,10 @@
             document.getElementById('directCost').value = item.direct;
             document.getElementById('overheadCost').value = item.overhead;
             document.getElementById('desiredMargin').value = item.margin;
+            document.getElementById('packagingCost').value = item.packagingCostPerUnit || 0;
+            document.getElementById('deliveryCost').value = item.deliveryCostPerUnit || 0;
+            document.getElementById('cac').value = item.cacPerUnit || 0;
+            document.getElementById('platformFee').value = item.platformFeePct || 0;
             calculateAll();
           };
           list.appendChild(div);
@@ -670,14 +744,12 @@
       url.searchParams.set('t', inputs.taxRate);
       url.searchParams.set('z', inputs.zakatRate);
       url.searchParams.set('v', inputs.volume);
+      url.searchParams.set('mf', inputs.monthlyFixed);
+      url.searchParams.set('p', inputs.platformFeePct);
+      url.searchParams.set('pack', inputs.packagingCostPerUnit);
+      url.searchParams.set('del', inputs.deliveryCostPerUnit);
+      url.searchParams.set('cac', inputs.cacPerUnit);
       document.getElementById('shareLink').value = url.toString();
-    }
-
-    function copyLink() {
-      var input = document.getElementById('shareLink');
-      input.select();
-      document.execCommand('copy');
-      BondsUI.toast('✅ Link copied!', 'success');
     }
 
     function calculateAll() {
@@ -717,10 +789,15 @@
     function loadExample() {
       document.getElementById('directCost').value = '150';
       document.getElementById('overheadCost').value = '50';
+      document.getElementById('packagingCost').value = '5';
+      document.getElementById('deliveryCost').value = '10';
+      document.getElementById('cac').value = '8';
+      document.getElementById('platformFee').value = '20';
       document.getElementById('desiredMargin').value = '25';
       document.getElementById('taxRate').value = '15';
       document.getElementById('zakatRate').value = '2.5';
       document.getElementById('monthlyVolume').value = '500';
+      document.getElementById('monthlyFixed').value = '0';
       calculateAll();
     }
 
@@ -731,8 +808,16 @@
       document.getElementById('taxRate').value = '15';
       document.getElementById('zakatRate').value = '2.5';
       document.getElementById('monthlyVolume').value = '';
+      document.getElementById('monthlyFixed').value = '0';
+      document.getElementById('platformFee').value = '0';
+      document.getElementById('packagingCost').value = '0';
+      document.getElementById('deliveryCost').value = '0';
+      document.getElementById('cac').value = '0';
       document.getElementById('resCostPerUnit').textContent = '—';
+      document.getElementById('resTotalCostPerUnit').textContent = '—';
+      document.getElementById('resPriceBeforeFees').textContent = '—';
       document.getElementById('resPriceBeforeTax').textContent = '—';
+      document.getElementById('resPlatformFee').textContent = '—';
       document.getElementById('resProfitBeforeTax').textContent = '—';
       document.getElementById('resTax').textContent = '—';
       document.getElementById('resZakat').textContent = '—';
@@ -747,7 +832,7 @@
       document.getElementById('leadCaptureBox').style.display = 'none';
       document.getElementById('leadCaptureForm').style.display = 'flex';
       document.getElementById('leadCaptureSuccess').style.display = 'none';
-      dbDel('pricingHistory').then(renderHistory);
+      dbDel('pricingHistory_en').then(renderHistory);
       window.history.replaceState({}, '', window.location.pathname);
     }
 
@@ -760,18 +845,28 @@
       var t = url.searchParams.get('t');
       var z = url.searchParams.get('z');
       var v = url.searchParams.get('v');
+      var mf = url.searchParams.get('mf');
+      var p = url.searchParams.get('p');
+      var pack = url.searchParams.get('pack');
+      var del = url.searchParams.get('del');
+      var cac = url.searchParams.get('cac');
       if (d) document.getElementById('directCost').value = d;
       if (o) document.getElementById('overheadCost').value = o;
       if (m) document.getElementById('desiredMargin').value = m;
       if (t) document.getElementById('taxRate').value = t;
       if (z) document.getElementById('zakatRate').value = z;
       if (v) document.getElementById('monthlyVolume').value = v;
+      if (mf) document.getElementById('monthlyFixed').value = mf;
+      if (p) document.getElementById('platformFee').value = p;
+      if (pack) document.getElementById('packagingCost').value = pack;
+      if (del) document.getElementById('deliveryCost').value = del;
+      if (cac) document.getElementById('cac').value = cac;
       if (d) calculateAll();
     }
 
     // Auto-save inputs with debounce
     var debouncedCalc = debounce(calculateAll, 300);
-    ['directCost', 'overheadCost', 'desiredMargin', 'taxRate', 'zakatRate', 'monthlyVolume', 'monthlyFixed'].forEach(function(id) {
+    ['directCost', 'overheadCost', 'desiredMargin', 'taxRate', 'zakatRate', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
       document.getElementById(id).addEventListener('input', function() {
         var inputs = getInputs();
         if (inputs.direct > 0) {

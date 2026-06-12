@@ -6,15 +6,15 @@
   <link rel="preconnect" href="https://embed.tawk.to" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Break-Even Calculator | Bonds — Financial Consulting</title>
-  <meta name="description" content="Calculate the break-even point for your project: number of units and amount needed to cover your costs. A free tool from Bonds." />
+  <meta name="description" content="Calculate the break-even point for your project: number of units and amount needed to cover your costs, including platform fees and campaign discounts. A free tool from Bonds." />
   <meta property="og:title" content="Break-Even Calculator | Bonds" />
-  <meta property="og:description" content="Calculate the break-even point for your project: fixed costs, variable costs, selling price, and expected sales volume." />
+  <meta property="og:description" content="Calculate the break-even point for your project: fixed costs, variable costs, selling price, expected sales volume, platform fees, and campaign discounts." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo.jpg" />
   <meta property="og:url" content="https://bonds-global.com/en/calculator.html" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Break-Even Calculator | Bonds" />
-  <meta name="twitter:description" content="Calculate the break-even point for your project: fixed costs, variable costs, selling price, and expected sales volume." />
+  <meta name="twitter:description" content="Calculate the break-even point for your project: fixed costs, variable costs, selling price, expected sales volume, platform fees, and campaign discounts." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo.jpg" />
   <script defer src="/_vercel/insights/script.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -26,10 +26,11 @@
   <link rel="prefetch" href="../calculators/cash-flow.html" as="document" />
   <link rel="prefetch" href="../calculators/loan.html" as="document" />
   <link rel="preload" href="../assets/bonds-logo.jpg" as="image" type="image/webp" />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../styles.css" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="../calculators/shared-utils.js"></script>
+  <script src="../calculators/calc-functions.js"></script>
   <style>
     .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
     @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
@@ -58,16 +59,19 @@
     .history-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.3s; }
     .history-item:hover { border-color: var(--gold); }
     @media print {
-      .hidden-print, .topbar, .main-header, .main-footer, .hero, button, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
+      .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
       .calc-grid { grid-template-columns: 1fr 1fr; }
       body { background: #fff !important; color: #000 !important; font-size: 12pt; }
       .section { padding: 0 !important; }
       canvas { max-height: 280px !important; }
       a { text-decoration: none; color: #000; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
   </style>
+
+  <script src="../calculators/db-client.js"></script>
 </head>
-<body style="font-family:Vazirmatn,system-ui,sans-serif">
+<body style="font-family:Inter,system-ui,sans-serif">
 
   <!-- Top Bar -->
   <div class="topbar">
@@ -99,7 +103,7 @@
               <a href="services.html#research">Surveys &amp; Research</a>
             </div>
           </li>
-          <li><a href="calculators/feasibility-template.html" style="color:var(--gold);font-weight:600;">Feasibility Study</a></li>
+          <li><a href="calculators/feasibility-template.html" style="color:var(--gold);font-weight:600;">Feasibility Study Template</a></li>
           <li><a href="pricing.html">Pricing</a></li>
           <li><a href="about.html">About Us</a></li>
           <li class="dropdown">
@@ -111,7 +115,8 @@
               <a href="calculator.html">Break-Even</a>
               <a href="calculators/cash-flow.html">Cash Flow</a>
               <a href="calculators/pricing.html">Pricing</a>
-              <a href="calculators/loan.html">Loan & Financing</a>
+              <a href="calculators/loan.html">Loan &amp; Financing</a>
+              <a href="calculators/medical-viability.html">Medical Viability</a>
               <a href="calculators/feasibility-template.html">Feasibility Study Template</a>
             </div>
           </li>
@@ -139,7 +144,7 @@
     <div class="container hero__content reveal">
       <span class="hero__eyebrow">Free Tool</span>
       <h1 class="hero__title">Break-Even <span class="text-gradient">Calculator</span></h1>
-      <p class="hero__desc">Find out how many units you need to sell, and how much revenue you need, to cover your costs and start making a profit.</p>
+      <p class="hero__desc">Find out how many units you need to sell, and how much revenue you need, to cover your costs and start making a profit — including platform fees and discounts.</p>
     </div>
   </section>
 
@@ -151,27 +156,51 @@
         <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
           <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Project Data</h2>
           <div class="calc-input-group">
-            <label>Fixed Costs (monthly)</label>
+            <label>Fixed Costs (monthly) <abbr title="Costs paid monthly regardless of sales volume: rent, salaries, utilities">ⓘ</abbr></label>
             <input type="number" id="fixedCost" placeholder="e.g., 50000" min="0" />
+            <button type="button" onclick="toggleDetail('fixedCostDetail', this)" style="margin-top:0.5rem;background:transparent;border:none;color:var(--gold);font-size:0.85rem;cursor:pointer;">▼ Fixed Cost Breakdown</button>
+            <div id="fixedCostDetail" style="display:none;margin-top:var(--space-3);padding:var(--space-3);background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;">
+              <div class="calc-input-group"><label style="font-size:0.8rem;">Rent <abbr title="Monthly rent for the location or warehouse">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="rent" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">Salaries <abbr title="Fixed monthly salaries (excludes per-unit direct labor)">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="salaries" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">Electricity / Water <abbr title="Monthly electricity, water, and internet bills">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="utilities" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">Licenses <abbr title="Annual license and registration fees divided by 12 months">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="licenses" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">Fixed Marketing <abbr title="Fixed monthly marketing and advertising spend">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="marketing" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">Other <abbr title="Any other monthly fixed costs">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="other" placeholder="0" min="0" /></div>
+            </div>
           </div>
           <div class="calc-input-group">
-            <label>Unit Selling Price</label>
+            <label>Unit Selling Price <abbr title="Final price paid by the customer before platform fee or discount">ⓘ</abbr></label>
             <input type="number" id="unitPrice" placeholder="e.g., 500" min="0" />
           </div>
           <div class="calc-input-group">
-            <label>Variable Cost per Unit</label>
+            <label>Variable Cost per Unit <abbr title="Cost to produce/sell one unit: raw materials, direct labor, packaging">ⓘ</abbr></label>
             <input type="number" id="varCost" placeholder="e.g., 300" min="0" />
+            <button type="button" onclick="toggleDetail('varCostDetail', this)" style="margin-top:0.5rem;background:transparent;border:none;color:var(--gold);font-size:0.85rem;cursor:pointer;">▼ Variable Cost Breakdown</button>
+            <div id="varCostDetail" style="display:none;margin-top:var(--space-3);padding:var(--space-3);background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;">
+              <div class="calc-input-group"><label style="font-size:0.8rem;">Raw Materials <abbr title="Raw material cost per unit produced">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="materials" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">Labor <abbr title="Direct labor cost per unit">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="labor" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">Packaging <abbr title="Packaging cost per unit">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="packaging" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">Other <abbr title="Any other per-unit variable costs">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="other" placeholder="0" min="0" /></div>
+            </div>
           </div>
           <div class="calc-input-group">
-            <label>Expected Quantity (monthly)</label>
+            <label>Expected Quantity (monthly) <abbr title="Number of units or orders expected per month">ⓘ</abbr></label>
             <input type="number" id="quantity" placeholder="e.g., 200" min="0" />
           </div>
           <div class="calc-input-group">
-            <label>Tax Rate (%)</label>
+            <label>Platform Fee (%) <abbr title="Commission deducted by delivery/sales platform per order (e.g., HungerStation, Jahez, Talabat)">ⓘ</abbr></label>
+            <input type="number" id="platformFee" placeholder="e.g., 20" min="0" max="100" value="0" />
+          </div>
+          <div class="calc-input-group">
+            <label>Campaign Discount / Marketing (%) <abbr title="Discount given to customers via campaign or coupon (deducted from selling price before platform fee)">ⓘ</abbr></label>
+            <input type="number" id="campaignDiscount" placeholder="e.g., 10" min="0" max="100" value="0" />
+          </div>
+          <div class="calc-input-group">
+            <label>Tax Rate (%) <abbr title="Value Added Tax (VAT) rate — applied only on positive profit">ⓘ</abbr></label>
             <input type="number" id="taxRate" placeholder="e.g., 15" min="0" max="100" value="15" />
           </div>
           <div class="calc-input-group">
-            <label>Zakat Rate (%)</label>
+            <label>Zakat Rate (%) <abbr title="Annual Zakat rate due — applied only on positive profit">ⓘ</abbr></label>
             <input type="number" id="zakatRate" placeholder="e.g., 2.5" min="0" max="100" value="2.5" />
           </div>
           <button onclick="calculateAll()" class="btn btn-primary" style="width: 100%;">Calculate Results</button>
@@ -193,12 +222,20 @@
                 <span id="resAmount" style="font-weight: 800; color: var(--text);">—</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Expected Revenue</span>
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Expected Revenue (before fees)</span>
                 <span id="resRevenue" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Net Revenue after Fees</span>
+                <span id="resNetRevenue" style="font-weight: 800; color: var(--text);">—</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
                 <span style="color: var(--text-secondary); font-size: 0.9rem;">Total Costs</span>
                 <span id="resTotalCost" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Total Fees &amp; Discounts</span>
+                <span id="resTotalDeductions" style="font-weight: 800; color: #dc2626;">—</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
                 <span style="color: var(--text-secondary); font-size: 0.9rem;">Net Profit / Loss (before tax)</span>
@@ -236,7 +273,7 @@
             </div>
             <div class="share-bar">
               <input type="text" id="shareLink" readonly placeholder="Share link..." />
-              <button onclick="copyLink()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">Copy Link</button>
+              <button onclick="copyLink()" class="btn btn-outline" style="font-size: 0.8rem;">Copy Link</button>
               <button onclick="window.print()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">🖨️ Print</button>
               <button onclick="exportCSV()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📊 Excel</button>
               <button onclick="exportPDF()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📄 Export PDF</button>
@@ -263,7 +300,7 @@
 
           <!-- Lead Capture -->
           <div id="leadCaptureBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);">
-            <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">💾 Save your results & get a free gift</h4>
+            <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">💾 Save your results &amp; get a free gift</h4>
             <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4);">Send these results to your email + get a free Cash Flow Forecast template.</p>
             <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
               <input type="text" name="name" required placeholder="Name" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
@@ -431,7 +468,7 @@
           <ul style="font-size: 0.9rem; color: var(--text-secondary); line-height: 2; padding-left: var(--space-4);">
             <li>This is an <strong>estimation tool</strong> and not a substitute for a licensed accountant.</li>
             <li>Results depend on the <strong>accuracy of the data entered</strong>.</li>
-            <li>Does not include taxes, commissions, or inflation.</li>
+            <li>Taxes, commissions, and inflation are configurable but simplified.</li>
             <li>Assumes fixed and variable costs are constant during the studied period.</li>
             <li>The formula is based on the internationally recognized <strong>cost accounting principle</strong>.</li>
           </ul>
@@ -487,7 +524,8 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <span>&copy; <span id="y">2025</span> Bonds Financial Consulting &mdash; All rights reserved.</span>
+        <span>&copy; <span id="y">2026</span> Bonds Financial Consulting &mdash; All rights reserved.</span>
+        <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
         <div style="display: flex; gap: var(--space-6);">
           <a href="privacy.html" style="color: var(--text-muted);">Privacy Policy</a>
           <a href="faq.html" style="color: var(--text-muted);">FAQ</a>
@@ -521,17 +559,53 @@
     function formatNumber(n) {
       return Math.round(n).toLocaleString('en-US');
     }
+    function formatNumberAR(n) {
+      return Math.round(n).toLocaleString('en-US');
+    }
+
+    function toggleDetail(id, btn) {
+      var el = document.getElementById(id);
+      if (el.style.display === 'none') {
+        el.style.display = 'block';
+        btn.textContent = btn.textContent.replace('▼', '▲');
+      } else {
+        el.style.display = 'none';
+        btn.textContent = btn.textContent.replace('▲', '▼');
+      }
+    }
+
+    function sumDetails(selector) {
+      var total = 0;
+      document.querySelectorAll(selector).forEach(function(input) {
+        total += parseFloat(input.value) || 0;
+      });
+      return total;
+    }
+
+    function getDetailBreakdown(selector) {
+      var breakdown = {};
+      document.querySelectorAll(selector).forEach(function(input) {
+        breakdown[input.dataset.key] = parseFloat(input.value) || 0;
+      });
+      return breakdown;
+    }
 
     function getInputs() {
       var taxEl = document.getElementById('taxRate');
       var zakatEl = document.getElementById('zakatRate');
+      var platformFeeEl = document.getElementById('platformFee');
+      var campaignDiscountEl = document.getElementById('campaignDiscount');
       return {
         fixed: parseFloat(document.getElementById('fixedCost').value) || 0,
         price: parseFloat(document.getElementById('unitPrice').value) || 0,
         varCost: parseFloat(document.getElementById('varCost').value) || 0,
         qty: parseFloat(document.getElementById('quantity').value) || 0,
         taxRate: taxEl ? (parseFloat(taxEl.value) || 0) : 0,
-        zakatRate: zakatEl ? (parseFloat(zakatEl.value) || 0) : 0
+        zakatRate: zakatEl ? (parseFloat(zakatEl.value) || 0) : 0,
+        platformFeePct: platformFeeEl ? (parseFloat(platformFeeEl.value) || 0) : 0,
+        campaignDiscountPct: campaignDiscountEl ? (parseFloat(campaignDiscountEl.value) || 0) : 0,
+        fixedCostBreakdown: getDetailBreakdown('.fixed-detail'),
+        variableCostBreakdown: getDetailBreakdown('.var-detail')
       };
     }
 
@@ -539,46 +613,31 @@
     function calculate(inputs) {
       var memoKey = _calcMemo.key(inputs);
       if (_calcMemo.has(memoKey)) return _calcMemo.get(memoKey);
-      var contribution = inputs.price - inputs.varCost;
-      var breakEvenUnits, breakEvenAmount;
-      if (contribution > 0) {
-        breakEvenUnits = Math.ceil(inputs.fixed / contribution);
-        breakEvenAmount = breakEvenUnits * inputs.price;
-      } else if (inputs.fixed === 0 && contribution >= 0) {
-        breakEvenUnits = 0;
-        breakEvenAmount = 0;
-      } else {
-        breakEvenUnits = -1;
-        breakEvenAmount = -1;
-      }
-      var revenue = inputs.qty * inputs.price;
-      var totalCost = inputs.fixed + (inputs.varCost * inputs.qty);
-      var profit = revenue - totalCost;
-      var taxRate = (inputs.taxRate !== undefined && inputs.taxRate !== null) ? inputs.taxRate : 0;
-      var zakatRate = (inputs.zakatRate !== undefined && inputs.zakatRate !== null) ? inputs.zakatRate : 0;
-      var taxAmount = profit > 0 ? profit * (taxRate / 100) : 0;
-      var profitAfterTax = profit - taxAmount;
-      var zakatAmount = profitAfterTax > 0 ? profitAfterTax * (zakatRate / 100) : 0;
-      var netProfit = profitAfterTax - zakatAmount;
-      var profitMargin = revenue > 0 ? (netProfit / revenue) * 100 : 0;
-      var roi = totalCost > 0 ? (netProfit / totalCost) * 100 : 0;
-      var result = { contribution, breakEvenUnits, breakEvenAmount, revenue, totalCost, profit, taxAmount, profitAfterTax, zakatAmount, netProfit, profitMargin, roi };
+      var options = {
+        platformFeePct: inputs.platformFeePct,
+        campaignDiscountPct: inputs.campaignDiscountPct,
+        fixedCostBreakdown: inputs.fixedCostBreakdown,
+        variableCostBreakdown: inputs.variableCostBreakdown
+      };
+      var result = calculateBreakEven(inputs.fixed, inputs.varCost, inputs.price, inputs.qty, inputs.taxRate, inputs.zakatRate, options);
       _calcMemo.set(memoKey, result);
       return result;
     }
 
     function updateResults(r, inputs) {
-      document.getElementById('resUnits').textContent = r.breakEvenUnits < 0 ? 'Not achievable' : formatNumber(r.breakEvenUnits) + ' units';
-      document.getElementById('resAmount').textContent = r.breakEvenAmount < 0 ? 'Not achievable' : formatNumber(r.breakEvenAmount) + ' SAR';
-      document.getElementById('resRevenue').textContent = formatNumber(r.revenue) + ' SAR';
-      document.getElementById('resTotalCost').textContent = formatNumber(r.totalCost) + ' SAR';
+      document.getElementById('resUnits').textContent = r.breakEvenUnits < 0 ? 'Not achievable' : formatNumberAR(r.breakEvenUnits) + ' units';
+      document.getElementById('resAmount').textContent = r.breakEvenAmount < 0 ? 'Not achievable' : formatNumberAR(r.breakEvenAmount) + ' SAR';
+      document.getElementById('resRevenue').textContent = formatNumberAR(inputs.qty * inputs.price) + ' SAR';
+      document.getElementById('resNetRevenue').textContent = formatNumberAR(r.revenue) + ' SAR';
+      document.getElementById('resTotalCost').textContent = formatNumberAR(r.totalCost) + ' SAR';
+      document.getElementById('resTotalDeductions').textContent = formatNumberAR((r.platformFeeAmount || 0) + (r.campaignDiscountAmount || 0)) + ' SAR';
 
       var profitEl = document.getElementById('resProfit');
       if (r.profit > 0) {
-        profitEl.textContent = formatNumber(r.profit) + ' SAR (Profit)';
+        profitEl.textContent = formatNumberAR(r.profit) + ' SAR (Profit)';
         profitEl.style.color = '#16a34a';
       } else if (r.profit < 0) {
-        profitEl.textContent = formatNumber(Math.abs(r.profit)) + ' SAR (Loss)';
+        profitEl.textContent = formatNumberAR(Math.abs(r.profit)) + ' SAR (Loss)';
         profitEl.style.color = '#dc2626';
       } else {
         profitEl.textContent = '0 SAR (Break-even)';
@@ -591,7 +650,7 @@
       var netProfitEl = document.getElementById('resNetProfit');
 
       if (r.profit > 0 && inputs.taxRate > 0) {
-        taxEl.textContent = formatNumber(r.taxAmount) + ' SAR (' + inputs.taxRate.toFixed(1) + '%)';
+        taxEl.textContent = formatNumberAR(r.taxAmount) + ' SAR (' + inputs.taxRate.toFixed(1) + '%)';
         taxEl.style.color = '#dc2626';
       } else {
         taxEl.textContent = '0 SAR';
@@ -599,10 +658,10 @@
       }
 
       if (r.profitAfterTax > 0) {
-        profitAfterTaxEl.textContent = formatNumber(r.profitAfterTax) + ' SAR';
+        profitAfterTaxEl.textContent = formatNumberAR(r.profitAfterTax) + ' SAR';
         profitAfterTaxEl.style.color = '#16a34a';
       } else if (r.profitAfterTax < 0) {
-        profitAfterTaxEl.textContent = formatNumber(Math.abs(r.profitAfterTax)) + ' SAR (Loss)';
+        profitAfterTaxEl.textContent = formatNumberAR(Math.abs(r.profitAfterTax)) + ' SAR (Loss)';
         profitAfterTaxEl.style.color = '#dc2626';
       } else {
         profitAfterTaxEl.textContent = '0 SAR';
@@ -610,7 +669,7 @@
       }
 
       if (r.profitAfterTax > 0 && inputs.zakatRate > 0) {
-        zakatEl.textContent = formatNumber(r.zakatAmount) + ' SAR (' + inputs.zakatRate.toFixed(1) + '%)';
+        zakatEl.textContent = formatNumberAR(r.zakatAmount) + ' SAR (' + inputs.zakatRate.toFixed(1) + '%)';
         zakatEl.style.color = '#dc2626';
       } else {
         zakatEl.textContent = '0 SAR';
@@ -618,10 +677,10 @@
       }
 
       if (r.netProfit > 0) {
-        netProfitEl.textContent = formatNumber(r.netProfit) + ' SAR (Net Profit)';
+        netProfitEl.textContent = formatNumberAR(r.netProfit) + ' SAR (Net Profit)';
         netProfitEl.style.color = '#16a34a';
       } else if (r.netProfit < 0) {
-        netProfitEl.textContent = formatNumber(Math.abs(r.netProfit)) + ' SAR (Loss)';
+        netProfitEl.textContent = formatNumberAR(Math.abs(r.netProfit)) + ' SAR (Loss)';
         netProfitEl.style.color = '#dc2626';
       } else {
         netProfitEl.textContent = '0 SAR (Break-even)';
@@ -650,30 +709,33 @@
       var stepsArea = document.getElementById('stepsArea');
       analysisBox.style.display = 'block';
 
-      // Steps
       var stepsHTML = '';
+      var effectivePrice = r.effectivePrice || inputs.price;
+      var totalDeductions = (r.platformFeeAmount || 0) + (r.campaignDiscountAmount || 0);
       if (r.contribution <= 0) {
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong style="color:#dc2626">⚠️ Warning:</strong> Contribution Margin = ' + formatNumber(inputs.price) + ' &minus; ' + formatNumber(inputs.varCost) + ' = ' + formatNumber(r.contribution) + ' SAR (zero or negative)</div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Revenue =</strong> ' + formatNumber(inputs.qty) + ' &times; ' + formatNumber(inputs.price) + ' = <strong>' + formatNumber(r.revenue) + ' SAR</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Costs =</strong> ' + formatNumber(inputs.fixed) + ' + (' + formatNumber(inputs.qty) + ' &times; ' + formatNumber(inputs.varCost) + ') = <strong>' + formatNumber(r.totalCost) + ' SAR</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>Net Profit/Loss =</strong> ' + formatNumber(r.revenue) + ' &minus; ' + formatNumber(r.totalCost) + ' = <strong>' + formatNumber(r.profit) + ' SAR</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong style="color:#dc2626">⚠️ Warning:</strong> Net Contribution Margin = ' + formatNumberAR(inputs.price) + ' &times; (1 − ' + (inputs.platformFeePct + inputs.campaignDiscountPct) + '%) − ' + formatNumberAR(inputs.varCost) + ' = ' + formatNumberAR(r.contribution) + ' SAR (zero or negative)</div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Net Revenue =</strong> ' + formatNumberAR(inputs.qty) + ' &times; ' + formatNumberAR(effectivePrice) + ' = <strong>' + formatNumberAR(r.revenue) + ' SAR</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Costs =</strong> ' + formatNumberAR(inputs.fixed) + ' + (' + formatNumberAR(inputs.qty) + ' &times; ' + formatNumberAR(inputs.varCost) + ') = <strong>' + formatNumberAR(r.totalCost) + ' SAR</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>Net Profit/Loss =</strong> ' + formatNumberAR(r.revenue) + ' − ' + formatNumberAR(r.totalCost) + ' = <strong>' + formatNumberAR(r.profit) + ' SAR</strong></div>';
       } else {
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 1:</strong> Contribution Margin = ' + formatNumber(inputs.price) + ' &minus; ' + formatNumber(inputs.varCost) + ' = <strong>' + formatNumber(r.contribution) + ' SAR</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 2:</strong> Break-Even = ' + formatNumber(inputs.fixed) + ' &divide; ' + formatNumber(r.contribution) + ' = <strong>' + formatNumber(r.breakEvenUnits) + ' units</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 3:</strong> Revenue = ' + formatNumber(inputs.qty) + ' &times; ' + formatNumber(inputs.price) + ' = <strong>' + formatNumber(r.revenue) + ' SAR</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 4:</strong> Costs = ' + formatNumber(inputs.fixed) + ' + (' + formatNumber(inputs.qty) + ' &times; ' + formatNumber(inputs.varCost) + ') = <strong>' + formatNumber(r.totalCost) + ' SAR</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>Step 5:</strong> Profit = ' + formatNumber(r.revenue) + ' &minus; ' + formatNumber(r.totalCost) + ' = <strong>' + formatNumber(r.profit) + ' SAR</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 1:</strong> Net Price = ' + formatNumberAR(inputs.price) + ' &times; (1 − ' + (inputs.platformFeePct + inputs.campaignDiscountPct) + '%) = <strong>' + formatNumberAR(effectivePrice) + ' SAR</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 2:</strong> Contribution Margin = ' + formatNumberAR(effectivePrice) + ' − ' + formatNumberAR(inputs.varCost) + ' = <strong>' + formatNumberAR(r.contribution) + ' SAR</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 3:</strong> Break-Even = ' + formatNumberAR(inputs.fixed) + ' &divide; ' + formatNumberAR(r.contribution) + ' = <strong>' + formatNumberAR(r.breakEvenUnits) + ' units</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 4:</strong> Net Revenue = ' + formatNumberAR(inputs.qty) + ' &times; ' + formatNumberAR(effectivePrice) + ' = <strong>' + formatNumberAR(r.revenue) + ' SAR</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 5:</strong> Fees &amp; Discounts = <strong>' + formatNumberAR(totalDeductions) + ' SAR</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 6:</strong> Costs = ' + formatNumberAR(inputs.fixed) + ' + (' + formatNumberAR(inputs.qty) + ' &times; ' + formatNumberAR(inputs.varCost) + ') = <strong>' + formatNumberAR(r.totalCost) + ' SAR</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>Step 7:</strong> Profit = ' + formatNumberAR(r.revenue) + ' − ' + formatNumberAR(r.totalCost) + ' = <strong>' + formatNumberAR(r.profit) + ' SAR</strong></div>';
       }
       stepsArea.innerHTML = stepsHTML;
 
       if (r.contribution <= 0) {
-        analysisText.innerHTML = '<strong style="color:#dc2626">Warning:</strong> The variable cost per unit is higher than or equal to the selling price. Break-even is not achievable — the project loses money on every unit sold.';
+        analysisText.innerHTML = '<strong style="color:#dc2626">Warning:</strong> The variable cost per unit is higher than or equal to the net selling price after fees and discounts. Break-even is not achievable — the project loses money on every unit sold.';
       } else if (inputs.qty >= r.breakEvenUnits) {
         var excess = inputs.qty - r.breakEvenUnits;
-        analysisText.innerHTML = 'You are selling <strong>' + formatNumber(excess) + '</strong> units above the break-even point. Every additional unit earns <strong>' + formatNumber(r.contribution) + ' SAR</strong>.';
+        analysisText.innerHTML = 'You are selling <strong>' + formatNumberAR(excess) + '</strong> units above the break-even point. Every additional unit earns <strong>' + formatNumberAR(r.contribution) + ' SAR</strong>.';
       } else {
         var needed = r.breakEvenUnits - inputs.qty;
-        analysisText.innerHTML = 'You need to sell <strong>' + formatNumber(needed) + '</strong> more units to reach the break-even point.';
+        analysisText.innerHTML = 'You need to sell <strong>' + formatNumberAR(needed) + '</strong> more units to reach the break-even point.';
       }
 
       // Smart Alert CTA
@@ -681,7 +743,7 @@
       var alertText = document.getElementById('smartAlertText');
       if (r.netProfit < 0) {
         alertBox.style.display = 'block';
-        alertText.textContent = 'Your project is generating a net loss of ' + formatNumber(Math.abs(r.netProfit)) + ' SAR. This is not a final verdict — sometimes a small pricing or cost restructuring adjustment can turn things around completely.';
+        alertText.textContent = 'Your project is generating a net loss of ' + formatNumberAR(Math.abs(r.netProfit)) + ' SAR. This is not a final verdict — sometimes a small pricing or cost restructuring adjustment can turn things around completely.';
       } else if (r.profitMargin > 0 && r.profitMargin < 10) {
         alertBox.style.display = 'block';
         alertText.textContent = 'Your profit margin (' + r.profitMargin.toFixed(1) + '%) is below 10% — this is a tight margin and could turn into a loss with any market or cost fluctuation. A financial consultant can review your cost structure and suggest improvements.';
@@ -693,9 +755,10 @@
       var leadBox = document.getElementById('leadCaptureBox');
       leadBox.style.display = 'block';
       document.getElementById('leadCalcData').value = JSON.stringify({
-        date: new Date().toLocaleString('en-GB'),
+        date: new Date().toLocaleString('en-US'),
         fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: inputs.qty,
         taxRate: inputs.taxRate, zakatRate: inputs.zakatRate,
+        platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct,
         breakEven: r.breakEvenUnits, revenue: r.revenue, totalCost: r.totalCost,
         netProfit: r.netProfit, margin: r.profitMargin, roi: r.roi
       });
@@ -704,13 +767,14 @@
     function updateChart(inputs, r) {
       var ctx = document.getElementById('breakEvenChart').getContext('2d');
       var maxQty = Math.max(inputs.qty * 1.5, (r.breakEvenUnits > 0 ? r.breakEvenUnits : 0) * 1.5, 100);
+      var effectivePrice = r.effectivePrice || inputs.price;
       var labels = [];
       var revenueData = [];
       var costData = [];
       for (var i = 0; i <= 20; i++) {
         var q = Math.round((maxQty / 20) * i);
         labels.push(q);
-        revenueData.push(q * inputs.price);
+        revenueData.push(q * effectivePrice);
         costData.push(inputs.fixed + (inputs.varCost * q));
       }
 
@@ -730,18 +794,18 @@
           maintainAspectRatio: false,
           interaction: { intersect: false, mode: 'index' },
           plugins: {
-            legend: { labels: { color: '#1a1a1a', font: { family: 'Vazirmatn' } } },
+            legend: { labels: { color: '#1a1a1a', font: { family: 'Inter' } } },
             tooltip: {
               callbacks: {
                 label: function(context) {
-                  return context.dataset.label + ': ' + formatNumber(context.raw) + ' SAR';
+                  return context.dataset.label + ': ' + formatNumberAR(context.raw) + ' SAR';
                 }
               }
             }
           },
           scales: {
-            x: { ticks: { color: '#555555', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(0,0,0,0.05)' } },
-            y: { ticks: { color: '#555555', font: { family: 'Vazirmatn' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(0,0,0,0.05)' } }
+            x: { ticks: { color: '#555555', font: { family: 'Inter' } }, grid: { color: 'rgba(0,0,0,0.05)' } },
+            y: { ticks: { color: '#555555', font: { family: 'Inter' }, callback: function(v) { return formatNumberAR(v); } }, grid: { color: 'rgba(0,0,0,0.05)' } }
           }
         }
       });
@@ -773,14 +837,14 @@
           plugins: {
             legend: {
               position: 'bottom',
-              labels: { color: '#1a1a1a', font: { family: 'Vazirmatn', size: 14 }, padding: 20 }
+              labels: { color: '#1a1a1a', font: { family: 'Inter', size: 14 }, padding: 20 }
             },
             tooltip: {
               callbacks: {
                 label: function(context) {
                   var total = context.dataset.data.reduce(function(a,b){return a+b;}, 0);
                   var pct = total > 0 ? ((context.raw / total) * 100).toFixed(1) : 0;
-                  return context.label + ': ' + formatNumber(context.raw) + ' SAR (' + pct + '%)';
+                  return context.label + ': ' + formatNumberAR(context.raw) + ' SAR (' + pct + '%)';
                 }
               }
             }
@@ -801,8 +865,8 @@
         return;
       }
       var r = calculate(inputs);
-      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
-      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
 
       var wb = XLSX.utils.book_new();
       wb.Props = { Title: 'Break-Even Report', Subject: 'Bonds Global', Author: 'bonds-global.com' };
@@ -813,11 +877,15 @@
         ['Unit Selling Price', parseFloat(inputs.price).toFixed(2)],
         ['Variable Cost per Unit', parseFloat(inputs.varCost).toFixed(2)],
         ['Expected Quantity', inputs.qty],
+        ['Platform Fee (%)', inputs.platformFeePct + '%'],
+        ['Campaign Discount (%)', inputs.campaignDiscountPct + '%'],
         ['Tax Rate (%)', inputs.taxRate + '%'],
         ['Zakat Rate (%)', inputs.zakatRate + '%'],
         ['Break-Even (units)', r.breakEvenUnits < 0 ? 'Not achievable' : r.breakEvenUnits],
         ['Break-Even (amount)', r.breakEvenAmount < 0 ? 'Not achievable' : r.breakEvenAmount],
-        ['Expected Revenue', r.revenue],
+        ['Revenue before Fees', inputs.qty * inputs.price],
+        ['Net Revenue after Fees', r.revenue],
+        ['Total Fees & Discounts', (r.platformFeeAmount || 0) + (r.campaignDiscountAmount || 0)],
         ['Total Costs', r.totalCost],
         ['Net Profit (before tax)', r.profit],
         ['Tax', r.taxAmount],
@@ -828,7 +896,7 @@
         ['Return on Cost (%)', r.roi.toFixed(2) + '%']
       ];
       var ws = XLSX.utils.aoa_to_sheet(wsData);
-      ws['!cols'] = [{ wch: 28 }, { wch: 18 }];
+      ws['!cols'] = [{ wch: 30 }, { wch: 18 }];
       XLSX.utils.book_append_sheet(wb, ws, 'Results');
 
       var ws2Data = [
@@ -856,7 +924,7 @@
         var row = [newPrice + ' SAR'];
         qtyChanges.forEach(function(qc) {
           var newQty = Math.round(inputs.qty * qc);
-          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
           row.push(res.netProfit);
         });
         sensData.push(row);
@@ -871,14 +939,14 @@
     function updateScenarios(inputs, r) {
       var pessimisticQty = Math.round(inputs.qty * 0.8);
       var optimisticQty = Math.round(inputs.qty * 1.2);
-      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: pessimisticQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
-      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: optimisticQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: pessimisticQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: optimisticQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
 
-      document.getElementById('pessimisticProfit').textContent = formatNumber(p.netProfit) + ' SAR';
+      document.getElementById('pessimisticProfit').textContent = formatNumberAR(p.netProfit) + ' SAR';
       document.getElementById('pessimisticProfit').style.color = p.netProfit >= 0 ? '#16a34a' : '#dc2626';
-      document.getElementById('expectedProfit').textContent = formatNumber(r.netProfit) + ' SAR';
+      document.getElementById('expectedProfit').textContent = formatNumberAR(r.netProfit) + ' SAR';
       document.getElementById('expectedProfit').style.color = r.netProfit >= 0 ? '#16a34a' : '#dc2626';
-      document.getElementById('optimisticProfit').textContent = formatNumber(o.netProfit) + ' SAR';
+      document.getElementById('optimisticProfit').textContent = formatNumberAR(o.netProfit) + ' SAR';
       document.getElementById('optimisticProfit').style.color = o.netProfit >= 0 ? '#16a34a' : '#dc2626';
 
       var ctx = document.getElementById('scenarioChart').getContext('2d');
@@ -903,14 +971,14 @@
             tooltip: {
               callbacks: {
                 label: function(context) {
-                  return 'Net Profit: ' + formatNumber(context.raw) + ' SAR';
+                  return 'Net Profit: ' + formatNumberAR(context.raw) + ' SAR';
                 }
               }
             }
           },
           scales: {
-            x: { ticks: { color: '#1a1a1a', font: { family: 'system-ui' } }, grid: { display: false } },
-            y: { ticks: { color: '#555555', font: { family: 'system-ui' }, callback: function(v) { return formatNumber(v); } }, grid: { color: 'rgba(0,0,0,0.05)' } }
+            x: { ticks: { color: '#1a1a1a', font: { family: 'Inter' } }, grid: { display: false } },
+            y: { ticks: { color: '#555555', font: { family: 'Inter' }, callback: function(v) { return formatNumberAR(v); } }, grid: { color: 'rgba(0,0,0,0.05)' } }
           }
         }
       });
@@ -925,12 +993,12 @@
       priceChanges.forEach(function(pc) {
         var row = document.createElement('tr');
         var newPrice = Math.round(inputs.price * pc);
-        row.innerHTML = '<th>' + formatNumber(newPrice) + ' SAR</th>';
+        row.innerHTML = '<th>' + formatNumberAR(newPrice) + ' SAR</th>';
         qtyChanges.forEach(function(qc) {
           var newQty = Math.round(inputs.qty * qc);
-          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
           var cell = document.createElement('td');
-          cell.textContent = formatNumber(res.netProfit);
+          cell.textContent = formatNumberAR(res.netProfit);
           cell.className = res.netProfit >= 0 ? 'positive' : 'negative';
           row.appendChild(cell);
         });
@@ -947,6 +1015,8 @@
           price: inputs.price,
           varCost: inputs.varCost,
           qty: inputs.qty,
+          platformFeePct: inputs.platformFeePct,
+          campaignDiscountPct: inputs.campaignDiscountPct,
           profit: r.profit,
           breakEven: r.breakEvenUnits
         });
@@ -967,12 +1037,14 @@
         history.forEach(function(item, i) {
           var div = document.createElement('div');
           div.className = 'history-item';
-          div.innerHTML = '<span>' + item.date + '</span><span style="font-weight: 800; color: ' + (item.profit >= 0 ? '#16a34a' : '#dc2626') + '">' + formatNumber(item.profit) + ' SAR</span>';
+          div.innerHTML = '<span>' + item.date + '</span><span style="font-weight: 800; color: ' + (item.profit >= 0 ? '#16a34a' : '#dc2626') + '">' + formatNumberAR(item.profit) + ' SAR</span>';
           div.onclick = function() {
             document.getElementById('fixedCost').value = item.fixed;
             document.getElementById('unitPrice').value = item.price;
             document.getElementById('varCost').value = item.varCost;
             document.getElementById('quantity').value = item.qty;
+            document.getElementById('platformFee').value = item.platformFeePct || 0;
+            document.getElementById('campaignDiscount').value = item.campaignDiscountPct || 0;
             calculateAll();
           };
           list.appendChild(div);
@@ -986,6 +1058,8 @@
       url.searchParams.set('p', inputs.price);
       url.searchParams.set('v', inputs.varCost);
       url.searchParams.set('q', inputs.qty);
+      url.searchParams.set('pf', inputs.platformFeePct);
+      url.searchParams.set('cd', inputs.campaignDiscountPct);
       document.getElementById('shareLink').value = url.toString();
     }
 
@@ -996,44 +1070,34 @@
       alert('Link copied!');
     }
 
-    function toLatinNums(str) {
-      var map = {
-        '٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9',
-        '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9',
-        '٬':','
-      };
-      return str.replace(/[٠-٩۰-۹٬]/g, function(c){ return map[c] || c; });
-    }
-    function cleanForPDF(str) {
-      var s = str.replace(/[\u061C\u200E\u200F\u202A-\u202E]/g, '');
-      return toLatinNums(s).replace(/SAR/g, 'SAR').replace(/units/g, 'units');
-    }
-
     async function exportPDF() {
+      var inputs = getInputs();
+      if (inputs.price <= 0) {
+        alert('Calculate results first before exporting PDF');
+        return;
+      }
       await Promise.all([
         loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf'),
         loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js')
       ]);
-      var fixed = document.getElementById('fixedCost').value || '0';
-      var price = document.getElementById('unitPrice').value || '0';
-      var varCost = document.getElementById('varCost').value || '0';
-      var qty = document.getElementById('quantity').value || '0';
-      var resUnits = cleanForPDF(document.getElementById('resUnits').textContent);
-      var resAmount = cleanForPDF(document.getElementById('resAmount').textContent);
-      var resRevenue = cleanForPDF(document.getElementById('resRevenue').textContent);
-      var resTotalCost = cleanForPDF(document.getElementById('resTotalCost').textContent);
-      var resProfit = cleanForPDF(document.getElementById('resProfit').textContent);
-      var resTax = cleanForPDF(document.getElementById('resTax').textContent);
-      var resProfitAfterTax = cleanForPDF(document.getElementById('resProfitAfterTax').textContent);
-      var resZakat = cleanForPDF(document.getElementById('resZakat').textContent);
-      var resNetProfit = cleanForPDF(document.getElementById('resNetProfit').textContent);
-      var resMargin = document.getElementById('resMargin').textContent;
-      var resROI = document.getElementById('resROI').textContent;
-
-      if (resUnits === '—' || resUnits === '-') {
-        alert('Calculate the results first before exporting PDF');
+      if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+        alert('Failed to load PDF library. Please try again.');
         return;
       }
+      var r = calculate(inputs);
+      await loadChartJS();
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+
+      var resUnits = r.breakEvenUnits < 0 ? 'N/A' : formatNumber(r.breakEvenUnits) + ' units';
+      var resAmount = r.breakEvenAmount < 0 ? 'N/A' : formatNumber(r.breakEvenAmount) + ' SAR';
+      var resRevenue = formatNumber(r.revenue) + ' SAR';
+      var resTotalCost = formatNumber(r.totalCost) + ' SAR';
+      var resProfit;
+      if (r.profit > 0) resProfit = formatNumber(r.profit) + ' SAR (Profit)';
+      else if (r.profit < 0) resProfit = formatNumber(Math.abs(r.profit)) + ' SAR (Loss)';
+      else resProfit = '0 SAR (Break-even)';
+      var profitColor = r.profit < 0 ? [220, 38, 38] : (r.profit === 0 ? [150,150,150] : [22, 163, 74]);
 
       var { jsPDF } = window.jspdf;
       var doc = new jsPDF();
@@ -1065,10 +1129,14 @@
         startY: 56,
         head: [['Parameter', 'Value']],
         body: [
-          ['Fixed Costs', parseFloat(fixed).toLocaleString('en-US') + ' SAR'],
-          ['Unit Selling Price', parseFloat(price).toLocaleString('en-US') + ' SAR'],
-          ['Variable Cost per Unit', parseFloat(varCost).toLocaleString('en-US') + ' SAR'],
-          ['Expected Quantity', parseFloat(qty).toLocaleString('en-US') + ' units']
+          ['Fixed Costs', parseFloat(inputs.fixed).toLocaleString('en-US') + ' SAR'],
+          ['Unit Selling Price', parseFloat(inputs.price).toLocaleString('en-US') + ' SAR'],
+          ['Variable Cost per Unit', parseFloat(inputs.varCost).toLocaleString('en-US') + ' SAR'],
+          ['Expected Quantity', parseFloat(inputs.qty).toLocaleString('en-US') + ' units'],
+          ['Platform Fee (%)', inputs.platformFeePct + '%'],
+          ['Campaign Discount (%)', inputs.campaignDiscountPct + '%'],
+          ['Tax Rate (%)', inputs.taxRate + '%'],
+          ['Zakat Rate (%)', inputs.zakatRate + '%']
         ],
         theme: 'striped',
         headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
@@ -1081,29 +1149,26 @@
       doc.setFont('helvetica', 'bold');
       doc.text('Results', margin, doc.lastAutoTable.finalY + 12);
 
-      var profitColor = resProfit.includes('Loss') || resProfit.includes('-') ? [220, 38, 38] : (resProfit.includes('Break-even') || resProfit.includes('Not') ? [150,150,150] : [22, 163, 74]);
       doc.autoTable({
         startY: doc.lastAutoTable.finalY + 16,
         head: [['Metric', 'Result']],
         body: [
           ['Break-Even (Units)', resUnits],
           ['Break-Even (Amount)', resAmount],
-          ['Expected Revenue', resRevenue],
+          ['Gross Revenue', formatNumber(inputs.qty * inputs.price) + ' SAR'],
+          ['Net Revenue after Fees', resRevenue],
+          ['Total Fees & Discounts', formatNumber((r.platformFeeAmount || 0) + (r.campaignDiscountAmount || 0)) + ' SAR'],
           ['Total Costs', resTotalCost],
-          ['Net Profit / Loss (before tax)', resProfit],
-          ['Tax', resTax],
-          ['Profit After Tax', resProfitAfterTax],
-          ['Zakat', resZakat],
-          ['Final Net Profit', resNetProfit],
-          ['Profit Margin (%)', resMargin],
-          ['Return on Cost (%)', resROI]
+          ['Net Profit / Loss', resProfit],
+          ['Profit Margin (%)', r.profitMargin.toFixed(1) + '%'],
+          ['Return on Cost (%)', r.roi.toFixed(1) + '%']
         ],
         theme: 'striped',
         headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
         styles: { fontSize: 10, cellPadding: 4, font: 'helvetica' },
         margin: { left: margin, right: margin },
         didParseCell: function(data) {
-          if (data.row.index === 4 && data.column.index === 1) {
+          if (data.row.index === 6 && data.column.index === 1) {
             data.cell.styles.textColor = profitColor;
             data.cell.styles.fontStyle = 'bold';
           }
@@ -1111,11 +1176,7 @@
       });
 
       // Chart images
-      var inputs = { fixed: parseFloat(fixed), price: parseFloat(price), varCost: parseFloat(varCost), qty: parseFloat(qty) };
-      var r = calculate(inputs);
-      await loadChartJS();
       updateChart(inputs, r);
-      updateCostChart(inputs, r);
       var chartBottomY = doc.lastAutoTable.finalY + 12;
       var canvas = document.getElementById('breakEvenChart');
       if (canvas && canvas.toDataURL) {
@@ -1145,34 +1206,28 @@
       }
 
       // Scenarios table
-      var pessProfit = cleanForPDF(document.getElementById('pessimisticProfit').textContent);
-      var expProfit = cleanForPDF(document.getElementById('expectedProfit').textContent);
-      var optProfit = cleanForPDF(document.getElementById('optimisticProfit').textContent);
-
-      if (pessProfit !== '—' && pessProfit !== '-') {
-        doc.setFontSize(13);
-        doc.setFont('helvetica', 'bold');
-        var nextY = chartBottomY + 12;
-        if (nextY > 250) {
-          doc.addPage();
-          nextY = 20;
-        }
-        doc.text('Scenario Analysis', margin, nextY);
-        
-        doc.autoTable({
-          startY: nextY + 4,
-          head: [['Scenario', 'Net Profit']],
-          body: [
-            ['Pessimistic (-20% quantity)', pessProfit],
-            ['Expected', expProfit],
-            ['Optimistic (+20% quantity)', optProfit]
-          ],
-          theme: 'striped',
-          headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
-          styles: { fontSize: 10, cellPadding: 4, font: 'helvetica' },
-          margin: { left: margin, right: margin }
-        });
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      var nextY = chartBottomY + 12;
+      if (nextY > 250) {
+        doc.addPage();
+        nextY = 20;
       }
+      doc.text('Scenario Analysis', margin, nextY);
+      
+      doc.autoTable({
+        startY: nextY + 4,
+        head: [['Scenario', 'Net Profit']],
+        body: [
+          ['Pessimistic (-20% quantity)', formatNumber(p.netProfit) + ' SAR'],
+          ['Expected', formatNumber(r.netProfit) + ' SAR'],
+          ['Optimistic (+20% quantity)', formatNumber(o.netProfit) + ' SAR']
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
+        styles: { fontSize: 10, cellPadding: 4, font: 'helvetica' },
+        margin: { left: margin, right: margin }
+      });
 
       // Detailed Scenario Comparison
       doc.setFontSize(13);
@@ -1186,19 +1241,17 @@
       
       var pQty = Math.round(inputs.qty * 0.8);
       var oQty = Math.round(inputs.qty * 1.2);
-      var pRes = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: pQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
-      var oRes = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: oQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
       
       doc.autoTable({
         startY: compareY + 4,
         head: [['Metric', 'Pessimistic (-20%)', 'Expected', 'Optimistic (+20%)']],
         body: [
           ['Quantity (units)', formatNumber(pQty), formatNumber(inputs.qty), formatNumber(oQty)],
-          ['Revenue (SAR)', formatNumber(pRes.revenue), formatNumber(r.revenue), formatNumber(oRes.revenue)],
-          ['Total Costs (SAR)', formatNumber(pRes.totalCost), formatNumber(r.totalCost), formatNumber(oRes.totalCost)],
-          ['Net Profit (SAR)', formatNumber(pRes.netProfit), formatNumber(r.netProfit), formatNumber(oRes.netProfit)],
-          ['Profit Margin (%)', pRes.profitMargin.toFixed(2) + '%', r.profitMargin.toFixed(2) + '%', oRes.profitMargin.toFixed(2) + '%'],
-          ['Return on Cost (%)', pRes.roi.toFixed(2) + '%', r.roi.toFixed(2) + '%', oRes.roi.toFixed(2) + '%']
+          ['Revenue (SAR)', formatNumber(p.revenue), formatNumber(r.revenue), formatNumber(o.revenue)],
+          ['Total Costs (SAR)', formatNumber(p.totalCost), formatNumber(r.totalCost), formatNumber(o.totalCost)],
+          ['Net Profit (SAR)', formatNumber(p.netProfit), formatNumber(r.netProfit), formatNumber(o.netProfit)],
+          ['Profit Margin (%)', p.profitMargin.toFixed(2) + '%', r.profitMargin.toFixed(2) + '%', o.profitMargin.toFixed(2) + '%'],
+          ['Return on Cost (%)', p.roi.toFixed(2) + '%', r.roi.toFixed(2) + '%', o.roi.toFixed(2) + '%']
         ],
         theme: 'striped',
         headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
@@ -1207,44 +1260,40 @@
       });
 
       // Sensitivity table
-      var sensTable = document.getElementById('sensitivityTable');
-      if (sensTable) {
-        var sensBody = [];
-        var rows = sensTable.querySelectorAll('tbody tr');
-        rows.forEach(function(row) {
-          var rowData = [];
-          row.querySelectorAll('th, td').forEach(function(cell) {
-            rowData.push(cleanForPDF(cell.textContent));
-          });
-          sensBody.push(rowData);
-        });
-        
-        if (sensBody.length > 0) {
-          doc.setFontSize(13);
-          doc.setFont('helvetica', 'bold');
-          var sensY = doc.lastAutoTable.finalY + 12;
-          if (sensY > 230) {
-            doc.addPage();
-            sensY = 20;
-          }
-          doc.text('Sensitivity Analysis', margin, sensY);
-          
-          var sensHead = [];
-          sensTable.querySelectorAll('thead th').forEach(function(th) {
-            sensHead.push(cleanForPDF(th.textContent));
-          });
-          
-          doc.autoTable({
-            startY: sensY + 4,
-            head: [sensHead],
-            body: sensBody,
-            theme: 'striped',
-            headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
-            styles: { fontSize: 9, cellPadding: 3, font: 'helvetica' },
-            margin: { left: margin, right: margin }
-          });
-        }
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      var sensY = doc.lastAutoTable.finalY + 12;
+      if (sensY > 230) {
+        doc.addPage();
+        sensY = 20;
       }
+      doc.text('Sensitivity Analysis', margin, sensY);
+      
+      var sensHead = ['Price \\ Qty', '-30%', '-15%', 'Expected', '+15%', '+30%'];
+      var sensBody = [];
+      var priceChanges = [0.7, 0.85, 1, 1.15, 1.3];
+      var qtyChanges = [0.7, 0.85, 1, 1.15, 1.3];
+      
+      priceChanges.forEach(function(pc) {
+        var newPrice = Math.round(inputs.price * pc);
+        var row = [formatNumber(newPrice) + ' SAR'];
+        qtyChanges.forEach(function(qc) {
+          var newQty = Math.round(inputs.qty * qc);
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+          row.push(formatNumber(res.netProfit));
+        });
+        sensBody.push(row);
+      });
+      
+      doc.autoTable({
+        startY: sensY + 4,
+        head: [sensHead],
+        body: sensBody,
+        theme: 'striped',
+        headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
+        styles: { fontSize: 9, cellPadding: 3, font: 'helvetica' },
+        margin: { left: margin, right: margin }
+      });
 
       // Disclaimer
       var disclaimerY = doc.lastAutoTable.finalY + 14;
@@ -1311,12 +1360,17 @@
       document.getElementById('unitPrice').value = '';
       document.getElementById('varCost').value = '';
       document.getElementById('quantity').value = '';
+      document.getElementById('platformFee').value = '0';
+      document.getElementById('campaignDiscount').value = '0';
       document.getElementById('taxRate').value = '15';
       document.getElementById('zakatRate').value = '2.5';
+      document.querySelectorAll('.fixed-detail, .var-detail').forEach(function(input) { input.value = ''; });
       document.getElementById('resUnits').textContent = '—';
       document.getElementById('resAmount').textContent = '—';
       document.getElementById('resRevenue').textContent = '—';
+      document.getElementById('resNetRevenue').textContent = '—';
       document.getElementById('resTotalCost').textContent = '—';
+      document.getElementById('resTotalDeductions').textContent = '—';
       document.getElementById('resProfit').textContent = '—';
       document.getElementById('resTax').textContent = '—';
       document.getElementById('resProfitAfterTax').textContent = '—';
@@ -1337,7 +1391,7 @@
       document.getElementById('leadCaptureBox').style.display = 'none';
       document.getElementById('leadCaptureForm').style.display = 'flex';
       document.getElementById('leadCaptureSuccess').style.display = 'none';
-      localStorage.removeItem('calcHistory');
+      localStorage.removeItem('calcHistory_en');
       renderHistory();
       window.history.replaceState({}, '', window.location.pathname);
     }
@@ -1349,21 +1403,36 @@
       var p = url.searchParams.get('p');
       var v = url.searchParams.get('v');
       var q = url.searchParams.get('q');
+      var pf = url.searchParams.get('pf');
+      var cd = url.searchParams.get('cd');
       if (f) document.getElementById('fixedCost').value = f;
       if (p) document.getElementById('unitPrice').value = p;
       if (v) document.getElementById('varCost').value = v;
       if (q) document.getElementById('quantity').value = q;
+      if (pf) document.getElementById('platformFee').value = pf;
+      if (cd) document.getElementById('campaignDiscount').value = cd;
       if (p) calculateAll();
     }
 
     // Auto-save inputs with debounce
     var debouncedCalc = debounce(calculateAll, 300);
-    ['fixedCost', 'unitPrice', 'varCost', 'quantity', 'taxRate', 'zakatRate'].forEach(function(id) {
+    ['fixedCost', 'unitPrice', 'varCost', 'quantity', 'platformFee', 'campaignDiscount', 'taxRate', 'zakatRate'].forEach(function(id) {
       document.getElementById(id).addEventListener('input', function() {
         var inputs = getInputs();
         if (inputs.price > 0) {
           debouncedCalc();
         }
+      });
+    });
+    ['.fixed-detail', '.var-detail'].forEach(function(selector) {
+      document.querySelectorAll(selector).forEach(function(input) {
+        input.addEventListener('input', function() {
+          var targetId = input.dataset.target;
+          var target = document.getElementById(targetId);
+          if (target) target.value = sumDetails(selector);
+          var inputs = getInputs();
+          if (inputs.price > 0) debouncedCalc();
+        });
       });
     });
 
@@ -1405,5 +1474,6 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
+  <script>window.BondsAuth && window.BondsAuth.initSiteAuth('authContainer');</script>
 </body>
 </html>

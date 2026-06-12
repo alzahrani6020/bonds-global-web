@@ -29,8 +29,8 @@
   width: 100%;
   padding: 0.85rem 1rem;
   border-radius: var(--bonds-radius);
-  border: 1px solid var(--bonds-border);
-  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(0,0,0,0.15);
+  background: #ffffff;
   color: var(--bonds-text);
   font-family: inherit;
   font-size: 1rem;

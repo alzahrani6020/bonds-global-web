@@ -769,9 +769,9 @@
       summaryHTML += '</table>';
 
       printWindow.document.write(`
-        <!DOCTYPE html>
-        <html dir="ltr">
-        <head>
+        \u003C!DOCTYPE html>
+        \u003Chtml dir="ltr">
+        \u003Chead>
           <meta charset="UTF-8">
           <title>تقرير التدفق النقدي - بوندز</title>
           <style>
@@ -785,8 +785,8 @@
             .chart-img { max-width: 100%; height: auto; margin: 15px 0; page-break-inside: avoid; }
             @media print { body { padding: 20px; } .chart-img { max-height: 280px; } }
           </style>
-        </head>
-        <body>
+        \u003C/head>
+        \u003Cbody>
           <div class="header">
             <h1>بوندز</h1>
             <p style="font-size:16px; font-weight:700; color:#444; margin:4px 0;">للاستشارات المالية</p>
@@ -802,15 +802,15 @@
             هذا التقرير للأغراض التقديرية فقط ولا يغني عن استشارة مالية مرخصة.<br>
             تم إنشاؤه بواسطة bonds-global.com
           </div>
-          <script>window.onload = function() { setTimeout(function() { window.print(); }, 600); };</scr${''}ipt>
-        <script src="../../calculators/usage-guard.js"></script>
-  <script src="../../page-tracker-v2.js"></script>
-  <script src="/api/env"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/bonds-auth-2026.js"></script>
-<script src="../../site-layout.js"></script>
-</body>
-        </html>
+          \u003Cscript>window.onload = function() { setTimeout(function() { window.print(); }, 600); };</scr${''}ipt>
+        \u003Cscript src="../../calculators/usage-guard.js">\u003C/script>
+  \u003Cscript src="../../page-tracker-v2.js">\u003C/script>
+  \u003Cscript src="/api/env">\u003C/script>
+  \u003Cscript src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">\u003C/script>
+  \u003Cscript src="/bonds-auth-2026.js">\u003C/script>
+\u003Cscript src="../../site-layout.js">\u003C/script>
+\u003C/body>
+        \u003C/html>
       `);
       printWindow.document.close();
     }

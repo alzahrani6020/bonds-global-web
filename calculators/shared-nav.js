@@ -13,7 +13,8 @@
     { ar: 'القرض والتمويل', en: 'Loan & Financing', path: 'calculators/loan.html' },
     { ar: 'المطاعم والسحابي', en: 'Restaurant & Cloud', path: 'calculators/restaurant.html' },
     { ar: 'هامش الربح', en: 'Dish Margin', path: 'calculators/dish-margin.html' },
-    { ar: 'دراسة جدوى', en: 'Feasibility Study', path: 'calculators/feasibility.html' },
+    { ar: 'الجدوى المالية للمطعم', en: 'Restaurant Viability', path: 'calculators/feasibility.html' },
+    { ar: 'الجدوى الطبية', en: 'Medical Viability', path: 'calculators/medical-viability.html' },
     { ar: 'تحليل الفواتير', en: 'Invoice Analyzer', path: 'calculators/invoice-analyzer.html' },
     { ar: 'هندسة القائمة', en: 'Menu Engineering', path: 'calculators/menu-engineering.html' },
     { ar: 'هندسة القائمة (بسيط)', en: 'Menu Eng. (Simple)', path: 'calculators/menu-engineering-simple.html' }

@@ -27,7 +27,7 @@ replacements = {
     'القرض والتمويل': 'Loan & Finance',
     'المطاعم والسحابي': 'Restaurants & Cloud',
     'هندسة المنيو': 'Menu Engineering',
-    'جدوى المطعم': 'Restaurant Feasibility',
+    'الجدوى المالية للمطعم': 'Restaurant Financial Viability',
     'تحليل الفواتير': 'Invoice Analyzer',
     'نموذج دراسة الجدوى': 'Feasibility Study Template',
     'المدونة': 'Blog',

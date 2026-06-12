@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>حاسبة جدوى المطعم | بوندز — هل فكرتك مربحة؟</title>
-  <meta name="description" content="احسب جدوى مطعمك قبل الافتتاح: التكاليف، الإيرادات، نقطة التعادل، والسيناريوهات المتشائمة والمتفائلة. أداة مجانية من بوندز." />
-  <meta property="og:title" content="حاسبة جدوى المطعم | بوندز" />
-  <meta property="og:description" content="هل فكرة مطعمك مربحة؟ احسب قبل ما تدفع ريال." />
+  <title>حاسبة الجدوى المالية للمطعم | بوندز — هل فكرتك مربحة؟</title>
+  <meta name="description" content="احسب الجدوى المالية لمطعمك قبل الافتتاح: التكاليف، الإيرادات، عمولة المنصة، هدر الطعام، تكلفة التغليف والتوصيل، النمو الشهري، نقطة التعادل، والسيناريوهات. أداة مجانية من بوندز." />
+  <meta property="og:title" content="حاسبة الجدوى المالية للمطعم | بوندز" />
+  <meta property="og:description" content="هل فكرة مطعمك مربحة؟ احسب قبل ما تدفع ريال مع مراعاة المنصات والتكاليف الحقيقية." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,6 +16,7 @@
   <script src="shared-ui.js"></script>
   <script src="shared-utils.js"></script>
   <script src="shared-export.js"></script>
+  <script src="calc-functions.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <style>
     .feas-container { max-width: 900px; margin: 0 auto; padding: var(--space-8) var(--space-4); }
@@ -59,7 +60,7 @@
   <div class="feas-container">
     <div class="feas-header">
       <div class="feas-badge">🚀 لرواد الأعمال — قبل الفتح</div>
-      <h1>حاسبة جدوى المطعم</h1>
+      <h1>حاسبة الجدوى المالية للمطعم</h1>
       <p>احسب تكاليفك المتوقعة وإيراداتك ونقطة التعادل <strong>قبل</strong> ما تدفع ريال واحد. جرب السيناريوهات المختلفة واتخذ قرارك بثقة.</p>
     </div>
 
@@ -79,12 +80,12 @@
       <div class="bonds-card">
         <p style="color:var(--text-secondary);margin-bottom:var(--space-4);text-align:center;">💡 هذه التكاليف تُدفع <strong>مرة واحدة</strong> قبل الافتتاح</p>
         <div class="bonds-form-row">
-          <div class="bonds-form-group"><label>الترخيص والتسجيل</label><input id="sLicense" class="bonds-input" type="number" value="5000" placeholder="5000" /></div>
-          <div class="bonds-form-group"><label>التأثيث والديكور</label><input id="sFurniture" class="bonds-input" type="number" value="40000" placeholder="40000" /></div>
-          <div class="bonds-form-group"><label>المعدات والأجهزة</label><input id="sEquipment" class="bonds-input" type="number" value="30000" placeholder="30000" /></div>
-          <div class="bonds-form-group"><label>تصميم الهوية والتسويق</label><input id="sMarketing" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
-          <div class="bonds-form-group"><label>الأمن والسلامة</label><input id="sSafety" class="bonds-input" type="number" value="3000" placeholder="3000" /></div>
-          <div class="bonds-form-group"><label>مصاريف أخرى</label><input id="sOther" class="bonds-input" type="number" value="5000" placeholder="5000" /></div>
+          <div class="bonds-form-group"><label>الترخيص والتسجيل <abbr title="رسوم تجارية، بلدية، غرفة تجارية، تراخيص صحية">ⓘ</abbr></label><input id="sLicense" class="bonds-input" type="number" value="5000" placeholder="5000" /></div>
+          <div class="bonds-form-group"><label>التأثيث والديكور <abbr title="تكلفة التجهيزات الداخلية، الطاولات، الكراسي، الإضاءة، الديكور">ⓘ</abbr></label><input id="sFurniture" class="bonds-input" type="number" value="40000" placeholder="40000" /></div>
+          <div class="bonds-form-group"><label>المعدات والأجهزة <abbr title="أجهزة المطبخ، الثلاجات، أجهزة الكاشير، أجهزة التحضير">ⓘ</abbr></label><input id="sEquipment" class="bonds-input" type="number" value="30000" placeholder="30000" /></div>
+          <div class="bonds-form-group"><label>تصميم الهوية والتسويق <abbr title="شعار، تصميم منيو، موقع إلكتروني، حملة افتتاح">ⓘ</abbr></label><input id="sMarketing" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
+          <div class="bonds-form-group"><label>الأمن والسلامة <abbr title="أنظمة إطفاء، كاميرات، أنظمة أمان مطلوبة">ⓘ</abbr></label><input id="sSafety" class="bonds-input" type="number" value="3000" placeholder="3000" /></div>
+          <div class="bonds-form-group"><label>مصاريف أخرى <abbr title="أي تكاليف افتتاح إضافية">ⓘ</abbr></label><input id="sOther" class="bonds-input" type="number" value="5000" placeholder="5000" /></div>
         </div>
         <div class="feas-section-title">📝 ملخص تكاليف الافتتاح</div>
         <div class="metric-row" id="setupSummary">
@@ -101,13 +102,13 @@
       <div class="bonds-card">
         <p style="color:var(--text-secondary);margin-bottom:var(--space-4);text-align:center;">💡 هذه التكاليف تُدفع <strong>كل شهر</strong></p>
         <div class="bonds-form-row">
-          <div class="bonds-form-group"><label>الإيجار الشهري</label><input id="mRent" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
-          <div class="bonds-form-group"><label>الرواتب والأجور</label><input id="mSalaries" class="bonds-input" type="number" value="12000" placeholder="12000" /></div>
-          <div class="bonds-form-group"><label>الكهرباء والماء</label><input id="mUtilities" class="bonds-input" type="number" value="1500" placeholder="1500" /></div>
-          <div class="bonds-form-group"><label>الغاز والإنترنت</label><input id="mGasNet" class="bonds-input" type="number" value="800" placeholder="800" /></div>
-          <div class="bonds-form-group"><label>تكلفة الموردين (مواد خام)</label><input id="mSupplies" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
-          <div class="bonds-form-group"><label>التسويق والإعلانات</label><input id="mAds" class="bonds-input" type="number" value="2000" placeholder="2000" /></div>
-          <div class="bonds-form-group"><label>صيانة ومصاريف متنوعة</label><input id="mMisc" class="bonds-input" type="number" value="1000" placeholder="1000" /></div>
+          <div class="bonds-form-group"><label>الإيجار الشهري <abbr title="إيجار الموقع شهرياً">ⓘ</abbr></label><input id="mRent" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
+          <div class="bonds-form-group"><label>الرواتب والأجور <abbr title="رواتب الموظفين الشهرية الثابتة">ⓘ</abbr></label><input id="mSalaries" class="bonds-input" type="number" value="12000" placeholder="12000" /></div>
+          <div class="bonds-form-group"><label>الكهرباء والماء <abbr title="فواتير الكهرباء والماء والإنترنت الشهرية">ⓘ</abbr></label><input id="mUtilities" class="bonds-input" type="number" value="1500" placeholder="1500" /></div>
+          <div class="bonds-form-group"><label>الغاز والإنترنت <abbr title="غاز الطبخ والإنترنت والاشتراكات">ⓘ</abbr></label><input id="mGasNet" class="bonds-input" type="number" value="800" placeholder="800" /></div>
+          <div class="bonds-form-group"><label>تكلفة الموردين (مواد خام) <abbr title="متوسط تكلفة المواد الخام شهرياً عند حجم الطلبات المتوقع">ⓘ</abbr></label><input id="mSupplies" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
+          <div class="bonds-form-group"><label>التسويق والإعلانات <abbr title="مصاريف التسويق الشهرية المتوقعة">ⓘ</abbr></label><input id="mAds" class="bonds-input" type="number" value="2000" placeholder="2000" /></div>
+          <div class="bonds-form-group"><label>صيانة ومصاريف متنوعة <abbr title="صيانة دورية + مصاريف غير متوقعة">ⓘ</abbr></label><input id="mMisc" class="bonds-input" type="number" value="1000" placeholder="1000" /></div>
         </div>
         <div class="feas-section-title">📊 ملخص التكاليف الشهرية</div>
         <div class="metric-row" id="monthlySummary">
@@ -125,9 +126,17 @@
       <div class="bonds-card">
         <p style="color:var(--text-secondary);margin-bottom:var(--space-4);text-align:center;">💡 ابدأ بأرقام واقعية — لا تتفائل كثيراً في البداية</p>
         <div class="bonds-form-row">
-          <div class="bonds-form-group"><label>متوسط سعر الطلب الواحد</label><input id="rAvgPrice" class="bonds-input" type="number" value="35" placeholder="35" min="1" /></div>
-          <div class="bonds-form-group"><label>عدد الطلبات المتوقع / يوم</label><input id="rDailyOrders" class="bonds-input" type="number" value="80" placeholder="80" min="1" /></div>
-          <div class="bonds-form-group"><label>أيام العمل في الشهر</label><input id="rWorkDays" class="bonds-input" type="number" value="26" placeholder="26" min="1" max="31" /></div>
+          <div class="bonds-form-group"><label>متوسط سعر الطلب الواحد <abbr title="متوسط قيمة الطلب الواحد بعد أي خصم مباشر">ⓘ</abbr></label><input id="rAvgPrice" class="bonds-input" type="number" value="35" placeholder="35" min="1" /></div>
+          <div class="bonds-form-group"><label>عدد الطلبات المتوقع / يوم <abbr title="عدد الطلبات اليومية المتوقعة في المتوسط (ابدأ برقم واقعي)">ⓘ</abbr></label><input id="rDailyOrders" class="bonds-input" type="number" value="80" placeholder="80" min="1" /></div>
+          <div class="bonds-form-group"><label>أيام العمل في الشهر <abbr title="عدد الأيام التي يكون فيها المطعم/المتجر مفتوحاً كل شهر">ⓘ</abbr></label><input id="rWorkDays" class="bonds-input" type="number" value="26" placeholder="26" min="1" max="31" /></div>
+        </div>
+        <div class="feas-section-title">🚚 تكاليف البيع والنمو (اختياري)</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>عمولة المنصة (%) <abbr title="نسبة استقطاع منصة التوصيل/البيع من كل طلب">ⓘ</abbr></label><input id="platformFeePct" class="bonds-input" type="number" value="0" placeholder="20" min="0" max="100" /></div>
+          <div class="bonds-form-group"><label>هدر الطعام (%) <abbr title="نسبة المواد الخام المهدرة يومياً بسبب الفائض أو التلف">ⓘ</abbr></label><input id="wasteRatePct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" /></div>
+          <div class="bonds-form-group"><label>تكلفة التغليف للطلب <abbr title="تكلفة العلبة/الكيس/الملصقات لكل طلب">ⓘ</abbr></label><input id="packagingCostPerOrder" class="bonds-input" type="number" value="0" placeholder="3" min="0" /></div>
+          <div class="bonds-form-group"><label>تكلفة التوصيل للطلب <abbr title="ما تدفعه لشركة التوصيل لكل طلب">ⓘ</abbr></label><input id="deliveryCostPerOrder" class="bonds-input" type="number" value="0" placeholder="5" min="0" /></div>
+          <div class="bonds-form-group"><label>نمو الطلبات شهرياً (%) <abbr title="معدل النمو الشهري المتوقع للطلبات (0 = ثبات)">ⓘ</abbr></label><input id="monthlyGrowthPct" class="bonds-input" type="number" value="0" placeholder="2" min="0" max="100" /></div>
         </div>
         <div class="feas-section-title">💵 ملخص الإيرادات المتوقعة</div>
         <div class="metric-row" id="revenueSummary">
@@ -213,7 +222,7 @@ function updateRevenueSummary() {
 ['mRent','mSalaries','mUtilities','mGasNet','mSupplies','mAds','mMisc'].forEach(id => {
   document.getElementById(id)?.addEventListener('input', updateMonthlySummary);
 });
-['rAvgPrice','rDailyOrders','rWorkDays'].forEach(id => {
+['rAvgPrice','rDailyOrders','rWorkDays','platformFeePct','wasteRatePct','packagingCostPerOrder','deliveryCostPerOrder','monthlyGrowthPct'].forEach(id => {
   document.getElementById(id)?.addEventListener('input', updateRevenueSummary);
 });
 
@@ -230,48 +239,42 @@ function calculateAll() {
   }
 
   // Inputs
-  const setupTotal = getVal('sLicense') + getVal('sFurniture') + getVal('sEquipment') + getVal('sMarketing') + getVal('sSafety') + getVal('sOther');
-  const monthlyFixed = getVal('mRent') + getVal('mSalaries') + getVal('mUtilities') + getVal('mGasNet') + getVal('mAds') + getVal('mMisc');
-  const monthlyVariable = getVal('mSupplies');
-  const monthlyTotal = monthlyFixed + monthlyVariable;
-  const avgPrice = getVal('rAvgPrice');
-  const dailyOrders = getVal('rDailyOrders');
-  const workDays = getVal('rWorkDays');
-
-  // Revenue
-  const monthlyRevenue = avgPrice * dailyOrders * workDays;
-  const yearlyRevenue = monthlyRevenue * 12;
-
-  // Profit
-  const monthlyProfit = monthlyRevenue - monthlyTotal;
-  const yearlyProfit = monthlyProfit * 12;
-  const profitMargin = monthlyRevenue > 0 ? (monthlyProfit / monthlyRevenue) * 100 : 0;
-
-  // Break-even
-  const beOrdersPerDay = monthlyTotal / (avgPrice * workDays);
-  const beOrdersPerMonth = beOrdersPerDay * workDays;
-  const beRevenuePerMonth = beOrdersPerMonth * avgPrice;
-
-  // ROI period (months to recover setup cost)
-  const roiMonths = monthlyProfit > 0 ? setupTotal / monthlyProfit : Infinity;
-
-  // Scenarios
-  const scenarios = {
-    pessimistic: { dailyOrders: Math.round(dailyOrders * 0.6), label: 'المتشائم', desc: '60% من التوقعات' },
-    expected:    { dailyOrders: dailyOrders, label: 'المتوقع', desc: '100% من التوقعات' },
-    optimistic:  { dailyOrders: Math.round(dailyOrders * 1.4), label: 'المتفائل', desc: '140% من التوقعات' }
+  const setupCosts = {
+    license: getVal('sLicense'), furniture: getVal('sFurniture'), equipment: getVal('sEquipment'),
+    marketing: getVal('sMarketing'), safety: getVal('sSafety'), other: getVal('sOther')
+  };
+  const monthlyCosts = {
+    rent: getVal('mRent'), salaries: getVal('mSalaries'), utilities: getVal('mUtilities'),
+    gasNet: getVal('mGasNet'), ads: getVal('mAds'), misc: getVal('mMisc'), supplies: getVal('mSupplies')
+  };
+  const revenue = {
+    avgPrice: getVal('rAvgPrice'), dailyOrders: getVal('rDailyOrders'), workDays: getVal('rWorkDays')
+  };
+  const options = {
+    platformFeePct: getVal('platformFeePct'),
+    wasteRatePct: getVal('wasteRatePct'),
+    packagingCostPerOrder: getVal('packagingCostPerOrder'),
+    deliveryCostPerOrder: getVal('deliveryCostPerOrder'),
+    monthlyGrowthPct: getVal('monthlyGrowthPct')
   };
 
-  function calcScenario(dOrders) {
-    const mRev = avgPrice * dOrders * workDays;
-    const mProfit = mRev - monthlyTotal;
-    const margin = mRev > 0 ? (mProfit / mRev) * 100 : 0;
-    return { revenue: mRev, profit: mProfit, margin };
-  }
+  // Main calculation
+  const result = calculateFeasibility(setupCosts, monthlyCosts, revenue, options);
 
-  const pess = calcScenario(scenarios.pessimistic.dailyOrders);
-  const exp = calcScenario(scenarios.expected.dailyOrders);
-  const opt = calcScenario(scenarios.optimistic.dailyOrders);
+  // Destructure for display compatibility
+  const {
+    setupTotal, monthlyFixed, monthlyVariable, monthlyTotal, monthlyRevenue, yearlyRevenue,
+    monthlyProfit, yearlyProfit, profitMargin, beOrdersPerDay, beOrdersPerMonth,
+    beRevenuePerMonth, roiMonths, scenarios, platformFeeAmount, wasteCost,
+    packagingCost, deliveryCost
+  } = result;
+
+  const avgPrice = revenue.avgPrice;
+  const dailyOrders = revenue.dailyOrders;
+  const workDays = revenue.workDays;
+  const pess = scenarios.pessimistic;
+  const exp = scenarios.expected;
+  const opt = scenarios.optimistic;
 
   // Verdict
   let verdictHTML = '';
@@ -308,7 +311,7 @@ function calculateAll() {
   }
 
   // Store for exports
-  window._feasResult = { setupTotal, monthlyFixed, monthlyVariable, monthlyTotal, avgPrice, dailyOrders, workDays, monthlyRevenue, yearlyRevenue, monthlyProfit, yearlyProfit, profitMargin, beOrdersPerDay, beOrdersPerMonth, beRevenuePerMonth, roiMonths, pess, exp, opt, scenarios, verdict: monthlyProfit < 0 ? 'loss' : roiMonths > 24 ? 'warning' : 'profit' };
+  window._feasResult = { setupTotal, monthlyFixed, monthlyVariable, monthlyTotal, avgPrice, dailyOrders, workDays, monthlyRevenue, yearlyRevenue, monthlyProfit, yearlyProfit, profitMargin, beOrdersPerDay, beOrdersPerMonth, beRevenuePerMonth, roiMonths, pess, exp, opt, scenarios, platformFeeAmount, wasteCost, packagingCost, deliveryCost, options, verdict: monthlyProfit < 0 ? 'loss' : roiMonths > 24 ? 'warning' : 'profit' };
 
   // Render
   document.getElementById('resultContent').innerHTML = `
@@ -322,6 +325,10 @@ function calculateAll() {
       <div class="metric-box"><div class="label">هامش الربح</div><div class="value">${profitMargin.toFixed(1)}%</div></div>
       <div class="metric-box"><div class="label">استرداد رأس المال</div><div class="value">${roiMonths === Infinity ? '—' : Math.ceil(roiMonths) + ' شهر'}</div></div>
       <div class="metric-box"><div class="label">تكلفة الافتتاح</div><div class="value">${setupTotal.toLocaleString('ar-SA')} ر.س</div></div>
+      ${platformFeeAmount > 0 ? `<div class="metric-box"><div class="label">عمولة المنصة / شهر</div><div class="value" style="color:#ef4444">${platformFeeAmount.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
+      ${wasteCost > 0 ? `<div class="metric-box"><div class="label">تكلفة الهدر / شهر</div><div class="value" style="color:#ef4444">${wasteCost.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
+      ${packagingCost > 0 ? `<div class="metric-box"><div class="label">تكلفة التغليف / شهر</div><div class="value" style="color:#ef4444">${packagingCost.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
+      ${deliveryCost > 0 ? `<div class="metric-box"><div class="label">تكلفة التوصيل / شهر</div><div class="value" style="color:#ef4444">${deliveryCost.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
     </div>
 
     <div class="feas-section-title">🎲 السيناريوهات</div>
@@ -346,9 +353,11 @@ function calculateAll() {
     <div class="feas-section-title">📋 ملخص تفصيلي</div>
     <div class="bonds-card" style="text-align:right;">
       <p><strong>💰 الإيرادات:</strong></p>
-      <p>• يومي: ${(avgPrice * dailyOrders).toLocaleString('ar-SA')} ر.س | شهري: ${monthlyRevenue.toLocaleString('ar-SA')} ر.س | سنوي: ${yearlyRevenue.toLocaleString('ar-SA')} ر.س</p>
+      <p>• إيراد يومي إجمالي: ${(avgPrice * dailyOrders).toLocaleString('ar-SA')} ر.س | إيراد شهري إجمالي: ${(avgPrice * dailyOrders * workDays).toLocaleString('ar-SA')} ر.س | إيراد سنوي إجمالي: ${(avgPrice * dailyOrders * workDays * 12).toLocaleString('ar-SA')} ر.س</p>
+      <p>• متوسط الإيراد الصافي/شهر (بعد عمولة المنصة والنمو): ${monthlyRevenue.toLocaleString('ar-SA')} ر.س | سنوي: ${yearlyRevenue.toLocaleString('ar-SA')} ر.س</p>
       <p style="margin-top:0.5rem;"><strong>📉 التكاليف الشهرية:</strong></p>
       <p>• ثابتة: ${monthlyFixed.toLocaleString('ar-SA')} ر.س | متغيرة: ${monthlyVariable.toLocaleString('ar-SA')} ر.س | الإجمالي: ${monthlyTotal.toLocaleString('ar-SA')} ر.س</p>
+      ${platformFeeAmount > 0 ? `<p>• عمولة المنصة: ${platformFeeAmount.toLocaleString('ar-SA')} ر.س/شهر | هدر الطعام: ${wasteCost.toLocaleString('ar-SA')} ر.س/شهر | تغليف: ${packagingCost.toLocaleString('ar-SA')} ر.س/شهر | توصيل: ${deliveryCost.toLocaleString('ar-SA')} ر.س/شهر</p>` : ''}
       <p style="margin-top:0.5rem;"><strong>📊 الربحية:</strong></p>
       <p>• شهري: ${monthlyProfit.toLocaleString('ar-SA')} ر.س | سنوي: ${yearlyProfit.toLocaleString('ar-SA')} ر.س | هامش: ${profitMargin.toFixed(1)}%</p>
       <p style="margin-top:0.5rem;"><strong>🎯 نقطة التعادل:</strong></p>
@@ -375,7 +384,7 @@ async function exportExcelFeas() {
   }
   var d = window._feasResult;
   var wb = XLSX.utils.book_new();
-  wb.Props = { Title: 'دراسة جدوى المطعم', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+  wb.Props = { Title: 'تقرير الجدوى المالية للمطعم', Subject: 'Bonds Global', Author: 'bonds-global.com' };
 
   var inputsSheet = [
     ['بند', 'القيمة'],
@@ -396,7 +405,12 @@ async function exportExcelFeas() {
     ['', ''],
     ['متوسط سعر الطلب', d.avgPrice],
     ['عدد الطلبات المتوقع / يوم', d.dailyOrders],
-    ['أيام العمل في الشهر', d.workDays]
+    ['أيام العمل في الشهر', d.workDays],
+    ['عمولة المنصة (%)', (d.options && d.options.platformFeePct) || 0],
+    ['هدر الطعام (%)', (d.options && d.options.wasteRatePct) || 0],
+    ['تكلفة التغليف للطلب', (d.options && d.options.packagingCostPerOrder) || 0],
+    ['تكلفة التوصيل للطلب', (d.options && d.options.deliveryCostPerOrder) || 0],
+    ['نمو الطلبات شهرياً (%)', (d.options && d.options.monthlyGrowthPct) || 0]
   ];
   var ws1 = XLSX.utils.aoa_to_sheet(inputsSheet);
   ws1['!cols'] = [{ wch: 32 }, { wch: 18 }];
@@ -408,6 +422,11 @@ async function exportExcelFeas() {
     ['التكاليف الشهرية الثابتة', d.monthlyFixed],
     ['التكاليف الشهرية المتغيرة', d.monthlyVariable],
     ['إجمالي التكاليف الشهرية', d.monthlyTotal],
+    ['', ''],
+    ['عمولة المنصة / شهر', d.platformFeeAmount || 0],
+    ['تكلفة الهدر / شهر', d.wasteCost || 0],
+    ['تكلفة التغليف / شهر', d.packagingCost || 0],
+    ['تكلفة التوصيل / شهر', d.deliveryCost || 0],
     ['', ''],
     ['الإيراد الشهري', d.monthlyRevenue],
     ['الإيراد السنوي', d.yearlyRevenue],
@@ -493,6 +512,10 @@ function exportPDFFeas() {
       <tr><td>التكاليف الشهرية الثابتة</td><td class="num">${d.monthlyFixed.toLocaleString('ar-SA')} ر.س</td></tr>
       <tr><td>التكاليف الشهرية المتغيرة</td><td class="num">${d.monthlyVariable.toLocaleString('ar-SA')} ر.س</td></tr>
       <tr><td>إجمالي التكاليف الشهرية</td><td class="num">${d.monthlyTotal.toLocaleString('ar-SA')} ر.س</td></tr>
+      ${(d.platformFeeAmount || 0) > 0 ? `<tr><td>عمولة المنصة / شهر</td><td class="num">${d.platformFeeAmount.toLocaleString('ar-SA')} ر.س</td></tr>` : ''}
+      ${(d.wasteCost || 0) > 0 ? `<tr><td>تكلفة الهدر / شهر</td><td class="num">${d.wasteCost.toLocaleString('ar-SA')} ر.س</td></tr>` : ''}
+      ${(d.packagingCost || 0) > 0 ? `<tr><td>تكلفة التغليف / شهر</td><td class="num">${d.packagingCost.toLocaleString('ar-SA')} ر.س</td></tr>` : ''}
+      ${(d.deliveryCost || 0) > 0 ? `<tr><td>تكلفة التوصيل / شهر</td><td class="num">${d.deliveryCost.toLocaleString('ar-SA')} ر.س</td></tr>` : ''}
       <tr><td>الربح الشهري</td><td class="num">${d.monthlyProfit.toLocaleString('ar-SA')} ر.س</td></tr>
       <tr><td>الربح السنوي</td><td class="num">${d.yearlyProfit.toLocaleString('ar-SA')} ر.س</td></tr>
       <tr><td>هامش الربح</td><td class="num">${d.profitMargin.toFixed(1)}%</td></tr>
@@ -502,7 +525,7 @@ function exportPDFFeas() {
       <tr><td>استرداد رأس المال</td><td class="num">${d.roiMonths === Infinity ? '—' : Math.ceil(d.roiMonths) + ' شهر'}</td></tr>
     </table>
   `;
-  openPrintWindow({ content: content, title: 'دراسة جدوى المطعم', headerTitle: 'تقرير دراسة جدوى المطعم' });
+  openPrintWindow({ content: content, title: 'تقرير الجدوى المالية للمطعم', headerTitle: 'تقرير الجدوى المالية للمطعم' });
 }
 
 // ===== INIT =====
@@ -513,7 +536,7 @@ progress.set(0);
 
 // Onboarding for first-time users
 const onboard = new BondsUI.Onboarding([
-  { icon: '🚀', title: 'حاسبة جدوى المطعم', desc: 'أداة تساعدك تحسب هل فكرة مطعمك مربحة قبل ما تدفع ريال واحد.' },
+  { icon: '🚀', title: 'حاسبة الجدوى المالية للمطعم', desc: 'أداة تساعدك تحسب هل فكرة مطعمك مربحة قبل ما تدفع ريال واحد.' },
   { icon: '📋', title: 'أربع خطوات بسيطة', desc: '1️⃣ أدخل تكاليف الافتتاح<br>2️⃣ أدخل التكاليف الشهرية<br>3️⃣ أدخل توقعات الإيرادات<br>4️⃣ احصل على النتيجة والسيناريوهات' },
   { icon: '🎲', title: 'ثلاث سيناريوهات', desc: 'شوف نتيجتك إذا المبيعات أقل أو أكثر من توقعاتك — لا تتفائل كثير ولا تتشائم!' }
 ]);

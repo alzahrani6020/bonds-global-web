@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Restaurant Feasibility Calculator | Bonds — Is Your Idea Profitable?</title>
-  <meta name="description" content="Calculate your restaurant's feasibility before opening: setup costs, monthly expenses, break-even point, and optimistic/pessimistic scenarios. Free tool from Bonds." />
-  <meta property="og:title" content="Restaurant Feasibility Calculator | Bonds" />
-  <meta property="og:description" content="Is your restaurant idea profitable? Calculate before you spend a single dollar." />
+  <title>Restaurant Financial Viability Calculator | Bonds — Is Your Idea Profitable?</title>
+  <meta name="description" content="Calculate your restaurant's financial viability before opening: setup costs, monthly expenses, platform fee, food waste, packaging, delivery, monthly growth, break-even point, and optimistic/pessimistic scenarios. Free tool from Bonds." />
+  <meta property="og:title" content="Restaurant Financial Viability Calculator | Bonds" />
+  <meta property="og:description" content="Is your restaurant idea profitable? Calculate before you spend a single riyal, taking platforms and real costs into account." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,6 +16,7 @@
   <script src="../../calculators/shared-ui.js"></script>
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/shared-export.js"></script>
+  <script src="../../calculators/calc-functions.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <style>
     .feas-container { max-width: 900px; margin: 0 auto; padding: var(--space-8) var(--space-4); }
@@ -59,8 +60,8 @@
   <div class="feas-container">
     <div class="feas-header">
       <div class="feas-badge">🚀 For Entrepreneurs — Before Opening</div>
-      <h1>Restaurant Feasibility Calculator</h1>
-      <p>Calculate your expected costs, revenue, break-even point <strong>before</strong> you spend a single dollar. Test different scenarios and decide with confidence.</p>
+      <h1>Restaurant Financial Viability Calculator</h1>
+      <p>Calculate your expected costs, revenue, and break-even point <strong>before</strong> you spend a single SAR. Test different scenarios and decide with confidence.</p>
     </div>
 
     <!-- Progress -->
@@ -79,16 +80,16 @@
       <div class="bonds-card">
         <p style="color:var(--text-secondary);margin-bottom:var(--space-4);text-align:center;">💡 These are <strong>one-time</strong> costs paid before opening</p>
         <div class="bonds-form-row">
-          <div class="bonds-form-group"><label>License & Registration</label><input id="sLicense" class="bonds-input" type="number" value="1333" placeholder="1333" /></div>
-          <div class="bonds-form-group"><label>Furniture & Decor</label><input id="sFurniture" class="bonds-input" type="number" value="10667" placeholder="10667" /></div>
-          <div class="bonds-form-group"><label>Equipment & Appliances</label><input id="sEquipment" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
-          <div class="bonds-form-group"><label>Branding & Marketing</label><input id="sMarketing" class="bonds-input" type="number" value="2133" placeholder="2133" /></div>
-          <div class="bonds-form-group"><label>Safety & Security</label><input id="sSafety" class="bonds-input" type="number" value="800" placeholder="800" /></div>
-          <div class="bonds-form-group"><label>Other Expenses</label><input id="sOther" class="bonds-input" type="number" value="1333" placeholder="1333" /></div>
+          <div class="bonds-form-group"><label>License &amp; Registration <abbr title="Commercial license, municipality fees, chamber fees, health permits">ⓘ</abbr></label><input id="sLicense" class="bonds-input" type="number" value="5000" placeholder="5000" /></div>
+          <div class="bonds-form-group"><label>Furniture &amp; Decor <abbr title="Interior fit-out, tables, chairs, lighting, decoration">ⓘ</abbr></label><input id="sFurniture" class="bonds-input" type="number" value="40000" placeholder="40000" /></div>
+          <div class="bonds-form-group"><label>Equipment &amp; Appliances <abbr title="Kitchen equipment, fridges, POS devices, prep machines">ⓘ</abbr></label><input id="sEquipment" class="bonds-input" type="number" value="30000" placeholder="30000" /></div>
+          <div class="bonds-form-group"><label>Branding &amp; Marketing <abbr title="Logo, menu design, website, launch campaign">ⓘ</abbr></label><input id="sMarketing" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
+          <div class="bonds-form-group"><label>Safety &amp; Security <abbr title="Fire suppression, CCTV, required safety systems">ⓘ</abbr></label><input id="sSafety" class="bonds-input" type="number" value="3000" placeholder="3000" /></div>
+          <div class="bonds-form-group"><label>Other Expenses <abbr title="Any other setup costs">ⓘ</abbr></label><input id="sOther" class="bonds-input" type="number" value="5000" placeholder="5000" /></div>
         </div>
         <div class="feas-section-title">📝 Setup Costs Summary</div>
         <div class="metric-row" id="setupSummary">
-          <div class="metric-box"><div class="label">Total</div><div class="value" id="setupTotal">$0</div></div>
+          <div class="metric-box"><div class="label">Total</div><div class="value" id="setupTotal">0 SAR</div></div>
         </div>
         <div style="text-align:center;">
           <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">Next: Monthly Costs →</button>
@@ -101,17 +102,17 @@
       <div class="bonds-card">
         <p style="color:var(--text-secondary);margin-bottom:var(--space-4);text-align:center;">💡 These are <strong>monthly recurring</strong> costs</p>
         <div class="bonds-form-row">
-          <div class="bonds-form-group"><label>Monthly Rent</label><input id="mRent" class="bonds-input" type="number" value="2133" placeholder="2133" /></div>
-          <div class="bonds-form-group"><label>Salaries & Wages</label><input id="mSalaries" class="bonds-input" type="number" value="3200" placeholder="3200" /></div>
-          <div class="bonds-form-group"><label>Electricity & Water</label><input id="mUtilities" class="bonds-input" type="number" value="400" placeholder="400" /></div>
-          <div class="bonds-form-group"><label>Gas & Internet</label><input id="mGasNet" class="bonds-input" type="number" value="213" placeholder="213" /></div>
-          <div class="bonds-form-group"><label>Supplies (Raw Materials)</label><input id="mSupplies" class="bonds-input" type="number" value="2133" placeholder="2133" /></div>
-          <div class="bonds-form-group"><label>Marketing & Ads</label><input id="mAds" class="bonds-input" type="number" value="533" placeholder="533" /></div>
-          <div class="bonds-form-group"><label>Maintenance & Misc</label><input id="mMisc" class="bonds-input" type="number" value="267" placeholder="267" /></div>
+          <div class="bonds-form-group"><label>Monthly Rent <abbr title="Monthly rent for the location">ⓘ</abbr></label><input id="mRent" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
+          <div class="bonds-form-group"><label>Salaries &amp; Wages <abbr title="Fixed monthly staff salaries">ⓘ</abbr></label><input id="mSalaries" class="bonds-input" type="number" value="12000" placeholder="12000" /></div>
+          <div class="bonds-form-group"><label>Electricity &amp; Water <abbr title="Monthly utilities bills including internet">ⓘ</abbr></label><input id="mUtilities" class="bonds-input" type="number" value="1500" placeholder="1500" /></div>
+          <div class="bonds-form-group"><label>Gas &amp; Internet <abbr title="Cooking gas and internet subscriptions">ⓘ</abbr></label><input id="mGasNet" class="bonds-input" type="number" value="800" placeholder="800" /></div>
+          <div class="bonds-form-group"><label>Supplies (Raw Materials) <abbr title="Average monthly raw material cost at expected order volume">ⓘ</abbr></label><input id="mSupplies" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
+          <div class="bonds-form-group"><label>Marketing &amp; Ads <abbr title="Expected monthly marketing spend">ⓘ</abbr></label><input id="mAds" class="bonds-input" type="number" value="2000" placeholder="2000" /></div>
+          <div class="bonds-form-group"><label>Maintenance &amp; Misc <abbr title="Routine maintenance + unexpected expenses">ⓘ</abbr></label><input id="mMisc" class="bonds-input" type="number" value="1000" placeholder="1000" /></div>
         </div>
         <div class="feas-section-title">📊 Monthly Costs Summary</div>
         <div class="metric-row" id="monthlySummary">
-          <div class="metric-box"><div class="label">Total Monthly</div><div class="value" id="monthlyTotal">$0</div></div>
+          <div class="metric-box"><div class="label">Total Monthly</div><div class="value" id="monthlyTotal">0 SAR</div></div>
         </div>
         <div style="text-align:center;">
           <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← Previous</button>
@@ -125,15 +126,23 @@
       <div class="bonds-card">
         <p style="color:var(--text-secondary);margin-bottom:var(--space-4);text-align:center;">💡 Start with realistic numbers — don't be too optimistic</p>
         <div class="bonds-form-row">
-          <div class="bonds-form-group"><label>Average Order Value</label><input id="rAvgPrice" class="bonds-input" type="number" value="9" placeholder="9" min="1" /></div>
-          <div class="bonds-form-group"><label>Expected Daily Orders</label><input id="rDailyOrders" class="bonds-input" type="number" value="80" placeholder="80" min="1" /></div>
-          <div class="bonds-form-group"><label>Working Days per Month</label><input id="rWorkDays" class="bonds-input" type="number" value="26" placeholder="26" min="1" max="31" /></div>
+          <div class="bonds-form-group"><label>Average Order Value <abbr title="Average value per order after any direct discount">ⓘ</abbr></label><input id="rAvgPrice" class="bonds-input" type="number" value="35" placeholder="35" min="1" /></div>
+          <div class="bonds-form-group"><label>Expected Daily Orders <abbr title="Average expected daily orders (start with a realistic number)">ⓘ</abbr></label><input id="rDailyOrders" class="bonds-input" type="number" value="80" placeholder="80" min="1" /></div>
+          <div class="bonds-form-group"><label>Working Days per Month <abbr title="Days the restaurant/store is open each month">ⓘ</abbr></label><input id="rWorkDays" class="bonds-input" type="number" value="26" placeholder="26" min="1" max="31" /></div>
+        </div>
+        <div class="feas-section-title">🚚 Sales &amp; Growth Costs (Optional)</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>Platform Fee (%) <abbr title="Delivery/sales platform commission deducted from each order">ⓘ</abbr></label><input id="platformFeePct" class="bonds-input" type="number" value="0" placeholder="20" min="0" max="100" /></div>
+          <div class="bonds-form-group"><label>Food Waste (%) <abbr title="Daily raw material waste from overproduction or spoilage">ⓘ</abbr></label><input id="wasteRatePct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" /></div>
+          <div class="bonds-form-group"><label>Packaging Cost per Order <abbr title="Box/bag/stickers cost per order">ⓘ</abbr></label><input id="packagingCostPerOrder" class="bonds-input" type="number" value="0" placeholder="3" min="0" /></div>
+          <div class="bonds-form-group"><label>Delivery Cost per Order <abbr title="What you pay the delivery company per order">ⓘ</abbr></label><input id="deliveryCostPerOrder" class="bonds-input" type="number" value="0" placeholder="5" min="0" /></div>
+          <div class="bonds-form-group"><label>Monthly Order Growth (%) <abbr title="Expected monthly order growth (0 = flat)">ⓘ</abbr></label><input id="monthlyGrowthPct" class="bonds-input" type="number" value="0" placeholder="2" min="0" max="100" /></div>
         </div>
         <div class="feas-section-title">💵 Expected Revenue Summary</div>
         <div class="metric-row" id="revenueSummary">
-          <div class="metric-box"><div class="label">Daily Revenue</div><div class="value" id="revDaily">$0</div></div>
-          <div class="metric-box"><div class="label">Monthly Revenue</div><div class="value" id="revMonthly">$0</div></div>
-          <div class="metric-box"><div class="label">Yearly Revenue</div><div class="value" id="revYearly">$0</div></div>
+          <div class="metric-box"><div class="label">Daily Revenue</div><div class="value" id="revDaily">0 SAR</div></div>
+          <div class="metric-box"><div class="label">Monthly Revenue</div><div class="value" id="revMonthly">0 SAR</div></div>
+          <div class="metric-box"><div class="label">Yearly Revenue</div><div class="value" id="revYearly">0 SAR</div></div>
         </div>
         <div style="text-align:center;">
           <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← Previous</button>
@@ -187,21 +196,21 @@ function getVal(id) { return parseFloat(document.getElementById(id)?.value) || 0
 
 function updateSetupSummary() {
   const total = getVal('sLicense') + getVal('sFurniture') + getVal('sEquipment') + getVal('sMarketing') + getVal('sSafety') + getVal('sOther');
-  document.getElementById('setupTotal').textContent = '$' + total.toLocaleString('en-US');
+  document.getElementById('setupTotal').textContent = total.toLocaleString('en-US') + ' SAR';
 }
 
 function updateMonthlySummary() {
   const total = getVal('mRent') + getVal('mSalaries') + getVal('mUtilities') + getVal('mGasNet') + getVal('mSupplies') + getVal('mAds') + getVal('mMisc');
-  document.getElementById('monthlyTotal').textContent = '$' + total.toLocaleString('en-US');
+  document.getElementById('monthlyTotal').textContent = total.toLocaleString('en-US') + ' SAR';
 }
 
 function updateRevenueSummary() {
   const daily = getVal('rAvgPrice') * getVal('rDailyOrders');
   const monthly = daily * getVal('rWorkDays');
   const yearly = monthly * 12;
-  document.getElementById('revDaily').textContent = '$' + daily.toLocaleString('en-US');
-  document.getElementById('revMonthly').textContent = '$' + monthly.toLocaleString('en-US');
-  document.getElementById('revYearly').textContent = '$' + yearly.toLocaleString('en-US');
+  document.getElementById('revDaily').textContent = daily.toLocaleString('en-US') + ' SAR';
+  document.getElementById('revMonthly').textContent = monthly.toLocaleString('en-US') + ' SAR';
+  document.getElementById('revYearly').textContent = yearly.toLocaleString('en-US') + ' SAR';
 }
 
 ['sLicense','sFurniture','sEquipment','sMarketing','sSafety','sOther'].forEach(id => {
@@ -210,7 +219,7 @@ function updateRevenueSummary() {
 ['mRent','mSalaries','mUtilities','mGasNet','mSupplies','mAds','mMisc'].forEach(id => {
   document.getElementById(id)?.addEventListener('input', updateMonthlySummary);
 });
-['rAvgPrice','rDailyOrders','rWorkDays'].forEach(id => {
+['rAvgPrice','rDailyOrders','rWorkDays','platformFeePct','wasteRatePct','packagingCostPerOrder','deliveryCostPerOrder','monthlyGrowthPct'].forEach(id => {
   document.getElementById(id)?.addEventListener('input', updateRevenueSummary);
 });
 
@@ -225,42 +234,42 @@ function calculateAll() {
     return;
   }
 
-  const setupTotal = getVal('sLicense') + getVal('sFurniture') + getVal('sEquipment') + getVal('sMarketing') + getVal('sSafety') + getVal('sOther');
-  const monthlyFixed = getVal('mRent') + getVal('mSalaries') + getVal('mUtilities') + getVal('mGasNet') + getVal('mAds') + getVal('mMisc');
-  const monthlyVariable = getVal('mSupplies');
-  const monthlyTotal = monthlyFixed + monthlyVariable;
-  const avgPrice = getVal('rAvgPrice');
-  const dailyOrders = getVal('rDailyOrders');
-  const workDays = getVal('rWorkDays');
-
-  const monthlyRevenue = avgPrice * dailyOrders * workDays;
-  const yearlyRevenue = monthlyRevenue * 12;
-  const monthlyProfit = monthlyRevenue - monthlyTotal;
-  const yearlyProfit = monthlyProfit * 12;
-  const profitMargin = monthlyRevenue > 0 ? (monthlyProfit / monthlyRevenue) * 100 : 0;
-
-  const beOrdersPerDay = monthlyTotal / (avgPrice * workDays);
-  const beOrdersPerMonth = beOrdersPerDay * workDays;
-  const beRevenuePerMonth = beOrdersPerMonth * avgPrice;
-  const roiMonths = monthlyProfit > 0 ? setupTotal / monthlyProfit : Infinity;
-
-  const scenarios = {
-    pessimistic: { dailyOrders: Math.round(dailyOrders * 0.6), label: 'Pessimistic', desc: '60% of expected' },
-    expected:    { dailyOrders: dailyOrders, label: 'Expected', desc: '100% of expected' },
-    optimistic:  { dailyOrders: Math.round(dailyOrders * 1.4), label: 'Optimistic', desc: '140% of expected' }
+  const setupCosts = {
+    license: getVal('sLicense'), furniture: getVal('sFurniture'), equipment: getVal('sEquipment'),
+    marketing: getVal('sMarketing'), safety: getVal('sSafety'), other: getVal('sOther')
+  };
+  const monthlyCosts = {
+    rent: getVal('mRent'), salaries: getVal('mSalaries'), utilities: getVal('mUtilities'),
+    gasNet: getVal('mGasNet'), ads: getVal('mAds'), misc: getVal('mMisc'), supplies: getVal('mSupplies')
+  };
+  const revenue = {
+    avgPrice: getVal('rAvgPrice'), dailyOrders: getVal('rDailyOrders'), workDays: getVal('rWorkDays')
+  };
+  const options = {
+    platformFeePct: getVal('platformFeePct'),
+    wasteRatePct: getVal('wasteRatePct'),
+    packagingCostPerOrder: getVal('packagingCostPerOrder'),
+    deliveryCostPerOrder: getVal('deliveryCostPerOrder'),
+    monthlyGrowthPct: getVal('monthlyGrowthPct')
   };
 
-  function calcScenario(dOrders) {
-    const mRev = avgPrice * dOrders * workDays;
-    const mProfit = mRev - monthlyTotal;
-    const margin = mRev > 0 ? (mProfit / mRev) * 100 : 0;
-    return { revenue: mRev, profit: mProfit, margin };
-  }
+  const result = calculateFeasibility(setupCosts, monthlyCosts, revenue, options);
 
-  const pess = calcScenario(scenarios.pessimistic.dailyOrders);
-  const exp = calcScenario(scenarios.expected.dailyOrders);
-  const opt = calcScenario(scenarios.optimistic.dailyOrders);
+  const {
+    setupTotal, monthlyFixed, monthlyVariable, monthlyTotal, monthlyRevenue, yearlyRevenue,
+    monthlyProfit, yearlyProfit, profitMargin, beOrdersPerDay, beOrdersPerMonth,
+    beRevenuePerMonth, roiMonths, scenarios, platformFeeAmount, wasteCost,
+    packagingCost, deliveryCost
+  } = result;
 
+  const avgPrice = revenue.avgPrice;
+  const dailyOrders = revenue.dailyOrders;
+  const workDays = revenue.workDays;
+  const pess = scenarios.pessimistic;
+  const exp = scenarios.expected;
+  const opt = scenarios.optimistic;
+
+  // Verdict
   let verdictHTML = '';
   if (monthlyProfit < 0) {
     verdictHTML = `
@@ -268,7 +277,7 @@ function calculateAll() {
         <div class="verdict-icon">🔴</div>
         <div class="verdict-title" style="color:#ef4444;">Warning: Project Expects Monthly Loss</div>
         <div class="verdict-text">
-          At ${dailyOrders} orders/day, you expect a loss of <strong>$${Math.abs(monthlyProfit).toLocaleString('en-US')}</strong> per month.<br>
+          At ${dailyOrders} orders/day, you expect a loss of <strong>${Math.abs(monthlyProfit).toLocaleString('en-US')} SAR</strong> per month.<br>
           💡 <strong>Solutions:</strong> Increase orders to ${Math.ceil(beOrdersPerDay)}/day, reduce monthly costs, or raise prices.
         </div>
       </div>`;
@@ -278,7 +287,7 @@ function calculateAll() {
         <div class="verdict-icon">🟡</div>
         <div class="verdict-title" style="color:#f59e0b;">Profitable but Slow Payback</div>
         <div class="verdict-text">
-          The project is profitable $${monthlyProfit.toLocaleString('en-US')}/month, but needs <strong>${Math.ceil(roiMonths)} months</strong> to recover setup costs.<br>
+          The project is profitable ${monthlyProfit.toLocaleString('en-US')} SAR/month, but needs <strong>${Math.ceil(roiMonths)} months</strong> to recover setup costs.<br>
           💡 Try increasing orders or reducing costs to speed up payback.
         </div>
       </div>`;
@@ -286,15 +295,15 @@ function calculateAll() {
     verdictHTML = `
       <div class="verdict-box profit">
         <div class="verdict-icon">🟢</div>
-        <div class="verdict-title" style="color:#22c55e;">Profitable & Promising!</div>
+        <div class="verdict-title" style="color:#22c55e;">Profitable &amp; Promising!</div>
         <div class="verdict-text">
-          You expect a profit of <strong>$${monthlyProfit.toLocaleString('en-US')}</strong> per month with a ${profitMargin.toFixed(1)}% margin.<br>
+          You expect a profit of <strong>${monthlyProfit.toLocaleString('en-US')} SAR</strong> per month with a ${profitMargin.toFixed(1)}% margin.<br>
           Setup cost recovery in approximately <strong>${Math.ceil(roiMonths)} months</strong>.
         </div>
       </div>`;
   }
 
-  window._feasResult = { setupTotal, monthlyFixed, monthlyVariable, monthlyTotal, avgPrice, dailyOrders, workDays, monthlyRevenue, yearlyRevenue, monthlyProfit, yearlyProfit, profitMargin, beOrdersPerDay, beOrdersPerMonth, beRevenuePerMonth, roiMonths, pess, exp, opt, scenarios, verdict: monthlyProfit < 0 ? 'loss' : roiMonths > 24 ? 'warning' : 'profit' };
+  window._feasResult = { setupTotal, monthlyFixed, monthlyVariable, monthlyTotal, avgPrice, dailyOrders, workDays, monthlyRevenue, yearlyRevenue, monthlyProfit, yearlyProfit, profitMargin, beOrdersPerDay, beOrdersPerMonth, beRevenuePerMonth, roiMonths, pess, exp, opt, scenarios, platformFeeAmount, wasteCost, packagingCost, deliveryCost, options, verdict: monthlyProfit < 0 ? 'loss' : roiMonths > 24 ? 'warning' : 'profit' };
 
   document.getElementById('resultContent').innerHTML = `
     ${verdictHTML}
@@ -303,27 +312,31 @@ function calculateAll() {
     <div class="metric-row">
       <div class="metric-box"><div class="label">Break-even (daily)</div><div class="value">${Math.ceil(beOrdersPerDay)} orders</div></div>
       <div class="metric-box"><div class="label">Break-even (monthly)</div><div class="value">${Math.ceil(beOrdersPerMonth)} orders</div></div>
-      <div class="metric-box"><div class="label">Expected Monthly Profit</div><div class="value" style="color:${monthlyProfit>=0?'#22c55e':'#ef4444'}">$${monthlyProfit.toLocaleString('en-US')}</div></div>
+      <div class="metric-box"><div class="label">Expected Monthly Profit</div><div class="value" style="color:${monthlyProfit>=0?'#22c55e':'#ef4444'}">${monthlyProfit.toLocaleString('en-US')} SAR</div></div>
       <div class="metric-box"><div class="label">Profit Margin</div><div class="value">${profitMargin.toFixed(1)}%</div></div>
       <div class="metric-box"><div class="label">Payback Period</div><div class="value">${roiMonths === Infinity ? '—' : Math.ceil(roiMonths) + ' months'}</div></div>
-      <div class="metric-box"><div class="label">Setup Cost</div><div class="value">$${setupTotal.toLocaleString('en-US')}</div></div>
+      <div class="metric-box"><div class="label">Setup Cost</div><div class="value">${setupTotal.toLocaleString('en-US')} SAR</div></div>
+      ${platformFeeAmount > 0 ? `<div class="metric-box"><div class="label">Platform Fee / Month</div><div class="value" style="color:#ef4444">${platformFeeAmount.toLocaleString('en-US')} SAR</div></div>` : ''}
+      ${wasteCost > 0 ? `<div class="metric-box"><div class="label">Waste Cost / Month</div><div class="value" style="color:#ef4444">${wasteCost.toLocaleString('en-US')} SAR</div></div>` : ''}
+      ${packagingCost > 0 ? `<div class="metric-box"><div class="label">Packaging Cost / Month</div><div class="value" style="color:#ef4444">${packagingCost.toLocaleString('en-US')} SAR</div></div>` : ''}
+      ${deliveryCost > 0 ? `<div class="metric-box"><div class="label">Delivery Cost / Month</div><div class="value" style="color:#ef4444">${deliveryCost.toLocaleString('en-US')} SAR</div></div>` : ''}
     </div>
 
     <div class="feas-section-title">🎲 Scenarios</div>
     <div class="scenario-grid">
       <div class="scenario-card pessimistic">
         <div class="scenario-label" style="color:#ef4444;">Pessimistic</div>
-        <div class="scenario-value" style="color:#ef4444;">$${pess.profit.toLocaleString('en-US')}</div>
+        <div class="scenario-value" style="color:#ef4444;">${pess.profit.toLocaleString('en-US')} SAR</div>
         <div class="scenario-desc">${scenarios.pessimistic.dailyOrders} orders/day<br>Margin: ${pess.margin.toFixed(1)}%</div>
       </div>
       <div class="scenario-card expected">
         <div class="scenario-label" style="color:var(--gold);">Expected</div>
-        <div class="scenario-value" style="color:var(--gold);">$${exp.profit.toLocaleString('en-US')}</div>
+        <div class="scenario-value" style="color:var(--gold);">${exp.profit.toLocaleString('en-US')} SAR</div>
         <div class="scenario-desc">${scenarios.expected.dailyOrders} orders/day<br>Margin: ${exp.margin.toFixed(1)}%</div>
       </div>
       <div class="scenario-card optimistic">
         <div class="scenario-label" style="color:#22c55e;">Optimistic</div>
-        <div class="scenario-value" style="color:#22c55e;">$${opt.profit.toLocaleString('en-US')}</div>
+        <div class="scenario-value" style="color:#22c55e;">${opt.profit.toLocaleString('en-US')} SAR</div>
         <div class="scenario-desc">${scenarios.optimistic.dailyOrders} orders/day<br>Margin: ${opt.margin.toFixed(1)}%</div>
       </div>
     </div>
@@ -331,13 +344,15 @@ function calculateAll() {
     <div class="feas-section-title">📋 Detailed Summary</div>
     <div class="bonds-card" style="text-align:left;">
       <p><strong>💰 Revenue:</strong></p>
-      <p>• Daily: $${(avgPrice * dailyOrders).toLocaleString('en-US')} | Monthly: $${monthlyRevenue.toLocaleString('en-US')} | Yearly: $${yearlyRevenue.toLocaleString('en-US')}</p>
+      <p>• Gross daily revenue: ${(avgPrice * dailyOrders).toLocaleString('en-US')} SAR | Gross monthly revenue: ${(avgPrice * dailyOrders * workDays).toLocaleString('en-US')} SAR | Gross yearly revenue: ${(avgPrice * dailyOrders * workDays * 12).toLocaleString('en-US')} SAR</p>
+      <p>• Average net revenue/month (after platform fee &amp; growth): ${monthlyRevenue.toLocaleString('en-US')} SAR | Yearly: ${yearlyRevenue.toLocaleString('en-US')} SAR</p>
       <p style="margin-top:0.5rem;"><strong>📉 Monthly Costs:</strong></p>
-      <p>• Fixed: $${monthlyFixed.toLocaleString('en-US')} | Variable: $${monthlyVariable.toLocaleString('en-US')} | Total: $${monthlyTotal.toLocaleString('en-US')}</p>
+      <p>• Fixed: ${monthlyFixed.toLocaleString('en-US')} SAR | Variable: ${monthlyVariable.toLocaleString('en-US')} SAR | Total: ${monthlyTotal.toLocaleString('en-US')} SAR</p>
+      ${platformFeeAmount > 0 ? `<p>• Platform fee: ${platformFeeAmount.toLocaleString('en-US')} SAR/month | Waste: ${wasteCost.toLocaleString('en-US')} SAR/month | Packaging: ${packagingCost.toLocaleString('en-US')} SAR/month | Delivery: ${deliveryCost.toLocaleString('en-US')} SAR/month</p>` : ''}
       <p style="margin-top:0.5rem;"><strong>📊 Profitability:</strong></p>
-      <p>• Monthly: $${monthlyProfit.toLocaleString('en-US')} | Yearly: $${yearlyProfit.toLocaleString('en-US')} | Margin: ${profitMargin.toFixed(1)}%</p>
+      <p>• Monthly: ${monthlyProfit.toLocaleString('en-US')} SAR | Yearly: ${yearlyProfit.toLocaleString('en-US')} SAR | Margin: ${profitMargin.toFixed(1)}%</p>
       <p style="margin-top:0.5rem;"><strong>🎯 Break-even:</strong></p>
-      <p>• Daily: ${Math.ceil(beOrdersPerDay)} orders | Monthly: ${Math.ceil(beOrdersPerMonth)} orders | Revenue: $${beRevenuePerMonth.toLocaleString('en-US')}</p>
+      <p>• Daily: ${Math.ceil(beOrdersPerDay)} orders | Monthly: ${Math.ceil(beOrdersPerMonth)} orders | Revenue: ${beRevenuePerMonth.toLocaleString('en-US')} SAR</p>
     </div>
 
     <div style="text-align:center;margin-top:var(--space-6);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
@@ -360,7 +375,7 @@ async function exportExcelFeas() {
   }
   var d = window._feasResult;
   var wb = XLSX.utils.book_new();
-  wb.Props = { Title: 'Restaurant Feasibility Study', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+  wb.Props = { Title: 'Restaurant Financial Viability Report', Subject: 'Bonds Global', Author: 'bonds-global.com' };
 
   var inputsSheet = [
     ['Item', 'Value'],
@@ -381,10 +396,15 @@ async function exportExcelFeas() {
     ['', ''],
     ['Average Order Value', d.avgPrice],
     ['Expected Daily Orders', d.dailyOrders],
-    ['Working Days per Month', d.workDays]
+    ['Working Days per Month', d.workDays],
+    ['Platform Fee (%)', (d.options && d.options.platformFeePct) || 0],
+    ['Food Waste (%)', (d.options && d.options.wasteRatePct) || 0],
+    ['Packaging Cost per Order', (d.options && d.options.packagingCostPerOrder) || 0],
+    ['Delivery Cost per Order', (d.options && d.options.deliveryCostPerOrder) || 0],
+    ['Monthly Order Growth (%)', (d.options && d.options.monthlyGrowthPct) || 0]
   ];
   var ws1 = XLSX.utils.aoa_to_sheet(inputsSheet);
-  ws1['!cols'] = [{ wch: 32 }, { wch: 18 }];
+  ws1['!cols'] = [{ wch: 34 }, { wch: 18 }];
   XLSX.utils.book_append_sheet(wb, ws1, 'Inputs');
 
   var resultsSheet = [
@@ -393,6 +413,11 @@ async function exportExcelFeas() {
     ['Monthly Fixed Costs', d.monthlyFixed],
     ['Monthly Variable Costs', d.monthlyVariable],
     ['Total Monthly Costs', d.monthlyTotal],
+    ['', ''],
+    ['Platform Fee / Month', d.platformFeeAmount || 0],
+    ['Waste Cost / Month', d.wasteCost || 0],
+    ['Packaging Cost / Month', d.packagingCost || 0],
+    ['Delivery Cost / Month', d.deliveryCost || 0],
     ['', ''],
     ['Monthly Revenue', d.monthlyRevenue],
     ['Yearly Revenue', d.yearlyRevenue],
@@ -421,7 +446,7 @@ async function exportExcelFeas() {
   ws3['!cols'] = [{ wch: 20 }, { wch: 16 }, { wch: 18 }, { wch: 18 }, { wch: 14 }];
   XLSX.utils.book_append_sheet(wb, ws3, 'Scenarios');
 
-  XLSX.writeFile(wb, 'bonds-feasibility-study.xlsx');
+  XLSX.writeFile(wb, 'bonds-restaurant-viability.xlsx');
 }
 
 function exportPDFFeas() {
@@ -444,27 +469,27 @@ function exportPDFFeas() {
     <div class="metric-grid">
       <div class="metric-item"><div class="label">Break-even (daily)</div><div class="value">${Math.ceil(d.beOrdersPerDay)} orders</div></div>
       <div class="metric-item"><div class="label">Break-even (monthly)</div><div class="value">${Math.ceil(d.beOrdersPerMonth)} orders</div></div>
-      <div class="metric-item"><div class="label">Monthly Profit</div><div class="value">$${d.monthlyProfit.toLocaleString('en-US')}</div></div>
+      <div class="metric-item"><div class="label">Monthly Profit</div><div class="value">${d.monthlyProfit.toLocaleString('en-US')} SAR</div></div>
       <div class="metric-item"><div class="label">Profit Margin</div><div class="value">${d.profitMargin.toFixed(1)}%</div></div>
       <div class="metric-item"><div class="label">Payback Period</div><div class="value">${d.roiMonths === Infinity ? '—' : Math.ceil(d.roiMonths) + ' months'}</div></div>
-      <div class="metric-item"><div class="label">Setup Cost</div><div class="value">$${d.setupTotal.toLocaleString('en-US')}</div></div>
+      <div class="metric-item"><div class="label">Setup Cost</div><div class="value">${d.setupTotal.toLocaleString('en-US')} SAR</div></div>
     </div>
 
     <h2>🎲 Scenarios</h2>
     <div class="scenario-row">
       <div class="scenario-item pess">
         <div class="label" style="color:#ef4444;">Pessimistic</div>
-        <div class="value" style="color:#ef4444;">$${d.pess.profit.toLocaleString('en-US')}</div>
+        <div class="value" style="color:#ef4444;">${d.pess.profit.toLocaleString('en-US')} SAR</div>
         <div class="desc">${d.scenarios.pessimistic.dailyOrders} orders/day | Margin: ${d.pess.margin.toFixed(1)}%</div>
       </div>
       <div class="scenario-item exp">
         <div class="label" style="color:#b88a3a;">Expected</div>
-        <div class="value" style="color:#b88a3a;">$${d.exp.profit.toLocaleString('en-US')}</div>
+        <div class="value" style="color:#b88a3a;">${d.exp.profit.toLocaleString('en-US')} SAR</div>
         <div class="desc">${d.scenarios.expected.dailyOrders} orders/day | Margin: ${d.exp.margin.toFixed(1)}%</div>
       </div>
       <div class="scenario-item opt">
         <div class="label" style="color:#22c55e;">Optimistic</div>
-        <div class="value" style="color:#22c55e;">$${d.opt.profit.toLocaleString('en-US')}</div>
+        <div class="value" style="color:#22c55e;">${d.opt.profit.toLocaleString('en-US')} SAR</div>
         <div class="desc">${d.scenarios.optimistic.dailyOrders} orders/day | Margin: ${d.opt.margin.toFixed(1)}%</div>
       </div>
     </div>
@@ -472,22 +497,26 @@ function exportPDFFeas() {
     <h2>📋 Detailed Summary</h2>
     <table>
       <tr><th>Item</th><th>Value</th></tr>
-      <tr><td>Daily Revenue</td><td class="num">$${(d.avgPrice * d.dailyOrders).toLocaleString('en-US')}</td></tr>
-      <tr><td>Monthly Revenue</td><td class="num">$${d.monthlyRevenue.toLocaleString('en-US')}</td></tr>
-      <tr><td>Yearly Revenue</td><td class="num">$${d.yearlyRevenue.toLocaleString('en-US')}</td></tr>
-      <tr><td>Monthly Fixed Costs</td><td class="num">$${d.monthlyFixed.toLocaleString('en-US')}</td></tr>
-      <tr><td>Monthly Variable Costs</td><td class="num">$${d.monthlyVariable.toLocaleString('en-US')}</td></tr>
-      <tr><td>Total Monthly Costs</td><td class="num">$${d.monthlyTotal.toLocaleString('en-US')}</td></tr>
-      <tr><td>Monthly Profit</td><td class="num">$${d.monthlyProfit.toLocaleString('en-US')}</td></tr>
-      <tr><td>Yearly Profit</td><td class="num">$${d.yearlyProfit.toLocaleString('en-US')}</td></tr>
+      <tr><td>Daily Revenue</td><td class="num">${(d.avgPrice * d.dailyOrders).toLocaleString('en-US')} SAR</td></tr>
+      <tr><td>Monthly Revenue</td><td class="num">${d.monthlyRevenue.toLocaleString('en-US')} SAR</td></tr>
+      <tr><td>Yearly Revenue</td><td class="num">${d.yearlyRevenue.toLocaleString('en-US')} SAR</td></tr>
+      <tr><td>Monthly Fixed Costs</td><td class="num">${d.monthlyFixed.toLocaleString('en-US')} SAR</td></tr>
+      <tr><td>Monthly Variable Costs</td><td class="num">${d.monthlyVariable.toLocaleString('en-US')} SAR</td></tr>
+      <tr><td>Total Monthly Costs</td><td class="num">${d.monthlyTotal.toLocaleString('en-US')} SAR</td></tr>
+      ${(d.platformFeeAmount || 0) > 0 ? `<tr><td>Platform Fee / Month</td><td class="num">${d.platformFeeAmount.toLocaleString('en-US')} SAR</td></tr>` : ''}
+      ${(d.wasteCost || 0) > 0 ? `<tr><td>Waste Cost / Month</td><td class="num">${d.wasteCost.toLocaleString('en-US')} SAR</td></tr>` : ''}
+      ${(d.packagingCost || 0) > 0 ? `<tr><td>Packaging Cost / Month</td><td class="num">${d.packagingCost.toLocaleString('en-US')} SAR</td></tr>` : ''}
+      ${(d.deliveryCost || 0) > 0 ? `<tr><td>Delivery Cost / Month</td><td class="num">${d.deliveryCost.toLocaleString('en-US')} SAR</td></tr>` : ''}
+      <tr><td>Monthly Profit</td><td class="num">${d.monthlyProfit.toLocaleString('en-US')} SAR</td></tr>
+      <tr><td>Yearly Profit</td><td class="num">${d.yearlyProfit.toLocaleString('en-US')} SAR</td></tr>
       <tr><td>Profit Margin</td><td class="num">${d.profitMargin.toFixed(1)}%</td></tr>
       <tr><td>Break-even (daily)</td><td class="num">${Math.ceil(d.beOrdersPerDay)} orders</td></tr>
       <tr><td>Break-even (monthly)</td><td class="num">${Math.ceil(d.beOrdersPerMonth)} orders</td></tr>
-      <tr><td>Break-even Revenue</td><td class="num">$${d.beRevenuePerMonth.toLocaleString('en-US')}</td></tr>
+      <tr><td>Break-even Revenue</td><td class="num">${d.beRevenuePerMonth.toLocaleString('en-US')} SAR</td></tr>
       <tr><td>Payback Period</td><td class="num">${d.roiMonths === Infinity ? '—' : Math.ceil(d.roiMonths) + ' months'}</td></tr>
     </table>
   `;
-  openPrintWindow({ content: content, title: 'Restaurant Feasibility Report', headerTitle: 'Restaurant Feasibility Report — Bonds', lang: 'en' });
+  openPrintWindow({ content: content, title: 'Restaurant Financial Viability Report', headerTitle: 'Restaurant Financial Viability Report — Bonds', lang: 'en' });
 }
 
 // ===== INIT =====
@@ -497,7 +526,7 @@ updateRevenueSummary();
 progress.set(0);
 
 const onboard = new BondsUI.Onboarding([
-  { icon: '🚀', title: 'Restaurant Feasibility Calculator', desc: 'A tool that helps you calculate whether your restaurant idea is profitable before you spend a single dollar.' },
+  { icon: '🚀', title: 'Restaurant Financial Viability Calculator', desc: 'A tool that helps you calculate whether your restaurant idea is profitable before you spend a single SAR.' },
   { icon: '📋', title: 'Four Simple Steps', desc: '1️⃣ Enter setup costs<br>2️⃣ Enter monthly costs<br>3️⃣ Enter revenue expectations<br>4️⃣ Get results and scenarios' },
   { icon: '🎲', title: 'Three Scenarios', desc: 'See your result if sales are lower or higher than expected — don\'t be too optimistic or pessimistic!' }
 ]);

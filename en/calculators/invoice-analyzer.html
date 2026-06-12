@@ -18,7 +18,7 @@
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <style>
     :root { --gold:#b8954e; --green:#22c55e; --red:#ef4444; --orange:#f59e0b; }
-    body { background: #f5f0e8; color:#e2e8f0; font-family:'Vazirmatn',system-ui,sans-serif; margin:0; padding:2rem 1rem; }
+    body { background: #f5f0e8; color:#1a1a1a; font-family:'Vazirmatn',system-ui,sans-serif; margin:0; padding:2rem 1rem; }
     .container { max-width:960px; margin:0 auto; }
     .invoice-card {
       background:linear-gradient(135deg, rgba(255,255,255,0.9), rgba(245,240,232,0.95));
@@ -68,12 +68,12 @@
       display:block; font-size:0.8rem; color:#555555; margin-bottom:0.4rem; font-weight:600;
     }
     .input-group input, .input-group select {
-      width:100%; padding:0.7rem 1rem; border-radius:10px; border:1px solid rgba(255,255,255,0.08);
-      background:rgba(255,255,255,0.03); color:#e2e8f0; font-family:inherit; font-size:1rem;
+      width:100%; padding:0.7rem 1rem; border-radius:10px; border:1px solid rgba(0,0,0,0.2);
+      background:#ffffff; color:#1a1a1a; font-family:inherit; font-size:1rem;
       box-sizing:border-box; transition:border-color 0.2s;
     }
-    .input-group input:focus, .input-group select:focus { outline:none; border-color:var(--gold); }
-    .input-group select option { background: #f5f0e8; color:#e2e8f0; }
+    .input-group input:focus, .input-group select:focus { outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(212,168,83,0.12); }
+    .input-group select option { background: #ffffff; color:#1a1a1a; }
     .summary-grid {
       display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin:1.5rem 0;
     }

@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Medical Viability Calculator | Bonds — Is Your Healthcare Project Profitable?</title>
+  <meta name="description" content="Calculate the viability of your pharmacy, clinic, or medical lab before opening. Includes insurance, spoilage, break-even, and scenarios." />
+  <meta property="og:title" content="Medical Viability Calculator | Bonds" />
+  <meta property="og:description" content="Free calculator to check the financial viability of your pharmacy, clinic, or medical lab before investing." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo.jpg" />
+  <meta property="og:url" content="https://bonds-global.com/en/calculators/medical-viability.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Medical Viability Calculator | Bonds" />
+  <meta name="twitter:description" content="Free calculator to check the financial viability of your pharmacy, clinic, or medical lab before investing." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
+  <script src="../../calculators/shared-ui.js"></script>
+  <script src="../../calculators/shared-utils.js"></script>
+  <script src="../../calculators/shared-export.js" defer></script>
+  <script src="../../calculators/calc-functions.js"></script>
+  <script src="../../calculators/db-client.js"></script>
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <style>
+    .med-container { max-width: 960px; margin: 0 auto; padding: var(--space-8) var(--space-4); }
+    .med-header { text-align: center; margin-bottom: var(--space-8); }
+    .med-header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; color: var(--gold); margin-bottom: var(--space-3); }
+    .med-header p { color: var(--text-secondary); font-size: 1.05rem; max-width: 600px; margin: 0 auto; }
+    .med-badge { display: inline-block; background: rgba(59,130,246,0.12); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; margin-bottom: var(--space-4); }
+    .med-section-title { font-size: 1.1rem; font-weight: 800; color: var(--gold); margin: var(--space-6) 0 var(--space-4); display: flex; align-items: center; gap: 0.5rem; }
+    .metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-4); margin: var(--space-6) 0; }
+    .metric-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); text-align: center; }
+    .metric-box .label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.25rem; }
+    .metric-box .value { font-size: 1.3rem; font-weight: 800; color: var(--gold); }
+    .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); margin-top: var(--space-6); }
+    .scenario-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center; transition: all 0.3s; }
+    .scenario-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+    .scenario-card.pessimistic { border-top: 3px solid #ef4444; }
+    .scenario-card.expected { border-top: 3px solid var(--gold); }
+    .scenario-card.optimistic { border-top: 3px solid #22c55e; }
+    .scenario-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-2); }
+    .scenario-value { font-size: 1.5rem; font-weight: 900; }
+    .scenario-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: var(--space-2); }
+    .verdict-box { padding: var(--space-6); border-radius: var(--radius-lg); margin: var(--space-6) 0; text-align: center; }
+    .verdict-box.profit { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); }
+    .verdict-box.loss { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); }
+    .verdict-box.warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); }
+    .verdict-icon { font-size: 2.5rem; margin-bottom: var(--space-2); }
+    .verdict-title { font-size: 1.3rem; font-weight: 800; margin-bottom: var(--space-2); }
+    .verdict-text { font-size: 0.95rem; line-height: 1.7; }
+    .share-bar { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: var(--space-4); }
+    .share-bar input { flex: 1; min-width: 220px; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); }
+    .activity-select { font-size: 1.1rem; font-weight: 700; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); width: 100%; }
+    .sensitivity-table { width: 100%; border-collapse: collapse; margin-top: var(--space-4); }
+    .sensitivity-table th, .sensitivity-table td { padding: 0.75rem 1rem; text-align: center; border: 1px solid var(--border); }
+    .sensitivity-table th { background: rgba(212,168,83,0.12); color: var(--gold); font-weight: 800; }
+    .sensitivity-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    .chart-wrap { position: relative; height: 320px; margin-top: var(--space-4); }
+  </style>
+  <link rel="stylesheet" href="../../header-footer.css?v=2" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body style="font-family:Inter,system-ui,sans-serif">
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <span>Your first consultation is free — book now</span>
+      <a href="https://wa.me/966567566616" target="_blank" rel="noopener">Quick WhatsApp →</a>
+    </div>
+  </div>
+
+  <div id="site-header"></div>
+
+  <section class="hero" style="min-height: 38vh; padding: var(--space-20) 0;">
+    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
+    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+    <div class="container hero__content reveal">
+      <span class="hero__eyebrow">Free Tool</span>
+      <h1 class="hero__title">Medical <span class="text-gradient">Viability Calculator</span></h1>
+      <p class="hero__desc">Calculate the viability of your pharmacy, clinic, or medical lab before investing. Accounts for insurance, spoilage, and break-even.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="med-container">
+      <div class="bonds-card" style="text-align:center; margin-bottom: var(--space-6);">
+        <div class="med-badge">Select Your Business Activity</div>
+        <select id="activity" class="activity-select" onchange="onActivityChange()">
+          <option value="pharmacy">🩺 Pharmacy</option>
+          <option value="clinic">🏥 Clinic / Medical Center</option>
+          <option value="lab">🧪 Medical Lab</option>
+        </select>
+      </div>
+
+      <div class="calc-grid">
+        <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
+          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Project Data</h2>
+
+          <div class="med-section-title">📋 Setup Costs</div>
+          <div class="bonds-form-row" id="setupFields"></div>
+
+          <div class="med-section-title">📅 Monthly Costs</div>
+          <div class="bonds-form-row" id="monthlyFields"></div>
+
+          <div class="med-section-title">💰 Expected Revenue</div>
+          <div class="bonds-form-row" id="revenueFields"></div>
+
+          <div class="med-section-title" id="variableSectionTitle">⚕️ Activity Settings</div>
+          <div class="bonds-form-row" id="variableFields"></div>
+
+          <div class="med-section-title">⚙️ Growth Assumptions</div>
+          <div class="bonds-form-row" id="growthFields"></div>
+
+          <div class="med-section-title">🏛️ Tax & Zakat</div>
+          <div class="bonds-form-row" id="taxFields"></div>
+
+          <div class="med-section-title">🧬 Service Mix</div>
+          <div class="bonds-form-row" id="serviceMixFields"></div>
+
+          <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top: var(--space-6);">
+            <button onclick="calculateAll()" class="bonds-btn bonds-btn-primary" style="flex:1; min-width:140px;">Calculate Results</button>
+            <button onclick="loadExample()" class="bonds-btn bonds-btn-secondary" style="flex:1; min-width:140px;">🧮 Try Example</button>
+            <button onclick="resetCalc()" class="bonds-btn bonds-btn-outline" style="flex:1; min-width:140px;">Reset</button>
+          </div>
+
+          <div class="share-bar">
+            <input type="text" id="shareLink" readonly placeholder="Share link will appear here" />
+            <button onclick="copyShareLink()" class="bonds-btn bonds-btn-secondary">Copy</button>
+          </div>
+        </div>
+
+        <div class="reveal reveal-delay-1">
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); margin-bottom: var(--space-6);">
+            <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Results</h2>
+            <div id="resultContent">
+              <div style="text-align:center; color:var(--text-secondary); padding: var(--space-8) 0;">
+                <div style="font-size:3rem; margin-bottom:var(--space-4);">🏥</div>
+                <p>Select an activity, enter your data, then click "Calculate Results".</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="site-footer"></div>
+
+  <script>
+    const ACTIVITIES = {
+      pharmacy: {
+        name: 'Pharmacy',
+        unitLabel: 'prescription',
+        setupFields: [
+          { id: 'sLicense', label: 'License & Registration', value: 8000, abbr: 'Pharmacy license and regulatory fees' },
+          { id: 'sEquipment', label: 'Shelves & Equipment', value: 25000, abbr: 'Shelves, medicine fridges, POS' },
+          { id: 'sFurniture', label: 'Furniture & Decor', value: 20000, abbr: 'Interior fit-out and furniture' },
+          { id: 'sMarketing', label: 'Launch Marketing', value: 5000, abbr: 'Opening campaign and awareness' },
+          { id: 'sOther', label: 'Other', value: 5000, abbr: 'Any other setup costs' }
+        ],
+        monthlyFields: [
+          { id: 'mRent', label: 'Monthly Rent', value: 10000 },
+          { id: 'mSalaries', label: 'Salaries', value: 18000 },
+          { id: 'mUtilities', label: 'Utilities', value: 1500 },
+          { id: 'mAds', label: 'Marketing', value: 2000 },
+          { id: 'mMisc', label: 'Miscellaneous', value: 1000 }
+        ],
+        revenueFields: [
+          { id: 'rUnitPrice', label: 'Average Prescription Price', value: 80, min: 0 },
+          { id: 'rDailyUnits', label: 'Prescriptions / Day', value: 60, min: 0 },
+          { id: 'rWorkDays', label: 'Working Days / Month', value: 30, min: 1, max: 31 }
+        ],
+        variableFields: [
+          { id: 'vCogsRatio', label: 'Cost of Goods Sold (%)', value: 60, min: 0, max: 100, abbr: 'Purchase cost of medicines as % of sales' },
+          { id: 'vExpiryLoss', label: 'Expiry / Spoilage Loss (%)', value: 3, min: 0, max: 100, abbr: 'Medicines that expire or spoil before sale' },
+          { id: 'vInsurance', label: 'Insurance Prescriptions (%)', value: 20, min: 0, max: 100, abbr: 'Insurance prescriptions (delay/discount)' },
+          { id: 'vDiscount', label: 'Discounts (%)', value: 5, min: 0, max: 100, abbr: 'Promotions and discounts' }
+        ],
+        growthField: { id: 'vMonthlyGrowth', label: 'Expected Monthly Revenue Growth (%)', value: 0, min: -20, max: 100, abbr: 'Monthly growth in units/revenue (0 = flat)' }
+      },
+      clinic: {
+        name: 'Clinic / Medical Center',
+        unitLabel: 'visit',
+        setupFields: [
+          { id: 'sLicense', label: 'License & Registration', value: 10000, abbr: 'Ministry of Health license' },
+          { id: 'sEquipment', label: 'Medical Equipment', value: 60000, abbr: 'Examination and diagnostic devices' },
+          { id: 'sFurniture', label: 'Furniture', value: 30000, abbr: 'Waiting area and exam rooms' },
+          { id: 'sMarketing', label: 'Launch Marketing', value: 8000, abbr: 'Branding and opening campaign' },
+          { id: 'sOther', label: 'Other', value: 5000, abbr: 'Any other setup costs' }
+        ],
+        monthlyFields: [
+          { id: 'mRent', label: 'Monthly Rent', value: 12000 },
+          { id: 'mSalaries', label: 'Admin & Nursing Salaries', value: 25000 },
+          { id: 'mUtilities', label: 'Utilities', value: 1500 },
+          { id: 'mAds', label: 'Marketing', value: 3000 },
+          { id: 'mMisc', label: 'Miscellaneous', value: 1500 }
+        ],
+        revenueFields: [
+          { id: 'rUnitPrice', label: 'Average Visit Price', value: 200, min: 0 },
+          { id: 'rDailyUnits', label: 'Visits / Day', value: 25, min: 0 },
+          { id: 'rWorkDays', label: 'Working Days / Month', value: 26, min: 1, max: 31 }
+        ],
+        variableFields: [
+          { id: 'vDoctorCommission', label: 'Doctor Commission (%)', value: 40, min: 0, max: 100, abbr: 'Doctor share of visit price' },
+          { id: 'vConsumables', label: 'Consumables / Visit', value: 15, min: 0, abbr: 'Gloves, masks, small instruments' },
+          { id: 'vNoShow', label: 'No-Show Rate (%)', value: 10, min: 0, max: 100, abbr: 'Appointments patients do not attend' },
+          { id: 'vInsuranceRejection', label: 'Insurance Rejection (%)', value: 5, min: 0, max: 100, abbr: 'Insurance claims rejected' }
+        ],
+        growthField: { id: 'vMonthlyGrowth', label: 'Expected Monthly Revenue Growth (%)', value: 0, min: -20, max: 100, abbr: 'Monthly growth in units/revenue (0 = flat)' }
+      },
+      lab: {
+        name: 'Medical Lab',
+        unitLabel: 'test',
+        setupFields: [
+          { id: 'sLicense', label: 'License & Registration', value: 15000, abbr: 'Lab license and regulatory fees' },
+          { id: 'sEquipment', label: 'Lab Equipment', value: 120000, abbr: 'Analyzers and calibration devices' },
+          { id: 'sFurniture', label: 'Furniture', value: 25000, abbr: 'Tables, chairs, sample collection area' },
+          { id: 'sMarketing', label: 'Launch Marketing', value: 8000, abbr: 'Clinic contracts and opening campaign' },
+          { id: 'sOther', label: 'Other', value: 10000, abbr: 'Any other setup costs' }
+        ],
+        monthlyFields: [
+          { id: 'mRent', label: 'Monthly Rent', value: 12000 },
+          { id: 'mSalaries', label: 'Salaries', value: 30000 },
+          { id: 'mUtilities', label: 'Utilities', value: 3000 },
+          { id: 'mDepreciation', label: 'Equipment Depreciation / Month', value: 5000, abbr: 'Spread equipment cost over useful life' },
+          { id: 'mAds', label: 'Marketing', value: 3000 },
+          { id: 'mMisc', label: 'Miscellaneous', value: 2000 }
+        ],
+        revenueFields: [
+          { id: 'rUnitPrice', label: 'Average Test Price', value: 120, min: 0 },
+          { id: 'rDailyUnits', label: 'Tests / Day', value: 40, min: 0 },
+          { id: 'rWorkDays', label: 'Working Days / Month', value: 26, min: 1, max: 31 }
+        ],
+        variableFields: [
+          { id: 'vReagentRatio', label: 'Reagent Cost (%)', value: 30, min: 0, max: 100, abbr: 'Reagent cost as % of test revenue' },
+          { id: 'vFailedTests', label: 'Repeat / Failed Tests (%)', value: 4, min: 0, max: 100, abbr: 'Samples that fail or need retesting' },
+          { id: 'vInsurance', label: 'Insurance Tests (%)', value: 25, min: 0, max: 100, abbr: 'Insurance tests (delay/discount)' }
+        ],
+        growthField: { id: 'vMonthlyGrowth', label: 'Expected Monthly Revenue Growth (%)', value: 0, min: -20, max: 100, abbr: 'Monthly growth in units/revenue (0 = flat)' }
+      }
+    };
+
+    const TAX_FIELDS = [
+      { id: 'vVatRate', label: 'Tax Rate (%)', value: 0, min: 0, max: 100, abbr: 'e.g. VAT 15% — deducted from gross revenue' },
+      { id: 'vZakatRate', label: 'Zakat Rate (%)', value: 0, min: 0, max: 100, abbr: 'Applied to monthly profit (e.g. 2.5%)' }
+    ];
+
+    const SERVICE_MIX_FIELDS = [
+      { id: 'vExtraServiceRevenue', label: 'Additional Services Revenue / Month', value: 0, min: 0, abbr: 'e.g. corporate contracts, home visits, side sales' },
+      { id: 'vExtraServiceCost', label: 'Additional Services Cost / Month', value: 0, min: 0, abbr: 'Direct cost of additional services' }
+    ];
+
+    function getAllFields(config) {
+      return [...config.setupFields, ...config.monthlyFields, ...config.revenueFields, ...config.variableFields, config.growthField, ...TAX_FIELDS, ...SERVICE_MIX_FIELDS];
+    }
+
+    function renderFields(containerId, fields) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      fields.forEach(function(field) {
+        const abbr = field.abbr ? ` <abbr title="${field.abbr}">ⓘ</abbr>` : '';
+        const min = field.min !== undefined ? `min="${field.min}"` : 'min="0"';
+        const max = field.max !== undefined ? `max="${field.max}"` : '';
+        const value = field.value !== undefined ? `value="${field.value}"` : '';
+        const html = `
+          <div class="bonds-form-group">
+            <label>${field.label}${abbr}</label>
+            <input id="${field.id}" class="bonds-input" type="number" ${value} placeholder="0" ${min} ${max} />
+          </div>`;
+        container.insertAdjacentHTML('beforeend', html);
+      });
+    }
+
+    function onActivityChange() {
+      const activity = document.getElementById('activity').value;
+      const config = ACTIVITIES[activity];
+      document.getElementById('variableSectionTitle').textContent = `⚕️ ${config.name} Settings`;
+      renderFields('setupFields', config.setupFields);
+      renderFields('monthlyFields', config.monthlyFields);
+      renderFields('revenueFields', config.revenueFields);
+      renderFields('variableFields', config.variableFields);
+      renderFields('growthFields', [config.growthField]);
+      renderFields('taxFields', TAX_FIELDS);
+      renderFields('serviceMixFields', SERVICE_MIX_FIELDS);
+      if (window._medChart) { window._medChart.destroy(); window._medChart = null; }
+      document.getElementById('resultContent').innerHTML = `
+        <div style="text-align:center; color:var(--text-secondary); padding: var(--space-8) 0;">
+          <div style="font-size:3rem; margin-bottom:var(--space-4);">🏥</div>
+          <p>Enter your ${config.name.toLowerCase()} data, then click "Calculate Results".</p>
+        </div>`;
+      updateShareLink();
+    }
+
+    function getVal(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+
+    function collectInputs() {
+      const activity = document.getElementById('activity').value;
+      const config = ACTIVITIES[activity];
+      const setup = {};
+      config.setupFields.forEach(function(f) { setup[f.id] = getVal(f.id); });
+      const monthly = {};
+      config.monthlyFields.forEach(function(f) { monthly[f.id] = getVal(f.id); });
+      const revenue = {
+        unitPrice: getVal('rUnitPrice'),
+        dailyUnits: getVal('rDailyUnits'),
+        workDays: getVal('rWorkDays')
+      };
+      const options = { activity: activity };
+      config.variableFields.forEach(function(f) {
+        const key = f.id.replace('v', '');
+        const camel = key.charAt(0).toLowerCase() + key.slice(1);
+        options[camel] = getVal(f.id);
+      });
+      options.monthlyGrowthPct = getVal('vMonthlyGrowth');
+      options.vatRate = getVal('vVatRate');
+      options.zakatRate = getVal('vZakatRate');
+      options.extraServiceRevenue = getVal('vExtraServiceRevenue');
+      options.extraServiceCost = getVal('vExtraServiceCost');
+      return { activity, config, setup, monthly, revenue, options };
+    }
+
+    function calculateAll() {
+      const inputs = collectInputs();
+      const { activity, config, setup, monthly, revenue, options } = inputs;
+
+      const setupKeyMap = { sLicense: 'license', sEquipment: 'equipment', sFurniture: 'furniture', sMarketing: 'marketing', sOther: 'other', sSafety: 'safety' };
+      const setupCosts = {};
+      Object.keys(setup).forEach(function(k) { setupCosts[setupKeyMap[k] || k] = setup[k]; });
+
+      const monthlyKeyMap = { mRent: 'rent', mSalaries: 'salaries', mUtilities: 'utilities', mAds: 'ads', mMisc: 'misc', mDepreciation: 'depreciation' };
+      const monthlyCosts = {};
+      Object.keys(monthly).forEach(function(k) { monthlyCosts[monthlyKeyMap[k] || k] = monthly[k]; });
+
+      const calcOptions = {
+        activity: activity,
+        cogsRatio: options.cogsRatio || 0,
+        expiryLossPct: options.expiryLoss || 0,
+        insurancePct: options.insurance || 0,
+        discountPct: options.discount || 0,
+        doctorCommissionPct: options.doctorCommission || 0,
+        consumablesPerVisit: options.consumables || 0,
+        noShowPct: options.noShow || 0,
+        insuranceRejectionPct: options.insuranceRejection || 0,
+        reagentCostRatio: options.reagentRatio || 0,
+        failedTestsPct: options.failedTests || 0,
+        monthlyGrowthPct: options.monthlyGrowthPct || 0,
+        vatRate: options.vatRate || 0,
+        zakatRate: options.zakatRate || 0,
+        extraServiceRevenue: options.extraServiceRevenue || 0,
+        extraServiceCost: options.extraServiceCost || 0
+      };
+
+      const r = calculateMedicalViability(setupCosts, monthlyCosts, revenue, calcOptions);
+      window._medResult = r;
+
+      let verdictHTML = '';
+      if (r.monthlyProfit < 0) {
+        verdictHTML = `
+          <div class="verdict-box loss">
+            <div class="verdict-icon">🔴</div>
+            <div class="verdict-title" style="color:#ef4444;">Warning: Project expects a monthly loss</div>
+            <div class="verdict-text">
+              At ${r.dailyUnits} ${config.unitLabel}s/day, you expect a loss of <strong>${Math.abs(r.monthlyProfit).toLocaleString('en-US')} SAR</strong> per month.<br>
+              💡 To break even, you need <strong>${Math.ceil(r.beUnitsPerDay)} ${config.unitLabel}s/day</strong>.
+            </div>
+          </div>`;
+      } else if (r.roiMonths > 36) {
+        verdictHTML = `
+          <div class="verdict-box warning">
+            <div class="verdict-icon">🟡</div>
+            <div class="verdict-title" style="color:#f59e0b;">Profitable but slow payback</div>
+            <div class="verdict-text">
+              The project is profitable ${r.monthlyProfit.toLocaleString('en-US')} SAR/month, but needs <strong>${Math.ceil(r.roiMonths)} months</strong> to recover the investment.
+            </div>
+          </div>`;
+      } else {
+        verdictHTML = `
+          <div class="verdict-box profit">
+            <div class="verdict-icon">🟢</div>
+            <div class="verdict-title" style="color:#22c55e;">Promising project!</div>
+            <div class="verdict-text">
+              You expect a profit of <strong>${r.monthlyProfit.toLocaleString('en-US')} SAR</strong> per month with a ${r.profitMargin.toFixed(1)}% margin.<br>
+              Investment payback in <strong>${r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths) + ' months'}</strong>.
+            </div>
+          </div>`;
+      }
+
+      const pess = r.scenarios.pessimistic;
+      const exp = r.scenarios.expected;
+      const opt = r.scenarios.optimistic;
+
+      let extraMetrics = '';
+      let extraSummary = '';
+      if (activity === 'pharmacy') {
+        extraMetrics = `
+          ${r.lossDetail.insuranceAmount > 0 ? `<div class="metric-box"><div class="label">Insurance Impact / Month</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('en-US')} SAR</div></div>` : ''}
+          ${r.lossDetail.discountAmount > 0 ? `<div class="metric-box"><div class="label">Discount Impact / Month</div><div class="value" style="color:#ef4444">${r.lossDetail.discountAmount.toLocaleString('en-US')} SAR</div></div>` : ''}
+          ${r.variableDetail.expiryLoss > 0 ? `<div class="metric-box"><div class="label">Expiry Loss / Month</div><div class="value" style="color:#ef4444">${r.variableDetail.expiryLoss.toLocaleString('en-US')} SAR</div></div>` : ''}`;
+        extraSummary = `<p>• Insurance: ${r.lossDetail.insuranceAmount.toLocaleString('en-US')} SAR | Discounts: ${r.lossDetail.discountAmount.toLocaleString('en-US')} SAR | Expiry/spoilage: ${r.variableDetail.expiryLoss.toLocaleString('en-US')} SAR</p>`;
+      } else if (activity === 'clinic') {
+        extraMetrics = `
+          ${r.lossDetail.noShowLoss > 0 ? `<div class="metric-box"><div class="label">No-Show Loss / Month</div><div class="value" style="color:#ef4444">${r.lossDetail.noShowLoss.toLocaleString('en-US')} SAR</div></div>` : ''}
+          ${r.lossDetail.insuranceRejectionAmount > 0 ? `<div class="metric-box"><div class="label">Insurance Rejection / Month</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceRejectionAmount.toLocaleString('en-US')} SAR</div></div>` : ''}`;
+        extraSummary = `<p>• Attended visits: ${Math.round(r.lossDetail.attendedUnits).toLocaleString('en-US')} | No-shows: ${r.lossDetail.noShowLoss.toLocaleString('en-US')} SAR | Insurance rejection: ${r.lossDetail.insuranceRejectionAmount.toLocaleString('en-US')} SAR</p>`;
+      } else if (activity === 'lab') {
+        extraMetrics = `
+          ${r.lossDetail.insuranceAmount > 0 ? `<div class="metric-box"><div class="label">Insurance Impact / Month</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('en-US')} SAR</div></div>` : ''}
+          ${r.variableDetail.failedTestsCost > 0 ? `<div class="metric-box"><div class="label">Repeat Tests Cost / Month</div><div class="value" style="color:#ef4444">${r.variableDetail.failedTestsCost.toLocaleString('en-US')} SAR</div></div>` : ''}`;
+        extraSummary = `<p>• Insurance: ${r.lossDetail.insuranceAmount.toLocaleString('en-US')} SAR | Repeat tests: ${r.variableDetail.failedTestsCost.toLocaleString('en-US')} SAR</p>`;
+      }
+
+      if (window._medChart) { window._medChart.destroy(); window._medChart = null; }
+
+      document.getElementById('resultContent').innerHTML = `
+        ${verdictHTML}
+
+        <div class="med-section-title">📈 Key Results</div>
+        <div class="metric-row">
+          <div class="metric-box"><div class="label">Setup Cost</div><div class="value">${r.setupTotal.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-box"><div class="label">Gross Revenue / Month</div><div class="value">${r.grossRevenue.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-box"><div class="label">Deductions / Month</div><div class="value" style="color:#ef4444">${r.deductionAmount.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-box"><div class="label">Net Revenue / Month</div><div class="value">${r.netRevenue.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-box"><div class="label">Variable Costs / Month</div><div class="value" style="color:#ef4444">${r.monthlyVariable.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-box"><div class="label">Monthly Profit</div><div class="value" style="color:${r.monthlyProfit>=0?'#22c55e':'#ef4444'}">${r.monthlyProfit.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-box"><div class="label">Profit Margin</div><div class="value">${r.profitMargin.toFixed(1)}%</div></div>
+          <div class="metric-box"><div class="label">Break-Even / Day</div><div class="value">${Math.ceil(r.beUnitsPerDay)} ${config.unitLabel}s</div></div>
+          <div class="metric-box"><div class="label">Break-Even / Month</div><div class="value">${Math.ceil(r.beUnitsPerMonth)} ${config.unitLabel}s</div></div>
+          <div class="metric-box"><div class="label">Payback Period</div><div class="value">${r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths) + ' months'}</div></div>
+          ${extraMetrics}
+          ${r.vatAmount > 0 ? `<div class="metric-box"><div class="label">Tax / Month</div><div class="value" style="color:#ef4444">${r.vatAmount.toLocaleString('en-US')} SAR</div></div>` : ''}
+          ${r.zakatAmount > 0 ? `<div class="metric-box"><div class="label">Zakat / Month</div><div class="value" style="color:#ef4444">${r.zakatAmount.toLocaleString('en-US')} SAR</div></div>` : ''}
+          ${r.extraServiceRevenue > 0 ? `<div class="metric-box"><div class="label">Additional Services / Month</div><div class="value">${r.extraServiceRevenue.toLocaleString('en-US')} SAR</div></div>` : ''}
+        </div>
+
+        <div class="med-section-title">🎲 Scenarios</div>
+        <div class="scenario-grid">
+          <div class="scenario-card pessimistic">
+            <div class="scenario-label" style="color:#ef4444;">Pessimistic</div>
+            <div class="scenario-value" style="color:#ef4444;">${pess.profit.toLocaleString('en-US')} SAR</div>
+            <div class="scenario-desc">${pess.dailyUnits} ${config.unitLabel}s/day<br>Margin: ${pess.margin.toFixed(1)}%</div>
+          </div>
+          <div class="scenario-card expected">
+            <div class="scenario-label" style="color:var(--gold);">Expected</div>
+            <div class="scenario-value" style="color:var(--gold);">${exp.profit.toLocaleString('en-US')} SAR</div>
+            <div class="scenario-desc">${exp.dailyUnits} ${config.unitLabel}s/day<br>Margin: ${exp.margin.toFixed(1)}%</div>
+          </div>
+          <div class="scenario-card optimistic">
+            <div class="scenario-label" style="color:#22c55e;">Optimistic</div>
+            <div class="scenario-value" style="color:#22c55e;">${opt.profit.toLocaleString('en-US')} SAR</div>
+            <div class="scenario-desc">${opt.dailyUnits} ${config.unitLabel}s/day<br>Margin: ${opt.margin.toFixed(1)}%</div>
+          </div>
+        </div>
+
+        <div class="med-section-title">📉 Sensitivity Analysis</div>
+        <table class="sensitivity-table">
+          <thead><tr><th>Change in Daily Units</th><th>${config.unitLabel}s / Day</th><th>Monthly Profit</th><th>Yearly Profit</th></tr></thead>
+          <tbody>
+            ${Object.entries(r.sensitivity).map(function(entry) {
+              const key = entry[0], s = entry[1];
+              const labels = { minus20: '-20%', minus10: '-10%', plus10: '+10%', plus20: '+20%' };
+              return '<tr><td>' + (labels[key] || key) + '</td><td>' + Math.round(s.dailyUnits) + '</td><td style="color:' + (s.monthlyProfit >= 0 ? '#22c55e' : '#ef4444') + '">' + s.monthlyProfit.toLocaleString('en-US') + ' SAR</td><td>' + s.yearlyProfit.toLocaleString('en-US') + ' SAR</td></tr>';
+            }).join('')}
+          </tbody>
+        </table>
+
+        <div class="med-section-title">📊 12-Month Performance Forecast</div>
+        <div class="chart-wrap"><canvas id="medChart"></canvas></div>
+
+        <div class="med-section-title">📋 Detailed Summary</div>
+        <div class="bonds-card" style="text-align:left;">
+          <p><strong>💰 Revenue:</strong></p>
+          <p>• Daily: ${(r.unitPrice * r.dailyUnits).toLocaleString('en-US')} SAR | Monthly: ${r.grossRevenue.toLocaleString('en-US')} SAR | Yearly: ${(r.grossRevenue * 12).toLocaleString('en-US')} SAR</p>
+          <p>• Net after deductions: ${r.netRevenue.toLocaleString('en-US')} SAR/month</p>
+          ${extraSummary}
+          <p>• Assumed monthly growth: ${r.monthlyGrowthPct || 0}%</p>
+          ${r.vatAmount > 0 || r.zakatAmount > 0 ? `<p style="margin-top:0.5rem;"><strong>🏛️ Tax & Zakat:</strong></p><p>• Tax: ${r.vatAmount.toLocaleString('en-US')} SAR/month (${r.vatRate}%) | Zakat: ${r.zakatAmount.toLocaleString('en-US')} SAR/month (${r.zakatRate}%)</p>` : ''}
+          ${r.extraServiceRevenue > 0 || r.extraServiceCost > 0 ? `<p style="margin-top:0.5rem;"><strong>🧬 Service Mix:</strong></p><p>• Additional revenue: ${r.extraServiceRevenue.toLocaleString('en-US')} SAR/month | Cost: ${r.extraServiceCost.toLocaleString('en-US')} SAR/month | Contribution: ${(r.extraServiceRevenue - r.extraServiceCost).toLocaleString('en-US')} SAR/month</p>` : ''}
+          <p style="margin-top:0.5rem;"><strong>📉 Costs:</strong></p>
+          <p>• Fixed: ${r.monthlyFixed.toLocaleString('en-US')} SAR | Variable: ${r.monthlyVariable.toLocaleString('en-US')} SAR | Total: ${r.monthlyTotal.toLocaleString('en-US')} SAR</p>
+          <p style="margin-top:0.5rem;"><strong>📊 Profitability:</strong></p>
+          <p>• Monthly profit: ${r.monthlyProfit.toLocaleString('en-US')} SAR | Yearly profit: ${r.yearlyProfit.toLocaleString('en-US')} SAR | Margin: ${r.profitMargin.toFixed(1)}%</p>
+          <p style="margin-top:0.5rem;"><strong>🎯 Break-Even:</strong></p>
+          <p>• Daily: ${Math.ceil(r.beUnitsPerDay)} ${config.unitLabel}s | Monthly: ${Math.ceil(r.beUnitsPerMonth)} ${config.unitLabel}s | Revenue: ${r.beRevenuePerMonth.toLocaleString('en-US')} SAR</p>
+        </div>
+
+        <div style="text-align:center; margin-top: var(--space-6); display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+          <button class="bonds-btn bonds-btn-primary" onclick="exportExcelMed()">📊 Excel</button>
+          <button class="bonds-btn bonds-btn-secondary" onclick="exportPDFMed()">🖨️ PDF</button>
+        </div>
+      `;
+      updateShareLink();
+      renderChart(r);
+    }
+
+    function renderChart(r) {
+      const ctx = document.getElementById('medChart');
+      if (!ctx || typeof Chart === 'undefined') return;
+      const labels = r.monthlyProjections.map(function(p) { return 'Month ' + p.month; });
+      window._medChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Net Revenue', data: r.monthlyProjections.map(function(p) { return Math.round(p.netRevenue); }), backgroundColor: 'rgba(59,130,246,0.7)', borderColor: '#3b82f6', borderWidth: 1, borderRadius: 6 },
+            { label: 'Profit', data: r.monthlyProjections.map(function(p) { return Math.round(p.profit); }), backgroundColor: function(context) { const v = context.raw; return v >= 0 ? 'rgba(34,197,94,0.7)' : 'rgba(239,68,68,0.7)'; }, borderColor: function(context) { const v = context.raw; return v >= 0 ? '#22c55e' : '#ef4444'; }, borderWidth: 1, borderRadius: 6 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'top', labels: { color: '#e8ecf4' } }, tooltip: { mode: 'index', intersect: false } },
+          scales: { y: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { ticks: { color: '#94a3b8' }, grid: { display: false } } }
+        }
+      });
+    }
+
+    function loadExample() {
+      const activity = document.getElementById('activity').value;
+      const config = ACTIVITIES[activity];
+      getAllFields(config).forEach(function(f) {
+        const el = document.getElementById(f.id);
+        if (el && f.value !== undefined) el.value = f.value;
+      });
+      calculateAll();
+      BondsUI.toast('✅ Example loaded', 'success');
+    }
+
+    function resetCalc() {
+      const activity = document.getElementById('activity').value;
+      const config = ACTIVITIES[activity];
+      getAllFields(config).forEach(function(f) {
+        const el = document.getElementById(f.id);
+        if (el) el.value = '';
+      });
+      if (window._medChart) { window._medChart.destroy(); window._medChart = null; }
+      document.getElementById('resultContent').innerHTML = `
+        <div style="text-align:center; color:var(--text-secondary); padding: var(--space-8) 0;">
+          <div style="font-size:3rem; margin-bottom:var(--space-4);">🏥</div>
+          <p>Enter your data, then click "Calculate Results".</p>
+        </div>`;
+      updateShareLink();
+    }
+
+    function updateShareLink() {
+      const inputs = collectInputs();
+      const url = new URL(window.location.href);
+      url.searchParams.set('activity', inputs.activity);
+      getAllFields(inputs.config).forEach(function(f) {
+        const val = document.getElementById(f.id)?.value;
+        if (val) url.searchParams.set(f.id, val);
+      });
+      document.getElementById('shareLink').value = url.toString();
+    }
+
+    function copyShareLink() {
+      const input = document.getElementById('shareLink');
+      input.select();
+      document.execCommand('copy');
+      BondsUI.toast('✅ Link copied', 'success');
+    }
+
+    function loadFromURL() {
+      const url = new URL(window.location.href);
+      const activity = url.searchParams.get('activity');
+      if (activity && ACTIVITIES[activity]) {
+        document.getElementById('activity').value = activity;
+        onActivityChange();
+      }
+      const allFields = [...ACTIVITIES[document.getElementById('activity').value].setupFields,
+                         ...ACTIVITIES[document.getElementById('activity').value].monthlyFields,
+                         ...ACTIVITIES[document.getElementById('activity').value].revenueFields,
+                         ...ACTIVITIES[document.getElementById('activity').value].variableFields];
+      let hasParams = false;
+      allFields.forEach(function(f) {
+        const val = url.searchParams.get(f.id);
+        if (val !== null) {
+          const el = document.getElementById(f.id);
+          if (el) el.value = val;
+          hasParams = true;
+        }
+      });
+      if (hasParams) calculateAll();
+    }
+
+    async function exportExcelMed() {
+      if (!window._medResult) { BondsUI.toast('⚠️ Calculate results first', 'warning'); return; }
+      await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+      const r = window._medResult;
+      const rows = [
+        ['Item', 'Value'],
+        ['Activity', ACTIVITIES[r.activity].name],
+        ['Setup Cost', r.setupTotal],
+        ['Gross Revenue / Month', r.grossRevenue],
+        ['Deductions / Month', r.deductionAmount],
+        ['Net Revenue / Month', r.netRevenue],
+        ['Fixed Costs / Month', r.monthlyFixed],
+        ['Variable Costs / Month', r.monthlyVariable],
+        ['Monthly Profit', r.monthlyProfit],
+        ['Tax / Month', r.vatAmount],
+        ['Zakat / Month', r.zakatAmount],
+        ['Additional Services Revenue / Month', r.extraServiceRevenue],
+        ['Additional Services Cost / Month', r.extraServiceCost],
+        ['Profit Margin %', r.profitMargin.toFixed(2)],
+        ['Break-Even / Day', Math.ceil(r.beUnitsPerDay)],
+        ['Break-Even / Month', Math.ceil(r.beUnitsPerMonth)],
+        ['Payback Period (months)', r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths)]
+      ];
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols'] = [{ wch: 32 }, { wch: 18 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Results');
+
+      const projRows = [['Month', 'Units', 'Gross Revenue', 'Deductions', 'Tax', 'Zakat', 'Net Revenue', 'Variable Cost', 'Profit']];
+      r.monthlyProjections.forEach(function(p) { projRows.push([p.month, Math.round(p.units), Math.round(p.grossRevenue), Math.round(p.deduction), Math.round(p.vatAmount), Math.round(p.zakatAmount), Math.round(p.netRevenue), Math.round(p.variableCost), Math.round(p.profit)]); });
+      const projWs = XLSX.utils.aoa_to_sheet(projRows);
+      projWs['!cols'] = [{ wch: 8 }, { wch: 12 }, { wch: 18 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 16 }, { wch: 18 }, { wch: 16 }];
+      XLSX.utils.book_append_sheet(wb, projWs, 'Monthly');
+
+      const sensRows = [['Change', 'Units / Day', 'Monthly Profit', 'Yearly Profit']];
+      const sensLabels = { minus20: '-20%', minus10: '-10%', plus10: '+10%', plus20: '+20%' };
+      Object.entries(r.sensitivity).forEach(function(entry) { const key = entry[0], s = entry[1]; sensRows.push([sensLabels[key] || key, Math.round(s.dailyUnits), Math.round(s.monthlyProfit), Math.round(s.yearlyProfit)]); });
+      const sensWs = XLSX.utils.aoa_to_sheet(sensRows);
+      sensWs['!cols'] = [{ wch: 10 }, { wch: 12 }, { wch: 16 }, { wch: 16 }];
+      XLSX.utils.book_append_sheet(wb, sensWs, 'Sensitivity');
+
+      wb.Props = { Title: 'Medical Viability Report', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+      XLSX.writeFile(wb, 'bonds-medical-viability.xlsx');
+    }
+
+    function exportPDFMed() {
+      if (!window._medResult) { BondsUI.toast('⚠️ Calculate results first', 'warning'); return; }
+      const r = window._medResult;
+      const content = document.getElementById('resultContent').innerHTML;
+      openPrintWindow({ content: content, title: 'Medical Viability Report', headerTitle: `Medical Viability Report — ${ACTIVITIES[r.activity].name}`, lang: 'en' });
+    }
+
+    onActivityChange();
+    loadFromURL();
+  </script>
+
+  <script src="../../calculators/usage-guard.js"></script>
+  <script src="../../page-tracker-v2.js"></script>
+  <script src="../../site-layout.js"></script>
+</body>
+</html>

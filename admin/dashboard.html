@@ -393,7 +393,7 @@
       const tbody = document.getElementById('activityTable');
       const activities = (users || []).slice(0, 5).map(u => {
         const actions = ['تسجيل جديد', 'حساب مصنع', 'حفظ سيناريو', 'ترقية اشتراك'];
-        const details = ['عبر الموقع', 'دراسة جدوى', 'مشروع جديد', 'Free → Pro'];
+        const details = ['عبر الموقع', 'دراسة جدوى متكاملة', 'مشروع جديد', 'Free → Pro'];
         const idx = Math.floor(Math.random() * actions.length);
         return {
           user: u.restaurant_name || 'مستخدم',
@@ -445,7 +445,7 @@
       const tbody = document.getElementById('activityTable');
       const ACTIVITIES = [
         { user: 'أحمد محمد', action: 'حساب مصنع', detail: 'السعودية - 500 م²', time: 'منذ 5 دقائق' },
-        { user: 'سارة عبدالله', action: 'حفظ سيناريو', detail: 'دراسة جدوى - مصر', time: 'منذ 12 دقيقة' },
+        { user: 'سارة عبدالله', action: 'حفظ سيناريو', detail: 'دراسة جدوى متكاملة - مصر', time: 'منذ 12 دقيقة' },
         { user: 'محمد علي', action: 'ترقية اشتراك', detail: 'Free → Pro', time: 'منذ 30 دقيقة' },
         { user: 'فاطمة الزهراء', action: 'حساب تدفق نقدي', detail: '12 شهر - الأردن', time: 'منذ ساعة' },
         { user: 'خالد عمر', action: 'تسجيل جديد', detail: 'عبر Google', time: 'منذ ساعتين' },

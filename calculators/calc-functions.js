@@ -17,7 +17,18 @@
   if (typeof module === 'object' && module.exports) {
     module.exports = factory();
   } else {
-    root.BondsCalc = factory();
+    var exports = factory();
+    root.BondsCalc = exports;
+    // Global aliases for backwards compatibility with HTML inline scripts
+    if (typeof self !== 'undefined' && self === root) {
+      self.calculateBreakEven = exports.calculateBreakEven;
+      self.calculateLoan = exports.calculateLoan;
+      self.calculateDTI = exports.calculateDTI;
+      self.calculatePricing = exports.calculatePricing;
+      self.calculateCashFlow = exports.calculateCashFlow;
+      self.calculateFeasibility = exports.calculateFeasibility;
+      self.calculateMedicalViability = exports.calculateMedicalViability;
+    }
   }
 }(typeof self !== 'undefined' ? self : this, function () {
 
@@ -32,16 +43,23 @@
  * @param {number} quantity         – expected monthly quantity
  * @param {number} [taxRate=0]      – tax % (e.g. 15 for VAT)
  * @param {number} [zakatRate=0]    – zakat % (e.g. 2.5)
+ * @param {Object} [options]        – { platformFeePct, campaignDiscountPct, fixedCostBreakdown, variableCostBreakdown }
  */
-function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quantity, taxRate, zakatRate) {
+function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quantity, taxRate, zakatRate, options) {
   fixedCosts = fixedCosts || 0;
   variableCostPerUnit = variableCostPerUnit || 0;
   sellingPrice = sellingPrice || 0;
   quantity = quantity || 0;
   taxRate = (taxRate !== undefined && taxRate !== null) ? taxRate : 0;
   zakatRate = (zakatRate !== undefined && zakatRate !== null) ? zakatRate : 0;
+  options = options || {};
 
-  var contribution = sellingPrice - variableCostPerUnit;
+  var platformFeePct = options.platformFeePct || 0;
+  var campaignDiscountPct = options.campaignDiscountPct || 0;
+  var totalDeductionPct = platformFeePct + campaignDiscountPct;
+  var effectivePrice = sellingPrice * (1 - totalDeductionPct / 100);
+
+  var contribution = effectivePrice - variableCostPerUnit;
   var breakEvenUnits, breakEvenAmount;
 
   if (contribution > 0) {
@@ -55,7 +73,10 @@ function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quant
     breakEvenAmount = -1;
   }
 
-  var revenue = quantity * sellingPrice;
+  var revenue = quantity * effectivePrice;
+  var grossRevenue = quantity * sellingPrice;
+  var platformFeeAmount = quantity * sellingPrice * (platformFeePct / 100);
+  var campaignDiscountAmount = quantity * sellingPrice * (campaignDiscountPct / 100);
   var totalCost = fixedCosts + (variableCostPerUnit * quantity);
   var profit = revenue - totalCost;
 
@@ -64,7 +85,8 @@ function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quant
   var zakatAmount = profitAfterTax > 0 ? profitAfterTax * (zakatRate / 100) : 0;
   var netProfit = profitAfterTax - zakatAmount;
 
-  var profitMargin = revenue > 0 ? (netProfit / revenue) * 100 : 0;
+  // Standard profit margin is based on gross (listed) revenue, not net revenue after fees
+  var profitMargin = grossRevenue > 0 ? (netProfit / grossRevenue) * 100 : 0;
   var roi = totalCost > 0 ? (netProfit / totalCost) * 100 : 0;
 
   return {
@@ -72,6 +94,10 @@ function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quant
     breakEvenUnits,
     breakEvenAmount,
     revenue,
+    grossRevenue,
+    effectivePrice,
+    platformFeeAmount,
+    campaignDiscountAmount,
     totalCost,
     profit,
     taxAmount,
@@ -79,7 +105,9 @@ function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quant
     zakatAmount,
     netProfit,
     profitMargin,
-    roi
+    roi,
+    fixedCostBreakdown: options.fixedCostBreakdown || null,
+    variableCostBreakdown: options.variableCostBreakdown || null
   };
 }
 
@@ -184,8 +212,9 @@ function calculateDTI(installment, monthlyIncome) {
  * @param {number} [zakatRate=0]    – zakat % on profit after tax
  * @param {number} [volume=0]       – expected monthly sales volume
  * @param {number} [monthlyFixed=0] – monthly fixed costs
+ * @param {Object} [options]        – { platformFeePct, deliveryCostPerUnit, packagingCostPerUnit, cacPerUnit }
  */
-function calculatePricing(directCost, overheadCost, desiredMargin, taxRate, zakatRate, volume, monthlyFixed) {
+function calculatePricing(directCost, overheadCost, desiredMargin, taxRate, zakatRate, volume, monthlyFixed, options) {
   directCost = directCost || 0;
   overheadCost = overheadCost || 0;
   desiredMargin = desiredMargin || 0;
@@ -193,25 +222,48 @@ function calculatePricing(directCost, overheadCost, desiredMargin, taxRate, zaka
   zakatRate = zakatRate || 0;
   volume = volume || 0;
   monthlyFixed = monthlyFixed || 0;
+  options = options || {};
+
+  var platformFeePct = options.platformFeePct || 0;
+  var deliveryCostPerUnit = options.deliveryCostPerUnit || 0;
+  var packagingCostPerUnit = options.packagingCostPerUnit || 0;
+  var cacPerUnit = options.cacPerUnit || 0;
 
   var costPerUnit = directCost + overheadCost;
-  var priceBeforeTax = 0;
-  if (desiredMargin < 100) {
-    priceBeforeTax = costPerUnit / (1 - (desiredMargin / 100));
+  var totalCostPerUnit = costPerUnit + deliveryCostPerUnit + packagingCostPerUnit + cacPerUnit;
+
+  var priceBeforeFees = 0;
+  if (desiredMargin < 100 && desiredMargin > -100) {
+    priceBeforeFees = totalCostPerUnit / (1 - (desiredMargin / 100));
   }
 
-  var profitBeforeTax = priceBeforeTax - costPerUnit;
+  var priceBeforeTax = 0;
+  if (platformFeePct < 100) {
+    priceBeforeTax = priceBeforeFees / (1 - (platformFeePct / 100));
+  }
+
+  var platformFeeAmount = priceBeforeTax * (platformFeePct / 100);
+  var netRevenuePerUnit = priceBeforeTax - platformFeeAmount;
+  var profitBeforeTax = netRevenuePerUnit - totalCostPerUnit;
   var taxAmount = profitBeforeTax > 0 ? profitBeforeTax * (taxRate / 100) : 0;
   var profitAfterTax = profitBeforeTax - taxAmount;
   var zakatAmount = profitAfterTax > 0 ? profitAfterTax * (zakatRate / 100) : 0;
   var netProfitPerUnit = profitAfterTax - zakatAmount;
   var monthlyProfit = netProfitPerUnit * volume;
   var actualMargin = priceBeforeTax > 0 ? (netProfitPerUnit / priceBeforeTax) * 100 : 0;
-  var breakEvenPrice = costPerUnit + (volume > 0 ? monthlyFixed / volume : 0);
+  var netRequiredPerUnit = totalCostPerUnit + (volume > 0 ? monthlyFixed / volume : 0);
+  var breakEvenPrice = platformFeePct < 100 ? netRequiredPerUnit / (1 - platformFeePct / 100) : 0;
 
   return {
     costPerUnit,
+    totalCostPerUnit,
+    priceBeforeFees,
     priceBeforeTax,
+    platformFeePct,
+    platformFeeAmount,
+    deliveryCostPerUnit,
+    packagingCostPerUnit,
+    cacPerUnit,
     profitBeforeTax,
     taxAmount,
     profitAfterTax,
@@ -307,11 +359,19 @@ function calculateCashFlow(openingBalance, monthlyData) {
  * @param {Object} setupCosts   – { license, furniture, equipment, marketing, safety, other }
  * @param {Object} monthlyCosts – { rent, salaries, utilities, gasNet, supplies, ads, misc }
  * @param {Object} revenue      – { avgPrice, dailyOrders, workDays }
+ * @param {Object} [options]    – { platformFeePct, wasteRatePct, packagingCostPerOrder, deliveryCostPerOrder, monthlyGrowthPct }
  */
-function calculateFeasibility(setupCosts, monthlyCosts, revenue) {
+function calculateFeasibility(setupCosts, monthlyCosts, revenue, options) {
   setupCosts = setupCosts || {};
   monthlyCosts = monthlyCosts || {};
   revenue = revenue || {};
+  options = options || {};
+
+  var platformFeePct = options.platformFeePct || 0;
+  var wasteRatePct = options.wasteRatePct || 0;
+  var packagingCostPerOrder = options.packagingCostPerOrder || 0;
+  var deliveryCostPerOrder = options.deliveryCostPerOrder || 0;
+  var monthlyGrowthPct = options.monthlyGrowthPct || 0;
 
   var setupTotal = 0;
   for (var k in setupCosts) {
@@ -324,38 +384,105 @@ function calculateFeasibility(setupCosts, monthlyCosts, revenue) {
                      (monthlyCosts.gasNet || 0) +
                      (monthlyCosts.ads || 0) +
                      (monthlyCosts.misc || 0);
-  var monthlyVariable = monthlyCosts.supplies || 0;
-  var monthlyTotal = monthlyFixed + monthlyVariable;
-
+  var monthlySupplies = monthlyCosts.supplies || 0;
   var avgPrice = revenue.avgPrice || 0;
   var dailyOrders = revenue.dailyOrders || 0;
   var workDays = revenue.workDays || 0;
+  var monthlyOrderCount = dailyOrders * workDays;
 
-  var monthlyRevenue = avgPrice * dailyOrders * workDays;
-  var yearlyRevenue = monthlyRevenue * 12;
+  var suppliesPerOrder = monthlyOrderCount > 0 ? monthlySupplies / monthlyOrderCount : 0;
+  var effectiveOrderRevenue = avgPrice * (1 - platformFeePct / 100);
+  var effectiveOrderCost = suppliesPerOrder * (1 + wasteRatePct / 100) + packagingCostPerOrder + deliveryCostPerOrder;
+  var orderContribution = effectiveOrderRevenue - effectiveOrderCost;
 
-  var monthlyProfit = monthlyRevenue - monthlyTotal;
-  var yearlyProfit = monthlyProfit * 12;
-  var profitMargin = monthlyRevenue > 0 ? (monthlyProfit / monthlyRevenue) * 100 : 0;
+  // Monthly projections with optional growth
+  var monthlyProjections = [];
+  var totalYearlyRevenue = 0;
+  var totalYearlyProfit = 0;
+  var totalYearlyVariableCost = 0;
+  var totalPlatformFeeAmount = 0;
+  var totalWasteCost = 0;
+  var totalPackagingCost = 0;
+  var totalDeliveryCost = 0;
 
-  var beOrdersPerDay = (avgPrice * workDays) > 0 ? monthlyTotal / (avgPrice * workDays) : 0;
+  for (var m = 0; m < 12; m++) {
+    var growthFactor = Math.pow(1 + monthlyGrowthPct / 100, m);
+    var monthOrders = monthlyOrderCount * growthFactor;
+    var monthRevenue = effectiveOrderRevenue * monthOrders;
+    var monthSupplies = suppliesPerOrder * monthOrders;
+    var monthWaste = monthSupplies * (wasteRatePct / 100);
+    var monthPackaging = packagingCostPerOrder * monthOrders;
+    var monthDelivery = deliveryCostPerOrder * monthOrders;
+    var monthVariableCost = monthSupplies + monthWaste + monthPackaging + monthDelivery;
+    var monthPlatformFee = (avgPrice * monthOrders) * (platformFeePct / 100);
+    var monthProfit = monthRevenue - monthlyFixed - monthVariableCost;
+
+    monthlyProjections.push({
+      month: m + 1,
+      orders: monthOrders,
+      revenue: monthRevenue,
+      platformFee: monthPlatformFee,
+      supplies: monthSupplies,
+      waste: monthWaste,
+      packaging: monthPackaging,
+      delivery: monthDelivery,
+      variableCost: monthVariableCost,
+      fixedCost: monthlyFixed,
+      profit: monthProfit
+    });
+
+    totalYearlyRevenue += monthRevenue;
+    totalYearlyProfit += monthProfit;
+    totalYearlyVariableCost += monthVariableCost;
+    totalPlatformFeeAmount += monthPlatformFee;
+    totalWasteCost += monthWaste;
+    totalPackagingCost += monthPackaging;
+    totalDeliveryCost += monthDelivery;
+  }
+
+  var monthlyRevenue = totalYearlyRevenue / 12;
+  var yearlyRevenue = totalYearlyRevenue;
+  var monthlyVariable = totalYearlyVariableCost / 12;
+  var monthlyTotal = monthlyFixed + monthlyVariable;
+  var monthlyProfit = totalYearlyProfit / 12;
+  var yearlyProfit = totalYearlyProfit;
+  var profitMargin = yearlyRevenue > 0 ? (yearlyProfit / yearlyRevenue) * 100 : 0;
+
+  var beOrdersPerDay = (orderContribution * workDays) > 0 ? monthlyFixed / (orderContribution * workDays) : 0;
   var beOrdersPerMonth = beOrdersPerDay * workDays;
   var beRevenuePerMonth = beOrdersPerMonth * avgPrice;
 
   var roiMonths = monthlyProfit > 0 ? setupTotal / monthlyProfit : Infinity;
 
-  function calcScenario(dOrders) {
-    var mRev = avgPrice * dOrders * workDays;
-    var mProfit = mRev - monthlyTotal;
-    var margin = mRev > 0 ? (mProfit / mRev) * 100 : 0;
-    return { revenue: mRev, profit: mProfit, margin };
+  function calcScenario(dOrders, growth) {
+    var totalRev = 0;
+    var totalProfit = 0;
+    var totalOrders = 0;
+    for (var i = 0; i < 12; i++) {
+      var gf = Math.pow(1 + growth / 100, i);
+      var orders = dOrders * workDays * gf;
+      var rev = effectiveOrderRevenue * orders;
+      var supplies = suppliesPerOrder * orders;
+      var waste = supplies * (wasteRatePct / 100);
+      var packaging = packagingCostPerOrder * orders;
+      var delivery = deliveryCostPerOrder * orders;
+      var variable = supplies + waste + packaging + delivery;
+      var profit = rev - monthlyFixed - variable;
+      totalRev += rev;
+      totalProfit += profit;
+      totalOrders += orders;
+    }
+    var avgMonthlyRev = totalRev / 12;
+    var avgMonthlyProfit = totalProfit / 12;
+    var margin = avgMonthlyRev > 0 ? (avgMonthlyProfit / avgMonthlyRev) * 100 : 0;
+    return { revenue: avgMonthlyRev, profit: avgMonthlyProfit, margin, yearlyRevenue: totalRev, yearlyProfit: totalProfit };
   }
 
-  var pess = calcScenario(Math.round(dailyOrders * 0.6));
+  var pess = calcScenario(Math.round(dailyOrders * 0.6), monthlyGrowthPct);
   pess.dailyOrders = Math.round(dailyOrders * 0.6);
-  var exp = calcScenario(dailyOrders);
+  var exp = calcScenario(dailyOrders, monthlyGrowthPct);
   exp.dailyOrders = dailyOrders;
-  var opt = calcScenario(Math.round(dailyOrders * 1.4));
+  var opt = calcScenario(Math.round(dailyOrders * 1.4), monthlyGrowthPct);
   opt.dailyOrders = Math.round(dailyOrders * 1.4);
 
   var scenarios = {
@@ -378,12 +505,280 @@ function calculateFeasibility(setupCosts, monthlyCosts, revenue) {
     beOrdersPerMonth,
     beRevenuePerMonth,
     roiMonths,
-    scenarios
+    scenarios,
+    monthlyProjections,
+    platformFeePct,
+    platformFeeAmount: totalPlatformFeeAmount / 12,
+    yearlyPlatformFeeAmount: totalPlatformFeeAmount,
+    wasteRatePct,
+    wasteCost: totalWasteCost / 12,
+    yearlyWasteCost: totalWasteCost,
+    packagingCost: totalPackagingCost / 12,
+    yearlyPackagingCost: totalPackagingCost,
+    deliveryCost: totalDeliveryCost / 12,
+    yearlyDeliveryCost: totalDeliveryCost,
+    effectiveOrderRevenue,
+    effectiveOrderCost,
+    orderContribution,
+    monthlyGrowthPct
   };
 }
 
 // ============================================================================
-// 6. Restaurant Calculator Helpers (from calculators/restaurant.html)
+// 6. Medical Viability (calculators/medical-viability.html)
+// ============================================================================
+
+/**
+ * @param {Object} setupCosts   – { license, equipment, furniture, marketing, other }
+ * @param {Object} monthlyCosts – { rent, salaries, utilities, ads, misc, supplies, depreciation }
+ * @param {Object} revenue      – { unitPrice, dailyUnits, workDays }
+ * @param {Object} options      – { activity, monthlyGrowthPct, cogsRatio, expiryLossPct, insurancePct, discountPct,
+ *                                   doctorCommissionPct, consumablesPerVisit, noShowPct,
+ *                                   insuranceRejectionPct, reagentCostRatio, failedTestsPct }
+ */
+function calculateMedicalViability(setupCosts, monthlyCosts, revenue, options) {
+  setupCosts = setupCosts || {};
+  monthlyCosts = monthlyCosts || {};
+  revenue = revenue || {};
+  options = options || {};
+
+  const activity = options.activity || 'pharmacy';
+  const unitPrice = revenue.unitPrice || 0;
+  const dailyUnits = revenue.dailyUnits || 0;
+  const workDays = revenue.workDays || 0;
+  const monthlyGrowthPct = options.monthlyGrowthPct || 0;
+  const vatRate = options.vatRate || 0;
+  const zakatRate = options.zakatRate || 0;
+  const extraServiceRevenue = options.extraServiceRevenue || 0;
+  const extraServiceCost = options.extraServiceCost || 0;
+
+  const setupTotal = Object.keys(setupCosts).reduce(function(sum, k) {
+    return sum + (setupCosts[k] || 0);
+  }, 0);
+
+  const monthlyFixed = (monthlyCosts.rent || 0) +
+                       (monthlyCosts.salaries || 0) +
+                       (monthlyCosts.utilities || 0) +
+                       (monthlyCosts.ads || 0) +
+                       (monthlyCosts.misc || 0) +
+                       (monthlyCosts.depreciation || 0);
+
+  function calcMonth(dUnits, monthIndex) {
+    const growthFactor = Math.pow(1 + monthlyGrowthPct / 100, monthIndex);
+    const mUnits = dUnits * workDays * growthFactor;
+    const medicalGross = unitPrice * mUnits;
+    const mGross = medicalGross + extraServiceRevenue;
+    let mDeduction = 0;
+    let mVariable = 0;
+    let mVariableDetail = {};
+    let mLossDetail = {};
+
+    if (activity === 'pharmacy') {
+      const cogsRatio = options.cogsRatio || 0;
+      const expiryLossPct = options.expiryLossPct || 0;
+      const insurancePct = options.insurancePct || 0;
+      const discountPct = options.discountPct || 0;
+      const insuranceAmount = medicalGross * (insurancePct / 100);
+      const discountAmount = medicalGross * (discountPct / 100);
+      const cogsAmount = medicalGross * (cogsRatio / 100);
+      const expiryLoss = cogsAmount * (expiryLossPct / 100);
+      mDeduction = insuranceAmount + discountAmount;
+      mVariable = cogsAmount + expiryLoss;
+      mVariableDetail = { cogsAmount, expiryLoss };
+      mLossDetail = { insuranceAmount, discountAmount };
+    } else if (activity === 'clinic') {
+      const doctorCommissionPct = options.doctorCommissionPct || 0;
+      const consumablesPerVisit = options.consumablesPerVisit || 0;
+      const noShowPct = options.noShowPct || 0;
+      const insuranceRejectionPct = options.insuranceRejectionPct || 0;
+      const attendedUnits = mUnits * (1 - noShowPct / 100);
+      const noShowLoss = medicalGross * (noShowPct / 100);
+      const attendedRevenue = medicalGross - noShowLoss;
+      const insuranceRejectionAmount = attendedRevenue * (insuranceRejectionPct / 100);
+      mDeduction = noShowLoss + insuranceRejectionAmount;
+      const doctorCommissionPerVisit = unitPrice * (doctorCommissionPct / 100);
+      mVariable = (doctorCommissionPerVisit + consumablesPerVisit) * attendedUnits;
+      mLossDetail = { noShowLoss, insuranceRejectionAmount, attendedUnits };
+    } else if (activity === 'lab') {
+      const reagentCostRatio = options.reagentCostRatio || 0;
+      const failedTestsPct = options.failedTestsPct || 0;
+      const insurancePct = options.insurancePct || 0;
+      const insuranceAmount = medicalGross * (insurancePct / 100);
+      const reagentCost = medicalGross * (reagentCostRatio / 100);
+      const failedTestsCost = reagentCost * (failedTestsPct / 100);
+      mDeduction = insuranceAmount;
+      mVariable = reagentCost + failedTestsCost;
+      mVariableDetail = { reagentCost, failedTestsCost };
+      mLossDetail = { insuranceAmount };
+    }
+
+    const vatAmount = mGross * (vatRate / 100);
+    mDeduction += vatAmount;
+    mVariable += extraServiceCost;
+
+    const mNet = mGross - mDeduction;
+    let mProfit = mNet - monthlyFixed - mVariable;
+    let zakatAmount = 0;
+    if (zakatRate > 0 && mProfit > 0) {
+      zakatAmount = mProfit * (zakatRate / 100);
+      mProfit -= zakatAmount;
+    }
+
+    return {
+      month: monthIndex + 1,
+      units: mUnits,
+      grossRevenue: mGross,
+      medicalGross: medicalGross,
+      deduction: mDeduction,
+      vatAmount,
+      zakatAmount,
+      netRevenue: mNet,
+      variableCost: mVariable,
+      fixedCost: monthlyFixed,
+      profit: mProfit,
+      variableDetail: mVariableDetail,
+      lossDetail: mLossDetail
+    };
+  }
+
+  function aggregate(dUnits) {
+    const projections = [];
+    let totalGross = 0;
+    let totalDeduction = 0;
+    let totalNet = 0;
+    let totalVariable = 0;
+    let totalProfit = 0;
+    let totalVat = 0;
+    let totalZakat = 0;
+    for (let m = 0; m < 12; m++) {
+      const p = calcMonth(dUnits, m);
+      projections.push(p);
+      totalGross += p.grossRevenue;
+      totalDeduction += p.deduction;
+      totalNet += p.netRevenue;
+      totalVariable += p.variableCost;
+      totalProfit += p.profit;
+      totalVat += p.vatAmount;
+      totalZakat += p.zakatAmount;
+    }
+    return {
+      projections,
+      grossRevenue: totalGross / 12,
+      deductionAmount: totalDeduction / 12,
+      netRevenue: totalNet / 12,
+      variableCost: totalVariable / 12,
+      profit: totalProfit / 12,
+      vatAmount: totalVat / 12,
+      zakatAmount: totalZakat / 12,
+      yearlyGross: totalGross,
+      yearlyNet: totalNet,
+      yearlyProfit: totalProfit,
+      yearlyVat: totalVat,
+      yearlyZakat: totalZakat
+    };
+  }
+
+  const base = aggregate(dailyUnits);
+  const firstMonth = calcMonth(dailyUnits, 0);
+
+  const grossRevenue = base.grossRevenue;
+  const deductionAmount = base.deductionAmount;
+  const netRevenue = base.netRevenue;
+  const variableCost = base.variableCost;
+  const monthlyProfit = base.profit;
+  const yearlyRevenue = base.yearlyNet;
+  const yearlyProfit = base.yearlyProfit;
+  const profitMargin = yearlyRevenue > 0 ? (yearlyProfit / yearlyRevenue) * 100 : 0;
+
+  const monthlyUnitCount = dailyUnits * workDays;
+  const contributionPerUnit = monthlyUnitCount > 0 ? (firstMonth.netRevenue - firstMonth.variableCost) / monthlyUnitCount : 0;
+  const beUnitsPerDay = contributionPerUnit > 0 && workDays > 0 ? monthlyFixed / (contributionPerUnit * workDays) : 0;
+  const beUnitsPerMonth = beUnitsPerDay * workDays;
+  const beRevenuePerMonth = beUnitsPerMonth * unitPrice;
+
+  const roiMonths = monthlyProfit > 0 ? setupTotal / monthlyProfit : Infinity;
+
+  function calcScenario(dUnits) {
+    const agg = aggregate(dUnits);
+    const margin = agg.netRevenue > 0 ? (agg.profit / agg.netRevenue) * 100 : 0;
+    return { dailyUnits: dUnits, units: dUnits * workDays, revenue: agg.netRevenue, profit: agg.profit, margin: margin };
+  }
+
+  const scenarios = {
+    pessimistic: calcScenario(Math.round(dailyUnits * 0.6)),
+    expected: calcScenario(dailyUnits),
+    optimistic: calcScenario(Math.round(dailyUnits * 1.4))
+  };
+
+  function calcSensitivity(deltaPct) {
+    const dUnits = dailyUnits * (1 + deltaPct / 100);
+    const agg = aggregate(dUnits);
+    return { deltaPct, dailyUnits: dUnits, monthlyProfit: agg.profit, yearlyProfit: agg.yearlyProfit };
+  }
+
+  const sensitivity = {
+    minus20: calcSensitivity(-20),
+    minus10: calcSensitivity(-10),
+    plus10: calcSensitivity(10),
+    plus20: calcSensitivity(20)
+  };
+
+  // Preserve detail from expected month for UI extras
+  const firstDetail = base.projections[0];
+  let variableDetail = {};
+  let lossDetail = {};
+  if (activity === 'pharmacy') {
+    variableDetail = { cogsRatio: options.cogsRatio || 0, cogsAmount: firstDetail.variableDetail.cogsAmount, expiryLossPct: options.expiryLossPct || 0, expiryLoss: firstDetail.variableDetail.expiryLoss, insurancePct: options.insurancePct || 0, discountPct: options.discountPct || 0 };
+    lossDetail = { insuranceAmount: firstDetail.lossDetail.insuranceAmount, discountAmount: firstDetail.lossDetail.discountAmount };
+  } else if (activity === 'clinic') {
+    const doctorCommissionPerVisit = unitPrice * ((options.doctorCommissionPct || 0) / 100);
+    variableDetail = { doctorCommissionPct: options.doctorCommissionPct || 0, doctorCommissionPerVisit, consumablesPerVisit: options.consumablesPerVisit || 0, noShowPct: options.noShowPct || 0, insuranceRejectionPct: options.insuranceRejectionPct || 0 };
+    lossDetail = { noShowLoss: firstDetail.lossDetail.noShowLoss, insuranceRejectionAmount: firstDetail.lossDetail.insuranceRejectionAmount, attendedUnits: firstDetail.lossDetail.attendedUnits };
+  } else if (activity === 'lab') {
+    variableDetail = { reagentCostRatio: options.reagentCostRatio || 0, reagentCost: firstDetail.variableDetail.reagentCost, failedTestsPct: options.failedTestsPct || 0, failedTestsCost: firstDetail.variableDetail.failedTestsCost, insurancePct: options.insurancePct || 0 };
+    lossDetail = { insuranceAmount: firstDetail.lossDetail.insuranceAmount };
+  }
+
+  return {
+    activity,
+    setupTotal,
+    monthlyFixed,
+    monthlyVariable: variableCost,
+    monthlyTotal: monthlyFixed + variableCost,
+    grossRevenue,
+    deductionAmount,
+    netRevenue,
+    monthlyRevenue: netRevenue,
+    yearlyRevenue,
+    monthlyProfit,
+    yearlyProfit,
+    profitMargin,
+    beUnitsPerDay,
+    beUnitsPerMonth,
+    beRevenuePerMonth,
+    roiMonths,
+    scenarios,
+    sensitivity,
+    monthlyProjections: base.projections,
+    monthlyGrowthPct,
+    vatRate,
+    zakatRate,
+    vatAmount: base.vatAmount,
+    zakatAmount: base.zakatAmount,
+    yearlyVat: base.yearlyVat,
+    yearlyZakat: base.yearlyZakat,
+    extraServiceRevenue,
+    extraServiceCost,
+    variableDetail,
+    lossDetail,
+    unitPrice,
+    dailyUnits,
+    workDays
+  };
+}
+
+// ============================================================================
+// 7. Restaurant Calculator Helpers (from calculators/restaurant.html)
 // ============================================================================
 
 var INGREDIENT_UNITS = [
@@ -635,6 +1030,7 @@ return {
   calculatePricing,
   calculateCashFlow,
   calculateFeasibility,
+  calculateMedicalViability,
   INGREDIENT_UNITS,
   getUnitMultiplier,
   getEffectiveFee,

@@ -32,7 +32,8 @@ NEW_NAV_HTML = '''      <nav class="main-nav" id="mainNav">
               <a href="{calc_loan}">القرض والتمويل</a>
               <a href="{calc_restaurant}">المطاعم والسحابي</a>
               <a href="{calc_menu}">هندسة المنيو</a>
-              <a href="{calc_feasibility}">جدوى المطعم</a>
+              <a href="{calc_feasibility}">الجدوى المالية للمطعم</a>
+              <a href="{calc_medical}">الجدوى الطبية</a>
               <a href="{calc_invoice}">تحليل الفواتير</a>
               <a href="{calc_template}">نموذج دراسة الجدوى</a>
             </div>
@@ -60,6 +61,7 @@ def get_paths(rel_depth):
             'calc_restaurant': 'calculators/restaurant.html',
             'calc_menu': 'calculators/menu-engineering.html',
             'calc_feasibility': 'calculators/feasibility.html',
+            'calc_medical': 'calculators/medical-viability.html',
             'calc_invoice': 'calculators/invoice-analyzer.html',
             'calc_template': 'calculators/feasibility-template.html',
         }

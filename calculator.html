@@ -30,6 +30,7 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="calculators/shared-utils.js"></script>
+  <script src="calculators/calc-functions.js"></script>
   <style>
     .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
     @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
@@ -115,7 +116,8 @@
               <a href="calculators/loan.html">القرض والتمويل</a>
               <a href="calculators/restaurant.html">المطاعم والسحابي</a>
               <a href="calculators/menu-engineering.html">هندسة المنيو</a>
-              <a href="calculators/feasibility.html">جدوى المطعم</a>
+              <a href="calculators/feasibility.html">الجدوى المالية للمطعم</a>
+              <a href="calculators/medical-viability.html">الجدوى الطبية</a>
               <a href="calculators/invoice-analyzer.html">تحليل الفواتير</a>
               <a href="calculators/feasibility-template.html">نموذج دراسة الجدوى</a>
             </div>
@@ -156,27 +158,51 @@
         <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
           <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">بيانات مشروعك</h2>
           <div class="calc-input-group">
-            <label>التكاليف الثابتة (شهرية)</label>
+            <label>التكاليف الثابتة (شهرية) <abbr title="كل ما تدفعه شهرياً بغض النظر عن حجم المبيعات: إيجار، رواتب، فواتير">ⓘ</abbr></label>
             <input type="number" id="fixedCost" placeholder="مثلاً: 50000" min="0" />
+            <button type="button" onclick="toggleDetail('fixedCostDetail', this)" style="margin-top:0.5rem;background:transparent;border:none;color:var(--gold);font-size:0.85rem;cursor:pointer;">▼ تفصيل التكاليف الثابتة</button>
+            <div id="fixedCostDetail" style="display:none;margin-top:var(--space-3);padding:var(--space-3);background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;">
+              <div class="calc-input-group"><label style="font-size:0.8rem;">الإيجار <abbr title="الإيجار الشهري للموقع أو المستودع">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="rent" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">الرواتب <abbr title="الرواتب الثابتة شهرياً (لا تشمل العمالة المباشرة لكل وحدة)">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="salaries" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">كهرباء / ماء <abbr title="الفواتير الشهرية للكهرباء والماء والإنترنت">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="utilities" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">تراخيص <abbr title="رسوم الترخيص والتسجيل السنوية قسّمها على 12 شهراً">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="licenses" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">تسويق ثابت <abbr title="مصروفات التسويق والإعلان الثابتة كل شهر">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="marketing" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">أخرى <abbr title="أي تكاليف ثابتة شهرية أخرى">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="other" placeholder="0" min="0" /></div>
+            </div>
           </div>
           <div class="calc-input-group">
-            <label>سعر بيع الوحدة</label>
+            <label>سعر بيع الوحدة <abbr title="السعر النهائي الذي يدفعه العميل قبل العمولة أو الخصم">ⓘ</abbr></label>
             <input type="number" id="unitPrice" placeholder="مثلاً: 500" min="0" />
           </div>
           <div class="calc-input-group">
-            <label>التكلفة المتغيرة للوحدة</label>
+            <label>التكلفة المتغيرة للوحدة <abbr title="كل ما يكلفك إنتاج/بيع وحدة واحدة: مواد خام، عمالة مباشرة، تغليف">ⓘ</abbr></label>
             <input type="number" id="varCost" placeholder="مثلاً: 300" min="0" />
+            <button type="button" onclick="toggleDetail('varCostDetail', this)" style="margin-top:0.5rem;background:transparent;border:none;color:var(--gold);font-size:0.85rem;cursor:pointer;">▼ تفصيل التكاليف المتغيرة</button>
+            <div id="varCostDetail" style="display:none;margin-top:var(--space-3);padding:var(--space-3);background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;">
+              <div class="calc-input-group"><label style="font-size:0.8rem;">مواد خام <abbr title="تكلفة المواد الخام لكل وحدة منتجة">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="materials" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">عمالة <abbr title="أجرة العمالة المباشرة لكل وحدة">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="labor" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">تغليف <abbr title="تكلفة التغليف لكل وحدة">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="packaging" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label style="font-size:0.8rem;">أخرى <abbr title="أي تكاليف متغيرة أخرى لكل وحدة">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="other" placeholder="0" min="0" /></div>
+            </div>
           </div>
           <div class="calc-input-group">
-            <label>الكمية المتوقعة (شهرية)</label>
+            <label>الكمية المتوقعة (شهرية) <abbr title="عدد الوحدات أو الطلبات المتوقعة شهرياً">ⓘ</abbr></label>
             <input type="number" id="quantity" placeholder="مثلاً: 200" min="0" />
           </div>
           <div class="calc-input-group">
-            <label>نسبة الضريبة (%)</label>
+            <label>عمولة المنصة (%) <abbr title="نسبة ما تستقطعه منصة التوصيل/البيع من كل طلب (مثل: هنقرستيشن، جاهز، طلبات)">ⓘ</abbr></label>
+            <input type="number" id="platformFee" placeholder="مثلاً: 20" min="0" max="100" value="0" />
+          </div>
+          <div class="calc-input-group">
+            <label>خصم/حملة تسويقية (%) <abbr title="نسبة الخصم الذي تقدمه للعملاء عبر حملة أو كوبون (يُخصم من سعر البيع قبل احتساب العمولة)">ⓘ</abbr></label>
+            <input type="number" id="campaignDiscount" placeholder="مثلاً: 10" min="0" max="100" value="0" />
+          </div>
+          <div class="calc-input-group">
+            <label>نسبة الضريبة (%) <abbr title="نسبة الضريبة المضافة (VAT) — تُطبق فقط على الربح الموجب">ⓘ</abbr></label>
             <input type="number" id="taxRate" placeholder="مثلاً: 15" min="0" max="100" value="15" />
           </div>
           <div class="calc-input-group">
-            <label>نسبة الزكاة (%)</label>
+            <label>نسبة الزكاة (%) <abbr title="نسبة الزكاة السنوية المستحقة — تُطبق فقط على الربح الموجب">ⓘ</abbr></label>
             <input type="number" id="zakatRate" placeholder="مثلاً: 2.5" min="0" max="100" value="2.5" />
           </div>
           <button onclick="calculateAll()" class="btn btn-primary" style="width: 100%;">احسب النتائج</button>
@@ -198,12 +224,20 @@
                 <span id="resAmount" style="font-weight: 800; color: var(--text);">—</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">الإيرادات المتوقعة</span>
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">الإيرادات المتوقعة (قبل العمولة)</span>
                 <span id="resRevenue" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">الإيراد الصافي بعد العمولة</span>
+                <span id="resNetRevenue" style="font-weight: 800; color: var(--text);">—</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
                 <span style="color: var(--text-secondary); font-size: 0.9rem;">إجمالي التكاليف</span>
                 <span id="resTotalCost" style="font-weight: 800; color: var(--text);">—</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">إجمالي العمولات والخصومات</span>
+                <span id="resTotalDeductions" style="font-weight: 800; color: #dc2626;">—</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
                 <span style="color: var(--text-secondary); font-size: 0.9rem;">صافي الربح/الخسارة (قبل الضريبة)</span>
@@ -535,16 +569,58 @@
       return Math.round(n).toLocaleString('en-US');
     }
 
+    function toggleDetail(id, btn) {
+      var el = document.getElementById(id);
+      if (el.style.display === 'none') {
+        el.style.display = 'block';
+        btn.textContent = btn.textContent.replace('▼', '▲');
+      } else {
+        el.style.display = 'none';
+        btn.textContent = btn.textContent.replace('▲', '▼');
+      }
+    }
+
+    function sumDetails(selector) {
+      var total = 0;
+      document.querySelectorAll(selector).forEach(function(input) {
+        total += parseFloat(input.value) || 0;
+      });
+      return total;
+    }
+
+    function getDetailBreakdown(selector) {
+      var breakdown = {};
+      document.querySelectorAll(selector).forEach(function(input) {
+        breakdown[input.dataset.key] = parseFloat(input.value) || 0;
+      });
+      return breakdown;
+    }
+
+    function updateDetailTarget(selector, targetId) {
+      var target = document.getElementById(targetId);
+      if (!target) return;
+      var total = sumDetails(selector);
+      if (document.activeElement !== target && target.value === '') {
+        // only auto-fill if user hasn't manually edited the main field
+      }
+    }
+
     function getInputs() {
       var taxEl = document.getElementById('taxRate');
       var zakatEl = document.getElementById('zakatRate');
+      var platformFeeEl = document.getElementById('platformFee');
+      var campaignDiscountEl = document.getElementById('campaignDiscount');
       return {
         fixed: parseFloat(document.getElementById('fixedCost').value) || 0,
         price: parseFloat(document.getElementById('unitPrice').value) || 0,
         varCost: parseFloat(document.getElementById('varCost').value) || 0,
         qty: parseFloat(document.getElementById('quantity').value) || 0,
         taxRate: taxEl ? (parseFloat(taxEl.value) || 0) : 0,
-        zakatRate: zakatEl ? (parseFloat(zakatEl.value) || 0) : 0
+        zakatRate: zakatEl ? (parseFloat(zakatEl.value) || 0) : 0,
+        platformFeePct: platformFeeEl ? (parseFloat(platformFeeEl.value) || 0) : 0,
+        campaignDiscountPct: campaignDiscountEl ? (parseFloat(campaignDiscountEl.value) || 0) : 0,
+        fixedCostBreakdown: getDetailBreakdown('.fixed-detail'),
+        variableCostBreakdown: getDetailBreakdown('.var-detail')
       };
     }
 
@@ -552,30 +628,13 @@
     function calculate(inputs) {
       var memoKey = _calcMemo.key(inputs);
       if (_calcMemo.has(memoKey)) return _calcMemo.get(memoKey);
-      var contribution = inputs.price - inputs.varCost;
-      var breakEvenUnits, breakEvenAmount;
-      if (contribution > 0) {
-        breakEvenUnits = Math.ceil(inputs.fixed / contribution);
-        breakEvenAmount = breakEvenUnits * inputs.price;
-      } else if (inputs.fixed === 0 && contribution >= 0) {
-        breakEvenUnits = 0;
-        breakEvenAmount = 0;
-      } else {
-        breakEvenUnits = -1;
-        breakEvenAmount = -1;
-      }
-      var revenue = inputs.qty * inputs.price;
-      var totalCost = inputs.fixed + (inputs.varCost * inputs.qty);
-      var profit = revenue - totalCost;
-      var taxRate = (inputs.taxRate !== undefined && inputs.taxRate !== null) ? inputs.taxRate : 0;
-      var zakatRate = (inputs.zakatRate !== undefined && inputs.zakatRate !== null) ? inputs.zakatRate : 0;
-      var taxAmount = profit > 0 ? profit * (taxRate / 100) : 0;
-      var profitAfterTax = profit - taxAmount;
-      var zakatAmount = profitAfterTax > 0 ? profitAfterTax * (zakatRate / 100) : 0;
-      var netProfit = profitAfterTax - zakatAmount;
-      var profitMargin = revenue > 0 ? (netProfit / revenue) * 100 : 0;
-      var roi = totalCost > 0 ? (netProfit / totalCost) * 100 : 0;
-      var result = { contribution, breakEvenUnits, breakEvenAmount, revenue, totalCost, profit, taxAmount, profitAfterTax, zakatAmount, netProfit, profitMargin, roi };
+      var options = {
+        platformFeePct: inputs.platformFeePct,
+        campaignDiscountPct: inputs.campaignDiscountPct,
+        fixedCostBreakdown: inputs.fixedCostBreakdown,
+        variableCostBreakdown: inputs.variableCostBreakdown
+      };
+      var result = calculateBreakEven(inputs.fixed, inputs.varCost, inputs.price, inputs.qty, inputs.taxRate, inputs.zakatRate, options);
       _calcMemo.set(memoKey, result);
       return result;
     }
@@ -583,8 +642,10 @@
     function updateResults(r, inputs) {
       document.getElementById('resUnits').textContent = r.breakEvenUnits < 0 ? 'غير محققة' : formatNumberAR(r.breakEvenUnits) + ' وحدة';
       document.getElementById('resAmount').textContent = r.breakEvenAmount < 0 ? 'غير محققة' : formatNumberAR(r.breakEvenAmount) + ' ر.س';
-      document.getElementById('resRevenue').textContent = formatNumberAR(r.revenue) + ' ر.س';
+      document.getElementById('resRevenue').textContent = formatNumberAR(inputs.qty * inputs.price) + ' ر.س';
+      document.getElementById('resNetRevenue').textContent = formatNumberAR(r.revenue) + ' ر.س';
       document.getElementById('resTotalCost').textContent = formatNumberAR(r.totalCost) + ' ر.س';
+      document.getElementById('resTotalDeductions').textContent = formatNumberAR((r.platformFeeAmount || 0) + (r.campaignDiscountAmount || 0)) + ' ر.س';
 
       var profitEl = document.getElementById('resProfit');
       if (r.profit > 0) {
@@ -665,17 +726,21 @@
 
       // Steps
       var stepsHTML = '';
+      var effectivePrice = r.effectivePrice || inputs.price;
+      var totalDeductions = (r.platformFeeAmount || 0) + (r.campaignDiscountAmount || 0);
       if (r.contribution <= 0) {
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong style="color:#dc2626">⚠️ تنبيه:</strong> الهامش المساهم = ' + formatNumberAR(inputs.price) + ' − ' + formatNumberAR(inputs.varCost) + ' = ' + formatNumberAR(r.contribution) + ' ر.س (صفر أو سالب)</div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الإيرادات =</strong> ' + formatNumberAR(inputs.qty) + ' × ' + formatNumberAR(inputs.price) + ' = <strong>' + formatNumberAR(r.revenue) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong style="color:#dc2626">⚠️ تنبيه:</strong> الهامش المساهم الصافي = ' + formatNumberAR(inputs.price) + ' × (1 − ' + (inputs.platformFeePct + inputs.campaignDiscountPct) + '%) − ' + formatNumberAR(inputs.varCost) + ' = ' + formatNumberAR(r.contribution) + ' ر.س (صفر أو سالب)</div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الإيرادات الصافية =</strong> ' + formatNumberAR(inputs.qty) + ' × ' + formatNumberAR(effectivePrice) + ' = <strong>' + formatNumberAR(r.revenue) + ' ر.س</strong></div>';
         stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>التكاليف =</strong> ' + formatNumberAR(inputs.fixed) + ' + (' + formatNumberAR(inputs.qty) + ' × ' + formatNumberAR(inputs.varCost) + ') = <strong>' + formatNumberAR(r.totalCost) + ' ر.س</strong></div>';
         stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>صافي الربح/الخسارة =</strong> ' + formatNumberAR(r.revenue) + ' − ' + formatNumberAR(r.totalCost) + ' = <strong>' + formatNumberAR(r.profit) + ' ر.س</strong></div>';
       } else {
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 1:</strong> الهامش المساهم = ' + formatNumberAR(inputs.price) + ' − ' + formatNumberAR(inputs.varCost) + ' = <strong>' + formatNumberAR(r.contribution) + ' ر.س</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 2:</strong> نقطة التعادل = ' + formatNumberAR(inputs.fixed) + ' ÷ ' + formatNumberAR(r.contribution) + ' = <strong>' + formatNumberAR(r.breakEvenUnits) + ' وحدة</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 3:</strong> الإيرادات = ' + formatNumberAR(inputs.qty) + ' × ' + formatNumberAR(inputs.price) + ' = <strong>' + formatNumberAR(r.revenue) + ' ر.س</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 4:</strong> التكاليف = ' + formatNumberAR(inputs.fixed) + ' + (' + formatNumberAR(inputs.qty) + ' × ' + formatNumberAR(inputs.varCost) + ') = <strong>' + formatNumberAR(r.totalCost) + ' ر.س</strong></div>';
-        stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>الخطوة 5:</strong> الربح = ' + formatNumberAR(r.revenue) + ' − ' + formatNumberAR(r.totalCost) + ' = <strong>' + formatNumberAR(r.profit) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 1:</strong> السعر الصافي = ' + formatNumberAR(inputs.price) + ' × (1 − ' + (inputs.platformFeePct + inputs.campaignDiscountPct) + '%) = <strong>' + formatNumberAR(effectivePrice) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 2:</strong> الهامش المساهم = ' + formatNumberAR(effectivePrice) + ' − ' + formatNumberAR(inputs.varCost) + ' = <strong>' + formatNumberAR(r.contribution) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 3:</strong> نقطة التعادل = ' + formatNumberAR(inputs.fixed) + ' ÷ ' + formatNumberAR(r.contribution) + ' = <strong>' + formatNumberAR(r.breakEvenUnits) + ' وحدة</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 4:</strong> الإيرادات الصافية = ' + formatNumberAR(inputs.qty) + ' × ' + formatNumberAR(effectivePrice) + ' = <strong>' + formatNumberAR(r.revenue) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 5:</strong> العمولات والخصومات = <strong>' + formatNumberAR(totalDeductions) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>الخطوة 6:</strong> التكاليف = ' + formatNumberAR(inputs.fixed) + ' + (' + formatNumberAR(inputs.qty) + ' × ' + formatNumberAR(inputs.varCost) + ') = <strong>' + formatNumberAR(r.totalCost) + ' ر.س</strong></div>';
+        stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>الخطوة 7:</strong> الربح = ' + formatNumberAR(r.revenue) + ' − ' + formatNumberAR(r.totalCost) + ' = <strong>' + formatNumberAR(r.profit) + ' ر.س</strong></div>';
       }
       stepsArea.innerHTML = stepsHTML;
 
@@ -709,6 +774,7 @@
         date: new Date().toLocaleString('ar-SA'),
         fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: inputs.qty,
         taxRate: inputs.taxRate, zakatRate: inputs.zakatRate,
+        platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct,
         breakEven: r.breakEvenUnits, revenue: r.revenue, totalCost: r.totalCost,
         netProfit: r.netProfit, margin: r.profitMargin, roi: r.roi
       });
@@ -717,13 +783,14 @@
     function updateChart(inputs, r) {
       var ctx = document.getElementById('breakEvenChart').getContext('2d');
       var maxQty = Math.max(inputs.qty * 1.5, (r.breakEvenUnits > 0 ? r.breakEvenUnits : 0) * 1.5, 100);
+      var effectivePrice = r.effectivePrice || inputs.price;
       var labels = [];
       var revenueData = [];
       var costData = [];
       for (var i = 0; i <= 20; i++) {
         var q = Math.round((maxQty / 20) * i);
         labels.push(q);
-        revenueData.push(q * inputs.price);
+        revenueData.push(q * effectivePrice);
         costData.push(inputs.fixed + (inputs.varCost * q));
       }
 
@@ -814,8 +881,8 @@
         return;
       }
       var r = calculate(inputs);
-      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
-      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
 
       var wb = XLSX.utils.book_new();
       wb.Props = { Title: 'تقرير نقطة التعادل', Subject: 'Bonds Global', Author: 'bonds-global.com' };
@@ -826,11 +893,15 @@
         ['سعر البيع', parseFloat(inputs.price).toFixed(2)],
         ['التكلفة المتغيرة للوحدة', parseFloat(inputs.varCost).toFixed(2)],
         ['الكمية المتوقعة', inputs.qty],
+        ['عمولة المنصة (%)', inputs.platformFeePct + '%'],
+        ['خصم/حملة تسويقية (%)', inputs.campaignDiscountPct + '%'],
         ['نسبة الضريبة (%)', inputs.taxRate + '%'],
         ['نسبة الزكاة (%)', inputs.zakatRate + '%'],
         ['نقطة التعادل (وحدات)', r.breakEvenUnits < 0 ? 'غير محققة' : r.breakEvenUnits],
         ['نقطة التعادل (مبالغ)', r.breakEvenAmount < 0 ? 'غير محققة' : r.breakEvenAmount],
-        ['الإيرادات المتوقعة', r.revenue],
+        ['الإيرادات قبل العمولة', inputs.qty * inputs.price],
+        ['الإيرادات الصافية بعد العمولة', r.revenue],
+        ['إجمالي العمولات والخصومات', (r.platformFeeAmount || 0) + (r.campaignDiscountAmount || 0)],
         ['إجمالي التكاليف', r.totalCost],
         ['صافي الربح (قبل الضريبة)', r.profit],
         ['الضريبة', r.taxAmount],
@@ -869,7 +940,7 @@
         var row = [newPrice + ' ر.س'];
         qtyChanges.forEach(function(qc) {
           var newQty = Math.round(inputs.qty * qc);
-          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
           row.push(res.netProfit);
         });
         sensData.push(row);
@@ -884,8 +955,8 @@
     function updateScenarios(inputs, r) {
       var pessimisticQty = Math.round(inputs.qty * 0.8);
       var optimisticQty = Math.round(inputs.qty * 1.2);
-      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: pessimisticQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
-      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: optimisticQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: pessimisticQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: optimisticQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
 
       document.getElementById('pessimisticProfit').textContent = formatNumberAR(p.netProfit) + ' ر.س';
       document.getElementById('pessimisticProfit').style.color = p.netProfit >= 0 ? '#16a34a' : '#dc2626';
@@ -942,7 +1013,7 @@
         row.innerHTML = '<th>' + formatNumberAR(newPrice) + ' ر.س</th>';
         qtyChanges.forEach(function(qc) {
           var newQty = Math.round(inputs.qty * qc);
-          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
           var cell = document.createElement('td');
           cell.textContent = formatNumberAR(res.profit);
           cell.className = res.profit >= 0 ? 'positive' : 'negative';
@@ -961,6 +1032,8 @@
           price: inputs.price,
           varCost: inputs.varCost,
           qty: inputs.qty,
+          platformFeePct: inputs.platformFeePct,
+          campaignDiscountPct: inputs.campaignDiscountPct,
           profit: r.profit,
           breakEven: r.breakEvenUnits
         });
@@ -987,20 +1060,13 @@
             document.getElementById('unitPrice').value = item.price;
             document.getElementById('varCost').value = item.varCost;
             document.getElementById('quantity').value = item.qty;
+            document.getElementById('platformFee').value = item.platformFeePct || 0;
+            document.getElementById('campaignDiscount').value = item.campaignDiscountPct || 0;
             calculateAll();
           };
           list.appendChild(div);
         });
       });
-    }
-
-    function updateShareLink(inputs) {
-      var url = new URL(window.location.href);
-      url.searchParams.set('f', inputs.fixed);
-      url.searchParams.set('p', inputs.price);
-      url.searchParams.set('v', inputs.varCost);
-      url.searchParams.set('q', inputs.qty);
-      document.getElementById('shareLink').value = url.toString();
     }
 
     function copyLink() {
@@ -1055,8 +1121,8 @@
       }
       var r = calculate(inputs);
       await loadChartJS();
-      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
-      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
 
       var resUnits = r.breakEvenUnits < 0 ? 'N/A' : formatNumber(r.breakEvenUnits) + ' units';
       var resAmount = r.breakEvenAmount < 0 ? 'N/A' : formatNumber(r.breakEvenAmount) + ' SAR';
@@ -1101,7 +1167,11 @@
           ['Fixed Costs', parseFloat(inputs.fixed).toLocaleString('en-US') + ' SAR'],
           ['Unit Selling Price', parseFloat(inputs.price).toLocaleString('en-US') + ' SAR'],
           ['Variable Cost per Unit', parseFloat(inputs.varCost).toLocaleString('en-US') + ' SAR'],
-          ['Expected Quantity', parseFloat(inputs.qty).toLocaleString('en-US') + ' units']
+          ['Expected Quantity', parseFloat(inputs.qty).toLocaleString('en-US') + ' units'],
+          ['Platform Fee (%)', inputs.platformFeePct + '%'],
+          ['Campaign Discount (%)', inputs.campaignDiscountPct + '%'],
+          ['Tax Rate (%)', inputs.taxRate + '%'],
+          ['Zakat Rate (%)', inputs.zakatRate + '%']
         ],
         theme: 'striped',
         headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
@@ -1120,7 +1190,9 @@
         body: [
           ['Break-Even (Units)', resUnits],
           ['Break-Even (Amount)', resAmount],
-          ['Expected Revenue', resRevenue],
+          ['Gross Revenue', resRevenue],
+          ['Net Revenue after Fees', formatNumber(r.revenue) + ' SAR'],
+          ['Total Deductions', formatNumber((r.platformFeeAmount || 0) + (r.campaignDiscountAmount || 0)) + ' SAR'],
           ['Total Costs', resTotalCost],
           ['Net Profit / Loss', resProfit],
           ['Profit Margin (%)', r.profitMargin.toFixed(1) + '%'],
@@ -1242,7 +1314,7 @@
         var row = [formatNumber(newPrice) + ' SAR'];
         qtyChanges.forEach(function(qc) {
           var newQty = Math.round(inputs.qty * qc);
-          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
           row.push(formatNumber(res.netProfit));
         });
         sensBody.push(row);
@@ -1288,8 +1360,8 @@
         return;
       }
       var r = calculate(inputs);
-      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
-      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
 
       var beText = r.breakEvenUnits < 0 ? 'غير محققة' : formatNumberAR(r.breakEvenUnits) + ' وحدة';
       var beAmount = r.breakEvenAmount < 0 ? 'غير محققة' : formatNumberAR(r.breakEvenAmount) + ' ر.س';
@@ -1313,7 +1385,7 @@
         sensRows += '<td style="padding:6px; border:1px solid #ddd; font-weight:bold; font-size:12px;">' + formatNumberAR(newPrice) + ' ر.س</td>';
         qtyChanges.forEach(function(qc) {
           var newQty = Math.round(inputs.qty * qc);
-          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate });
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
           var color = res.netProfit >= 0 ? '#16a34a' : '#dc2626';
           sensRows += '<td style="padding:6px; border:1px solid #ddd; font-size:12px; color:' + color + ';">' + formatNumberAR(res.netProfit) + '</td>';
         });
@@ -1374,13 +1446,19 @@
             <tr><td style="font-weight:bold;">سعر البيع</td><td>${formatNumberAR(inputs.price)} ر.س</td></tr>
             <tr style="background:#f5f5f5;"><td style="font-weight:bold;">التكلفة المتغيرة</td><td>${formatNumberAR(inputs.varCost)} ر.س</td></tr>
             <tr><td style="font-weight:bold;">الكمية المتوقعة</td><td>${formatNumberAR(inputs.qty)} وحدة</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">عمولة المنصة (%)</td><td>${inputs.platformFeePct}%</td></tr>
+            <tr><td style="font-weight:bold;">خصم/حملة تسويقية (%)</td><td>${inputs.campaignDiscountPct}%</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">نسبة الضريبة (%)</td><td>${inputs.taxRate}%</td></tr>
+            <tr><td style="font-weight:bold;">نسبة الزكاة (%)</td><td>${inputs.zakatRate}%</td></tr>
           </table>
           
           <h3>النتائج</h3>
           <table>
             <tr style="background:#f5f5f5;"><td style="font-weight:bold;">نقطة التعادل (وحدات)</td><td>${beText}</td></tr>
             <tr><td style="font-weight:bold;">نقطة التعادل (مبالغ)</td><td>${beAmount}</td></tr>
-            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">الإيرادات المتوقعة</td><td>${formatNumberAR(r.revenue)} ر.س</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">الإيرادات قبل العمولة</td><td>${formatNumberAR(inputs.qty * inputs.price)} ر.س</td></tr>
+            <tr><td style="font-weight:bold;">الإيراد الصافي بعد العمولة</td><td>${formatNumberAR(r.revenue)} ر.س</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">إجمالي العمولات والخصومات</td><td>${formatNumberAR((r.platformFeeAmount || 0) + (r.campaignDiscountAmount || 0))} ر.س</td></tr>
             <tr><td style="font-weight:bold;">إجمالي التكاليف</td><td>${formatNumberAR(r.totalCost)} ر.س</td></tr>
             <tr style="background:#f5f5f5;"><td style="font-weight:bold;">صافي الربح/الخسارة (قبل الضريبة)</td><td class="${r.profit>=0?'positive':'negative'}">${profitText}</td></tr>
             <tr><td style="font-weight:bold;">الضريبة (${inputs.taxRate}%)</td><td class="negative">${formatNumberAR(r.taxAmount)} ر.س</td></tr>
@@ -1472,12 +1550,17 @@
       document.getElementById('unitPrice').value = '';
       document.getElementById('varCost').value = '';
       document.getElementById('quantity').value = '';
+      document.getElementById('platformFee').value = '0';
+      document.getElementById('campaignDiscount').value = '0';
       document.getElementById('taxRate').value = '15';
       document.getElementById('zakatRate').value = '2.5';
+      document.querySelectorAll('.fixed-detail, .var-detail').forEach(function(input) { input.value = ''; });
       document.getElementById('resUnits').textContent = '—';
       document.getElementById('resAmount').textContent = '—';
       document.getElementById('resRevenue').textContent = '—';
+      document.getElementById('resNetRevenue').textContent = '—';
       document.getElementById('resTotalCost').textContent = '—';
+      document.getElementById('resTotalDeductions').textContent = '—';
       document.getElementById('resProfit').textContent = '—';
       document.getElementById('resTax').textContent = '—';
       document.getElementById('resProfitAfterTax').textContent = '—';
@@ -1510,21 +1593,47 @@
       var p = url.searchParams.get('p');
       var v = url.searchParams.get('v');
       var q = url.searchParams.get('q');
+      var pf = url.searchParams.get('pf');
+      var cd = url.searchParams.get('cd');
       if (f) document.getElementById('fixedCost').value = f;
       if (p) document.getElementById('unitPrice').value = p;
       if (v) document.getElementById('varCost').value = v;
       if (q) document.getElementById('quantity').value = q;
+      if (pf) document.getElementById('platformFee').value = pf;
+      if (cd) document.getElementById('campaignDiscount').value = cd;
       if (p) calculateAll();
+    }
+
+    function updateShareLink(inputs) {
+      var url = new URL(window.location.href);
+      url.searchParams.set('f', inputs.fixed);
+      url.searchParams.set('p', inputs.price);
+      url.searchParams.set('v', inputs.varCost);
+      url.searchParams.set('q', inputs.qty);
+      url.searchParams.set('pf', inputs.platformFeePct);
+      url.searchParams.set('cd', inputs.campaignDiscountPct);
+      document.getElementById('shareLink').value = url.toString();
     }
 
     // Auto-save inputs with debounce
     var debouncedCalc = debounce(calculateAll, 300);
-    ['fixedCost', 'unitPrice', 'varCost', 'quantity', 'taxRate', 'zakatRate'].forEach(function(id) {
+    ['fixedCost', 'unitPrice', 'varCost', 'quantity', 'platformFee', 'campaignDiscount', 'taxRate', 'zakatRate'].forEach(function(id) {
       document.getElementById(id).addEventListener('input', function() {
         var inputs = getInputs();
         if (inputs.price > 0) {
           debouncedCalc();
         }
+      });
+    });
+    ['.fixed-detail', '.var-detail'].forEach(function(selector) {
+      document.querySelectorAll(selector).forEach(function(input) {
+        input.addEventListener('input', function() {
+          var targetId = input.dataset.target;
+          var target = document.getElementById(targetId);
+          if (target) target.value = sumDetails(selector);
+          var inputs = getInputs();
+          if (inputs.price > 0) debouncedCalc();
+        });
       });
     });
 

@@ -26,7 +26,7 @@ replacements = [
     ('القرض والتمويل</a>', 'Loan & Finance</a>'),
     ('المطاعم والسحابي</a>', 'Restaurants & Cloud</a>'),
     ('هندسة المنيو</a>', 'Menu Engineering</a>'),
-    ('جدوى المطعم</a>', 'Restaurant Feasibility</a>'),
+    ('الجدوى المالية للمطعم</a>', 'Restaurant Financial Viability</a>'),
     ('تحليل الفواتير</a>', 'Invoice Analyzer</a>'),
     ('نموذج دراسة الجدوى</a>', 'Feasibility Study</a>'),
     ('المدونة</a>', 'Blog</a>'),

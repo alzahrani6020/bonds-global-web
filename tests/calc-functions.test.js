@@ -5,6 +5,7 @@ const {
   calculatePricing,
   calculateCashFlow,
   calculateFeasibility,
+  calculateMedicalViability,
   INGREDIENT_UNITS,
   getUnitMultiplier,
   getEffectiveFee,
@@ -103,7 +104,34 @@ describe('calculateBreakEven', () => {
     expect(r.profitMargin).toBe(0);
     expect(r.roi).toBe(0);
   });
+
+  test('platform fee reduces effective revenue and raises break-even', () => {
+    const base = calculateBreakEven(10000, 300, 500, 100, 0, 0);
+    const withFee = calculateBreakEven(10000, 300, 500, 100, 0, 0, { platformFeePct: 20 });
+    expect(withFee.effectivePrice).toBe(400); // 500 * 0.8
+    expect(withFee.breakEvenUnits).toBeGreaterThan(base.breakEvenUnits);
+    expect(withFee.platformFeeAmount).toBe(10000); // 100 * 500 * 0.2
+  });
+
+  test('campaign discount further reduces effective revenue', () => {
+    const r = calculateBreakEven(10000, 300, 500, 100, 0, 0, { platformFeePct: 20, campaignDiscountPct: 10 });
+    expect(r.effectivePrice).toBe(350); // 500 * 0.7
+    expect(r.breakEvenUnits).toBe(200); // ceil(10000 / 50)
+  });
+
+  test('break-even amount and profit margin use gross selling price', () => {
+    const r = calculateBreakEven(10000, 300, 500, 100, 0, 0, { platformFeePct: 20 });
+    // break-even units = ceil(10000 / (400-300)) = 100
+    expect(r.breakEvenUnits).toBe(100);
+    // break-even amount should be gross revenue: 100 * 500 = 50000
+    expect(r.breakEvenAmount).toBe(50000);
+    // net revenue = 100 * 400 = 40000; total cost = 10000 + 300*100 = 40000; profit = 0
+    expect(r.profit).toBe(0);
+    // profit margin should be net profit / gross revenue
+    expect(r.profitMargin).toBe(0);
+  });
 });
+
 
 // ============================================================================
 // calculateLoan
@@ -255,6 +283,28 @@ describe('calculatePricing', () => {
     const r = calculatePricing(100, 0, -10, 0, 0, 10, 0);
     expect(r.priceBeforeTax).toBeCloseTo(90.91, 2); // 100 / 1.1
   });
+
+  test('platform fee, delivery, packaging and CAC increase required price', () => {
+    const base = calculatePricing(150, 50, 25, 15, 2.5, 500, 20000);
+    const full = calculatePricing(150, 50, 25, 15, 2.5, 500, 20000, { platformFeePct: 20, deliveryCostPerUnit: 5, packagingCostPerUnit: 3, cacPerUnit: 2 });
+    expect(full.totalCostPerUnit).toBe(210); // 200 + 5 + 3 + 2
+    expect(full.priceBeforeFees).toBeCloseTo(280, 2); // 210 / 0.75
+    expect(full.priceBeforeTax).toBeCloseTo(350, 2); // 280 / 0.8
+    expect(full.platformFeeAmount).toBeCloseTo(70, 2); // 350 * 0.2
+    expect(full.priceBeforeTax).toBeGreaterThan(base.priceBeforeTax);
+  });
+
+  test('all per-unit costs are included in break-even price', () => {
+    const r = calculatePricing(100, 50, 25, 0, 0, 100, 5000, { deliveryCostPerUnit: 5, packagingCostPerUnit: 3, cacPerUnit: 2 });
+    expect(r.totalCostPerUnit).toBe(160); // 150 + 5 + 3 + 2
+    expect(r.breakEvenPrice).toBeCloseTo(210, 1); // 160 + 5000/100
+  });
+
+  test('break-even price includes platform fee when present', () => {
+    const r = calculatePricing(100, 50, 25, 0, 0, 100, 0, { platformFeePct: 20 });
+    // net required per unit = 150, with 20% fee -> gross price = 150 / 0.8 = 187.5
+    expect(r.breakEvenPrice).toBeCloseTo(187.5, 1);
+  });
 });
 
 // ============================================================================
@@ -348,8 +398,10 @@ describe('calculateFeasibility', () => {
     expect(r.profitMargin).toBeCloseTo((39500 / 72800) * 100, 5);
     expect(r.roiMonths).toBeCloseTo(91000 / 39500, 5);
 
-    // Break-even
-    expect(r.beOrdersPerDay).toBeCloseTo(33300 / (35 * 26), 5);
+    // Break-even (based on contribution margin: price - supplies per order)
+    var suppliesPerOrder = 8000 / (80 * 26);
+    var orderContribution = 35 - suppliesPerOrder;
+    expect(r.beOrdersPerDay).toBeCloseTo(25300 / (orderContribution * 26), 5);
     expect(r.beOrdersPerMonth).toBeCloseTo(r.beOrdersPerDay * 26, 5);
 
     // Scenarios
@@ -407,6 +459,30 @@ describe('calculateFeasibility', () => {
     expect(r.setupTotal).toBe(5000);
     expect(r.monthlyFixed).toBe(3000);
     expect(r.monthlyVariable).toBe(0);
+  });
+
+  test('platform fee, waste, packaging and delivery reduce profit', () => {
+    const setup = { license: 5000, furniture: 40000, equipment: 30000, marketing: 8000, safety: 3000, other: 5000 };
+    const monthly = { rent: 8000, salaries: 12000, utilities: 1500, gasNet: 800, supplies: 8000, ads: 2000, misc: 1000 };
+    const revenue = { avgPrice: 35, dailyOrders: 80, workDays: 26 };
+    const base = calculateFeasibility(setup, monthly, revenue);
+    const withFees = calculateFeasibility(setup, monthly, revenue, { platformFeePct: 20, wasteRatePct: 10, packagingCostPerOrder: 2, deliveryCostPerOrder: 3 });
+    expect(withFees.monthlyProfit).toBeLessThan(base.monthlyProfit);
+    expect(withFees.platformFeeAmount).toBeGreaterThan(0);
+    expect(withFees.wasteCost).toBeGreaterThan(0);
+    expect(withFees.packagingCost).toBe(80 * 26 * 2);
+    expect(withFees.deliveryCost).toBe(80 * 26 * 3);
+  });
+
+  test('monthly growth increases yearly revenue', () => {
+    const setup = { license: 5000, furniture: 10000, equipment: 5000, marketing: 2000, safety: 1000, other: 0 };
+    const monthly = { rent: 5000, salaries: 10000, utilities: 1000, gasNet: 500, supplies: 3000, ads: 2000, misc: 500 };
+    const revenue = { avgPrice: 10, dailyOrders: 10, workDays: 20 };
+    const base = calculateFeasibility(setup, monthly, revenue);
+    const growth = calculateFeasibility(setup, monthly, revenue, { monthlyGrowthPct: 5 });
+    expect(growth.yearlyRevenue).toBeGreaterThan(base.yearlyRevenue);
+    expect(growth.monthlyProjections.length).toBe(12);
+    expect(growth.monthlyProjections[11].orders).toBeGreaterThan(growth.monthlyProjections[0].orders);
   });
 });
 
@@ -735,6 +811,126 @@ describe('parseIngredientsCSVText', () => {
     expect(parseIngredientsCSVText('\n\n')).toEqual([]);
   });
 });
+
+// ============================================================================
+// calculateMedicalViability
+// ============================================================================
+
+describe('calculateMedicalViability', () => {
+  const baseSetup = { license: 10000, equipment: 50000, furniture: 30000, marketing: 5000, other: 5000 };
+  const baseMonthly = { rent: 12000, salaries: 25000, utilities: 2000, ads: 2000, misc: 1000 };
+
+  test('pharmacy basic viability', () => {
+    const revenue = { unitPrice: 80, dailyUnits: 50, workDays: 26 };
+    const options = { activity: 'pharmacy', cogsRatio: 60, expiryLossPct: 3, insurancePct: 20, discountPct: 5 };
+    const r = calculateMedicalViability(baseSetup, baseMonthly, revenue, options);
+    expect(r.activity).toBe('pharmacy');
+    expect(r.setupTotal).toBe(100000);
+    expect(r.grossRevenue).toBe(80 * 50 * 26);
+    expect(r.deductionAmount).toBe(r.grossRevenue * 0.25);
+    const cogs = r.grossRevenue * 0.6;
+    expect(r.monthlyVariable).toBeCloseTo(cogs + cogs * 0.03, 2);
+    expect(r.scenarios.expected.dailyUnits).toBe(50);
+  });
+
+  test('clinic basic viability', () => {
+    const revenue = { unitPrice: 200, dailyUnits: 30, workDays: 26 };
+    const options = { activity: 'clinic', doctorCommissionPct: 30, consumablesPerVisit: 15, noShowPct: 5, insuranceRejectionPct: 5 };
+    const r = calculateMedicalViability(baseSetup, baseMonthly, revenue, options);
+    expect(r.activity).toBe('clinic');
+    const gross = revenue.unitPrice * revenue.dailyUnits * revenue.workDays;
+    const attended = revenue.dailyUnits * revenue.workDays * 0.95;
+    expect(r.grossRevenue).toBe(gross);
+    expect(r.netRevenue).toBeCloseTo(gross * 0.95 * 0.95, 2);
+    expect(r.monthlyVariable).toBeCloseTo((200 * 0.3 + 15) * attended, 2);
+  });
+
+  test('lab basic viability', () => {
+    const monthly = { ...baseMonthly, depreciation: 3000 };
+    const revenue = { unitPrice: 120, dailyUnits: 40, workDays: 26 };
+    const options = { activity: 'lab', reagentCostRatio: 35, failedTestsPct: 4, insurancePct: 15 };
+    const r = calculateMedicalViability(baseSetup, monthly, revenue, options);
+    expect(r.activity).toBe('lab');
+    expect(r.monthlyFixed).toBe(baseMonthly.rent + baseMonthly.salaries + baseMonthly.utilities + baseMonthly.ads + baseMonthly.misc + 3000);
+    const reagent = r.grossRevenue * 0.35;
+    expect(r.monthlyVariable).toBeCloseTo(reagent + reagent * 0.04, 2);
+  });
+
+  test('break-even calculation', () => {
+    const revenue = { unitPrice: 100, dailyUnits: 20, workDays: 26 };
+    const options = { activity: 'pharmacy', cogsRatio: 50, expiryLossPct: 0, insurancePct: 0, discountPct: 0 };
+    const monthly = { rent: 26000, salaries: 0, utilities: 0, ads: 0, misc: 0 };
+    const r = calculateMedicalViability({}, monthly, revenue, options);
+    // contribution per unit = 50, fixed = 26000, break-even per day = 26000/(50*26)=20
+    expect(r.beUnitsPerDay).toBe(20);
+    expect(r.beUnitsPerMonth).toBe(520);
+    expect(r.beRevenuePerMonth).toBe(520 * 100);
+  });
+
+  test('zero revenue returns safe values', () => {
+    const r = calculateMedicalViability({}, {}, {}, { activity: 'pharmacy' });
+    expect(r.monthlyRevenue).toBe(0);
+    expect(r.monthlyProfit).toBe(0);
+    expect(r.profitMargin).toBe(0);
+    expect(r.beUnitsPerDay).toBe(0);
+  });
+
+  test('roi calculation when profitable', () => {
+    const setup = { license: 120000 };
+    const monthly = { rent: 10000, salaries: 0, utilities: 0, ads: 0, misc: 0 };
+    const revenue = { unitPrice: 100, dailyUnits: 50, workDays: 26 };
+    const options = { activity: 'pharmacy', cogsRatio: 40, expiryLossPct: 0, insurancePct: 0, discountPct: 0 };
+    const r = calculateMedicalViability(setup, monthly, revenue, options);
+    // profit = 130000 - 10000 - 52000 = 68000, roi = 120000/68000 ~ 1.76
+    expect(r.roiMonths).toBeCloseTo(120000 / 68000, 2);
+  });
+
+  test('monthly growth increases yearly profit', () => {
+    const revenue = { unitPrice: 100, dailyUnits: 20, workDays: 26 };
+    const monthly = { rent: 10000, salaries: 0, utilities: 0, ads: 0, misc: 0 };
+    const baseOptions = { activity: 'pharmacy', cogsRatio: 40, expiryLossPct: 0, insurancePct: 0, discountPct: 0 };
+    const base = calculateMedicalViability({}, monthly, revenue, baseOptions);
+    const growth = calculateMedicalViability({}, monthly, revenue, { ...baseOptions, monthlyGrowthPct: 5 });
+    expect(growth.monthlyProjections.length).toBe(12);
+    expect(growth.monthlyProjections[11].units).toBeGreaterThan(growth.monthlyProjections[0].units);
+    expect(growth.yearlyProfit).toBeGreaterThan(base.yearlyProfit);
+  });
+
+  test('sensitivity improves with higher daily units', () => {
+    const revenue = { unitPrice: 100, dailyUnits: 30, workDays: 26 };
+    const monthly = { rent: 10000, salaries: 0, utilities: 0, ads: 0, misc: 0 };
+    const options = { activity: 'pharmacy', cogsRatio: 40, expiryLossPct: 0, insurancePct: 0, discountPct: 0 };
+    const r = calculateMedicalViability({}, monthly, revenue, options);
+    expect(r.sensitivity).toBeDefined();
+    expect(r.sensitivity.minus20.monthlyProfit).toBeLessThan(r.monthlyProfit);
+    expect(r.sensitivity.plus20.monthlyProfit).toBeGreaterThan(r.monthlyProfit);
+  });
+
+  test('vat and zakat reduce profit', () => {
+    const revenue = { unitPrice: 100, dailyUnits: 30, workDays: 26 };
+    const monthly = { rent: 10000, salaries: 0, utilities: 0, ads: 0, misc: 0 };
+    const baseOptions = { activity: 'pharmacy', cogsRatio: 40, expiryLossPct: 0, insurancePct: 0, discountPct: 0 };
+    const base = calculateMedicalViability({}, monthly, revenue, baseOptions);
+    const taxed = calculateMedicalViability({}, monthly, revenue, { ...baseOptions, vatRate: 15, zakatRate: 2.5 });
+    expect(taxed.vatAmount).toBeGreaterThan(0);
+    expect(taxed.zakatAmount).toBeGreaterThan(0);
+    expect(taxed.monthlyProfit).toBeLessThan(base.monthlyProfit);
+  });
+
+  test('service mix increases profit when contribution is positive', () => {
+    const revenue = { unitPrice: 100, dailyUnits: 20, workDays: 26 };
+    const monthly = { rent: 10000, salaries: 0, utilities: 0, ads: 0, misc: 0 };
+    const baseOptions = { activity: 'pharmacy', cogsRatio: 40, expiryLossPct: 0, insurancePct: 0, discountPct: 0 };
+    const base = calculateMedicalViability({}, monthly, revenue, baseOptions);
+    const mixed = calculateMedicalViability({}, monthly, revenue, { ...baseOptions, extraServiceRevenue: 10000, extraServiceCost: 3000 });
+    expect(mixed.extraServiceRevenue).toBe(10000);
+    expect(mixed.monthlyProfit).toBeGreaterThan(base.monthlyProfit);
+  });
+});
+
+// ============================================================================
+// calculateSensitivity
+// ============================================================================
 
 describe('calculateSensitivity', () => {
   const baseInputs = {
