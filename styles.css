@@ -88,3 +88,9 @@
   color: var(--gold);
   border-color: var(--gold);
 }
+
+/* Active state for dropdown nav items */
+.dropdown-toggle.active,
+.main-nav .dropdown-toggle.active {
+  color: var(--gold);
+}
