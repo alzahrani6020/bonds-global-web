@@ -38,49 +38,7 @@
 <body style="font-family:'Inter',system-ui,sans-serif">
 
   <!-- Header -->
-  <header class="main-header">
-    <div class="main-header__inner">
-      <a href="index.html" class="header-brand">
-        <img src="../assets/bonds-logo.jpg" alt="Bonds" />
-        <div class="brand-text">
-          <span class="brand-name">BONDS</span>
-          <span class="brand-tagline">CONSULTING</span>
-        </div>
-      </a>
-      <nav class="main-nav">
-        <ul>
-          <li><a href="index.html" class="active">Home</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="services.html">Services</a></li>
-          <li class="dropdown">
-            <span class="dropdown-toggle" style="cursor:pointer;">Guides ▾</span>
-            <div class="dropdown-menu">
-              <a href="sectors/manufacturing.html">Saudi Arabia</a>
-              <a href="sectors/manufacturing-eg.html">Egypt</a>
-              <a href="sectors/manufacturing-ae.html">UAE</a>
-              <a href="sectors/manufacturing-jo.html">Jordan</a>
-            </div>
-          </li>
-          <li class="dropdown">
-            <span class="dropdown-toggle" style="cursor:pointer;">Calculators ▾</span>
-            <div class="dropdown-menu">
-              <a href="calculator.html">Break-Even</a>
-              <a href="calculators/cash-flow.html">Cash Flow</a>
-              <a href="calculators/pricing.html">Pricing</a>
-              <a href="calculators/loan.html">Loan</a>
-            </div>
-          </li>
-          <li><a href="../blog/index.html">Insights</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav>
-      <div class="header-actions">
-        <a href="../index.html" class="lang-switch">العربية</a>
-        <a href="contact.html" class="btn-header">Book Consultation</a>
-        <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
-      </div>
-    </div>
-  </header>
+  <div id="site-header"></div>
 
   <!-- Page Hero -->
   <section class="hero" style="min-height: 50vh; padding: var(--space-20) 0;">
@@ -297,59 +255,7 @@
   </section>
 
   <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <img src="../assets/bonds-logo.jpg" alt="Bonds" />
-        <p>BONDS<br />Financial & Management Consulting</p>
-      </div>
-      <div>
-        <div class="footer-title">Services</div>
-        <div class="footer-links">
-          <a href="services.html">Financial Consulting</a>
-          <a href="services.html">Management Consulting</a>
-          <a href="services.html">Feasibility Studies</a>
-          <a href="services.html">Business Valuation</a>
-          <a href="services.html">Corporate Restructuring</a>
-          <a href="services.html">Risk & Governance</a>
-        </div>
-      </div>
-      <div>
-        <div class="footer-title">About Bonds</div>
-        <div class="footer-links">
-          <a href="about.html">About Us</a>
-          <a href="about.html">Our Values</a>
-          <a href="about.html">Our Team</a>
-          <a href="about.html">Partners</a>
-        </div>
-      </div>
-      <div>
-        <div class="footer-title">Knowledge Center</div>
-        <div class="footer-links">
-          <a href="../blog/index.html">Articles</a>
-          <a href="../blog/index.html">Reports</a>
-          <a href="../blog/index.html">FAQ</a>
-        </div>
-      </div>
-      <div>
-        <div class="footer-title">Legal</div>
-        <div class="footer-links">
-          <a href="../terms.html">Terms of Use</a>
-          <a href="../privacy.html">Privacy Policy</a>
-          <span>+966 11 123 4567</span>
-          <span>info@bonds-global.com</span>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>All rights reserved. Bonds Financial & Management Consulting © 2026</span>
-      <div class="footer-socials">
-        <a href="#">in</a>
-        <a href="#">X</a>
-        <a href="#">📷</a>
-      </div>
-    </div>
-  </footer>
+  <div id="site-footer"></div>
 
   <!-- WhatsApp Float -->
   <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp">💬</a>
@@ -378,5 +284,6 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
+<script src="../site-layout.js"></script>
 </body>
 </html>

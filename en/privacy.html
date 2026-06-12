@@ -19,57 +19,7 @@
 </head>
 <body>
   <!-- Header -->
-  <header class="main-header" id="header">
-    <div class="main-header__inner">
-      <a href="index.html" class="header-brand">
-        <img src="../assets/bonds-logo.jpg" alt="Bonds" />
-        <div class="brand-text">
-          <span class="brand-name">Bonds</span>
-          <span class="brand-tagline">BONDS CONSULTING</span>
-        </div>
-      </a>
-      <nav class="main-nav" id="mainNav">
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="services.html">Services</a></li>
-          <li class="dropdown">
-            <span class="dropdown-toggle">
-              Guides
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-            <div class="dropdown-menu">
-              <a href="sectors/manufacturing.html">🏭 Saudi Arabia</a>
-              <a href="sectors/manufacturing-eg.html">🏭 Egypt</a>
-              <a href="sectors/manufacturing-ae.html">🏭 UAE</a>
-              <a href="sectors/manufacturing-jo.html">🏭 Jordan</a>
-            </div>
-          </li>
-          <li class="dropdown">
-            <span class="dropdown-toggle">
-              Calculators
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-            <div class="dropdown-menu">
-              <a href="calculator.html">Break-Even</a>
-              <a href="calculators/cash-flow.html">Cash Flow</a>
-              <a href="calculators/pricing.html">Pricing</a>
-              <a href="calculators/loan.html">Loan</a>
-              <a href="calculators/restaurant.html">Restaurant</a>
-              <a href="calculators/menu-engineering.html">Menu Engineering</a>
-            </div>
-          </li>
-          <li><a href="../blog/index.html">Blog</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav>
-      <div class="header-actions">
-        <a href="../privacy.html" class="lang-switch">AR</a>
-        <a href="contact.html" class="btn-header">Book Consultation</a>
-        <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
-      </div>
-    </div>
-  </header>
+  <div id="site-header"></div>
 
   <!-- Page Hero -->
   <section class="hero" style="min-height: 45vh; padding: var(--space-16) 0;">
@@ -157,58 +107,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <img src="../assets/bonds-logo.jpg" alt="Bonds" />
-        <p>BONDS<br />Financial &amp; Management Consulting</p>
-      </div>
-      <div>
-        <div class="footer-title">Services</div>
-        <div class="footer-links">
-          <a href="services.html">Financial Consulting</a>
-          <a href="services.html">Management Consulting</a>
-          <a href="services.html">Feasibility Studies</a>
-          <a href="services.html">Business Valuation</a>
-          <a href="services.html">Restructuring</a>
-        </div>
-      </div>
-      <div>
-        <div class="footer-title">About Bonds</div>
-        <div class="footer-links">
-          <a href="about.html">Who We Are</a>
-          <a href="about.html">Our Values</a>
-          <a href="about.html">Team</a>
-          <a href="about.html">Partners</a>
-        </div>
-      </div>
-      <div>
-        <div class="footer-title">Knowledge Hub</div>
-        <div class="footer-links">
-          <a href="../blog/index.html">Articles</a>
-          <a href="../blog/index.html">Guides &amp; Reports</a>
-          <a href="../blog/index.html">FAQ</a>
-        </div>
-      </div>
-      <div>
-        <div class="footer-title">Legal</div>
-        <div class="footer-links">
-          <a href="terms.html">Terms of Use</a>
-          <a href="privacy.html">Privacy Policy</a>
-          <span>info@bonds-global.com</span>
-          <span>+966 11 123 4567</span>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>All rights reserved. Bonds Consulting © 2026</span>
-      <div class="footer-socials">
-        <a href="#">in</a>
-        <a href="#">X</a>
-        <a href="#">📷</a>
-      </div>
-    </div>
-  </footer>
+  <div id="site-footer"></div>
 
   <script>
     var navToggle = document.getElementById('navToggle');
@@ -223,5 +122,6 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
+<script src="../site-layout.js"></script>
 </body>
 </html>
