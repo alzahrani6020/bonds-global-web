@@ -135,6 +135,48 @@
       100% { filter: drop-shadow(0 30px 80px rgba(184,149,78,0.45)); }
     }
 
+    .hero-logo-wrap { position: relative; display: inline-block; z-index: 1; }
+    .hero-logo-b {
+      position: absolute;
+      top: 18%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 75px;
+      height: 100px;
+      z-index: 2;
+      pointer-events: none;
+      filter: drop-shadow(0 0 20px rgba(184,149,78,0.8));
+      animation: bLetterPulse 3s ease-in-out infinite, bLetterRotate 8s linear infinite;
+    }
+    .hero-logo-b svg { width: 100%; height: 100%; fill: url(#goldGradient); }
+    @keyframes bLetterPulse {
+      0%, 100% { opacity: 0.85; transform: translate(-50%, -50%) scale(1); filter: drop-shadow(0 0 15px rgba(184,149,78,0.6)); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); filter: drop-shadow(0 0 35px rgba(184,149,78,1)); }
+    }
+    @keyframes bLetterRotate {
+      0% { transform: translate(-50%, -50%) rotateY(0deg); }
+      50% { transform: translate(-50%, -50%) rotateY(8deg); }
+      100% { transform: translate(-50%, -50%) rotateY(0deg); }
+    }
+    .crystal-shine {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 70%, transparent 100%);
+      z-index: 3;
+      pointer-events: none;
+      animation: crystalShine 5s ease-in-out infinite;
+      mix-blend-mode: overlay;
+      border-radius: 20px;
+    }
+    @keyframes crystalShine {
+      0% { left: -100%; }
+      40% { left: 150%; }
+      100% { left: 150%; }
+    }
+
     .gold-lines { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
     .gold-line { position: absolute; height: 1px; width: 100%; background: linear-gradient(90deg, transparent, rgba(184,149,78,0.08), rgba(184,149,78,0.15), rgba(184,149,78,0.08), transparent); animation: flowLine linear infinite; }
     .gold-line:nth-child(1) { top: 25%; animation-duration: 20s; }
@@ -218,6 +260,8 @@
       .hero__left { order: 2; }
       .hero__right { order: 1; }
       .hero__right img { max-width: 250px; }
+      .hero-logo-b { width: 50px; height: 65px; top: 18%; }
+      .crystal-shine { width: 60%; }
       .hero__title { font-size: 2.2rem; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .services-grid { grid-template-columns: 1fr; }
@@ -261,7 +305,24 @@
         </div>
       </div>
       <div class="hero__right">
-        <img src="../assets/bonds-logo-2026.webp?v=2026" alt="Bonds" class="hero-logo-animated" />
+        <div class="hero-logo-wrap">
+          <img src="../assets/bonds-logo-2026.webp?v=2026" alt="Bonds" class="hero-logo-animated" />
+          <div class="crystal-shine"></div>
+          <div class="hero-logo-b" aria-hidden="true">
+            <svg viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f6e27a" />
+                  <stop offset="25%" stop-color="#d4a853" />
+                  <stop offset="50%" stop-color="#f0c96a" />
+                  <stop offset="75%" stop-color="#b8954e" />
+                  <stop offset="100%" stop-color="#f6e27a" />
+                </linearGradient>
+              </defs>
+              <path d="M25 5 L25 125 L62 125 C82 125 92 112 92 95 C92 80 83 70 70 67 C83 63 90 52 90 38 C90 18 76 5 55 5 L25 5 Z M42 22 L55 22 C65 22 72 28 72 38 C72 48 65 55 55 55 L42 55 L42 22 Z M42 72 L58 72 C70 72 76 79 76 91 C76 102 69 108 58 108 L42 108 L42 72 Z" />
+            </svg>
+          </div>
+        </div>
       </div>
     </div>
   </section>
