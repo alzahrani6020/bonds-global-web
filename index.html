@@ -255,6 +255,17 @@
       z-index: 1;
       filter: drop-shadow(0 30px 80px rgba(184,149,78,0.2));
       border-radius: 20px;
+      animation: heroLogoFloat 6s ease-in-out infinite, heroLogoGlow 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes heroLogoFloat {
+      0%, 100% { transform: translateY(0px) rotateY(0deg); }
+      50% { transform: translateY(-18px) rotateY(3deg); }
+    }
+
+    @keyframes heroLogoGlow {
+      0% { filter: drop-shadow(0 30px 80px rgba(184,149,78,0.2)); }
+      100% { filter: drop-shadow(0 40px 100px rgba(184,149,78,0.45)); }
     }
 
     /* Gold flowing lines */
@@ -639,7 +650,7 @@
         </div>
       </div>
       <div class="hero__right">
-        <img src="assets/bonds-logo-2026.webp?v=2026" alt="بوندز" />
+        <img src="assets/bonds-logo-2026.webp?v=2026" alt="بوندز" class="hero-logo-animated" />
       </div>
     </div>
   </section>
