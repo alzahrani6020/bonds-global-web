@@ -11,13 +11,13 @@
   "dir": "rtl",
   "icons": [
     {
-      "src": "/assets/bonds-logo-v2.webp",
+      "src": "/assets/bonds-logo-2026.webp",
       "sizes": "1536x1024",
       "type": "image/webp",
       "purpose": "any maskable"
     },
     {
-      "src": "/assets/bonds-logo-v2.webp",
+      "src": "/assets/bonds-logo-2026.webp",
       "sizes": "1536x1024",
       "type": "image/webp",
       "purpose": "any maskable"
@@ -26,7 +26,7 @@
   "categories": ["finance", "business", "productivity", "utilities"],
   "screenshots": [
     {
-      "src": "/assets/bonds-logo-v2.webp",
+      "src": "/assets/bonds-logo-2026.webp",
       "sizes": "1536x1024",
       "type": "image/webp",
       "form_factor": "wide",
