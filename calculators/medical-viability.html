@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>حاسبة الجدوى الطبية | بوندز — هل مشروعك الصحي مربح؟</title>
-  <meta name="description" content="احسب جدوى مشروعك الطبي قبل الافتتاح: صيدلية، عيادة، أو مختبر تحاليل. خذ بعين الاعتبار التكاليف، التأمين، التلف، ونقطة التعادل." />
-  <meta property="og:title" content="حاسبة الجدوى الطبية | بوندز" />
-  <meta property="og:description" content="حاسبة مجانية لحساب جدوى الصيدلية، العيادة، أو المختبر قبل الاستثمار." />
+  <title>محرك قرار الاستثمار الطبي | بوندز — حاسبة جدوى صيدلية، عيادة، مختبر</title>
+  <meta name="description" content="حاسبة جدوى طبية متقدمة مع مؤشر استثماري ذكي، توصيات مالية، وتحليل مخاطر. صيدلية، عيادة، أو مختبر — احسب قرارك قبل الاستثمار." />
+  <meta property="og:title" content="محرك قرار الاستثمار الطبي | بوندز" />
+  <meta property="og:description" content="حاسبة جدوى طبية متقدمة مع مؤشر استثماري ذكي وتوصيات مالية قبل الاستثمار." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo.jpg" />
   <meta property="og:url" content="https://bonds-global.com/calculators/medical-viability.html" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="حاسبة الجدوى الطبية | بوندز" />
-  <meta name="twitter:description" content="حاسبة مجانية لحساب جدوى الصيدلية، العيادة، أو المختبر قبل الاستثمار." />
+  <meta name="twitter:title" content="محرك قرار الاستثمار الطبي | بوندز" />
+  <meta name="twitter:description" content="حاسبة جدوى طبية متقدمة مع مؤشر استثماري ذكي وتوصيات مالية قبل الاستثمار." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -59,6 +59,52 @@
     .sensitivity-table th { background: rgba(212,168,83,0.12); color: var(--gold); font-weight: 800; }
     .sensitivity-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
     .chart-wrap { position: relative; height: 320px; margin-top: var(--space-4); }
+
+    /* Investment Decision Engine */
+    .investment-dashboard { background: linear-gradient(135deg, rgba(16,24,45,0.8), rgba(10,15,26,0.9)); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-bottom: var(--space-6); text-align: center; }
+    .dashboard-header { font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: var(--space-4); }
+    .score-gauge { position: relative; width: 180px; height: 180px; margin: 0 auto var(--space-4); }
+    .score-gauge svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .score-gauge circle { fill: none; }
+    .score-gauge .track { stroke: rgba(255,255,255,0.08); stroke-width: 10; }
+    .score-gauge .progress { stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1s ease-out; }
+    .score-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+    .score-value .num { font-size: 3rem; font-weight: 900; line-height: 1; }
+    .score-value .label { font-size: 0.8rem; color: var(--text-secondary); font-weight: 700; }
+    .verdict-badge { display: inline-block; padding: 0.6rem 1.4rem; border-radius: 999px; font-size: 1rem; font-weight: 800; margin-bottom: var(--space-3); }
+    .verdict-desc { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7; max-width: 500px; margin: 0 auto var(--space-4); }
+    .score-breakdown { display: flex; justify-content: center; gap: var(--space-4); flex-wrap: wrap; margin-top: var(--space-4); }
+    .breakdown-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: var(--space-3) var(--space-4); min-width: 110px; }
+    .breakdown-item .num { font-size: 1.1rem; font-weight: 800; }
+    .breakdown-item .label { font-size: 0.7rem; color: var(--text-secondary); font-weight: 700; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-4); margin: var(--space-6) 0; }
+    .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center; transition: all 0.3s; }
+    .kpi-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+    .kpi-card .icon { font-size: 1.6rem; margin-bottom: var(--space-2); }
+    .kpi-card .value { font-size: 1.5rem; font-weight: 900; color: var(--gold); line-height: 1.2; }
+    .kpi-card .label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-top: 0.25rem; }
+    .kpi-card .sub { font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.25rem; }
+
+    .recommendation-list { list-style: none; padding: 0; margin: var(--space-4) 0; text-align: right; }
+    .recommendation-list li { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: var(--space-3) var(--space-4); margin-bottom: var(--space-3); display: flex; align-items: flex-start; gap: 0.75rem; }
+    .recommendation-list li::before { content: '💡'; flex-shrink: 0; }
+
+    .cta-section { background: linear-gradient(135deg, rgba(212,168,83,0.12), rgba(59,130,246,0.08)); border: 1px solid rgba(212,168,83,0.25); border-radius: var(--radius-lg); padding: var(--space-8); text-align: center; margin-top: var(--space-8); }
+    .cta-section h3 { color: var(--gold); font-size: 1.3rem; font-weight: 800; margin-bottom: var(--space-3); }
+    .cta-section p { color: var(--text-secondary); margin-bottom: var(--space-5); }
+    .cta-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); max-width: 700px; margin: 0 auto var(--space-4); }
+    .cta-form input { padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text); font-family: inherit; }
+    .cta-form input::placeholder { color: var(--text-muted); }
+    .cta-success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #22c55e; padding: var(--space-4); border-radius: 12px; margin-top: var(--space-4); display: none; }
+
+    @media (max-width: 640px) {
+      .score-gauge { width: 150px; height: 150px; }
+      .score-value .num { font-size: 2.4rem; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .kpi-card { padding: var(--space-4) var(--space-3); }
+      .kpi-card .value { font-size: 1.15rem; }
+    }
   </style>
   <link rel="stylesheet" href="../header-footer.css?v=2" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -78,8 +124,8 @@
     <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
     <div class="container hero__content reveal">
       <span class="hero__eyebrow">أداة مجانية</span>
-      <h1 class="hero__title">حاسبة <span class="text-gradient">الجدوى الطبية</span></h1>
-      <p class="hero__desc">احسب جدوى صيدليتك، عيادتك، أو مختبرك قبل الاستثمار. تأخذ الحاسبة بعين الاعتبار التأمين، التلف، ونقطة التعادل.</p>
+      <h1 class="hero__title">محرك قرار <span class="text-gradient">الاستثمار الطبي</span></h1>
+      <p class="hero__desc">لا تكتفي بالأرقام — احصل على مؤشر استثماري، تحليل مخاطر، وتوصيات ذكية لقرارك في الصيدلية، العيادة، أو المختبر.</p>
     </div>
   </section>
 
@@ -363,86 +409,87 @@
       };
 
       const r = calculateMedicalViability(setupCosts, monthlyCosts, revenue, calcOptions);
-      window._medResult = r;
-
-      // Verdict
-      let verdictHTML = '';
-      if (r.monthlyProfit < 0) {
-        verdictHTML = `
-          <div class="verdict-box loss">
-            <div class="verdict-icon">🔴</div>
-            <div class="verdict-title" style="color:#ef4444;">تحذير: المشروع يتوقع خسارة</div>
-            <div class="verdict-text">
-              بمتوسط ${r.dailyUnits} ${config.unitLabel}/يوم، تتوقع خسارة <strong>${Math.abs(r.monthlyProfit).toLocaleString('ar-SA')} ر.س</strong> شهرياً.<br>
-              💡 لتحقيق التعادل تحتاج إلى <strong>${Math.ceil(r.beUnitsPerDay)} ${config.unitLabel}/يوم</strong>.
-            </div>
-          </div>`;
-      } else if (r.roiMonths > 36) {
-        verdictHTML = `
-          <div class="verdict-box warning">
-            <div class="verdict-icon">🟡</div>
-            <div class="verdict-title" style="color:#f59e0b;">مربح لكن بطيء الاسترداد</div>
-            <div class="verdict-text">
-              المشروع مربح ${r.monthlyProfit.toLocaleString('ar-SA')} ر.س/شهر، لكن يحتاج <strong>${Math.ceil(r.roiMonths)} شهر</strong> لاسترداد رأس المال.
-            </div>
-          </div>`;
-      } else {
-        verdictHTML = `
-          <div class="verdict-box profit">
-            <div class="verdict-icon">🟢</div>
-            <div class="verdict-title" style="color:#22c55e;">مشروع مبشر!</div>
-            <div class="verdict-text">
-              تتوقع ربح <strong>${r.monthlyProfit.toLocaleString('ar-SA')} ر.س</strong> شهرياً بهامش ${r.profitMargin.toFixed(1)}%.<br>
-              استرداد رأس المال خلال <strong>${r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths) + ' شهر'}</strong>.
-            </div>
-          </div>`;
-      }
+      const inv = calculateInvestmentScore(r);
+      window._medResult = Object.assign({}, r, { investmentScore: inv });
 
       const pess = r.scenarios.pessimistic;
       const exp = r.scenarios.expected;
       const opt = r.scenarios.optimistic;
 
+      const circumference = 339.292;
+      const offset = circumference * (1 - inv.score / 100);
+      const verdictClass = inv.verdict === 'excellent' || inv.verdict === 'good' ? 'profit' : (inv.verdict === 'fair' ? 'warning' : 'loss');
+      const verdictIcon = inv.verdict === 'excellent' ? '🚀' : (inv.verdict === 'good' ? '✅' : (inv.verdict === 'fair' ? '⚠️' : '🛑'));
+
+      const recommendationsHTML = inv.recommendations.map(function(rec) {
+        return `<li>${rec}</li>`;
+      }).join('');
+
       let extraMetrics = '';
       let extraSummary = '';
       if (activity === 'pharmacy') {
         extraMetrics = `
-          ${r.lossDetail.insuranceAmount > 0 ? `<div class="metric-box"><div class="label">تأثير التأمين/شهر</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
-          ${r.lossDetail.discountAmount > 0 ? `<div class="metric-box"><div class="label">تأثير الخصم/شهر</div><div class="value" style="color:#ef4444">${r.lossDetail.discountAmount.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
-          ${r.variableDetail.expiryLoss > 0 ? `<div class="metric-box"><div class="label">خسارة انتهاء الصلاحية/شهر</div><div class="value" style="color:#ef4444">${r.variableDetail.expiryLoss.toLocaleString('ar-SA')} ر.س</div></div>` : ''}`;
+          ${r.lossDetail.insuranceAmount > 0 ? `<div class="kpi-card"><div class="icon">🏥</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">تأثير التأمين/شهر</div></div>` : ''}
+          ${r.lossDetail.discountAmount > 0 ? `<div class="kpi-card"><div class="icon">🏷️</div><div class="value" style="color:#ef4444">${r.lossDetail.discountAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">تأثير الخصم/شهر</div></div>` : ''}
+          ${r.variableDetail.expiryLoss > 0 ? `<div class="kpi-card"><div class="icon">📅</div><div class="value" style="color:#ef4444">${r.variableDetail.expiryLoss.toLocaleString('ar-SA')} ر.س</div><div class="label">خسارة انتهاء الصلاحية/شهر</div></div>` : ''}`;
         extraSummary = `<p>• تأمين: ${r.lossDetail.insuranceAmount.toLocaleString('ar-SA')} ر.س | خصم: ${r.lossDetail.discountAmount.toLocaleString('ar-SA')} ر.س | تلف/انتهاء صلاحية: ${r.variableDetail.expiryLoss.toLocaleString('ar-SA')} ر.س</p>`;
       } else if (activity === 'clinic') {
         extraMetrics = `
-          ${r.lossDetail.noShowLoss > 0 ? `<div class="metric-box"><div class="label">خسارة الغياب/شهر</div><div class="value" style="color:#ef4444">${r.lossDetail.noShowLoss.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
-          ${r.lossDetail.insuranceRejectionAmount > 0 ? `<div class="metric-box"><div class="label">رفض التأمين/شهر</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceRejectionAmount.toLocaleString('ar-SA')} ر.س</div></div>` : ''}`;
+          ${r.lossDetail.noShowLoss > 0 ? `<div class="kpi-card"><div class="icon">🚫</div><div class="value" style="color:#ef4444">${r.lossDetail.noShowLoss.toLocaleString('ar-SA')} ر.س</div><div class="label">خسارة الغياب/شهر</div></div>` : ''}
+          ${r.lossDetail.insuranceRejectionAmount > 0 ? `<div class="kpi-card"><div class="icon">📝</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceRejectionAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">رفض التأمين/شهر</div></div>` : ''}`;
         extraSummary = `<p>• كشوفات حضور: ${Math.round(r.lossDetail.attendedUnits).toLocaleString('ar-SA')} | غياب: ${r.lossDetail.noShowLoss.toLocaleString('ar-SA')} ر.س | رفض تأمين: ${r.lossDetail.insuranceRejectionAmount.toLocaleString('ar-SA')} ر.س</p>`;
       } else if (activity === 'lab') {
         extraMetrics = `
-          ${r.lossDetail.insuranceAmount > 0 ? `<div class="metric-box"><div class="label">تأثير التأمين/شهر</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
-          ${r.variableDetail.failedTestsCost > 0 ? `<div class="metric-box"><div class="label">تكلفة التحاليل المعادة/شهر</div><div class="value" style="color:#ef4444">${r.variableDetail.failedTestsCost.toLocaleString('ar-SA')} ر.س</div></div>` : ''}`;
+          ${r.lossDetail.insuranceAmount > 0 ? `<div class="kpi-card"><div class="icon">🏥</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">تأثير التأمين/شهر</div></div>` : ''}
+          ${r.variableDetail.failedTestsCost > 0 ? `<div class="kpi-card"><div class="icon">🧪</div><div class="value" style="color:#ef4444">${r.variableDetail.failedTestsCost.toLocaleString('ar-SA')} ر.س</div><div class="label">تكلفة التحاليل المعادة/شهر</div></div>` : ''}`;
         extraSummary = `<p>• تأمين: ${r.lossDetail.insuranceAmount.toLocaleString('ar-SA')} ر.س | تحاليل معادة: ${r.variableDetail.failedTestsCost.toLocaleString('ar-SA')} ر.س</p>`;
       }
 
       if (window._medChart) { window._medChart.destroy(); window._medChart = null; }
 
       document.getElementById('resultContent').innerHTML = `
-        ${verdictHTML}
+        <div class="investment-dashboard reveal">
+          <div class="dashboard-header">مؤشر جاهزية الاستثمار — Investment Readiness Score</div>
+          <div class="score-gauge">
+            <svg viewBox="0 0 120 120">
+              <circle class="track" cx="60" cy="60" r="54"/>
+              <circle class="progress" cx="60" cy="60" r="54" stroke="${inv.verdictColor}" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/>
+            </svg>
+            <div class="score-value">
+              <div class="num" style="color:${inv.verdictColor}">${inv.score}</div>
+              <div class="label">من 100</div>
+            </div>
+          </div>
+          <div class="verdict-box ${verdictClass}" style="padding: var(--space-4); margin: 0 auto var(--space-4); max-width: 520px;">
+            <div class="verdict-icon" style="font-size:2rem;">${verdictIcon}</div>
+            <div class="verdict-title" style="color:${inv.verdictColor}; font-size:1.4rem;">${inv.verdictLabel}</div>
+            <div class="verdict-text">${inv.verdictDesc}</div>
+          </div>
+          <div class="score-breakdown">
+            <div class="breakdown-item"><div class="num" style="color:#22c55e">${inv.profitabilityScore}</div><div class="label">الربحية</div></div>
+            <div class="breakdown-item"><div class="num" style="color:#3b82f6">${inv.paybackScore}</div><div class="label">سرعة الاسترداد</div></div>
+            <div class="breakdown-item"><div class="num" style="color:#f59e0b">${inv.safetyScore}</div><div class="label">هامش السلامة</div></div>
+            <div class="breakdown-item"><div class="num" style="color:#a855f7">${inv.growthScore}</div><div class="label">النمو</div></div>
+          </div>
+        </div>
 
-        <div class="med-section-title">📈 النتائج الرئيسية</div>
-        <div class="metric-row">
-          <div class="metric-box"><div class="label">تكلفة الافتتاح</div><div class="value">${r.setupTotal.toLocaleString('ar-SA')} ر.س</div></div>
-          <div class="metric-box"><div class="label">الإيراد الإجمالي/شهر</div><div class="value">${r.grossRevenue.toLocaleString('ar-SA')} ر.س</div></div>
-          <div class="metric-box"><div class="label">الاستقطاعات/شهر</div><div class="value" style="color:#ef4444">${r.deductionAmount.toLocaleString('ar-SA')} ر.س</div></div>
-          <div class="metric-box"><div class="label">الإيراد الصافي/شهر</div><div class="value">${r.netRevenue.toLocaleString('ar-SA')} ر.س</div></div>
-          <div class="metric-box"><div class="label">التكاليف المتغيرة/شهر</div><div class="value" style="color:#ef4444">${r.monthlyVariable.toLocaleString('ar-SA')} ر.س</div></div>
-          <div class="metric-box"><div class="label">الربح الشهري</div><div class="value" style="color:${r.monthlyProfit>=0?'#22c55e':'#ef4444'}">${r.monthlyProfit.toLocaleString('ar-SA')} ر.س</div></div>
-          <div class="metric-box"><div class="label">هامش الربح</div><div class="value">${r.profitMargin.toFixed(1)}%</div></div>
-          <div class="metric-box"><div class="label">نقطة التعادل/يوم</div><div class="value">${Math.ceil(r.beUnitsPerDay)} ${config.unitLabel}</div></div>
-          <div class="metric-box"><div class="label">نقطة التعادل/شهر</div><div class="value">${Math.ceil(r.beUnitsPerMonth)} ${config.unitLabel}</div></div>
-          <div class="metric-box"><div class="label">استرداد رأس المال</div><div class="value">${r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths) + ' شهر'}</div></div>
+        <div class="med-section-title">🎯 التوصيات الذكية</div>
+        <ul class="recommendation-list">
+          ${recommendationsHTML}
+        </ul>
+
+        <div class="med-section-title">📊 المؤشرات الرئيسية</div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="icon">💰</div><div class="value">${r.monthlyProfit.toLocaleString('ar-SA')} ر.س</div><div class="label">الربح الشهري المتوقع</div><div class="sub">هامش ${r.profitMargin.toFixed(1)}%</div></div>
+          <div class="kpi-card"><div class="icon">⏱️</div><div class="value">${r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths) + ' شهر'}</div><div class="label">استرداد رأس المال</div><div class="sub">${r.setupTotal.toLocaleString('ar-SA')} ر.س استثمار</div></div>
+          <div class="kpi-card"><div class="icon">🎯</div><div class="value">${Math.ceil(r.beUnitsPerDay)} ${config.unitLabel}</div><div class="label">نقطة التعادل اليومية</div><div class="sub">أنت تخطط ${r.dailyUnits} ${config.unitLabel}/يوم</div></div>
+          <div class="kpi-card"><div class="icon">📈</div><div class="value">${r.grossRevenue.toLocaleString('ar-SA')} ر.س</div><div class="label">الإيراد الإجمالي/شهر</div><div class="sub">${r.dailyUnits * r.workDays} ${config.unitLabel}/شهر</div></div>
+          <div class="kpi-card"><div class="icon">🏗️</div><div class="value">${r.setupTotal.toLocaleString('ar-SA')} ر.س</div><div class="label">تكلفة الافتتاح</div><div class="sub">رأس مال مطلوب</div></div>
+          <div class="kpi-card"><div class="icon">📉</div><div class="value">${r.deductionAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الاستقطاعات/شهر</div><div class="sub">تأمين، خصم، ضريبة</div></div>
           ${extraMetrics}
-          ${r.vatAmount > 0 ? `<div class="metric-box"><div class="label">الضريبة/شهر</div><div class="value" style="color:#ef4444">${r.vatAmount.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
-          ${r.zakatAmount > 0 ? `<div class="metric-box"><div class="label">الزكاة/شهر</div><div class="value" style="color:#ef4444">${r.zakatAmount.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
-          ${r.extraServiceRevenue > 0 ? `<div class="metric-box"><div class="label">خدمات إضافية/شهر</div><div class="value">${r.extraServiceRevenue.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
+          ${r.vatAmount > 0 ? `<div class="kpi-card"><div class="icon">🏛️</div><div class="value" style="color:#ef4444">${r.vatAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الضريبة/شهر</div></div>` : ''}
+          ${r.zakatAmount > 0 ? `<div class="kpi-card"><div class="icon">🕌</div><div class="value" style="color:#ef4444">${r.zakatAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الزكاة/شهر</div></div>` : ''}
+          ${r.extraServiceRevenue > 0 ? `<div class="kpi-card"><div class="icon">🧬</div><div class="value">${r.extraServiceRevenue.toLocaleString('ar-SA')} ر.س</div><div class="label">خدمات إضافية/شهر</div></div>` : ''}
         </div>
 
         <div class="med-section-title">🎲 السيناريوهات</div>
@@ -494,6 +541,19 @@
           <p>• ربح شهري: ${r.monthlyProfit.toLocaleString('ar-SA')} ر.س | ربح سنوي: ${r.yearlyProfit.toLocaleString('ar-SA')} ر.س | هامش: ${r.profitMargin.toFixed(1)}%</p>
           <p style="margin-top:0.5rem;"><strong>🎯 نقطة التعادل:</strong></p>
           <p>• يومياً: ${Math.ceil(r.beUnitsPerDay)} ${config.unitLabel} | شهرياً: ${Math.ceil(r.beUnitsPerMonth)} ${config.unitLabel} | إيراد: ${r.beRevenuePerMonth.toLocaleString('ar-SA')} ر.س</p>
+        </div>
+
+        <div class="cta-section reveal">
+          <h3>🚀 هل تريد دراسة جدوى احترافية؟</h3>
+          <p>احصل على تقرير مالي مفصل + خطة تشغيلية + تحليل مخاطر من خبراء بوندز. نتواصل معك خلال 24 ساعة.</p>
+          <form class="cta-form" onsubmit="return submitLeadForm(event)">
+            <input type="text" id="leadName" placeholder="الاسم الكامل" required />
+            <input type="tel" id="leadPhone" placeholder="رقم الجوال" required />
+            <input type="email" id="leadEmail" placeholder="البريد الإلكتروني (اختياري)" />
+            <input type="text" id="leadCity" placeholder="المدينة" />
+            <button type="submit" class="bonds-btn bonds-btn-primary" style="grid-column: 1 / -1; max-width: 320px; margin: 0 auto;">اطلب دراستك المجانية</button>
+          </form>
+          <div id="ctaSuccess" class="cta-success">✅ تم إرسال طلبك. سيتواصل معك فريق بوندز قريباً.</div>
         </div>
 
         <div style="text-align:center; margin-top: var(--space-6); display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
@@ -645,6 +705,44 @@
       const r = window._medResult;
       const content = document.getElementById('resultContent').innerHTML;
       openPrintWindow({ content: content, title: 'تقرير الجدوى الطبية', headerTitle: `تقرير الجدوى الطبية — ${ACTIVITIES[r.activity].name}` });
+    }
+
+    async function submitLeadForm(e) {
+      e.preventDefault();
+      const r = window._medResult;
+      const payload = {
+        name: document.getElementById('leadName').value,
+        phone: document.getElementById('leadPhone').value,
+        email: document.getElementById('leadEmail').value || '',
+        city: document.getElementById('leadCity').value || '',
+        activity: r ? ACTIVITIES[r.activity].name : '',
+        score: r && r.investmentScore ? r.investmentScore.score : 0,
+        verdict: r && r.investmentScore ? r.investmentScore.verdictLabel : '',
+        monthlyProfit: r ? r.monthlyProfit : 0,
+        url: window.location.href,
+        source: 'medical-viability-calculator'
+      };
+
+      // Try API first, fallback to mailto/WhatsApp
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          document.getElementById('ctaSuccess').style.display = 'block';
+          e.target.reset();
+          return;
+        }
+      } catch (err) {
+        // fallback below
+      }
+
+      const msg = `طلب دراسة جدوى طبية:%0Aالاسم: ${payload.name}%0Aالجوال: ${payload.phone}%0Aالمدينة: ${payload.city}%0Aالنشاط: ${payload.activity}%0Aمؤشر الاستثمار: ${payload.score}/100 (${payload.verdict})`;
+      window.open(`https://wa.me/966567566616?text=${msg}`, '_blank');
+      document.getElementById('ctaSuccess').style.display = 'block';
+      e.target.reset();
     }
 
     onActivityChange();

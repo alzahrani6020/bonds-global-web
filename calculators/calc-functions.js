@@ -28,6 +28,7 @@
       self.calculateCashFlow = exports.calculateCashFlow;
       self.calculateFeasibility = exports.calculateFeasibility;
       self.calculateMedicalViability = exports.calculateMedicalViability;
+      self.calculateInvestmentScore = exports.calculateInvestmentScore;
     }
   }
 }(typeof self !== 'undefined' ? self : this, function () {
@@ -778,6 +779,149 @@ function calculateMedicalViability(setupCosts, monthlyCosts, revenue, options) {
 }
 
 // ============================================================================
+// 6b. Investment Readiness Score
+// ============================================================================
+
+/**
+ * Calculates an Investment Readiness Score (0-100) from a viability result.
+ * @param {Object} result – output from calculateMedicalViability or similar
+ */
+function calculateInvestmentScore(result) {
+  result = result || {};
+  const profitMargin = result.profitMargin || 0;
+  const roiMonths = result.roiMonths === Infinity ? 999 : (result.roiMonths || 999);
+  const dailyUnits = result.dailyUnits || 0;
+  const beUnitsPerDay = result.beUnitsPerDay || 0;
+  const monthlyGrowthPct = result.monthlyGrowthPct || 0;
+  const monthlyProfit = result.monthlyProfit || 0;
+
+  // 1. Profitability (0-40 points)
+  let profitabilityScore = 0;
+  if (monthlyProfit > 0) {
+    if (profitMargin >= 25) profitabilityScore = 40;
+    else if (profitMargin >= 20) profitabilityScore = 35;
+    else if (profitMargin >= 15) profitabilityScore = 28;
+    else if (profitMargin >= 10) profitabilityScore = 20;
+    else if (profitMargin >= 5) profitabilityScore = 12;
+    else profitabilityScore = 6;
+  }
+
+  // 2. Payback speed (0-30 points)
+  let paybackScore = 0;
+  if (roiMonths <= 12) paybackScore = 30;
+  else if (roiMonths <= 18) paybackScore = 25;
+  else if (roiMonths <= 24) paybackScore = 20;
+  else if (roiMonths <= 30) paybackScore = 15;
+  else if (roiMonths <= 36) paybackScore = 10;
+  else if (roiMonths <= 48) paybackScore = 5;
+
+  // 3. Safety margin above break-even (0-20 points)
+  let safetyScore = 0;
+  if (beUnitsPerDay > 0) {
+    const safetyMargin = ((dailyUnits - beUnitsPerDay) / beUnitsPerDay) * 100;
+    if (safetyMargin >= 80) safetyScore = 20;
+    else if (safetyMargin >= 50) safetyScore = 16;
+    else if (safetyMargin >= 25) safetyScore = 12;
+    else if (safetyMargin >= 10) safetyScore = 8;
+    else if (safetyMargin > 0) safetyScore = 4;
+  } else if (dailyUnits > 0) {
+    safetyScore = 20;
+  }
+
+  // 4. Growth trajectory (0-10 points)
+  let growthScore = 0;
+  if (monthlyGrowthPct >= 10) growthScore = 10;
+  else if (monthlyGrowthPct >= 5) growthScore = 7;
+  else if (monthlyGrowthPct >= 3) growthScore = 5;
+  else if (monthlyGrowthPct > 0) growthScore = 3;
+
+  const total = profitabilityScore + paybackScore + safetyScore + growthScore;
+
+  // Verdict
+  let verdict = 'critical';
+  let verdictLabel = 'حرج';
+  let verdictLabelEn = 'Critical';
+  let verdictDesc = 'المشروع غير مجدي حالياً. يحتاج إعادة هيكلة شاملة للتكاليف والإيرادات.';
+  let verdictDescEn = 'The project is currently not viable. It needs a full restructuring of costs and revenue.';
+  let verdictColor = '#ef4444';
+
+  if (total >= 80) {
+    verdict = 'excellent';
+    verdictLabel = 'ممتاز';
+    verdictLabelEn = 'Excellent';
+    verdictDesc = 'استثمار قوي ومبشر. المؤشرات المالية صحية وفترة الاسترداد مقبولة.';
+    verdictDescEn = 'A strong and promising investment. Financial indicators are healthy and payback is reasonable.';
+    verdictColor = '#22c55e';
+  } else if (total >= 60) {
+    verdict = 'good';
+    verdictLabel = 'جيد';
+    verdictLabelEn = 'Good';
+    verdictDesc = 'مشروع قابل للتنفيذ. أنصح بدراسة تفصيلية قبل الافتتاح.';
+    verdictDescEn = 'The project is feasible. We recommend a detailed study before opening.';
+    verdictColor = '#84cc16';
+  } else if (total >= 40) {
+    verdict = 'fair';
+    verdictLabel = 'متوسط';
+    verdictLabelEn = 'Fair';
+    verdictDesc = 'المشروع يعمل لكن يحتاج تحسينات واضحة لزيادة الربحية وتقليل المخاطر.';
+    verdictDescEn = 'The project works but needs clear improvements to increase profitability and reduce risk.';
+    verdictColor = '#f59e0b';
+  } else if (total >= 20) {
+    verdict = 'weak';
+    verdictLabel = 'ضعيف';
+    verdictLabelEn = 'Weak';
+    verdictDesc = 'مخاطر عالية. يحتاج إلى تعديلات جوهرية قبل اتخاذ قرار الاستثمار.';
+    verdictDescEn = 'High risk. Material changes are needed before making an investment decision.';
+    verdictColor = '#f97316';
+  }
+
+  // Smart recommendations
+  const recommendationsAr = [];
+  const recommendationsEn = [];
+  if (monthlyProfit < 0) {
+    recommendationsAr.push('الربح الشهري سلبي: راجع التكاليف الثابتة أو زد الإيرادات اليومية.');
+    recommendationsEn.push('Monthly profit is negative: review fixed costs or increase daily revenue.');
+  }
+  if (roiMonths > 36) {
+    recommendationsAr.push('فترة استرداد رأس المال طويلة: جرب تقليل تكلفة الافتتاح أو زيادة هامش الربح.');
+    recommendationsEn.push('Payback period is long: try reducing setup costs or increasing profit margin.');
+  }
+  if (profitMargin < 10) {
+    recommendationsAr.push('هامش الربح منخفض: راجع التسعير أو التكاليف المتغيرة.');
+    recommendationsEn.push('Profit margin is low: review pricing or variable costs.');
+  }
+  if (beUnitsPerDay > 0 && ((dailyUnits - beUnitsPerDay) / beUnitsPerDay) < 0.1) {
+    recommendationsAr.push('هامش السلامة ضيق: عدد الوحدات اليومية قريب جداً من نقطة التعادل.');
+    recommendationsEn.push('Safety margin is tight: daily units are very close to break-even.');
+  }
+  if (monthlyGrowthPct === 0) {
+    recommendationsAr.push('لا يوجد نمو شهري محدد: ضع خطة تسويقية لزيادة الطلب تدريجياً.');
+    recommendationsEn.push('No monthly growth set: create a marketing plan to gradually increase demand.');
+  }
+  if (recommendationsAr.length === 0) {
+    recommendationsAr.push('المؤشرات جيدة. أنصح بإعداد دراسة جدوى تفصيلية للحصول على تمويل أو موافقة الشركاء.');
+    recommendationsEn.push('Indicators look good. We recommend preparing a detailed feasibility study for funding or partner approval.');
+  }
+
+  return {
+    score: Math.round(total),
+    maxScore: 100,
+    verdict,
+    verdictLabel,
+    verdictLabelEn,
+    verdictDesc,
+    verdictDescEn,
+    verdictColor,
+    profitabilityScore,
+    paybackScore,
+    safetyScore,
+    growthScore,
+    recommendations: recommendationsAr,
+    recommendationsEn: recommendationsEn
+  };
+}
+
+// ============================================================================
 // 7. Restaurant Calculator Helpers (from calculators/restaurant.html)
 // ============================================================================
 
@@ -1031,6 +1175,7 @@ return {
   calculateCashFlow,
   calculateFeasibility,
   calculateMedicalViability,
+  calculateInvestmentScore,
   INGREDIENT_UNITS,
   getUnitMultiplier,
   getEffectiveFee,

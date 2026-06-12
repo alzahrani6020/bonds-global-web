@@ -6,6 +6,7 @@ const {
   calculateCashFlow,
   calculateFeasibility,
   calculateMedicalViability,
+  calculateInvestmentScore,
   INGREDIENT_UNITS,
   getUnitMultiplier,
   getEffectiveFee,
@@ -925,6 +926,71 @@ describe('calculateMedicalViability', () => {
     const mixed = calculateMedicalViability({}, monthly, revenue, { ...baseOptions, extraServiceRevenue: 10000, extraServiceCost: 3000 });
     expect(mixed.extraServiceRevenue).toBe(10000);
     expect(mixed.monthlyProfit).toBeGreaterThan(base.monthlyProfit);
+  });
+});
+
+// ============================================================================
+// calculateInvestmentScore
+// ============================================================================
+
+describe('calculateInvestmentScore', () => {
+  test('excellent score for highly profitable fast-payback project', () => {
+    const viability = {
+      profitMargin: 30,
+      roiMonths: 10,
+      dailyUnits: 100,
+      beUnitsPerDay: 40,
+      monthlyGrowthPct: 5,
+      monthlyProfit: 50000
+    };
+    const s = calculateInvestmentScore(viability);
+    expect(s.score).toBeGreaterThanOrEqual(80);
+    expect(s.verdict).toBe('excellent');
+    expect(s.recommendations.length).toBeGreaterThan(0);
+  });
+
+  test('critical score for losing project', () => {
+    const viability = {
+      profitMargin: -5,
+      roiMonths: 999,
+      dailyUnits: 10,
+      beUnitsPerDay: 50,
+      monthlyGrowthPct: 0,
+      monthlyProfit: -10000
+    };
+    const s = calculateInvestmentScore(viability);
+    expect(s.score).toBeLessThan(20);
+    expect(s.verdict).toBe('critical');
+    expect(s.recommendations.some(r => r.includes('ربح'))).toBe(true);
+  });
+
+  test('breakdown sums to total score', () => {
+    const viability = {
+      profitMargin: 15,
+      roiMonths: 24,
+      dailyUnits: 60,
+      beUnitsPerDay: 40,
+      monthlyGrowthPct: 3,
+      monthlyProfit: 20000
+    };
+    const s = calculateInvestmentScore(viability);
+    expect(s.score).toBe(s.profitabilityScore + s.paybackScore + s.safetyScore + s.growthScore);
+    expect(s.maxScore).toBe(100);
+  });
+
+  test('handles missing fields gracefully', () => {
+    const s = calculateInvestmentScore({});
+    expect(s.score).toBe(0);
+    expect(s.verdict).toBe('critical');
+    expect(s.recommendations.length).toBeGreaterThan(0);
+  });
+
+  test('growth improves score', () => {
+    const base = { profitMargin: 12, roiMonths: 20, dailyUnits: 60, beUnitsPerDay: 40, monthlyProfit: 15000 };
+    const noGrowth = calculateInvestmentScore({ ...base, monthlyGrowthPct: 0 });
+    const withGrowth = calculateInvestmentScore({ ...base, monthlyGrowthPct: 10 });
+    expect(withGrowth.score).toBeGreaterThan(noGrowth.score);
+    expect(withGrowth.growthScore).toBe(10);
   });
 });
 
