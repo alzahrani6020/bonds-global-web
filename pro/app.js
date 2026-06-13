@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     analyzeBtn.textContent = 'جاري التحليل...';
 
     try {
-      const res = await fetch('/api/pro-calculate', {
+      const res = await fetch('/api/pro/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         btn.disabled = true;
         btn.textContent = 'جاري التحويل...';
-        const res = await fetch('/api/pro-stripe', {
+        const res = await fetch('/api/pro/stripe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ plan, email })
