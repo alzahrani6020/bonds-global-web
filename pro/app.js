@@ -19,10 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     analyzeBtn.textContent = 'جاري التحليل...';
 
     try {
-      const res = await fetch('/api/pro/calculate', {
+      const res = await fetch('/api/pro', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(Object.assign({ action: 'calculate' }, payload))
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Analysis failed');
@@ -47,10 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         btn.disabled = true;
         btn.textContent = 'جاري التحويل...';
-        const res = await fetch('/api/pro/stripe', {
+        const res = await fetch('/api/pro', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan, email })
+          body: JSON.stringify({ action: 'stripe', plan, email })
         });
         const data = await res.json();
         if (data.url) window.location.href = data.url;

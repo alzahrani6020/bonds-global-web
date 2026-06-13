@@ -36,7 +36,7 @@
       document.getElementById('report-content').innerHTML = '<h1>التقرير مدفوع</h1><p>يرجى إتمام الدفع لعرض التقرير الكامل.</p><a href="index.html" class="btn btn-primary">العودة للحاسبة</a>';
     } else {
       const qs = new URLSearchParams({ sector: p.sector, activity: p.activity, capital: p.capital, revenue: p.revenue, format: 'html' });
-      fetch('/api/pro/report?' + qs.toString())
+      fetch('/api/pro?' + qs.toString())
         .then(r => r.text())
         .then(html => {
           document.getElementById('report-content').innerHTML = html;
