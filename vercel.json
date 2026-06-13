@@ -15,7 +15,7 @@
       "destination": "/pro/index.html"
     },
     {
-      "source": "/api/pro/:action*",
+      "source": "/api/pro/:action",
       "destination": "/api/pro.js?action=$action"
     },
     {
