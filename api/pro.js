@@ -16,6 +16,16 @@ function setCors(res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
+function getAction(req) {
+  if (req.body && req.body.action) return req.body.action;
+  if (req.query && req.query.action) return req.query.action;
+  const url = req.url || '';
+  const qs = url.split('?')[1] || '';
+  const m = qs.match(/(^|&)action=([^&]+)/);
+  if (m) return decodeURIComponent(m[2]);
+  return url.replace(/^\/api\/pro\.js\/?/, '').replace(/\/$/, '') || null;
+}
+
 async function handleCalculate(req, res) {
   const body = req.body || {};
   const { sector, activity, capital, revenue } = body;
@@ -28,7 +38,7 @@ async function handleCalculate(req, res) {
 }
 
 async function handleReport(req, res) {
-  const params = req.method === 'GET' ? req.query : req.body || {};
+  const params = req.method === 'GET' ? (req.query || {}) : (req.body || {});
   const { sector, activity, capital, revenue, format = 'json' } = params;
   if (!sector || !activity || !capital || !revenue) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -95,10 +105,7 @@ module.exports = async function handler(req, res) {
   setCors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Determine action from pathname or query
-  const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
-  let action = url.searchParams.get('action') || url.pathname.replace(/^\/api\/pro\/?/, '').replace(/\/$/, '');
-  if (!action && req.body && req.body.action) action = req.body.action;
+  const action = getAction(req);
 
   try {
     switch (action) {
@@ -106,10 +113,12 @@ module.exports = async function handler(req, res) {
       case 'report': return await handleReport(req, res);
       case 'stripe': return await handleStripe(req, res);
       case 'auth': return await handleAuth(req, res);
-      default: return res.status(404).json({ error: 'Unknown pro action' });
+      default: return res.status(404).json({ error: 'Unknown pro action', action, url: req.url });
     }
   } catch (err) {
     console.error(`[pro/${action}] Error:`, err.message);
-    res.status(500).json({ error: err.message });
+    if (!res.headersSent) {
+      res.status(500).json({ error: err.message, action, url: req.url });
+    }
   }
 };
