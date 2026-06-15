@@ -195,19 +195,9 @@ class CompetitorDataAdapter extends BaseAdapter {
       let sourceMethod = '';
       let sourceQuality = 'open_data';
 
-      if (this.googlePlacesApiKey) {
-        try {
-          count = await this._countGooglePlaces(geo, mapping.google);
-          sourceUrl = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json';
-          sourceMethod = 'google_places_nearby';
-          sourceQuality = 'google_places';
-        } catch (googleErr) {
-          console.warn(`[CompetitorDataAdapter] Google Places failed for ${cityCode}/${activityCode}: ${googleErr.message}`);
-        }
-      }
-
+      // Prefer Geoapify when available because it works without a billing-enabled Google Cloud account.
       let broadCount = 0;
-      if (count <= 0 && this.geoapifyApiKey) {
+      if (this.geoapifyApiKey) {
         try {
           const geoResult = await this._countGeoapify(geo, activityCode, population);
           count = geoResult.specificCount;
@@ -217,6 +207,17 @@ class CompetitorDataAdapter extends BaseAdapter {
           sourceQuality = geoResult.usedBroad ? 'scraped' : 'open_data';
         } catch (geoErr) {
           console.warn(`[CompetitorDataAdapter] Geoapify failed for ${cityCode}/${activityCode}: ${geoErr.message}`);
+        }
+      }
+
+      if (count <= 0 && this.googlePlacesApiKey) {
+        try {
+          count = await this._countGooglePlaces(geo, mapping.google);
+          sourceUrl = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json';
+          sourceMethod = 'google_places_nearby';
+          sourceQuality = 'google_places';
+        } catch (googleErr) {
+          console.warn(`[CompetitorDataAdapter] Google Places failed for ${cityCode}/${activityCode}: ${googleErr.message}`);
         }
       }
 
