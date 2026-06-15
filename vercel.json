@@ -24,19 +24,19 @@
     },
     {
       "source": "/api/force-reset",
-      "destination": "/api/password.js"
+      "destination": "/api/password"
     },
     {
       "source": "/api/force-reset/",
-      "destination": "/api/password.js"
+      "destination": "/api/password"
     },
     {
       "source": "/api/reset-password",
-      "destination": "/api/password.js"
+      "destination": "/api/password"
     },
     {
       "source": "/api/reset-password/",
-      "destination": "/api/password.js"
+      "destination": "/api/password"
     },
     {
       "source": "/api/v3",
