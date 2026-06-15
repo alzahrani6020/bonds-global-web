@@ -4,7 +4,7 @@
   "buildCommand": null,
   "installCommand": null,
   "cleanUrls": true,
-  "trailingSlash": true,
+  "trailingSlash": false,
   "rewrites": [
     {
       "source": "/pro",
