@@ -40,11 +40,11 @@
     },
     {
       "source": "/api/v3",
-      "destination": "/api/v3/index.js"
+      "destination": "/api/v3/index"
     },
     {
       "source": "/api/v3/(.*)",
-      "destination": "/api/v3/index.js"
+      "destination": "/api/v3/index"
     },
     {
       "source": "/api/analyze-feasibility-v2",
