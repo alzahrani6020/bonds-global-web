@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
-const IGNORE_DIRS = ['node_modules', '.git', '.vercel', 'supabase', '.github', 'tools', 'scripts', 'tests', 'api-old', 'bonds-v2', 'bonds-v3'];
+const IGNORE_DIRS = ['node_modules', '.git', '.vercel', 'supabase', '.github', 'tools', 'scripts', 'tests', 'api-old', 'bonds-v2', 'v3'];
 const IGNORE_FILES = ['modon_eservices.html', 'modon_home.html', 'supabase-email-templates.html'];
 const SENSITIVE_PATTERNS = [
   /sk_live_[a-zA-Z0-9]{24,}/g,

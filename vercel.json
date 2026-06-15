@@ -39,6 +39,18 @@
       "destination": "/api/track.js"
     },
     {
+      "source": "/v3/admin",
+      "destination": "/v3/admin/index.html"
+    },
+    {
+      "source": "/v3/admin/(.*)",
+      "destination": "/v3/admin/index.html"
+    },
+    {
+      "source": "/api/v3/(.*)",
+      "destination": "/api/v3/index.js"
+    },
+    {
       "source": "/break-even-explained.html",
       "destination": "/blog/break-even-explained.html"
     },
@@ -121,6 +133,41 @@
           "value": "public, max-age=0, must-revalidate, no-cache"
         }
       ]
+    },
+    {
+      "source": "/api/v3/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,POST,PUT,DELETE,OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type,Authorization,x-admin-token"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate, no-cache"
+        }
+      ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/v3/cron/calibrate-competitors",
+      "schedule": "0 3 * * 0"
+    },
+    {
+      "path": "/api/v3/cron/check-source-quality",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/v3/admin/alerts/evaluate",
+      "schedule": "0 8 * * *"
     }
   ]
 }

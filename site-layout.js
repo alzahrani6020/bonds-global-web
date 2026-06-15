@@ -53,7 +53,14 @@
       services: isEn ? 'Services' : 'خدماتنا',
       guides: isEn ? 'Guides' : 'الأدلة',
       calculators: isEn ? 'Calculators' : 'الحاسبات',
+      intelligence: isEn ? 'Intelligence' : 'الذكاء الاقتصادي',
       articles: isEn ? 'Insights' : 'مقالات',
+      cityIntelligence: isEn ? 'City Intelligence' : 'ذكاء المدن',
+      cityComparison: isEn ? 'City Comparison' : 'مقارنة المدن',
+      investmentMap: isEn ? 'Investment Map' : 'الخريطة الاستثمارية',
+      projectReadiness: isEn ? 'Project Readiness' : 'جاهزية المشروع',
+      opportunityBank: isEn ? 'Opportunity Bank' : 'بنك الفرص',
+      scenariosEngine: isEn ? 'Scenarios' : 'محرك السيناريوهات',
       contact: isEn ? 'Contact' : 'تواصل معنا',
       cta: isEn ? 'Book Consultation' : 'احجز استشارة',
       langSwitch: isEn ? 'العربية' : 'EN',
@@ -86,6 +93,7 @@
     const calcBase = langBase + 'calculators/';
     const calcBreakEven = langBase + 'calculator.html';
     const sectorsBase = langBase + 'sectors/';
+    const v3Base = 'v3/';
 
     const serviceDropdown = [
       { label: labels.analysis, href: servicesHref + '#analysis' },
@@ -108,6 +116,15 @@
       { label: labels.templateCalc, href: calcBase + 'feasibility-template.html' },
       { label: labels.factorySa, href: calcBase + 'factory-cost.html' },
       { label: labels.factoryEg, href: calcBase + 'factory-cost-eg.html' },
+    ];
+
+    const intelligenceDropdown = [
+      { label: labels.cityIntelligence, href: '/' + v3Base + 'city-intelligence' },
+      { label: labels.cityComparison, href: '/' + v3Base + 'city-comparison' },
+      { label: labels.investmentMap, href: '/' + v3Base + 'investment-map' },
+      { label: labels.projectReadiness, href: '/' + v3Base + 'project-readiness' },
+      { label: labels.opportunityBank, href: '/' + v3Base + 'opportunity-bank' },
+      { label: labels.scenariosEngine, href: '/' + v3Base + 'scenarios' },
     ];
 
     const guideCountries = [
@@ -146,6 +163,7 @@
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
       { type: 'dropdown', label: labels.guides, items: guideCountries.map(c => ({ href: sectorsBase + c.code + '.html', label: c.flag + ' ' + c.label })) },
       { type: 'dropdown', label: labels.calculators, items: calcDropdown },
+      { type: 'dropdown', label: labels.intelligence, items: intelligenceDropdown },
       { href: blogHref, label: labels.articles },
       { href: contactHref, label: labels.contact },
     ];
