@@ -1,0 +1,92 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": null,
+  "installCommand": "npm install",
+  "rewrites": [
+    {
+      "source": "/admin",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/city-intelligence",
+      "destination": "/city-intelligence.html"
+    },
+    {
+      "source": "/city-intelligence/(.*)",
+      "destination": "/city-intelligence.html"
+    },
+    {
+      "source": "/investment-map",
+      "destination": "/investment-map.html"
+    },
+    {
+      "source": "/investment-map/(.*)",
+      "destination": "/investment-map.html"
+    },
+    {
+      "source": "/scenarios",
+      "destination": "/scenarios.html"
+    },
+    {
+      "source": "/scenarios/(.*)",
+      "destination": "/scenarios.html"
+    },
+    {
+      "source": "/city-comparison",
+      "destination": "/city-comparison.html"
+    },
+    {
+      "source": "/city-comparison/(.*)",
+      "destination": "/city-comparison.html"
+    },
+    {
+      "source": "/project-readiness",
+      "destination": "/project-readiness.html"
+    },
+    {
+      "source": "/project-readiness/(.*)",
+      "destination": "/project-readiness.html"
+    },
+    {
+      "source": "/opportunity-bank",
+      "destination": "/opportunity-bank.html"
+    },
+    {
+      "source": "/opportunity-bank/(.*)",
+      "destination": "/opportunity-bank.html"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/calibrate-competitors",
+      "schedule": "0 3 * * 0"
+    },
+    {
+      "path": "/api/cron/check-source-quality",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/admin/alerts/evaluate",
+      "schedule": "0 8 * * *"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,DELETE,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type,Authorization,x-admin-token" }
+      ]
+    }
+  ]
+}

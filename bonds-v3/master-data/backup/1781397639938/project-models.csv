@@ -1,0 +1,4 @@
+activity_detail_code,code,name_ar,name_en,size_category,model_type,capex_min,capex_max,revenue_min,revenue_max,employee_count_min,employee_count_max,typical_roi_months,is_published
+small_dental_clinic,small_dental_clinic_model,نموذج عيادة أسنان صغيرة,Small Dental Clinic Model,small,greenfield,250000,450000,400000,700000,2,4,18,true
+medium_dental_clinic,medium_dental_clinic_model,نموذج عيادة أسنان متوسطة,Medium Dental Clinic Model,medium,greenfield,600000,1200000,1000000,2000000,5,10,24,true
+large_dental_clinic,large_dental_clinic_model,نموذج عيادة أسنان كبيرة,Large Dental Clinic Model,large,greenfield,1500000,3000000,2500000,5000000,12,25,36,true

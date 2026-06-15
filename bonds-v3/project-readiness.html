@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مؤشر جاهزية المشروع | Bonds V3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0f1a;
+      --card: #10182d;
+      --border: rgba(197,160,40,0.2);
+      --gold: #d4a853;
+      --gold-bright: #f0c96a;
+      --text: #e8ecf4;
+      --text-secondary: #94a3b8;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Vazirmatn', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+    }
+    header h1 { margin: 0; color: var(--gold-bright); font-size: 1.8rem; }
+    header p { margin: 0.5rem 0 0; color: var(--text-secondary); }
+    .container { padding: 2rem; max-width: 900px; margin: 0 auto; }
+    .intro {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .intro p { margin: 0; color: var(--text-secondary); }
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .section h3 { margin: 0 0 1rem; color: var(--gold-bright); font-size: 1.1rem; }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .check-item:last-child { border-bottom: none; }
+    .check-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+    .check-item label { flex: 1; cursor: pointer; }
+    .check-item .weight {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .actions {
+      display: flex;
+      gap: 1rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 0.85rem 1.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .primary-btn {
+      background: rgba(212,168,83,0.15);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .primary-btn:hover { background: rgba(212,168,83,0.25); }
+    .result {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .result.show { display: block; }
+    .score-circle {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 2.5rem;
+      font-weight: 800;
+      border: 6px solid var(--gold);
+    }
+    .level { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .level.not-ready { color: var(--danger); }
+    .level.partial { color: var(--warning); }
+    .level.ready { color: var(--success); }
+    .level.fully { color: var(--gold-bright); }
+    .recommendations { text-align: right; margin-top: 1.5rem; }
+    .recommendations h4 { color: var(--gold-bright); margin-bottom: 0.75rem; }
+    .recommendations ul { margin: 0; padding-right: 1.25rem; }
+    .recommendations li { margin-bottom: 0.5rem; }
+    .progress-bar {
+      height: 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.6s ease;
+    }
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: var(--gold-bright);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    @media (max-width: 768px) {
+      .container { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>✅ مؤشر جاهزية المشروع</h1>
+    <p>قيّم مدى استعداد مشروعك للإطلاق قبل اتخاذ قرار الاستثمار</p>
+  </header>
+
+  <div class="container">
+    <a href="/city-intelligence" class="back-link">← العودة إلى ذكاء المدن</a>
+
+    <div class="intro">
+      <p>حدّد ما هو مكتمل من عناصر المشروع. النظام يحسب درجة الجاهزية من 100 ويعطيك قائمة بالنواقص والتوصيات.</p>
+    </div>
+
+    <form id="readinessForm"></form>
+
+    <div class="actions">
+      <button type="button" id="calculateBtn" class="primary-btn">احسب درجة الجاهزية</button>
+      <button type="button" id="resetBtn">إعادة ضبط</button>
+      <button type="button" id="saveBtn">حفظ التقييم</button>
+    </div>
+
+    <div id="result" class="result">
+      <div class="score-circle" id="scoreCircle">0%</div>
+      <div class="level" id="levelText">-</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="recommendations">
+        <h4>التوصيات والنواقص</h4>
+        <ul id="recommendationsList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Bonds V3 Enterprise — أداة تقييم أولية وتخضع للمراجعة الاستشارية.
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'bonds_project_readiness';
+
+    const sections = [
+      {
+        title: '📊 دراسة السوق',
+        items: [
+          { id: 'market_study', label: 'تم إعداد دراسة السوق والطلب', weight: 8 },
+          { id: 'target_segment', label: 'تحديد الشريحة المستهدفة بدقة', weight: 6 },
+          { id: 'competitors_analyzed', label: 'تحليل المنافسين ونقاط القوة والضعف', weight: 6 }
+        ]
+      },
+      {
+        title: '💰 التمويل',
+        items: [
+          { id: 'capital_available', label: 'رأس المال المطلوب متوفر أو محدد', weight: 10 },
+          { id: 'funding_secured', label: 'التمويل مضمون (ذاتي/قرض/شركاء)', weight: 9 },
+          { id: 'financial_projections', label: 'الإسقاطات المالية جاهزة (3–5 سنوات)', weight: 8 }
+        ]
+      },
+      {
+        title: '📜 التراخيص والأنظمة',
+        items: [
+          { id: 'licenses_identified', label: 'تحديد التراخيص والموافقات المطلوبة', weight: 7 },
+          { id: 'licenses_obtained', label: 'الحصول على التراخيص الرئيسية', weight: 8 },
+          { id: 'legal_entity', label: 'تأسيس الكيان القانوني', weight: 6 }
+        ]
+      },
+      {
+        title: '👥 الفريق والإدارة',
+        items: [
+          { id: 'management_team', label: 'فريق الإدارة الأساسي محدد/متوظف', weight: 9 },
+          { id: 'team_experience', label: 'خبرة سابقة في القطاع', weight: 7 },
+          { id: 'operational_plan', label: 'خطة التشغيل اليومي واضحة', weight: 6 }
+        ]
+      },
+      {
+        title: '🏭 العمليات والموقع',
+        items: [
+          { id: 'location_secured', label: 'الموقع secured أو محدد', weight: 8 },
+          { id: 'suppliers_contracts', label: 'عقود الموردين/الخدمات جاهزة', weight: 6 },
+          { id: 'equipment_ready', label: 'المعدات والتجهيزات محددة', weight: 5 }
+        ]
+      },
+      {
+        title: '📣 التسويق والمبيعات',
+        items: [
+          { id: 'marketing_plan', label: 'خطة التسويق والمبيعات جاهزة', weight: 7 },
+          { id: 'branding_ready', label: 'الهوية التجارية والتسمية جاهزة', weight: 5 },
+          { id: 'sales_channels', label: 'قنوات البيع والتواصل محددة', weight: 5 }
+        ]
+      }
+    ];
+
+    function renderForm() {
+      const form = document.getElementById('readinessForm');
+      form.innerHTML = sections.map(section => `
+        <div class="section">
+          <h3>${section.title}</h3>
+          ${section.items.map(item => `
+            <div class="check-item">
+              <input type="checkbox" id="${item.id}" data-weight="${item.weight}">
+              <label for="${item.id}">${item.label}</label>
+              <span class="weight">${item.weight}%</span>
+            </div>
+          `).join('')}
+        </div>
+      `).join('');
+    }
+
+    function loadSaved() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!saved) return;
+        Object.keys(saved).forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.checked = !!saved[id];
+        });
+      } catch (err) {
+        console.warn('Could not load saved readiness:', err.message);
+      }
+    }
+
+    function saveCurrent() {
+      const state = {};
+      document.querySelectorAll('#readinessForm input[type="checkbox"]').forEach(el => {
+        state[el.id] = el.checked;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      alert('تم حفظ التقييم');
+    }
+
+    function calculate() {
+      let totalWeight = 0;
+      let earned = 0;
+      const missing = [];
+
+      document.querySelectorAll('#readinessForm input[type="checkbox"]').forEach(el => {
+        const weight = Number(el.dataset.weight) || 0;
+        totalWeight += weight;
+        if (el.checked) {
+          earned += weight;
+        } else {
+          const label = el.nextElementSibling.textContent;
+          missing.push(label);
+        }
+      });
+
+      const score = totalWeight > 0 ? Math.round((earned / totalWeight) * 100) : 0;
+
+      let level = { text: 'غير جاهز', cls: 'not-ready' };
+      if (score >= 90) level = { text: 'جاهز بالكامل ⭐', cls: 'fully' };
+      else if (score >= 70) level = { text: 'جاهز للإطلاق', cls: 'ready' };
+      else if (score >= 40) level = { text: 'جاهزية جزئية', cls: 'partial' };
+
+      const result = document.getElementById('result');
+      result.classList.add('show');
+
+      const circle = document.getElementById('scoreCircle');
+      circle.textContent = score + '%';
+      circle.style.borderColor = score >= 70 ? 'var(--success)' : score >= 40 ? 'var(--warning)' : 'var(--danger)';
+
+      const levelText = document.getElementById('levelText');
+      levelText.textContent = level.text;
+      levelText.className = 'level ' + level.cls;
+
+      const fill = document.getElementById('progressFill');
+      fill.style.width = score + '%';
+      fill.style.background = score >= 70 ? 'var(--success)' : score >= 40 ? 'var(--warning)' : 'var(--danger)';
+
+      const list = document.getElementById('recommendationsList');
+      if (missing.length === 0) {
+        list.innerHTML = '<li>🎉 كل العناصر مكتملة. المشروع جاهز للانطلاق.</li>';
+      } else {
+        list.innerHTML = missing.slice(0, 8).map(item => `<li>أكمل أو راجع: ${item}</li>`).join('');
+        if (missing.length > 8) {
+          list.innerHTML += `<li>و ${missing.length - 8} عناصر أخرى...</li>`;
+        }
+      }
+
+      window.scrollTo({ top: result.offsetTop - 20, behavior: 'smooth' });
+    }
+
+    function reset() {
+      document.querySelectorAll('#readinessForm input[type="checkbox"]').forEach(el => el.checked = false);
+      document.getElementById('result').classList.remove('show');
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
+    renderForm();
+    loadSaved();
+
+    document.getElementById('calculateBtn').addEventListener('click', calculate);
+    document.getElementById('resetBtn').addEventListener('click', reset);
+    document.getElementById('saveBtn').addEventListener('click', saveCurrent);
+  </script>
+</body>
+</html>

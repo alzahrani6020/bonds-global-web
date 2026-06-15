@@ -1,0 +1,64 @@
+code,name_ar,name_en,description,risk_category,sort_order
+financial_banking,القطاع المالي والمصرفي,Financial & Banking,Banks and financial institutions,medium,1
+insurance,التأمين,Insurance,Insurance companies and services,low,2
+awqaf,الأوقاف,Awqaf & Endowments,Islamic endowments and waqf management,low,3
+healthcare,الصحي,Healthcare,Hospitals clinics and medical services,low,4
+education,التعليمي,Education,Schools universities and training,low,5
+industrial,الصناعي,General Industry,Manufacturing and industrial operations,high,6
+food_industries,الصناعات الغذائية,Food Industries,Food processing and manufacturing,medium,7
+pharmaceutical_industries,الصناعات الدوائية,Pharmaceutical Industries,Pharma manufacturing and distribution,medium,8
+chemical_industries,الصناعات الكيميائية,Chemical Industries,Chemical and petrochemical products,high,9
+mining,التعدين,Mining,Mineral extraction and mining,high,10
+geology,الجيولوجيا,Geology,Geological surveys and services,medium,11
+oil_gas,النفط والغاز,Oil & Gas,Exploration and production,high,12
+oil_refineries,مصافي النفط,Oil Refineries,Petroleum refining,high,13
+metal_refineries,مصافي المعادن,Metal Refineries,Metal smelting and refining,high,14
+water,المياه,Water,Water supply and treatment,low,15
+well_drilling,حفر الآبار,Well Drilling,Water and oil well drilling,medium,16
+agriculture,الزراعة,Agriculture,Crop farming and agricultural production,medium,17
+agricultural_inputs,المدخلات الزراعية,Agricultural Inputs,Seeds fertilizers and pesticides,medium,18
+desertification_control,مكافحة التصحر,Desertification Control,Land reclamation and conservation,medium,19
+livestock,الثروة الحيوانية,Livestock,Animal production and breeding,medium,20
+poultry,الدواجن,Poultry,Poultry farming and production,medium,21
+fisheries,الثروة السمكية,Fisheries,Fish farming and fisheries,medium,22
+real_estate,العقار,Real Estate,Property development and brokerage,medium,23
+contracting,المقاولات,Contracting,Construction contracting,high,24
+industrial_cities,المدن الصناعية,Industrial Cities,Industrial zones and cities,medium,25
+logistics,اللوجستيات,Logistics,Supply chain and logistics services,medium,26
+dry_warehouses,المستودعات الجافة,Dry Warehouses,General storage facilities,medium,27
+cold_warehouses,المستودعات المبردة,Cold Storage,Refrigerated warehouses,medium,28
+transport,النقل,Transport,Land sea and air transport,medium,29
+ports,الموانئ,Ports,Sea ports and terminals,medium,30
+aviation,الطيران,Aviation,Commercial aviation,high,31
+private_aviation,الطيران الخاص,Private Aviation,Private jets and charter services,high,32
+hajj_umrah,الحج والعمرة,Hajj & Umrah,Pilgrimage services,medium,33
+tourism,السياحة,Tourism,Travel and tourism services,medium,34
+hospitality,الضيافة,Hospitality,Hotels and accommodation,medium,35
+entertainment,الترفيه,Entertainment,Entertainment and amusement,medium,36
+culture,الثقافة,Culture,Cultural centers and heritage,low,37
+media,الإعلام,Media,Broadcasting and publishing,medium,38
+advertising,الإعلان,Advertising,Advertising and marketing agencies,medium,39
+technology,التقنية,Technology,IT services and software,medium,40
+artificial_intelligence,الذكاء الاصطناعي,Artificial Intelligence,AI products and services,medium,41
+cybersecurity,الأمن السيبراني,Cybersecurity,Cybersecurity services,medium,42
+commerce,التجارة,Commerce,Wholesale and retail trade,medium,43
+ecommerce,التجارة الإلكترونية,E-commerce,Online retail and marketplaces,medium,44
+public_services,الخدمات العامة,Public Services,Government and public services,low,45
+facilities_management,إدارة المرافق,Facilities Management,Building and facility management,medium,46
+consulting,الاستشارات,Consulting,Management and technical consulting,medium,47
+commercial_brokerage,الوساطة التجارية,Commercial Brokerage,Trade brokerage services,medium,48
+insurance_agent,وكيل التأمين,Insurance Agent,Insurance agency,low,49
+insurance_broker,وسيط التأمين,Insurance Broker,Insurance brokerage,low,50
+human_resources,الموارد البشرية,Human Resources,HR and recruitment services,low,51
+energy,الطاقة,Energy,Power generation and utilities,medium,52
+automotive,السيارات,Automotive,Car sales and services,medium,53
+heavy_equipment,المعدات الثقيلة,Heavy Equipment,Heavy machinery and equipment,high,54
+furniture,الأثاث,Furniture,Furniture manufacturing and retail,medium,55
+beauty,التجميل,Beauty,Beauty salons and cosmetics,medium,56
+food_beverage,الأغذية والمشروبات,Food & Beverage,Restaurants cafes and catering,medium,57
+security_safety,الأمن والسلامة,Security & Safety,Security services and safety equipment,medium,58
+laboratories,المختبرات,Laboratories,Medical and industrial labs,medium,59
+research_development,البحث والتطوير,Research & Development,R&D centers and innovation,medium,60
+sports_economy,الاقتصاد الرياضي,Sports Economy,Sports clubs and facilities,medium,61
+creative_economy,الاقتصاد الإبداعي,Creative Economy,Design arts and creative industries,medium,62
+environment_sustainability,البيئة والاستدامة,Environment & Sustainability,Environmental services and sustainability,medium,63

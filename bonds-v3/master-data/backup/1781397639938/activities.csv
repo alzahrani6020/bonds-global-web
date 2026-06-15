@@ -1,0 +1,5 @@
+sub_sector_code,code,name_ar,name_en,description,sort_order
+clinics,dental_clinics,عيادات الأسنان,Dental Clinics,General dental clinics and cosmetic dentistry,1
+clinics,dermatology_clinics,عيادات الجلدية,Dermatology Clinics,Skin care and cosmetic clinics,2
+clinics,pediatric_clinics,عيادات الأطفال,Pediatric Clinics,Children medical clinics,3
+clinics,ophthalmology_clinics,عيادات العيون,Ophthalmology Clinics,Eye care clinics,4

@@ -1,0 +1,253 @@
+sub_sector_code,code,name_ar,name_en,description,sort_order
+clinics,dental_clinics,عيادات الأسنان,Dental Clinics,General dental clinics and cosmetic dentistry,1
+clinics,dermatology_clinics,عيادات الجلدية,Dermatology Clinics,Skin care and cosmetic clinics,2
+clinics,pediatric_clinics,عيادات الأطفال,Pediatric Clinics,Children medical clinics,3
+clinics,ophthalmology_clinics,عيادات العيون,Ophthalmology Clinics,Eye care clinics,4
+financial_banking_banking,financial_banking_banking_activity,نشاط الخدمات المصرفية,Banking Services Activity,Main activity for Banking Services,5
+financial_banking_insurance,financial_banking_insurance_activity,نشاط التأمين,Insurance Activity,Main activity for Insurance,6
+financial_banking_fintech,financial_banking_fintech_activity,نشاط التقنية المالية,Fintech Activity,Main activity for Fintech,7
+financial_banking_investment,financial_banking_investment_activity,نشاط الاستثمار,Investment Activity,Main activity for Investment,8
+insurance_banking,insurance_banking_activity,نشاط الخدمات المصرفية,Banking Services Activity,Main activity for Banking Services,9
+insurance_insurance,insurance_insurance_activity,نشاط التأمين,Insurance Activity,Main activity for Insurance,10
+insurance_fintech,insurance_fintech_activity,نشاط التقنية المالية,Fintech Activity,Main activity for Fintech,11
+insurance_investment,insurance_investment_activity,نشاط الاستثمار,Investment Activity,Main activity for Investment,12
+awqaf_consulting,awqaf_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,13
+awqaf_maintenance,awqaf_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,14
+awqaf_cleaning,awqaf_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,15
+awqaf_security,awqaf_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,16
+education_schools,education_schools_activity,نشاط المدارس,Schools Activity,Main activity for Schools,17
+education_training,education_training_activity,نشاط مراكز التدريب,Training Centers Activity,Main activity for Training Centers,18
+education_universities,education_universities_activity,نشاط الجامعات,Universities Activity,Main activity for Universities,19
+education_elearning,education_elearning_activity,نشاط التعليم الإلكتروني,E-Learning Activity,Main activity for E-Learning,20
+industrial_factories,industrial_factories_activity,نشاط المصانع,Factories Activity,Main activity for Factories,21
+industrial_workshops,industrial_workshops_activity,نشاط الورش,Workshops Activity,Main activity for Workshops,22
+industrial_assembly,industrial_assembly_activity,نشاط التجميع,Assembly Activity,Main activity for Assembly,23
+industrial_packaging,industrial_packaging_activity,نشاط التعبئة والتغليف,Packaging Activity,Main activity for Packaging,24
+food_industries_restaurants,food_industries_restaurants_activity,نشاط المطاعم,Restaurants Activity,Main activity for Restaurants,25
+food_industries_cafes,food_industries_cafes_activity,نشاط المقاهي,Cafes Activity,Main activity for Cafes,26
+food_industries_catering,food_industries_catering_activity,نشاط التموين,Catering Activity,Main activity for Catering,27
+food_industries_fast_food,food_industries_fast_food_activity,نشاط الوجبات السريعة,Fast Food Activity,Main activity for Fast Food,28
+pharmaceutical_industries_consulting,pharmaceutical_industries_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,29
+pharmaceutical_industries_maintenance,pharmaceutical_industries_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,30
+pharmaceutical_industries_cleaning,pharmaceutical_industries_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,31
+pharmaceutical_industries_security,pharmaceutical_industries_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,32
+chemical_industries_consulting,chemical_industries_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,33
+chemical_industries_maintenance,chemical_industries_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,34
+chemical_industries_cleaning,chemical_industries_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,35
+chemical_industries_security,chemical_industries_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,36
+mining_consulting,mining_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,37
+mining_maintenance,mining_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,38
+mining_cleaning,mining_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,39
+mining_security,mining_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,40
+geology_consulting,geology_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,41
+geology_maintenance,geology_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,42
+geology_cleaning,geology_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,43
+geology_security,geology_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,44
+oil_gas_renewable,oil_gas_renewable_activity,نشاط الطاقة المتجددة,Renewable Energy Activity,Main activity for Renewable Energy,45
+oil_gas_oil_gas,oil_gas_oil_gas_activity,نشاط النفط والغاز,Oil & Gas Activity,Main activity for Oil & Gas,46
+oil_gas_utilities,oil_gas_utilities_activity,نشاط الخدمات العامة,Utilities Activity,Main activity for Utilities,47
+oil_gas_efficiency,oil_gas_efficiency_activity,نشاط كفاءة الطاقة,Energy Efficiency Activity,Main activity for Energy Efficiency,48
+oil_refineries_renewable,oil_refineries_renewable_activity,نشاط الطاقة المتجددة,Renewable Energy Activity,Main activity for Renewable Energy,49
+oil_refineries_oil_gas,oil_refineries_oil_gas_activity,نشاط النفط والغاز,Oil & Gas Activity,Main activity for Oil & Gas,50
+oil_refineries_utilities,oil_refineries_utilities_activity,نشاط الخدمات العامة,Utilities Activity,Main activity for Utilities,51
+oil_refineries_efficiency,oil_refineries_efficiency_activity,نشاط كفاءة الطاقة,Energy Efficiency Activity,Main activity for Energy Efficiency,52
+metal_refineries_consulting,metal_refineries_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,53
+metal_refineries_maintenance,metal_refineries_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,54
+metal_refineries_cleaning,metal_refineries_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,55
+metal_refineries_security,metal_refineries_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,56
+water_consulting,water_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,57
+water_maintenance,water_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,58
+water_cleaning,water_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,59
+water_security,water_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,60
+well_drilling_consulting,well_drilling_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,61
+well_drilling_maintenance,well_drilling_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,62
+well_drilling_cleaning,well_drilling_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,63
+well_drilling_security,well_drilling_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,64
+agriculture_farming,agriculture_farming_activity,نشاط الزراعة,Farming Activity,Main activity for Farming,65
+agriculture_livestock,agriculture_livestock_activity,نشاط تربية الحيوان,Livestock Activity,Main activity for Livestock,66
+agriculture_processing,agriculture_processing_activity,نشاط تجهيز المنتجات,Processing Activity,Main activity for Processing,67
+agriculture_distribution,agriculture_distribution_activity,نشاط التوزيع,Distribution Activity,Main activity for Distribution,68
+agricultural_inputs_farming,agricultural_inputs_farming_activity,نشاط الزراعة,Farming Activity,Main activity for Farming,69
+agricultural_inputs_livestock,agricultural_inputs_livestock_activity,نشاط تربية الحيوان,Livestock Activity,Main activity for Livestock,70
+agricultural_inputs_processing,agricultural_inputs_processing_activity,نشاط تجهيز المنتجات,Processing Activity,Main activity for Processing,71
+agricultural_inputs_distribution,agricultural_inputs_distribution_activity,نشاط التوزيع,Distribution Activity,Main activity for Distribution,72
+desertification_control_consulting,desertification_control_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,73
+desertification_control_maintenance,desertification_control_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,74
+desertification_control_cleaning,desertification_control_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,75
+desertification_control_security,desertification_control_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,76
+livestock_farming,livestock_farming_activity,نشاط الزراعة,Farming Activity,Main activity for Farming,77
+livestock_livestock,livestock_livestock_activity,نشاط تربية الحيوان,Livestock Activity,Main activity for Livestock,78
+livestock_processing,livestock_processing_activity,نشاط تجهيز المنتجات,Processing Activity,Main activity for Processing,79
+livestock_distribution,livestock_distribution_activity,نشاط التوزيع,Distribution Activity,Main activity for Distribution,80
+poultry_consulting,poultry_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,81
+poultry_maintenance,poultry_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,82
+poultry_cleaning,poultry_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,83
+poultry_security,poultry_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,84
+fisheries_consulting,fisheries_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,85
+fisheries_maintenance,fisheries_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,86
+fisheries_cleaning,fisheries_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,87
+fisheries_security,fisheries_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,88
+real_estate_residential,real_estate_residential_activity,نشاط السكني,Residential Activity,Main activity for Residential,89
+real_estate_commercial,real_estate_commercial_activity,نشاط التجاري,Commercial Activity,Main activity for Commercial,90
+real_estate_industrial,real_estate_industrial_activity,نشاط الصناعي,Industrial Activity,Main activity for Industrial,91
+real_estate_brokerage,real_estate_brokerage_activity,نشاط الوساطة العقارية,Real Estate Brokerage Activity,Main activity for Real Estate Brokerage,92
+contracting_consulting,contracting_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,93
+contracting_maintenance,contracting_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,94
+contracting_cleaning,contracting_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,95
+contracting_security,contracting_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,96
+industrial_cities_factories,industrial_cities_factories_activity,نشاط المصانع,Factories Activity,Main activity for Factories,97
+industrial_cities_workshops,industrial_cities_workshops_activity,نشاط الورش,Workshops Activity,Main activity for Workshops,98
+industrial_cities_assembly,industrial_cities_assembly_activity,نشاط التجميع,Assembly Activity,Main activity for Assembly,99
+industrial_cities_packaging,industrial_cities_packaging_activity,نشاط التعبئة والتغليف,Packaging Activity,Main activity for Packaging,100
+logistics_transport,logistics_transport_activity,نشاط النقل,Transport Activity,Main activity for Transport,101
+logistics_warehousing,logistics_warehousing_activity,نشاط التخزين,Warehousing Activity,Main activity for Warehousing,102
+logistics_shipping,logistics_shipping_activity,نشاط الشحن,Shipping Activity,Main activity for Shipping,103
+logistics_last_mile,logistics_last_mile_activity,نشاط التوصيل الأخير,Last Mile Delivery Activity,Main activity for Last Mile Delivery,104
+dry_warehouses_transport,dry_warehouses_transport_activity,نشاط النقل,Transport Activity,Main activity for Transport,105
+dry_warehouses_warehousing,dry_warehouses_warehousing_activity,نشاط التخزين,Warehousing Activity,Main activity for Warehousing,106
+dry_warehouses_shipping,dry_warehouses_shipping_activity,نشاط الشحن,Shipping Activity,Main activity for Shipping,107
+dry_warehouses_last_mile,dry_warehouses_last_mile_activity,نشاط التوصيل الأخير,Last Mile Delivery Activity,Main activity for Last Mile Delivery,108
+cold_warehouses_transport,cold_warehouses_transport_activity,نشاط النقل,Transport Activity,Main activity for Transport,109
+cold_warehouses_warehousing,cold_warehouses_warehousing_activity,نشاط التخزين,Warehousing Activity,Main activity for Warehousing,110
+cold_warehouses_shipping,cold_warehouses_shipping_activity,نشاط الشحن,Shipping Activity,Main activity for Shipping,111
+cold_warehouses_last_mile,cold_warehouses_last_mile_activity,نشاط التوصيل الأخير,Last Mile Delivery Activity,Main activity for Last Mile Delivery,112
+transport_transport,transport_transport_activity,نشاط النقل,Transport Activity,Main activity for Transport,113
+transport_warehousing,transport_warehousing_activity,نشاط التخزين,Warehousing Activity,Main activity for Warehousing,114
+transport_shipping,transport_shipping_activity,نشاط الشحن,Shipping Activity,Main activity for Shipping,115
+transport_last_mile,transport_last_mile_activity,نشاط التوصيل الأخير,Last Mile Delivery Activity,Main activity for Last Mile Delivery,116
+ports_consulting,ports_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,117
+ports_maintenance,ports_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,118
+ports_cleaning,ports_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,119
+ports_security,ports_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,120
+aviation_consulting,aviation_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,121
+aviation_maintenance,aviation_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,122
+aviation_cleaning,aviation_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,123
+aviation_security,aviation_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,124
+private_aviation_consulting,private_aviation_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,125
+private_aviation_maintenance,private_aviation_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,126
+private_aviation_cleaning,private_aviation_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,127
+private_aviation_security,private_aviation_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,128
+hajj_umrah_consulting,hajj_umrah_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,129
+hajj_umrah_maintenance,hajj_umrah_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,130
+hajj_umrah_cleaning,hajj_umrah_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,131
+hajj_umrah_security,hajj_umrah_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,132
+tourism_events,tourism_events_activity,نشاط الفعاليات,Events Activity,Main activity for Events,133
+tourism_media,tourism_media_activity,نشاط الإعلام,Media Activity,Main activity for Media,134
+tourism_sports,tourism_sports_activity,نشاط الرياضة,Sports Activity,Main activity for Sports,135
+tourism_tourism,tourism_tourism_activity,نشاط السياحة,Tourism Activity,Main activity for Tourism,136
+hospitality_software,hospitality_software_activity,نشاط البرمجيات,Software Activity,Main activity for Software,137
+hospitality_hardware,hospitality_hardware_activity,نشاط الأجهزة,Hardware Activity,Main activity for Hardware,138
+hospitality_it_services,hospitality_it_services_activity,نشاط خدمات تكنولوجيا المعلومات,IT Services Activity,Main activity for IT Services,139
+hospitality_telecom,hospitality_telecom_activity,نشاط الاتصالات,Telecommunications Activity,Main activity for Telecommunications,140
+entertainment_events,entertainment_events_activity,نشاط الفعاليات,Events Activity,Main activity for Events,141
+entertainment_media,entertainment_media_activity,نشاط الإعلام,Media Activity,Main activity for Media,142
+entertainment_sports,entertainment_sports_activity,نشاط الرياضة,Sports Activity,Main activity for Sports,143
+entertainment_tourism,entertainment_tourism_activity,نشاط السياحة,Tourism Activity,Main activity for Tourism,144
+culture_consulting,culture_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,145
+culture_maintenance,culture_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,146
+culture_cleaning,culture_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,147
+culture_security,culture_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,148
+media_events,media_events_activity,نشاط الفعاليات,Events Activity,Main activity for Events,149
+media_media,media_media_activity,نشاط الإعلام,Media Activity,Main activity for Media,150
+media_sports,media_sports_activity,نشاط الرياضة,Sports Activity,Main activity for Sports,151
+media_tourism,media_tourism_activity,نشاط السياحة,Tourism Activity,Main activity for Tourism,152
+advertising_consulting,advertising_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,153
+advertising_maintenance,advertising_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,154
+advertising_cleaning,advertising_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,155
+advertising_security,advertising_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,156
+technology_software,technology_software_activity,نشاط البرمجيات,Software Activity,Main activity for Software,157
+technology_hardware,technology_hardware_activity,نشاط الأجهزة,Hardware Activity,Main activity for Hardware,158
+technology_it_services,technology_it_services_activity,نشاط خدمات تكنولوجيا المعلومات,IT Services Activity,Main activity for IT Services,159
+technology_telecom,technology_telecom_activity,نشاط الاتصالات,Telecommunications Activity,Main activity for Telecommunications,160
+artificial_intelligence_consulting,artificial_intelligence_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,161
+artificial_intelligence_maintenance,artificial_intelligence_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,162
+artificial_intelligence_cleaning,artificial_intelligence_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,163
+artificial_intelligence_security,artificial_intelligence_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,164
+cybersecurity_software,cybersecurity_software_activity,نشاط البرمجيات,Software Activity,Main activity for Software,165
+cybersecurity_hardware,cybersecurity_hardware_activity,نشاط الأجهزة,Hardware Activity,Main activity for Hardware,166
+cybersecurity_it_services,cybersecurity_it_services_activity,نشاط خدمات تكنولوجيا المعلومات,IT Services Activity,Main activity for IT Services,167
+cybersecurity_telecom,cybersecurity_telecom_activity,نشاط الاتصالات,Telecommunications Activity,Main activity for Telecommunications,168
+commerce_retail,commerce_retail_activity,نشاط التجزئة,Retail Activity,Main activity for Retail,169
+commerce_wholesale,commerce_wholesale_activity,نشاط الجملة,Wholesale Activity,Main activity for Wholesale,170
+commerce_ecommerce,commerce_ecommerce_activity,نشاط التجارة الإلكترونية,E-Commerce Activity,Main activity for E-Commerce,171
+commerce_import_export,commerce_import_export_activity,نشاط الاستيراد والتصدير,Import & Export Activity,Main activity for Import & Export,172
+ecommerce_retail,ecommerce_retail_activity,نشاط التجزئة,Retail Activity,Main activity for Retail,173
+ecommerce_wholesale,ecommerce_wholesale_activity,نشاط الجملة,Wholesale Activity,Main activity for Wholesale,174
+ecommerce_ecommerce,ecommerce_ecommerce_activity,نشاط التجارة الإلكترونية,E-Commerce Activity,Main activity for E-Commerce,175
+ecommerce_import_export,ecommerce_import_export_activity,نشاط الاستيراد والتصدير,Import & Export Activity,Main activity for Import & Export,176
+public_services_public_services,public_services_public_services_activity,نشاط الخدمات العامة,Public Services Activity,Main activity for Public Services,177
+public_services_consulting,public_services_consulting_activity,نشاط الاستشارات الحكومية,Government Consulting Activity,Main activity for Government Consulting,178
+public_services_facilities,public_services_facilities_activity,نشاط إدارة المرافق,Facilities Management Activity,Main activity for Facilities Management,179
+public_services_digital,public_services_digital_activity,نشاط التحول الرقمي,Digital Transformation Activity,Main activity for Digital Transformation,180
+facilities_management_software,facilities_management_software_activity,نشاط البرمجيات,Software Activity,Main activity for Software,181
+facilities_management_hardware,facilities_management_hardware_activity,نشاط الأجهزة,Hardware Activity,Main activity for Hardware,182
+facilities_management_it_services,facilities_management_it_services_activity,نشاط خدمات تكنولوجيا المعلومات,IT Services Activity,Main activity for IT Services,183
+facilities_management_telecom,facilities_management_telecom_activity,نشاط الاتصالات,Telecommunications Activity,Main activity for Telecommunications,184
+consulting_consulting,consulting_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,185
+consulting_maintenance,consulting_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,186
+consulting_cleaning,consulting_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,187
+consulting_security,consulting_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,188
+commercial_brokerage_consulting,commercial_brokerage_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,189
+commercial_brokerage_maintenance,commercial_brokerage_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,190
+commercial_brokerage_cleaning,commercial_brokerage_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,191
+commercial_brokerage_security,commercial_brokerage_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,192
+insurance_agent_banking,insurance_agent_banking_activity,نشاط الخدمات المصرفية,Banking Services Activity,Main activity for Banking Services,193
+insurance_agent_insurance,insurance_agent_insurance_activity,نشاط التأمين,Insurance Activity,Main activity for Insurance,194
+insurance_agent_fintech,insurance_agent_fintech_activity,نشاط التقنية المالية,Fintech Activity,Main activity for Fintech,195
+insurance_agent_investment,insurance_agent_investment_activity,نشاط الاستثمار,Investment Activity,Main activity for Investment,196
+insurance_broker_banking,insurance_broker_banking_activity,نشاط الخدمات المصرفية,Banking Services Activity,Main activity for Banking Services,197
+insurance_broker_insurance,insurance_broker_insurance_activity,نشاط التأمين,Insurance Activity,Main activity for Insurance,198
+insurance_broker_fintech,insurance_broker_fintech_activity,نشاط التقنية المالية,Fintech Activity,Main activity for Fintech,199
+insurance_broker_investment,insurance_broker_investment_activity,نشاط الاستثمار,Investment Activity,Main activity for Investment,200
+human_resources_consulting,human_resources_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,201
+human_resources_maintenance,human_resources_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,202
+human_resources_cleaning,human_resources_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,203
+human_resources_security,human_resources_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,204
+energy_renewable,energy_renewable_activity,نشاط الطاقة المتجددة,Renewable Energy Activity,Main activity for Renewable Energy,205
+energy_oil_gas,energy_oil_gas_activity,نشاط النفط والغاز,Oil & Gas Activity,Main activity for Oil & Gas,206
+energy_utilities,energy_utilities_activity,نشاط الخدمات العامة,Utilities Activity,Main activity for Utilities,207
+energy_efficiency,energy_efficiency_activity,نشاط كفاءة الطاقة,Energy Efficiency Activity,Main activity for Energy Efficiency,208
+automotive_consulting,automotive_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,209
+automotive_maintenance,automotive_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,210
+automotive_cleaning,automotive_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,211
+automotive_security,automotive_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,212
+heavy_equipment_consulting,heavy_equipment_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,213
+heavy_equipment_maintenance,heavy_equipment_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,214
+heavy_equipment_cleaning,heavy_equipment_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,215
+heavy_equipment_security,heavy_equipment_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,216
+furniture_software,furniture_software_activity,نشاط البرمجيات,Software Activity,Main activity for Software,217
+furniture_hardware,furniture_hardware_activity,نشاط الأجهزة,Hardware Activity,Main activity for Hardware,218
+furniture_it_services,furniture_it_services_activity,نشاط خدمات تكنولوجيا المعلومات,IT Services Activity,Main activity for IT Services,219
+furniture_telecom,furniture_telecom_activity,نشاط الاتصالات,Telecommunications Activity,Main activity for Telecommunications,220
+beauty_consulting,beauty_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,221
+beauty_maintenance,beauty_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,222
+beauty_cleaning,beauty_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,223
+beauty_security,beauty_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,224
+food_beverage_restaurants,food_beverage_restaurants_activity,نشاط المطاعم,Restaurants Activity,Main activity for Restaurants,225
+food_beverage_cafes,food_beverage_cafes_activity,نشاط المقاهي,Cafes Activity,Main activity for Cafes,226
+food_beverage_catering,food_beverage_catering_activity,نشاط التموين,Catering Activity,Main activity for Catering,227
+food_beverage_fast_food,food_beverage_fast_food_activity,نشاط الوجبات السريعة,Fast Food Activity,Main activity for Fast Food,228
+security_safety_software,security_safety_software_activity,نشاط البرمجيات,Software Activity,Main activity for Software,229
+security_safety_hardware,security_safety_hardware_activity,نشاط الأجهزة,Hardware Activity,Main activity for Hardware,230
+security_safety_it_services,security_safety_it_services_activity,نشاط خدمات تكنولوجيا المعلومات,IT Services Activity,Main activity for IT Services,231
+security_safety_telecom,security_safety_telecom_activity,نشاط الاتصالات,Telecommunications Activity,Main activity for Telecommunications,232
+laboratories_consulting,laboratories_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,233
+laboratories_maintenance,laboratories_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,234
+laboratories_cleaning,laboratories_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,235
+laboratories_security,laboratories_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,236
+research_development_residential,research_development_residential_activity,نشاط السكني,Residential Activity,Main activity for Residential,237
+research_development_commercial,research_development_commercial_activity,نشاط التجاري,Commercial Activity,Main activity for Commercial,238
+research_development_industrial,research_development_industrial_activity,نشاط الصناعي,Industrial Activity,Main activity for Industrial,239
+research_development_brokerage,research_development_brokerage_activity,نشاط الوساطة العقارية,Real Estate Brokerage Activity,Main activity for Real Estate Brokerage,240
+sports_economy_events,sports_economy_events_activity,نشاط الفعاليات,Events Activity,Main activity for Events,241
+sports_economy_media,sports_economy_media_activity,نشاط الإعلام,Media Activity,Main activity for Media,242
+sports_economy_sports,sports_economy_sports_activity,نشاط الرياضة,Sports Activity,Main activity for Sports,243
+sports_economy_tourism,sports_economy_tourism_activity,نشاط السياحة,Tourism Activity,Main activity for Tourism,244
+creative_economy_consulting,creative_economy_consulting_activity,نشاط الاستشارات,Consulting Activity,Main activity for Consulting,245
+creative_economy_maintenance,creative_economy_maintenance_activity,نشاط الصيانة,Maintenance Activity,Main activity for Maintenance,246
+creative_economy_cleaning,creative_economy_cleaning_activity,نشاط النظافة,Cleaning Services Activity,Main activity for Cleaning Services,247
+creative_economy_security,creative_economy_security_activity,نشاط الأمن والحراسة,Security Services Activity,Main activity for Security Services,248
+environment_sustainability_software,environment_sustainability_software_activity,نشاط البرمجيات,Software Activity,Main activity for Software,249
+environment_sustainability_hardware,environment_sustainability_hardware_activity,نشاط الأجهزة,Hardware Activity,Main activity for Hardware,250
+environment_sustainability_it_services,environment_sustainability_it_services_activity,نشاط خدمات تكنولوجيا المعلومات,IT Services Activity,Main activity for IT Services,251
+environment_sustainability_telecom,environment_sustainability_telecom_activity,نشاط الاتصالات,Telecommunications Activity,Main activity for Telecommunications,252

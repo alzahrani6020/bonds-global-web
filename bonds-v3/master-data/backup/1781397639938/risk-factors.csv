@@ -1,0 +1,9 @@
+code,name_ar,name_en,category,default_score,description
+competition,المنافسة,Competition,market,60,Level of market competition
+regulatory,التنظيم والتراخيص,Regulatory & Licensing,legal,40,Government regulation and licensing risk
+demand,طلب السوق,Market Demand,market,50,Customer demand fluctuation
+location,موقع المشروع,Location Risk,operational,55,Impact of location on performance
+staff,توظيف الكوادر,Staff Recruitment,operational,45,Availability of qualified staff
+technology,التقنية والمعدات,Technology & Equipment,operational,35,Equipment failure or obsolescence
+financial,المخاطر المالية,Financial Risk,financial,50,Cash flow and financing risk
+reputation,السمعة,Reputation Risk,market,40,Brand and reputation risk

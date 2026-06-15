@@ -1,0 +1,254 @@
+sector_code,code,name_ar,name_en,description,sort_order
+healthcare,clinics,العيادات,Clinics,Outpatient medical clinics,1
+healthcare,hospitals,المستشفيات,Hospitals,Inpatient hospitals and medical centers,2
+healthcare,pharmacies,الصيدليات,Pharmacies,Retail pharmacies,3
+healthcare,medical_labs,المختبرات الطبية,Medical Labs,Diagnostic laboratories,4
+healthcare,dental_centers,مراكز الأسنان,Dental Centers,Dental clinics and centers,5
+financial_banking,financial_banking_banking,الخدمات المصرفية - القطاع المالي والمصرفي,Banking Services - Financial & Banking,Banking Services within Financial & Banking,6
+financial_banking,financial_banking_insurance,التأمين - القطاع المالي والمصرفي,Insurance - Financial & Banking,Insurance within Financial & Banking,7
+financial_banking,financial_banking_fintech,التقنية المالية - القطاع المالي والمصرفي,Fintech - Financial & Banking,Fintech within Financial & Banking,8
+financial_banking,financial_banking_investment,الاستثمار - القطاع المالي والمصرفي,Investment - Financial & Banking,Investment within Financial & Banking,9
+insurance,insurance_banking,الخدمات المصرفية - التأمين,Banking Services - Insurance,Banking Services within Insurance,10
+insurance,insurance_insurance,التأمين - التأمين,Insurance - Insurance,Insurance within Insurance,11
+insurance,insurance_fintech,التقنية المالية - التأمين,Fintech - Insurance,Fintech within Insurance,12
+insurance,insurance_investment,الاستثمار - التأمين,Investment - Insurance,Investment within Insurance,13
+awqaf,awqaf_consulting,الاستشارات - الأوقاف,Consulting - Awqaf & Endowments,Consulting within Awqaf & Endowments,14
+awqaf,awqaf_maintenance,الصيانة - الأوقاف,Maintenance - Awqaf & Endowments,Maintenance within Awqaf & Endowments,15
+awqaf,awqaf_cleaning,النظافة - الأوقاف,Cleaning Services - Awqaf & Endowments,Cleaning Services within Awqaf & Endowments,16
+awqaf,awqaf_security,الأمن والحراسة - الأوقاف,Security Services - Awqaf & Endowments,Security Services within Awqaf & Endowments,17
+education,education_schools,المدارس - التعليمي,Schools - Education,Schools within Education,18
+education,education_training,مراكز التدريب - التعليمي,Training Centers - Education,Training Centers within Education,19
+education,education_universities,الجامعات - التعليمي,Universities - Education,Universities within Education,20
+education,education_elearning,التعليم الإلكتروني - التعليمي,E-Learning - Education,E-Learning within Education,21
+industrial,industrial_factories,المصانع - الصناعي,Factories - General Industry,Factories within General Industry,22
+industrial,industrial_workshops,الورش - الصناعي,Workshops - General Industry,Workshops within General Industry,23
+industrial,industrial_assembly,التجميع - الصناعي,Assembly - General Industry,Assembly within General Industry,24
+industrial,industrial_packaging,التعبئة والتغليف - الصناعي,Packaging - General Industry,Packaging within General Industry,25
+food_industries,food_industries_restaurants,المطاعم - الصناعات الغذائية,Restaurants - Food Industries,Restaurants within Food Industries,26
+food_industries,food_industries_cafes,المقاهي - الصناعات الغذائية,Cafes - Food Industries,Cafes within Food Industries,27
+food_industries,food_industries_catering,التموين - الصناعات الغذائية,Catering - Food Industries,Catering within Food Industries,28
+food_industries,food_industries_fast_food,الوجبات السريعة - الصناعات الغذائية,Fast Food - Food Industries,Fast Food within Food Industries,29
+pharmaceutical_industries,pharmaceutical_industries_consulting,الاستشارات - الصناعات الدوائية,Consulting - Pharmaceutical Industries,Consulting within Pharmaceutical Industries,30
+pharmaceutical_industries,pharmaceutical_industries_maintenance,الصيانة - الصناعات الدوائية,Maintenance - Pharmaceutical Industries,Maintenance within Pharmaceutical Industries,31
+pharmaceutical_industries,pharmaceutical_industries_cleaning,النظافة - الصناعات الدوائية,Cleaning Services - Pharmaceutical Industries,Cleaning Services within Pharmaceutical Industries,32
+pharmaceutical_industries,pharmaceutical_industries_security,الأمن والحراسة - الصناعات الدوائية,Security Services - Pharmaceutical Industries,Security Services within Pharmaceutical Industries,33
+chemical_industries,chemical_industries_consulting,الاستشارات - الصناعات الكيميائية,Consulting - Chemical Industries,Consulting within Chemical Industries,34
+chemical_industries,chemical_industries_maintenance,الصيانة - الصناعات الكيميائية,Maintenance - Chemical Industries,Maintenance within Chemical Industries,35
+chemical_industries,chemical_industries_cleaning,النظافة - الصناعات الكيميائية,Cleaning Services - Chemical Industries,Cleaning Services within Chemical Industries,36
+chemical_industries,chemical_industries_security,الأمن والحراسة - الصناعات الكيميائية,Security Services - Chemical Industries,Security Services within Chemical Industries,37
+mining,mining_consulting,الاستشارات - التعدين,Consulting - Mining,Consulting within Mining,38
+mining,mining_maintenance,الصيانة - التعدين,Maintenance - Mining,Maintenance within Mining,39
+mining,mining_cleaning,النظافة - التعدين,Cleaning Services - Mining,Cleaning Services within Mining,40
+mining,mining_security,الأمن والحراسة - التعدين,Security Services - Mining,Security Services within Mining,41
+geology,geology_consulting,الاستشارات - الجيولوجيا,Consulting - Geology,Consulting within Geology,42
+geology,geology_maintenance,الصيانة - الجيولوجيا,Maintenance - Geology,Maintenance within Geology,43
+geology,geology_cleaning,النظافة - الجيولوجيا,Cleaning Services - Geology,Cleaning Services within Geology,44
+geology,geology_security,الأمن والحراسة - الجيولوجيا,Security Services - Geology,Security Services within Geology,45
+oil_gas,oil_gas_renewable,الطاقة المتجددة - النفط والغاز,Renewable Energy - Oil & Gas,Renewable Energy within Oil & Gas,46
+oil_gas,oil_gas_oil_gas,النفط والغاز - النفط والغاز,Oil & Gas - Oil & Gas,Oil & Gas within Oil & Gas,47
+oil_gas,oil_gas_utilities,الخدمات العامة - النفط والغاز,Utilities - Oil & Gas,Utilities within Oil & Gas,48
+oil_gas,oil_gas_efficiency,كفاءة الطاقة - النفط والغاز,Energy Efficiency - Oil & Gas,Energy Efficiency within Oil & Gas,49
+oil_refineries,oil_refineries_renewable,الطاقة المتجددة - مصافي النفط,Renewable Energy - Oil Refineries,Renewable Energy within Oil Refineries,50
+oil_refineries,oil_refineries_oil_gas,النفط والغاز - مصافي النفط,Oil & Gas - Oil Refineries,Oil & Gas within Oil Refineries,51
+oil_refineries,oil_refineries_utilities,الخدمات العامة - مصافي النفط,Utilities - Oil Refineries,Utilities within Oil Refineries,52
+oil_refineries,oil_refineries_efficiency,كفاءة الطاقة - مصافي النفط,Energy Efficiency - Oil Refineries,Energy Efficiency within Oil Refineries,53
+metal_refineries,metal_refineries_consulting,الاستشارات - مصافي المعادن,Consulting - Metal Refineries,Consulting within Metal Refineries,54
+metal_refineries,metal_refineries_maintenance,الصيانة - مصافي المعادن,Maintenance - Metal Refineries,Maintenance within Metal Refineries,55
+metal_refineries,metal_refineries_cleaning,النظافة - مصافي المعادن,Cleaning Services - Metal Refineries,Cleaning Services within Metal Refineries,56
+metal_refineries,metal_refineries_security,الأمن والحراسة - مصافي المعادن,Security Services - Metal Refineries,Security Services within Metal Refineries,57
+water,water_consulting,الاستشارات - المياه,Consulting - Water,Consulting within Water,58
+water,water_maintenance,الصيانة - المياه,Maintenance - Water,Maintenance within Water,59
+water,water_cleaning,النظافة - المياه,Cleaning Services - Water,Cleaning Services within Water,60
+water,water_security,الأمن والحراسة - المياه,Security Services - Water,Security Services within Water,61
+well_drilling,well_drilling_consulting,الاستشارات - حفر الآبار,Consulting - Well Drilling,Consulting within Well Drilling,62
+well_drilling,well_drilling_maintenance,الصيانة - حفر الآبار,Maintenance - Well Drilling,Maintenance within Well Drilling,63
+well_drilling,well_drilling_cleaning,النظافة - حفر الآبار,Cleaning Services - Well Drilling,Cleaning Services within Well Drilling,64
+well_drilling,well_drilling_security,الأمن والحراسة - حفر الآبار,Security Services - Well Drilling,Security Services within Well Drilling,65
+agriculture,agriculture_farming,الزراعة - الزراعة,Farming - Agriculture,Farming within Agriculture,66
+agriculture,agriculture_livestock,تربية الحيوان - الزراعة,Livestock - Agriculture,Livestock within Agriculture,67
+agriculture,agriculture_processing,تجهيز المنتجات - الزراعة,Processing - Agriculture,Processing within Agriculture,68
+agriculture,agriculture_distribution,التوزيع - الزراعة,Distribution - Agriculture,Distribution within Agriculture,69
+agricultural_inputs,agricultural_inputs_farming,الزراعة - المدخلات الزراعية,Farming - Agricultural Inputs,Farming within Agricultural Inputs,70
+agricultural_inputs,agricultural_inputs_livestock,تربية الحيوان - المدخلات الزراعية,Livestock - Agricultural Inputs,Livestock within Agricultural Inputs,71
+agricultural_inputs,agricultural_inputs_processing,تجهيز المنتجات - المدخلات الزراعية,Processing - Agricultural Inputs,Processing within Agricultural Inputs,72
+agricultural_inputs,agricultural_inputs_distribution,التوزيع - المدخلات الزراعية,Distribution - Agricultural Inputs,Distribution within Agricultural Inputs,73
+desertification_control,desertification_control_consulting,الاستشارات - مكافحة التصحر,Consulting - Desertification Control,Consulting within Desertification Control,74
+desertification_control,desertification_control_maintenance,الصيانة - مكافحة التصحر,Maintenance - Desertification Control,Maintenance within Desertification Control,75
+desertification_control,desertification_control_cleaning,النظافة - مكافحة التصحر,Cleaning Services - Desertification Control,Cleaning Services within Desertification Control,76
+desertification_control,desertification_control_security,الأمن والحراسة - مكافحة التصحر,Security Services - Desertification Control,Security Services within Desertification Control,77
+livestock,livestock_farming,الزراعة - الثروة الحيوانية,Farming - Livestock,Farming within Livestock,78
+livestock,livestock_livestock,تربية الحيوان - الثروة الحيوانية,Livestock - Livestock,Livestock within Livestock,79
+livestock,livestock_processing,تجهيز المنتجات - الثروة الحيوانية,Processing - Livestock,Processing within Livestock,80
+livestock,livestock_distribution,التوزيع - الثروة الحيوانية,Distribution - Livestock,Distribution within Livestock,81
+poultry,poultry_consulting,الاستشارات - الدواجن,Consulting - Poultry,Consulting within Poultry,82
+poultry,poultry_maintenance,الصيانة - الدواجن,Maintenance - Poultry,Maintenance within Poultry,83
+poultry,poultry_cleaning,النظافة - الدواجن,Cleaning Services - Poultry,Cleaning Services within Poultry,84
+poultry,poultry_security,الأمن والحراسة - الدواجن,Security Services - Poultry,Security Services within Poultry,85
+fisheries,fisheries_consulting,الاستشارات - الثروة السمكية,Consulting - Fisheries,Consulting within Fisheries,86
+fisheries,fisheries_maintenance,الصيانة - الثروة السمكية,Maintenance - Fisheries,Maintenance within Fisheries,87
+fisheries,fisheries_cleaning,النظافة - الثروة السمكية,Cleaning Services - Fisheries,Cleaning Services within Fisheries,88
+fisheries,fisheries_security,الأمن والحراسة - الثروة السمكية,Security Services - Fisheries,Security Services within Fisheries,89
+real_estate,real_estate_residential,السكني - العقار,Residential - Real Estate,Residential within Real Estate,90
+real_estate,real_estate_commercial,التجاري - العقار,Commercial - Real Estate,Commercial within Real Estate,91
+real_estate,real_estate_industrial,الصناعي - العقار,Industrial - Real Estate,Industrial within Real Estate,92
+real_estate,real_estate_brokerage,الوساطة العقارية - العقار,Real Estate Brokerage - Real Estate,Real Estate Brokerage within Real Estate,93
+contracting,contracting_consulting,الاستشارات - المقاولات,Consulting - Contracting,Consulting within Contracting,94
+contracting,contracting_maintenance,الصيانة - المقاولات,Maintenance - Contracting,Maintenance within Contracting,95
+contracting,contracting_cleaning,النظافة - المقاولات,Cleaning Services - Contracting,Cleaning Services within Contracting,96
+contracting,contracting_security,الأمن والحراسة - المقاولات,Security Services - Contracting,Security Services within Contracting,97
+industrial_cities,industrial_cities_factories,المصانع - المدن الصناعية,Factories - Industrial Cities,Factories within Industrial Cities,98
+industrial_cities,industrial_cities_workshops,الورش - المدن الصناعية,Workshops - Industrial Cities,Workshops within Industrial Cities,99
+industrial_cities,industrial_cities_assembly,التجميع - المدن الصناعية,Assembly - Industrial Cities,Assembly within Industrial Cities,100
+industrial_cities,industrial_cities_packaging,التعبئة والتغليف - المدن الصناعية,Packaging - Industrial Cities,Packaging within Industrial Cities,101
+logistics,logistics_transport,النقل - اللوجستيات,Transport - Logistics,Transport within Logistics,102
+logistics,logistics_warehousing,التخزين - اللوجستيات,Warehousing - Logistics,Warehousing within Logistics,103
+logistics,logistics_shipping,الشحن - اللوجستيات,Shipping - Logistics,Shipping within Logistics,104
+logistics,logistics_last_mile,التوصيل الأخير - اللوجستيات,Last Mile Delivery - Logistics,Last Mile Delivery within Logistics,105
+dry_warehouses,dry_warehouses_transport,النقل - المستودعات الجافة,Transport - Dry Warehouses,Transport within Dry Warehouses,106
+dry_warehouses,dry_warehouses_warehousing,التخزين - المستودعات الجافة,Warehousing - Dry Warehouses,Warehousing within Dry Warehouses,107
+dry_warehouses,dry_warehouses_shipping,الشحن - المستودعات الجافة,Shipping - Dry Warehouses,Shipping within Dry Warehouses,108
+dry_warehouses,dry_warehouses_last_mile,التوصيل الأخير - المستودعات الجافة,Last Mile Delivery - Dry Warehouses,Last Mile Delivery within Dry Warehouses,109
+cold_warehouses,cold_warehouses_transport,النقل - المستودعات المبردة,Transport - Cold Storage,Transport within Cold Storage,110
+cold_warehouses,cold_warehouses_warehousing,التخزين - المستودعات المبردة,Warehousing - Cold Storage,Warehousing within Cold Storage,111
+cold_warehouses,cold_warehouses_shipping,الشحن - المستودعات المبردة,Shipping - Cold Storage,Shipping within Cold Storage,112
+cold_warehouses,cold_warehouses_last_mile,التوصيل الأخير - المستودعات المبردة,Last Mile Delivery - Cold Storage,Last Mile Delivery within Cold Storage,113
+transport,transport_transport,النقل - النقل,Transport - Transport,Transport within Transport,114
+transport,transport_warehousing,التخزين - النقل,Warehousing - Transport,Warehousing within Transport,115
+transport,transport_shipping,الشحن - النقل,Shipping - Transport,Shipping within Transport,116
+transport,transport_last_mile,التوصيل الأخير - النقل,Last Mile Delivery - Transport,Last Mile Delivery within Transport,117
+ports,ports_consulting,الاستشارات - الموانئ,Consulting - Ports,Consulting within Ports,118
+ports,ports_maintenance,الصيانة - الموانئ,Maintenance - Ports,Maintenance within Ports,119
+ports,ports_cleaning,النظافة - الموانئ,Cleaning Services - Ports,Cleaning Services within Ports,120
+ports,ports_security,الأمن والحراسة - الموانئ,Security Services - Ports,Security Services within Ports,121
+aviation,aviation_consulting,الاستشارات - الطيران,Consulting - Aviation,Consulting within Aviation,122
+aviation,aviation_maintenance,الصيانة - الطيران,Maintenance - Aviation,Maintenance within Aviation,123
+aviation,aviation_cleaning,النظافة - الطيران,Cleaning Services - Aviation,Cleaning Services within Aviation,124
+aviation,aviation_security,الأمن والحراسة - الطيران,Security Services - Aviation,Security Services within Aviation,125
+private_aviation,private_aviation_consulting,الاستشارات - الطيران الخاص,Consulting - Private Aviation,Consulting within Private Aviation,126
+private_aviation,private_aviation_maintenance,الصيانة - الطيران الخاص,Maintenance - Private Aviation,Maintenance within Private Aviation,127
+private_aviation,private_aviation_cleaning,النظافة - الطيران الخاص,Cleaning Services - Private Aviation,Cleaning Services within Private Aviation,128
+private_aviation,private_aviation_security,الأمن والحراسة - الطيران الخاص,Security Services - Private Aviation,Security Services within Private Aviation,129
+hajj_umrah,hajj_umrah_consulting,الاستشارات - الحج والعمرة,Consulting - Hajj & Umrah,Consulting within Hajj & Umrah,130
+hajj_umrah,hajj_umrah_maintenance,الصيانة - الحج والعمرة,Maintenance - Hajj & Umrah,Maintenance within Hajj & Umrah,131
+hajj_umrah,hajj_umrah_cleaning,النظافة - الحج والعمرة,Cleaning Services - Hajj & Umrah,Cleaning Services within Hajj & Umrah,132
+hajj_umrah,hajj_umrah_security,الأمن والحراسة - الحج والعمرة,Security Services - Hajj & Umrah,Security Services within Hajj & Umrah,133
+tourism,tourism_events,الفعاليات - السياحة,Events - Tourism,Events within Tourism,134
+tourism,tourism_media,الإعلام - السياحة,Media - Tourism,Media within Tourism,135
+tourism,tourism_sports,الرياضة - السياحة,Sports - Tourism,Sports within Tourism,136
+tourism,tourism_tourism,السياحة - السياحة,Tourism - Tourism,Tourism within Tourism,137
+hospitality,hospitality_software,البرمجيات - الضيافة,Software - Hospitality,Software within Hospitality,138
+hospitality,hospitality_hardware,الأجهزة - الضيافة,Hardware - Hospitality,Hardware within Hospitality,139
+hospitality,hospitality_it_services,خدمات تكنولوجيا المعلومات - الضيافة,IT Services - Hospitality,IT Services within Hospitality,140
+hospitality,hospitality_telecom,الاتصالات - الضيافة,Telecommunications - Hospitality,Telecommunications within Hospitality,141
+entertainment,entertainment_events,الفعاليات - الترفيه,Events - Entertainment,Events within Entertainment,142
+entertainment,entertainment_media,الإعلام - الترفيه,Media - Entertainment,Media within Entertainment,143
+entertainment,entertainment_sports,الرياضة - الترفيه,Sports - Entertainment,Sports within Entertainment,144
+entertainment,entertainment_tourism,السياحة - الترفيه,Tourism - Entertainment,Tourism within Entertainment,145
+culture,culture_consulting,الاستشارات - الثقافة,Consulting - Culture,Consulting within Culture,146
+culture,culture_maintenance,الصيانة - الثقافة,Maintenance - Culture,Maintenance within Culture,147
+culture,culture_cleaning,النظافة - الثقافة,Cleaning Services - Culture,Cleaning Services within Culture,148
+culture,culture_security,الأمن والحراسة - الثقافة,Security Services - Culture,Security Services within Culture,149
+media,media_events,الفعاليات - الإعلام,Events - Media,Events within Media,150
+media,media_media,الإعلام - الإعلام,Media - Media,Media within Media,151
+media,media_sports,الرياضة - الإعلام,Sports - Media,Sports within Media,152
+media,media_tourism,السياحة - الإعلام,Tourism - Media,Tourism within Media,153
+advertising,advertising_consulting,الاستشارات - الإعلان,Consulting - Advertising,Consulting within Advertising,154
+advertising,advertising_maintenance,الصيانة - الإعلان,Maintenance - Advertising,Maintenance within Advertising,155
+advertising,advertising_cleaning,النظافة - الإعلان,Cleaning Services - Advertising,Cleaning Services within Advertising,156
+advertising,advertising_security,الأمن والحراسة - الإعلان,Security Services - Advertising,Security Services within Advertising,157
+technology,technology_software,البرمجيات - التقنية,Software - Technology,Software within Technology,158
+technology,technology_hardware,الأجهزة - التقنية,Hardware - Technology,Hardware within Technology,159
+technology,technology_it_services,خدمات تكنولوجيا المعلومات - التقنية,IT Services - Technology,IT Services within Technology,160
+technology,technology_telecom,الاتصالات - التقنية,Telecommunications - Technology,Telecommunications within Technology,161
+artificial_intelligence,artificial_intelligence_consulting,الاستشارات - الذكاء الاصطناعي,Consulting - Artificial Intelligence,Consulting within Artificial Intelligence,162
+artificial_intelligence,artificial_intelligence_maintenance,الصيانة - الذكاء الاصطناعي,Maintenance - Artificial Intelligence,Maintenance within Artificial Intelligence,163
+artificial_intelligence,artificial_intelligence_cleaning,النظافة - الذكاء الاصطناعي,Cleaning Services - Artificial Intelligence,Cleaning Services within Artificial Intelligence,164
+artificial_intelligence,artificial_intelligence_security,الأمن والحراسة - الذكاء الاصطناعي,Security Services - Artificial Intelligence,Security Services within Artificial Intelligence,165
+cybersecurity,cybersecurity_software,البرمجيات - الأمن السيبراني,Software - Cybersecurity,Software within Cybersecurity,166
+cybersecurity,cybersecurity_hardware,الأجهزة - الأمن السيبراني,Hardware - Cybersecurity,Hardware within Cybersecurity,167
+cybersecurity,cybersecurity_it_services,خدمات تكنولوجيا المعلومات - الأمن السيبراني,IT Services - Cybersecurity,IT Services within Cybersecurity,168
+cybersecurity,cybersecurity_telecom,الاتصالات - الأمن السيبراني,Telecommunications - Cybersecurity,Telecommunications within Cybersecurity,169
+commerce,commerce_retail,التجزئة - التجارة,Retail - Commerce,Retail within Commerce,170
+commerce,commerce_wholesale,الجملة - التجارة,Wholesale - Commerce,Wholesale within Commerce,171
+commerce,commerce_ecommerce,التجارة الإلكترونية - التجارة,E-Commerce - Commerce,E-Commerce within Commerce,172
+commerce,commerce_import_export,الاستيراد والتصدير - التجارة,Import & Export - Commerce,Import & Export within Commerce,173
+ecommerce,ecommerce_retail,التجزئة - التجارة الإلكترونية,Retail - E-commerce,Retail within E-commerce,174
+ecommerce,ecommerce_wholesale,الجملة - التجارة الإلكترونية,Wholesale - E-commerce,Wholesale within E-commerce,175
+ecommerce,ecommerce_ecommerce,التجارة الإلكترونية - التجارة الإلكترونية,E-Commerce - E-commerce,E-Commerce within E-commerce,176
+ecommerce,ecommerce_import_export,الاستيراد والتصدير - التجارة الإلكترونية,Import & Export - E-commerce,Import & Export within E-commerce,177
+public_services,public_services_public_services,الخدمات العامة - الخدمات العامة,Public Services - Public Services,Public Services within Public Services,178
+public_services,public_services_consulting,الاستشارات الحكومية - الخدمات العامة,Government Consulting - Public Services,Government Consulting within Public Services,179
+public_services,public_services_facilities,إدارة المرافق - الخدمات العامة,Facilities Management - Public Services,Facilities Management within Public Services,180
+public_services,public_services_digital,التحول الرقمي - الخدمات العامة,Digital Transformation - Public Services,Digital Transformation within Public Services,181
+facilities_management,facilities_management_software,البرمجيات - إدارة المرافق,Software - Facilities Management,Software within Facilities Management,182
+facilities_management,facilities_management_hardware,الأجهزة - إدارة المرافق,Hardware - Facilities Management,Hardware within Facilities Management,183
+facilities_management,facilities_management_it_services,خدمات تكنولوجيا المعلومات - إدارة المرافق,IT Services - Facilities Management,IT Services within Facilities Management,184
+facilities_management,facilities_management_telecom,الاتصالات - إدارة المرافق,Telecommunications - Facilities Management,Telecommunications within Facilities Management,185
+consulting,consulting_consulting,الاستشارات - الاستشارات,Consulting - Consulting,Consulting within Consulting,186
+consulting,consulting_maintenance,الصيانة - الاستشارات,Maintenance - Consulting,Maintenance within Consulting,187
+consulting,consulting_cleaning,النظافة - الاستشارات,Cleaning Services - Consulting,Cleaning Services within Consulting,188
+consulting,consulting_security,الأمن والحراسة - الاستشارات,Security Services - Consulting,Security Services within Consulting,189
+commercial_brokerage,commercial_brokerage_consulting,الاستشارات - الوساطة التجارية,Consulting - Commercial Brokerage,Consulting within Commercial Brokerage,190
+commercial_brokerage,commercial_brokerage_maintenance,الصيانة - الوساطة التجارية,Maintenance - Commercial Brokerage,Maintenance within Commercial Brokerage,191
+commercial_brokerage,commercial_brokerage_cleaning,النظافة - الوساطة التجارية,Cleaning Services - Commercial Brokerage,Cleaning Services within Commercial Brokerage,192
+commercial_brokerage,commercial_brokerage_security,الأمن والحراسة - الوساطة التجارية,Security Services - Commercial Brokerage,Security Services within Commercial Brokerage,193
+insurance_agent,insurance_agent_banking,الخدمات المصرفية - وكيل التأمين,Banking Services - Insurance Agent,Banking Services within Insurance Agent,194
+insurance_agent,insurance_agent_insurance,التأمين - وكيل التأمين,Insurance - Insurance Agent,Insurance within Insurance Agent,195
+insurance_agent,insurance_agent_fintech,التقنية المالية - وكيل التأمين,Fintech - Insurance Agent,Fintech within Insurance Agent,196
+insurance_agent,insurance_agent_investment,الاستثمار - وكيل التأمين,Investment - Insurance Agent,Investment within Insurance Agent,197
+insurance_broker,insurance_broker_banking,الخدمات المصرفية - وسيط التأمين,Banking Services - Insurance Broker,Banking Services within Insurance Broker,198
+insurance_broker,insurance_broker_insurance,التأمين - وسيط التأمين,Insurance - Insurance Broker,Insurance within Insurance Broker,199
+insurance_broker,insurance_broker_fintech,التقنية المالية - وسيط التأمين,Fintech - Insurance Broker,Fintech within Insurance Broker,200
+insurance_broker,insurance_broker_investment,الاستثمار - وسيط التأمين,Investment - Insurance Broker,Investment within Insurance Broker,201
+human_resources,human_resources_consulting,الاستشارات - الموارد البشرية,Consulting - Human Resources,Consulting within Human Resources,202
+human_resources,human_resources_maintenance,الصيانة - الموارد البشرية,Maintenance - Human Resources,Maintenance within Human Resources,203
+human_resources,human_resources_cleaning,النظافة - الموارد البشرية,Cleaning Services - Human Resources,Cleaning Services within Human Resources,204
+human_resources,human_resources_security,الأمن والحراسة - الموارد البشرية,Security Services - Human Resources,Security Services within Human Resources,205
+energy,energy_renewable,الطاقة المتجددة - الطاقة,Renewable Energy - Energy,Renewable Energy within Energy,206
+energy,energy_oil_gas,النفط والغاز - الطاقة,Oil & Gas - Energy,Oil & Gas within Energy,207
+energy,energy_utilities,الخدمات العامة - الطاقة,Utilities - Energy,Utilities within Energy,208
+energy,energy_efficiency,كفاءة الطاقة - الطاقة,Energy Efficiency - Energy,Energy Efficiency within Energy,209
+automotive,automotive_consulting,الاستشارات - السيارات,Consulting - Automotive,Consulting within Automotive,210
+automotive,automotive_maintenance,الصيانة - السيارات,Maintenance - Automotive,Maintenance within Automotive,211
+automotive,automotive_cleaning,النظافة - السيارات,Cleaning Services - Automotive,Cleaning Services within Automotive,212
+automotive,automotive_security,الأمن والحراسة - السيارات,Security Services - Automotive,Security Services within Automotive,213
+heavy_equipment,heavy_equipment_consulting,الاستشارات - المعدات الثقيلة,Consulting - Heavy Equipment,Consulting within Heavy Equipment,214
+heavy_equipment,heavy_equipment_maintenance,الصيانة - المعدات الثقيلة,Maintenance - Heavy Equipment,Maintenance within Heavy Equipment,215
+heavy_equipment,heavy_equipment_cleaning,النظافة - المعدات الثقيلة,Cleaning Services - Heavy Equipment,Cleaning Services within Heavy Equipment,216
+heavy_equipment,heavy_equipment_security,الأمن والحراسة - المعدات الثقيلة,Security Services - Heavy Equipment,Security Services within Heavy Equipment,217
+furniture,furniture_software,البرمجيات - الأثاث,Software - Furniture,Software within Furniture,218
+furniture,furniture_hardware,الأجهزة - الأثاث,Hardware - Furniture,Hardware within Furniture,219
+furniture,furniture_it_services,خدمات تكنولوجيا المعلومات - الأثاث,IT Services - Furniture,IT Services within Furniture,220
+furniture,furniture_telecom,الاتصالات - الأثاث,Telecommunications - Furniture,Telecommunications within Furniture,221
+beauty,beauty_consulting,الاستشارات - التجميل,Consulting - Beauty,Consulting within Beauty,222
+beauty,beauty_maintenance,الصيانة - التجميل,Maintenance - Beauty,Maintenance within Beauty,223
+beauty,beauty_cleaning,النظافة - التجميل,Cleaning Services - Beauty,Cleaning Services within Beauty,224
+beauty,beauty_security,الأمن والحراسة - التجميل,Security Services - Beauty,Security Services within Beauty,225
+food_beverage,food_beverage_restaurants,المطاعم - الأغذية والمشروبات,Restaurants - Food & Beverage,Restaurants within Food & Beverage,226
+food_beverage,food_beverage_cafes,المقاهي - الأغذية والمشروبات,Cafes - Food & Beverage,Cafes within Food & Beverage,227
+food_beverage,food_beverage_catering,التموين - الأغذية والمشروبات,Catering - Food & Beverage,Catering within Food & Beverage,228
+food_beverage,food_beverage_fast_food,الوجبات السريعة - الأغذية والمشروبات,Fast Food - Food & Beverage,Fast Food within Food & Beverage,229
+security_safety,security_safety_software,البرمجيات - الأمن والسلامة,Software - Security & Safety,Software within Security & Safety,230
+security_safety,security_safety_hardware,الأجهزة - الأمن والسلامة,Hardware - Security & Safety,Hardware within Security & Safety,231
+security_safety,security_safety_it_services,خدمات تكنولوجيا المعلومات - الأمن والسلامة,IT Services - Security & Safety,IT Services within Security & Safety,232
+security_safety,security_safety_telecom,الاتصالات - الأمن والسلامة,Telecommunications - Security & Safety,Telecommunications within Security & Safety,233
+laboratories,laboratories_consulting,الاستشارات - المختبرات,Consulting - Laboratories,Consulting within Laboratories,234
+laboratories,laboratories_maintenance,الصيانة - المختبرات,Maintenance - Laboratories,Maintenance within Laboratories,235
+laboratories,laboratories_cleaning,النظافة - المختبرات,Cleaning Services - Laboratories,Cleaning Services within Laboratories,236
+laboratories,laboratories_security,الأمن والحراسة - المختبرات,Security Services - Laboratories,Security Services within Laboratories,237
+research_development,research_development_residential,السكني - البحث والتطوير,Residential - Research & Development,Residential within Research & Development,238
+research_development,research_development_commercial,التجاري - البحث والتطوير,Commercial - Research & Development,Commercial within Research & Development,239
+research_development,research_development_industrial,الصناعي - البحث والتطوير,Industrial - Research & Development,Industrial within Research & Development,240
+research_development,research_development_brokerage,الوساطة العقارية - البحث والتطوير,Real Estate Brokerage - Research & Development,Real Estate Brokerage within Research & Development,241
+sports_economy,sports_economy_events,الفعاليات - الاقتصاد الرياضي,Events - Sports Economy,Events within Sports Economy,242
+sports_economy,sports_economy_media,الإعلام - الاقتصاد الرياضي,Media - Sports Economy,Media within Sports Economy,243
+sports_economy,sports_economy_sports,الرياضة - الاقتصاد الرياضي,Sports - Sports Economy,Sports within Sports Economy,244
+sports_economy,sports_economy_tourism,السياحة - الاقتصاد الرياضي,Tourism - Sports Economy,Tourism within Sports Economy,245
+creative_economy,creative_economy_consulting,الاستشارات - الاقتصاد الإبداعي,Consulting - Creative Economy,Consulting within Creative Economy,246
+creative_economy,creative_economy_maintenance,الصيانة - الاقتصاد الإبداعي,Maintenance - Creative Economy,Maintenance within Creative Economy,247
+creative_economy,creative_economy_cleaning,النظافة - الاقتصاد الإبداعي,Cleaning Services - Creative Economy,Cleaning Services within Creative Economy,248
+creative_economy,creative_economy_security,الأمن والحراسة - الاقتصاد الإبداعي,Security Services - Creative Economy,Security Services within Creative Economy,249
+environment_sustainability,environment_sustainability_software,البرمجيات - البيئة والاستدامة,Software - Environment & Sustainability,Software within Environment & Sustainability,250
+environment_sustainability,environment_sustainability_hardware,الأجهزة - البيئة والاستدامة,Hardware - Environment & Sustainability,Hardware within Environment & Sustainability,251
+environment_sustainability,environment_sustainability_it_services,خدمات تكنولوجيا المعلومات - البيئة والاستدامة,IT Services - Environment & Sustainability,IT Services within Environment & Sustainability,252
+environment_sustainability,environment_sustainability_telecom,الاتصالات - البيئة والاستدامة,Telecommunications - Environment & Sustainability,Telecommunications within Environment & Sustainability,253

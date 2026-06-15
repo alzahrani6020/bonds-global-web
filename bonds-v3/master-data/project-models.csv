@@ -1,0 +1,748 @@
+activity_detail_code,code,name_ar,name_en,size_category,model_type,capex_min,capex_max,revenue_min,revenue_max,employee_count_min,employee_count_max,typical_roi_months,is_published
+small_dental_clinic,small_dental_clinic_model,نموذج عيادة أسنان صغيرة,Small Dental Clinic Model,small,greenfield,250000,450000,400000,700000,2,4,18,true
+medium_dental_clinic,medium_dental_clinic_model,نموذج عيادة أسنان متوسطة,Medium Dental Clinic Model,medium,greenfield,600000,1200000,1000000,2000000,5,10,24,true
+large_dental_clinic,large_dental_clinic_model,نموذج عيادة أسنان كبيرة,Large Dental Clinic Model,large,greenfield,1500000,3000000,2500000,5000000,12,25,36,true
+financial_banking_banking_activity_small,financial_banking_banking_activity_small_model,نموذج الخدمات المصرفية صغير,Small Banking Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+financial_banking_banking_activity_medium,financial_banking_banking_activity_medium_model,نموذج الخدمات المصرفية متوسط,Medium Banking Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+financial_banking_banking_activity_large,financial_banking_banking_activity_large_model,نموذج الخدمات المصرفية كبير,Large Banking Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+financial_banking_insurance_activity_small,financial_banking_insurance_activity_small_model,نموذج التأمين صغير,Small Insurance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+financial_banking_insurance_activity_medium,financial_banking_insurance_activity_medium_model,نموذج التأمين متوسط,Medium Insurance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+financial_banking_insurance_activity_large,financial_banking_insurance_activity_large_model,نموذج التأمين كبير,Large Insurance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+financial_banking_fintech_activity_small,financial_banking_fintech_activity_small_model,نموذج التقنية المالية صغير,Small Fintech Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+financial_banking_fintech_activity_medium,financial_banking_fintech_activity_medium_model,نموذج التقنية المالية متوسط,Medium Fintech Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+financial_banking_fintech_activity_large,financial_banking_fintech_activity_large_model,نموذج التقنية المالية كبير,Large Fintech Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+financial_banking_investment_activity_small,financial_banking_investment_activity_small_model,نموذج الاستثمار صغير,Small Investment Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+financial_banking_investment_activity_medium,financial_banking_investment_activity_medium_model,نموذج الاستثمار متوسط,Medium Investment Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+financial_banking_investment_activity_large,financial_banking_investment_activity_large_model,نموذج الاستثمار كبير,Large Investment Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+insurance_banking_activity_small,insurance_banking_activity_small_model,نموذج الخدمات المصرفية صغير,Small Banking Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+insurance_banking_activity_medium,insurance_banking_activity_medium_model,نموذج الخدمات المصرفية متوسط,Medium Banking Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+insurance_banking_activity_large,insurance_banking_activity_large_model,نموذج الخدمات المصرفية كبير,Large Banking Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+insurance_insurance_activity_small,insurance_insurance_activity_small_model,نموذج التأمين صغير,Small Insurance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+insurance_insurance_activity_medium,insurance_insurance_activity_medium_model,نموذج التأمين متوسط,Medium Insurance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+insurance_insurance_activity_large,insurance_insurance_activity_large_model,نموذج التأمين كبير,Large Insurance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+insurance_fintech_activity_small,insurance_fintech_activity_small_model,نموذج التقنية المالية صغير,Small Fintech Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+insurance_fintech_activity_medium,insurance_fintech_activity_medium_model,نموذج التقنية المالية متوسط,Medium Fintech Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+insurance_fintech_activity_large,insurance_fintech_activity_large_model,نموذج التقنية المالية كبير,Large Fintech Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+insurance_investment_activity_small,insurance_investment_activity_small_model,نموذج الاستثمار صغير,Small Investment Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+insurance_investment_activity_medium,insurance_investment_activity_medium_model,نموذج الاستثمار متوسط,Medium Investment Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+insurance_investment_activity_large,insurance_investment_activity_large_model,نموذج الاستثمار كبير,Large Investment Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+awqaf_consulting_activity_small,awqaf_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+awqaf_consulting_activity_medium,awqaf_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+awqaf_consulting_activity_large,awqaf_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+awqaf_maintenance_activity_small,awqaf_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+awqaf_maintenance_activity_medium,awqaf_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+awqaf_maintenance_activity_large,awqaf_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+awqaf_cleaning_activity_small,awqaf_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+awqaf_cleaning_activity_medium,awqaf_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+awqaf_cleaning_activity_large,awqaf_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+awqaf_security_activity_small,awqaf_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+awqaf_security_activity_medium,awqaf_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+awqaf_security_activity_large,awqaf_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+education_schools_activity_small,education_schools_activity_small_model,نموذج المدارس صغير,Small Schools Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+education_schools_activity_medium,education_schools_activity_medium_model,نموذج المدارس متوسط,Medium Schools Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+education_schools_activity_large,education_schools_activity_large_model,نموذج المدارس كبير,Large Schools Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+education_training_activity_small,education_training_activity_small_model,نموذج مراكز التدريب صغير,Small Training Centers Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+education_training_activity_medium,education_training_activity_medium_model,نموذج مراكز التدريب متوسط,Medium Training Centers Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+education_training_activity_large,education_training_activity_large_model,نموذج مراكز التدريب كبير,Large Training Centers Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+education_universities_activity_small,education_universities_activity_small_model,نموذج الجامعات صغير,Small Universities Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+education_universities_activity_medium,education_universities_activity_medium_model,نموذج الجامعات متوسط,Medium Universities Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+education_universities_activity_large,education_universities_activity_large_model,نموذج الجامعات كبير,Large Universities Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+education_elearning_activity_small,education_elearning_activity_small_model,نموذج التعليم الإلكتروني صغير,Small E-Learning Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+education_elearning_activity_medium,education_elearning_activity_medium_model,نموذج التعليم الإلكتروني متوسط,Medium E-Learning Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+education_elearning_activity_large,education_elearning_activity_large_model,نموذج التعليم الإلكتروني كبير,Large E-Learning Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+industrial_factories_activity_small,industrial_factories_activity_small_model,نموذج المصانع صغير,Small Factories Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+industrial_factories_activity_medium,industrial_factories_activity_medium_model,نموذج المصانع متوسط,Medium Factories Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+industrial_factories_activity_large,industrial_factories_activity_large_model,نموذج المصانع كبير,Large Factories Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+industrial_workshops_activity_small,industrial_workshops_activity_small_model,نموذج الورش صغير,Small Workshops Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+industrial_workshops_activity_medium,industrial_workshops_activity_medium_model,نموذج الورش متوسط,Medium Workshops Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+industrial_workshops_activity_large,industrial_workshops_activity_large_model,نموذج الورش كبير,Large Workshops Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+industrial_assembly_activity_small,industrial_assembly_activity_small_model,نموذج التجميع صغير,Small Assembly Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+industrial_assembly_activity_medium,industrial_assembly_activity_medium_model,نموذج التجميع متوسط,Medium Assembly Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+industrial_assembly_activity_large,industrial_assembly_activity_large_model,نموذج التجميع كبير,Large Assembly Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+industrial_packaging_activity_small,industrial_packaging_activity_small_model,نموذج التعبئة والتغليف صغير,Small Packaging Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+industrial_packaging_activity_medium,industrial_packaging_activity_medium_model,نموذج التعبئة والتغليف متوسط,Medium Packaging Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+industrial_packaging_activity_large,industrial_packaging_activity_large_model,نموذج التعبئة والتغليف كبير,Large Packaging Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+food_industries_restaurants_activity_small,food_industries_restaurants_activity_small_model,نموذج المطاعم صغير,Small Restaurants Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+food_industries_restaurants_activity_medium,food_industries_restaurants_activity_medium_model,نموذج المطاعم متوسط,Medium Restaurants Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+food_industries_restaurants_activity_large,food_industries_restaurants_activity_large_model,نموذج المطاعم كبير,Large Restaurants Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+food_industries_cafes_activity_small,food_industries_cafes_activity_small_model,نموذج المقاهي صغير,Small Cafes Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+food_industries_cafes_activity_medium,food_industries_cafes_activity_medium_model,نموذج المقاهي متوسط,Medium Cafes Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+food_industries_cafes_activity_large,food_industries_cafes_activity_large_model,نموذج المقاهي كبير,Large Cafes Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+food_industries_catering_activity_small,food_industries_catering_activity_small_model,نموذج التموين صغير,Small Catering Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+food_industries_catering_activity_medium,food_industries_catering_activity_medium_model,نموذج التموين متوسط,Medium Catering Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+food_industries_catering_activity_large,food_industries_catering_activity_large_model,نموذج التموين كبير,Large Catering Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+food_industries_fast_food_activity_small,food_industries_fast_food_activity_small_model,نموذج الوجبات السريعة صغير,Small Fast Food Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+food_industries_fast_food_activity_medium,food_industries_fast_food_activity_medium_model,نموذج الوجبات السريعة متوسط,Medium Fast Food Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+food_industries_fast_food_activity_large,food_industries_fast_food_activity_large_model,نموذج الوجبات السريعة كبير,Large Fast Food Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+pharmaceutical_industries_consulting_activity_small,pharmaceutical_industries_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+pharmaceutical_industries_consulting_activity_medium,pharmaceutical_industries_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+pharmaceutical_industries_consulting_activity_large,pharmaceutical_industries_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+pharmaceutical_industries_maintenance_activity_small,pharmaceutical_industries_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+pharmaceutical_industries_maintenance_activity_medium,pharmaceutical_industries_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+pharmaceutical_industries_maintenance_activity_large,pharmaceutical_industries_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+pharmaceutical_industries_cleaning_activity_small,pharmaceutical_industries_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+pharmaceutical_industries_cleaning_activity_medium,pharmaceutical_industries_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+pharmaceutical_industries_cleaning_activity_large,pharmaceutical_industries_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+pharmaceutical_industries_security_activity_small,pharmaceutical_industries_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+pharmaceutical_industries_security_activity_medium,pharmaceutical_industries_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+pharmaceutical_industries_security_activity_large,pharmaceutical_industries_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+chemical_industries_consulting_activity_small,chemical_industries_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+chemical_industries_consulting_activity_medium,chemical_industries_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+chemical_industries_consulting_activity_large,chemical_industries_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+chemical_industries_maintenance_activity_small,chemical_industries_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+chemical_industries_maintenance_activity_medium,chemical_industries_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+chemical_industries_maintenance_activity_large,chemical_industries_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+chemical_industries_cleaning_activity_small,chemical_industries_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+chemical_industries_cleaning_activity_medium,chemical_industries_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+chemical_industries_cleaning_activity_large,chemical_industries_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+chemical_industries_security_activity_small,chemical_industries_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+chemical_industries_security_activity_medium,chemical_industries_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+chemical_industries_security_activity_large,chemical_industries_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+mining_consulting_activity_small,mining_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+mining_consulting_activity_medium,mining_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+mining_consulting_activity_large,mining_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+mining_maintenance_activity_small,mining_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+mining_maintenance_activity_medium,mining_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+mining_maintenance_activity_large,mining_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+mining_cleaning_activity_small,mining_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+mining_cleaning_activity_medium,mining_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+mining_cleaning_activity_large,mining_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+mining_security_activity_small,mining_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+mining_security_activity_medium,mining_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+mining_security_activity_large,mining_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+geology_consulting_activity_small,geology_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+geology_consulting_activity_medium,geology_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+geology_consulting_activity_large,geology_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+geology_maintenance_activity_small,geology_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+geology_maintenance_activity_medium,geology_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+geology_maintenance_activity_large,geology_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+geology_cleaning_activity_small,geology_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+geology_cleaning_activity_medium,geology_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+geology_cleaning_activity_large,geology_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+geology_security_activity_small,geology_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+geology_security_activity_medium,geology_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+geology_security_activity_large,geology_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+oil_gas_renewable_activity_small,oil_gas_renewable_activity_small_model,نموذج الطاقة المتجددة صغير,Small Renewable Energy Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+oil_gas_renewable_activity_medium,oil_gas_renewable_activity_medium_model,نموذج الطاقة المتجددة متوسط,Medium Renewable Energy Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+oil_gas_renewable_activity_large,oil_gas_renewable_activity_large_model,نموذج الطاقة المتجددة كبير,Large Renewable Energy Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+oil_gas_oil_gas_activity_small,oil_gas_oil_gas_activity_small_model,نموذج النفط والغاز صغير,Small Oil & Gas Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+oil_gas_oil_gas_activity_medium,oil_gas_oil_gas_activity_medium_model,نموذج النفط والغاز متوسط,Medium Oil & Gas Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+oil_gas_oil_gas_activity_large,oil_gas_oil_gas_activity_large_model,نموذج النفط والغاز كبير,Large Oil & Gas Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+oil_gas_utilities_activity_small,oil_gas_utilities_activity_small_model,نموذج الخدمات العامة صغير,Small Utilities Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+oil_gas_utilities_activity_medium,oil_gas_utilities_activity_medium_model,نموذج الخدمات العامة متوسط,Medium Utilities Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+oil_gas_utilities_activity_large,oil_gas_utilities_activity_large_model,نموذج الخدمات العامة كبير,Large Utilities Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+oil_gas_efficiency_activity_small,oil_gas_efficiency_activity_small_model,نموذج كفاءة الطاقة صغير,Small Energy Efficiency Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+oil_gas_efficiency_activity_medium,oil_gas_efficiency_activity_medium_model,نموذج كفاءة الطاقة متوسط,Medium Energy Efficiency Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+oil_gas_efficiency_activity_large,oil_gas_efficiency_activity_large_model,نموذج كفاءة الطاقة كبير,Large Energy Efficiency Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+oil_refineries_renewable_activity_small,oil_refineries_renewable_activity_small_model,نموذج الطاقة المتجددة صغير,Small Renewable Energy Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+oil_refineries_renewable_activity_medium,oil_refineries_renewable_activity_medium_model,نموذج الطاقة المتجددة متوسط,Medium Renewable Energy Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+oil_refineries_renewable_activity_large,oil_refineries_renewable_activity_large_model,نموذج الطاقة المتجددة كبير,Large Renewable Energy Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+oil_refineries_oil_gas_activity_small,oil_refineries_oil_gas_activity_small_model,نموذج النفط والغاز صغير,Small Oil & Gas Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+oil_refineries_oil_gas_activity_medium,oil_refineries_oil_gas_activity_medium_model,نموذج النفط والغاز متوسط,Medium Oil & Gas Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+oil_refineries_oil_gas_activity_large,oil_refineries_oil_gas_activity_large_model,نموذج النفط والغاز كبير,Large Oil & Gas Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+oil_refineries_utilities_activity_small,oil_refineries_utilities_activity_small_model,نموذج الخدمات العامة صغير,Small Utilities Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+oil_refineries_utilities_activity_medium,oil_refineries_utilities_activity_medium_model,نموذج الخدمات العامة متوسط,Medium Utilities Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+oil_refineries_utilities_activity_large,oil_refineries_utilities_activity_large_model,نموذج الخدمات العامة كبير,Large Utilities Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+oil_refineries_efficiency_activity_small,oil_refineries_efficiency_activity_small_model,نموذج كفاءة الطاقة صغير,Small Energy Efficiency Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+oil_refineries_efficiency_activity_medium,oil_refineries_efficiency_activity_medium_model,نموذج كفاءة الطاقة متوسط,Medium Energy Efficiency Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+oil_refineries_efficiency_activity_large,oil_refineries_efficiency_activity_large_model,نموذج كفاءة الطاقة كبير,Large Energy Efficiency Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+metal_refineries_consulting_activity_small,metal_refineries_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+metal_refineries_consulting_activity_medium,metal_refineries_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+metal_refineries_consulting_activity_large,metal_refineries_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+metal_refineries_maintenance_activity_small,metal_refineries_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+metal_refineries_maintenance_activity_medium,metal_refineries_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+metal_refineries_maintenance_activity_large,metal_refineries_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+metal_refineries_cleaning_activity_small,metal_refineries_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+metal_refineries_cleaning_activity_medium,metal_refineries_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+metal_refineries_cleaning_activity_large,metal_refineries_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+metal_refineries_security_activity_small,metal_refineries_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+metal_refineries_security_activity_medium,metal_refineries_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+metal_refineries_security_activity_large,metal_refineries_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+water_consulting_activity_small,water_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+water_consulting_activity_medium,water_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+water_consulting_activity_large,water_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+water_maintenance_activity_small,water_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+water_maintenance_activity_medium,water_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+water_maintenance_activity_large,water_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+water_cleaning_activity_small,water_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+water_cleaning_activity_medium,water_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+water_cleaning_activity_large,water_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+water_security_activity_small,water_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+water_security_activity_medium,water_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+water_security_activity_large,water_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+well_drilling_consulting_activity_small,well_drilling_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+well_drilling_consulting_activity_medium,well_drilling_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+well_drilling_consulting_activity_large,well_drilling_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+well_drilling_maintenance_activity_small,well_drilling_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+well_drilling_maintenance_activity_medium,well_drilling_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+well_drilling_maintenance_activity_large,well_drilling_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+well_drilling_cleaning_activity_small,well_drilling_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+well_drilling_cleaning_activity_medium,well_drilling_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+well_drilling_cleaning_activity_large,well_drilling_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+well_drilling_security_activity_small,well_drilling_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+well_drilling_security_activity_medium,well_drilling_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+well_drilling_security_activity_large,well_drilling_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+agriculture_farming_activity_small,agriculture_farming_activity_small_model,نموذج الزراعة صغير,Small Farming Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+agriculture_farming_activity_medium,agriculture_farming_activity_medium_model,نموذج الزراعة متوسط,Medium Farming Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+agriculture_farming_activity_large,agriculture_farming_activity_large_model,نموذج الزراعة كبير,Large Farming Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+agriculture_livestock_activity_small,agriculture_livestock_activity_small_model,نموذج تربية الحيوان صغير,Small Livestock Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+agriculture_livestock_activity_medium,agriculture_livestock_activity_medium_model,نموذج تربية الحيوان متوسط,Medium Livestock Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+agriculture_livestock_activity_large,agriculture_livestock_activity_large_model,نموذج تربية الحيوان كبير,Large Livestock Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+agriculture_processing_activity_small,agriculture_processing_activity_small_model,نموذج تجهيز المنتجات صغير,Small Processing Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+agriculture_processing_activity_medium,agriculture_processing_activity_medium_model,نموذج تجهيز المنتجات متوسط,Medium Processing Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+agriculture_processing_activity_large,agriculture_processing_activity_large_model,نموذج تجهيز المنتجات كبير,Large Processing Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+agriculture_distribution_activity_small,agriculture_distribution_activity_small_model,نموذج التوزيع صغير,Small Distribution Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+agriculture_distribution_activity_medium,agriculture_distribution_activity_medium_model,نموذج التوزيع متوسط,Medium Distribution Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+agriculture_distribution_activity_large,agriculture_distribution_activity_large_model,نموذج التوزيع كبير,Large Distribution Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+agricultural_inputs_farming_activity_small,agricultural_inputs_farming_activity_small_model,نموذج الزراعة صغير,Small Farming Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+agricultural_inputs_farming_activity_medium,agricultural_inputs_farming_activity_medium_model,نموذج الزراعة متوسط,Medium Farming Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+agricultural_inputs_farming_activity_large,agricultural_inputs_farming_activity_large_model,نموذج الزراعة كبير,Large Farming Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+agricultural_inputs_livestock_activity_small,agricultural_inputs_livestock_activity_small_model,نموذج تربية الحيوان صغير,Small Livestock Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+agricultural_inputs_livestock_activity_medium,agricultural_inputs_livestock_activity_medium_model,نموذج تربية الحيوان متوسط,Medium Livestock Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+agricultural_inputs_livestock_activity_large,agricultural_inputs_livestock_activity_large_model,نموذج تربية الحيوان كبير,Large Livestock Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+agricultural_inputs_processing_activity_small,agricultural_inputs_processing_activity_small_model,نموذج تجهيز المنتجات صغير,Small Processing Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+agricultural_inputs_processing_activity_medium,agricultural_inputs_processing_activity_medium_model,نموذج تجهيز المنتجات متوسط,Medium Processing Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+agricultural_inputs_processing_activity_large,agricultural_inputs_processing_activity_large_model,نموذج تجهيز المنتجات كبير,Large Processing Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+agricultural_inputs_distribution_activity_small,agricultural_inputs_distribution_activity_small_model,نموذج التوزيع صغير,Small Distribution Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+agricultural_inputs_distribution_activity_medium,agricultural_inputs_distribution_activity_medium_model,نموذج التوزيع متوسط,Medium Distribution Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+agricultural_inputs_distribution_activity_large,agricultural_inputs_distribution_activity_large_model,نموذج التوزيع كبير,Large Distribution Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+desertification_control_consulting_activity_small,desertification_control_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+desertification_control_consulting_activity_medium,desertification_control_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+desertification_control_consulting_activity_large,desertification_control_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+desertification_control_maintenance_activity_small,desertification_control_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+desertification_control_maintenance_activity_medium,desertification_control_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+desertification_control_maintenance_activity_large,desertification_control_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+desertification_control_cleaning_activity_small,desertification_control_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+desertification_control_cleaning_activity_medium,desertification_control_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+desertification_control_cleaning_activity_large,desertification_control_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+desertification_control_security_activity_small,desertification_control_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+desertification_control_security_activity_medium,desertification_control_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+desertification_control_security_activity_large,desertification_control_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+livestock_farming_activity_small,livestock_farming_activity_small_model,نموذج الزراعة صغير,Small Farming Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+livestock_farming_activity_medium,livestock_farming_activity_medium_model,نموذج الزراعة متوسط,Medium Farming Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+livestock_farming_activity_large,livestock_farming_activity_large_model,نموذج الزراعة كبير,Large Farming Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+livestock_livestock_activity_small,livestock_livestock_activity_small_model,نموذج تربية الحيوان صغير,Small Livestock Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+livestock_livestock_activity_medium,livestock_livestock_activity_medium_model,نموذج تربية الحيوان متوسط,Medium Livestock Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+livestock_livestock_activity_large,livestock_livestock_activity_large_model,نموذج تربية الحيوان كبير,Large Livestock Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+livestock_processing_activity_small,livestock_processing_activity_small_model,نموذج تجهيز المنتجات صغير,Small Processing Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+livestock_processing_activity_medium,livestock_processing_activity_medium_model,نموذج تجهيز المنتجات متوسط,Medium Processing Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+livestock_processing_activity_large,livestock_processing_activity_large_model,نموذج تجهيز المنتجات كبير,Large Processing Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+livestock_distribution_activity_small,livestock_distribution_activity_small_model,نموذج التوزيع صغير,Small Distribution Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+livestock_distribution_activity_medium,livestock_distribution_activity_medium_model,نموذج التوزيع متوسط,Medium Distribution Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+livestock_distribution_activity_large,livestock_distribution_activity_large_model,نموذج التوزيع كبير,Large Distribution Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+poultry_consulting_activity_small,poultry_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+poultry_consulting_activity_medium,poultry_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+poultry_consulting_activity_large,poultry_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+poultry_maintenance_activity_small,poultry_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+poultry_maintenance_activity_medium,poultry_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+poultry_maintenance_activity_large,poultry_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+poultry_cleaning_activity_small,poultry_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+poultry_cleaning_activity_medium,poultry_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+poultry_cleaning_activity_large,poultry_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+poultry_security_activity_small,poultry_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+poultry_security_activity_medium,poultry_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+poultry_security_activity_large,poultry_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+fisheries_consulting_activity_small,fisheries_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+fisheries_consulting_activity_medium,fisheries_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+fisheries_consulting_activity_large,fisheries_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+fisheries_maintenance_activity_small,fisheries_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+fisheries_maintenance_activity_medium,fisheries_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+fisheries_maintenance_activity_large,fisheries_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+fisheries_cleaning_activity_small,fisheries_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+fisheries_cleaning_activity_medium,fisheries_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+fisheries_cleaning_activity_large,fisheries_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+fisheries_security_activity_small,fisheries_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+fisheries_security_activity_medium,fisheries_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+fisheries_security_activity_large,fisheries_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+real_estate_residential_activity_small,real_estate_residential_activity_small_model,نموذج السكني صغير,Small Residential Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+real_estate_residential_activity_medium,real_estate_residential_activity_medium_model,نموذج السكني متوسط,Medium Residential Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+real_estate_residential_activity_large,real_estate_residential_activity_large_model,نموذج السكني كبير,Large Residential Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+real_estate_commercial_activity_small,real_estate_commercial_activity_small_model,نموذج التجاري صغير,Small Commercial Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+real_estate_commercial_activity_medium,real_estate_commercial_activity_medium_model,نموذج التجاري متوسط,Medium Commercial Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+real_estate_commercial_activity_large,real_estate_commercial_activity_large_model,نموذج التجاري كبير,Large Commercial Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+real_estate_industrial_activity_small,real_estate_industrial_activity_small_model,نموذج الصناعي صغير,Small Industrial Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+real_estate_industrial_activity_medium,real_estate_industrial_activity_medium_model,نموذج الصناعي متوسط,Medium Industrial Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+real_estate_industrial_activity_large,real_estate_industrial_activity_large_model,نموذج الصناعي كبير,Large Industrial Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+real_estate_brokerage_activity_small,real_estate_brokerage_activity_small_model,نموذج الوساطة العقارية صغير,Small Real Estate Brokerage Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+real_estate_brokerage_activity_medium,real_estate_brokerage_activity_medium_model,نموذج الوساطة العقارية متوسط,Medium Real Estate Brokerage Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+real_estate_brokerage_activity_large,real_estate_brokerage_activity_large_model,نموذج الوساطة العقارية كبير,Large Real Estate Brokerage Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+contracting_consulting_activity_small,contracting_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+contracting_consulting_activity_medium,contracting_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+contracting_consulting_activity_large,contracting_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+contracting_maintenance_activity_small,contracting_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+contracting_maintenance_activity_medium,contracting_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+contracting_maintenance_activity_large,contracting_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+contracting_cleaning_activity_small,contracting_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+contracting_cleaning_activity_medium,contracting_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+contracting_cleaning_activity_large,contracting_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+contracting_security_activity_small,contracting_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+contracting_security_activity_medium,contracting_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+contracting_security_activity_large,contracting_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+industrial_cities_factories_activity_small,industrial_cities_factories_activity_small_model,نموذج المصانع صغير,Small Factories Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+industrial_cities_factories_activity_medium,industrial_cities_factories_activity_medium_model,نموذج المصانع متوسط,Medium Factories Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+industrial_cities_factories_activity_large,industrial_cities_factories_activity_large_model,نموذج المصانع كبير,Large Factories Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+industrial_cities_workshops_activity_small,industrial_cities_workshops_activity_small_model,نموذج الورش صغير,Small Workshops Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+industrial_cities_workshops_activity_medium,industrial_cities_workshops_activity_medium_model,نموذج الورش متوسط,Medium Workshops Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+industrial_cities_workshops_activity_large,industrial_cities_workshops_activity_large_model,نموذج الورش كبير,Large Workshops Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+industrial_cities_assembly_activity_small,industrial_cities_assembly_activity_small_model,نموذج التجميع صغير,Small Assembly Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+industrial_cities_assembly_activity_medium,industrial_cities_assembly_activity_medium_model,نموذج التجميع متوسط,Medium Assembly Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+industrial_cities_assembly_activity_large,industrial_cities_assembly_activity_large_model,نموذج التجميع كبير,Large Assembly Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+industrial_cities_packaging_activity_small,industrial_cities_packaging_activity_small_model,نموذج التعبئة والتغليف صغير,Small Packaging Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+industrial_cities_packaging_activity_medium,industrial_cities_packaging_activity_medium_model,نموذج التعبئة والتغليف متوسط,Medium Packaging Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+industrial_cities_packaging_activity_large,industrial_cities_packaging_activity_large_model,نموذج التعبئة والتغليف كبير,Large Packaging Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+logistics_transport_activity_small,logistics_transport_activity_small_model,نموذج النقل صغير,Small Transport Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+logistics_transport_activity_medium,logistics_transport_activity_medium_model,نموذج النقل متوسط,Medium Transport Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+logistics_transport_activity_large,logistics_transport_activity_large_model,نموذج النقل كبير,Large Transport Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+logistics_warehousing_activity_small,logistics_warehousing_activity_small_model,نموذج التخزين صغير,Small Warehousing Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+logistics_warehousing_activity_medium,logistics_warehousing_activity_medium_model,نموذج التخزين متوسط,Medium Warehousing Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+logistics_warehousing_activity_large,logistics_warehousing_activity_large_model,نموذج التخزين كبير,Large Warehousing Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+logistics_shipping_activity_small,logistics_shipping_activity_small_model,نموذج الشحن صغير,Small Shipping Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+logistics_shipping_activity_medium,logistics_shipping_activity_medium_model,نموذج الشحن متوسط,Medium Shipping Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+logistics_shipping_activity_large,logistics_shipping_activity_large_model,نموذج الشحن كبير,Large Shipping Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+logistics_last_mile_activity_small,logistics_last_mile_activity_small_model,نموذج التوصيل الأخير صغير,Small Last Mile Delivery Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+logistics_last_mile_activity_medium,logistics_last_mile_activity_medium_model,نموذج التوصيل الأخير متوسط,Medium Last Mile Delivery Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+logistics_last_mile_activity_large,logistics_last_mile_activity_large_model,نموذج التوصيل الأخير كبير,Large Last Mile Delivery Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+dry_warehouses_transport_activity_small,dry_warehouses_transport_activity_small_model,نموذج النقل صغير,Small Transport Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+dry_warehouses_transport_activity_medium,dry_warehouses_transport_activity_medium_model,نموذج النقل متوسط,Medium Transport Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+dry_warehouses_transport_activity_large,dry_warehouses_transport_activity_large_model,نموذج النقل كبير,Large Transport Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+dry_warehouses_warehousing_activity_small,dry_warehouses_warehousing_activity_small_model,نموذج التخزين صغير,Small Warehousing Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+dry_warehouses_warehousing_activity_medium,dry_warehouses_warehousing_activity_medium_model,نموذج التخزين متوسط,Medium Warehousing Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+dry_warehouses_warehousing_activity_large,dry_warehouses_warehousing_activity_large_model,نموذج التخزين كبير,Large Warehousing Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+dry_warehouses_shipping_activity_small,dry_warehouses_shipping_activity_small_model,نموذج الشحن صغير,Small Shipping Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+dry_warehouses_shipping_activity_medium,dry_warehouses_shipping_activity_medium_model,نموذج الشحن متوسط,Medium Shipping Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+dry_warehouses_shipping_activity_large,dry_warehouses_shipping_activity_large_model,نموذج الشحن كبير,Large Shipping Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+dry_warehouses_last_mile_activity_small,dry_warehouses_last_mile_activity_small_model,نموذج التوصيل الأخير صغير,Small Last Mile Delivery Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+dry_warehouses_last_mile_activity_medium,dry_warehouses_last_mile_activity_medium_model,نموذج التوصيل الأخير متوسط,Medium Last Mile Delivery Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+dry_warehouses_last_mile_activity_large,dry_warehouses_last_mile_activity_large_model,نموذج التوصيل الأخير كبير,Large Last Mile Delivery Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+cold_warehouses_transport_activity_small,cold_warehouses_transport_activity_small_model,نموذج النقل صغير,Small Transport Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+cold_warehouses_transport_activity_medium,cold_warehouses_transport_activity_medium_model,نموذج النقل متوسط,Medium Transport Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+cold_warehouses_transport_activity_large,cold_warehouses_transport_activity_large_model,نموذج النقل كبير,Large Transport Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+cold_warehouses_warehousing_activity_small,cold_warehouses_warehousing_activity_small_model,نموذج التخزين صغير,Small Warehousing Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+cold_warehouses_warehousing_activity_medium,cold_warehouses_warehousing_activity_medium_model,نموذج التخزين متوسط,Medium Warehousing Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+cold_warehouses_warehousing_activity_large,cold_warehouses_warehousing_activity_large_model,نموذج التخزين كبير,Large Warehousing Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+cold_warehouses_shipping_activity_small,cold_warehouses_shipping_activity_small_model,نموذج الشحن صغير,Small Shipping Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+cold_warehouses_shipping_activity_medium,cold_warehouses_shipping_activity_medium_model,نموذج الشحن متوسط,Medium Shipping Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+cold_warehouses_shipping_activity_large,cold_warehouses_shipping_activity_large_model,نموذج الشحن كبير,Large Shipping Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+cold_warehouses_last_mile_activity_small,cold_warehouses_last_mile_activity_small_model,نموذج التوصيل الأخير صغير,Small Last Mile Delivery Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+cold_warehouses_last_mile_activity_medium,cold_warehouses_last_mile_activity_medium_model,نموذج التوصيل الأخير متوسط,Medium Last Mile Delivery Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+cold_warehouses_last_mile_activity_large,cold_warehouses_last_mile_activity_large_model,نموذج التوصيل الأخير كبير,Large Last Mile Delivery Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+transport_transport_activity_small,transport_transport_activity_small_model,نموذج النقل صغير,Small Transport Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+transport_transport_activity_medium,transport_transport_activity_medium_model,نموذج النقل متوسط,Medium Transport Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+transport_transport_activity_large,transport_transport_activity_large_model,نموذج النقل كبير,Large Transport Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+transport_warehousing_activity_small,transport_warehousing_activity_small_model,نموذج التخزين صغير,Small Warehousing Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+transport_warehousing_activity_medium,transport_warehousing_activity_medium_model,نموذج التخزين متوسط,Medium Warehousing Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+transport_warehousing_activity_large,transport_warehousing_activity_large_model,نموذج التخزين كبير,Large Warehousing Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+transport_shipping_activity_small,transport_shipping_activity_small_model,نموذج الشحن صغير,Small Shipping Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+transport_shipping_activity_medium,transport_shipping_activity_medium_model,نموذج الشحن متوسط,Medium Shipping Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+transport_shipping_activity_large,transport_shipping_activity_large_model,نموذج الشحن كبير,Large Shipping Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+transport_last_mile_activity_small,transport_last_mile_activity_small_model,نموذج التوصيل الأخير صغير,Small Last Mile Delivery Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+transport_last_mile_activity_medium,transport_last_mile_activity_medium_model,نموذج التوصيل الأخير متوسط,Medium Last Mile Delivery Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+transport_last_mile_activity_large,transport_last_mile_activity_large_model,نموذج التوصيل الأخير كبير,Large Last Mile Delivery Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+ports_consulting_activity_small,ports_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+ports_consulting_activity_medium,ports_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+ports_consulting_activity_large,ports_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+ports_maintenance_activity_small,ports_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+ports_maintenance_activity_medium,ports_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+ports_maintenance_activity_large,ports_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+ports_cleaning_activity_small,ports_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+ports_cleaning_activity_medium,ports_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+ports_cleaning_activity_large,ports_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+ports_security_activity_small,ports_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+ports_security_activity_medium,ports_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+ports_security_activity_large,ports_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+aviation_consulting_activity_small,aviation_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+aviation_consulting_activity_medium,aviation_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+aviation_consulting_activity_large,aviation_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+aviation_maintenance_activity_small,aviation_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+aviation_maintenance_activity_medium,aviation_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+aviation_maintenance_activity_large,aviation_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+aviation_cleaning_activity_small,aviation_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+aviation_cleaning_activity_medium,aviation_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+aviation_cleaning_activity_large,aviation_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+aviation_security_activity_small,aviation_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+aviation_security_activity_medium,aviation_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+aviation_security_activity_large,aviation_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+private_aviation_consulting_activity_small,private_aviation_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+private_aviation_consulting_activity_medium,private_aviation_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+private_aviation_consulting_activity_large,private_aviation_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+private_aviation_maintenance_activity_small,private_aviation_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+private_aviation_maintenance_activity_medium,private_aviation_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+private_aviation_maintenance_activity_large,private_aviation_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+private_aviation_cleaning_activity_small,private_aviation_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+private_aviation_cleaning_activity_medium,private_aviation_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+private_aviation_cleaning_activity_large,private_aviation_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+private_aviation_security_activity_small,private_aviation_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+private_aviation_security_activity_medium,private_aviation_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+private_aviation_security_activity_large,private_aviation_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+hajj_umrah_consulting_activity_small,hajj_umrah_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+hajj_umrah_consulting_activity_medium,hajj_umrah_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+hajj_umrah_consulting_activity_large,hajj_umrah_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+hajj_umrah_maintenance_activity_small,hajj_umrah_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+hajj_umrah_maintenance_activity_medium,hajj_umrah_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+hajj_umrah_maintenance_activity_large,hajj_umrah_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+hajj_umrah_cleaning_activity_small,hajj_umrah_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+hajj_umrah_cleaning_activity_medium,hajj_umrah_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+hajj_umrah_cleaning_activity_large,hajj_umrah_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+hajj_umrah_security_activity_small,hajj_umrah_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+hajj_umrah_security_activity_medium,hajj_umrah_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+hajj_umrah_security_activity_large,hajj_umrah_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+tourism_events_activity_small,tourism_events_activity_small_model,نموذج الفعاليات صغير,Small Events Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+tourism_events_activity_medium,tourism_events_activity_medium_model,نموذج الفعاليات متوسط,Medium Events Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+tourism_events_activity_large,tourism_events_activity_large_model,نموذج الفعاليات كبير,Large Events Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+tourism_media_activity_small,tourism_media_activity_small_model,نموذج الإعلام صغير,Small Media Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+tourism_media_activity_medium,tourism_media_activity_medium_model,نموذج الإعلام متوسط,Medium Media Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+tourism_media_activity_large,tourism_media_activity_large_model,نموذج الإعلام كبير,Large Media Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+tourism_sports_activity_small,tourism_sports_activity_small_model,نموذج الرياضة صغير,Small Sports Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+tourism_sports_activity_medium,tourism_sports_activity_medium_model,نموذج الرياضة متوسط,Medium Sports Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+tourism_sports_activity_large,tourism_sports_activity_large_model,نموذج الرياضة كبير,Large Sports Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+tourism_tourism_activity_small,tourism_tourism_activity_small_model,نموذج السياحة صغير,Small Tourism Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+tourism_tourism_activity_medium,tourism_tourism_activity_medium_model,نموذج السياحة متوسط,Medium Tourism Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+tourism_tourism_activity_large,tourism_tourism_activity_large_model,نموذج السياحة كبير,Large Tourism Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+hospitality_software_activity_small,hospitality_software_activity_small_model,نموذج البرمجيات صغير,Small Software Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+hospitality_software_activity_medium,hospitality_software_activity_medium_model,نموذج البرمجيات متوسط,Medium Software Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+hospitality_software_activity_large,hospitality_software_activity_large_model,نموذج البرمجيات كبير,Large Software Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+hospitality_hardware_activity_small,hospitality_hardware_activity_small_model,نموذج الأجهزة صغير,Small Hardware Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+hospitality_hardware_activity_medium,hospitality_hardware_activity_medium_model,نموذج الأجهزة متوسط,Medium Hardware Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+hospitality_hardware_activity_large,hospitality_hardware_activity_large_model,نموذج الأجهزة كبير,Large Hardware Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+hospitality_it_services_activity_small,hospitality_it_services_activity_small_model,نموذج خدمات تكنولوجيا المعلومات صغير,Small IT Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+hospitality_it_services_activity_medium,hospitality_it_services_activity_medium_model,نموذج خدمات تكنولوجيا المعلومات متوسط,Medium IT Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+hospitality_it_services_activity_large,hospitality_it_services_activity_large_model,نموذج خدمات تكنولوجيا المعلومات كبير,Large IT Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+hospitality_telecom_activity_small,hospitality_telecom_activity_small_model,نموذج الاتصالات صغير,Small Telecommunications Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+hospitality_telecom_activity_medium,hospitality_telecom_activity_medium_model,نموذج الاتصالات متوسط,Medium Telecommunications Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+hospitality_telecom_activity_large,hospitality_telecom_activity_large_model,نموذج الاتصالات كبير,Large Telecommunications Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+entertainment_events_activity_small,entertainment_events_activity_small_model,نموذج الفعاليات صغير,Small Events Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+entertainment_events_activity_medium,entertainment_events_activity_medium_model,نموذج الفعاليات متوسط,Medium Events Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+entertainment_events_activity_large,entertainment_events_activity_large_model,نموذج الفعاليات كبير,Large Events Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+entertainment_media_activity_small,entertainment_media_activity_small_model,نموذج الإعلام صغير,Small Media Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+entertainment_media_activity_medium,entertainment_media_activity_medium_model,نموذج الإعلام متوسط,Medium Media Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+entertainment_media_activity_large,entertainment_media_activity_large_model,نموذج الإعلام كبير,Large Media Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+entertainment_sports_activity_small,entertainment_sports_activity_small_model,نموذج الرياضة صغير,Small Sports Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+entertainment_sports_activity_medium,entertainment_sports_activity_medium_model,نموذج الرياضة متوسط,Medium Sports Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+entertainment_sports_activity_large,entertainment_sports_activity_large_model,نموذج الرياضة كبير,Large Sports Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+entertainment_tourism_activity_small,entertainment_tourism_activity_small_model,نموذج السياحة صغير,Small Tourism Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+entertainment_tourism_activity_medium,entertainment_tourism_activity_medium_model,نموذج السياحة متوسط,Medium Tourism Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+entertainment_tourism_activity_large,entertainment_tourism_activity_large_model,نموذج السياحة كبير,Large Tourism Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+culture_consulting_activity_small,culture_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+culture_consulting_activity_medium,culture_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+culture_consulting_activity_large,culture_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+culture_maintenance_activity_small,culture_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+culture_maintenance_activity_medium,culture_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+culture_maintenance_activity_large,culture_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+culture_cleaning_activity_small,culture_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+culture_cleaning_activity_medium,culture_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+culture_cleaning_activity_large,culture_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+culture_security_activity_small,culture_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+culture_security_activity_medium,culture_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+culture_security_activity_large,culture_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+media_events_activity_small,media_events_activity_small_model,نموذج الفعاليات صغير,Small Events Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+media_events_activity_medium,media_events_activity_medium_model,نموذج الفعاليات متوسط,Medium Events Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+media_events_activity_large,media_events_activity_large_model,نموذج الفعاليات كبير,Large Events Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+media_media_activity_small,media_media_activity_small_model,نموذج الإعلام صغير,Small Media Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+media_media_activity_medium,media_media_activity_medium_model,نموذج الإعلام متوسط,Medium Media Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+media_media_activity_large,media_media_activity_large_model,نموذج الإعلام كبير,Large Media Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+media_sports_activity_small,media_sports_activity_small_model,نموذج الرياضة صغير,Small Sports Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+media_sports_activity_medium,media_sports_activity_medium_model,نموذج الرياضة متوسط,Medium Sports Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+media_sports_activity_large,media_sports_activity_large_model,نموذج الرياضة كبير,Large Sports Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+media_tourism_activity_small,media_tourism_activity_small_model,نموذج السياحة صغير,Small Tourism Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+media_tourism_activity_medium,media_tourism_activity_medium_model,نموذج السياحة متوسط,Medium Tourism Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+media_tourism_activity_large,media_tourism_activity_large_model,نموذج السياحة كبير,Large Tourism Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+advertising_consulting_activity_small,advertising_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+advertising_consulting_activity_medium,advertising_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+advertising_consulting_activity_large,advertising_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+advertising_maintenance_activity_small,advertising_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+advertising_maintenance_activity_medium,advertising_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+advertising_maintenance_activity_large,advertising_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+advertising_cleaning_activity_small,advertising_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+advertising_cleaning_activity_medium,advertising_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+advertising_cleaning_activity_large,advertising_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+advertising_security_activity_small,advertising_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+advertising_security_activity_medium,advertising_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+advertising_security_activity_large,advertising_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+technology_software_activity_small,technology_software_activity_small_model,نموذج البرمجيات صغير,Small Software Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+technology_software_activity_medium,technology_software_activity_medium_model,نموذج البرمجيات متوسط,Medium Software Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+technology_software_activity_large,technology_software_activity_large_model,نموذج البرمجيات كبير,Large Software Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+technology_hardware_activity_small,technology_hardware_activity_small_model,نموذج الأجهزة صغير,Small Hardware Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+technology_hardware_activity_medium,technology_hardware_activity_medium_model,نموذج الأجهزة متوسط,Medium Hardware Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+technology_hardware_activity_large,technology_hardware_activity_large_model,نموذج الأجهزة كبير,Large Hardware Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+technology_it_services_activity_small,technology_it_services_activity_small_model,نموذج خدمات تكنولوجيا المعلومات صغير,Small IT Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+technology_it_services_activity_medium,technology_it_services_activity_medium_model,نموذج خدمات تكنولوجيا المعلومات متوسط,Medium IT Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+technology_it_services_activity_large,technology_it_services_activity_large_model,نموذج خدمات تكنولوجيا المعلومات كبير,Large IT Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+technology_telecom_activity_small,technology_telecom_activity_small_model,نموذج الاتصالات صغير,Small Telecommunications Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+technology_telecom_activity_medium,technology_telecom_activity_medium_model,نموذج الاتصالات متوسط,Medium Telecommunications Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+technology_telecom_activity_large,technology_telecom_activity_large_model,نموذج الاتصالات كبير,Large Telecommunications Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+artificial_intelligence_consulting_activity_small,artificial_intelligence_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+artificial_intelligence_consulting_activity_medium,artificial_intelligence_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+artificial_intelligence_consulting_activity_large,artificial_intelligence_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+artificial_intelligence_maintenance_activity_small,artificial_intelligence_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+artificial_intelligence_maintenance_activity_medium,artificial_intelligence_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+artificial_intelligence_maintenance_activity_large,artificial_intelligence_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+artificial_intelligence_cleaning_activity_small,artificial_intelligence_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+artificial_intelligence_cleaning_activity_medium,artificial_intelligence_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+artificial_intelligence_cleaning_activity_large,artificial_intelligence_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+artificial_intelligence_security_activity_small,artificial_intelligence_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+artificial_intelligence_security_activity_medium,artificial_intelligence_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+artificial_intelligence_security_activity_large,artificial_intelligence_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+cybersecurity_software_activity_small,cybersecurity_software_activity_small_model,نموذج البرمجيات صغير,Small Software Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+cybersecurity_software_activity_medium,cybersecurity_software_activity_medium_model,نموذج البرمجيات متوسط,Medium Software Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+cybersecurity_software_activity_large,cybersecurity_software_activity_large_model,نموذج البرمجيات كبير,Large Software Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+cybersecurity_hardware_activity_small,cybersecurity_hardware_activity_small_model,نموذج الأجهزة صغير,Small Hardware Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+cybersecurity_hardware_activity_medium,cybersecurity_hardware_activity_medium_model,نموذج الأجهزة متوسط,Medium Hardware Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+cybersecurity_hardware_activity_large,cybersecurity_hardware_activity_large_model,نموذج الأجهزة كبير,Large Hardware Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+cybersecurity_it_services_activity_small,cybersecurity_it_services_activity_small_model,نموذج خدمات تكنولوجيا المعلومات صغير,Small IT Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+cybersecurity_it_services_activity_medium,cybersecurity_it_services_activity_medium_model,نموذج خدمات تكنولوجيا المعلومات متوسط,Medium IT Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+cybersecurity_it_services_activity_large,cybersecurity_it_services_activity_large_model,نموذج خدمات تكنولوجيا المعلومات كبير,Large IT Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+cybersecurity_telecom_activity_small,cybersecurity_telecom_activity_small_model,نموذج الاتصالات صغير,Small Telecommunications Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+cybersecurity_telecom_activity_medium,cybersecurity_telecom_activity_medium_model,نموذج الاتصالات متوسط,Medium Telecommunications Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+cybersecurity_telecom_activity_large,cybersecurity_telecom_activity_large_model,نموذج الاتصالات كبير,Large Telecommunications Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+commerce_retail_activity_small,commerce_retail_activity_small_model,نموذج التجزئة صغير,Small Retail Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+commerce_retail_activity_medium,commerce_retail_activity_medium_model,نموذج التجزئة متوسط,Medium Retail Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+commerce_retail_activity_large,commerce_retail_activity_large_model,نموذج التجزئة كبير,Large Retail Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+commerce_wholesale_activity_small,commerce_wholesale_activity_small_model,نموذج الجملة صغير,Small Wholesale Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+commerce_wholesale_activity_medium,commerce_wholesale_activity_medium_model,نموذج الجملة متوسط,Medium Wholesale Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+commerce_wholesale_activity_large,commerce_wholesale_activity_large_model,نموذج الجملة كبير,Large Wholesale Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+commerce_ecommerce_activity_small,commerce_ecommerce_activity_small_model,نموذج التجارة الإلكترونية صغير,Small E-Commerce Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+commerce_ecommerce_activity_medium,commerce_ecommerce_activity_medium_model,نموذج التجارة الإلكترونية متوسط,Medium E-Commerce Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+commerce_ecommerce_activity_large,commerce_ecommerce_activity_large_model,نموذج التجارة الإلكترونية كبير,Large E-Commerce Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+commerce_import_export_activity_small,commerce_import_export_activity_small_model,نموذج الاستيراد والتصدير صغير,Small Import & Export Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+commerce_import_export_activity_medium,commerce_import_export_activity_medium_model,نموذج الاستيراد والتصدير متوسط,Medium Import & Export Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+commerce_import_export_activity_large,commerce_import_export_activity_large_model,نموذج الاستيراد والتصدير كبير,Large Import & Export Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+ecommerce_retail_activity_small,ecommerce_retail_activity_small_model,نموذج التجزئة صغير,Small Retail Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+ecommerce_retail_activity_medium,ecommerce_retail_activity_medium_model,نموذج التجزئة متوسط,Medium Retail Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+ecommerce_retail_activity_large,ecommerce_retail_activity_large_model,نموذج التجزئة كبير,Large Retail Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+ecommerce_wholesale_activity_small,ecommerce_wholesale_activity_small_model,نموذج الجملة صغير,Small Wholesale Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+ecommerce_wholesale_activity_medium,ecommerce_wholesale_activity_medium_model,نموذج الجملة متوسط,Medium Wholesale Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+ecommerce_wholesale_activity_large,ecommerce_wholesale_activity_large_model,نموذج الجملة كبير,Large Wholesale Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+ecommerce_ecommerce_activity_small,ecommerce_ecommerce_activity_small_model,نموذج التجارة الإلكترونية صغير,Small E-Commerce Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+ecommerce_ecommerce_activity_medium,ecommerce_ecommerce_activity_medium_model,نموذج التجارة الإلكترونية متوسط,Medium E-Commerce Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+ecommerce_ecommerce_activity_large,ecommerce_ecommerce_activity_large_model,نموذج التجارة الإلكترونية كبير,Large E-Commerce Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+ecommerce_import_export_activity_small,ecommerce_import_export_activity_small_model,نموذج الاستيراد والتصدير صغير,Small Import & Export Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+ecommerce_import_export_activity_medium,ecommerce_import_export_activity_medium_model,نموذج الاستيراد والتصدير متوسط,Medium Import & Export Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+ecommerce_import_export_activity_large,ecommerce_import_export_activity_large_model,نموذج الاستيراد والتصدير كبير,Large Import & Export Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+public_services_public_services_activity_small,public_services_public_services_activity_small_model,نموذج الخدمات العامة صغير,Small Public Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+public_services_public_services_activity_medium,public_services_public_services_activity_medium_model,نموذج الخدمات العامة متوسط,Medium Public Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+public_services_public_services_activity_large,public_services_public_services_activity_large_model,نموذج الخدمات العامة كبير,Large Public Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+public_services_consulting_activity_small,public_services_consulting_activity_small_model,نموذج الاستشارات الحكومية صغير,Small Government Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+public_services_consulting_activity_medium,public_services_consulting_activity_medium_model,نموذج الاستشارات الحكومية متوسط,Medium Government Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+public_services_consulting_activity_large,public_services_consulting_activity_large_model,نموذج الاستشارات الحكومية كبير,Large Government Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+public_services_facilities_activity_small,public_services_facilities_activity_small_model,نموذج إدارة المرافق صغير,Small Facilities Management Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+public_services_facilities_activity_medium,public_services_facilities_activity_medium_model,نموذج إدارة المرافق متوسط,Medium Facilities Management Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+public_services_facilities_activity_large,public_services_facilities_activity_large_model,نموذج إدارة المرافق كبير,Large Facilities Management Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+public_services_digital_activity_small,public_services_digital_activity_small_model,نموذج التحول الرقمي صغير,Small Digital Transformation Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+public_services_digital_activity_medium,public_services_digital_activity_medium_model,نموذج التحول الرقمي متوسط,Medium Digital Transformation Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+public_services_digital_activity_large,public_services_digital_activity_large_model,نموذج التحول الرقمي كبير,Large Digital Transformation Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+facilities_management_software_activity_small,facilities_management_software_activity_small_model,نموذج البرمجيات صغير,Small Software Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+facilities_management_software_activity_medium,facilities_management_software_activity_medium_model,نموذج البرمجيات متوسط,Medium Software Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+facilities_management_software_activity_large,facilities_management_software_activity_large_model,نموذج البرمجيات كبير,Large Software Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+facilities_management_hardware_activity_small,facilities_management_hardware_activity_small_model,نموذج الأجهزة صغير,Small Hardware Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+facilities_management_hardware_activity_medium,facilities_management_hardware_activity_medium_model,نموذج الأجهزة متوسط,Medium Hardware Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+facilities_management_hardware_activity_large,facilities_management_hardware_activity_large_model,نموذج الأجهزة كبير,Large Hardware Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+facilities_management_it_services_activity_small,facilities_management_it_services_activity_small_model,نموذج خدمات تكنولوجيا المعلومات صغير,Small IT Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+facilities_management_it_services_activity_medium,facilities_management_it_services_activity_medium_model,نموذج خدمات تكنولوجيا المعلومات متوسط,Medium IT Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+facilities_management_it_services_activity_large,facilities_management_it_services_activity_large_model,نموذج خدمات تكنولوجيا المعلومات كبير,Large IT Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+facilities_management_telecom_activity_small,facilities_management_telecom_activity_small_model,نموذج الاتصالات صغير,Small Telecommunications Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+facilities_management_telecom_activity_medium,facilities_management_telecom_activity_medium_model,نموذج الاتصالات متوسط,Medium Telecommunications Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+facilities_management_telecom_activity_large,facilities_management_telecom_activity_large_model,نموذج الاتصالات كبير,Large Telecommunications Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+consulting_consulting_activity_small,consulting_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+consulting_consulting_activity_medium,consulting_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+consulting_consulting_activity_large,consulting_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+consulting_maintenance_activity_small,consulting_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+consulting_maintenance_activity_medium,consulting_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+consulting_maintenance_activity_large,consulting_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+consulting_cleaning_activity_small,consulting_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+consulting_cleaning_activity_medium,consulting_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+consulting_cleaning_activity_large,consulting_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+consulting_security_activity_small,consulting_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+consulting_security_activity_medium,consulting_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+consulting_security_activity_large,consulting_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+commercial_brokerage_consulting_activity_small,commercial_brokerage_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+commercial_brokerage_consulting_activity_medium,commercial_brokerage_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+commercial_brokerage_consulting_activity_large,commercial_brokerage_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+commercial_brokerage_maintenance_activity_small,commercial_brokerage_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+commercial_brokerage_maintenance_activity_medium,commercial_brokerage_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+commercial_brokerage_maintenance_activity_large,commercial_brokerage_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+commercial_brokerage_cleaning_activity_small,commercial_brokerage_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+commercial_brokerage_cleaning_activity_medium,commercial_brokerage_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+commercial_brokerage_cleaning_activity_large,commercial_brokerage_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+commercial_brokerage_security_activity_small,commercial_brokerage_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+commercial_brokerage_security_activity_medium,commercial_brokerage_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+commercial_brokerage_security_activity_large,commercial_brokerage_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+insurance_agent_banking_activity_small,insurance_agent_banking_activity_small_model,نموذج الخدمات المصرفية صغير,Small Banking Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+insurance_agent_banking_activity_medium,insurance_agent_banking_activity_medium_model,نموذج الخدمات المصرفية متوسط,Medium Banking Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+insurance_agent_banking_activity_large,insurance_agent_banking_activity_large_model,نموذج الخدمات المصرفية كبير,Large Banking Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+insurance_agent_insurance_activity_small,insurance_agent_insurance_activity_small_model,نموذج التأمين صغير,Small Insurance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+insurance_agent_insurance_activity_medium,insurance_agent_insurance_activity_medium_model,نموذج التأمين متوسط,Medium Insurance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+insurance_agent_insurance_activity_large,insurance_agent_insurance_activity_large_model,نموذج التأمين كبير,Large Insurance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+insurance_agent_fintech_activity_small,insurance_agent_fintech_activity_small_model,نموذج التقنية المالية صغير,Small Fintech Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+insurance_agent_fintech_activity_medium,insurance_agent_fintech_activity_medium_model,نموذج التقنية المالية متوسط,Medium Fintech Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+insurance_agent_fintech_activity_large,insurance_agent_fintech_activity_large_model,نموذج التقنية المالية كبير,Large Fintech Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+insurance_agent_investment_activity_small,insurance_agent_investment_activity_small_model,نموذج الاستثمار صغير,Small Investment Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+insurance_agent_investment_activity_medium,insurance_agent_investment_activity_medium_model,نموذج الاستثمار متوسط,Medium Investment Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+insurance_agent_investment_activity_large,insurance_agent_investment_activity_large_model,نموذج الاستثمار كبير,Large Investment Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+insurance_broker_banking_activity_small,insurance_broker_banking_activity_small_model,نموذج الخدمات المصرفية صغير,Small Banking Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+insurance_broker_banking_activity_medium,insurance_broker_banking_activity_medium_model,نموذج الخدمات المصرفية متوسط,Medium Banking Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+insurance_broker_banking_activity_large,insurance_broker_banking_activity_large_model,نموذج الخدمات المصرفية كبير,Large Banking Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+insurance_broker_insurance_activity_small,insurance_broker_insurance_activity_small_model,نموذج التأمين صغير,Small Insurance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+insurance_broker_insurance_activity_medium,insurance_broker_insurance_activity_medium_model,نموذج التأمين متوسط,Medium Insurance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+insurance_broker_insurance_activity_large,insurance_broker_insurance_activity_large_model,نموذج التأمين كبير,Large Insurance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+insurance_broker_fintech_activity_small,insurance_broker_fintech_activity_small_model,نموذج التقنية المالية صغير,Small Fintech Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+insurance_broker_fintech_activity_medium,insurance_broker_fintech_activity_medium_model,نموذج التقنية المالية متوسط,Medium Fintech Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+insurance_broker_fintech_activity_large,insurance_broker_fintech_activity_large_model,نموذج التقنية المالية كبير,Large Fintech Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+insurance_broker_investment_activity_small,insurance_broker_investment_activity_small_model,نموذج الاستثمار صغير,Small Investment Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+insurance_broker_investment_activity_medium,insurance_broker_investment_activity_medium_model,نموذج الاستثمار متوسط,Medium Investment Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+insurance_broker_investment_activity_large,insurance_broker_investment_activity_large_model,نموذج الاستثمار كبير,Large Investment Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+human_resources_consulting_activity_small,human_resources_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+human_resources_consulting_activity_medium,human_resources_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+human_resources_consulting_activity_large,human_resources_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+human_resources_maintenance_activity_small,human_resources_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+human_resources_maintenance_activity_medium,human_resources_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+human_resources_maintenance_activity_large,human_resources_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+human_resources_cleaning_activity_small,human_resources_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+human_resources_cleaning_activity_medium,human_resources_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+human_resources_cleaning_activity_large,human_resources_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+human_resources_security_activity_small,human_resources_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+human_resources_security_activity_medium,human_resources_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+human_resources_security_activity_large,human_resources_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+energy_renewable_activity_small,energy_renewable_activity_small_model,نموذج الطاقة المتجددة صغير,Small Renewable Energy Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+energy_renewable_activity_medium,energy_renewable_activity_medium_model,نموذج الطاقة المتجددة متوسط,Medium Renewable Energy Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+energy_renewable_activity_large,energy_renewable_activity_large_model,نموذج الطاقة المتجددة كبير,Large Renewable Energy Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+energy_oil_gas_activity_small,energy_oil_gas_activity_small_model,نموذج النفط والغاز صغير,Small Oil & Gas Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+energy_oil_gas_activity_medium,energy_oil_gas_activity_medium_model,نموذج النفط والغاز متوسط,Medium Oil & Gas Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+energy_oil_gas_activity_large,energy_oil_gas_activity_large_model,نموذج النفط والغاز كبير,Large Oil & Gas Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+energy_utilities_activity_small,energy_utilities_activity_small_model,نموذج الخدمات العامة صغير,Small Utilities Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+energy_utilities_activity_medium,energy_utilities_activity_medium_model,نموذج الخدمات العامة متوسط,Medium Utilities Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+energy_utilities_activity_large,energy_utilities_activity_large_model,نموذج الخدمات العامة كبير,Large Utilities Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+energy_efficiency_activity_small,energy_efficiency_activity_small_model,نموذج كفاءة الطاقة صغير,Small Energy Efficiency Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+energy_efficiency_activity_medium,energy_efficiency_activity_medium_model,نموذج كفاءة الطاقة متوسط,Medium Energy Efficiency Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+energy_efficiency_activity_large,energy_efficiency_activity_large_model,نموذج كفاءة الطاقة كبير,Large Energy Efficiency Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+automotive_consulting_activity_small,automotive_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+automotive_consulting_activity_medium,automotive_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+automotive_consulting_activity_large,automotive_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+automotive_maintenance_activity_small,automotive_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+automotive_maintenance_activity_medium,automotive_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+automotive_maintenance_activity_large,automotive_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+automotive_cleaning_activity_small,automotive_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+automotive_cleaning_activity_medium,automotive_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+automotive_cleaning_activity_large,automotive_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+automotive_security_activity_small,automotive_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+automotive_security_activity_medium,automotive_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+automotive_security_activity_large,automotive_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+heavy_equipment_consulting_activity_small,heavy_equipment_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+heavy_equipment_consulting_activity_medium,heavy_equipment_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+heavy_equipment_consulting_activity_large,heavy_equipment_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+heavy_equipment_maintenance_activity_small,heavy_equipment_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+heavy_equipment_maintenance_activity_medium,heavy_equipment_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+heavy_equipment_maintenance_activity_large,heavy_equipment_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+heavy_equipment_cleaning_activity_small,heavy_equipment_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+heavy_equipment_cleaning_activity_medium,heavy_equipment_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+heavy_equipment_cleaning_activity_large,heavy_equipment_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+heavy_equipment_security_activity_small,heavy_equipment_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+heavy_equipment_security_activity_medium,heavy_equipment_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+heavy_equipment_security_activity_large,heavy_equipment_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+furniture_software_activity_small,furniture_software_activity_small_model,نموذج البرمجيات صغير,Small Software Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+furniture_software_activity_medium,furniture_software_activity_medium_model,نموذج البرمجيات متوسط,Medium Software Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+furniture_software_activity_large,furniture_software_activity_large_model,نموذج البرمجيات كبير,Large Software Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+furniture_hardware_activity_small,furniture_hardware_activity_small_model,نموذج الأجهزة صغير,Small Hardware Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+furniture_hardware_activity_medium,furniture_hardware_activity_medium_model,نموذج الأجهزة متوسط,Medium Hardware Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+furniture_hardware_activity_large,furniture_hardware_activity_large_model,نموذج الأجهزة كبير,Large Hardware Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+furniture_it_services_activity_small,furniture_it_services_activity_small_model,نموذج خدمات تكنولوجيا المعلومات صغير,Small IT Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+furniture_it_services_activity_medium,furniture_it_services_activity_medium_model,نموذج خدمات تكنولوجيا المعلومات متوسط,Medium IT Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+furniture_it_services_activity_large,furniture_it_services_activity_large_model,نموذج خدمات تكنولوجيا المعلومات كبير,Large IT Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+furniture_telecom_activity_small,furniture_telecom_activity_small_model,نموذج الاتصالات صغير,Small Telecommunications Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+furniture_telecom_activity_medium,furniture_telecom_activity_medium_model,نموذج الاتصالات متوسط,Medium Telecommunications Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+furniture_telecom_activity_large,furniture_telecom_activity_large_model,نموذج الاتصالات كبير,Large Telecommunications Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+beauty_consulting_activity_small,beauty_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+beauty_consulting_activity_medium,beauty_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+beauty_consulting_activity_large,beauty_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+beauty_maintenance_activity_small,beauty_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+beauty_maintenance_activity_medium,beauty_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+beauty_maintenance_activity_large,beauty_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+beauty_cleaning_activity_small,beauty_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+beauty_cleaning_activity_medium,beauty_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+beauty_cleaning_activity_large,beauty_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+beauty_security_activity_small,beauty_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+beauty_security_activity_medium,beauty_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+beauty_security_activity_large,beauty_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+food_beverage_restaurants_activity_small,food_beverage_restaurants_activity_small_model,نموذج المطاعم صغير,Small Restaurants Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+food_beverage_restaurants_activity_medium,food_beverage_restaurants_activity_medium_model,نموذج المطاعم متوسط,Medium Restaurants Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+food_beverage_restaurants_activity_large,food_beverage_restaurants_activity_large_model,نموذج المطاعم كبير,Large Restaurants Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+food_beverage_cafes_activity_small,food_beverage_cafes_activity_small_model,نموذج المقاهي صغير,Small Cafes Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+food_beverage_cafes_activity_medium,food_beverage_cafes_activity_medium_model,نموذج المقاهي متوسط,Medium Cafes Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+food_beverage_cafes_activity_large,food_beverage_cafes_activity_large_model,نموذج المقاهي كبير,Large Cafes Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+food_beverage_catering_activity_small,food_beverage_catering_activity_small_model,نموذج التموين صغير,Small Catering Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+food_beverage_catering_activity_medium,food_beverage_catering_activity_medium_model,نموذج التموين متوسط,Medium Catering Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+food_beverage_catering_activity_large,food_beverage_catering_activity_large_model,نموذج التموين كبير,Large Catering Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+food_beverage_fast_food_activity_small,food_beverage_fast_food_activity_small_model,نموذج الوجبات السريعة صغير,Small Fast Food Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+food_beverage_fast_food_activity_medium,food_beverage_fast_food_activity_medium_model,نموذج الوجبات السريعة متوسط,Medium Fast Food Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+food_beverage_fast_food_activity_large,food_beverage_fast_food_activity_large_model,نموذج الوجبات السريعة كبير,Large Fast Food Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+security_safety_software_activity_small,security_safety_software_activity_small_model,نموذج البرمجيات صغير,Small Software Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+security_safety_software_activity_medium,security_safety_software_activity_medium_model,نموذج البرمجيات متوسط,Medium Software Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+security_safety_software_activity_large,security_safety_software_activity_large_model,نموذج البرمجيات كبير,Large Software Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+security_safety_hardware_activity_small,security_safety_hardware_activity_small_model,نموذج الأجهزة صغير,Small Hardware Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+security_safety_hardware_activity_medium,security_safety_hardware_activity_medium_model,نموذج الأجهزة متوسط,Medium Hardware Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+security_safety_hardware_activity_large,security_safety_hardware_activity_large_model,نموذج الأجهزة كبير,Large Hardware Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+security_safety_it_services_activity_small,security_safety_it_services_activity_small_model,نموذج خدمات تكنولوجيا المعلومات صغير,Small IT Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+security_safety_it_services_activity_medium,security_safety_it_services_activity_medium_model,نموذج خدمات تكنولوجيا المعلومات متوسط,Medium IT Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+security_safety_it_services_activity_large,security_safety_it_services_activity_large_model,نموذج خدمات تكنولوجيا المعلومات كبير,Large IT Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+security_safety_telecom_activity_small,security_safety_telecom_activity_small_model,نموذج الاتصالات صغير,Small Telecommunications Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+security_safety_telecom_activity_medium,security_safety_telecom_activity_medium_model,نموذج الاتصالات متوسط,Medium Telecommunications Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+security_safety_telecom_activity_large,security_safety_telecom_activity_large_model,نموذج الاتصالات كبير,Large Telecommunications Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+laboratories_consulting_activity_small,laboratories_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+laboratories_consulting_activity_medium,laboratories_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+laboratories_consulting_activity_large,laboratories_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+laboratories_maintenance_activity_small,laboratories_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+laboratories_maintenance_activity_medium,laboratories_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+laboratories_maintenance_activity_large,laboratories_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+laboratories_cleaning_activity_small,laboratories_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+laboratories_cleaning_activity_medium,laboratories_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+laboratories_cleaning_activity_large,laboratories_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+laboratories_security_activity_small,laboratories_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+laboratories_security_activity_medium,laboratories_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+laboratories_security_activity_large,laboratories_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+research_development_residential_activity_small,research_development_residential_activity_small_model,نموذج السكني صغير,Small Residential Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+research_development_residential_activity_medium,research_development_residential_activity_medium_model,نموذج السكني متوسط,Medium Residential Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+research_development_residential_activity_large,research_development_residential_activity_large_model,نموذج السكني كبير,Large Residential Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+research_development_commercial_activity_small,research_development_commercial_activity_small_model,نموذج التجاري صغير,Small Commercial Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+research_development_commercial_activity_medium,research_development_commercial_activity_medium_model,نموذج التجاري متوسط,Medium Commercial Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+research_development_commercial_activity_large,research_development_commercial_activity_large_model,نموذج التجاري كبير,Large Commercial Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+research_development_industrial_activity_small,research_development_industrial_activity_small_model,نموذج الصناعي صغير,Small Industrial Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+research_development_industrial_activity_medium,research_development_industrial_activity_medium_model,نموذج الصناعي متوسط,Medium Industrial Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+research_development_industrial_activity_large,research_development_industrial_activity_large_model,نموذج الصناعي كبير,Large Industrial Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+research_development_brokerage_activity_small,research_development_brokerage_activity_small_model,نموذج الوساطة العقارية صغير,Small Real Estate Brokerage Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+research_development_brokerage_activity_medium,research_development_brokerage_activity_medium_model,نموذج الوساطة العقارية متوسط,Medium Real Estate Brokerage Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+research_development_brokerage_activity_large,research_development_brokerage_activity_large_model,نموذج الوساطة العقارية كبير,Large Real Estate Brokerage Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+sports_economy_events_activity_small,sports_economy_events_activity_small_model,نموذج الفعاليات صغير,Small Events Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+sports_economy_events_activity_medium,sports_economy_events_activity_medium_model,نموذج الفعاليات متوسط,Medium Events Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+sports_economy_events_activity_large,sports_economy_events_activity_large_model,نموذج الفعاليات كبير,Large Events Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+sports_economy_media_activity_small,sports_economy_media_activity_small_model,نموذج الإعلام صغير,Small Media Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+sports_economy_media_activity_medium,sports_economy_media_activity_medium_model,نموذج الإعلام متوسط,Medium Media Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+sports_economy_media_activity_large,sports_economy_media_activity_large_model,نموذج الإعلام كبير,Large Media Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+sports_economy_sports_activity_small,sports_economy_sports_activity_small_model,نموذج الرياضة صغير,Small Sports Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+sports_economy_sports_activity_medium,sports_economy_sports_activity_medium_model,نموذج الرياضة متوسط,Medium Sports Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+sports_economy_sports_activity_large,sports_economy_sports_activity_large_model,نموذج الرياضة كبير,Large Sports Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+sports_economy_tourism_activity_small,sports_economy_tourism_activity_small_model,نموذج السياحة صغير,Small Tourism Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+sports_economy_tourism_activity_medium,sports_economy_tourism_activity_medium_model,نموذج السياحة متوسط,Medium Tourism Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+sports_economy_tourism_activity_large,sports_economy_tourism_activity_large_model,نموذج السياحة كبير,Large Tourism Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+creative_economy_consulting_activity_small,creative_economy_consulting_activity_small_model,نموذج الاستشارات صغير,Small Consulting Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+creative_economy_consulting_activity_medium,creative_economy_consulting_activity_medium_model,نموذج الاستشارات متوسط,Medium Consulting Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+creative_economy_consulting_activity_large,creative_economy_consulting_activity_large_model,نموذج الاستشارات كبير,Large Consulting Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+creative_economy_maintenance_activity_small,creative_economy_maintenance_activity_small_model,نموذج الصيانة صغير,Small Maintenance Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+creative_economy_maintenance_activity_medium,creative_economy_maintenance_activity_medium_model,نموذج الصيانة متوسط,Medium Maintenance Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+creative_economy_maintenance_activity_large,creative_economy_maintenance_activity_large_model,نموذج الصيانة كبير,Large Maintenance Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+creative_economy_cleaning_activity_small,creative_economy_cleaning_activity_small_model,نموذج النظافة صغير,Small Cleaning Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+creative_economy_cleaning_activity_medium,creative_economy_cleaning_activity_medium_model,نموذج النظافة متوسط,Medium Cleaning Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+creative_economy_cleaning_activity_large,creative_economy_cleaning_activity_large_model,نموذج النظافة كبير,Large Cleaning Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+creative_economy_security_activity_small,creative_economy_security_activity_small_model,نموذج الأمن والحراسة صغير,Small Security Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+creative_economy_security_activity_medium,creative_economy_security_activity_medium_model,نموذج الأمن والحراسة متوسط,Medium Security Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+creative_economy_security_activity_large,creative_economy_security_activity_large_model,نموذج الأمن والحراسة كبير,Large Security Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+environment_sustainability_software_activity_small,environment_sustainability_software_activity_small_model,نموذج البرمجيات صغير,Small Software Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+environment_sustainability_software_activity_medium,environment_sustainability_software_activity_medium_model,نموذج البرمجيات متوسط,Medium Software Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+environment_sustainability_software_activity_large,environment_sustainability_software_activity_large_model,نموذج البرمجيات كبير,Large Software Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+environment_sustainability_hardware_activity_small,environment_sustainability_hardware_activity_small_model,نموذج الأجهزة صغير,Small Hardware Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+environment_sustainability_hardware_activity_medium,environment_sustainability_hardware_activity_medium_model,نموذج الأجهزة متوسط,Medium Hardware Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+environment_sustainability_hardware_activity_large,environment_sustainability_hardware_activity_large_model,نموذج الأجهزة كبير,Large Hardware Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+environment_sustainability_it_services_activity_small,environment_sustainability_it_services_activity_small_model,نموذج خدمات تكنولوجيا المعلومات صغير,Small IT Services Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+environment_sustainability_it_services_activity_medium,environment_sustainability_it_services_activity_medium_model,نموذج خدمات تكنولوجيا المعلومات متوسط,Medium IT Services Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+environment_sustainability_it_services_activity_large,environment_sustainability_it_services_activity_large_model,نموذج خدمات تكنولوجيا المعلومات كبير,Large IT Services Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true
+environment_sustainability_telecom_activity_small,environment_sustainability_telecom_activity_small_model,نموذج الاتصالات صغير,Small Telecommunications Model,small,greenfield,100000,300000,200000,500000,2,5,18,true
+environment_sustainability_telecom_activity_medium,environment_sustainability_telecom_activity_medium_model,نموذج الاتصالات متوسط,Medium Telecommunications Model,medium,greenfield,400000,1000000,800000,2000000,6,15,24,true
+environment_sustainability_telecom_activity_large,environment_sustainability_telecom_activity_large_model,نموذج الاتصالات كبير,Large Telecommunications Model,large,greenfield,1500000,5000000,2500000,8000000,16,40,36,true

@@ -1,0 +1,15 @@
+code,name_ar,name_en,category,unit_type,description,default_value
+rent_monthly,الإيجار الشهري,Monthly Rent,opex,fixed_amount,Monthly rent for clinic space,0
+salaries_monthly,الرواتب الشهرية,Monthly Salaries,opex,fixed_amount,Total monthly salaries,0
+marketing_monthly,التسويق الشهري,Monthly Marketing,opex,fixed_amount,Monthly marketing budget,0
+utilities_monthly,الخدمات الشهرية,Monthly Utilities,opex,fixed_amount,Electricity water internet,0
+insurance_monthly,التأمين الشهري,Monthly Insurance,opex,fixed_amount,Monthly insurance premiums,0
+license_cost_one_time,تكلفة التراخيص,License Cost One-time,capex,fixed_amount,One-time licensing fees,0
+equipment_cost_one_time,تكلفة المعدات,Equipment Cost One-time,capex,fixed_amount,Initial medical equipment,0
+decoration_cost_one_time,تكلفة التجهيز,Furniture & Decoration One-time,capex,fixed_amount,Clinic fit-out and furniture,0
+revenue_per_visit,متوسط الإيراد للزيارة,Average Revenue Per Visit,revenue,per_unit,Average revenue per patient visit,0
+visits_per_month,عدد الزيارات الشهرية,Monthly Visits,revenue,count,Expected patient visits per month,0
+cogs_percent,نسبة تكلفة البضاعة,Cost of Goods Sold Percent,cogs,percentage,Material and consumables cost percentage,0
+tax_rate,نسبة الضريبة,Corporate Tax Rate,tax,percentage,Income tax rate,0
+growth_rate,معدل النمو السنوي,Annual Growth Rate,financing,percentage,Yearly revenue growth rate,0
+discount_rate,معدل الخصم,Discount Rate,financing,percentage,Discount rate for NPV calculations,0

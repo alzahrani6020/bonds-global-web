@@ -1,0 +1,6 @@
+sector_code,code,name_ar,name_en,description,sort_order
+healthcare,clinics,العيادات,Clinics,Outpatient medical clinics,1
+healthcare,hospitals,المستشفيات,Hospitals,Inpatient hospitals and medical centers,2
+healthcare,pharmacies,الصيدليات,Pharmacies,Retail pharmacies,3
+healthcare,medical_labs,المختبرات الطبية,Medical Labs,Diagnostic laboratories,4
+healthcare,dental_centers,مراكز الأسنان,Dental Centers,Dental clinics and centers,5

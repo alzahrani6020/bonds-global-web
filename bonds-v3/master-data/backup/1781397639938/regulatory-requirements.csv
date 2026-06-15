@@ -1,0 +1,7 @@
+activity_detail_code,requirement_name_ar,requirement_name_en,issuing_authority,estimated_cost,mandatory,sort_order
+medium_dental_clinic,ترخيص وزارة الصحة,Ministry of Health License,Ministry of Health,15000,true,1
+medium_dental_clinic,ترخيص بلدية,Minicipality License,Municipality,5000,true,2
+medium_dental_clinic,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,3
+medium_dental_clinic,ترخيص مزاولة مهنة طبيب أسنان,Dentist Practice License,Saudi Commission for Health Specialties,3000,true,4
+medium_dental_clinic,اعتماد مكافحة العدوى,Infection Control Accreditation,Ministry of Health,4000,true,5
+medium_dental_clinic,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,8000,true,6

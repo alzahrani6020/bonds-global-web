@@ -1,0 +1,999 @@
+activity_detail_code,requirement_name_ar,requirement_name_en,issuing_authority,estimated_cost,mandatory,sort_order
+medium_dental_clinic,ترخيص وزارة الصحة,Ministry of Health License,Ministry of Health,15000,true,1
+medium_dental_clinic,ترخيص بلدية,Minicipality License,Municipality,5000,true,2
+medium_dental_clinic,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,3
+medium_dental_clinic,ترخيص مزاولة مهنة طبيب أسنان,Dentist Practice License,Saudi Commission for Health Specialties,3000,true,4
+medium_dental_clinic,اعتماد مكافحة العدوى,Infection Control Accreditation,Ministry of Health,4000,true,5
+medium_dental_clinic,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,8000,true,6
+financial_banking_banking_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,7
+financial_banking_banking_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,8
+financial_banking_banking_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,9
+financial_banking_banking_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,10
+financial_banking_insurance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,11
+financial_banking_insurance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,12
+financial_banking_insurance_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,13
+financial_banking_insurance_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,14
+financial_banking_fintech_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,15
+financial_banking_fintech_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,16
+financial_banking_fintech_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,17
+financial_banking_fintech_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,18
+financial_banking_investment_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,19
+financial_banking_investment_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,20
+financial_banking_investment_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,21
+financial_banking_investment_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,22
+insurance_banking_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,23
+insurance_banking_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,24
+insurance_banking_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,25
+insurance_banking_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,26
+insurance_insurance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,27
+insurance_insurance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,28
+insurance_insurance_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,29
+insurance_insurance_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,30
+insurance_fintech_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,31
+insurance_fintech_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,32
+insurance_fintech_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,33
+insurance_fintech_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,34
+insurance_investment_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,35
+insurance_investment_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,36
+insurance_investment_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,37
+insurance_investment_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,38
+awqaf_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,39
+awqaf_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,40
+awqaf_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,41
+awqaf_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,42
+awqaf_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,43
+awqaf_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,44
+awqaf_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,45
+awqaf_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,46
+awqaf_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,47
+awqaf_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,48
+awqaf_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,49
+awqaf_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,50
+awqaf_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,51
+awqaf_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,52
+awqaf_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,53
+awqaf_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,54
+education_schools_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,55
+education_schools_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,56
+education_schools_activity_medium,ترخيص وزارة التعليم,Ministry of Education License,Ministry of Education,10000,true,57
+education_schools_activity_medium,اعتماد برامج تدريبية,Training Program Accreditation,TVTC,5000,true,58
+education_training_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,59
+education_training_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,60
+education_training_activity_medium,ترخيص وزارة التعليم,Ministry of Education License,Ministry of Education,10000,true,61
+education_training_activity_medium,اعتماد برامج تدريبية,Training Program Accreditation,TVTC,5000,true,62
+education_universities_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,63
+education_universities_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,64
+education_universities_activity_medium,ترخيص وزارة التعليم,Ministry of Education License,Ministry of Education,10000,true,65
+education_universities_activity_medium,اعتماد برامج تدريبية,Training Program Accreditation,TVTC,5000,true,66
+education_elearning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,67
+education_elearning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,68
+education_elearning_activity_medium,ترخيص وزارة التعليم,Ministry of Education License,Ministry of Education,10000,true,69
+education_elearning_activity_medium,اعتماد برامج تدريبية,Training Program Accreditation,TVTC,5000,true,70
+industrial_factories_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,71
+industrial_factories_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,72
+industrial_factories_activity_medium,ترخيص مصنع,Factory License,Ministry of Industry,20000,true,73
+industrial_factories_activity_medium,تصريح بيئي,Environmental Permit,Ministry of Environment,10000,true,74
+industrial_workshops_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,75
+industrial_workshops_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,76
+industrial_workshops_activity_medium,ترخيص مصنع,Factory License,Ministry of Industry,20000,true,77
+industrial_workshops_activity_medium,تصريح بيئي,Environmental Permit,Ministry of Environment,10000,true,78
+industrial_assembly_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,79
+industrial_assembly_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,80
+industrial_assembly_activity_medium,ترخيص مصنع,Factory License,Ministry of Industry,20000,true,81
+industrial_assembly_activity_medium,تصريح بيئي,Environmental Permit,Ministry of Environment,10000,true,82
+industrial_packaging_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,83
+industrial_packaging_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,84
+industrial_packaging_activity_medium,ترخيص مصنع,Factory License,Ministry of Industry,20000,true,85
+industrial_packaging_activity_medium,تصريح بيئي,Environmental Permit,Ministry of Environment,10000,true,86
+food_industries_restaurants_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,87
+food_industries_restaurants_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,88
+food_industries_restaurants_activity_medium,ترخيص هيئة الغذاء والدواء,SFDA License,SFDA,8000,true,89
+food_industries_restaurants_activity_medium,شهادة سلامة الغذاء,Food Safety Certificate,Municipality,2500,true,90
+food_industries_cafes_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,91
+food_industries_cafes_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,92
+food_industries_cafes_activity_medium,ترخيص هيئة الغذاء والدواء,SFDA License,SFDA,8000,true,93
+food_industries_cafes_activity_medium,شهادة سلامة الغذاء,Food Safety Certificate,Municipality,2500,true,94
+food_industries_catering_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,95
+food_industries_catering_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,96
+food_industries_catering_activity_medium,ترخيص هيئة الغذاء والدواء,SFDA License,SFDA,8000,true,97
+food_industries_catering_activity_medium,شهادة سلامة الغذاء,Food Safety Certificate,Municipality,2500,true,98
+food_industries_fast_food_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,99
+food_industries_fast_food_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,100
+food_industries_fast_food_activity_medium,ترخيص هيئة الغذاء والدواء,SFDA License,SFDA,8000,true,101
+food_industries_fast_food_activity_medium,شهادة سلامة الغذاء,Food Safety Certificate,Municipality,2500,true,102
+pharmaceutical_industries_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,103
+pharmaceutical_industries_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,104
+pharmaceutical_industries_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,105
+pharmaceutical_industries_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,106
+pharmaceutical_industries_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,107
+pharmaceutical_industries_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,108
+pharmaceutical_industries_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,109
+pharmaceutical_industries_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,110
+pharmaceutical_industries_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,111
+pharmaceutical_industries_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,112
+pharmaceutical_industries_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,113
+pharmaceutical_industries_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,114
+pharmaceutical_industries_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,115
+pharmaceutical_industries_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,116
+pharmaceutical_industries_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,117
+pharmaceutical_industries_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,118
+chemical_industries_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,119
+chemical_industries_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,120
+chemical_industries_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,121
+chemical_industries_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,122
+chemical_industries_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,123
+chemical_industries_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,124
+chemical_industries_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,125
+chemical_industries_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,126
+chemical_industries_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,127
+chemical_industries_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,128
+chemical_industries_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,129
+chemical_industries_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,130
+chemical_industries_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,131
+chemical_industries_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,132
+chemical_industries_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,133
+chemical_industries_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,134
+mining_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,135
+mining_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,136
+mining_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,137
+mining_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,138
+mining_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,139
+mining_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,140
+mining_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,141
+mining_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,142
+mining_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,143
+mining_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,144
+mining_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,145
+mining_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,146
+mining_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,147
+mining_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,148
+mining_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,149
+mining_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,150
+geology_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,151
+geology_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,152
+geology_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,153
+geology_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,154
+geology_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,155
+geology_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,156
+geology_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,157
+geology_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,158
+geology_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,159
+geology_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,160
+geology_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,161
+geology_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,162
+geology_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,163
+geology_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,164
+geology_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,165
+geology_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,166
+oil_gas_renewable_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,167
+oil_gas_renewable_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,168
+oil_gas_renewable_activity_medium,ترخيص وزارة الطاقة,Ministry of Energy License,Ministry of Energy,30000,true,169
+oil_gas_renewable_activity_medium,موافقة هيئة الكهرباء,Electricity Authority Approval,Saudi Electricity Company,12000,true,170
+oil_gas_oil_gas_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,171
+oil_gas_oil_gas_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,172
+oil_gas_oil_gas_activity_medium,ترخيص وزارة الطاقة,Ministry of Energy License,Ministry of Energy,30000,true,173
+oil_gas_oil_gas_activity_medium,موافقة هيئة الكهرباء,Electricity Authority Approval,Saudi Electricity Company,12000,true,174
+oil_gas_utilities_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,175
+oil_gas_utilities_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,176
+oil_gas_utilities_activity_medium,ترخيص وزارة الطاقة,Ministry of Energy License,Ministry of Energy,30000,true,177
+oil_gas_utilities_activity_medium,موافقة هيئة الكهرباء,Electricity Authority Approval,Saudi Electricity Company,12000,true,178
+oil_gas_efficiency_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,179
+oil_gas_efficiency_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,180
+oil_gas_efficiency_activity_medium,ترخيص وزارة الطاقة,Ministry of Energy License,Ministry of Energy,30000,true,181
+oil_gas_efficiency_activity_medium,موافقة هيئة الكهرباء,Electricity Authority Approval,Saudi Electricity Company,12000,true,182
+oil_refineries_renewable_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,183
+oil_refineries_renewable_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,184
+oil_refineries_renewable_activity_medium,ترخيص وزارة الطاقة,Ministry of Energy License,Ministry of Energy,30000,true,185
+oil_refineries_renewable_activity_medium,موافقة هيئة الكهرباء,Electricity Authority Approval,Saudi Electricity Company,12000,true,186
+oil_refineries_oil_gas_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,187
+oil_refineries_oil_gas_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,188
+oil_refineries_oil_gas_activity_medium,ترخيص وزارة الطاقة,Ministry of Energy License,Ministry of Energy,30000,true,189
+oil_refineries_oil_gas_activity_medium,موافقة هيئة الكهرباء,Electricity Authority Approval,Saudi Electricity Company,12000,true,190
+oil_refineries_utilities_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,191
+oil_refineries_utilities_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,192
+oil_refineries_utilities_activity_medium,ترخيص وزارة الطاقة,Ministry of Energy License,Ministry of Energy,30000,true,193
+oil_refineries_utilities_activity_medium,موافقة هيئة الكهرباء,Electricity Authority Approval,Saudi Electricity Company,12000,true,194
+oil_refineries_efficiency_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,195
+oil_refineries_efficiency_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,196
+oil_refineries_efficiency_activity_medium,ترخيص وزارة الطاقة,Ministry of Energy License,Ministry of Energy,30000,true,197
+oil_refineries_efficiency_activity_medium,موافقة هيئة الكهرباء,Electricity Authority Approval,Saudi Electricity Company,12000,true,198
+metal_refineries_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,199
+metal_refineries_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,200
+metal_refineries_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,201
+metal_refineries_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,202
+metal_refineries_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,203
+metal_refineries_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,204
+metal_refineries_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,205
+metal_refineries_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,206
+metal_refineries_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,207
+metal_refineries_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,208
+metal_refineries_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,209
+metal_refineries_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,210
+metal_refineries_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,211
+metal_refineries_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,212
+metal_refineries_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,213
+metal_refineries_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,214
+water_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,215
+water_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,216
+water_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,217
+water_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,218
+water_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,219
+water_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,220
+water_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,221
+water_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,222
+water_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,223
+water_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,224
+water_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,225
+water_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,226
+water_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,227
+water_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,228
+water_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,229
+water_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,230
+well_drilling_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,231
+well_drilling_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,232
+well_drilling_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,233
+well_drilling_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,234
+well_drilling_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,235
+well_drilling_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,236
+well_drilling_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,237
+well_drilling_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,238
+well_drilling_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,239
+well_drilling_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,240
+well_drilling_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,241
+well_drilling_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,242
+well_drilling_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,243
+well_drilling_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,244
+well_drilling_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,245
+well_drilling_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,246
+agriculture_farming_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,247
+agriculture_farming_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,248
+agriculture_farming_activity_medium,ترخيص زراعي,Agricultural License,Ministry of Environment,4000,true,249
+agriculture_farming_activity_medium,شهادة صحة حيوانية,Veterinary Health Certificate,Ministry of Agriculture,3000,true,250
+agriculture_livestock_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,251
+agriculture_livestock_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,252
+agriculture_livestock_activity_medium,ترخيص زراعي,Agricultural License,Ministry of Environment,4000,true,253
+agriculture_livestock_activity_medium,شهادة صحة حيوانية,Veterinary Health Certificate,Ministry of Agriculture,3000,true,254
+agriculture_processing_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,255
+agriculture_processing_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,256
+agriculture_processing_activity_medium,ترخيص زراعي,Agricultural License,Ministry of Environment,4000,true,257
+agriculture_processing_activity_medium,شهادة صحة حيوانية,Veterinary Health Certificate,Ministry of Agriculture,3000,true,258
+agriculture_distribution_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,259
+agriculture_distribution_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,260
+agriculture_distribution_activity_medium,ترخيص زراعي,Agricultural License,Ministry of Environment,4000,true,261
+agriculture_distribution_activity_medium,شهادة صحة حيوانية,Veterinary Health Certificate,Ministry of Agriculture,3000,true,262
+agricultural_inputs_farming_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,263
+agricultural_inputs_farming_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,264
+agricultural_inputs_farming_activity_medium,ترخيص زراعي,Agricultural License,Ministry of Environment,4000,true,265
+agricultural_inputs_farming_activity_medium,شهادة صحة حيوانية,Veterinary Health Certificate,Ministry of Agriculture,3000,true,266
+agricultural_inputs_livestock_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,267
+agricultural_inputs_livestock_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,268
+agricultural_inputs_livestock_activity_medium,ترخيص زراعي,Agricultural License,Ministry of Environment,4000,true,269
+agricultural_inputs_livestock_activity_medium,شهادة صحة حيوانية,Veterinary Health Certificate,Ministry of Agriculture,3000,true,270
+agricultural_inputs_processing_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,271
+agricultural_inputs_processing_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,272
+agricultural_inputs_processing_activity_medium,ترخيص زراعي,Agricultural License,Ministry of Environment,4000,true,273
+agricultural_inputs_processing_activity_medium,شهادة صحة حيوانية,Veterinary Health Certificate,Ministry of Agriculture,3000,true,274
+agricultural_inputs_distribution_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,275
+agricultural_inputs_distribution_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,276
+agricultural_inputs_distribution_activity_medium,ترخيص زراعي,Agricultural License,Ministry of Environment,4000,true,277
+agricultural_inputs_distribution_activity_medium,شهادة صحة حيوانية,Veterinary Health Certificate,Ministry of Agriculture,3000,true,278
+desertification_control_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,279
+desertification_control_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,280
+desertification_control_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,281
+desertification_control_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,282
+desertification_control_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,283
+desertification_control_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,284
+desertification_control_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,285
+desertification_control_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,286
+desertification_control_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,287
+desertification_control_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,288
+desertification_control_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,289
+desertification_control_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,290
+desertification_control_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,291
+desertification_control_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,292
+desertification_control_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,293
+desertification_control_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,294
+livestock_farming_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,295
+livestock_farming_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,296
+livestock_farming_activity_medium,ترخيص زراعي,Agricultural License,Ministry of Environment,4000,true,297
+livestock_farming_activity_medium,شهادة صحة حيوانية,Veterinary Health Certificate,Ministry of Agriculture,3000,true,298
+livestock_livestock_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,299
+livestock_livestock_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,300
+livestock_livestock_activity_medium,ترخيص زراعي,Agricultural License,Ministry of Environment,4000,true,301
+livestock_livestock_activity_medium,شهادة صحة حيوانية,Veterinary Health Certificate,Ministry of Agriculture,3000,true,302
+livestock_processing_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,303
+livestock_processing_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,304
+livestock_processing_activity_medium,ترخيص زراعي,Agricultural License,Ministry of Environment,4000,true,305
+livestock_processing_activity_medium,شهادة صحة حيوانية,Veterinary Health Certificate,Ministry of Agriculture,3000,true,306
+livestock_distribution_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,307
+livestock_distribution_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,308
+livestock_distribution_activity_medium,ترخيص زراعي,Agricultural License,Ministry of Environment,4000,true,309
+livestock_distribution_activity_medium,شهادة صحة حيوانية,Veterinary Health Certificate,Ministry of Agriculture,3000,true,310
+poultry_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,311
+poultry_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,312
+poultry_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,313
+poultry_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,314
+poultry_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,315
+poultry_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,316
+poultry_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,317
+poultry_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,318
+poultry_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,319
+poultry_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,320
+poultry_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,321
+poultry_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,322
+poultry_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,323
+poultry_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,324
+poultry_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,325
+poultry_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,326
+fisheries_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,327
+fisheries_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,328
+fisheries_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,329
+fisheries_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,330
+fisheries_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,331
+fisheries_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,332
+fisheries_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,333
+fisheries_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,334
+fisheries_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,335
+fisheries_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,336
+fisheries_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,337
+fisheries_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,338
+fisheries_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,339
+fisheries_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,340
+fisheries_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,341
+fisheries_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,342
+real_estate_residential_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,343
+real_estate_residential_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,344
+real_estate_residential_activity_medium,ترخيص تطوير عقاري,Real Estate Development License,Ministry of Municipalities,25000,true,345
+real_estate_residential_activity_medium,رخصة بناء,Building Permit,Municipality,15000,true,346
+real_estate_commercial_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,347
+real_estate_commercial_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,348
+real_estate_commercial_activity_medium,ترخيص تطوير عقاري,Real Estate Development License,Ministry of Municipalities,25000,true,349
+real_estate_commercial_activity_medium,رخصة بناء,Building Permit,Municipality,15000,true,350
+real_estate_industrial_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,351
+real_estate_industrial_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,352
+real_estate_industrial_activity_medium,ترخيص تطوير عقاري,Real Estate Development License,Ministry of Municipalities,25000,true,353
+real_estate_industrial_activity_medium,رخصة بناء,Building Permit,Municipality,15000,true,354
+real_estate_brokerage_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,355
+real_estate_brokerage_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,356
+real_estate_brokerage_activity_medium,ترخيص تطوير عقاري,Real Estate Development License,Ministry of Municipalities,25000,true,357
+real_estate_brokerage_activity_medium,رخصة بناء,Building Permit,Municipality,15000,true,358
+contracting_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,359
+contracting_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,360
+contracting_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,361
+contracting_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,362
+contracting_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,363
+contracting_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,364
+contracting_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,365
+contracting_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,366
+contracting_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,367
+contracting_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,368
+contracting_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,369
+contracting_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,370
+contracting_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,371
+contracting_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,372
+contracting_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,373
+contracting_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,374
+industrial_cities_factories_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,375
+industrial_cities_factories_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,376
+industrial_cities_factories_activity_medium,ترخيص مصنع,Factory License,Ministry of Industry,20000,true,377
+industrial_cities_factories_activity_medium,تصريح بيئي,Environmental Permit,Ministry of Environment,10000,true,378
+industrial_cities_workshops_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,379
+industrial_cities_workshops_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,380
+industrial_cities_workshops_activity_medium,ترخيص مصنع,Factory License,Ministry of Industry,20000,true,381
+industrial_cities_workshops_activity_medium,تصريح بيئي,Environmental Permit,Ministry of Environment,10000,true,382
+industrial_cities_assembly_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,383
+industrial_cities_assembly_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,384
+industrial_cities_assembly_activity_medium,ترخيص مصنع,Factory License,Ministry of Industry,20000,true,385
+industrial_cities_assembly_activity_medium,تصريح بيئي,Environmental Permit,Ministry of Environment,10000,true,386
+industrial_cities_packaging_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,387
+industrial_cities_packaging_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,388
+industrial_cities_packaging_activity_medium,ترخيص مصنع,Factory License,Ministry of Industry,20000,true,389
+industrial_cities_packaging_activity_medium,تصريح بيئي,Environmental Permit,Ministry of Environment,10000,true,390
+logistics_transport_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,391
+logistics_transport_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,392
+logistics_transport_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,393
+logistics_transport_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,394
+logistics_warehousing_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,395
+logistics_warehousing_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,396
+logistics_warehousing_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,397
+logistics_warehousing_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,398
+logistics_shipping_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,399
+logistics_shipping_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,400
+logistics_shipping_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,401
+logistics_shipping_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,402
+logistics_last_mile_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,403
+logistics_last_mile_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,404
+logistics_last_mile_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,405
+logistics_last_mile_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,406
+dry_warehouses_transport_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,407
+dry_warehouses_transport_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,408
+dry_warehouses_transport_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,409
+dry_warehouses_transport_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,410
+dry_warehouses_warehousing_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,411
+dry_warehouses_warehousing_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,412
+dry_warehouses_warehousing_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,413
+dry_warehouses_warehousing_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,414
+dry_warehouses_shipping_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,415
+dry_warehouses_shipping_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,416
+dry_warehouses_shipping_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,417
+dry_warehouses_shipping_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,418
+dry_warehouses_last_mile_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,419
+dry_warehouses_last_mile_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,420
+dry_warehouses_last_mile_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,421
+dry_warehouses_last_mile_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,422
+cold_warehouses_transport_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,423
+cold_warehouses_transport_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,424
+cold_warehouses_transport_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,425
+cold_warehouses_transport_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,426
+cold_warehouses_warehousing_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,427
+cold_warehouses_warehousing_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,428
+cold_warehouses_warehousing_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,429
+cold_warehouses_warehousing_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,430
+cold_warehouses_shipping_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,431
+cold_warehouses_shipping_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,432
+cold_warehouses_shipping_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,433
+cold_warehouses_shipping_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,434
+cold_warehouses_last_mile_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,435
+cold_warehouses_last_mile_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,436
+cold_warehouses_last_mile_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,437
+cold_warehouses_last_mile_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,438
+transport_transport_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,439
+transport_transport_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,440
+transport_transport_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,441
+transport_transport_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,442
+transport_warehousing_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,443
+transport_warehousing_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,444
+transport_warehousing_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,445
+transport_warehousing_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,446
+transport_shipping_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,447
+transport_shipping_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,448
+transport_shipping_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,449
+transport_shipping_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,450
+transport_last_mile_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,451
+transport_last_mile_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,452
+transport_last_mile_activity_medium,ترخيص نقل,Transport License,Ministry of Transport,8000,true,453
+transport_last_mile_activity_medium,تأمين مركبات,Vehicle Insurance,Insurance Company,5000,true,454
+ports_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,455
+ports_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,456
+ports_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,457
+ports_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,458
+ports_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,459
+ports_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,460
+ports_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,461
+ports_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,462
+ports_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,463
+ports_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,464
+ports_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,465
+ports_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,466
+ports_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,467
+ports_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,468
+ports_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,469
+ports_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,470
+aviation_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,471
+aviation_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,472
+aviation_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,473
+aviation_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,474
+aviation_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,475
+aviation_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,476
+aviation_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,477
+aviation_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,478
+aviation_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,479
+aviation_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,480
+aviation_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,481
+aviation_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,482
+aviation_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,483
+aviation_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,484
+aviation_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,485
+aviation_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,486
+private_aviation_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,487
+private_aviation_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,488
+private_aviation_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,489
+private_aviation_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,490
+private_aviation_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,491
+private_aviation_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,492
+private_aviation_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,493
+private_aviation_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,494
+private_aviation_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,495
+private_aviation_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,496
+private_aviation_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,497
+private_aviation_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,498
+private_aviation_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,499
+private_aviation_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,500
+private_aviation_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,501
+private_aviation_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,502
+hajj_umrah_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,503
+hajj_umrah_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,504
+hajj_umrah_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,505
+hajj_umrah_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,506
+hajj_umrah_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,507
+hajj_umrah_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,508
+hajj_umrah_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,509
+hajj_umrah_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,510
+hajj_umrah_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,511
+hajj_umrah_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,512
+hajj_umrah_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,513
+hajj_umrah_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,514
+hajj_umrah_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,515
+hajj_umrah_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,516
+hajj_umrah_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,517
+hajj_umrah_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,518
+tourism_events_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,519
+tourism_events_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,520
+tourism_events_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,521
+tourism_events_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,522
+tourism_media_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,523
+tourism_media_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,524
+tourism_media_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,525
+tourism_media_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,526
+tourism_sports_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,527
+tourism_sports_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,528
+tourism_sports_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,529
+tourism_sports_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,530
+tourism_tourism_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,531
+tourism_tourism_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,532
+tourism_tourism_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,533
+tourism_tourism_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,534
+hospitality_software_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,535
+hospitality_software_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,536
+hospitality_software_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,537
+hospitality_software_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,538
+hospitality_hardware_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,539
+hospitality_hardware_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,540
+hospitality_hardware_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,541
+hospitality_hardware_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,542
+hospitality_it_services_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,543
+hospitality_it_services_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,544
+hospitality_it_services_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,545
+hospitality_it_services_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,546
+hospitality_telecom_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,547
+hospitality_telecom_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,548
+hospitality_telecom_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,549
+hospitality_telecom_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,550
+entertainment_events_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,551
+entertainment_events_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,552
+entertainment_events_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,553
+entertainment_events_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,554
+entertainment_media_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,555
+entertainment_media_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,556
+entertainment_media_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,557
+entertainment_media_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,558
+entertainment_sports_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,559
+entertainment_sports_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,560
+entertainment_sports_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,561
+entertainment_sports_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,562
+entertainment_tourism_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,563
+entertainment_tourism_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,564
+entertainment_tourism_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,565
+entertainment_tourism_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,566
+culture_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,567
+culture_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,568
+culture_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,569
+culture_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,570
+culture_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,571
+culture_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,572
+culture_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,573
+culture_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,574
+culture_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,575
+culture_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,576
+culture_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,577
+culture_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,578
+culture_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,579
+culture_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,580
+culture_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,581
+culture_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,582
+media_events_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,583
+media_events_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,584
+media_events_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,585
+media_events_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,586
+media_media_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,587
+media_media_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,588
+media_media_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,589
+media_media_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,590
+media_sports_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,591
+media_sports_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,592
+media_sports_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,593
+media_sports_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,594
+media_tourism_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,595
+media_tourism_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,596
+media_tourism_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,597
+media_tourism_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,598
+advertising_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,599
+advertising_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,600
+advertising_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,601
+advertising_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,602
+advertising_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,603
+advertising_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,604
+advertising_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,605
+advertising_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,606
+advertising_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,607
+advertising_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,608
+advertising_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,609
+advertising_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,610
+advertising_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,611
+advertising_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,612
+advertising_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,613
+advertising_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,614
+technology_software_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,615
+technology_software_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,616
+technology_software_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,617
+technology_software_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,618
+technology_hardware_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,619
+technology_hardware_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,620
+technology_hardware_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,621
+technology_hardware_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,622
+technology_it_services_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,623
+technology_it_services_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,624
+technology_it_services_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,625
+technology_it_services_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,626
+technology_telecom_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,627
+technology_telecom_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,628
+technology_telecom_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,629
+technology_telecom_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,630
+artificial_intelligence_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,631
+artificial_intelligence_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,632
+artificial_intelligence_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,633
+artificial_intelligence_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,634
+artificial_intelligence_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,635
+artificial_intelligence_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,636
+artificial_intelligence_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,637
+artificial_intelligence_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,638
+artificial_intelligence_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,639
+artificial_intelligence_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,640
+artificial_intelligence_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,641
+artificial_intelligence_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,642
+artificial_intelligence_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,643
+artificial_intelligence_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,644
+artificial_intelligence_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,645
+artificial_intelligence_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,646
+cybersecurity_software_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,647
+cybersecurity_software_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,648
+cybersecurity_software_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,649
+cybersecurity_software_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,650
+cybersecurity_hardware_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,651
+cybersecurity_hardware_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,652
+cybersecurity_hardware_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,653
+cybersecurity_hardware_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,654
+cybersecurity_it_services_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,655
+cybersecurity_it_services_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,656
+cybersecurity_it_services_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,657
+cybersecurity_it_services_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,658
+cybersecurity_telecom_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,659
+cybersecurity_telecom_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,660
+cybersecurity_telecom_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,661
+cybersecurity_telecom_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,662
+commerce_retail_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,663
+commerce_retail_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,664
+commerce_retail_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,665
+commerce_retail_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,666
+commerce_wholesale_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,667
+commerce_wholesale_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,668
+commerce_wholesale_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,669
+commerce_wholesale_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,670
+commerce_ecommerce_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,671
+commerce_ecommerce_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,672
+commerce_ecommerce_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,673
+commerce_ecommerce_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,674
+commerce_import_export_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,675
+commerce_import_export_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,676
+commerce_import_export_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,677
+commerce_import_export_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,678
+ecommerce_retail_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,679
+ecommerce_retail_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,680
+ecommerce_retail_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,681
+ecommerce_retail_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,682
+ecommerce_wholesale_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,683
+ecommerce_wholesale_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,684
+ecommerce_wholesale_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,685
+ecommerce_wholesale_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,686
+ecommerce_ecommerce_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,687
+ecommerce_ecommerce_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,688
+ecommerce_ecommerce_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,689
+ecommerce_ecommerce_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,690
+ecommerce_import_export_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,691
+ecommerce_import_export_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,692
+ecommerce_import_export_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,693
+ecommerce_import_export_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,694
+public_services_public_services_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,695
+public_services_public_services_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,696
+public_services_public_services_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,697
+public_services_public_services_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,698
+public_services_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,699
+public_services_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,700
+public_services_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,701
+public_services_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,702
+public_services_facilities_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,703
+public_services_facilities_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,704
+public_services_facilities_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,705
+public_services_facilities_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,706
+public_services_digital_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,707
+public_services_digital_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,708
+public_services_digital_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,709
+public_services_digital_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,710
+facilities_management_software_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,711
+facilities_management_software_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,712
+facilities_management_software_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,713
+facilities_management_software_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,714
+facilities_management_hardware_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,715
+facilities_management_hardware_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,716
+facilities_management_hardware_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,717
+facilities_management_hardware_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,718
+facilities_management_it_services_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,719
+facilities_management_it_services_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,720
+facilities_management_it_services_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,721
+facilities_management_it_services_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,722
+facilities_management_telecom_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,723
+facilities_management_telecom_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,724
+facilities_management_telecom_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,725
+facilities_management_telecom_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,726
+consulting_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,727
+consulting_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,728
+consulting_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,729
+consulting_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,730
+consulting_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,731
+consulting_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,732
+consulting_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,733
+consulting_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,734
+consulting_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,735
+consulting_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,736
+consulting_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,737
+consulting_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,738
+consulting_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,739
+consulting_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,740
+consulting_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,741
+consulting_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,742
+commercial_brokerage_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,743
+commercial_brokerage_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,744
+commercial_brokerage_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,745
+commercial_brokerage_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,746
+commercial_brokerage_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,747
+commercial_brokerage_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,748
+commercial_brokerage_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,749
+commercial_brokerage_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,750
+commercial_brokerage_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,751
+commercial_brokerage_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,752
+commercial_brokerage_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,753
+commercial_brokerage_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,754
+commercial_brokerage_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,755
+commercial_brokerage_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,756
+commercial_brokerage_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,757
+commercial_brokerage_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,758
+insurance_agent_banking_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,759
+insurance_agent_banking_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,760
+insurance_agent_banking_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,761
+insurance_agent_banking_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,762
+insurance_agent_insurance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,763
+insurance_agent_insurance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,764
+insurance_agent_insurance_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,765
+insurance_agent_insurance_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,766
+insurance_agent_fintech_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,767
+insurance_agent_fintech_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,768
+insurance_agent_fintech_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,769
+insurance_agent_fintech_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,770
+insurance_agent_investment_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,771
+insurance_agent_investment_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,772
+insurance_agent_investment_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,773
+insurance_agent_investment_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,774
+insurance_broker_banking_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,775
+insurance_broker_banking_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,776
+insurance_broker_banking_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,777
+insurance_broker_banking_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,778
+insurance_broker_insurance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,779
+insurance_broker_insurance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,780
+insurance_broker_insurance_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,781
+insurance_broker_insurance_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,782
+insurance_broker_fintech_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,783
+insurance_broker_fintech_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,784
+insurance_broker_fintech_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,785
+insurance_broker_fintech_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,786
+insurance_broker_investment_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,787
+insurance_broker_investment_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,788
+insurance_broker_investment_activity_medium,ترخيص من البنك المركزي,Central Bank License,SAMA,50000,true,789
+insurance_broker_investment_activity_medium,اعتماد مؤسسي,Institutional Approval,Ministry of Finance,15000,true,790
+human_resources_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,791
+human_resources_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,792
+human_resources_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,793
+human_resources_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,794
+human_resources_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,795
+human_resources_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,796
+human_resources_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,797
+human_resources_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,798
+human_resources_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,799
+human_resources_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,800
+human_resources_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,801
+human_resources_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,802
+human_resources_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,803
+human_resources_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,804
+human_resources_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,805
+human_resources_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,806
+energy_renewable_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,807
+energy_renewable_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,808
+energy_renewable_activity_medium,ترخيص وزارة الطاقة,Ministry of Energy License,Ministry of Energy,30000,true,809
+energy_renewable_activity_medium,موافقة هيئة الكهرباء,Electricity Authority Approval,Saudi Electricity Company,12000,true,810
+energy_oil_gas_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,811
+energy_oil_gas_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,812
+energy_oil_gas_activity_medium,ترخيص وزارة الطاقة,Ministry of Energy License,Ministry of Energy,30000,true,813
+energy_oil_gas_activity_medium,موافقة هيئة الكهرباء,Electricity Authority Approval,Saudi Electricity Company,12000,true,814
+energy_utilities_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,815
+energy_utilities_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,816
+energy_utilities_activity_medium,ترخيص وزارة الطاقة,Ministry of Energy License,Ministry of Energy,30000,true,817
+energy_utilities_activity_medium,موافقة هيئة الكهرباء,Electricity Authority Approval,Saudi Electricity Company,12000,true,818
+energy_efficiency_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,819
+energy_efficiency_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,820
+energy_efficiency_activity_medium,ترخيص وزارة الطاقة,Ministry of Energy License,Ministry of Energy,30000,true,821
+energy_efficiency_activity_medium,موافقة هيئة الكهرباء,Electricity Authority Approval,Saudi Electricity Company,12000,true,822
+automotive_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,823
+automotive_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,824
+automotive_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,825
+automotive_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,826
+automotive_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,827
+automotive_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,828
+automotive_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,829
+automotive_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,830
+automotive_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,831
+automotive_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,832
+automotive_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,833
+automotive_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,834
+automotive_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,835
+automotive_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,836
+automotive_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,837
+automotive_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,838
+heavy_equipment_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,839
+heavy_equipment_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,840
+heavy_equipment_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,841
+heavy_equipment_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,842
+heavy_equipment_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,843
+heavy_equipment_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,844
+heavy_equipment_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,845
+heavy_equipment_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,846
+heavy_equipment_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,847
+heavy_equipment_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,848
+heavy_equipment_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,849
+heavy_equipment_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,850
+heavy_equipment_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,851
+heavy_equipment_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,852
+heavy_equipment_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,853
+heavy_equipment_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,854
+furniture_software_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,855
+furniture_software_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,856
+furniture_software_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,857
+furniture_software_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,858
+furniture_hardware_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,859
+furniture_hardware_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,860
+furniture_hardware_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,861
+furniture_hardware_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,862
+furniture_it_services_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,863
+furniture_it_services_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,864
+furniture_it_services_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,865
+furniture_it_services_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,866
+furniture_telecom_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,867
+furniture_telecom_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,868
+furniture_telecom_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,869
+furniture_telecom_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,870
+beauty_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,871
+beauty_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,872
+beauty_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,873
+beauty_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,874
+beauty_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,875
+beauty_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,876
+beauty_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,877
+beauty_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,878
+beauty_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,879
+beauty_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,880
+beauty_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,881
+beauty_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,882
+beauty_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,883
+beauty_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,884
+beauty_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,885
+beauty_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,886
+food_beverage_restaurants_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,887
+food_beverage_restaurants_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,888
+food_beverage_restaurants_activity_medium,ترخيص هيئة الغذاء والدواء,SFDA License,SFDA,8000,true,889
+food_beverage_restaurants_activity_medium,شهادة سلامة الغذاء,Food Safety Certificate,Municipality,2500,true,890
+food_beverage_cafes_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,891
+food_beverage_cafes_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,892
+food_beverage_cafes_activity_medium,ترخيص هيئة الغذاء والدواء,SFDA License,SFDA,8000,true,893
+food_beverage_cafes_activity_medium,شهادة سلامة الغذاء,Food Safety Certificate,Municipality,2500,true,894
+food_beverage_catering_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,895
+food_beverage_catering_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,896
+food_beverage_catering_activity_medium,ترخيص هيئة الغذاء والدواء,SFDA License,SFDA,8000,true,897
+food_beverage_catering_activity_medium,شهادة سلامة الغذاء,Food Safety Certificate,Municipality,2500,true,898
+food_beverage_fast_food_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,899
+food_beverage_fast_food_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,900
+food_beverage_fast_food_activity_medium,ترخيص هيئة الغذاء والدواء,SFDA License,SFDA,8000,true,901
+food_beverage_fast_food_activity_medium,شهادة سلامة الغذاء,Food Safety Certificate,Municipality,2500,true,902
+security_safety_software_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,903
+security_safety_software_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,904
+security_safety_software_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,905
+security_safety_software_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,906
+security_safety_hardware_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,907
+security_safety_hardware_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,908
+security_safety_hardware_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,909
+security_safety_hardware_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,910
+security_safety_it_services_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,911
+security_safety_it_services_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,912
+security_safety_it_services_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,913
+security_safety_it_services_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,914
+security_safety_telecom_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,915
+security_safety_telecom_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,916
+security_safety_telecom_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,917
+security_safety_telecom_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,918
+laboratories_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,919
+laboratories_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,920
+laboratories_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,921
+laboratories_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,922
+laboratories_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,923
+laboratories_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,924
+laboratories_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,925
+laboratories_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,926
+laboratories_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,927
+laboratories_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,928
+laboratories_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,929
+laboratories_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,930
+laboratories_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,931
+laboratories_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,932
+laboratories_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,933
+laboratories_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,934
+research_development_residential_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,935
+research_development_residential_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,936
+research_development_residential_activity_medium,ترخيص تطوير عقاري,Real Estate Development License,Ministry of Municipalities,25000,true,937
+research_development_residential_activity_medium,رخصة بناء,Building Permit,Municipality,15000,true,938
+research_development_commercial_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,939
+research_development_commercial_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,940
+research_development_commercial_activity_medium,ترخيص تطوير عقاري,Real Estate Development License,Ministry of Municipalities,25000,true,941
+research_development_commercial_activity_medium,رخصة بناء,Building Permit,Municipality,15000,true,942
+research_development_industrial_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,943
+research_development_industrial_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,944
+research_development_industrial_activity_medium,ترخيص تطوير عقاري,Real Estate Development License,Ministry of Municipalities,25000,true,945
+research_development_industrial_activity_medium,رخصة بناء,Building Permit,Municipality,15000,true,946
+research_development_brokerage_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,947
+research_development_brokerage_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,948
+research_development_brokerage_activity_medium,ترخيص تطوير عقاري,Real Estate Development License,Ministry of Municipalities,25000,true,949
+research_development_brokerage_activity_medium,رخصة بناء,Building Permit,Municipality,15000,true,950
+sports_economy_events_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,951
+sports_economy_events_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,952
+sports_economy_events_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,953
+sports_economy_events_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,954
+sports_economy_media_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,955
+sports_economy_media_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,956
+sports_economy_media_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,957
+sports_economy_media_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,958
+sports_economy_sports_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,959
+sports_economy_sports_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,960
+sports_economy_sports_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,961
+sports_economy_sports_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,962
+sports_economy_tourism_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,963
+sports_economy_tourism_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,964
+sports_economy_tourism_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,965
+sports_economy_tourism_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,966
+creative_economy_consulting_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,967
+creative_economy_consulting_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,968
+creative_economy_consulting_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,969
+creative_economy_consulting_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,970
+creative_economy_maintenance_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,971
+creative_economy_maintenance_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,972
+creative_economy_maintenance_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,973
+creative_economy_maintenance_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,974
+creative_economy_cleaning_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,975
+creative_economy_cleaning_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,976
+creative_economy_cleaning_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,977
+creative_economy_cleaning_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,978
+creative_economy_security_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,979
+creative_economy_security_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,980
+creative_economy_security_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,981
+creative_economy_security_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,982
+environment_sustainability_software_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,983
+environment_sustainability_software_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,984
+environment_sustainability_software_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,985
+environment_sustainability_software_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,986
+environment_sustainability_hardware_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,987
+environment_sustainability_hardware_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,988
+environment_sustainability_hardware_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,989
+environment_sustainability_hardware_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,990
+environment_sustainability_it_services_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,991
+environment_sustainability_it_services_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,992
+environment_sustainability_it_services_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,993
+environment_sustainability_it_services_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,994
+environment_sustainability_telecom_activity_medium,سجل تجاري,Commercial Registration,Ministry of Commerce,2000,true,995
+environment_sustainability_telecom_activity_medium,ترخيص بلدية,Municipality License,Municipality,5000,true,996
+environment_sustainability_telecom_activity_medium,ترخيص مزاولة مهنة,Professional Practice License,Relevant Authority,3000,true,997
+environment_sustainability_telecom_activity_medium,تأمين المسؤولية المهنية,Professional Liability Insurance,Insurance Company,4000,true,998

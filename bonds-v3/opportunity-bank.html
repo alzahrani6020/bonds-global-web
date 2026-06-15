@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بنك الفرص الاستثمارية | Bonds V3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0f1a;
+      --card: #10182d;
+      --border: rgba(197,160,40,0.2);
+      --gold: #d4a853;
+      --gold-bright: #f0c96a;
+      --text: #e8ecf4;
+      --text-secondary: #94a3b8;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Vazirmatn', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+    }
+    header h1 { margin: 0; color: var(--gold-bright); font-size: 1.8rem; }
+    header p { margin: 0.5rem 0 0; color: var(--text-secondary); }
+    .container { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    select, input, button {
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    select, input { min-width: 180px; }
+    button {
+      cursor: pointer;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+    .filter-btn {
+      background: rgba(212,168,83,0.15);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .filter-btn:hover { background: rgba(212,168,83,0.25); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover { transform: translateY(-3px); border-color: var(--gold); }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+    .card-header h3 { margin: 0; color: var(--gold-bright); font-size: 1.15rem; }
+    .rating {
+      font-size: 1.1rem;
+      font-weight: 800;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+    }
+    .rating.a-plus { background: rgba(240,201,106,0.15); color: var(--gold-bright); }
+    .rating.a { background: rgba(34,197,94,0.15); color: var(--success); }
+    .rating.b { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .rating.c { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .score-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .score-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--gold-bright);
+    }
+    .score-bar {
+      flex: 1;
+      height: 10px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .score-fill {
+      height: 100%;
+      border-radius: 5px;
+      background: linear-gradient(90deg, var(--danger), var(--warning), var(--success), var(--gold-bright));
+    }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1rem; margin-bottom: 1rem; }
+    .metric { display: flex; justify-content: space-between; font-size: 0.85rem; }
+    .metric-label { color: var(--text-secondary); }
+    .metric-value { font-weight: 700; }
+    .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .tag {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.75rem;
+    }
+    .actions { display: flex; gap: 0.5rem; }
+    .actions a {
+      flex: 1;
+      text-align: center;
+      padding: 0.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .actions a.primary {
+      background: rgba(212,168,83,0.15);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .loading { text-align: center; padding: 3rem; color: var(--text-secondary); }
+    .error { color: var(--danger); text-align: center; padding: 2rem; }
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: var(--gold-bright);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    @media (max-width: 768px) {
+      .controls { flex-direction: column; align-items: stretch; }
+      select, input, button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🏦 بنك الفرص الاستثمارية</h1>
+    <p>اكتشف أفضل الفرص حسب المدينة والقطاع ومؤشر الفرصة الذهبية</p>
+  </header>
+
+  <div class="container">
+    <a href="/city-intelligence" class="back-link">← العودة إلى ذكاء المدن</a>
+
+    <div class="controls">
+      <div>
+        <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">الدولة</label>
+        <select id="countrySelect"><option value="">كل الدول</option></select>
+      </div>
+      <div>
+        <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">النشاط</label>
+        <select id="activitySelect"><option value="">كل الأنشطة</option></select>
+      </div>
+      <div>
+        <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">الحد الأدنى للفرصة</label>
+        <input id="minScore" type="number" min="0" max="100" value="60" placeholder="0-100">
+      </div>
+      <div>
+        <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">العدد</label>
+        <select id="limitSelect">
+          <option value="10">10</option>
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+      <button id="filterBtn" class="filter-btn">بحث</button>
+    </div>
+
+    <div id="content">
+      <div class="loading">اضغط بحث لعرض الفرص</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Bonds V3 Enterprise — الفرص مرتبة حسب مؤشر الفرصة الذهبية.
+  </div>
+
+  <script>
+    const API_URL = '/api';
+    const countryNames = { SA: 'السعودية', AE: 'الإمارات', QA: 'قطر', EG: 'مصر', JO: 'الأردن' };
+    let activities = [];
+
+    async function fetchJson(url, options = {}) {
+      const res = await fetch(url, options);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+
+    function formatNumber(num) {
+      if (num === null || num === undefined) return '-';
+      if (num >= 1e9) return (num / 1e9).toFixed(1) + ' مليار';
+      if (num >= 1e6) return (num / 1e6).toFixed(1) + ' مليون';
+      return Number(num).toLocaleString('ar-SA');
+    }
+
+    function demandLabel(value) {
+      return { high: 'مرتفع', medium: 'متوسط', low: 'منخفض' }[value] || value || '-';
+    }
+
+    function getRating(score, risk) {
+      const r = Number(risk) || 50;
+      if (score >= 90 && r < 40) return { label: 'A+', cls: 'a-plus' };
+      if (score >= 75 && r < 55) return { label: 'A', cls: 'a' };
+      if (score >= 55) return { label: 'B', cls: 'b' };
+      return { label: 'C', cls: 'c' };
+    }
+
+    async function init() {
+      try {
+        const [citiesData, sectorsData] = await Promise.all([
+          fetchJson(API_URL + '/cities?limit=500'),
+          fetchJson(API_URL + '/sectors')
+        ]);
+
+        const countrySelect = document.getElementById('countrySelect');
+        const countries = [...new Set((citiesData.cities || []).map(c => c.country_code || 'SA'))].sort();
+        countries.forEach(code => {
+          countrySelect.innerHTML += `<option value="${code}">${countryNames[code] || code}</option>`;
+        });
+
+        activities = [];
+        (sectorsData.sectors || []).forEach(sector => {
+          (sector.economic_sub_sectors || []).forEach(sub => {
+            (sub.economic_activities || []).forEach(activity => {
+              activities.push(activity);
+            });
+          });
+        });
+
+        const activitySelect = document.getElementById('activitySelect');
+        activities.forEach(a => {
+          activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar} (${a.code})</option>`;
+        });
+      } catch (err) {
+        document.getElementById('content').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
+      }
+    }
+
+    async function loadOpportunities() {
+      const country = document.getElementById('countrySelect').value;
+      const activity = document.getElementById('activitySelect').value;
+      const minScore = document.getElementById('minScore').value;
+      const limit = document.getElementById('limitSelect').value;
+
+      const params = new URLSearchParams();
+      if (country) params.set('country', country);
+      if (activity) params.set('activity', activity);
+      if (minScore) params.set('min_score', minScore);
+      params.set('limit', limit);
+
+      document.getElementById('content').innerHTML = '<div class="loading">جاري تحميل الفرص...</div>';
+
+      try {
+        const data = await fetchJson(`${API_URL}/opportunities/top?${params.toString()}`);
+        renderOpportunities(data.opportunities || []);
+      } catch (err) {
+        document.getElementById('content').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
+      }
+    }
+
+    function renderOpportunities(opportunities) {
+      const content = document.getElementById('content');
+      if (opportunities.length === 0) {
+        content.innerHTML = '<div class="loading">لا توجد فرص مطابقة للمعايير</div>';
+        return;
+      }
+
+      content.innerHTML = `<div class="grid">${opportunities.map((o, idx) => {
+        const city = o.city;
+        const activity = o.activity;
+        const score = Number(o.score) || 0;
+        const rating = getRating(score, o.saturation);
+        return `
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>${city?.name_ar || '-'}</h3>
+                <small style="color:var(--text-secondary)">${countryNames[city?.country_code] || city?.country_code || '-'} · ${activity?.name_ar || '-'}</small>
+              </div>
+              <span class="rating ${rating.cls}">${rating.label}</span>
+            </div>
+            <div class="score-row">
+              <span class="score-value">${score.toFixed(1)}</span>
+              <div class="score-bar"><div class="score-fill" style="width:${Math.min(score,100)}%"></div></div>
+            </div>
+            <div class="metrics">
+              <div class="metric"><span class="metric-label">الترتيب</span><span class="metric-value">#${o.rank || idx + 1}</span></div>
+              <div class="metric"><span class="metric-label">حجم السوق</span><span class="metric-value">${formatNumber(o.marketSize)} ر.س</span></div>
+              <div class="metric"><span class="metric-label">المنافسون</span><span class="metric-value">${formatNumber(o.competitorsCount)}</span></div>
+              <div class="metric"><span class="metric-label">التشبع</span><span class="metric-value">${Number(o.saturation)?.toFixed(0) || '-'}%</span></div>
+              <div class="metric"><span class="metric-label">النمو</span><span class="metric-value">${Number(o.growthRate)?.toFixed(1) || '-'}%</span></div>
+              <div class="metric"><span class="metric-label">الطلب</span><span class="metric-value">${demandLabel(o.expectedDemand)}</span></div>
+            </div>
+            <div class="tags">
+              <span class="tag">ثقة ${Number(o.confidence)?.toFixed(0) || '-'}%</span>
+              <span class="tag">متوسط راتب ${formatNumber(o.avgSalary)} ر.س</span>
+            </div>
+            <div class="actions">
+              <a href="/city-intelligence?city=${city?.code || ''}&activity=${activity?.code || ''}" class="primary">تحليل المدينة</a>
+              <a href="/city-comparison?activity=${activity?.code || ''}">قارن</a>
+            </div>
+          </div>
+        `;
+      }).join('')}</div>`;
+    }
+
+    document.getElementById('filterBtn').addEventListener('click', loadOpportunities);
+
+    init();
+  </script>
+</body>
+</html>

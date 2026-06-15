@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مقارنة المدن | Bonds V3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0f1a;
+      --card: #10182d;
+      --border: rgba(197,160,40,0.2);
+      --gold: #d4a853;
+      --gold-bright: #f0c96a;
+      --text: #e8ecf4;
+      --text-secondary: #94a3b8;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Vazirmatn', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+    }
+    header h1 { margin: 0; color: var(--gold-bright); font-size: 1.8rem; }
+    header p { margin: 0.5rem 0 0; color: var(--text-secondary); }
+    .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    select, input, button {
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    select, input { min-width: 200px; }
+    button {
+      cursor: pointer;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+    .compare-btn {
+      background: rgba(212,168,83,0.15);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .compare-btn:hover { background: rgba(212,168,83,0.25); }
+    .compare-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .city-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      max-width: 600px;
+    }
+    .city-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .city-chip.selected {
+      background: rgba(212,168,83,0.2);
+      border-color: var(--gold);
+      color: var(--gold-bright);
+    }
+    .loading { text-align: center; padding: 3rem; color: var(--text-secondary); }
+    .error { color: var(--danger); text-align: center; padding: 2rem; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .summary-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+    }
+    .summary-card h4 { margin: 0 0 0.5rem; color: var(--gold-bright); font-size: 0.9rem; }
+    .summary-card .value { font-size: 1.25rem; font-weight: 800; }
+    .summary-card .city { font-size: 0.85rem; color: var(--text-secondary); }
+    .table-wrap { overflow-x: auto; margin-bottom: 2rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    th {
+      background: rgba(212,168,83,0.1);
+      color: var(--gold-bright);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    td:first-child, th:first-child { text-align: right; font-weight: 700; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .best { background: rgba(34,197,94,0.12) !important; color: var(--success); font-weight: 700; }
+    .worst { background: rgba(239,68,68,0.1) !important; color: var(--danger); }
+    .score-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.25rem;
+    }
+    .score-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--gold);
+    }
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: var(--gold-bright);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    @media (max-width: 768px) {
+      .controls { flex-direction: column; align-items: stretch; }
+      select, input, .city-selector { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>⚖️ مقارنة المدن</h1>
+    <p>قارن بين المدن لنفس النشاط بناءً على المؤشرات الاقتصادية والسوقية والمالية</p>
+  </header>
+
+  <div class="container">
+    <a href="/city-intelligence" class="back-link">← العودة إلى ذكاء المدن</a>
+
+    <div class="controls">
+      <div>
+        <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">النشاط</label>
+        <select id="activitySelect"><option value="">اختر النشاط</option></select>
+      </div>
+      <div>
+        <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">السنة</label>
+        <select id="yearSelect">
+          <option value="2025" selected>2025</option>
+          <option value="2026">2026</option>
+          <option value="2024">2024</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">نموذج المشروع (اختياري)</label>
+        <select id="modelSelect"><option value="">بدون نموذج</option></select>
+      </div>
+      <button id="compareBtn" class="compare-btn">قارن المدن</button>
+    </div>
+
+    <div>
+      <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">اختر المدن (1–10)</label>
+      <div id="cityChips" class="city-selector">جاري تحميل المدن...</div>
+    </div>
+
+    <div id="content" style="margin-top: 2rem;">
+      <div class="loading">اختر نشاطاً ومدناً ثم اضغط "قارن المدن"</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Bonds V3 Enterprise — البيانات تقديرية وتخضع للتحقق.
+  </div>
+
+  <script>
+    const API_URL = '/api';
+    const countryNames = { SA: 'السعودية', AE: 'الإمارات', QA: 'قطر', EG: 'مصر', JO: 'الأردن' };
+    let cities = [];
+    let activities = [];
+    let models = [];
+    let selectedCities = new Set();
+
+    async function fetchJson(url, options = {}) {
+      const res = await fetch(url, options);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+
+    function formatNumber(num) {
+      if (num === null || num === undefined) return '-';
+      if (num >= 1e9) return (num / 1e9).toFixed(1) + ' مليار';
+      if (num >= 1e6) return (num / 1e6).toFixed(1) + ' مليون';
+      if (num >= 1e3) return num.toLocaleString('ar-SA');
+      return Number(num).toLocaleString('ar-SA');
+    }
+
+    function formatMoney(num) {
+      if (!Number.isFinite(num)) return '-';
+      return formatNumber(num) + ' ر.س';
+    }
+
+    function percent(num) {
+      if (!Number.isFinite(num)) return '-';
+      return num.toFixed(1) + '%';
+    }
+
+    function scoreFill(value, max = 100) {
+      const pct = Math.min(Math.max(Number(value) || 0, 0), max) / max * 100;
+      return `<div class="score-bar"><div class="score-fill" style="width:${pct}%"></div></div>`;
+    }
+
+    function demandLabel(value) {
+      return { high: 'مرتفع', medium: 'متوسط', low: 'منخفض' }[value] || value || '-';
+    }
+
+    async function init() {
+      try {
+        const [citiesData, sectorsData, modelsData] = await Promise.all([
+          fetchJson(API_URL + '/cities?limit=500'),
+          fetchJson(API_URL + '/sectors'),
+          fetchJson(API_URL + '/models?limit=500')
+        ]);
+
+        cities = citiesData.cities || [];
+        models = modelsData.models || [];
+        activities = [];
+        (sectorsData.sectors || []).forEach(sector => {
+          (sector.economic_sub_sectors || []).forEach(sub => {
+            (sub.economic_activities || []).forEach(activity => {
+              activities.push(activity);
+            });
+          });
+        });
+
+        const activitySelect = document.getElementById('activitySelect');
+        activities.forEach(a => {
+          activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar} (${a.code})</option>`;
+        });
+
+        const modelSelect = document.getElementById('modelSelect');
+        models.forEach(m => {
+          modelSelect.innerHTML += `<option value="${m.code}">${m.name_ar}</option>`;
+        });
+
+        renderCityChips();
+      } catch (err) {
+        document.getElementById('content').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
+      }
+    }
+
+    function renderCityChips() {
+      const el = document.getElementById('cityChips');
+      const uniqueCities = [...new Map(cities.map(c => [c.code, c])).values()];
+      el.innerHTML = uniqueCities.map(c => `
+        <div class="city-chip ${selectedCities.has(c.code) ? 'selected' : ''}" data-code="${c.code}">
+          ${c.name_ar}
+        </div>
+      `).join('');
+
+      el.querySelectorAll('.city-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const code = chip.dataset.code;
+          if (selectedCities.has(code)) {
+            selectedCities.delete(code);
+          } else if (selectedCities.size < 10) {
+            selectedCities.add(code);
+          }
+          renderCityChips();
+        });
+      });
+    }
+
+    async function runComparison() {
+      const activityCode = document.getElementById('activitySelect').value;
+      const year = document.getElementById('yearSelect').value;
+      const modelCode = document.getElementById('modelSelect').value;
+      const btn = document.getElementById('compareBtn');
+
+      if (!activityCode) return alert('اختر النشاط');
+      if (selectedCities.size === 0) return alert('اختر مدينة واحدة على الأقل');
+
+      btn.disabled = true;
+      btn.textContent = 'جاري المقارنة...';
+      document.getElementById('content').innerHTML = '<div class="loading">جاري تحميل البيانات...</div>';
+
+      try {
+        const cityCodes = Array.from(selectedCities).join(',');
+        let url = `${API_URL}/compare/cities?activity=${encodeURIComponent(activityCode)}&cities=${encodeURIComponent(cityCodes)}&year=${year}`;
+        if (modelCode) url += `&model=${encodeURIComponent(modelCode)}`;
+        const data = await fetchJson(url);
+        renderComparison(data);
+      } catch (err) {
+        document.getElementById('content').innerHTML = `<div class="error">فشل المقارنة: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'قارن المدن';
+      }
+    }
+
+    function renderComparison(data) {
+      const items = data.cities || [];
+      if (items.length === 0) {
+        document.getElementById('content').innerHTML = '<div class="error">لا توجد بيانات للمدن المختارة</div>';
+        return;
+      }
+
+      // Determine best/worst for key metrics
+      const metricKeys = [
+        { key: 'opportunity_score', label: 'درجة الفرصة', higherIsBetter: true },
+        { key: 'market_size', label: 'حجم السوق', higherIsBetter: true },
+        { key: 'avg_salary', label: 'متوسط الراتب', higherIsBetter: false },
+        { key: 'avg_rent_per_sqm', label: 'متوسط الإيجار / م²', higherIsBetter: false },
+        { key: 'competitors_count', label: 'عدد المنافسين', higherIsBetter: false },
+        { key: 'market_saturation_score', label: 'التشبع', higherIsBetter: false },
+        { key: 'risk_score', label: 'المخاطر', higherIsBetter: false }
+      ];
+
+      const best = {};
+      metricKeys.forEach(m => {
+        const values = items.map((item, idx) => ({ idx, value: Number(item.market?.[m.key]) })).filter(x => Number.isFinite(x.value));
+        if (values.length === 0) return;
+        values.sort((a, b) => m.higherIsBetter ? b.value - a.value : a.value - b.value);
+        best[m.key] = { best: values[0].idx, worst: values[values.length - 1].idx };
+      });
+
+      // Summary cards
+      let summaryHtml = '<div class="summary">';
+      if (best.opportunity_score) {
+        const bestItem = items[best.opportunity_score.best];
+        summaryHtml += `
+          <div class="summary-card">
+            <h4>🏆 أفضل فرصة</h4>
+            <div class="value">${bestItem.city.name_ar}</div>
+            <div class="city">درجة الفرصة: ${bestItem.market?.opportunity_score?.toFixed(1) || '-'}</div>
+          </div>`;
+      }
+      if (best.avg_rent_per_sqm) {
+        const cheapest = items[best.avg_rent_per_sqm.best];
+        summaryHtml += `
+          <div class="summary-card">
+            <h4>🏠 أقل إيجار</h4>
+            <div class="value">${cheapest.city.name_ar}</div>
+            <div class="city">${formatMoney(cheapest.market?.avg_rent_per_sqm)} / م²</div>
+          </div>`;
+      }
+      if (best.avg_salary) {
+        const cheapestLabor = items[best.avg_salary.best];
+        summaryHtml += `
+          <div class="summary-card">
+            <h4>👷 أقل تكلفة عمالة</h4>
+            <div class="value">${cheapestLabor.city.name_ar}</div>
+            <div class="city">${formatMoney(cheapestLabor.market?.avg_salary)} / شهر</div>
+          </div>`;
+      }
+      if (best.market_size) {
+        const biggest = items[best.market_size.best];
+        summaryHtml += `
+          <div class="summary-card">
+            <h4>📈 أكبر سوق</h4>
+            <div class="value">${biggest.city.name_ar}</div>
+            <div class="city">${formatMoney(biggest.market?.market_size)}</div>
+          </div>`;
+      }
+      summaryHtml += '</div>';
+
+      // Table
+      let rows = '';
+      const addRow = (label, formatter, key, source = 'market') => {
+        const b = best[key];
+        rows += `<tr><td>${label}</td>`;
+        items.forEach((item, idx) => {
+          const value = source === 'market' ? item.market?.[key] : item.indicators?.[key];
+          const cls = b ? (idx === b.best ? 'best' : idx === b.worst ? 'worst' : '') : '';
+          const display = formatter(value);
+          rows += `<td class="${cls}">${display}</td>`;
+        });
+        rows += '</tr>';
+      };
+
+      rows += `<tr><td>المدينة</td>${items.map(i => `<td><strong>${i.city.name_ar}</strong><br><small style="color:var(--text-secondary)">${countryNames[i.city.country_code] || i.city.country_code}</small></td>`).join('')}</tr>`;
+      rows += `<tr><td>السكان</td>${items.map(i => `<td>${formatNumber(i.city.population)}</td>`).join('')}</tr>`;
+      addRow('درجة الفرصة', v => Number(v)?.toFixed(1) || '-', 'opportunity_score');
+      addRow('حجم السوق', formatMoney, 'market_size');
+      addRow('النمو السنوي', percent, 'annual_growth_rate');
+      addRow('عدد المنافسين', v => Number(v)?.toLocaleString('ar-SA') || '-', 'competitors_count');
+      addRow('مؤشر التشبع', v => Number(v)?.toFixed(0) + '%' || '-', 'market_saturation_score');
+      addRow('الطلب المتوقع', v => demandLabel(v), 'expected_demand');
+      addRow('متوسط الراتب', formatMoney, 'avg_salary');
+      addRow('متوسط الإيجار / م²', formatMoney, 'avg_rent_per_sqm');
+      addRow('GDP المدينة', formatMoney, 'gdp_city', 'indicators');
+      addRow('معدل النمو', percent, 'growth_rate', 'indicators');
+      addRow('معدل البطالة', percent, 'unemployment_rate', 'indicators');
+      addRow('مؤشر المخاطر', v => Number(v)?.toFixed(0) || '-', 'risk_score');
+
+      if (items[0].financial) {
+        rows += `<tr><td>ROI</td>${items.map(i => `<td>${i.financial.roi !== null ? percent(i.financial.roi) : '-'}</td>`).join('')}</tr>`;
+        rows += `<tr><td>IRR</td>${items.map(i => `<td>${i.financial.irr !== null ? percent(i.financial.irr) : '-'}</td>`).join('')}</tr>`;
+        rows += `<tr><td>NPV</td>${items.map(i => `<td>${formatMoney(i.financial.npv)}</td>`).join('')}</tr>`;
+        rows += `<tr><td>فترة الاسترداد (شهر)</td>${items.map(i => `<td>${i.financial.paybackMonths !== null ? i.financial.paybackMonths.toFixed(1) : '-'}</td>`).join('')}</tr>`;
+      }
+
+      const tableHtml = `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>المؤشر</th>
+                ${items.map(i => `<th>${i.city.name_ar}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+
+      document.getElementById('content').innerHTML = summaryHtml + tableHtml;
+    }
+
+    document.getElementById('compareBtn').addEventListener('click', runComparison);
+
+    init();
+  </script>
+</body>
+</html>

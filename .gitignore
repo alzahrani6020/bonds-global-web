@@ -2,3 +2,8 @@
 .env*
 node_modules/
 package-lock.json
+
+# Ignore old/experimental and temporary artifacts
+bonds-v2/
+tmp-*
+tmp-screenshots/

@@ -1,0 +1,4 @@
+activity_code,code,name_ar,name_en,description,sort_order
+dental_clinics,small_dental_clinic,عيادة أسنان صغيرة,Small Dental Clinic,1-2 chairs single dentist,1
+dental_clinics,medium_dental_clinic,عيادة أسنان متوسطة,Medium Dental Clinic,3-5 chairs multiple dentists,2
+dental_clinics,large_dental_clinic,عيادة أسنان كبيرة,Large Dental Clinic,6+ chairs full specialists team,3

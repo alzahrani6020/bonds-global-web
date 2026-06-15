@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>محرك السيناريوهات المتقدمة | Bonds V3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0f1a;
+      --card: #10182d;
+      --border: rgba(197,160,40,0.2);
+      --gold: #d4a853;
+      --gold-bright: #f0c96a;
+      --text: #e8ecf4;
+      --text-secondary: #94a3b8;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Vazirmatn', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+    }
+    header h1 { margin: 0; color: var(--gold-bright); font-size: 1.7rem; }
+    header p { margin: 0.5rem 0 0; color: var(--text-secondary); }
+    .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h3 { margin: 0 0 1rem; color: var(--gold-bright); font-size: 1.1rem; }
+    .control-group { margin-bottom: 1rem; }
+    .control-group label {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+      font-weight: 700;
+    }
+    select, input {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    .btn {
+      padding: 0.7rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--gold);
+      color: #0a0f1a;
+      font-weight: 700;
+      cursor: pointer;
+      margin-left: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .btn:hover { background: var(--gold-bright); }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+    }
+    .btn-secondary:hover { background: rgba(212,168,83,0.1); }
+    .btn-danger {
+      background: transparent;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    .preset-group { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .shock-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr auto;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .scenario-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: rgba(255,255,255,0.02);
+    }
+    .scenario-item h4 { margin: 0 0 0.75rem; color: var(--gold-bright); }
+    .metrics-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .metrics-table th, .metrics-table td {
+      border: 1px solid var(--border);
+      padding: 0.75rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .metrics-table th { background: rgba(212,168,83,0.1); color: var(--gold-bright); }
+    .impact-positive { color: var(--success); }
+    .impact-warning { color: var(--warning); }
+    .impact-danger { color: var(--danger); }
+    .impact-neutral { color: var(--text-secondary); }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .badge-positive { background: rgba(34,197,94,0.15); color: var(--success); }
+    .badge-warning { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .badge-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .badge-neutral { background: rgba(148,163,184,0.15); color: var(--text-secondary); }
+    .loading, .error { text-align: center; padding: 2rem; }
+    .error { color: var(--danger); }
+    .chart-container { position: relative; height: 300px; margin-top: 1.5rem; }
+    .hidden { display: none; }
+    .back-link {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🧪 محرك السيناريوهات المتقدمة</h1>
+    <p>اختبر تأثير الصدمات الاقتصادية والتشغيلية على دراسة الجدوى</p>
+  </header>
+
+  <div class="container">
+    <div style="margin-bottom: 1rem;">
+      <a class="back-link" href="/city-intelligence">← العودة إلى ذكاء المدن</a>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>⚙️ اختيار النموذج والمدينة</h3>
+        <div class="control-group">
+          <label for="modelSelect">النموذج الاستثماري</label>
+          <select id="modelSelect"><option value="">اختر نموذجاً</option></select>
+        </div>
+        <div class="control-group">
+          <label for="citySelect">المدينة</label>
+          <select id="citySelect"><option value="">اختر مدينة (اختياري)</option></select>
+        </div>
+        <div class="control-group">
+          <label for="revenueInput">الإيراد السنوي المتوقع (ر.س)</label>
+          <input type="number" id="revenueInput" placeholder="اتركه فارغاً لاستخدام متوسط النموذج">
+        </div>
+        <div class="control-group">
+          <label for="capexInput">رأس المال المستثمر (ر.س)</label>
+          <input type="number" id="capexInput" placeholder="اتركه فارغاً لاستخدام متوسط النموذج">
+        </div>
+        <div class="control-group">
+          <label for="yearsInput">سنوات التوقع</label>
+          <input type="number" id="yearsInput" value="5" min="1" max="10">
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🎯 سيناريوهات جاهزة</h3>
+        <div class="preset-group">
+          <button class="btn btn-secondary" data-preset="recession">📉 ركود</button>
+          <button class="btn btn-secondary" data-preset="high_inflation">🔥 تضخم مرتفع</button>
+          <button class="btn btn-secondary" data-preset="labor_shortage">👷 نقص عمالة</button>
+          <button class="btn btn-secondary" data-preset="rent_boom">🏢 ارتفاع إيجارات</button>
+          <button class="btn btn-secondary" data-preset="sales_drop">📦 انخفاض مبيعات</button>
+        </div>
+
+        <h3>⚡ سيناريو مخصص</h3>
+        <div class="control-group">
+          <label for="scenarioName">اسم السيناريو</label>
+          <input type="text" id="scenarioName" placeholder="مثال: ارتفاع الفائدة 2%">
+        </div>
+        <div id="customShocks"></div>
+        <button class="btn btn-secondary" id="addShockBtn">+ إضافة صدمة</button>
+        <button class="btn" id="addScenarioBtn">إضافة السيناريو للمقارنة</button>
+      </div>
+    </div>
+
+    <div class="card" id="scenariosCard">
+      <h3>📋 السيناريوهات المختارة</h3>
+      <div id="scenariosList"></div>
+      <button class="btn" id="runBtn" style="margin-top: 1rem;">تشغيل التحليل</button>
+      <button class="btn btn-secondary" id="clearBtn">مسح الكل</button>
+    </div>
+
+    <div id="resultsArea" class="hidden">
+      <div class="card">
+        <h3>📊 مقارنة المؤشرات المالية</h3>
+        <div style="overflow-x: auto;">
+          <table class="metrics-table" id="metricsTable">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="chart-container">
+          <canvas id="comparisonChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = '/api';
+    const SHOCK_OPTIONS = [
+      { code: 'revenue', name: 'الإيرادات', unit: 'relative' },
+      { code: 'capex', name: 'رأس المال', unit: 'relative' },
+      { code: 'revenue_growth_rate', name: 'معدل نمو الإيرادات', unit: 'relative' },
+      { code: 'cogs_ratio', name: 'نسبة تكلفة البضاعة', unit: 'relative' },
+      { code: 'rent_ratio', name: 'نسبة الإيجار', unit: 'relative' },
+      { code: 'salaries_ratio', name: 'نسبة الرواتب', unit: 'relative' },
+      { code: 'marketing_ratio', name: 'نسبة التسويق', unit: 'relative' },
+      { code: 'utilities_ratio', name: 'نسبة الخدمات', unit: 'relative' },
+      { code: 'interest_rate', name: 'معدل الفائدة', unit: 'absolute' },
+      { code: 'discount_rate', name: 'معدل الخصم', unit: 'absolute' },
+      { code: 'loan_ratio', name: 'نسبة التمويل', unit: 'relative' },
+      { code: 'corporate_tax_rate', name: 'ضريبة الأرباح', unit: 'absolute' }
+    ];
+
+    let models = [];
+    let cities = [];
+    let scenarios = [];
+    let chart = null;
+
+    async function fetchJson(url, options) {
+      const res = await fetch(url, options);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+
+    function formatNumber(num) {
+      if (num === null || num === undefined) return '-';
+      if (num >= 1e9) return (num / 1e9).toFixed(1) + ' مليار';
+      if (num >= 1e6) return (num / 1e6).toFixed(1) + ' مليون';
+      return num.toLocaleString('ar-SA');
+    }
+
+    async function init() {
+      try {
+        const [modelsData, citiesData] = await Promise.all([
+          fetchJson(API_URL + '/models'),
+          fetchJson(API_URL + '/cities')
+        ]);
+        models = modelsData.models || [];
+        cities = citiesData.cities || [];
+
+        const modelSelect = document.getElementById('modelSelect');
+        models.forEach(m => {
+          modelSelect.innerHTML += `<option value="${m.code}">${m.name_ar}</option>`;
+        });
+
+        const citySelect = document.getElementById('citySelect');
+        cities.forEach(c => {
+          citySelect.innerHTML += `<option value="${c.code}">${c.name_ar}</option>`;
+        });
+      } catch (err) {
+        console.error(err);
+        alert('فشل تحميل البيانات: ' + err.message);
+      }
+    }
+
+    function createShockRow() {
+      const div = document.createElement('div');
+      div.className = 'shock-row';
+      div.innerHTML = `
+        <select class="shock-code">
+          ${SHOCK_OPTIONS.map(o => `<option value="${o.code}" data-unit="${o.unit}">${o.name}</option>`).join('')}
+        </select>
+        <select class="shock-type">
+          <option value="relative">نسبي %</option>
+          <option value="absolute">مطلق</option>
+        </select>
+        <input type="number" class="shock-value" placeholder="0.1" step="0.01">
+        <button class="btn btn-danger remove-shock">×</button>
+      `;
+      div.querySelector('.remove-shock').addEventListener('click', () => div.remove());
+      return div;
+    }
+
+    document.getElementById('addShockBtn').addEventListener('click', () => {
+      document.getElementById('customShocks').appendChild(createShockRow());
+    });
+    document.getElementById('customShocks').appendChild(createShockRow());
+
+    function collectCustomShocks() {
+      const rows = document.querySelectorAll('#customShocks .shock-row');
+      const shocks = [];
+      rows.forEach(row => {
+        const code = row.querySelector('.shock-code').value;
+        const type = row.querySelector('.shock-type').value;
+        const value = parseFloat(row.querySelector('.shock-value').value);
+        if (!isNaN(value)) shocks.push({ code, type, value });
+      });
+      return shocks;
+    }
+
+    function renderScenarios() {
+      const list = document.getElementById('scenariosList');
+      if (scenarios.length === 0) {
+        list.innerHTML = '<p style="color: var(--text-secondary);">لا توجد سيناريوهات بعد. أضف سيناريو جاهز أو مخصص.</p>';
+        return;
+      }
+      list.innerHTML = scenarios.map((s, i) => `
+        <div class="scenario-item">
+          <h4>${s.name}</h4>
+          <ul style="margin: 0; padding-right: 1.2rem; color: var(--text-secondary); font-size: 0.9rem;">
+            ${s.shocks.map(sh => `<li>${shockLabel(sh.code)}: ${sh.type === 'relative' ? (sh.value * 100).toFixed(1) + '%' : sh.value}</li>`).join('')}
+          </ul>
+          <button class="btn btn-danger" style="margin-top: 0.75rem;" onclick="removeScenario(${i})">حذف</button>
+        </div>
+      `).join('');
+    }
+
+    function shockLabel(code) {
+      return SHOCK_OPTIONS.find(o => o.code === code)?.name || code;
+    }
+
+    window.removeScenario = function(index) {
+      scenarios.splice(index, 1);
+      renderScenarios();
+    };
+
+    document.querySelectorAll('[data-preset]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const preset = btn.dataset.preset;
+        const names = {
+          recession: 'سيناريو الركود',
+          high_inflation: 'سيناريو التضخم المرتفع',
+          labor_shortage: 'سيناريو نقص العمالة',
+          rent_boom: 'سيناريو ارتفاع الإيجارات',
+          sales_drop: 'سيناريو انخفاض المبيعات'
+        };
+        scenarios.push({ name: names[preset], preset });
+        renderScenarios();
+      });
+    });
+
+    document.getElementById('addScenarioBtn').addEventListener('click', () => {
+      const name = document.getElementById('scenarioName').value.trim() || 'سيناريو مخصص';
+      const shocks = collectCustomShocks();
+      if (shocks.length === 0) return alert('أضف صدمة واحدة على الأقل');
+      scenarios.push({ name, shocks });
+      document.getElementById('scenarioName').value = '';
+      document.getElementById('customShocks').innerHTML = '';
+      document.getElementById('customShocks').appendChild(createShockRow());
+      renderScenarios();
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      scenarios = [];
+      renderScenarios();
+      document.getElementById('resultsArea').classList.add('hidden');
+    });
+
+    document.getElementById('runBtn').addEventListener('click', async () => {
+      const modelCode = document.getElementById('modelSelect').value;
+      if (!modelCode) return alert('اختر نموذجاً أولاً');
+      if (scenarios.length === 0) return alert('أضف سيناريو واحداً على الأقل');
+
+      const assumptions = {
+        revenue: document.getElementById('revenueInput').value ? Number(document.getElementById('revenueInput').value) : undefined,
+        capex: document.getElementById('capexInput').value ? Number(document.getElementById('capexInput').value) : undefined,
+        projectionYears: Number(document.getElementById('yearsInput').value) || 5
+      };
+
+      const cityCode = document.getElementById('citySelect').value || undefined;
+
+      try {
+        const payload = { projectModelCode: modelCode, assumptions, scenarios };
+        if (cityCode) payload.cityCode = cityCode;
+        const res = await fetchJson(API_URL + '/calculate/scenarios', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        renderResults(res);
+      } catch (err) {
+        alert('فشل التحليل: ' + err.message);
+      }
+    });
+
+    function renderResults(data) {
+      const resultsArea = document.getElementById('resultsArea');
+      resultsArea.classList.remove('hidden');
+
+      const table = document.getElementById('metricsTable');
+      const all = [{ name: 'الوضع الأساسي', result: data.baseline, comparison: null }, ...data.scenarios];
+
+      const metrics = [
+        { key: 'npv', label: 'NPV (ر.س)', fmt: v => formatNumber(v) },
+        { key: 'irr', label: 'IRR %', fmt: v => v !== null ? v.toFixed(2) + '%' : '-' },
+        { key: 'paybackMonths', label: 'فترة الاسترداد (شهر)', fmt: v => v !== null ? v.toFixed(1) : '-' },
+        { key: 'breakEvenRevenue', label: 'تعادل الإيرادات (ر.س)', fmt: v => formatNumber(v) },
+        { key: 'dscr', label: 'DSCR', fmt: v => v !== null ? v.toFixed(2) : '-' },
+        { key: 'annualRevenue', label: 'الإيراد السنوي (ر.س)', fmt: v => formatNumber(v) },
+        { key: 'annualProfit', label: 'صافي الربح (ر.س)', fmt: v => formatNumber(v) }
+      ];
+
+      let thead = '<tr><th>المؤشر</th>' + all.map(s => {
+        const badge = s.comparison ? impactBadge(s.comparison.impact) : '';
+        return `<th>${s.name} ${badge}</th>`;
+      }).join('') + '</tr>';
+
+      let tbody = metrics.map(m => {
+        let row = `<td>${m.label}</td>`;
+        all.forEach(s => {
+          row += `<td>${m.fmt(s.result.summary[m.key])}</td>`;
+        });
+        return `<tr>${row}</tr>`;
+      }).join('');
+
+      // Add delta row for scenarios
+      let deltaRow = '<td>التأثير على NPV</td>';
+      deltaRow += '<td>-</td>';
+      data.scenarios.forEach(s => {
+        deltaRow += `<td class="${impactClass(s.comparison.impact)}">${formatNumber(s.comparison.deltaNpv)}</td>`;
+      });
+      tbody += `<tr>${deltaRow}</tr>`;
+
+      table.querySelector('thead').innerHTML = thead;
+      table.querySelector('tbody').innerHTML = tbody;
+
+      renderChart(all, metrics);
+      resultsArea.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function impactClass(impact) {
+      return 'impact-' + (impact || 'neutral');
+    }
+
+    function impactBadge(impact) {
+      const labels = { positive: 'إيجابي', neutral: 'محايد', warning: 'تحذير', danger: 'خطر' };
+      return `<span class="badge badge-${impact || 'neutral'}">${labels[impact] || impact}</span>`;
+    }
+
+    function renderChart(all, metrics) {
+      const ctx = document.getElementById('comparisonChart').getContext('2d');
+      if (chart) chart.destroy();
+
+      const labels = all.map(s => s.name);
+      const npvData = all.map(s => s.result.summary.npv || 0);
+      const irrData = all.map(s => s.result.summary.irr || 0);
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'NPV (مليون ر.س)', data: npvData.map(v => v / 1e6), backgroundColor: '#d4a853' },
+            { label: 'IRR %', data: irrData, yAxisID: 'y1', backgroundColor: '#22c55e' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#e8ecf4' } } },
+          scales: {
+            x: { ticks: { color: '#94a3b8' } },
+            y: { ticks: { color: '#94a3b8' }, title: { display: true, text: 'NPV (مليون ر.س)', color: '#94a3b8' } },
+            y1: { position: 'right', ticks: { color: '#94a3b8' }, title: { display: true, text: 'IRR %', color: '#94a3b8' }, grid: { drawOnChartArea: false } }
+          }
+        }
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

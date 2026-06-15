@@ -1,0 +1,11 @@
+code,name_ar,name_en,region,population,avg_household_income,purchasing_power_index
+RUH,الرياض,Riyadh,Central,7500000,18000,100
+JED,جدة,Jeddah,Western,4800000,16500,95
+DMM,الدمام,Dammam,Eastern,1800000,17000,90
+MAK,مكة,Makkah,Western,2000000,14000,85
+MED,المدينة المنورة,Madinah,Western,1500000,14500,85
+ABH,أبها,Abha,Southern,1200000,13000,75
+TBT,تبوك,Tabuk,Northwestern,800000,13500,78
+BUR,بريدة,Buraidah,Central,900000,14000,80
+HIL,حائل,Hail,Northern,600000,12500,72
+TIF,الطائف,Taif,Western,900000,13000,78

@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bonds V3 — CMS</title>
+  <style>
+    :root {
+      --bg: #0a0f1a;
+      --card: #10182d;
+      --border: rgba(197,160,40,0.2);
+      --gold: #d4a853;
+      --gold-bright: #f0c96a;
+      --text: #e8ecf4;
+      --text-secondary: #94a3b8;
+      --danger: #ef4444;
+      --success: #22c55e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { margin: 0; color: var(--gold-bright); font-size: 1.4rem; }
+    .container { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .tab {
+      padding: 0.75rem 1.25rem;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .tab.active { color: var(--gold-bright); border-bottom-color: var(--gold); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    label { display: block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem; }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); }
+    button {
+      background: var(--gold);
+      color: #0a0f1a;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { background: var(--gold-bright); }
+    button.secondary { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { text-align: right; padding: 0.75rem; border-bottom: 1px solid var(--border); }
+    th { color: var(--text-secondary); font-weight: 600; }
+    .login-box { max-width: 400px; margin: 5rem auto; text-align: center; }
+    .hidden { display: none; }
+    .message { padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; }
+    .message.error { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .message.success { background: rgba(34,197,94,0.15); color: var(--success); }
+    .token-row { display: flex; gap: 0.5rem; align-items: center; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>⚡ Bonds V3 CMS</h1>
+  </header>
+
+  <div class="container">
+    <div id="loginPanel" class="login-box card">
+      <h2>تسجيل الدخول</h2>
+      <p>أدخل Admin Token للوصول إلى لوحة التحكم</p>
+      <input type="password" id="loginToken" placeholder="Admin Token" style="margin: 1rem 0;">
+      <br>
+      <button onclick="login()">دخول</button>
+    </div>
+
+    <div id="cmsPanel" class="hidden">
+      <div class="tabs">
+        <button class="tab active" onclick="showTab('models')">النماذج</button>
+        <button class="tab" onclick="showTab('cities')">المدن</button>
+        <button class="tab" onclick="showTab('market')">بيانات السوق</button>
+        <button class="tab" onclick="showTab('dataSources')">مصادر البيانات</button>
+        <button class="tab" onclick="showTab('competitorCalibration')">معايرة المنافسين</button>
+        <button class="tab" onclick="showTab('qualityAlerts')">تنبيهات الجودة</button>
+        <button class="tab" onclick="showTab('alerts')">الإنذارات</button>
+        <button class="tab" onclick="showTab('ml')">نماذج ML</button>
+        <button class="tab" onclick="showTab('master')">البيانات الأساسية</button>
+      </div>
+
+      <div id="modelsPanel" class="panel active">
+        <div class="card">
+          <h3>إضافة نموذج مشروع</h3>
+          <form id="modelForm" class="form-grid" onsubmit="createModel(event)">
+            <div><label>الكود</label><input name="code" required></div>
+            <div><label>الاسم بالعربي</label><input name="name_ar" required></div>
+            <div><label>الاسم بالإنجليزي</label><input name="name_en" required></div>
+            <div><label>النشاط</label><select name="activity_code" id="activitySelect" required></select></div>
+            <div><label>الحجم</label><select name="size_category"><option value="small">صغير</option><option value="medium">متوسط</option><option value="large">كبير</option></select></div>
+            <div><label>أقل Capex</label><input name="capex_min" type="number" required></div>
+            <div><label>أقصى Capex</label><input name="capex_max" type="number" required></div>
+            <div><label>أقل إيراد</label><input name="revenue_min" type="number" required></div>
+            <div><label>أقصى إيراد</label><input name="revenue_max" type="number" required></div>
+            <div><label>عدد الموظفين (من)</label><input name="employee_count_min" type="number" required></div>
+            <div><label>عدد الموظفين (إلى)</label><input name="employee_count_max" type="number" required></div>
+            <div><label>فترة الاسترداد (أشهر)</label><input name="typical_roi_months" type="number" required></div>
+            <div><label>Tags (مفصولة بفاصلة)</label><input name="tags" placeholder="food,retail"></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">إضافة نموذج</button></div>
+          </form>
+        </div>
+        <div class="card">
+          <h3>قائمة النماذج</h3>
+          <div id="modelsMessage"></div>
+          <table>
+            <thead><tr><th>الكود</th><th>الاسم</th><th>النشاط</th><th>الحالة</th></tr></thead>
+            <tbody id="modelsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="citiesPanel" class="panel">
+        <div class="card">
+          <h3>إضافة / تعديل مدينة</h3>
+          <form id="cityForm" class="form-grid" onsubmit="createCity(event)">
+            <div><label>الكود</label><input name="code" required></div>
+            <div><label>الاسم بالعربي</label><input name="name_ar" required></div>
+            <div><label>الاسم بالإنجليزي</label><input name="name_en" required></div>
+            <div><label>المنطقة</label><input name="region"></div>
+            <div><label>كود المنطقة</label><input name="region_code"></div>
+            <div><label>السكان</label><input name="population" type="number"></div>
+            <div><label>متوسط دخل الأسرة</label><input name="avg_household_income" type="number"></div>
+            <div><label>مؤشر القوة الشرائية</label><input name="purchasing_power_index" type="number" step="0.01"></div>
+            <div><label>GDP المدينة</label><input name="gdp_city" type="number"></div>
+            <div><label>معدل النمو (%)</label><input name="growth_rate" type="number" step="0.01"></div>
+            <div><label>معدل البطالة (%)</label><input name="unemployment_rate" type="number" step="0.01"></div>
+            <div><label>عدد المنشآت</label><input name="establishments_count" type="number"></div>
+            <div><label>معدل التضخم (%)</label><input name="inflation_rate" type="number" step="0.01"></div>
+            <div><label>مؤشر سهولة الأعمال</label><input name="business_ease_index" type="number" step="0.01"></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">حفظ المدينة</button></div>
+          </form>
+        </div>
+        <div class="card">
+          <h3>جلب المؤشرات تلقائياً</h3>
+          <form id="fetchCityForm" class="form-grid" onsubmit="fetchCityIndicators(event)">
+            <div><label>المدينة</label><select name="city_code" id="fetchCitySelect" required></select></div>
+            <div><label>السنة</label><input name="year" type="number" value="2025"></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">🌆 جلب مؤشرات المدينة</button></div>
+          </form>
+          <div id="fetchCityResult"></div>
+        </div>
+        <div class="card">
+          <h3>قائمة المدن</h3>
+          <div id="citiesMessage"></div>
+          <table>
+            <thead><tr><th>الكود</th><th>الاسم</th><th>السكان</th></tr></thead>
+            <tbody id="citiesTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="marketPanel" class="panel">
+        <div class="card">
+          <h3>⚡ تحليل السوق تلقائياً</h3>
+          <form id="autoFillMarketForm" class="form-grid" onsubmit="runAutoFillMarket(event)">
+            <div><label>المدينة</label><select name="city_code" id="autoFillMarketCitySelect" required></select></div>
+            <div><label>النشاط</label><select name="activity_code" id="autoFillMarketActivitySelect" required></select></div>
+            <div><label>السنة</label><input name="year" type="number" value="2025"></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">⚡ تحليل السوق تلقائياً</button></div>
+          </form>
+          <div id="autoFillMarketResult"></div>
+        </div>
+        <div class="card">
+          <h3>تحديث بيانات السوق يدوياً</h3>
+          <form id="marketForm" class="form-grid" onsubmit="saveMarketData(event)">
+            <div><label>المدينة</label><select name="city_code" id="marketCitySelect" required></select></div>
+            <div><label>النشاط</label><select name="activity_code" id="marketActivitySelect" required></select></div>
+            <div><label>عدد المنافسين</label><input name="competitors_count" type="number"></div>
+            <div><label>متوسط الحصة السوقية (%)</label><input name="avg_market_share" type="number" step="0.01"></div>
+            <div><label>متوسط الإيجار / م²</label><input name="avg_rent_per_sqm" type="number"></div>
+            <div><label>متوسط سعر الأرض / م²</label><input name="avg_land_price_per_sqm" type="number"></div>
+            <div><label>متوسط الراتب</label><input name="avg_salary" type="number"></div>
+            <div><label>توفر العمالة (0-100)</label><input name="labor_availability_score" type="number" min="0" max="100"></div>
+            <div><label>إشباع السوق (0-100)</label><input name="market_saturation_score" type="number" min="0" max="100"></div>
+            <div><label>حجم السوق</label><input name="market_size" type="number"></div>
+            <div><label>النمو السنوي (%)</label><input name="annual_growth_rate" type="number" step="0.01"></div>
+            <div><label>الإنفاق للفرد</label><input name="per_capita_spending" type="number"></div>
+            <div><label>الطلب المتوقع</label><select name="expected_demand"><option value="low">منخفض</option><option value="medium">متوسط</option><option value="high">مرتفع</option></select></div>
+            <div><label>هامش الربح الأدنى (%)</label><input name="profit_margin_min" type="number" step="0.01"></div>
+            <div><label>هامش الربح المتوسط (%)</label><input name="profit_margin_avg" type="number" step="0.01"></div>
+            <div><label>هامش الربح الأعلى (%)</label><input name="profit_margin_max" type="number" step="0.01"></div>
+            <div><label>مؤشر المخاطر (0-100)</label><input name="risk_score" type="number" min="0" max="100"></div>
+            <div><label>درجة الثقة (0-100)</label><input name="confidence" type="number" min="0" max="100"></div>
+            <div><label>السنة</label><input name="data_year" type="number" value="2025"></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">حفظ بيانات السوق</button></div>
+          </form>
+        </div>
+      </div>
+
+      <div id="dataSourcesPanel" class="panel">
+        <div class="card">
+          <h3>⚡ تحديث تلقائي</h3>
+          <p>اختر المدينة والنشاط لجلب البيانات تلقائياً من جميع المحركات.</p>
+          <form id="autoFillForm" class="form-grid" onsubmit="runAutoFill(event)">
+            <div><label>المدينة</label><select name="city_code" id="autoFillCitySelect" required></select></div>
+            <div><label>النشاط</label><select name="activity_code" id="autoFillActivitySelect" required></select></div>
+            <div><label>السنة</label><input name="year" type="number" value="2025"></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">⚡ تحديث تلقائي للكل</button></div>
+          </form>
+          <div id="autoFillResult"></div>
+        </div>
+        <div class="card">
+          <h3>المحركات</h3>
+          <div id="dataSourcesMessage"></div>
+          <table>
+            <thead><tr><th>المحرك</th><th>المصدر</th><th>الحالة</th><th>آخر تحديث</th><th></th></tr></thead>
+            <tbody id="dataSourcesTable"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3>سجل التشغيلات</h3>
+          <table>
+            <thead><tr><th>المصدر</th><th>النوع</th><th>الحالة</th><th>المجموع</th><th>الصالحة</th><th>التاريخ</th></tr></thead>
+            <tbody id="dataRunsTable"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3>📊 ملاحظات التحسين (Feedback Loop)</h3>
+          <form id="feedbackForm" class="form-grid" onsubmit="submitFeedback(event)">
+            <div><label>المؤشر</label><select name="metric_code" id="feedbackMetricSelect"></select></div>
+            <div><label>المدينة</label><select name="city_code" id="feedbackCitySelect"></select></div>
+            <div><label>السنة</label><input name="year" type="number" value="2025"></div>
+            <div><label>القيمة المُقدرة</label><input name="estimated_value" type="number"></div>
+            <div><label>القيمة الفعلية</label><input name="actual_value" type="number" required></div>
+            <div><label>درجة الثقة</label><input name="confidence" type="number" min="0" max="100" value="80"></div>
+            <div><label>ملاحظات</label><input name="notes" placeholder="مصدر البيانات الفعلية"></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">إرسال ملاحظة</button></div>
+          </form>
+          <div id="feedbackResult"></div>
+        </div>
+        <div class="card">
+          <h3>دقة التقديرات</h3>
+          <div id="feedbackAccuracyResult"></div>
+          <table>
+            <thead><tr><th>المؤشر</th><th>العدد</th><th>متوسط الخطأ %</th><th>متوسط الفعلي</th><th>متوسط التقدير</th></tr></thead>
+            <tbody id="feedbackAccuracyTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="competitorCalibrationPanel" class="panel">
+        <div class="card">
+          <h3>⚡ معايرة عدد المنافسين</h3>
+          <form id="calibrationForm" class="form-grid" onsubmit="runCalibration(event)">
+            <div><label>النشاط</label><select name="activity_code" id="calibrationActivitySelect" required></select></div>
+            <div><label>السنة</label><input name="year" type="number" value="2025"></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">تشغيل المعايرة التلقائية</button></div>
+          </form>
+          <div id="calibrationResult"></div>
+        </div>
+        <div class="card">
+          <h3>قيم المعايرة</h3>
+          <div id="calibrationMessage"></div>
+          <table>
+            <thead><tr><th>المدينة</th><th>عدد خام</th><th>عدد مُعاير</th><th>المعامل</th><th>المصدر</th><th>ملاحظات</th><th></th></tr></thead>
+            <tbody id="calibrationTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="qualityAlertsPanel" class="panel">
+        <div class="card">
+          <h3>🚨 تنبيهات جودة مصادر البيانات</h3>
+          <button onclick="loadQualityAlerts()" style="margin-bottom: 1rem;">تحديث</button>
+          <div id="qualityAlertsMessage"></div>
+          <div id="qualityAlertsList"></div>
+        </div>
+      </div>
+
+      <div id="alertsPanel" class="panel">
+        <div class="card">
+          <h3>🔔 قواعد الإنذارات</h3>
+          <form id="alertRuleForm" class="form-grid" onsubmit="createAlertRule(event)">
+            <div><label>اسم القاعدة</label><input name="name" required></div>
+            <div><label>المؤشر</label>
+              <select name="metric_code" required>
+                <option value="avg_rent_per_sqm">متوسط الإيجار / م²</option>
+                <option value="avg_land_price_per_sqm">متوسط سعر الأرض / م²</option>
+                <option value="competitors_count">عدد المنافسين</option>
+                <option value="market_saturation_score">مؤشر التشبع</option>
+                <option value="avg_salary">متوسط الراتب</option>
+                <option value="market_size">حجم السوق</option>
+                <option value="annual_growth_rate">معدل النمو السنوي</option>
+                <option value="inflation_rate">معدل التضخم</option>
+                <option value="unemployment_rate">معدل البطالة</option>
+                <option value="opportunity_score">مؤشر الفرصة الذهبية</option>
+              </select>
+            </div>
+            <div><label>نوع الكيان</label>
+              <select name="entity_type" required>
+                <option value="city">مدينة</option>
+                <option value="activity">نشاط</option>
+                <option value="city_activity">مدينة + نشاط</option>
+              </select>
+            </div>
+            <div><label>المدينة</label><select id="alertCitySelect" name="city_id"><option value="">كل المدن</option></select></div>
+            <div><label>النشاط</label><select id="alertActivitySelect" name="activity_id"><option value="">كل الأنشطة</option></select></div>
+            <div><label>نوع العتبة</label>
+              <select name="threshold_type" required>
+                <option value="relative">نسبية</option>
+                <option value="absolute">مطلقة</option>
+              </select>
+            </div>
+            <div><label>قيمة العتبة</label><input type="number" name="threshold_value" step="0.01" required></div>
+            <div><label>الخطورة</label>
+              <select name="severity" required>
+                <option value="info">معلومة</option>
+                <option value="warning">تحذير</option>
+                <option value="critical">حرج</option>
+              </select>
+            </div>
+            <div style="grid-column: 1 / -1;"><button type="submit">➕ إضافة قاعدة</button></div>
+          </form>
+          <div id="alertRulesMessage"></div>
+          <table>
+            <thead><tr><th>القاعدة</th><th>المؤشر</th><th>الكيان</th><th>العتبة</th><th>الخطورة</th><th>الحالة</th><th>إجراء</th></tr></thead>
+            <tbody id="alertRulesTable"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3>🚀 تشغيل التقييم</h3>
+          <button onclick="runAlertsEvaluation()">تقييم القواعد الآن</button>
+          <button class="secondary" onclick="loadAlertsHistory()">تحديث التاريخ</button>
+          <div id="alertEvaluationResult" style="margin-top: 1rem;"></div>
+        </div>
+
+        <div class="card">
+          <h3>📜 تاريخ الإنذارات</h3>
+          <div id="alertsHistoryMessage"></div>
+          <div id="alertsHistoryList"></div>
+        </div>
+      </div>
+
+      <div id="mlPanel" class="panel">
+        <div class="card">
+          <h3>🤖 نماذج التقدير (ML Regression)</h3>
+          <p>تدريب نماذج انحدار بسيطة من البيانات الموجودة في قاعدة البيانات.</p>
+          <form id="mlTrainForm" class="form-grid" onsubmit="trainML(event)">
+            <div><label>الدولة</label>
+              <select name="country_code" id="mlCountrySelect">
+                <option value="">كل الدول</option>
+                <option value="SA">السعودية</option>
+                <option value="AE">الإمارات</option>
+                <option value="QA">قطر</option>
+                <option value="EG">مصر</option>
+                <option value="JO">الأردن</option>
+              </select>
+            </div>
+            <div style="grid-column: 1 / -1;"><button type="submit">🚀 تدريب النماذج</button></div>
+          </form>
+          <div id="mlTrainResult"></div>
+        </div>
+        <div class="card">
+          <h3>النماذج المحفوظة</h3>
+          <div id="mlModelsMessage"></div>
+          <table>
+            <thead><tr><th>المؤشر</th><th>الميزات</th><th>الدولة</th><th>R²</th><th>RMSE</th><th>MAPE</th><th>العينات</th><th>آخر تدريب</th></tr></thead>
+            <tbody id="mlModelsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="masterPanel" class="panel">
+        <div class="card">
+          <h3>إدارة البيانات الأساسية</h3>
+          <div style="margin-bottom: 1rem;">
+            <label>نوع الكيان</label>
+            <select id="masterTypeSelect" onchange="renderMasterForm()">
+              <option value="sectors">القطاعات</option>
+              <option value="sub-sectors">الأنشطة الفرعية</option>
+              <option value="activities">الأنشطة</option>
+              <option value="activity-details">تفاصيل الأنشطة</option>
+              <option value="assumptions">الافتراضات المالية</option>
+              <option value="risk-factors">عوامل المخاطر</option>
+            </select>
+          </div>
+          <div id="masterFormContainer"></div>
+        </div>
+        <div class="card">
+          <h3>القائمة</h3>
+          <div id="masterMessage"></div>
+          <div id="masterTableContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = '/api';
+    let token = localStorage.getItem('bondsAdminToken') || '';
+    let refData = {};
+
+    // Auto-login from URL token
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlToken = urlParams.get('token');
+    if (urlToken) {
+      token = urlToken.trim();
+      localStorage.setItem('bondsAdminToken', token);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    function getHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'x-admin-token': token
+      };
+    }
+
+    function login() {
+      token = document.getElementById('loginToken').value.trim();
+      localStorage.setItem('bondsAdminToken', token);
+      init();
+    }
+
+    function showTab(name) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(name + 'Panel').classList.add('active');
+      if (name === 'models') loadModels();
+      if (name === 'cities') loadCities();
+      if (name === 'dataSources') loadDataSources();
+      if (name === 'competitorCalibration') loadCalibration();
+      if (name === 'qualityAlerts') loadQualityAlerts();
+      if (name === 'alerts') { loadAlertRules(); loadAlertsHistory(); }
+      if (name === 'ml') loadMLModels();
+      if (name === 'master') { renderMasterForm(); loadMasterData(); }
+    }
+
+    function showMessage(id, text, type = 'error') {
+      const el = document.getElementById(id);
+      el.className = 'message ' + type;
+      el.textContent = text;
+      setTimeout(() => el.textContent = '', 4000);
+    }
+
+    async function fetchJson(url, options = {}) {
+      const res = await fetch(url, options);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+
+    async function init() {
+      if (!token) return;
+
+      try {
+        const ref = await fetchJson(API_URL + '/admin/reference', { headers: getHeaders() });
+        refData = ref;
+        document.getElementById('loginPanel').classList.add('hidden');
+        document.getElementById('cmsPanel').classList.remove('hidden');
+
+        populateSelect('activitySelect', ref.activities, 'code', 'name_ar');
+        populateSelect('marketActivitySelect', ref.activities, 'code', 'name_ar');
+        populateSelect('autoFillActivitySelect', ref.activities, 'code', 'name_ar');
+        populateSelect('autoFillMarketActivitySelect', ref.activities, 'code', 'name_ar');
+        populateSelect('calibrationActivitySelect', ref.activities, 'code', 'name_ar');
+        populateSelect('alertActivitySelect', ref.activities, 'id', 'name_ar');
+        populateSelect('marketCitySelect', [], 'code', 'name_ar');
+        populateSelect('autoFillCitySelect', [], 'code', 'name_ar');
+        populateSelect('autoFillMarketCitySelect', [], 'code', 'name_ar');
+        populateSelect('fetchCitySelect', [], 'code', 'name_ar');
+        populateSelect('feedbackCitySelect', [], 'code', 'name_ar');
+        populateSelect('feedbackMetricSelect', [
+          { code: 'avg_rent_per_sqm', name_ar: 'متوسط الإيجار / م²' },
+          { code: 'avg_salary', name_ar: 'متوسط الراتب' },
+          { code: 'competitors_count', name_ar: 'عدد المنافسين' },
+          { code: 'market_size', name_ar: 'حجم السوق' },
+          { code: 'specialists_count', name_ar: 'عدد المتخصصين' }
+        ], 'code', 'name_ar');
+        loadModels();
+        loadCities();
+        loadDataSources();
+      } catch (err) {
+        alert('فشل تسجيل الدخول: ' + err.message);
+      }
+    }
+
+    function populateSelect(id, items, valueKey, labelKey) {
+      const select = document.getElementById(id);
+      select.innerHTML = items.map(i => `<option value="${i[valueKey]}">${i[labelKey]}</option>`).join('');
+    }
+
+    async function loadModels() {
+      try {
+        const data = await fetchJson(API_URL + '/admin/models', { headers: getHeaders() });
+        const tbody = document.getElementById('modelsTable');
+        tbody.innerHTML = data.models.map(m => `
+          <tr>
+            <td>${m.code}</td>
+            <td>${m.name_ar}</td>
+            <td>${m.activity?.name_ar || ''}</td>
+            <td>${m.is_published ? 'منشور' : 'مسودة'}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        showMessage('modelsMessage', err.message);
+      }
+    }
+
+    async function createModel(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = Object.fromEntries(new FormData(form));
+      body.tags = body.tags ? body.tags.split(',').map(t => t.trim()) : [];
+      body.is_published = false;
+
+      try {
+        await fetchJson(API_URL + '/admin/models', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify(body)
+        });
+        showMessage('modelsMessage', 'تم إضافة النموذج بنجاح', 'success');
+        form.reset();
+        loadModels();
+      } catch (err) {
+        showMessage('modelsMessage', err.message);
+      }
+    }
+
+    async function loadCities() {
+      try {
+        const data = await fetchJson(API_URL + '/admin/cities', { headers: getHeaders() });
+        const tbody = document.getElementById('citiesTable');
+        tbody.innerHTML = data.cities.map(c => `
+          <tr>
+            <td>${c.code}</td>
+            <td>${c.name_ar}</td>
+            <td>${c.population?.toLocaleString() || ''}</td>
+          </tr>
+        `).join('');
+        populateSelect('marketCitySelect', data.cities, 'code', 'name_ar');
+        populateSelect('autoFillCitySelect', data.cities, 'code', 'name_ar');
+        populateSelect('autoFillMarketCitySelect', data.cities, 'code', 'name_ar');
+        populateSelect('fetchCitySelect', data.cities, 'code', 'name_ar');
+        populateSelect('feedbackCitySelect', data.cities, 'code', 'name_ar');
+        populateSelect('alertCitySelect', data.cities, 'id', 'name_ar');
+      } catch (err) {
+        showMessage('citiesMessage', err.message);
+      }
+    }
+
+    async function createCity(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = Object.fromEntries(new FormData(form));
+      ['population', 'avg_household_income', 'purchasing_power_index', 'gdp_city', 'growth_rate', 'unemployment_rate', 'establishments_count', 'inflation_rate', 'business_ease_index'].forEach(k => {
+        if (body[k]) body[k] = Number(body[k]);
+      });
+
+      try {
+        await fetchJson(API_URL + '/admin/cities', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify(body)
+        });
+        showMessage('citiesMessage', 'تم إضافة المدينة بنجاح', 'success');
+        form.reset();
+        loadCities();
+      } catch (err) {
+        showMessage('citiesMessage', err.message);
+      }
+    }
+
+    async function saveMarketData(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = Object.fromEntries(new FormData(form));
+      ['competitors_count', 'avg_market_share', 'avg_rent_per_sqm', 'avg_land_price_per_sqm', 'avg_salary', 'labor_availability_score', 'market_saturation_score', 'market_size', 'annual_growth_rate', 'per_capita_spending', 'profit_margin_min', 'profit_margin_avg', 'profit_margin_max', 'risk_score', 'confidence', 'data_year'].forEach(k => {
+        if (body[k]) body[k] = Number(body[k]);
+      });
+
+      try {
+        await fetchJson(API_URL + '/admin/market-data', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify(body)
+        });
+        alert('تم حفظ بيانات السوق');
+        form.reset();
+      } catch (err) {
+        alert('خطأ: ' + err.message);
+      }
+    }
+
+    // ---------- Master Data Editor ----------
+
+    function masterField(label, name, type = 'text', opts = {}) {
+      let input;
+      if (type === 'select') {
+        const options = opts.options || [];
+        input = `<select name="${name}">${options.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}</select>`;
+      } else {
+        input = `<input name="${name}" type="${type}" ${opts.required ? 'required' : ''} ${opts.step ? `step="${opts.step}"` : ''} ${opts.value !== undefined ? `value="${opts.value}"` : ''}>`;
+      }
+      return `<div><label>${label}</label>${input}</div>`;
+    }
+
+    function renderMasterForm() {
+      const type = document.getElementById('masterTypeSelect').value;
+      let html = `<form id="masterForm" class="form-grid" onsubmit="createMasterData(event)">`;
+
+      if (type === 'sectors') {
+        html += masterField('الكود', 'code', 'text', { required: true });
+        html += masterField('الاسم بالعربي', 'name_ar', 'text', { required: true });
+        html += masterField('الاسم بالإنجليزي', 'name_en', 'text', { required: true });
+        html += masterField('الوصف', 'description');
+        html += masterField('فئة المخاطرة', 'risk_category', 'select', { options: [
+          { value: 'low', label: 'منخفض' }, { value: 'medium', label: 'متوسط' }, { value: 'high', label: 'مرتفع' }, { value: 'volatile', label: 'متقلب' }
+        ]});
+        html += masterField('الترتيب', 'sort_order', 'number', { value: 0 });
+      }
+
+      if (type === 'sub-sectors') {
+        html += masterField('القطاع', 'sector_code', 'select', { options: (refData.sectors || []).map(s => ({ value: s.code, label: s.name_ar })) });
+        html += masterField('الكود', 'code', 'text', { required: true });
+        html += masterField('الاسم بالعربي', 'name_ar', 'text', { required: true });
+        html += masterField('الاسم بالإنجليزي', 'name_en', 'text', { required: true });
+        html += masterField('الوصف', 'description');
+        html += masterField('الترتيب', 'sort_order', 'number', { value: 0 });
+      }
+
+      if (type === 'activities') {
+        html += masterField('النشاط الفرعي', 'sub_sector_code', 'select', { options: (refData.sub_sectors || []).map(s => ({ value: s.code, label: s.name_ar })) });
+        html += masterField('الكود', 'code', 'text', { required: true });
+        html += masterField('الاسم بالعربي', 'name_ar', 'text', { required: true });
+        html += masterField('الاسم بالإنجليزي', 'name_en', 'text', { required: true });
+        html += masterField('الوصف', 'description');
+        html += masterField('الترتيب', 'sort_order', 'number', { value: 0 });
+      }
+
+      if (type === 'activity-details') {
+        html += masterField('النشاط', 'activity_code', 'select', { options: (refData.activities || []).map(a => ({ value: a.code, label: a.name_ar })) });
+        html += masterField('الكود', 'code', 'text', { required: true });
+        html += masterField('الاسم بالعربي', 'name_ar', 'text', { required: true });
+        html += masterField('الاسم بالإنجليزي', 'name_en', 'text', { required: true });
+        html += masterField('الوصف', 'description');
+        html += masterField('الترتيب', 'sort_order', 'number', { value: 0 });
+      }
+
+      if (type === 'assumptions') {
+        html += masterField('الكود', 'code', 'text', { required: true });
+        html += masterField('الاسم بالعربي', 'name_ar', 'text', { required: true });
+        html += masterField('الاسم بالإنجليزي', 'name_en', 'text', { required: true });
+        html += masterField('الفئة', 'category', 'select', { options: [
+          { value: 'revenue', label: 'إيرادات' }, { value: 'cogs', label: 'تكلفة البضاعة' }, { value: 'opex', label: 'تشغيل' },
+          { value: 'capex', label: 'استثمار' }, { value: 'tax', label: 'ضريبة' }, { value: 'depreciation', label: 'إهلاك' },
+          { value: 'working_capital', label: 'رأس مال عامل' }, { value: 'financing', label: 'تمويل' }, { value: 'hr', label: 'موارد بشرية' },
+          { value: 'utilities', label: 'خدمات' }, { value: 'rent', label: 'إيجار' }
+        ]});
+        html += masterField('نوع الوحدة', 'unit_type', 'select', { options: [
+          { value: 'percentage', label: 'نسبة' }, { value: 'fixed_amount', label: 'مبلغ ثابت' }, { value: 'ratio', label: 'نسبة' },
+          { value: 'count', label: 'عدد' }, { value: 'days', label: 'أيام' }, { value: 'months', label: 'شهور' }, { value: 'per_unit', label: 'لكل وحدة' }
+        ]});
+        html += masterField('القيمة الافتراضية', 'default_value', 'number', { value: 0 });
+        html += masterField('القيمة الدنيا', 'min_value', 'number');
+        html += masterField('القيمة القصوى', 'max_value', 'number');
+        html += masterField('الوصف', 'description');
+      }
+
+      if (type === 'risk-factors') {
+        html += masterField('الكود', 'code', 'text', { required: true });
+        html += masterField('الاسم بالعربي', 'name_ar', 'text', { required: true });
+        html += masterField('الاسم بالإنجليزي', 'name_en', 'text', { required: true });
+        html += masterField('الفئة', 'category', 'select', { options: [
+          { value: 'market', label: 'سوق' }, { value: 'financial', label: 'مالي' }, { value: 'operational', label: 'تشغيلي' },
+          { value: 'legal', label: 'قانوني' }, { value: 'environmental', label: 'بيئي' }, { value: 'geopolitical', label: 'جيوسياسي' }
+        ]});
+        html += masterField('الدرجة الافتراضية', 'default_score', 'number', { value: 50 });
+        html += masterField('الوزن', 'weight', 'number', { value: 1, step: 0.01 });
+        html += masterField('الوصف', 'description');
+      }
+
+      html += `<div style="grid-column: 1 / -1;"><button type="submit">إضافة</button></div></form>`;
+      document.getElementById('masterFormContainer').innerHTML = html;
+    }
+
+    async function loadMasterData() {
+      const type = document.getElementById('masterTypeSelect').value;
+      try {
+        const data = await fetchJson(API_URL + '/admin/' + type, { headers: getHeaders() });
+        const items = data[type.replace(/-/g, '_')] || [];
+        renderMasterTable(type, items);
+      } catch (err) {
+        showMessage('masterMessage', err.message);
+      }
+    }
+
+    function renderMasterTable(type, items) {
+      let headers = ['الكود', 'الاسم بالعربي'];
+      let rows = '';
+
+      if (type === 'sectors') {
+        headers = ['الكود', 'الاسم', 'المخاطرة', 'الترتيب'];
+        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td>${i.risk_category}</td><td>${i.sort_order}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+      } else if (type === 'sub-sectors') {
+        headers = ['الكود', 'الاسم', 'القطاع'];
+        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td>${i.sector?.name_ar || ''}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+      } else if (type === 'activities') {
+        headers = ['الكود', 'الاسم', 'النشاط الفرعي'];
+        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td>${i.sub_sector?.name_ar || ''}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+      } else if (type === 'activity-details') {
+        headers = ['الكود', 'الاسم', 'النشاط'];
+        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td>${i.activity?.name_ar || ''}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+      } else if (type === 'assumptions') {
+        headers = ['الكود', 'الاسم', 'الفئة', 'الوحدة'];
+        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td>${i.category}</td><td>${i.unit_type}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+      } else if (type === 'risk-factors') {
+        headers = ['الكود', 'الاسم', 'الفئة', 'الدرجة'];
+        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td>${i.category}</td><td>${i.default_score}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+      } else {
+        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+      }
+
+      const thead = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '<th></th></tr>';
+      document.getElementById('masterTableContainer').innerHTML = `<table><thead>${thead}</thead><tbody>${rows || '<tr><td colspan="' + (headers.length + 1) + '">لا توجد بيانات</td></tr>'}</tbody></table>`;
+    }
+
+    async function createMasterData(e) {
+      e.preventDefault();
+      const form = e.target;
+      const type = document.getElementById('masterTypeSelect').value;
+      const body = Object.fromEntries(new FormData(form));
+
+      // Convert numeric fields
+      ['sort_order', 'default_value', 'min_value', 'max_value', 'default_score', 'weight'].forEach(k => {
+        if (body[k] !== undefined && body[k] !== '') body[k] = Number(body[k]);
+      });
+
+      try {
+        await fetchJson(API_URL + '/admin/' + type, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify(body)
+        });
+        showMessage('masterMessage', 'تم الإضافة بنجاح', 'success');
+        form.reset();
+        // Refresh reference data to include new items in parent dropdowns
+        refData = await fetchJson(API_URL + '/admin/reference', { headers: getHeaders() });
+        renderMasterForm();
+        loadMasterData();
+      } catch (err) {
+        showMessage('masterMessage', err.message);
+      }
+    }
+
+    async function deleteMasterData(code) {
+      if (!confirm('هل أنت متأكد من الحذف؟')) return;
+      const type = document.getElementById('masterTypeSelect').value;
+      try {
+        await fetchJson(API_URL + '/admin/' + type + '/' + encodeURIComponent(code), {
+          method: 'DELETE',
+          headers: getHeaders()
+        });
+        showMessage('masterMessage', 'تم الحذف', 'success');
+        loadMasterData();
+      } catch (err) {
+        showMessage('masterMessage', err.message);
+      }
+    }
+
+    // ---------- Data Sources & Auto-Fill ----------
+
+    async function loadDataSources() {
+      try {
+        const sourcesData = await fetchJson(API_URL + '/data/sources');
+        const tbody = document.getElementById('dataSourcesTable');
+        tbody.innerHTML = (sourcesData.sources || []).map(s => `
+          <tr>
+            <td>${s.engine === 'all' ? 'جميع المحركات' : s.engine}</td>
+            <td>${s.name}</td>
+            <td>جاهز</td>
+            <td>-</td>
+            <td><button class="secondary" onclick="runEngineFetch('${s.id}')">تشغيل</button></td>
+          </tr>
+        `).join('');
+
+        const runsData = await fetchJson(API_URL + '/data/metrics?limit=20');
+        const runsTbody = document.getElementById('dataRunsTable');
+        runsTbody.innerHTML = (runsData.metrics || []).slice(0, 20).map(m => `
+          <tr>
+            <td>${m.source_id}</td>
+            <td>${m.metric_code}</td>
+            <td>${m.is_override ? 'يدوي' : 'تلقائي'}</td>
+            <td>${m.value !== null ? m.value.toLocaleString() : m.value_text || '-'}</td>
+            <td>${m.confidence}%</td>
+            <td>${new Date(m.fetched_at).toLocaleDateString('ar-SA')}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        showMessage('dataSourcesMessage', err.message);
+      }
+      loadFeedbackAccuracy();
+    }
+
+    async function runEngineFetch(sourceId) {
+      const cityCode = document.getElementById('autoFillCitySelect').value;
+      const year = document.querySelector('#autoFillForm [name="year"]').value;
+      if (!cityCode) return alert('اختر مدينة أولاً');
+
+      try {
+        const data = await fetchJson(API_URL + '/data/sources/' + sourceId + '/fetch', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ cityCode, year: parseInt(year) })
+        });
+        showMessage('dataSourcesMessage', 'تم التشغيل بنجاح', 'success');
+        loadDataSources();
+      } catch (err) {
+        showMessage('dataSourcesMessage', err.message);
+      }
+    }
+
+    async function runAutoFill(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = Object.fromEntries(new FormData(form));
+      const resultDiv = document.getElementById('autoFillResult');
+      resultDiv.innerHTML = '<p>جاري التحليل...</p>';
+
+      try {
+        const data = await fetchJson(API_URL + '/data/auto-fill', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({
+            cityCode: body.city_code,
+            activityCode: body.activity_code,
+            year: parseInt(body.year)
+          })
+        });
+        resultDiv.innerHTML = '<p class="message success">✅ تم التحديث التلقائي بنجاح</p>';
+        loadDataSources();
+      } catch (err) {
+        resultDiv.innerHTML = '<p class="message error">❌ ' + err.message + '</p>';
+      }
+    }
+
+    async function runAutoFillMarket(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = Object.fromEntries(new FormData(form));
+      const resultDiv = document.getElementById('autoFillMarketResult');
+      resultDiv.innerHTML = '<p>جاري تحليل السوق...</p>';
+
+      try {
+        const data = await fetchJson(API_URL + '/data/auto-fill', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({
+            cityCode: body.city_code,
+            activityCode: body.activity_code,
+            year: parseInt(body.year)
+          })
+        });
+        resultDiv.innerHTML = '<p class="message success">✅ تم تحليل السوق بنجاح</p>';
+      } catch (err) {
+        resultDiv.innerHTML = '<p class="message error">❌ ' + err.message + '</p>';
+      }
+    }
+
+    async function fetchCityIndicators(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = Object.fromEntries(new FormData(form));
+      const resultDiv = document.getElementById('fetchCityResult');
+      resultDiv.innerHTML = '<p>جاري جلب المؤشرات...</p>';
+
+      try {
+        const data = await fetchJson(API_URL + '/data/sources/city/fetch', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({
+            cityCode: body.city_code,
+            year: parseInt(body.year)
+          })
+        });
+        resultDiv.innerHTML = '<p class="message success">✅ تم جلب مؤشرات المدينة بنجاح</p>';
+        loadCities();
+      } catch (err) {
+        resultDiv.innerHTML = '<p class="message error">❌ ' + err.message + '</p>';
+      }
+    }
+
+    async function submitFeedback(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = Object.fromEntries(new FormData(form));
+      const resultDiv = document.getElementById('feedbackResult');
+      resultDiv.innerHTML = '<p>جاري الإرسال...</p>';
+
+      try {
+        await fetchJson(API_URL + '/data/feedback', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({
+            metric_code: body.metric_code,
+            city_code: body.city_code,
+            year: parseInt(body.year),
+            estimated_value: body.estimated_value ? Number(body.estimated_value) : null,
+            actual_value: Number(body.actual_value),
+            source: 'admin',
+            confidence: Number(body.confidence),
+            notes: body.notes
+          })
+        });
+        resultDiv.innerHTML = '<p class="message success">✅ تم إرسال الملاحظة بنجاح</p>';
+        form.reset();
+        loadFeedbackAccuracy();
+      } catch (err) {
+        resultDiv.innerHTML = '<p class="message error">❌ ' + err.message + '</p>';
+      }
+    }
+
+    async function loadFeedbackAccuracy() {
+      try {
+        const data = await fetchJson(API_URL + '/data/feedback/accuracy', { headers: getHeaders() });
+        const tbody = document.getElementById('feedbackAccuracyTable');
+        tbody.innerHTML = (data.summary || []).map(s => `
+          <tr>
+            <td>${s.metric_code}</td>
+            <td>${s.feedback_count}</td>
+            <td>${s.mean_percentage_error ? s.mean_percentage_error.toFixed(1) + '%' : '-'}</td>
+            <td>${s.actual_avg ? s.actual_avg.toLocaleString('ar-SA') : '-'}</td>
+            <td>${s.estimated_avg ? s.estimated_avg.toLocaleString('ar-SA') : '-'}</td>
+          </tr>
+        `).join('') || '<tr><td colspan="5">لا توجد ملاحظات كافية</td></tr>';
+      } catch (err) {
+        console.error('Failed to load feedback accuracy:', err.message);
+      }
+    }
+
+    async function trainML(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = Object.fromEntries(new FormData(form));
+      const resultDiv = document.getElementById('mlTrainResult');
+      resultDiv.innerHTML = '<p>جاري التدريب...</p>';
+
+      try {
+        const data = await fetchJson(API_URL + '/data/ml/train', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ country_code: body.country_code || null })
+        });
+        resultDiv.innerHTML = '<p class="message success">✅ تم تدريب ' + (data.trained?.length || 0) + ' نموذجاً</p>';
+        loadMLModels();
+      } catch (err) {
+        resultDiv.innerHTML = '<p class="message error">❌ ' + err.message + '</p>';
+      }
+    }
+
+    async function loadMLModels() {
+      try {
+        const country = document.getElementById('mlCountrySelect')?.value || '';
+        const url = API_URL + '/data/ml/models' + (country ? '?country=' + encodeURIComponent(country) : '');
+        const data = await fetchJson(url, { headers: getHeaders() });
+        const tbody = document.getElementById('mlModelsTable');
+        tbody.innerHTML = (data.models || []).map(m => `
+          <tr>
+            <td>${m.metricCode}</td>
+            <td>${(m.featureKeys || []).join(', ')}</td>
+            <td>${m.countryCode || 'كل الدول'}</td>
+            <td>${m.rSquared.toFixed(3)}</td>
+            <td>${m.rmse != null ? m.rmse.toLocaleString('ar-SA', { maximumFractionDigits: 0 }) : '-'}</td>
+            <td>${m.mape != null ? m.mape.toFixed(1) + '%' : '-'}</td>
+            <td>${m.sampleCount}</td>
+            <td>${new Date(m.trainedAt || Date.now()).toLocaleString('ar-SA')}</td>
+          </tr>
+        `).join('') || '<tr><td colspan="8">لا توجد نماذج محفوظة</td></tr>';
+      } catch (err) {
+        showMessage('mlModelsMessage', err.message);
+      }
+    }
+
+    // ---------- Competitor Calibration ----------
+
+    async function loadCalibration() {
+      const activityCode = document.getElementById('calibrationActivitySelect')?.value || 'dental_clinics';
+      const year = document.querySelector('#calibrationForm [name="year"]')?.value || 2025;
+      try {
+        const data = await fetchJson(`${API_URL}/admin/competitor-calibration?activity_code=${activityCode}&year=${year}`, { headers: getHeaders() });
+        const tbody = document.getElementById('calibrationTable');
+        tbody.innerHTML = (data.calibrations || []).map(c => `
+          <tr data-city-id="${c.city_id}" data-activity-id="${c.activity_id}" data-year="${c.year}">
+            <td>${c.city?.name_ar || c.city?.code || ''}</td>
+            <td>${c.raw_value != null ? c.raw_value.toLocaleString('ar-SA') : '-'}</td>
+            <td><input type="number" class="calib-value" value="${c.calibrated_value}" style="width: 100px;"></td>
+            <td>${c.factor != null ? c.factor.toFixed(2) : '-'}</td>
+            <td><input type="text" class="calib-source" value="${c.source || ''}" style="width: 120px;"></td>
+            <td><input type="text" class="calib-notes" value="${c.notes || ''}" style="width: 200px;"></td>
+            <td><button onclick="saveCalibrationRow(this)">حفظ</button></td>
+          </tr>
+        `).join('') || '<tr><td colspan="7">لا توجد بيانات معايرة</td></tr>';
+      } catch (err) {
+        showMessage('calibrationMessage', err.message);
+      }
+    }
+
+    async function saveCalibrationRow(btn) {
+      const row = btn.closest('tr');
+      const cityId = row.dataset.cityId;
+      const activityId = row.dataset.activityId;
+      const year = parseInt(row.dataset.year, 10);
+      const calibratedValue = parseFloat(row.querySelector('.calib-value').value);
+      const source = row.querySelector('.calib-source').value;
+      const notes = row.querySelector('.calib-notes').value;
+
+      try {
+        await fetchJson(`${API_URL}/admin/competitor-calibration`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ city_id: cityId, activity_id: activityId, year, calibrated_value: calibratedValue, source, notes })
+        });
+        showMessage('calibrationMessage', 'تم الحفظ', 'success');
+        loadCalibration();
+      } catch (err) {
+        showMessage('calibrationMessage', err.message);
+      }
+    }
+
+    async function runCalibration(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = Object.fromEntries(new FormData(form));
+      const resultDiv = document.getElementById('calibrationResult');
+      resultDiv.innerHTML = '<p>جاري المعايرة...</p>';
+
+      try {
+        const data = await fetchJson(`${API_URL}/admin/competitor-calibration/run`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ activity_code: body.activity_code, year: parseInt(body.year, 10) })
+        });
+        resultDiv.innerHTML = `<p class="message success">✅ تمت المعايرة: ${data.result.upserted.length} مدن</p>`;
+        loadCalibration();
+      } catch (err) {
+        resultDiv.innerHTML = `<p class="message error">❌ ${err.message}</p>`;
+      }
+    }
+
+    // ---------- Source Quality Alerts ----------
+
+    async function loadQualityAlerts() {
+      const container = document.getElementById('qualityAlertsList');
+      container.innerHTML = '<p>جاري التحميل...</p>';
+      try {
+        const data = await fetchJson(`${API_URL}/admin/source-quality-alerts?recent_days=7`, { headers: getHeaders() });
+        const alerts = data.alerts || [];
+        if (!alerts.length) {
+          container.innerHTML = '<p class="message success">لا توجد تنبيهات حالياً</p>';
+          return;
+        }
+        container.innerHTML = alerts.map(a => `
+          <div class="card" style="border-right: 4px solid ${a.severity === 'critical' ? 'var(--danger)' : 'var(--gold)'};">
+            <strong>${a.severity === 'critical' ? '🚨' : '⚠️'} ${a.sourceId} — ${a.metricCode}</strong>
+            <p>${a.message}</p>
+            <p>النجاح: ${a.successes}/${a.attempts} (${a.successRate}%)</p>
+            ${a.failures.length ? '<details><summary>تفاصيل الفشل</summary><ul>' + a.failures.map(f => `<li>${f.cityName || f.cityCode} (${f.activityName || f.activityCode}): ${f.failureReason || 'فشل'}</li>`).join('') + '</ul></details>' : ''}
+          </div>
+        `).join('');
+      } catch (err) {
+        showMessage('qualityAlertsMessage', err.message);
+      }
+    }
+
+    // ---------- Alert Engine ----------
+
+    async function loadAlertRules() {
+      const tbody = document.getElementById('alertRulesTable');
+      tbody.innerHTML = '<tr><td colspan="7">جاري التحميل...</td></tr>';
+      try {
+        const data = await fetchJson(API_URL + '/admin/alert-rules', { headers: getHeaders() });
+        const rules = data.rules || [];
+        if (!rules.length) {
+          tbody.innerHTML = '<tr><td colspan="7">لا توجد قواعد بعد</td></tr>';
+          return;
+        }
+        tbody.innerHTML = rules.map(r => `
+          <tr>
+            <td>${r.name}</td>
+            <td>${r.metric_code}</td>
+            <td>${r.city?.name_ar || '-'} ${r.activity?.name_ar ? ' / ' + r.activity.name_ar : ''}</td>
+            <td>${r.threshold_type === 'relative' ? r.threshold_value * 100 + '%' : r.threshold_value}</td>
+            <td>${r.severity}</td>
+            <td>${r.is_active ? 'مفعل' : 'معطل'}</td>
+            <td>
+              <button class="secondary" onclick="toggleAlertRule('${r.id}', ${!r.is_active})">${r.is_active ? 'تعطيل' : 'تفعيل'}</button>
+              <button class="secondary" style="border-color: var(--danger); color: var(--danger);" onclick="deleteAlertRule('${r.id}')">حذف</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        showMessage('alertRulesMessage', err.message);
+      }
+    }
+
+    async function createAlertRule(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = Object.fromEntries(new FormData(form));
+      body.threshold_value = parseFloat(body.threshold_value);
+      body.check_previous_year = true;
+      if (!body.city_id) body.city_id = null;
+      if (!body.activity_id) body.activity_id = null;
+
+      try {
+        await fetchJson(API_URL + '/admin/alert-rules', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify(body)
+        });
+        showMessage('alertRulesMessage', 'تم إضافة القاعدة', 'success');
+        form.reset();
+        loadAlertRules();
+      } catch (err) {
+        showMessage('alertRulesMessage', err.message);
+      }
+    }
+
+    async function toggleAlertRule(id, isActive) {
+      try {
+        await fetchJson(`${API_URL}/admin/alert-rules/${id}`, {
+          method: 'PUT',
+          headers: getHeaders(),
+          body: JSON.stringify({ is_active: isActive })
+        });
+        loadAlertRules();
+      } catch (err) {
+        showMessage('alertRulesMessage', err.message);
+      }
+    }
+
+    async function deleteAlertRule(id) {
+      if (!confirm('هل أنت متأكد من حذف القاعدة؟')) return;
+      try {
+        await fetchJson(`${API_URL}/admin/alert-rules/${id}`, {
+          method: 'DELETE',
+          headers: getHeaders()
+        });
+        loadAlertRules();
+      } catch (err) {
+        showMessage('alertRulesMessage', err.message);
+      }
+    }
+
+    async function runAlertsEvaluation() {
+      const resultDiv = document.getElementById('alertEvaluationResult');
+      resultDiv.innerHTML = '<p>جاري التقييم...</p>';
+      try {
+        const data = await fetchJson(API_URL + '/admin/alerts/evaluate', {
+          method: 'POST',
+          headers: getHeaders()
+        });
+        resultDiv.innerHTML = `<p class="message success">✅ تم تقييم القواعد: ${data.evaluated} إنذار جديد</p>`;
+        loadAlertsHistory();
+      } catch (err) {
+        resultDiv.innerHTML = `<p class="message error">❌ ${err.message}</p>`;
+      }
+    }
+
+    async function loadAlertsHistory() {
+      const container = document.getElementById('alertsHistoryList');
+      container.innerHTML = '<p>جاري التحميل...</p>';
+      try {
+        const data = await fetchJson(API_URL + '/alerts?limit=50', { headers: getHeaders() });
+        const alerts = data.alerts || [];
+        if (!alerts.length) {
+          container.innerHTML = '<p class="message success">لا توجد إنذارات بعد</p>';
+          return;
+        }
+        container.innerHTML = alerts.map(a => `
+          <div class="card" style="border-right: 4px solid ${a.severity === 'critical' ? 'var(--danger)' : a.severity === 'warning' ? 'var(--gold)' : 'var(--success)'};">
+            <strong>${a.severity === 'critical' ? '🚨' : a.severity === 'warning' ? '⚠️' : 'ℹ️'} ${a.metric_code}</strong>
+            <p>${a.message}</p>
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">${new Date(a.created_at).toLocaleString('ar-SA')} — ${a.city?.name_ar || ''} ${a.activity?.name_ar ? ' / ' + a.activity.name_ar : ''}</p>
+            ${!a.is_read ? `<button class="secondary" onclick="markAlertRead('${a.id}')">تعليم كمقروء</button>` : ''}
+          </div>
+        `).join('');
+      } catch (err) {
+        showMessage('alertsHistoryMessage', err.message);
+      }
+    }
+
+    async function markAlertRead(id) {
+      try {
+        await fetchJson(`${API_URL}/alerts/${id}/read`, {
+          method: 'POST',
+          headers: getHeaders()
+        });
+        loadAlertsHistory();
+      } catch (err) {
+        showMessage('alertsHistoryMessage', err.message);
+      }
+    }
+
+    if (token) init();
+  </script>
+</body>
+</html>

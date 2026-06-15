@@ -334,6 +334,30 @@
     return document.querySelector('.template-toolbar, .progress-bar.no-print') !== null;
   }
 
+  function adjustLayoutForFixedHeader() {
+    const header = document.getElementById('header');
+    const topbar = document.querySelector('.topbar');
+    if (!header) return;
+
+    // Old standalone topbar is redundant once the unified fixed header is injected
+    if (topbar) topbar.style.display = 'none';
+
+    function setPadding() {
+      const height = header.offsetHeight || 70;
+      document.body.style.paddingTop = height + 'px';
+    }
+    setPadding();
+    window.addEventListener('resize', debounce(setPadding, 150));
+  }
+
+  function debounce(fn, wait) {
+    let t;
+    return function () {
+      clearTimeout(t);
+      t = setTimeout(fn, wait);
+    };
+  }
+
   function inject() {
     const lang = detectLang();
     const base = getBase();
@@ -354,6 +378,7 @@
           navToggle.setAttribute('aria-expanded', mainNav.classList.contains('is-open'));
         });
       }
+      adjustLayoutForFixedHeader();
     }
 
     if (footerContainer) {
