@@ -39,6 +39,14 @@
       "destination": "/api/password.js"
     },
     {
+      "source": "/api/v3",
+      "destination": "/api/v3/index.js"
+    },
+    {
+      "source": "/api/v3/(.*)",
+      "destination": "/api/v3/index.js"
+    },
+    {
       "source": "/api/analyze-feasibility-v2",
       "destination": "/api/analyze-feasibility.js"
     },
@@ -57,10 +65,6 @@
     {
       "source": "/v3/admin/(.*)",
       "destination": "/v3/admin/index.html"
-    },
-    {
-      "source": "/api/v3/(.*)",
-      "destination": "/api/v3/index.js"
     },
     {
       "source": "/break-even-explained.html",
