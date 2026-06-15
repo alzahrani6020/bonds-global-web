@@ -221,7 +221,8 @@ class CompetitorDataAdapter extends BaseAdapter {
         }
       }
 
-      if (count <= 0) {
+      if (count <= 0 && !this.geoapifyApiKey) {
+        // Overpass fallback is only used when Geoapify is unavailable; it is slow and rate-limited.
         const tagSets = [...mapping.osm, ...(mapping.osmBroad || [])];
         count = await this._countOverpassBbox(geo.bbox, tagSets);
         sourceMethod = 'overpass_city_bbox';
