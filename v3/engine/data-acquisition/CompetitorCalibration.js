@@ -54,7 +54,8 @@ async function calibrateCompetitorCounts({
     maxConcurrency: 2,
     cache: createSupabaseCache(supabase)
   });
-  const adapter = new CompetitorDataAdapter({ httpClient, googlePlacesApiKey: '' });
+  const googlePlacesApiKey = process.env.GOOGLE_PLACES_API_KEY || '';
+  const adapter = new CompetitorDataAdapter({ httpClient, googlePlacesApiKey });
 
   const cityResults = [];
   for (const city of cities) {

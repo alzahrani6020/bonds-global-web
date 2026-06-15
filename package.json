@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "vercel dev",
+    "dev:local": "node scripts/dev-server.js",
     "deploy": "vercel --prod",
     "test": "jest",
     "audit": "node scripts/site-audit.js",
