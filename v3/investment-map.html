@@ -154,7 +154,7 @@
       <h1>🗺️ الخريطة الاستثمارية</h1>
       <p>اكتشف أفضل المدن والفرص حسب النشاط الاقتصادي</p>
     </div>
-    <a class="back-link" href="/city-intelligence">← ذكاء المدن</a>
+    <a class="back-link" href="/v3/city-intelligence">← ذكاء المدن</a>
   </header>
 
   <div class="layout">
@@ -194,7 +194,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script>
-    const API_URL = '/api';
+    const API_URL = '/api/v3';
     const countryNames = { SA: 'السعودية', AE: 'الإمارات', QA: 'قطر', EG: 'مصر', JO: 'الأردن' };
     let map, markersLayer;
     let activities = [];
@@ -307,7 +307,7 @@
           <div class="popup-metric"><span>حجم السوق:</span><span>${formatNumber(city.opportunity.marketSize)} ر.س</span></div>
           <div class="popup-metric"><span>المنافسين:</span><span>${formatNumber(city.opportunity.competitorsCount)}</span></div>
           <div class="popup-metric"><span>التشبع:</span><span>${city.opportunity.saturation}%</span></div>
-          <a class="popup-link" href="/city-intelligence?city=${city.code}&activity=${document.getElementById('activitySelect').value}" target="_blank">عرض ذكاء المدينة →</a>
+          <a class="popup-link" href="/v3/city-intelligence?city=${city.code}&activity=${document.getElementById('activitySelect').value}" target="_blank">عرض ذكاء المدينة →</a>
         `);
         bounds.extend([city.lat, city.lng]);
       });
@@ -412,6 +412,6 @@
       }
     })();
   </script>
-  <script src="/components/ai-chat-widget.js"></script>
+  <script src="/v3/components/ai-chat-widget.js"></script>
 </body>
 </html>

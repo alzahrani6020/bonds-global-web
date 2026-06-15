@@ -167,7 +167,7 @@
   </header>
 
   <div class="container">
-    <a href="/city-intelligence" class="back-link">← العودة إلى ذكاء المدن</a>
+    <a href="/v3/city-intelligence" class="back-link">← العودة إلى ذكاء المدن</a>
 
     <div class="controls">
       <div>
@@ -204,7 +204,7 @@
   </div>
 
   <script>
-    const API_URL = '/api';
+    const API_URL = '/api/v3';
     const countryNames = { SA: 'السعودية', AE: 'الإمارات', QA: 'قطر', EG: 'مصر', JO: 'الأردن' };
     let activities = [];
 
@@ -325,8 +325,8 @@
               <span class="tag">متوسط راتب ${formatNumber(o.avgSalary)} ر.س</span>
             </div>
             <div class="actions">
-              <a href="/city-intelligence?city=${city?.code || ''}&activity=${activity?.code || ''}" class="primary">تحليل المدينة</a>
-              <a href="/city-comparison?activity=${activity?.code || ''}">قارن</a>
+              <a href="/v3/city-intelligence?city=${city?.code || ''}&activity=${activity?.code || ''}" class="primary">تحليل المدينة</a>
+              <a href="/v3/city-comparison?activity=${activity?.code || ''}">قارن</a>
             </div>
           </div>
         `;

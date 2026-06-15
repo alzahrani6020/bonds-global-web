@@ -511,7 +511,8 @@ module.exports = async function handler(req, res) {
   }
 
   const url = new URL(req.url, `http://${req.headers.host}`);
-  const path = url.pathname.replace(/^\/api/, '') || '/';
+  // Support both /api/v3/... (production under main site) and /api/... (standalone dev)
+  const path = url.pathname.replace(/^\/api\/v3/, '').replace(/^\/api/, '') || '/';
 
   try {
     if (path === '/health' || path === '/') return await handleHealth(req, res);

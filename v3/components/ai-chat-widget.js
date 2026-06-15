@@ -2,11 +2,11 @@
  * Bonds V3 — AI Chat Widget
  *
  * Usage:
- *   <script src="/components/ai-chat-widget.js"></script>
+ *   <script src="/v3/components/ai-chat-widget.js"></script>
  *   <script>BondsAIChat.mount({ cityCode: 'riyadh', activityCode: 'dental_clinics' });</script>
  */
 (function (window) {
-  const API_URL = '/api/ai/chat';
+  const API_URL = '/api/v3/ai/chat';
 
   const styles = `
     .bonds-ai-chat-toggle {

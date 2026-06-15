@@ -23,12 +23,20 @@
       "destination": "/api/pro.js"
     },
     {
-      "source": "/api/([^/]+)",
-      "destination": "/api/$1.js"
+      "source": "/api/force-reset",
+      "destination": "/api/password.js"
     },
     {
-      "source": "/api/force-reset",
-      "destination": "/api/force-reset.js"
+      "source": "/api/force-reset/",
+      "destination": "/api/password.js"
+    },
+    {
+      "source": "/api/reset-password",
+      "destination": "/api/password.js"
+    },
+    {
+      "source": "/api/reset-password/",
+      "destination": "/api/password.js"
     },
     {
       "source": "/api/analyze-feasibility-v2",
@@ -37,6 +45,10 @@
     {
       "source": "/api/track",
       "destination": "/api/track.js"
+    },
+    {
+      "source": "/api/([^/]+)",
+      "destination": "/api/$1.js"
     },
     {
       "source": "/v3/admin",

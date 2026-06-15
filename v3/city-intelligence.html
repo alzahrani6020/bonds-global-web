@@ -114,10 +114,10 @@
         <option value="2025" selected>2025</option>
         <option value="2024">2024</option>
       </select>
-      <a href="/investment-map" class="map-link">🗺️ الخريطة الاستثمارية</a>
-      <a href="/city-comparison" class="map-link">⚖️ مقارنة المدن</a>
-      <a href="/project-readiness" class="map-link">✅ جاهزية المشروع</a>
-      <a href="/opportunity-bank" class="map-link">🏦 بنك الفرص</a>
+      <a href="/v3/investment-map" class="map-link">🗺️ الخريطة الاستثمارية</a>
+      <a href="/v3/city-comparison" class="map-link">⚖️ مقارنة المدن</a>
+      <a href="/v3/project-readiness" class="map-link">✅ جاهزية المشروع</a>
+      <a href="/v3/opportunity-bank" class="map-link">🏦 بنك الفرص</a>
       <button id="autoUpdateBtn" class="auto-update-btn hidden">⚡ تحديث تلقائي</button>
     </div>
     <style>
@@ -247,7 +247,7 @@
       <p style="color: var(--text-secondary); font-size: 0.9rem;">اختبر تأثير الصدمات الاقتصادية على نموذج <strong id="scenarioModelName">-</strong></p>
       <div class="preset-group" id="scenarioPresets" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0;"></div>
       <div id="scenarioResults" style="overflow-x: auto;"></div>
-      <p style="margin-top: 1rem;"><a href="/scenarios" class="map-link" style="font-size: 0.85rem;">تحليل متقدم في صفحة السيناريوهات →</a></p>
+      <p style="margin-top: 1rem;"><a href="/v3/scenarios" class="map-link" style="font-size: 0.85rem;">تحليل متقدم في صفحة السيناريوهات →</a></p>
     </div>
   </div>
 
@@ -256,7 +256,7 @@
   </div>
 
   <script>
-    const API_URL = '/api';
+    const API_URL = '/api/v3';
     const countryNames = { SA: 'السعودية', AE: 'الإمارات', QA: 'قطر', EG: 'مصر', JO: 'الأردن' };
     let cities = [];
     let activities = [];
@@ -644,6 +644,6 @@
 
     boot();
   </script>
-  <script src="/components/ai-chat-widget.js"></script>
+  <script src="/v3/components/ai-chat-widget.js"></script>
 </body>
 </html>
