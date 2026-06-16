@@ -19,7 +19,7 @@ const GEOAPIFY_CATEGORIES = {
   cafe: ['catering.cafe'],
   retail: ['commercial.supermarket', 'commercial.convenience'],
   gym: ['sport.fitness'],
-  beauty: ['commercial.beauty']
+  beauty: ['service.beauty', 'service.beauty.hairdresser', 'service.beauty.spa', 'commercial.health_and_beauty.cosmetics']
 };
 
 const GEOAPIFY_BROAD_CATEGORIES = {
@@ -29,7 +29,7 @@ const GEOAPIFY_BROAD_CATEGORIES = {
   cafe: ['catering.cafe', 'catering'],
   retail: ['commercial.supermarket', 'commercial.convenience', 'commercial'],
   gym: ['sport', 'leisure'],
-  beauty: ['commercial.beauty', 'commercial']
+  beauty: ['service.beauty', 'service.beauty.hairdresser', 'service.beauty.spa', 'commercial.health_and_beauty', 'commercial.health_and_beauty.cosmetics']
 };
 
 // Thresholds for broad-category market saturation (0-100 scale), competitors per 10k.
