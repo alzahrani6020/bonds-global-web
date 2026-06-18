@@ -10,11 +10,15 @@
       font-family: 'Segoe UI', Tahoma, sans-serif;
       background: #0a0f1a;
       color: #e8ecf4;
+      min-height: 100vh;
+      text-align: center;
+    }
+    main {
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      text-align: center;
+      min-height: calc(100vh - 200px);
+      padding: 2rem 1rem;
     }
     .box {
       background: #10182d;
@@ -25,7 +29,7 @@
     }
     h1 { color: #f0c96a; margin-bottom: 0.5rem; }
     p { color: #94a3b8; margin-bottom: 2rem; }
-    a {
+    .box .links a {
       display: inline-block;
       background: #d4a853;
       color: #0a0f1a;
@@ -35,7 +39,7 @@
       font-weight: bold;
       margin: 0.25rem;
     }
-    a:hover { background: #f0c96a; }
+    .box .links a:hover { background: #f0c96a; }
     .links { margin-top: 1.5rem; }
   </style>
 <link rel="stylesheet" href="../header-footer.css?v=2" />
@@ -44,6 +48,7 @@
 <body>
 
   <div id="site-header"></div>
+  <main>
   <div class="box">
     <h1>⚡ Bonds V3 Enterprise</h1>
     <p>منصة الذكاء الاقتصادي لدراسة جدوى المشاريع الاستثمارية</p>
@@ -56,6 +61,7 @@
       <a href="/api/v3/health">فحص API</a>
     </div>
   </div>
+  </main>
   <div id="site-footer"></div>
 </body>
 </html>
