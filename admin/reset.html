@@ -24,12 +24,20 @@
     <div style="font-size:3rem;margin-bottom:0.5rem;">🔐</div>
     <h2>إعادة تعيين كلمة المرور</h2>
     <p>أدخل بريدك الإلكتروني وسيتم إنشاء رابط مباشر</p>
-    <input type="email" id="email" placeholder="البريد الإلكتروني" value="iiffund.dev@gmail.com">
+    <input type="email" id="email" placeholder="البريد الإلكتروني">
     <button id="btn" onclick="generate()">إنشاء رابط الإعادة</button>
     <div id="result"></div>
   </div>
 
+  <script src="/api/env"></script>
   <script>
+    (function() {
+      const env = window.__ENV || {};
+      if (env.ADMIN_EMAIL) {
+        document.getElementById('email').value = env.ADMIN_EMAIL;
+      }
+    })();
+
     async function generate() {
       const email = document.getElementById('email').value.trim();
       const btn = document.getElementById('btn');

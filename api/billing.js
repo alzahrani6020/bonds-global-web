@@ -1,22 +1,32 @@
 /**
  * Unified Billing API
  * POST /api/billing?action=cancel|portal
+ * Authorization: Bearer <supabase-jwt>
  */
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const getSupabase = require('../lib/api/supabase');
+const { withRateLimit } = require('../lib/api/rate-limit');
+const { verifyBearerAndUser } = require('../lib/api/auth-helper');
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  let user;
+  try {
+    user = await verifyBearerAndUser(req);
+  } catch (err) {
+    return res.status(err.status || 401).json({ error: err.message });
+  }
+
+  const userId = user.id;
   const sb = getSupabase();
   const action = req.query?.action || req.body?.action;
-  const { userId } = req.body || {};
-  if (!userId) return res.status(400).json({ error: 'userId required' });
 
   try {
     if (action === 'cancel') {
@@ -43,4 +53,6 @@ module.exports = async function handler(req, res) {
     console.error('Billing API error:', err);
     res.status(500).json({ error: err.message });
   }
-};
+}
+
+module.exports = withRateLimit('auth', handler);

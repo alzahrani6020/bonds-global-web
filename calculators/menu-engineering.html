@@ -66,6 +66,17 @@
   <script src="db-client.js"></script>
   
 <link rel="stylesheet" href="../header-footer.css?v=2" />
+  <link rel="canonical" href="https://bonds-global.com/calculators/menu-engineering" />
+  <meta property="og:title" content="محرك هندسة المنيو | بوندز" />
+  <meta property="og:description" content="مصنف ذكي للمنيو يصنف الوجبات إلى نجوم، حصان رابح، ألغاز، وكلاب بناءً على بيانات المبيعات الفعلية." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/menu-engineering" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="محرك هندسة المنيو | بوندز" />
+  <meta name="twitter:description" content="مصنف ذكي للمنيو يصنف الوجبات إلى نجوم، حصان رابح، ألغاز، وكلاب بناءً على بيانات المبيعات الفعلية." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+
 </head>
 <body>
   <div id="site-header"></div>
@@ -306,14 +317,14 @@ async function seedDemoData() {
     if (!plat.data) { BondsUI.toast('⚠️ تعذر قراءة بيانات المنصة — تحقق من صلاحيات Supabase', 'warning'); return; }
     
     // 2. Ingredients
-    const i1 = await sb.from('ingredients').insert({ user_id: uid, name: 'لحم بقر مفروم', unit: 'kg', current_price: 45, category: 'لحوم' }).select().single();
-    const i2 = await sb.from('ingredients').insert({ user_id: uid, name: 'صمون برجر', unit: 'piece', current_price: 2, category: 'مخبوزات' }).select().single();
-    const i3 = await sb.from('ingredients').insert({ user_id: uid, name: 'جبنة شيدر', unit: 'kg', current_price: 30, category: 'ألبان' }).select().single();
-    const i4 = await sb.from('ingredients').insert({ user_id: uid, name: 'دجاج فيليه', unit: 'kg', current_price: 28, category: 'لحوم' }).select().single();
-    const i5 = await sb.from('ingredients').insert({ user_id: uid, name: 'باستا', unit: 'kg', current_price: 12, category: 'مكرونات' }).select().single();
-    const i6 = await sb.from('ingredients').insert({ user_id: uid, name: 'صلصة كريمة', unit: 'kg', current_price: 18, category: 'صلصات' }).select().single();
-    const i7 = await sb.from('ingredients').insert({ user_id: uid, name: 'خس روماني', unit: 'kg', current_price: 15, category: 'خضار' }).select().single();
-    const i8 = await sb.from('ingredients').insert({ user_id: uid, name: 'جبنة بارميزان', unit: 'kg', current_price: 55, category: 'ألبان' }).select().single();
+    const i1 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'لحم بقر مفروم', unit: 'kg', current_price: 45, category: 'لحوم' }).select().single();
+    const i2 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'صمون برجر', unit: 'piece', current_price: 2, category: 'مخبوزات' }).select().single();
+    const i3 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'جبنة شيدر', unit: 'kg', current_price: 30, category: 'ألبان' }).select().single();
+    const i4 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'دجاج فيليه', unit: 'kg', current_price: 28, category: 'لحوم' }).select().single();
+    const i5 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'باستا', unit: 'kg', current_price: 12, category: 'مكرونات' }).select().single();
+    const i6 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'صلصة كريمة', unit: 'kg', current_price: 18, category: 'صلصات' }).select().single();
+    const i7 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'خس روماني', unit: 'kg', current_price: 15, category: 'خضار' }).select().single();
+    const i8 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'جبنة بارميزان', unit: 'kg', current_price: 55, category: 'ألبان' }).select().single();
     
     // Verify inserts succeeded
     const ingredients = [i1, i2, i3, i4, i5, i6, i7, i8];
@@ -358,7 +369,7 @@ async function loadAllData() {
     platforms = p || [];
     renderPlatforms();
 
-    const { data: i, error: ie } = await sb.from('ingredients').select('*').eq('user_id', currentUser.id).order('name');
+    const { data: i, error: ie } = await sb.from('menu_ingredients').select('*').eq('user_id', currentUser.id).order('name');
     if (ie) 
     ingredients = i || [];
     renderIngredients();
@@ -425,10 +436,10 @@ async function addIngredient() {
     if (!name) return BondsUI.toast('⚠️ أدخل اسم المكون', 'warning');
 
     // Check duplicate
-    const { data: existing } = await sb.from('ingredients').select('id').eq('user_id', currentUser.id).eq('name', name).single();
+    const { data: existing } = await sb.from('menu_ingredients').select('id').eq('user_id', currentUser.id).eq('name', name).single();
     if (existing) return BondsUI.toast('⚠️ هذا المكون موجود مسبقاً: ' + name, 'warning');
 
-    const { error } = await sb.from('ingredients').insert({
+    const { error } = await sb.from('menu_ingredients').insert({
       user_id: currentUser.id, name, unit, current_price: cost, category
     });
     if (error) {  return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }

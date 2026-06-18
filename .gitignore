@@ -8,5 +8,7 @@ bonds-v2/
 tmp-*
 tmp-screenshots/
 tests/visual/snapshots/
+tests/visual/baselines/
+tests/visual/diffs/
 .tmp_*
 screenshots/

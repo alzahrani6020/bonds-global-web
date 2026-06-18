@@ -1,25 +1,33 @@
 {
   "name": "بوندز — حاسبات مالية للمطاعم والشركات",
   "short_name": "بوندز",
+  "id": "/",
   "description": "حاسبات مالية متخصصة للمطاعم والشركات: نقطة التعادل، ربحية الوجبة، تدفق النقد، تسعير المنتج، القرض والتمويل. 22 دولة عربية، 179 منصة توصيل.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0a0f1a",
+  "background_color": "#f5f0e8",
   "theme_color": "#0a0f1a",
   "orientation": "portrait",
   "lang": "ar",
   "dir": "rtl",
   "icons": [
     {
-      "src": "/assets/bonds-logo-2026.webp",
-      "sizes": "1536x1024",
-      "type": "image/webp",
-      "purpose": "any maskable"
+      "src": "/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/assets/bonds-logo-2026.webp",
-      "sizes": "1536x1024",
-      "type": "image/webp",
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/bonds-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ],

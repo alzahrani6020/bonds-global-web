@@ -6,8 +6,9 @@
 
 const getSupabase = require('../lib/api/supabase');
 const { sendEmail } = require('../lib/api/email');
+const { withRateLimit } = require('../lib/api/rate-limit');
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -139,4 +140,6 @@ ${message ? 'الرسالة:\n' + message : ''}
     console.error('[contact] Error:', err.message);
     res.status(500).json({ success: false, error: 'Server error' });
   }
-};
+}
+
+module.exports = withRateLimit('public', handler);

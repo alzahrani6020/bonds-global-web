@@ -23,19 +23,30 @@
     <div style="font-size:3rem;margin-bottom:0.5rem;">🔐</div>
     <h2>تغيير كلمة المرور</h2>
     <p>اضغط الزر لتغيير كلمة المرور مباشرة</p>
-    <input type="email" id="email" value="iiffund.dev@gmail.com" readonly>
-    <input type="password" id="password" value="Talal*6020">
+    <input type="email" id="email" placeholder="البريد الإلكتروني">
+    <input type="password" id="password" placeholder="كلمة المرور الجديدة (6 أحرف على الأقل)">
     <button id="btn" onclick="changePassword()">تغيير كلمة المرور</button>
     <div id="result"></div>
   </div>
 
+  <script src="/api/env"></script>
   <script>
+    (function() {
+      const env = window.__ENV || {};
+      if (env.ADMIN_EMAIL) {
+        document.getElementById('email').value = env.ADMIN_EMAIL;
+      }
+    })();
+
     async function changePassword() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const btn = document.getElementById('btn');
       const result = document.getElementById('result');
-      
+
+      if (!email) { result.innerHTML = '<div class="msg error">أدخل البريد الإلكتروني</div>'; return; }
+      if (password.length < 6) { result.innerHTML = '<div class="msg error">كلمة المرور يجب أن تكون 6 أحرف على الأقل</div>'; return; }
+
       btn.disabled = true;
       btn.textContent = 'جاري التغيير...';
       result.innerHTML = '';

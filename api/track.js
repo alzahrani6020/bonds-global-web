@@ -1,34 +1,9 @@
 const { createClient } = require('@supabase/supabase-js');
+const { withRateLimit } = require('../lib/api/rate-limit');
 const URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// Simple in-memory rate limiter per IP
-const requestCounts = {};
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX = 30; // 30 requests per minute per IP
-
-function isRateLimited(ip) {
-  const now = Date.now();
-  const entry = requestCounts[ip];
-  if (!entry || now - entry.resetAt > RATE_LIMIT_WINDOW_MS) {
-    requestCounts[ip] = { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS };
-    return false;
-  }
-  entry.count++;
-  return entry.count > RATE_LIMIT_MAX;
-}
-
-// Periodic cleanup to prevent unbounded memory growth
-setInterval(function() {
-  const now = Date.now();
-  for (const ip in requestCounts) {
-    if (now - requestCounts[ip].resetAt > RATE_LIMIT_WINDOW_MS) {
-      delete requestCounts[ip];
-    }
-  }
-}, RATE_LIMIT_WINDOW_MS);
-
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -36,12 +11,6 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   if (!URL || !KEY) return res.status(500).json({ error: 'Missing Supabase config' });
-
-  // Rate limiting
-  const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
-  if (isRateLimited(clientIp)) {
-    return res.status(429).json({ error: 'Too many requests' });
-  }
 
   let body = {};
   try {
@@ -89,4 +58,6 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Insert failed' });
   }
   return res.status(200).json({ success: true, type: 'view' });
-};
+}
+
+module.exports = withRateLimit('public', handler);

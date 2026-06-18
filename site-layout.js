@@ -177,7 +177,7 @@
 
     const navHtml = navItems.map(item => {
       if (item.type === 'dropdown') {
-        return `<li class="dropdown"><span class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">${item.label} ${caretSvg}</span>${buildDropdown(item.items, item.all, item.isLarge)}</li>`;
+        return `<li class="dropdown"><button type="button" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">${item.label} ${caretSvg}</button>${buildDropdown(item.items, item.all, item.isLarge)}</li>`;
       }
       return `<li><a href="${item.href}" data-nav="${item.href}">${item.label}</a></li>`;
     }).join('');

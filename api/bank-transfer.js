@@ -4,7 +4,8 @@
  */
 
 const getSupabase = require('../lib/api/supabase');
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'iiffund.dev@gmail.com';
+const { withRateLimit } = require('../lib/api/rate-limit');
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 
 async function sendAdminNotification(request) {
   try {
@@ -19,7 +20,7 @@ async function sendAdminNotification(request) {
   } catch (err) { console.error('Notification failed:', err.message); }
 }
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -38,4 +39,6 @@ module.exports = async function handler(req, res) {
     sendAdminNotification({ name, email, phone, tier, amount_sar: amountSar });
     res.status(200).json({ success: true, requestId: data.id, message: 'تم استلام طلبك. سنفعل اشتراكك خلال 24 ساعة.' });
   } catch (err) { console.error(err); res.status(500).json({ error: 'Failed' }); }
-};
+}
+
+module.exports = withRateLimit('public', handler);

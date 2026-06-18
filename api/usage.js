@@ -5,8 +5,9 @@
  */
 
 const getSupabase = require('../lib/api/supabase');
+const { withRateLimit } = require('../lib/api/rate-limit');
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -91,4 +92,6 @@ module.exports = async function handler(req, res) {
     console.error('Usage API error:', err);
     res.status(500).json({ error: err.message });
   }
-};
+}
+
+module.exports = withRateLimit('public', handler);

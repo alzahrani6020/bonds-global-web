@@ -9,7 +9,7 @@
 - **المشروع**: موقع ثابت (Static Site) + وظائف خادومية (Vercel Serverless APIs).
 - **لا يوجد إطار عمل frontend**: لا React، لا Vue، لا Next.js. الكود هو HTML/CSS/JS vanilla.
 - **الاستضافة**: Vercel. ملف `vercel.json` يحدد الإعدادات.
-- **PWA**: يوجد Service Worker (`sw.js`) يحتاج إلى تحديث رقم الإصدار يدوياً عند تغييرات كبيرة.
+- **PWA**: يوجد Service Worker (`sw.js`) يستخدم `CACHE_VERSION` يدوي. عند تغيير ملفات CSS/JS الأساسية، رفع رقم الإصدار في `sw.js` وأعد تشغيل `scripts/generate-icons.js` إذا تغيّر الشعار.
 
 ---
 
@@ -25,15 +25,30 @@
 │   ├── calculators/
 │   └── *.html
 ├── assets/                 ← الصور والشعارات
+│   └── icons/              ← أيقونات PWA (192×192، 512×512)
 ├── blog/                   ← المقالات
 ├── reports/                ← التقارير والتحقق
-├── scripts/                ← سكربتات الإعداد
+├── scripts/                ← سكربتات الإعداد والتدقيق
+├── styles/                 ← ملفات CSS المقسمة
+│   ├── tokens.css          ← متغيرات التصميم
+│   ├── base.css            ← الأساسيات والخلفية
+│   ├── components.css      ← مكونات الواجهة
+│   └── utilities.css       ← مساعدات والطباعة والحركات
 ├── supabase/migrations/    ← ترحيلات قاعدة البيانات
+├── tests/                  ← اختبارات Jest و Playwright
+│   ├── a11y/               ← تدقيق accessibility (axe-core)
+│   ├── mobile/             ← اختبارات الجوال
+│   ├── visual/             ← اختبارات انحدار الواجهة البصرية
+│   ├── bonds-geo.test.js
+│   └── calc-functions.test.js
 ├── v3/                     ← Bonds V3 (الذكاء الاقتصادي) — مدمج تحت /v3/ و /api/v3/
-├── styles.css              ← التصميم العام
+├── .github/workflows/      ← CI/CD
+├── styles.css              ← ملف استيراد CSS الرئيسي
+├── header-footer.css       ← تنسيق الهيدر والفوتر الموحد
 ├── script.js               ← JS العام (الموقع)
 ├── auth-guard.js           ← حماية المميزات والمصادقة
 ├── supabase-client.js      ← عميل Supabase
+├── manifest.json           ← بيانات PWA
 └── sw.js                   ← Service Worker
 ```
 
@@ -275,7 +290,10 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 □ لا توجد أسرار (API Keys) مكشوفة
 □ لا يوجد console.log leftover (احذف logs التصحيح)
 □ الروابط نسبية وصحيحة (../styles.css وليس /styles.css)
-□ `npm test` يمر بدون أخطاء (إذا عدّلت دوال calc-functions.js)
+□ `npm test` يمر بدون أخطاء
+□ `npm run audit` و `npm run audit:og` بدون مشاكل
+□ `npm run test:a11y` و `npm run test:mobile` و `npm run test:visual` ناجحة
+□ `sw.js` — رفع رقم الإصدار عند تغيير assets مهمة
 ```
 
 ---
@@ -323,6 +341,18 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - `calculators/feasibility-template-shared.css` و `calculators/feasibility-template-shared-en.css`: الأنماط المشتركة لقوالب دراسة الجدوى.
 - `calculators/scenario-cards-shared.css`: أنماط بطاقات السيناريو/الحكم/المقاييس المشتركة لـ `feasibility.html` و `medical-viability.html` (عربي وإنجليزي).
 
+### 11.6 الاختبارات و GitHub Actions
+- `npm test` — Jest: `tests/bonds-geo.test.js` + `tests/calc-functions.test.js`.
+- `npm run audit` — تدقيق الموقع: أسرار، روابط مكسورة، ملفات ضائعة (`scripts/site-audit.js`).
+- `npm run audit:og` — تدقيق Open Graph / Twitter Card / canonical (`scripts/og-audit.js`).
+- `npm run test:a11y` — تدقيق accessibility باستخدام `axe-core` + Playwright.
+- `npm run test:mobile` — اختبارات تفاعل الجوال (hover → tap، overflow).
+- `npm run test:visual` — اختبارات انحدار الواجهة البصرية عبر `pixelmatch`.
+- `npm run test:visual:update` — تحديث صور baseline للاختبارات البصرية.
+- CI: `.github/workflows/ci.yml` يشغّل كل ما سبق عند كل push/PR.
+- لإعادة توليد أيقونات PWA بعد تغيير الشعار: `node scripts/generate-icons.js`.
+- لتحديث/إضافة Open Graph tags لصفحة جديدة: `node scripts/apply-og-tags.js`.
+
 ---
 
 ## 12. كيف تتواصل معي (المساعد)
@@ -334,4 +364,4 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 
 ---
 
-*آخر تحديث: 2026-05-31*
+*آخر تحديث: 2026-06-18*

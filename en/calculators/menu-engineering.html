@@ -67,6 +67,17 @@
   <script src="../../calculators/db-client.js"></script>
   
 <link rel="stylesheet" href="../../header-footer.css?v=2" />
+  <link rel="canonical" href="https://bonds-global.com/en/calculators/menu-engineering" />
+  <meta property="og:title" content="Menu Engineering Engine | Bonds" />
+  <meta property="og:description" content="Intelligent menu classifier that categorizes dishes into Stars, Workhorses, Puzzles, and Dogs based on actual sales data." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:url" content="https://bonds-global.com/en/calculators/menu-engineering" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Menu Engineering Engine | Bonds" />
+  <meta name="twitter:description" content="Intelligent menu classifier that categorizes dishes into Stars, Workhorses, Puzzles, and Dogs based on actual sales data." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+
 </head>
 <body>
   <div id="site-header"></div>
@@ -304,14 +315,14 @@ async function seedDemoData() {
     if (!plat.data) { BondsUI.toast('⚠️ Could not read platform data — check Supabase permissions', 'warning'); return; }
     
     // 2. Ingredients
-    const i1 = await sb.from('ingredients').insert({ user_id: uid, name: 'Ground Beef', unit: 'kg', current_price: 45, category: 'Meat' }).select().single();
-    const i2 = await sb.from('ingredients').insert({ user_id: uid, name: 'Burger Bun', unit: 'piece', current_price: 2, category: 'Bakery' }).select().single();
-    const i3 = await sb.from('ingredients').insert({ user_id: uid, name: 'Cheddar Cheese', unit: 'kg', current_price: 30, category: 'Dairy' }).select().single();
-    const i4 = await sb.from('ingredients').insert({ user_id: uid, name: 'Chicken Fillet', unit: 'kg', current_price: 28, category: 'Meat' }).select().single();
-    const i5 = await sb.from('ingredients').insert({ user_id: uid, name: 'Pasta', unit: 'kg', current_price: 12, category: 'Pasta' }).select().single();
-    const i6 = await sb.from('ingredients').insert({ user_id: uid, name: 'Cream Sauce', unit: 'kg', current_price: 18, category: 'Sauces' }).select().single();
-    const i7 = await sb.from('ingredients').insert({ user_id: uid, name: 'Romaine Lettuce', unit: 'kg', current_price: 15, category: 'Vegetables' }).select().single();
-    const i8 = await sb.from('ingredients').insert({ user_id: uid, name: 'Parmesan Cheese', unit: 'kg', current_price: 55, category: 'Dairy' }).select().single();
+    const i1 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'Ground Beef', unit: 'kg', current_price: 45, category: 'Meat' }).select().single();
+    const i2 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'Burger Bun', unit: 'piece', current_price: 2, category: 'Bakery' }).select().single();
+    const i3 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'Cheddar Cheese', unit: 'kg', current_price: 30, category: 'Dairy' }).select().single();
+    const i4 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'Chicken Fillet', unit: 'kg', current_price: 28, category: 'Meat' }).select().single();
+    const i5 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'Pasta', unit: 'kg', current_price: 12, category: 'Pasta' }).select().single();
+    const i6 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'Cream Sauce', unit: 'kg', current_price: 18, category: 'Sauces' }).select().single();
+    const i7 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'Romaine Lettuce', unit: 'kg', current_price: 15, category: 'Vegetables' }).select().single();
+    const i8 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'Parmesan Cheese', unit: 'kg', current_price: 55, category: 'Dairy' }).select().single();
     
     const ingredients = [i1, i2, i3, i4, i5, i6, i7, i8];
     if (ingredients.some(i => !i.data)) { BondsUI.toast('⚠️ Could not read some ingredients — check Supabase permissions', 'warning'); return; }
@@ -355,7 +366,7 @@ async function loadAllData() {
     platforms = p || [];
     renderPlatforms();
 
-    const { data: i, error: ie } = await sb.from('ingredients').select('*').eq('user_id', currentUser.id).order('name');
+    const { data: i, error: ie } = await sb.from('menu_ingredients').select('*').eq('user_id', currentUser.id).order('name');
     if (ie) 
     ingredients = i || [];
     renderIngredients();
@@ -430,10 +441,10 @@ async function addIngredient() {
     if (!name) { BondsUI.toast('⚠️ Enter ingredient name', 'warning'); return; }
 
     // Check duplicate
-    const { data: existing } = await sb.from('ingredients').select('id').eq('user_id', currentUser.id).eq('name', name).single();
+    const { data: existing } = await sb.from('menu_ingredients').select('id').eq('user_id', currentUser.id).eq('name', name).single();
     if (existing) return BondsUI.toast('⚠️ This ingredient already exists: ' + name, 'warning');
 
-    const { error } = await sb.from('ingredients').insert({
+    const { error } = await sb.from('menu_ingredients').insert({
       user_id: currentUser.id, name, unit, current_price: cost, category
     });
     if (error) {  return BondsUI.toast('❌ Error: ' + (error.message || JSON.stringify(error)), 'error'); }

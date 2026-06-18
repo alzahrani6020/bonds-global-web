@@ -86,10 +86,18 @@
   border-color: var(--gold);
 }
 
+/* Visible focus indicator for keyboard navigation */
+button:focus-visible,
+a:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid var(--gold-700);
+  outline-offset: 2px;
+}
+
 /* Active state for dropdown nav items */
 .dropdown-toggle.active,
 .main-nav .dropdown-toggle.active {
-  color: var(--gold);
+  color: var(--gold-700);
 }
 
 /* Print rules for injected layout */

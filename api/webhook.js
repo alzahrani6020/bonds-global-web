@@ -6,8 +6,9 @@
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const getSupabase = require('../lib/api/supabase');
+const { withRateLimit } = require('../lib/api/rate-limit');
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
@@ -199,7 +200,9 @@ module.exports = async function handler(req, res) {
   }
 
   res.status(200).json({ received: true });
-};
+}
+
+module.exports = withRateLimit('webhook', handler);
 
 function getTierFromPriceId(priceId) {
   const PRO_PRICE = process.env.STRIPE_PRICE_PRO;

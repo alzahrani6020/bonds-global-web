@@ -4,6 +4,9 @@
  */
 
 const getSupabase = require('../lib/api/supabase');
+const { withRateLimit } = require('../lib/api/rate-limit');
+
+const OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 
 async function verifyAdmin(req, sb) {
   const authHeader = req.headers.authorization;
@@ -12,7 +15,7 @@ async function verifyAdmin(req, sb) {
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
   // Owner fallback
-  if (user.email === 'iiffund.dev@gmail.com') return user;
+  if (OWNER_EMAIL && user.email === OWNER_EMAIL) return user;
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role || !['super_admin', 'admin', 'support'].includes(role.role)) return null;
   return user;
@@ -25,7 +28,7 @@ async function verifyAdminStrict(req, sb) {
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
   // Owner fallback — always super_admin
-  if (user.email === 'iiffund.dev@gmail.com') return user;
+  if (OWNER_EMAIL && user.email === OWNER_EMAIL) return user;
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role || !['super_admin', 'admin'].includes(role.role)) return null;
   return user;
@@ -207,7 +210,7 @@ async function verifyAdminUser(req, sb) {
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
   // Owner fallback
-  if (user.email === 'iiffund.dev@gmail.com') return { user, role: 'super_admin' };
+  if (OWNER_EMAIL && user.email === OWNER_EMAIL) return { user, role: 'super_admin' };
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role) return null;
   return { user, role: role.role };
@@ -540,7 +543,7 @@ module.exports = async function handler(req, res) {
         const token = authHeader.slice(7);
         const { data: { user }, error } = await sb.auth.getUser(token);
         if (error || !user) return res.status(403).json({ error: 'Invalid token' });
-        if (user.email !== 'iiffund.dev@gmail.com') return res.status(403).json({ error: 'Not authorized' });
+        if (!OWNER_EMAIL || user.email !== OWNER_EMAIL) return res.status(403).json({ error: 'Not authorized' });
         // Upsert super_admin (insert or update)
         const { error: upsertErr } = await sb.from('admin_roles')
           .upsert({ user_id: user.id, role: 'super_admin', granted_by: user.id }, { onConflict: 'user_id' });
@@ -564,4 +567,6 @@ module.exports = async function handler(req, res) {
     console.error('Admin API error:', err);
     res.status(500).json({ error: err.message });
   }
-};
+}
+
+module.exports = withRateLimit('strict', handler);

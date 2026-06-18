@@ -9,7 +9,11 @@
     "deploy": "vercel --prod",
     "test": "jest",
     "test:visual": "node tests/visual/visual-tests.js",
+    "test:visual:update": "node tests/visual/visual-tests.js --update",
+    "test:a11y": "node tests/a11y/a11y-tests.js",
+    "test:mobile": "node tests/mobile/mobile-tests.js",
     "audit": "node scripts/site-audit.js",
+    "audit:og": "node scripts/og-audit.js",
     "install-hooks": "node scripts/install-hooks.js",
     "setup:supabase": "node scripts/setup-supabase.js",
     "setup:stripe": "node scripts/setup-stripe.js",
@@ -22,8 +26,12 @@
     "stripe": "^15.12.0"
   },
   "devDependencies": {
+    "axe-core": "^4.10.2",
     "jest": "^30.4.2",
     "pg": "^8.21.0",
+    "pixelmatch": "^5.3.0",
+    "playwright": "^1.61.0",
+    "pngjs": "^7.0.0",
     "vercel": "latest"
   },
   "engines": {

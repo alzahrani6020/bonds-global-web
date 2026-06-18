@@ -1,6 +1,7 @@
 const getSupabase = require('../lib/api/supabase');
 const { createClient } = require('@supabase/supabase-js');
 const Stripe = require('stripe');
+const { withRateLimit } = require('../lib/api/rate-limit');
 const { calculateProject, aiInsight, buildHTMLReport } = require('../pro/pro-engine');
 
 function getAuthClient() {
@@ -101,7 +102,7 @@ async function handleAuth(req, res) {
   res.status(200).json({ success: true, token: data.session.access_token, refresh_token: data.session.refresh_token, user: data.user });
 }
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   setCors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -121,4 +122,6 @@ module.exports = async function handler(req, res) {
       res.status(500).json({ error: err.message, action, url: req.url });
     }
   }
-};
+}
+
+module.exports = withRateLimit('compute', handler);

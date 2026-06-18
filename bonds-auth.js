@@ -7,6 +7,7 @@
 
   const SUPABASE_URL = window.__ENV?.SUPABASE_URL || '';
   const SUPABASE_KEY = window.__ENV?.SUPABASE_ANON_KEY || '';
+  const ADMIN_EMAIL = window.__ENV?.ADMIN_EMAIL || '';
   let _supabase = null;
 
   function getSupabase() {
@@ -213,7 +214,7 @@
         return;
       }
 
-      if (user.email === 'iiffund.dev@gmail.com') {
+      if (ADMIN_EMAIL && user.email === ADMIN_EMAIL) {
         window.__ADMIN_ROLE = 'super_admin';
         window.__ADMIN_PERMS = ROLE_PERMISSIONS.super_admin;
         window.__ADMIN_TOKEN = '';

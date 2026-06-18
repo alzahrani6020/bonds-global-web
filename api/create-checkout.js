@@ -2,11 +2,14 @@
 // Stripe Checkout Session Creator
 // POST /api/create-checkout
 // Body: { priceId, userId, email, successUrl, cancelUrl, currency, vatPercent }
+// Authorization: Bearer <supabase-jwt>
 // ============================================
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { withRateLimit } = require('../lib/api/rate-limit');
+const { verifyBearerAndUser } = require('../lib/api/auth-helper');
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -22,19 +25,27 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  // Input validation
-  const { priceId, userId, email, successUrl, cancelUrl, currency, vatPercent } = req.body || {};
+  // Authenticate and authorize the requested userId
+  let user;
+  try {
+    user = await verifyBearerAndUser(req);
+  } catch (err) {
+    res.status(err.status || 401).json({ error: err.message });
+    return;
+  }
+
+  const userId = user.id;
+  const userEmail = user.email;
+
+  // Reject mismatched identity claims from the body
+  const { priceId, email, successUrl, cancelUrl, currency, vatPercent } = req.body || {};
+  if (email && email !== userEmail) {
+    res.status(403).json({ error: 'email does not match authenticated user' });
+    return;
+  }
 
   if (!priceId || typeof priceId !== 'string' || !priceId.startsWith('price_')) {
     res.status(400).json({ error: 'Invalid or missing priceId' });
-    return;
-  }
-  if (!userId || typeof userId !== 'string' || userId.length < 10) {
-    res.status(400).json({ error: 'Invalid or missing userId' });
-    return;
-  }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    res.status(400).json({ error: 'Invalid or missing email' });
     return;
   }
 
@@ -51,11 +62,11 @@ module.exports = async function handler(req, res) {
 
   try {
     // Create or retrieve Stripe Customer
-    const customers = await stripe.customers.list({ email: email, limit: 1 });
+    const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
     let customer = customers.data[0];
     if (!customer) {
       customer = await stripe.customers.create({
-        email: email,
+        email: userEmail,
         metadata: { supabaseUserId: userId }
       });
     }
@@ -77,8 +88,8 @@ module.exports = async function handler(req, res) {
       }],
       mode: 'subscription',
       subscription_data: subscriptionData,
-      success_url: successUrl || `${process.env.NEXT_PUBLIC_APP_URL}/calculators/auth/?success=1`,
-      cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_APP_URL}/pricing.html?canceled=1`,
+      success_url: successUrl || `${APP_URL}/calculators/auth/?success=1`,
+      cancel_url: cancelUrl || `${APP_URL}/pricing.html?canceled=1`,
       client_reference_id: userId,
     });
 
@@ -87,4 +98,6 @@ module.exports = async function handler(req, res) {
     console.error('Stripe checkout error:', err);
     res.status(500).json({ error: err.message });
   }
-};
+}
+
+module.exports = withRateLimit('auth', handler);

@@ -10,7 +10,7 @@
   <meta property="og:title" content="Pricing &amp; Packages | Bonds" />
   <meta property="og:description" content="Flexible financial consulting packages for business owners. We send a custom quote based on service scope." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
-  <meta property="og:url" content="https://bonds-global.com/en/pricing.html" />
+  <meta property="og:url" content="https://bonds-global.com/en/pricing" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Pricing &amp; Packages | Bonds" />
@@ -35,6 +35,8 @@
   <link rel="stylesheet" href="../styles.css" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
 <link rel="stylesheet" href="../header-footer.css?v=2" />
+  <link rel="canonical" href="https://bonds-global.com/en/pricing" />
+
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
 
@@ -297,7 +299,10 @@
       try {
         const res = await fetch('/api/create-checkout', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + s.session.access_token
+          },
           body: JSON.stringify({
             priceId: PRICE_MAP[tier],
             userId: s.session.user.id,

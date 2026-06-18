@@ -119,7 +119,7 @@
 .main-nav .dropdown-toggle:hover,
 .main-nav a.active,
 .main-nav .dropdown-toggle.active {
-  color: var(--gold);
+  color: var(--gold-700);
   background: var(--gold-glow);
 }
 
@@ -202,7 +202,7 @@ body[dir="ltr"] .dropdown-menu {
 .dropdown-menu a:hover,
 .dropdown-menu a.active {
   background: var(--gold-glow);
-  color: var(--gold);
+  color: var(--gold-700);
 }
 
 .header-actions {

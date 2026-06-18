@@ -10,7 +10,7 @@
   <meta property="og:title" content="Loan & Financing Calculator | Bonds" />
   <meta property="og:description" content="Calculate your loan installments, total interest, and amortization schedule." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
-  <meta property="og:url" content="https://bonds-global.com/en/en/calculators/loan.html" />
+  <meta property="og:url" content="https://bonds-global.com/en/calculators/loan" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Loan & Financing Calculator | Bonds" />
@@ -43,6 +43,8 @@
   <script src="../../calculators/db-client.js"></script>
   
 <link rel="stylesheet" href="../../header-footer.css?v=2" />
+  <link rel="canonical" href="https://bonds-global.com/en/calculators/loan" />
+
 </head>
 <body style="font-family:Inter,system-ui,sans-serif">
 
@@ -152,7 +154,7 @@
               <button onclick="copyLink()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">نسخ الرابط</button>
               <button onclick="window.print()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">🖨️ طباعة</button>
               <button onclick="exportExcel()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📊 Excel</button>
-              <select id="pdfLang" class="hidden-print" style="padding:0.5rem 0.75rem; border-radius:8px; background:var(--bg-card); color:var(--text); border:1px solid var(--border); font-family:inherit; font-size:0.8rem; cursor:pointer;">
+              <select id="pdfLang" class="hidden-print" aria-label="PDF export language" style="padding:0.5rem 0.75rem; border-radius:8px; background:var(--bg-card); color:var(--text); border:1px solid var(--border); font-family:inherit; font-size:0.8rem; cursor:pointer;">
                 <option value="ar">PDF عربي</option>
                 <option value="en">PDF English</option>
               </select>

@@ -92,7 +92,7 @@
       let role;
       if (roleError || !roleRow) {
         // Fallback: owner email gets super_admin if no role record exists
-        if (session.user.email === 'iiffund.dev@gmail.com') {
+        if (session.user.email === (window.__ENV?.ADMIN_EMAIL || '')) {
           role = 'super_admin';
         } else {
           setStatus('ليس لديك صلاحية الوصول إلى لوحة التحكم الإدارية', true);

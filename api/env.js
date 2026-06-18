@@ -4,7 +4,9 @@
 // Call BEFORE any Bonds scripts in HTML <head>
 // ============================================
 
-module.exports = function handler(req, res) {
+const { withRateLimit } = require('../lib/api/rate-limit');
+
+function handler(req, res) {
   res.setHeader('Content-Type', 'application/javascript');
   res.setHeader('Cache-Control', 'no-store');
 
@@ -16,7 +18,10 @@ module.exports = function handler(req, res) {
     STRIPE_PRICE_ENTERPRISE: process.env.STRIPE_PRICE_ENTERPRISE || '',
     APP_URL: process.env.NEXT_PUBLIC_APP_URL || '',
     SENTRY_DSN: process.env.SENTRY_DSN || '',
+    ADMIN_EMAIL: process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '',
   };
 
   res.status(200).end(`window.__ENV = ${JSON.stringify(env)};`);
-};
+}
+
+module.exports = withRateLimit('public', handler);

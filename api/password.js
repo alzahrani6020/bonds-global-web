@@ -4,12 +4,20 @@
  * - POST /api/reset-password   admin recovery link generation
  */
 const getSupabase = require('../lib/api/supabase');
+const { withRateLimit } = require('../lib/api/rate-limit');
+
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || '').trim().toLowerCase() ||
+  (process.env.ADMIN_EMAILS || '').split(',')[0].trim().toLowerCase();
+
+function isAdminEmail(email) {
+  if (!email || !ADMIN_EMAIL) return false;
+  return email.trim().toLowerCase() === ADMIN_EMAIL;
+}
 
 async function handleForceReset(req, res) {
   const { email, password } = req.body || {};
-  const adminEmail = process.env.ADMIN_EMAIL || '';
 
-  if (!email || email !== adminEmail) {
+  if (!isAdminEmail(email)) {
     return res.status(403).json({ error: 'Unauthorized' });
   }
   if (!password || password.length < 6) {
@@ -48,9 +56,8 @@ async function handleForceReset(req, res) {
 
 async function handleResetLink(req, res) {
   const { email } = req.body || {};
-  const adminEmail = process.env.ADMIN_EMAIL || '';
 
-  if (!email || email !== adminEmail) {
+  if (!isAdminEmail(email)) {
     return res.status(403).json({ error: 'Unauthorized' });
   }
 
@@ -69,7 +76,7 @@ async function handleResetLink(req, res) {
   });
 }
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -92,4 +99,6 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: err.message });
     }
   }
-};
+}
+
+module.exports = withRateLimit('strict', handler);

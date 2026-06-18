@@ -53,10 +53,10 @@
 
     containers.forEach(function(container) {
       container.innerHTML =
-        '<span class="dropdown-toggle" style="cursor:pointer;color:#555555;font-weight:600;position:relative;">' +
+        '<button type="button" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true" style="cursor:pointer;color:#555555;font-weight:600;position:relative;background:transparent;border:none;padding:0;margin:0;font:inherit;">' +
         label +
         ' <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-' + (isRTL ? 'right' : 'left') + ':4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
-        '</span>' + html;
+        '</button>' + html;
 
       var toggle = container.querySelector('.dropdown-toggle');
       var menu = container.querySelector('.bonds-shared-dropdown');

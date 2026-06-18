@@ -87,11 +87,11 @@
 
       authContainer.innerHTML = `
         <div class="dropdown bonds-user-dropdown" style="position:relative;display:flex;align-items:center;gap:var(--space-3);">
-          <span class="dropdown-toggle" style="display:flex;align-items:center;gap:var(--space-3);cursor:pointer;" aria-expanded="false" aria-haspopup="true">
+          <button type="button" class="dropdown-toggle" style="display:flex;align-items:center;gap:var(--space-3);cursor:pointer;background:transparent;border:none;padding:0;margin:0;font:inherit;color:inherit;" aria-expanded="false" aria-haspopup="true">
             ${avatarHtml}
             <span style="color:var(--gold);font-weight:700;font-size:0.9rem;white-space:nowrap;">${name}</span>
             <span style="color:var(--text-secondary);font-size:0.7rem;">▼</span>
-          </span>
+          </button>
           <div class="dropdown-menu" style="min-width:180px;">
             <a href="${profileUrl}">👤 ${isEn ? 'Profile' : 'الملف الشخصي'}</a>
             <a href="${subUrl}">💎 ${isEn ? 'Subscription' : 'الاشتراك'}</a>
