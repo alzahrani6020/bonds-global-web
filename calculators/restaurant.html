@@ -34,7 +34,8 @@
   <script src="shared-utils.js"></script>
   <script src="shared-charts.js" defer></script>
   <script src="shared-export.js" defer></script>
-  <script src="country-platforms-data.min.js"></script>
+  <script src="shared-geo.js"></script>
+  <script src="shared-platforms.js"></script>
   <script src="calc-functions.js"></script>
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -87,8 +88,10 @@
     .btn-small:hover { border-color: var(--gold); }
     .btn-remove { color: #dc2626; }
     .platform-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3); max-height: 420px; overflow-y: auto; padding-left: var(--space-2); }
-    @media (min-width: 600px) { .platform-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (min-width: 900px) { .platform-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (min-width: 600px) { .platform-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (min-width: 900px) { .platform-grid { grid-template-columns: repeat(4, 1fr); }
+    }
     .platform-check { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all 0.3s; }
     .platform-check:hover { border-color: var(--gold); }
     .platform-check input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--gold); cursor: pointer; }
@@ -148,10 +151,6 @@
     .quota-bar.danger>div { background:#dc2626; }
     .upgrade-btn-inline { background:var(--gold); color:#0c0c0c; border:none; padding:0.3rem 0.8rem; border-radius:6px; font-weight:700; font-size:0.8rem; cursor:pointer; text-decoration:none; transition:all 0.2s; }
     .upgrade-btn-inline:hover { background:#d4b76a; }
-    @media (max-width: 640px) {
-      .settings-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .settings-table { min-width: 600px; }
-    }
   </style>
 
   <script src="db-client.js"></script>
@@ -781,16 +780,23 @@
 
     // ===== Country Management =====
     function populateCountrySelect() {
+      if (window.BondsGeo && window.BondsGeo.bindCountryOnly) {
+        window.BondsGeo.bindCountryOnly({ selectId: 'countrySelect' });
+      } else {
+        var select = document.getElementById('countrySelect');
+        if (!select) return;
+        select.innerHTML = '';
+        var keys = Object.keys(window.ARAB_COUNTRIES_GEO || {});
+        keys.forEach(function(code) {
+          var c = window.ARAB_COUNTRIES_GEO[code];
+          var opt = document.createElement('option');
+          opt.value = code;
+          opt.textContent = (c.flag || '') + ' ' + (c.name || code);
+          select.appendChild(opt);
+        });
+      }
       var select = document.getElementById('countrySelect');
-      var keys = Object.keys(COUNTRIES_DATA);
-      keys.forEach(function(code) {
-        var c = COUNTRIES_DATA[code];
-        var opt = document.createElement('option');
-        opt.value = code;
-        opt.textContent = c.flag + ' ' + c.name + ' (' + c.currency + ')';
-        select.appendChild(opt);
-      });
-      select.value = DEFAULT_COUNTRY;
+      if (select) select.value = DEFAULT_COUNTRY;
     }
 
     function changeCountry(code) {
@@ -812,9 +818,10 @@
         }
       }
       currentCountry = code;
-      var data = COUNTRIES_DATA[code];
+      var data = window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(code) : null;
       currentCurrency = data.currencySymbol;
-      PLATFORMS = data.platforms.map(function(p) {
+      var platforms = window.BondsPlatforms ? window.BondsPlatforms.getPlatforms(code) : [];
+      PLATFORMS = platforms.map(function(p) {
         return { id: p.id, name: p.name, fee: p.fee, serviceFee: p.serviceFee || 0, feeTiers: p.feeTiers, paymentGatewayFee: p.paymentGatewayFee || 0, campaignDiscount: p.campaignDiscount || 0, operatingModel: p.operatingModel || 'closed' };
       });
 
@@ -946,7 +953,7 @@
       var select = document.getElementById('corrPlatform');
       if (!select) return;
       select.innerHTML = '<option value="">اختر المنصة...</option>';
-      var data = COUNTRIES_DATA[currentCountry];
+      var data = (window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(currentCountry) : null);
       if (!data || !data.platforms) return;
       data.platforms.forEach(function(p) {
         if (p.id === 'plat_direct') return;
@@ -1010,7 +1017,7 @@
     }
 
     async function displayCorrections() {
-      var data = COUNTRIES_DATA[currentCountry];
+      var data = (window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(currentCountry) : null);
       if (!data || !data.platforms) return;
       var corrections = {};
 
@@ -1356,7 +1363,7 @@
       var monthlyFixed = inputs.rent + inputs.salaries + inputs.utilities + inputs.licenses + inputs.cloudKitchen + inputs.marketing;
       var dailyFixed = monthlyFixed / inputs.workingDays;
 
-      var countryData = COUNTRIES_DATA[currentCountry];
+      var countryData = (window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(currentCountry) : null);
       var vatRate = countryData ? (countryData.vatRate || 0) : 0;
 
       var platformResults = inputs.platforms.map(function(p) {
@@ -1500,7 +1507,7 @@
         vatTbody.innerHTML = '';
         r.platformResults.forEach(function(p) {
           var totalRevenue = p.platformPrice * r.inputs.dailyOrders * r.inputs.workingDays;
-          var revenueBeforeVat = totalRevenue / (1 + (COUNTRIES_DATA[currentCountry].vatRate || 0) / 100);
+          var revenueBeforeVat = totalRevenue / (1 + ((window.BondsPlatforms ? window.BondsPlatforms.getVatRate(currentCountry) : 0) || 0) / 100);
           var vatAmount = totalRevenue - revenueBeforeVat;
           var commissionAmount = revenueBeforeVat * (p.fee + (p.serviceFee || 0)) / 100;
           var netTransfer = revenueBeforeVat - commissionAmount;
@@ -1781,7 +1788,7 @@
     function loadSessionUrl(session) {
       if (typeof session === 'string') { window.location.href = session; return; }
       var s = session;
-      if (s.country && COUNTRIES_DATA[s.country]) {
+      if (s.country && (window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(s.country) : null)) {
         document.getElementById('countrySelect').value = s.country;
         changeCountry(s.country);
       }
@@ -1966,7 +1973,7 @@
 
     // ===== Scenario Comparison =====
     function applyScenario(scenario) {
-      var data = COUNTRIES_DATA[currentCountry];
+      var data = (window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(currentCountry) : null);
       var mi = data.marketInsights || {};
       var baseOrders = parseFloat(document.getElementById('dailyOrders').value) || 0;
 
@@ -2025,7 +2032,7 @@
       document.getElementById('sensPriceVal').textContent = (priceDelta > 0 ? '+' : '') + priceDelta + '%';
       document.getElementById('sensCostVal').textContent = (costDelta > 0 ? '+' : '') + costDelta + '%';
 
-      var countryData = COUNTRIES_DATA[currentCountry];
+      var countryData = (window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(currentCountry) : null);
       var vatRate = countryData ? (countryData.vatRate || 0) : 0;
       var sr = calculateSensitivity(_lastResult, commissionDelta, ordersDelta, priceDelta, costDelta, vatRate);
 
@@ -2223,7 +2230,7 @@
     async function exportExcelSettings() {
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
       if (typeof XLSX === 'undefined') { BondsUI.toast('❌ فشل تحميل Excel', 'error'); return; }
-      var data = COUNTRIES_DATA[currentCountry];
+      var data = (window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(currentCountry) : null);
       if (!data) return;
       var wb = XLSX.utils.book_new();
       // Sheet 1: Settings
@@ -2295,7 +2302,7 @@
         var res = await sb.from('scenarios').select('*').eq('id', id).single();
         if (res.error || !res.data) { BondsUI.toast('❌ لم يتم العثور على السيناريو', 'error'); return false; }
         var s = res.data;
-        if (s.country && COUNTRIES_DATA[s.country]) {
+        if (s.country && (window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(s.country) : null)) {
           document.getElementById('countrySelect').value = s.country;
           changeCountry(s.country);
         }
@@ -2355,7 +2362,7 @@
       var waste = url.searchParams.get('waste');
       var gmv = url.searchParams.get('gmv');
       var plats = url.searchParams.get('plats');
-      if (c && COUNTRIES_DATA[c]) {
+      if (c && (window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(c) : null)) {
         document.getElementById('countrySelect').value = c;
         changeCountry(c);
       }
@@ -2395,7 +2402,7 @@
         BondsUI.toast('⚠️ أدخل تكلفة المواد والربح المستهدف بشكل صحيح', 'warning');
         return;
       }
-      var vatRate = (COUNTRIES_DATA[currentCountry].vatRate || 0) / 100;
+      var vatRate = ((window.BondsPlatforms ? window.BondsPlatforms.getVatRate(currentCountry) : 0) || 0) / 100;
       var resultDiv = document.getElementById('targetPricingResult');
       resultDiv.style.display = 'block';
 
@@ -2549,16 +2556,7 @@
 
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}</script>
 <script>
-function updateDateTime() {
-  const now = new Date();
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const dateStr = now.toLocaleDateString('ar-SA', options);
-  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
-  const el = document.getElementById('header-datetime');
-  if (el) el.textContent = dateStr + ' | ' + timeStr;
-}
-setInterval(updateDateTime, 60000);
-updateDateTime();
+
 </script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>

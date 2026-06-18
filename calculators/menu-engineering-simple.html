@@ -18,8 +18,10 @@
     .matrix { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-top:1.5rem; }
     .quad { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.2rem; position:relative; overflow:hidden; }
     .quad::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; }
-    .q-stars::before { background:#22c55e; } .q-engines::before { background:#f59e0b; }
-    .q-treasures::before { background:#3b82f6; } .q-stalled::before { background:#ef4444; }
+    .q-stars::before { background:#22c55e; }
+    .q-engines::before { background:#f59e0b; }
+    .q-treasures::before { background:#3b82f6; }
+    .q-stalled::before { background:#ef4444; }
     .quad h3 { font-size:1.1rem; margin-bottom:.5rem; }
     .item-box { background:#1a2332; border:1px solid var(--border); border-radius:8px; padding:.8rem; margin:.4rem 0; font-size:.85rem; }
     .item-box b { color:var(--gold); }
@@ -31,7 +33,8 @@
     .del:hover { transform:scale(1.2); display:inline-block; }
     .demo-banner { background:linear-gradient(90deg,rgba(212,168,83,0.15),rgba(34,197,94,0.1)); border:1px solid var(--gold); border-radius:12px; padding:1rem; margin-bottom:1.5rem; text-align:center; }
     .demo-banner button { width:auto; display:inline-block; margin:0 0.25rem; }
-    @media (max-width:640px){ body{padding:1rem 0.5rem;} h1{font-size:1.5rem;} }
+    @media (max-width:640px){ body{padding:1rem 0.5rem;}
+    h1{font-size:1.5rem;}
   </style>
 
   <script src="db-client.js"></script>
@@ -43,6 +46,16 @@
   <div class="wrap">
     <h1>🎯 محرك هندسة المنيو</h1>
     <p class="desc">كل البيانات تحفظ في متصفحك — لا يحتاج إنترنت بعد التحميل</p>
+
+    <!-- Country selector -->
+    <div class="bonds-card" style="margin-bottom: var(--space-4);">
+      <div class="bonds-form-group">
+        <label for="country">الدولة / السوق</label>
+        <select id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
+          <option value="">اختر الدولة</option>
+        </select>
+      </div>
+    </div>
 
     <!-- Progress Tracker -->
     <div id="progressContainer"></div>
@@ -641,19 +654,12 @@ setTimeout(() => {
 }, 800);
 </script>
 <script>
-function updateDateTime() {
-  const now = new Date();
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const dateStr = now.toLocaleDateString('ar-SA', options);
-  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
-  const el = document.getElementById('header-datetime');
-  if (el) el.textContent = dateStr + ' | ' + timeStr;
-}
-setInterval(updateDateTime, 60000);
-updateDateTime();
+
 </script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
+<script src="shared-geo.js"></script>
+
 <script src="../site-layout.js"></script>
   <div id="site-footer"></div>
 </body>

@@ -19,6 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
+  <link rel="stylesheet" href="../../calculators/scenario-cards-shared.css" />
   <script src="../../calculators/shared-ui.js"></script>
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/shared-export.js" defer></script>
@@ -26,32 +27,30 @@
   <script src="../../calculators/db-client.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <style>
-    .med-container { max-width: 960px; margin: 0 auto; padding: var(--space-8) var(--space-4); }
+.med-container { max-width: 960px; margin: 0 auto; padding: var(--space-8) var(--space-4); }
     .med-header { text-align: center; margin-bottom: var(--space-8); }
     .med-header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; color: var(--gold); margin-bottom: var(--space-3); }
     .med-header p { color: var(--text-secondary); font-size: 1.05rem; max-width: 600px; margin: 0 auto; }
     .med-badge { display: inline-block; background: rgba(59,130,246,0.12); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; margin-bottom: var(--space-4); }
     .med-section-title { font-size: 1.1rem; font-weight: 800; color: var(--gold); margin: var(--space-6) 0 var(--space-4); display: flex; align-items: center; gap: 0.5rem; }
-    .metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-4); margin: var(--space-6) 0; }
-    .metric-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); text-align: center; }
-    .metric-box .label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.25rem; }
-    .metric-box .value { font-size: 1.3rem; font-weight: 800; color: var(--gold); }
-    .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); margin-top: var(--space-6); }
-    .scenario-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center; transition: all 0.3s; }
-    .scenario-card:hover { transform: translateY(-4px); border-color: var(--gold); }
-    .scenario-card.pessimistic { border-top: 3px solid #ef4444; }
-    .scenario-card.expected { border-top: 3px solid var(--gold); }
-    .scenario-card.optimistic { border-top: 3px solid #22c55e; }
-    .scenario-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-2); }
-    .scenario-value { font-size: 1.5rem; font-weight: 900; }
-    .scenario-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: var(--space-2); }
-    .verdict-box { padding: var(--space-6); border-radius: var(--radius-lg); margin: var(--space-6) 0; text-align: center; }
-    .verdict-box.profit { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); }
-    .verdict-box.loss { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); }
-    .verdict-box.warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); }
-    .verdict-icon { font-size: 2.5rem; margin-bottom: var(--space-2); }
-    .verdict-title { font-size: 1.3rem; font-weight: 800; margin-bottom: var(--space-2); }
-    .verdict-text { font-size: 0.95rem; line-height: 1.7; }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     .share-bar { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: var(--space-4); }
     .share-bar input { flex: 1; min-width: 220px; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); }
     .activity-select { font-size: 1.1rem; font-weight: 700; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); width: 100%; }
@@ -60,7 +59,6 @@
     .sensitivity-table th { background: rgba(212,168,83,0.12); color: var(--gold); font-weight: 800; }
     .sensitivity-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
     .chart-wrap { position: relative; height: 320px; margin-top: var(--space-4); }
-
     /* Investment Decision Engine */
     .investment-dashboard { background: linear-gradient(135deg, rgba(16,24,45,0.8), rgba(10,15,26,0.9)); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-bottom: var(--space-6); text-align: center; }
     .dashboard-header { font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: var(--space-4); }
@@ -78,7 +76,6 @@
     .breakdown-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: var(--space-3) var(--space-4); min-width: 110px; }
     .breakdown-item .num { font-size: 1.1rem; font-weight: 800; }
     .breakdown-item .label { font-size: 0.7rem; color: var(--text-secondary); font-weight: 700; }
-
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-4); margin: var(--space-6) 0; }
     .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center; transition: all 0.3s; }
     .kpi-card:hover { transform: translateY(-4px); border-color: var(--gold); }
@@ -86,11 +83,9 @@
     .kpi-card .value { font-size: 1.5rem; font-weight: 900; color: var(--gold); line-height: 1.2; }
     .kpi-card .label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-top: 0.25rem; }
     .kpi-card .sub { font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.25rem; }
-
     .recommendation-list { list-style: none; padding: 0; margin: var(--space-4) 0; text-align: left; }
     .recommendation-list li { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: var(--space-3) var(--space-4); margin-bottom: var(--space-3); display: flex; align-items: flex-start; gap: 0.75rem; }
     .recommendation-list li::before { content: '💡'; flex-shrink: 0; }
-
     .cta-section { background: linear-gradient(135deg, rgba(212,168,83,0.12), rgba(59,130,246,0.08)); border: 1px solid rgba(212,168,83,0.25); border-radius: var(--radius-lg); padding: var(--space-8); text-align: center; margin-top: var(--space-8); }
     .cta-section h3 { color: var(--gold); font-size: 1.3rem; font-weight: 800; margin-bottom: var(--space-3); }
     .cta-section p { color: var(--text-secondary); margin-bottom: var(--space-5); }
@@ -98,14 +93,12 @@
     .cta-form input { padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text); font-family: inherit; }
     .cta-form input::placeholder { color: var(--text-muted); }
     .cta-success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #22c55e; padding: var(--space-4); border-radius: 12px; margin-top: var(--space-4); display: none; }
-
     @media (max-width: 640px) {
       .score-gauge { width: 150px; height: 150px; }
-      .score-value .num { font-size: 2.4rem; }
-      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-      .kpi-card { padding: var(--space-4) var(--space-3); }
-      .kpi-card .value { font-size: 1.15rem; }
-    }
+    .score-value .num { font-size: 2.4rem; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .kpi-card { padding: var(--space-4) var(--space-3); }
+    .kpi-card .value { font-size: 1.15rem; }
   </style>
   <link rel="stylesheet" href="../../header-footer.css?v=2" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -132,6 +125,13 @@
 
   <section class="section">
     <div class="med-container">
+      <div class="bonds-card" style="text-align:center; margin-bottom: var(--space-6);">
+        <div class="med-badge">Country / Market</div>
+        <select id="country" class="activity-select" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+          <option value="">Select country</option>
+        </select>
+      </div>
+
       <div class="bonds-card" style="text-align:center; margin-bottom: var(--space-6);">
         <div class="med-badge">Select Your Business Activity</div>
         <select id="activity" class="activity-select" onchange="onActivityChange()">
@@ -741,6 +741,8 @@
 
   <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
+  <script src="../../calculators/shared-geo.js"></script>
+
   <script src="../../site-layout.js"></script>
 </body>
 </html>

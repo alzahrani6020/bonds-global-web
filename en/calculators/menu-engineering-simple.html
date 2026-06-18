@@ -27,8 +27,10 @@
     .matrix { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-top:1.5rem; }
     .quad { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.2rem; position:relative; overflow:hidden; }
     .quad::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; }
-    .q-stars::before { background:#22c55e; } .q-engines::before { background:#f59e0b; }
-    .q-treasures::before { background:#3b82f6; } .q-stalled::before { background:#ef4444; }
+    .q-stars::before { background:#22c55e; }
+    .q-engines::before { background:#f59e0b; }
+    .q-treasures::before { background:#3b82f6; }
+    .q-stalled::before { background:#ef4444; }
     .quad h3 { font-size:1.1rem; margin-bottom:.5rem; }
     .item-box { background:#1a2332; border:1px solid var(--border); border-radius:8px; padding:.8rem; margin:.4rem 0; font-size:.85rem; }
     .item-box b { color:var(--gold); }
@@ -52,6 +54,16 @@
   <div class="wrap">
     <h1>🎯 Menu Engineering Engine</h1>
     <p class="desc">All data is saved in your browser — works offline after loading</p>
+
+    <!-- Country selector -->
+    <div class="bonds-card" style="margin-bottom: var(--space-4);">
+      <div class="bonds-form-group">
+        <label for="country">Country / Market</label>
+        <select id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+          <option value="">Select country</option>
+        </select>
+      </div>
+    </div>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem;">
       <div class="tabs" style="margin-bottom:0;">
@@ -401,6 +413,8 @@ renderAll();
 </script>
 <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
+<script src="../../calculators/shared-geo.js"></script>
+
 <script src="../../site-layout.js"></script>
   <div id="site-footer"></div>
 </body>

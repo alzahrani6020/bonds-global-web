@@ -22,13 +22,8 @@
   <script src="shared-ui.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="shared-utils.js"></script>
-  <script src="country-platforms-data.min.js"></script>
-  <style>
-    @media (max-width: 640px) {
-      .settings-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .settings-table { min-width: 600px; }
-    }
-  </style>
+  <script src="shared-geo.js"></script>
+  <script src="shared-platforms.js"></script>
 
   <script src="db-client.js"></script>
   
@@ -343,21 +338,28 @@
     var _dishIngredients = [];
 
     function populateCountrySelect() {
-      var select = document.getElementById('countrySelect');
-      var keys = Object.keys(COUNTRIES_DATA);
-      keys.forEach(function(code) {
-        var c = COUNTRIES_DATA[code];
-        var opt = document.createElement('option');
-        opt.value = code;
-        opt.textContent = c.flag + ' ' + c.name;
-        select.appendChild(opt);
-      });
+      if (window.BondsGeo && window.BondsGeo.bindCountryOnly) {
+        window.BondsGeo.bindCountryOnly({ selectId: 'countrySelect' });
+      } else {
+        var select = document.getElementById('countrySelect');
+        if (!select) return;
+        select.innerHTML = '';
+        var keys = Object.keys(window.ARAB_COUNTRIES_GEO || {});
+        keys.forEach(function(code) {
+          var c = window.ARAB_COUNTRIES_GEO[code];
+          var opt = document.createElement('option');
+          opt.value = code;
+          opt.textContent = (c.flag || '') + ' ' + (c.name || code);
+          select.appendChild(opt);
+        });
+      }
     }
 
     function changeCountry(code) {
-      if (!code || !COUNTRIES_DATA[code]) return;
+      if (!code || !window.BondsPlatforms) return;
       currentCountry = code;
-      var c = COUNTRIES_DATA[code];
+      var c = window.BondsPlatforms.getCountryMeta(code);
+      if (!c) return;
       currentCurrency = c.currencySymbol;
       document.getElementById('countryNote').textContent = (c.note || '') + ' العملة: ' + c.currencySymbol + ' (' + c.currency + ')';
       updateMarketInsights(c);
@@ -440,9 +442,9 @@
       var select = document.getElementById('corrPlatform');
       if (!select) return;
       select.innerHTML = '<option value="">اختر المنصة...</option>';
-      var data = COUNTRIES_DATA[currentCountry];
-      if (!data || !data.platforms) return;
-      data.platforms.forEach(function(p) {
+      var platforms = window.BondsPlatforms ? window.BondsPlatforms.getPlatforms(currentCountry) : [];
+      if (!platforms.length) return;
+      platforms.forEach(function(p) {
         if (p.id === 'plat_direct') return;
         var opt = document.createElement('option');
         opt.value = p.id;
@@ -496,10 +498,10 @@
     }
 
     async function displayCorrections() {
-      var data = COUNTRIES_DATA[currentCountry];
-      if (!data || !data.platforms) return;
-      for (var i = 0; i < data.platforms.length; i++) {
-        var p = data.platforms[i];
+      var platforms = window.BondsPlatforms ? window.BondsPlatforms.getPlatforms(currentCountry) : [];
+      if (!platforms.length) return;
+      for (var i = 0; i < platforms.length; i++) {
+        var p = platforms[i];
         var key = 'correction_' + currentCountry + '_' + p.id;
         var corr = await dbGet(key);
         if (corr && corr.actualFee) {
@@ -591,8 +593,8 @@
       var totalFee = fee + serviceFee;
       var commissionValue = sellingPrice * (totalFee / 100);
       // VAT on commission
-      var countryData = COUNTRIES_DATA[currentCountry];
-      var vatRate = countryData ? (countryData.vatRate || 0) : 0;
+      var countryMeta = window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(currentCountry) : null;
+      var vatRate = countryMeta ? (countryMeta.vatRate || 0) : 0;
       var vatValue = commissionValue * (vatRate / 100);
       // Payment gateway fee
       var pgFeeValue = sellingPrice * ((platform.paymentGatewayFee || 0) / 100);
@@ -636,14 +638,15 @@
       }
       BondsUI.clearValidation('sellingPrice');
 
-      var countryData = COUNTRIES_DATA[currentCountry];
-      if (!countryData || !countryData.platforms) return;
+      var countryMeta = window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(currentCountry) : null;
+      var platforms = window.BondsPlatforms ? window.BondsPlatforms.getPlatforms(currentCountry) : [];
+      if (!countryMeta || !platforms.length) return;
 
       var tbody = document.getElementById('platformComparisonBody');
       tbody.innerHTML = '';
 
       var results = [];
-      countryData.platforms.forEach(function(p) {
+      platforms.forEach(function(p) {
         var r = calculatePlatform(foodCost, packagingCost, sellingPrice, p);
         results.push(r);
       });
@@ -659,7 +662,7 @@
         var optimalPrice = Math.ceil((foodCost + packagingCost + r.deliverySubsidy) / (1 - r.totalFee/100 - 0.45));
 
         var tr = document.createElement('tr');
-        var waText = 'مرحبا بوندز، اقترح تعديل بيانات منصة ' + r.name + ' في ' + countryData.name + ':\n\n' +
+        var waText = 'مرحبا بوندز، اقترح تعديل بيانات منصة ' + r.name + ' في ' + countryMeta.name + ':\n\n' +
           '• العمولة الحالية: ' + r.fee + '%\n' +
           '• العمولة الصحيحة: ___\n' +
           '• التوصيل المجاني: ___\n' +
@@ -833,7 +836,7 @@
         ['تحليل ربحية الوجبة — بوندز'],
         [''],
         ['اسم الوجبة', document.getElementById('dishName').value],
-        ['الدولة', COUNTRIES_DATA[currentCountry] ? COUNTRIES_DATA[currentCountry].name : ''],
+        ['الدولة', window.BondsGeo ? window.BondsGeo.getCountryName(currentCountry, 'ar') : ''],
         ['العملة', currentCurrency],
         [''],
         ['سعر البيع', sellingPrice],
@@ -873,11 +876,12 @@
     async function exportExcelSettings() {
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
       if (typeof XLSX === 'undefined') { BondsUI.toast('❌ فشل تحميل Excel', 'error'); return; }
-      var data = COUNTRIES_DATA[currentCountry];
-      if (!data) return;
+      var countryMeta = window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(currentCountry) : null;
+      var platforms = window.BondsPlatforms ? window.BondsPlatforms.getPlatforms(currentCountry) : [];
+      if (!countryMeta) return;
       var wb = XLSX.utils.book_new();
       var settingsData = [['المنصة', 'العمولة %', 'رسوم خدمة %', 'حد التوصيل المجاني', 'تحمل المطعم', 'الثقة']];
-      data.platforms.forEach(function(p) {
+      platforms.forEach(function(p) {
         if (p.id === 'plat_direct') return;
         settingsData.push([p.name, p.fee, p.serviceFee || 0, p.freeDelivery ? p.freeDelivery.threshold : '', p.freeDelivery ? p.freeDelivery.restaurantShare : '', p.confidence]);
       });
@@ -1109,16 +1113,7 @@
 
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}</script>
 <script>
-function updateDateTime() {
-  const now = new Date();
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const dateStr = now.toLocaleDateString('ar-SA', options);
-  const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
-  const el = document.getElementById('header-datetime');
-  if (el) el.textContent = dateStr + ' | ' + timeStr;
-}
-setInterval(updateDateTime, 60000);
-updateDateTime();
+
 </script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>

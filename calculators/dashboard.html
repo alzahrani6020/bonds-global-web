@@ -97,6 +97,14 @@
     <div class="dashboard-header">
       <h1>لوحة التحكم</h1>
       <p id="welcomeMsg">مرحباً بك، هنا ملخص حسابك وآخر نشاطاتك.</p>
+      <div class="profile-grid" style="max-width: 400px; margin: 1rem auto 0;">
+        <div class="form-group">
+          <label for="country">الدولة / السوق</label>
+          <select id="country" class="form-group input" style="width: 100%;" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
+            <option value="">اختر الدولة</option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <!-- Stats -->
@@ -155,6 +163,11 @@
       <a href="factory-cost-lb.html" class="factory-chip"><span class="factory-chip__flag">🇱🇧</span> لبنان</a>
       <a href="factory-cost-ye.html" class="factory-chip"><span class="factory-chip__flag">🇾🇪</span> اليمن</a>
       <a href="factory-cost-sy.html" class="factory-chip"><span class="factory-chip__flag">🇸🇾</span> سوريا</a>
+      <a href="factory-cost-ps.html" class="factory-chip"><span class="factory-chip__flag">🇵🇸</span> فلسطين</a>
+      <a href="factory-cost-dj.html" class="factory-chip"><span class="factory-chip__flag">🇩🇯</span> جيبوتي</a>
+      <a href="factory-cost-so.html" class="factory-chip"><span class="factory-chip__flag">🇸🇴</span> الصومال</a>
+      <a href="factory-cost-mr.html" class="factory-chip"><span class="factory-chip__flag">🇲🇷</span> موريتانيا</a>
+      <a href="factory-cost-km.html" class="factory-chip"><span class="factory-chip__flag">🇰🇲</span> جزر القمر</a>
     </div>
 
     <!-- Quick Calculators -->
@@ -362,6 +375,8 @@ window.addEventListener('load', () => {
 
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
+<script src="shared-geo.js"></script>
+
 <script src="../site-layout.js"></script>
 </body>
 </html>

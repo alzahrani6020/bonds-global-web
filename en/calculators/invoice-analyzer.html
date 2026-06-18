@@ -12,7 +12,8 @@
   <script src="../../calculators/shared-ui.js"></script>
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/shared-export.js"></script>
-  <script src="../../calculators/country-platforms-data.js"></script>
+  <script src="../../calculators/shared-geo.js"></script>
+  <script src="../../calculators/shared-platforms.js"></script>
   <script src="../../calculators/db-client.js"></script>
   <script src="../../calculators/db-client-auto.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
@@ -63,7 +64,8 @@
     .volume-grid {
       display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin:1.5rem 0;
     }
-    @media(max-width:640px){ .volume-grid { grid-template-columns:1fr; } }
+    @media(max-width:640px){ .volume-grid { grid-template-columns:1fr; }
+    }
     .input-group label {
       display:block; font-size:0.8rem; color:#555555; margin-bottom:0.4rem; font-weight:600;
     }
@@ -77,8 +79,10 @@
     .summary-grid {
       display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin:1.5rem 0;
     }
-    @media(max-width:900px){ .summary-grid { grid-template-columns:repeat(2,1fr); } }
-    @media(max-width:640px){ .summary-grid { grid-template-columns:1fr; } }
+    @media(max-width:900px){ .summary-grid { grid-template-columns:repeat(2,1fr); }
+    }
+    @media(max-width:640px){ .summary-grid { grid-template-columns:1fr; }
+    }
     .summary-card {
       background:rgba(255,255,255,0.85); border:1px solid rgba(255,255,255,0.08);
       border-radius:12px; padding:1.25rem; text-align:center; transition:all 0.3s;
@@ -102,7 +106,8 @@
     .compare-grid {
       display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.5rem 0;
     }
-    @media(max-width:640px){ .compare-grid { grid-template-columns:1fr; } }
+    @media(max-width:640px){ .compare-grid { grid-template-columns:1fr; }
+    }
     .compare-card {
       background:rgba(255,255,255,0.85); border:1px solid rgba(255,255,255,0.08);
       border-radius:12px; padding:1.25rem;
@@ -114,7 +119,8 @@
     .inputs-grid {
       display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin:1.5rem 0;
     }
-    @media(max-width:640px){ .inputs-grid { grid-template-columns:1fr; } }
+    @media(max-width:640px){ .inputs-grid { grid-template-columns:1fr; }
+    }
     .section-title {
       font-size:1.1rem; font-weight:800; color:var(--gold); margin:1.5rem 0 1rem;
       display:flex; align-items:center; gap:0.5rem;
@@ -133,7 +139,6 @@
     .btn-calc.secondary:hover { background:rgba(212,168,83,0.1); }
     .empty-state { text-align:center; padding:3rem 1rem; color:#888888; }
     .empty-state .icon { font-size:3rem; margin-bottom:1rem; opacity:0.5; }
-
     .platform-table-wrap { overflow-x:auto; margin:1.5rem 0; }
     .platform-table {
       width:100%; border-collapse:collapse; font-size:0.85rem;
@@ -151,7 +156,6 @@
     .platform-table .worst { color:var(--red); font-weight:800; }
     .platform-table .name-cell { text-align:left; font-weight:600; }
     .platform-table .fee-cell { font-family:monospace; }
-
     .info-tag {
       display:inline-block; font-size:0.7rem; padding:0.15rem 0.4rem;
       border-radius:4px; margin-left:0.3rem;
@@ -159,16 +163,15 @@
     .info-tag.verified { background:rgba(34,197,94,0.12); color:#22c55e; }
     .info-tag.estimated { background:rgba(245,158,11,0.12); color:#f59e0b; }
     .info-tag.tiered { background:rgba(59,130,246,0.12); color:#60a5fa; }
-
     .platform-selector-row {
       display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;
     }
-    @media(max-width:640px){ .platform-selector-row { grid-template-columns:1fr; } }
+    @media(max-width:640px){ .platform-selector-row { grid-template-columns:1fr; }
+    }
 
     .auto-fill-note {
       font-size:0.8rem; color:#888888; margin-top:0.5rem; text-align:center;
     }
-
     #compareAllSection { display:none; }
   </style>
 <link rel="stylesheet" href="../../header-footer.css?v=2" />
@@ -192,7 +195,7 @@
   <div class="platform-selector-row">
     <div class="input-group">
       <label>🇦🇪 Country</label>
-      <select id="countrySelect" onchange="onCountryChange()">
+      <select id="countrySelect" onchange="onCountryChange()" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
         <option value="">-- Select Country --</option>
       </select>
     </div>
@@ -499,15 +502,17 @@ function loadDemoData() {
 
 function populateCountries() {
   var sel = document.getElementById('countrySelect');
-  if (!sel || !window.COUNTRIES_DATA) return;
-  for (var code in COUNTRIES_DATA) {
-    var c = COUNTRIES_DATA[code];
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- Select country --</option>';
+  var countries = (window.BondsGeo && window.BondsGeo.getCountries) ? window.BondsGeo.getCountries({ lang: 'en' }) : [];
+  countries.forEach(function(item) {
+    var c = window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(item.value) : null;
     var opt = document.createElement('option');
-    opt.value = code;
-    opt.textContent = c.flag + ' ' + c.nameEn + ' (' + c.currencySymbolEn + ')';
+    opt.value = item.value;
+    opt.textContent = item.label + (c && c.currencySymbolEn ? ' (' + c.currencySymbolEn + ')' : '');
     sel.appendChild(opt);
-  }
-  if (COUNTRIES_DATA['SA']) {
+  });
+  if (sel.querySelector('option[value="SA"]')) {
     sel.value = 'SA';
     onCountryChange();
   }
@@ -515,17 +520,18 @@ function populateCountries() {
 
 function onCountryChange() {
   var code = document.getElementById('countrySelect').value;
-  currentCountry = code ? COUNTRIES_DATA[code] : null;
+  currentCountry = code ? (window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(code) : null) : null;
   currentSymbol = currentCountry ? currentCountry.currencySymbolEn : 'SAR';
 
   var platSel = document.getElementById('platformSelect');
   platSel.innerHTML = '<option value="">-- Select Platform --</option>';
 
-  if (currentCountry && currentCountry.platforms) {
-    currentCountry.platforms.forEach(function(p) {
+  var platforms = code && window.BondsPlatforms ? window.BondsPlatforms.getPlatforms(code) : [];
+  if (platforms.length) {
+    platforms.forEach(function(p) {
       var opt = document.createElement('option');
       opt.value = p.id;
-      opt.textContent = p.nameEn;
+      opt.textContent = p.nameEn || p.name;
       platSel.appendChild(opt);
     });
     document.getElementById('vatRate').value = currentCountry.vatRate || 0;
@@ -550,10 +556,10 @@ function getEffectiveFee(platform, orderPrice) {
 function onPlatformChange() {
   var code = document.getElementById('countrySelect').value;
   var platId = document.getElementById('platformSelect').value;
-  if (!code || !platId || !COUNTRIES_DATA[code]) return;
+  if (!code || !platId) return;
 
-  var country = COUNTRIES_DATA[code];
-  var platform = country.platforms.find(function(p) { return p.id === platId; });
+  var country = window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(code) : null;
+  var platform = window.BondsPlatforms ? window.BondsPlatforms.getPlatform(code, platId) : null;
   if (!platform) return;
 
   currentPlatform = platform;
@@ -604,8 +610,8 @@ function calculateInvoice() {
 
   var code = document.getElementById('countrySelect').value;
   var platId = document.getElementById('platformSelect').value;
-  if (code && platId && COUNTRIES_DATA[code]) {
-    var platform = COUNTRIES_DATA[code].platforms.find(function(p) { return p.id === platId; });
+  if (code && platId && window.BondsPlatforms) {
+    var platform = window.BondsPlatforms.getPlatform(code, platId);
     if (platform && platform.feeTiers) {
       var effectiveFee = getEffectiveFee(platform, price);
       if (effectiveFee !== commissionPct) {
@@ -758,7 +764,7 @@ function calculateInvoice() {
 
 function compareAllPlatforms() {
   var code = document.getElementById('countrySelect').value;
-  if (!code || !COUNTRIES_DATA[code]) {
+  if (!code || !window.BondsPlatforms) {
     BondsUI.toast('Select a country first', 'warning');
     return;
   }
@@ -772,15 +778,16 @@ function compareAllPlatforms() {
 
   if (!price) { BondsUI.toast('Enter order price first', 'warning'); document.getElementById('orderPrice').focus(); return; }
 
-  var country = COUNTRIES_DATA[code];
-  var symbol = country.currencySymbolEn;
+  var country = window.BondsPlatforms.getCountryMeta(code);
+  var platforms = window.BondsPlatforms.getPlatforms(code);
+  var symbol = country ? country.currencySymbolEn : 'SAR';
   var vatMultiplier = vatRate / 100;
   var tbody = document.getElementById('platformTableBody');
   tbody.innerHTML = '';
 
   var results = [];
 
-  country.platforms.forEach(function(p) {
+  platforms.forEach(function(p) {
     var feePct = getEffectiveFee(p, price);
     var commission = price * (feePct / 100);
     var serviceFee = price * ((p.serviceFee || 0) / 100);

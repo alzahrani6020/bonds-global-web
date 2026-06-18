@@ -9,7 +9,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../../supabase-client.js"></script>
   <script src="../../auth-guard.js"></script>
-  <script src="../../calculators/country-platforms-data.js"></script>
+  <script src="../../calculators/shared-geo.js"></script>
+  <script src="../../calculators/shared-platforms.js"></script>
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
   <script src="../../calculators/shared-ui.js"></script>
@@ -47,7 +48,6 @@
     .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-dim)); color: #f5f0e8; font-weight: 800; border: none; padding: var(--space-3) var(--space-6); border-radius: var(--radius); cursor: pointer; width: 100%; font-size: 1rem; }
     .btn-primary:hover { filter: brightness(1.1); }
     .btn-secondary { background: var(--bg-secondary); color: var(--gold); font-weight: 700; border: 1px solid var(--border); padding: var(--space-2) var(--space-4); border-radius: var(--radius); cursor: pointer; font-size: 0.9rem; }
-    .btn-secondary:hover { border-color: var(--gold); }
     .result-box { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); }
     .result-box h4 { color: var(--gold); margin-bottom: var(--space-2); }
     .loading { text-align: center; color: var(--text-muted); padding: var(--space-8); }
@@ -229,30 +229,30 @@ async function init() {
 }
 
 function populateCountries() {
-  const sel = document.getElementById('pCountry');
+  var sel = document.getElementById('pCountry');
   if (!sel) return;
-  if (typeof COUNTRIES_DATA === 'undefined') {
-    setTimeout(populateCountries, 300);
-    return;
-  }
-  try {
-    const countries = Object.entries(COUNTRIES_DATA).sort((a, b) => a[1].nameEn.localeCompare(b[1].nameEn, 'en'));
-    sel.innerHTML = '<option value="">Select country...</option>' +
-      countries.map(([code, c]) => `<option value="${code}">${c.flag} ${c.nameEn}</option>`).join('');
-  } catch (e) {
-    
+  sel.innerHTML = '<option value="">-- Select country --</option>';
+  var countries = (window.BondsGeo && window.BondsGeo.getCountries) ? window.BondsGeo.getCountries({ lang: 'en' }) : [];
+  countries.forEach(function(item) {
+    var c = window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(item.value) : null;
+    var opt = document.createElement('option');
+    opt.value = item.value;
+    opt.textContent = item.label + (c && c.currencySymbolEn ? ' (' + c.currencySymbolEn + ')' : '');
+    sel.appendChild(opt);
+  });
+  if (sel.querySelector('option[value="SA"]')) {
+    sel.value = 'SA';
   }
 }
 
 function loadCountryPlatforms() {
   const countryCode = document.getElementById('pCountry').value;
   const sel = document.getElementById('pPlatformSelect');
-  if (!countryCode || typeof COUNTRIES_DATA === 'undefined') {
+  const platforms = window.BondsPlatforms ? window.BondsPlatforms.getPlatforms(countryCode) : [];
+  if (!countryCode) {
     sel.innerHTML = '<option value="">Select platform...</option>';
     return;
   }
-  const country = COUNTRIES_DATA[countryCode];
-  const platforms = country.platforms || [];
   sel.innerHTML = '<option value="">Select platform...</option>' +
     platforms.map((p, idx) => `<option value="${idx}">${p.nameEn || p.name} (${p.fee}%)</option>`).join('');
 }
@@ -260,8 +260,8 @@ function loadCountryPlatforms() {
 function fillPlatformData() {
   const countryCode = document.getElementById('pCountry').value;
   const idx = document.getElementById('pPlatformSelect').value;
-  if (!countryCode || idx === '' || typeof COUNTRIES_DATA === 'undefined') return;
-  const p = COUNTRIES_DATA[countryCode].platforms[idx];
+  if (!countryCode || idx === '') return;
+  const p = window.BondsPlatforms ? window.BondsPlatforms.getPlatformByIndex(countryCode, Number(idx)) : null;
   if (!p) return;
   document.getElementById('pCode').value = p.id || '';
   document.getElementById('pName').value = p.nameEn || p.name || '';

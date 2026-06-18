@@ -35,12 +35,7 @@
   <script src="calc-functions.js"></script>
   <script src="shared-charts.js" defer></script>
   <script src="shared-export.js" defer></script>
-  <style>
-    @media (max-width: 640px) {
-      .share-bar { flex-direction: column; }
-      .share-bar input { width: 100%; min-width: auto; }
-    }
-  </style>
+  
 
   <script src="db-client.js"></script>
   
@@ -77,6 +72,12 @@
         <!-- Inputs -->
         <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
           <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">بيانات التسعير</h2>
+          <div class="calc-input-group">
+            <label for="country">الدولة / السوق</label>
+            <select id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
+              <option value="">اختر الدولة</option>
+            </select>
+          </div>
           <div class="calc-input-group">
             <label>التكلفة المباشرة للوحدة (مواد + عمالة) <abbr title="التكلفة التي تتغير مباشرة بكل وحدة تُنتج: مواد خام + أجرة العمالة المباشرة">ⓘ</abbr></label>
             <input type="number" id="directCost" placeholder="مثلاً: 150" min="0" />
@@ -892,5 +893,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
 <script src="../site-layout.js"></script>
+<script src="shared-geo.js"></script>
+
 </body>
 </html>

@@ -22,76 +22,21 @@
   <script src="../../calculators/shared-ui.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="../../calculators/shared-utils.js"></script>
-  <script src="../../calculators/country-platforms-data.min.js"></script>
+  <script src="../../calculators/shared-geo.js"></script>
+  <script src="../../calculators/shared-platforms.js"></script>
   <style>
-    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 640px) { .calc-grid { grid-template-columns: 1fr; } }
-    .calc-input-group { margin-bottom: 1.5rem; }
-    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
     .calc-input-group input[type="number"], .calc-input-group select, .calc-input-group input[type="text"] { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
     .calc-input-group input[type="number"]:focus, .calc-input-group select:focus, .calc-input-group input[type="text"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
-    .result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
-    @media (min-width: 700px) { .result-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (min-width: 700px) { .result-grid { grid-template-columns: repeat(4, 1fr); }
+    }
     .result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center; transition: all 0.3s; }
-    .result-card:hover { border-color: var(--gold); transform: translateY(-2px); }
     .result-value { font-size: var(--text-2xl); font-weight: 900; margin-bottom: var(--space-2); }
-    .result-label { font-size: 0.85rem; color: var(--text-secondary); }
-    .result-card.status-excellent { border-color: #16a34a; background: rgba(22,163,74,0.05); }
-    .result-card.status-excellent .result-value { color: #16a34a; }
-    .result-card.status-good { border-color: #ca8a04; background: rgba(202,138,4,0.05); }
-    .result-card.status-good .result-value { color: #ca8a04; }
-    .result-card.status-danger { border-color: #dc2626; background: rgba(220,38,38,0.05); }
-    .result-card.status-danger .result-value { color: #dc2626; }
-    .margin-bar { width: 100%; height: 8px; background: var(--border); border-radius: 4px; margin-top: var(--space-2); overflow: hidden; }
-    .margin-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
-    .analysis-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6); }
-    .analysis-box h4 { color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-lg); }
-    .comparison-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: var(--space-4); }
-    .comparison-table th, .comparison-table td { padding: 0.75rem; text-align: center; border-bottom: 1px solid var(--border); }
-    .comparison-table th { background: rgba(212,168,83,0.05); color: var(--gold); font-weight: 700; }
-    .comparison-table tr:hover { background: rgba(255,255,255,0.02); }
-    .comparison-table .status-cell { font-weight: 700; }
-    .comparison-table .status-excellent { color: #16a34a; }
-    .comparison-table .status-good { color: #ca8a04; }
-    .comparison-table .status-danger { color: #dc2626; }
     .country-selector { background: rgba(212,168,83,0.05); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-bottom: var(--space-6); }
     #countrySelect, #platformSelect { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d4a853' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; cursor: pointer; background-color: var(--bg-card); color: var(--text); }
-    #countrySelect option, #platformSelect option { background: var(--bg-secondary); color: var(--text); font-size: 1rem; padding: 0.5rem; }
-    .reverse-section { background: linear-gradient(135deg, rgba(212,168,83,0.05) 0%, rgba(212,168,83,0.01) 100%); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-6); }
-    .reverse-section h4 { color: var(--gold); margin-bottom: var(--space-3); font-size: var(--text-lg); }
-    .btn-secondary { background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); padding: var(--space-3) var(--space-6); border-radius: var(--radius); font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; }
-    .btn-secondary:hover { border-color: var(--gold); }
-    .action-bar { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-6); }
-    .smart-alert { display: none; background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); }
-    .smart-alert.show { display: block; }
     .market-insights { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); margin-top: var(--space-4); }
-    .insight-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); transition: all 0.3s; }
-    .insight-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-    .insight-card .insight-icon { font-size: 1.5rem; margin-bottom: var(--space-2); }
-    .insight-card .insight-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-1); }
-    .insight-card .insight-value { font-size: 1rem; font-weight: 700; color: var(--text); line-height: 1.5; }
-    .insight-card .insight-value small { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
-    .settings-panel { margin-top: var(--space-6); }
-    .settings-toggle { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; padding: var(--space-3); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); font-weight: 700; color: var(--gold); }
-    .settings-toggle:hover { border-color: var(--gold); }
-    .settings-content { display: none; margin-top: var(--space-3); }
-    .settings-content.open { display: block; }
-    .settings-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .settings-table th, .settings-table td { padding: 0.6rem; text-align: center; border-bottom: 1px solid var(--border); }
-    .settings-table th { background: rgba(212,168,83,0.08); color: var(--gold); font-weight: 700; }
-    .settings-table td { color: var(--text-secondary); }
     .correction-box { background: linear-gradient(135deg, rgba(212,168,83,0.05) 0%, rgba(212,168,83,0.01) 100%); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-top: var(--space-8); }
-    .correction-box h4 { color: var(--gold); margin-bottom: var(--space-4); font-size: var(--text-lg); }
-    .correction-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4); }
-    .correction-result { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); display: none; }
-    .correction-result.show { display: block; }
-    .correction-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-right: 0.5rem; }
-    .correction-badge.user { background: rgba(22,163,74,0.1); color: #16a34a; border: 1px solid rgba(22,163,74,0.3); }
     @media print {
       .hidden-print, .topbar, .main-header, .main-footer, button, select { display: none !important; }
-      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
-      .section { padding: 0 !important; }
-    }
   </style>
 
   <script src="../../calculators/db-client.js"></script>
@@ -397,21 +342,28 @@
     var _dishIngredients = [];
 
     function populateCountrySelect() {
-      var select = document.getElementById('countrySelect');
-      var keys = Object.keys(COUNTRIES_DATA);
-      keys.forEach(function(code) {
-        var c = COUNTRIES_DATA[code];
-        var opt = document.createElement('option');
-        opt.value = code;
-        opt.textContent = c.flag + ' ' + c.nameEn;
-        select.appendChild(opt);
-      });
+  if (window.BondsGeo && window.BondsGeo.bindCountryOnly) {
+    window.BondsGeo.bindCountryOnly({ selectId: 'countrySelect', lang: 'en' });
+  } else {
+    var select = document.getElementById('countrySelect');
+    if (!select) return;
+    select.innerHTML = '';
+    var keys = Object.keys(window.ARAB_COUNTRIES_GEO || {});
+    keys.forEach(function(code) {
+      var c = window.ARAB_COUNTRIES_GEO[code];
+      var opt = document.createElement('option');
+      opt.value = code;
+      opt.textContent = (c.flag || '') + ' ' + (c.nameEn || c.name || code);
+      select.appendChild(opt);
+    });
+  }
     }
 
     function changeCountry(code) {
-      if (!code || !COUNTRIES_DATA[code]) return;
+      if (!code || !window.BondsPlatforms) return;
       currentCountry = code;
-      var c = COUNTRIES_DATA[code];
+      var c = window.BondsPlatforms.getCountryMeta(code);
+      if (!c) return;
       currentCurrency = c.currencySymbolEn;
       document.getElementById('countryNote').textContent = (c.noteEn || '') + ' Currency: ' + c.currencySymbolEn + ' (' + c.currency + ')';
       updateMarketInsights(c);
@@ -494,9 +446,9 @@
       var select = document.getElementById('corrPlatform');
       if (!select) return;
       select.innerHTML = '<option value="">Select platform...</option>';
-      var data = COUNTRIES_DATA[currentCountry];
-      if (!data || !data.platforms) return;
-      data.platforms.forEach(function(p) {
+      var platforms = window.BondsPlatforms ? window.BondsPlatforms.getPlatforms(currentCountry) : [];
+      if (!platforms.length) return;
+      platforms.forEach(function(p) {
         if (p.id === 'plat_direct') return;
         var opt = document.createElement('option');
         opt.value = p.id;
@@ -540,10 +492,10 @@
     }
 
     async function displayCorrections() {
-      var data = COUNTRIES_DATA[currentCountry];
-      if (!data || !data.platforms) return;
-      for (var i = 0; i < data.platforms.length; i++) {
-        var p = data.platforms[i];
+      var platforms = window.BondsPlatforms ? window.BondsPlatforms.getPlatforms(currentCountry) : [];
+      if (!platforms.length) return;
+      for (var i = 0; i < platforms.length; i++) {
+        var p = platforms[i];
         var key = 'correction_' + currentCountry + '_' + p.id;
         var corr = await dbGet(key);
         if (corr && corr.actualFee) {
@@ -645,8 +597,8 @@
       var serviceFee = platform.serviceFee || 0;
       var totalFee = fee + serviceFee;
       var commissionValue = sellingPrice * (totalFee / 100);
-      var countryData = COUNTRIES_DATA[currentCountry];
-      var vatRate = countryData ? (countryData.vatRate || 0) : 0;
+      var countryMeta = window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(currentCountry) : null;
+      var vatRate = countryMeta ? (countryMeta.vatRate || 0) : 0;
       var vatValue = commissionValue * (vatRate / 100);
       var pgFeeValue = sellingPrice * ((platform.paymentGatewayFee || 0) / 100);
       var campaignValue = sellingPrice * ((platform.campaignDiscount || 0) / 100);
@@ -681,14 +633,15 @@
       var sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
       if (!sellingPrice) { BondsUI.toast('⚠️ Enter selling price first', 'warning'); return; }
 
-      var countryData = COUNTRIES_DATA[currentCountry];
-      if (!countryData || !countryData.platforms) return;
+      var countryMeta = window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(currentCountry) : null;
+      var platforms = window.BondsPlatforms ? window.BondsPlatforms.getPlatforms(currentCountry) : [];
+      if (!countryMeta || !platforms.length) return;
 
       var tbody = document.getElementById('platformComparisonBody');
       tbody.innerHTML = '';
 
       var results = [];
-      countryData.platforms.forEach(function(p) {
+      platforms.forEach(function(p) {
         var r = calculatePlatform(foodCost, packagingCost, sellingPrice, p);
         results.push(r);
       });
@@ -864,7 +817,7 @@
         ['Dish Profit Analysis — Bonds Global'],
         [''],
         ['Dish Name', document.getElementById('dishName').value],
-        ['Country', COUNTRIES_DATA[currentCountry] ? COUNTRIES_DATA[currentCountry].nameEn : ''],
+        ['Country', window.BondsGeo ? window.BondsGeo.getCountryName(currentCountry, 'en') : ''],
         ['Currency', currentCurrency],
         [''],
         ['Selling Price', sellingPrice],
@@ -904,11 +857,12 @@
     async function exportExcelSettings() {
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
       if (typeof XLSX === 'undefined') { BondsUI.toast('❌ Failed to load Excel', 'error'); return; }
-      var data = COUNTRIES_DATA[currentCountry];
-      if (!data) return;
+      var countryMeta = window.BondsPlatforms ? window.BondsPlatforms.getCountryMeta(currentCountry) : null;
+      var platforms = window.BondsPlatforms ? window.BondsPlatforms.getPlatforms(currentCountry) : [];
+      if (!countryMeta) return;
       var wb = XLSX.utils.book_new();
       var settingsData = [['Platform', 'Commission %', 'Service Fee %', 'Free Delivery Threshold', 'Restaurant Share', 'Confidence']];
-      data.platforms.forEach(function(p) {
+      platforms.forEach(function(p) {
         if (p.id === 'plat_direct') return;
         settingsData.push([p.nameEn || p.name, p.fee, p.serviceFee || 0, p.freeDelivery ? p.freeDelivery.threshold : '', p.freeDelivery ? p.freeDelivery.restaurantShare : '', p.confidence]);
       });

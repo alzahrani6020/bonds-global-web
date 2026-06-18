@@ -34,29 +34,10 @@
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/calc-functions.js"></script>
   <style>
-    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 640px) { .calc-grid { grid-template-columns: 1fr; } }
-    .calc-input-group { margin-bottom: 1.5rem; }
-    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
     .calc-input-group input[type="number"] { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
     .calc-input-group input[type="number"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
-    .share-bar { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-    .share-bar input { flex: 1; min-width: 200px; }
-    @media (max-width: 640px) {
-      .share-bar { flex-direction: column; }
-      .share-bar input { width: 100%; min-width: auto; }
     }
     .history-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
-    .history-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-    .history-item:hover { border-color: var(--gold); }
-    @media print {
-      .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
-      .calc-grid { grid-template-columns: 1fr 1fr; }
-      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
-      .section { padding: 0 !important; }
-      canvas { max-height: 280px !important; }
-      a { text-decoration: none; color: #000; }
-    }
   </style>
 
   <script src="../../calculators/db-client.js"></script>
@@ -94,6 +75,12 @@
         <!-- Inputs -->
         <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
           <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Pricing Data</h2>
+          <div class="calc-input-group">
+            <label for="country">Country / Market</label>
+            <select id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+              <option value="">Select country</option>
+            </select>
+          </div>
           <div class="calc-input-group">
             <label>Direct Cost per Unit (materials + labor) <abbr title="Cost that changes directly with each unit produced: raw materials + direct labor">ⓘ</abbr></label>
             <input type="number" id="directCost" placeholder="e.g. 150" min="0" />
@@ -928,5 +915,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
 <script src="../../site-layout.js"></script>
+<script src="../../calculators/shared-geo.js"></script>
+
 </body>
 </html>
