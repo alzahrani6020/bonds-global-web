@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تقييم الجدارة الائتمانية | بوندز — أداة التصنيف الائتماني</title>
+  <meta name="description" content="قيم أي شركة أو مصنع أو سند مالي وفق 9 معايير ائتمانية دولية واحصل على تصنيف من AAA إلى عالي المخاطر مع تقرير كامل." />
+  <meta property="og:title" content="تقييم الجدارة الائتمانية | بوندز" />
+  <meta property="og:description" content="أداة مجانية لتقييم الجدارة الائتمانية للشركات والمصانع والسندات المالية." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/creditworthiness" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="تقييم الجدارة الائتمانية | بوندز" />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="shared-calculators.css" />
+  <link rel="stylesheet" href="scenario-cards-shared.css" />
+  <script src="shared-utils.js"></script>
+  <script src="shared-export.js"></script>
+  <script src="creditworthiness-engine.js"></script>
+  <link rel="stylesheet" href="../header-footer.css?v=2" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://bonds-global.com/calculators/creditworthiness" />
+  <style>
+    .cw-container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+    .cw-header { text-align: center; margin-bottom: 2rem; }
+    .cw-header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; color: var(--gold); margin-bottom: 0.5rem; }
+    .cw-header p { color: var(--text-secondary); max-width: 680px; margin: 0 auto; }
+    .cw-badge { display: inline-block; background: rgba(212,168,83,0.12); color: var(--gold); border: 1px solid rgba(212,168,83,0.3); padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem; }
+    .cw-card { margin-bottom: 1.5rem; }
+    .cw-section-title { font-size: 1.15rem; font-weight: 800; color: var(--gold); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .cw-section-subtitle { font-size: 0.95rem; font-weight: 700; color: var(--text-secondary); margin: 1.25rem 0 0.75rem; }
+    .cw-result { display: none; margin-top: 2rem; }
+    .cw-score-box { text-align: center; padding: 2rem; border-radius: 1rem; background: var(--bg-card); border: 1px solid var(--border); margin-bottom: 1.5rem; }
+    .cw-score-box .big-score { font-size: clamp(3rem, 7vw, 5rem); font-weight: 900; line-height: 1; margin: 0.5rem 0; }
+    .cw-score-box .rating-label { display: inline-block; padding: 0.5rem 1.25rem; border-radius: 999px; font-weight: 800; font-size: 1.2rem; margin-top: 0.5rem; }
+    .axis-row { display: grid; grid-template-columns: 1fr 3.5rem 3.5rem; gap: 1rem; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+    .axis-row:last-child { border-bottom: none; }
+    .axis-name { font-weight: 700; }
+    .axis-weight { color: var(--text-secondary); font-size: 0.85rem; }
+    .axis-bar-bg { height: 8px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; margin-top: 0.35rem; }
+    .axis-bar { height: 100%; border-radius: 999px; transition: width 0.8s ease; }
+    .cw-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+    .cw-list { list-style: none; padding: 0; margin: 0; }
+    .cw-list li { padding: 0.6rem 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; }
+    .cw-list li:last-child { border-bottom: none; }
+    .cw-risk { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; }
+    .cw-strength { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 0.75rem; padding: 1rem; }
+    .cw-weak { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-radius: 0.75rem; padding: 1rem; }
+    .cw-recommend { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; }
+    .ratings-legend { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1rem; }
+    .ratings-legend span { padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+    @media print {
+      #site-header, #site-footer, .bonds-btn, form { display: none !important; }
+      .cw-result { display: block !important; }
+      body { background: #fff; color: #000; }
+    }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+  <div class="cw-container">
+    <div class="cw-header">
+      <div class="cw-badge">🛡️ أداة التقييم الائتماني</div>
+      <h1>تقييم الجدارة الائتمانية</h1>
+      <p>قيم أي شركة أو مصنع أو سند مالي وفق <strong>9 معايير ائتمانية</strong> ونحصل على تصنيف من <strong>AAA</strong> إلى <strong>عالي المخاطر</strong> مع تقرير تحليلي كامل.</p>
+    </div>
+
+    <form id="cwForm" onsubmit="event.preventDefault(); calculateCredit();">
+      <!-- General -->
+      <div class="bonds-card cw-card">
+        <div class="cw-section-title">📝 معلومات أساسية</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group">
+            <label for="companyName">اسم الشركة / المشروع</label>
+            <input id="companyName" class="bonds-input" type="text" placeholder="مثال: مصنع الأمل للبلاستيك" />
+          </div>
+          <div class="bonds-form-group">
+            <label for="sector">القطاع</label>
+            <input id="sector" class="bonds-input" type="text" placeholder="مثال: التصنيع الغذائي" />
+          </div>
+          <div class="bonds-form-group">
+            <label for="country">الدولة</label>
+            <input id="country" class="bonds-input" type="text" placeholder="مثال: السعودية" />
+          </div>
+          <div class="bonds-form-group">
+            <label for="financingAmount">مبلغ التمويل المطلوب</label>
+            <input id="financingAmount" class="bonds-input" type="number" min="0" placeholder="0" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial statements -->
+      <div class="bonds-card cw-card">
+        <div class="cw-section-title">📊 القوائم المالية السنوية</div>
+        <p style="color:var(--text-secondary);font-size:.9rem;margin-bottom:1rem;">أدخل الأرقام بالعملة المحلية. ضع صفراً إذا لم يتوفر البند.</p>
+
+        <div class="cw-section-subtitle">الميزانية العمومية</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label for="totalAssets">إجمالي الأصول</label><input id="totalAssets" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="currentAssets">الأصول المتداولة</label><input id="currentAssets" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="inventory">المخزون</label><input id="inventory" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="cash">النقدية والما في حكمها</label><input id="cash" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="currentLiabilities">الالتزامات المتداولة</label><input id="currentLiabilities" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="totalDebt">إجمالي الديون</label><input id="totalDebt" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="shortTermDebt">الديون قصيرة الأجل</label><input id="shortTermDebt" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="longTermDebt">الديون طويلة الأجل</label><input id="longTermDebt" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="totalEquity">حقوق الملكية</label><input id="totalEquity" class="bonds-input" type="number" placeholder="0" /></div>
+        </div>
+
+        <div class="cw-section-subtitle">قائمة الدخل</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label for="revenue">الإيرادات السنوية</label><input id="revenue" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="cogs">تكلفة الإيرادات</label><input id="cogs" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="operatingProfit">ربح التشغيل (EBIT)</label><input id="operatingProfit" class="bonds-input" type="number" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="netProfit">صافي الربح</label><input id="netProfit" class="bonds-input" type="number" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="interestExpense">مصاريف الفوائد</label><input id="interestExpense" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="taxExpense">الضريبة</label><input id="taxExpense" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+        </div>
+
+        <div class="cw-section-subtitle">التدفقات النقدية</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label for="operatingCashFlow">التدفق النقدي التشغيلي</label><input id="operatingCashFlow" class="bonds-input" type="number" placeholder="0" /></div>
+          <div class="bonds-form-group">
+            <label for="cashFlowStability">استقرار التدفقات النقدية (1 ضعيف — 5 ممتاز)</label>
+            <select id="cashFlowStability" class="bonds-input">
+              <option value="20">1 — غير مستقر</option>
+              <option value="40">2 — ضعيف الاستقرار</option>
+              <option value="60" selected>3 — متوسط</option>
+              <option value="80">4 — مستقر</option>
+              <option value="100">5 — مستقر جداً</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Credit history -->
+      <div class="bonds-card cw-card">
+        <div class="cw-section-title">💳 السجل الائتماني</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group">
+            <label for="defaults">عدد حالات التعثر السابقة</label>
+            <select id="defaults" class="bonds-input">
+              <option value="0" selected>0</option>
+              <option value="1">1</option>
+              <option value="2+">2+</option>
+            </select>
+          </div>
+          <div class="bonds-form-group">
+            <label for="paymentRegularity">الانتظام في السداد (%)</label>
+            <input id="paymentRegularity" class="bonds-input" type="range" min="0" max="100" value="80" oninput="document.getElementById('prVal').textContent=this.value+'%'" />
+            <div style="text-align:center;font-weight:700;color:var(--gold);margin-top:.25rem;" id="prVal">80%</div>
+          </div>
+          <div class="bonds-form-group">
+            <label for="existingObligations">عدد الالتزامات الائتمانية الحالية</label>
+            <input id="existingObligations" class="bonds-input" type="number" min="0" value="0" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Governance -->
+      <div class="bonds-card cw-card">
+        <div class="cw-section-title">👔 الإدارة والحوكمة</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label for="mgmtExperience">سنوات خبرة الإدارة في القطاع</label><input id="mgmtExperience" class="bonds-input" type="number" min="0" value="5" /></div>
+          <div class="bonds-form-group">
+            <label for="transparency">شفافية الإفصاح المالي (1 ضعيف — 5 ممتاز)</label>
+            <select id="transparency" class="bonds-input">
+              <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
+            </select>
+          </div>
+          <div class="bonds-form-group">
+            <label for="riskManagement">جودة إدارة المخاطر (1 ضعيف — 5 ممتاز)</label>
+            <select id="riskManagement" class="bonds-input">
+              <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sector/market -->
+      <div class="bonds-card cw-card">
+        <div class="cw-section-title">🏭 القطاع والسوق</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group">
+            <label for="marketGrowth">نمو السوق (1 ضعيف — 5 قوي)</label>
+            <select id="marketGrowth" class="bonds-input">
+              <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
+            </select>
+          </div>
+          <div class="bonds-form-group">
+            <label for="competition">شدة المنافسة (1 منخفضة — 5 شديدة)</label>
+            <select id="competition" class="bonds-input">
+              <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
+            </select>
+          </div>
+          <div class="bonds-form-group">
+            <label for="sectorRisk">مخاطر القطاع (1 منخفضة — 5 عالية)</label>
+            <select id="sectorRisk" class="bonds-input">
+              <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collateral -->
+      <div class="bonds-card cw-card">
+        <div class="cw-section-title">🔒 الضمانات</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label for="realEstateValue">قيمة العقارات</label><input id="realEstateValue" class="bonds-input" type="number" min="0" value="0" /></div>
+          <div class="bonds-form-group"><label for="equipmentValue">قيمة المعدات والآلات</label><input id="equipmentValue" class="bonds-input" type="number" min="0" value="0" /></div>
+          <div class="bonds-form-group"><label for="financialAssetsValue">قيمة الأصول المالية</label><input id="financialAssetsValue" class="bonds-input" type="number" min="0" value="0" /></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin:2rem 0 1rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <button class="bonds-btn bonds-btn-primary" type="submit">🧮 احسب التقييم الائتماني</button>
+        <button class="bonds-btn bonds-btn-secondary" type="button" onclick="loadSampleData()">📋 بيانات تجريبية</button>
+        <button class="bonds-btn bonds-btn-secondary" type="button" onclick="window.print()">🖨️ طباعة</button>
+        <button class="bonds-btn bonds-btn-secondary" type="button" onclick="exportPDF()">📄 تحميل PDF</button>
+      </div>
+    </form>
+
+    <div id="result" class="cw-result"></div>
+  </div>
+  <div id="site-footer"></div>
+  <script src="../site-layout.js"></script>
+
+  <script>
+    (function(){
+      'use strict';
+      const STORAGE_KEY = 'bonds_creditworthiness_inputs';
+
+      function get(id){ return document.getElementById(id); }
+      function num(id){ const v = parseFloat(get(id)?.value); return isNaN(v) ? 0 : v; }
+      function txt(id){ return get(id)?.value?.trim() || ''; }
+
+      function gather(){
+        const realEstate = num('realEstateValue');
+        const equipment = num('equipmentValue');
+        const financial = num('financialAssetsValue');
+        return {
+          companyName: txt('companyName'),
+          sector: txt('sector'),
+          country: txt('country'),
+          financingAmount: num('financingAmount'),
+          totalAssets: num('totalAssets'),
+          currentAssets: num('currentAssets'),
+          inventory: num('inventory'),
+          cash: num('cash'),
+          currentLiabilities: num('currentLiabilities'),
+          totalDebt: num('totalDebt'),
+          shortTermDebt: num('shortTermDebt'),
+          longTermDebt: num('longTermDebt'),
+          totalEquity: num('totalEquity'),
+          revenue: num('revenue'),
+          cogs: num('cogs'),
+          operatingProfit: num('operatingProfit'),
+          netProfit: num('netProfit'),
+          interestExpense: num('interestExpense'),
+          taxExpense: num('taxExpense'),
+          operatingCashFlow: num('operatingCashFlow'),
+          cashFlowStability: parseInt(get('cashFlowStability').value,10),
+          defaults: get('defaults').value,
+          paymentRegularity: num('paymentRegularity'),
+          existingObligations: num('existingObligations'),
+          mgmtExperience: num('mgmtExperience'),
+          transparency: parseInt(get('transparency').value,10),
+          riskManagement: parseInt(get('riskManagement').value,10),
+          marketGrowth: parseInt(get('marketGrowth').value,10),
+          competition: parseInt(get('competition').value,10),
+          sectorRisk: parseInt(get('sectorRisk').value,10),
+          collateralTotal: realEstate + equipment + financial
+        };
+      }
+
+      function colorForScore(score){
+        if(score >= 80) return '#22c55e';
+        if(score >= 60) return '#facc15';
+        if(score >= 40) return '#fb923c';
+        return '#ef4444';
+      }
+
+      function fmt(n){ return n.toLocaleString('ar-SA', {maximumFractionDigits:1}); }
+      function fmtPct(n){ return (n*100).toFixed(1)+'%'; }
+
+      function render(result, report){
+        const r = result.ratios;
+        const rating = result.rating;
+        const axes = Object.values(result.axes);
+        const now = new Date().toLocaleDateString('ar-SA');
+        const company = result.inputs.companyName || 'الشركة / المشروع';
+
+        const axesRows = axes.map(a => {
+          const color = colorForScore(a.score);
+          return `
+            <div class="axis-row">
+              <div>
+                <div class="axis-name">${a.label}</div>
+                <div class="axis-bar-bg"><div class="axis-bar" style="width:${a.score}%;background:${color};"></div></div>
+              </div>
+              <div style="font-weight:800;text-align:center;">${a.score}</div>
+              <div class="axis-weight">${(a.weight*100).toFixed(0)}%</div>
+            </div>`;
+        }).join('');
+
+        const strengths = report.strengths.length
+          ? `<ul class="cw-list">${report.strengths.map(s => `<li>✅ ${s}</li>`).join('')}</ul>`
+          : '<p style="color:var(--text-secondary);">لا توجد نقاط قوة واضحة في التقييم الحالي.</p>';
+        const weaknesses = report.weaknesses.length
+          ? `<ul class="cw-list">${report.weaknesses.map(s => `<li>⚠️ ${s}</li>`).join('')}</ul>`
+          : '<p style="color:var(--text-secondary);">لا توجد نقاط ضعف حرجة.</p>';
+        const recommendations = report.recommendations.length
+          ? report.recommendations.map(rec => `<div class="cw-recommend">💡 ${rec}</div>`).join('')
+          : '';
+
+        const risks = [];
+        if(r.currentRatio < 1) risks.push('السيولة ضعيفة: الأصول المتداولة لا تغطي الالتزامات المتداولة.');
+        if(r.debtRatio > 0.6) risks.push('المديونية مرتفعة نسبةً إلى إجمالي الأصول.');
+        if(r.interestCoverage < 2) risks.push('تغطية الفوائد ضعيفة؛ قد يواجه صعوبة في سداد أقساط الديون.');
+        if(r.netProfitMargin < 0.03) risks.push('هامش الربح منخفض؛ أي صدمة تكلفة قد تؤدي لخسارة.');
+        if(result.axes.creditHistory.score < 50) risks.push('السجل الائتماني يحتوي على تعثرات أو تاريخ سداد ضعيف.');
+        if(result.inputs.collateralTotal < result.inputs.financingAmount * 0.8) risks.push('الضمانات غير كافية لتغطية مبلغ التمويل المطلوب.');
+        if(risks.length === 0) risks.push('المخاطر الظاهرة محدودة بناءً على البيانات المُدخلة.');
+
+        const riskHtml = risks.map(risk => `<div class="cw-risk">🔴 ${risk}</div>`).join('');
+
+        get('result').innerHTML = `
+          <div class="bonds-card cw-card">
+            <div class="cw-section-title">📄 ملخص تنفيذي</div>
+            <p style="color:var(--text-secondary);margin-bottom:1rem;">تقرير تقييم الجدارة الائتمانية لـ <strong>${company}</strong> — ${result.inputs.sector || '—'} — ${result.inputs.country || '—'} — بتاريخ ${now}.</p>
+            <div class="cw-score-box">
+              <div style="color:var(--text-secondary);font-weight:700;">الدرجة الإجمالية / 100</div>
+              <div class="big-score" style="color:${rating.color};">${result.totalScore}</div>
+              <div class="rating-label" style="background:${rating.color}20;color:${rating.color};border:1px solid ${rating.color}80;">${rating.label}</div>
+              <p style="margin-top:1rem;color:var(--text-secondary);">${rating.note}</p>
+            </div>
+          </div>
+
+          <div class="bonds-card cw-card">
+            <div class="cw-section-title">📊 التحليل التفصيلي للمعايير التسعة</div>
+            ${axesRows}
+          </div>
+
+          <div class="cw-grid-2">
+            <div class="bonds-card cw-card cw-strength">
+              <div class="cw-section-title" style="margin:0 0 .75rem;">💪 نقاط القوة</div>
+              ${strengths}
+            </div>
+            <div class="bonds-card cw-card cw-weak">
+              <div class="cw-section-title" style="margin:0 0 .75rem;">⚠️ نقاط الضعف</div>
+              ${weaknesses}
+            </div>
+          </div>
+
+          <div class="bonds-card cw-card">
+            <div class="cw-section-title">🚨 المخاطر الرئيسية</div>
+            ${riskHtml}
+          </div>
+
+          <div class="bonds-card cw-card">
+            <div class="cw-section-title">🎯 التصنيف الائتماني النهائي</div>
+            <p>التصنيف المُستخلص للشركة/المشروع هو <strong style="color:${rating.color};">${rating.label}</strong> بدرجة إجمالية <strong>${result.totalScore}</strong> من 100.</p>
+            <div class="ratings-legend">
+              <span style="background:#22c55e20;color:#22c55e;">AAA ≥90</span>
+              <span style="background:#4ade8020;color:#4ade80;">AA 80–89</span>
+              <span style="background:#86efac20;color:#86efac;">A 70–79</span>
+              <span style="background:#facc1520;color:#facc15;">BBB 60–69</span>
+              <span style="background:#fbbf2420;color:#fbbf24;">BB 50–59</span>
+              <span style="background:#fb923c20;color:#fb923c;">B 40–49</span>
+              <span style="background:#ef444420;color:#ef4444;">عالي المخاطر &lt;40</span>
+            </div>
+          </div>
+
+          <div class="bonds-card cw-card">
+            <div class="cw-section-title">🛠️ توصيات لرفع الجدارة الائتمانية خلال 12 شهراً</div>
+            ${recommendations}
+          </div>
+
+          <div class="bonds-card cw-card">
+            <div class="cw-section-title">🔢 النسب المالية المستخدمة</div>
+            <div class="bonds-form-row" style="font-size:.9rem;">
+              <div><strong>نسبة حقوق الملكية:</strong> ${fmtPct(r.equityRatio)}</div>
+              <div><strong>النسبة الجارية:</strong> ${r.currentRatio.toFixed(2)}</div>
+              <div><strong>النسبة السريعة:</strong> ${r.quickRatio.toFixed(2)}</div>
+              <div><strong>نسبة الديون:</strong> ${fmtPct(r.debtRatio)}</div>
+              <div><strong>الديون/حقوق الملكية:</strong> ${r.debtToEquity.toFixed(2)}</div>
+              <div><strong>هامش صافي الربح:</strong> ${fmtPct(r.netProfitMargin)}</div>
+              <div><strong>العائد على الأصول:</strong> ${fmtPct(r.roa)}</div>
+              <div><strong>تغطية الفوائد:</strong> ${r.interestCoverage.toFixed(2)}x</div>
+              <div><strong>تغطية خدمة الدين:</strong> ${r.dscr.toFixed(2)}x</div>
+              <div><strong>تغطية الضمانات:</strong> ${(r.collateralCoverage*100).toFixed(0)}%</div>
+            </div>
+          </div>
+        `;
+      }
+
+      function saveInputs(){
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(gather())); } catch(e){}
+      }
+
+      function loadInputs(){
+        try {
+          const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if(!data) return;
+          for(const key in data){
+            const el = get(key);
+            if(!el) continue;
+            if(el.type === 'checkbox') el.checked = !!data[key];
+            else el.value = data[key];
+          }
+          get('prVal').textContent = (data.paymentRegularity || 0) + '%';
+        } catch(e){}
+      }
+
+      window.calculateCredit = function(){
+        const data = gather();
+        saveInputs();
+        const result = CreditEngine.evaluate(data);
+        const report = CreditEngine.generateReport(result, 'ar');
+        render(result, report);
+        const resultEl = get('result');
+        resultEl.style.display = 'block';
+        resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+
+      const TOOLTIPS = {
+        companyName: 'اسم الشركة أو المشروع المراد تقييمه.',
+        sector: 'القطاع الاقتصادي مثل التصنيع أو التجارة أو الخدمات.',
+        country: 'الدولة التي تعمل فيها الشركة.',
+        financingAmount: 'مبلغ التمويل أو القرض المطلوب من الجهة الممولة.',
+        totalAssets: 'إجمالي ما تمتلكه الشركة من أصول في الميزانية العمومية.',
+        currentAssets: 'الأصول المتوقع تحويلها إلى نقد خلال سنة.',
+        inventory: 'قيمة البضاعة والمواد الخام والمنتجات نصف المصنعة.',
+        cash: 'النقدية في الخزينة والبنوك والاستثمارات قصيرة الأجل.',
+        currentLiabilities: 'الالتزامات المستحقة السداد خلال سنة.',
+        totalDebt: 'إجمالي الديون قصيرة وطويلة الأجل.',
+        shortTermDebt: 'الديون المستحقة خلال 12 شهراً.',
+        longTermDebt: 'الديون المستحقة بعد 12 شهراً.',
+        totalEquity: 'حقوق الملكية = الأصول - الالتزامات.',
+        revenue: 'إجمالي الإيرادات السنوية من المبيعات والخدمات.',
+        cogs: 'تكلفة البضاعة المباعة أو المواد المباشرة.',
+        operatingProfit: 'ربح التشغيل قبل الفوائد والضرائب (EBIT).',
+        netProfit: 'صافي الربح بعد جميع المصاريف.',
+        interestExpense: 'مصاريف الفوائد على الديون خلال السنة.',
+        taxExpense: 'مصاريف الضريبة المدفوعة خلال السنة.',
+        operatingCashFlow: 'النقد الداخل من الأنشطة التشغيلية.',
+        cashFlowStability: 'مدى استقرار التدفقات النقدية على مدار السنوات.',
+        defaults: 'عدد المرات التي تعثرت فيها الشركة عن السداد.',
+        paymentRegularity: 'نسبة الالتزام بمواعيد السداد خلال السنوات الأخيرة.',
+        existingObligations: 'عدد الالتزامات الائتمانية الحالية.',
+        mgmtExperience: 'متوسط سنوات خبرة الإدارة العليا في نفس القطاع.',
+        transparency: 'جودة الإفصاح المالي والتقارير الدورية.',
+        riskManagement: 'وجود سياسات إدارة مخاطر وخطط طوارئ.',
+        marketGrowth: 'معدل نمو السوق المتوقع للقطاع.',
+        competition: 'عدد المنافسين وشدة المنافسة في القطاع.',
+        sectorRisk: 'مستوى المخاطر التنظيمية والاقتصادية والدورية للقطاع.',
+        realEstateValue: 'قيمة العقارات المملوكة أو المُقدمة كضمان.',
+        equipmentValue: 'قيمة المعدات والآلات.',
+        financialAssetsValue: 'قيمة الأسهم والسندات والودائع وغيرها.'
+      };
+
+      function addTooltips(){
+        Object.keys(TOOLTIPS).forEach(id => {
+          const input = get(id);
+          const label = input && document.querySelector('label[for="' + id + '"]');
+          if(!label) return;
+          const abbr = document.createElement('abbr');
+          abbr.textContent = ' ⓘ';
+          abbr.title = TOOLTIPS[id];
+          abbr.style.cursor = 'help';
+          abbr.style.color = 'var(--gold)';
+          abbr.style.marginInlineStart = '0.35rem';
+          label.appendChild(abbr);
+        });
+      }
+
+      window.loadSampleData = function(){
+        const sample = {
+          companyName: 'شركة النمو الصناعي',
+          sector: 'التصنيع',
+          country: 'السعودية',
+          financingAmount: 2000000,
+          totalAssets: 10000000,
+          currentAssets: 3500000,
+          inventory: 1200000,
+          cash: 600000,
+          currentLiabilities: 2000000,
+          totalDebt: 4500000,
+          shortTermDebt: 1000000,
+          longTermDebt: 3500000,
+          totalEquity: 5500000,
+          revenue: 15000000,
+          cogs: 9500000,
+          operatingProfit: 2200000,
+          netProfit: 1600000,
+          interestExpense: 300000,
+          taxExpense: 300000,
+          operatingCashFlow: 1800000,
+          cashFlowStability: 80,
+          defaults: '0',
+          paymentRegularity: 90,
+          existingObligations: 2,
+          mgmtExperience: 12,
+          transparency: 4,
+          riskManagement: 4,
+          marketGrowth: 4,
+          competition: 3,
+          sectorRisk: 3,
+          realEstateValue: 3000000,
+          equipmentValue: 1500000,
+          financialAssetsValue: 500000
+        };
+        for(const key in sample){
+          const el = get(key);
+          if(el) el.value = sample[key];
+        }
+        get('prVal').textContent = sample.paymentRegularity + '%';
+        if(window.BondsUI && BondsUI.toast) BondsUI.toast('✅ تم تحميل بيانات تجريبية', 'success');
+      };
+
+      window.exportPDF = function(){
+        const company = txt('companyName') || 'تقرير الجدارة الائتمانية';
+        exportElementToPDF({
+          elementId: 'result',
+          filename: company.replace(/\s+/g, '_') + '_credit_report.pdf',
+          bgColor: '#0a0f1a',
+          scale: 2
+        });
+      };
+
+      addTooltips();
+      loadInputs();
+    })();
+  </script>
+</body>
+</html>

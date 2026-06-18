@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Creditworthiness Assessment | Bonds — Credit Rating Tool</title>
+  <meta name="description" content="Evaluate any company, factory, or financial bond using 9 international credit criteria and get a rating from AAA to High Risk with a full analytical report." />
+  <meta property="og:title" content="Creditworthiness Assessment | Bonds" />
+  <meta property="og:description" content="Free creditworthiness assessment tool for companies, factories, and financial bonds." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/en/calculators/creditworthiness" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Creditworthiness Assessment | Bonds" />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
+  <link rel="stylesheet" href="../../calculators/scenario-cards-shared.css" />
+  <script src="../../calculators/shared-utils.js"></script>
+  <script src="../../calculators/shared-export.js"></script>
+  <script src="../../calculators/creditworthiness-engine.js"></script>
+  <link rel="stylesheet" href="../../header-footer.css?v=2" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://bonds-global.com/en/calculators/creditworthiness" />
+  <style>
+    .cw-container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+    .cw-header { text-align: center; margin-bottom: 2rem; }
+    .cw-header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; color: var(--gold); margin-bottom: 0.5rem; }
+    .cw-header p { color: var(--text-secondary); max-width: 680px; margin: 0 auto; }
+    .cw-badge { display: inline-block; background: rgba(212,168,83,0.12); color: var(--gold); border: 1px solid rgba(212,168,83,0.3); padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem; }
+    .cw-card { margin-bottom: 1.5rem; }
+    .cw-section-title { font-size: 1.15rem; font-weight: 800; color: var(--gold); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .cw-section-subtitle { font-size: 0.95rem; font-weight: 700; color: var(--text-secondary); margin: 1.25rem 0 0.75rem; }
+    .cw-result { display: none; margin-top: 2rem; }
+    .cw-score-box { text-align: center; padding: 2rem; border-radius: 1rem; background: var(--bg-card); border: 1px solid var(--border); margin-bottom: 1.5rem; }
+    .cw-score-box .big-score { font-size: clamp(3rem, 7vw, 5rem); font-weight: 900; line-height: 1; margin: 0.5rem 0; }
+    .cw-score-box .rating-label { display: inline-block; padding: 0.5rem 1.25rem; border-radius: 999px; font-weight: 800; font-size: 1.2rem; margin-top: 0.5rem; }
+    .axis-row { display: grid; grid-template-columns: 1fr 3.5rem 3.5rem; gap: 1rem; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+    .axis-row:last-child { border-bottom: none; }
+    .axis-name { font-weight: 700; }
+    .axis-weight { color: var(--text-secondary); font-size: 0.85rem; }
+    .axis-bar-bg { height: 8px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; margin-top: 0.35rem; }
+    .axis-bar { height: 100%; border-radius: 999px; transition: width 0.8s ease; }
+    .cw-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+    .cw-list { list-style: none; padding: 0; margin: 0; }
+    .cw-list li { padding: 0.6rem 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; }
+    .cw-list li:last-child { border-bottom: none; }
+    .cw-risk { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; }
+    .cw-strength { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 0.75rem; padding: 1rem; }
+    .cw-weak { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-radius: 0.75rem; padding: 1rem; }
+    .cw-recommend { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; }
+    .ratings-legend { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1rem; }
+    .ratings-legend span { padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+    @media print {
+      #site-header, #site-footer, .bonds-btn, form { display: none !important; }
+      .cw-result { display: block !important; }
+      body { background: #fff; color: #000; }
+    }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+  <div class="cw-container">
+    <div class="cw-header">
+      <div class="cw-badge">🛡️ Credit Rating Tool</div>
+      <h1>Creditworthiness Assessment</h1>
+      <p>Evaluate any <strong>company, factory, or financial bond</strong> using <strong>9 international credit criteria</strong> and get a rating from <strong>AAA</strong> to <strong>High Risk</strong> with a full analytical report.</p>
+    </div>
+
+    <form id="cwForm" onsubmit="event.preventDefault(); calculateCredit();">
+      <!-- General -->
+      <div class="bonds-card cw-card">
+        <div class="cw-section-title">📝 Basic Information</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group">
+            <label for="companyName">Company / Project Name</label>
+            <input id="companyName" class="bonds-input" type="text" placeholder="e.g. Al-Amal Plastic Factory" />
+          </div>
+          <div class="bonds-form-group">
+            <label for="sector">Sector</label>
+            <input id="sector" class="bonds-input" type="text" placeholder="e.g. Food Manufacturing" />
+          </div>
+          <div class="bonds-form-group">
+            <label for="country">Country</label>
+            <input id="country" class="bonds-input" type="text" placeholder="e.g. Saudi Arabia" />
+          </div>
+          <div class="bonds-form-group">
+            <label for="financingAmount">Requested Financing Amount</label>
+            <input id="financingAmount" class="bonds-input" type="number" min="0" placeholder="0" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial statements -->
+      <div class="bonds-card cw-card">
+        <div class="cw-section-title">📊 Annual Financial Statements</div>
+        <p style="color:var(--text-secondary);font-size:.9rem;margin-bottom:1rem;">Enter figures in local currency. Use zero if an item is not available.</p>
+
+        <div class="cw-section-subtitle">Balance Sheet</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label for="totalAssets">Total Assets</label><input id="totalAssets" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="currentAssets">Current Assets</label><input id="currentAssets" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="inventory">Inventory</label><input id="inventory" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="cash">Cash & Cash Equivalents</label><input id="cash" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="currentLiabilities">Current Liabilities</label><input id="currentLiabilities" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="totalDebt">Total Debt</label><input id="totalDebt" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="shortTermDebt">Short-Term Debt</label><input id="shortTermDebt" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="longTermDebt">Long-Term Debt</label><input id="longTermDebt" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="totalEquity">Total Equity</label><input id="totalEquity" class="bonds-input" type="number" placeholder="0" /></div>
+        </div>
+
+        <div class="cw-section-subtitle">Income Statement</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label for="revenue">Annual Revenue</label><input id="revenue" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="cogs">Cost of Revenue</label><input id="cogs" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="operatingProfit">Operating Profit (EBIT)</label><input id="operatingProfit" class="bonds-input" type="number" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="netProfit">Net Profit</label><input id="netProfit" class="bonds-input" type="number" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="interestExpense">Interest Expense</label><input id="interestExpense" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+          <div class="bonds-form-group"><label for="taxExpense">Tax Expense</label><input id="taxExpense" class="bonds-input" type="number" min="0" placeholder="0" /></div>
+        </div>
+
+        <div class="cw-section-subtitle">Cash Flows</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label for="operatingCashFlow">Operating Cash Flow</label><input id="operatingCashFlow" class="bonds-input" type="number" placeholder="0" /></div>
+          <div class="bonds-form-group">
+            <label for="cashFlowStability">Cash Flow Stability (1 weak — 5 excellent)</label>
+            <select id="cashFlowStability" class="bonds-input">
+              <option value="20">1 — Unstable</option>
+              <option value="40">2 — Weak stability</option>
+              <option value="60" selected>3 — Average</option>
+              <option value="80">4 — Stable</option>
+              <option value="100">5 — Very stable</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Credit history -->
+      <div class="bonds-card cw-card">
+        <div class="cw-section-title">💳 Credit History</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group">
+            <label for="defaults">Previous Defaults</label>
+            <select id="defaults" class="bonds-input">
+              <option value="0" selected>0</option>
+              <option value="1">1</option>
+              <option value="2+">2+</option>
+            </select>
+          </div>
+          <div class="bonds-form-group">
+            <label for="paymentRegularity">Payment Regularity (%)</label>
+            <input id="paymentRegularity" class="bonds-input" type="range" min="0" max="100" value="80" oninput="document.getElementById('prVal').textContent=this.value+'%'" />
+            <div style="text-align:center;font-weight:700;color:var(--gold);margin-top:.25rem;" id="prVal">80%</div>
+          </div>
+          <div class="bonds-form-group">
+            <label for="existingObligations">Current Credit Obligations</label>
+            <input id="existingObligations" class="bonds-input" type="number" min="0" value="0" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Governance -->
+      <div class="bonds-card cw-card">
+        <div class="cw-section-title">👔 Management & Governance</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label for="mgmtExperience">Management Experience (years)</label><input id="mgmtExperience" class="bonds-input" type="number" min="0" value="5" /></div>
+          <div class="bonds-form-group">
+            <label for="transparency">Financial Disclosure Transparency (1 weak — 5 excellent)</label>
+            <select id="transparency" class="bonds-input">
+              <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
+            </select>
+          </div>
+          <div class="bonds-form-group">
+            <label for="riskManagement">Risk Management Quality (1 weak — 5 excellent)</label>
+            <select id="riskManagement" class="bonds-input">
+              <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sector/market -->
+      <div class="bonds-card cw-card">
+        <div class="cw-section-title">🏭 Sector & Market</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group">
+            <label for="marketGrowth">Market Growth (1 weak — 5 strong)</label>
+            <select id="marketGrowth" class="bonds-input">
+              <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
+            </select>
+          </div>
+          <div class="bonds-form-group">
+            <label for="competition">Competition Intensity (1 low — 5 fierce)</label>
+            <select id="competition" class="bonds-input">
+              <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
+            </select>
+          </div>
+          <div class="bonds-form-group">
+            <label for="sectorRisk">Sector Risk (1 low — 5 high)</label>
+            <select id="sectorRisk" class="bonds-input">
+              <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collateral -->
+      <div class="bonds-card cw-card">
+        <div class="cw-section-title">🔒 Collateral</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label for="realEstateValue">Real Estate Value</label><input id="realEstateValue" class="bonds-input" type="number" min="0" value="0" /></div>
+          <div class="bonds-form-group"><label for="equipmentValue">Equipment & Machinery Value</label><input id="equipmentValue" class="bonds-input" type="number" min="0" value="0" /></div>
+          <div class="bonds-form-group"><label for="financialAssetsValue">Financial Assets Value</label><input id="financialAssetsValue" class="bonds-input" type="number" min="0" value="0" /></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin:2rem 0 1rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <button class="bonds-btn bonds-btn-primary" type="submit">🧮 Calculate Credit Rating</button>
+        <button class="bonds-btn bonds-btn-secondary" type="button" onclick="loadSampleData()">📋 Sample Data</button>
+        <button class="bonds-btn bonds-btn-secondary" type="button" onclick="window.print()">🖨️ Print</button>
+        <button class="bonds-btn bonds-btn-secondary" type="button" onclick="exportPDF()">📄 Download PDF</button>
+      </div>
+    </form>
+
+    <div id="result" class="cw-result"></div>
+  </div>
+  <div id="site-footer"></div>
+  <script src="../../site-layout.js"></script>
+
+  <script>
+    (function(){
+      'use strict';
+      const STORAGE_KEY = 'bonds_creditworthiness_inputs_en';
+
+      function get(id){ return document.getElementById(id); }
+      function num(id){ const v = parseFloat(get(id)?.value); return isNaN(v) ? 0 : v; }
+      function txt(id){ return get(id)?.value?.trim() || ''; }
+
+      function gather(){
+        const realEstate = num('realEstateValue');
+        const equipment = num('equipmentValue');
+        const financial = num('financialAssetsValue');
+        return {
+          companyName: txt('companyName'),
+          sector: txt('sector'),
+          country: txt('country'),
+          financingAmount: num('financingAmount'),
+          totalAssets: num('totalAssets'),
+          currentAssets: num('currentAssets'),
+          inventory: num('inventory'),
+          cash: num('cash'),
+          currentLiabilities: num('currentLiabilities'),
+          totalDebt: num('totalDebt'),
+          shortTermDebt: num('shortTermDebt'),
+          longTermDebt: num('longTermDebt'),
+          totalEquity: num('totalEquity'),
+          revenue: num('revenue'),
+          cogs: num('cogs'),
+          operatingProfit: num('operatingProfit'),
+          netProfit: num('netProfit'),
+          interestExpense: num('interestExpense'),
+          taxExpense: num('taxExpense'),
+          operatingCashFlow: num('operatingCashFlow'),
+          cashFlowStability: parseInt(get('cashFlowStability').value,10),
+          defaults: get('defaults').value,
+          paymentRegularity: num('paymentRegularity'),
+          existingObligations: num('existingObligations'),
+          mgmtExperience: num('mgmtExperience'),
+          transparency: parseInt(get('transparency').value,10),
+          riskManagement: parseInt(get('riskManagement').value,10),
+          marketGrowth: parseInt(get('marketGrowth').value,10),
+          competition: parseInt(get('competition').value,10),
+          sectorRisk: parseInt(get('sectorRisk').value,10),
+          collateralTotal: realEstate + equipment + financial
+        };
+      }
+
+      function colorForScore(score){
+        if(score >= 80) return '#22c55e';
+        if(score >= 60) return '#facc15';
+        if(score >= 40) return '#fb923c';
+        return '#ef4444';
+      }
+
+      function fmt(n){ return n.toLocaleString('en-US', {maximumFractionDigits:1}); }
+      function fmtPct(n){ return (n*100).toFixed(1)+'%'; }
+
+      function render(result, report){
+        const r = result.ratios;
+        const rating = result.rating;
+        const axes = Object.values(result.axes);
+        const now = new Date().toLocaleDateString('en-US');
+        const company = result.inputs.companyName || 'Company / Project';
+
+        const axesRows = axes.map(a => {
+          const color = colorForScore(a.score);
+          return `
+            <div class="axis-row">
+              <div>
+                <div class="axis-name">${a.label}</div>
+                <div class="axis-bar-bg"><div class="axis-bar" style="width:${a.score}%;background:${color};"></div></div>
+              </div>
+              <div style="font-weight:800;text-align:center;">${a.score}</div>
+              <div class="axis-weight">${(a.weight*100).toFixed(0)}%</div>
+            </div>`;
+        }).join('');
+
+        const strengths = report.strengths.length
+          ? `<ul class="cw-list">${report.strengths.map(s => `<li>✅ ${s}</li>`).join('')}</ul>`
+          : '<p style="color:var(--text-secondary);">No clear strengths in the current assessment.</p>';
+        const weaknesses = report.weaknesses.length
+          ? `<ul class="cw-list">${report.weaknesses.map(s => `<li>⚠️ ${s}</li>`).join('')}</ul>`
+          : '<p style="color:var(--text-secondary);">No critical weaknesses.</p>';
+        const recommendations = report.recommendations.length
+          ? report.recommendations.map(rec => `<div class="cw-recommend">💡 ${rec}</div>`).join('')
+          : '';
+
+        const risks = [];
+        if(r.currentRatio < 1) risks.push('Liquidity is weak: current assets do not cover current liabilities.');
+        if(r.debtRatio > 0.6) risks.push('Debt level is high relative to total assets.');
+        if(r.interestCoverage < 2) risks.push('Interest coverage is weak; debt servicing may become difficult.');
+        if(r.netProfitMargin < 0.03) risks.push('Net profit margin is low; any cost shock may lead to losses.');
+        if(result.axes.creditHistory.score < 50) risks.push('Credit history shows defaults or weak payment track record.');
+        if(result.inputs.collateralTotal < result.inputs.financingAmount * 0.8) risks.push('Collateral is insufficient to cover the requested financing amount.');
+        if(risks.length === 0) risks.push('Visible risks are limited based on the provided data.');
+
+        const riskHtml = risks.map(risk => `<div class="cw-risk">🔴 ${risk}</div>`).join('');
+
+        get('result').innerHTML = `
+          <div class="bonds-card cw-card">
+            <div class="cw-section-title">📄 Executive Summary</div>
+            <p style="color:var(--text-secondary);margin-bottom:1rem;">Creditworthiness report for <strong>${company}</strong> — ${result.inputs.sector || '—'} — ${result.inputs.country || '—'} — ${now}.</p>
+            <div class="cw-score-box">
+              <div style="color:var(--text-secondary);font-weight:700;">Total Score / 100</div>
+              <div class="big-score" style="color:${rating.color};">${result.totalScore}</div>
+              <div class="rating-label" style="background:${rating.color}20;color:${rating.color};border:1px solid ${rating.color}80;">${rating.enLabel}</div>
+              <p style="margin-top:1rem;color:var(--text-secondary);">${rating.enNote}</p>
+            </div>
+          </div>
+
+          <div class="bonds-card cw-card">
+            <div class="cw-section-title">📊 Detailed Analysis of the 9 Criteria</div>
+            ${axesRows}
+          </div>
+
+          <div class="cw-grid-2">
+            <div class="bonds-card cw-card cw-strength">
+              <div class="cw-section-title" style="margin:0 0 .75rem;">💪 Strengths</div>
+              ${strengths}
+            </div>
+            <div class="bonds-card cw-card cw-weak">
+              <div class="cw-section-title" style="margin:0 0 .75rem;">⚠️ Weaknesses</div>
+              ${weaknesses}
+            </div>
+          </div>
+
+          <div class="bonds-card cw-card">
+            <div class="cw-section-title">🚨 Key Risks</div>
+            ${riskHtml}
+          </div>
+
+          <div class="bonds-card cw-card">
+            <div class="cw-section-title">🎯 Final Credit Rating</div>
+            <p>The derived credit rating for the company/project is <strong style="color:${rating.color};">${rating.enLabel}</strong> with a total score of <strong>${result.totalScore}</strong> out of 100.</p>
+            <div class="ratings-legend">
+              <span style="background:#22c55e20;color:#22c55e;">AAA ≥90</span>
+              <span style="background:#4ade8020;color:#4ade80;">AA 80–89</span>
+              <span style="background:#86efac20;color:#86efac;">A 70–79</span>
+              <span style="background:#facc1520;color:#facc15;">BBB 60–69</span>
+              <span style="background:#fbbf2420;color:#fbbf24;">BB 50–59</span>
+              <span style="background:#fb923c20;color:#fb923c;">B 40–49</span>
+              <span style="background:#ef444420;color:#ef4444;">High Risk &lt;40</span>
+            </div>
+          </div>
+
+          <div class="bonds-card cw-card">
+            <div class="cw-section-title">🛠️ Recommendations to Improve Creditworthiness Within 12 Months</div>
+            ${recommendations}
+          </div>
+
+          <div class="bonds-card cw-card">
+            <div class="cw-section-title">🔢 Financial Ratios Used</div>
+            <div class="bonds-form-row" style="font-size:.9rem;">
+              <div><strong>Equity Ratio:</strong> ${fmtPct(r.equityRatio)}</div>
+              <div><strong>Current Ratio:</strong> ${r.currentRatio.toFixed(2)}</div>
+              <div><strong>Quick Ratio:</strong> ${r.quickRatio.toFixed(2)}</div>
+              <div><strong>Debt Ratio:</strong> ${fmtPct(r.debtRatio)}</div>
+              <div><strong>Debt/Equity:</strong> ${r.debtToEquity.toFixed(2)}</div>
+              <div><strong>Net Profit Margin:</strong> ${fmtPct(r.netProfitMargin)}</div>
+              <div><strong>Return on Assets:</strong> ${fmtPct(r.roa)}</div>
+              <div><strong>Interest Coverage:</strong> ${r.interestCoverage.toFixed(2)}x</div>
+              <div><strong>Debt Service Coverage:</strong> ${r.dscr.toFixed(2)}x</div>
+              <div><strong>Collateral Coverage:</strong> ${(r.collateralCoverage*100).toFixed(0)}%</div>
+            </div>
+          </div>
+        `;
+      }
+
+      function saveInputs(){
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(gather())); } catch(e){}
+      }
+
+      function loadInputs(){
+        try {
+          const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if(!data) return;
+          for(const key in data){
+            const el = get(key);
+            if(!el) continue;
+            if(el.type === 'checkbox') el.checked = !!data[key];
+            else el.value = data[key];
+          }
+          get('prVal').textContent = (data.paymentRegularity || 0) + '%';
+        } catch(e){}
+      }
+
+      window.calculateCredit = function(){
+        const data = gather();
+        saveInputs();
+        const result = CreditEngine.evaluate(data, 'en');
+        const report = CreditEngine.generateReport(result, 'en');
+        render(result, report);
+        const resultEl = get('result');
+        resultEl.style.display = 'block';
+        resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+
+      const TOOLTIPS = {
+        companyName: 'Name of the company or project being assessed.',
+        sector: 'Economic sector such as manufacturing, trading, or services.',
+        country: 'Country where the company operates.',
+        financingAmount: 'Amount of financing or loan requested from the lender.',
+        totalAssets: 'Total assets reported on the balance sheet.',
+        currentAssets: 'Assets expected to be converted to cash within one year.',
+        inventory: 'Value of goods, raw materials, and work-in-progress.',
+        cash: 'Cash on hand, bank balances, and short-term investments.',
+        currentLiabilities: 'Obligations due within one year.',
+        totalDebt: 'Total short- and long-term debt.',
+        shortTermDebt: 'Debt due within 12 months.',
+        longTermDebt: 'Debt due after 12 months.',
+        totalEquity: 'Total equity = Assets - Liabilities.',
+        revenue: 'Total annual revenue from sales and services.',
+        cogs: 'Cost of goods sold or direct materials.',
+        operatingProfit: 'Operating profit before interest and taxes (EBIT).',
+        netProfit: 'Net profit after all expenses.',
+        interestExpense: 'Interest expense on debt during the year.',
+        taxExpense: 'Tax expense paid during the year.',
+        operatingCashFlow: 'Cash generated from operating activities.',
+        cashFlowStability: 'How stable cash flows have been over recent years.',
+        defaults: 'Number of times the company failed to meet payment obligations.',
+        paymentRegularity: 'Percentage of payments made on time in recent years.',
+        existingObligations: 'Number of current credit obligations.',
+        mgmtExperience: 'Average years of senior management experience in the sector.',
+        transparency: 'Quality of financial disclosure and periodic reporting.',
+        riskManagement: 'Existence of risk management policies and contingency plans.',
+        marketGrowth: 'Expected market growth rate for the sector.',
+        competition: 'Number of competitors and intensity of competition.',
+        sectorRisk: 'Level of regulatory, economic, and cyclical risk in the sector.',
+        realEstateValue: 'Value of owned real estate or collateral offered.',
+        equipmentValue: 'Value of machinery and equipment.',
+        financialAssetsValue: 'Value of stocks, bonds, deposits, and other financial assets.'
+      };
+
+      function addTooltips(){
+        Object.keys(TOOLTIPS).forEach(id => {
+          const input = get(id);
+          const label = input && document.querySelector('label[for="' + id + '"]');
+          if(!label) return;
+          const abbr = document.createElement('abbr');
+          abbr.textContent = ' ⓘ';
+          abbr.title = TOOLTIPS[id];
+          abbr.style.cursor = 'help';
+          abbr.style.color = 'var(--gold)';
+          abbr.style.marginInlineStart = '0.35rem';
+          label.appendChild(abbr);
+        });
+      }
+
+      window.loadSampleData = function(){
+        const sample = {
+          companyName: 'Industrial Growth Co.',
+          sector: 'Manufacturing',
+          country: 'Saudi Arabia',
+          financingAmount: 2000000,
+          totalAssets: 10000000,
+          currentAssets: 3500000,
+          inventory: 1200000,
+          cash: 600000,
+          currentLiabilities: 2000000,
+          totalDebt: 4500000,
+          shortTermDebt: 1000000,
+          longTermDebt: 3500000,
+          totalEquity: 5500000,
+          revenue: 15000000,
+          cogs: 9500000,
+          operatingProfit: 2200000,
+          netProfit: 1600000,
+          interestExpense: 300000,
+          taxExpense: 300000,
+          operatingCashFlow: 1800000,
+          cashFlowStability: 80,
+          defaults: '0',
+          paymentRegularity: 90,
+          existingObligations: 2,
+          mgmtExperience: 12,
+          transparency: 4,
+          riskManagement: 4,
+          marketGrowth: 4,
+          competition: 3,
+          sectorRisk: 3,
+          realEstateValue: 3000000,
+          equipmentValue: 1500000,
+          financialAssetsValue: 500000
+        };
+        for(const key in sample){
+          const el = get(key);
+          if(el) el.value = sample[key];
+        }
+        get('prVal').textContent = sample.paymentRegularity + '%';
+        if(window.BondsUI && BondsUI.toast) BondsUI.toast('✅ Sample data loaded', 'success');
+      };
+
+      window.exportPDF = function(){
+        const company = txt('companyName') || 'Creditworthiness_Report';
+        exportElementToPDF({
+          elementId: 'result',
+          filename: company.replace(/\s+/g, '_') + '_credit_report.pdf',
+          bgColor: '#0a0f1a',
+          scale: 2
+        });
+      };
+
+      addTooltips();
+      loadInputs();
+    })();
+  </script>
+</body>
+</html>

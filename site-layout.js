@@ -87,6 +87,7 @@
       medicalCalc: isEn ? 'Medical Viability' : 'الجدوى الطبية',
       invoiceCalc: isEn ? 'Invoice Analyzer' : 'تحليل الفواتير',
       templateCalc: isEn ? 'Feasibility Template' : 'نموذج دراسة الجدوى',
+      creditworthinessCalc: isEn ? 'Credit Rating' : 'تقييم الجدارة الائتمانية',
       factorySa: isEn ? 'Factory Cost — Saudi' : 'تكلفة المصنع — السعودية',
       factoryEg: isEn ? 'Factory Cost — Egypt' : 'تكلفة المصنع — مصر',
     };
@@ -122,6 +123,7 @@
       { label: labels.medicalCalc, href: calcBase + 'medical-viability.html' },
       { label: labels.invoiceCalc, href: calcBase + 'invoice-analyzer.html' },
       { label: labels.templateCalc, href: calcBase + 'feasibility-template.html' },
+      { label: labels.creditworthinessCalc, href: calcBase + 'creditworthiness.html' },
       { label: labels.factorySa, href: calcBase + 'factory-cost.html' },
       { label: labels.factoryEg, href: calcBase + 'factory-cost-eg.html' },
     ];
