@@ -56,10 +56,21 @@
     render();
   }
 
+  function closeMobileMenu() {
+    document.getElementById('fa-sidebar')?.classList.remove('fa-sidebar--open');
+    document.getElementById('fa-sidebar-overlay')?.classList.remove('fa-sidebar-overlay--open');
+  }
+
+  function openMobileMenu() {
+    document.getElementById('fa-sidebar')?.classList.add('fa-sidebar--open');
+    document.getElementById('fa-sidebar-overlay')?.classList.add('fa-sidebar-overlay--open');
+  }
+
   function bindNav() {
     navLinks.forEach(a => a.addEventListener('click', e => {
       e.preventDefault();
       navTo(a.dataset.view);
+      closeMobileMenu();
     }));
   }
 
@@ -67,6 +78,8 @@
     content = document.getElementById('fa-content');
     navLinks = document.querySelectorAll('.fa-nav a[data-view]');
     bindNav();
+    document.getElementById('fa-menu-toggle')?.addEventListener('click', openMobileMenu);
+    document.getElementById('fa-sidebar-overlay')?.addEventListener('click', closeMobileMenu);
     try {
       await RecoveryService.init();
       const user = await RecoveryService.getCurrentUser();
@@ -78,7 +91,7 @@
   }
 
   async function render() {
-    content.innerHTML = '<div class="fa-empty"><div class="fa-spinner"></div></div>';
+    content.innerHTML = '<div class="fa-empty"><div class="fa-spinner"></div><p class="fa-loading-text">جارٍ التحميل...</p></div>';
     try {
       if (currentView === 'dashboard') await renderDashboard();
       else if (currentView === 'assets') await renderAssets();
@@ -122,22 +135,31 @@
       </div>
       <div class="fa-card">
         <div class="fa-card-header"><h3 class="fa-card-title">آخر الأصول المحدثة</h3><button class="fa-btn fa-btn-primary fa-btn-sm" data-action="new-asset">+ أصل جديد</button></div>
-        <div class="fa-table-wrap">
-          <table class="fa-table">
-            <thead><tr><th>الكود</th><th>الاسم</th><th>الحالة</th><th>الأولوية</th><th>القيمة المتعثرة</th></tr></thead>
-            <tbody>
-              ${stats.recentAssets.map(a => `
-                <tr>
-                  <td><a href="#" data-asset="${a.id}">${a.asset_code || a.id.slice(0, 8)}</a></td>
-                  <td><a href="#" data-asset="${a.id}">${a.name}</a></td>
-                  <td>${statusBadge(a.status)}</td>
-                  <td>${priorityBadge(a.priority)}</td>
-                  <td>${formatMoney(a.distressed_value)}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
+        ${stats.recentAssets.length === 0 ? `
+          <div class="fa-empty-state">
+            <svg class="fa-empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/></svg>
+            <h4 class="fa-empty-state-title">لا توجد أصول مسجلة</h4>
+            <p class="fa-empty-state-desc">ابدأ بإضافة أول أصل متعثر لتظهر هنا.</p>
+            <button class="fa-btn fa-btn-primary" data-action="new-asset">+ إضافة أول أصل</button>
+          </div>
+        ` : `
+          <div class="fa-table-wrap">
+            <table class="fa-table">
+              <thead><tr><th>الكود</th><th>الاسم</th><th>الحالة</th><th>الأولوية</th><th>القيمة المتعثرة</th></tr></thead>
+              <tbody>
+                ${stats.recentAssets.map(a => `
+                  <tr>
+                    <td><a href="#" data-asset="${a.id}">${a.asset_code || a.id.slice(0, 8)}</a></td>
+                    <td><a href="#" data-asset="${a.id}">${a.name}</a></td>
+                    <td>${statusBadge(a.status)}</td>
+                    <td>${priorityBadge(a.priority)}</td>
+                    <td>${formatMoney(a.distressed_value)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `}
       </div>
     `;
     bindCommon(content);
@@ -183,7 +205,14 @@
           </tbody>
         </table>
       </div>
-      ${data.length === 0 ? '<div class="fa-empty">لا توجد أصول مسجلة</div>' : ''}
+      ${data.length === 0 ? `
+        <div class="fa-empty-state">
+          <svg class="fa-empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/></svg>
+          <h4 class="fa-empty-state-title">لا توجد أصول مسجلة</h4>
+          <p class="fa-empty-state-desc">لم يتم العثور على أصول مطابقة للبحث أو الفلاتر.</p>
+          <button class="fa-btn fa-btn-primary" data-action="new-asset">+ إضافة أصل جديد</button>
+        </div>
+      ` : ''}
     `;
     bindCommon(content);
     document.getElementById('asset-search')?.addEventListener('input', debounce(e => setAssetFilter('search', e.target.value), 400));
