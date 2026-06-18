@@ -118,7 +118,8 @@ function auditHTML(file, content) {
 
     // For paths starting with /, check relative to root (but skip absolute API paths)
     if (rawUrl.startsWith('/')) {
-      const rootTarget = path.join(ROOT, rawUrl);
+      const cleanUrl = rawUrl.split('?')[0].split('#')[0];
+      const rootTarget = path.join(ROOT, cleanUrl);
       if (fileExists(rootTarget)) continue;
       // Also check as directory
       if (fileExists(path.join(rootTarget, 'index.html'))) continue;
