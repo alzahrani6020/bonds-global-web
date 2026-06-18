@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>إنقاذ الأصول المتعثرة | بوندز</title>
+  <meta name="description" content="وحدة إنقاذ الأصول المتعثرة: تسجيل الأصول، التقييم، أسباب التعثر، خطط الإنقاذ، المراحل، التكاليف، المستثمرون والتقارير." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/admin/distressed-recovery/styles.css" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/supabase-client.js"></script>
+  <script src="/admin/distressed-recovery/service.js"></script>
+  <script src="/admin/distressed-recovery/app.js"></script>
+</head>
+<body>
+  <div class="fa-layout">
+    <aside class="fa-sidebar">
+      <div class="fa-brand">
+        <img src="/assets/bonds-logo-2026-header.webp" alt="بوندز" />
+        <span>إنقاذ الأصول المتعثرة</span>
+      </div>
+      <ul class="fa-nav">
+        <li><a href="#" data-view="dashboard" class="active">📊 لوحة الإنقاذ</a></li>
+        <li><a href="#" data-view="assets">🏛️ الأصول المتعثرة</a></li>
+        <li><a href="#" data-view="reports">📄 التقارير</a></li>
+        <li><a href="#" data-view="activity">🕘 السجل الزمني</a></li>
+        <li style="margin-top:1.5rem;border-top:1px solid var(--fa-border);padding-top:1rem;"><a href="/admin/dashboard.html">⬅️ لوحة الإدارة الرئيسية</a></li>
+      </ul>
+      <div style="margin-top:auto;padding-top:2rem;color:var(--fa-muted);font-size:0.8rem;">
+        <div id="fa-user">جارِ التحقق...</div>
+      </div>
+    </aside>
+    <main class="fa-main" id="fa-content">
+      <div class="fa-empty"><div class="fa-spinner"></div></div>
+    </main>
+  </div>
+</body>
+</html>

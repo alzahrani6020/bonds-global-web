@@ -108,6 +108,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
   <script src="/admin/financial-advisory/service.js"></script>
+  <script src="/admin/distressed-recovery/service.js"></script>
   <script>BondsAuth.initAdminGuard();</script>
 </head>
 <body>
@@ -146,6 +147,10 @@
         <a href="financial-advisory/index.html" class="sidebar-link">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           <span>الاستشارات المالية</span>
+        </a>
+        <a href="distressed-recovery/index.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          <span>إنقاذ الأصول المتعثرة</span>
         </a>
         <a href="../calculators/dashboard.html" class="sidebar-link">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -243,6 +248,19 @@
         <div style="margin-top:1.5rem;">
           <h4 style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:0.75rem;">آخر النشاطات في الوحدة</h4>
           <div id="fa-summary-activity"></div>
+        </div>
+      </div>
+
+      <!-- Distressed Recovery Summary -->
+      <div class="table-card" id="recovery-summary-card" style="display:none;">
+        <div class="table-header">
+          <h3>🏛️ إنقاذ الأصول المتعثرة</h3>
+          <a href="/admin/distressed-recovery/index.html" class="btn-sm btn-primary">فتح الوحدة</a>
+        </div>
+        <div class="stats-grid" id="recovery-summary-stats" style="margin-top:1rem;"></div>
+        <div style="margin-top:1.5rem;">
+          <h4 style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:0.75rem;">آخر الأصول المسجلة</h4>
+          <div id="recovery-summary-assets"></div>
         </div>
       </div>
 
@@ -539,6 +557,31 @@
     window.addEventListener('load', initDashboard);
     window.addEventListener('load', updateMsgBadge);
     window.addEventListener('load', loadAdvisorySummary);
+    window.addEventListener('load', loadRecoverySummary);
+
+    async function loadRecoverySummary() {
+      try {
+        if (typeof RecoveryService === 'undefined') return;
+        const stats = await RecoveryService.getDashboardStats();
+        document.getElementById('recovery-summary-card').style.display = 'block';
+        document.getElementById('recovery-summary-stats').innerHTML = `
+          <div class="stat-card"><div class="stat-card__label">الأصول المسجلة</div><div class="stat-card__value">${stats.counts.assets.toLocaleString('ar-SA')}</div></div>
+          <div class="stat-card"><div class="stat-card__label">خطط الإنقاذ</div><div class="stat-card__value">${stats.counts.plans.toLocaleString('ar-SA')}</div></div>
+          <div class="stat-card"><div class="stat-card__label">المستثمرون</div><div class="stat-card__value">${stats.counts.investors.toLocaleString('ar-SA')}</div></div>
+          <div class="stat-card"><div class="stat-card__label">إجمالي التكاليف</div><div class="stat-card__value">${Number(stats.counts.totalCosts).toLocaleString('ar-SA')} ر.س</div></div>
+        `;
+        document.getElementById('recovery-summary-assets').innerHTML = stats.recentAssets.slice(0, 5).map(a => `
+          <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);font-size:0.9rem;">
+            <span><a href="/admin/distressed-recovery/index.html" style="color:var(--gold);">${a.name}</a></span>
+            <span style="color:var(--text-secondary);">${a.status} • ${fmtMoney(a.distressed_value)}</span>
+          </div>
+        `).join('') || '<div style="color:var(--text-secondary);padding:0.5rem 0;">لا توجد أصول</div>';
+      } catch (e) {
+        console.warn('[RecoverySummary]', e.message);
+      }
+    }
+
+    function fmtMoney(n) { return n === undefined || n === null ? '—' : Number(n).toLocaleString('ar-SA') + ' ر.س'; }
 
     async function loadAdvisorySummary() {
       try {
