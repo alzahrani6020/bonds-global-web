@@ -7,5 +7,6 @@ package-lock.json
 bonds-v2/
 tmp-*
 tmp-screenshots/
+tests/visual/snapshots/
 .tmp_*
 screenshots/

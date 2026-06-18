@@ -1,0 +1,213 @@
+/* ===== Performance Optimizations ===== */
+.section, .card, .calc-grid, .hero {
+  contain: layout paint style;
+}
+.reveal {
+  content-visibility: visible;
+}
+.amortization-table tbody tr,
+.cashflow-table tbody tr,
+.results-table tbody tr {
+  contain: layout paint;
+}
+.canvas-container {
+  contain: layout paint;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== Scrollable Dropdown Menus ===== */
+.dropdown-menu {
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-dim) transparent;
+}
+.dropdown-menu::-webkit-scrollbar {
+  width: 5px;
+}
+.dropdown-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: var(--gold-dim);
+  border-radius: 10px;
+}
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+/* Multi-column dropdown for large menus */
+@media (min-width: 900px) {
+  .dropdown-menu.dropdown-menu--large {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    max-height: 420px;
+    min-width: 520px;
+    gap: 0;
+    padding: 0.5rem 1rem;
+  }
+  .dropdown-menu.dropdown-menu--large a {
+    width: 50%;
+    box-sizing: border-box;
+    padding: 0.6rem 0.5rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ===== Auth header button ===== */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  text-decoration: none;
+  transition: all 0.3s;
+}
+.btn-secondary:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+/* Active state for dropdown nav items */
+.dropdown-toggle.active,
+.main-nav .dropdown-toggle.active {
+  color: var(--gold);
+}
+
+/* Print rules for injected layout */
+@media print {
+  .no-print { display: none !important; }
+}
+
+/* ===== Reveal animations (safe: visible by default) ===== */
+.reveal {
+  opacity: 0.92;
+  transform: translateY(10px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+  content-visibility: visible;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 {
+  transition-delay: 0.1s;
+}
+.reveal-delay-2 {
+  transition-delay: 0.2s;
+}
+.reveal-delay-3 {
+  transition-delay: 0.3s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Hero content should never be dimmed by reveal */
+.hero .reveal,
+.hero .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+/* ===== Large dropdown override (must win over any injected inline styles) ===== */
+@media (min-width: 900px) {
+  .dropdown-menu.dropdown-menu--large {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: wrap !important;
+    max-height: min(420px, 70vh) !important;
+    min-width: 520px !important;
+  }
+}
+
+/* ===== Print styles for calculators ===== */
+@media print {
+  .main-header,
+  .topbar,
+  .float-whatsapp,
+  .cookie-banner,
+  .nav-toggle,
+  #site-header,
+  #site-footer,
+  .share-bar,
+  .hidden-print,
+  .btn-outline,
+  .section-actions button:not([type="submit"]) {
+    display: none !important;
+  }
+
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 12pt;
+  }
+
+  .card, .calc-result, .annual-summary, .summary-card,
+  .cashflow-table, .results-table, .calc-input {
+    background: #fff !important;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    color: #000 !important;
+  }
+
+  .hero {
+    min-height: auto !important;
+    padding: 1rem 0 !important;
+  }
+
+  .section {
+    padding: 1rem 0 !important;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  th, td {
+    border: 1px solid #999 !important;
+    padding: 0.35rem 0.5rem !important;
+  }
+
+  h1, h2, h3 {
+    color: #000 !important;
+    page-break-after: avoid;
+  }
+
+  .card, .summary-card, .reveal {
+    page-break-inside: avoid;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  a[href]::after {
+    content: none !important;
+  }
+}

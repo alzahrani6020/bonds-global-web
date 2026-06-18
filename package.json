@@ -8,6 +8,7 @@
     "dev:local": "node scripts/dev-server.js",
     "deploy": "vercel --prod",
     "test": "jest",
+    "test:visual": "node tests/visual/visual-tests.js",
     "audit": "node scripts/site-audit.js",
     "install-hooks": "node scripts/install-hooks.js",
     "setup:supabase": "node scripts/setup-supabase.js",
