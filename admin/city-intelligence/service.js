@@ -310,6 +310,39 @@
         .limit(limit);
       if (error) throw error;
       return data || [];
+    },
+
+    // Role management
+    async searchUsers(query = '') {
+      const client = getClient();
+      const { data, error } = await client.rpc('city_search_users', { search_query: query });
+      if (error) throw error;
+      return data || [];
+    },
+    async getCityRoles() {
+      const client = getClient();
+      const { data, error } = await client.rpc('city_list_city_roles');
+      if (error) throw error;
+      return data || [];
+    },
+    async assignCityRole(userId, role) {
+      await ensureAuth();
+      const client = getClient();
+      const { data, error } = await client.from('city_roles')
+        .upsert({ user_id: userId, role }, { onConflict: 'user_id' })
+        .select()
+        .single();
+      if (error) throw error;
+      await logAction('تعيين دور City Intelligence', { target_user: userId, role });
+      return data;
+    },
+    async removeCityRole(userId) {
+      await ensureAuth();
+      const client = getClient();
+      const { error } = await client.from('city_roles').delete().eq('user_id', userId);
+      if (error) throw error;
+      await logAction('إزالة دور City Intelligence', { target_user: userId });
+      return true;
     }
   };
 

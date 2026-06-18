@@ -29,7 +29,8 @@
     city: 'تفاصيل المدينة',
     map: 'الخرائط',
     reports: 'التقارير',
-    activity: 'السجل'
+    activity: 'السجل',
+    roles: 'إدارة الأدوار'
   };
 
   // ── Analysis Engine ───────────────────────────────────────────────
@@ -242,6 +243,9 @@
         case 'activity':
           await loadActivity();
           renderActivityPage(app);
+          break;
+        case 'roles':
+          await renderRolesPage(app);
           break;
         default:
           await refreshAll();
@@ -745,6 +749,110 @@
       </div>`;
   }
 
+  // ── Roles management ───────────────────────────────────────────────
+  async function renderRolesPage(container) {
+    container.innerHTML = `
+      <div class="page-header">
+        <div><h1>${PAGE_TITLES.roles}</h1><p>إدارة صلاحيات City Intelligence</p></div>
+        <button class="btn btn-primary" onclick="CityIntelligenceApp.openAssignRoleModal()">+ تعيين دور</button>
+      </div>
+      <div class="table-card">
+        <div class="table-header"><h3>المستخدمون والأدوار</h3></div>
+        <table class="data-table">
+          <thead><tr><th>المستخدم</th><th>البريد</th><th>الدور</th><th>تاريخ التعيين</th><th>إجراءات</th></tr></thead>
+          <tbody id="rolesTableBody"><tr><td colspan="5"><div class="spinner">جارِ التحميل...</div></td></tr></tbody>
+        </table>
+      </div>`;
+    await loadRolesTable();
+  }
+
+  async function loadRolesTable() {
+    const tbody = $('#rolesTableBody');
+    if (!tbody) return;
+    try {
+      const roles = await SVC.getCityRoles();
+      tbody.innerHTML = roles.map(r => `
+        <tr>
+          <td><strong>${escapeHtml(r.full_name || '—')}</strong></td>
+          <td>${escapeHtml(r.email)}</td>
+          <td><span class="badge badge--${r.role === 'admin' ? 'ongoing' : (r.role === 'analyst' ? 'planned' : 'completed')}">${roleLabel(r.role)}</span></td>
+          <td>${formatDate(r.created_at)}</td>
+          <td><button class="btn btn-danger btn-sm" onclick="CityIntelligenceApp.removeCityRole('${r.user_id}')">إزالة</button></td>
+        </tr>`).join('') || '<tr><td colspan="5" class="empty-state">لا توجد أدوار معينة</td></tr>';
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-state">خطأ: ${escapeHtml(err.message)}</td></tr>`;
+    }
+  }
+
+  function roleLabel(role) {
+    return { admin: 'مدير', analyst: 'محلل', viewer: 'مشاهد' }[role] || role;
+  }
+
+  let roleSearchResults = [];
+
+  async function openAssignRoleModal() {
+    const html = `
+      <div class="form-grid" style="grid-template-columns:1fr;">
+        <div class="form-group">
+          <label>ابحث بالبريد الإلكتروني</label>
+          <input type="text" id="roleSearchInput" placeholder="example@domain.com" />
+        </div>
+        <div class="form-group" id="roleSearchResults"></div>
+        <div class="form-group">
+          <label>الدور</label>
+          <select name="role">
+            <option value="admin">مدير</option>
+            <option value="analyst">محلل</option>
+            <option value="viewer">مشاهد</option>
+          </select>
+        </div>
+      </div>`;
+    openModal('تعيين دور', html, async () => {
+      const selected = document.querySelector('input[name="selected_user_id"]:checked');
+      if (!selected) throw new Error('اختر مستخدمًا أولاً');
+      const userId = selected.value;
+      const role = document.querySelector('#modalOverlay [name="role"]').value;
+      await SVC.assignCityRole(userId, role);
+      showToast('تم تعيين الدور', 'success');
+      await loadRolesTable();
+    });
+
+    const input = $('#roleSearchInput');
+    let debounce;
+    input.oninput = () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(() => searchRoleUsers(input.value), 350);
+    };
+  }
+
+  async function searchRoleUsers(query) {
+    const resultsEl = $('#roleSearchResults');
+    if (!query || query.length < 3) { resultsEl.innerHTML = ''; return; }
+    resultsEl.innerHTML = '<div class="spinner">جارِ البحث...</div>';
+    try {
+      const users = await SVC.searchUsers(query);
+      roleSearchResults = users;
+      if (!users.length) { resultsEl.innerHTML = '<p style="color:var(--text-muted)">لا توجد نتائج</p>'; return; }
+      resultsEl.innerHTML = users.map(u => `
+        <label style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border:1px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:0.5rem;">
+          <input type="radio" name="selected_user_id" value="${u.id}" />
+          <div>
+            <div style="font-weight:700;">${escapeHtml(u.full_name || '—')}</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">${escapeHtml(u.email)}</div>
+          </div>
+        </label>`).join('');
+    } catch (err) {
+      resultsEl.innerHTML = `<p style="color:var(--danger)">${escapeHtml(err.message)}</p>`;
+    }
+  }
+
+  async function removeCityRole(userId) {
+    if (!confirm('إزالة الدور؟')) return;
+    await SVC.removeCityRole(userId);
+    showToast('تمت الإزالة', 'success');
+    await loadRolesTable();
+  }
+
   // ── Modals & CRUD actions ──────────────────────────────────────────
   function modalInput(label, name, value = '', type = 'text', attrs = '') {
     const val = value != null ? escapeHtml(String(value)) : '';
@@ -1034,7 +1142,9 @@
     openReportModal,
     deleteReport,
     generateCityReport,
-    refreshMap
+    refreshMap,
+    openAssignRoleModal,
+    removeCityRole
   };
 
   // Auto-init on admin-auth-ready
