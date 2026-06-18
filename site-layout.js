@@ -43,6 +43,12 @@
     return 'ar';
   }
 
+  function detectDir() {
+    const html = document.documentElement;
+    if (html && html.dir) return html.dir.toLowerCase();
+    return detectLang() === 'en' ? 'ltr' : 'rtl';
+  }
+
   function buildHeader(lang, base) {
     const isEn = lang === 'en';
     const langBase = getLangBase(isEn);
@@ -149,20 +155,21 @@
 
     const caretSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>';
 
-    function buildDropdown(items, extraAll) {
+    function buildDropdown(items, extraAll, isLarge) {
       let html = items.map(i => `<a href="${i.href}">${i.label}</a>`).join('');
       if (extraAll) {
         html += `<div style="border-top:1px solid var(--border); margin:0.4rem 0;"></div><a href="${extraAll.href}">${extraAll.label}</a>`;
       }
-      return `<div class="dropdown-menu">${html}</div>`;
+      const cls = isLarge ? 'dropdown-menu dropdown-menu--large' : 'dropdown-menu';
+      return `<div class="${cls}">${html}</div>`;
     }
 
     const navItems = [
       { href: homeHref, label: labels.home },
       { href: aboutHref, label: labels.about },
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
-      { type: 'dropdown', label: labels.guides, items: guideCountries.map(c => ({ href: sectorsBase + c.code + '.html', label: c.flag + ' ' + c.label })) },
-      { type: 'dropdown', label: labels.calculators, items: calcDropdown },
+      { type: 'dropdown', label: labels.guides, items: guideCountries.map(c => ({ href: sectorsBase + c.code + '.html', label: c.flag + ' ' + c.label })), isLarge: true },
+      { type: 'dropdown', label: labels.calculators, items: calcDropdown, isLarge: true },
       { type: 'dropdown', label: labels.intelligence, items: intelligenceDropdown },
       { href: blogHref, label: labels.articles },
       { href: contactHref, label: labels.contact },
@@ -170,7 +177,7 @@
 
     const navHtml = navItems.map(item => {
       if (item.type === 'dropdown') {
-        return `<li class="dropdown"><span class="dropdown-toggle">${item.label} ${caretSvg}</span>${buildDropdown(item.items, item.all)}</li>`;
+        return `<li class="dropdown"><span class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">${item.label} ${caretSvg}</span>${buildDropdown(item.items, item.all, item.isLarge)}</li>`;
       }
       return `<li><a href="${item.href}" data-nav="${item.href}">${item.label}</a></li>`;
     }).join('');
@@ -396,6 +403,61 @@
           navToggle.setAttribute('aria-expanded', mainNav.classList.contains('is-open'));
         });
       }
+
+      // Dropdown toggle handling for touch/mobile and accessibility
+      const isTouch = window.matchMedia('(pointer: coarse)').matches;
+      document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+        const dropdown = toggle.closest('.dropdown');
+        if (!dropdown) return;
+
+        toggle.addEventListener('click', function (e) {
+          if (window.innerWidth > 900 && !isTouch) return; // desktop hover handles it
+          e.preventDefault();
+          const wasOpen = dropdown.classList.contains('is-open');
+          document.querySelectorAll('.dropdown.is-open').forEach(d => {
+            d.classList.remove('is-open');
+            const t = d.querySelector('.dropdown-toggle');
+            if (t) t.setAttribute('aria-expanded', 'false');
+          });
+          dropdown.classList.toggle('is-open', !wasOpen);
+          toggle.setAttribute('aria-expanded', String(!wasOpen));
+        });
+
+        toggle.addEventListener('mouseenter', function () {
+          if (window.innerWidth <= 900) return;
+          toggle.setAttribute('aria-expanded', 'true');
+        });
+        dropdown.addEventListener('mouseleave', function () {
+          if (window.innerWidth <= 900) return;
+          toggle.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      // Close dropdowns and mobile nav when clicking outside
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('.dropdown')) {
+          document.querySelectorAll('.dropdown.is-open').forEach(d => {
+            d.classList.remove('is-open');
+            const t = d.querySelector('.dropdown-toggle');
+            if (t) t.setAttribute('aria-expanded', 'false');
+          });
+        }
+        if (mainNav && !e.target.closest('.main-header')) {
+          mainNav.classList.remove('is-open');
+          if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // Close mobile nav when a nav link is clicked
+      if (mainNav) {
+        mainNav.querySelectorAll('a').forEach(link => {
+          link.addEventListener('click', function () {
+            mainNav.classList.remove('is-open');
+            if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
+          });
+        });
+      }
+
       adjustLayoutForFixedHeader();
     }
 

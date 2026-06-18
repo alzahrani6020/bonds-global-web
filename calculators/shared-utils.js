@@ -119,3 +119,28 @@ function applyContain(selector) {
     els[i].style.contain = 'layout paint style';
   }
 }
+
+// ===== 7. Header datetime =====
+function updateDateTime() {
+  var now = new Date();
+  var lang = document.documentElement.lang || 'ar';
+  var locale = lang === 'ar' ? 'ar-SA' : 'en-US';
+  var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  var dateStr = now.toLocaleDateString(locale, options);
+  var timeStr = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+  var el = document.getElementById('header-datetime');
+  if (el) el.textContent = dateStr + ' | ' + timeStr;
+}
+
+function initDateTime() {
+  if (document.getElementById('header-datetime')) {
+    setInterval(updateDateTime, 60000);
+    updateDateTime();
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDateTime);
+} else {
+  initDateTime();
+}
