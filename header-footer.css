@@ -139,9 +139,12 @@
   right: 0;
   min-width: 260px;
   max-width: 90vw;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   margin-top: 0.5rem;
   padding: 0.5rem;
-  background: var(--bg-card);
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
@@ -150,6 +153,25 @@
   transform: translateY(-8px);
   transition: opacity var(--transition), transform var(--transition), visibility var(--transition);
   z-index: 1001;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-dim) transparent;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: var(--gold-dim);
+  border-radius: 10px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
 }
 
 html[dir="ltr"] .dropdown-menu,
