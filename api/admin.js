@@ -112,9 +112,7 @@ async function getAnalytics(sb, admin) {
   if (!admin) throw new Error('Admin required');
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const { data: authList } = await sb.auth.admin.listUsers();
-  const authUsers = authList?.users || [];
-  const totalUsers = authUsers.length;
+  const totalUsers = await getTotalUsers(sb);
 
   const { count: proUsers } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'pro');
   const { count: entUsers } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'enterprise');
@@ -296,37 +294,75 @@ async function removeRole(sb, body, admin) {
 }
 
 // ── Users ───────────────────────────────────────────────────
-async function getUsers(sb) {
-  const { data: authList, error: authErr } = await sb.auth.admin.listUsers();
-  if (authErr) throw authErr;
-  const authUsers = authList?.users || [];
+async function getTotalUsers(sb) {
+  try {
+    const { data: authList } = await sb.auth.admin.listUsers();
+    return authList?.users?.length || 0;
+  } catch (e) {
+    const { count } = await sb.from('profiles').select('*', { count: 'exact', head: true });
+    return count || 0;
+  }
+}
 
-  const { data: profileList, error: profileErr } = await sb.from('profiles').select('id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, branch_count, tier, status, created_at');
+async function getUsers(sb) {
+  let authUsers = [];
+  let useAuth = true;
+  try {
+    const { data: authList } = await sb.auth.admin.listUsers();
+    authUsers = authList?.users || [];
+  } catch (e) {
+    useAuth = false;
+  }
+
+  const { data: profileList, error: profileErr } = await sb.from('profiles')
+    .select('id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, branch_count, tier, status, created_at')
+    .order('created_at', { ascending: false });
   if (profileErr) throw profileErr;
 
   const profileMap = {};
   (profileList || []).forEach(p => profileMap[p.id] = p);
 
-  const merged = authUsers.map(u => {
-    const p = profileMap[u.id] || {};
-    return {
-      id: u.id,
-      restaurant_name: p.restaurant_name || u.user_metadata?.restaurant_name || 'مستخدم جديد',
-      email: u.email,
-      phone: p.phone || u.user_metadata?.phone || u.phone || '',
-      country: p.country || u.user_metadata?.country || '',
-      city: p.city || u.user_metadata?.city || '',
-      business_type: p.business_type || u.user_metadata?.business_type || '',
-      bio: p.bio || u.user_metadata?.bio || '',
-      needs: p.needs || u.user_metadata?.needs || '',
-      employee_count: p.employee_count || parseInt(u.user_metadata?.employee_count) || 0,
-      branch_count: p.branch_count || parseInt(u.user_metadata?.branch_count) || 1,
+  let merged = [];
+  if (useAuth) {
+    merged = authUsers.map(u => {
+      const p = profileMap[u.id] || {};
+      return {
+        id: u.id,
+        restaurant_name: p.restaurant_name || u.user_metadata?.restaurant_name || 'مستخدم جديد',
+        email: u.email,
+        phone: p.phone || u.user_metadata?.phone || u.phone || '',
+        country: p.country || u.user_metadata?.country || '',
+        city: p.city || u.user_metadata?.city || '',
+        business_type: p.business_type || u.user_metadata?.business_type || '',
+        bio: p.bio || u.user_metadata?.bio || '',
+        needs: p.needs || u.user_metadata?.needs || '',
+        employee_count: p.employee_count || parseInt(u.user_metadata?.employee_count) || 0,
+        branch_count: p.branch_count || parseInt(u.user_metadata?.branch_count) || 1,
+        tier: p.tier || 'free',
+        status: p.status || 'active',
+        created_at: u.created_at,
+        last_sign_in_at: u.last_sign_in_at || null
+      };
+    });
+  } else {
+    merged = (profileList || []).map(p => ({
+      id: p.id,
+      restaurant_name: p.restaurant_name || p.email || 'مستخدم جديد',
+      email: p.email,
+      phone: p.phone || '',
+      country: p.country || '',
+      city: p.city || '',
+      business_type: p.business_type || '',
+      bio: p.bio || '',
+      needs: p.needs || '',
+      employee_count: p.employee_count || 0,
+      branch_count: p.branch_count || 1,
       tier: p.tier || 'free',
       status: p.status || 'active',
-      created_at: u.created_at,
-      last_sign_in_at: u.last_sign_in_at || null
-    };
-  }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      created_at: p.created_at,
+      last_sign_in_at: null
+    }));
+  }
 
   return { success: true, recentUsers: merged };
 }
@@ -383,43 +419,33 @@ async function getSubscriptions(sb) {
 
 // ── Stats ───────────────────────────────────────────────────
 async function getStats(sb) {
-  // Get auth users for accurate count
-  const { data: authList, error: authErr } = await sb.auth.admin.listUsers();
-  const authUsers = authList?.users || [];
+  const totalUsers = await getTotalUsers(sb);
 
   const [
     { count: proCount },
     { count: enterpriseCount },
     { count: scenariosCount },
-    { data: recentSubs }
+    { data: recentSubs },
+    { data: profileList }
   ] = await Promise.all([
     sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'pro'),
     sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'enterprise'),
     sb.from('scenarios').select('*', { count: 'exact', head: true }),
-    sb.from('subscriptions').select('user_id, tier, status, current_period_end, created_at').order('created_at', { ascending: false }).limit(10)
+    sb.from('subscriptions').select('user_id, tier, status, current_period_end, created_at').order('created_at', { ascending: false }).limit(10),
+    sb.from('profiles').select('id, restaurant_name, email, phone, country, tier, status, created_at').order('created_at', { ascending: false }).limit(10)
   ]);
 
-  // Build profile map
-  const { data: profileList } = await sb.from('profiles').select('id, restaurant_name, email, phone, country, tier, status, created_at').order('created_at', { ascending: false });
-  const profileMap = {};
-  (profileList || []).forEach(p => profileMap[p.id] = p);
+  const recentUsers = (profileList || []).map(p => ({
+    id: p.id,
+    restaurant_name: p.restaurant_name || p.email || 'مستخدم جديد',
+    email: p.email,
+    phone: p.phone || '',
+    country: p.country || '',
+    tier: p.tier || 'free',
+    status: p.status || 'active',
+    created_at: p.created_at
+  }));
 
-  // Merge auth users with profiles for recentUsers
-  const recentUsers = authUsers.slice(0, 10).map(u => {
-    const p = profileMap[u.id] || {};
-    return {
-      id: u.id,
-      restaurant_name: p.restaurant_name || u.user_metadata?.restaurant_name || 'مستخدم جديد',
-      email: u.email,
-      phone: p.phone || u.user_metadata?.phone || u.phone || '',
-      country: p.country || u.user_metadata?.country || '',
-      tier: p.tier || 'free',
-      status: p.status || 'active',
-      created_at: u.created_at
-    };
-  });
-
-  const totalUsers = authUsers.length;
   const proUsers = proCount || 0;
   const enterpriseUsers = enterpriseCount || 0;
   const freeUsers = Math.max(0, totalUsers - proUsers - enterpriseUsers);
