@@ -6,7 +6,7 @@ Preserves existing fields like feeTiers, deliverySupport, etc.
 Only updates: fee, serviceFee, paymentGatewayFee, campaignDiscount, operatingModel, confidence
 Adds missing platforms.
 """
-import csv, re
+import csv, re, subprocess, os, sys
 
 INPUT_JS = 'calculators/country-platforms-data.js'
 INPUT_CSV = 'templates/platform-data-template.csv'
@@ -239,3 +239,12 @@ print(f'Added: {len(added)} platforms')
 if added:
     for p in added:
         print('  +', p)
+
+# Regenerate shared-platforms.js for BondsGeo
+script_dir = os.path.dirname(os.path.abspath(__file__))
+extract_script = os.path.join(script_dir, '..', 'scripts', 'extract-platform-data.js')
+try:
+    subprocess.run(['node', extract_script], check=True)
+    print('Regenerated calculators/shared-platforms.js')
+except subprocess.CalledProcessError as e:
+    print(f'Warning: failed to regenerate shared-platforms.js: {e}', file=sys.stderr)

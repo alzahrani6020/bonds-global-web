@@ -98,7 +98,7 @@ for path, lang in FILES:
       var wd = url.searchParams.get('wd');
       var c = url.searchParams.get('c');
       var model = url.searchParams.get('model');
-      if (c && COUNTRIES_DATA[c]) {
+      if (c && window.BondsPlatforms && window.BondsPlatforms.getCountryMeta(c)) {
         document.getElementById('countrySelect').value = c;
         changeCountry(c);
       }
@@ -131,7 +131,7 @@ for path, lang in FILES:
       var waste = url.searchParams.get('waste');
       var gmv = url.searchParams.get('gmv');
       var plats = url.searchParams.get('plats');
-      if (c && COUNTRIES_DATA[c]) {
+      if (c && window.BondsPlatforms && window.BondsPlatforms.getCountryMeta(c)) {
         document.getElementById('countrySelect').value = c;
         changeCountry(c);
       }
@@ -268,7 +268,7 @@ for path, lang in FILES:
     new_loadsess_ar = '''    function loadSessionUrl(session) {
       if (typeof session === 'string') { window.location.href = session; return; }
       var s = session;
-      if (s.country && COUNTRIES_DATA[s.country]) {
+      if (s.country && window.BondsPlatforms && window.BondsPlatforms.getCountryMeta(s.country)) {
         document.getElementById('countrySelect').value = s.country;
         changeCountry(s.country);
       }
@@ -304,7 +304,7 @@ for path, lang in FILES:
     new_loadsess_en = '''    function loadSessionUrl(session) {
       if (typeof session === 'string') { window.location.href = session; return; }
       var s = session;
-      if (s.country && COUNTRIES_DATA[s.country]) {
+      if (s.country && window.BondsPlatforms && window.BondsPlatforms.getCountryMeta(s.country)) {
         document.getElementById('countrySelect').value = s.country;
         changeCountry(s.country);
       }

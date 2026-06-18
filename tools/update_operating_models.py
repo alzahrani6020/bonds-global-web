@@ -5,7 +5,7 @@ Add operatingModel to every platform in country-platforms-data.js
 and add missing platforms for SA & EG.
 Handles nested braces correctly.
 """
-import re
+import re, subprocess, os, sys
 
 INPUT = 'calculators/country-platforms-data.js'
 
@@ -110,3 +110,12 @@ with open(INPUT, 'w', encoding='utf-8') as f:
     f.write(text)
 
 print('Done. Platforms processed:', len(objs))
+
+# Regenerate shared-platforms.js for BondsGeo
+script_dir = os.path.dirname(os.path.abspath(__file__))
+extract_script = os.path.join(script_dir, '..', 'scripts', 'extract-platform-data.js')
+try:
+    subprocess.run(['node', extract_script], check=True)
+    print('Regenerated calculators/shared-platforms.js')
+except subprocess.CalledProcessError as e:
+    print(f'Warning: failed to regenerate shared-platforms.js: {e}', file=sys.stderr)
