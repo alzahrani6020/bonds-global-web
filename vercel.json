@@ -52,7 +52,7 @@
     },
     {
       "source": "/api/track",
-      "destination": "/api/track.js"
+      "destination": "/api/usage?action=track"
     },
     {
       "source": "/api/([^/]+)",
