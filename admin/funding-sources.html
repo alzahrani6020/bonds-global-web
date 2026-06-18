@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>إدارة مصادر التمويل | بوندز</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="admin-auth.js"></script>
+  <style>
+    :root { --bg: #f5f0e8; --bg-card: #ffffff; --gold: #b8954e; --gold-bright: #d4b87a; --text: #1a1a1a; --text-secondary: #555555; --border: rgba(0,0,0,0.08); --danger: #ef4444; --success: #22c55e; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Vazirmatn', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--bg-card); border-left: 1px solid var(--border); padding: 1.5rem; position: fixed; right: 0; top: 0; bottom: 0; display: flex; flex-direction: column; gap: 1rem; }
+    .sidebar-brand { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .sidebar-brand img { height: 40px; }
+    .sidebar-brand span { font-weight: 800; color: var(--gold); }
+    .sidebar-link { display: block; padding: 0.75rem 1rem; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-weight: 600; }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(184,149,78,0.1); color: var(--gold); }
+    .main-content { flex: 1; margin-right: 260px; padding: 2rem; }
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; }
+    .toolbar { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .toolbar input, .toolbar select { padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border); font-family: inherit; min-width: 160px; }
+    .btn { padding: 0.6rem 1.25rem; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #1a1a1a; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-secondary { background: #e5e5e5; color: var(--text); }
+    .table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.85rem 1rem; text-align: right; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+    th { color: var(--gold); font-weight: 800; background: rgba(184,149,78,0.05); }
+    td { color: var(--text-secondary); }
+    .type-pill { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 700; }
+    .type-bank { background: rgba(59,130,246,0.12); color: #2563eb; }
+    .type-fund { background: rgba(168,85,247,0.12); color: #9333ea; }
+    .type-investor { background: rgba(236,72,153,0.12); color: #db2777; }
+    .type-government_program { background: rgba(34,197,94,0.12); color: #16a34a; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+    .modal.open { display: flex; }
+    .modal-box { background: var(--bg-card); border-radius: 16px; width: 100%; max-width: 720px; max-height: 90vh; overflow-y: auto; padding: 1.5rem; }
+    .modal-box h2 { margin-bottom: 1rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-grid.full { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .form-group label { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); }
+    .form-group input, .form-group select, .form-group textarea { padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid var(--border); font-family: inherit; }
+    .form-group textarea { min-height: 80px; }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1rem; }
+    .empty { padding: 2rem; text-align: center; color: var(--text-secondary); }
+    @media (max-width: 900px) { .sidebar { display: none; } .main-content { margin-right: 0; } .form-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="../assets/bonds-mark.svg" alt="Bonds" />
+        <span>بوندز</span>
+      </div>
+      <nav>
+        <a href="dashboard.html" class="sidebar-link">لوحة التحكم</a>
+        <a href="users.html" class="sidebar-link">المستخدمين</a>
+        <a href="subscriptions.html" class="sidebar-link">الاشتراكات</a>
+        <a href="messages.html" class="sidebar-link">الرسائل</a>
+        <a href="bank-transfers.html" class="sidebar-link">التحويلات البنكية</a>
+        <a href="funding-sources.html" class="sidebar-link active">مصادر التمويل</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>إدارة مصادر التمويل</h1>
+        <p style="color:var(--text-secondary);font-size:0.9rem;">أضف أو عدّل البنوك والصناديق والمستثمرين وبرامج التمويل الحكومية.</p>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn btn-primary" id="openAdd">+ إضافة جديدة</button>
+        <input type="text" id="searchInput" placeholder="بحث بالاسم..." />
+        <select id="filterType">
+          <option value="">كل الأنواع</option>
+          <option value="bank">بنوك</option>
+          <option value="fund">صناديق</option>
+          <option value="investor">مستثمرون</option>
+          <option value="government_program">برامج حكومية</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>النوع</th>
+              <th>الاسم (عربي)</th>
+              <th>الدولة</th>
+              <th>القطاع</th>
+              <th>المبلغ</th>
+              <th>حالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="sourcesTable"><tr><td colspan="7" class="empty">جاري التحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="sourceModal">
+    <div class="modal-box">
+      <h2 id="modalTitle">إضافة مصدر تمويل</h2>
+      <form id="sourceForm">
+        <input type="hidden" id="f_id" />
+        <div class="form-grid">
+          <div class="form-group"><label>النوع *</label>
+            <select id="f_type" required>
+              <option value="bank">بنك</option>
+              <option value="fund">صندوق</option>
+              <option value="investor">مستثمر</option>
+              <option value="government_program">برنامج حكومي</option>
+            </select>
+          </div>
+          <div class="form-group"><label>الاسم بالعربي *</label><input type="text" id="f_name_ar" required /></div>
+          <div class="form-group"><label>الاسم بالإنجليزية</label><input type="text" id="f_name_en" /></div>
+          <div class="form-group"><label>الدولة *</label>
+            <select id="f_country_code" required>
+              <option value="SA">SA</option><option value="AE">AE</option><option value="EG">EG</option><option value="JO">JO</option>
+              <option value="KW">KW</option><option value="QA">QA</option><option value="BH">BH</option><option value="OM">OM</option>
+              <option value="MA">MA</option><option value="TN">TN</option><option value="DZ">DZ</option><option value="IQ">IQ</option>
+            </select>
+          </div>
+          <div class="form-group"><label>القطاع (مفصول بفواصل)</label><input type="text" id="f_sector" placeholder="technology,manufacturing" /></div>
+          <div class="form-group"><label>نوع التمويل</label><input type="text" id="f_financing_type" placeholder="loan / equity / guarantee" /></div>
+          <div class="form-group"><label>الحد الأدنى</label><input type="number" id="f_min_amount" /></div>
+          <div class="form-group"><label>الحد الأقصى</label><input type="number" id="f_max_amount" /></div>
+          <div class="form-group"><label>العملة</label><input type="text" id="f_currency" value="SAR" /></div>
+          <div class="form-group"><label>نسبة/مدة التمويل</label><input type="text" id="f_tenure" placeholder="1 - 7 سنوات" /></div>
+          <div class="form-group"><label>الموقع</label><input type="url" id="f_website" placeholder="https://" /></div>
+          <div class="form-group"><label>الترتيب</label><input type="number" id="f_sort_order" value="0" /></div>
+        </div>
+        <div class="form-grid full" style="margin-top:1rem;">
+          <div class="form-group"><label>الوصف</label><textarea id="f_description"></textarea></div>
+          <div class="form-group"><label>الأهلية</label><textarea id="f_eligibility"></textarea></div>
+        </div>
+        <div class="form-grid" style="margin-top:1rem;">
+          <div class="form-group"><label><input type="checkbox" id="f_is_active" checked /> نشط</label></div>
+          <div class="form-group"><label><input type="checkbox" id="f_is_featured" /> مميز</label></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="closeModal">إلغاء</button>
+          <button type="submit" class="btn btn-primary">حفظ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const table = document.getElementById('sourcesTable');
+      const modal = document.getElementById('sourceModal');
+      const form = document.getElementById('sourceForm');
+      let sources = [];
+      let token = '';
+
+      async function getToken() {
+        if (token) return token;
+        const env = window.__ENV || {};
+        const sb = supabase.createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+        const { data } = await sb.auth.getSession();
+        token = data?.session?.access_token || '';
+        return token;
+      }
+
+      async function load() {
+        try {
+          const res = await fetch('/api/funding-sources?limit=100');
+          const json = await res.json();
+          sources = json.data || [];
+          render();
+        } catch (e) {
+          table.innerHTML = '<tr><td colspan="7" class="empty">تعذر تحميل البيانات.</td></tr>';
+        }
+      }
+
+      function render() {
+        const q = document.getElementById('searchInput').value.trim().toLowerCase();
+        const t = document.getElementById('filterType').value;
+        const filtered = sources.filter(s => {
+          if (t && s.type !== t) return false;
+          if (q) {
+            const hay = ((s.name_ar || '') + ' ' + (s.name_en || '') + ' ' + (s.description || '')).toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+
+        if (!filtered.length) {
+          table.innerHTML = '<tr><td colspan="7" class="empty">لا توجد نتائج.</td></tr>';
+          return;
+        }
+
+        table.innerHTML = filtered.map(s => `
+          <tr>
+            <td><span class="type-pill type-${s.type}">${typeLabel(s.type)}</span></td>
+            <td>${s.name_ar || '-'}</td>
+            <td>${s.country_code || '-'}</td>
+            <td>${s.sector || '-'}</td>
+            <td>${Number(s.min_amount || 0).toLocaleString('ar-SA')} – ${Number(s.max_amount || 0).toLocaleString('ar-SA')} ${s.currency || ''}</td>
+            <td>${s.is_active ? '✅' : '❌'} ${s.is_featured ? '⭐' : ''}</td>
+            <td>
+              <button class="btn btn-secondary" onclick="editSource('${s.id}')">تعديل</button>
+              <button class="btn btn-danger" onclick="deleteSource('${s.id}')">حذف</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      function typeLabel(t) {
+        return { bank: 'بنك', fund: 'صندوق', investor: 'مستثمر', government_program: 'حكومي' }[t] || t;
+      }
+
+      window.editSource = function(id) {
+        const s = sources.find(x => x.id === id);
+        if (!s) return;
+        document.getElementById('modalTitle').textContent = 'تعديل مصدر تمويل';
+        document.getElementById('f_id').value = s.id;
+        document.getElementById('f_type').value = s.type || 'bank';
+        document.getElementById('f_name_ar').value = s.name_ar || '';
+        document.getElementById('f_name_en').value = s.name_en || '';
+        document.getElementById('f_country_code').value = s.country_code || 'SA';
+        document.getElementById('f_sector').value = s.sector || '';
+        document.getElementById('f_financing_type').value = s.financing_type || '';
+        document.getElementById('f_min_amount').value = s.min_amount || '';
+        document.getElementById('f_max_amount').value = s.max_amount || '';
+        document.getElementById('f_currency').value = s.currency || 'SAR';
+        document.getElementById('f_tenure').value = s.tenure || '';
+        document.getElementById('f_website').value = s.website || '';
+        document.getElementById('f_sort_order').value = s.sort_order || 0;
+        document.getElementById('f_description').value = s.description || '';
+        document.getElementById('f_eligibility').value = s.eligibility || '';
+        document.getElementById('f_is_active').checked = !!s.is_active;
+        document.getElementById('f_is_featured').checked = !!s.is_featured;
+        modal.classList.add('open');
+      };
+
+      window.deleteSource = async function(id) {
+        if (!confirm('هل أنت متأكد من الحذف؟')) return;
+        await fetch('/api/funding-sources?id=' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + await getToken() } });
+        load();
+      };
+
+      document.getElementById('openAdd').addEventListener('click', () => {
+        form.reset();
+        document.getElementById('f_id').value = '';
+        document.getElementById('modalTitle').textContent = 'إضافة مصدر تمويل';
+        document.getElementById('f_currency').value = 'SAR';
+        document.getElementById('f_country_code').value = 'SA';
+        modal.classList.add('open');
+      });
+
+      document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
+      modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const id = document.getElementById('f_id').value;
+        const body = {
+          type: document.getElementById('f_type').value,
+          name_ar: document.getElementById('f_name_ar').value,
+          name_en: document.getElementById('f_name_en').value,
+          country_code: document.getElementById('f_country_code').value,
+          sector: document.getElementById('f_sector').value,
+          financing_type: document.getElementById('f_financing_type').value,
+          min_amount: Number(document.getElementById('f_min_amount').value) || null,
+          max_amount: Number(document.getElementById('f_max_amount').value) || null,
+          currency: document.getElementById('f_currency').value,
+          tenure: document.getElementById('f_tenure').value,
+          website: document.getElementById('f_website').value,
+          sort_order: Number(document.getElementById('f_sort_order').value) || 0,
+          description: document.getElementById('f_description').value,
+          eligibility: document.getElementById('f_eligibility').value,
+          is_active: document.getElementById('f_is_active').checked,
+          is_featured: document.getElementById('f_is_featured').checked
+        };
+        const opts = { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await getToken() }, body: JSON.stringify(body) };
+        const url = id ? '/api/funding-sources?id=' + id : '/api/funding-sources';
+        const res = await fetch(url, opts);
+        if (!res.ok) { alert('فشل الحفظ'); return; }
+        modal.classList.remove('open');
+        load();
+      });
+
+      document.getElementById('searchInput').addEventListener('input', render);
+      document.getElementById('filterType').addEventListener('change', render);
+
+      load();
+    })();
+  </script>
+</body>
+</html>

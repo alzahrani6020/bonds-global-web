@@ -59,6 +59,18 @@
     .results-info { max-width: 1200px; margin: 0 auto 1rem; padding: 0 1.5rem; color: var(--text-secondary); font-size: 0.9rem; }
     .results-info .fallback-note { color: var(--gold); margin-right: 0.5rem; }
 
+    .project-match {
+      max-width: 1200px; margin: 0 auto 1.5rem; padding: 1.5rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+    }
+    .project-match h3 { color: var(--gold); margin-bottom: 1rem; font-size: 1.1rem; }
+    .project-match .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+    .project-match label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.4rem; }
+    .project-match select, .project-match input { width: 100%; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; }
+
+    .save-btn { position: absolute; top: 1rem; left: 1rem; background: transparent; border: 1px solid var(--border); color: var(--text-secondary); border-radius: 8px; padding: 0.35rem 0.6rem; font-size: 0.75rem; cursor: pointer; }
+    .save-btn.saved { color: var(--gold); border-color: var(--gold); }
+
     .results-grid {
       max-width: 1200px;
       margin: 0 auto 6rem;
@@ -112,6 +124,37 @@
   </section>
 
   <section style="padding: 0 2rem;">
+    <div class="project-match">
+      <h3>🔍 اعثر على تمويل يناسب مشروعك</h3>
+      <div class="grid">
+        <div>
+          <label for="matchCountry">الدولة</label>
+          <select id="matchCountry">
+            <option value="">الكل</option>
+            <option value="SA">السعودية</option>
+            <option value="AE">الإمارات</option>
+            <option value="EG">مصر</option>
+            <option value="JO">الأردن</option>
+            <option value="KW">الكويت</option>
+            <option value="QA">قطر</option>
+            <option value="BH">البحرين</option>
+            <option value="OM">عمان</option>
+            <option value="MA">المغرب</option>
+            <option value="TN">تونس</option>
+          </select>
+        </div>
+        <div>
+          <label for="matchSector">القطاع</label>
+          <input type="text" id="matchSector" placeholder="مثال: مطاعم، صناعة" />
+        </div>
+        <div>
+          <label for="matchCapital">رأس المال المطلوب</label>
+          <input type="number" id="matchCapital" placeholder="مثال: 100000" />
+        </div>
+      </div>
+      <button class="btn-primary" id="matchBtn" style="margin-top: 1rem;">اعثر على أفضل المصادر</button>
+    </div>
+
     <div class="filters">
       <div>
         <label for="filterType">نوع الجهة</label>
@@ -154,6 +197,8 @@
       <button class="btn-outline" id="resetBtn">إعادة ضبط</button>
     </div>
 
+    <div id="savedSection" class="results-info" style="display:none;"><strong>المحفوظات للمفاضلة:</strong></div>
+
     <div id="resultsInfo" class="results-info" style="display:none;"></div>
 
     <div id="results" class="results-grid">
@@ -192,6 +237,7 @@
 
       let allSources = [];
       let isFallback = false;
+      let savedIds = new Set(JSON.parse(localStorage.getItem('bonds_saved_funding') || '[]'));
 
       async function load() {
         resultsEl.innerHTML = '<div class="loading">جاري تحميل مصادر التمويل...</div>';
@@ -226,6 +272,8 @@
         resultsInfo.innerHTML = `<span>عدد النتائج: <strong>${filtered.length}</strong></span>` +
           (isFallback ? '<span class="fallback-note">(بيانات توضيحية — يمكنك إضافة مصادر حقيقية من لوحة التحكم)</span>' : '');
 
+        renderSaved();
+
         if (!filtered.length) {
           resultsEl.innerHTML = '<div class="empty">لا توجد نتائج مطابقة للفلاتر.</div>';
           return;
@@ -233,6 +281,7 @@
         resultsEl.innerHTML = filtered.map(s => `
           <div class="source-card">
             ${s.is_featured ? '<span class="featured-tag">مميز</span>' : ''}
+            <button class="save-btn ${savedIds.has(s.id) ? 'saved' : ''}" onclick="toggleSave('${s.id}')" title="حفظ للمفاضلة">${savedIds.has(s.id) ? '★' : '☆'}</button>
             <span class="badge badge-${s.type}">${typeLabels[s.type] || s.type}</span>
             <h3>${s.name_ar || s.name_en}</h3>
             <div class="meta">${s.country_code || ''} ${s.sector ? '· ' + s.sector : ''}</div>
@@ -244,11 +293,28 @@
         `).join('');
       }
 
+      window.toggleSave = function(id) {
+        if (savedIds.has(id)) savedIds.delete(id);
+        else savedIds.add(id);
+        localStorage.setItem('bonds_saved_funding', JSON.stringify(Array.from(savedIds)));
+        render();
+      };
+
+      function renderSaved() {
+        const saved = allSources.filter(s => savedIds.has(s.id));
+        const el = document.getElementById('savedSection');
+        if (!saved.length) { el.style.display = 'none'; return; }
+        el.style.display = 'block';
+        el.innerHTML = '<strong>المحفوظات للمفاضلة:</strong> ' +
+          saved.map(s => `<span style="display:inline-block;background:rgba(212,168,83,0.15);color:var(--gold);padding:0.2rem 0.6rem;border-radius:12px;margin:0.25rem;font-size:0.8rem;">${s.name_ar || s.name_en}</span>`).join('');
+      }
+
       function applyClientFilters(list) {
         const t = typeEl.value;
         const c = countryEl.value;
         const se = sectorEl.value.trim().toLowerCase();
         const q = searchEl.value.trim().toLowerCase();
+        const capital = Number(document.getElementById('matchCapital').value) || 0;
         return list.filter(s => {
           if (t && s.type !== t) return false;
           if (c && s.country_code !== c) return false;
@@ -259,6 +325,11 @@
           if (q) {
             const hay = ((s.name_ar || '') + ' ' + (s.name_en || '') + ' ' + (s.description || '')).toLowerCase();
             if (!hay.includes(q)) return false;
+          }
+          if (capital > 0) {
+            const max = Number(s.max_amount) || Infinity;
+            const min = Number(s.min_amount) || 0;
+            if (capital < min || capital > max) return false;
           }
           return true;
         });
@@ -283,11 +354,16 @@
       searchEl.addEventListener('input', debounce(render, 400));
       document.getElementById('searchBtn').addEventListener('click', load);
       document.getElementById('resetBtn').addEventListener('click', function(){
-        typeEl.value = '';
-        countryEl.value = '';
-        sectorEl.value = '';
-        searchEl.value = '';
+        typeEl.value = ''; countryEl.value = ''; sectorEl.value = ''; searchEl.value = '';
+        document.getElementById('matchCountry').value = '';
+        document.getElementById('matchSector').value = '';
+        document.getElementById('matchCapital').value = '';
         load();
+      });
+      document.getElementById('matchBtn').addEventListener('click', function(){
+        countryEl.value = document.getElementById('matchCountry').value;
+        sectorEl.value = document.getElementById('matchSector').value;
+        render();
       });
 
       load();

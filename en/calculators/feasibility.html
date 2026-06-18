@@ -378,7 +378,46 @@ function calculateAll() {
       <button class="bonds-btn bonds-btn-primary" onclick="exportExcelFeas()">📊 Excel</button>
       <button class="bonds-btn bonds-btn-primary" onclick="exportPDFFeas()">📄 PDF</button>
     </div>
+    <div id="fundingSuggestions"></div>
   `;
+
+  loadFundingSuggestions();
+}
+
+async function loadFundingSuggestions() {
+  const container = document.getElementById('fundingSuggestions');
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-secondary);">Loading suggested funding sources...</div>';
+
+  const country = document.getElementById('country')?.value || 'SA';
+  try {
+    const res = await fetch('/api/funding-sources?country_code=' + country + '&sector=restaurant&limit=3');
+    const json = await res.json();
+    const list = json.data || [];
+    if (!list.length) {
+      container.innerHTML = '';
+      return;
+    }
+    const typeLabels = { bank: 'Bank', fund: 'Fund', investor: 'Investor', government_program: 'Government Program' };
+    container.innerHTML = `
+      <div class="feas-section-title">💡 Suggested Funding Sources</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;">
+        ${list.map(s => `
+          <div class="bonds-card" style="border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--gold);font-weight:700;margin-bottom:0.25rem;">${typeLabels[s.type] || s.type}</div>
+            <div style="font-weight:800;margin-bottom:0.5rem;">${s.name_en || s.name_ar}</div>
+            <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">${s.description || ''}</div>
+            ${s.website ? `<a href="${s.website}" target="_blank" rel="noopener" style="color:var(--gold);font-size:0.85rem;">Details →</a>` : ''}
+          </div>
+        `).join('')}
+      </div>
+      <div style="text-align:center;margin-top:1rem;">
+        <a href="../funding-sources.html" class="bonds-btn bonds-btn-secondary">Browse all funding sources</a>
+      </div>
+    `;
+  } catch (e) {
+    container.innerHTML = '';
+  }
 }
 
 async function exportExcelFeas() {
