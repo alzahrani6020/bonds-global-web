@@ -44,6 +44,21 @@
     }
     .filters select:focus, .filters input:focus { outline: none; border-color: var(--gold); }
 
+    .filter-actions { max-width: 1200px; margin: 0 auto 1rem; padding: 0 1.5rem; display: flex; gap: 0.75rem; }
+    .btn-primary, .btn-outline {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0.75rem 1.75rem; border-radius: 10px; font-weight: 700;
+      font-family: inherit; font-size: 0.95rem; cursor: pointer; border: none; text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--gold); color: #0a0f1a; }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+    .results-info { max-width: 1200px; margin: 0 auto 1rem; padding: 0 1.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+    .results-info .fallback-note { color: var(--gold); margin-left: 0.5rem; }
+
     .results-grid {
       max-width: 1200px;
       margin: 0 auto 6rem;
@@ -134,10 +149,12 @@
       </div>
     </div>
 
-    <div style="max-width:1200px;margin:0 auto 1.5rem;padding:0 1.5rem;text-align:right;">
-      <button class="btn-primary" id="searchBtn" style="padding:0.75rem 2rem;">🔍 Search</button>
-      <button class="btn-outline" id="resetBtn" style="padding:0.75rem 1.5rem;margin-left:0.5rem;">Reset</button>
+    <div class="filter-actions">
+      <button class="btn-primary" id="searchBtn">🔍 Search</button>
+      <button class="btn-outline" id="resetBtn">Reset</button>
     </div>
+
+    <div id="resultsInfo" class="results-info" style="display:none;"></div>
 
     <div id="results" class="results-grid">
       <div class="loading">Loading funding sources...</div>
@@ -151,6 +168,7 @@
   <script>
     (function() {
       const resultsEl = document.getElementById('results');
+      const resultsInfo = document.getElementById('resultsInfo');
       const typeEl = document.getElementById('filterType');
       const countryEl = document.getElementById('filterCountry');
       const sectorEl = document.getElementById('filterSector');
@@ -163,9 +181,22 @@
         government_program: 'Government Program'
       };
 
+      const fallbackSources = [
+        { type: 'government_program', name_ar: 'برنامج كفالة', name_en: 'Kafala Program', country_code: 'SA', sector: 'all', description: 'Saudi SME financing guarantee program.', eligibility: 'Registered Saudi SMEs operating for at least one year.', min_amount: 10000, max_amount: 2000000, currency: 'SAR', financing_type: 'guarantee', website: 'https://kafala.gov.sa', is_featured: true },
+        { type: 'bank', name_ar: 'البنك الأهلي السعودي', name_en: 'Saudi National Bank', country_code: 'SA', sector: 'all', description: 'Corporate and SME financing solutions.', eligibility: 'Registered companies with sound financials.', min_amount: 50000, max_amount: 50000000, currency: 'SAR', financing_type: 'loan', website: 'https://www.alahli.com', is_featured: true },
+        { type: 'fund', name_ar: 'صندوق رأس المال الجريء — Monshaat', name_en: 'Monshaat VC Fund', country_code: 'SA', sector: 'technology,manufacturing', description: 'Venture investments in Saudi startups and scale-ups.', eligibility: 'Scalable business model and strong execution team.', min_amount: 500000, max_amount: 10000000, currency: 'SAR', financing_type: 'equity', website: 'https://www.monshaat.gov.sa' },
+        { type: 'investor', name_ar: 'مستثمرون خليجيون', name_en: 'Gulf Angel Investors', country_code: 'AE', sector: 'technology,food,healthcare', description: 'Angel network backing early-stage startups.', eligibility: 'Clear MVP and strong team.', min_amount: 100000, max_amount: 2000000, currency: 'SAR', financing_type: 'equity', website: '#' },
+        { type: 'bank', name_ar: 'بنك أبوظبي الأول', name_en: 'First Abu Dhabi Bank', country_code: 'AE', sector: 'all', description: 'Business financing solutions in the UAE.', eligibility: 'UAE-registered companies.', min_amount: 100000, max_amount: 10000000, currency: 'AED', financing_type: 'loan', website: 'https://www.bankfab.com' },
+        { type: 'government_program', name_ar: 'برنامج تنمية المنشآت الصغيرة — مصر', name_en: 'SME Development Program Egypt', country_code: 'EG', sector: 'all', description: 'Affordable financing for Egyptian SMEs.', eligibility: 'Registered Egyptian enterprises.', min_amount: 5000, max_amount: 500000, currency: 'EGP', financing_type: 'loan', website: '#' }
+      ];
+
       let allSources = [];
+      let isFallback = false;
 
       async function load() {
+        resultsEl.innerHTML = '<div class="loading">Loading funding sources...</div>';
+        resultsInfo.style.display = 'none';
+        isFallback = false;
         try {
           const params = new URLSearchParams();
           if (typeEl.value) params.set('type', typeEl.value);
@@ -177,18 +208,29 @@
           const res = await fetch('/api/funding-sources' + (qs ? '?' + qs : ''));
           const json = await res.json();
           allSources = json.data || [];
+          if (!allSources.length) {
+            allSources = fallbackSources;
+            isFallback = true;
+          }
           render();
         } catch (e) {
-          resultsEl.innerHTML = '<div class="empty">Failed to load data. Please try again.</div>';
+          allSources = fallbackSources;
+          isFallback = true;
+          render();
         }
       }
 
       function render() {
-        if (!allSources.length) {
+        const filtered = applyClientFilters(allSources);
+        resultsInfo.style.display = 'flex';
+        resultsInfo.innerHTML = `<span>Results: <strong>${filtered.length}</strong></span>` +
+          (isFallback ? '<span class="fallback-note">(demo data — real sources can be added from the admin panel)</span>' : '');
+
+        if (!filtered.length) {
           resultsEl.innerHTML = '<div class="empty">No matching results found.</div>';
           return;
         }
-        resultsEl.innerHTML = allSources.map(s => `
+        resultsEl.innerHTML = filtered.map(s => `
           <div class="source-card">
             ${s.is_featured ? '<span class="featured-tag">Featured</span>' : ''}
             <span class="badge badge-${s.type}">${typeLabels[s.type] || s.type}</span>
@@ -200,6 +242,26 @@
             ${s.website ? `<a href="${s.website}" target="_blank" rel="noopener">Visit website →</a>` : ''}
           </div>
         `).join('');
+      }
+
+      function applyClientFilters(list) {
+        const t = typeEl.value;
+        const c = countryEl.value;
+        const se = sectorEl.value.trim().toLowerCase();
+        const q = searchEl.value.trim().toLowerCase();
+        return list.filter(s => {
+          if (t && s.type !== t) return false;
+          if (c && s.country_code !== c) return false;
+          if (se) {
+            const sectorText = (s.sector || '').toLowerCase();
+            if (!sectorText.includes(se)) return false;
+          }
+          if (q) {
+            const hay = ((s.name_en || '') + ' ' + (s.name_ar || '') + ' ' + (s.description || '')).toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
       }
 
       function formatAmount(n) {
@@ -215,10 +277,10 @@
         };
       }
 
-      typeEl.addEventListener('change', load);
-      countryEl.addEventListener('change', load);
-      sectorEl.addEventListener('input', debounce(load, 500));
-      searchEl.addEventListener('input', debounce(load, 500));
+      typeEl.addEventListener('change', render);
+      countryEl.addEventListener('change', render);
+      sectorEl.addEventListener('input', debounce(render, 400));
+      searchEl.addEventListener('input', debounce(render, 400));
       document.getElementById('searchBtn').addEventListener('click', load);
       document.getElementById('resetBtn').addEventListener('click', function(){
         typeEl.value = '';
