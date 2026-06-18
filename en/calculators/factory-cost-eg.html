@@ -9,80 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/png" />
-  <style>
-    :root {
-      --bg: #f5f0e8; --bg-secondary: #ffffff; --bg-card: rgba(255,255,255,0.85);
-      --gold: #b8954e; --gold-bright: #d4b87a; --gold-dim: #8a7340;
-      --text: #1a1a1a; --text-secondary: #555555; --text-muted: #888888;
-      --border: rgba(0,0,0,0.08); --border-hover: rgba(184,149,78,0.4);
-      --success: #22c55e; --warning: #eab308; --info: #3b82f6; --danger: #ef4444;
-      --radius: 16px; --shadow: 0 10px 40px rgba(0,0,0,0.4);
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
-    a { color:var(--gold); text-decoration:none; }
-    .header { background:var(--bg-secondary); border-bottom:1px solid var(--border); padding:1rem 1.5rem; position:sticky; top:0; z-index:100; }
-    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
-    .header__logo { display:flex; align-items:center; gap:0.75rem; }
-    .header__logo img { height:40px; border-radius:6px; }
-    .header__logo span { font-weight:800; color:var(--gold); }
-    .header__nav { display:flex; gap:1.5rem; }
-    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
-    .header__nav a:hover { color:var(--gold); }
-    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
-    .hero h1 { font-size:2rem; font-weight:800; margin-bottom:0.75rem; }
-    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; }
-    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
-    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
-    .calc-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
-    @media (max-width:768px) { .calc-grid { grid-template-columns:1fr; } }
-    .input-group { margin-bottom:1.25rem; }
-    .input-group label { display:block; font-size:0.85rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.5rem; }
-    .input-group input, .input-group select {
-      width:100%; padding:1rem 1.25rem; border-radius:12px; border:1px solid var(--border);
-      background:rgba(255,255,255,0.03); color:var(--text); font-family:inherit; font-size:1rem; transition:0.3s;
-    }
-    .input-group input:focus, .input-group select:focus { outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(212,168,83,0.1); }
-    .input-group small { color:var(--text-muted); font-size:0.75rem; display:block; margin-top:0.25rem; }
-    .input-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-    @media (max-width:768px) { .input-row { grid-template-columns:1fr; } }
-    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
-    .card:hover { border-color:var(--gold); box-shadow:var(--shadow); }
-    .scenario-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:2rem; }
-    @media (max-width:768px) { .scenario-cards { grid-template-columns:1fr; } }
-    .scenario-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; text-align:center; }
-    .scenario-card.pessimistic { border-color:rgba(239,68,68,0.3); }
-    .scenario-card.expected { border-color:var(--gold); }
-    .scenario-card.optimistic { border-color:rgba(34,197,94,0.3); }
-    .scenario-card .scenario-label { font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-bottom:0.5rem; }
-    .scenario-card.pessimistic .scenario-label { color:var(--danger); }
-    .scenario-card.expected .scenario-label { color:var(--gold); }
-    .scenario-card.optimistic .scenario-label { color:var(--success); }
-    .scenario-card .scenario-value { font-size:1.5rem; font-weight:800; }
-    .results { display:none; }
-    .results.show { display:block; animation:fadeIn 0.5s ease; }
-    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-    .result-summary { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem; }
-    .result-box { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; text-align:center; }
-    .result-box .value { font-size:1.6rem; font-weight:800; color:var(--gold); }
-    .result-box .label { font-size:0.8rem; color:var(--text-secondary); margin-top:0.25rem; }
-    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:2rem; }
-    table { width:100%; border-collapse:collapse; }
-    th { text-align:left; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(184,149,78,0.15); border-bottom:1px solid var(--border); }
-    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
-    tr:hover td { background:rgba(212,168,40,0.05); }
-    td strong { color:var(--text); }
-    .total-row td { font-weight:800; color:var(--gold); background:rgba(212,168,83,0.08); }
-    .btn-primary { display:inline-block; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#1a1a1a; font-weight:800; padding:0.9rem 2.5rem; border-radius:12px; text-decoration:none; border:none; cursor:pointer; font-family:inherit; font-size:1rem; }
-    .btn-primary:hover { opacity:0.9; }
-    .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin-top:1rem; }
-    .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem; }
-    @media (max-width:768px) { .chart-grid { grid-template-columns:1fr; } }
-    .chart-box { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
-    .chart-box canvas { max-height:300px; }
-    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
-  </style>
 <link rel="stylesheet" href="../../header-footer.css?v=2" />
+  <link rel="stylesheet" href="../../calculators/factory-cost-shared-en.css" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -271,8 +199,16 @@
   <div id="site-footer"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="../../calculators/factory-cost-shared.js"></script>
   <script>
-const cityRates = {
+    FactoryCostCalculator.init({
+      countryCode: 'EG',
+      lang: 'en',
+      currency: 'EGP',
+      locale: 'en-US',
+      gosiRate: 0.11,
+      expatFeePerWorker: 0,
+      cities: {
       '10ramadan': { rent: 45, name: 'العاشر من رمضان' },
       'sadat': { rent: 40, name: 'مدينة السادات' },
       '6october': { rent: 55, name: '6 أكتوبر' },
@@ -285,217 +221,8 @@ const cityRates = {
       'belbeis': { rent: 30, name: 'بلبيس' },
       'sharqia': { rent: 28, name: 'الشرقية' },
       'alex': { rent: 50, name: 'الإسكندرية' }
-    };
-
-    const typeMultipliers = {
-      land: 1,
-      hangar: 1.3,
-      ready: 1.8,
-      build: 2.5
-    };
-
-    const industryProfiles = {
-      food: { rawMatPct: 35, elecMult: 1.0, name: 'Food' },
-      plastic: { rawMatPct: 50, elecMult: 1.4, name: 'Plastic' },
-      metal: { rawMatPct: 42, elecMult: 1.6, name: 'Metal' },
-      electronics: { rawMatPct: 32, elecMult: 0.8, name: 'Electronics' },
-      textile: { rawMatPct: 36, elecMult: 1.0, name: 'Textile' },
-      furniture: { rawMatPct: 30, elecMult: 0.7, name: 'Furniture' },
-      pharma: { rawMatPct: 28, elecMult: 0.9, name: 'Pharma' },
-      building: { rawMatPct: 38, elecMult: 1.3, name: 'Building' }
-    };
-
-    let costPieChart = null;
-    let scenarioBarChart = null;
-
-    function fmt(n) {
-      return Math.round(n).toLocaleString('en-US');
     }
-
-    function calculate() {
-      const cityKey = document.getElementById('city').value;
-      const industryKey = document.getElementById('industry').value;
-      const area = parseFloat(document.getElementById('area').value) || 0;
-      const type = document.getElementById('type').value;
-      const localWorkers = parseInt(document.getElementById('localWorkers').value) || 0;
-      const expatWorkers = parseInt(document.getElementById('expatWorkers').value) || 0;
-      const localSalary = parseFloat(document.getElementById('localSalary').value) || 0;
-      const expatSalary = parseFloat(document.getElementById('expatSalary').value) || 0;
-      const electricity = parseFloat(document.getElementById('electricity').value) || 0;
-      const water = parseFloat(document.getElementById('water').value) || 0;
-      const monthlyProduction = parseFloat(document.getElementById('monthlyProduction').value) || 0;
-      const maintenancePct = parseFloat(document.getElementById('maintenancePct').value) || 0;
-      const insurancePct = parseFloat(document.getElementById('insurancePct').value) || 0;
-      const rawMaterialPct = parseFloat(document.getElementById('rawMaterialPct').value) || 0;
-      const unitPrice = parseFloat(document.getElementById('unitPrice').value) || 0;
-
-      const city = cityRates[cityKey];
-      const mult = typeMultipliers[type];
-      const industry = industryProfiles[industryKey];
-
-      const effectiveRawMatPct = rawMaterialPct > 0 ? rawMaterialPct : industry.rawMatPct;
-
-      let rentPerM2 = city.rent || 0;
-      if (city.land !== undefined) {
-        if (type === 'land') rentPerM2 = city.land;
-        else if (type === 'hangar') rentPerM2 = city.warehouse || city.hangar || city.ready;
-        else if (type === 'ready') rentPerM2 = city.ready;
-        else rentPerM2 = city.land;
-      }
-
-      const rentMonthly = rentPerM2 * area * mult / 12;
-      
-      let elecRate = 0.20;
-      if (city.elecLow !== undefined) {
-        const voltage = document.getElementById('voltage');
-        elecRate = voltage && voltage.value === 'medium' ? (city.elecMed || city.elecLow) : city.elecLow;
-      }
-      const electricityMonthly = electricity * elecRate * industry.elecMult;
-
-      let waterRate = 1.5;
-      if (city.water !== undefined) waterRate = city.water;
-      const waterMonthly = water * waterRate;
-
-      const supervisionMonthly = area * 0.20 / 12;
-      const licenseMonthly = area * 0.05 / 12 / 5;
-
-      const localPayroll = localWorkers * localSalary;
-      const expatPayroll = expatWorkers * expatSalary;
-      const gosiLocal = localPayroll * 0.11;
-      const gosiExpat = expatPayroll * 0.0;
-      const expatFees = expatWorkers * 0;
-      const totalLabor = localPayroll + expatPayroll + gosiLocal + gosiExpat + expatFees;
-
-      const facilityValue = area * rentPerM2 * mult * 10;
-      const maintenanceMonthly = (facilityValue * maintenancePct / 100) / 12;
-      const insuranceMonthly = (facilityValue * insurancePct / 100) / 12;
-
-      const monthlyRevenue = monthlyProduction * unitPrice;
-      const rawMaterialMonthly = monthlyRevenue * (effectiveRawMatPct / 100);
-
-      const totalMonthly = rentMonthly + electricityMonthly + waterMonthly + supervisionMonthly + licenseMonthly + totalLabor + maintenanceMonthly + insuranceMonthly + rawMaterialMonthly;
-      const totalYearly = totalMonthly * 12;
-
-      const planApproval = Math.min(Math.max(area * 1, 5000), 25000);
-      const deposit = area * rentPerM2 * mult * 2;
-      const electricityConnection = Math.min(Math.max(electricity * 0.5, 3000), 50000);
-      const civilDefense = 2000;
-      const buildingPermit = area * 2;
-      const basicInsurance = facilityValue * 0.05;
-      const miscSetup = 15000;
-      const setupCost = planApproval + deposit + electricityConnection + civilDefense + buildingPermit + basicInsurance + miscSetup;
-
-      const pessimistic = totalYearly * 1.25;
-      const optimistic = totalYearly * 0.85;
-
-      const unitCost = monthlyProduction > 0 ? totalMonthly / monthlyProduction : 0;
-      const breakEvenUnits = (unitPrice > unitCost && unitCost > 0) ? Math.ceil(totalMonthly / unitPrice) : 0;
-      const breakEvenRevenue = breakEvenUnits * unitPrice;
-      const profitMargin = monthlyRevenue > 0 ? ((monthlyRevenue - totalMonthly) / monthlyRevenue * 100) : 0;
-      const paybackMonths = (monthlyRevenue > totalMonthly && totalMonthly > 0) ? Math.ceil(setupCost / (monthlyRevenue - totalMonthly)) : 0;
-
-      document.getElementById('pessimisticYearly').textContent = fmt(pessimistic) + ' EGP';
-      document.getElementById('expectedYearly').textContent = fmt(totalYearly) + ' EGP';
-      document.getElementById('optimisticYearly').textContent = fmt(optimistic) + ' EGP';
-
-      document.getElementById('totalMonthly').textContent = fmt(totalMonthly) + ' EGP';
-      document.getElementById('totalYearly').textContent = fmt(totalYearly) + ' EGP';
-      document.getElementById('setupCost').textContent = fmt(setupCost) + ' EGP';
-      document.getElementById('costPerUnit').textContent = unitCost > 0 ? fmt(unitCost) + ' EGP' : '—';
-      document.getElementById('breakEvenUnits').textContent = breakEvenUnits > 0 ? fmt(breakEvenUnits) : '—';
-      document.getElementById('breakEvenRevenue').textContent = breakEvenRevenue > 0 ? fmt(breakEvenRevenue) + ' EGP' : '—';
-      document.getElementById('profitMargin').textContent = profitMargin > 0 ? profitMargin.toFixed(1) + '%' : '—';
-      document.getElementById('paybackMonths').textContent = paybackMonths > 0 ? fmt(paybackMonths) : '—';
-
-      const pct = v => totalMonthly > 0 ? (v / totalMonthly * 100).toFixed(1) + '%' : '0%';
-      const tbody = document.getElementById('breakdownTable');
-      tbody.innerHTML = `
-        <tr><td><strong>Rent (${city.name || city.name})</strong></td><td>${fmt(rentMonthly)}</td><td>${fmt(rentMonthly*12)}</td><td>${pct(rentMonthly)}</td></tr>
-        <tr><td>Electricity (${fmt(electricity)} kWh)</td><td>${fmt(electricityMonthly)}</td><td>${fmt(electricityMonthly*12)}</td><td>${pct(electricityMonthly)}</td></tr>
-        <tr><td>Water (${fmt(water)} m³)</td><td>${fmt(waterMonthly)}</td><td>${fmt(waterMonthly*12)}</td><td>${pct(waterMonthly)}</td></tr>
-        <tr><td>Local Salaries (${fmt(localWorkers)} workers)</td><td>${fmt(localPayroll)}</td><td>${fmt(localPayroll*12)}</td><td>${pct(localPayroll)}</td></tr>
-        <tr><td>Expat Salaries (${fmt(expatWorkers)} workers)</td><td>${fmt(expatPayroll)}</td><td>${fmt(expatPayroll*12)}</td><td>${pct(expatPayroll)}</td></tr>
-        <tr><td>Social Insurance</td><td>${fmt(gosiLocal+gosiExpat)}</td><td>${fmt((gosiLocal+gosiExpat)*12)}</td><td>${pct(gosiLocal+gosiExpat)}</td></tr>
-        <tr><td>Expat Residency Fees</td><td>${fmt(expatFees)}</td><td>${fmt(expatFees*12)}</td><td>${pct(expatFees)}</td></tr>
-        <tr><td>Raw Materials (${industry.name})</td><td>${fmt(rawMaterialMonthly)}</td><td>${fmt(rawMaterialMonthly*12)}</td><td>${pct(rawMaterialMonthly)}</td></tr>
-        <tr><td>Maintenance (${maintenancePct}%)</td><td>${fmt(maintenanceMonthly)}</td><td>${fmt(maintenanceMonthly*12)}</td><td>${pct(maintenanceMonthly)}</td></tr>
-        <tr><td>Property Insurance (${insurancePct}%)</td><td>${fmt(insuranceMonthly)}</td><td>${fmt(insuranceMonthly*12)}</td><td>${pct(insuranceMonthly)}</td></tr>
-        <tr><td>Supervision + License</td><td>${fmt(supervisionMonthly+licenseMonthly)}</td><td>${fmt((supervisionMonthly+licenseMonthly)*12)}</td><td>${pct(supervisionMonthly+licenseMonthly)}</td></tr>
-        <tr class="total-row"><td><strong>Total</strong></td><td><strong>${fmt(totalMonthly)}</strong></td><td><strong>${fmt(totalYearly)}</strong></td><td><strong>100%</strong></td></tr>
-      `;
-
-      const stbody = document.getElementById('setupTable');
-      stbody.innerHTML = `
-        <tr><td>Plan Approval Fee</td><td>${fmt(planApproval)} EGP</td><td>${area} m² × 1 EGP (min 5,000 – max 25,000)</td></tr>
-        <tr><td>Security Deposit (2 months)</td><td>${fmt(deposit)} EGP</td><td>2 months rent</td></tr>
-        <tr><td>Electricity Connection</td><td>${fmt(electricityConnection)} EGP</td><td>Based on consumption</td></tr>
-        <tr><td>Civil Defense Inspection</td><td>${fmt(civilDefense)} EGP</td><td>Fixed</td></tr>
-        <tr><td>Building Permit Fee</td><td>${fmt(buildingPermit)} EGP</td><td>${area} m² × 2 EGP</td></tr>
-        <tr><td>Basic Insurance</td><td>${fmt(basicInsurance)} EGP</td><td>5% of facility value</td></tr>
-        <tr><td>Miscellaneous</td><td>${fmt(miscSetup)} EGP</td><td>Furniture, IT, equipment...</td></tr>
-        <tr class="total-row"><td><strong>Total Setup</strong></td><td><strong>${fmt(setupCost)} EGP</strong></td><td></td></tr>
-      `;
-
-      updateCharts({
-        rentMonthly, electricityMonthly, waterMonthly,
-        localPayroll, expatPayroll, gosiLocal, gosiExpat, expatFees,
-        rawMaterialMonthly, maintenanceMonthly, insuranceMonthly,
-        supervisionMonthly, licenseMonthly,
-        pessimistic, totalYearly, optimistic
-      });
-
-      document.getElementById('results').classList.add('show');
-      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      if (typeof trackCalculation === 'function') {
-        trackCalculation('factory-cost-eg', 'EG', 
-          { area: area, workers: totalWorkers, industry: industryKey },
-          { monthly: Math.round(totalMonthly), yearly: Math.round(totalYearly) },
-          'expected'
-        );
-      }
-    }
-
-    function updateCharts(data) {
-      const labels = ['Rent', 'Electricity', 'Water', 'Local Salaries', 'Expat Salaries', 'Insurance', 'Residency', 'Raw Materials', 'Maintenance', 'Property Ins.', 'Supervision'];
-      const values = [
-        data.rentMonthly, data.electricityMonthly, data.waterMonthly,
-        data.localPayroll, data.expatPayroll, data.gosiLocal+data.gosiExpat,
-        data.expatFees, data.rawMaterialMonthly, data.maintenanceMonthly,
-        data.insuranceMonthly, data.supervisionMonthly+data.licenseMonthly
-      ];
-      const colors = ['#b8954e','#d4b87a','#555555','#22c55e','#16a34a','#3b82f6','#ef4444','#eab308','#a855f7','#ec4899','#888888'];
-
-      const pieCtx = document.getElementById('costPieChart').getContext('2d');
-      if (costPieChart) costPieChart.destroy();
-      costPieChart = new Chart(pieCtx, {
-        type: 'doughnut',
-        data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }] },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'right', labels: { color: '#555555', font: { size: 11 } } } }
-        }
-      });
-
-      const barCtx = document.getElementById('scenarioBarChart').getContext('2d');
-      if (scenarioBarChart) scenarioBarChart.destroy();
-      scenarioBarChart = new Chart(barCtx, {
-        type: 'bar',
-        data: {
-          labels: ['Pessimistic', 'Expected', 'Optimistic'],
-          datasets: [{ label: 'Yearly Cost', data: [data.pessimistic, data.totalYearly, data.optimistic], backgroundColor: ['rgba(239,68,68,0.7)', 'rgba(212,168,83,0.7)', 'rgba(34,197,94,0.7)'], borderRadius: 8 }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#555555' } },
-            x: { grid: { display: false }, ticks: { color: '#555555' } }
-          }
-        }
-      });
-    }
-
-    window.addEventListener('load', calculate);
+    });
   </script>
   <script src="../../admin/analytics-tracker.js"></script>
 <script src="../../calculators/usage-guard.js"></script>
