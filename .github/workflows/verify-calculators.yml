@@ -1,0 +1,40 @@
+name: Verify Calculators
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Verify shared-platforms.js is up to date
+        run: |
+          npm run regenerate:platforms
+          git diff --exit-code calculators/shared-platforms.js
+
+      - name: Check for old country-platforms-data references
+        run: |
+          if grep -R "country-platforms-data\.js\|country-platforms-data\.min\.js" calculators en/calculators 2>/dev/null | grep -q "\.html"; then
+            echo "ERROR: calculator HTML files still reference country-platforms-data.js"
+            grep -R "country-platforms-data\.js\|country-platforms-data\.min\.js" calculators en/calculators | grep "\.html"
+            exit 1
+          fi
+          echo "OK: no calculator HTML references country-platforms-data.js"

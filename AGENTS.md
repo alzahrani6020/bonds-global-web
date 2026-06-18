@@ -245,7 +245,7 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 ## 9. ⚠️ قواعد حمراء (لا تلمس)
 
 1. **لا تعدّل يدوياً**:
-   - `calculators/country-platforms-data.min.js` (يُولّد تلقائياً)
+   - `calculators/shared-platforms.js` (يُولّد تلقائياً من `country-platforms-data.js`)
    - `package-lock.json`
    - `.vercel/`
 
@@ -305,7 +305,23 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - API: `api/moyasar-checkout.js` + `api/moyasar-verify.js`
 
 ### 11.3 البلدان المدعومة
-22 دولة عربية وعالمية. البيانات في `calculators/country-platforms-data.js`.
+22 دولة عربية وعالمية. البيانات الجغرافية في `v3/master-data/countries-governorates-cities.js` وبيانات المنصات/العملات في `calculators/shared-platforms.js`.
+
+### 11.4 تحديث بيانات المنصات
+- المصدر الأصلي: `calculators/country-platforms-data.js`
+- ملف المشروع المستخدم: `calculators/shared-platforms.js` (يُولّد تلقائياً)
+- لإعادة التوليد: `npm run regenerate:platforms`
+- أدوات `tools/apply_csv_data.py` و `tools/apply_csv_data_v2.py` و `tools/update_operating_models.py` تعيد التوليد تلقائياً بعد التعديل.
+- الاختبارات: `tests/bonds-geo.test.js` تتحقق من سلامة `BondsGeo` و `BondsPlatforms` وعدم رجوع `country-platforms-data.js` إلى ملفات الحاسبات.
+
+### 11.5 CSS مشترك لحاسبات تكلفة المصنع
+- `calculators/factory-cost-shared.css`: الأنماط المشتركة لصفحات تكلفة المصنع العربية.
+- `calculators/factory-cost-shared-en.css`: الأنماط المشتركة لمعظم الصفحات الإنجليزية.
+- `calculators/factory-cost-shared-en-light.css`: نسخة إنجليزية خفيفة لـ 5 دول (dj, km, mr, ps, so).
+- صفحات `factory-cost-*.html` (ما عدا `factory-cost.html` الرئيسية) تستخدم هذه الملفات بدلاً من `<style>` داخلي.
+- `calculators/auth/auth-shared.css`: الأنماط المشتركة لصفحات المصادقة (تستخدمه جميع صفحات `calculators/auth/` مع الاحتفاظ بأنماط خاصة في كل صفحة حسب الحاجة).
+- `calculators/feasibility-template-shared.css` و `calculators/feasibility-template-shared-en.css`: الأنماط المشتركة لقوالب دراسة الجدوى.
+- `calculators/scenario-cards-shared.css`: أنماط بطاقات السيناريو/الحكم/المقاييس المشتركة لـ `feasibility.html` و `medical-viability.html` (عربي وإنجليزي).
 
 ---
 
