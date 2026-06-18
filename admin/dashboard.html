@@ -3,630 +3,405 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>لوحة التحكم الإدارية | بوندز</title>
+  <title>لوحة التحكم الموحدة | بوندز</title>
+  <meta name="description" content="لوحة تحكم إدارية موحدة لجميع وحدات بوندز" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js"></script>
   <style>
     :root {
-      --bg: #f5f0e8; --bg-secondary: #ffffff; --bg-card: rgba(255,255,255,0.85);
-      --gold: #b8954e; --gold-bright: #d4b87a; --gold-dim: #8a7340;
-      --text: #1a1a1a; --text-secondary: #555555; --text-muted: #888888;
-      --border: rgba(0,0,0,0.08); --border-hover: rgba(184,149,78,0.4);
-      --success: #22c55e; --warning: #eab308; --info: #3b82f6; --danger: #ef4444;
-      --shadow-lg: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
+      --bg: #f5f0e8;
+      --bg-secondary: #ffffff;
+      --bg-card: rgba(255,255,255,0.9);
+      --gold: #b8954e;
+      --gold-bright: #d4b87a;
+      --gold-dim: #8a7340;
+      --text: #1a1a1a;
+      --text-secondary: #555555;
+      --text-muted: #888888;
+      --border: rgba(0,0,0,0.08);
+      --border-hover: rgba(184,149,78,0.35);
+      --success: #22c55e;
+      --warning: #eab308;
+      --info: #3b82f6;
+      --danger: #ef4444;
+      --shadow: 0 4px 20px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+      --radius: 16px;
+      --sidebar-width: 270px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Vazirmatn', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
-
-    .admin-layout { display: flex; min-height: 100vh; }
-    .sidebar {
-      width: 260px; background: var(--bg-secondary); border-left: 1px solid var(--border);
-      padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;
-      position: fixed; right: 0; top: 0; bottom: 0; z-index: 100;
+    html, body { height: 100%; }
+    body {
+      font-family: 'Vazirmatn', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow: hidden;
     }
-    .sidebar-brand { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
-    .sidebar-brand img { height: 40px; width: auto; border-radius: 6px; }
-    .sidebar-brand span { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
-    .sidebar-nav { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
-    .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; border-radius: 12px; color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s; }
-    .sidebar-link:hover, .sidebar-link.active { background: rgba(212,168,83,0.1); color: var(--gold); }
-    .sidebar-link svg { width: 20px; height: 20px; opacity: 0.7; }
-    .sidebar-footer { padding-top: 1rem; border-top: 1px solid var(--border); }
+
+    .admin-shell { display: flex; height: 100vh; }
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-secondary);
+      border-left: 1px solid var(--border);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      position: fixed;
+      right: 0; top: 0; bottom: 0;
+      z-index: 100;
+      overflow-y: auto;
+    }
+    .sidebar-brand { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .sidebar-brand img { height: 42px; width: auto; border-radius: 6px; }
+    .sidebar-brand span { font-size: 1.05rem; font-weight: 800; color: var(--gold); }
+
+    .nav-group { display: flex; flex-direction: column; gap: 0.35rem; }
+    .nav-label { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 0 0.75rem; margin-bottom: 0.25rem; }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.75rem 1rem; border-radius: 12px;
+      color: var(--text-secondary); text-decoration: none;
+      font-weight: 600; font-size: 0.86rem;
+      transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit;
+    }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(184,149,78,0.12); color: var(--gold); }
+    .sidebar-link svg { width: 20px; height: 20px; opacity: 0.75; flex-shrink: 0; }
+
+    .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); }
     .sidebar-user { display: flex; align-items: center; gap: 0.75rem; }
-    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #1a1a1a; font-size: 0.85rem; }
+    .user-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: #1a1a1a; font-size: 0.85rem;
+    }
     .user-info { display: flex; flex-direction: column; }
     .user-name { font-weight: 700; font-size: 0.85rem; }
     .user-role { font-size: 0.75rem; color: var(--text-muted); }
 
-    .main-content { flex: 1; margin-right: 260px; padding: 2rem; }
-    .page-header { margin-bottom: 2rem; }
-    .page-header h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .main-content { flex: 1; margin-right: var(--sidebar-width); display: flex; flex-direction: column; height: 100vh; }
+    .topbar {
+      height: 64px; background: var(--bg-secondary); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem; flex-shrink: 0;
+    }
+    .topbar-title { font-size: 1.15rem; font-weight: 800; }
+    .topbar-actions { display: flex; gap: 0.75rem; align-items: center; }
+    .btn-sm { padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #1a1a1a; }
+    .btn-secondary { background: rgba(0,0,0,0.04); color: var(--text-secondary); border: 1px solid var(--border); }
+
+    .iframe-wrap { flex: 1; overflow: hidden; background: var(--bg); }
+    .module-frame { width: 100%; height: 100%; border: none; }
+
+    .overview { padding: 1.5rem; overflow-y: auto; }
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
     .page-header p { color: var(--text-secondary); font-size: 0.9rem; }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
-    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; transition: all 0.3s; }
-    .stat-card:hover { border-color: var(--border-hover); transform: translateY(-3px); }
-    .stat-card__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-    .stat-card__icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
-    .stat-card__icon--users { background: rgba(59,130,246,0.1); }
-    .stat-card__icon--revenue { background: rgba(34,197,94,0.1); }
-    .stat-card__icon--pro { background: rgba(212,168,83,0.1); }
-    .stat-card__icon--calcs { background: rgba(168,85,247,0.1); }
-    .stat-card__icon--conversion { background: rgba(239,68,68,0.1); }
-    .stat-card__icon--arpu { background: rgba(14,165,233,0.1); }
-    .stat-card__change { font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.5rem; border-radius: 6px; }
-    .change-up { background: rgba(34,197,94,0.15); color: var(--success); }
-    .change-down { background: rgba(239,68,68,0.15); color: var(--danger); }
-    .stat-card__num { font-size: 1.7rem; font-weight: 800; line-height: 1; margin-bottom: 0.35rem; }
-    .stat-card__label { font-size: 0.8rem; color: var(--text-secondary); }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 1.5rem; }
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.25rem; box-shadow: var(--shadow); transition: all 0.2s;
+    }
+    .stat-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+    .stat-card__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .stat-card__icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+    .stat-card__icon--gold { background: rgba(184,149,78,0.12); }
+    .stat-card__icon--blue { background: rgba(59,130,246,0.12); }
+    .stat-card__icon--green { background: rgba(34,197,94,0.12); }
+    .stat-card__icon--purple { background: rgba(168,85,247,0.12); }
+    .stat-card__icon--red { background: rgba(239,68,68,0.12); }
+    .stat-card__num { font-size: 1.5rem; font-weight: 800; line-height: 1; margin-bottom: 0.25rem; }
+    .stat-card__label { font-size: 0.78rem; color: var(--text-secondary); }
 
-    .section-row { display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; margin-bottom: 2rem; }
-    .chart-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
-    .chart-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
-    .chart-box { height: 260px; }
-    .chart-box canvas { max-height: 260px; }
+    .modules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+    .module-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.25rem; cursor: pointer; transition: all 0.2s; text-decoration: none; color: inherit;
+      display: flex; flex-direction: column; gap: 0.75rem;
+    }
+    .module-card:hover { border-color: var(--border-hover); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+    .module-card__icon { width: 48px; height: 48px; border-radius: 12px; background: rgba(184,149,78,0.12); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .module-card__title { font-size: 1.05rem; font-weight: 800; }
+    .module-card__desc { font-size: 0.85rem; color: var(--text-secondary); }
 
-    .table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 2rem; }
-    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
-    .table-header h3 { font-size: 1rem; font-weight: 700; }
-    .btn-sm { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
-    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #1a1a1a; }
-    .btn-secondary { background: rgba(0,0,0,0.03); color: var(--text-secondary); border: 1px solid var(--border); }
-    .data-table { width: 100%; border-collapse: collapse; }
-    .data-table th { text-align: right; padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.9); }
-    .data-table td { padding: 1rem 1.5rem; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
-    .data-table tr:hover td { background: rgba(212,168,83,0.05); }
-    .user-cell { display: flex; align-items: center; gap: 0.75rem; }
-    .user-cell__avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1a1a1a; font-size: 0.75rem; }
-    .user-cell__name { font-weight: 700; color: var(--text); }
-    .user-cell__email { font-size: 0.75rem; color: var(--text-muted); }
-    .badge { display: inline-block; padding: 0.3rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
-    .badge--free { background: rgba(100,116,139,0.15); color: var(--text-secondary); }
-    .badge--pro { background: rgba(212,168,83,0.15); color: var(--gold); }
-    .badge--enterprise { background: rgba(168,85,247,0.15); color: #a855f7; }
-    .badge--active { background: rgba(34,197,94,0.15); color: var(--success); }
-    .badge--pending { background: rgba(234,179,8,0.15); color: var(--warning); }
-    .badge--inactive { background: rgba(239,68,68,0.15); color: var(--danger); }
-
-    .loading { color: var(--text-muted); font-style: italic; text-align: center; padding: 2rem; }
-    .demo-badge { display: inline-block; background: rgba(234,179,8,0.2); color: var(--warning); font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; margin-right: 0.5rem; }
+    .mobile-toggle {
+      display: none; position: fixed; top: 1rem; right: 1rem; z-index: 110;
+      width: 44px; height: 44px; border-radius: 10px;
+      background: var(--bg-secondary); border: 1px solid var(--border);
+      align-items: center; justify-content: center; cursor: pointer;
+      box-shadow: var(--shadow);
+    }
 
     @media (max-width: 1024px) {
-      .sidebar { width: 80px; padding: 1rem; }
-      .sidebar-brand span, .sidebar-link span, .user-info { display: none; }
-      .sidebar-link { justify-content: center; padding: 0.85rem; }
-      .main-content { margin-right: 80px; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .section-row { grid-template-columns: 1fr; }
+      .sidebar { transform: translateX(100%); width: 260px; }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-right: 0; }
+      .mobile-toggle { display: flex; }
     }
-    @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
   </style>
-  <script src="/api/env"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/bonds-auth-2026.js"></script>
-  <script src="/admin/financial-advisory/service.js"></script>
-  <script src="/admin/distressed-recovery/service.js"></script>
   <script>BondsAuth.initAdminGuard();</script>
 </head>
 <body>
+  <button class="mobile-toggle" id="mobileToggle" aria-label="القائمة">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 
-  <div class="admin-layout">
-    <aside class="sidebar">
+  <div class="admin-shell">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
-        <img src="../assets/bonds-logo-2026.webp?v=2026" alt="بوندز" />
-        <span>بوندز</span>
+        <img src="/assets/bonds-logo-2026.webp?v=2026" alt="بوندز" />
+        <span>بوندز — الإدارة</span>
       </div>
-      <nav class="sidebar-nav">
-        <a href="dashboard.html" class="sidebar-link active">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          <span>الرئيسية</span>
-        </a>
-        <a href="users.html" class="sidebar-link">
+
+      <div class="nav-group">
+        <div class="nav-label">عام</div>
+        <button class="sidebar-link active" data-target="overview" data-title="نظرة عامة">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg>
+          <span>نظرة عامة</span>
+        </button>
+        <button class="sidebar-link" data-target="/admin/users.html?embed=1" data-title="المستخدمين">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span>المستخدمين</span>
-        </a>
-        <a href="subscriptions.html" class="sidebar-link">
+        </button>
+        <button class="sidebar-link" data-target="/admin/subscriptions.html?embed=1" data-title="الاشتراكات">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           <span>الاشتراكات</span>
-        </a>
-        <a href="messages.html" class="sidebar-link">
+        </button>
+        <button class="sidebar-link" data-target="/admin/messages.html?embed=1" data-title="الرسائل">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          <span>الرسائل</span> <span id="msgBadge" style="display:none;background:#ef4444;color:#fff;font-size:0.65rem;padding:0.1rem 0.4rem;border-radius:50px;margin-right:auto;">0</span>
-        </a>
-        <a href="roles.html" class="sidebar-link">
+          <span>الرسائل</span>
+        </button>
+        <button class="sidebar-link" data-target="/admin/roles.html?embed=1" data-title="الصلاحيات">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <span>الصلاحيات</span>
-        </a>
-        <a href="analytics.html" class="sidebar-link">
+        </button>
+        <button class="sidebar-link" data-target="/admin/analytics.html?embed=1" data-title="التحليلات">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
           <span>التحليلات</span>
-        </a>
-        <a href="financial-advisory/index.html" class="sidebar-link">
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">الوحدات المتخصصة</div>
+        <button class="sidebar-link" data-target="/admin/financial-advisory/index.html?embed=1" data-title="الاستشارات المالية">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           <span>الاستشارات المالية</span>
-        </a>
-        <a href="distressed-recovery/index.html" class="sidebar-link">
+        </button>
+        <button class="sidebar-link" data-target="/admin/distressed-recovery/index.html?embed=1" data-title="إنقاذ الأصول المتعثرة">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
           <span>إنقاذ الأصول المتعثرة</span>
-        </a>
-        <a href="city-intelligence/index.html" class="sidebar-link">
+        </button>
+        <button class="sidebar-link" data-target="/admin/city-intelligence/index.html?embed=1" data-title="City Intelligence">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
           <span>City Intelligence</span>
-        </a>
-        <a href="../calculators/dashboard.html" class="sidebar-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span>موقع المستخدم</span>
-        </a>
-      </nav>
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">النظام</div>
+        <button class="sidebar-link" data-target="/admin/bank-transfers.html?embed=1" data-title="التحويلات البنكية">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <span>التحويلات البنكية</span>
+        </button>
+        <button class="sidebar-link" data-target="/admin/settings.html?embed=1" data-title="الإعدادات">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>الإعدادات</span>
+        </button>
+        <button class="sidebar-link" data-target="/admin/exceptions.html?embed=1" data-title="الاستثناءات">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>الاستثناءات</span>
+        </button>
+      </div>
+
       <div class="sidebar-footer">
         <div class="sidebar-user">
-          <div class="user-avatar">م</div>
+          <div class="user-avatar" id="userAvatar">م</div>
           <div class="user-info">
-            <span class="user-name">مدير النظام</span>
-            <span class="user-role">Admin</span>
+            <span class="user-name" id="userName">مدير النظام</span>
+            <span class="user-role" id="userRole">Admin</span>
           </div>
         </div>
       </div>
     </aside>
 
     <main class="main-content">
-      <div class="page-header">
-        <h1>لوحة التحكم الإدارية <span id="demoIndicator" class="demo-badge" style="display:none;">Demo</span></h1>
-        <p>نظرة عامة على أداء المنصة والمستخدمين</p>
-      </div>
-
-      <!-- Stats -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-card__header">
-            <div class="stat-card__icon stat-card__icon--users">👥</div>
-            <span class="stat-card__change change-up" id="usersChange">+12%</span>
-          </div>
-          <div class="stat-card__num" id="usersNum">—</div>
-          <div class="stat-card__label">إجمالي المستخدمين</div>
+      <header class="topbar">
+        <div class="topbar-title" id="pageTitle">نظرة عامة</div>
+        <div class="topbar-actions">
+          <a href="/calculator.html" class="btn-sm btn-secondary" target="_top">موقع المستخدم</a>
+          <button class="btn-sm btn-primary" id="refreshBtn" onclick="location.reload()">تحديث</button>
         </div>
-        <div class="stat-card">
-          <div class="stat-card__header">
-            <div class="stat-card__icon stat-card__icon--revenue">💰</div>
-            <span class="stat-card__change change-up" id="revenueChange">+8.5%</span>
-          </div>
-          <div class="stat-card__num" id="revenueNum">—</div>
-          <div class="stat-card__label">إيرادات الشهر</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card__header">
-            <div class="stat-card__icon stat-card__icon--pro">⭐</div>
-            <span class="stat-card__change change-up" id="proChange">+5%</span>
-          </div>
-          <div class="stat-card__num" id="proNum">—</div>
-          <div class="stat-card__label">مشتركين Pro</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card__header">
-            <div class="stat-card__icon stat-card__icon--calcs">🧮</div>
-            <span class="stat-card__change change-up" id="calcChange">+18%</span>
-          </div>
-          <div class="stat-card__num" id="calcNum">—</div>
-          <div class="stat-card__label">حسابات هذا الشهر</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card__header">
-            <div class="stat-card__icon stat-card__icon--conversion">📈</div>
-            <span class="stat-card__change change-up" id="convChange">+2.3%</span>
-          </div>
-          <div class="stat-card__num" id="convNum">—</div>
-          <div class="stat-card__label">معدل التحويل Free→Pro</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card__header">
-            <div class="stat-card__icon stat-card__icon--arpu">💵</div>
-            <span class="stat-card__change change-up" id="arpuChange">+4.1%</span>
-          </div>
-          <div class="stat-card__num" id="arpuNum">—</div>
-          <div class="stat-card__label">متوسط الإيراد للمستخدم</div>
-        </div>
-      </div>
-
-      <!-- Charts -->
-      <div class="section-row">
-        <div class="chart-card">
-          <h3>📈 الإيرادات الشهرية (6 أشهر)</h3>
-          <div class="chart-box"><canvas id="revenueChart"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <h3>📊 توزيع الاشتراكات</h3>
-          <div class="chart-box"><canvas id="subsChart"></canvas></div>
-        </div>
-      </div>
-
-      <!-- Financial Advisory Summary -->
-      <div class="table-card" id="fa-summary-card" style="display:none;">
-        <div class="table-header">
-          <h3>📊 الاستشارات المالية</h3>
-          <a href="/admin/financial-advisory/index.html" class="btn-sm btn-primary">فتح الوحدة</a>
-        </div>
-        <div class="stats-grid" id="fa-summary-stats" style="margin-top:1rem;"></div>
-        <div style="margin-top:1.5rem;">
-          <h4 style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:0.75rem;">آخر النشاطات في الوحدة</h4>
-          <div id="fa-summary-activity"></div>
-        </div>
-      </div>
-
-      <!-- Distressed Recovery Summary -->
-      <div class="table-card" id="recovery-summary-card" style="display:none;">
-        <div class="table-header">
-          <h3>🏛️ إنقاذ الأصول المتعثرة</h3>
-          <a href="/admin/distressed-recovery/index.html" class="btn-sm btn-primary">فتح الوحدة</a>
-        </div>
-        <div class="stats-grid" id="recovery-summary-stats" style="margin-top:1rem;"></div>
-        <div style="margin-top:1.5rem;">
-          <h4 style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:0.75rem;">آخر الأصول المسجلة</h4>
-          <div id="recovery-summary-assets"></div>
-        </div>
-      </div>
-
-      <!-- Activity Table -->
-      <div class="table-card">
-        <div class="table-header">
-          <h3>🕒 آخر النشاطات</h3>
-          <button class="btn-sm btn-primary" onclick="refreshData()">تحديث</button>
-        </div>
-        <table class="data-table">
-          <thead>
-            <tr><th>المستخدم</th><th>النشاط</th><th>التفاصيل</th><th>الوقت</th></tr>
-          </thead>
-          <tbody id="activityTable">
-            <tr><td colspan="4" class="loading">جارِ التحميل...</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Users Table -->
-      <div class="table-card">
-        <div class="table-header">
-          <h3>👤 أحدث المستخدمين</h3>
-          <a href="users.html" class="btn-sm btn-primary">عرض الكل</a>
-        </div>
-        <table class="data-table">
-          <thead>
-            <tr><th>المستخدم</th><th>الدولة</th><th>الخطة</th><th>الحالة</th><th>تاريخ التسجيل</th></tr>
-          </thead>
-          <tbody id="usersTable">
-            <tr><td colspan="5" class="loading">جارِ التحميل...</td></tr>
-          </tbody>
-        </table>
+      </header>
+      <div class="iframe-wrap" id="iframeWrap">
+        <div class="overview" id="overviewPanel"></div>
       </div>
     </main>
   </div>
 
   <script>
-    // ===== CONFIGURABLE FALLBACK DATA =====
-    const DEMO_DATA = {
-      users: { total: 1247, change: '+12%', changeUp: true },
-      revenue: { total: '$14,250', change: '+8.5%', changeUp: true },
-      pro: { total: 186, change: '+5%', changeUp: true },
-      calcs: { total: '8,432', change: '+18%', changeUp: true },
-      conversion: { total: '14.9%', change: '+2.3%', changeUp: true },
-      arpu: { total: '$11.4', change: '+4.1%', changeUp: true },
-      monthlyRevenue: [8200, 9500, 10200, 11800, 13100, 14250],
-      subscriptionSplit: [65, 20, 15]
-    };
+    (function () {
+      'use strict';
 
-    let isDemo = false;
-    let revenueChart = null;
-    let subsChart = null;
+      const sb = window.BondsAuth?.getSupabase ? window.BondsAuth.getSupabase() : null;
+      const overviewEl = document.getElementById('overviewPanel');
+      const iframeWrap = document.getElementById('iframeWrap');
+      const pageTitle = document.getElementById('pageTitle');
 
-    async function fetchStats() {
-      try {
-        const res = await fetch('/api/admin?action=stats');
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error || 'Unknown error');
-        return data;
-      } catch (e) {
-        console.warn('[Admin] API failed, using demo data:', e.message);
-        return null;
-      }
-    }
-
-    function formatNum(n) {
-      if (typeof n === 'number') return n.toLocaleString('ar-SA');
-      return n;
-    }
-
-    function formatCurrency(n) {
-      if (typeof n === 'number') return '$' + n.toLocaleString('en-US');
-      return n;
-    }
-
-    function tierBadge(tier) {
-      const map = { free: 'badge--free', pro: 'badge--pro', enterprise: 'badge--enterprise' };
-      const labels = { free: 'Free', pro: 'Pro', enterprise: 'Enterprise' };
-      return `<span class="badge ${map[tier] || 'badge--free'}">${labels[tier] || tier}</span>`;
-    }
-
-    function statusBadge(status) {
-      const map = { active: 'badge--active', inactive: 'badge--inactive', pending: 'badge--pending', trialing: 'badge--warning', past_due: 'badge--danger' };
-      const labels = { active: 'نشط', inactive: 'غير نشط', pending: 'معلق', trialing: 'تجريبي', past_due: 'متأخر' };
-      return `<span class="badge ${map[status] || 'badge--pending'}">${labels[status] || status}</span>`;
-    }
-
-    function timeAgo(dateStr) {
-      const d = new Date(dateStr);
-      const now = new Date();
-      const diff = Math.floor((now - d) / 60000);
-      if (diff < 1) return 'الآن';
-      if (diff < 60) return `منذ ${diff} دقيقة`;
-      const hrs = Math.floor(diff / 60);
-      if (hrs < 24) return `منذ ${hrs} ساعة`;
-      const days = Math.floor(hrs / 24);
-      return `منذ ${days} يوم`;
-    }
-
-    function countryLabel(code) {
-      const map = { SA: 'السعودية', AE: 'الإمارات', EG: 'مصر', KW: 'الكويت', QA: 'قطر', BH: 'البحرين', OM: 'عمان', JO: 'الأردن', IQ: 'العراق', LB: 'لبنان', MA: 'المغرب', DZ: 'الجزائر', TN: 'تونس', TR: 'تركيا', US: 'أمريكا', GB: 'بريطانيا', IN: 'الهند' };
-      return map[code] || code;
-    }
-
-    function updateStatsFromApi(data) {
-      isDemo = !!data.demo;
-      document.getElementById('demoIndicator').style.display = isDemo ? 'inline-block' : 'none';
-
-      const s = data.stats;
-      document.getElementById('usersNum').textContent = formatNum(s.totalUsers);
-      document.getElementById('revenueNum').textContent = formatCurrency(s.monthlyRevenue);
-      document.getElementById('proNum').textContent = formatNum(s.proUsers);
-      document.getElementById('calcNum').textContent = formatNum(s.totalScenarios);
-      document.getElementById('convNum').textContent = s.conversionRate + '%';
-      document.getElementById('arpuNum').textContent = '$' + s.arpu;
-
-      // Update subscription chart
-      if (subsChart) {
-        subsChart.data.datasets[0].data = [s.freeUsers, s.proUsers, s.enterpriseUsers];
-        subsChart.update();
-      }
-    }
-
-    function updateStatsFallback() {
-      isDemo = true;
-      document.getElementById('demoIndicator').style.display = 'inline-block';
-
-      document.getElementById('usersNum').textContent = formatNum(DEMO_DATA.users.total);
-      document.getElementById('usersChange').textContent = DEMO_DATA.users.change;
-      document.getElementById('revenueNum').textContent = DEMO_DATA.revenue.total;
-      document.getElementById('revenueChange').textContent = DEMO_DATA.revenue.change;
-      document.getElementById('proNum').textContent = formatNum(DEMO_DATA.pro.total);
-      document.getElementById('proChange').textContent = DEMO_DATA.pro.change;
-      document.getElementById('calcNum').textContent = DEMO_DATA.calcs.total;
-      document.getElementById('calcChange').textContent = DEMO_DATA.calcs.change;
-      document.getElementById('convNum').textContent = DEMO_DATA.conversion.total;
-      document.getElementById('convChange').textContent = DEMO_DATA.conversion.change;
-      document.getElementById('arpuNum').textContent = DEMO_DATA.arpu.total;
-      document.getElementById('arpuChange').textContent = DEMO_DATA.arpu.change;
-    }
-
-    function renderUsers(users) {
-      const tbody = document.getElementById('usersTable');
-      if (!users || users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading">لا يوجد مستخدمين</td></tr>';
-        return;
-      }
-      tbody.innerHTML = users.map(u => {
-        const name = u.restaurant_name || 'مستخدم جديد';
-        const initial = name.charAt(0);
-        return `
-          <tr>
-            <td><div class="user-cell"><div class="user-cell__avatar">${initial}</div><div class="user-cell__name">${name}</div></div></td>
-            <td>${countryLabel(u.country)}</td>
-            <td>${tierBadge(u.tier)}</td>
-            <td>${statusBadge(u.status)}</td>
-            <td style="color:var(--text-muted);font-size:0.8rem;">${timeAgo(u.created_at)}</td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function renderActivities(users) {
-      const tbody = document.getElementById('activityTable');
-      const activities = (users || []).slice(0, 5).map(u => {
-        const actions = ['تسجيل جديد', 'حساب مصنع', 'حفظ سيناريو', 'ترقية اشتراك'];
-        const details = ['عبر الموقع', 'دراسة جدوى متكاملة', 'مشروع جديد', 'Free → Pro'];
-        const idx = Math.floor(Math.random() * actions.length);
-        return {
-          user: u.restaurant_name || 'مستخدم',
-          action: actions[idx],
-          detail: details[idx],
-          time: timeAgo(u.created_at)
+      async function loadStats() {
+        const counts = {
+          users: 0,
+          subscriptions: 0,
+          revenue: 0,
+          messages: 0,
+          advisoryClients: 0,
+          advisoryProjects: 0,
+          recoveryAssets: 0,
+          cities: 0
         };
+
+        try {
+          const [users, subs, msgs, advClients, advProjects, recAssets, cities] = await Promise.allSettled([
+            sb?.from('profiles')?.select('*', { count: 'exact', head: true }),
+            sb?.from('subscriptions')?.select('*', { count: 'exact', head: true }),
+            sb?.from('contact_messages')?.select('*', { count: 'exact', head: true }),
+            sb?.from('advisory_clients')?.select('*', { count: 'exact', head: true }),
+            sb?.from('advisory_projects')?.select('*', { count: 'exact', head: true }),
+            sb?.from('recovery_assets')?.select('*', { count: 'exact', head: true }),
+            sb?.from('cities')?.select('*', { count: 'exact', head: true })
+          ]);
+
+          counts.users = users.value?.count || 0;
+          counts.subscriptions = subs.value?.count || 0;
+          counts.messages = msgs.value?.count || 0;
+          counts.advisoryClients = advClients.value?.count || 0;
+          counts.advisoryProjects = advProjects.value?.count || 0;
+          counts.recoveryAssets = recAssets.value?.count || 0;
+          counts.cities = cities.value?.count || 0;
+
+          const rev = await sb?.from('subscriptions')?.select('amount')?.eq('status', 'active');
+          if (rev?.data) counts.revenue = rev.data.reduce((a, r) => a + (Number(r.amount) || 0), 0);
+        } catch (e) { console.warn('stats load failed', e); }
+
+        return counts;
+      }
+
+      function renderOverview(counts) {
+        overviewEl.innerHTML = `
+          <div class="page-header">
+            <h1>لوحة التحكم الموحدة</h1>
+            <p>إدارة جميع وحدات بوندز من مكان واحد</p>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">👥</div></div><div class="stat-card__num">${counts.users.toLocaleString('ar-SA')}</div><div class="stat-card__label">المستخدمين</div></div>
+            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">⭐</div></div><div class="stat-card__num">${counts.subscriptions.toLocaleString('ar-SA')}</div><div class="stat-card__label">الاشتراكات</div></div>
+            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">💰</div></div><div class="stat-card__num">${counts.revenue.toLocaleString('ar-SA')} ر.س</div><div class="stat-card__label">إيرادات فعالة</div></div>
+            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">✉️</div></div><div class="stat-card__num">${counts.messages.toLocaleString('ar-SA')}</div><div class="stat-card__label">الرسائل</div></div>
+            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">📊</div></div><div class="stat-card__num">${counts.advisoryClients.toLocaleString('ar-SA')}</div><div class="stat-card__label">عملاء الاستشارات</div></div>
+            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">📁</div></div><div class="stat-card__num">${counts.advisoryProjects.toLocaleString('ar-SA')}</div><div class="stat-card__label">مشاريع استشارية</div></div>
+            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--red">🏗️</div></div><div class="stat-card__num">${counts.recoveryAssets.toLocaleString('ar-SA')}</div><div class="stat-card__label">أصول متعثرة</div></div>
+            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🏙️</div></div><div class="stat-card__num">${counts.cities.toLocaleString('ar-SA')}</div><div class="stat-card__label">مدن City Intelligence</div></div>
+          </div>
+
+          <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:1rem;">الوحدات</h2>
+          <div class="modules-grid">
+            <button class="module-card" data-target="/admin/users.html?embed=1" data-title="المستخدمين">
+              <div class="module-card__icon">👥</div>
+              <div class="module-card__title">المستخدمين</div>
+              <div class="module-card__desc">إدارة الحسابات والملفات الشخصية</div>
+            </button>
+            <button class="module-card" data-target="/admin/subscriptions.html?embed=1" data-title="الاشتراكات">
+              <div class="module-card__icon">⭐</div>
+              <div class="module-card__title">الاشتراكات</div>
+              <div class="module-card__desc">متابعة Pro والمدفوعات</div>
+            </button>
+            <button class="module-card" data-target="/admin/messages.html?embed=1" data-title="الرسائل">
+              <div class="module-card__icon">✉️</div>
+              <div class="module-card__title">الرسائل</div>
+              <div class="module-card__desc">تواصل العملاء والدعم</div>
+            </button>
+            <button class="module-card" data-target="/admin/financial-advisory/index.html?embed=1" data-title="الاستشارات المالية">
+              <div class="module-card__icon">📊</div>
+              <div class="module-card__title">الاستشارات المالية</div>
+              <div class="module-card__desc">العملاء والمشاريع ودراسات الجدوى</div>
+            </button>
+            <button class="module-card" data-target="/admin/distressed-recovery/index.html?embed=1" data-title="إنقاذ الأصول المتعثرة">
+              <div class="module-card__icon">🏗️</div>
+              <div class="module-card__title">إنقاذ الأصول المتعثرة</div>
+              <div class="module-card__desc">تقييم الأصول وخطط الإنقاذ</div>
+            </button>
+            <button class="module-card" data-target="/admin/city-intelligence/index.html?embed=1" data-title="City Intelligence">
+              <div class="module-card__icon">🏙️</div>
+              <div class="module-card__title">City Intelligence</div>
+              <div class="module-card__desc">تحليل المدن والأحياء والتقارير</div>
+            </button>
+          </div>`;
+
+        overviewEl.querySelectorAll('.module-card').forEach(card => {
+          card.onclick = () => loadModule(card.dataset.target, card.dataset.title);
+        });
+      }
+
+      function loadModule(url, title) {
+        if (url === 'overview') {
+          pageTitle.textContent = 'نظرة عامة';
+          iframeWrap.innerHTML = '<div class="overview" id="overviewPanel"></div>';
+          loadStats().then(renderOverview);
+          return;
+        }
+        pageTitle.textContent = title || 'لوحة التحكم';
+        iframeWrap.innerHTML = `<iframe class="module-frame" src="${url}" title="${title || ''}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"></iframe>`;
+      }
+
+      function setActive(target) {
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+          link.classList.toggle('active', link.dataset.target === target);
+        });
+      }
+
+      document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.addEventListener('click', () => {
+          const target = link.dataset.target;
+          const title = link.dataset.title;
+          setActive(target);
+          loadModule(target, title);
+          if (window.innerWidth <= 1024) document.getElementById('sidebar').classList.remove('open');
+        });
       });
 
-      if (activities.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="loading">لا توجد نشاطات</td></tr>';
-        return;
+      document.getElementById('mobileToggle').onclick = () => {
+        document.getElementById('sidebar').classList.toggle('open');
+      };
+
+      async function initUser() {
+        try {
+          const { data: { user } } = await sb.auth.getUser();
+          if (user) {
+            const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'مدير';
+            document.getElementById('userName').textContent = name;
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('userRole').textContent = window.__ADMIN_ROLE === 'super_admin' ? 'Super Admin' : 'Admin';
+          }
+        } catch (e) {}
       }
 
-      tbody.innerHTML = activities.map(a => `
-        <tr>
-          <td><div class="user-cell"><div class="user-cell__avatar">${a.user.charAt(0)}</div><div class="user-cell__name">${a.user}</div></div></td>
-          <td>${a.action}</td>
-          <td>${a.detail}</td>
-          <td style="color:var(--text-muted);font-size:0.8rem;">${a.time}</td>
-        </tr>
-      `).join('');
-    }
-
-    async function initDashboard() {
-      const data = await fetchStats();
-      if (data && data.stats) {
-        updateStatsFromApi(data);
-        renderUsers(data.recentUsers);
-        renderActivities(data.recentUsers);
-      } else {
-        updateStatsFallback();
-        renderDemoUsers();
-        renderDemoActivities();
-      }
-    }
-
-    function renderDemoUsers() {
-      const demoUsers = [
-        { restaurant_name: 'أحمد محمد', country: 'SA', tier: 'pro', status: 'active', created_at: new Date(Date.now() - 300000).toISOString() },
-        { restaurant_name: 'سارة عبدالله', country: 'AE', tier: 'enterprise', status: 'active', created_at: new Date(Date.now() - 86400000).toISOString() },
-        { restaurant_name: 'محمد علي', country: 'EG', tier: 'free', status: 'active', created_at: new Date(Date.now() - 172800000).toISOString() },
-        { restaurant_name: 'فاطمة الزهراء', country: 'JO', tier: 'pro', status: 'pending', created_at: new Date(Date.now() - 259200000).toISOString() },
-      ];
-      renderUsers(demoUsers);
-    }
-
-    function renderDemoActivities() {
-      const tbody = document.getElementById('activityTable');
-      const ACTIVITIES = [
-        { user: 'أحمد محمد', action: 'حساب مصنع', detail: 'السعودية - 500 م²', time: 'منذ 5 دقائق' },
-        { user: 'سارة عبدالله', action: 'حفظ سيناريو', detail: 'دراسة جدوى متكاملة - مصر', time: 'منذ 12 دقيقة' },
-        { user: 'محمد علي', action: 'ترقية اشتراك', detail: 'Free → Pro', time: 'منذ 30 دقيقة' },
-        { user: 'فاطمة الزهراء', action: 'حساب تدفق نقدي', detail: '12 شهر - الأردن', time: 'منذ ساعة' },
-        { user: 'خالد عمر', action: 'تسجيل جديد', detail: 'عبر Google', time: 'منذ ساعتين' },
-      ];
-      tbody.innerHTML = ACTIVITIES.map(a => `
-        <tr>
-          <td><div class="user-cell"><div class="user-cell__avatar">${a.user.charAt(0)}</div><div class="user-cell__name">${a.user}</div></div></td>
-          <td>${a.action}</td>
-          <td>${a.detail}</td>
-          <td style="color:var(--text-muted);font-size:0.8rem;">${a.time}</td>
-        </tr>
-      `).join('');
-    }
-
-    function refreshData() {
-      document.getElementById('activityTable').innerHTML = '<tr><td colspan="4" class="loading">جارِ التحديث...</td></tr>';
-      document.getElementById('usersTable').innerHTML = '<tr><td colspan="5" class="loading">جارِ التحديث...</td></tr>';
-      initDashboard();
-    }
-
-    // Revenue Chart
-    const revCtx = document.getElementById('revenueChart').getContext('2d');
-    revenueChart = new Chart(revCtx, {
-      type: 'line',
-      data: {
-        labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
-        datasets: [{
-          label: 'الإيرادات ($)',
-          data: DEMO_DATA.monthlyRevenue,
-          borderColor: '#b8954e',
-          backgroundColor: 'rgba(212,168,83,0.1)',
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: '#b8954e',
-          pointBorderColor: '#f5f0e8',
-          pointBorderWidth: 2,
-          pointRadius: 5
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#555555' } },
-          x: { grid: { display: false }, ticks: { color: '#555555' } }
-        }
-      }
-    });
-
-    // Subscription Chart
-    const subsCtx = document.getElementById('subsChart').getContext('2d');
-    subsChart = new Chart(subsCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Free', 'Pro', 'Enterprise'],
-        datasets: [{
-          data: DEMO_DATA.subscriptionSplit,
-          backgroundColor: ['#888888', '#b8954e', '#a855f7'],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '65%',
-        plugins: {
-          legend: { position: 'bottom', labels: { color: '#555555', font: { size: 11 }, padding: 15 } }
-        }
-      }
-    });
-
-    window.addEventListener('load', initDashboard);
-    window.addEventListener('load', updateMsgBadge);
-    window.addEventListener('load', loadAdvisorySummary);
-    window.addEventListener('load', loadRecoverySummary);
-
-    async function loadRecoverySummary() {
-      try {
-        if (typeof RecoveryService === 'undefined') return;
-        const stats = await RecoveryService.getDashboardStats();
-        document.getElementById('recovery-summary-card').style.display = 'block';
-        document.getElementById('recovery-summary-stats').innerHTML = `
-          <div class="stat-card"><div class="stat-card__label">الأصول المسجلة</div><div class="stat-card__value">${stats.counts.assets.toLocaleString('ar-SA')}</div></div>
-          <div class="stat-card"><div class="stat-card__label">خطط الإنقاذ</div><div class="stat-card__value">${stats.counts.plans.toLocaleString('ar-SA')}</div></div>
-          <div class="stat-card"><div class="stat-card__label">المستثمرون</div><div class="stat-card__value">${stats.counts.investors.toLocaleString('ar-SA')}</div></div>
-          <div class="stat-card"><div class="stat-card__label">إجمالي التكاليف</div><div class="stat-card__value">${Number(stats.counts.totalCosts).toLocaleString('ar-SA')} ر.س</div></div>
-        `;
-        document.getElementById('recovery-summary-assets').innerHTML = stats.recentAssets.slice(0, 5).map(a => `
-          <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);font-size:0.9rem;">
-            <span><a href="/admin/distressed-recovery/index.html" style="color:var(--gold);">${a.name}</a></span>
-            <span style="color:var(--text-secondary);">${a.status} • ${fmtMoney(a.distressed_value)}</span>
-          </div>
-        `).join('') || '<div style="color:var(--text-secondary);padding:0.5rem 0;">لا توجد أصول</div>';
-      } catch (e) {
-        console.warn('[RecoverySummary]', e.message);
-      }
-    }
-
-    function fmtMoney(n) { return n === undefined || n === null ? '—' : Number(n).toLocaleString('ar-SA') + ' ر.س'; }
-
-    async function loadAdvisorySummary() {
-      try {
-        if (typeof AdvisoryService === 'undefined') return;
-        const stats = await AdvisoryService.getDashboardStats();
-        document.getElementById('fa-summary-card').style.display = 'block';
-        document.getElementById('fa-summary-stats').innerHTML = `
-          <div class="stat-card"><div class="stat-card__label">العملاء</div><div class="stat-card__value">${stats.counts.clients.toLocaleString('ar-SA')}</div></div>
-          <div class="stat-card"><div class="stat-card__label">المشاريع</div><div class="stat-card__value">${stats.counts.projects.toLocaleString('ar-SA')}</div></div>
-          <div class="stat-card"><div class="stat-card__label">دراسات الجدوى</div><div class="stat-card__value">${stats.counts.studies.toLocaleString('ar-SA')}</div></div>
-          <div class="stat-card"><div class="stat-card__label">النماذج المالية</div><div class="stat-card__value">${stats.counts.models.toLocaleString('ar-SA')}</div></div>
-        `;
-        const actions = {
-          client_created:'إنشاء عميل', client_updated:'تحديث عميل', client_deleted:'حذف عميل',
-          project_created:'إنشاء مشروع', project_updated:'تحديث مشروع', project_deleted:'حذف مشروع',
-          study_created:'إنشاء دراسة', study_updated:'تحديث دراسة', study_deleted:'حذف دراسة',
-          model_created:'إنشاء نموذج', model_updated:'تحديث نموذج', model_deleted:'حذف نموذج',
-          document_uploaded:'رفع مستند', document_deleted:'حذف مستند',
-          note_created:'إضافة ملاحظة', note_updated:'تحديث ملاحظة', note_deleted:'حذف ملاحظة'
-        };
-        document.getElementById('fa-summary-activity').innerHTML = stats.recentActivity.slice(0, 5).map(item => `
-          <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);font-size:0.9rem;">
-            <span>${actions[item.action] || item.action}</span>
-            <span style="color:var(--text-secondary);">${item.actor_email || '—'} • ${new Date(item.created_at).toLocaleString('ar-SA')}</span>
-          </div>
-        `).join('') || '<div style="color:var(--text-secondary);padding:0.5rem 0;">لا توجد نشاطات</div>';
-      } catch (e) {
-        console.warn('[AdvisorySummary]', e.message);
-      }
-    }
-
-    function updateMsgBadge() {
-      try {
-        const msgs = JSON.parse(localStorage.getItem('bonds_contact_messages') || '[]');
-        const unread = msgs.filter(m => !m.read).length;
-        const badge = document.getElementById('msgBadge');
-        if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'inline-block' : 'none'; }
-      } catch(e) {}
-    }
+      loadStats().then(renderOverview);
+      initUser();
+    })();
   </script>
-
-  <script src="../page-tracker-v2.js"></script>
 </body>
 </html>
