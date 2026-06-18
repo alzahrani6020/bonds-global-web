@@ -1,0 +1,25 @@
+/* Shared scenario/verdict/metric card styles for feasibility & viability calculators */
+
+.scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); margin-top: var(--space-6); }
+.scenario-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center; transition: all 0.3s; }
+.scenario-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+.scenario-card.pessimistic { border-top: 3px solid #ef4444; }
+.scenario-card.expected { border-top: 3px solid var(--gold); }
+.scenario-card.optimistic { border-top: 3px solid #22c55e; }
+.scenario-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-2); }
+.scenario-value { font-size: 1.5rem; font-weight: 900; }
+.scenario-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: var(--space-2); }
+
+.verdict-box { padding: var(--space-6); border-radius: var(--radius-lg); margin: var(--space-6) 0; text-align: center; }
+.verdict-box.profit { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); }
+.verdict-box.loss { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); }
+.verdict-box.warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); }
+.verdict-icon { font-size: 2.5rem; margin-bottom: var(--space-2); }
+.verdict-title { font-size: 1.3rem; font-weight: 800; margin-bottom: var(--space-2); }
+.verdict-text { font-size: 0.95rem; line-height: 1.7; }
+
+.metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-4); margin: var(--space-6) 0; }
+.metric-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); text-align: center; }
+.metric-box .label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.25rem; }
+.metric-box .value { font-size: 1.3rem; font-weight: 800; color: var(--gold); }
+.hint-text { font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: var(--space-2); }
