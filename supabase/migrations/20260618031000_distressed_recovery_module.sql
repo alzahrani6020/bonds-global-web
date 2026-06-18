@@ -243,10 +243,17 @@ BEGIN
     SELECT 1 FROM public.recovery_roles
     WHERE recovery_roles.user_id = user_uuid
       AND recovery_roles.role IN ('admin','manager')
-  ) OR EXISTS (
-    SELECT 1 FROM public.admin_roles
-    WHERE admin_roles.user_id = user_uuid
-      AND admin_roles.role IN ('super_admin','admin')
+  ) OR (
+    EXISTS (
+      SELECT 1 FROM pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'public' AND c.relname = 'admin_roles'
+    )
+    AND EXISTS (
+      SELECT 1 FROM public.admin_roles
+      WHERE admin_roles.user_id = user_uuid
+        AND admin_roles.role IN ('super_admin','admin')
+    )
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
