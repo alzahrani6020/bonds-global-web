@@ -7,8 +7,8 @@
   let currentPlans = [];
   let currentInvestors = [];
 
-  const content = document.getElementById('fa-content');
-  const navLinks = document.querySelectorAll('.fa-nav a[data-view]');
+  let content = null;
+  let navLinks = [];
 
   const currency = new Intl.NumberFormat('ar-SA', { maximumFractionDigits: 0 });
 
@@ -64,6 +64,8 @@
   }
 
   async function init() {
+    content = document.getElementById('fa-content');
+    navLinks = document.querySelectorAll('.fa-nav a[data-view]');
     bindNav();
     try {
       await RecoveryService.init();
