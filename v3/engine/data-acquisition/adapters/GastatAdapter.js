@@ -28,7 +28,7 @@ class GastatAdapter extends BaseAdapter {
   }
 
   async fetch(options = {}) {
-    const { cityCode, year = new Date().getFullYear() } = options;
+    const { cityCode, year = new Date().getFullYear(), population, purchasingPowerIndex } = options;
     let quality = 'fallback';
 
     if (!this.useFallback) {
@@ -54,7 +54,7 @@ class GastatAdapter extends BaseAdapter {
       // Network/reachability issues: keep fallback quality
     }
 
-    return this._fallbackData(cityCode, year, quality);
+    return this._fallbackData(cityCode, year, quality, population, purchasingPowerIndex);
   }
 
   async validate(rawItem) {
@@ -99,149 +99,34 @@ class GastatAdapter extends BaseAdapter {
     return result;
   }
 
-  _fallbackData(cityCode, year, quality = 'fallback') {
-    // بيانات تقريبية للمدن السعودية الرئيسية
-    const cityData = {
-      RUH: {
-        population: 7500000,
-        household_income: 180000,
-        growth_rate: 3.2,
-        unemployment_rate: 5.8,
-        establishments_count: 185000,
-        inflation_rate: 2.4
-      },
-      JED: {
-        population: 4800000,
-        household_income: 165000,
-        growth_rate: 2.8,
-        unemployment_rate: 6.2,
-        establishments_count: 142000,
-        inflation_rate: 2.6
-      },
-      DMM: {
-        population: 2600000,
-        household_income: 170000,
-        growth_rate: 3.0,
-        unemployment_rate: 5.5,
-        establishments_count: 89000,
-        inflation_rate: 2.3
-      },
-      MAK: {
-        population: 2100000,
-        household_income: 140000,
-        growth_rate: 2.5,
-        unemployment_rate: 6.8,
-        establishments_count: 65000,
-        inflation_rate: 2.5
-      },
-      MED: {
-        population: 1500000,
-        household_income: 145000,
-        growth_rate: 2.4,
-        unemployment_rate: 6.5,
-        establishments_count: 48000,
-        inflation_rate: 2.4
-      },
-      BAH: {
-        population: 1400000,
-        household_income: 175000,
-        growth_rate: 2.7,
-        unemployment_rate: 5.2,
-        establishments_count: 52000,
-        inflation_rate: 2.2
-      },
-      KHB: {
-        population: 1200000,
-        household_income: 168000,
-        growth_rate: 2.9,
-        unemployment_rate: 5.6,
-        establishments_count: 45000,
-        inflation_rate: 2.4
-      },
-      TIF: {
-        population: 900000,
-        household_income: 132000,
-        growth_rate: 2.3,
-        unemployment_rate: 6.9,
-        establishments_count: 32000,
-        inflation_rate: 2.5
-      },
-      BUR: {
-        population: 750000,
-        household_income: 138000,
-        growth_rate: 2.2,
-        unemployment_rate: 6.8,
-        establishments_count: 26000,
-        inflation_rate: 2.5
-      },
-      ELQ: {
-        population: 750000,
-        household_income: 138000,
-        growth_rate: 2.2,
-        unemployment_rate: 6.8,
-        establishments_count: 26000,
-        inflation_rate: 2.5
-      },
-      TBU: {
-        population: 650000,
-        household_income: 136000,
-        growth_rate: 2.3,
-        unemployment_rate: 6.7,
-        establishments_count: 23000,
-        inflation_rate: 2.4
-      },
-      TBT: {
-        population: 650000,
-        household_income: 136000,
-        growth_rate: 2.3,
-        unemployment_rate: 6.7,
-        establishments_count: 23000,
-        inflation_rate: 2.4
-      },
-      HIL: {
-        population: 500000,
-        household_income: 128000,
-        growth_rate: 2.1,
-        unemployment_rate: 7.1,
-        establishments_count: 18000,
-        inflation_rate: 2.5
-      },
-      YNB: {
-        population: 450000,
-        household_income: 150000,
-        growth_rate: 2.4,
-        unemployment_rate: 6.0,
-        establishments_count: 16000,
-        inflation_rate: 2.3
-      },
-      TAB: {
-        population: 650000,
-        household_income: 135000,
-        growth_rate: 2.2,
-        unemployment_rate: 7.0,
-        establishments_count: 24000,
-        inflation_rate: 2.5
-      },
-      ABH: {
-        population: 580000,
-        household_income: 130000,
-        growth_rate: 2.1,
-        unemployment_rate: 7.2,
-        establishments_count: 22000,
-        inflation_rate: 2.6
-      }
-    };
+  _fallbackData(cityCode, year, quality = 'fallback', population = 1000000, purchasingPowerIndex = 100) {
+    const code = cityCode ? cityCode.toUpperCase() : 'UNK';
+    const pop = Number(population) || 1000000;
+    const ppi = Number(purchasingPowerIndex) || 100;
 
-    const metrics = cityCode ? cityData[cityCode.toUpperCase()] : null;
-    if (!metrics) {
-      return [];
-    }
+    // Derived estimates: larger cities grow slightly faster, have lower unemployment,
+    // more establishments per capita, and higher household income.
+    const tierFactor = pop >= 2000000 ? 1.0 : pop >= 800000 ? 0.92 : 0.85;
+    const incomeFactor = ppi / 100;
+
+    const householdIncome = Math.round(150000 * incomeFactor * tierFactor);
+    const growthRate = parseFloat((3.0 * tierFactor).toFixed(2));
+    const unemploymentRate = parseFloat((5.5 + (1 - tierFactor) * 5).toFixed(2));
+    const establishmentsCount = Math.round(pop * 0.022 * tierFactor);
+    const inflationRate = 2.4;
 
     return [{
-      cityCode: cityCode.toUpperCase(),
+      cityCode: code,
       year,
-      metrics,
-      externalId: `${cityCode.toUpperCase()}-${year}`,
+      metrics: {
+        population: pop,
+        household_income: householdIncome,
+        growth_rate: growthRate,
+        unemployment_rate: unemploymentRate,
+        establishments_count: establishmentsCount,
+        inflation_rate: inflationRate
+      },
+      externalId: `${code}-${year}`,
       source: this.config.sourceId,
       quality
     }];

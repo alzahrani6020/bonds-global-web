@@ -7,5 +7,6 @@ module.exports = {
   EgyptCapmasAdapter: require('./EgyptCapmasAdapter'),
   QatarPlanningAdapter: require('./QatarPlanningAdapter'),
   JordanStatsAdapter: require('./JordanStatsAdapter'),
-  CompetitorDataAdapter: require('./CompetitorDataAdapter')
+  CompetitorDataAdapter: require('./CompetitorDataAdapter'),
+  BenchmarkAdapter: require('./BenchmarkAdapter')
 };

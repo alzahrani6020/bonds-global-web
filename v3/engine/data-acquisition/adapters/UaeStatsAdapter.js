@@ -27,10 +27,10 @@ class UaeStatsAdapter extends BaseAdapter {
   }
 
   async fetch(options = {}) {
-    const { cityCode, year = new Date().getFullYear() } = options;
+    const { cityCode, year = new Date().getFullYear(), population, purchasingPowerIndex } = options;
 
     if (this.useFallback) {
-      return this._fallbackData(cityCode, year);
+      return this._fallbackData(cityCode, year, population, purchasingPowerIndex);
     }
 
     return [];
@@ -78,35 +78,27 @@ class UaeStatsAdapter extends BaseAdapter {
     return result;
   }
 
-  _fallbackData(cityCode, year) {
-    const cityData = {
-      DXB: {
-        population: 3500000,
-        household_income: 240000,
-        growth_rate: 4.5,
-        unemployment_rate: 3.0,
-        establishments_count: 250000,
-        inflation_rate: 2.1
-      },
-      AUH: {
-        population: 2800000,
-        household_income: 260000,
-        growth_rate: 4.2,
-        unemployment_rate: 3.3,
-        establishments_count: 180000,
-        inflation_rate: 2.0
-      }
-    };
-
-    const metrics = cityCode ? cityData[cityCode.toUpperCase()] : null;
-    if (!metrics) return [];
+  _fallbackData(cityCode, year, population = 1000000, purchasingPowerIndex = 100) {
+    const code = cityCode ? cityCode.toUpperCase() : 'UNK';
+    const pop = Number(population) || 1000000;
+    const ppi = Number(purchasingPowerIndex) || 100;
+    const tierFactor = pop >= 2000000 ? 1.0 : pop >= 800000 ? 0.95 : 0.9;
+    const incomeFactor = ppi / 100;
 
     return [{
-      cityCode: cityCode.toUpperCase(),
+      cityCode: code,
       year,
-      metrics,
-      externalId: `${cityCode.toUpperCase()}-${year}`,
-      source: this.config.sourceId
+      metrics: {
+        population: pop,
+        household_income: Math.round(220000 * incomeFactor * tierFactor),
+        growth_rate: parseFloat((4.0 * tierFactor).toFixed(2)),
+        unemployment_rate: parseFloat((3.0 + (1 - tierFactor) * 2).toFixed(2)),
+        establishments_count: Math.round(pop * 0.06 * tierFactor),
+        inflation_rate: 2.1
+      },
+      externalId: `${code}-${year}`,
+      source: this.config.sourceId,
+      quality: 'fallback'
     }];
   }
 }

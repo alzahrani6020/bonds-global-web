@@ -23,7 +23,7 @@ function setCors(res) {
 
 function sendJson(res, status, data) {
   res.statusCode = status;
-  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.end(JSON.stringify(data));
 }
 
@@ -169,7 +169,7 @@ async function handleCities(req, res) {
   const countryCode = url.searchParams.get('country');
   const activityCode = url.searchParams.get('activity');
   const minScore = url.searchParams.get('min_score');
-  const limit = parseInt(url.searchParams.get('limit') || '500', 10);
+  const limit = Math.min(parseInt(url.searchParams.get('limit') || '2000', 10), 2000);
 
   const supabase = getSupabaseClient();
 

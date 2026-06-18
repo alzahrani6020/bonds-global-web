@@ -38,12 +38,19 @@ class CityEngine {
       throw new Error('cityId and cityCode are required');
     }
 
+    const city = await this._getCity(cityId);
+    const cityContext = {
+      population: city?.population || 1000000,
+      purchasingPowerIndex: city?.purchasing_power_index || 100,
+      countryCode: city?.country_code || countryCode || 'SA'
+    };
+
     const results = [];
-    const adaptersToRun = this._selectAdapters(countryCode);
+    const adaptersToRun = this._selectAdapters(cityContext.countryCode);
 
     for (const adapter of adaptersToRun) {
       results.push(await this.pipeline.runAdapter(adapter, {
-        cityId, cityCode, year, runType: 'incremental'
+        cityId, cityCode, year, runType: 'incremental', ...cityContext
       }));
     }
 
@@ -77,6 +84,19 @@ class CityEngine {
       default:
         return [this.adapters.manual];
     }
+  }
+
+  async _getCity(cityId) {
+    const { data, error } = await this.pipeline.supabase
+      .from('cities')
+      .select('id, code, name_en, name_ar, country_code, population, purchasing_power_index')
+      .eq('id', cityId)
+      .single();
+    if (error) {
+      console.warn('[CityEngine] Could not load city:', error.message);
+      return null;
+    }
+    return data;
   }
 }
 

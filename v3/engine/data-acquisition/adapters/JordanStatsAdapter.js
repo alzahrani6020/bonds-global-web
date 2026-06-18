@@ -27,10 +27,10 @@ class JordanStatsAdapter extends BaseAdapter {
   }
 
   async fetch(options = {}) {
-    const { cityCode, year = new Date().getFullYear() } = options;
+    const { cityCode, year = new Date().getFullYear(), population, purchasingPowerIndex } = options;
 
     if (this.useFallback) {
-      return this._fallbackData(cityCode, year);
+      return this._fallbackData(cityCode, year, population, purchasingPowerIndex);
     }
 
     return [];
@@ -78,26 +78,25 @@ class JordanStatsAdapter extends BaseAdapter {
     return result;
   }
 
-  _fallbackData(cityCode, year) {
-    const cityData = {
-      AMM: {
-        population: 4000000,
-        household_income: 108000,
-        growth_rate: 2.5,
-        unemployment_rate: 14.0,
-        establishments_count: 180000,
-        inflation_rate: 3.5
-      }
-    };
-
-    const metrics = cityCode ? cityData[cityCode.toUpperCase()] : null;
-    if (!metrics) return [];
+  _fallbackData(cityCode, year, population = 1000000, purchasingPowerIndex = 100) {
+    const code = cityCode ? cityCode.toUpperCase() : 'UNK';
+    const pop = Number(population) || 1000000;
+    const ppi = Number(purchasingPowerIndex) || 100;
+    const tierFactor = pop >= 2000000 ? 1.0 : pop >= 800000 ? 0.95 : 0.9;
+    const incomeFactor = ppi / 100;
 
     return [{
-      cityCode: cityCode.toUpperCase(),
+      cityCode: code,
       year,
-      metrics,
-      externalId: `${cityCode.toUpperCase()}-${year}`,
+      metrics: {
+        population: pop,
+        household_income: Math.round(90000 * incomeFactor * tierFactor),
+        growth_rate: parseFloat((2.5 * tierFactor).toFixed(2)),
+        unemployment_rate: parseFloat((13.0 + (1 - tierFactor) * 6).toFixed(2)),
+        establishments_count: Math.round(pop * 0.04 * tierFactor),
+        inflation_rate: 3.5
+      },
+      externalId: `${code}-${year}`,
       source: this.config.sourceId,
       quality: 'fallback'
     }];

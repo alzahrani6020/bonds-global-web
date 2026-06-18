@@ -3,13 +3,14 @@
  * يقدر الإيجارات والأسعار العقارية حسب المدينة والنشاط.
  */
 const DataPipeline = require('../DataPipeline');
-const { ManualAdapter, LLMEstimationAdapter } = require('../adapters');
+const { ManualAdapter, LLMEstimationAdapter, BenchmarkAdapter } = require('../adapters');
 
 class RealEstateEngine {
   constructor(supabaseConfig, options = {}) {
     this.pipeline = new DataPipeline(supabaseConfig, options.pipeline);
     this.adapters = {
       manual: new ManualAdapter(options.manual),
+      benchmark: new BenchmarkAdapter(options.benchmark),
       llm: new LLMEstimationAdapter({
         inferenceEngine: this.pipeline.inferenceEngine,
         ...options.llm
@@ -24,13 +25,26 @@ class RealEstateEngine {
       throw new Error('cityId and cityCode are required');
     }
 
-    // TODO: إضافة محول عقاري حقيقي عند توفر API/CSV
-    // حالياً نستخدم Inference Engine لتقدير القيم
+    const city = await this._getCity(cityId);
+    const population = city?.population || 1000000;
+
+    // 1. Benchmark-based real estate estimates (preferred source)
+    try {
+      await this.pipeline.runAdapter(this.adapters.benchmark, {
+        cityId, cityCode, activityId, activityCode, year, population, runType: 'incremental'
+      });
+    } catch (err) {
+      console.warn('[RealEstateEngine] Benchmark adapter failed:', err.message);
+    }
+
+    // 2. Fallback to inference engine for any missing metrics
+    const missingMetrics = ['avg_rent_per_sqm', 'avg_land_price_per_sqm', 'warehouse_rent_per_sqm', 'factory_rent_per_sqm'];
     const metrics = await this.adapters.llm.fetch({
       cityCode,
       activityCode,
       year,
-      metricCodes: ['avg_rent_per_sqm', 'avg_land_price_per_sqm']
+      population,
+      metricCodes: missingMetrics
     });
 
     for (const metric of metrics) {
@@ -58,6 +72,19 @@ class RealEstateEngine {
       year,
       fused
     };
+  }
+
+  async _getCity(cityId) {
+    const { data, error } = await this.pipeline.supabase
+      .from('cities')
+      .select('id, code, name_en, name_ar, country_code, population')
+      .eq('id', cityId)
+      .single();
+    if (error) {
+      console.warn('[RealEstateEngine] Could not load city:', error.message);
+      return null;
+    }
+    return data;
   }
 }
 

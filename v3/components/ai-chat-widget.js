@@ -209,11 +209,29 @@
       isLoading: false
     };
 
+    function getCityName() {
+      const citySelect = document.getElementById('citySelect');
+      return citySelect ? citySelect.options[citySelect.selectedIndex]?.text : null;
+    }
+
+    function getActivityName() {
+      const activitySelect = document.getElementById('activitySelect');
+      return activitySelect ? activitySelect.options[activitySelect.selectedIndex]?.text : null;
+    }
+
+    function refreshContext() {
+      context.cityName = getCityName();
+      context.activityName = getActivityName();
+    }
+
     function toggleOpen() {
       state.isOpen = !state.isOpen;
       windowEl.classList.toggle('open', state.isOpen);
       if (state.isOpen && state.messages.length === 0) {
-        addAssistantMessage('مرحباً! أنا مساعد بوندز. يمكنك سؤالي عن أي مدينة أو نشاط استثماري.');
+        refreshContext();
+        const city = context.cityName || context.cityCode || 'مدينة محددة';
+        const activity = context.activityName || context.activityCode || 'نشاط محدد';
+        addAssistantMessage(`مرحباً! أنا مساعد بوندز. يمكنك سؤالي عن فرصة "${activity}" في ${city}، أو عن أي مدينة/نشاط آخر.`);
         renderSuggestions();
       }
       if (state.isOpen) input.focus();
@@ -255,12 +273,15 @@
     }
 
     function renderSuggestions() {
-      const suggestions = options.suggestions || [
-        'كيف تقيم هذه الفرصة؟',
+      const city = context.cityName || context.cityCode || 'هذه المدينة';
+      const activity = context.activityName || context.activityCode || 'هذا النشاط';
+      const defaults = [
+        `كيف تقيم فرصة ${activity} في ${city}؟`,
         'ما أفضل مدينة لهذا النشاط؟',
-        'ما مخاطر الاستثمار هنا؟',
+        `ما مخاطر الاستثمار في ${city}؟`,
         'كيف أحسن فترة الاسترداد؟'
       ];
+      const suggestions = options.suggestions || defaults;
       suggestionsEl.innerHTML = '';
       suggestions.forEach(text => {
         const chip = document.createElement('button');
@@ -273,6 +294,7 @@
 
     async function sendMessage(text) {
       if (!text.trim() || state.isLoading) return;
+      refreshContext();
       addUserMessage(text);
       setLoading(true);
       input.value = '';

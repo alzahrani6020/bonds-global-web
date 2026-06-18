@@ -19,7 +19,7 @@ class SamaAdapter extends BaseAdapter {
   }
 
   async fetch(options = {}) {
-    const { cityCode, year = new Date().getFullYear() } = options;
+    const { cityCode, year = new Date().getFullYear(), purchasingPowerIndex } = options;
     let quality = 'fallback';
 
     if (!this.useFallback) {
@@ -42,7 +42,7 @@ class SamaAdapter extends BaseAdapter {
       // Network/reachability issues: keep fallback quality
     }
 
-    return this._fallbackData(cityCode, year, quality);
+    return this._fallbackData(cityCode, year, quality, purchasingPowerIndex);
   }
 
   async validate(rawItem) {
@@ -83,24 +83,21 @@ class SamaAdapter extends BaseAdapter {
     return result;
   }
 
-  _fallbackData(cityCode, year, quality = 'fallback') {
-    // مؤشرات كلية مع تعديل طفيف حسب المدينة
-    const cityAdjustments = {
-      RUH: 1.05, JED: 1.03, DMM: 1.04, MAK: 0.98, MED: 0.97,
-      BAH: 1.02, TAB: 0.95, ABH: 0.94
-    };
-
-    const adjustment = cityAdjustments[cityCode?.toUpperCase()] || 1.0;
+  _fallbackData(cityCode, year, quality = 'fallback', purchasingPowerIndex = 100) {
+    const code = cityCode ? cityCode.toUpperCase() : 'UNK';
+    const ppi = Number(purchasingPowerIndex) || 100;
+    // Business ease correlates with purchasing power and economic maturity.
+    const adjustment = 0.85 + (ppi / 100) * 0.15;
 
     return [{
-      cityCode: cityCode?.toUpperCase(),
+      cityCode: code,
       year,
       metrics: {
         growth_rate: parseFloat((3.0 * adjustment).toFixed(2)),
         inflation_rate: 2.4,
         business_ease_index: parseFloat((72 * adjustment).toFixed(1))
       },
-      externalId: `sama-${cityCode?.toUpperCase()}-${year}`,
+      externalId: `sama-${code}-${year}`,
       source: this.config.sourceId,
       quality
     }];

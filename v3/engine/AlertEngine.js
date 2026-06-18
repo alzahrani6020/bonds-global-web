@@ -10,6 +10,40 @@ const https = require('https');
 const http = require('http');
 const { URL } = require('url');
 
+// Arabic labels for metric codes shown in user-facing messages.
+const METRIC_LABELS_AR = {
+  gdp_city: 'الناتج المحلي الإجمالي للمدينة',
+  growth_rate: 'معدل النمو الاقتصادي',
+  unemployment_rate: 'معدل البطالة',
+  establishments_count: 'عدد المنشآت',
+  inflation_rate: 'معدل التضخم',
+  business_ease_index: 'مؤشر سهولة ممارسة الأعمال',
+  avg_rent_per_sqm: 'متوسط الإيجار للمتر المربع',
+  avg_land_price_per_sqm: 'متوسط سعر الأرض للمتر المربع',
+  warehouse_rent_per_sqm: 'إيجار المستودعات للمتر المربع',
+  factory_rent_per_sqm: 'إيجار المصانع للمتر المربع',
+  new_licenses_count: 'عدد التراخيص الجديدة',
+  investment_volume: 'حجم الاستثمار',
+  saturation_index: 'مؤشر التشبع',
+  competitors_count: 'عدد المنافسين',
+  market_saturation_score: 'درجة تشبع السوق',
+  avg_salary: 'متوسط الراتب',
+  labor_availability_score: 'درجة توفر العمالة',
+  specialists_count: 'عدد المتخصصين',
+  saudization_rate: 'معدل السعودة',
+  market_size: 'حجم السوق',
+  annual_growth_rate: 'معدل النمو السنوي',
+  per_capita_spending: 'المصروف الفردي',
+  expected_demand: 'الطلب المتوقع',
+  profit_margin_avg: 'متوسط هامش الربح',
+  risk_score: 'درجة المخاطرة',
+  opportunity_score: 'درجة الفرصة'
+};
+
+function metricLabel(code) {
+  return METRIC_LABELS_AR[code] || code;
+}
+
 // Map metric codes to the table that holds them.
 const METRIC_TABLE_MAP = {
   // city_indicators
@@ -179,9 +213,10 @@ class AlertEngine {
 
     if (!triggered) return null;
 
-    // Avoid duplicate alerts within 24 hours for the same rule + entity + new value
+    // Avoid duplicate alerts within 24 hours for the same rule + entity + new value,
+    // and also suppress very similar alerts for the same rule + entity within the same window.
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    let existingQuery = this.supabase
+    let exactDupQuery = this.supabase
       .from('alerts')
       .select('id')
       .eq('rule_id', rule.id)
@@ -190,18 +225,46 @@ class AlertEngine {
       .gte('created_at', since)
       .limit(1);
 
-    if (rule.city_id) existingQuery = existingQuery.eq('city_id', rule.city_id);
-    else existingQuery = existingQuery.is('city_id', null);
+    let recentDupQuery = this.supabase
+      .from('alerts')
+      .select('id')
+      .eq('rule_id', rule.id)
+      .eq('metric_code', rule.metric_code)
+      .gte('created_at', since)
+      .limit(1);
 
-    if (rule.activity_id) existingQuery = existingQuery.eq('activity_id', rule.activity_id);
-    else existingQuery = existingQuery.is('activity_id', null);
+    if (rule.city_id) {
+      exactDupQuery = exactDupQuery.eq('city_id', rule.city_id);
+      recentDupQuery = recentDupQuery.eq('city_id', rule.city_id);
+    } else {
+      exactDupQuery = exactDupQuery.is('city_id', null);
+      recentDupQuery = recentDupQuery.is('city_id', null);
+    }
 
-    const { data: existing } = await existingQuery;
+    if (rule.activity_id) {
+      exactDupQuery = exactDupQuery.eq('activity_id', rule.activity_id);
+      recentDupQuery = recentDupQuery.eq('activity_id', rule.activity_id);
+    } else {
+      exactDupQuery = exactDupQuery.is('activity_id', null);
+      recentDupQuery = recentDupQuery.is('activity_id', null);
+    }
 
-    if (existing && existing.length > 0) return null;
+    const [{ data: exactExisting }, { data: recentExisting }] = await Promise.all([
+      exactDupQuery,
+      recentDupQuery
+    ]);
+
+    if ((exactExisting && exactExisting.length > 0) || (recentExisting && recentExisting.length > 0)) {
+      return null;
+    }
 
     const direction = changeValue >= 0 ? 'ارتفع' : 'انخفض';
-    const message = `${direction} ${rule.metric_code} ${rule.threshold_type === 'relative' ? 'بنسبة ' + round(changePercent * 100, 1) + '%' : 'بمقدار ' + round(changeValue)}. القيمة السابقة: ${oldValue}، الجديدة: ${newValue}`;
+    const metricName = metricLabel(rule.metric_code);
+    const changeText = rule.threshold_type === 'relative'
+      ? `بنسبة ${round(changePercent * 100, 1)}%`
+      : `بمقدار ${round(changeValue)}`;
+    const message = `${direction} ${metricName} ${changeText}. القيمة السابقة: ${oldValue}، الجديدة: ${newValue}`;
+    const insight = generateInsight(rule.metric_code, direction, round(changePercent * 100, 1), oldValue, newValue);
 
     const alertRecord = {
       rule_id: rule.id,
@@ -213,7 +276,8 @@ class AlertEngine {
       change_value: round(changeValue),
       change_percent: round(changePercent * 100, 2),
       severity: rule.severity,
-      message
+      message,
+      insight
     };
 
     if (dryRun) return alertRecord;
@@ -299,6 +363,49 @@ class AlertEngine {
       req.end();
     });
   }
+}
+
+function generateInsight(metricCode, direction, percent, oldValue, newValue) {
+  const metric = metricLabel(metricCode);
+  const pctText = percent ? `${Math.abs(percent).toFixed(1)}%` : '';
+
+  if (metricCode === 'avg_rent_per_sqm') {
+    return direction === 'ارتفع'
+      ? `${metric} ${pctText} يشير إلى زيادة الطلب على المساحات العقارية. قد يؤثر على تكاليف التشغيل للمشاريع الجديدة.`
+      : `${metric} ${pctText} قد يعكس تراجعاً في الطلب أو زيادة في المعروض. فرصة جيدة للتأجير بأسعار تنافسية.`;
+  }
+  if (metricCode === 'growth_rate') {
+    return direction === 'ارتفع'
+      ? `تسارع معدل النمو الاقتصادي يدعم الاستثمارات الجديدة ويزيد من الطلب على السلع والخدمات.`
+      : `تباطؤ النمو الاقتصادي قد يستدعي مراجعة خطط التوسع وتقليل المخاطر.`;
+  }
+  if (metricCode === 'unemployment_rate') {
+    return direction === 'ارتفع'
+      ? `ارتفاع معدل البطالة يعني توفراً أكبر للعمالة بأسعار أقل، لكنه قد يعكس ضعفاً اقتصادياً.`
+      : `انخفاض معدل البطالة يعكس سوق عمل قوياً، لكن قد يزيد من صعوبة التوظيف.`;
+  }
+  if (metricCode === 'avg_land_price_per_sqm') {
+    return direction === 'ارتفع'
+      ? `ارتفاع أسعار الأرض يرفع تكلفة الدخول للمشاريع العقارية والصناعية.`
+      : `انخفاض أسعار الأرض يقلل تكلفة التأسيس ويفتح فرصاً للمشاريع العقارية.`;
+  }
+  if (metricCode === 'market_size') {
+    return direction === 'ارتفع'
+      ? `توسع حجم السوق يعني زيادة في الطلب على الخدمات والمنتجات في هذا النشاط.`
+      : `انكماش حجم السوق قد يقلل من جاذبية الاستثمار في هذا القطاع.`;
+  }
+  if (metricCode === 'opportunity_score') {
+    return direction === 'ارتفع'
+      ? `تحسّن درجة الفرصة الاستثمارية قد يغير ترتيب القطاعات المفضلة في هذه المدينة.`
+      : `تراجع درجة الفرصة الاستثمارية يستدعي مراجعة أولويات الاستثمار.`;
+  }
+  if (metricCode === 'inflation_rate') {
+    return direction === 'ارتفع'
+      ? `ارتفاع التضخم قد يزيد من تكاليف التشغيل ويقلل من القوة الشرائية.`
+      : `انخفاض التضخم يحسن تقديرات التكاليف ويدعم الطلب.`;
+  }
+
+  return `${direction} ${metric} ${pctText} قد يؤثر على قرار الاستثمار. راجع التوقعات قبل اتخاذ القرار النهائي.`;
 }
 
 module.exports = AlertEngine;

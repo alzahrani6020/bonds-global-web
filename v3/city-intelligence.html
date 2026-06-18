@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +17,7 @@
       --success: #22c55e;
       --warning: #f59e0b;
       --danger: #ef4444;
+      --info: #3b82f6;
     }
     * { box-sizing: border-box; }
     body {
@@ -31,6 +32,7 @@
       border-bottom: 1px solid var(--border);
       padding: 1.5rem 2rem;
       text-align: center;
+      position: relative;
     }
     header h1 { margin: 0; color: var(--gold-bright); font-size: 1.8rem; }
     header p { margin: 0.5rem 0 0; color: var(--text-secondary); }
@@ -51,6 +53,14 @@
       font-size: 1rem;
       min-width: 200px;
     }
+    select option, select optgroup {
+      background: var(--card);
+      color: var(--text);
+    }
+    select:focus {
+      outline: 1px solid var(--gold);
+      background: rgba(255,255,255,0.08);
+    }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
     .card {
       background: var(--card);
@@ -70,7 +80,7 @@
     .metric-value { font-weight: 700; }
     .confidence {
       display: inline-block;
-      padding: 0.2rem 0.6rem;
+      padding: 0.25rem 0.7rem;
       border-radius: 20px;
       font-size: 0.75rem;
       font-weight: 700;
@@ -80,7 +90,6 @@
     .confidence.low { background: rgba(239,68,68,0.15); color: var(--danger); }
     .loading { text-align: center; padding: 3rem; color: var(--text-secondary); }
     .error { color: var(--danger); text-align: center; padding: 2rem; }
-    .activity-selector { margin-bottom: 1.5rem; }
     .footer {
       text-align: center;
       padding: 2rem;
@@ -89,12 +98,286 @@
       border-top: 1px solid var(--border);
       margin-top: 3rem;
     }
+    .map-link {
+      margin-right: auto;
+      color: var(--gold-bright);
+      text-decoration: none;
+      font-weight: 700;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .map-link:hover { background: rgba(212,168,83,0.1); }
+    .auto-update-btn {
+      background: rgba(34,197,94,0.15);
+      border: 1px solid var(--success);
+      color: var(--success);
+      padding: 0.5rem 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+    .auto-update-btn:hover { background: rgba(34,197,94,0.25); }
+    .auto-update-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* Attractiveness Index */
+    .attractiveness-card {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(212,168,83,0.08), rgba(16,24,45,0.9));
+      border: 1px solid var(--gold);
+    }
+    .attractiveness-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .attractiveness-score {
+      text-align: center;
+    }
+    .attractiveness-score .score-number {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--gold-bright);
+      line-height: 1;
+    }
+    .attractiveness-score .score-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+    .attractiveness-bars {
+      flex: 1;
+      min-width: 260px;
+    }
+    .attr-bar {
+      margin-bottom: 0.75rem;
+    }
+    .attr-bar-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 0.3rem;
+    }
+    .attr-bar-track {
+      height: 8px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .attr-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+    .recommendations-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .recommendations-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .recommendations-list li:last-child { border-bottom: none; }
+    .rec-rank {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8rem;
+      background: rgba(212,168,83,0.15);
+      color: var(--gold-bright);
+      flex-shrink: 0;
+    }
+    .missing-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(148,163,184,0.12);
+      color: var(--text-secondary);
+    }
+    .score-bar {
+      height: 10px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 5px;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+    .score-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 0.5s ease;
+    }
+    .score-badge {
+      display: inline-block;
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-right: 0.5rem;
+    }
+    .score-hot { background: rgba(240,201,106,0.15); color: var(--gold-bright); }
+    .score-good { background: rgba(34,197,94,0.15); color: var(--success); }
+    .score-fair { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .score-weak { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .alert-bell {
+      position: absolute;
+      top: 1.5rem;
+      left: 1.5rem;
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+    .alert-bell:hover { background: rgba(255,255,255,0.05); }
+    .alert-count {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: var(--danger);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .alert-dropdown {
+      position: absolute;
+      top: 4rem;
+      left: 1.5rem;
+      width: 320px;
+      max-height: 400px;
+      overflow-y: auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      z-index: 100;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .alert-dropdown h4 { margin: 0 0 0.75rem; color: var(--gold-bright); }
+    .alert-item {
+      border-bottom: 1px solid var(--border);
+      padding: 0.6rem 0;
+      font-size: 0.85rem;
+    }
+    .alert-item:last-child { border-bottom: none; }
+    .alert-item strong { color: var(--gold-bright); font-size: 0.8rem; }
+    .preset-group button { margin-bottom: 0.5rem; }
+    .scenario-btn {
+      background: rgba(212,168,83,0.1);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 0.5rem 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+    .scenario-btn:hover { background: rgba(212,168,83,0.2); }
+    .scenario-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
+    .scenario-table th, .scenario-table td {
+      border: 1px solid var(--border);
+      padding: 0.6rem;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+    .scenario-table th { background: rgba(212,168,83,0.1); color: var(--gold-bright); }
+    .hidden { display: none; }
+
+    .feedback-btn {
+      background: rgba(212,168,83,0.1);
+      border: 1px solid var(--gold);
+      color: var(--gold-bright);
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .feedback-btn:hover { background: rgba(212,168,83,0.2); }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 420px;
+    }
+    .modal h3 { margin: 0 0 1rem; color: var(--gold-bright); }
+    .modal label {
+      display: block;
+      margin: 0.75rem 0 0.3rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .modal input, .modal textarea, .modal select {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+    .modal-actions button {
+      flex: 1;
+      padding: 0.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .modal-submit { background: var(--gold); color: #0a0f1a; border: none; }
+    .modal-cancel { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+
+    @media (max-width: 768px) {
+      .attractiveness-header { flex-direction: column; align-items: flex-start; }
+      .attractiveness-score .score-number { font-size: 2.5rem; }
+    }
   </style>
+<link rel="stylesheet" href="../header-footer.css?v=2" />
+<script src="../site-layout.js"></script>
 </head>
 <body>
-  <header style="position: relative;">
+
+  <div id="site-header"></div>
+  <header>
     <h1>🌆 ذكاء المدن</h1>
-    <p>مؤشرات اقتصادية وعقارية وسوقية لمدن السعودية والإمارات وقطر ومصر والأردن — مدعومة بـ Bonds V3 Data Engine</p>
+    <p>مؤشرات اقتصادية وعقارية وسوقية لـ 838 مدينة في 22 دولة عربية — مدعومة بـ Bonds V3 Data Engine</p>
     <div id="alertBell" class="alert-bell" title="الإنذارات">
       🔔
       <span id="alertCount" class="alert-count hidden">0</span>
@@ -102,6 +385,9 @@
     <div id="alertDropdown" class="alert-dropdown hidden">
       <h4>أحدث الإنذارات</h4>
       <div id="alertList">جاري التحميل...</div>
+      <p style="margin: 0.75rem 0 0; text-align: center;">
+        <a href="/v3/alerts.html" class="map-link" style="font-size: 0.8rem;">عرض كل الإنذارات →</a>
+      </p>
     </div>
   </header>
 
@@ -120,123 +406,6 @@
       <a href="/v3/opportunity-bank" class="map-link">🏦 بنك الفرص</a>
       <button id="autoUpdateBtn" class="auto-update-btn hidden">⚡ تحديث تلقائي</button>
     </div>
-    <style>
-      .map-link {
-        margin-right: auto;
-        color: var(--gold-bright);
-        text-decoration: none;
-        font-weight: 700;
-        padding: 0.5rem 0.75rem;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-      }
-      .map-link:hover { background: rgba(212,168,83,0.1); }
-      .auto-update-btn {
-        background: rgba(34,197,94,0.15);
-        border: 1px solid var(--success);
-        color: var(--success);
-        padding: 0.5rem 0.9rem;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 700;
-        transition: background 0.2s;
-      }
-      .auto-update-btn:hover { background: rgba(34,197,94,0.25); }
-      .auto-update-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-      .score-bar {
-        height: 10px;
-        background: rgba(255,255,255,0.08);
-        border-radius: 5px;
-        margin-top: 0.5rem;
-        overflow: hidden;
-      }
-      .score-fill {
-        height: 100%;
-        border-radius: 5px;
-        transition: width 0.5s ease;
-      }
-      .score-badge {
-        display: inline-block;
-        padding: 0.2rem 0.7rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        margin-right: 0.5rem;
-      }
-      .score-hot { background: rgba(240,201,106,0.15); color: var(--gold-bright); }
-      .score-good { background: rgba(34,197,94,0.15); color: var(--success); }
-      .score-fair { background: rgba(245,158,11,0.15); color: var(--warning); }
-      .score-weak { background: rgba(239,68,68,0.15); color: var(--danger); }
-      .alert-bell {
-        position: absolute;
-        top: 1.5rem;
-        left: 1.5rem;
-        font-size: 1.4rem;
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 50%;
-        transition: background 0.2s;
-      }
-      .alert-bell:hover { background: rgba(255,255,255,0.05); }
-      .alert-count {
-        position: absolute;
-        top: 0;
-        left: 0;
-        background: var(--danger);
-        color: #fff;
-        font-size: 0.7rem;
-        font-weight: 700;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .alert-dropdown {
-        position: absolute;
-        top: 4rem;
-        left: 1.5rem;
-        width: 320px;
-        max-height: 400px;
-        overflow-y: auto;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 1rem;
-        z-index: 100;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      }
-      .alert-dropdown h4 { margin: 0 0 0.75rem; color: var(--gold-bright); }
-      .alert-item {
-        border-bottom: 1px solid var(--border);
-        padding: 0.6rem 0;
-        font-size: 0.85rem;
-      }
-      .alert-item:last-child { border-bottom: none; }
-      .alert-item strong { color: var(--gold-bright); font-size: 0.8rem; }
-      .preset-group button { margin-bottom: 0.5rem; }
-      .scenario-btn {
-        background: rgba(212,168,83,0.1);
-        border: 1px solid var(--gold);
-        color: var(--gold);
-        padding: 0.5rem 0.9rem;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 700;
-        transition: background 0.2s;
-      }
-      .scenario-btn:hover { background: rgba(212,168,83,0.2); }
-      .scenario-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
-      .scenario-table th, .scenario-table td {
-        border: 1px solid var(--border);
-        padding: 0.6rem;
-        text-align: center;
-        font-size: 0.85rem;
-      }
-      .scenario-table th { background: rgba(212,168,83,0.1); color: var(--gold-bright); }
-      .hidden { display: none; }
-    </style>
 
     <div id="content">
       <div class="loading">اختر مدينة لعرض المؤشرات</div>
@@ -255,11 +424,82 @@
     Bonds V3 Enterprise — البيانات تقديرية وتخضع للتحقق. آخر تحديث: 2025
   </div>
 
+  <!-- Feedback Modal -->
+  <div id="feedbackModal" class="modal-overlay">
+    <div class="modal">
+      <h3>✏️ تصحيح البيانات</h3>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: -0.5rem;">
+        ساعدنا في تحسين دقة البيانات للمدينة والنشاط المختارين.
+      </p>
+      <form id="feedbackForm">
+        <input type="hidden" id="fbCityCode">
+        <input type="hidden" id="fbActivityCode">
+        <input type="hidden" id="fbMetricCode">
+        <label>المدينة</label>
+        <input type="text" id="fbCityName" readonly>
+        <label>النشاط</label>
+        <input type="text" id="fbActivityName" readonly>
+        <label>المؤشر</label>
+        <input type="text" id="fbMetricName" readonly>
+        <label>القيمة الحالية</label>
+        <input type="text" id="fbCurrentValue" readonly>
+        <label>القيمة الصحيحة *</label>
+        <input type="number" id="fbSuggestedValue" required step="any">
+        <label>مصدر/سبب التصحيح</label>
+        <input type="text" id="fbReason" placeholder="مثال: الهيئة العامة للإحصاء 2025">
+        <div class="modal-actions">
+          <button type="button" class="modal-cancel" onclick="closeFeedbackForm()">إلغاء</button>
+          <button type="submit" class="modal-submit">إرسال</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     const API_URL = '/api/v3';
-    const countryNames = { SA: 'السعودية', AE: 'الإمارات', QA: 'قطر', EG: 'مصر', JO: 'الأردن' };
+    const countryNames = {
+      SA: 'السعودية', AE: 'الإمارات', EG: 'مصر', QA: 'قطر', JO: 'الأردن',
+      KW: 'الكويت', BH: 'البحرين', OM: 'عمان', IQ: 'العراق', LB: 'لبنان',
+      SY: 'سوريا', PS: 'فلسطين', TN: 'تونس', DZ: 'الجزائر', MA: 'المغرب',
+      LY: 'ليبيا', SD: 'السودان', YE: 'اليمن', SO: 'الصومال', DJ: 'جيبوتي',
+      MR: 'موريتانيا', KM: 'جزر القمر'
+    };
     let cities = [];
     let activities = [];
+
+    // Friendly Arabic labels for technical metric codes used inside insights / scenarios
+    const METRIC_LABELS_AR = {
+      gdp_city: 'الناتج المحلي الإجمالي للمدينة',
+      growth_rate: 'معدل النمو الاقتصادي',
+      unemployment_rate: 'معدل البطالة',
+      establishments_count: 'عدد المنشآت',
+      inflation_rate: 'معدل التضخم',
+      business_ease_index: 'مؤشر سهولة ممارسة الأعمال',
+      avg_rent_per_sqm: 'متوسط الإيجار للمتر المربع',
+      avg_land_price_per_sqm: 'متوسط سعر الأرض للمتر المربع',
+      warehouse_rent_per_sqm: 'إيجار المستودعات للمتر المربع',
+      factory_rent_per_sqm: 'إيجار المصانع للمتر المربع',
+      new_licenses_count: 'عدد التراخيص الجديدة',
+      investment_volume: 'حجم الاستثمار',
+      saturation_index: 'مؤشر التشبع',
+      competitors_count: 'عدد المنافسين',
+      market_saturation_score: 'درجة تشبع السوق',
+      avg_salary: 'متوسط الراتب',
+      labor_availability_score: 'درجة توفر العمالة',
+      specialists_count: 'عدد المتخصصين',
+      saudization_rate: 'معدل السعودة',
+      market_size: 'حجم السوق',
+      annual_growth_rate: 'معدل النمو السنوي',
+      per_capita_spending: 'المصروف الفردي',
+      expected_demand: 'الطلب المتوقع',
+      profit_margin_avg: 'متوسط هامش الربح',
+      risk_score: 'درجة المخاطرة',
+      opportunity_score: 'درجة الفرصة'
+    };
+
+    function metricLabel(code) {
+      return METRIC_LABELS_AR[code] || code;
+    }
 
     async function fetchJson(url, options = {}) {
       const res = await fetch(url, options);
@@ -278,9 +518,10 @@
     function confidenceBadge(value) {
       if (!value && value !== 0) return '';
       let level = 'low';
-      if (value >= 80) level = 'high';
-      else if (value >= 60) level = 'medium';
-      return `<span class="confidence ${level}">ثقة ${value}%</span>`;
+      let label = 'موثوقية محدودة';
+      if (value >= 80) { level = 'high'; label = 'موثوقية عالية'; }
+      else if (value >= 60) { level = 'medium'; label = 'موثوقية متوسطة'; }
+      return `<span class="confidence ${level}">${label}</span>`;
     }
 
     function opportunityClass(score) {
@@ -305,6 +546,87 @@
       return `<span class="score-badge score-${cls}">${opportunityLabel(score)}</span>`;
     }
 
+    function valueOrMissing(value, suffix = '') {
+      if (value === null || value === undefined || value === '' || Number.isNaN(value)) {
+        return '<span class="missing-badge">غير متوفر حالياً</span>';
+      }
+      return formatNumber(value) + (suffix ? ' ' + suffix : '');
+    }
+
+    // Compute a unified investment attractiveness index from available indicators + market data
+    function computeAttractiveness(city, indicators, marketItem) {
+      const i = indicators || {};
+      const m = marketItem || {};
+
+      // Sub-scores 0-100
+      const economy = clamp((i.growth_rate || 0) * 8 + 50); // growth matters
+      const realEstate = clamp(100 - ((i.avg_rent_per_sqm || 0) / 300) * 10); // lower rent = higher attractiveness
+      const population = clamp((city.population || 0) / 50000); // larger cities score higher up to a point
+      const infrastructure = clamp((i.business_ease_index || 50));
+      const growth = clamp((i.establishments_count || 0) / 1000 + 40);
+
+      // Market opportunity bonus
+      let opportunityBonus = 0;
+      if (m.opportunity_score) opportunityBonus = m.opportunity_score * 0.15;
+
+      const overall = clamp((economy + realEstate + population + infrastructure + growth) / 5 + opportunityBonus);
+
+      return {
+        overall: Math.round(overall),
+        economy: Math.round(economy),
+        realEstate: Math.round(realEstate),
+        population: Math.round(population),
+        infrastructure: Math.round(infrastructure),
+        growth: Math.round(growth),
+        label: overall >= 80 ? 'جذابة جداً' : overall >= 60 ? 'جذابة' : overall >= 40 ? 'متوسطة' : 'ضعيفة'
+      };
+    }
+
+    function clamp(n) { return Math.max(0, Math.min(100, n || 0)); }
+
+    function barColor(score) {
+      if (score >= 80) return 'var(--success)';
+      if (score >= 60) return 'var(--gold-bright)';
+      if (score >= 40) return 'var(--warning)';
+      return 'var(--danger)';
+    }
+
+    function generateSectorRecommendations(city, indicators, market) {
+      // If market data exists for an activity, use opportunity_score to rank
+      const marketData = (market.marketData || []).filter(m => m.opportunity_score != null);
+      if (marketData.length) {
+        return marketData
+          .sort((a, b) => (b.opportunity_score || 0) - (a.opportunity_score || 0))
+          .slice(0, 5)
+          .map((m, idx) => ({
+            rank: idx + 1,
+            name: m.economic_activities?.name_ar || m.activity_id || 'نشاط',
+            reason: m.opportunity_score >= 80 ? 'فرصة استثمارية مرتفعة' :
+                    m.opportunity_score >= 60 ? 'طلب سوقي جيد' : 'إمكانية نمو متاحة'
+          }));
+      }
+
+      // Fallback recommendations based on city indicators
+      const recs = [];
+      const i = indicators || {};
+      if ((i.avg_rent_per_sqm || 0) < 300) {
+        recs.push({ rank: 1, name: 'المستودعات والخدمات اللوجستية', reason: 'تكلفة إيجار منخفضة نسبياً' });
+      } else {
+        recs.push({ rank: 1, name: 'المكاتب المؤجرة والمساحات التجارية', reason: 'طلب عالٍ على المساحات' });
+      }
+      if ((i.growth_rate || 0) > 4) {
+        recs.push({ rank: 2, name: 'التجزئة والمطاعم', reason: 'نمو اقتصادي قوي يدعم الاستهلاك' });
+      }
+      if ((i.unemployment_rate || 0) < 6) {
+        recs.push({ rank: 3, name: 'الصناعات التحويلية', reason: 'توفر عمالة مؤهلة' });
+      }
+      if (recs.length === 0) {
+        recs.push({ rank: 1, name: 'الخدمات اللوجستية', reason: 'قطاع أساسي مدعوم بالبنية التحتية' });
+        recs.push({ rank: 2, name: 'التجارة الإلكترونية', reason: 'نمو سوقي مستمر' });
+      }
+      return recs;
+    }
+
     async function init() {
       try {
         const [citiesData, sectorsData] = await Promise.all([
@@ -322,9 +644,12 @@
         });
 
         const countrySelect = document.getElementById('countrySelect');
-        const countries = [...new Set(cities.map(c => c.country_code || 'SA'))].sort();
-        countries.forEach(code => {
-          countrySelect.innerHTML += `<option value="${code}">${countryNames[code] || code}</option>`;
+        // Show all 22 supported countries even if some have no cities in the DB yet
+        const allCountryCodes = Object.keys(countryNames).sort((a, b) =>
+          countryNames[a].localeCompare(countryNames[b], 'ar')
+        );
+        allCountryCodes.forEach(code => {
+          countrySelect.innerHTML += `<option value="${code}">${countryNames[code]}</option>`;
         });
 
         const citySelect = document.getElementById('citySelect');
@@ -387,43 +712,93 @@
       const indicators = indicatorsData.indicators || {};
       const market = marketData.marketData || [];
       const marketItem = market[0] || {};
+      const attractiveness = computeAttractiveness(city, indicators, marketItem);
+      const recommendations = generateSectorRecommendations(city, indicators, marketData);
 
       const html = `
         <div class="grid">
-          <div class="card">
-            <h3>📍 معلومات المدينة</h3>
-            <div class="metric"><span class="metric-label">المدينة</span><span class="metric-value">${city.name_ar}</span></div>
-            <div class="metric"><span class="metric-label">السكان</span><span class="metric-value">${formatNumber(city.population)}</span></div>
-            <div class="metric"><span class="metric-label">الدولة</span><span class="metric-value">${countryNames[city.country_code] || city.country_code || '-'}</span></div>
-            <div class="metric"><span class="metric-label">المنطقة</span><span class="metric-value">${city.region || '-'}</span></div>
-            <div class="metric"><span class="metric-label">مؤشر القوة الشرائية</span><span class="metric-value">${city.purchasing_power_index || '-'}</span></div>
+          <!-- Unified Investment Attractiveness Index -->
+          <div class="card attractiveness-card">
+            <div class="attractiveness-header">
+              <div>
+                <h3 style="margin-bottom: 0.25rem;">🎯 مؤشر جاذبية الاستثمار — ${city.name_ar}</h3>
+                <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">
+                  درجة موحدة تعكس جاهزية المدينة للاستثمار بناءً على 5 محاور رئيسية.
+                </p>
+              </div>
+              <div class="attractiveness-score">
+                <div class="score-number">${attractiveness.overall}<span style="font-size:1.2rem; color: var(--text-secondary);">/100</span></div>
+                <div class="score-label">${attractiveness.label}</div>
+              </div>
+            </div>
+            <div class="attractiveness-bars" style="margin-top: 1.25rem;">
+              ${renderAttrBar('الاقتصاد', attractiveness.economy)}
+              ${renderAttrBar('العقار والتكاليف التشغيلية', attractiveness.realEstate)}
+              ${renderAttrBar('السكان والقوة الشرائية', attractiveness.population)}
+              ${renderAttrBar('البنية التحتية وسهولة الأعمال', attractiveness.infrastructure)}
+              ${renderAttrBar('النمو والتوسع', attractiveness.growth)}
+            </div>
           </div>
 
           <div class="card">
-            <h3>📊 المؤشرات الاقتصادية ${confidenceBadge(indicators.overall_confidence)}</h3>
-            <div class="metric"><span class="metric-label">GDP المدينة</span><span class="metric-value">${formatNumber(indicators.gdp_city)} ر.س</span></div>
-            <div class="metric"><span class="metric-label">معدل النمو</span><span class="metric-value">${indicators.growth_rate}%</span></div>
-            <div class="metric"><span class="metric-label">معدل البطالة</span><span class="metric-value">${indicators.unemployment_rate}%</span></div>
-            <div class="metric"><span class="metric-label">عدد المنشآت</span><span class="metric-value">${formatNumber(indicators.establishments_count)}</span></div>
-            <div class="metric"><span class="metric-label">معدل التضخم</span><span class="metric-value">${indicators.inflation_rate}%</span></div>
+            <h3>📍 معلومات المدينة</h3>
+            <div class="metric"><span class="metric-label">المدينة</span><span class="metric-value">${city.name_ar}</span></div>
+            <div class="metric"><span class="metric-label">السكان</span><span class="metric-value">${valueOrMissing(city.population, 'نسمة')}</span></div>
+            <div class="metric"><span class="metric-label">الدولة</span><span class="metric-value">${countryNames[city.country_code] || city.country_code || '-'}</span></div>
+            <div class="metric"><span class="metric-label">المنطقة</span><span class="metric-value">${city.region || '-'}</span></div>
+            <div class="metric"><span class="metric-label">مؤشر القوة الشرائية</span><span class="metric-value">${valueOrMissing(city.purchasing_power_index)}</span></div>
+          </div>
+
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h3 style="margin: 0;">📊 المؤشرات الاقتصادية ${confidenceBadge(indicators.overall_confidence)}</h3>
+              <button class="feedback-btn" onclick="openFeedbackForm('', '', 'population', ${city.population || 'null'})">✏️ صحّح البيانات</button>
+            </div>
+            <div class="metric"><span class="metric-label">الناتج المحلي للمدينة</span><span class="metric-value">${valueOrMissing(indicators.gdp_city, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">معدل النمو الاقتصادي</span><span class="metric-value">${valueOrMissing(indicators.growth_rate, '%')}</span></div>
+            <div class="metric"><span class="metric-label">معدل البطالة</span><span class="metric-value">${valueOrMissing(indicators.unemployment_rate, '%')}</span></div>
+            <div class="metric"><span class="metric-label">عدد المنشآت</span><span class="metric-value">${valueOrMissing(indicators.establishments_count)}</span></div>
+            <div class="metric"><span class="metric-label">معدل التضخم</span><span class="metric-value">${valueOrMissing(indicators.inflation_rate, '%')}</span></div>
           </div>
 
           <div class="card">
             <h3>🏢 المؤشرات العقارية</h3>
-            <div class="metric"><span class="metric-label">متوسط الإيجار / م²</span><span class="metric-value">${formatNumber(indicators.avg_rent_per_sqm)} ر.س</span></div>
-            <div class="metric"><span class="metric-label">متوسط سعر الأرض / م²</span><span class="metric-value">${formatNumber(indicators.avg_land_price_per_sqm)} ر.س</span></div>
-            <div class="metric"><span class="metric-label">إيجار المستودعات / م²</span><span class="metric-value">${formatNumber(indicators.warehouse_rent_per_sqm)} ر.س</span></div>
-            <div class="metric"><span class="metric-label">إيجار المصانع / م²</span><span class="metric-value">${formatNumber(indicators.factory_rent_per_sqm)} ر.س</span></div>
+            <div class="metric"><span class="metric-label">متوسط الإيجار / م²</span><span class="metric-value">${valueOrMissing(indicators.avg_rent_per_sqm, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">متوسط سعر الأرض / م²</span><span class="metric-value">${valueOrMissing(indicators.avg_land_price_per_sqm, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">إيجار المستودعات / م²</span><span class="metric-value">${valueOrMissing(indicators.warehouse_rent_per_sqm, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">إيجار المصانع / م²</span><span class="metric-value">${valueOrMissing(indicators.factory_rent_per_sqm, 'ر.س')}</span></div>
+          </div>
+
+          <!-- Sector Recommendations -->
+          <div class="card">
+            <h3>💡 توصيات قطاعية في ${city.name_ar}</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: -0.5rem;">
+              أفضل القطاعات الاستثمارية بناءً على البيانات المتاحة.
+            </p>
+            <ul class="recommendations-list">
+              ${recommendations.map(r => `
+                <li>
+                  <span class="rec-rank">${r.rank}</span>
+                  <div>
+                    <div style="font-weight: 700;">${r.name}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);">${r.reason}</div>
+                  </div>
+                </li>
+              `).join('')}
+            </ul>
           </div>
 
           ${marketItem.activity_id ? `
           <div class="card">
-            <h3>🎯 بيانات السوق — ${marketItem.economic_activities?.name_ar || ''} ${confidenceBadge(marketItem.confidence)}</h3>
-            <div class="metric"><span class="metric-label">حجم السوق</span><span class="metric-value">${formatNumber(marketItem.market_size)} ر.س</span></div>
-            <div class="metric"><span class="metric-label">عدد المنافسين</span><span class="metric-value">${formatNumber(marketItem.competitors_count)}</span></div>
-            <div class="metric"><span class="metric-label">مؤشر التشبع</span><span class="metric-value">${marketItem.market_saturation_score}%</span></div>
-            <div class="metric"><span class="metric-label">متوسط الراتب</span><span class="metric-value">${formatNumber(marketItem.avg_salary)} ر.س</span></div>
-            <div class="metric"><span class="metric-label">الطلب المتوقع</span><span class="metric-value">${marketItem.expected_demand === 'high' ? 'مرتفع' : marketItem.expected_demand === 'low' ? 'منخفض' : 'متوسط'}</span></div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h3 style="margin: 0;">🎯 بيانات السوق — ${marketItem.economic_activities?.name_ar || ''} ${confidenceBadge(marketItem.confidence)}</h3>
+              <button class="feedback-btn" onclick="openFeedbackForm('${marketItem.economic_activities?.code || ''}', '${marketItem.economic_activities?.name_ar || ''}', 'market_size', ${marketItem.market_size || 'null'})">✏️ صحّح البيانات</button>
+            </div>
+            <div class="metric"><span class="metric-label">حجم السوق</span><span class="metric-value">${valueOrMissing(marketItem.market_size, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">عدد المنافسين</span><span class="metric-value">${valueOrMissing(marketItem.competitors_count)}</span></div>
+            <div class="metric"><span class="metric-label">مؤشر التشبع</span><span class="metric-value">${valueOrMissing(marketItem.market_saturation_score, '%')}</span></div>
+            <div class="metric"><span class="metric-label">متوسط الراتب</span><span class="metric-value">${valueOrMissing(marketItem.avg_salary, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">الطلب المتوقع</span><span class="metric-value">${marketItem.expected_demand === 'high' ? 'مرتفع' : marketItem.expected_demand === 'low' ? 'منخفض' : marketItem.expected_demand ? 'متوسط' : valueOrMissing(null)}</span></div>
             <div class="metric"><span class="metric-label">المصدر</span><span class="metric-value">${marketItem.source || 'تقدير'}</span></div>
           </div>
 
@@ -446,6 +821,20 @@
       `;
 
       document.getElementById('content').innerHTML = html;
+    }
+
+    function renderAttrBar(label, score) {
+      return `
+        <div class="attr-bar">
+          <div class="attr-bar-header">
+            <span>${label}</span>
+            <span style="font-weight: 700;">${score}/100</span>
+          </div>
+          <div class="attr-bar-track">
+            <div class="attr-bar-fill" style="width: ${score}%; background: ${barColor(score)};"></div>
+          </div>
+        </div>
+      `;
     }
 
     let currentScenarioModel = null;
@@ -541,9 +930,9 @@
           countEl.classList.remove('hidden');
           listEl.innerHTML = alerts.map(a => `
             <div class="alert-item">
-              <strong>${a.severity === 'critical' ? '🚨' : a.severity === 'warning' ? '⚠️' : 'ℹ️'} ${a.metric_code}</strong>
+              <strong>${severityIcon(a.severity)} ${metricLabel(a.metric_code)}</strong>
               <p style="margin: 0.25rem 0;">${a.message}</p>
-              <small style="color: var(--text-secondary);">${new Date(a.created_at).toLocaleString('ar-SA')}</small>
+              <small style="color: var(--text-secondary);">تم الاكتشاف: ${formatDate(a.created_at)}</small>
             </div>
           `).join('');
         } else {
@@ -553,6 +942,18 @@
       } catch (err) {
         console.warn('Alerts load failed:', err.message);
       }
+    }
+
+    function severityIcon(severity) {
+      if (severity === 'critical') return '🚨';
+      if (severity === 'warning') return '⚠️';
+      return 'ℹ️';
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '-';
+      const d = new Date(iso);
+      return d.toLocaleString('ar-SA', { dateStyle: 'medium', timeStyle: 'short' });
     }
 
     document.getElementById('alertBell').addEventListener('click', () => {
@@ -611,6 +1012,65 @@
 
     document.getElementById('autoUpdateBtn').addEventListener('click', runAutoUpdate);
 
+    // Feedback form logic
+    const metricLabels = {
+      population: 'عدد السكان',
+      gdp_city: 'الناتج المحلي للمدينة',
+      growth_rate: 'معدل النمو الاقتصادي',
+      unemployment_rate: 'معدل البطالة',
+      inflation_rate: 'معدل التضخم',
+      avg_rent_per_sqm: 'متوسط الإيجار / م²',
+      market_size: 'حجم السوق',
+      competitors_count: 'عدد المنافسين',
+      market_saturation_score: 'مؤشر التشبع',
+      avg_salary: 'متوسط الراتب'
+    };
+
+    function openFeedbackForm(activityCode, activityName, metricCode, currentValue) {
+      const citySelect = document.getElementById('citySelect');
+      const cityCode = citySelect.value;
+      const cityName = citySelect.options[citySelect.selectedIndex]?.text || '';
+      if (!cityCode) return alert('اختر مدينة أولاً');
+
+      document.getElementById('fbCityCode').value = cityCode;
+      document.getElementById('fbCityName').value = cityName;
+      document.getElementById('fbActivityCode').value = activityCode || '';
+      document.getElementById('fbActivityName').value = activityName || 'مؤشرات عامة';
+      document.getElementById('fbMetricCode').value = metricCode;
+      document.getElementById('fbMetricName').value = metricLabels[metricCode] || metricCode;
+      document.getElementById('fbCurrentValue').value = currentValue != null ? currentValue : 'غير متوفر';
+      document.getElementById('fbSuggestedValue').value = '';
+      document.getElementById('fbReason').value = '';
+      document.getElementById('feedbackModal').classList.add('open');
+    }
+
+    function closeFeedbackForm() {
+      document.getElementById('feedbackModal').classList.remove('open');
+    }
+
+    document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        city_code: document.getElementById('fbCityCode').value,
+        activity_code: document.getElementById('fbActivityCode').value || undefined,
+        metric_code: document.getElementById('fbMetricCode').value,
+        current_value: document.getElementById('fbCurrentValue').value === 'غير متوفر' ? null : Number(document.getElementById('fbCurrentValue').value),
+        suggested_value: Number(document.getElementById('fbSuggestedValue').value),
+        reason: document.getElementById('fbReason').value
+      };
+      try {
+        const res = await fetchJson(API_URL + '/data/feedback/public', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        alert(res.message || 'تم إرسال التصحيح، شكراً لك!');
+        closeFeedbackForm();
+      } catch (err) {
+        alert('فشل الإرسال: ' + err.message);
+      }
+    });
+
     async function boot() {
       const params = new URLSearchParams(window.location.search);
       const preselectCity = params.get('city');
@@ -634,10 +1094,12 @@
         await loadCityData();
       }
 
-      BondsAIChat.mount({
-        cityCode: document.getElementById('citySelect').value || preselectCity || null,
-        activityCode: document.getElementById('activitySelect').value || preselectActivity || null
-      });
+      if (typeof BondsAIChat !== 'undefined') {
+        BondsAIChat.mount({
+          cityCode: document.getElementById('citySelect').value || preselectCity || null,
+          activityCode: document.getElementById('activitySelect').value || preselectActivity || null
+        });
+      }
 
       loadAlerts();
     }
@@ -645,5 +1107,6 @@
     boot();
   </script>
   <script src="/v3/components/ai-chat-widget.js"></script>
+  <div id="site-footer"></div>
 </body>
 </html>

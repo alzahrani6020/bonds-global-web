@@ -27,10 +27,10 @@ class EgyptCapmasAdapter extends BaseAdapter {
   }
 
   async fetch(options = {}) {
-    const { cityCode, year = new Date().getFullYear() } = options;
+    const { cityCode, year = new Date().getFullYear(), population, purchasingPowerIndex } = options;
 
     if (this.useFallback) {
-      return this._fallbackData(cityCode, year);
+      return this._fallbackData(cityCode, year, population, purchasingPowerIndex);
     }
 
     return [];
@@ -78,35 +78,27 @@ class EgyptCapmasAdapter extends BaseAdapter {
     return result;
   }
 
-  _fallbackData(cityCode, year) {
-    const cityData = {
-      CAI: {
-        population: 10000000,
-        household_income: 96000,
-        growth_rate: 4.0,
-        unemployment_rate: 7.0,
-        establishments_count: 950000,
-        inflation_rate: 12.0
-      },
-      ALY: {
-        population: 5200000,
-        household_income: 90000,
-        growth_rate: 3.6,
-        unemployment_rate: 7.5,
-        establishments_count: 420000,
-        inflation_rate: 12.0
-      }
-    };
-
-    const metrics = cityCode ? cityData[cityCode.toUpperCase()] : null;
-    if (!metrics) return [];
+  _fallbackData(cityCode, year, population = 1000000, purchasingPowerIndex = 100) {
+    const code = cityCode ? cityCode.toUpperCase() : 'UNK';
+    const pop = Number(population) || 1000000;
+    const ppi = Number(purchasingPowerIndex) || 100;
+    const tierFactor = pop >= 5000000 ? 1.0 : pop >= 1000000 ? 0.95 : 0.88;
+    const incomeFactor = ppi / 100;
 
     return [{
-      cityCode: cityCode.toUpperCase(),
+      cityCode: code,
       year,
-      metrics,
-      externalId: `${cityCode.toUpperCase()}-${year}`,
-      source: this.config.sourceId
+      metrics: {
+        population: pop,
+        household_income: Math.round(70000 * incomeFactor * tierFactor),
+        growth_rate: parseFloat((4.0 * tierFactor).toFixed(2)),
+        unemployment_rate: parseFloat((7.0 + (1 - tierFactor) * 4).toFixed(2)),
+        establishments_count: Math.round(pop * 0.08 * tierFactor),
+        inflation_rate: 12.0
+      },
+      externalId: `${code}-${year}`,
+      source: this.config.sourceId,
+      quality: 'fallback'
     }];
   }
 }

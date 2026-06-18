@@ -15,7 +15,7 @@ const RegressionEstimator = require('../engine/ml/RegressionEstimator');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
-  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.end(JSON.stringify(data));
 }
 
@@ -288,6 +288,47 @@ async function handleSubmitFeedback(req, res) {
   }
 }
 
+// Public feedback submission (no admin token) with basic validation
+async function handleSubmitPublicFeedback(req, res) {
+  const body = await parseBody(req);
+  const config = getSupabaseConfig();
+  const supabase = getSupabaseClient();
+
+  // Required fields
+  if (!body.city_code || !body.metric_code || body.suggested_value === undefined) {
+    return sendJson(res, 400, { error: 'city_code, metric_code and suggested_value are required' });
+  }
+
+  try {
+    const city = await resolveCity(supabase, body.city_code);
+    let activityId = body.activity_id || null;
+    if (body.activity_code && !activityId) {
+      const activity = await resolveActivity(supabase, body.activity_code);
+      activityId = activity.id;
+    }
+
+    const year = body.year || new Date().getFullYear();
+
+    const { error } = await supabase.from('metric_feedback').insert({
+      metric_code: body.metric_code,
+      city_id: city.id,
+      activity_id: activityId,
+      year,
+      estimated_value: body.current_value || null,
+      actual_value: body.suggested_value,
+      source: 'user',
+      confidence: body.confidence || 80,
+      notes: body.reason || null
+    });
+
+    if (error) throw error;
+    sendJson(res, 200, { success: true, message: 'شكراً لك، تم استلام التصحيح وسيتم مراجعته.' });
+  } catch (err) {
+    console.error('[data-engine public feedback]', err.message);
+    sendJson(res, 500, { error: err.message });
+  }
+}
+
 async function handleFeedbackAccuracy(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const cityId = url.searchParams.get('city');
@@ -489,6 +530,10 @@ async function dataEngineRouter(req, res, path) {
 
   if (path === '/data/feedback' && req.method === 'POST') {
     return handleSubmitFeedback(req, res);
+  }
+
+  if (path === '/data/feedback/public' && req.method === 'POST') {
+    return handleSubmitPublicFeedback(req, res);
   }
 
   if (path === '/data/feedback/accuracy' && req.method === 'GET') {

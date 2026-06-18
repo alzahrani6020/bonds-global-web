@@ -320,16 +320,17 @@ async function importRegulatoryRequirements(client, rows) {
 async function importCities(client, rows) {
   for (const r of rows) {
     await client.query(
-      `INSERT INTO public.cities (code, name_ar, name_en, region, population, avg_household_income, purchasing_power_index)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO public.cities (code, name_ar, name_en, region, country_code, population, avg_household_income, purchasing_power_index)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        ON CONFLICT (code) DO UPDATE SET
          name_ar = EXCLUDED.name_ar,
          name_en = EXCLUDED.name_en,
          region = EXCLUDED.region,
+         country_code = EXCLUDED.country_code,
          population = EXCLUDED.population,
          avg_household_income = EXCLUDED.avg_household_income,
          purchasing_power_index = EXCLUDED.purchasing_power_index`,
-      [r.code, r.name_ar, r.name_en, r.region, r.population, r.avg_household_income, r.purchasing_power_index]
+      [r.code, r.name_ar, r.name_en, r.region, r.country_code || 'SA', r.population, r.avg_household_income, r.purchasing_power_index]
     );
   }
   console.log(`Imported ${rows.length} cities`);

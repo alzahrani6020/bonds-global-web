@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -86,8 +86,12 @@
     .message.success { background: rgba(34,197,94,0.15); color: var(--success); }
     .token-row { display: flex; gap: 0.5rem; align-items: center; }
   </style>
+<link rel="stylesheet" href="../../header-footer.css?v=2" />
+<script src="../../site-layout.js"></script>
 </head>
 <body>
+
+  <div id="site-header"></div>
   <header>
     <h1>⚡ Bonds V3 CMS</h1>
   </header>
@@ -375,11 +379,28 @@
             <div><label>الدولة</label>
               <select name="country_code" id="mlCountrySelect">
                 <option value="">كل الدول</option>
-                <option value="SA">السعودية</option>
-                <option value="AE">الإمارات</option>
-                <option value="QA">قطر</option>
-                <option value="EG">مصر</option>
-                <option value="JO">الأردن</option>
+                <option value="SA">🇸🇦 السعودية</option>
+                <option value="AE">🇦🇪 الإمارات</option>
+                <option value="KW">🇰🇼 الكويت</option>
+                <option value="QA">🇶🇦 قطر</option>
+                <option value="BH">🇧🇭 البحرين</option>
+                <option value="OM">🇴🇲 عمان</option>
+                <option value="EG">🇪🇬 مصر</option>
+                <option value="JO">🇯🇴 الأردن</option>
+                <option value="IQ">🇮🇶 العراق</option>
+                <option value="LB">🇱🇧 لبنان</option>
+                <option value="SY">🇸🇾 سوريا</option>
+                <option value="PS">🇵🇸 فلسطين</option>
+                <option value="TN">🇹🇳 تونس</option>
+                <option value="DZ">🇩🇿 الجزائر</option>
+                <option value="MA">🇲🇦 المغرب</option>
+                <option value="LY">🇱🇾 ليبيا</option>
+                <option value="SD">🇸🇩 السودان</option>
+                <option value="YE">🇾🇪 اليمن</option>
+                <option value="DJ">🇩🇯 جيبوتي</option>
+                <option value="SO">🇸🇴 الصومال</option>
+                <option value="MR">🇲🇷 موريتانيا</option>
+                <option value="KM">🇰🇲 جزر القمر</option>
               </select>
             </div>
             <div style="grid-column: 1 / -1;"><button type="submit">🚀 تدريب النماذج</button></div>
@@ -440,6 +461,39 @@
         'Content-Type': 'application/json',
         'x-admin-token': token
       };
+    }
+
+    const METRIC_LABELS_AR = {
+      gdp_city: 'الناتج المحلي الإجمالي للمدينة',
+      growth_rate: 'معدل النمو الاقتصادي',
+      unemployment_rate: 'معدل البطالة',
+      establishments_count: 'عدد المنشآت',
+      inflation_rate: 'معدل التضخم',
+      business_ease_index: 'مؤشر سهولة ممارسة الأعمال',
+      avg_rent_per_sqm: 'متوسط الإيجار للمتر المربع',
+      avg_land_price_per_sqm: 'متوسط سعر الأرض للمتر المربع',
+      warehouse_rent_per_sqm: 'إيجار المستودعات للمتر المربع',
+      factory_rent_per_sqm: 'إيجار المصانع للمتر المربع',
+      new_licenses_count: 'عدد التراخيص الجديدة',
+      investment_volume: 'حجم الاستثمار',
+      saturation_index: 'مؤشر التشبع',
+      competitors_count: 'عدد المنافسين',
+      market_saturation_score: 'درجة تشبع السوق',
+      avg_salary: 'متوسط الراتب',
+      labor_availability_score: 'درجة توفر العمالة',
+      specialists_count: 'عدد المتخصصين',
+      saudization_rate: 'معدل السعودة',
+      market_size: 'حجم السوق',
+      annual_growth_rate: 'معدل النمو السنوي',
+      per_capita_spending: 'المصروف الفردي',
+      expected_demand: 'الطلب المتوقع',
+      profit_margin_avg: 'متوسط هامش الربح',
+      risk_score: 'درجة المخاطرة',
+      opportunity_score: 'درجة الفرصة'
+    };
+
+    function metricLabel(code) {
+      return METRIC_LABELS_AR[code] || code;
     }
 
     function login() {
@@ -1112,13 +1166,14 @@
           tbody.innerHTML = '<tr><td colspan="7">لا توجد قواعد بعد</td></tr>';
           return;
         }
+        const severityLabels = { info: 'معلومة', warning: 'تحذير', critical: 'حرج' };
         tbody.innerHTML = rules.map(r => `
           <tr>
             <td>${r.name}</td>
-            <td>${r.metric_code}</td>
+            <td>${metricLabel(r.metric_code)}</td>
             <td>${r.city?.name_ar || '-'} ${r.activity?.name_ar ? ' / ' + r.activity.name_ar : ''}</td>
             <td>${r.threshold_type === 'relative' ? r.threshold_value * 100 + '%' : r.threshold_value}</td>
-            <td>${r.severity}</td>
+            <td>${severityLabels[r.severity] || r.severity}</td>
             <td>${r.is_active ? 'مفعل' : 'معطل'}</td>
             <td>
               <button class="secondary" onclick="toggleAlertRule('${r.id}', ${!r.is_active})">${r.is_active ? 'تعطيل' : 'تفعيل'}</button>
@@ -1207,9 +1262,10 @@
         }
         container.innerHTML = alerts.map(a => `
           <div class="card" style="border-right: 4px solid ${a.severity === 'critical' ? 'var(--danger)' : a.severity === 'warning' ? 'var(--gold)' : 'var(--success)'};">
-            <strong>${a.severity === 'critical' ? '🚨' : a.severity === 'warning' ? '⚠️' : 'ℹ️'} ${a.metric_code}</strong>
+            <strong>${a.severity === 'critical' ? '🚨' : a.severity === 'warning' ? '⚠️' : 'ℹ️'} ${metricLabel(a.metric_code)}</strong>
             <p>${a.message}</p>
-            <p style="font-size: 0.8rem; color: var(--text-secondary);">${new Date(a.created_at).toLocaleString('ar-SA')} — ${a.city?.name_ar || ''} ${a.activity?.name_ar ? ' / ' + a.activity.name_ar : ''}</p>
+            ${a.insight ? `<p style="font-size: 0.85rem; color: var(--gold-bright); margin: 0.5rem 0;">💡 ${a.insight}</p>` : ''}
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">تم الاكتشاف: ${new Date(a.created_at).toLocaleString('ar-SA')} — ${a.city?.name_ar || ''} ${a.activity?.name_ar ? ' / ' + a.activity.name_ar : ''}</p>
             ${!a.is_read ? `<button class="secondary" onclick="markAlertRead('${a.id}')">تعليم كمقروء</button>` : ''}
           </div>
         `).join('');
@@ -1232,5 +1288,6 @@
 
     if (token) init();
   </script>
+  <div id="site-footer"></div>
 </body>
 </html>

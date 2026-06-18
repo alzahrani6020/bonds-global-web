@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الإنذارات الاستثمارية | Bonds V3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0f1a;
+      --card: #10182d;
+      --border: rgba(197,160,40,0.2);
+      --gold: #d4a853;
+      --gold-bright: #f0c96a;
+      --text: #e8ecf4;
+      --text-secondary: #94a3b8;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --critical: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Vazirmatn', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+    }
+    header h1 { margin: 0; color: var(--gold-bright); font-size: 1.8rem; }
+    header p { margin: 0.5rem 0 0; color: var(--text-secondary); }
+    .container { padding: 2rem; max-width: 1100px; margin: 0 auto; }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gold-bright);
+      text-decoration: none;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    /* Summary cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .summary-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .summary-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .summary-icon.blue { background: rgba(59,130,246,0.15); }
+    .summary-icon.red { background: rgba(185,28,28,0.15); }
+    .summary-icon.gold { background: rgba(212,168,83,0.15); }
+    .summary-icon.gray { background: rgba(148,163,184,0.15); }
+    .summary-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .summary-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.2rem;
+    }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filters select, .filters button {
+      padding: 0.6rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .filters button {
+      cursor: pointer;
+      font-weight: 700;
+      background: rgba(212,168,83,0.1);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .filters button:hover { background: rgba(212,168,83,0.2); }
+
+    /* Alert cards */
+    .alert-list { display: flex; flex-direction: column; gap: 1rem; }
+    .alert-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      position: relative;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .alert-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .alert-card.read { opacity: 0.65; }
+    .alert-card.severity-critical { border-right: 4px solid var(--danger); }
+    .alert-card.severity-warning { border-right: 4px solid var(--warning); }
+    .alert-card.severity-info { border-right: 4px solid var(--info); }
+
+    .alert-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .alert-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 800;
+      font-size: 1.05rem;
+    }
+    .severity-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .severity-critical { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .severity-warning { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .severity-info { background: rgba(59,130,246,0.15); color: var(--info); }
+
+    .alert-meta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin-bottom: 0.75rem;
+    }
+    .alert-meta span { display: inline-flex; align-items: center; gap: 0.35rem; }
+
+    .alert-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .change-up { color: var(--danger); }
+    .change-down { color: var(--success); }
+    .change-neutral { color: var(--text-secondary); }
+
+    .alert-insight {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    .alert-insight strong { color: var(--gold-bright); }
+
+    .alert-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .alert-date {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .mark-read-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .mark-read-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    .duplicate-badge {
+      position: absolute;
+      top: -8px;
+      left: 1rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--gold-bright);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.15rem 0.6rem;
+      border-radius: 12px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-secondary);
+    }
+    .empty-state h3 { color: var(--text); margin-bottom: 0.5rem; }
+
+    .loading { text-align: center; padding: 3rem; color: var(--text-secondary); }
+    .error { color: var(--danger); text-align: center; padding: 2rem; }
+
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+  </style>
+<link rel="stylesheet" href="../header-footer.css?v=2" />
+<script src="../site-layout.js"></script>
+</head>
+<body>
+
+  <div id="site-header"></div>
+  <header>
+    <h1>🔔 الإنذارات الاستثمارية</h1>
+    <p>تتبع أهم التغيرات الاقتصادية والعقارية والسوقية التي قد تؤثر على قراراتك الاستثمارية</p>
+  </header>
+
+  <div class="container">
+    <a href="/v3/city-intelligence.html" class="back-link">← العودة إلى ذكاء المدن</a>
+
+    <div id="summary" class="summary-grid">
+      <!-- Filled dynamically -->
+    </div>
+
+    <div class="filters">
+      <select id="severityFilter">
+        <option value="">كل مستويات الخطورة</option>
+        <option value="critical">🔴 حرج</option>
+        <option value="warning">🟠 مرتفع</option>
+        <option value="info">🔵 منخفض</option>
+      </select>
+      <select id="cityFilter"><option value="">كل المدن</option></select>
+      <select id="activityFilter"><option value="">كل الأنشطة</option></select>
+      <label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-secondary); font-size: 0.9rem;">
+        <input type="checkbox" id="unreadOnly" checked> غير المقروءة فقط
+      </label>
+      <button id="refreshBtn">🔄 تحديث</button>
+    </div>
+
+    <div id="alertsContainer">
+      <div class="loading">جاري تحميل الإنذارات...</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Bonds V3 Enterprise — البيانات تقديرية وتخضع للتحقق.
+  </div>
+
+  <script>
+    const API_URL = '/api/v3';
+    let allAlerts = [];
+    let allCities = [];
+    let allActivities = [];
+
+    const METRIC_LABELS_AR = {
+      gdp_city: 'الناتج المحلي الإجمالي للمدينة',
+      growth_rate: 'معدل النمو الاقتصادي',
+      unemployment_rate: 'معدل البطالة',
+      establishments_count: 'عدد المنشآت',
+      inflation_rate: 'معدل التضخم',
+      business_ease_index: 'مؤشر سهولة ممارسة الأعمال',
+      avg_rent_per_sqm: 'متوسط الإيجار للمتر المربع',
+      avg_land_price_per_sqm: 'متوسط سعر الأرض للمتر المربع',
+      warehouse_rent_per_sqm: 'إيجار المستودعات للمتر المربع',
+      factory_rent_per_sqm: 'إيجار المصانع للمتر المربع',
+      new_licenses_count: 'عدد التراخيص الجديدة',
+      investment_volume: 'حجم الاستثمار',
+      saturation_index: 'مؤشر التشبع',
+      competitors_count: 'عدد المنافسين',
+      market_saturation_score: 'درجة تشبع السوق',
+      avg_salary: 'متوسط الراتب',
+      labor_availability_score: 'درجة توفر العمالة',
+      specialists_count: 'عدد المتخصصين',
+      saudization_rate: 'معدل السعودة',
+      market_size: 'حجم السوق',
+      annual_growth_rate: 'معدل النمو السنوي',
+      per_capita_spending: 'المصروف الفردي',
+      expected_demand: 'الطلب المتوقع',
+      profit_margin_avg: 'متوسط هامش الربح',
+      risk_score: 'درجة المخاطرة',
+      opportunity_score: 'درجة الفرصة'
+    };
+
+    const SEVERITY_LABELS = {
+      critical: { label: 'حرج', icon: '🔴', class: 'severity-critical' },
+      warning: { label: 'مرتفع', icon: '🟠', class: 'severity-warning' },
+      info: { label: 'منخفض', icon: '🔵', class: 'severity-info' }
+    };
+
+    function metricLabel(code) {
+      return METRIC_LABELS_AR[code] || code;
+    }
+
+    async function fetchJson(url, options = {}) {
+      const res = await fetch(url, options);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Request failed: ' + res.status);
+      return data;
+    }
+
+    function formatNumber(num) {
+      if (num === null || num === undefined) return '-';
+      if (num >= 1e9) return (num / 1e9).toFixed(1) + ' مليار';
+      if (num >= 1e6) return (num / 1e6).toFixed(1) + ' مليون';
+      return num.toLocaleString('ar-SA');
+    }
+
+    function formatDate(iso, typeLabel = 'تم الاكتشاف') {
+      if (!iso) return '-';
+      const d = new Date(iso);
+      return `${typeLabel}: ${d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })} ${d.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}`;
+    }
+
+    // Deduplicate alerts by (city + activity + metric + new_value) keeping the latest
+    function deduplicateAlerts(alerts) {
+      const map = new Map();
+      alerts.forEach(a => {
+        const key = `${a.city_id || 'global'}-${a.activity_id || 'none'}-${a.metric_code}-${a.new_value}`;
+        const existing = map.get(key);
+        if (!existing || new Date(a.created_at) > new Date(existing.created_at)) {
+          map.set(key, { ...a, _duplicates: (existing?._duplicates || 0) + (existing ? 1 : 0) });
+        } else {
+          existing._duplicates = (existing._duplicates || 0) + 1;
+        }
+      });
+      return Array.from(map.values()).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+
+    function generateInsight(alert) {
+      const metric = metricLabel(alert.metric_code);
+      const city = alert.city?.name_ar || 'المدينة المختارة';
+      const direction = (alert.change_value || 0) >= 0 ? 'ارتفاع' : 'انخفاض';
+      const percent = alert.change_percent ? `${Math.abs(alert.change_percent).toFixed(1)}%` : '';
+
+      // Metric-specific insights
+      if (alert.metric_code === 'avg_rent_per_sqm') {
+        return `${direction} ${metric} بنسبة ${percent} يشير إلى ${direction === 'ارتفاع' ? 'زيادة الطلب على المساحات العقارية' : 'تراجع الطلب أو زيادة المعروض'} في ${city}. ${direction === 'ارتفاع' ? 'قد يؤثر على تكاليف التشغيل للمشاريع الجديدة.' : 'فرصة جيدة للتأجير بأسعار تنافسية.'}`;
+      }
+      if (alert.metric_code === 'growth_rate') {
+        return `${direction} معدل النمو الاقتصادي يعكس ${direction === 'ارتفاع' ? 'تسارعاً اقتصادياً يدعم الاستثمارات الجديدة' : 'تباطؤاً قد يستدعي مراجعة خطط التوسع'} في ${city}.`;
+      }
+      if (alert.metric_code === 'unemployment_rate') {
+        return `${direction} معدل البطالة يعني ${direction === 'ارتفاع' ? 'توفر أكبر للعمالة بأسعار أقل' : 'سوق عمل متشبع قد يصعب التوظيف'} في ${city}.`;
+      }
+      if (alert.metric_code === 'avg_land_price_per_sqm') {
+        return `${direction} أسعار الأرض يؤثر مباشرة على تكلفة الدخول للمشاريع العقارية والصناعية في ${city}.`;
+      }
+      if (alert.metric_code === 'market_size') {
+        return `${direction} حجم السوق يعكس ${direction === 'ارتفاع' ? 'توسعاً في الطلب' : 'انكماشاً محتملاً'} على الخدمات والمنتجات في هذا النشاط.`;
+      }
+      if (alert.metric_code === 'opportunity_score') {
+        return `${direction} درجة الفرصة الاستثمارية يغير ترتيب القطاعات المفضلة في ${city}.`;
+      }
+
+      return `${direction} ${metric} بنسبة ${percent} قد يؤثر على قرار الاستثمار في ${city}. راجع التوقعات قبل اتخاذ القرار النهائي.`;
+    }
+
+    async function initFilters() {
+      try {
+        const [citiesRes, sectorsRes] = await Promise.all([
+          fetchJson(API_URL + '/cities'),
+          fetchJson(API_URL + '/sectors')
+        ]);
+        allCities = citiesRes.cities || [];
+        allActivities = [];
+        (sectorsRes.sectors || []).forEach(sector => {
+          (sector.economic_sub_sectors || []).forEach(sub => {
+            (sub.economic_activities || []).forEach(activity => {
+              allActivities.push(activity);
+            });
+          });
+        });
+
+        const cityFilter = document.getElementById('cityFilter');
+        allCities.forEach(c => {
+          cityFilter.innerHTML += `<option value="${c.id}">${c.name_ar}</option>`;
+        });
+
+        const activityFilter = document.getElementById('activityFilter');
+        allActivities.forEach(a => {
+          activityFilter.innerHTML += `<option value="${a.id}">${a.name_ar}</option>`;
+        });
+      } catch (err) {
+        console.warn('Failed to load filter options:', err.message);
+      }
+    }
+
+    async function loadAlerts() {
+      const container = document.getElementById('alertsContainer');
+      container.innerHTML = '<div class="loading">جاري تحميل الإنذارات...</div>';
+
+      try {
+        const unreadOnly = document.getElementById('unreadOnly').checked;
+        const url = `${API_URL}/alerts?limit=100${unreadOnly ? '&unread_only=true' : ''}`;
+        const data = await fetchJson(url);
+        allAlerts = data.alerts || [];
+        renderPage();
+      } catch (err) {
+        container.innerHTML = `<div class="error">فشل تحميل الإنذارات: ${err.message}</div>`;
+      }
+    }
+
+    function renderPage() {
+      renderSummary();
+      renderAlertsList();
+    }
+
+    function renderSummary() {
+      const unread = allAlerts.filter(a => !a.is_read);
+      const critical = unread.filter(a => a.severity === 'critical').length;
+      const warning = unread.filter(a => a.severity === 'warning').length;
+      const info = unread.filter(a => a.severity === 'info').length;
+      const opportunities = unread.filter(a => a.metric_code === 'opportunity_score' && (a.change_value || 0) > 0).length;
+      const review = unread.filter(a => a.metric_code === 'risk_score' || a.severity === 'critical').length;
+
+      document.getElementById('summary').innerHTML = `
+        <div class="summary-card">
+          <div class="summary-icon blue">🔔</div>
+          <div><div class="summary-value">${unread.length}</div><div class="summary-label">إنذارات جديدة</div></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon red">🔴</div>
+          <div><div class="summary-value">${critical}</div><div class="summary-label">إنذارات حرجة</div></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon gold">🟠</div>
+          <div><div class="summary-value">${warning}</div><div class="summary-label">إنذارات مرتفعة</div></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon gray">💡</div>
+          <div><div class="summary-value">${opportunities}</div><div class="summary-label">فرص استثمارية</div></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon gray">👁️</div>
+          <div><div class="summary-value">${review}</div><div class="summary-label">يحتاج مراجعة</div></div>
+        </div>
+      `;
+    }
+
+    function renderAlertsList() {
+      const container = document.getElementById('alertsContainer');
+      const severity = document.getElementById('severityFilter').value;
+      const cityId = document.getElementById('cityFilter').value;
+      const activityId = document.getElementById('activityFilter').value;
+
+      let filtered = allAlerts;
+      if (severity) filtered = filtered.filter(a => a.severity === severity);
+      if (cityId) filtered = filtered.filter(a => a.city_id === cityId);
+      if (activityId) filtered = filtered.filter(a => a.activity_id === activityId);
+
+      const deduped = deduplicateAlerts(filtered);
+
+      if (!deduped.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <h3>لا توجد إنذارات</h3>
+            <p>لم يتم العثور على إنذارات تطابق الفلاتر المختارة. حاول تغيير الفلاتر أو العودة لاحقاً.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '<div class="alert-list">' + deduped.map(a => renderAlertCard(a)).join('') + '</div>';
+
+      container.querySelectorAll('.mark-read-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.target.dataset.id;
+          try {
+            await fetchJson(`${API_URL}/alerts/${id}/read`, { method: 'POST' });
+            const alert = allAlerts.find(x => x.id === id);
+            if (alert) alert.is_read = true;
+            renderPage();
+          } catch (err) {
+            alert('فشل تحديث الحالة: ' + err.message);
+          }
+        });
+      });
+    }
+
+    function renderAlertCard(alert) {
+      const sev = SEVERITY_LABELS[alert.severity] || SEVERITY_LABELS.info;
+      const metric = metricLabel(alert.metric_code);
+      const changePercent = alert.change_percent ? Math.abs(alert.change_percent).toFixed(1) + '%' : '';
+      const changeValue = alert.change_value ? Math.abs(alert.change_value).toLocaleString('ar-SA') : '';
+      const direction = (alert.change_value || 0) >= 0 ? 'up' : 'down';
+      const directionIcon = direction === 'up' ? '↗️' : '↘️';
+      const directionClass = direction === 'up' ? 'change-up' : 'change-down';
+      const cityName = alert.city?.name_ar || 'كل المدن';
+      const activityName = alert.activity?.name_ar;
+      const duplicates = alert._duplicates || 0;
+
+      return `
+        <div class="alert-card severity-${alert.severity} ${alert.is_read ? 'read' : ''}" data-id="${alert.id}">
+          ${duplicates > 0 ? `<span class="duplicate-badge">تكرار ${duplicates + 1} مرات</span>` : ''}
+          <div class="alert-header">
+            <div class="alert-title">
+              <span>${directionIcon}</span>
+              <span>${metric}</span>
+            </div>
+            <span class="severity-badge ${sev.class}">${sev.icon} ${sev.label}</span>
+          </div>
+          <div class="alert-meta">
+            <span>📍 ${cityName}</span>
+            ${activityName ? `<span>🏭 ${activityName}</span>` : ''}
+            <span>📊 القيمة السابقة: ${formatNumber(alert.old_value)} → الجديدة: ${formatNumber(alert.new_value)}</span>
+          </div>
+          <div class="alert-change ${directionClass}">
+            ${direction === 'up' ? 'ارتفع' : 'انخفض'} ${metric} ${changePercent ? 'بنسبة ' + changePercent : changeValue ? 'بمقدار ' + changeValue : ''}
+          </div>
+          <div class="alert-insight">
+            <strong>💡 التفسير الذكي:</strong> ${alert.insight || generateInsight(alert)}
+          </div>
+          <div class="alert-footer">
+            <span class="alert-date">${formatDate(alert.created_at, 'تم الاكتشاف')}</span>
+            ${!alert.is_read ? `<button class="mark-read-btn" data-id="${alert.id}">✓ تم القراءة</button>` : '<span style="color: var(--text-secondary); font-size: 0.8rem;">مقروء</span>'}
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('severityFilter').addEventListener('change', renderAlertsList);
+    document.getElementById('cityFilter').addEventListener('change', renderAlertsList);
+    document.getElementById('activityFilter').addEventListener('change', renderAlertsList);
+    document.getElementById('unreadOnly').addEventListener('change', loadAlerts);
+    document.getElementById('refreshBtn').addEventListener('click', loadAlerts);
+
+    async function boot() {
+      await initFilters();
+      await loadAlerts();
+    }
+
+    boot();
+  </script>
+  <div id="site-footer"></div>
+</body>
+</html>

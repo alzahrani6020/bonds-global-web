@@ -3,13 +3,14 @@
  * يقدر حجم السوق والنمو والطلب والهوامش.
  */
 const DataPipeline = require('../DataPipeline');
-const { ManualAdapter, LLMEstimationAdapter } = require('../adapters');
+const { ManualAdapter, LLMEstimationAdapter, BenchmarkAdapter } = require('../adapters');
 
 class MarketEngine {
   constructor(supabaseConfig, options = {}) {
     this.pipeline = new DataPipeline(supabaseConfig, options.pipeline);
     this.adapters = {
       manual: new ManualAdapter(options.manual),
+      benchmark: new BenchmarkAdapter(options.benchmark),
       llm: new LLMEstimationAdapter({
         inferenceEngine: this.pipeline.inferenceEngine,
         ...options.llm
@@ -24,11 +25,23 @@ class MarketEngine {
       throw new Error('cityId and cityCode are required');
     }
 
+    const city = await this._getCity(cityId);
+    const population = city?.population || 1000000;
+
+    try {
+      await this.pipeline.runAdapter(this.adapters.benchmark, {
+        cityId, cityCode, activityId, activityCode, year, population, runType: 'incremental'
+      });
+    } catch (err) {
+      console.warn('[MarketEngine] Benchmark adapter failed:', err.message);
+    }
+
     const metrics = await this.adapters.llm.fetch({
       cityCode,
       activityCode,
       year,
-      metricCodes: ['market_size', 'annual_growth_rate', 'per_capita_spending', 'expected_demand']
+      population,
+      metricCodes: ['market_size', 'annual_growth_rate', 'per_capita_spending', 'expected_demand', 'profit_margin_min', 'profit_margin_avg', 'profit_margin_max', 'risk_score']
     });
 
     for (const metric of metrics) {
@@ -56,6 +69,19 @@ class MarketEngine {
       year,
       fused
     };
+  }
+
+  async _getCity(cityId) {
+    const { data, error } = await this.pipeline.supabase
+      .from('cities')
+      .select('id, code, name_en, name_ar, country_code, population')
+      .eq('id', cityId)
+      .single();
+    if (error) {
+      console.warn('[MarketEngine] Could not load city:', error.message);
+      return null;
+    }
+    return data;
   }
 }
 

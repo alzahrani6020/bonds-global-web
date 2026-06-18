@@ -364,6 +364,9 @@ class DataPipeline {
       competitors_count: 'competitors_count',
       market_saturation_score: 'market_saturation_score',
       avg_rent_per_sqm: 'avg_rent_per_sqm',
+      avg_land_price_per_sqm: 'avg_land_price_per_sqm',
+      warehouse_rent_per_sqm: 'warehouse_rent_per_sqm',
+      factory_rent_per_sqm: 'factory_rent_per_sqm',
       avg_salary: 'avg_salary',
       labor_availability_score: 'labor_availability_score',
       market_size: 'market_size',
@@ -375,6 +378,13 @@ class DataPipeline {
       profit_margin_min: 'profit_margin_min',
       profit_margin_avg: 'profit_margin_avg',
       profit_margin_max: 'profit_margin_max',
+      construction_cost_per_sqm: 'construction_cost_per_sqm',
+      equipment_cost_min: 'equipment_cost_min',
+      equipment_cost_avg: 'equipment_cost_avg',
+      equipment_cost_max: 'equipment_cost_max',
+      monthly_operation_cost_min: 'monthly_operation_cost_min',
+      monthly_operation_cost_avg: 'monthly_operation_cost_avg',
+      monthly_operation_cost_max: 'monthly_operation_cost_max',
       risk_score: 'risk_score'
     };
     const integerColumns = ['competitors_count', 'specialists_count', 'labor_availability_score', 'market_saturation_score', 'saudization_rate'];
@@ -397,6 +407,9 @@ class DataPipeline {
     update.confidence = confidences.length > 0
       ? Math.round(confidences.reduce((a, b) => a + b, 0) / confidences.length)
       : 0;
+
+    // Tag the fused row so the UI can show where the consolidated numbers came from.
+    update.source = 'Bonds Data Engine';
 
     const { error } = await this.supabase
       .from('city_market_data')
