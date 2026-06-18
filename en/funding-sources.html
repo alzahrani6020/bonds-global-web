@@ -134,6 +134,11 @@
       </div>
     </div>
 
+    <div style="max-width:1200px;margin:0 auto 1.5rem;padding:0 1.5rem;text-align:right;">
+      <button class="btn-primary" id="searchBtn" style="padding:0.75rem 2rem;">🔍 Search</button>
+      <button class="btn-outline" id="resetBtn" style="padding:0.75rem 1.5rem;margin-left:0.5rem;">Reset</button>
+    </div>
+
     <div id="results" class="results-grid">
       <div class="loading">Loading funding sources...</div>
     </div>
@@ -168,7 +173,8 @@
           if (sectorEl.value.trim()) params.set('sector', sectorEl.value.trim());
           if (searchEl.value.trim()) params.set('search', searchEl.value.trim());
 
-          const res = await fetch('/api/funding-sources?' + params.toString());
+          const qs = params.toString();
+          const res = await fetch('/api/funding-sources' + (qs ? '?' + qs : ''));
           const json = await res.json();
           allSources = json.data || [];
           render();
@@ -211,8 +217,16 @@
 
       typeEl.addEventListener('change', load);
       countryEl.addEventListener('change', load);
-      sectorEl.addEventListener('input', debounce(load, 400));
-      searchEl.addEventListener('input', debounce(load, 400));
+      sectorEl.addEventListener('input', debounce(load, 500));
+      searchEl.addEventListener('input', debounce(load, 500));
+      document.getElementById('searchBtn').addEventListener('click', load);
+      document.getElementById('resetBtn').addEventListener('click', function(){
+        typeEl.value = '';
+        countryEl.value = '';
+        sectorEl.value = '';
+        searchEl.value = '';
+        load();
+      });
 
       load();
     })();
