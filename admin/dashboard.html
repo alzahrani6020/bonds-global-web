@@ -98,8 +98,19 @@
     .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #1a1a1a; }
     .btn-secondary { background: rgba(0,0,0,0.04); color: var(--text-secondary); border: 1px solid var(--border); }
 
-    .iframe-wrap { flex: 1; overflow: hidden; background: var(--bg); }
+    .iframe-wrap { flex: 1; overflow: hidden; background: var(--bg); position: relative; }
     .module-frame { width: 100%; height: 100%; border: none; }
+    .iframe-loader {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--text-secondary); gap: 1rem;
+    }
+    .iframe-loader .spinner {
+      width: 36px; height: 36px; border: 3px solid var(--border);
+      border-top-color: var(--gold); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .overview { padding: 1.5rem; overflow-y: auto; }
     .page-header { margin-bottom: 1.5rem; }
@@ -240,13 +251,6 @@
     </aside>
 
     <main class="main-content">
-      <header class="topbar">
-        <div class="topbar-title" id="pageTitle">نظرة عامة</div>
-        <div class="topbar-actions">
-          <a href="/calculator.html" class="btn-sm btn-secondary" target="_top">موقع المستخدم</a>
-          <button class="btn-sm btn-primary" id="refreshBtn" onclick="location.reload()">تحديث</button>
-        </div>
-      </header>
       <div class="iframe-wrap" id="iframeWrap">
         <div class="overview" id="overviewPanel"></div>
       </div>
@@ -260,7 +264,6 @@
       const sb = window.BondsAuth?.getSupabase ? window.BondsAuth.getSupabase() : null;
       const overviewEl = document.getElementById('overviewPanel');
       const iframeWrap = document.getElementById('iframeWrap');
-      const pageTitle = document.getElementById('pageTitle');
 
       async function loadStats() {
         const counts = {
@@ -358,13 +361,25 @@
 
       function loadModule(url, title) {
         if (url === 'overview') {
-          pageTitle.textContent = 'نظرة عامة';
           iframeWrap.innerHTML = '<div class="overview" id="overviewPanel"></div>';
           loadStats().then(renderOverview);
           return;
         }
-        pageTitle.textContent = title || 'لوحة التحكم';
-        iframeWrap.innerHTML = `<iframe class="module-frame" src="${url}" title="${title || ''}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"></iframe>`;
+        iframeWrap.innerHTML = '<div class="iframe-loader"><div class="spinner"></div><p>جارِ تحميل القسم...</p></div>';
+        const iframe = document.createElement('iframe');
+        iframe.className = 'module-frame';
+        iframe.src = url;
+        iframe.title = title || '';
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-downloads');
+        iframe.onload = async () => {
+          try {
+            const session = await sb.auth.getSession();
+            const token = session?.data?.session?.access_token || window.__ADMIN_TOKEN || '';
+            iframe.contentWindow.postMessage({ type: 'admin-token', token }, location.origin);
+          } catch (e) {}
+        };
+        iframeWrap.innerHTML = '';
+        iframeWrap.appendChild(iframe);
       }
 
       function setActive(target) {

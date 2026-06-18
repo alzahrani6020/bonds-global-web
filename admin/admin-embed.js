@@ -5,9 +5,9 @@
 (function () {
   'use strict';
 
-  if (!location.search.includes('embed=1')) return;
+  const isEmbed = location.search.includes('embed=1');
 
-  function apply() {
+  function applyEmbedStyles() {
     const style = document.createElement('style');
     style.textContent = `
       html.admin-embed,
@@ -41,9 +41,15 @@
     document.documentElement.classList.add('admin-embed');
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', apply);
-  } else {
-    apply();
+  if (isEmbed) {
+    applyEmbedStyles();
   }
+
+  // Token bridge: receive admin token from parent unified dashboard
+  window.addEventListener('message', function (e) {
+    if (e.origin !== location.origin) return;
+    if (e.data && e.data.type === 'admin-token') {
+      window.__ADMIN_TOKEN = e.data.token || '';
+    }
+  });
 })();
