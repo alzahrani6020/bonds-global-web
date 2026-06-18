@@ -150,7 +150,7 @@
     const stats = await AdvisoryService.getDashboardStats();
     const content = $('#fa-content');
     content.innerHTML = `
-      <div class="fa-header"><h1>لوحة التحكم</h1></div>
+      <div class="fa-header"><h1>لوحة الاستشارات المالية</h1></div>
       <div class="fa-grid">
         <div class="fa-card fa-stat"><div class="label">العملاء</div><div class="value">${stats.counts.clients}</div></div>
         <div class="fa-card fa-stat"><div class="label">المشاريع</div><div class="value">${stats.counts.projects}</div></div>

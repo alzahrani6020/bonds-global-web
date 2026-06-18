@@ -107,6 +107,7 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
+  <script src="/admin/financial-advisory/service.js"></script>
   <script>BondsAuth.initAdminGuard();</script>
 </head>
 <body>
@@ -229,6 +230,19 @@
         <div class="chart-card">
           <h3>📊 توزيع الاشتراكات</h3>
           <div class="chart-box"><canvas id="subsChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Financial Advisory Summary -->
+      <div class="table-card" id="fa-summary-card" style="display:none;">
+        <div class="table-header">
+          <h3>📊 الاستشارات المالية</h3>
+          <a href="/admin/financial-advisory/index.html" class="btn-sm btn-primary">فتح الوحدة</a>
+        </div>
+        <div class="stats-grid" id="fa-summary-stats" style="margin-top:1rem;"></div>
+        <div style="margin-top:1.5rem;">
+          <h4 style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:0.75rem;">آخر النشاطات في الوحدة</h4>
+          <div id="fa-summary-activity"></div>
         </div>
       </div>
 
@@ -524,6 +538,37 @@
 
     window.addEventListener('load', initDashboard);
     window.addEventListener('load', updateMsgBadge);
+    window.addEventListener('load', loadAdvisorySummary);
+
+    async function loadAdvisorySummary() {
+      try {
+        if (typeof AdvisoryService === 'undefined') return;
+        const stats = await AdvisoryService.getDashboardStats();
+        document.getElementById('fa-summary-card').style.display = 'block';
+        document.getElementById('fa-summary-stats').innerHTML = `
+          <div class="stat-card"><div class="stat-card__label">العملاء</div><div class="stat-card__value">${stats.counts.clients.toLocaleString('ar-SA')}</div></div>
+          <div class="stat-card"><div class="stat-card__label">المشاريع</div><div class="stat-card__value">${stats.counts.projects.toLocaleString('ar-SA')}</div></div>
+          <div class="stat-card"><div class="stat-card__label">دراسات الجدوى</div><div class="stat-card__value">${stats.counts.studies.toLocaleString('ar-SA')}</div></div>
+          <div class="stat-card"><div class="stat-card__label">النماذج المالية</div><div class="stat-card__value">${stats.counts.models.toLocaleString('ar-SA')}</div></div>
+        `;
+        const actions = {
+          client_created:'إنشاء عميل', client_updated:'تحديث عميل', client_deleted:'حذف عميل',
+          project_created:'إنشاء مشروع', project_updated:'تحديث مشروع', project_deleted:'حذف مشروع',
+          study_created:'إنشاء دراسة', study_updated:'تحديث دراسة', study_deleted:'حذف دراسة',
+          model_created:'إنشاء نموذج', model_updated:'تحديث نموذج', model_deleted:'حذف نموذج',
+          document_uploaded:'رفع مستند', document_deleted:'حذف مستند',
+          note_created:'إضافة ملاحظة', note_updated:'تحديث ملاحظة', note_deleted:'حذف ملاحظة'
+        };
+        document.getElementById('fa-summary-activity').innerHTML = stats.recentActivity.slice(0, 5).map(item => `
+          <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);font-size:0.9rem;">
+            <span>${actions[item.action] || item.action}</span>
+            <span style="color:var(--text-secondary);">${item.actor_email || '—'} • ${new Date(item.created_at).toLocaleString('ar-SA')}</span>
+          </div>
+        `).join('') || '<div style="color:var(--text-secondary);padding:0.5rem 0;">لا توجد نشاطات</div>';
+      } catch (e) {
+        console.warn('[AdvisorySummary]', e.message);
+      }
+    }
 
     function updateMsgBadge() {
       try {
