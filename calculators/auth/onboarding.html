@@ -8,39 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/png" />
-  <style>
-    :root{--gold:#c8a45c;--gold-light:#f5efe3;--bg:#0c0c0c;--bg-card:#141414;--bg-elevated:#1c1c1c;--border:#2a2a2a;--text:#f5f5f5;--text-secondary:#9a9a9a;--danger:#ef4444;--success:#22c55e;--radius-lg:16px;--radius-md:10px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;--space-10:40px}
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Tajawal','Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:var(--space-4)}
-    .auth-container{width:100%;max-width:520px}
-    .auth-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-8) var(--space-6)}
-    .logo{display:flex;align-items:center;justify-content:center;gap:var(--space-3);margin-bottom:var(--space-6)}
-    .logo img{height:40px}
-    .logo span{font-weight:800;font-size:1.4rem;color:var(--gold);letter-spacing:-0.5px}
-    h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-bottom:0.5rem}
-    .subtitle{text-align:center;color:var(--text-secondary);font-size:0.9rem;margin-bottom:var(--space-6);line-height:1.7}
-    .form-group{margin-bottom:var(--space-4)}
-    .form-group label{display:block;margin-bottom:var(--space-3);font-size:0.9rem;font-weight:500;color:var(--text-secondary)}
-    .form-group input, .form-group select, .form-group textarea{width:100%;padding:var(--space-3) var(--space-4);background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text);font-family:inherit;font-size:1rem;transition:border-color 0.2s}
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus{outline:none;border-color:var(--gold)}
-    .form-group input::placeholder{color:#666}
-    .form-group textarea{min-height:80px;resize:vertical}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
-    .btn{width:100%;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:var(--space-3)}
-    .btn:disabled{opacity:0.6;cursor:not-allowed}
-    .btn-primary{background:var(--gold);color:#0c0c0c}
-    .btn-primary:hover:not(:disabled){background:#d4b76a;transform:translateY(-1px)}
-    .error-msg{background:#3a1515;color:#ff8a8a;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
-    .success-msg{background:#153a1f;color:#8affa0;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);margin-bottom:var(--space-4);font-size:0.9rem;display:none}
-    .progress{display:flex;gap:0.5rem;justify-content:center;margin-bottom:var(--space-6)}
-    .dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
-    .dot.active{background:var(--gold)}
-    .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:currentColor;border-radius:50%;animation:spin 0.8s linear infinite;display:none}
-    .btn.loading .spinner{display:inline-block}
-    .btn.loading .btn-text{opacity:0.7}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    @media(max-width:480px){.auth-card{padding:var(--space-6) var(--space-4)}.row{grid-template-columns:1fr}}
-  </style>
+  <link rel="stylesheet" href="auth-shared.css" />
 </head>
 <body>
   <div class="auth-container">
@@ -73,32 +41,26 @@
             <label for="country">الدولة *</label>
             <select id="country" required>
               <option value="">اختر الدولة</option>
-              <option value="SA">🇸🇦 السعودية</option>
-              <option value="AE">🇦🇪 الإمارات</option>
-              <option value="EG">🇪🇬 مصر</option>
-              <option value="KW">🇰🇼 الكويت</option>
-              <option value="QA">🇶🇦 قطر</option>
-              <option value="BH">🇧🇭 البحرين</option>
-              <option value="OM">🇴🇲 عمان</option>
-              <option value="JO">🇯🇴 الأردن</option>
-              <option value="IQ">🇮🇶 العراق</option>
-              <option value="LY">🇱🇾 ليبيا</option>
-              <option value="TN">🇹🇳 تونس</option>
-              <option value="DZ">🇩🇿 الجزائر</option>
-              <option value="MA">🇲🇦 المغرب</option>
-              <option value="LB">🇱🇧 لبنان</option>
-              <option value="YE">🇾🇪 اليمن</option>
-              <option value="SD">🇸🇩 السودان</option>
-              <option value="TR">🇹🇷 تركيا</option>
-              <option value="US">🇺🇸 الولايات المتحدة</option>
-              <option value="GB">🇬🇧 بريطانيا</option>
-              <option value="DE">🇩🇪 ألمانيا</option>
-              <option value="FR">🇫🇷 فرنسا</option>
             </select>
           </div>
           <div class="form-group">
+            <label for="governorate">المحافظة / المنطقة *</label>
+            <select id="governorate" required>
+              <option value="">اختر المحافظة</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="form-group">
             <label for="city">المدينة *</label>
-            <input type="text" id="city" required placeholder="مثال: الرياض" />
+            <select id="city" required>
+              <option value="">اختر المدينة</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="phone">رقم الجوال *</label>
+            <input type="tel" id="phone" required placeholder="05xxxxxxxx" dir="ltr" />
           </div>
         </div>
 
@@ -118,25 +80,20 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="phone">رقم الجوال *</label>
-            <input type="tel" id="phone" required placeholder="05xxxxxxxx" dir="ltr" />
+            <label for="employeeCount">عدد الموظفين *</label>
+            <input type="number" id="employeeCount" required min="0" placeholder="مثال: 12" />
           </div>
         </div>
 
         <div class="row">
           <div class="form-group">
-            <label for="employeeCount">عدد الموظفين *</label>
-            <input type="number" id="employeeCount" required min="0" placeholder="مثال: 12" />
-          </div>
-          <div class="form-group">
             <label for="branchCount">عدد فروع المنشأة *</label>
             <input type="number" id="branchCount" required min="1" placeholder="مثال: 1" />
           </div>
-        </div>
-
-        <div class="form-group">
-          <label for="bio">نبذة عن المشروع *</label>
-          <textarea id="bio" required rows="3" placeholder="اكتب نبذة مختصرة عن مشروعك..."></textarea>
+          <div class="form-group">
+            <label for="bio">نبذة عن المشروع *</label>
+            <textarea id="bio" required rows="3" placeholder="اكتب نبذة مختصرة عن مشروعك..."></textarea>
+          </div>
         </div>
 
         <div class="form-group">
@@ -155,6 +112,8 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
+  <script src="../../v3/master-data/countries-governorates-cities.js"></script>
+  <script src="../../calculators/shared-geo.js"></script>
 
   <script>
     (function() {
@@ -163,6 +122,16 @@
       const errorMsg = document.getElementById('errorMsg');
       const successMsg = document.getElementById('successMsg');
       const saveBtn = document.getElementById('saveBtn');
+      const countrySelect = document.getElementById('country');
+      const governorateSelect = document.getElementById('governorate');
+      const citySelect = document.getElementById('city');
+
+      // Initialize cascading country/governorate/city selectors
+      const geoBinding = window.BondsGeo.bindCascading({
+        countryId: 'country',
+        governorateId: 'governorate',
+        cityId: 'city'
+      });
 
       function showError(msg) {
         errorMsg.textContent = msg;
@@ -179,12 +148,15 @@
         saveBtn.classList.toggle('loading', loading);
       }
 
-      // Saudi phone validation
-      function isValidPhone(phone) {
-        return /^05\d{8}$/.test(phone.replace(/\s+/g, ''));
+      // Saudi phone validation (default); other countries validated loosely
+      function isValidPhone(phone, country) {
+        const digits = phone.replace(/\D/g, '');
+        if (country === 'SA') return /^05\d{8}$/.test(digits);
+        return digits.length >= 7;
       }
 
       async function init() {
+
         const { data: { user } } = await window.BondsAuth.getUser();
         if (!user) return location.href = 'index.html';
 
@@ -196,8 +168,9 @@
         const { data: profile } = await window.BondsAuth.getProfile(user.id);
         if (profile) {
           if (profile.restaurant_name) document.getElementById('restaurantName').value = profile.restaurant_name;
-          if (profile.country) document.getElementById('country').value = profile.country;
-          if (profile.city) document.getElementById('city').value = profile.city;
+          if (profile.country) {
+            geoBinding.setValues(profile.country, profile.governorate, profile.city_code || profile.city);
+          }
           if (profile.business_type) document.getElementById('businessType').value = profile.business_type;
           if (profile.phone) document.getElementById('phone').value = profile.phone;
           if (profile.employee_count !== null && profile.employee_count !== undefined) document.getElementById('employeeCount').value = profile.employee_count;
@@ -218,17 +191,23 @@
           return location.href = 'index.html';
         }
 
+        const country = countrySelect.value;
         const phone = document.getElementById('phone').value.trim().replace(/\s+/g, '');
-        if (!isValidPhone(phone)) {
+        if (!isValidPhone(phone, country)) {
           setLoading(false);
-          return showError('رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام');
+          return showError(country === 'SA'
+            ? 'رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام'
+            : 'رقم الجوال غير صالح');
         }
 
+        const selectedCity = citySelect.options[citySelect.selectedIndex];
         const payload = {
           id: user.id,
           restaurant_name: document.getElementById('restaurantName').value.trim(),
-          country: document.getElementById('country').value,
-          city: document.getElementById('city').value.trim(),
+          country: country,
+          governorate: governorateSelect.value,
+          city: citySelect.value,
+          city_name: selectedCity && selectedCity.value ? selectedCity.textContent : '',
           business_type: document.getElementById('businessType').value,
           phone: phone,
           employee_count: parseInt(document.getElementById('employeeCount').value) || 0,

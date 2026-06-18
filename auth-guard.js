@@ -86,15 +86,17 @@
         : `<div style="width:32px;height:32px;border-radius:50%;background:var(--gold);color:#0c0c0c;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;border:2px solid var(--gold);">${initial}</div>`;
 
       authContainer.innerHTML = `
-        <div class="bonds-user-menu" style="position:relative;display:flex;align-items:center;gap:var(--space-3);cursor:pointer;" onclick="this.classList.toggle('open');event.stopPropagation();">
-          ${avatarHtml}
-          <span style="color:var(--gold);font-weight:700;font-size:0.9rem;white-space:nowrap;">${name}</span>
-          <span style="color:var(--text-secondary);font-size:0.7rem;">▼</span>
-          <div class="bonds-dropdown" style="position:absolute;top:calc(100% + 8px);left:0;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:8px 0;min-width:180px;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:9999;">
-            <a href="${profileUrl}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--text);text-decoration:none;font-size:0.85rem;transition:background 0.2s;" onmouseover="this.style.background='var(--bg-elevated)'" onmouseout="this.style.background='transparent'">👤 الملف الشخصي</a>
-            <a href="${subUrl}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--text);text-decoration:none;font-size:0.85rem;transition:background 0.2s;" onmouseover="this.style.background='var(--bg-elevated)'" onmouseout="this.style.background='transparent'">💎 الاشتراك</a>
-            <div style="height:1px;background:var(--border);margin:6px 0;"></div>
-            <a href="#" onclick="window.BondsAuth.signOut().then(()=>location.reload());return false;" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:#ff8a8a;text-decoration:none;font-size:0.85rem;transition:background 0.2s;" onmouseover="this.style.background='var(--bg-elevated)'" onmouseout="this.style.background='transparent'">🚪 تسجيل الخروج</a>
+        <div class="dropdown bonds-user-dropdown" style="position:relative;display:flex;align-items:center;gap:var(--space-3);">
+          <span class="dropdown-toggle" style="display:flex;align-items:center;gap:var(--space-3);cursor:pointer;" aria-expanded="false" aria-haspopup="true">
+            ${avatarHtml}
+            <span style="color:var(--gold);font-weight:700;font-size:0.9rem;white-space:nowrap;">${name}</span>
+            <span style="color:var(--text-secondary);font-size:0.7rem;">▼</span>
+          </span>
+          <div class="dropdown-menu" style="min-width:180px;">
+            <a href="${profileUrl}">👤 ${isEn ? 'Profile' : 'الملف الشخصي'}</a>
+            <a href="${subUrl}">💎 ${isEn ? 'Subscription' : 'الاشتراك'}</a>
+            <div style="border-top:1px solid var(--border);margin:0.4rem 0;"></div>
+            <a href="#" onclick="window.BondsAuth.signOut().then(()=>location.reload());return false;" style="color:#ff8a8a;">🚪 ${isEn ? 'Sign out' : 'تسجيل الخروج'}</a>
           </div>
         </div>
       `;
@@ -127,18 +129,21 @@
         }, 0);
       }
 
-      // Click outside to close dropdown
-      document.addEventListener('click', () => {
-        const menu = authContainer.querySelector('.bonds-user-menu');
-        if (menu) menu.classList.remove('open');
-      });
-      // Toggle dropdown display
-      const menu = authContainer.querySelector('.bonds-user-menu');
-      const dropdown = authContainer.querySelector('.bonds-dropdown');
-      if (menu && dropdown) {
-        menu.addEventListener('click', () => {
-          const isOpen = menu.classList.contains('open');
-          dropdown.style.display = isOpen ? 'block' : 'none';
+      // Wire up user dropdown toggle (shared CSS handles hover on desktop)
+      const userDropdown = authContainer.querySelector('.bonds-user-dropdown');
+      const userToggle = authContainer.querySelector('.bonds-user-dropdown .dropdown-toggle');
+      if (userDropdown && userToggle) {
+        userToggle.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (window.innerWidth > 900 && !window.matchMedia('(pointer: coarse)').matches) return;
+          const wasOpen = userDropdown.classList.contains('is-open');
+          document.querySelectorAll('.dropdown.is-open').forEach(d => {
+            d.classList.remove('is-open');
+            const t = d.querySelector('.dropdown-toggle');
+            if (t) t.setAttribute('aria-expanded', 'false');
+          });
+          userDropdown.classList.toggle('is-open', !wasOpen);
+          userToggle.setAttribute('aria-expanded', String(!wasOpen));
         });
       }
     } else {
