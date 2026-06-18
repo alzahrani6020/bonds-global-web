@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مصادر التمويل | بوندز</title>
+  <meta name="description" content="دليل بنوك وصناديق ومستثمرين وبرامج تمويل حكومية لدعم مشروعك." />
+  <meta property="og:title" content="مصادر التمويل | بوندز" />
+  <meta property="og:description" content="دليل بنوك وصناديق ومستثمرين وبرامج تمويل حكومية لدعم مشروعك." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/funding-sources.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
+  <style>
+    .page-hero { padding: 8rem 2rem 4rem; text-align: center; background: var(--bg); }
+    .page-hero h1 { font-size: 2.4rem; font-weight: 900; color: var(--text); margin-bottom: 1rem; }
+    .page-hero h1 span { color: var(--gold); }
+    .page-hero p { color: var(--text-secondary); max-width: 640px; margin: 0 auto; font-size: 1.05rem; line-height: 1.8; }
+
+    .filters {
+      max-width: 1200px;
+      margin: 0 auto 2rem;
+      padding: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .filters label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.4rem; }
+    .filters select, .filters input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    .filters select:focus, .filters input:focus { outline: none; border-color: var(--gold); }
+
+    .results-grid {
+      max-width: 1200px;
+      margin: 0 auto 6rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+    .source-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: transform 0.2s, border-color 0.2s;
+      position: relative;
+    }
+    .source-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+    .source-card .badge {
+      display: inline-block;
+      padding: 0.25rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    .badge-bank { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .badge-fund { background: rgba(168,85,247,0.15); color: #c084fc; }
+    .badge-investor { background: rgba(236,72,153,0.15); color: #f472b6; }
+    .badge-government_program { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .source-card h3 { font-size: 1.15rem; font-weight: 800; color: var(--text); margin-bottom: 0.5rem; }
+    .source-card .meta { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; }
+    .source-card .amount { font-size: 0.95rem; color: var(--gold); font-weight: 700; margin-bottom: 0.75rem; }
+    .source-card .desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 1rem; }
+    .source-card .eligibility { font-size: 0.85rem; color: var(--text-secondary); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; }
+    .source-card a { color: var(--gold); font-weight: 700; text-decoration: none; font-size: 0.9rem; }
+
+    .loading, .empty { text-align: center; color: var(--text-secondary); padding: 4rem 1rem; }
+    .featured-tag { position: absolute; top: 1rem; left: 1rem; background: var(--gold); color: #0a0f1a; font-size: 0.7rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 12px; }
+
+    @media (max-width: 640px) {
+      .page-hero h1 { font-size: 1.8rem; }
+      .results-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <section class="page-hero">
+    <h1>مصادر التمويل <span>لمشروعك</span></h1>
+    <p>دليل متكامل من البنوك والصناديق والمستثمرين وبرامج التمويل الحكومية في دول متعددة. فلّتر حسب الدولة والقطاع ونوع الجهة.</p>
+  </section>
+
+  <section style="padding: 0 2rem;">
+    <div class="filters">
+      <div>
+        <label for="filterType">نوع الجهة</label>
+        <select id="filterType">
+          <option value="">الكل</option>
+          <option value="bank">بنوك</option>
+          <option value="fund">صناديق</option>
+          <option value="investor">مستثمرون</option>
+          <option value="government_program">برامج حكومية</option>
+        </select>
+      </div>
+      <div>
+        <label for="filterCountry">الدولة</label>
+        <select id="filterCountry">
+          <option value="">الكل</option>
+          <option value="SA">السعودية</option>
+          <option value="AE">الإمارات</option>
+          <option value="EG">مصر</option>
+          <option value="JO">الأردن</option>
+          <option value="KW">الكويت</option>
+          <option value="QA">قطر</option>
+          <option value="BH">البحرين</option>
+          <option value="OM">عمان</option>
+          <option value="MA">المغرب</option>
+          <option value="TN">تونس</option>
+        </select>
+      </div>
+      <div>
+        <label for="filterSector">القطاع</label>
+        <input type="text" id="filterSector" placeholder="مثال: تقنية، صناعة، مطاعم" />
+      </div>
+      <div>
+        <label for="filterSearch">بحث</label>
+        <input type="text" id="filterSearch" placeholder="اسم الجهة أو الكلمة المفتاحية" />
+      </div>
+    </div>
+
+    <div id="results" class="results-grid">
+      <div class="loading">جاري تحميل مصادر التمويل...</div>
+    </div>
+  </section>
+
+  <div id="site-footer"></div>
+
+  <script src="site-layout.js"></script>
+  <script src="script.js" defer></script>
+  <script>
+    (function() {
+      const resultsEl = document.getElementById('results');
+      const typeEl = document.getElementById('filterType');
+      const countryEl = document.getElementById('filterCountry');
+      const sectorEl = document.getElementById('filterSector');
+      const searchEl = document.getElementById('filterSearch');
+
+      const typeLabels = {
+        bank: 'بنك',
+        fund: 'صندوق',
+        investor: 'مستثمر',
+        government_program: 'برنامج حكومي'
+      };
+
+      let allSources = [];
+
+      async function load() {
+        try {
+          const params = new URLSearchParams();
+          if (typeEl.value) params.set('type', typeEl.value);
+          if (countryEl.value) params.set('country_code', countryEl.value);
+          if (sectorEl.value.trim()) params.set('sector', sectorEl.value.trim());
+          if (searchEl.value.trim()) params.set('search', searchEl.value.trim());
+
+          const res = await fetch('/api/funding-sources?' + params.toString());
+          const json = await res.json();
+          allSources = json.data || [];
+          render();
+        } catch (e) {
+          resultsEl.innerHTML = '<div class="empty">تعذر تحميل البيانات. حاول مرة أخرى.</div>';
+        }
+      }
+
+      function render() {
+        if (!allSources.length) {
+          resultsEl.innerHTML = '<div class="empty">لا توجد نتائج مطابقة للفلاتر.</div>';
+          return;
+        }
+        resultsEl.innerHTML = allSources.map(s => `
+          <div class="source-card">
+            ${s.is_featured ? '<span class="featured-tag">مميز</span>' : ''}
+            <span class="badge badge-${s.type}">${typeLabels[s.type] || s.type}</span>
+            <h3>${s.name_ar || s.name_en}</h3>
+            <div class="meta">${s.country_code || ''} ${s.sector ? '· ' + s.sector : ''}</div>
+            ${s.min_amount || s.max_amount ? `<div class="amount">${formatAmount(s.min_amount)} – ${formatAmount(s.max_amount)} ${s.currency || 'SAR'}</div>` : ''}
+            ${s.description ? `<div class="desc">${s.description}</div>` : ''}
+            ${s.eligibility ? `<div class="eligibility"><strong>الأهلية:</strong> ${s.eligibility}</div>` : ''}
+            ${s.website ? `<a href="${s.website}" target="_blank" rel="noopener">زيارة الموقع ←</a>` : ''}
+          </div>
+        `).join('');
+      }
+
+      function formatAmount(n) {
+        if (n == null) return '-';
+        return Number(n).toLocaleString('ar-SA');
+      }
+
+      function debounce(fn, ms) {
+        let t;
+        return function() {
+          clearTimeout(t);
+          t = setTimeout(fn, ms);
+        };
+      }
+
+      typeEl.addEventListener('change', load);
+      countryEl.addEventListener('change', load);
+      sectorEl.addEventListener('input', debounce(load, 400));
+      searchEl.addEventListener('input', debounce(load, 400));
+
+      load();
+    })();
+  </script>
+</body>
+</html>

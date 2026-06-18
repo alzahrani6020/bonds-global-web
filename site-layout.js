@@ -67,6 +67,7 @@
       projectReadiness: isEn ? 'Project Readiness' : 'جاهزية المشروع',
       opportunityBank: isEn ? 'Opportunity Bank' : 'بنك الفرص',
       scenariosEngine: isEn ? 'Scenarios' : 'محرك السيناريوهات',
+      fundingSources: isEn ? 'Funding' : 'التمويل',
       contact: isEn ? 'Contact' : 'تواصل معنا',
       cta: isEn ? 'Book Consultation' : 'احجز استشارة',
       langSwitch: isEn ? 'العربية' : 'EN',
@@ -96,6 +97,7 @@
     const servicesHref = langBase + 'services.html';
     const contactHref = langBase + 'contact.html';
     const blogHref = langBase + '../blog/index.html';
+    const fundingSourcesHref = langBase + 'funding-sources.html';
     const calcBase = langBase + 'calculators/';
     const calcBreakEven = langBase + 'calculator.html';
     const sectorsBase = langBase + 'sectors/';
@@ -171,6 +173,7 @@
       { type: 'dropdown', label: labels.guides, items: guideCountries.map(c => ({ href: sectorsBase + c.code + '.html', label: c.flag + ' ' + c.label })), isLarge: true },
       { type: 'dropdown', label: labels.calculators, items: calcDropdown, isLarge: true },
       { type: 'dropdown', label: labels.intelligence, items: intelligenceDropdown },
+      { href: fundingSourcesHref, label: labels.fundingSources },
       { href: blogHref, label: labels.articles },
       { href: contactHref, label: labels.contact },
     ];

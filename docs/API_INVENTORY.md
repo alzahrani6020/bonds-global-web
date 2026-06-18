@@ -55,6 +55,7 @@ Action driven by `action` query/body param.
 | `/api/contact` | `api/contact.js` | POST | Store contact message | none | `public` |
 | `/api/track` | `api/track.js` | POST | Analytics tracking | none | `public` |
 | `/api/pro` | `api/pro.js` | POST | Pro reports / calculations | none | `public` |
+| `/api/funding-sources` | `api/funding-sources.js` | GET, POST, PUT, DELETE | Funding sources directory | GET: none; mutations: admin Bearer | `public` |
 
 ### `/api/create-checkout`
 - **Auth**: `Authorization: Bearer <supabase-jwt>`

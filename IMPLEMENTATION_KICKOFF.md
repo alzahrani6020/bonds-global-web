@@ -74,6 +74,21 @@
 - `Content-Security-Policy-Report-Only`.
 - `X-Content-Type-Options: nosniff`، `X-Frame-Options: DENY`، `Referrer-Policy`.
 
+### 7. Funding Sources Directory ✅
+
+**الملفات المُحدّثة:**
+- `supabase/migrations/20260618010000_funding_sources.sql`
+- `api/funding-sources.js`
+- `funding-sources.html`
+- `en/funding-sources.html`
+- `site-layout.js`
+
+**المخرجات:**
+- جدول `funding_sources` (Banks / Funds / Investors / Government Programs).
+- API عام للقراءة + admin mutations.
+- صفحة عربية/إنجليزية مع فلاتر الدولة/القطاع/نوع الجهة.
+- رابط في التنقل الرئيسي.
+
 ---
 
 ## P1 — مهام قصيرة المدى
@@ -82,7 +97,7 @@
 2. إضافة validation schemas.
 3. تنظيف RLS policies.
 4. تحديث `stripe` إلى `^22.2.x`.
-5. إضافة CSP headers في `vercel.json`.
+5. ~~إضافة CSP headers في `vercel.json`.~~ ✅ تم
 
 ---
 
