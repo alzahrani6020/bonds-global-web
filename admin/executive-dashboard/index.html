@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة المؤشرات التنفيذية | بوندز</title>
+  <meta name="description" content="لوحة مؤشرات فورية للملاك والإدارة العليا: الإيرادات، الأرباح، التدفقات، المشاريع، الفرص والعملاء." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/admin/executive-dashboard/styles.css?v=1" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/supabase-client.js"></script>
+  <script src="/admin/executive-dashboard/service.js?v=1"></script>
+  <script src="/admin/executive-dashboard/app.js?v=1"></script>
+</head>
+<body>
+  <div class="ex-layout">
+    <aside class="ex-sidebar" id="ex-sidebar">
+      <div class="ex-brand">
+        <img src="/assets/bonds-logo-2026-header.webp" alt="بوندز" />
+        <span>المؤشرات التنفيذية</span>
+      </div>
+      <ul class="ex-nav">
+        <li><a href="#" data-view="overview" class="active">📊 نظرة عامة</a></li>
+        <li><a href="#" data-view="revenue">💰 الإيرادات والأرباح</a></li>
+        <li><a href="#" data-view="projects">📁 المشاريع والفرص</a></li>
+      </ul>
+      <div class="ex-sidebar-footer">
+        <a href="/admin/dashboard.html">⬅️ لوحة الإدارة الرئيسية</a>
+        <div id="ex-user">جارِ التحقق...</div>
+      </div>
+    </aside>
+
+    <main class="ex-main" id="ex-main">
+      <header class="ex-topbar">
+        <div>
+          <h1>لوحة المؤشرات التنفيذية</h1>
+          <p class="ex-subtitle">مؤشرات فورية للملاك والإدارة العليا</p>
+        </div>
+        <div class="ex-topbar-actions">
+          <span class="ex-live" id="ex-live" title="تحديث لحظي">● Live</span>
+          <span class="ex-last-update" id="ex-last-update">—</span>
+          <button class="ex-btn ex-btn-secondary" onclick="ExecutiveApp.openSettings()">⚙️ الإعدادات</button>
+          <button class="ex-btn ex-btn-primary" onclick="ExecutiveApp.refresh()">↻ تحديث</button>
+        </div>
+      </header>
+
+      <div id="ex-content">
+        <div class="ex-empty"><div class="ex-spinner"></div><p>جارِ تحميل المؤشرات...</p></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const el = document.getElementById('ex-content');
+      function status(msg) { if (el) el.innerHTML = '<div class="ex-empty"><p>' + msg + '</p></div>'; }
+      window.addEventListener('error', function (e) { status('❌ خطأ JavaScript: ' + e.message); });
+      window.addEventListener('unhandledrejection', function (e) { status('❌ خطأ غير متوقع: ' + (e.reason?.message || e.reason)); });
+    })();
+  </script>
+  <script src="/admin/admin-embed.js"></script>
+</body>
+</html>

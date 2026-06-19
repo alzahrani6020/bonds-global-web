@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v2.5.0';
+const CACHE_VERSION = 'v2.5.1';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -30,6 +30,10 @@ const CORE_ASSETS = [
   '/admin/financial-advisory/styles.css',
   '/admin/financial-advisory/service.js',
   '/admin/financial-advisory/app.js',
+  '/admin/executive-dashboard/index.html',
+  '/admin/executive-dashboard/styles.css',
+  '/admin/executive-dashboard/service.js',
+  '/admin/executive-dashboard/app.js',
   '/admin/city-intelligence/index.html',
   '/admin/city-intelligence/styles.css',
   '/admin/admin-embed.js',
