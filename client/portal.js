@@ -34,6 +34,7 @@
       uploadDocument: 'رفع مستند',
       noDocuments: 'لا توجد مستندات مرفوعة بعد.',
       download: 'تنزيل',
+      analyze: 'تحليل',
       analyzing: 'جاري التحليل...',
       uploadError: 'فشل رفع الملف، حاول مرة أخرى.',
       date: 'التاريخ',
@@ -72,6 +73,7 @@
       uploadDocument: 'Upload document',
       noDocuments: 'No uploaded documents yet.',
       download: 'Download',
+      analyze: 'Analyze',
       analyzing: 'Analyzing...',
       uploadError: 'Upload failed, please try again.',
       date: 'Date',
@@ -341,8 +343,12 @@
                 <div>
                   <div style="font-weight:700;">${d.filename}</div>
                   <div class="portal-list__meta">${formatDate(d.created_at)} · ${(d.size_bytes / 1024).toFixed(1)} KB · ${d.status}</div>
+                  ${d.extracted_data && d.extracted_data.summary ? `<div class="portal-list__meta" style="margin-top:0.35rem;">${d.extracted_data.summary}</div>` : ''}
                 </div>
-                <button class="portal-btn portal-btn--outline doc-download-btn">${t('download')}</button>
+                <div style="display:flex;gap:0.5rem;">
+                  <button class="portal-btn portal-btn--outline doc-analyze-btn" ${d.status === 'analyzing' ? 'disabled' : ''}>${d.status === 'analyzing' ? t('analyzing') : t('analyze')}</button>
+                  <button class="portal-btn portal-btn--outline doc-download-btn">${t('download')}</button>
+                </div>
               </div>
             `).join('')}
           </div>
@@ -397,6 +403,33 @@
         if (!path) return;
         const url = await getDocumentDownloadUrl(path);
         if (url) window.open(url, '_blank');
+      });
+    });
+
+    document.querySelectorAll('.doc-analyze-btn').forEach(function(btn) {
+      btn.addEventListener('click', async function() {
+        const item = this.closest('[data-doc-id]');
+        const docId = item ? item.dataset.docId : null;
+        if (!docId) return;
+        btn.disabled = true;
+        btn.textContent = t('analyzing');
+        try {
+          const session = await window.BondsAuth.getSession();
+          const token = session?.data?.session?.access_token;
+          if (!token) throw new Error('No session');
+          const res = await fetch('/api/analyze-document', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ documentId: docId })
+          });
+          if (!res.ok) throw new Error('Analysis failed');
+        } catch (e) {
+          console.error(e);
+          btn.textContent = t('analyze');
+          btn.disabled = false;
+          return;
+        }
+        initDashboard();
       });
     });
   }
