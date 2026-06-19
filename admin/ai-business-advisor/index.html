@@ -10,16 +10,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
   <script>if (location.search.includes('embed=1')) document.documentElement.classList.add('admin-embed');</script>
-  <link rel="stylesheet" href="/admin/ai-business-advisor/styles.css?v=1" />
+  <link rel="stylesheet" href="/admin/ai-business-advisor/styles.css?v=2" />
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="/supabase-client.js"></script>
-  <script src="/bonds-auth-2026.js"></script>
-  <script>BondsAuth.initAdminGuard();</script>
-  <script src="/admin/ai-business-advisor/analysis-engine.js?v=1"></script>
-  <script src="/admin/ai-business-advisor/service.js?v=1"></script>
-  <script src="/admin/ai-business-advisor/app.js?v=1"></script>
+  <script src="/admin/ai-business-advisor/analysis-engine.js?v=2"></script>
+  <script src="/admin/ai-business-advisor/service.js?v=2"></script>
+  <script src="/admin/ai-business-advisor/app.js?v=2"></script>
 </head>
 <body>
   <div class="ai-layout">
@@ -70,5 +68,13 @@
     })();
   </script>
   <script src="/admin/admin-embed.js"></script>
+  <script src="/bonds-auth-2026.js"></script>
+  <script>
+    if (document.body) {
+      BondsAuth.initAdminGuard();
+    } else {
+      window.addEventListener('DOMContentLoaded', function () { BondsAuth.initAdminGuard(); });
+    }
+  </script>
 </body>
 </html>

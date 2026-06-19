@@ -165,8 +165,9 @@
     return { riskLevel, risks };
   }
 
-  function suggestFinancing(opportunities, risks, stats) {
+  function suggestFinancing(opportunities, riskData, stats) {
     const suggestions = [];
+    const riskList = (riskData && Array.isArray(riskData.risks)) ? riskData.risks : (Array.isArray(riskData) ? riskData : []);
 
     // General liquidity risk
     const netCashFlow = stats.mrr - ((stats.settings?.fixedCosts || 0) / 12);
@@ -198,7 +199,7 @@
     });
 
     // Distressed projects
-    if (risks.some(r => r.title === 'مشاريع متعثرة')) {
+    if (riskList.some(r => r.title === 'مشاريع متعثرة')) {
       suggestions.push({
         title: 'إعادة هيكلة المشاريع',
         type: 'مشروع',
