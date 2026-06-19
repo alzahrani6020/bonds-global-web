@@ -188,27 +188,27 @@
     </div>
   </section>
 
-  <section class="stats-section">
+  <section class="stats-section" id="publicStats" style="display:none;">
     <div class="stats-grid">
       <div class="stat-item">
-        <div class="stat-icon">⭐</div>
-        <div class="stat-num" data-target="97" data-suffix="%">0</div>
-        <div class="stat-label">Client Satisfaction</div>
+        <div class="stat-icon">👥</div>
+        <div class="stat-num" data-stat="clients" data-prefix="+" data-suffix="">0</div>
+        <div class="stat-label">Clients Trust Bonds</div>
       </div>
       <div class="stat-item">
-        <div class="stat-icon">👥</div>
-        <div class="stat-num" data-target="150" data-prefix="+" data-suffix="">0</div>
-        <div class="stat-label">Clients Served</div>
+        <div class="stat-icon">📁</div>
+        <div class="stat-num" data-stat="projects" data-prefix="+" data-suffix="">0</div>
+        <div class="stat-label">Projects Under Management</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">📊</div>
+        <div class="stat-num" data-stat="studies" data-prefix="+" data-suffix="">0</div>
+        <div class="stat-label">Feasibility Studies Completed</div>
       </div>
       <div class="stat-item">
         <div class="stat-icon">📈</div>
-        <div class="stat-num" data-target="2" data-prefix="+" data-suffix="B SAR">0</div>
-        <div class="stat-label">Assets Under Study</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon">📋</div>
-        <div class="stat-num" data-target="500" data-prefix="+" data-suffix="">0</div>
-        <div class="stat-label">Studies Completed</div>
+        <div class="stat-num" data-stat="assets" data-prefix="+" data-suffix="">0</div>
+        <div class="stat-label">Distressed Assets in Recovery</div>
       </div>
     </div>
   </section>
@@ -429,6 +429,30 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
   <script>window.BondsAuth && window.BondsAuth.initSiteAuth('authContainer');</script>
+  <script>
+    (function(){
+      async function loadPublicStats(){
+        const section = document.getElementById('publicStats');
+        if(!window.BondsAuth || !window.BondsAuth.getSupabase){ return; }
+        const sb = window.BondsAuth.getSupabase();
+        if(!sb){ return; }
+        try {
+          const { data, error } = await sb.rpc('get_public_stats');
+          if(error || !data){ return; }
+          const stats = typeof data === 'string' ? JSON.parse(data) : data;
+          const total = (stats.clients||0)+(stats.projects||0)+(stats.studies||0)+(stats.assets||0);
+          if(total === 0){ return; }
+          document.querySelectorAll('[data-stat]').forEach(function(el){
+            const key = el.dataset.stat;
+            const value = stats[key] || 0;
+            el.textContent = (el.dataset.prefix || '') + value.toLocaleString('en-US') + (el.dataset.suffix || '');
+          });
+          if(section) section.style.display = '';
+        } catch(e){ console.warn('Stats load failed', e); }
+      }
+      loadPublicStats();
+    })();
+  </script>
   <script src="../page-tracker-v2.js"></script>
 <script src="../site-layout.js"></script>
 </body>
