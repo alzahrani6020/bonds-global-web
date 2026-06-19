@@ -241,7 +241,11 @@
         // Load page views & sessions
         await loadPageViews();
       } catch (e) {
-        document.getElementById('loading').textContent = 'خطأ في التحميل';
+        const loadingEl = document.getElementById('loading');
+        const isForbidden = e.message?.includes('403') || e.message?.includes('Admin required');
+        loadingEl.innerHTML = isForbidden
+          ? '<div style="color:#ef4444;font-weight:700;">⛔ ليس لديك صلاحية الوصول لهذا القسم</div><p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text-secondary);">يجب أن يكون حسابك مسجلاً كمدير في <strong>admin_roles</strong>.</p>'
+          : '<div style="color:#ef4444;font-weight:700;">خطأ في التحميل</div><p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text-secondary);">' + (e.message || 'تعذر الاتصال بالخادم') + '</p>';
       }
     }
 

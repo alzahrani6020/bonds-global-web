@@ -88,7 +88,13 @@
     // Cities
     async getCities() {
       const client = getClient();
-      const { data, error } = await client.from('cities').select('*').eq('status', 'active').order('name');
+      let { data, error } = await client.from('cities').select('*').eq('status', 'active').order('name');
+      // Fallback if the status column is missing in an older schema
+      if (error && error.message && error.message.toLowerCase().includes('status')) {
+        const res = await client.from('cities').select('*').order('name');
+        data = res.data;
+        error = res.error;
+      }
       if (error) throw error;
       return data || [];
     },
@@ -126,7 +132,15 @@
       const client = getClient();
       let q = client.from('districts').select('*').eq('status', 'active');
       if (cityId) q = q.eq('city_id', cityId);
-      const { data, error } = await q.order('investment_score', { ascending: false });
+      let { data, error } = await q.order('investment_score', { ascending: false });
+      // Fallback if the status column is missing in an older schema
+      if (error && error.message && error.message.toLowerCase().includes('status')) {
+        q = client.from('districts').select('*');
+        if (cityId) q = q.eq('city_id', cityId);
+        const res = await q.order('investment_score', { ascending: false });
+        data = res.data;
+        error = res.error;
+      }
       if (error) throw error;
       return data || [];
     },

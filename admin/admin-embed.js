@@ -16,6 +16,7 @@
       }
       .admin-embed .sidebar,
       .admin-embed #sidebar,
+      .admin-embed .admin-sidebar,
       .admin-embed .fa-sidebar,
       .admin-embed .fa-menu-toggle,
       .admin-embed #fa-menu-toggle,
@@ -29,6 +30,7 @@
         display: block !important;
       }
       .admin-embed .main-content,
+      .admin-embed .admin-main,
       .admin-embed .fa-main {
         margin-right: 0 !important;
         margin-left: 0 !important;

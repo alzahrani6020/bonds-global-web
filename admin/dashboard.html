@@ -296,8 +296,14 @@
           counts.recoveryAssets = recAssets.value?.count || 0;
           counts.cities = cities.value?.count || 0;
 
-          const rev = await sb?.from('subscriptions')?.select('amount')?.eq('status', 'active');
-          if (rev?.data) counts.revenue = rev.data.reduce((a, r) => a + (Number(r.amount) || 0), 0);
+          const rev = await sb?.from('subscriptions')?.select('tier')?.eq('status', 'active');
+          if (rev?.data) {
+            counts.revenue = rev.data.reduce((a, r) => {
+              if (r.tier === 'enterprise') return a + 212;
+              if (r.tier === 'pro') return a + 82;
+              return a;
+            }, 0);
+          }
         } catch (e) { console.warn('stats load failed', e); }
 
         return counts;
