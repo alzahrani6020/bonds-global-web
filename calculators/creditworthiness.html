@@ -55,10 +55,87 @@
     .ratings-legend { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1rem; }
     .ratings-legend span { padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
     @media print {
-      #site-header, #site-footer, .bonds-btn, form { display: none !important; }
+      #site-header, #site-footer, .bonds-btn, form, .lead-modal { display: none !important; }
       .cw-result { display: block !important; }
       body { background: #fff; color: #000; }
     }
+
+    /* Lead capture modal */
+    .lead-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,15,26,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .lead-modal.is-open { display: flex; }
+    .lead-modal__card {
+      width: 100%;
+      max-width: 460px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    }
+    .lead-modal__title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--gold);
+      margin: 0 0 0.5rem;
+    }
+    .lead-modal__subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    .lead-modal__form .bonds-form-group { margin-bottom: 1rem; }
+    .lead-modal__form label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+    }
+    .lead-modal__form input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 0.6rem;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    .lead-modal__form input:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+    .lead-modal__note {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-top: 1rem;
+      line-height: 1.6;
+    }
+    .lead-modal__actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+    .lead-modal__actions button { flex: 1; }
+    .lead-cta {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      background: rgba(212,168,83,0.1);
+      border: 1px solid rgba(212,168,83,0.25);
+      border-radius: 0.75rem;
+      text-align: center;
+    }
+    .lead-cta p { margin: 0 0 0.75rem; color: var(--text); }
   </style>
 </head>
 <body>
@@ -228,6 +305,41 @@
     <div id="result" class="cw-result"></div>
   </div>
   <div id="site-footer"></div>
+
+  <!-- Lead capture modal -->
+  <div id="leadModal" class="lead-modal">
+    <div class="lead-modal__card">
+      <div class="lead-modal__title">📥 احصل على نتيجة التقييم</div>
+      <div class="lead-modal__subtitle">أدخل بياناتك لإرسال النتيجة وتقرير مفصل + استشارة مجانية 15 دقيقة.</div>
+      <form id="leadForm" class="lead-modal__form" onsubmit="event.preventDefault(); submitLead();">
+        <div class="bonds-form-group">
+          <label for="leadName">الاسم *</label>
+          <input type="text" id="leadName" required placeholder="اسمك الكامل" />
+        </div>
+        <div class="bonds-form-group">
+          <label for="leadEmail">البريد الإلكتروني *</label>
+          <input type="email" id="leadEmail" required placeholder="your@email.com" dir="ltr" />
+        </div>
+        <div class="bonds-form-group">
+          <label for="leadPhone">رقم الجوال</label>
+          <input type="tel" id="leadPhone" placeholder="05xxxxxxxx" dir="ltr" />
+        </div>
+        <div class="bonds-form-group">
+          <label for="leadCompany">اسم الشركة / المشروع</label>
+          <input type="text" id="leadCompany" placeholder="مثال: مصنع الأمل" />
+        </div>
+        <div class="lead-modal__actions">
+          <button type="button" class="bonds-btn bonds-btn-secondary" onclick="closeLeadModal()">إلغاء</button>
+          <button type="submit" class="bonds-btn bonds-btn-primary" id="leadSubmitBtn">عرض النتيجة</button>
+        </div>
+      </form>
+      <div class="lead-modal__note">🔒 بياناتك محمية ولا تُشارك مع طرف ثالث. بتأكيدك توافق على <a href="../terms.html" target="_blank" style="color:var(--gold);">شروط الاستخدام</a> و<a href="../privacy.html" target="_blank" style="color:var(--gold);">سياسة الخصوصية</a>.</div>
+    </div>
+  </div>
+
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js"></script>
   <script src="../site-layout.js"></script>
 
   <script>
@@ -396,6 +508,13 @@
               <div><strong>تغطية الضمانات:</strong> ${(r.collateralCoverage*100).toFixed(0)}%</div>
             </div>
           </div>
+
+          <div class="bonds-card cw-card lead-cta">
+            <p style="font-size:1.05rem;font-weight:700;color:var(--gold);">🎁 هل تريد نسخة PDF من التقرير + استشارة مجانية 15 دقيقة؟</p>
+            <p>سجل دخولك إلى بوابة العميل لمتابعة طلبك واستلام التقرير الكامل.</p>
+            <a href="/client/login.html?redirect=/client/index.html" class="bonds-btn bonds-btn-primary">دخول بوابة العميل</a>
+            <a href="/contact.html" class="bonds-btn bonds-btn-secondary" style="margin-right:0.75rem;">اطلب استشارة</a>
+          </div>
         `;
       }
 
@@ -417,15 +536,95 @@
         } catch(e){}
       }
 
-      window.calculateCredit = function(){
-        const data = gather();
-        saveInputs();
-        const result = CreditEngine.evaluate(data);
-        const report = CreditEngine.generateReport(result, 'ar');
-        render(result, report);
+      let _cwResult = null;
+      let _cwReport = null;
+
+      function showLeadModal(){
+        const modal = get('leadModal');
+        if(modal) modal.classList.add('is-open');
+      }
+      function closeLeadModal(){
+        const modal = get('leadModal');
+        if(modal) modal.classList.remove('is-open');
+      }
+
+      async function submitLead(){
+        const name = get('leadName').value.trim();
+        const email = get('leadEmail').value.trim();
+        const phone = get('leadPhone').value.trim();
+        const company = get('leadCompany').value.trim();
+        const btn = get('leadSubmitBtn');
+
+        if(!name || !email){
+          if(window.BondsUI && BondsUI.toast) BondsUI.toast('الرجاء إدخال الاسم والبريد الإلكتروني', 'error');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'جاري الحفظ...';
+
+        try {
+          const sb = window.BondsAuth && window.BondsAuth.getSupabase ? window.BondsAuth.getSupabase() : null;
+          if(!sb) throw new Error('Auth not initialized');
+
+          // Save lead to advisory_clients via secure RPC
+          const { data: leadId, error: rpcError } = await sb.rpc('capture_lead', {
+            p_name: name,
+            p_email: email,
+            p_phone: phone || null,
+            p_company_name: company || null,
+            p_sector: txt('sector') || null,
+            p_country: txt('country') || null,
+            p_source: 'creditworthiness_calculator',
+            p_source_url: window.location.href
+          });
+
+          if(rpcError) throw rpcError;
+
+          // Send magic login link so the lead becomes a portal user
+          const { error: otpError } = await window.BondsAuth.signInWithOTP(email, {
+            shouldCreateUser: true,
+            options: { data: { full_name: name, company_name: company } }
+          });
+
+          // OTP errors are non-fatal; still show result
+          if(otpError) console.warn('OTP:', otpError.message);
+
+          sessionStorage.setItem('bonds_lead_captured', '1');
+          closeLeadModal();
+          showResult();
+
+          if(window.BondsUI && BondsUI.toast){
+            BondsUI.toast('✅ تم استلام بياناتك. تحقق من بريدك لدخول بوابة العميل.', 'success');
+          }
+        } catch(err) {
+          console.error(err);
+          if(window.BondsUI && BondsUI.toast) BondsUI.toast('حدث خطأ أثناء حفظ البيانات. حاول مرة أخرى.', 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'عرض النتيجة';
+        }
+      }
+
+      function showResult(){
+        if(!_cwResult || !_cwReport) return;
+        render(_cwResult, _cwReport);
         const resultEl = get('result');
         resultEl.style.display = 'block';
         resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      window.calculateCredit = function(){
+        const data = gather();
+        saveInputs();
+        _cwResult = CreditEngine.evaluate(data);
+        _cwReport = CreditEngine.generateReport(_cwResult, 'ar');
+
+        if(sessionStorage.getItem('bonds_lead_captured')){
+          showResult();
+        } else {
+          showLeadModal();
+        }
       };
 
       const TOOLTIPS = {

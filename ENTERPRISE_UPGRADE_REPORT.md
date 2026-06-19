@@ -109,6 +109,19 @@ Delivered:
   - Read-only RLS policies so clients see only their own data.
 - Site-wide links to the portal in header and footer.
 
+## Phase 12 — Lead Capture & Growth Loop
+
+Delivered:
+- Supabase migration `20260621000000_lead_capture.sql`:
+  - `capture_lead()` RPC (SECURITY DEFINER) to convert anonymous calculator users into `advisory_clients` leads.
+  - `source`, `source_url`, and `phone` columns on `advisory_clients`.
+- Creditworthiness calculator converted into a lead magnet:
+  - Visitor enters data and clicks "Calculate".
+  - Before showing the result, a lead-capture modal requests name, email, phone, and company.
+  - Lead is saved to Supabase and a magic login link is sent to create a Client Portal account.
+  - Result is displayed with a CTA to the Client Portal or contact page.
+- Arabic and English versions updated.
+
 ## Monitoring, Logging & Backup
 
 - Supabase migration `20260619150000_enterprise_system_logs.sql`:
