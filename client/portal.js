@@ -339,7 +339,7 @@
         ` : `
           <div class="portal-list" id="documentsList">
             ${docs.map(d => `
-              <div class="portal-list__item" data-doc-id="${d.id}" data-doc-path="${d.storage_path}">
+              <div class="portal-list__item" data-doc-id="${d.id}" data-doc-path="${d.storage_path}" data-doc-mime="${d.mime_type || ''}" data-doc-filename="${d.filename}">
                 <div>
                   <div style="font-weight:700;">${d.filename}</div>
                   <div class="portal-list__meta">${formatDate(d.created_at)} · ${(d.size_bytes / 1024).toFixed(1)} KB · ${d.status}</div>
@@ -410,19 +410,27 @@
       btn.addEventListener('click', async function() {
         const item = this.closest('[data-doc-id]');
         const docId = item ? item.dataset.docId : null;
-        if (!docId) return;
+        const mime = item ? item.dataset.docMime : '';
+        const filename = item ? item.dataset.docFilename : '';
+        const path = item ? item.dataset.docPath : null;
+        if (!docId || !path) return;
         btn.disabled = true;
         btn.textContent = t('analyzing');
+
         try {
-          const session = await window.BondsAuth.getSession();
-          const token = session?.data?.session?.access_token;
-          if (!token) throw new Error('No session');
-          const res = await fetch('/api/v3/analyze-document', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-            body: JSON.stringify({ documentId: docId })
-          });
-          if (!res.ok) throw new Error('Analysis failed');
+          if (mime && mime.startsWith('image/')) {
+            await analyzeImageClientSide(docId, filename, path);
+          } else {
+            const session = await window.BondsAuth.getSession();
+            const token = session?.data?.session?.access_token;
+            if (!token) throw new Error('No session');
+            const res = await fetch('/api/v3/analyze-document', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+              body: JSON.stringify({ documentId: docId })
+            });
+            if (!res.ok) throw new Error('Analysis failed');
+          }
         } catch (e) {
           console.error(e);
           btn.textContent = t('analyze');
@@ -432,6 +440,33 @@
         initDashboard();
       });
     });
+  }
+
+  async function analyzeImageClientSide(docId, filename, storagePath) {
+    const sb = getSupabase();
+    if (!sb) throw new Error('Supabase not initialized');
+    if (typeof Tesseract === 'undefined') throw new Error('Tesseract not loaded');
+
+    const url = await getDocumentDownloadUrl(storagePath);
+    if (!url) throw new Error('Could not get image URL');
+
+    const result = await Tesseract.recognize(url, 'ara+eng', { logger: function(){} });
+    const text = result?.data?.text || '';
+
+    const extracted = {
+      mime: 'image/*',
+      text: text,
+      rows: null,
+      summary: text ? `تم استخراج ${text.length} حرف من الصورة` : 'لم يُستخرج نص من الصورة',
+      method: 'tesseract-ocr'
+    };
+
+    const { error } = await sb.from('client_documents').update({
+      status: 'analyzed',
+      extracted_data: extracted
+    }).eq('id', docId);
+
+    if (error) throw error;
   }
 
   function renderReportsList(reports) {
