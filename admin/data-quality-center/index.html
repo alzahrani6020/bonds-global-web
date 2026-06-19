@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مركز جودة البيانات | بوندز</title>
+  <meta name="description" content="مركز جودة البيانات: اكتشاف التكرار، السجلات الناقصة، العلاقات المكسورة، والمشاريع غير المكتملة." />
+  <script src="/admin/ai-business-advisor/redirect-standalone.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/admin/ai-business-advisor/styles.css?v=3" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/supabase-client.js"></script>
+  <script src="/lib/enterprise/validation.js"></script>
+  <script src="/admin/data-quality-center/service.js?v=1"></script>
+  <script src="/admin/data-quality-center/app.js?v=1"></script>
+</head>
+<body>
+  <div class="ai-layout">
+    <aside class="ai-sidebar" id="dq-sidebar">
+      <div class="ai-brand">
+        <img src="/assets/bonds-logo-2026-header.webp" alt="بوندز" />
+        <span>مركز جودة البيانات</span>
+      </div>
+      <ul class="ai-nav">
+        <li><a href="#" data-view="dashboard" class="active">📊 لوحة المؤشرات</a></li>
+        <li><a href="#" data-view="issues">⚠️ المشاكل</a></li>
+      </ul>
+      <div class="ai-sidebar-footer">
+        <a href="/admin/dashboard.html">⬅️ لوحة الإدارة الرئيسية</a>
+        <div id="dq-user">جارِ التحقق...</div>
+      </div>
+    </aside>
+
+    <main class="ai-main" id="dq-main">
+      <header class="ai-topbar">
+        <div>
+          <h1>مركز جودة البيانات</h1>
+          <p class="ai-subtitle">اكتشاف وإصلاح مشاكل جودة البيانات</p>
+        </div>
+        <div class="ai-topbar-actions">
+          <button class="ai-btn ai-btn-primary" onclick="DataQualityApp.runChecks()">▶️ تشغيل الفحص</button>
+          <button class="ai-btn ai-btn-secondary" onclick="DataQualityApp.refresh()">↻ تحديث</button>
+        </div>
+      </header>
+
+      <div id="dq-content">
+        <div class="ai-empty"><div class="ai-spinner"></div><p>جارِ تهيئة مركز جودة البيانات...</p></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/admin/admin-embed.js"></script>
+  <script src="/bonds-auth-2026.js"></script>
+  <script src="/admin/ai-business-advisor/guard.js"></script>
+</body>
+</html>

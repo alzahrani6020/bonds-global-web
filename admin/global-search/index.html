@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>البحث الموحد | بوندز</title>
+  <meta name="description" content="بحث موحد في العملاء والمشاريع والأصول والدراسات والتقارير." />
+  <script src="/admin/ai-business-advisor/redirect-standalone.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/admin/ai-business-advisor/styles.css?v=3" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/supabase-client.js"></script>
+  <script src="/lib/enterprise/search.js"></script>
+  <script src="/admin/global-search/app.js?v=1"></script>
+</head>
+<body>
+  <div class="ai-layout">
+    <aside class="ai-sidebar" id="gs-sidebar">
+      <div class="ai-brand">
+        <img src="/assets/bonds-logo-2026-header.webp" alt="بوندز" />
+        <span>البحث الموحد</span>
+      </div>
+      <div class="ai-sidebar-footer">
+        <a href="/admin/dashboard.html">⬅️ لوحة الإدارة الرئيسية</a>
+      </div>
+    </aside>
+    <main class="ai-main" id="gs-main">
+      <header class="ai-topbar">
+        <div>
+          <h1>البحث الموحد</h1>
+          <p class="ai-subtitle">ابحث في جميع بيانات المنصة</p>
+        </div>
+      </header>
+      <div id="gs-content" style="padding:2rem">
+        <div class="ai-form-inline" style="margin-bottom:1.5rem">
+          <div class="ai-form-group" style="flex:1;max-width:600px">
+            <label for="gs-query">كلمة البحث</label>
+            <input type="text" id="gs-query" placeholder="اسم العميل، مشروع، أصل، دراسة..." onkeydown="if(event.key==='Enter') GlobalSearchApp.search()" />
+          </div>
+          <div class="ai-form-group">
+            <label>نوع الكيان</label>
+            <select id="gs-type" onchange="GlobalSearchApp.search()">
+              <option value="">الكل</option>
+              <option value="advisory_client">عميل</option>
+              <option value="advisory_project">مشروع</option>
+              <option value="recovery_asset">أصل متعثر</option>
+              <option value="advisory_feasibility_study">دراسة جدوى</option>
+              <option value="ai_advisor_report">تقرير</option>
+            </select>
+          </div>
+          <button class="ai-btn ai-btn-primary" onclick="GlobalSearchApp.search()" style="margin-bottom:0.5rem">بحث</button>
+        </div>
+        <div id="gs-results"></div>
+      </div>
+    </main>
+  </div>
+  <script src="/admin/admin-embed.js"></script>
+  <script src="/bonds-auth-2026.js"></script>
+  <script src="/admin/ai-business-advisor/guard.js"></script>
+</body>
+</html>

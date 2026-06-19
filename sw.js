@@ -46,6 +46,17 @@ const CORE_ASSETS = [
   '/admin/ai-business-advisor/app.js',
   '/admin/ai-business-advisor/redirect-standalone.js',
   '/admin/ai-business-advisor/guard.js',
+  '/lib/enterprise/validation.js',
+  '/lib/enterprise/rules-engine.js',
+  '/lib/enterprise/cache.js',
+  '/lib/enterprise/rbac.js',
+  '/lib/enterprise/search.js',
+  '/lib/enterprise/monitor.js',
+  '/admin/data-quality-center/index.html',
+  '/admin/data-quality-center/service.js',
+  '/admin/data-quality-center/app.js',
+  '/admin/global-search/index.html',
+  '/admin/global-search/app.js',
 ];
 
 const MAX_IMAGE_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
