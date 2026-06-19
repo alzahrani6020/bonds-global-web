@@ -6,15 +6,24 @@
 (function (root) {
   'use strict';
 
+  const TIMEOUT_MS = 15000;
+
   function getSb() {
     const sb = (typeof getSupabase === 'function') ? getSupabase() : window.supabaseClient;
     if (!sb) throw new Error('Supabase client not initialized');
     return sb;
   }
 
+  function withTimeout(promise, label) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error(label + ' timeout')), TIMEOUT_MS))
+    ]);
+  }
+
   async function getSessionUser() {
     const sb = getSb();
-    const { data: { session }, error } = await sb.auth.getSession();
+    const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
     if (error || !session) throw new Error('Session required');
     return session.user;
   }
@@ -22,12 +31,32 @@
   async function getUserRole() {
     const user = await getSessionUser();
     const sb = getSb();
-    const { data: adminRole } = await sb.from('admin_roles').select('role').eq('user_id', user.id).maybeSingle();
-    if (adminRole?.role === 'super_admin' || adminRole?.role === 'admin') return { role: 'manager', user };
-    const { data: advRole } = await sb.from('advisory_roles').select('role').eq('user_id', user.id).maybeSingle();
-    if (advRole?.role) return { role: advRole.role, user };
-    // Owner fallback
-    if (window.__ENV?.ADMIN_EMAIL && user.email === window.__ENV.ADMIN_EMAIL) return { role: 'manager', user };
+
+    // Owner fallback first to avoid depending on admin_roles query.
+    if (window.__ENV?.ADMIN_EMAIL && user.email === window.__ENV.ADMIN_EMAIL) {
+      return { role: 'manager', user };
+    }
+
+    try {
+      const { data: advRole } = await withTimeout(
+        sb.from('advisory_roles').select('role').eq('user_id', user.id).maybeSingle(),
+        'advisory_roles'
+      );
+      if (advRole?.role) return { role: advRole.role, user };
+    } catch (e) {
+      console.warn('[AdvisoryService] advisory_roles check failed:', e.message);
+    }
+
+    try {
+      const { data: adminRole } = await withTimeout(
+        sb.from('admin_roles').select('role').eq('user_id', user.id).maybeSingle(),
+        'admin_roles'
+      );
+      if (adminRole?.role === 'super_admin' || adminRole?.role === 'admin') return { role: 'manager', user };
+    } catch (e) {
+      console.warn('[AdvisoryService] admin_roles check failed:', e.message);
+    }
+
     return { role: null, user };
   }
 
@@ -56,26 +85,49 @@
   // ========== Dashboard ==========
   async function getDashboardStats() {
     const sb = getSb();
-    const [clients, projects, studies, models, activity, recentClients, activeProjects] = await Promise.all([
-      sb.from('advisory_clients').select('*', { count: 'exact', head: true }),
-      sb.from('advisory_projects').select('*', { count: 'exact', head: true }),
-      sb.from('advisory_feasibility_studies').select('*', { count: 'exact', head: true }),
-      sb.from('advisory_financial_models').select('*', { count: 'exact', head: true }),
-      sb.from('advisory_activity_logs').select('*').order('created_at', { ascending: false }).limit(20),
-      sb.from('advisory_clients').select('id, name, company_name, status, created_at').order('created_at', { ascending: false }).limit(6),
-      sb.from('advisory_projects').select('id, name, status, budget, client_id, advisory_clients(name)').in('status', ['lead','active','on_hold']).order('created_at', { ascending: false }).limit(6)
-    ]);
-    return {
-      counts: {
-        clients: clients.count || 0,
-        projects: projects.count || 0,
-        studies: studies.count || 0,
-        models: models.count || 0
-      },
-      recentActivity: activity.data || [],
-      recentClients: recentClients.data || [],
-      activeProjects: activeProjects.data || []
+    const queries = [
+      { key: 'clients', q: sb.from('advisory_clients').select('*', { count: 'exact', head: true }) },
+      { key: 'projects', q: sb.from('advisory_projects').select('*', { count: 'exact', head: true }) },
+      { key: 'studies', q: sb.from('advisory_feasibility_studies').select('*', { count: 'exact', head: true }) },
+      { key: 'models', q: sb.from('advisory_financial_models').select('*', { count: 'exact', head: true }) },
+      { key: 'activity', q: sb.from('advisory_activity_logs').select('*').order('created_at', { ascending: false }).limit(20) },
+      { key: 'recentClients', q: sb.from('advisory_clients').select('id, name, company_name, status, created_at').order('created_at', { ascending: false }).limit(6) },
+      { key: 'activeProjects', q: sb.from('advisory_projects').select('id, name, status, budget, client_id, advisory_clients(name)').in('status', ['lead','active','on_hold']).order('created_at', { ascending: false }).limit(6) }
+    ];
+
+    const results = await Promise.all(queries.map(item =>
+      withTimeout(item.q, 'query:' + item.key)
+        .then(res => ({ key: item.key, ok: true, res }))
+        .catch(err => ({ key: item.key, ok: false, err }))
+    ));
+
+    const stats = {
+      counts: { clients: 0, projects: 0, studies: 0, models: 0 },
+      recentActivity: [],
+      recentClients: [],
+      activeProjects: [],
+      errors: []
     };
+
+    for (const r of results) {
+      if (!r.ok) {
+        stats.errors.push({ key: r.key, message: r.err?.message || String(r.err) });
+        continue;
+      }
+      const { res } = r;
+      if (res.error) {
+        stats.errors.push({ key: r.key, message: res.error.message || String(res.error) });
+      }
+      if (r.key === 'clients') stats.counts.clients = res.count || 0;
+      else if (r.key === 'projects') stats.counts.projects = res.count || 0;
+      else if (r.key === 'studies') stats.counts.studies = res.count || 0;
+      else if (r.key === 'models') stats.counts.models = res.count || 0;
+      else if (r.key === 'activity') stats.recentActivity = res.data || [];
+      else if (r.key === 'recentClients') stats.recentClients = res.data || [];
+      else if (r.key === 'activeProjects') stats.activeProjects = res.data || [];
+    }
+
+    return stats;
   }
 
   // ========== Clients ==========

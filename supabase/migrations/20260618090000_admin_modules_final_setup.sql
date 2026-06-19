@@ -221,7 +221,7 @@ CREATE POLICY advisory_studies_modify ON public.advisory_feasibility_studies FOR
 DROP POLICY IF EXISTS advisory_models_select ON public.advisory_financial_models;
 CREATE POLICY advisory_models_select ON public.advisory_financial_models FOR SELECT TO authenticated USING (public.is_advisory_user());
 
-DROP POLICY IF EXISTS advisory_models_modify ON public.advisory_models;
+DROP POLICY IF EXISTS advisory_models_modify ON public.advisory_financial_models;
 CREATE POLICY advisory_models_modify ON public.advisory_financial_models FOR ALL TO authenticated USING (public.is_advisory_user()) WITH CHECK (public.is_advisory_user());
 
 -- Documents policies

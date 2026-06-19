@@ -9,12 +9,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="/admin/financial-advisory/styles.css" />
+  <link rel="stylesheet" href="/admin/financial-advisory/styles.css?v=3" />
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/supabase-client.js"></script>
-  <script src="/admin/financial-advisory/service.js"></script>
-  <script src="/admin/financial-advisory/app.js"></script>
+  <script src="/admin/financial-advisory/service.js?v=3"></script>
+  <script src="/admin/financial-advisory/app.js?v=3"></script>
 </head>
 <body>
   <div class="fa-layout">
@@ -40,6 +40,19 @@
       <div class="fa-empty"><div class="fa-spinner"></div></div>
     </main>
   </div>
+  <script>
+    (function () {
+      const el = document.getElementById('fa-content');
+      function status(msg) { if (el) el.innerHTML = '<div class="fa-empty" style="text-align:center;padding:2rem;"><p>' + msg + '</p></div>'; }
+      window.addEventListener('error', function (e) {
+        status('❌ خطأ JavaScript: ' + e.message + ' (' + (e.filename || '') + ':' + (e.lineno || '') + ')');
+      });
+      window.addEventListener('unhandledrejection', function (e) {
+        status('❌ خطأ غير متوقع: ' + (e.reason && e.reason.message ? e.reason.message : e.reason));
+      });
+      status('جارِ تهيئة الوحدة...');
+    })();
+  </script>
   <script src="/admin/admin-embed.js"></script>
 </body>
 </html>

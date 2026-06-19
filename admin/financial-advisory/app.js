@@ -147,10 +147,20 @@
 
   // ========== Dashboard ==========
   async function renderDashboard() {
+    $('#fa-content').innerHTML = '<div class="fa-empty"><div class="fa-spinner"></div><p>جارِ تحميل لوحة الاستشارات...</p></div>';
     const stats = await AdvisoryService.getDashboardStats();
     const content = $('#fa-content');
+    const errorsHtml = stats.errors?.length ? `
+      <div class="fa-card" style="border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.08);">
+        <div style="font-weight:800;color:#ef4444;margin-bottom:0.5rem;">⚠️ تحذير: بعض البيانات لم تُحمل</div>
+        <ul style="margin:0;padding-right:1.25rem;color:var(--fa-muted);font-size:0.9rem;">
+          ${stats.errors.map(e => `<li><strong>${e.key}:</strong> ${e.message}</li>`).join('')}
+        </ul>
+      </div>
+    ` : '';
     content.innerHTML = `
       <div class="fa-header"><h1>لوحة الاستشارات المالية</h1></div>
+      ${errorsHtml}
       <div class="fa-grid">
         <div class="fa-card fa-stat"><div class="label">العملاء</div><div class="value">${stats.counts.clients}</div></div>
         <div class="fa-card fa-stat"><div class="label">المشاريع</div><div class="value">${stats.counts.projects}</div></div>
