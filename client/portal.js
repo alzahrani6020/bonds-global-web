@@ -153,9 +153,20 @@
     if (!sb) return { data: [], error: new Error('Supabase not initialized') };
     const { data, error } = await sb
       .from('advisory_projects')
-      .select('*, entity_workflows(current_state)')
+      .select('*')
       .eq('client_id', clientId)
       .order('created_at', { ascending: false });
+    return { data: data || [], error };
+  }
+
+  async function loadWorkflows(projectIds) {
+    const sb = getSupabase();
+    if (!sb || !projectIds || projectIds.length === 0) return { data: [], error: null };
+    const { data, error } = await sb
+      .from('entity_workflows')
+      .select('entity_id, current_state')
+      .eq('entity_type', 'advisory_project')
+      .in('entity_id', projectIds);
     return { data: data || [], error };
   }
 
@@ -192,12 +203,13 @@
     if (el) el.innerHTML = `<div class="portal-empty"><div class="portal-empty__icon">⏳</div>${t('loading')}</div>`;
   }
 
-  function renderDashboard(client, projects, reports) {
+  function renderDashboard(client, projects, reports, workflowsMap) {
     const main = document.getElementById('portal-main');
     if (!main) return;
 
     const latestProject = projects[0];
     const latestReport = reports[0];
+    const wf = workflowsMap || {};
 
     main.innerHTML = `
       <h1 class="portal-page-title">${t('welcome')}، ${client.name || client.company_name || client.email}</h1>
@@ -240,8 +252,8 @@
                 </div>
                 <div style="text-align:center;">
                   <span class="portal-status ${statusClass(p.status)}">${p.status || 'new'}</span>
-                  ${p.entity_workflows && p.entity_workflows.length ? `
-                    <div class="portal-list__meta" style="margin-top:0.35rem;">${t('workflow')}: ${p.entity_workflows[0].current_state}</div>
+                  ${wf[p.id] ? `
+                    <div class="portal-list__meta" style="margin-top:0.35rem;">${t('workflow')}: ${wf[p.id].current_state}</div>
                   ` : ''}
                 </div>
               </div>
@@ -336,11 +348,17 @@
       return;
     }
 
-    const [{ data: projects }, { data: reports }] = await Promise.all([
+    const [{ data: projects, error: projectsErr }, { data: reports }] = await Promise.all([
       loadProjects(client.id),
       loadReports(client.id)
     ]);
-    renderDashboard(client, projects || [], reports || []);
+    if (projectsErr) console.error('Projects load error:', projectsErr);
+    const projectList = projects || [];
+    const projectIds = projectList.map(p => p.id);
+    const { data: workflows } = await loadWorkflows(projectIds);
+    const workflowsMap = {};
+    (workflows || []).forEach(w => { workflowsMap[w.entity_id] = w; });
+    renderDashboard(client, projectList, reports || [], workflowsMap);
   }
 
   async function initReports() {
