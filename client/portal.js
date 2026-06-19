@@ -5,6 +5,7 @@
   const LANG = window.__PORTAL_LANG || 'ar';
   const IS_EN = LANG === 'en';
   const PAGE = window.__PORTAL_PAGE || 'dashboard';
+  const ROOT = '/';
 
   const LABELS = {
     ar: {
@@ -75,14 +76,9 @@
 
   function t(key) { return LABELS[LANG][key] || key; }
 
-  function getBase() {
-    const path = window.location.pathname.replace(/^\/+/, '').replace(/\/+$/, '');
-    if (!path) return '';
-    const depth = path.split('/').length - 1;
-    return depth === 0 ? '' : Array(depth).fill('../').join('');
+  function clientPath(page) {
+    return IS_EN ? ROOT + 'en/client/' + page : ROOT + 'client/' + page;
   }
-
-  const BASE = window.__PORTAL_BASE || getBase();
 
   function getSupabase() {
     return window.BondsAuth && window.BondsAuth.getSupabase ? window.BondsAuth.getSupabase() : null;
@@ -97,7 +93,7 @@
     const { data, error } = await getUser();
     const user = data?.user;
     if (error || !user) {
-      window.location.href = BASE + 'client/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+      window.location.href = clientPath('login.html') + '?redirect=' + encodeURIComponent(window.location.pathname);
       return null;
     }
     return user;
@@ -106,13 +102,13 @@
   function injectHeader(user) {
     const header = document.getElementById('portal-header');
     if (!header) return;
-    const langHref = IS_EN ? BASE + 'client/index.html' : BASE + 'en/client/index.html';
-    const dashboardHref = IS_EN ? BASE + 'en/client/index.html' : BASE + 'client/index.html';
+    const langHref = IS_EN ? '/client/index.html' : '/en/client/index.html';
+    const dashboardHref = clientPath('index.html');
     header.innerHTML = `
       <header class="portal-header">
         <div class="portal-header__inner">
           <a class="portal-header__brand" href="${dashboardHref}">
-            <img src="${BASE}assets/bonds-logo-2026-header.webp?v=2026" alt="Bonds" />
+            <img src="/assets/bonds-logo-2026-header.webp?v=2026" alt="Bonds" />
             <span>${t('portal')}</span>
           </a>
           <div class="portal-header__actions">
@@ -129,9 +125,9 @@
     const sidebar = document.getElementById('portal-sidebar');
     if (!sidebar) return;
     const pages = [
-      { id: 'dashboard', icon: '📊', href: IS_EN ? BASE + 'en/client/index.html' : BASE + 'client/index.html' },
-      { id: 'projects', icon: '📁', href: IS_EN ? BASE + 'en/client/index.html#projects' : BASE + 'client/index.html#projects' },
-      { id: 'reports', icon: '📄', href: IS_EN ? BASE + 'en/client/reports.html' : BASE + 'client/reports.html' }
+      { id: 'dashboard', icon: '📊', href: IS_EN ? clientPath('index.html') : clientPath('index.html') },
+      { id: 'projects', icon: '📁', href: IS_EN ? clientPath('index.html#projects') : clientPath('index.html#projects') },
+      { id: 'reports', icon: '📄', href: IS_EN ? clientPath('reports.html') : clientPath('reports.html') }
     ];
     sidebar.innerHTML = pages.map(p => `
       <a href="${p.href}" class="portal-sidebar__link ${PAGE === p.id ? 'active' : ''}">
@@ -226,7 +222,7 @@
         <div class="portal-card">
           <div class="portal-card__label">${t('latestReport')}</div>
           <div style="font-weight:700;margin-top:0.5rem;">${latestReport.title}</div>
-          <div style="margin-top:0.5rem;"><a class="portal-link" href="${IS_EN ? BASE + 'en/client/report.html?id=' + latestReport.id : BASE + 'client/report.html?id=' + latestReport.id}">${t('viewReport')}</a></div>
+          <div style="margin-top:0.5rem;"><a class="portal-link" href="${IS_EN ? clientPath('report.html?id=' + latestReport.id) : clientPath('report.html?id=' + latestReport.id)}">${t('viewReport')}</a></div>
         </div>` : ''}
       </div>
 
@@ -266,7 +262,7 @@
                   <div style="font-weight:700;">${r.title}</div>
                   <div class="portal-list__meta">${t('date')}: ${formatDate(r.created_at)}</div>
                 </div>
-                <a class="portal-btn portal-btn--outline" href="${IS_EN ? BASE + 'en/client/report.html?id=' + r.id : BASE + 'client/report.html?id=' + r.id}">${t('viewReport')}</a>
+                <a class="portal-btn portal-btn--outline" href="${clientPath('report.html?id=' + r.id)}">${t('viewReport')}</a>
               </div>
             `).join('')}
           </div>
@@ -280,7 +276,7 @@
     if (!main) return;
     main.innerHTML = `
       <h1 class="portal-page-title">${t('reports')}</h1>
-      <p class="portal-page-subtitle"><a class="portal-link" href="${IS_EN ? BASE + 'en/client/index.html' : BASE + 'client/index.html'}">← ${t('back')}</a></p>
+      <p class="portal-page-subtitle"><a class="portal-link" href="${IS_EN ? clientPath('index.html') : clientPath('index.html')}">← ${t('back')}</a></p>
       ${reports.length === 0 ? `
         <div class="portal-empty"><div class="portal-empty__icon">📄</div>${t('noReports')}</div>
       ` : `
@@ -291,7 +287,7 @@
                 <div style="font-weight:700;">${r.title}</div>
                 <div class="portal-list__meta">${t('date')}: ${formatDate(r.created_at)}</div>
               </div>
-              <a class="portal-btn portal-btn--outline" href="${IS_EN ? BASE + 'en/client/report.html?id=' + r.id : BASE + 'client/report.html?id=' + r.id}">${t('viewReport')}</a>
+              <a class="portal-btn portal-btn--outline" href="${IS_EN ? clientPath('report.html?id=' + r.id) : clientPath('report.html?id=' + r.id)}">${t('viewReport')}</a>
             </div>
           `).join('')}
         </div>
@@ -309,7 +305,7 @@
           <p class="portal-page-subtitle" style="margin:0;">${t('date')}: ${formatDate(report.created_at)}</p>
         </div>
         <div style="display:flex;gap:0.75rem;">
-          <a class="portal-btn portal-btn--outline" href="${IS_EN ? BASE + 'en/client/index.html' : BASE + 'client/index.html'}">${t('back')}</a>
+          <a class="portal-btn portal-btn--outline" href="${clientPath('index.html')}">${t('back')}</a>
           <button class="portal-btn" onclick="window.print()">🖨️ ${t('print')}</button>
         </div>
       </div>
@@ -334,7 +330,7 @@
       document.getElementById('portal-main').innerHTML = `
         <div class="portal-alert portal-alert--info">
           <div style="font-weight:700;margin-bottom:0.5rem;">${t('noClientRecord')}</div>
-          <a class="portal-link" href="${BASE}${IS_EN ? 'en/' : ''}contact.html">${t('contactUs')}</a>
+          <a class="portal-link" href="${IS_EN ? '/en/contact.html' : '/contact.html'}">${t('contactUs')}</a>
         </div>
       `;
       return;
@@ -396,7 +392,7 @@
     if (window.BondsAuth && window.BondsAuth.signOut) {
       await window.BondsAuth.signOut();
     }
-    window.location.href = BASE + 'client/login.html';
+    window.location.href = clientPath('login.html');
   }
 
   window.BondsClientPortal = {
