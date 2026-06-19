@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>مستشار الأعمال الذكي | بوندز</title>
   <meta name="description" content="مستشار أعمال ذكي: تحليل مالي، تقييم فرص ومخاطر، حلول تمويلية، وإنشاء تقارير الإدارة العليا." />
+  <script>
+    // Redirect direct access to unified admin dashboard; keep embed access from dashboard iframe.
+    if (!location.search.includes('embed=1')) {
+      location.replace('/admin/dashboard.html');
+    }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
