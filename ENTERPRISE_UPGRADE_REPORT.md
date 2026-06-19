@@ -95,6 +95,20 @@ Delivered:
   - AI Business Advisor
 - Reduced standalone URLs by enforcing dashboard embed mode.
 
+## Phase 11 — Client Portal
+
+Delivered:
+- Public client portal at `/client/` (Arabic) and `/en/client/` (English):
+  - Login page (`client/login.html` / `en/client/login.html`).
+  - Dashboard showing project count, report count, latest project, and latest report.
+  - Dedicated reports list and report viewer with print/PDF support.
+- Supabase migration `20260620000000_client_portal.sql`:
+  - `advisory_clients.auth_user_id` to link portal logins to client records.
+  - `ai_advisor_reports.client_id` to share reports with clients.
+  - Triggers to auto-link `auth.users` and `advisory_clients` by email.
+  - Read-only RLS policies so clients see only their own data.
+- Site-wide links to the portal in header and footer.
+
 ## Monitoring, Logging & Backup
 
 - Supabase migration `20260619150000_enterprise_system_logs.sql`:

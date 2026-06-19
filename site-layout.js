@@ -70,6 +70,7 @@
       fundingSources: isEn ? 'Funding' : 'التمويل',
       contact: isEn ? 'Contact' : 'تواصل معنا',
       cta: isEn ? 'Book Consultation' : 'احجز استشارة',
+      clientPortal: isEn ? 'Client Portal' : 'بوابة العميل',
       langSwitch: isEn ? 'العربية' : 'EN',
       allServices: isEn ? 'View All Services →' : 'استعراض جميع الخدمات →',
       analysis: isEn ? 'Financial Analysis' : 'التحليل المالي',
@@ -98,6 +99,7 @@
     const servicesHref = langBase + 'services.html';
     const contactHref = langBase + 'contact.html';
     const blogHref = langBase + '../blog/index.html';
+    const clientPortalHref = isEn ? langBase + 'client/index.html' : langBase + '../client/index.html';
     const fundingSourcesHref = langBase + 'funding-sources.html';
     const calcBase = langBase + 'calculators/';
     const calcBreakEven = langBase + 'calculator.html';
@@ -177,6 +179,7 @@
       { type: 'dropdown', label: labels.intelligence, items: intelligenceDropdown },
       { href: fundingSourcesHref, label: labels.fundingSources },
       { href: blogHref, label: labels.articles },
+      { href: clientPortalHref, label: labels.clientPortal },
       { href: contactHref, label: labels.contact },
     ];
 
@@ -233,6 +236,7 @@
     const blogHref = langBase + '../blog/index.html';
     const faqHref = langBase + 'faq.html';
     const contactHref = langBase + 'contact.html';
+    const clientPortalHref = isEn ? langBase + 'client/index.html' : langBase + '../client/index.html';
     const privacyHref = langBase + 'privacy.html';
     const termsHref = langBase + 'terms.html';
 
@@ -269,6 +273,13 @@
         <a href="${blogHref}">${isEn ? 'Articles' : 'المقالات'}</a>
         <a href="${blogHref}">${isEn ? 'Guides & Reports' : 'الأدلة والتقارير'}</a>
         <a href="${faqHref}">${isEn ? 'FAQ' : 'الأسئلة الشائعة'}</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-title">${isEn ? 'Clients' : 'العملاء'}</div>
+      <div class="footer-links">
+        <a href="${clientPortalHref}">${isEn ? 'Client Portal' : 'بوابة العميل'}</a>
+        <a href="${contactHref}">${isEn ? 'Request Service' : 'طلب خدمة'}</a>
       </div>
     </div>
     <div>
