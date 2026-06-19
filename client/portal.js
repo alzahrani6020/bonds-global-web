@@ -417,7 +417,7 @@
           const session = await window.BondsAuth.getSession();
           const token = session?.data?.session?.access_token;
           if (!token) throw new Error('No session');
-          const res = await fetch('/api/analyze-document', {
+          const res = await fetch('/api/v3/analyze-document', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
             body: JSON.stringify({ documentId: docId })
