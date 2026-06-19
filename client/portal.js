@@ -30,6 +30,12 @@
       noReports: 'لا توجد تقارير مرتبطة بعد.',
       viewReport: 'عرض التقرير',
       viewProject: 'عرض المشروع',
+      documents: 'المستندات',
+      uploadDocument: 'رفع مستند',
+      noDocuments: 'لا توجد مستندات مرفوعة بعد.',
+      download: 'تنزيل',
+      analyzing: 'جاري التحليل...',
+      uploadError: 'فشل رفع الملف، حاول مرة أخرى.',
       date: 'التاريخ',
       budget: 'الميزانية',
       workflow: 'مرحلة العمل',
@@ -62,6 +68,12 @@
       noReports: 'No reports linked yet.',
       viewReport: 'View report',
       viewProject: 'View project',
+      documents: 'Documents',
+      uploadDocument: 'Upload document',
+      noDocuments: 'No uploaded documents yet.',
+      download: 'Download',
+      analyzing: 'Analyzing...',
+      uploadError: 'Upload failed, please try again.',
       date: 'Date',
       budget: 'Budget',
       workflow: 'Workflow stage',
@@ -181,6 +193,56 @@
     return { data: data || [], error };
   }
 
+  async function loadDocuments(clientId) {
+    const sb = getSupabase();
+    if (!sb) return { data: [], error: new Error('Supabase not initialized') };
+    const { data, error } = await sb
+      .from('client_documents')
+      .select('*')
+      .eq('client_id', clientId)
+      .order('created_at', { ascending: false });
+    return { data: data || [], error };
+  }
+
+  async function uploadDocument(file, clientId) {
+    const sb = getSupabase();
+    if (!sb || !file) return { data: null, error: new Error('Missing file or client') };
+
+    const safeName = file.name.replace(/[^a-zA-Z0-9_.\u0600-\u06FF-]/g, '_');
+    const path = `client/${clientId}/${Date.now()}-${safeName}`;
+
+    const { data: uploadData, error: uploadError } = await sb.storage
+      .from('client-documents')
+      .upload(path, file, { upsert: false });
+    if (uploadError) return { data: null, error: uploadError };
+
+    const { data: doc, error: insertError } = await sb
+      .from('client_documents')
+      .insert({
+        client_id: clientId,
+        filename: file.name,
+        storage_path: uploadData.path,
+        mime_type: file.type || 'application/octet-stream',
+        size_bytes: file.size || 0,
+        status: 'uploaded'
+      })
+      .select()
+      .single();
+    if (insertError) return { data: null, error: insertError };
+
+    return { data: doc, error: null };
+  }
+
+  async function getDocumentDownloadUrl(storagePath) {
+    const sb = getSupabase();
+    if (!sb) return null;
+    const { data, error } = await sb.storage
+      .from('client-documents')
+      .createSignedUrl(storagePath, 3600);
+    if (error) return null;
+    return data?.signedUrl || null;
+  }
+
   function formatDate(iso) {
     if (!iso) return '-';
     const d = new Date(iso);
@@ -203,13 +265,14 @@
     if (el) el.innerHTML = `<div class="portal-empty"><div class="portal-empty__icon">⏳</div>${t('loading')}</div>`;
   }
 
-  function renderDashboard(client, projects, reports, workflowsMap) {
+  function renderDashboard(client, projects, reports, workflowsMap, documents) {
     const main = document.getElementById('portal-main');
     if (!main) return;
 
     const latestProject = projects[0];
     const latestReport = reports[0];
     const wf = workflowsMap || {};
+    const docs = documents || [];
 
     main.innerHTML = `
       <h1 class="portal-page-title">${t('welcome')}، ${client.name || client.company_name || client.email}</h1>
@@ -263,6 +326,30 @@
       </div>
 
       <div class="portal-section">
+        <div class="portal-section__title">${t('documents')}</div>
+        <div style="margin-bottom:1rem;">
+          <input type="file" id="docUploadInput" style="display:none;" />
+          <button class="portal-btn" id="docUploadBtn">⬆️ ${t('uploadDocument')}</button>
+          <span id="docUploadMsg" style="margin-right:0.75rem;color:var(--text-secondary);"></span>
+        </div>
+        ${docs.length === 0 ? `
+          <div class="portal-empty"><div class="portal-empty__icon">📎</div>${t('noDocuments')}</div>
+        ` : `
+          <div class="portal-list" id="documentsList">
+            ${docs.map(d => `
+              <div class="portal-list__item" data-doc-id="${d.id}" data-doc-path="${d.storage_path}">
+                <div>
+                  <div style="font-weight:700;">${d.filename}</div>
+                  <div class="portal-list__meta">${formatDate(d.created_at)} · ${(d.size_bytes / 1024).toFixed(1)} KB · ${d.status}</div>
+                </div>
+                <button class="portal-btn portal-btn--outline doc-download-btn">${t('download')}</button>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      </div>
+
+      <div class="portal-section">
         <div class="portal-section__title">${t('reports')}</div>
         ${reports.length === 0 ? `
           <div class="portal-empty"><div class="portal-empty__icon">📄</div>${t('noReports')}</div>
@@ -281,6 +368,37 @@
         `}
       </div>
     `;
+
+    // Document upload handlers
+    const uploadBtn = document.getElementById('docUploadBtn');
+    const uploadInput = document.getElementById('docUploadInput');
+    const uploadMsg = document.getElementById('docUploadMsg');
+    if (uploadBtn && uploadInput) {
+      uploadBtn.addEventListener('click', function() { uploadInput.click(); });
+      uploadInput.addEventListener('change', async function() {
+        const file = this.files[0];
+        if (!file) return;
+        if (uploadMsg) uploadMsg.textContent = t('analyzing');
+        const { data, error } = await uploadDocument(file, client.id);
+        if (error || !data) {
+          if (uploadMsg) uploadMsg.textContent = t('uploadError');
+          console.error('Document upload failed:', error);
+          return;
+        }
+        if (uploadMsg) uploadMsg.textContent = '';
+        initDashboard();
+      });
+    }
+
+    document.querySelectorAll('.doc-download-btn').forEach(function(btn) {
+      btn.addEventListener('click', async function() {
+        const item = this.closest('[data-doc-path]');
+        const path = item ? item.dataset.docPath : null;
+        if (!path) return;
+        const url = await getDocumentDownloadUrl(path);
+        if (url) window.open(url, '_blank');
+      });
+    });
   }
 
   function renderReportsList(reports) {
@@ -348,9 +466,10 @@
       return;
     }
 
-    const [{ data: projects, error: projectsErr }, { data: reports }] = await Promise.all([
+    const [{ data: projects, error: projectsErr }, { data: reports }, { data: documents }] = await Promise.all([
       loadProjects(client.id),
-      loadReports(client.id)
+      loadReports(client.id),
+      loadDocuments(client.id)
     ]);
     if (projectsErr) console.error('Projects load error:', projectsErr);
     const projectList = projects || [];
@@ -358,7 +477,7 @@
     const { data: workflows } = await loadWorkflows(projectIds);
     const workflowsMap = {};
     (workflows || []).forEach(w => { workflowsMap[w.entity_id] = w; });
-    renderDashboard(client, projectList, reports || [], workflowsMap);
+    renderDashboard(client, projectList, reports || [], workflowsMap, documents || []);
   }
 
   async function initReports() {
