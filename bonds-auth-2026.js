@@ -199,6 +199,10 @@
 
   // ── UI: Admin guard ───────────────────────────────────────
   function initAdminGuard() {
+    if (!document.body) {
+      document.addEventListener('DOMContentLoaded', initAdminGuard);
+      return;
+    }
     const overlayId = 'bonds-admin-overlay';
     if (document.getElementById(overlayId)) return;
 

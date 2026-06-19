@@ -2,7 +2,7 @@
  * Financial Advisory Module — Admin SPA
  */
 
-(function () {
+(function (root) {
   'use strict';
 
   const VIEWS = {
