@@ -148,7 +148,7 @@ All existing tests (229) continue to pass.
 - Manual EN/AR mirroring remains a maintenance burden.
 - `innerHTML` usage in legacy modules not fully replaced.
 - `console.log` statements still present in many files.
-- Database migrations must be applied manually because the Vercel `SUPABASE_SERVICE_ROLE_KEY` is currently invalid.
+- ✅ Enterprise upgrade migration `20260619190000_enterprise_upgrade_combined.sql` was applied successfully to Supabase via the Supabase CLI on 2026-06-19.
 
 ## Future Recommendations
 
@@ -163,23 +163,21 @@ All existing tests (229) continue to pass.
 
 ## Migration Application Checklist
 
-Run the following migrations in order in Supabase SQL Editor:
+- ✅ Applied via Supabase CLI on 2026-06-19:
+  ```bash
+  npx supabase db query --linked -f supabase/migrations/20260619190000_enterprise_upgrade_combined.sql
+  ```
+- ✅ Search index refreshed:
+  ```sql
+  SELECT public.refresh_global_search_index();
+  ```
+- ✅ Verification counts:
+  - `workflow_definitions`: 3
+  - `enterprise_roles`: 7
+  - `data_quality_issues`: 0
+  - `global_search_index`: 0
 
-1. `20260619110000_enterprise_rbac.sql`
-2. `20260619120000_enterprise_workflow_engine.sql`
-3. `20260619130000_enterprise_data_quality.sql`
-4. `20260619170000_enterprise_soft_deletes_and_data_fixes.sql`
-5. `20260619140000_enterprise_global_search.sql`
-6. `20260619150000_enterprise_system_logs.sql`
-7. `20260619160000_enterprise_performance_indexes.sql`
-8. `20260619180000_enterprise_security_policies.sql`
-
-Or run the combined file in order: `20260619190000_enterprise_upgrade_combined.sql`.
-
-Then refresh the search index:
-```sql
-SELECT public.refresh_global_search_index();
-```
+> The individual enterprise migration files (`2026061910xxxx`–`2026061918xxxx`) were archived under `supabase/migrations/archive/` because their contents are now included in the combined migration.
 
 ## Conclusion
 

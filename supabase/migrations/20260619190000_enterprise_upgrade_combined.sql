@@ -512,14 +512,13 @@ ALTER TABLE public.recovery_assets ADD COLUMN IF NOT EXISTS deleted_at timestamp
 ALTER TABLE public.advisory_clients ADD COLUMN IF NOT EXISTS updated_by uuid REFERENCES auth.users(id) ON DELETE SET NULL;
 ALTER TABLE public.advisory_projects ADD COLUMN IF NOT EXISTS updated_by uuid REFERENCES auth.users(id) ON DELETE SET NULL;
 ALTER TABLE public.recovery_assets ADD COLUMN IF NOT EXISTS updated_by uuid REFERENCES auth.users(id) ON DELETE SET NULL;
-ALTER TABLE public.ai_advisor_reports ADD COLUMN IF NOT EXISTS updated_by uuid REFERENCES auth.users(id) ON DELETE SET NULL;
+
+-- recovery_assets was missing ownership column
+ALTER TABLE public.recovery_assets ADD COLUMN IF NOT EXISTS created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL;
 
 -- Set default updated_at triggers where missing
 DROP TRIGGER IF EXISTS trg_recovery_assets_updated_at ON public.recovery_assets;
 CREATE TRIGGER trg_recovery_assets_updated_at BEFORE UPDATE ON public.recovery_assets FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-
-DROP TRIGGER IF EXISTS trg_ai_advisor_reports_updated_by_updated_at ON public.ai_advisor_reports;
-CREATE TRIGGER trg_ai_advisor_reports_updated_by_updated_at BEFORE UPDATE ON public.ai_advisor_reports FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 -- Normalize empty emails to NULL so unique constraint allows multiple unknowns
 UPDATE public.advisory_clients SET email = NULL WHERE email IS NOT NULL AND length(trim(email)) = 0;
@@ -592,6 +591,12 @@ CREATE POLICY ai_advisor_reports_delete ON public.ai_advisor_reports FOR DELETE 
 
 DROP TRIGGER IF EXISTS trg_ai_advisor_reports_updated_at ON public.ai_advisor_reports;
 CREATE TRIGGER trg_ai_advisor_reports_updated_at BEFORE UPDATE ON public.ai_advisor_reports FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- Apply soft-delete audit columns to AI advisor reports now that the table exists
+ALTER TABLE public.ai_advisor_reports ADD COLUMN IF NOT EXISTS updated_by uuid REFERENCES auth.users(id) ON DELETE SET NULL;
+DROP TRIGGER IF EXISTS trg_ai_advisor_reports_updated_by_updated_at ON public.ai_advisor_reports;
+CREATE TRIGGER trg_ai_advisor_reports_updated_by_updated_at BEFORE UPDATE ON public.ai_advisor_reports FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
 -- Enterprise Global Search
 -- Materialized view across clients, projects, assets, studies, reports.
 
