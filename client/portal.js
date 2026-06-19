@@ -245,6 +245,15 @@
     return data?.signedUrl || null;
   }
 
+  function escapeHtml(text) {
+    return String(text || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   function formatDate(iso) {
     if (!iso) return '-';
     const d = new Date(iso);
@@ -339,9 +348,9 @@
         ` : `
           <div class="portal-list" id="documentsList">
             ${docs.map(d => `
-              <div class="portal-list__item" data-doc-id="${d.id}" data-doc-path="${d.storage_path}" data-doc-mime="${d.mime_type || ''}" data-doc-filename="${d.filename}">
+              <div class="portal-list__item" data-doc-id="${d.id}" data-doc-path="${d.storage_path}" data-doc-mime="${escapeHtml(d.mime_type || '')}" data-doc-filename="${escapeHtml(d.filename)}">
                 <div>
-                  <div style="font-weight:700;">${d.filename}</div>
+                  <div style="font-weight:700;">${escapeHtml(d.filename)}</div>
                   <div class="portal-list__meta">${formatDate(d.created_at)} · ${(d.size_bytes / 1024).toFixed(1)} KB · ${d.status}</div>
                   ${d.extracted_data && d.extracted_data.summary ? `<div class="portal-list__meta" style="margin-top:0.35rem;">${d.extracted_data.summary}</div>` : ''}
                 </div>
