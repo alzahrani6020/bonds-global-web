@@ -353,6 +353,23 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - لإعادة توليد أيقونات PWA بعد تغيير الشعار: `node scripts/generate-icons.js`.
 - لتحديث/إضافة Open Graph tags لصفحة جديدة: `node scripts/apply-og-tags.js`.
 
+### 11.7 وحدات لوحة التحكم الإدارية
+اللوحة الموحدة في `admin/dashboard.html` تُحمّل الوحدات داخل iframe عبر `?embed=1`. كل وحدة هي SPA مستقلة (HTML/CSS/JS) وتستخدم `admin-embed.js` لإخفاء قائمتها الجانبية داخل اللوحة.
+
+| الوحدة | المسار | الوصف |
+|--------|--------|-------|
+| لوحة المؤشرات التنفيذية | `/admin/executive-dashboard/` | KPIs ورسوم بيانية مالية وتنفيذية. |
+| مستشار الأعمال الذكي | `/admin/ai-business-advisor/` | تحليل مالي، فرص، مخاطر، حلول تمويلية، تقارير إدارة عليا. لا يُفتح مباشرة — يُعيد التوجيه إلى `/admin/dashboard.html`. |
+| الاستشارات المالية | `/admin/financial-advisory/` | العملاء، المشاريع، دراسات الجدوى، النماذج المالية. |
+| إنقاذ الأصول المتعثرة | `/admin/distressed-recovery/` | تقييم الأصول وخطط الإنقاذ. |
+| City Intelligence | `/admin/city-intelligence/` | تحليل المدن والأحياء والتقارير الجغرافية. |
+
+#### مستشار الأعمال الذكي — ملاحظات تنفيذية
+- الملفات في `admin/ai-business-advisor/`.
+- التحليل يعتمد على جداول `subscriptions` و`moyasar_invoices` و`profiles` و`advisory_clients` و`advisory_projects` و`recovery_assets`.
+- جدول `ai_advisor_reports` يحفظ تقارير الإدارة العليا المنشأة.
+- يجب تحديث `sw.js` CACHE_VERSION عند تعديل ملفات الوحدة.
+
 ---
 
 ## 12. كيف تتواصل معي (المساعد)

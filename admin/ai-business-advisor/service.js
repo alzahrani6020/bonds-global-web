@@ -222,9 +222,54 @@
     };
   }
 
+  async function saveReport(title, contentHtml, summary) {
+    const sb = getSb();
+    const user = await getSessionUser();
+    const { data, error } = await withTimeout(
+      sb.from('ai_advisor_reports').insert({ title, content_html: contentHtml, summary, created_by: user.id }).select().single(),
+      15000, 'saveReport'
+    );
+    if (error) throw error;
+    return data;
+  }
+
+  async function getReports(limit = 20) {
+    const sb = getSb();
+    const { data, error } = await withTimeout(
+      sb.from('ai_advisor_reports').select('id, title, summary, created_at, created_by').order('created_at', { ascending: false }).limit(limit),
+      15000, 'getReports'
+    );
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function getReport(id) {
+    const sb = getSb();
+    const { data, error } = await withTimeout(
+      sb.from('ai_advisor_reports').select('*').eq('id', id).single(),
+      15000, 'getReport'
+    );
+    if (error) throw error;
+    return data;
+  }
+
+  async function deleteReport(id) {
+    const sb = getSb();
+    const { error } = await withTimeout(
+      sb.from('ai_advisor_reports').delete().eq('id', id),
+      15000, 'deleteReport'
+    );
+    if (error) throw error;
+    return true;
+  }
+
   root.AiAdvisorService = {
     getSb,
     getUserRole,
-    getMetrics
+    getMetrics,
+    saveReport,
+    getReports,
+    getReport,
+    deleteReport
   };
 })(window);

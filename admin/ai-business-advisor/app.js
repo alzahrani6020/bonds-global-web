@@ -337,15 +337,96 @@
     `);
   }
 
-  function renderReports() {
+  function reportSummary(a) {
+    return {
+      generated_at: new Date().toISOString(),
+      health_score: a.financial.healthScore,
+      health_label: a.financial.healthLabel,
+      total_revenue: a.stats.totalRevenue,
+      profit_estimate: a.financial.profitEstimate,
+      net_cash_flow: a.financial.netCashFlow,
+      risk_level: a.risks.riskLevel,
+      opportunities_count: a.opportunities.length,
+      total_opportunity_value: a.stats.totalOpportunityValue,
+      distressed_projects_count: a.stats.distressedProjectsCount,
+      distressed_assets_count: a.stats.distressedAssetsCount,
+      settings: _settings
+    };
+  }
+
+  async function saveCurrentReport() {
+    const a = analyze();
+    if (!a) return alert('لا يوجد تقرير لحفظه.');
+    const title = prompt('أدخل عنوان التقرير:', 'تقرير الإدارة العليا — ' + new Date().toLocaleDateString('ar-SA'));
+    if (!title) return;
+    try {
+      const html = ENGINE.generateManagementReport(a);
+      await SERVICE.saveReport(title, html, reportSummary(a));
+      alert('✅ تم حفظ التقرير بنجاح.');
+      renderReports();
+    } catch (e) {
+      alert('❌ فشل الحفظ: ' + e.message);
+    }
+  }
+
+  async function loadSavedReport(id) {
+    try {
+      const report = await SERVICE.getReport(id);
+      setContent(`
+        <div class="ai-topbar-actions" style="margin-bottom:1rem">
+          <button class="ai-btn ai-btn-secondary" onclick="AiAdvisorApp.generateFullReport()">⬅️ تقرير جديد</button>
+          <button class="ai-btn ai-btn-primary" onclick="window.print()">🖨️ طباعة / PDF</button>
+        </div>
+        <div id="ai-report-container">${report.content_html}</div>
+      `);
+    } catch (e) {
+      alert('❌ فشل تحميل التقرير: ' + e.message);
+    }
+  }
+
+  async function deleteSavedReport(id) {
+    if (!confirm('هل أنت متأكد من حذف التقرير؟')) return;
+    try {
+      await SERVICE.deleteReport(id);
+      renderReports();
+    } catch (e) {
+      alert('❌ فشل الحذف: ' + e.message);
+    }
+  }
+
+  async function renderReports() {
     const a = analyze();
     if (!a) return setLoading('جارِ التحليل...');
     const html = ENGINE.generateManagementReport(a);
+    let savedRows = '';
+    try {
+      const reports = await SERVICE.getReports();
+      savedRows = reports.map(r => `
+        <tr>
+          <td><strong>${escapeHtml(r.title)}</strong></td>
+          <td>${new Date(r.created_at).toLocaleString('ar-SA')}</td>
+          <td>
+            <button class="ai-btn ai-btn-secondary" onclick="AiAdvisorApp.loadSavedReport('${r.id}')">عرض</button>
+            <button class="ai-btn" style="color:var(--ai-danger)" onclick="AiAdvisorApp.deleteSavedReport('${r.id}')">حذف</button>
+          </td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      savedRows = `<tr><td colspan="3" class="ai-empty">تعذر تحميل التقارير المحفوظة: ${escapeHtml(e.message)}</td></tr>`;
+    }
     setContent(`
       <div class="ai-topbar-actions" style="margin-bottom:1rem">
+        <button class="ai-btn ai-btn-primary" onclick="AiAdvisorApp.saveCurrentReport()">💾 حفظ التقرير</button>
         <button class="ai-btn ai-btn-primary" onclick="window.print()">🖨️ طباعة / PDF</button>
       </div>
       <div id="ai-report-container">${html}</div>
+      <h2 class="ai-section-title">التقارير المحفوظة</h2>
+      <div class="ai-table-wrap">
+        <table class="ai-table">
+          <thead><tr><th>العنوان</th><th>تاريخ الإنشاء</th><th>إجراءات</th></tr></thead>
+          <tbody>${savedRows || '<tr><td colspan="3" class="ai-empty">لا توجد تقارير محفوظة</td></tr>'}</tbody>
+        </table>
+      </div>
     `);
   }
 
@@ -422,7 +503,10 @@
     refresh,
     applySettings,
     generateFullReport,
-    render
+    render,
+    saveCurrentReport,
+    loadSavedReport,
+    deleteSavedReport
   };
 
   if (document.readyState === 'loading') {
