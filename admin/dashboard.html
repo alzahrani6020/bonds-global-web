@@ -388,9 +388,12 @@
         iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-downloads');
         iframe.onload = async () => {
           try {
-            const session = await sb.auth.getSession();
-            const token = session?.data?.session?.access_token || window.__ADMIN_TOKEN || '';
+            const { data: { session } } = await sb.auth.getSession();
+            const token = session?.access_token || window.__ADMIN_TOKEN || '';
             iframe.contentWindow.postMessage({ type: 'admin-token', token }, location.origin);
+            if (session) {
+              iframe.contentWindow.postMessage({ type: 'admin-session', session }, location.origin);
+            }
           } catch (e) {}
         };
         iframeWrap.innerHTML = '';

@@ -803,6 +803,11 @@
         if (view) showView(view);
       });
     });
+    // Refresh when parent dashboard sends session token.
+    window.addEventListener('admin-session-ready', () => {
+      state.role = null;
+      showView(VIEWS.DASHBOARD);
+    });
     showView(VIEWS.DASHBOARD);
   }
 

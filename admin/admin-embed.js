@@ -47,11 +47,15 @@
     applyEmbedStyles();
   }
 
-  // Token bridge: receive admin token from parent unified dashboard
+  // Token bridge: receive admin token/session from parent unified dashboard
   window.addEventListener('message', function (e) {
     if (e.origin !== location.origin) return;
     if (e.data && e.data.type === 'admin-token') {
       window.__ADMIN_TOKEN = e.data.token || '';
+    }
+    if (e.data && e.data.type === 'admin-session') {
+      window.__ADMIN_SESSION = e.data.session || null;
+      window.dispatchEvent(new Event('admin-session-ready'));
     }
   });
 })();

@@ -23,6 +23,16 @@
 
   async function getSessionUser() {
     const sb = getSb();
+    // Use session bridge from parent dashboard if available (avoids iframe storage issues).
+    if (window.__ADMIN_SESSION && typeof sb.auth.setSession === 'function') {
+      try {
+        await sb.auth.setSession(window.__ADMIN_SESSION);
+        const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
+        if (!error && session) return session.user;
+      } catch (e) {
+        console.warn('[ExecutiveService] session bridge failed:', e.message);
+      }
+    }
     const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
     if (error || !session) throw new Error('Session required');
     return session.user;

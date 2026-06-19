@@ -510,6 +510,11 @@
         if (view) showView(view);
       });
     });
+    // Refresh when parent dashboard sends session token.
+    window.addEventListener('admin-session-ready', () => {
+      state.role = null;
+      showView(VIEWS.OVERVIEW);
+    });
     showView(VIEWS.OVERVIEW);
     initRealtime();
     initPolling();
