@@ -168,11 +168,13 @@ Run the following migrations in order in Supabase SQL Editor:
 1. `20260619110000_enterprise_rbac.sql`
 2. `20260619120000_enterprise_workflow_engine.sql`
 3. `20260619130000_enterprise_data_quality.sql`
-4. `20260619140000_enterprise_global_search.sql`
-5. `20260619150000_enterprise_system_logs.sql`
-6. `20260619160000_enterprise_performance_indexes.sql`
-7. `20260619170000_enterprise_soft_deletes_and_data_fixes.sql`
+4. `20260619170000_enterprise_soft_deletes_and_data_fixes.sql`
+5. `20260619140000_enterprise_global_search.sql`
+6. `20260619150000_enterprise_system_logs.sql`
+7. `20260619160000_enterprise_performance_indexes.sql`
 8. `20260619180000_enterprise_security_policies.sql`
+
+Or run the combined file in order: `20260619190000_enterprise_upgrade_combined.sql`.
 
 Then refresh the search index:
 ```sql
