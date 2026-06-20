@@ -23,13 +23,16 @@ function loadEnv(filePath) {
     if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
       value = value.slice(1, -1);
     }
-    if (!Object.prototype.hasOwnProperty.call(process.env, key)) {
-      process.env[key] = value;
-    }
+    process.env[key] = value;
   }
 }
 
 loadEnv(path.join(__dirname, '..', '.env.local'));
+
+// Ensure we use the real OpenAI endpoint even if the parent shell has Ollama defaults.
+if (!process.env.OPENAI_BASE_URL || process.env.OPENAI_BASE_URL.includes('127.0.0.1:11434')) {
+  process.env.OPENAI_BASE_URL = 'https://api.openai.com/v1';
+}
 
 const MODEL_PRICING = {
   'gpt-5.5': { input: 5.0, output: 30.0 },
@@ -79,7 +82,10 @@ async function callOpenAISingleModel(messages, model) {
     throw new Error('OPENAI_API_KEY environment variable is missing');
   }
 
-  const url = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1/chat/completions';
+  let url = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
+  if (!url.endsWith('/chat/completions')) {
+    url = url.replace(/\/$/, '') + '/chat/completions';
+  }
   const response = await fetch(url, {
     method: 'POST',
     headers: {

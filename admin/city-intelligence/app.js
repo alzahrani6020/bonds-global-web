@@ -432,6 +432,7 @@
         <button class="tab ${state.activeTab === 'projects' ? 'active' : ''}" data-tab="projects" onclick="CityIntelligenceApp.setTab('projects')">المشاريع</button>
         <button class="tab ${state.activeTab === 'competitors' ? 'active' : ''}" data-tab="competitors" onclick="CityIntelligenceApp.setTab('competitors')">المنافسون</button>
         <button class="tab ${state.activeTab === 'reports' ? 'active' : ''}" data-tab="reports" onclick="CityIntelligenceApp.setTab('reports')">تقارير</button>
+        <button class="tab ${state.activeTab === 'ai' ? 'active' : ''}" data-tab="ai" onclick="CityIntelligenceApp.setTab('ai')">🤖 AI</button>
       </div>
       <div id="cityTabContent"></div>
       <div id="reportCapture" style="position:absolute;left:-9999px;top:-9999px;width:800px;background:#fff;padding:2rem;"></div>`;
@@ -448,6 +449,63 @@
     else if (tab === 'projects') renderProjectsTab(content, city);
     else if (tab === 'competitors') renderCompetitorsTab(content, city);
     else if (tab === 'reports') renderCityReportsTab(content, city);
+    else if (tab === 'ai') renderAiTab(content, city);
+  }
+
+  function renderAiTab(content, city) {
+    const districts = state.districts.filter(d => d.city_id === city.id);
+    const avgIncome = districts.length
+      ? Math.round(districts.reduce((s, d) => s + (Number(d.avg_income) || 0), 0) / districts.length)
+      : city.avg_income || 15000;
+    const population = city.population || districts.reduce((s, d) => s + (Number(d.population) || 0), 0) || 500000;
+    const competitors = state.competitors.filter(c => c.city_id === city.id);
+    content.innerHTML = `
+      <div class="card card--full">
+        <h3>🤖 تحليل AI للمدينة</h3>
+        <div class="form-grid" style="margin-top:1rem;">
+          <div class="form-group"><label>القطاع المستهدف</label><input type="text" id="ai-city-sector" value="التجزئة" /></div>
+          <div class="form-group"><label>السكان</label><input type="number" id="ai-city-population" value="${population}" /></div>
+          <div class="form-group"><label>متوسط الدخل</label><input type="number" id="ai-city-income" value="${avgIncome}" /></div>
+          <div class="form-group"><label>عدد المنافسين</label><input type="number" id="ai-city-competitors" value="${competitors.length || 10}" /></div>
+          <div class="form-group"><label>حجم السوق التقديري (ر.س)</label><input type="number" id="ai-city-market" value="" placeholder="اختياري" /></div>
+        </div>
+        <div style="margin-top:1rem;">
+          <button class="btn btn-primary" id="ai-city-run" onclick="CityIntelligenceApp.runCityAi()">تشغيل التحليل</button>
+          <span id="ai-city-cost" style="color:var(--text-secondary);font-size:0.85rem;margin-right:1rem;"></span>
+        </div>
+      </div>
+      <div id="ai-city-result" class="card card--full" style="display:none;margin-top:1.5rem;"></div>
+    `;
+  }
+
+  async function runCityAi() {
+    const btn = document.getElementById('ai-city-run');
+    const costEl = document.getElementById('ai-city-cost');
+    const resultEl = document.getElementById('ai-city-result');
+    const city = state.currentCity;
+    btn.disabled = true;
+    costEl.textContent = 'جارِ التحليل...';
+    resultEl.style.display = 'none';
+    try {
+      const payload = {
+        city: city.name,
+        sector: document.getElementById('ai-city-sector').value,
+        population: Number(document.getElementById('ai-city-population').value) || null,
+        market_size: Number(document.getElementById('ai-city-market').value) || null,
+        competitors_count: Number(document.getElementById('ai-city-competitors').value) || null,
+        avg_income: Number(document.getElementById('ai-city-income').value) || null,
+      };
+      const res = await AiAnalyzeService.analyze({ type: 'city_analysis', payload });
+      resultEl.innerHTML = '<h3>نتيجة تحليل المدينة</h3>' + AiAnalyzeService.renderResult(res.result);
+      resultEl.style.display = 'block';
+      costEl.textContent = res.usage ? `التكلفة: $${res.usage.cost_usd || 0}` : '';
+    } catch (err) {
+      resultEl.innerHTML = `<p style="color:var(--danger)">❌ ${escapeHtml(err.message)}</p>`;
+      resultEl.style.display = 'block';
+      costEl.textContent = '';
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   function renderOverviewTab(content, city) {
@@ -1144,7 +1202,8 @@
     generateCityReport,
     refreshMap,
     openAssignRoleModal,
-    removeCityRole
+    removeCityRole,
+    runCityAi
   };
 
   // Auto-init on admin-auth-ready

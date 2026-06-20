@@ -261,7 +261,7 @@
         </div>
       </div>
       <div class="fa-tabs">
-        ${['overview','plans','costs','offers','documents','notes'].map(t =>
+        ${['overview','plans','costs','offers','documents','notes','ai'].map(t =>
           `<button class="fa-tab ${activeTab === t ? 'active' : ''}" data-tab="${t}">${tabName(t)}</button>`
         ).join('')}
       </div>
@@ -275,6 +275,7 @@
     else if (activeTab === 'offers') renderOffersTab(tabContent, offers);
     else if (activeTab === 'documents') renderDocumentsTab(tabContent, docs);
     else if (activeTab === 'notes') renderNotesTab(tabContent, notes);
+    else if (activeTab === 'ai') renderAiTab(tabContent, { reasons, plans: currentPlans });
 
     bindCommon(content);
     content.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => { currentAssetTab = b.dataset.tab; renderAssetDetail(); }));
@@ -282,7 +283,7 @@
 
   let currentAssetTab = 'overview';
   function tabName(t) {
-    return { overview: 'نظرة عامة', plans: 'خطط الإنقاذ', costs: 'التكاليف', offers: 'العروض', documents: 'المستندات', notes: 'الملاحظات' }[t];
+    return { overview: 'نظرة عامة', plans: 'خطط الإنقاذ', costs: 'التكاليف', offers: 'العروض', documents: 'المستندات', notes: 'الملاحظات', ai: '🤖 AI' }[t];
   }
 
   function renderOverviewTab(el, { valuations, reasons }) {
@@ -562,6 +563,57 @@
       toast('تم الحذف');
       renderAssetDetail();
     }));
+  }
+
+  function renderAiTab(el, { reasons, plans }) {
+    const reasonSummary = reasons.map(r => RecoveryService.REASON_CATEGORIES[r.reason_category] || r.reason_category).join('، ');
+    el.innerHTML = `
+      <div class="fa-card">
+        <div class="fa-card-header"><h3 class="fa-card-title">🤖 تحليل AI لخطة الإنقاذ</h3></div>
+        <div class="fa-form-grid">
+          <div class="fa-form-group"><label>إجمالي الدين/التكلفة المتعثرة</label><input type="number" id="ai-distress-debt" value="${currentAsset.distressed_value || currentAsset.original_value || ''}" /></div>
+          <div class="fa-form-group"><label>الاستنزاف الشهري</label><input type="number" id="ai-distress-burn" value="" placeholder="اختياري" /></div>
+          <div class="fa-form-group"><label>النقد المتبقي</label><input type="number" id="ai-distress-cash" value="" placeholder="اختياري" /></div>
+          <div class="fa-form-group"><label>عدد الموظفين</label><input type="number" id="ai-distress-employees" value="" placeholder="اختياري" /></div>
+        </div>
+        <div style="margin-top:1rem;">
+          <button class="fa-btn fa-btn-primary" id="ai-distress-run" onclick="RecoveryApp.runDistressedAi()">تشغيل التحليل</button>
+          <span id="ai-distress-cost" style="color:var(--fa-muted);font-size:0.85rem;margin-right:1rem;"></span>
+        </div>
+      </div>
+      <div id="ai-distress-result" class="fa-card" style="display:none;margin-top:1.5rem;"></div>
+    `;
+  }
+
+  async function runDistressedAi() {
+    const btn = document.getElementById('ai-distress-run');
+    const costEl = document.getElementById('ai-distress-cost');
+    const resultEl = document.getElementById('ai-distress-result');
+    btn.disabled = true;
+    costEl.textContent = 'جارِ التحليل...';
+    resultEl.style.display = 'none';
+    try {
+      const reasons = (await RecoveryService.getReasons(currentAssetId)).map(r => RecoveryService.REASON_CATEGORIES[r.reason_category] || r.reason_category);
+      const payload = {
+        project_name: currentAsset.name,
+        current_status: RecoveryService.ASSET_STATUSES[currentAsset.status] || currentAsset.status,
+        distress_reasons: reasons.length ? reasons : ['غير محدد'],
+        total_debt: Number(document.getElementById('ai-distress-debt').value) || (currentAsset.distressed_value || 0),
+        monthly_burn: Number(document.getElementById('ai-distress-burn').value) || null,
+        remaining_cash: Number(document.getElementById('ai-distress-cash').value) || null,
+        employees_count: Number(document.getElementById('ai-distress-employees').value) || null,
+      };
+      const res = await AiAnalyzeService.analyze({ type: 'distressed_project', payload });
+      resultEl.innerHTML = '<h3>نتيجة تحليل الإنقاذ</h3>' + AiAnalyzeService.renderResult(res.result);
+      resultEl.style.display = 'block';
+      costEl.textContent = res.usage ? `التكلفة: $${res.usage.cost_usd || 0}` : '';
+    } catch (err) {
+      resultEl.innerHTML = `<p style="color:var(--fa-danger)">❌ ${esc(err.message)}</p>`;
+      resultEl.style.display = 'block';
+      costEl.textContent = '';
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   // Reports
@@ -899,6 +951,8 @@
     let t;
     return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
   }
+
+  window.RecoveryApp = { runDistressedAi };
 
   window.addEventListener('DOMContentLoaded', init);
 })();

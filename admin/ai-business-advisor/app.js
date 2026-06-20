@@ -430,6 +430,114 @@
     `);
   }
 
+  async function renderAi() {
+    const defaults = {
+      sector: 'التجارة',
+      city: 'الرياض',
+      investment: 2000000,
+      monthly_revenue: 300000,
+      monthly_costs: 220000,
+      annual_revenue: _metrics ? Math.round(_metrics.stats.totalRevenue) : 5000000,
+      existing_debt: 0,
+      net_profit: _metrics ? Math.round(_metrics.stats.totalRevenue * 0.15) : 750000,
+      total_assets: _metrics ? Math.round(_metrics.stats.totalAssetsValue) : 0,
+      dscr: 1.5,
+      entity_name: 'منشأة بوندز',
+    };
+    setContent(`
+      <h2 class="ai-section-title">🤖 تحليل AI</h2>
+      <div class="ai-card">
+        <div class="ai-form-inline" style="flex-wrap:wrap;">
+          <div class="ai-form-group">
+            <label>نوع التحليل</label>
+            <select id="ai-type">
+              <option value="feasibility_study">دراسة جدوى</option>
+              <option value="credit_assessment">تقييم الجدارة الائتمانية</option>
+            </select>
+          </div>
+        </div>
+        <div id="ai-inputs-feasibility" class="ai-form-grid">
+          <div class="ai-form-group"><label>القطاع</label><input type="text" id="ai-sector" value="${escapeHtml(defaults.sector)}" /></div>
+          <div class="ai-form-group"><label>المدينة</label><input type="text" id="ai-city" value="${escapeHtml(defaults.city)}" /></div>
+          <div class="ai-form-group"><label>الاستثمار (ر.س)</label><input type="number" id="ai-investment" value="${defaults.investment}" /></div>
+          <div class="ai-form-group"><label>الإيرادات الشهرية</label><input type="number" id="ai-monthly-revenue" value="${defaults.monthly_revenue}" /></div>
+          <div class="ai-form-group"><label>التكاليف الشهرية</label><input type="number" id="ai-monthly-costs" value="${defaults.monthly_costs}" /></div>
+          <div class="ai-form-group"><label>NPV</label><input type="number" id="ai-npv" value="" placeholder="اختياري" /></div>
+          <div class="ai-form-group"><label>IRR %</label><input type="number" id="ai-irr" value="" placeholder="اختياري" step="0.1" /></div>
+          <div class="ai-form-group"><label>DSCR</label><input type="number" id="ai-dscr" value="${defaults.dscr}" step="0.01" /></div>
+        </div>
+        <div id="ai-inputs-credit" class="ai-form-grid" style="display:none;">
+          <div class="ai-form-group"><label>اسم المنشأة</label><input type="text" id="ai-entity" value="${escapeHtml(defaults.entity_name)}" /></div>
+          <div class="ai-form-group"><label>الإيرادات السنوية</label><input type="number" id="ai-annual-revenue" value="${defaults.annual_revenue}" /></div>
+          <div class="ai-form-group"><label>الدين القائم</label><input type="number" id="ai-existing-debt" value="${defaults.existing_debt}" /></div>
+          <div class="ai-form-group"><label>صافي الربح</label><input type="number" id="ai-net-profit" value="${defaults.net_profit}" /></div>
+          <div class="ai-form-group"><label>إجمالي الأصول</label><input type="number" id="ai-total-assets" value="${defaults.total_assets}" /></div>
+          <div class="ai-form-group"><label>DSCR</label><input type="number" id="ai-dscr-credit" value="${defaults.dscr}" step="0.01" /></div>
+        </div>
+        <div style="margin-top:1rem;">
+          <button class="ai-btn ai-btn-primary" id="ai-run-btn" onclick="AiAdvisorApp.runAiAnalysis()">▶️ تشغيل التحليل</button>
+          <span id="ai-cost" style="color:var(--text-secondary);font-size:0.85rem;margin-right:1rem;"></span>
+        </div>
+      </div>
+      <div id="ai-result" class="ai-card" style="display:none;"></div>
+    `);
+
+    document.getElementById('ai-type').addEventListener('change', (e) => {
+      document.getElementById('ai-inputs-feasibility').style.display = e.target.value === 'feasibility_study' ? 'grid' : 'none';
+      document.getElementById('ai-inputs-credit').style.display = e.target.value === 'credit_assessment' ? 'grid' : 'none';
+    });
+  }
+
+  async function runAiAnalysis() {
+    const type = document.getElementById('ai-type').value;
+    const btn = document.getElementById('ai-run-btn');
+    const resultEl = document.getElementById('ai-result');
+    const costEl = document.getElementById('ai-cost');
+    btn.disabled = true;
+    costEl.textContent = 'جارِ التحليل...';
+    resultEl.style.display = 'none';
+    try {
+      let payload;
+      if (type === 'feasibility_study') {
+        payload = {
+          sector: document.getElementById('ai-sector').value,
+          city: document.getElementById('ai-city').value,
+          investment: Number(document.getElementById('ai-investment').value) || 0,
+          monthly_revenue: Number(document.getElementById('ai-monthly-revenue').value) || 0,
+          monthly_costs: Number(document.getElementById('ai-monthly-costs').value) || 0,
+          dscr: Number(document.getElementById('ai-dscr').value) || null,
+        };
+        const npv = document.getElementById('ai-npv').value;
+        const irr = document.getElementById('ai-irr').value;
+        if (npv) payload.npv = Number(npv);
+        if (irr) payload.irr = Number(irr);
+      } else {
+        payload = {
+          entity_name: document.getElementById('ai-entity').value,
+          annual_revenue: Number(document.getElementById('ai-annual-revenue').value) || 0,
+          existing_debt: Number(document.getElementById('ai-existing-debt').value) || 0,
+          net_profit: Number(document.getElementById('ai-net-profit').value) || null,
+          total_assets: Number(document.getElementById('ai-total-assets').value) || null,
+          dscr: Number(document.getElementById('ai-dscr-credit').value) || null,
+        };
+      }
+      const res = await root.AiAnalyzeService.analyze({ type, payload });
+      resultEl.innerHTML = '<h3>نتيجة التحليل</h3>' + root.AiAnalyzeService.renderResult(res.result);
+      resultEl.style.display = 'block';
+      if (res.usage) {
+        costEl.textContent = `التكلفة: $${res.usage.cost_usd || 0} · النموذج: ${res.result?.guardrails ? 'GPT' : 'n/a'}`;
+      } else {
+        costEl.textContent = '';
+      }
+    } catch (err) {
+      resultEl.innerHTML = `<div class="ai-no-access"><p>❌ ${escapeHtml(err.message)}</p></div>`;
+      resultEl.style.display = 'block';
+      costEl.textContent = '';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
   function render(view) {
     _currentView = view;
     document.querySelectorAll('.ai-nav a').forEach(a => a.classList.toggle('active', a.dataset.view === view));
@@ -441,6 +549,7 @@
       case 'financing': renderFinancing(); break;
       case 'distressed': renderDistressed(); break;
       case 'reports': renderReports(); break;
+      case 'ai': renderAi(); break;
       default: renderOverview();
     }
   }
@@ -506,7 +615,8 @@
     render,
     saveCurrentReport,
     loadSavedReport,
-    deleteSavedReport
+    deleteSavedReport,
+    runAiAnalysis
   };
 
   if (document.readyState === 'loading') {

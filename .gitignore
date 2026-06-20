@@ -12,3 +12,5 @@ tests/visual/baselines/
 tests/visual/diffs/
 .tmp_*
 screenshots/
+
+.env*
