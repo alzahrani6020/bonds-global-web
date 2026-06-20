@@ -80,7 +80,46 @@
       aiNoHistory: 'لا توجد تحليلات سابقة.',
       aiViewAnalysis: 'عرض التحليل',
       aiRequestAgain: 'طلب مراجعة',
-      aiError: 'فشل إعداد التحليل. حاول مرة أخرى.'
+      aiError: 'فشل إعداد التحليل. حاول مرة أخرى.',
+      analyses: 'التحليلات',
+      reviewRequests: 'طلبات المراجعة',
+      support: 'الدعم الفني',
+      createProject: 'إنشاء مشروع جديد',
+      analyzeProject: 'تحليل المشروع',
+      startAnalysis: 'ابدأ تحليل مشروعك',
+      welcomeSubtitle: 'ابدأ رحلتك الاستثمارية من هنا',
+      nextBestAction: 'الخطوة التالية الموصى بها',
+      actionPlan: 'خطة العمل المقترحة',
+      decision: 'القرار',
+      recommendation: 'التوصية',
+      latestAnalyses: 'آخر التحليلات',
+      latestReviews: 'آخر طلبات المراجعة',
+      projectStepsTitle: 'رحلتك في 4 خطوات',
+      step1: 'بيانات المشروع',
+      step2: 'تحليل AI',
+      step3: 'مراجعة مستشار',
+      step4: 'تقرير معتمد',
+      noAnalyses: 'لا توجد تحليلات سابقة.',
+      noReviews: 'لا توجد طلبات مراجعة.',
+      viewDetails: 'عرض التفاصيل',
+      projectData: 'بيانات المشروع',
+      projectAnalyses: 'تحليلات المشروع',
+      projectReports: 'تقارير المشروع',
+      projectDocuments: 'مستندات المشروع',
+      projectReviewRequests: 'طلبات المراجعة',
+      backToDashboard: 'العودة للوحة التحكم',
+      uploadDocForProject: 'رفع مستند لهذا المشروع',
+      overallStatus: 'الحالة العامة',
+      reviewStatus: 'حالة المراجعة',
+      latestUpdate: 'آخر تحديث',
+      status_pending_review: 'قيد الانتظار',
+      status_assigned: 'معين لمستشار',
+      status_under_review: 'قيد المراجعة',
+      status_approved: 'معتمد',
+      status_returned: 'مُعاد للعميل',
+      newClientWelcome: 'مرحباً بك في بوابة Bonds',
+      emptyProjectsTitle: 'ابدأ بإنشاء مشروعك الأول',
+      emptyProjectsDesc: 'أضف بيانات مشروعك واحصل على تحليل AI ومراجعة استشارية.'
     },
     en: {
       portal: 'Client Portal',
@@ -154,7 +193,46 @@
       aiNoHistory: 'No previous analyses.',
       aiViewAnalysis: 'View analysis',
       aiRequestAgain: 'Request review',
-      aiError: 'Failed to prepare analysis. Please try again.'
+      aiError: 'Failed to prepare analysis. Please try again.',
+      analyses: 'Analyses',
+      reviewRequests: 'Review Requests',
+      support: 'Support',
+      createProject: 'Create new project',
+      analyzeProject: 'Analyze project',
+      startAnalysis: 'Start analyzing your project',
+      welcomeSubtitle: 'Start your investment journey here',
+      nextBestAction: 'Recommended next step',
+      actionPlan: 'Recommended action plan',
+      decision: 'Decision',
+      recommendation: 'Recommendation',
+      latestAnalyses: 'Latest analyses',
+      latestReviews: 'Latest review requests',
+      projectStepsTitle: 'Your journey in 4 steps',
+      step1: 'Project data',
+      step2: 'AI analysis',
+      step3: 'Expert review',
+      step4: 'Approved report',
+      noAnalyses: 'No previous analyses.',
+      noReviews: 'No review requests.',
+      viewDetails: 'View details',
+      projectData: 'Project data',
+      projectAnalyses: 'Project analyses',
+      projectReports: 'Project reports',
+      projectDocuments: 'Project documents',
+      projectReviewRequests: 'Review requests',
+      backToDashboard: 'Back to dashboard',
+      uploadDocForProject: 'Upload document for this project',
+      overallStatus: 'Overall status',
+      reviewStatus: 'Review status',
+      latestUpdate: 'Latest update',
+      status_pending_review: 'Pending review',
+      status_assigned: 'Assigned',
+      status_under_review: 'Under review',
+      status_approved: 'Approved',
+      status_returned: 'Returned',
+      newClientWelcome: 'Welcome to Bonds Portal',
+      emptyProjectsTitle: 'Start with your first project',
+      emptyProjectsDesc: 'Add your project details and get AI analysis and expert review.'
     }
   };
 
@@ -227,16 +305,23 @@
     const sidebar = document.getElementById('portal-sidebar');
     if (!sidebar) return;
     const pages = [
-      { id: 'dashboard', icon: '📊', href: IS_EN ? clientPath('index.html') : clientPath('index.html') },
-      { id: 'projects', icon: '📁', href: IS_EN ? clientPath('index.html#projects') : clientPath('index.html#projects') },
-      { id: 'reports', icon: '📄', href: IS_EN ? clientPath('reports.html') : clientPath('reports.html') }
+      { id: 'dashboard', icon: '📊', href: clientPath('index.html') },
+      { id: 'projects', icon: '📁', href: clientPath('index.html#projectsSection') },
+      { id: 'analyses', icon: '🧠', href: clientPath('index.html#aiHistorySection') },
+      { id: 'reports', icon: '📄', href: clientPath('reports.html') },
+      { id: 'reviewRequests', icon: '👨‍💼', href: clientPath('index.html#reviewRequestsSection') },
+      { id: 'documents', icon: '📎', href: clientPath('index.html#documentsSection') },
+      { id: 'support', icon: '🎧', href: IS_EN ? '/en/contact.html' : '/contact.html' }
     ];
-    sidebar.innerHTML = pages.map(p => `
-      <a href="${p.href}" class="portal-sidebar__link ${PAGE === p.id ? 'active' : ''}">
-        <span>${p.icon}</span>
-        <span>${t(p.id)}</span>
-      </a>
-    `).join('');
+    sidebar.innerHTML = pages.map(p => {
+      const isActive = PAGE === p.id || (p.id === 'projects' && PAGE === 'project');
+      return `
+        <a href="${p.href}" class="portal-sidebar__link ${isActive ? 'active' : ''}">
+          <span>${p.icon}</span>
+          <span>${t(p.id)}</span>
+        </a>
+      `;
+    }).join('');
   }
 
   async function loadClient(user) {
@@ -326,12 +411,44 @@
     };
   }
 
+  async function createProject(clientId, fields) {
+    const sb = getSupabase();
+    if (!sb || !clientId) return { data: null, error: new Error('Missing client') };
+    const { data, error } = await sb
+      .from('advisory_projects')
+      .insert({
+        client_id: clientId,
+        name: fields.name,
+        sector: fields.sector,
+        city: fields.city,
+        budget: fields.budget,
+        status: 'active',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+    return { data, error };
+  }
+
   async function loadAiAnalyses(userId) {
     const sb = getSupabase();
     if (!sb || !userId) return { data: [], error: null };
     const { data, error } = await sb
       .from('ai_requests')
       .select('*, ai_results(result, risk_score)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    return { data: data || [], error };
+  }
+
+  async function loadAiReviewRequests(userId) {
+    const sb = getSupabase();
+    if (!sb || !userId) return { data: [], error: null };
+    const { data, error } = await sb
+      .from('ai_review_requests')
+      .select('*, ai_requests!inner(type, project_id, ai_results(result, risk_score))')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(20);
@@ -408,71 +525,245 @@
     if (el) el.innerHTML = `<div class="portal-empty"><div class="portal-empty__icon">⏳</div>${t('loading')}</div>`;
   }
 
-  function renderDashboard(client, projects, reports, workflowsMap, documents, analyses) {
+  function reviewStatusLabel(status) {
+    return t('status_' + (status || 'pending_review')) || (status || 'pending_review');
+  }
+
+  function decisionFromResult(result) {
+    const risk = Number(result?.risk_score) || 0;
+    const funding = result?.funding_readiness || '';
+    if (funding.toLowerCase().includes('high') || funding.includes('ممتازة') || risk < 40) {
+      return { text: IS_EN ? 'Recommended for funding' : 'مُوصى بالتمويل', class: 'portal-decision--success', recommendation: IS_EN ? 'Proceed with the project after reviewing the action plan.' : 'المتابعة بعد مراجعة خطة العمل.' };
+    }
+    if (risk >= 75) {
+      return { text: IS_EN ? 'High risk — review required' : 'مخاطر عالية — يحتاج مراجعة', class: 'portal-decision--danger', recommendation: IS_EN ? 'Address the main weaknesses before requesting funding.' : 'معالجة نقاط الضعف الرئيسية قبل طلب التمويل.' };
+    }
+    return { text: IS_EN ? 'Conditional approval' : 'موافقة مشروطة', class: 'portal-decision--warning', recommendation: IS_EN ? 'Improve cash flow and reduce risks, then re-evaluate.' : 'تحسين التدفق النقدي وتقليل المخاطر، ثم إعادة التقييم.' };
+  }
+
+  function actionPlanFromResult(result) {
+    const recs = result?.recommendations || [];
+    const steps = [];
+    if (recs.length > 0) steps.push({ week: IS_EN ? 'Week 1' : 'الأسبوع 1', task: recs[0] });
+    if (recs.length > 1) steps.push({ week: IS_EN ? 'Week 2' : 'الأسبوع 2', task: recs[1] });
+    if (recs.length > 2) steps.push({ week: IS_EN ? 'Week 3' : 'الأسبوع 3', task: recs[2] });
+    if (steps.length === 0) steps.push({ week: IS_EN ? 'Week 1' : 'الأسبوع 1', task: IS_EN ? 'Prepare the required financial documents.' : 'إعداد المستندات المالية المطلوبة.' });
+    return steps;
+  }
+
+  function nextBestAction(client, projects, analyses, reviewRequests) {
+    if (!projects || projects.length === 0) {
+      return { label: t('createProject'), action: 'create-project', icon: '📁' };
+    }
+    const pendingReviews = (reviewRequests || []).filter(r => ['pending_review', 'assigned', 'under_review'].includes(r.status));
+    if (pendingReviews.length > 0) {
+      return { label: IS_EN ? 'Review in progress' : 'مراجعة قيد التنفيذ', action: 'view-reviews', icon: '👨‍💼' };
+    }
+    const lastAnalysis = analyses && analyses[0];
+    if (!lastAnalysis || Date.now() - new Date(lastAnalysis.created_at).getTime() > 7 * 24 * 60 * 60 * 1000) {
+      return { label: t('analyzeProject'), action: 'analyze', icon: '🧠' };
+    }
+    return { label: t('aiRequestReview'), action: 'request-review', icon: '✅' };
+  }
+
+  function renderDashboard(client, projects, reports, workflowsMap, documents, analyses, reviewRequests) {
     const main = document.getElementById('portal-main');
     if (!main) return;
 
-    const latestProject = projects[0];
-    const latestReport = reports[0];
     const wf = workflowsMap || {};
     const docs = documents || [];
+    const latestAnalysis = analyses && analyses[0];
+    const latestAnalysisResult = latestAnalysis?.ai_results?.result || {};
+    const decision = decisionFromResult(latestAnalysisResult);
+    const actionPlan = actionPlanFromResult(latestAnalysisResult);
+    const nextAction = nextBestAction(client, projects, analyses, reviewRequests);
+
+    const hasProjects = projects.length > 0;
+    const welcomeTitle = hasProjects
+      ? `${t('welcome')}، ${client.name || client.company_name || client.email}`
+      : t('newClientWelcome');
+    const welcomeSubtitle = hasProjects ? t('welcomeSubtitle') : t('emptyProjectsDesc');
 
     main.innerHTML = `
-      <h1 class="portal-page-title">${t('welcome')}، ${client.name || client.company_name || client.email}</h1>
-      <p class="portal-page-subtitle">${client.company_name ? `${t('company')}: ${client.company_name}` : ''}</p>
+      <section class="portal-welcome-card">
+        <div class="portal-welcome-card__content">
+          <h1 class="portal-welcome-card__title">${welcomeTitle}</h1>
+          <p class="portal-welcome-card__subtitle">${welcomeSubtitle}</p>
+          <div class="portal-welcome-card__actions">
+            <button class="portal-btn portal-btn--primary" id="dashboardPrimaryAction">${nextAction.icon} ${nextAction.label}</button>
+            ${hasProjects ? `<a class="portal-btn portal-btn--outline" href="${clientPath('index.html#aiAnalyzerSection')}">${t('analyzeProject')}</a>` : ''}
+          </div>
+        </div>
+      </section>
 
-      <div class="portal-grid">
-        <div class="portal-card">
-          <div class="portal-card__label">${t('projectsCount')}</div>
-          <div class="portal-card__value">${projects.length}</div>
+      <div class="portal-stats-grid">
+        <div class="portal-stat-card">
+          <div class="portal-stat-card__icon">📁</div>
+          <div class="portal-stat-card__value">${projects.length}</div>
+          <div class="portal-stat-card__label">${t('projects')}</div>
         </div>
-        <div class="portal-card">
-          <div class="portal-card__label">${t('reportsCount')}</div>
-          <div class="portal-card__value">${reports.length}</div>
+        <div class="portal-stat-card">
+          <div class="portal-stat-card__icon">🧠</div>
+          <div class="portal-stat-card__value">${analyses.length}</div>
+          <div class="portal-stat-card__label">${t('analyses')}</div>
         </div>
-        ${latestProject ? `
-        <div class="portal-card">
-          <div class="portal-card__label">${t('activeProject')}</div>
-          <div style="font-weight:700;margin-top:0.5rem;">${latestProject.name}</div>
-          <div style="margin-top:0.5rem;"><span class="portal-status ${statusClass(latestProject.status)}">${latestProject.status || 'new'}</span></div>
-        </div>` : ''}
-        ${latestReport ? `
-        <div class="portal-card">
-          <div class="portal-card__label">${t('latestReport')}</div>
-          <div style="font-weight:700;margin-top:0.5rem;">${latestReport.title}</div>
-          <div style="margin-top:0.5rem;"><a class="portal-link" href="${IS_EN ? clientPath('report.html?id=' + latestReport.id) : clientPath('report.html?id=' + latestReport.id)}">${t('viewReport')}</a></div>
-        </div>` : ''}
+        <div class="portal-stat-card">
+          <div class="portal-stat-card__icon">📄</div>
+          <div class="portal-stat-card__value">${reports.length}</div>
+          <div class="portal-stat-card__label">${t('reports')}</div>
+        </div>
+        <div class="portal-stat-card">
+          <div class="portal-stat-card__icon">👨‍💼</div>
+          <div class="portal-stat-card__value">${reviewRequests.length}</div>
+          <div class="portal-stat-card__label">${t('reviewRequests')}</div>
+        </div>
       </div>
 
-      <div class="portal-section" id="projects">
-        <div class="portal-section__title">${t('projects')}</div>
+      <section class="portal-next-action">
+        <div class="portal-next-action__label">${t('nextBestAction')}</div>
+        <div class="portal-next-action__content">
+          <span class="portal-next-action__icon">${nextAction.icon}</span>
+          <span class="portal-next-action__text">${nextAction.label}</span>
+          <button class="portal-btn portal-btn--sm" id="nextActionBtn">${t('viewDetails')}</button>
+        </div>
+      </section>
+
+      <section class="portal-steps">
+        <div class="portal-section__title">${t('projectStepsTitle')}</div>
+        <div class="portal-steps__list">
+          <div class="portal-step ${hasProjects ? 'portal-step--done' : 'portal-step--active'}">
+            <div class="portal-step__num">1</div>
+            <div class="portal-step__title">${t('step1')}</div>
+          </div>
+          <div class="portal-step ${analyses.length > 0 ? 'portal-step--done' : (hasProjects ? 'portal-step--active' : '')}">
+            <div class="portal-step__num">2</div>
+            <div class="portal-step__title">${t('step2')}</div>
+          </div>
+          <div class="portal-step ${reviewRequests.length > 0 ? 'portal-step--done' : (analyses.length > 0 ? 'portal-step--active' : '')}">
+            <div class="portal-step__num">3</div>
+            <div class="portal-step__title">${t('step3')}</div>
+          </div>
+          <div class="portal-step ${reviewRequests.some(r => r.status === 'approved') ? 'portal-step--done' : (reviewRequests.length > 0 ? 'portal-step--active' : '')}">
+            <div class="portal-step__num">4</div>
+            <div class="portal-step__title">${t('step4')}</div>
+          </div>
+        </div>
+      </section>
+
+      ${latestAnalysis && latestAnalysisResult.risk_score !== undefined ? `
+      <section class="portal-section">
+        <div class="portal-section__title">${t('decision')}</div>
+        <div class="portal-decision ${decision.class}">
+          <div class="portal-decision__title">${decision.text}</div>
+          <div class="portal-decision__rec">${decision.recommendation}</div>
+        </div>
+      </section>
+      ` : ''}
+
+      ${actionPlan.length ? `
+      <section class="portal-section">
+        <div class="portal-section__title">${t('actionPlan')}</div>
+        <div class="portal-action-plan">
+          ${actionPlan.map(s => `
+            <div class="portal-action-plan__item">
+              <div class="portal-action-plan__week">${s.week}</div>
+              <div class="portal-action-plan__task">${escapeHtml(s.task)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+      ` : ''}
+
+      <section class="portal-section" id="projectsSection">
+        <div class="portal-section__header">
+          <div class="portal-section__title">${t('projects')}</div>
+          <button class="portal-btn portal-btn--outline portal-btn--sm" id="createProjectBtn">${t('createProject')}</button>
+        </div>
         ${projects.length === 0 ? `
-          <div class="portal-empty"><div class="portal-empty__icon">📁</div>${t('noProjects')}</div>
+          <div class="portal-empty">
+            <div class="portal-empty__icon">📁</div>
+            <div class="portal-empty__title">${t('emptyProjectsTitle')}</div>
+            <div class="portal-empty__desc">${t('emptyProjectsDesc')}</div>
+            <button class="portal-btn" id="createProjectBtnEmpty">${t('createProject')}</button>
+          </div>
         ` : `
-          <div class="portal-list">
+          <div class="portal-project-grid">
             ${projects.map(p => `
-              <div class="portal-list__item">
-                <div>
-                  <div style="font-weight:700;">${p.name}</div>
-                  <div class="portal-list__meta">${t('date')}: ${formatDate(p.created_at)} · ${t('budget')}: ${p.budget || '-'}</div>
-                </div>
-                <div style="text-align:center;">
+              <a class="portal-project-card" href="${clientPath('project.html?id=' + p.id)}">
+                <div class="portal-project-card__header">
+                  <div class="portal-project-card__name">${escapeHtml(p.name)}</div>
                   <span class="portal-status ${statusClass(p.status)}">${p.status || 'new'}</span>
-                  ${wf[p.id] ? `
-                    <div class="portal-list__meta" style="margin-top:0.35rem;">${t('workflow')}: ${wf[p.id].current_state}</div>
-                  ` : ''}
                 </div>
-              </div>
+                <div class="portal-project-card__meta">${t('date')}: ${formatDate(p.created_at)} · ${t('budget')}: ${p.budget || '-'}</div>
+                ${wf[p.id] ? `<div class="portal-project-card__meta">${t('workflow')}: ${wf[p.id].current_state}</div>` : ''}
+                <div class="portal-project-card__footer">${t('viewDetails')}</div>
+              </a>
             `).join('')}
           </div>
         `}
-      </div>
+      </section>
 
-      <div class="portal-section">
-        <div class="portal-section__title">${t('documents')}</div>
+      <section class="portal-section" id="aiHistorySection">
+        <div class="portal-section__header">
+          <div class="portal-section__title">${t('latestAnalyses')}</div>
+          <a class="portal-btn portal-btn--outline portal-btn--sm" href="${clientPath('index.html#aiAnalyzerSection')}">${t('analyzeProject')}</a>
+        </div>
+        ${analyses.length === 0 ? `
+          <div class="portal-empty"><div class="portal-empty__icon">🧠</div>${t('noAnalyses')}</div>
+        ` : `
+          <div class="portal-list">
+            ${analyses.slice(0, 5).map(a => {
+              const result = a.ai_results?.result || {};
+              const risk = result.risk_score ?? '-';
+              const projectName = a.project_id ? (projects.find(p => p.id === a.project_id)?.name || '') : '';
+              return `
+                <div class="portal-list__item" data-ai-request-id="${a.id}" data-ai-result='${escapeHtml(JSON.stringify(result))}'>
+                  <div>
+                    <div style="font-weight:700;">${typeLabel(a.type)}${projectName ? ' — ' + escapeHtml(projectName) : ''}</div>
+                    <div class="portal-list__meta">${formatDate(a.created_at)} · ${t('aiRiskScore')}: ${risk}</div>
+                  </div>
+                  <div style="display:flex;gap:0.5rem;">
+                    <button class="portal-btn portal-btn--outline ai-history-view-btn">${t('aiViewAnalysis')}</button>
+                    <button class="portal-btn portal-btn--outline ai-history-review-btn">${t('aiRequestAgain')}</button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `}
+      </section>
+
+      <section class="portal-section" id="reviewRequestsSection">
+        <div class="portal-section__header">
+          <div class="portal-section__title">${t('latestReviews')}</div>
+        </div>
+        ${reviewRequests.length === 0 ? `
+          <div class="portal-empty"><div class="portal-empty__icon">👨‍💼</div>${t('noReviews')}</div>
+        ` : `
+          <div class="portal-list">
+            ${reviewRequests.slice(0, 5).map(r => {
+              const req = r.ai_requests || {};
+              const result = req.ai_results?.result || {};
+              return `
+                <div class="portal-list__item">
+                  <div>
+                    <div style="font-weight:700;">${typeLabel(req.type) || '-'}</div>
+                    <div class="portal-list__meta">${formatDate(r.created_at)} · ${t('aiRiskScore')}: ${result.risk_score ?? '-'} · ${t('reviewStatus')}: <span class="portal-status ${statusClass(r.status)}">${reviewStatusLabel(r.status)}</span></div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `}
+      </section>
+
+      <section class="portal-section" id="documentsSection">
+        <div class="portal-section__header">
+          <div class="portal-section__title">${t('documents')}</div>
+        </div>
         <div style="margin-bottom:1rem;">
           <input type="file" id="docUploadInput" style="display:none;" />
-          <button class="portal-btn" id="docUploadBtn">⬆️ ${t('uploadDocument')}</button>
+          <button class="portal-btn portal-btn--outline portal-btn--sm" id="docUploadBtn">⬆️ ${t('uploadDocument')}</button>
           <span id="docUploadMsg" style="margin-right:0.75rem;color:var(--text-secondary);"></span>
         </div>
         ${docs.length === 0 ? `
@@ -494,29 +785,87 @@
             `).join('')}
           </div>
         `}
-      </div>
-
-      <div class="portal-section">
-        <div class="portal-section__title">${t('reports')}</div>
-        ${reports.length === 0 ? `
-          <div class="portal-empty"><div class="portal-empty__icon">📄</div>${t('noReports')}</div>
-        ` : `
-          <div class="portal-list">
-            ${reports.map(r => `
-              <div class="portal-list__item">
-                <div>
-                  <div style="font-weight:700;">${r.title}</div>
-                  <div class="portal-list__meta">${t('date')}: ${formatDate(r.created_at)}</div>
-                </div>
-                <a class="portal-btn portal-btn--outline" href="${clientPath('report.html?id=' + r.id)}">${t('viewReport')}</a>
-              </div>
-            `).join('')}
-          </div>
-        `}
-      </div>
+      </section>
 
       ${renderAiAnalyzer(client, projects)}
+
+      <div class="portal-modal-overlay" id="createProjectModal">
+        <div class="portal-modal">
+          <div class="portal-modal__header">
+            <h3>${t('createProject')}</h3>
+            <button class="portal-modal__close" id="closeCreateProjectModal">&times;</button>
+          </div>
+          <div class="portal-modal__body">
+            <div class="portal-form-group">
+              <label>${t('aiProject')}</label>
+              <input type="text" id="newProjectName" placeholder="${IS_EN ? 'Restaurant in Jeddah' : 'مطعم في جدة'}" />
+            </div>
+            <div class="portal-form-group">
+              <label>${t('aiSector')}</label>
+              <input type="text" id="newProjectSector" placeholder="${IS_EN ? 'Restaurant' : 'مطعم'}" />
+            </div>
+            <div class="portal-form-group">
+              <label>${t('aiCity')}</label>
+              <input type="text" id="newProjectCity" placeholder="${IS_EN ? 'Jeddah' : 'جدة'}" />
+            </div>
+            <div class="portal-form-group">
+              <label>${t('budget')}</label>
+              <input type="number" id="newProjectBudget" placeholder="500000" />
+            </div>
+          </div>
+          <div class="portal-modal__footer">
+            <button class="portal-btn portal-btn--outline" id="cancelCreateProject">${t('back')}</button>
+            <button class="portal-btn" id="saveCreateProject">${t('createProject')}</button>
+          </div>
+        </div>
+      </div>
     `;
+
+    function handleNextAction() {
+      if (nextAction.action === 'create-project') {
+        openCreateProjectModal();
+      } else if (nextAction.action === 'view-reviews') {
+        document.getElementById('reviewRequestsSection')?.scrollIntoView({ behavior: 'smooth' });
+      } else if (nextAction.action === 'request-review') {
+        document.getElementById('aiHistorySection')?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        document.getElementById('aiAnalyzerSection')?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    const primaryBtn = document.getElementById('dashboardPrimaryAction');
+    if (primaryBtn) primaryBtn.addEventListener('click', handleNextAction);
+    const nextActionBtn = document.getElementById('nextActionBtn');
+    if (nextActionBtn) nextActionBtn.addEventListener('click', handleNextAction);
+
+    function openCreateProjectModal() {
+      const modal = document.getElementById('createProjectModal');
+      if (modal) modal.classList.add('open');
+    }
+    function closeCreateProjectModal() {
+      const modal = document.getElementById('createProjectModal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    document.querySelectorAll('#createProjectBtn, #createProjectBtnEmpty').forEach(function(btn) {
+      if (btn) btn.addEventListener('click', openCreateProjectModal);
+    });
+    document.getElementById('closeCreateProjectModal')?.addEventListener('click', closeCreateProjectModal);
+    document.getElementById('cancelCreateProject')?.addEventListener('click', closeCreateProjectModal);
+    document.getElementById('saveCreateProject')?.addEventListener('click', async function() {
+      const name = document.getElementById('newProjectName').value.trim();
+      const sector = document.getElementById('newProjectSector').value.trim();
+      const city = document.getElementById('newProjectCity').value.trim();
+      const budget = Number(document.getElementById('newProjectBudget').value);
+      if (!name) { alert(IS_EN ? 'Project name is required' : 'اسم المشروع مطلوب'); return; }
+      const { error } = await createProject(client.id, { name, sector, city, budget });
+      if (error) { alert(IS_EN ? 'Failed to create project' : 'فشل إنشاء المشروع'); return; }
+      closeCreateProjectModal();
+      initDashboard();
+    });
+    document.getElementById('createProjectModal')?.addEventListener('click', function(e) {
+      if (e.target === this) closeCreateProjectModal();
+    });
 
     // Document upload handlers
     const uploadBtn = document.getElementById('docUploadBtn');
@@ -616,7 +965,6 @@
       });
     });
   }
-
   async function getSessionToken() {
     if (!window.BondsAuth || !window.BondsAuth.getSession) return null;
     const { data } = await window.BondsAuth.getSession();
@@ -1096,6 +1444,248 @@
     `;
   }
 
+
+  function renderProjectDetail(project, details, analyses, reviewRequests, documents, reports) {
+    const main = document.getElementById('portal-main');
+    if (!main) return;
+    const projectAnalyses = analyses.filter(a => a.project_id === project.id);
+    const projectReviewRequests = reviewRequests.filter(r => {
+      const req = r.ai_requests || {};
+      return req.project_id === project.id;
+    });
+    const projectDocs = documents.filter(d => d.project_id === project.id);
+    const latestAnalysis = projectAnalyses[0];
+    const latestResult = latestAnalysis?.ai_results?.result || {};
+    const decision = latestResult.risk_score !== undefined ? decisionFromResult(latestResult) : null;
+    const actionPlan = latestResult.recommendations ? actionPlanFromResult(latestResult) : [];
+
+    main.innerHTML = `
+      <div class="portal-page-header">
+        <div>
+          <h1 class="portal-page-title">${escapeHtml(project.name)}</h1>
+          <p class="portal-page-subtitle">${escapeHtml(project.sector || '')} ${project.city ? '· ' + escapeHtml(project.city) : ''}</p>
+        </div>
+        <a class="portal-btn portal-btn--outline" href="${clientPath('index.html')}">${t('backToDashboard')}</a>
+      </div>
+
+      <div class="portal-project-summary">
+        <div class="portal-project-summary__stats">
+          <div class="portal-stat-card">
+            <div class="portal-stat-card__label">${t('status')}</div>
+            <div class="portal-stat-card__value"><span class="portal-status ${statusClass(project.status)}">${project.status || 'new'}</span></div>
+          </div>
+          <div class="portal-stat-card">
+            <div class="portal-stat-card__label">${t('budget')}</div>
+            <div class="portal-stat-card__value">${project.budget || '-'}</div>
+          </div>
+          <div class="portal-stat-card">
+            <div class="portal-stat-card__label">${t('latestUpdate')}</div>
+            <div class="portal-stat-card__value">${formatDate(project.updated_at || project.created_at)}</div>
+          </div>
+        </div>
+        ${decision ? `
+        <div class="portal-decision ${decision.class}">
+          <div class="portal-decision__title">${decision.text}</div>
+          <div class="portal-decision__rec">${decision.recommendation}</div>
+        </div>
+        ` : ''}
+      </div>
+
+      <section class="portal-section">
+        <div class="portal-section__header">
+          <div class="portal-section__title">${t('projectData')}</div>
+        </div>
+        <div class="portal-detail-grid">
+          <div class="portal-detail-item"><strong>${t('aiSector')}:</strong> ${project.sector || '-'}</div>
+          <div class="portal-detail-item"><strong>${t('aiCity')}:</strong> ${project.city || '-'}</div>
+          <div class="portal-detail-item"><strong>${t('budget')}:</strong> ${project.budget || '-'}</div>
+          <div class="portal-detail-item"><strong>${t('aiMonthlyRevenue')}:</strong> ${project.monthly_revenue || '-'}</div>
+          <div class="portal-detail-item"><strong>${t('aiMonthlyCosts')}:</strong> ${project.monthly_costs || '-'}</div>
+          <div class="portal-detail-item"><strong>${t('date')}:</strong> ${formatDate(project.created_at)}</div>
+        </div>
+      </section>
+
+      ${actionPlan.length ? `
+      <section class="portal-section">
+        <div class="portal-section__title">${t('actionPlan')}</div>
+        <div class="portal-action-plan">
+          ${actionPlan.map(s => `
+            <div class="portal-action-plan__item">
+              <div class="portal-action-plan__week">${s.week}</div>
+              <div class="portal-action-plan__task">${escapeHtml(s.task)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+      ` : ''}
+
+      <section class="portal-section">
+        <div class="portal-section__header">
+          <div class="portal-section__title">${t('projectAnalyses')}</div>
+          <a class="portal-btn portal-btn--outline portal-btn--sm" href="${clientPath('index.html#aiAnalyzerSection')}">${t('analyzeProject')}</a>
+        </div>
+        ${projectAnalyses.length === 0 ? `
+          <div class="portal-empty"><div class="portal-empty__icon">🧠</div>${t('noAnalyses')}</div>
+        ` : `
+          <div class="portal-list">
+            ${projectAnalyses.map(a => {
+              const result = a.ai_results?.result || {};
+              return `
+                <div class="portal-list__item" data-ai-request-id="${a.id}" data-ai-result='${escapeHtml(JSON.stringify(result))}'>
+                  <div>
+                    <div style="font-weight:700;">${typeLabel(a.type)}</div>
+                    <div class="portal-list__meta">${formatDate(a.created_at)} · ${t('aiRiskScore')}: ${result.risk_score ?? '-'}</div>
+                  </div>
+                  <div style="display:flex;gap:0.5rem;">
+                    <button class="portal-btn portal-btn--outline ai-history-view-btn">${t('aiViewAnalysis')}</button>
+                    <button class="portal-btn portal-btn--outline ai-history-review-btn">${t('aiRequestAgain')}</button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `}
+      </section>
+
+      <section class="portal-section">
+        <div class="portal-section__title">${t('projectReviewRequests')}</div>
+        ${projectReviewRequests.length === 0 ? `
+          <div class="portal-empty"><div class="portal-empty__icon">👨‍💼</div>${t('noReviews')}</div>
+        ` : `
+          <div class="portal-list">
+            ${projectReviewRequests.map(r => {
+              const req = r.ai_requests || {};
+              return `
+                <div class="portal-list__item">
+                  <div>
+                    <div style="font-weight:700;">${typeLabel(req.type) || '-'}</div>
+                    <div class="portal-list__meta">${formatDate(r.created_at)} · ${t('reviewStatus')}: <span class="portal-status ${statusClass(r.status)}">${reviewStatusLabel(r.status)}</span></div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `}
+      </section>
+
+      <section class="portal-section">
+        <div class="portal-section__title">${t('projectDocuments')}</div>
+        ${projectDocs.length === 0 ? `
+          <div class="portal-empty"><div class="portal-empty__icon">📎</div>${t('noDocuments')}</div>
+        ` : `
+          <div class="portal-list">
+            ${projectDocs.map(d => `
+              <div class="portal-list__item">
+                <div>
+                  <div style="font-weight:700;">${escapeHtml(d.filename)}</div>
+                  <div class="portal-list__meta">${formatDate(d.created_at)} · ${d.status}</div>
+                </div>
+                <button class="portal-btn portal-btn--outline doc-download-btn" data-doc-path="${d.storage_path}">${t('download')}</button>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      </section>
+
+      <section class="portal-section">
+        <div class="portal-section__title">${t('projectReports')}</div>
+        ${reports.length === 0 ? `
+          <div class="portal-empty"><div class="portal-empty__icon">📄</div>${t('noReports')}</div>
+        ` : `
+          <div class="portal-list">
+            ${reports.map(r => `
+              <div class="portal-list__item">
+                <div>
+                  <div style="font-weight:700;">${r.title}</div>
+                  <div class="portal-list__meta">${formatDate(r.created_at)}</div>
+                </div>
+                <a class="portal-btn portal-btn--outline" href="${clientPath('report.html?id=' + r.id)}">${t('viewReport')}</a>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      </section>
+    `;
+
+    document.querySelectorAll('.ai-history-view-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const item = this.closest('[data-ai-result]');
+        const resultJson = item ? item.dataset.aiResult : '{}';
+        const resultEl = document.createElement('div');
+        resultEl.className = 'portal-section portal-ai-result-inline';
+        resultEl.style.marginTop = '1rem';
+        const parent = item.parentElement;
+        const existing = parent.nextElementSibling;
+        if (existing && existing.classList.contains('portal-ai-result-inline')) existing.remove();
+        parent.after(resultEl);
+        try {
+          const result = JSON.parse(resultJson);
+          renderAiResult(resultEl, { result, cached: true, usage: { cost_usd: 0 } });
+        } catch (e) {
+          console.error('Failed to parse stored AI result', e);
+        }
+      });
+    });
+
+    document.querySelectorAll('.ai-history-review-btn').forEach(function(btn) {
+      btn.addEventListener('click', async function() {
+        const item = this.closest('[data-ai-request-id]');
+        const requestId = item ? item.dataset.aiRequestId : null;
+        if (!requestId) return;
+        btn.disabled = true;
+        btn.textContent = '⏳';
+        const ok = await requestAiReview(requestId, {});
+        btn.textContent = ok ? `✓ ${t('aiReviewRequested')}` : t('aiRequestAgain');
+        btn.disabled = ok;
+      });
+    });
+
+    document.querySelectorAll('.doc-download-btn').forEach(function(btn) {
+      btn.addEventListener('click', async function() {
+        const path = btn.dataset.docPath;
+        if (!path) return;
+        const url = await getDocumentDownloadUrl(path);
+        if (url) window.open(url, '_blank');
+      });
+    });
+  }
+
+  async function initProject() {
+    showLoading('portal-main');
+    const user = await requireAuth();
+    if (!user) return;
+    injectHeader(user);
+    injectSidebar();
+
+    const params = new URLSearchParams(window.location.search);
+    const projectId = params.get('id');
+    if (!projectId) {
+      document.getElementById('portal-main').innerHTML = `<div class="portal-alert">${t('notFound')}</div>`;
+      return;
+    }
+
+    const { data: client, error: clientErr } = await loadClient(user);
+    if (clientErr || !client) {
+      document.getElementById('portal-main').innerHTML = `<div class="portal-alert">${clientErr ? t('errorLoading') : t('noClientRecord')}</div>`;
+      return;
+    }
+
+    const [{ data: details, error: projectErr }, { data: analyses }, { data: reviewRequests }, { data: documents }, { data: reports }] = await Promise.all([
+      loadProjectDetails(projectId),
+      loadAiAnalyses(user.id),
+      loadAiReviewRequests(user.id),
+      loadDocuments(client.id),
+      loadReports(client.id)
+    ]);
+
+    if (projectErr || !details || !details.project) {
+      document.getElementById('portal-main').innerHTML = `<div class="portal-alert">${t('notFound')}</div>`;
+      console.error(projectErr);
+      return;
+    }
+
+    renderProjectDetail(details.project, details, analyses || [], reviewRequests || [], documents || [], reports || []);
+  }
   async function initDashboard() {
     showLoading('portal-main');
     const user = await requireAuth();
@@ -1119,11 +1709,12 @@
       return;
     }
 
-    const [{ data: projects, error: projectsErr }, { data: reports }, { data: documents }, { data: analyses }] = await Promise.all([
+    const [{ data: projects, error: projectsErr }, { data: reports }, { data: documents }, { data: analyses }, { data: reviewRequests }] = await Promise.all([
       loadProjects(client.id),
       loadReports(client.id),
       loadDocuments(client.id),
-      loadAiAnalyses(user.id)
+      loadAiAnalyses(user.id),
+      loadAiReviewRequests(user.id)
     ]);
     if (projectsErr) console.error('Projects load error:', projectsErr);
     const projectList = projects || [];
@@ -1131,7 +1722,7 @@
     const { data: workflows } = await loadWorkflows(projectIds);
     const workflowsMap = {};
     (workflows || []).forEach(w => { workflowsMap[w.entity_id] = w; });
-    renderDashboard(client, projectList, reports || [], workflowsMap, documents || [], analyses || []);
+    renderDashboard(client, projectList, reports || [], workflowsMap, documents || [], analyses || [], reviewRequests || []);
   }
 
   async function initReports() {
@@ -1190,6 +1781,7 @@
     initDashboard,
     initReports,
     initReportView,
+    initProject,
     logout,
     t
   };
