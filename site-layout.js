@@ -100,7 +100,8 @@
     const contactHref = langBase + 'contact.html';
     const blogHref = langBase + '../blog/index.html';
     const clientPortalHref = isEn ? langBase + 'client/index.html' : langBase + '../client/index.html';
-    const fundingSourcesHref = langBase + 'funding-sources.html';
+    const fundingReadinessHref = langBase + 'calculators/creditworthiness.html';
+    const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
     const calcBase = langBase + 'calculators/';
     const calcBreakEven = langBase + 'calculator.html';
     const sectorsBase = langBase + 'sectors/';
@@ -176,8 +177,9 @@
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
       { type: 'dropdown', label: labels.guides, items: guideCountries.map(c => ({ href: sectorsBase + c.code + '.html', label: c.flag + ' ' + c.label })), isLarge: true },
       { type: 'dropdown', label: labels.calculators, items: calcDropdown, isLarge: true },
+      { href: cityIntelligenceHref, label: labels.cityIntelligence },
+      { href: fundingReadinessHref, label: isEn ? 'Funding Readiness' : 'جاهزية التمويل' },
       { type: 'dropdown', label: labels.intelligence, items: intelligenceDropdown },
-      { href: fundingSourcesHref, label: labels.fundingSources },
       { href: blogHref, label: labels.articles },
       { href: clientPortalHref, label: labels.clientPortal },
       { href: contactHref, label: labels.contact },
