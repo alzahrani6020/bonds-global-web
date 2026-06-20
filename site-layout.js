@@ -78,6 +78,7 @@
       feasibility: isEn ? 'Feasibility Studies' : 'دراسات الجدوى',
       risk: isEn ? 'Risk Analysis' : 'تحليل المخاطر',
       research: isEn ? 'Surveys & Research' : 'الاستبيانات والبحوث',
+      projectRescue: isEn ? 'Project Rescue' : 'إحياء المشاريع',
       breakEven: isEn ? 'Break-Even' : 'نقطة التعادل',
       cashFlowCalc: isEn ? 'Cash Flow' : 'تدفق النقد',
       pricingCalc: isEn ? 'Pricing' : 'تسعير المنتج',
@@ -102,6 +103,7 @@
     const clientPortalHref = isEn ? langBase + 'client/index.html' : langBase + '../client/index.html';
     const fundingReadinessHref = langBase + 'calculators/creditworthiness.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
+    const projectRescueHref = langBase + 'project-rescue.html';
     const calcBase = langBase + 'calculators/';
     const calcBreakEven = langBase + 'calculator.html';
     const sectorsBase = langBase + 'sectors/';
@@ -113,6 +115,7 @@
       { label: labels.feasibility, href: servicesHref + '#feasibility' },
       { label: labels.risk, href: servicesHref + '#risk' },
       { label: labels.research, href: servicesHref + '#research' },
+      { label: labels.projectRescue, href: projectRescueHref },
     ];
 
     const calcDropdown = [
@@ -257,6 +260,7 @@
         <a href="${servicesHref}#feasibility">${isEn ? 'Feasibility Studies' : 'دراسات الجدوى'}</a>
         <a href="${servicesHref}">${isEn ? 'Business Valuation' : 'تقييم المنشآت'}</a>
         <a href="${servicesHref}">${isEn ? 'Corporate Restructuring' : 'إعادة هيكلة الشركات'}</a>
+        <a href="${projectRescueHref}">${isEn ? 'Project Rescue' : 'إحياء المشاريع المتعثرة'}</a>
         <a href="${servicesHref}">${isEn ? 'Risk & Governance' : 'إدارة المخاطر والحوكمة'}</a>
       </div>
     </div>
