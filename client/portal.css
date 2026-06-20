@@ -403,3 +403,328 @@ html[dir="ltr"] body { font-family: 'Inter', 'Vazirmatn', system-ui, sans-serif;
 @media (max-width: 900px) {
   html[dir="ltr"] .portal-sidebar { border-right: none; }
 }
+
+/* ===== Bonds AI Analyzer (Client Portal) ===== */
+
+.portal-form-group select {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L1 4h14l-7 7z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 1rem center;
+  padding-left: 2.5rem;
+}
+
+.portal-form-group select:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.portal-ai-result {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.portal-ai-result__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.portal-ai-result__label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.portal-ai-result__score {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.portal-ai-result__score span {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.portal-ai-result__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.portal-ai-result__meta strong {
+  color: var(--text);
+}
+
+.portal-ai-risk-bar {
+  height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.portal-ai-risk-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+.portal-ai-result__analysis {
+  line-height: 1.8;
+  color: var(--text);
+  white-space: pre-line;
+}
+
+.portal-ai-list {
+  margin: 0;
+  padding: 0 1.25rem;
+  line-height: 1.8;
+}
+
+.portal-ai-list li {
+  margin-bottom: 0.5rem;
+}
+
+.portal-ai-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+.portal-ai-table th,
+.portal-ai-table td {
+  padding: 0.75rem 1rem;
+  text-align: start;
+  border-bottom: 1px solid var(--border);
+}
+
+.portal-ai-table th {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.portal-ai-table td {
+  font-size: 0.95rem;
+}
+
+@media (max-width: 600px) {
+  .portal-ai-result__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ===== Bonds AI Analyzer Dashboard ===== */
+
+.portal-ai-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.portal-ai-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-align: center;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.portal-ai-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--gold);
+}
+
+.portal-ai-card__label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.portal-ai-card__value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.portal-ai-card__value small {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.portal-ai-card__sub {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.ai-card--success { border-top: 3px solid var(--success); }
+.ai-card--success .portal-ai-card__value { color: var(--success); }
+
+.ai-card--warning { border-top: 3px solid var(--warning); }
+.ai-card--warning .portal-ai-card__value { color: var(--warning); }
+
+.ai-card--risk { border-top: 3px solid var(--danger); }
+.ai-card--risk .portal-ai-card__value { color: var(--danger); }
+
+.ai-card--info { border-top: 3px solid var(--gold); }
+
+.portal-ai-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1.5rem 0;
+}
+
+.portal-ai-gauge__ring {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--risk-color, var(--gold)) calc(var(--risk, 0) * 1%),
+    rgba(255,255,255,0.08) 0
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.portal-ai-gauge__ring::before {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+.portal-ai-gauge__value {
+  position: relative;
+  z-index: 1;
+  font-size: 1.8rem;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.portal-ai-gauge__value small {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.portal-ai-gauge__label {
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.portal-ai-gauge__label strong {
+  color: var(--text);
+}
+
+.portal-ai-result__badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.portal-status--info {
+  background: rgba(59,130,246,0.15);
+  color: #93c5fd;
+}
+
+.portal-ai-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.portal-ai-columns {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 700px) {
+  .portal-ai-columns { grid-template-columns: 1fr; }
+}
+
+.portal-ai-summary {
+  line-height: 1.9;
+  color: var(--text);
+}
+
+.portal-ai-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.portal-ai-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.7;
+}
+
+.portal-ai-list li:last-child { border-bottom: none; }
+
+.portal-ai-list__icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  color: var(--gold);
+  font-size: 0.85rem;
+}
+
+.portal-ai-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}

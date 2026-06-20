@@ -237,6 +237,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
           <span>City Intelligence</span>
         </button>
+        <button class="sidebar-link" data-target="/admin/ai-reviews.html?embed=1" data-title="مراجعة المتخصص">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"/><path d="M12 6v6l4 2"/></svg>
+          <span>مراجعة المتخصص</span>
+        </button>
       </div>
 
       <div class="nav-group">
@@ -290,18 +294,20 @@
           advisoryClients: 0,
           advisoryProjects: 0,
           recoveryAssets: 0,
-          cities: 0
+          cities: 0,
+          aiReviews: 0
         };
 
         try {
-          const [users, subs, msgs, advClients, advProjects, recAssets, cities] = await Promise.allSettled([
+          const [users, subs, msgs, advClients, advProjects, recAssets, cities, aiReviews] = await Promise.allSettled([
             sb?.from('profiles')?.select('*', { count: 'exact', head: true }),
             sb?.from('subscriptions')?.select('*', { count: 'exact', head: true }),
             sb?.from('contact_messages')?.select('*', { count: 'exact', head: true }),
             sb?.from('advisory_clients')?.select('*', { count: 'exact', head: true }),
             sb?.from('advisory_projects')?.select('*', { count: 'exact', head: true }),
             sb?.from('recovery_assets')?.select('*', { count: 'exact', head: true }),
-            sb?.from('cities')?.select('*', { count: 'exact', head: true })
+            sb?.from('cities')?.select('*', { count: 'exact', head: true }),
+            sb?.from('ai_review_requests')?.select('*', { count: 'exact', head: true })
           ]);
 
           counts.users = users.value?.count || 0;
@@ -311,6 +317,7 @@
           counts.advisoryProjects = advProjects.value?.count || 0;
           counts.recoveryAssets = recAssets.value?.count || 0;
           counts.cities = cities.value?.count || 0;
+          counts.aiReviews = aiReviews.value?.count || 0;
 
           const rev = await sb?.from('subscriptions')?.select('tier')?.eq('status', 'active');
           if (rev?.data) {
@@ -340,6 +347,7 @@
             <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">📁</div></div><div class="stat-card__num">${counts.advisoryProjects.toLocaleString('ar-SA')}</div><div class="stat-card__label">مشاريع استشارية</div></div>
             <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--red">🏗️</div></div><div class="stat-card__num">${counts.recoveryAssets.toLocaleString('ar-SA')}</div><div class="stat-card__label">أصول متعثرة</div></div>
             <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🏙️</div></div><div class="stat-card__num">${counts.cities.toLocaleString('ar-SA')}</div><div class="stat-card__label">مدن City Intelligence</div></div>
+            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">🧑‍⚕️</div></div><div class="stat-card__num">${counts.aiReviews.toLocaleString('ar-SA')}</div><div class="stat-card__label">طلبات مراجعة AI</div></div>
           </div>
 
           <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:1rem;">الوحدات</h2>
@@ -393,6 +401,11 @@
               <div class="module-card__icon">🏙️</div>
               <div class="module-card__title">City Intelligence</div>
               <div class="module-card__desc">تحليل المدن والأحياء والتقارير</div>
+            </button>
+            <button class="module-card" data-target="/admin/ai-reviews.html?embed=1" data-title="مراجعة المتخصص">
+              <div class="module-card__icon">🧑‍⚕️</div>
+              <div class="module-card__title">مراجعة المتخصص</div>
+              <div class="module-card__desc">طلبات مراجعة تحليلات AI من العملاء</div>
             </button>
           </div>`;
 

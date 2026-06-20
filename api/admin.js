@@ -193,6 +193,54 @@ async function getPageViews(sb) {
   };
 }
 
+// ── AI Review Requests ──────────────────────────────────────
+async function getAiReviews(sb, admin) {
+  if (!admin) throw new Error('Admin required');
+  const { data, error } = await sb
+    .from('ai_review_requests')
+    .select(`
+      *,
+      ai_requests!inner(
+        id, type, payload, model, tokens_input, tokens_output, cost_usd, created_at,
+        ai_results(result, risk_score)
+      ),
+      profiles:user_id(email, full_name)
+    `)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return { data: data || [] };
+}
+
+async function updateAiReview(sb, body, admin) {
+  if (!admin) throw new Error('Admin required');
+  const { id, status, assigned_to, admin_notes } = body;
+  if (!id) throw new Error('id required');
+  const update = { updated_at: new Date().toISOString() };
+  if (status) {
+    update.status = status;
+    if (status === 'approved') update.reviewed_by = admin.id;
+  }
+  if (assigned_to !== undefined) {
+    let assigneeId = null;
+    const email = (assigned_to || '').trim();
+    if (email) {
+      // Allow UUID or email; resolve email to user id via profiles
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(email);
+      if (isUuid) {
+        assigneeId = email;
+      } else {
+        const { data: profileUsers } = await sb.from('profiles').select('id').eq('email', email).limit(1);
+        if (profileUsers?.length) assigneeId = profileUsers[0].id;
+      }
+    }
+    update.assigned_to = assigneeId;
+  }
+  if (admin_notes !== undefined) update.admin_notes = admin_notes || null;
+  const { error } = await sb.from('ai_review_requests').update(update).eq('id', id);
+  if (error) throw error;
+  return { success: true };
+}
+
 // ── Verify Admin ────────────────────────────────────────────
 const ROLE_PERMISSIONS = {
   super_admin: ['users', 'subscriptions', 'messages', 'roles', 'analytics', 'users_write', 'export'],
@@ -510,6 +558,11 @@ module.exports = async function handler(req, res) {
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await getPageViews(sb));
       }
+      if (action === 'ai-reviews') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getAiReviews(sb, admin));
+      }
       return res.status(400).json({ error: 'Unknown action' });
     }
 
@@ -562,6 +615,11 @@ module.exports = async function handler(req, res) {
         if (subAction === 'add') return res.status(200).json(await addRole(sb, req.body, admin));
         if (subAction === 'remove') return res.status(200).json(await removeRole(sb, req.body, admin));
         return res.status(400).json({ error: 'Invalid sub-action' });
+      }
+      if (action === 'ai-reviews') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await updateAiReview(sb, req.body, admin));
       }
       if (action === 'makeOwnerAdmin') {
         const authHeader = req.headers.authorization;

@@ -11,6 +11,8 @@ const { billingRouter } = require('./billing');
 const { dataEngineRouter } = require('./data-engine');
 const { getUserFromToken } = require('../lib/auth');
 const { aiChatHandler } = require('./ai');
+const { handleAiAnalyze } = require('../../lib/ai/analyze-handler');
+const { handleAiReviewRequest } = require('../../lib/ai/review-handler');
 const { scenariosRouter } = require('./scenarios');
 const { alertsRouter } = require('./alerts');
 const { compareRouter } = require('./compare');
@@ -527,6 +529,8 @@ module.exports = async function handler(req, res) {
     if (path === '/calculate' && req.method === 'POST') return await handleCalculate(req, res);
     if (path.startsWith('/calculate/scenarios')) return await scenariosRouter(req, res, path);
     if (path === '/ai/chat' && req.method === 'POST') return await aiChatHandler(req, res);
+    if (path === '/ai/analyze' && req.method === 'POST') return await handleAiAnalyze(req, res);
+    if (path === '/ai/request-review' && req.method === 'POST') return await handleAiReviewRequest(req, res);
     if (path.startsWith('/scenarios')) return await scenariosRouter(req, res, path);
     if (path.startsWith('/admin/alert-rules') || path.startsWith('/admin/alerts') || path.startsWith('/alerts')) {
       return await alertsRouter(req, res, path);
