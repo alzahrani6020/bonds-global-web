@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>بوندز | للاستشارات المالية والإدارية</title>
-  <meta name="description" content="نقدم حلولاً مالية وإستراتيجية تكاملية نساعد الشركات والمستثمرين على تحقيق النمو المستدام وتعظيم القيمة." />
-  <meta property="og:title" content="بوندز | للاستشارات المالية والإدارية" />
-  <meta property="og:description" content="نقدم حلولاً مالية وإستراتيجية تكاملية نساعد الشركات والمستثمرين على تحقيق النمو المستدام وتعظيم القيمة." />
+  <title>بوندز | اعرف قابلية مشروعك للتمويل</title>
+  <meta name="description" content="احصل على تحليل AI ومراجعة استشارية مالية معتمدة لمشروعك خلال وقت قصير. دراسات جدوى، تقييم مخاطر، ودعم التمويل." />
+  <meta property="og:title" content="بوندز | اعرف قابلية مشروعك للتمويل" />
+  <meta property="og:description" content="احصل على تحليل AI ومراجعة استشارية مالية معتمدة لمشروعك خلال وقت قصير. دراسات جدوى، تقييم مخاطر، ودعم التمويل." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
   <meta property="og:url" content="https://bonds-global.com/" />
   <meta property="og:type" content="website" />
@@ -485,11 +485,207 @@
       .hero__actions { flex-direction: column; }
       .partners-header { flex-direction: column; gap: 0.5rem; text-align: center; }
     }
+
+    /* ===== Hero Calculator v2 ===== */
+    .hero__trust-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 1.5rem 0;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    .hero__trust-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      list-style: none;
+    }
+    .hero__trust-list li::before {
+      content: '✓';
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #0a0f1a;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 800;
+      flex-shrink: 0;
+    }
+    .hero-calc {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 420px;
+    }
+    .hero-calc__title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+    .hero-calc__subtitle {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.25rem;
+    }
+    .hero-calc__group { margin-bottom: 1rem; }
+    .hero-calc__group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+    }
+    .hero-calc__group input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    .hero-calc__group input:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+    .hero-calc__btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+      color: #0a0f1a;
+      font-weight: 800;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+    .hero-calc__result {
+      margin-top: 1.25rem;
+      padding: 1.25rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: none;
+    }
+    .hero-calc__result.open { display: block; }
+    .hero-calc__score {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .hero-calc__score-num {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .hero-calc__score-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .hero-calc__risk {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+    .hero-calc__risk--low { background: rgba(22,163,74,0.12); color: var(--success); }
+    .hero-calc__risk--medium { background: rgba(245,158,11,0.12); color: #b45309; }
+    .hero-calc__risk--high { background: rgba(220,38,38,0.12); color: var(--danger); }
+    .hero-calc__rec {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+    .hero-calc__cta {
+      display: block;
+      text-align: center;
+      background: var(--text);
+      color: #fff;
+      padding: 0.75rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* ===== Journey Section ===== */
+    .journey-section {
+      background: var(--bg);
+      padding: 5rem 2rem;
+    }
+    .journey-section__inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .journey-section__header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .journey-section__title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+    .journey-section__subtitle {
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .journey-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.25rem;
+      position: relative;
+    }
+    .journey-step {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      position: relative;
+    }
+    .journey-step__num {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #0a0f1a;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900;
+      margin: 0 auto 1rem;
+    }
+    .journey-step__title {
+      font-weight: 800;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+    .journey-step__desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    @media (max-width: 900px) {
+      .journey-steps { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .journey-steps { grid-template-columns: 1fr; }
+    }
   </style>
 <link rel="stylesheet" href="header-footer.css?v=2" />
   <link rel="canonical" href="https://bonds-global.com/" />
-  <meta name="twitter:title" content="بوندز | للاستشارات المالية والإدارية" />
-  <meta name="twitter:description" content="نقدم حلولاً مالية وإستراتيجية تكاملية نساعد الشركات والمستثمرين على تحقيق النمو المستدام وتعظيم القيمة." />
+  <meta name="twitter:title" content="بوندز | اعرف قابلية مشروعك للتمويل" />
+  <meta name="twitter:description" content="احصل على تحليل AI ومراجعة استشارية مالية معتمدة لمشروعك خلال وقت قصير." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
 </head>
@@ -499,7 +695,7 @@
   <div id="site-header"></div>
 
   <!-- Hero -->
-  <section class="hero">
+  <section class="hero" id="hero">
     <div class="gold-lines">
       <div class="gold-line"></div>
       <div class="gold-line"></div>
@@ -509,23 +705,114 @@
     </div>
     <div class="hero__inner">
       <div class="hero__left">
-        <span class="hero__eyebrow">BONDS — منصة الذكاء الاستثماري</span>
-        <h1 class="hero__title">حلّل، قيّم، وقرّر<br />قبل أن تستثمر</h1>
+        <span class="hero__eyebrow">Bonds Advisory Methodology</span>
+        <h1 class="hero__title">اعرف قابلية مشروعك<br /><span>للتمويل</span> قبل التوجه للبنوك</h1>
         <div class="hero__divider"></div>
         <p class="hero__desc">
-          أدوات مالية مجانية، دراسات جدوى ذكية، تقييم ائتماني، وتحليل مدن. ابدأ بأداة واحدة وانتقل إلى استشارة مخصصة عند الحاجة.
+          تحليل AI ذكي + مراجعة مستشار مالي معتمد = تقرير تنفيذي قابل للإرسال للبنوك والمستثمرين. ابدأ بتقييم أولي مجاني في دقائق.
         </p>
+        <ul class="hero__trust-list">
+          <li>تحليل جدوى وتقييم مخاطر</li>
+          <li>مراجعة بشرية من مستشار مالي</li>
+          <li>تقرير تنفيذي معتمد</li>
+        </ul>
         <div class="hero__actions">
-          <a href="#calculators" class="btn-primary">جرب الأدوات المجانية ←</a>
-          <a href="v3/index.html" class="btn-outline">اكتشف Bonds V3 ←</a>
-        </div>
-        <div style="margin-top:2.5rem; display:flex; align-items:center; gap:0.75rem; opacity:0.7;">
-          <span style="font-size:0.75rem; color:var(--text-muted);">أدوات مجانية · نتائج فورية · استشارات عند الحاجة</span>
-          <span style="color:var(--gold);">★</span>
+          <a href="client/index.html" class="btn-primary">ابدأ تحليل مشروعك ←</a>
+          <a href="contact.html" class="btn-outline">تواصل مع مستشار ←</a>
         </div>
       </div>
       <div class="hero__right">
-        <img src="assets/bonds-logo-2026.webp?v=2026" alt="بوندز" />
+        <div class="hero-calc" id="heroCalc">
+          <div class="hero-calc__title">📊 تقييم أولي مجاني</div>
+          <div class="hero-calc__subtitle">أدخل بيانات أساسية واحصل على نتيجة أولية</div>
+          <div class="hero-calc__group">
+            <label>المدينة</label>
+            <input type="text" id="calcCity" placeholder="مثال: جدة" />
+          </div>
+          <div class="hero-calc__group">
+            <label>النشاط التجاري</label>
+            <input type="text" id="calcSector" placeholder="مثال: مطعم، مجمع تجاري" />
+          </div>
+          <div class="hero-calc__group">
+            <label>حجم الاستثمار (ر.س)</label>
+            <input type="number" id="calcInvestment" placeholder="500000" />
+          </div>
+          <button class="hero-calc__btn" id="calcBtn">قيّم مشروعك الآن</button>
+          <div class="hero-calc__result" id="calcResult">
+            <div class="hero-calc__score">
+              <span class="hero-calc__score-num" id="calcScore">0</span>
+              <span class="hero-calc__score-label">/ 100 درجة جدوى</span>
+            </div>
+            <span class="hero-calc__risk" id="calcRisk">مستوى المخاطر</span>
+            <div class="hero-calc__rec" id="calcRec">التوصية</div>
+            <a href="client/index.html" class="hero-calc__cta">احصل على التحليل الكامل والمراجعة الاستشارية</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Journey -->
+  <section class="journey-section">
+    <div class="journey-section__inner">
+      <div class="journey-section__header">
+        <h2 class="journey-section__title">رحلتك من الفكرة إلى التمويل</h2>
+        <p class="journey-section__subtitle">خمس خطوات واضحة تنتهي بقرار استثماري مدعوم بتحليل ومراجعة احترافية.</p>
+      </div>
+      <div class="journey-steps">
+        <div class="journey-step">
+          <div class="journey-step__num">1</div>
+          <div class="journey-step__title">أضف بيانات مشروعك</div>
+          <div class="journey-step__desc">المدينة، النشاط، حجم الاستثمار، والتوقعات المالية.</div>
+        </div>
+        <div class="journey-step">
+          <div class="journey-step__num">2</div>
+          <div class="journey-step__title">تحليل AI</div>
+          <div class="journey-step__desc">نموذج مالي وجدوى أولية مع تقييم للمخاطر والفرص.</div>
+        </div>
+        <div class="journey-step">
+          <div class="journey-step__num">3</div>
+          <div class="journey-step__title">مراجعة مستشار</div>
+          <div class="journey-step__desc">خبير مالي يراجع النتائج ويضيف توصيات عملية.</div>
+        </div>
+        <div class="journey-step">
+          <div class="journey-step__num">4</div>
+          <div class="journey-step__title">تقرير معتمد</div>
+          <div class="journey-step__desc">ملف تنفيذي احترافي قابل للإرسال للبنوك والمستثمرين.</div>
+        </div>
+        <div class="journey-step">
+          <div class="journey-step__num">5</div>
+          <div class="journey-step__title">دعم التمويل</div>
+          <div class="journey-step__desc">متابعة خطواتك نحو الحصول على التمويل المناسب.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Outcome -->
+  <section class="section" style="background:var(--bg-white);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section__eyebrow">النتيجة</span>
+        <h2 class="section__title">تقرير تنفيذي يُبني قرارك</h2>
+        <p class="section__subtitle">لا مجرد أرقام. تحصل على تحليل واضح ومراجعة استشارية وتقرير جاهز للإرسال للبنوك والمستثمرين.</p>
+      </div>
+      <div class="services-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="service-card" style="text-align:center;">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <h3 class="service-card__title">درجة جاهزية واضحة</h3>
+          <p class="service-card__text">تقييم أولي لقابلية التمويل يوضح نقاط القوة والضعف.</p>
+        </div>
+        <div class="service-card" style="text-align:center;">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <h3 class="service-card__title">مراجعة مستشار مالي</h3>
+          <p class="service-card__text">خبير يراجع النتائج ويضيف توصيات عملية تتناسب مع سوقك.</p>
+        </div>
+        <div class="service-card" style="text-align:center;">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <h3 class="service-card__title">تقرير معتمد جاهز للإرسال</h3>
+          <p class="service-card__text">ملف تنفيذي احترافي يمكن تقديمه للبنوك والمستثمرين.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -896,6 +1183,42 @@
         mainNav.classList.toggle('open');
       });
     }
+
+    // Hero Quick Calculator
+    (function(){
+      var btn = document.getElementById('calcBtn');
+      if(!btn) return;
+      function hashCode(str){
+        var h = 0;
+        for(var i = 0; i < str.length; i++) h = ((h << 5) - h) + str.charCodeAt(i) | 0;
+        return Math.abs(h);
+      }
+      btn.addEventListener('click', function(){
+        var city = (document.getElementById('calcCity').value || '').trim();
+        var sector = (document.getElementById('calcSector').value || '').trim();
+        var investment = parseFloat(document.getElementById('calcInvestment').value) || 0;
+        if(!city || !sector || investment <= 0){
+          alert('يرجى إدخال المدينة والنشاط وحجم الاستثمار');
+          return;
+        }
+        var base = hashCode(city.toLowerCase() + '|' + sector.toLowerCase());
+        var score = 60 + (base % 25);
+        if(investment < 100000) score -= 5;
+        if(investment > 2000000) score -= 3;
+        score = Math.max(40, Math.min(95, score));
+        var risk, riskClass, rec;
+        if(score >= 80){ risk = 'مخاطر منخفضة'; riskClass = 'hero-calc__risk--low'; rec = 'المشروع واعد. تابع بتحليل AI كامل ومراجعة استشارية لإعداد ملف التمويل.'; }
+        else if(score >= 65){ risk = 'مخاطر متوسطة'; riskClass = 'hero-calc__risk--medium'; rec = 'جدوى جيدة مع بعض الملاحظات. يُنصح بمراجعة النموذج المالي وتقليل النفقات التشغيلية.'; }
+        else { risk = 'مخاطر مرتفعة'; riskClass = 'hero-calc__risk--high'; rec = 'هناك مخاطر واضحة. راجع حجم الاستثمار والتدفقات النقدية قبل التوجه للتمويل.'; }
+        document.getElementById('calcScore').textContent = score;
+        var riskEl = document.getElementById('calcRisk');
+        riskEl.textContent = risk;
+        riskEl.className = 'hero-calc__risk ' + riskClass;
+        document.getElementById('calcRec').textContent = rec;
+        document.getElementById('calcResult').classList.add('open');
+        document.getElementById('calcResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    })();
   </script>
 
   <script src="/api/env"></script>

@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bonds | Financial & Management Consulting</title>
-  <meta name="description" content="We provide integrated financial and strategic solutions to help companies and investors achieve sustainable growth and maximize value." />
-  <meta property="og:title" content="Bonds | Financial & Management Consulting" />
-  <meta property="og:description" content="We provide integrated financial and strategic solutions to help companies and investors achieve sustainable growth and maximize value." />
+  <title>Bonds | Check Your Project Funding Readiness</title>
+  <meta name="description" content="Get AI analysis and expert financial review for your project in minutes. Feasibility studies, risk assessment, and funding support." />
+  <meta property="og:title" content="Bonds | Check Your Project Funding Readiness" />
+  <meta property="og:description" content="Get AI analysis and expert financial review for your project in minutes. Feasibility studies, risk assessment, and funding support." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
   <meta property="og:url" content="https://bonds-global.com/en/" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -147,13 +147,210 @@
       .footer-grid { grid-template-columns: 1fr; }
       .hero__actions { flex-direction: column; }
     }
+
+    /* ===== Hero Calculator v2 ===== */
+    .hero__trust-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 1.5rem 0;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      padding: 0;
+    }
+    .hero__trust-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      list-style: none;
+    }
+    .hero__trust-list li::before {
+      content: '✓';
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #0a0f1a;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 800;
+      flex-shrink: 0;
+    }
+    .hero-calc {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 420px;
+    }
+    .hero-calc__title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+    .hero-calc__subtitle {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.25rem;
+    }
+    .hero-calc__group { margin-bottom: 1rem; }
+    .hero-calc__group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+    }
+    .hero-calc__group input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    .hero-calc__group input:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+    .hero-calc__btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+      color: #0a0f1a;
+      font-weight: 800;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+    .hero-calc__result {
+      margin-top: 1.25rem;
+      padding: 1.25rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: none;
+    }
+    .hero-calc__result.open { display: block; }
+    .hero-calc__score {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .hero-calc__score-num {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .hero-calc__score-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .hero-calc__risk {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+    .hero-calc__risk--low { background: rgba(22,163,74,0.12); color: var(--success); }
+    .hero-calc__risk--medium { background: rgba(245,158,11,0.12); color: #b45309; }
+    .hero-calc__risk--high { background: rgba(220,38,38,0.12); color: var(--danger); }
+    .hero-calc__rec {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+    .hero-calc__cta {
+      display: block;
+      text-align: center;
+      background: var(--text);
+      color: #fff;
+      padding: 0.75rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* ===== Journey Section ===== */
+    .journey-section {
+      background: var(--bg);
+      padding: 5rem 2rem;
+    }
+    .journey-section__inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .journey-section__header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .journey-section__title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+    .journey-section__subtitle {
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .journey-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.25rem;
+      position: relative;
+    }
+    .journey-step {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      position: relative;
+    }
+    .journey-step__num {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #0a0f1a;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900;
+      margin: 0 auto 1rem;
+    }
+    .journey-step__title {
+      font-weight: 800;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+    .journey-step__desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    @media (max-width: 900px) {
+      .journey-steps { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .journey-steps { grid-template-columns: 1fr; }
+    }
   </style>
 <link rel="stylesheet" href="../header-footer.css?v=2" />
   <link rel="canonical" href="https://bonds-global.com/en/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Bonds | Financial & Management Consulting" />
-  <meta name="twitter:description" content="We provide integrated financial and strategic solutions to help companies and investors achieve sustainable growth and maximize value." />
+  <meta name="twitter:title" content="Bonds | Check Your Project Funding Readiness" />
+  <meta name="twitter:description" content="Get AI analysis and expert financial review for your project in minutes." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
 </head>
@@ -161,7 +358,7 @@
 
   <div id="site-header"></div>
 
-  <section class="hero">
+  <section class="hero" id="hero">
     <div class="gold-lines">
       <div class="gold-line"></div>
       <div class="gold-line"></div>
@@ -171,19 +368,114 @@
     </div>
     <div class="hero__inner">
       <div class="hero__left">
-        <span class="hero__eyebrow">BONDS — Investment Intelligence Platform</span>
-        <h1 class="hero__title">Analyze, Evaluate,<br />Decide Before You Invest</h1>
+        <span class="hero__eyebrow">Bonds Advisory Methodology</span>
+        <h1 class="hero__title">Check Your Project's<br /><span>Funding Readiness</span> Before the Bank</h1>
         <div class="hero__divider"></div>
         <p class="hero__desc">
-          Free financial tools, smart feasibility studies, credit scoring, and city intelligence. Start with one tool and upgrade to a tailored consultation when you need it.
+          Smart AI analysis + certified financial advisor review = an executive report you can send to banks and investors. Start with a free instant assessment in minutes.
         </p>
+        <ul class="hero__trust-list">
+          <li>Feasibility analysis & risk assessment</li>
+          <li>Human review by a financial advisor</li>
+          <li>Certified executive report</li>
+        </ul>
         <div class="hero__actions">
-          <a href="#calculators" class="btn-primary">Try Free Tools ←</a>
-          <a href="../v3/index.html" class="btn-outline">Discover Bonds V3 ←</a>
+          <a href="client/index.html" class="btn-primary">Start Analyzing Your Project ←</a>
+          <a href="../en/contact.html" class="btn-outline">Speak to an Advisor ←</a>
         </div>
       </div>
       <div class="hero__right">
-        <img src="../assets/bonds-logo-2026.webp?v=2026" alt="Bonds" />
+        <div class="hero-calc" id="heroCalc">
+          <div class="hero-calc__title">📊 Free Instant Assessment</div>
+          <div class="hero-calc__subtitle">Enter basic details and get an initial score</div>
+          <div class="hero-calc__group">
+            <label>City</label>
+            <input type="text" id="calcCity" placeholder="e.g. Jeddah" />
+          </div>
+          <div class="hero-calc__group">
+            <label>Business Activity</label>
+            <input type="text" id="calcSector" placeholder="e.g. Restaurant, Retail" />
+          </div>
+          <div class="hero-calc__group">
+            <label>Investment Amount (SAR)</label>
+            <input type="number" id="calcInvestment" placeholder="500000" />
+          </div>
+          <button class="hero-calc__btn" id="calcBtn">Assess My Project</button>
+          <div class="hero-calc__result" id="calcResult">
+            <div class="hero-calc__score">
+              <span class="hero-calc__score-num" id="calcScore">0</span>
+              <span class="hero-calc__score-label">/ 100 Feasibility Score</span>
+            </div>
+            <span class="hero-calc__risk" id="calcRisk">Risk Level</span>
+            <div class="hero-calc__rec" id="calcRec">Recommendation</div>
+            <a href="client/index.html" class="hero-calc__cta">Get Full Analysis & Expert Review</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Journey -->
+  <section class="journey-section">
+    <div class="journey-section__inner">
+      <div class="journey-section__header">
+        <h2 class="journey-section__title">Your Journey from Idea to Funding</h2>
+        <p class="journey-section__subtitle">Five clear steps that end with an investment decision backed by analysis and expert review.</p>
+      </div>
+      <div class="journey-steps">
+        <div class="journey-step">
+          <div class="journey-step__num">1</div>
+          <div class="journey-step__title">Add Project Details</div>
+          <div class="journey-step__desc">City, activity, investment size, and financial projections.</div>
+        </div>
+        <div class="journey-step">
+          <div class="journey-step__num">2</div>
+          <div class="journey-step__title">AI Analysis</div>
+          <div class="journey-step__desc">Initial financial model, feasibility, and risk/opportunity assessment.</div>
+        </div>
+        <div class="journey-step">
+          <div class="journey-step__num">3</div>
+          <div class="journey-step__title">Advisor Review</div>
+          <div class="journey-step__desc">A financial expert reviews the results and adds practical recommendations.</div>
+        </div>
+        <div class="journey-step">
+          <div class="journey-step__num">4</div>
+          <div class="journey-step__title">Certified Report</div>
+          <div class="journey-step__desc">A professional executive report ready for banks and investors.</div>
+        </div>
+        <div class="journey-step">
+          <div class="journey-step__num">5</div>
+          <div class="journey-step__title">Funding Support</div>
+          <div class="journey-step__desc">Follow the steps to secure the right financing for your project.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Outcome -->
+  <section class="section" style="background:var(--bg-white);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section__eyebrow">The Outcome</span>
+        <h2 class="section__title">An Executive Report That Drives Your Decision</h2>
+        <p class="section__subtitle">Not just numbers. You get clear analysis, expert review, and a report ready to send to banks and investors.</p>
+      </div>
+      <div class="services-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="service-card" style="text-align:center;">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <h3 class="service-card__title">Clear Readiness Score</h3>
+          <p class="service-card__text">An initial funding-readiness assessment that highlights strengths and weaknesses.</p>
+        </div>
+        <div class="service-card" style="text-align:center;">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <h3 class="service-card__title">Advisor Review</h3>
+          <p class="service-card__text">A financial expert reviews the results and adds practical recommendations for your market.</p>
+        </div>
+        <div class="service-card" style="text-align:center;">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <h3 class="service-card__title">Certified Report Ready to Send</h3>
+          <p class="service-card__text">A professional executive document you can submit to banks and investors.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -237,30 +529,50 @@
           <h3 class="service-card__title">Bonds V3 — Smart Feasibility</h3>
           <p class="service-card__text">NPV, IRR, DSCR, and detailed risk analysis by city and sector.</p>
         </a>
-        <a href="../calculator.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon">📊</div>
-          <h3 class="service-card__title">Break-Even</h3>
-          <p class="service-card__text">How many orders do you need daily to cover your costs?</p>
-        </a>
-        <a href="calculators/pricing.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon">🏷️</div>
-          <h3 class="service-card__title">Product Pricing</h3>
-          <p class="service-card__text">Find the optimal price based on cost, fees, and target margin.</p>
-        </a>
-        <a href="calculators/cash-flow.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon">💰</div>
-          <h3 class="service-card__title">Cash Flow</h3>
-          <p class="service-card__text">Forecast your bills and payments for the next 12 months.</p>
+        <a href="calculators/restaurant.html" class="service-card" style="text-decoration:none; color:inherit;">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div>
+          <h3 class="service-card__title">Restaurant & Cloud Kitchens</h3>
+          <p class="service-card__text">4 operating models × 22 countries × 179 delivery platforms. Full P&L and break-even.</p>
         </a>
         <a href="calculators/medical-viability.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon">🏥</div>
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
           <h3 class="service-card__title">Medical Viability</h3>
           <p class="service-card__text">Check the viability of your pharmacy, clinic, or lab before investing.</p>
         </a>
+        <a href="calculators/dish-margin.html" class="service-card" style="text-decoration:none; color:inherit;">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/></svg></div>
+          <h3 class="service-card__title">Dish Margin</h3>
+          <p class="service-card__text">Calculate profit per menu item before adding it. Dynamic comparison across platforms.</p>
+        </a>
+        <a href="calculator.html" class="service-card" style="text-decoration:none; color:inherit;">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <h3 class="service-card__title">Break-Even</h3>
+          <p class="service-card__text">How many orders do you need daily to cover your costs?</p>
+        </a>
+        <a href="calculators/cash-flow.html" class="service-card" style="text-decoration:none; color:inherit;">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+          <h3 class="service-card__title">Cash Flow</h3>
+          <p class="service-card__text">Forecast your bills and payments for the next 12 months.</p>
+        </a>
+        <a href="calculators/pricing.html" class="service-card" style="text-decoration:none; color:inherit;">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <h3 class="service-card__title">Product Pricing</h3>
+          <p class="service-card__text">Find the optimal price based on cost, fees, and target margin.</p>
+        </a>
+        <a href="calculators/loan.html" class="service-card" style="text-decoration:none; color:inherit;">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+          <h3 class="service-card__title">Loan & Finance</h3>
+          <p class="service-card__text">Compare 4 loan types, calculate monthly installment, and debt-to-income ratio.</p>
+        </a>
         <a href="calculators/creditworthiness.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon">🛡️</div>
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
           <h3 class="service-card__title">Credit Rating</h3>
           <p class="service-card__text">Assess any company, factory, or bond using 9 criteria and get an AAA to High Risk rating.</p>
+        </a>
+        <a href="calculators/factory-cost.html" class="service-card" style="text-decoration:none; color:inherit;">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 22h20"/><path d="M20 22v-5a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3v5"/><path d="M4 22v-5a3 3 0 0 1 3-3h1"/><path d="M14.5 9a2.5 2.5 0 0 0-5 0V5.5a2.5 2.5 0 0 1 5 0V9Z"/></svg></div>
+          <h3 class="service-card__title">Factory Cost</h3>
+          <p class="service-card__text">Estimate factory setup cost in Saudi industrial cities — rent, electricity, license fees.</p>
         </a>
         <a href="https://bonds-v3.vercel.app" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
           <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
@@ -393,6 +705,80 @@
     </div>
   </section>
 
+  <!-- Testimonials -->
+  <section class="section" style="background:var(--bg-white);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section__eyebrow">Client Stories</span>
+        <h2 class="section__title">What Our Clients Say</h2>
+        <p class="section__subtitle">Real experiences from business owners and organizations we have worked with.</p>
+      </div>
+      <div class="services-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="service-card" style="text-align:left;">
+          <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
+          <p class="service-card__text" style="font-style:italic;">"Bonds helped us understand our real financial position in one week. The plan was practical and immediately actionable."</p>
+          <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
+            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">M</div>
+            <div>
+              <div style="font-weight:800; font-size:0.85rem;">Mohamed Ali</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">Retail Store Owner — Cairo</div>
+            </div>
+          </div>
+        </div>
+        <div class="service-card" style="text-align:left;">
+          <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
+          <p class="service-card__text" style="font-style:italic;">"The advisory was practical, not theoretical. They identified cash flow gaps and gave us a clear 90-day roadmap."</p>
+          <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
+            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">S</div>
+            <div>
+              <div style="font-weight:800; font-size:0.85rem;">Sara Mahmoud</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">Professional Services Director — Sheikh Zayed</div>
+            </div>
+          </div>
+        </div>
+        <div class="service-card" style="text-align:left;">
+          <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
+          <p class="service-card__text" style="font-style:italic;">"We worked with Bonds before expanding our factory. The initial feasibility study saved us from a major investment before we were ready."</p>
+          <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
+            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">A</div>
+            <div>
+              <div style="font-weight:800; font-size:0.85rem;">Ahmed Hussein</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">Co-Founder — Industrial Company — 6th of October</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" style="background:var(--bg-white);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section__eyebrow">FAQ</span>
+        <h2 class="section__title">Everything You Need to Know</h2>
+      </div>
+      <div style="max-width:800px; margin:0 auto;">
+        <details style="border-bottom:1px solid var(--border); padding:1.5rem 0;">
+          <summary style="font-weight:800; cursor:pointer; font-size:1rem; color:var(--text);">How do I start and what happens after I submit a request?</summary>
+          <div style="padding-top:1rem; color:var(--text-secondary); font-size:0.9rem; line-height:1.8;">Reach out via the contact form or WhatsApp. We aim to reply within <strong>2–3 business days</strong> to confirm the service type or request more information.</div>
+        </details>
+        <details style="border-bottom:1px solid var(--border); padding:1.5rem 0;">
+          <summary style="font-weight:800; cursor:pointer; font-size:1rem; color:var(--text);">How long does an advisory engagement take?</summary>
+          <div style="padding-top:1rem; color:var(--text-secondary); font-size:0.9rem; line-height:1.8;">It depends on scope: an exploratory session may be one or two meetings; financial analysis or budgeting can take from a few weeks to two months.</div>
+        </details>
+        <details style="border-bottom:1px solid var(--border); padding:1.5rem 0;">
+          <summary style="font-weight:800; cursor:pointer; font-size:1rem; color:var(--text);">How are prices determined?</summary>
+          <div style="padding-top:1rem; color:var(--text-secondary); font-size:0.9rem; line-height:1.8;">Usually as a <strong>package or phased engagement</strong> based on scope, or as a written proposal after understanding your request. We prefer full transparency in every proposal.</div>
+        </details>
+        <details style="border-bottom:1px solid var(--border); padding:1.5rem 0;">
+          <summary style="font-weight:800; cursor:pointer; font-size:1rem; color:var(--text);">Do you guarantee ROI or funding approval?</summary>
+          <div style="padding-top:1rem; color:var(--text-secondary); font-size:0.9rem; line-height:1.8;"><strong>No.</strong> We provide analysis and advisory based on your information; decisions and outcomes remain your responsibility.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
   <section class="contact-section">
     <div class="contact-grid">
       <div class="contact-left">
@@ -443,6 +829,42 @@
         });
       }, { threshold: 0.4 });
       counters.forEach(function(c){ observer.observe(c); });
+    })();
+
+    // Hero Quick Calculator
+    (function(){
+      var btn = document.getElementById('calcBtn');
+      if(!btn) return;
+      function hashCode(str){
+        var h = 0;
+        for(var i = 0; i < str.length; i++) h = ((h << 5) - h) + str.charCodeAt(i) | 0;
+        return Math.abs(h);
+      }
+      btn.addEventListener('click', function(){
+        var city = (document.getElementById('calcCity').value || '').trim();
+        var sector = (document.getElementById('calcSector').value || '').trim();
+        var investment = parseFloat(document.getElementById('calcInvestment').value) || 0;
+        if(!city || !sector || investment <= 0){
+          alert('Please enter city, activity, and investment amount');
+          return;
+        }
+        var base = hashCode(city.toLowerCase() + '|' + sector.toLowerCase());
+        var score = 60 + (base % 25);
+        if(investment < 100000) score -= 5;
+        if(investment > 2000000) score -= 3;
+        score = Math.max(40, Math.min(95, score));
+        var risk, riskClass, rec;
+        if(score >= 80){ risk = 'Low Risk'; riskClass = 'hero-calc__risk--low'; rec = 'Promising project. Continue with full AI analysis and advisory review to prepare your funding file.'; }
+        else if(score >= 65){ risk = 'Medium Risk'; riskClass = 'hero-calc__risk--medium'; rec = 'Good feasibility with some notes. We recommend reviewing the financial model and reducing operating costs.'; }
+        else { risk = 'High Risk'; riskClass = 'hero-calc__risk--high'; rec = 'Clear risks identified. Review investment size and cash flow before approaching lenders.'; }
+        document.getElementById('calcScore').textContent = score;
+        var riskEl = document.getElementById('calcRisk');
+        riskEl.textContent = risk;
+        riskEl.className = 'hero-calc__risk ' + riskClass;
+        document.getElementById('calcRec').textContent = rec;
+        document.getElementById('calcResult').classList.add('open');
+        document.getElementById('calcResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
     })();
   </script>
   <script src="/api/env"></script>

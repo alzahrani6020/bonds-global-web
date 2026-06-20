@@ -101,13 +101,13 @@
     const contactHref = langBase + 'contact.html';
     const blogHref = langBase + '../blog/index.html';
     const clientPortalHref = isEn ? langBase + 'client/index.html' : langBase + '../client/index.html';
+    const v3Base = 'v3/';
     const fundingReadinessHref = langBase + 'calculators/creditworthiness.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
     const projectRescueHref = langBase + 'project-rescue.html';
     const calcBase = langBase + 'calculators/';
     const calcBreakEven = langBase + 'calculator.html';
     const sectorsBase = langBase + 'sectors/';
-    const v3Base = 'v3/';
 
     const serviceDropdown = [
       { label: labels.analysis, href: servicesHref + '#analysis' },
@@ -238,6 +238,7 @@
 
     const servicesHref = langBase + 'services.html';
     const aboutHref = langBase + 'about.html';
+    const projectRescueHref = langBase + 'project-rescue.html';
     const blogHref = langBase + '../blog/index.html';
     const faqHref = langBase + 'faq.html';
     const contactHref = langBase + 'contact.html';
