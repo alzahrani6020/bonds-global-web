@@ -16,27 +16,27 @@
     },
     {
       "source": "/api/pro",
-      "destination": "/api/pro.js"
+      "destination": "/api/pro"
     },
     {
       "source": "/api/pro/",
-      "destination": "/api/pro.js"
+      "destination": "/api/pro"
     },
     {
       "source": "/api/force-reset",
-      "destination": "/api/admin.js?action=force-reset"
+      "destination": "/api/admin?action=force-reset"
     },
     {
       "source": "/api/force-reset/",
-      "destination": "/api/admin.js?action=force-reset"
+      "destination": "/api/admin?action=force-reset"
     },
     {
       "source": "/api/reset-password",
-      "destination": "/api/admin.js?action=reset-password"
+      "destination": "/api/admin?action=reset-password"
     },
     {
       "source": "/api/reset-password/",
-      "destination": "/api/admin.js?action=reset-password"
+      "destination": "/api/admin?action=reset-password"
     },
     {
       "source": "/api/v3",
@@ -44,11 +44,11 @@
     },
     {
       "source": "/api/v3/billing/webhook",
-      "destination": "/api/billing.js?action=v3-stripe-webhook"
+      "destination": "/api/billing?action=v3-stripe-webhook"
     },
     {
       "source": "/api/v3/billing/webhook/",
-      "destination": "/api/billing.js?action=v3-stripe-webhook"
+      "destination": "/api/billing?action=v3-stripe-webhook"
     },
     {
       "source": "/api/v3/(.*)",
@@ -56,127 +56,127 @@
     },
     {
       "source": "/api/analyze-feasibility-v2",
-      "destination": "/api/analyze-feasibility.js"
+      "destination": "/api/analyze-feasibility"
     },
     {
       "source": "/api/track",
-      "destination": "/api/site.js?action=usage"
+      "destination": "/api/site?action=usage"
     },
     {
       "source": "/api/track/",
-      "destination": "/api/site.js?action=usage"
+      "destination": "/api/site?action=usage"
     },
     {
       "source": "/api/moyasar-checkout",
-      "destination": "/api/moyasar.js?action=checkout"
+      "destination": "/api/moyasar?action=checkout"
     },
     {
       "source": "/api/moyasar-verify",
-      "destination": "/api/moyasar.js?action=verify"
+      "destination": "/api/moyasar?action=verify"
     },
     {
       "source": "/api/moyasar-webhook",
-      "destination": "/api/moyasar.js?action=webhook"
+      "destination": "/api/moyasar?action=webhook"
     },
     {
       "source": "/api/nps-check",
-      "destination": "/api/nps.js?action=check"
+      "destination": "/api/nps?action=check"
     },
     {
       "source": "/api/nps-submit",
-      "destination": "/api/nps.js?action=submit"
+      "destination": "/api/nps?action=submit"
     },
     {
       "source": "/api/send-nps",
-      "destination": "/api/nps.js?action=send"
+      "destination": "/api/nps?action=send"
     },
     {
       "source": "/api/advisors",
-      "destination": "/api/advisors.js?action=list"
+      "destination": "/api/advisors?action=list"
     },
     {
       "source": "/api/advisor-dashboard",
-      "destination": "/api/advisors.js?action=dashboard"
+      "destination": "/api/advisors?action=dashboard"
     },
     {
       "source": "/api/advisor-update-review",
-      "destination": "/api/advisors.js?action=update-review"
+      "destination": "/api/advisors?action=update-review"
     },
     {
       "source": "/api/funding-readiness",
-      "destination": "/api/funding.js?action=funding-readiness"
+      "destination": "/api/funding?action=funding-readiness"
     },
     {
       "source": "/api/funding-readiness/",
-      "destination": "/api/funding.js?action=funding-readiness"
+      "destination": "/api/funding?action=funding-readiness"
     },
     {
       "source": "/api/bank-partner-request",
-      "destination": "/api/funding.js?action=bank-partner-request"
+      "destination": "/api/funding?action=bank-partner-request"
     },
     {
       "source": "/api/bank-partner-request/",
-      "destination": "/api/funding.js?action=bank-partner-request"
+      "destination": "/api/funding?action=bank-partner-request"
     },
     {
       "source": "/api/create-checkout",
-      "destination": "/api/checkout.js?action=create"
+      "destination": "/api/checkout?action=create"
     },
     {
       "source": "/api/create-checkout/",
-      "destination": "/api/checkout.js?action=create"
+      "destination": "/api/checkout?action=create"
     },
     {
       "source": "/api/create-oneoff-checkout",
-      "destination": "/api/checkout.js?action=oneoff"
+      "destination": "/api/checkout?action=oneoff"
     },
     {
       "source": "/api/create-oneoff-checkout/",
-      "destination": "/api/checkout.js?action=oneoff"
+      "destination": "/api/checkout?action=oneoff"
     },
     {
       "source": "/api/webhook",
-      "destination": "/api/billing.js?action=stripe-webhook"
+      "destination": "/api/billing?action=stripe-webhook"
     },
     {
       "source": "/api/webhook/",
-      "destination": "/api/billing.js?action=stripe-webhook"
+      "destination": "/api/billing?action=stripe-webhook"
     },
     {
       "source": "/api/bank-transfer",
-      "destination": "/api/funding.js?action=bank-transfer"
+      "destination": "/api/funding?action=bank-transfer"
     },
     {
       "source": "/api/bank-transfer/",
-      "destination": "/api/funding.js?action=bank-transfer"
+      "destination": "/api/funding?action=bank-transfer"
     },
     {
       "source": "/api/funding-sources",
-      "destination": "/api/funding.js?action=sources"
+      "destination": "/api/funding?action=sources"
     },
     {
       "source": "/api/funding-sources/",
-      "destination": "/api/funding.js?action=sources"
+      "destination": "/api/funding?action=sources"
     },
     {
       "source": "/api/contact",
-      "destination": "/api/site.js?action=contact"
+      "destination": "/api/site?action=contact"
     },
     {
       "source": "/api/contact/",
-      "destination": "/api/site.js?action=contact"
+      "destination": "/api/site?action=contact"
     },
     {
       "source": "/api/usage",
-      "destination": "/api/site.js?action=usage"
+      "destination": "/api/site?action=usage"
     },
     {
       "source": "/api/usage/",
-      "destination": "/api/site.js?action=usage"
+      "destination": "/api/site?action=usage"
     },
     {
       "source": "/api/([^/]+)",
-      "destination": "/api/$1.js"
+      "destination": "/api/$1"
     },
     {
       "source": "/v3/admin",
