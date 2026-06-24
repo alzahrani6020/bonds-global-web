@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة المستشار | بوندز</title>
+  <meta name="description" content="لوحة تحكم المستشار المعتمد من بوندز لإدارة المراجعات ومتابعة الأرباح." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../client/portal.css" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    .advisor-layout { display: flex; min-height: 100vh; }
+    .advisor-main { flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+    .advisor-header { margin-bottom: 2rem; }
+    .advisor-header h1 { font-size: 1.75rem; font-weight: 900; color: var(--text); }
+    .advisor-header p { color: var(--text-secondary); }
+    .advisor-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .advisor-stat { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+    .advisor-stat__value { font-size: 1.5rem; font-weight: 800; color: var(--gold); }
+    .advisor-stat__label { font-size: 0.85rem; color: var(--text-secondary); }
+    .advisor-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
+    .advisor-section h2 { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 1rem; }
+    .advisor-table { width: 100%; border-collapse: collapse; }
+    .advisor-table th, .advisor-table td { padding: 0.75rem; text-align: right; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    .advisor-table th { color: var(--text-secondary); font-weight: 700; }
+    .advisor-status { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .advisor-status--assigned { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .advisor-status--under_review { background: rgba(212,168,83,0.15); color: var(--gold); }
+    .advisor-status--approved { background: rgba(34,197,94,0.15); color: #86efac; }
+    .advisor-status--returned { background: rgba(239,68,68,0.15); color: #fca5a5; }
+    .advisor-btn { background: var(--gold); color: #0a0f1a; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+    .advisor-empty { color: var(--text-secondary); padding: 1rem 0; }
+    .advisor-login { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+  </style>
+</head>
+<body>
+  <div id="advisorApp">
+    <div class="advisor-login"><p>جاري التحقق من الجلسة...</p></div>
+  </div>
+
+  <script src="../bonds-auth-2026.js"></script>
+  <script>
+    const IS_EN = false;
+
+    async function init() {
+      const app = document.getElementById('advisorApp');
+      const user = await window.BondsAuth?.getUser?.();
+      if (!user) {
+        app.innerHTML = `
+          <div class="advisor-login">
+            <div>
+              <h2>يرجى تسجيل الدخول</h2>
+              <p>لوحة المستشار متاحة للمستشارين المعتمدين فقط.</p>
+              <a href="../client/login.html" class="advisor-btn" style="display:inline-block;margin-top:1rem;text-decoration:none;">تسجيل الدخول</a>
+            </div>
+          </div>`;
+        return;
+      }
+
+      try {
+        const token = await window.BondsAuth.getSessionToken();
+        const res = await fetch('/api/advisor-dashboard', { headers: { 'Authorization': 'Bearer ' + token } });
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error);
+        render(app, json);
+      } catch (e) {
+        app.innerHTML = `<div class="advisor-login"><p>حدث خطأ: ${e.message}</p></div>`;
+      }
+    }
+
+    function render(app, data) {
+      const { advisor, assignments, earnings, stats } = data;
+      app.innerHTML = `
+        <div class="advisor-layout">
+          <main class="advisor-main">
+            <div class="advisor-header">
+              <h1>مرحباً، ${escapeHtml(advisor.name)}</h1>
+              <p>${escapeHtml(advisor.title || '')} · نسبة العمولة ${advisor.commission_rate}%</p>
+            </div>
+
+            <div class="advisor-stats">
+              <div class="advisor-stat"><div class="advisor-stat__value">${stats.pending}</div><div class="advisor-stat__label">مراجعة قيد التنفيذ</div></div>
+              <div class="advisor-stat"><div class="advisor-stat__value">${stats.completed}</div><div class="advisor-stat__label">مراجعة مكتملة</div></div>
+              <div class="advisor-stat"><div class="advisor-stat__value">${stats.paidEarnings.toFixed(2)} ر.س</div><div class="advisor-stat__label">أرباح مدفوعة</div></div>
+              <div class="advisor-stat"><div class="advisor-stat__value">${stats.totalEarnings.toFixed(2)} ر.س</div><div class="advisor-stat__label">إجمالي الأرباح</div></div>
+            </div>
+
+            <div class="advisor-section">
+              <h2>طلبات المراجعة</h2>
+              ${assignments.length ? `
+                <table class="advisor-table">
+                  <thead><tr><th>الحالة</th><th>النوع</th><th>ملاحظات العميل</th><th>التاريخ</th><th>إجراء</th></tr></thead>
+                  <tbody>
+                    ${assignments.map(a => `
+                      <tr>
+                        <td><span class="advisor-status advisor-status--${a.status}">${statusLabel(a.status)}</span></td>
+                        <td>${escapeHtml(a.ai_requests?.type || '-')}</td>
+                        <td>${escapeHtml(a.note || '-')}</td>
+                        <td>${formatDate(a.created_at)}</td>
+                        <td>${actionButtons(a)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              ` : '<div class="advisor-empty">لا توجد طلبات مراجعة مخصصة لك حالياً.</div>'}
+            </div>
+
+            <div class="advisor-section">
+              <h2>الأرباح</h2>
+              ${earnings.length ? `
+                <table class="advisor-table">
+                  <thead><tr><th>الوصف</th><th>إجمالي</th><th>العمولة</th><th>الصافي</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+                  <tbody>
+                    ${earnings.map(e => `
+                      <tr>
+                        <td>${escapeHtml(e.description)}</td>
+                        <td>${e.gross_amount.toFixed(2)} ر.س</td>
+                        <td>${e.commission_amount.toFixed(2)} ر.س</td>
+                        <td>${e.net_amount.toFixed(2)} ر.س</td>
+                        <td><span class="advisor-status advisor-status--${e.status}">${e.status === 'paid' ? 'مدفوع' : 'معلق'}</span></td>
+                        <td>${formatDate(e.created_at)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              ` : '<div class="advisor-empty">لا توجد أرباح مسجلة بعد.</div>'}
+            </div>
+          </main>
+        </div>
+      `;
+
+      document.querySelectorAll('[data-review-id][data-action]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.reviewId;
+          const action = btn.dataset.action;
+          await updateReview(id, action);
+        });
+      });
+    }
+
+    function actionButtons(a) {
+      if (a.status === 'assigned') return `<button class="advisor-btn" data-review-id="${a.id}" data-action="under_review">بدء المراجعة</button>`;
+      if (a.status === 'under_review') return `
+        <button class="advisor-btn" data-review-id="${a.id}" data-action="approved">اعتماد</button>
+        <button class="advisor-btn" style="background:transparent;color:var(--danger);border:1px solid var(--danger);margin-right:0.5rem;" data-review-id="${a.id}" data-action="returned">إرجاع</button>
+      `;
+      return '-';
+    }
+
+    async function updateReview(id, status) {
+      try {
+        const token = await window.BondsAuth.getSessionToken();
+        const res = await fetch('/api/advisor-update-review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ reviewRequestId: id, status })
+        });
+        const json = await res.json();
+        if (json.success) location.reload();
+        else alert(json.error || 'فشل التحديث');
+      } catch (e) {
+        alert('فشل الاتصال بالخادم');
+      }
+    }
+
+    function statusLabel(status) {
+      const map = { assigned: 'مخصص', under_review: 'قيد المراجعة', approved: 'معتمد', returned: 'مُرجع' };
+      return map[status] || status;
+    }
+
+    function formatDate(d) {
+      if (!d) return '-';
+      return new Date(d).toLocaleDateString('ar-SA');
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    init();
+  </script>
+</body>
+</html>

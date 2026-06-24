@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مستشارون معتمدون من بوندز | استشر خبيراً</title>
+  <meta name="description" content="اختر مستشاراً مالياً معتمداً من بوندز لمراجعة تحليل مشروعك والإجابة على استفساراتك الاستثمارية." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
+  <style>
+    .advisors-hero { padding: 6rem 2rem 3rem; text-align: center; background: linear-gradient(180deg, rgba(212,168,83,0.08) 0%, transparent 60%); }
+    .advisors-hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; color: var(--text); margin-bottom: 1rem; }
+    .advisors-hero p { color: var(--text-secondary); max-width: 640px; margin: 0 auto 1.5rem; font-size: 1.1rem; }
+    .advisors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    .advisor-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; transition: transform 0.2s, box-shadow 0.2s; }
+    .advisor-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.25); }
+    .advisor-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .advisor-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), #8b6914); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; color: #0a0f1a; flex-shrink: 0; }
+    .advisor-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .advisor-name { font-size: 1.15rem; font-weight: 800; color: var(--text); }
+    .advisor-title { font-size: 0.85rem; color: var(--text-secondary); }
+    .advisor-bio { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7; margin-bottom: 1rem; min-height: 3.5rem; }
+    .advisor-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+    .advisor-tag { background: rgba(212,168,83,0.1); color: var(--gold); padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .advisor-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem; }
+    .advisor-meta strong { color: var(--gold); }
+    .advisor-cta { display: block; width: 100%; text-align: center; background: var(--gold); color: #0a0f1a; font-weight: 800; padding: 0.75rem; border-radius: 10px; text-decoration: none; }
+    .advisors-empty { text-align: center; color: var(--text-secondary); padding: 4rem 2rem; }
+    .advisors-loading { text-align: center; color: var(--text-secondary); padding: 4rem 2rem; }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <section class="advisors-hero">
+    <h1>مستشارون معتمدون من بوندز</h1>
+    <p>خبراء ماليون واستثماريون مختارون لمراجعة تحليل مشروعك، الإجابة على استفساراتك، وتوجيهك نحو قرار أفضل.</p>
+    <a href="client/index.html" class="btn btn--primary">اطلب مراجعة من مستشار</a>
+  </section>
+
+  <section id="advisorsContainer" class="advisors-loading">جاري تحميل المستشارين...</section>
+
+  <div id="site-footer"></div>
+
+  <script src="bonds-auth-2026.js"></script>
+  <script src="site-layout.js"></script>
+  <script>
+    async function loadAdvisors() {
+      const container = document.getElementById('advisorsContainer');
+      try {
+        const res = await fetch('/api/advisors');
+        const json = await res.json();
+        if (!json.success || !json.advisors?.length) {
+          container.className = 'advisors-empty';
+          container.innerHTML = '<p>سيتم إطلاق قائمة المستشارين قريباً.</p>';
+          return;
+        }
+
+        container.className = 'advisors-grid';
+        container.innerHTML = json.advisors.map(advisor => `
+          <article class="advisor-card">
+            <div class="advisor-header">
+              <div class="advisor-avatar">
+                ${advisor.avatar_url ? `<img src="${advisor.avatar_url}" alt="${escapeHtml(advisor.name)}">` : advisor.name.charAt(0)}
+              </div>
+              <div>
+                <div class="advisor-name">${escapeHtml(advisor.name)}</div>
+                <div class="advisor-title">${escapeHtml(advisor.title || '')}</div>
+              </div>
+            </div>
+            <p class="advisor-bio">${escapeHtml(advisor.bio || '')}</p>
+            <div class="advisor-tags">
+              ${(advisor.specializations || []).map(s => `<span class="advisor-tag">${escapeHtml(s)}</span>`).join('')}
+            </div>
+            <div class="advisor-meta">
+              <span>${advisor.years_experience || 0}+ سنة خبرة</span>
+              <span><strong>${advisor.commission_rate || 25}%</strong> عمولة</span>
+            </div>
+            <a class="advisor-cta" href="client/index.html?advisor=${advisor.id}">اختيار هذا المستشار</a>
+          </article>
+        `).join('');
+      } catch (e) {
+        container.className = 'advisors-empty';
+        container.innerHTML = '<p>تعذر تحميل المستشارين. حاول مرة أخرى لاحقاً.</p>';
+      }
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    loadAdvisors();
+  </script>
+</body>
+</html>
