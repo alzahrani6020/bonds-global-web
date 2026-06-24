@@ -52,6 +52,7 @@
 <link rel="stylesheet" href="../../header-footer.css?v=2" />
   <link rel="canonical" href="https://bonds-global.com/en/calculators/cash-flow" />
 
+<link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
 <body style="font-family:Inter,system-ui,sans-serif">
 
@@ -87,7 +88,7 @@
           
           <div class="calc-input-group">
             <label for="country">Country / Market</label>
-            <select id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
               <option value="">Select country</option>
             </select>
           </div>
@@ -220,9 +221,9 @@
             </div>
           </div>
           <div class="card reveal reveal-delay-1">
-            <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">⚠️ تحذيرات</h3>
+            <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📌 A note from Bonds</h3>
             <ul style="font-size: 0.9rem; color: var(--text-secondary); line-height: 2; padding-left: var(--space-4);">
-              <li>هذه أداة <strong>تقديرية</strong> وليست بديلاً عن استشارة مالية.</li>
+              <li>This calculator gives you a <strong>smart initial financial view</strong> based on your data; it helps you evaluate your cash flows before deciding. For an accurate financial plan, consult one of our licensed advisors.</li>
               <li>النتائج تعتمد على <strong>دقة البيانات المدخلة</strong>.</li>
               <li>تأكد من تضمين جميع الالتزامات المتكررة.</li>
               <li>الرصيد السالب في أي شهر يعني حاجة لتمويل إضافي.</li>
@@ -237,13 +238,35 @@
   <!-- Disclaimer -->
   <section style="background: var(--bg-secondary); padding: var(--space-8) 0; border-top: 1px solid var(--border);">
     <div class="container">
-      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); backdrop-filter: blur(16px);">
-        <h4 style="font-size: var(--text-base); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">⚠️ إخلاء مسؤولية</h4>
+      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); backdrop-filter: blur(16px); text-align: center;">
+        <h4 style="font-size: var(--text-base); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">📌 A note from Bonds</h4>
         <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-3);">
-          هذه الأدوة <strong>حاسبات تقديرية</strong> تهدف إلى المساعدة في الفهم المالي العام. النتائج تعتمد على المدخلات التي تقدمها، وقد لا تعكس الواقع التشغيلي الدقيق لشركتك بسبب عوامل خارجية (تقلبات السوق، تغيرات التكاليف، الالتزامات غير المتوقعة، الاستهلاك، التضخم، إلخ).
+          Bonds calculators give you a <strong>smart initial financial view</strong> based on the data you enter — helping you evaluate your project's opportunity and cash flows before making a decision.
         </p>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8;">
-          <strong>لا تغني هذه الأدوة عن استشارة محاسب مرخص أو مستشار مالي مؤهل.</strong> إذا كنت تتخذ قرارات استثمارية أو مالية كبيرة، نوصي بشدة بالContact مع فريق بوندز للحصول على تحليل مخصص يأخذ بعين الاعتبار بيئة عملك الفعلية.
+        <div style="display: flex; justify-content: center; gap: var(--space-6); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-4);">
+          <div style="text-align: left; direction: ltr;">
+            <h5 style="font-size: 0.9rem; font-weight: 700; color: var(--gold); margin-bottom: var(--space-2);">What's next?</h5>
+            <ol style="font-size: 0.85rem; color: var(--text-secondary); line-height: 2; padding-left: var(--space-4); margin: 0;">
+              <li>Review the estimate figures above.</li>
+              <li>Talk to a licensed Bonds advisor.</li>
+              <li>Get a customized financial plan.</li>
+            </ol>
+          </div>
+          <div style="text-align: center;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/966567566616" alt="WhatsApp QR" loading="lazy" style="width:100px;height:100px;border-radius:8px;border:1px solid var(--border);cursor:pointer;" onclick="if(window.opener && window.opener.trackEvent){window.opener.trackEvent('click_whatsapp_qr',{report_type:'cash-flow'});}else if(typeof trackEvent==='function'){trackEvent('click_whatsapp_qr',{report_type:'cash-flow'});}">
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: var(--space-2);">Scan to chat on WhatsApp</p>
+          </div>
+        </div>
+        <a href="https://wa.me/966567566616" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:var(--space-3);padding:10px 24px;background:#d4a853;color:#1a1a1a;border-radius:24px;text-decoration:none;font-weight:700;" onclick="if(window.opener && window.opener.trackEvent){window.opener.trackEvent('click_whatsapp_cta',{report_type:'cash-flow'});}else if(typeof trackEvent==='function'){trackEvent('click_whatsapp_cta',{report_type:'cash-flow'});}">📱 Talk to an advisor</a>
+        <div style="margin-top:var(--space-3);padding:var(--space-3);background: var(--bg);border-radius:12px;border-left:3px solid var(--gold);text-align:left;">
+          <p style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic; line-height: 1.6; margin: 0;">"The monthly cash flow view changed how I plan inventory and salaries, and warned me about shortfall months before they happened."</p>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin: var(--space-2) 0 0 0;">— Business owner, Riyadh</p>
+        </div>
+        <p style="margin-top:var(--space-3);font-size:0.85rem;color:var(--gold);font-weight:700;">⚡ Your first consultation is free — offer valid until <span class="offer-date-en"></span>.</p>
+        <p style="margin-top:var(--space-2);font-size:0.8rem;color:var(--text-secondary);">Join 500+ entrepreneurs and SMEs who built their financial models with Bonds.</p>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+          <strong>Bonds Global</strong> — Feasibility Studies | Financial Models | Licensed Financial Advisory<br>
+          bonds-global.com
         </p>
       </div>
     </div>
@@ -257,6 +280,23 @@
   <script>
     var chart = null;
     var chartJsPromise = null;
+
+    function trackEvent(name, params) {
+      if (typeof gtag === 'function') {
+        gtag('event', name, params || {});
+      }
+      if (typeof dataLayer !== 'undefined' && Array.isArray(dataLayer)) {
+        var payload = { event: name };
+        params = params || {};
+        for (var key in params) {
+          if (params.hasOwnProperty(key)) {
+            payload[key] = params[key];
+          }
+        }
+        dataLayer.push(payload);
+      }
+    }
+
     var MONTHS_AR = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     var INFLOW_ROWS = [
       {id:'sales', label:'إيرادات Sales'},
@@ -678,6 +718,12 @@
       var canvas = document.getElementById('cashFlowChart');
       if (canvas && canvas.toDataURL) chartImg = canvas.toDataURL('image/png');
 
+      trackEvent('report_print_opened', {
+        report_type: 'cash-flow',
+        lang: 'en',
+        source: window.location.pathname
+      });
+
       var printWindow = window.open('', '_blank');
       if (!printWindow) {
         BondsUI.toast('⚠️ تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.', 'warning');
@@ -766,9 +812,35 @@
           <h3>التفاصيل الشهرية</h3>
           ${resultsHTML}
           ${chartImg ? '<h3>الرسم البياني</h3><img class="chart-img" src="' + chartImg + '" alt="Closing Balance" />' : ''}
-          <div class="footer">
-            هذا التقرير للأغراض التقديرية فقط ولا يغني عن استشارة مالية مرخصة.<br>
-            تم إنشاؤه بواسطة bonds-global.com
+          <div class="footer" style="background:#f8f5ef;border:1px solid #d4a853;border-radius:16px;padding:20px;margin-top:30px;text-align:center;">
+            <strong style="color:#1a1a1a;font-size:14px;display:block;margin-bottom:12px;">📌 A note from Bonds</strong>
+            <p style="color:#555;font-size:12px;line-height:1.8;margin-bottom:16px;">The figures above are an intelligent estimate based on your data; they give you a strong initial financial view to help you evaluate your project's opportunity before you decide.</p>
+            <div style="display:flex;justify-content:center;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+              <div style="text-align:left;direction:ltr;">
+                <strong style="color:#1a1a1a;font-size:13px;display:block;margin-bottom:8px;">What's next?</strong>
+                <ol style="color:#555;font-size:12px;line-height:2;text-align:left;padding-left:16px;margin:0;">
+                  <li>Review the estimate figures above.</li>
+                  <li>Talk to a licensed Bonds advisor.</li>
+                  <li>Get a customized financial plan.</li>
+                </ol>
+              </div>
+              <div style="text-align:center;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/966567566616" alt="WhatsApp QR" loading="lazy" style="width:100px;height:100px;border-radius:8px;border:1px solid #ddd;cursor:pointer;" onclick="if(window.opener && window.opener.trackEvent){window.opener.trackEvent('click_whatsapp_qr',{report_type:'cash-flow'});}else if(typeof trackEvent==='function'){trackEvent('click_whatsapp_qr',{report_type:'cash-flow'});}">
+                <p style="font-size:10px;color:#777;margin-top:6px;">Scan to chat on WhatsApp</p>
+              </div>
+            </div>
+            <a href="https://wa.me/966567566616" target="_blank" rel="noopener" style="display:inline-block;padding:10px 24px;background:#d4a853;color:#1a1a1a;border-radius:24px;text-decoration:none;font-weight:700;font-size:13px;" onclick="if(window.opener && window.opener.trackEvent){window.opener.trackEvent('click_whatsapp_cta',{report_type:'cash-flow'});}else if(typeof trackEvent==='function'){trackEvent('click_whatsapp_cta',{report_type:'cash-flow'});}">📱 Talk to an advisor</a>
+            <div style="margin-top:16px;font-size:11px;color:#888;">
+              <strong>Bonds Global</strong><br>
+              Feasibility Studies | Financial Models | Licensed Financial Advisory<br>
+              bonds-global.com
+            </div>
+            <div style="margin-top:16px;padding:12px;background:#fff;border-radius:12px;border-left:3px solid #d4a853;text-align:left;">
+              <p style="font-size:12px;color:#555;font-style:italic;line-height:1.6;margin:0;">"The monthly cash flow view changed how I plan inventory and salaries, and warned me about shortfall months before they happened."</p>
+              <p style="font-size:11px;color:#888;margin:8px 0 0 0;">— Business owner, Riyadh</p>
+            </div>
+            <p style="margin-top:12px;font-size:12px;color:#b45309;font-weight:700;">⚡ Your first consultation is free — offer valid until ${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}.</p>
+            <p style="margin-top:8px;font-size:11px;color:#666;">Join 500+ entrepreneurs and SMEs who built their financial models with Bonds.</p>
           </div>
           \u003Cscript>window.onload = function() { setTimeout(function() { window.print(); }, 600); };</scr${''}ipt>
         \u003Cscript src="../../calculators/usage-guard.js">\u003C/script>
@@ -781,6 +853,17 @@
         \u003C/html>
       `);
       printWindow.document.close();
+
+      if (printWindow.addEventListener) {
+        printWindow.addEventListener('afterprint', function () {
+          if (window.opener && window.opener.trackEvent) {
+            window.opener.trackEvent('report_print_dialog_closed', {
+              report_type: 'cash-flow',
+              lang: 'en'
+            });
+          }
+        });
+      }
     }
 
     // Auto-calculate on input with debounce
@@ -842,5 +925,14 @@
   <script src="../../page-tracker-v2.js"></script>
 <script src="../../calculators/shared-geo.js"></script>
 
+<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
+<script>
+(function(){
+  var lastDay = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+  var dateStr = lastDay.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  document.querySelectorAll('.offer-date-en').forEach(function(el){ el.textContent = dateStr; });
+})();
+</script>
 </body>
 </html>

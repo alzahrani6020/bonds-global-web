@@ -42,6 +42,7 @@
 <link rel="stylesheet" href="../header-footer.css?v=2" />
   <link rel="canonical" href="https://bonds-global.com/calculators/pricing" />
 
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
 
@@ -76,7 +77,7 @@
           <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">بيانات التسعير</h2>
           <div class="calc-input-group">
             <label for="country">الدولة / السوق</label>
-            <select id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
               <option value="">اختر الدولة</option>
             </select>
           </div>
@@ -316,9 +317,9 @@
       </div>
       <div class="grid-2" style="margin-top: var(--space-8);">
         <div class="card reveal">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">⚠️ تحذيرات وتوضيحات</h3>
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📊 أساس التحليل</h3>
           <ul style="font-size: 0.9rem; color: var(--text-secondary); line-height: 2; padding-right: var(--space-4);">
-            <li>هذه أداة <strong>تقديرية</strong> وليست بديلاً عن استشارة محاسب مرخص.</li>
+            <li>هذه الحاسبة تعطيك <strong>رؤية مالية أولية ذكية</strong> بناءً على بياناتك؛ للقرارات الاستثمارية المهمة، استشر أحد مستشارينا المعتمدين.</li>
             <li>النتائج تعتمد على <strong>دقة البيانات المدخلة</strong>.</li>
             <li>الضريبة والزكاة تُحسب على صافي الربح.</li>
             <li>سعر التعادل = التكلفة الكاملة للوحدة + التكلفة الثابتة الشهرية ÷ حجم المبيعات.</li>
@@ -351,13 +352,35 @@
   <!-- Disclaimer -->
   <section style="background: var(--bg-secondary); padding: var(--space-8) 0; border-top: 1px solid var(--border);">
     <div class="container">
-      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); backdrop-filter: blur(16px);">
-        <h4 style="font-size: var(--text-base); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">⚠️ إخلاء مسؤولية</h4>
+      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); backdrop-filter: blur(16px); text-align: center;">
+        <h4 style="font-size: var(--text-base); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">📌 ملاحظة من بوندز</h4>
         <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-3);">
-          هذه الأدوة <strong>حاسبات تقديرية</strong> تهدف إلى المساعدة في الفهم المالي العام. النتائج تعتمد على المدخلات التي تقدمها، وقد لا تعكس الواقع التشغيلي الدقيق لشركتك بسبب عوامل خارجية (تقلبات السوق، تغيرات التكاليف، الالتزامات غير المتوقعة، الاستهلاك، التضخم، إلخ).
+          حاسبات بوندز تمنحك <strong>رؤية مالية أولية ذكية</strong> بناءً على البيانات التي تدخلها؛ تساعدك على تقييم فرص مشروعك وتكاليفه قبل اتخاذ القرار.
         </p>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8;">
-          <strong>لا تغني هذه الأدوة عن استشارة محاسب مرخص أو مستشار مالي مؤهل.</strong> إذا كنت تتخذ قرارات استثمارية أو مالية كبيرة، نوصي بشدة بالتواصل مع فريق بوندز للحصول على تحليل مخصص يأخذ بعين الاعتبار بيئة عملك الفعلية.
+        <div style="display: flex; justify-content: center; gap: var(--space-6); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-4);">
+          <div style="text-align: right; direction: rtl;">
+            <h5 style="font-size: 0.9rem; font-weight: 700; color: var(--gold); margin-bottom: var(--space-2);">ماذا بعد؟</h5>
+            <ol style="font-size: 0.85rem; color: var(--text-secondary); line-height: 2; padding-right: var(--space-4); margin: 0;">
+              <li>راجع الأرقام التقديرية أعلاه.</li>
+              <li>تحدث إلى مستشار Bonds المعتمد.</li>
+              <li>احصل على خطة مالية مخصصة.</li>
+            </ol>
+          </div>
+          <div style="text-align: center;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/966567566616" alt="WhatsApp QR" style="width:100px;height:100px;border-radius:8px;border:1px solid var(--border);">
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: var(--space-2);">امسح للتواصل عبر واتساب</p>
+          </div>
+        </div>
+        <a href="https://wa.me/966567566616" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:var(--space-3);padding:10px 24px;background:#d4a853;color:#1a1a1a;border-radius:24px;text-decoration:none;font-weight:700;">📱 تحدث إلى مستشار</a>
+        <div style="margin-top:var(--space-3);padding:var(--space-3);background: var(--bg);border-radius:12px;border-right:3px solid var(--gold);text-align:right;">
+          <p style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic; line-height: 1.6; margin: 0;">"ساعدتني حاسبة التسعير في فهم هامش الربح الحقيقي بعد العمولات والضريبة، لم أعد أخمن في الأسعار."</p>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin: var(--space-2) 0 0 0;">— صاحب متجر إلكتروني، جدة</p>
+        </div>
+        <p style="margin-top:var(--space-3);font-size:0.85rem;color:var(--gold);font-weight:700;">⚡ استشارتك الأولى مجانية — العرض ساري حتى <span class="offer-date-ar"></span>.</p>
+        <p style="margin-top:var(--space-2);font-size:0.8rem;color:var(--text-secondary);">انضم لأكثر من 500 صاحب مشروع وشركة ناشئة استخدموا بوندز لبناء نماذجهم المالية.</p>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+          <strong>Bonds Global</strong> — دراسات جدوى | نماذج مالية | استشارات مالية معتمدة<br>
+          bonds-global.com
         </p>
       </div>
     </div>
@@ -614,7 +637,7 @@
           <tr><td>سعر التعادل الأدنى</td><td class="num">${r.breakEvenPrice.toLocaleString('en-US')} ر.س</td></tr>
         </table>
       `;
-      openPrintWindow({ content: content, title: 'تقرير تسعير المنتج', headerTitle: 'تقرير تسعير المنتج — بوندز' });
+      openPrintWindow({ content: content, title: 'تقرير تسعير المنتج', headerTitle: 'تقرير تسعير المنتج — بوندز', reportType: 'pricing' });
     }
 
     async function exportExcel() {
@@ -897,5 +920,14 @@
 <script src="../site-layout.js"></script>
 <script src="shared-geo.js"></script>
 
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
+<script>
+(function(){
+  var lastDay = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+  var dateStr = lastDay.toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' });
+  document.querySelectorAll('.offer-date-ar').forEach(function(el){ el.textContent = dateStr; });
+})();
+</script>
 </body>
 </html>

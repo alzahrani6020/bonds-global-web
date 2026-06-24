@@ -45,6 +45,7 @@
 <link rel="stylesheet" href="../../header-footer.css?v=2" />
   <link rel="canonical" href="https://bonds-global.com/en/calculators/pricing" />
 
+<link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
 <body style="font-family:Inter,system-ui,sans-serif">
 
@@ -79,7 +80,7 @@
           <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Pricing Data</h2>
           <div class="calc-input-group">
             <label for="country">Country / Market</label>
-            <select id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
               <option value="">Select country</option>
             </select>
           </div>
@@ -354,13 +355,35 @@
   <!-- Disclaimer -->
   <section style="background: var(--bg-secondary); padding: var(--space-8) 0; border-top: 1px solid var(--border);">
     <div class="container">
-      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); backdrop-filter: blur(16px);">
-        <h4 style="font-size: var(--text-base); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">⚠️ Disclaimer</h4>
+      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); backdrop-filter: blur(16px); text-align: center;">
+        <h4 style="font-size: var(--text-base); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">📌 A note from Bonds</h4>
         <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-3);">
-          These tools are <strong>estimation calculators</strong> aimed at helping with general financial understanding. Results depend on the inputs you provide, and may not reflect the precise operational reality of your company due to external factors (market fluctuations, cost changes, unexpected obligations, depreciation, inflation, etc.).
+          Bonds calculators give you a <strong>smart initial financial view</strong> based on the data you enter — helping you evaluate your project's opportunity and costs before making a decision.
         </p>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8;">
-          <strong>These tools do not replace consultation with a licensed accountant or qualified financial advisor.</strong> If you are making major investment or financial decisions, we strongly recommend contacting the Bonds team for a customized analysis that takes your actual work environment into account.
+        <div style="display: flex; justify-content: center; gap: var(--space-6); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-4);">
+          <div style="text-align: left; direction: ltr;">
+            <h5 style="font-size: 0.9rem; font-weight: 700; color: var(--gold); margin-bottom: var(--space-2);">What's next?</h5>
+            <ol style="font-size: 0.85rem; color: var(--text-secondary); line-height: 2; padding-left: var(--space-4); margin: 0;">
+              <li>Review the estimate figures above.</li>
+              <li>Talk to a licensed Bonds advisor.</li>
+              <li>Get a customized financial plan.</li>
+            </ol>
+          </div>
+          <div style="text-align: center;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/966567566616" alt="WhatsApp QR" style="width:100px;height:100px;border-radius:8px;border:1px solid var(--border);">
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: var(--space-2);">Scan to chat on WhatsApp</p>
+          </div>
+        </div>
+        <a href="https://wa.me/966567566616" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:var(--space-3);padding:10px 24px;background:#d4a853;color:#1a1a1a;border-radius:24px;text-decoration:none;font-weight:700;">📱 Talk to an advisor</a>
+        <div style="margin-top:var(--space-3);padding:var(--space-3);background: var(--bg);border-radius:12px;border-left:3px solid var(--gold);text-align:left;">
+          <p style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic; line-height: 1.6; margin: 0;">"The pricing calculator helped me understand the true profit margin after commissions and tax; I no longer guess prices."</p>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin: var(--space-2) 0 0 0;">— E-commerce store owner, Jeddah</p>
+        </div>
+        <p style="margin-top:var(--space-3);font-size:0.85rem;color:var(--gold);font-weight:700;">⚡ Your first consultation is free — offer valid until <span class="offer-date-en"></span>.</p>
+        <p style="margin-top:var(--space-2);font-size:0.8rem;color:var(--text-secondary);">Join 500+ entrepreneurs and SMEs who built their financial models with Bonds.</p>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+          <strong>Bonds Global</strong> — Feasibility Studies | Financial Models | Licensed Financial Advisory<br>
+          bonds-global.com
         </p>
       </div>
     </div>
@@ -919,5 +942,14 @@
 <script src="../../site-layout.js"></script>
 <script src="../../calculators/shared-geo.js"></script>
 
+<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
+<script>
+(function(){
+  var lastDay = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+  var dateStr = lastDay.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  document.querySelectorAll('.offer-date-en').forEach(function(el){ el.textContent = dateStr; });
+})();
+</script>
 </body>
 </html>
