@@ -68,10 +68,37 @@ function resolveApiRoute(reqUrl) {
   // Specific rewrites defined before /api/:name in vercel.json
   const specific = {
     '/api/pro': 'pro.js',
-    '/api/force-reset': 'password.js',
-    '/api/reset-password': 'password.js',
-    '/api/analyze-feasibility-v2': 'analyze-feasibility.js',
-    '/api/track': 'track.js'
+    '/api/force-reset': 'admin.js',
+    '/api/reset-password': 'admin.js',
+    '/api/track': 'site.js',
+    '/api/moyasar-checkout': 'moyasar.js',
+    '/api/moyasar-verify': 'moyasar.js',
+    '/api/moyasar-webhook': 'moyasar.js',
+    '/api/nps-check': 'nps.js',
+    '/api/nps-submit': 'nps.js',
+    '/api/send-nps': 'nps.js',
+    '/api/advisors': 'advisors.js',
+    '/api/advisor-dashboard': 'advisors.js',
+    '/api/advisor-update-review': 'advisors.js',
+    '/api/funding-readiness': 'funding.js',
+    '/api/funding-readiness/': 'funding.js',
+    '/api/bank-partner-request': 'funding.js',
+    '/api/bank-partner-request/': 'funding.js',
+    '/api/create-checkout': 'checkout.js',
+    '/api/create-checkout/': 'checkout.js',
+    '/api/create-oneoff-checkout': 'checkout.js',
+    '/api/create-oneoff-checkout/': 'checkout.js',
+    '/api/webhook': 'billing.js',
+    '/api/webhook/': 'billing.js',
+    '/api/bank-transfer': 'funding.js',
+    '/api/bank-transfer/': 'funding.js',
+    '/api/funding-sources': 'funding.js',
+    '/api/funding-sources/': 'funding.js',
+    '/api/contact': 'site.js',
+    '/api/contact/': 'site.js',
+    '/api/usage': 'site.js',
+    '/api/usage/': 'site.js',
+    '/api/analyze-feasibility-v2': 'analyze-feasibility.js'
   };
   if (specific[pathname]) return specific[pathname];
 
