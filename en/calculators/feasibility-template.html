@@ -22,6 +22,7 @@
   <meta name="twitter:description" content="Professional integrated feasibility study: PESTLE, SWOT, financial analysis, cash flow, scenarios. Free from Bonds." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
+<link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
 <body>
   <div class="progress-bar no-print"><div id="progressFill"></div></div>
@@ -59,7 +60,7 @@
       <div class="field-group inline-2" style="max-width:520px;width:100%;margin-top:1rem;text-align:right;display:grid;grid-template-columns:2fr 1fr;gap:1rem;">
         <div class="field-group" style="margin-bottom:0;">
           <label>Country</label>
-          <select id="cover-country" onchange="fillFromCountry()">
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="cover-country" onchange="fillFromCountry()">
             <option value="">Select country...</option>
           </select>
         </div>
@@ -238,7 +239,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="field-group inline-3">
         <div class="field-group"><label>Actual Completion %</label><input type="number" id="ba-completion-now" min="0" max="100" placeholder="0-100" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>Current Market Value (SAR)</label><input type="number" id="ba-current-value" placeholder="0" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>Engineering Office Rating</label><select id="ba-engineer-rating" onchange="calcBuildingAssessment()"><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option></select></div>
+        <div class="field-group"><label>Engineering Office Rating</label><select data-universal-dropdown="true" id="ba-engineer-rating" onchange="calcBuildingAssessment()"><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option></select></div>
       </div>
       <div class="field-group inline">
         <div class="field-group"><label>Structural Safety Report</label><textarea id="ba-safety-report" rows="2" placeholder="Results of lab testing for concrete and steel..."></textarea></div>
@@ -248,9 +249,9 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <!-- 3. Violations & Licenses -->
       <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">⚠️ Violations &amp; Licenses</h3>
       <div class="field-group inline-3">
-        <div class="field-group"><label>Any Municipal Violations?</label><select id="ba-violations"><option value="no">No</option><option value="yes">Yes</option></select></div>
-        <div class="field-group"><label>Building Permit Status</label><select id="ba-license-status"><option value="valid">Valid</option><option value="expired">Expired</option><option value="no-license">None</option></select></div>
-        <div class="field-group"><label>Building Compliance Certificate</label><select id="ba-compliance"><option value="yes">Compliant</option><option value="no">Non-compliant</option><option value="pending">Pending</option></select></div>
+        <div class="field-group"><label>Any Municipal Violations?</label><select data-universal-dropdown="true" id="ba-violations"><option value="no">No</option><option value="yes">Yes</option></select></div>
+        <div class="field-group"><label>Building Permit Status</label><select data-universal-dropdown="true" id="ba-license-status"><option value="valid">Valid</option><option value="expired">Expired</option><option value="no-license">None</option></select></div>
+        <div class="field-group"><label>Building Compliance Certificate</label><select data-universal-dropdown="true" id="ba-compliance"><option value="yes">Compliant</option><option value="no">Non-compliant</option><option value="pending">Pending</option></select></div>
       </div>
       <div class="field-group inline-3">
         <div class="field-group"><label>Building Permit Number</label><input type="text" id="ba-license-number" placeholder="e.g. 4400123456" /></div>
@@ -424,11 +425,11 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <table class="template-table" id="val-structural-table">
         <thead><tr><th>No.</th><th>Inspection Item</th><th>Status</th><th>Recommendation</th><th>Estimated Cost (SAR)</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="Concrete Inspection (Hammer Test)" /></td><td><select><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="Rebar Inspection (Corrosion / Cover)" /></td><td><select><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="Foundation &amp; Settlement Check" /></td><td><select><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="Columns &amp; Beams Inspection" /></td><td><select><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>5</td><td><input type="text" value="Fire Safety Inspection" /></td><td><select><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="Concrete Inspection (Hammer Test)" /></td><td><select data-universal-dropdown="true"><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="Rebar Inspection (Corrosion / Cover)" /></td><td><select data-universal-dropdown="true"><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="Foundation &amp; Settlement Check" /></td><td><select data-universal-dropdown="true"><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="Columns &amp; Beams Inspection" /></td><td><select data-universal-dropdown="true"><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="Fire Safety Inspection" /></td><td><select data-universal-dropdown="true"><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="na">N/A</option></select></td><td><input type="text" placeholder="Recommendation..." /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('val-structural-table')">+ Add Item</button><button onclick="removeRow('val-structural-table')">- Remove</button></div>
@@ -469,27 +470,27 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <table class="template-table" id="val-me-table">
         <thead><tr><th>No.</th><th>System</th><th>Status</th><th>Remaining Useful Life (years)</th><th>Upgrade Cost (SAR)</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="Central HVAC System" /></td><td><select><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="Electrical System &amp; Panels" /></td><td><select><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="Plumbing &amp; Drainage" /></td><td><select><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="Fire Alarm &amp; Suppression" /></td><td><select><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
-          <tr><td>5</td><td><input type="text" value="Elevator Systems" /></td><td><select><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="Central HVAC System" /></td><td><select data-universal-dropdown="true"><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="Electrical System &amp; Panels" /></td><td><select data-universal-dropdown="true"><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="Plumbing &amp; Drainage" /></td><td><select data-universal-dropdown="true"><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="Fire Alarm &amp; Suppression" /></td><td><select data-universal-dropdown="true"><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="Elevator Systems" /></td><td><select data-universal-dropdown="true"><option value="">Select...</option><option value="new">New</option><option value="good">Good</option><option value="fair">Needs Maintenance</option><option value="poor">Needs Replacement</option></select></td><td><input type="number" placeholder="Years" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('val-me-table')">+ Add System</button><button onclick="removeRow('val-me-table')">- Remove</button></div>
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B2. Finishing Quality &amp; Materials</h4>
       <div class="field-group inline-3">
-        <div class="field-group"><label>Internal Finishing Quality</label><select id="val-finishing-internal"><option value="">Select...</option><option value="luxury">Luxury</option><option value="premium">Premium</option><option value="standard">Standard</option><option value="basic">Basic</option><option value="poor">Poor</option></select></div>
-        <div class="field-group"><label>External Facade Quality</label><select id="val-finishing-external"><option value="">Select...</option><option value="luxury">Luxury</option><option value="premium">Premium</option><option value="standard">Standard</option><option value="basic">Basic</option><option value="poor">Poor</option></select></div>
-        <div class="field-group"><label>Thermal &amp; Acoustic Insulation</label><select id="val-insulation"><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option></select></div>
+        <div class="field-group"><label>Internal Finishing Quality</label><select data-universal-dropdown="true" id="val-finishing-internal"><option value="">Select...</option><option value="luxury">Luxury</option><option value="premium">Premium</option><option value="standard">Standard</option><option value="basic">Basic</option><option value="poor">Poor</option></select></div>
+        <div class="field-group"><label>External Facade Quality</label><select data-universal-dropdown="true" id="val-finishing-external"><option value="">Select...</option><option value="luxury">Luxury</option><option value="premium">Premium</option><option value="standard">Standard</option><option value="basic">Basic</option><option value="poor">Poor</option></select></div>
+        <div class="field-group"><label>Thermal &amp; Acoustic Insulation</label><select data-universal-dropdown="true" id="val-insulation"><option value="">Select...</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option></select></div>
       </div>
       <div class="field-group"><label>Notes on Finishing Quality &amp; Materials Used</label><textarea id="val-finishing-notes" rows="2" placeholder="Tile quality, paint, doors, windows..."></textarea></div>
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B3. Energy Efficiency &amp; Sustainability</h4>
       <div class="field-group inline-3">
         <div class="field-group"><label>Energy Efficiency Rating (EER)</label><input type="text" id="val-eer" placeholder="e.g. 12.5" /></div>
-        <div class="field-group"><label>Sustainability / LEED Certificate</label><select id="val-leed"><option value="">Select...</option><option value="platinum">Platinum</option><option value="gold">Gold</option><option value="silver">Silver</option><option value="certified">Certified</option><option value="none">None</option></select></div>
+        <div class="field-group"><label>Sustainability / LEED Certificate</label><select data-universal-dropdown="true" id="val-leed"><option value="">Select...</option><option value="platinum">Platinum</option><option value="gold">Gold</option><option value="silver">Silver</option><option value="certified">Certified</option><option value="none">None</option></select></div>
         <div class="field-group"><label>Expected Annual Consumption (kWh/m²)</label><input type="number" id="val-kwh" placeholder="0" /></div>
       </div>
 
@@ -507,9 +508,9 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B5. Architectural Design &amp; Functionality</h4>
       <div class="field-group inline-3">
-        <div class="field-group"><label>Architectural Design Quality</label><select id="val-arch-quality"><option value="">Select...</option><option value="iconic">Iconic</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="average">Average</option><option value="poor">Poor</option></select></div>
+        <div class="field-group"><label>Architectural Design Quality</label><select data-universal-dropdown="true" id="val-arch-quality"><option value="">Select...</option><option value="iconic">Iconic</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="average">Average</option><option value="poor">Poor</option></select></div>
         <div class="field-group"><label>Space Efficiency (%)</label><input type="number" id="val-space-eff" min="0" max="100" placeholder="0-100" /></div>
-        <div class="field-group"><label>Future Modification Flexibility</label><select id="val-flexibility"><option value="">Select...</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
+        <div class="field-group"><label>Future Modification Flexibility</label><select data-universal-dropdown="true" id="val-flexibility"><option value="">Select...</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
       </div>
 
       <!-- C. Comparison Table -->
@@ -1074,7 +1075,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="field-group"><label>Financing Strategy</label><textarea rows="3" placeholder="How will you secure funding? Under what terms? When?"></textarea></div>
       <div class="field-group"><label>Key Results</label><textarea rows="3" placeholder="Key findings from the study..."></textarea></div>
       <div class="field-group"><label>Recommendations & Next Steps</label><textarea rows="3" placeholder="What is the first step? Who starts it? When?"></textarea></div>
-      <div class="field-group"><label>Is the project viable?</label><select><option value="">Select...</option><option value="yes">✅ Yes, Viable</option><option value="no">❌ No, Not Viable</option><option value="conditional">⚠️ Viable Under Conditions</option></select></div>
+      <div class="field-group"><label>Is the project viable?</label><select data-universal-dropdown="true"><option value="">Select...</option><option value="yes">✅ Yes, Viable</option><option value="no">❌ No, Not Viable</option><option value="conditional">⚠️ Viable Under Conditions</option></select></div>
       <div class="signature-grid">
         <div class="signature-box"><label>Prepared & Signed</label><input type="text" placeholder="Name & Signature" /></div>
         <div class="signature-box"><label>Date</label><input type="date" /></div>
@@ -3193,7 +3194,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
               <div class="field-group inline-3">
                 <div class="field-group">
                   <label>Country</label>
-                  <select id="research-country"><option value="">Select country</option></select>
+                  <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="research-country"><option value="">Select country</option></select>
                 </div>
                 <div class="field-group">
                   <label>City (optional)</label>
@@ -3201,7 +3202,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
                 </div>
                 <div class="field-group">
                   <label>Sector</label>
-                  <select id="research-sector">
+                  <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="research-sector">
                     <option value="restaurant">Restaurant / Café</option>
                     <option value="retail">Retail / Store</option>
                     <option value="manufacturing">Manufacturing / Factory</option>
@@ -3218,7 +3219,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
                 </div>
                 <div class="field-group">
                   <label>Research Type</label>
-                  <select id="research-type">
+                  <select data-universal-dropdown="true" id="research-type">
                     <option value="full_template">Full Research (All Sections)</option>
                     <option value="swot_analysis">Full SWOT</option>
                     <option value="pestle">PESTLE</option>
@@ -3775,5 +3776,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
 <script src="../../site-layout.js"></script>
+<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

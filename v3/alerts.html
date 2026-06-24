@@ -263,6 +263,7 @@
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
 
@@ -280,14 +281,14 @@
     </div>
 
     <div class="filters">
-      <select id="severityFilter">
+      <select data-universal-dropdown="true" id="severityFilter">
         <option value="">كل مستويات الخطورة</option>
         <option value="critical">🔴 حرج</option>
         <option value="warning">🟠 مرتفع</option>
         <option value="info">🔵 منخفض</option>
       </select>
-      <select id="cityFilter"><option value="">كل المدن</option></select>
-      <select id="activityFilter"><option value="">كل الأنشطة</option></select>
+      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="cityFilter"><option value="">كل المدن</option></select>
+      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activityFilter"><option value="">كل الأنشطة</option></select>
       <label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-secondary); font-size: 0.9rem;">
         <input type="checkbox" id="unreadOnly" checked> غير المقروءة فقط
       </label>
@@ -589,5 +590,7 @@
     boot();
   </script>
   <div id="site-footer"></div>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

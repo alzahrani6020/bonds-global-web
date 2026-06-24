@@ -186,6 +186,7 @@
   <meta name="twitter:description" content="Analyze every order invoice — per order, daily, monthly, yearly profit. Compare delivery platforms. Is the promo worth it?" />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
+<link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -206,13 +207,13 @@
   <div class="platform-selector-row">
     <div class="input-group">
       <label>🇦🇪 Country</label>
-      <select id="countrySelect" onchange="onCountryChange()" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="countrySelect" onchange="onCountryChange()" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
         <option value="">-- Select Country --</option>
       </select>
     </div>
     <div class="input-group">
       <label>📱 Platform</label>
-      <select id="platformSelect" onchange="onPlatformChange()">
+      <select data-universal-dropdown="true" id="platformSelect" onchange="onPlatformChange()">
         <option value="">-- Select Platform --</option>
       </select>
     </div>
@@ -1124,5 +1125,7 @@ BondsDB.init().then(function() {
   <script src="../../page-tracker-v2.js"></script>
 <script src="../../site-layout.js"></script>
   <div id="site-footer"></div>
+<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

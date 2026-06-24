@@ -22,6 +22,7 @@
   <meta name="twitter:description" content="احسب تكلفة إنشاء مصنع في جزر القمر - رواتب، تأمين، مواد خام، سيناريوهات" />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -37,7 +38,7 @@
         <h2 class="section-title">📝 بيانات المصنع</h2>
         <div class="input-group">
           <label for="city">المنطقة الصناعية / المدينة</label>
-          <select id="city">
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="city">
             <option value="KM-01-001">موروني</option>
             <option value="KM-01-002">ميتساميولي</option>
             <option value="KM-01-003">فومبوني</option>
@@ -48,7 +49,7 @@
         </div>
         <div class="input-group">
           <label for="industry">نوع الصناعة</label>
-          <select id="industry">
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="industry">
             <option value="food">غذائية ومشروبات</option>
             <option value="plastic">بلاستيك وتعبئة</option>
             <option value="metal">معدنية</option>
@@ -61,7 +62,7 @@
         </div>
         <div class="input-group">
           <label for="type">نوع المنشأة</label>
-          <select id="type">
+          <select data-universal-dropdown="true" id="type">
             <option value="land">أرض صناعية</option>
             <option value="hangar">مستودع/هنجر</option>
             <option value="ready">مصنع جاهز</option>
@@ -210,5 +211,7 @@
 
   
   <script src="../script.js"></script>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

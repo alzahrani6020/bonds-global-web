@@ -33,6 +33,7 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
 
   <meta name="description" content="Specialized financial calculators and economic consulting from Bonds." />
 
+<link rel="stylesheet" href="../../../components/universal-dropdown.css" />
 </head>
 <body>
   <div class="auth-container">
@@ -63,13 +64,13 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
         <div class="row">
           <div class="form-group">
             <label for="country">Country *</label>
-            <select id="country" required>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" required>
               <option value="">Select country</option>
             </select>
           </div>
           <div class="form-group">
             <label for="governorate">Governorate / Region *</label>
-            <select id="governorate" required>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="governorate" required>
               <option value="">Select governorate</option>
             </select>
           </div>
@@ -78,7 +79,7 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
         <div class="row">
           <div class="form-group">
             <label for="city">City *</label>
-            <select id="city" required>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="city" required>
               <option value="">Select city</option>
             </select>
           </div>
@@ -91,7 +92,7 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
         <div class="row">
           <div class="form-group">
             <label for="businessType">Business Type *</label>
-            <select id="businessType" required>
+            <select data-universal-dropdown="true" id="businessType" required>
               <option value="">Select type</option>
               <option value="restaurant">Restaurant / Fast Food</option>
               <option value="cafe">Cafe</option>
@@ -301,5 +302,7 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
   </script>
 
   <script src="../../../page-tracker-v2.js"></script>
+<script src="../../../components/universal-dropdown.js"></script>
+<script src="../../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

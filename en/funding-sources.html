@@ -114,6 +114,7 @@
       .results-grid { grid-template-columns: 1fr; }
     }
   </style>
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -129,7 +130,7 @@
       <div class="grid">
         <div>
           <label for="matchCountry">Country</label>
-          <select id="matchCountry">
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="matchCountry">
             <option value="">All</option>
             <option value="SA">Saudi Arabia</option>
             <option value="AE">UAE</option>
@@ -158,7 +159,7 @@
     <div class="filters">
       <div>
         <label for="filterType">Entity Type</label>
-        <select id="filterType">
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="filterType">
           <option value="">All</option>
           <option value="bank">Banks</option>
           <option value="fund">Funds</option>
@@ -168,7 +169,7 @@
       </div>
       <div>
         <label for="filterCountry">Country</label>
-        <select id="filterCountry">
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="filterCountry">
           <option value="">All</option>
           <option value="SA">Saudi Arabia</option>
           <option value="AE">UAE</option>
@@ -369,5 +370,7 @@
       load();
     })();
   </script>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

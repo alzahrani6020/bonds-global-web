@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-ud-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -55,6 +55,7 @@
     .empty { padding: 2rem; text-align: center; color: var(--text-secondary); }
     @media (max-width: 900px) { .sidebar { display: none; } .main-content { margin-right: 0; } .form-grid { grid-template-columns: 1fr; } }
   </style>
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
   <div class="admin-layout">
@@ -82,7 +83,7 @@
       <div class="toolbar">
         <button class="btn btn-primary" id="openAdd">+ إضافة جديدة</button>
         <input type="text" id="searchInput" placeholder="بحث بالاسم..." />
-        <select id="filterType">
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="filterType">
           <option value="">كل الأنواع</option>
           <option value="bank">بنوك</option>
           <option value="fund">صناديق</option>
@@ -117,7 +118,7 @@
         <input type="hidden" id="f_id" />
         <div class="form-grid">
           <div class="form-group"><label>النوع *</label>
-            <select id="f_type" required>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="f_type" required>
               <option value="bank">بنك</option>
               <option value="fund">صندوق</option>
               <option value="investor">مستثمر</option>
@@ -127,7 +128,7 @@
           <div class="form-group"><label>الاسم بالعربي *</label><input type="text" id="f_name_ar" required /></div>
           <div class="form-group"><label>الاسم بالإنجليزية</label><input type="text" id="f_name_en" /></div>
           <div class="form-group"><label>الدولة *</label>
-            <select id="f_country_code" required>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="f_country_code" required>
               <option value="SA">SA</option><option value="AE">AE</option><option value="EG">EG</option><option value="JO">JO</option>
               <option value="KW">KW</option><option value="QA">QA</option><option value="BH">BH</option><option value="OM">OM</option>
               <option value="MA">MA</option><option value="TN">TN</option><option value="DZ">DZ</option><option value="IQ">IQ</option>
@@ -301,5 +302,7 @@
     })();
   </script>
   <script src="/admin/admin-embed.js"></script>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

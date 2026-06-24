@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-ud-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -82,6 +82,7 @@
       .form-row { grid-template-columns: 1fr; }
     }
   </style>
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
 
@@ -158,7 +159,7 @@
           </div>
           <div class="form-group">
             <label>الدور</label>
-            <select class="form-input" id="newAdminRole">
+            <select data-universal-dropdown="true" class="form-input" id="newAdminRole">
               <option value="admin">Admin</option>
               <option value="support">Support</option>
               <option value="viewer">Viewer</option>
@@ -341,5 +342,7 @@
 
   <script src="../page-tracker-v2.js"></script>
   <script src="/admin/admin-embed.js"></script>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

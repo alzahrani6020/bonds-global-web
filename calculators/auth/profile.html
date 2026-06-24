@@ -64,6 +64,7 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
+<link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
 <body>
   <div class="container">
@@ -150,13 +151,13 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
         <div class="row">
           <div class="form-group">
             <label for="country">الدولة <span class="required">*</span></label>
-            <select id="country" required disabled>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" required disabled>
               <option value="">اختر الدولة</option>
             </select>
           </div>
           <div class="form-group">
             <label for="governorate">المحافظة / المنطقة <span class="required">*</span></label>
-            <select id="governorate" required disabled>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="governorate" required disabled>
               <option value="">اختر المحافظة</option>
             </select>
           </div>
@@ -164,7 +165,7 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
         <div class="row">
           <div class="form-group">
             <label for="city">المدينة <span class="required">*</span></label>
-            <select id="city" required disabled>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="city" required disabled>
               <option value="">اختر المدينة</option>
             </select>
           </div>
@@ -180,7 +181,7 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
           </div>
           <div class="form-group">
             <label for="businessType">نوع النشاط التجاري <span class="required">*</span></label>
-            <select id="businessType" required disabled>
+            <select data-universal-dropdown="true" id="businessType" required disabled>
               <option value="">اختر النشاط</option>
               <option value="restaurant">مطعم / مطعم سريع</option>
               <option value="cafe">مقهى</option>
@@ -219,17 +220,17 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
           <div class="form-group">
             <label>وقت الذروة — البداية</label>
             <div class="time-selects">
-              <select id="peakStartH" disabled></select>
-              <select id="peakStartM" disabled></select>
-              <select id="peakStartAmpm" disabled></select>
+              <select data-universal-dropdown="true" id="peakStartH" disabled></select>
+              <select data-universal-dropdown="true" id="peakStartM" disabled></select>
+              <select data-universal-dropdown="true" id="peakStartAmpm" disabled></select>
             </div>
           </div>
           <div class="form-group">
             <label>وقت الذروة — النهاية</label>
             <div class="time-selects">
-              <select id="peakEndH" disabled></select>
-              <select id="peakEndM" disabled></select>
-              <select id="peakEndAmpm" disabled></select>
+              <select data-universal-dropdown="true" id="peakEndH" disabled></select>
+              <select data-universal-dropdown="true" id="peakEndM" disabled></select>
+              <select data-universal-dropdown="true" id="peakEndAmpm" disabled></select>
             </div>
           </div>
         </div>
@@ -237,17 +238,17 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
           <div class="form-group">
             <label>وقت الزحام — البداية</label>
             <div class="time-selects">
-              <select id="rushStartH" disabled></select>
-              <select id="rushStartM" disabled></select>
-              <select id="rushStartAmpm" disabled></select>
+              <select data-universal-dropdown="true" id="rushStartH" disabled></select>
+              <select data-universal-dropdown="true" id="rushStartM" disabled></select>
+              <select data-universal-dropdown="true" id="rushStartAmpm" disabled></select>
             </div>
           </div>
           <div class="form-group">
             <label>وقت الزحام — النهاية</label>
             <div class="time-selects">
-              <select id="rushEndH" disabled></select>
-              <select id="rushEndM" disabled></select>
-              <select id="rushEndAmpm" disabled></select>
+              <select data-universal-dropdown="true" id="rushEndH" disabled></select>
+              <select data-universal-dropdown="true" id="rushEndM" disabled></select>
+              <select data-universal-dropdown="true" id="rushEndAmpm" disabled></select>
             </div>
           </div>
         </div>
@@ -650,5 +651,7 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
     })();
   </script>
   <script src="../../page-tracker-v2.js"></script>
+<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

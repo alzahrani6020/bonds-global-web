@@ -109,6 +109,7 @@
   <meta name="twitter:description" content="Calculate the cost of setting up and operating a factory in Saudi industrial cities - salaries, insurance, raw materials, scenarios" />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
+<link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
 <body>
 
@@ -128,7 +129,7 @@
 
         <div class="input-group">
           <label for="city">Industrial City</label>
-          <select id="city">
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="city">
             <option value="riyadh">Riyadh</option>
             <option value="jeddah">Jeddah</option>
             <option value="dammam">Dammam</option>
@@ -152,7 +153,7 @@
 
         <div class="input-group">
           <label for="industry">Industry Type</label>
-          <select id="industry">
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="industry">
             <option value="food">Food & Beverage</option>
             <option value="plastic">Plastic & Petrochemicals</option>
             <option value="metal">Metal & Steel</option>
@@ -172,7 +173,7 @@
 
         <div class="input-group">
           <label for="type">Facility Type</label>
-          <select id="type">
+          <select data-universal-dropdown="true" id="type">
             <option value="land">Industrial Land (Private Construction)</option>
             <option value="hangar">Warehouse/Ready Hangar</option>
             <option value="ready">Ready Factory (Turnkey)</option>
@@ -615,5 +616,7 @@
 <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
 <script src="../../site-layout.js"></script>
+<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

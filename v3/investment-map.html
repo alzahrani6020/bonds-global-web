@@ -162,6 +162,7 @@
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
 
@@ -178,12 +179,12 @@
     <aside class="sidebar">
       <div class="control-group">
         <label for="countrySelect">الدولة</label>
-        <select id="countrySelect"><option value="">كل الدول</option></select>
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="countrySelect"><option value="">كل الدول</option></select>
       </div>
 
       <div class="control-group">
         <label for="activitySelect">النشاط الاقتصادي</label>
-        <select id="activitySelect"><option value="">اختر نشاطاً</option></select>
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activitySelect"><option value="">اختر نشاطاً</option></select>
       </div>
 
       <div class="control-group">
@@ -431,5 +432,7 @@
   </script>
   <script src="/v3/components/ai-chat-widget.js"></script>
   <div id="site-footer"></div>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

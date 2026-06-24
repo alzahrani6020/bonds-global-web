@@ -176,6 +176,7 @@
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
 
@@ -191,11 +192,11 @@
     <div class="controls">
       <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">النشاط</label>
-        <select id="activitySelect"><option value="">اختر النشاط</option></select>
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activitySelect"><option value="">اختر النشاط</option></select>
       </div>
       <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">السنة</label>
-        <select id="yearSelect">
+        <select data-universal-dropdown="true" id="yearSelect">
           <option value="2025" selected>2025</option>
           <option value="2026">2026</option>
           <option value="2024">2024</option>
@@ -203,7 +204,7 @@
       </div>
       <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">نموذج المشروع (اختياري)</label>
-        <select id="modelSelect"><option value="">بدون نموذج</option></select>
+        <select data-universal-dropdown="true" id="modelSelect"><option value="">بدون نموذج</option></select>
       </div>
       <button id="compareBtn" class="compare-btn">قارن المدن</button>
     </div>
@@ -472,5 +473,7 @@
     init();
   </script>
   <div id="site-footer"></div>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

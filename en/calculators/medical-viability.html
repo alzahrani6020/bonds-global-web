@@ -104,6 +104,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="canonical" href="https://bonds-global.com/en/calculators/medical-viability" />
 
+<link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
 <body style="font-family:Inter,system-ui,sans-serif">
   <div class="topbar">
@@ -129,14 +130,14 @@
     <div class="med-container">
       <div class="bonds-card" style="text-align:center; margin-bottom: var(--space-6);">
         <div class="med-badge">Country / Market</div>
-        <select id="country" class="activity-select" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" class="activity-select" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
           <option value="">Select country</option>
         </select>
       </div>
 
       <div class="bonds-card" style="text-align:center; margin-bottom: var(--space-6);">
         <div class="med-badge">Select Your Business Activity</div>
-        <select id="activity" class="activity-select" onchange="onActivityChange()">
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activity" class="activity-select" onchange="onActivityChange()">
           <option value="pharmacy">🩺 Pharmacy</option>
           <option value="clinic">🏥 Clinic / Medical Center</option>
           <option value="lab">🧪 Medical Lab</option>
@@ -746,5 +747,7 @@
   <script src="../../calculators/shared-geo.js"></script>
 
   <script src="../../site-layout.js"></script>
+<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

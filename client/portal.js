@@ -821,6 +821,8 @@
       </div>
     `;
 
+    if (window.initUniversalDropdowns) window.initUniversalDropdowns(main);
+
     function handleNextAction() {
       if (nextAction.action === 'create-project') {
         openCreateProjectModal();
@@ -985,13 +987,13 @@
         <div id="aiMsg" class="portal-msg portal-msg--error" style="display:none;"></div>
         <div class="portal-form-group">
           <label>${t('aiType')}</label>
-          <select id="aiType">
+          <select id="aiType" data-universal-dropdown="true">
             ${typeOptions.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}
           </select>
         </div>
         <div class="portal-form-group">
           <label>${t('aiProject')}</label>
-          <select id="aiProject">
+          <select id="aiProject" data-universal-dropdown="true">
             <option value="">${t('aiNoProject')}</option>
             ${projectOptions}
           </select>

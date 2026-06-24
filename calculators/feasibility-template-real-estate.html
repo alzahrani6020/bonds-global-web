@@ -20,6 +20,7 @@
   <meta name="twitter:description" content="نموذج دراسة جدوى احترافي متكامل: PESTLE، SWOT، تحليل مالي، تدفق نقدي، سيناريوهات. مجاني من بوندز." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
   <div class="progress-bar no-print"><div id="progressFill"></div></div>
@@ -57,7 +58,7 @@
       <div class="field-group inline-2" style="max-width:520px;width:100%;margin-top:1rem;text-align:right;display:grid;grid-template-columns:2fr 1fr;gap:1rem;">
         <div class="field-group" style="margin-bottom:0;">
           <label>الدولة</label>
-          <select id="cover-country" onchange="fillFromCountry()">
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="cover-country" onchange="fillFromCountry()">
             <option value="">اختر الدولة...</option>
           </select>
         </div>
@@ -596,7 +597,7 @@
       <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">هيكل مجلس الإدارة والإدارة التنفيذية</h3>
       <div class="field-group"><label>تشكيل مجلس الإدارة</label><textarea rows="3" placeholder="عدد الأعضاء، خبراتهم، دورهم الرقابي والتشريعي..."></textarea></div>
       <div class="field-group inline">
-        <div class="field-group"><label>فصل الإدارة التنفيذية عن مجلس الإدارة</label><select><option value="">اختر...</option><option value="yes">✅ نعم، منفصلان</option><option value="no">❌ لا، متداخلان</option><option value="partial">⚠️ جزئي</option></select></div>
+        <div class="field-group"><label>فصل الإدارة التنفيذية عن مجلس الإدارة</label><select data-universal-dropdown="true"><option value="">اختر...</option><option value="yes">✅ نعم، منفصلان</option><option value="no">❌ لا، متداخلان</option><option value="partial">⚠️ جزئي</option></select></div>
         <div class="field-group"><label>مدة عضوية المجلس (سنوات)</label><input type="number" placeholder="3" /></div>
       </div>
       <div class="field-group"><label>صلاحيات مجلس الإدارة الرئيسية</label><textarea rows="3" placeholder="اعتماد الميزانيات، تعيين/إقالة المدراء التنفيذيين، الموافقة على المشاريع الكبرى..."></textarea></div>
@@ -668,7 +669,7 @@
       <div class="field-group"><label>استراتيجية التمويل</label><textarea rows="3" placeholder="كيف ستؤمن التمويل؟ بأي شروط؟ متى؟"></textarea></div>
       <div class="field-group"><label>النتائج الرئيسية</label><textarea rows="3" placeholder="أهم ما توصلت إليه من الدراسة..."></textarea></div>
       <div class="field-group"><label>التوصيات والخطوات التالية</label><textarea rows="3" placeholder="ما الخطوة الأولى؟ من يبدأها؟ متى؟"></textarea></div>
-      <div class="field-group"><label>هل المشروع مجدي؟</label><select><option value="">اختر...</option><option value="yes">✅ نعم، مجدي</option><option value="no">❌ لا، غير مجدي</option><option value="conditional">⚠️ مجدي بشروط</option></select></div>
+      <div class="field-group"><label>هل المشروع مجدي؟</label><select data-universal-dropdown="true"><option value="">اختر...</option><option value="yes">✅ نعم، مجدي</option><option value="no">❌ لا، غير مجدي</option><option value="conditional">⚠️ مجدي بشروط</option></select></div>
       <div class="signature-grid">
         <div class="signature-box"><label>إعداد وتوقيع</label><input type="text" placeholder="الاسم والتوقيع" /></div>
         <div class="signature-box"><label>التاريخ</label><input type="date" /></div>
@@ -2351,7 +2352,7 @@
               <div class="field-group inline-3">
                 <div class="field-group">
                   <label>الدولة</label>
-                  <select id="research-country"><option value="">اختر الدولة</option></select>
+                  <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="research-country"><option value="">اختر الدولة</option></select>
                 </div>
                 <div class="field-group">
                   <label>المدينة (اختياري)</label>
@@ -2359,7 +2360,7 @@
                 </div>
                 <div class="field-group">
                   <label>نوع النشاط</label>
-                  <select id="research-sector">
+                  <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="research-sector">
                     <option value="مطعم">مطعم / مقهى</option>
                     <option value="تجارة">تجارة / متجر</option>
                     <option value="صناعة">صناعة / مصنع</option>
@@ -2376,7 +2377,7 @@
               </div>
               <div class="field-group" style="margin-top:0.5rem;">
                 <label>نوع البحث</label>
-                <select id="research-type">
+                <select data-universal-dropdown="true" id="research-type">
                   <option value="full_template">بحث شامل (كل الأقسام)</option>
                   <option value="swot_analysis">SWOT كامل</option>
                   <option value="pestle">PESTLE</option>
@@ -2613,5 +2614,7 @@
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
 <script src="../site-layout.js"></script>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

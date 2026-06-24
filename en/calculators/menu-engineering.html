@@ -78,6 +78,7 @@
   <meta name="twitter:description" content="Intelligent menu classifier that categorizes dishes into Stars, Workhorses, Puzzles, and Dogs based on actual sales data." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
+<link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -109,8 +110,8 @@
       <!-- Platforms Tab -->
       <div id="tab-platforms" class="tab-content active">
         <div class="form-row">
-          <div class="form-group"><label>Country</label><select id="pCountry" onchange="loadCountryPlatforms()"><option value="">Select country...</option></select></div>
-          <div class="form-group"><label>Platform</label><select id="pPlatformSelect" onchange="fillPlatformData()"><option value="">Select platform...</option></select></div>
+          <div class="form-group"><label>Country</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="pCountry" onchange="loadCountryPlatforms()"><option value="">Select country...</option></select></div>
+          <div class="form-group"><label>Platform</label><select data-universal-dropdown="true" id="pPlatformSelect" onchange="fillPlatformData()"><option value="">Select platform...</option></select></div>
           <div class="form-group"><label>Platform Code</label><input id="pCode" placeholder="jahez" /></div>
           <div class="form-group"><label>Platform Name</label><input id="pName" placeholder="Jahez" /></div>
           <div class="form-group"><label>Commission (%)</label><input id="pCommission" type="number" value="25" /></div>
@@ -139,7 +140,7 @@
         <div class="form-row">
           <div class="form-group"><label>Dish Name</label><input id="mName" placeholder="Classic Burger" /></div>
           <div class="form-group"><label>Category</label>
-            <select id="mCategory">
+            <select data-universal-dropdown="true" id="mCategory">
               <option value="main">Main</option>
               <option value="appetizer">Appetizer</option>
               <option value="dessert">Dessert</option>
@@ -155,8 +156,8 @@
       <!-- Menu Item Ingredients Tab -->
       <div id="tab-costs" class="tab-content">
         <div class="form-row">
-          <div class="form-group"><label>Dish</label><select id="cMenuItem"><option value="">Select...</option></select></div>
-          <div class="form-group"><label>Ingredient</label><select id="cIngredient"><option value="">Select...</option></select></div>
+          <div class="form-group"><label>Dish</label><select data-universal-dropdown="true" id="cMenuItem"><option value="">Select...</option></select></div>
+          <div class="form-group"><label>Ingredient</label><select data-universal-dropdown="true" id="cIngredient"><option value="">Select...</option></select></div>
           <div class="form-group"><label>Quantity Required</label><input id="cQty" type="number" step="0.01" placeholder="0.15" /></div>
           <div class="form-group"><label>Unit</label><input id="cUnit" type="text" placeholder="kg or g or piece" /></div>
         </div>
@@ -167,8 +168,8 @@
       <!-- Sales Tab -->
       <div id="tab-sales" class="tab-content">
         <div class="form-row">
-          <div class="form-group"><label>Dish</label><select id="sMenuItem"><option value="">Select...</option></select></div>
-          <div class="form-group"><label>Platform</label><select id="sPlatform"><option value="">Select...</option></select></div>
+          <div class="form-group"><label>Dish</label><select data-universal-dropdown="true" id="sMenuItem"><option value="">Select...</option></select></div>
+          <div class="form-group"><label>Platform</label><select data-universal-dropdown="true" id="sPlatform"><option value="">Select...</option></select></div>
           <div class="form-group"><label>Quantity</label><input id="sQty" type="number" value="1" /></div>
           <div class="form-group"><label>Selling Price (SAR)</label><input id="sPrice" type="number" step="0.01" /></div>
         </div>
@@ -186,8 +187,8 @@
     <div class="me-actions">
       <h2>🧮 Promo Campaign Simulator</h2>
       <div class="form-row">
-        <div class="form-group"><label>Dish</label><select id="simItem"><option value="">Select...</option></select></div>
-        <div class="form-group"><label>Platform</label><select id="simPlatform"><option value="">Select...</option></select></div>
+        <div class="form-group"><label>Dish</label><select data-universal-dropdown="true" id="simItem"><option value="">Select...</option></select></div>
+        <div class="form-group"><label>Platform</label><select data-universal-dropdown="true" id="simPlatform"><option value="">Select...</option></select></div>
         <div class="form-group"><label>Discount (%)</label><input type="number" id="simDiscount" value="20" min="0" max="100" /></div>
         <div class="form-group"><label>Current Daily Sales</label><input type="number" id="simSales" value="50" min="1" /></div>
       </div>
@@ -200,8 +201,8 @@
       <h2>🌐 Omnichannel Margin Calculator</h2>
       <p style="text-align:center;color:var(--text-secondary);margin-bottom:var(--space-6);">Compare selling via delivery apps vs direct sales from your own website</p>
       <div class="form-row">
-        <div class="form-group"><label>Dish</label><select id="omniItem"><option value="">Select...</option></select></div>
-        <div class="form-group"><label>Platform to Compare</label><select id="omniPlatform"><option value="">Select...</option></select></div>
+        <div class="form-group"><label>Dish</label><select data-universal-dropdown="true" id="omniItem"><option value="">Select...</option></select></div>
+        <div class="form-group"><label>Platform to Compare</label><select data-universal-dropdown="true" id="omniPlatform"><option value="">Select...</option></select></div>
         <div class="form-group"><label>Customer Acquisition Cost (CAC) SAR</label><input type="number" id="omniCAC" value="5" step="0.5" /></div>
         <div class="form-group"><label>Self-Delivery Cost SAR</label><input type="number" id="omniDelivery" value="15" /></div>
         <div class="form-group"><label>Monthly Ad Budget SAR</label><input type="number" id="omniAdBudget" value="3000" /></div>
@@ -848,5 +849,7 @@ init();
   <script src="../../page-tracker-v2.js"></script>
 <script src="../../site-layout.js"></script>
   <div id="site-footer"></div>
+<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

@@ -16,6 +16,7 @@
   <script src="/supabase-client.js"></script>
   <script src="/lib/enterprise/search.js"></script>
   <script src="/admin/global-search/app.js?v=1"></script>
+<link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
 <body>
   <div class="ai-layout">
@@ -43,7 +44,7 @@
           </div>
           <div class="ai-form-group">
             <label>نوع الكيان</label>
-            <select id="gs-type" onchange="GlobalSearchApp.search()">
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="gs-type" onchange="GlobalSearchApp.search()">
               <option value="">الكل</option>
               <option value="advisory_client">عميل</option>
               <option value="advisory_project">مشروع</option>
@@ -61,5 +62,7 @@
   <script src="/admin/admin-embed.js"></script>
   <script src="/bonds-auth-2026.js"></script>
   <script src="/admin/ai-business-advisor/guard.js"></script>
+<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

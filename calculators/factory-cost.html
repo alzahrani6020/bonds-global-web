@@ -109,6 +109,7 @@
   <meta name="twitter:description" content="احسب تكلفة إنشاء وتشغيل مصنعك في المدن الصناعية السعودية - رواتب، تأمين، مواد خام، سيناريوهات" />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
 
@@ -128,7 +129,7 @@
 
         <div class="input-group">
           <label for="city">المدينة الصناعية</label>
-          <select id="city">
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="city">
             <option value="riyadh">الرياض</option>
             <option value="jeddah">جدة</option>
             <option value="dammam">الدمام</option>
@@ -152,7 +153,7 @@
 
         <div class="input-group">
           <label for="industry">نوع الصناعة</label>
-          <select id="industry">
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="industry">
             <option value="food">غذائية ومشروبات</option>
             <option value="plastic">بلاستيك وبتروكيماويات</option>
             <option value="metal">معدنية وحدادة</option>
@@ -172,7 +173,7 @@
 
         <div class="input-group">
           <label for="type">نوع المنشأة</label>
-          <select id="type">
+          <select data-universal-dropdown="true" id="type">
             <option value="land">أرض صناعية (بناء خاص)</option>
             <option value="hangar">مستودع/هنجر جاهز</option>
             <option value="ready">مصنع جاهز (جاهز للتشغيل)</option>
@@ -618,5 +619,7 @@
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
 <script src="../site-layout.js"></script>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

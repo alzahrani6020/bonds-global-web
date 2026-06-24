@@ -53,6 +53,7 @@
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -64,7 +65,7 @@
     <div class="bonds-card" style="margin-bottom: var(--space-4);">
       <div class="bonds-form-group">
         <label for="country">الدولة / السوق</label>
-        <select id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
           <option value="">اختر الدولة</option>
         </select>
       </div>
@@ -169,11 +170,11 @@
         <div class="bonds-form-row">
           <div class="bonds-form-group">
             <label>الوجبة</label>
-            <select id="mc" class="bonds-select"><option value="">اختر...</option></select>
+            <select data-universal-dropdown="true" id="mc" class="bonds-select"><option value="">اختر...</option></select>
           </div>
           <div class="bonds-form-group">
             <label>المكون</label>
-            <select id="mi" class="bonds-select"><option value="">اختر...</option></select>
+            <select data-universal-dropdown="true" id="mi" class="bonds-select"><option value="">اختر...</option></select>
           </div>
           <div class="bonds-form-group">
             <label>الكمية للوجبة الواحدة</label>
@@ -189,11 +190,11 @@
         <div class="bonds-form-row">
           <div class="bonds-form-group">
             <label>الوجبة</label>
-            <select id="sm" class="bonds-select"><option value="">اختر...</option></select>
+            <select data-universal-dropdown="true" id="sm" class="bonds-select"><option value="">اختر...</option></select>
           </div>
           <div class="bonds-form-group">
             <label>التطبيق</label>
-            <select id="sp" class="bonds-select"><option value="">اختر...</option></select>
+            <select data-universal-dropdown="true" id="sp" class="bonds-select"><option value="">اختر...</option></select>
           </div>
           <div class="bonds-form-group">
             <label>عدد المبيعات</label>
@@ -675,5 +676,7 @@ setTimeout(() => {
 
 <script src="../site-layout.js"></script>
   <div id="site-footer"></div>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

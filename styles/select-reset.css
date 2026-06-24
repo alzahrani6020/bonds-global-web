@@ -1,0 +1,43 @@
+/* Native <select> fallback styles — Bonds Global
+ * Applied to all selects that have not yet been enhanced by UniversalDropdown.
+ * Keeps the dark/gold theme consistent while JS enhancement loads.
+ */
+
+select:not([data-ud-native]):not(.ud-native-fallback) {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.6rem 2.2rem 0.6rem 0.9rem;
+  background: #111827 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d4a94a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+  color: #ffffff;
+  border: 1px solid #d4a94a;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+select:not([data-ud-native]):not(.ud-native-fallback):hover {
+  background-color: #1a2436;
+  border-color: #f0c96a;
+}
+
+select:not([data-ud-native]):not(.ud-native-fallback):focus {
+  box-shadow: 0 0 0 3px rgba(212, 169, 74, 0.35);
+}
+
+select:not([data-ud-native]):not(.ud-native-fallback):disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+html[dir="rtl"] select:not([data-ud-native]):not(.ud-native-fallback) {
+  padding: 0.6rem 0.9rem 0.6rem 2.2rem;
+  background-position: left 0.75rem center;
+}
+
+/* Light-theme pages can override via their own higher-specificity rules. */

@@ -22,6 +22,7 @@
   <meta name="twitter:description" content="نموذج دراسة جدوى احترافي متكامل: PESTLE، SWOT، تحليل مالي، تدفق نقدي، سيناريوهات. مجاني من بوندز." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
   <div class="progress-bar no-print"><div id="progressFill"></div></div>
@@ -59,7 +60,7 @@
       <div class="field-group inline-2" style="max-width:520px;width:100%;margin-top:1rem;text-align:right;display:grid;grid-template-columns:2fr 1fr;gap:1rem;">
         <div class="field-group" style="margin-bottom:0;">
           <label>الدولة</label>
-          <select id="cover-country" onchange="fillFromCountry()">
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="cover-country" onchange="fillFromCountry()">
             <option value="">اختر الدولة...</option>
           </select>
         </div>
@@ -289,7 +290,7 @@
       <div class="field-group inline-3">
         <div class="field-group"><label>نسبة الإنجاز الفعلي (%)</label><input type="number" id="ba-completion-now" min="0" max="100" value="65" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>القيمة السوقية الراهنة (ريال)</label><input type="number" id="ba-current-value" value="1800000" oninput="calcBuildingAssessment()" /></div>
-        <div class="field-group"><label>تقييم المكتب الهندسي</label><select id="ba-engineer-rating" onchange="calcBuildingAssessment()"><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option></select></div>
+        <div class="field-group"><label>تقييم المكتب الهندسي</label><select data-universal-dropdown="true" id="ba-engineer-rating" onchange="calcBuildingAssessment()"><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option></select></div>
       </div>
       <div class="field-group inline">
         <div class="field-group"><label>تقرير السلامة الإنشائية</label><textarea id="ba-safety-report" rows="2">الهيكل الإنشائي سليم بنسبة 95%. خرسانة الأعمدة بقوة 35 MPa. حديد التسليح غير متآكل. لا يوجد هبوط في الأساسات.</textarea></div>
@@ -299,9 +300,9 @@
       <!-- 3. Violations & Licenses -->
       <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">⚠️ المخالفات والتراخيص</h3>
       <div class="field-group inline-3">
-        <div class="field-group"><label>هل يوجد مخالفات بلدية؟</label><select id="ba-violations"><option value="no" selected>لا</option><option value="yes">نعم</option></select></div>
-        <div class="field-group"><label>حالة رخصة البناء</label><select id="ba-license-status"><option value="valid" selected>سارية</option><option value="expired">منتهية</option><option value="no-license">لا يوجد</option></select></div>
-        <div class="field-group"><label>شهادة امتثال المباني</label><select id="ba-compliance"><option value="yes">مستوفاة</option><option value="no">غير مستوفاة</option><option value="pending" selected>قيد الإجراء</option></select></div>
+        <div class="field-group"><label>هل يوجد مخالفات بلدية؟</label><select data-universal-dropdown="true" id="ba-violations"><option value="no" selected>لا</option><option value="yes">نعم</option></select></div>
+        <div class="field-group"><label>حالة رخصة البناء</label><select data-universal-dropdown="true" id="ba-license-status"><option value="valid" selected>سارية</option><option value="expired">منتهية</option><option value="no-license">لا يوجد</option></select></div>
+        <div class="field-group"><label>شهادة امتثال المباني</label><select data-universal-dropdown="true" id="ba-compliance"><option value="yes">مستوفاة</option><option value="no">غير مستوفاة</option><option value="pending" selected>قيد الإجراء</option></select></div>
       </div>
       <div class="field-group inline-3">
         <div class="field-group"><label>رقم رخصة البناء</label><input type="text" id="ba-license-number" value="4400123456" /></div>
@@ -480,11 +481,11 @@
       <table class="template-table" id="val-structural-table">
         <thead><tr><th>م</th><th>بند الفحص</th><th>الحالة</th><th>التوصية</th><th>التكلفة التقديرية (ريال)</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="فحص الخرسانة (اختبار المطرقة)" /></td><td><select><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="لا يحتاج تدخل" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="5000" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="فحص حديد التسليح (التآكل / الغطاء)" /></td><td><select><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="تغطية بعض المناطق المكشوفة" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="8000" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="فحص الأساسات والهبوط" /></td><td><select><option value="">اختر...</option><option value="excellent" selected>ممتاز</option><option value="good">جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="لا يوجد هبوط" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="3000" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="فحص الأعمدة والكمرات" /></td><td><select><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="صيانة طلاء وقائي" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="4000" /></td></tr>
-          <tr><td>5</td><td><input type="text" value="فحص السلامة ضد الحريق" /></td><td><select><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good">جيد</option><option value="fair" selected>مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="تركيب أنظمة إنذار وإطفاء" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="15000" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="فحص الخرسانة (اختبار المطرقة)" /></td><td><select data-universal-dropdown="true"><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="لا يحتاج تدخل" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="5000" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="فحص حديد التسليح (التآكل / الغطاء)" /></td><td><select data-universal-dropdown="true"><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="تغطية بعض المناطق المكشوفة" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="8000" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="فحص الأساسات والهبوط" /></td><td><select data-universal-dropdown="true"><option value="">اختر...</option><option value="excellent" selected>ممتاز</option><option value="good">جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="لا يوجد هبوط" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="3000" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="فحص الأعمدة والكمرات" /></td><td><select data-universal-dropdown="true"><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="صيانة طلاء وقائي" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="4000" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="فحص السلامة ضد الحريق" /></td><td><select data-universal-dropdown="true"><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good">جيد</option><option value="fair" selected>مقبول</option><option value="poor">ضعيف</option><option value="na">غير مطبق</option></select></td><td><input type="text" value="تركيب أنظمة إنذار وإطفاء" /></td><td><input type="number" class="val-cost" oninput="calcValuationTotal()" value="15000" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('val-structural-table')">+ إضافة بند</button><button onclick="removeRow('val-structural-table')">- حذف</button></div>
@@ -525,27 +526,27 @@
       <table class="template-table" id="val-me-table">
         <thead><tr><th>م</th><th>النظام</th><th>الحالة</th><th>العمر الافتراضي المتبقي (سنة)</th><th>تكلفة التحديث (ريال)</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><input type="text" value="نظام التكييف المركزي" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair" selected>يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" value="8" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="180000" /></td></tr>
-          <tr><td>2</td><td><input type="text" value="نظام الكهرباء واللوحات" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good" selected>جيد</option><option value="fair">يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" value="12" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="120000" /></td></tr>
-          <tr><td>3</td><td><input type="text" value="نظام السباكة والصرف" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair" selected>يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" value="10" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="150000" /></td></tr>
-          <tr><td>4</td><td><input type="text" value="نظام الإنذار والإطفاء" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair">يحتاج صيانة</option><option value="poor" selected>يحتاج استبدال</option></select></td><td><input type="number" value="0" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="80000" /></td></tr>
-          <tr><td>5</td><td><input type="text" value="نظام المصاعد" /></td><td><select><option value="">اختر...</option><option value="new">جديد</option><option value="good" selected>جيد</option><option value="fair">يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" value="15" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="200000" /></td></tr>
+          <tr><td>1</td><td><input type="text" value="نظام التكييف المركزي" /></td><td><select data-universal-dropdown="true"><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair" selected>يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" value="8" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="180000" /></td></tr>
+          <tr><td>2</td><td><input type="text" value="نظام الكهرباء واللوحات" /></td><td><select data-universal-dropdown="true"><option value="">اختر...</option><option value="new">جديد</option><option value="good" selected>جيد</option><option value="fair">يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" value="12" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="120000" /></td></tr>
+          <tr><td>3</td><td><input type="text" value="نظام السباكة والصرف" /></td><td><select data-universal-dropdown="true"><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair" selected>يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" value="10" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="150000" /></td></tr>
+          <tr><td>4</td><td><input type="text" value="نظام الإنذار والإطفاء" /></td><td><select data-universal-dropdown="true"><option value="">اختر...</option><option value="new">جديد</option><option value="good">جيد</option><option value="fair">يحتاج صيانة</option><option value="poor" selected>يحتاج استبدال</option></select></td><td><input type="number" value="0" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="80000" /></td></tr>
+          <tr><td>5</td><td><input type="text" value="نظام المصاعد" /></td><td><select data-universal-dropdown="true"><option value="">اختر...</option><option value="new">جديد</option><option value="good" selected>جيد</option><option value="fair">يحتاج صيانة</option><option value="poor">يحتاج استبدال</option></select></td><td><input type="number" value="15" /></td><td><input type="number" class="val-me-cost" oninput="calcValuationTotal()" value="200000" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('val-me-table')">+ إضافة نظام</button><button onclick="removeRow('val-me-table')">- حذف</button></div>
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">ب2. جودة التشطيبات والمواد (Finishing Quality)</h4>
       <div class="field-group inline-3">
-        <div class="field-group"><label>درجة جودة التشطيبات الداخلية</label><select id="val-finishing-internal"><option value="">اختر...</option><option value="luxury">فاخرة</option><option value="premium" selected>ممتازة</option><option value="standard">عادية</option><option value="basic">أساسية</option><option value="poor">ضعيفة</option></select></div>
-        <div class="field-group"><label>درجة جودة الواجهات الخارجية</label><select id="val-finishing-external"><option value="">اختر...</option><option value="luxury">فاخرة</option><option value="premium" selected>ممتازة</option><option value="standard">عادية</option><option value="basic">أساسية</option><option value="poor">ضعيفة</option></select></div>
-        <div class="field-group"><label>جودة العزل الحراري والصوتي</label><select id="val-insulation"><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option></select></div>
+        <div class="field-group"><label>درجة جودة التشطيبات الداخلية</label><select data-universal-dropdown="true" id="val-finishing-internal"><option value="">اختر...</option><option value="luxury">فاخرة</option><option value="premium" selected>ممتازة</option><option value="standard">عادية</option><option value="basic">أساسية</option><option value="poor">ضعيفة</option></select></div>
+        <div class="field-group"><label>درجة جودة الواجهات الخارجية</label><select data-universal-dropdown="true" id="val-finishing-external"><option value="">اختر...</option><option value="luxury">فاخرة</option><option value="premium" selected>ممتازة</option><option value="standard">عادية</option><option value="basic">أساسية</option><option value="poor">ضعيفة</option></select></div>
+        <div class="field-group"><label>جودة العزل الحراري والصوتي</label><select data-universal-dropdown="true" id="val-insulation"><option value="">اختر...</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="fair">مقبول</option><option value="poor">ضعيف</option></select></div>
       </div>
       <div class="field-group"><label>ملاحظات على جودة التشطيبات والمواد المستخدمة</label><textarea id="val-finishing-notes" rows="2">بلاط بورسلان إيطالي، دهانات جوتنز، أبواب خشبية بلوط، نوافذ ألمنيوم مزدوج، مقابض إيطالية</textarea></div>
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">ب3. الكفاءة الطاقية والاستدامة (Energy Efficiency)</h4>
       <div class="field-group inline-3">
         <div class="field-group"><label>تصنيف الكفاءة الطاقية (EER)</label><input type="text" id="val-eer" value="13.2" /></div>
-        <div class="field-group"><label>شهادة الاستدامة / LEED</label><select id="val-leed"><option value="">اختر...</option><option value="platinum">بلاتيني</option><option value="gold">ذهبي</option><option value="silver">فضي</option><option value="certified" selected>معتمد</option><option value="none">لا يوجد</option></select></div>
+        <div class="field-group"><label>شهادة الاستدامة / LEED</label><select data-universal-dropdown="true" id="val-leed"><option value="">اختر...</option><option value="platinum">بلاتيني</option><option value="gold">ذهبي</option><option value="silver">فضي</option><option value="certified" selected>معتمد</option><option value="none">لا يوجد</option></select></div>
         <div class="field-group"><label>الاستهلاك السنوي المتوقع (kWh/م2)</label><input type="number" id="val-kwh" value="145" /></div>
       </div>
 
@@ -563,9 +564,9 @@
 
       <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">ب5. التصميم المعماري والوظيفي (Architectural Design)</h4>
       <div class="field-group inline-3">
-        <div class="field-group"><label>جودة التصميم المعماري</label><select id="val-arch-quality"><option value="">اختر...</option><option value="iconic">أيقوني</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="average">عادي</option><option value="poor">ضعيف</option></select></div>
+        <div class="field-group"><label>جودة التصميم المعماري</label><select data-universal-dropdown="true" id="val-arch-quality"><option value="">اختر...</option><option value="iconic">أيقوني</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="average">عادي</option><option value="poor">ضعيف</option></select></div>
         <div class="field-group"><label>كفاءة استخدام المساحة (%)</label><input type="number" id="val-space-eff" min="0" max="100" value="85" /></div>
-        <div class="field-group"><label>مدى مرونة التعديل المستقبلي</label><select id="val-flexibility"><option value="">اختر...</option><option value="high" selected>مرتفع</option><option value="medium">متوسط</option><option value="low">منخفض</option></select></div>
+        <div class="field-group"><label>مدى مرونة التعديل المستقبلي</label><select data-universal-dropdown="true" id="val-flexibility"><option value="">اختر...</option><option value="high" selected>مرتفع</option><option value="medium">متوسط</option><option value="low">منخفض</option></select></div>
       </div>
 
       <!-- C. Comparison Table -->
@@ -1269,7 +1270,7 @@
 2. إبرام عقود شراكة مع 3-5 ملاك مباني متعثرة
 3. توقيع عقود مع مقاولين معتمدين
 4. إطلاق حملة تسويقية للوحدات الأولى</textarea></div>
-      <div class="field-group"><label>هل المشروع مجدي؟</label><select><option value="">اختر...</option><option value="yes" selected>✅ نعم، مجدي</option><option value="no">❌ لا، غير مجدي</option><option value="conditional">⚠️ مجدي بشروط</option></select></div>
+      <div class="field-group"><label>هل المشروع مجدي؟</label><select data-universal-dropdown="true"><option value="">اختر...</option><option value="yes" selected>✅ نعم، مجدي</option><option value="no">❌ لا، غير مجدي</option><option value="conditional">⚠️ مجدي بشروط</option></select></div>
       <div class="signature-grid">
         <div class="signature-box"><label>إعداد وتوقيع</label><input type="text" value="المؤسس والرئيس التنفيذي" /></div>
         <div class="signature-box"><label>التاريخ</label><input type="date" value="2026-06-03" /></div>
@@ -3461,7 +3462,7 @@
               <div class="field-group inline-3">
                 <div class="field-group">
                   <label>الدولة</label>
-                  <select id="research-country"><option value="">اختر الدولة</option></select>
+                  <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="research-country"><option value="">اختر الدولة</option></select>
                 </div>
                 <div class="field-group">
                   <label>المدينة (اختياري)</label>
@@ -3469,7 +3470,7 @@
                 </div>
                 <div class="field-group">
                   <label>نوع النشاط</label>
-                  <select id="research-sector">
+                  <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="research-sector">
                     <option value="مطعم">مطعم / مقهى</option>
                     <option value="تجارة">تجارة / متجر</option>
                     <option value="صناعة">صناعة / مصنع</option>
@@ -3486,7 +3487,7 @@
               </div>
               <div class="field-group" style="margin-top:0.5rem;">
                 <label>نوع البحث</label>
-                <select id="research-type">
+                <select data-universal-dropdown="true" id="research-type">
                   <option value="full_template">بحث شامل (كل الأقسام)</option>
                   <option value="swot_analysis">SWOT كامل</option>
                   <option value="pestle">PESTLE</option>
@@ -4113,5 +4114,7 @@
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
 <script src="../site-layout.js"></script>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

@@ -33,6 +33,7 @@
   <meta name="twitter:description" content="احسب ربحية كل وجبة قبل إضافتها للمنيو. تكاليف المكونات، عمولات المنصات، هامش الربح، والتسعير العكسي. أداة مجانية من بوندز." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
 
@@ -67,13 +68,13 @@
         <div class="calc-grid" style="gap: 1rem;">
           <div class="calc-input-group" style="margin-bottom:0;">
             <label for="countrySelect">🌍 الدولة</label>
-            <select id="countrySelect" onchange="changeCountry(this.value)">
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="countrySelect" onchange="changeCountry(this.value)">
               <option value="">اختر الدولة...</option>
             </select>
           </div>
           <div class="calc-input-group" style="margin-bottom:0;">
             <label for="platformSelect">📱 منصة التوصيل</label>
-            <select id="platformSelect" onchange="selectPlatform(this.value)">
+            <select data-universal-dropdown="true" id="platformSelect" onchange="selectPlatform(this.value)">
               <option value="">اختر المنصة...</option>
             </select>
           </div>
@@ -281,7 +282,7 @@
         <div class="correction-grid">
           <div class="calc-input-group">
             <label>المنصة</label>
-            <select id="corrPlatform"><option value="">اختر...</option></select>
+            <select data-universal-dropdown="true" id="corrPlatform"><option value="">اختر...</option></select>
           </div>
           <div class="calc-input-group">
             <label>سعر البيع (شامل)</label>
@@ -965,7 +966,7 @@
     }
 
     function getUnitSelectHtml(selectedValue) {
-      return '<select class="ing-unit" onchange="updateIngredientRowTotal(this.closest(\'tr\'));updateIngredientTotal();updatePricePlaceholder(this.closest(\'tr\'));" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:#0f1525;color:var(--text);font-family:inherit;">' +
+      return '<select data-universal-dropdown="true" class="ing-unit" onchange="updateIngredientRowTotal(this.closest(\'tr\'));updateIngredientTotal();updatePricePlaceholder(this.closest(\'tr\'));" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:#0f1525;color:var(--text);font-family:inherit;">' +
         INGREDIENT_UNITS.map(function(o){ return '<option value="' + o.value + '"' + (o.value === selectedValue ? ' selected' : '') + ' style="background:#0f1525;color:var(--text);">' + o.label + '</option>'; }).join('') +
       '</select>';
     }
@@ -1123,5 +1124,7 @@
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
 <script src="../site-layout.js"></script>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

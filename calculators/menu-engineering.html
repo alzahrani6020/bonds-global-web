@@ -77,6 +77,7 @@
   <meta name="twitter:description" content="مصنف ذكي للمنيو يصنف الوجبات إلى نجوم، حصان رابح، ألغاز، وكلاب بناءً على بيانات المبيعات الفعلية." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -106,8 +107,8 @@
       <!-- Platforms Tab -->
       <div id="tab-platforms" class="tab-content active">
         <div class="form-row">
-          <div class="form-group"><label>الدولة</label><select id="pCountry" onchange="loadCountryPlatforms()"><option value="">اختر الدولة...</option></select></div>
-          <div class="form-group"><label>التطبيق</label><select id="pPlatformSelect" onchange="fillPlatformData()"><option value="">اختر التطبيق...</option></select></div>
+          <div class="form-group"><label>الدولة</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="pCountry" onchange="loadCountryPlatforms()"><option value="">اختر الدولة...</option></select></div>
+          <div class="form-group"><label>التطبيق</label><select data-universal-dropdown="true" id="pPlatformSelect" onchange="fillPlatformData()"><option value="">اختر التطبيق...</option></select></div>
           <div class="form-group"><label>رمز التطبيق</label><input id="pCode" placeholder="jahez" /></div>
           <div class="form-group"><label>اسم التطبيق</label><input id="pName" placeholder="جاهز" /></div>
           <div class="form-group"><label>العمولة (%)</label><input id="pCommission" type="number" value="25" /></div>
@@ -136,7 +137,7 @@
         <div class="form-row">
           <div class="form-group"><label>اسم الوجبة</label><input id="mName" placeholder="برجر كلاسيك" /></div>
           <div class="form-group"><label>التصنيف</label>
-            <select id="mCategory">
+            <select data-universal-dropdown="true" id="mCategory">
               <option value="main">رئيسي</option>
               <option value="appetizer">مقبلات</option>
               <option value="dessert">حلويات</option>
@@ -152,8 +153,8 @@
       <!-- Menu Item Ingredients Tab -->
       <div id="tab-costs" class="tab-content">
         <div class="form-row">
-          <div class="form-group"><label>الوجبة</label><select id="cMenuItem"><option value="">اختر...</option></select></div>
-          <div class="form-group"><label>المكون</label><select id="cIngredient"><option value="">اختر...</option></select></div>
+          <div class="form-group"><label>الوجبة</label><select data-universal-dropdown="true" id="cMenuItem"><option value="">اختر...</option></select></div>
+          <div class="form-group"><label>المكون</label><select data-universal-dropdown="true" id="cIngredient"><option value="">اختر...</option></select></div>
           <div class="form-group"><label>الكمية المطلوبة</label><input id="cQty" type="number" step="0.01" placeholder="0.15" /></div>
           <div class="form-group"><label>الوحدة</label><input id="cUnit" type="text" placeholder="kg أو g أو piece" /></div>
         </div>
@@ -164,8 +165,8 @@
       <!-- Sales Tab -->
       <div id="tab-sales" class="tab-content">
         <div class="form-row">
-          <div class="form-group"><label>الوجبة</label><select id="sMenuItem"><option value="">اختر...</option></select></div>
-          <div class="form-group"><label>المنصة</label><select id="sPlatform"><option value="">اختر...</option></select></div>
+          <div class="form-group"><label>الوجبة</label><select data-universal-dropdown="true" id="sMenuItem"><option value="">اختر...</option></select></div>
+          <div class="form-group"><label>المنصة</label><select data-universal-dropdown="true" id="sPlatform"><option value="">اختر...</option></select></div>
           <div class="form-group"><label>الكمية</label><input id="sQty" type="number" value="1" /></div>
           <div class="form-group"><label>سعر البيع (ر.س)</label><input id="sPrice" type="number" step="0.01" /></div>
         </div>
@@ -188,8 +189,8 @@
     <div class="me-actions">
       <h2>🧮 محاكاة حملات الخصم</h2>
       <div class="form-row">
-        <div class="form-group"><label>الوجبة</label><select id="simItem"><option value="">اختر...</option></select></div>
-        <div class="form-group"><label>المنصة</label><select id="simPlatform"><option value="">اختر...</option></select></div>
+        <div class="form-group"><label>الوجبة</label><select data-universal-dropdown="true" id="simItem"><option value="">اختر...</option></select></div>
+        <div class="form-group"><label>المنصة</label><select data-universal-dropdown="true" id="simPlatform"><option value="">اختر...</option></select></div>
         <div class="form-group"><label>نسبة الخصم (%)</label><input type="number" id="simDiscount" value="20" min="0" max="100" /></div>
         <div class="form-group"><label>المبيعات اليومية الحالية</label><input type="number" id="simSales" value="50" min="1" /></div>
       </div>
@@ -202,8 +203,8 @@
       <h2>🌐 حاسبة القنوات المتعددة (Omnichannel)</h2>
       <p style="text-align:center;color:var(--text-secondary);margin-bottom:var(--space-6);">قارن بين البيع عبر التطبيقات والبيع المباشر من موقعك</p>
       <div class="form-row">
-        <div class="form-group"><label>الوجبة</label><select id="omniItem"><option value="">اختر...</option></select></div>
-        <div class="form-group"><label>المنصة للمقارنة</label><select id="omniPlatform"><option value="">اختر...</option></select></div>
+        <div class="form-group"><label>الوجبة</label><select data-universal-dropdown="true" id="omniItem"><option value="">اختر...</option></select></div>
+        <div class="form-group"><label>المنصة للمقارنة</label><select data-universal-dropdown="true" id="omniPlatform"><option value="">اختر...</option></select></div>
         <div class="form-group"><label>تكلفة استحواذ العميل (CAC) ر.س</label><input type="number" id="omniCAC" value="5" step="0.5" /></div>
         <div class="form-group"><label>تكلفة التوصيل الذاتي ر.س</label><input type="number" id="omniDelivery" value="15" /></div>
         <div class="form-group"><label>ميزانية الإعلانات الشهرية ر.س</label><input type="number" id="omniAdBudget" value="3000" /></div>
@@ -847,5 +848,7 @@ init();
   <script src="../page-tracker-v2.js"></script>
 <script src="../site-layout.js"></script>
   <div id="site-footer"></div>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

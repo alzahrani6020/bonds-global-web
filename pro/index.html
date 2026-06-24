@@ -7,6 +7,7 @@
   <meta name="description" content="احصل على دراسة جدوى احترافية مدعومة بتحليل ذكي خلال دقائق." />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
   <div class="container">
@@ -28,7 +29,7 @@
       <form id="pro-form" class="form-grid">
         <div>
           <label for="sector">القطاع</label>
-          <select id="sector" required>
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="sector" required>
             <option value="" disabled selected>اختر القطاع</option>
             <option value="medical">طبي / صحي</option>
             <option value="restaurant">مطعم / مقهى</option>
@@ -103,5 +104,7 @@
   </div>
 
   <script src="app.js"></script>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

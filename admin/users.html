@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-ud-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -110,6 +110,7 @@
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
   <script>BondsAuth.initAdminGuard();</script>
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
 
@@ -175,13 +176,13 @@
 
       <div class="search-bar">
         <input type="text" class="search-input" id="searchInput" placeholder="البحث بالاسم أو البريد..." oninput="filterUsers()" />
-        <select class="search-input" id="tierFilter" onchange="filterUsers()" style="max-width:160px;">
+        <select data-universal-dropdown="true" class="search-input" id="tierFilter" onchange="filterUsers()" style="max-width:160px;">
           <option value="">كل الخطط</option>
           <option value="free">Free</option>
           <option value="pro">Pro</option>
           <option value="enterprise">Enterprise</option>
         </select>
-        <select class="search-input" id="statusFilter" onchange="filterUsers()" style="max-width:160px;">
+        <select data-universal-dropdown="true" class="search-input" id="statusFilter" onchange="filterUsers()" style="max-width:160px;">
           <option value="">كل الحالات</option>
           <option value="active">نشط</option>
           <option value="inactive">غير نشط</option>
@@ -226,14 +227,14 @@
           <input type="hidden" id="editUserId">
 
           <label>الخطة</label>
-          <select id="editTier">
+          <select data-universal-dropdown="true" id="editTier">
             <option value="free">Free</option>
             <option value="pro">Pro</option>
             <option value="enterprise">Enterprise</option>
           </select>
 
           <label>الحالة</label>
-          <select id="editStatus">
+          <select data-universal-dropdown="true" id="editStatus">
             <option value="active">نشط</option>
             <option value="inactive">غير نشط</option>
             <option value="pending">معلق</option>
@@ -625,5 +626,7 @@
 
   <script src="../page-tracker-v2.js"></script>
   <script src="/admin/admin-embed.js"></script>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

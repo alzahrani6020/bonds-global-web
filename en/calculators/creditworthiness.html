@@ -137,6 +137,7 @@
     }
     .lead-cta p { margin: 0 0 0.75rem; color: var(--text); }
   </style>
+<link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -204,7 +205,7 @@
           <div class="bonds-form-group"><label for="operatingCashFlow">Operating Cash Flow</label><input id="operatingCashFlow" class="bonds-input" type="number" placeholder="0" /></div>
           <div class="bonds-form-group">
             <label for="cashFlowStability">Cash Flow Stability (1 weak — 5 excellent)</label>
-            <select id="cashFlowStability" class="bonds-input">
+            <select data-universal-dropdown="true" id="cashFlowStability" class="bonds-input">
               <option value="20">1 — Unstable</option>
               <option value="40">2 — Weak stability</option>
               <option value="60" selected>3 — Average</option>
@@ -221,7 +222,7 @@
         <div class="bonds-form-row">
           <div class="bonds-form-group">
             <label for="defaults">Previous Defaults</label>
-            <select id="defaults" class="bonds-input">
+            <select data-universal-dropdown="true" id="defaults" class="bonds-input">
               <option value="0" selected>0</option>
               <option value="1">1</option>
               <option value="2+">2+</option>
@@ -246,13 +247,13 @@
           <div class="bonds-form-group"><label for="mgmtExperience">Management Experience (years)</label><input id="mgmtExperience" class="bonds-input" type="number" min="0" value="5" /></div>
           <div class="bonds-form-group">
             <label for="transparency">Financial Disclosure Transparency (1 weak — 5 excellent)</label>
-            <select id="transparency" class="bonds-input">
+            <select data-universal-dropdown="true" id="transparency" class="bonds-input">
               <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
             </select>
           </div>
           <div class="bonds-form-group">
             <label for="riskManagement">Risk Management Quality (1 weak — 5 excellent)</label>
-            <select id="riskManagement" class="bonds-input">
+            <select data-universal-dropdown="true" id="riskManagement" class="bonds-input">
               <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
             </select>
           </div>
@@ -265,19 +266,19 @@
         <div class="bonds-form-row">
           <div class="bonds-form-group">
             <label for="marketGrowth">Market Growth (1 weak — 5 strong)</label>
-            <select id="marketGrowth" class="bonds-input">
+            <select data-universal-dropdown="true" id="marketGrowth" class="bonds-input">
               <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
             </select>
           </div>
           <div class="bonds-form-group">
             <label for="competition">Competition Intensity (1 low — 5 fierce)</label>
-            <select id="competition" class="bonds-input">
+            <select data-universal-dropdown="true" id="competition" class="bonds-input">
               <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
             </select>
           </div>
           <div class="bonds-form-group">
             <label for="sectorRisk">Sector Risk (1 low — 5 high)</label>
-            <select id="sectorRisk" class="bonds-input">
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="sectorRisk" class="bonds-input">
               <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
             </select>
           </div>
@@ -733,5 +734,7 @@
       loadInputs();
     })();
   </script>
+<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

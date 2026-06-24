@@ -22,6 +22,7 @@
   <meta name="twitter:description" content="Calculate factory costs in Tunisia - salaries, insurance, raw materials, scenarios" />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
+<link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -37,7 +38,7 @@
         <h2 class="section-title">📝 Factory Details</h2>
         <div class="input-group">
           <label for="city">Industrial Zone</label>
-          <select id="city">
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="city">
 
             <option value="ariana">منطقة أريانة الصناعية</option>
             <option value="borjcedria">منطقة برج الصدرية</option>
@@ -51,7 +52,7 @@
         </div>
         <div class="input-group">
           <label for="industry">Industry Type</label>
-          <select id="industry">
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="industry">
             <option value="food">Food & Beverage</option>
             <option value="plastic">Plastic & Petrochemicals</option>
             <option value="metal">Metal & Steel</option>
@@ -68,7 +69,7 @@
         </div>
         <div class="input-group">
           <label for="type">Facility Type</label>
-          <select id="type">
+          <select data-universal-dropdown="true" id="type">
             <option value="land">Industrial Land (Private Build)</option>
             <option value="hangar">Warehouse/Ready Hangar</option>
             <option value="ready">Ready Factory (Turnkey)</option>
@@ -99,7 +100,7 @@
         <h3 style="font-size:1rem; font-weight:700; color:var(--gold); margin:1.5rem 0 1rem;">⚡ Utilities & Operations</h3>
         <div class="input-group">
           <label for="voltage">Voltage Type</label>
-          <select id="voltage">
+          <select data-universal-dropdown="true" id="voltage">
             <option value="medium">Medium Voltage (Large Factories)</option>
             <option value="low">Low Voltage (Small Factories)</option>
           </select>
@@ -231,5 +232,7 @@
 <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
 <script src="../../site-layout.js"></script>
+<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

@@ -154,6 +154,7 @@
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
 
@@ -173,11 +174,11 @@
         <h3>⚙️ اختيار النموذج والمدينة</h3>
         <div class="control-group">
           <label for="modelSelect">النموذج الاستثماري</label>
-          <select id="modelSelect"><option value="">اختر نموذجاً</option></select>
+          <select data-universal-dropdown="true" id="modelSelect"><option value="">اختر نموذجاً</option></select>
         </div>
         <div class="control-group">
           <label for="citySelect">المدينة</label>
-          <select id="citySelect"><option value="">اختر مدينة (اختياري)</option></select>
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="citySelect"><option value="">اختر مدينة (اختياري)</option></select>
         </div>
         <div class="control-group">
           <label for="revenueInput">الإيراد السنوي المتوقع (ر.س)</label>
@@ -301,10 +302,10 @@
       const div = document.createElement('div');
       div.className = 'shock-row';
       div.innerHTML = `
-        <select class="shock-code">
+        <select data-universal-dropdown="true" class="shock-code">
           ${SHOCK_OPTIONS.map(o => `<option value="${o.code}" data-unit="${o.unit}">${o.name}</option>`).join('')}
         </select>
-        <select class="shock-type">
+        <select data-universal-dropdown="true" class="shock-type">
           <option value="relative">نسبي %</option>
           <option value="absolute">مطلق</option>
         </select>
@@ -504,5 +505,7 @@
     init();
   </script>
   <div id="site-footer"></div>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

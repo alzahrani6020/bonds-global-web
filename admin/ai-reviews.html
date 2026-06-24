@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-ud-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -136,6 +136,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
   <script>BondsAuth.initAdminGuard();</script>
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
 <body>
 
@@ -411,7 +412,7 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
             <div class="form-group">
               <label for="modalStatus">الحالة</label>
-              <select id="modalStatus">
+              <select data-universal-dropdown="true" id="modalStatus">
                 ${Object.entries(STATUS_CONFIG).filter(([k]) => k !== 'all').map(([k, cfg]) => `<option value="${k}" ${selectedReview.status === k ? 'selected' : ''}>${cfg.label}</option>`).join('')}
               </select>
             </div>
@@ -476,5 +477,7 @@
     window.addEventListener('load', refreshReviews);
   </script>
   <script src="/admin/admin-embed.js"></script>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

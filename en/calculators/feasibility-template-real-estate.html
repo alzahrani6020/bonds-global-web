@@ -20,6 +20,7 @@
   <meta name="twitter:description" content="Professional integrated feasibility study: PESTLE, SWOT, financial analysis, cash flow, scenarios. Free from Bonds." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
+<link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
 <body>
   <div class="progress-bar no-print"><div id="progressFill"></div></div>
@@ -630,7 +631,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="field-group"><label>Financing Strategy</label><textarea rows="3" placeholder="How will you secure funding? Under what terms? When?"></textarea></div>
       <div class="field-group"><label>Key Results</label><textarea rows="3" placeholder="Key findings from the study..."></textarea></div>
       <div class="field-group"><label>Recommendations & Next Steps</label><textarea rows="3" placeholder="What is the first step? Who starts it? When?"></textarea></div>
-      <div class="field-group"><label>Is the project viable?</label><select><option value="">Select...</option><option value="yes">✅ Yes, Viable</option><option value="no">❌ No, Not Viable</option><option value="conditional">⚠️ Viable Under Conditions</option></select></div>
+      <div class="field-group"><label>Is the project viable?</label><select data-universal-dropdown="true"><option value="">Select...</option><option value="yes">✅ Yes, Viable</option><option value="no">❌ No, Not Viable</option><option value="conditional">⚠️ Viable Under Conditions</option></select></div>
       <div class="signature-grid">
         <div class="signature-box"><label>Prepared & Signed</label><input type="text" placeholder="Name & Signature" /></div>
         <div class="signature-box"><label>Date</label><input type="date" /></div>
@@ -645,7 +646,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Board of Directors & Executive Management Structure</h3>
       <div class="field-group"><label>Board Composition</label><textarea rows="3" placeholder="Number of members, their expertise, supervisory and legislative role..."></textarea></div>
       <div class="field-group inline">
-        <div class="field-group"><label>Separation of Executive Management from Board</label><select><option value="">Select...</option><option value="yes">✅ Yes, Separate</option><option value="no">❌ No, Overlapping</option><option value="partial">⚠️ Partial</option></select></div>
+        <div class="field-group"><label>Separation of Executive Management from Board</label><select data-universal-dropdown="true"><option value="">Select...</option><option value="yes">✅ Yes, Separate</option><option value="no">❌ No, Overlapping</option><option value="partial">⚠️ Partial</option></select></div>
         <div class="field-group"><label>Board Membership Term (years)</label><input type="number" placeholder="3" /></div>
       </div>
       <div class="field-group"><label>Key Board Authorities</label><textarea rows="3" placeholder="Budget approval, appointment/dismissal of executives, approval of major projects..."></textarea></div>
@@ -2297,7 +2298,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
               <div class="field-group inline-3">
                 <div class="field-group">
                   <label>Country</label>
-                  <select id="research-country"><option value="">Select country</option></select>
+                  <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="research-country"><option value="">Select country</option></select>
                 </div>
                 <div class="field-group">
                   <label>City (optional)</label>
@@ -2305,7 +2306,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
                 </div>
                 <div class="field-group">
                   <label>Research Type</label>
-                  <select id="research-type">
+                  <select data-universal-dropdown="true" id="research-type">
                     <option value="full_template">Full Research (All Sections)</option>
                     <option value="swot_analysis">Full SWOT</option>
                     <option value="pestle">PESTLE</option>
@@ -2482,5 +2483,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
 <script src="../../site-layout.js"></script>
+<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

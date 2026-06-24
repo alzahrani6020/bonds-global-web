@@ -36,6 +36,7 @@
   <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
   <link rel="canonical" href="https://bonds-global.com/contact" />
 
+<link rel="stylesheet" href="components/universal-dropdown.css" />
 </head>
 <body style="font-family:Vazirmatn,system-ui,sans-serif">
 
@@ -78,7 +79,7 @@
             </div>
             <div style="margin-bottom: var(--space-4);">
               <label id="sectorLabel" style="display: block; font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: var(--space-2);">قطاع عملك</label>
-              <select name="sector" aria-labelledby="sectorLabel" style="width: 100%; padding: var(--space-3) var(--space-4); border-radius: var(--radius); border: 1px solid var(--border-medium); background: var(--cream-50); font-family: inherit; font-size: var(--text-sm); outline: none; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); cursor: pointer;" onfocus="this.style.borderColor='var(--gold-400)';this.style.boxShadow='0 0 0 3px rgba(197,160,40,0.15)'" onblur="this.style.borderColor='var(--border-medium)';this.style.boxShadow='none'">
+              <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="sector" aria-labelledby="sectorLabel" style="width: 100%; padding: var(--space-3) var(--space-4); border-radius: var(--radius); border: 1px solid var(--border-medium); background: var(--cream-50); font-family: inherit; font-size: var(--text-sm); outline: none; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); cursor: pointer;" onfocus="this.style.borderColor='var(--gold-400)';this.style.boxShadow='0 0 0 3px rgba(197,160,40,0.15)'" onblur="this.style.borderColor='var(--border-medium)';this.style.boxShadow='none'">
                 <option value="">اختر القطاع</option>
                 <option value="تجارة">التجارة والتجزئة</option>
                 <option value="صناعة">الصناعة والمصانع</option>
@@ -93,7 +94,7 @@
             </div>
             <div style="margin-bottom: var(--space-4);">
               <label id="serviceLabel" style="display: block; font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: var(--space-2);">نوع الخدمة</label>
-              <select name="service" aria-labelledby="serviceLabel" style="width: 100%; padding: var(--space-3) var(--space-4); border-radius: var(--radius); border: 1px solid var(--border-medium); background: var(--cream-50); font-family: inherit; font-size: var(--text-sm); outline: none; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); cursor: pointer;" onfocus="this.style.borderColor='var(--gold-400)';this.style.boxShadow='0 0 0 3px rgba(197,160,40,0.15)'" onblur="this.style.borderColor='var(--border-medium)';this.style.boxShadow='none'">
+              <select data-universal-dropdown="true" name="service" aria-labelledby="serviceLabel" style="width: 100%; padding: var(--space-3) var(--space-4); border-radius: var(--radius); border: 1px solid var(--border-medium); background: var(--cream-50); font-family: inherit; font-size: var(--text-sm); outline: none; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); cursor: pointer;" onfocus="this.style.borderColor='var(--gold-400)';this.style.boxShadow='0 0 0 3px rgba(197,160,40,0.15)'" onblur="this.style.borderColor='var(--border-medium)';this.style.boxShadow='none'">
                 <option value="">اختر الخدمة</option>
                 <option value="تحليل مالي">التحليل المالي</option>
                 <option value="تدفقات نقدية">إدارة التدفقات النقدية</option>
@@ -264,5 +265,7 @@ updateDateTime();
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js"></script>
 <script src="site-layout.js"></script>
+<script src="components/universal-dropdown.js"></script>
+<script src="components/universal-dropdown-init.js"></script>
 </body>
 </html>
