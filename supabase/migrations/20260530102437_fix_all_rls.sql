@@ -55,6 +55,7 @@ WHERE id = 'avatars';
 -- Allow authenticated users to upload to avatars bucket
 DROP POLICY IF EXISTS "Allow authenticated uploads" ON storage.objects;
 DROP POLICY IF EXISTS "Allow authenticated reads" ON storage.objects;
+DROP POLICY IF EXISTS "Allow authenticated updates" ON storage.objects;
 DROP POLICY IF EXISTS "Allow public reads" ON storage.objects;
 
 CREATE POLICY "Allow authenticated uploads"
