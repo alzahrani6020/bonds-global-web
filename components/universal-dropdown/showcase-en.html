@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UniversalDropdown Showcase | Bonds</title>
+  <link rel="stylesheet" href="../universal-dropdown.css" />
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; padding: 2rem; background: #0a0f1a; color: #e8ecf4; line-height: 1.6; }
+    h1 { color: #d4a94a; }
+    h2 { margin-top: 2rem; color: #f0c96a; border-bottom: 1px solid rgba(212,169,74,0.3); padding-bottom: 0.3rem; }
+    .demo { max-width: 480px; margin-bottom: 1.5rem; }
+    label { display: block; margin-bottom: 0.4rem; font-weight: 700; color: #94a3b8; }
+    .light-section { background: #f5f0e8; color: #1a1a1a; padding: 1.5rem; border-radius: 12px; margin-top: 2rem; }
+    .light-section h2 { color: #b8954e; border-color: rgba(184,149,78,0.3); }
+    .light-section label { color: #555; }
+    .log { background: rgba(255,255,255,0.05); padding: 0.75rem; border-radius: 8px; font-family: monospace; font-size: 0.85rem; min-height: 1.5rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>🎛️ UniversalDropdown Showcase</h1>
+  <p>Interactive demo of all component features.</p>
+
+  <h2>Basic single select</h2>
+  <div class="demo">
+    <label for="single">Rating</label>
+    <select id="single" data-universal-dropdown="true">
+      <option value="1">1 — Poor</option>
+      <option value="2">2 — Fair</option>
+      <option value="3" selected>3 — Good</option>
+      <option value="4">4 — Very Good</option>
+      <option value="5">5 — Excellent</option>
+    </select>
+  </div>
+
+  <h2>Search + sort + deduplicate</h2>
+  <div class="demo">
+    <label for="country">Country</label>
+    <select id="country" data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true">
+      <option value=""></option>
+      <option value="sa">Saudi Arabia</option>
+      <option value="ae">UAE</option>
+      <option value="eg">Egypt</option>
+      <option value="jo">Jordan</option>
+      <option value="sa">Saudi Arabia</option>
+    </select>
+  </div>
+
+  <h2>Multi-select with select all / clear all</h2>
+  <div class="demo">
+    <label for="multi">Required services</label>
+    <select id="multi" data-universal-dropdown="true" multiple data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true">
+      <option value="feasibility" selected>Feasibility Study</option>
+      <option value="credit">Credit Assessment</option>
+      <option value="city">City Analysis</option>
+      <option value="review">Advisory Review</option>
+    </select>
+    <div class="log" id="multiLog">Select an option...</div>
+  </div>
+
+  <h2>Grouped options</h2>
+  <div class="demo">
+    <label for="grouped">Region / City</label>
+    <select id="grouped" data-universal-dropdown="true" data-ud-search="true">
+      <optgroup label="GCC">
+        <option value="riyadh">Riyadh</option>
+        <option value="dubai">Dubai</option>
+        <option value="manama">Manama</option>
+      </optgroup>
+      <optgroup label="North Africa">
+        <option value="cairo">Cairo</option>
+        <option value="casablanca">Casablanca</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <h2>Virtual long list (200+ items)</h2>
+  <div class="demo">
+    <label for="virtual">City</label>
+    <select id="virtual" data-universal-dropdown="true" data-ud-search="true" data-ud-virtualize="true" data-ud-virtual-threshold="30"></select>
+  </div>
+
+  <div class="light-section" data-ud-theme="light">
+    <h2>Light theme</h2>
+    <div class="demo">
+      <label for="light">Plan</label>
+      <select id="light" data-universal-dropdown="true">
+        <option value="free">Free</option>
+        <option value="pro" selected>Pro</option>
+        <option value="enterprise">Enterprise</option>
+      </select>
+    </div>
+  </div>
+
+  <h2>Async loading</h2>
+  <div class="demo">
+    <label for="async">Async options</label>
+    <select id="async" data-universal-dropdown="true" data-ud-loading-text="Loading cities..."></select>
+  </div>
+
+  <h2>Dynamic injection</h2>
+  <div class="demo">
+    <label for="dynamic">Sector (added after 1 second)</label>
+    <div id="dynamicContainer"></div>
+  </div>
+
+  <script src="../universal-dropdown.js"></script>
+  <script src="../universal-dropdown-init.js"></script>
+  <script>
+    // Populate virtual select
+    const virtual = document.getElementById('virtual');
+    for (let i = 1; i <= 200; i++) {
+      const o = document.createElement('option');
+      o.value = 'c' + i;
+      o.textContent = 'City ' + i;
+      virtual.appendChild(o);
+    }
+
+    // Multi-select change log
+    const multi = document.getElementById('multi');
+    multi.addEventListener('change', () => {
+      const values = Array.from(multi.selectedOptions).map(o => o.value);
+      document.getElementById('multiLog').textContent = 'Selected: ' + values.join(', ');
+    });
+
+    // Async loading demo
+    const asyncSelect = document.getElementById('async');
+    const dd = window.UniversalDropdown.fromSelect(asyncSelect, {});
+    dd.setLoading(true);
+    setTimeout(() => {
+      dd.setOptions([
+        { value: 'jeddah', label: 'Jeddah' },
+        { value: 'dammam', label: 'Dammam' },
+        { value: 'khobar', label: 'Khobar' }
+      ]);
+      dd.setLoading(false);
+    }, 1500);
+
+    // Dynamic injection
+    setTimeout(() => {
+      const container = document.getElementById('dynamicContainer');
+      const select = document.createElement('select');
+      select.setAttribute('data-universal-dropdown', 'true');
+      select.innerHTML = '<option value="retail">Retail</option><option value="food">Food</option><option value="tech">Tech</option>';
+      container.appendChild(select);
+    }, 1000);
+  </script>
+</body>
+</html>

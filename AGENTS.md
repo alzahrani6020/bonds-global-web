@@ -27,6 +27,10 @@
 ├── assets/                 ← الصور والشعارات
 │   └── icons/              ← أيقونات PWA (192×192، 512×512)
 ├── blog/                   ← المقالات
+├── components/             ← مكونات واجهة قابلة لإعادة الاستخدام
+│   ├── universal-dropdown.js      ← مكون القائمة المنسدلة المخصص
+│   ├── universal-dropdown.css     ← تنسيقات المكون
+│   ├── universal-dropdown-init.js ← التهيئة التلقائية
 ├── reports/                ← التقارير والتحقق
 ├── scripts/                ← سكربتات الإعداد والتدقيق
 ├── styles/                 ← ملفات CSS المقسمة
@@ -371,9 +375,70 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - جدول `ai_advisor_reports` يحفظ تقارير الإدارة العليا المنشأة.
 - يجب تحديث `sw.js` CACHE_VERSION عند تعديل ملفات الوحدة.
 
+### 11.8 UniversalDropdown — القائمة المنسدلة الموحدة
+مكوّن مخصّص لتحسين عناصر `<select>` وتوحيد الشكل والتصرف عبر الموقع.
+
+- **الملفات**:
+  - `components/universal-dropdown.js` — الصنف الأساسي.
+  - `components/universal-dropdown.css` — التنسيقات (خلفية داكنة، حدود ذهبية، hover ذهبي).
+  - `components/universal-dropdown-init.js` — التهيئة التلقائية للعناصر التي تحمل `data-universal-dropdown`.
+- **الاستخدام في HTML**:
+  ```html
+  <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true">
+    <option value="sa">السعودية</option>
+    ...
+  </select>
+  ```
+- **الاستخدام في JavaScript ديناميكي**:
+  ```javascript
+  if (window.initUniversalDropdowns) window.initUniversalDropdowns(container);
+  ```
+  - ملاحظة: `universal-dropdown-init.js` يراقب DOM عبر `MutationObserver` ويُحسّن أي `<select data-universal-dropdown>` يُضاف لاحقاً تلقائياً.
+- **الخصائص**:
+  - بحث فوري للقوائم الطويلة (`data-ud-search="true"`) مع زر مسح.
+  - فرز وإزالة التكرار وإزالة القيم الفارغة (`data-ud-sort`, `data-ud-deduplicate`, `data-ud-remove-empty`).
+  - دعم RTL/LTR تلقائي.
+  - التنسيق المطلق أو الثابت (`data-ud-fixed="true"`) لتجنب `overflow: hidden`.
+  - لوحة المفاتيح (ArrowDown/Up, Enter, Escape, Space للمتعدد).
+  - **اختيار متعدد**: `<select multiple data-universal-dropdown="true">` يعرض الاختيارات كـ chips مع أزرار تحديد/إلغاء الكل.
+  - **مجموعات**: يدعم `<optgroup>` ويبقي العناوين عند البحث.
+  - **تحميل غير متزامن**: `dd.setLoading(true/false)` لعرض حالة التحميل أثناء جلب البيانات.
+  - **virtualization**: `data-ud-virtualize="true"` للقوائم الطويلة (+50 عنصر افتراضياً).
+  - **ثيم فاتح**: أضف `data-ud-theme="light"` على `<html>` أو أي أصل، أو يُكتشف تلقائياً بواسطة `scripts/apply-universal-dropdown.py`.
+  - **تراجع الجوال**: على أجهزة اللمس، القوائم القصيرة (≤6 خيارات افتراضياً) تبقى `<select>` أصلي؛ القوائم الطويلة تُحسّن.
+  - **reduced-motion**: يحترم `prefers-reduced-motion` ويُلغي الحركات.
+- **التراجع الاحتياطي**: ملف `styles/select-reset.css` يُخزَّن في ذاكرة Service Worker (`sw.js`) ويُعطي `<select>` الأصلي مظهراً مقبولاً إذا لم يُحمّل المكون أو على أجهزة اللمس التي تُبقي القائمة الأصلية.
+- **النشر**: تم تطبيق المكون على الصفحات التي تحتوي `<select>` عبر `scripts/apply-universal-dropdown.py`.
+- **الاختبارات**: `tests/universal-dropdown/universal-dropdown.test.js` يغطي البحث، الفرز، الاختيار، الثيم الفاتح، multi-select، virtualization، optgroups، setLoading، reduced-motion، والتهيئة التلقائية.
+- **صفحة العرض**: `components/universal-dropdown/showcase.html` (عربي) و `showcase-en.html` (إنجليزي) تُظهر جميع الخصائص تفاعلياً.
+
 ---
 
-## 12. كيف تتواصل معي (المساعد)
+## 12. تصميم footer التقرير (Report Footer)
+
+- **الملف المركزي**: `calculators/shared-export.js` — يولّد footer موحّد لجميع التقارير المطبوعة عبر `openPrintWindow(options)`.
+- **المكونات**:
+  - **بطاقة ملاحظة من بوندز**: خلفية `#f8f5ef` مع حد ذهبي `#d4a853`.
+  - **خطوات "ماذا بعد؟" / "What's next?"**: مراجعة الأرقام → التحدث إلى مستشار → الحصول على خطة مالية.
+  - **QR Code**: يؤدي مباشرة إلى `https://wa.me/966567566616`.
+  - **CTA**: زر ذهبي بنص "تحدث إلى مستشار" / "Talk to an advisor".
+  - **Testimonial مخصص**: يتغير حسب `options.reportType` (`break-even`, `cash-flow`, `loan`, `pricing`, `default`).
+  - **عرض محدود ديناميكي**: تاريخ الانتهاء = آخر يوم من الشهر الحالي.
+  - **Social proof**: "انضم لأكثر من 500 صاحب مشروع..." / "Join 500+ entrepreneurs...".
+- **كيفية التخصيص**:
+  - لتغيير testimonial حسب نوع التقرير: عدّل كائن `testimonials` في `calculators/shared-export.js`.
+  - لتمرير نوع التقرير: `openPrintWindow({ ..., reportType: 'cash-flow' })`.
+  - لتغيير تاريخ العرض أو نصه: عدّل حساب `offerDate` في `calculators/shared-export.js` أو النصوص المقابلة في HTML/JS.
+- **ملفات إضافية**:
+  - `calculator.html` و `calculator-v2.html`: نافذة طباعة مخصصة لنقطة التعادل.
+  - `en/calculator.html`: النسخة الإنجليزية.
+  - `calculators/loan.html`, `calculators/cash-flow.html`, `calculators/pricing.html` ونسخها الإنجليزية في `en/calculators/`.
+  - `add_disclaimer.py`: ينسخ footer الحاسبات إلى الصفحات الجديدة.
+  - `translate_cashflow.py`: يترجم النصوص عند إنشاء النسخة الإنجليزية من cash-flow.
+
+---
+
+## 13. كيف تتواصل معي (المساعد)
 
 - **اطلب توضيحاً** إذا كان المطلوب غامضاً.
 - **اقترح بدائل** إذا كان الطلب قد يكسر شيئاً موجوداً.
@@ -382,4 +447,4 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 
 ---
 
-*آخر تحديث: 2026-06-18*
+*آخر تحديث: 2026-06-21*

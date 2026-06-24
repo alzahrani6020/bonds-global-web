@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UniversalDropdown Test</title>
+  <link rel="stylesheet" href="../../components/universal-dropdown.css" />
+  <style>
+    body { font-family: Vazirmatn, system-ui, sans-serif; padding: 2rem; background: #0a0f1a; color: #fff; }
+    .light-box { background: #f5f0e8; color: #1a1a1a; padding: 1rem; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <label for="countrySelect">الدولة</label>
+  <select id="countrySelect" data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true">
+    <option value=""></option>
+    <option value="sa">السعودية</option>
+    <option value="ae">الإمارات</option>
+    <option value="eg">مصر</option>
+    <option value="jo">الأردن</option>
+    <option value="sa">السعودية</option>
+  </select>
+
+  <label for="sentinelSelect">اختبار القيم الوهمية</label>
+  <select id="sentinelSelect" data-universal-dropdown="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true">
+    <option value=""></option>
+    <option value="-">-</option>
+    <option value="unknown">Unknown</option>
+    <option value="sa">السعودية</option>
+    <option value="sa">السعودية</option>
+    <option value="null">null</option>
+    <option value="eg">مصر</option>
+    <option value="غير معروف">غير معروف</option>
+  </select>
+
+  <label for="ratingSelect">التقييم</label>
+  <select id="ratingSelect" data-universal-dropdown="true">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3" selected>3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+  </select>
+
+  <div class="light-box" data-ud-theme="light">
+    <label for="lightSelect">خيار فاتح</label>
+    <select id="lightSelect" data-universal-dropdown="true">
+      <option value="a">أ</option>
+      <option value="b">ب</option>
+    </select>
+  </div>
+
+  <label for="longSelect">قائمة طويلة</label>
+  <select id="longSelect" data-universal-dropdown="true">
+    <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+    <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+    <option value="7">7</option><option value="8">8</option>
+  </select>
+
+  <label for="multiSelect">اختيارات متعددة</label>
+  <select id="multiSelect" data-universal-dropdown="true" multiple>
+    <option value="m1" selected>خيار 1</option>
+    <option value="m2">خيار 2</option>
+    <option value="m3" selected>خيار 3</option>
+  </select>
+
+  <label for="groupSelect">مجموعات</label>
+  <select id="groupSelect" data-universal-dropdown="true" data-ud-search="true">
+    <optgroup label="المجموعة أ">
+      <option value="a1">عنصر أ1</option>
+      <option value="a2">عنصر أ2</option>
+    </optgroup>
+    <optgroup label="المجموعة ب">
+      <option value="b1">عنصر ب1</option>
+      <option value="b2">عنصر ب2</option>
+    </optgroup>
+  </select>
+
+  <label for="loadingSelect">تحميل</label>
+  <select id="loadingSelect" data-universal-dropdown="true"></select>
+
+  <label for="virtualSelect">قائمة افتراضية</label>
+  <select id="virtualSelect" data-universal-dropdown="true" data-ud-virtualize="true" data-ud-virtual-threshold="30">
+    <!-- populated by JS below -->
+  </select>
+
+  <script>
+    (function() {
+      const s = document.getElementById('virtualSelect');
+      for (let i = 1; i <= 100; i++) {
+        const o = document.createElement('option');
+        o.value = 'v' + i;
+        o.textContent = 'خيار ' + i;
+        s.appendChild(o);
+      }
+    })();
+  </script>
+
+  <script src="../../components/universal-dropdown.js"></script>
+  <script src="../../components/universal-dropdown-init.js"></script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UniversalDropdown Showcase | Bonds</title>
+  <link rel="stylesheet" href="../universal-dropdown.css" />
+  <style>
+    body { font-family: Vazirmatn, system-ui, sans-serif; padding: 2rem; background: #0a0f1a; color: #e8ecf4; line-height: 1.6; }
+    h1 { color: #d4a94a; }
+    h2 { margin-top: 2rem; color: #f0c96a; border-bottom: 1px solid rgba(212,169,74,0.3); padding-bottom: 0.3rem; }
+    .demo { max-width: 480px; margin-bottom: 1.5rem; }
+    label { display: block; margin-bottom: 0.4rem; font-weight: 700; color: #94a3b8; }
+    .light-section { background: #f5f0e8; color: #1a1a1a; padding: 1.5rem; border-radius: 12px; margin-top: 2rem; }
+    .light-section h2 { color: #b8954e; border-color: rgba(184,149,78,0.3); }
+    .light-section label { color: #555; }
+    .log { background: rgba(255,255,255,0.05); padding: 0.75rem; border-radius: 8px; font-family: monospace; font-size: 0.85rem; min-height: 1.5rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>🎛️ UniversalDropdown Showcase</h1>
+  <p>عرض تفاعلي لجميع خصائص المكوّن.</p>
+
+  <h2>اختيار واحد بسيط</h2>
+  <div class="demo">
+    <label for="single">التقييم</label>
+    <select id="single" data-universal-dropdown="true">
+      <option value="1">1 — ضعيف</option>
+      <option value="2">2 — مقبول</option>
+      <option value="3" selected>3 — جيد</option>
+      <option value="4">4 — جيد جداً</option>
+      <option value="5">5 — ممتاز</option>
+    </select>
+  </div>
+
+  <h2>بحث + فرز + إزالة تكرار</h2>
+  <div class="demo">
+    <label for="country">الدولة</label>
+    <select id="country" data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true">
+      <option value=""></option>
+      <option value="sa">السعودية</option>
+      <option value="ae">الإمارات</option>
+      <option value="eg">مصر</option>
+      <option value="jo">الأردن</option>
+      <option value="sa">السعودية</option>
+    </select>
+  </div>
+
+  <h2>اختيار متعدد مع تحديد/إلغاء الكل</h2>
+  <div class="demo">
+    <label for="multi">الخدمات المطلوبة</label>
+    <select id="multi" data-universal-dropdown="true" multiple data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true">
+      <option value="feasibility" selected>دراسة جدوى</option>
+      <option value="credit">تقييم ائتماني</option>
+      <option value="city">تحليل مدينة</option>
+      <option value="review">مراجعة استشارية</option>
+    </select>
+    <div class="log" id="multiLog">اختر خياراً...</div>
+  </div>
+
+  <h2>قائمة افتراضية طويلة (200+ عنصر)</h2>
+  <div class="demo">
+    <label for="virtual">المدينة</label>
+    <select id="virtual" data-universal-dropdown="true" data-ud-search="true" data-ud-virtualize="true" data-ud-virtual-threshold="30"></select>
+  </div>
+
+  <div class="light-section" data-ud-theme="light">
+    <h2>الثيم الفاتح</h2>
+    <div class="demo">
+      <label for="light">الخطة</label>
+      <select id="light" data-universal-dropdown="true">
+        <option value="free">Free</option>
+        <option value="pro" selected>Pro</option>
+        <option value="enterprise">Enterprise</option>
+      </select>
+    </div>
+  </div>
+
+  <h2>إضافة ديناميكية</h2>
+  <div class="demo">
+    <label for="dynamic">القطاع (يُضاف بعد 1 ثانية)</label>
+    <div id="dynamicContainer"></div>
+  </div>
+
+  <script src="../universal-dropdown.js"></script>
+  <script src="../universal-dropdown-init.js"></script>
+  <script>
+    // Populate virtual select
+    const virtual = document.getElementById('virtual');
+    for (let i = 1; i <= 200; i++) {
+      const o = document.createElement('option');
+      o.value = 'c' + i;
+      o.textContent = 'مدينة ' + i;
+      virtual.appendChild(o);
+    }
+
+    // Multi-select change log
+    const multi = document.getElementById('multi');
+    multi.addEventListener('change', () => {
+      const values = Array.from(multi.selectedOptions).map(o => o.value);
+      document.getElementById('multiLog').textContent = 'مختار: ' + values.join(', ');
+    });
+
+    // Dynamic injection
+    setTimeout(() => {
+      const container = document.getElementById('dynamicContainer');
+      const select = document.createElement('select');
+      select.setAttribute('data-universal-dropdown', 'true');
+      select.innerHTML = '<option value="retail">تجزئة</option><option value="food">مطاعم</option><option value="tech">تقنية</option>';
+      container.appendChild(select);
+      if (window.initUniversalDropdowns) window.initUniversalDropdowns(container);
+    }, 1000);
+  </script>
+</body>
+</html>

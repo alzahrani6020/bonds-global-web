@@ -1,0 +1,439 @@
+/* UniversalDropdown — Bonds Global
+ * Replaces native <select> with an accessible, theme-aware custom dropdown.
+ * Include this file BEFORE page-specific styles.
+ */
+
+/* ---------- CSS variables (scoped, fallback-safe) ---------- */
+:root {
+  --ud-bg: #111827;
+  --ud-bg-hover: rgba(212, 169, 74, 0.12);
+  --ud-text: #ffffff;
+  --ud-text-muted: #9ca3af;
+  --ud-border: #d4a94a;
+  --ud-border-subtle: rgba(212, 169, 74, 0.35);
+  --ud-radius: 12px;
+  --ud-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --ud-max-h: 320px;
+  --ud-item-py: 0.55rem;
+  --ud-item-px: 0.9rem;
+  --ud-z: 99999;
+}
+
+/* Light theme override */
+[data-ud-theme="light"],
+.ud-dropdown[data-ud-theme="light"] {
+  --ud-bg: #ffffff;
+  --ud-bg-hover: rgba(212, 169, 74, 0.15);
+  --ud-text: #1a1a1a;
+  --ud-text-muted: #666666;
+  --ud-border: #b8954e;
+  --ud-border-subtle: rgba(184, 149, 78, 0.35);
+  --ud-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- Core wrapper ---------- */
+.ud-dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.ud-dropdown * {
+  box-sizing: border-box;
+}
+
+/* Keep the original <select> accessible but invisible */
+.ud-dropdown select[data-ud-native] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+/* ---------- Trigger ---------- */
+.ud-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.6rem 0.9rem;
+  background: var(--ud-bg);
+  color: var(--ud-text);
+  border: 1px solid var(--ud-border);
+  border-radius: var(--ud-radius);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.ud-trigger:hover {
+  background: #1a2436;
+  border-color: #f0c96a;
+}
+
+.ud-trigger:focus-visible,
+.ud-trigger.ud-focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(212, 169, 74, 0.35);
+}
+
+.ud-trigger[aria-expanded="true"] {
+  border-color: #f0c96a;
+}
+
+.ud-trigger.ud-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ud-trigger-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+  text-align: start;
+}
+
+.ud-trigger-value.ud-placeholder {
+  color: var(--ud-text-muted);
+}
+
+.ud-arrow {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  color: var(--ud-border);
+  transition: transform 0.2s ease;
+}
+
+.ud-trigger[aria-expanded="true"] .ud-arrow {
+  transform: rotate(180deg);
+}
+
+/* ---------- Menu (absolute or fixed) ---------- */
+.ud-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  min-width: 100%;
+  background: var(--ud-bg);
+  color: var(--ud-text);
+  border: 1px solid var(--ud-border);
+  border-radius: var(--ud-radius);
+  box-shadow: var(--ud-shadow);
+  z-index: var(--ud-z);
+  max-height: var(--ud-max-h);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ud-border) transparent;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+}
+
+.ud-menu.ud-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  visibility: visible;
+}
+
+.ud-menu.ud-fixed {
+  position: fixed;
+}
+
+.ud-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ud-menu::-webkit-scrollbar-thumb {
+  background: var(--ud-border);
+  border-radius: 3px;
+}
+
+/* When dropdown is inside a modal/card with overflow:hidden */
+.ud-dropdown.ud-portal .ud-menu {
+  position: fixed;
+}
+
+/* ---------- Search ---------- */
+.ud-search {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 0.55rem;
+  background: var(--ud-bg);
+  border-bottom: 1px solid var(--ud-border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ud-search input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.55rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ud-text);
+  border: 1px solid var(--ud-border-subtle);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.ud-search-clear {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  background: transparent;
+  color: var(--ud-text-muted);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.ud-search-clear:hover {
+  background: var(--ud-bg-hover);
+  color: var(--ud-text);
+}
+
+.ud-search input:focus {
+  border-color: var(--ud-border);
+  box-shadow: 0 0 0 2px rgba(212, 169, 74, 0.25);
+}
+
+.ud-search input::placeholder {
+  color: var(--ud-text-muted);
+}
+
+/* ---------- Items ---------- */
+.ud-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.3rem 0;
+}
+
+.ud-item {
+  padding: var(--ud-item-py) var(--ud-item-px);
+  color: var(--ud-text);
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ud-item:hover,
+.ud-item.ud-highlighted {
+  background: var(--ud-border);
+  color: #000000;
+}
+
+.ud-item.ud-selected {
+  background: var(--ud-border);
+  color: #000000;
+  font-weight: 600;
+}
+
+.ud-item.ud-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ud-item.ud-disabled:hover,
+.ud-item.ud-disabled.ud-highlighted {
+  background: transparent;
+  color: var(--ud-text);
+}
+
+.ud-group-header {
+  padding: 0.45rem 0.9rem;
+  color: var(--ud-border);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: default;
+  pointer-events: none;
+  border-bottom: 1px solid var(--ud-border-subtle);
+}
+
+.ud-empty {
+  padding: 1rem;
+  text-align: center;
+  color: var(--ud-text-muted);
+  font-size: 0.9rem;
+}
+
+.ud-empty.ud-loading {
+  color: var(--ud-border);
+  font-style: italic;
+}
+
+.ud-trigger.ud-loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* ---------- Multi-select actions ---------- */
+.ud-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--ud-border-subtle);
+  background: var(--ud-bg);
+}
+
+.ud-action-btn {
+  flex: 1 1 auto;
+  padding: 0.4rem 0.6rem;
+  background: transparent;
+  color: var(--ud-text);
+  border: 1px solid var(--ud-border-subtle);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.ud-action-btn:hover {
+  background: var(--ud-bg-hover);
+  border-color: var(--ud-border);
+}
+
+.ud-action-btn--primary {
+  background: var(--ud-border);
+  color: #000000;
+  border-color: var(--ud-border);
+}
+
+.ud-action-btn--primary:hover {
+  filter: brightness(1.05);
+}
+
+/* ---------- Multi-select ---------- */
+.ud-trigger-value {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.ud-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.55rem;
+  background: var(--ud-border);
+  color: #000000;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ud-item--multi::before {
+  content: "";
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-inline-end: 0.5rem;
+  border: 1px solid var(--ud-border);
+  border-radius: 3px;
+  background: transparent;
+  vertical-align: middle;
+  transition: background 0.12s ease;
+}
+
+.ud-item--multi.ud-selected::before {
+  background: var(--ud-border) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") no-repeat center;
+}
+
+/* ---------- RTL/LTR tweaks ---------- */
+.ud-dropdown[dir="rtl"] .ud-trigger,
+html[dir="rtl"] .ud-dropdown .ud-trigger {
+  text-align: right;
+}
+
+.ud-dropdown[dir="ltr"] .ud-trigger,
+html[dir="ltr"] .ud-dropdown .ud-trigger {
+  text-align: left;
+}
+
+/* ---------- Native select fallback (if JS fails or unconverted) ---------- */
+select.ud-native-fallback,
+select[data-ud-native] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.6rem 2.2rem 0.6rem 0.9rem;
+  background: #111827 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d4a94a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+  color: #ffffff;
+  border: 1px solid #d4a94a;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+select.ud-native-fallback:focus,
+select[data-ud-native]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(212, 169, 74, 0.35);
+}
+
+html[dir="rtl"] select.ud-native-fallback,
+html[dir="rtl"] select[data-ud-native] {
+  padding: 0.6rem 0.9rem 0.6rem 2.2rem;
+  background-position: left 0.75rem center;
+}
+
+/* Disabled native fallback state */
+select.ud-native-fallback:disabled,
+select[data-ud-native]:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .ud-trigger,
+  .ud-menu,
+  .ud-item,
+  .ud-search-clear,
+  .ud-action-btn,
+  .ud-chip {
+    transition: none !important;
+  }
+  .ud-menu {
+    transform: none !important;
+  }
+  .ud-trigger[aria-expanded="true"] .ud-arrow {
+    transition: none !important;
+  }
+}
