@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rate your experience | Bonds</title>
+  <meta name="description" content="Help us improve Bonds by sharing your feedback." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    .nps-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); padding: 2rem; }
+    .nps-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; max-width: 560px; width: 100%; text-align: center; }
+    .nps-title { font-size: 1.75rem; font-weight: 900; color: var(--text); margin-bottom: 0.75rem; }
+    .nps-subtitle { color: var(--text-secondary); margin-bottom: 2rem; }
+    .nps-scale { display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .nps-btn { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .nps-btn:hover, .nps-btn.selected { background: var(--gold); color: #0a0f1a; border-color: var(--gold); }
+    .nps-labels { display: flex; justify-content: space-between; color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 1.5rem; }
+    .nps-textarea { width: 100%; padding: 1rem; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; min-height: 120px; margin-bottom: 1rem; }
+    .nps-submit { background: var(--gold); color: #0a0f1a; font-weight: 800; padding: 0.875rem 2rem; border-radius: 10px; border: none; cursor: pointer; font-size: 1rem; }
+    .nps-error { color: #ff8a8a; margin-top: 1rem; }
+    .nps-success { color: #86efac; margin-top: 1rem; }
+    .nps-loading { color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+  <div class="nps-page">
+    <div class="nps-card" id="npsCard">
+      <div class="nps-loading">Loading...</div>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const surveyId = params.get('id');
+    const preScore = params.get('score');
+    let selectedScore = preScore ? Number(preScore) : null;
+
+    async function loadSurvey() {
+      const card = document.getElementById('npsCard');
+      if (!surveyId) {
+        card.innerHTML = '<div class="nps-error">Invalid link.</div>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/nps-check?id=${surveyId}`);
+        const json = await res.json();
+        if (!json.valid) {
+          card.innerHTML = '<div class="nps-error">This survey is unavailable or has already been answered.</div>';
+          return;
+        }
+        renderForm();
+      } catch (e) {
+        card.innerHTML = '<div class="nps-error">Something went wrong. Please try again.</div>';
+      }
+    }
+
+    function renderForm() {
+      const card = document.getElementById('npsCard');
+      card.innerHTML = `
+        <h1 class="nps-title">How likely are you to recommend Bonds?</h1>
+        <p class="nps-subtitle">0 to 10, where 10 means "very likely"</p>
+        <div class="nps-scale" id="npsScale"></div>
+        <div class="nps-labels"><span>Not likely</span><span>Very likely</span></div>
+        <textarea class="nps-textarea" id="feedback" placeholder="What's the one thing we could improve? (optional)"></textarea>
+        <button class="nps-submit" onclick="submitNps()">Submit feedback</button>
+        <div class="nps-error" id="npsError"></div>
+      `;
+      const scale = document.getElementById('npsScale');
+      for (let i = 0; i <= 10; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'nps-btn' + (i === selectedScore ? ' selected' : '');
+        btn.textContent = i;
+        btn.onclick = () => {
+          selectedScore = i;
+          document.querySelectorAll('.nps-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+        };
+        scale.appendChild(btn);
+      }
+    }
+
+    async function submitNps() {
+      const errorEl = document.getElementById('npsError');
+      errorEl.textContent = '';
+      if (selectedScore === null) {
+        errorEl.textContent = 'Please select a score.';
+        return;
+      }
+      try {
+        const res = await fetch('/api/nps-submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            surveyId,
+            score: selectedScore,
+            feedback: document.getElementById('feedback')?.value || ''
+          })
+        });
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById('npsCard').innerHTML = `
+            <div class="nps-success" style="font-size:1.2rem;">Thank you! Your feedback helps us improve Bonds.</div>
+            <a href="index.html" style="display:inline-block;margin-top:1.5rem;color:var(--gold);text-decoration:none;font-weight:700;">Back to home</a>
+          `;
+        } else {
+          throw new Error(json.error || 'Submission failed');
+        }
+      } catch (e) {
+        errorEl.textContent = e.message || 'An error occurred.';
+      }
+    }
+
+    loadSurvey();
+  </script>
+</body>
+</html>
