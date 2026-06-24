@@ -13,4 +13,9 @@ tests/visual/diffs/
 .tmp_*
 screenshots/
 
+# Python/runtime artifacts
+__pycache__/
+*.pyc
+server.log
+
 .env*
