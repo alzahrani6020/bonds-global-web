@@ -451,6 +451,65 @@ async function resetPassword(sb, body, admin) {
   return { success: true };
 }
 
+// ── Password reset endpoints (merged from api/password.js) ──
+const ADMIN_EMAIL_PASSWORD = (process.env.ADMIN_EMAIL || '').trim().toLowerCase() ||
+  (process.env.ADMIN_EMAILS || '').split(',')[0].trim().toLowerCase();
+
+function isAdminEmail(email) {
+  if (!email || !ADMIN_EMAIL_PASSWORD) return false;
+  return email.trim().toLowerCase() === ADMIN_EMAIL_PASSWORD;
+}
+
+async function handleForceReset(sb, body) {
+  const { email, password } = body || {};
+  if (!isAdminEmail(email)) throw new Error('Unauthorized');
+  if (!password || password.length < 6) throw new Error('Password must be at least 6 characters');
+
+  const { data: profile, error: profileError } = await sb
+    .from('profiles')
+    .select('id')
+    .eq('email', email)
+    .single();
+
+  if (profileError || !profile) throw new Error('User not found');
+
+  const { error: updateError } = await sb.auth.admin.updateUserById(profile.id, { password });
+  if (updateError) throw updateError;
+
+  const { data: existingRole } = await sb
+    .from('admin_roles')
+    .select('role')
+    .eq('user_id', profile.id)
+    .single();
+
+  if (!existingRole) {
+    await sb.from('admin_roles').insert({ user_id: profile.id, role: 'super_admin' });
+  }
+
+  return {
+    success: true,
+    message: 'تم تغيير كلمة المرور بنجاح! يمكنك تسجيل الدخول الآن.'
+  };
+}
+
+async function handleResetLink(sb, body) {
+  const { email } = body || {};
+  if (!isAdminEmail(email)) throw new Error('Unauthorized');
+
+  const { data, error } = await sb.auth.admin.generateLink({
+    type: 'recovery',
+    email,
+    options: { redirectTo: 'https://bonds-global.com/calculators/auth/reset.html' }
+  });
+
+  if (error) throw error;
+
+  return {
+    success: true,
+    resetLink: data.properties?.action_link || data.properties?.recovery_url || null
+  };
+}
+
 // ── Subscriptions ───────────────────────────────────────────
 async function getSubscriptions(sb) {
   const { data: subs, error: subsError } = await sb.from('subscriptions').select('user_id, tier, status, current_period_end, created_at').order('created_at', { ascending: false });
@@ -567,6 +626,24 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
+      if (action === 'force-reset') {
+        try {
+          return res.status(200).json(await handleForceReset(sb, req.body));
+        } catch (err) {
+          if (err.message === 'Unauthorized') return res.status(403).json({ error: err.message });
+          if (err.message === 'User not found') return res.status(404).json({ error: err.message });
+          if (err.message === 'Password must be at least 6 characters') return res.status(400).json({ error: err.message });
+          throw err;
+        }
+      }
+      if (action === 'reset-password') {
+        try {
+          return res.status(200).json(await handleResetLink(sb, req.body));
+        } catch (err) {
+          if (err.message === 'Unauthorized') return res.status(403).json({ error: err.message });
+          throw err;
+        }
+      }
       if (action === 'verify') {
         const result = await verifyAdminUser(req, sb);
         if (!result) return res.status(403).json({ success: false, isAdmin: false });

@@ -24,23 +24,31 @@
     },
     {
       "source": "/api/force-reset",
-      "destination": "/api/password"
+      "destination": "/api/admin.js?action=force-reset"
     },
     {
       "source": "/api/force-reset/",
-      "destination": "/api/password"
+      "destination": "/api/admin.js?action=force-reset"
     },
     {
       "source": "/api/reset-password",
-      "destination": "/api/password"
+      "destination": "/api/admin.js?action=reset-password"
     },
     {
       "source": "/api/reset-password/",
-      "destination": "/api/password"
+      "destination": "/api/admin.js?action=reset-password"
     },
     {
       "source": "/api/v3",
       "destination": "/api/v3/index"
+    },
+    {
+      "source": "/api/v3/billing/webhook",
+      "destination": "/api/billing.js?action=v3-stripe-webhook"
+    },
+    {
+      "source": "/api/v3/billing/webhook/",
+      "destination": "/api/billing.js?action=v3-stripe-webhook"
     },
     {
       "source": "/api/v3/(.*)",
@@ -52,7 +60,119 @@
     },
     {
       "source": "/api/track",
-      "destination": "/api/usage?action=track"
+      "destination": "/api/site.js?action=usage"
+    },
+    {
+      "source": "/api/track/",
+      "destination": "/api/site.js?action=usage"
+    },
+    {
+      "source": "/api/moyasar-checkout",
+      "destination": "/api/moyasar.js?action=checkout"
+    },
+    {
+      "source": "/api/moyasar-verify",
+      "destination": "/api/moyasar.js?action=verify"
+    },
+    {
+      "source": "/api/moyasar-webhook",
+      "destination": "/api/moyasar.js?action=webhook"
+    },
+    {
+      "source": "/api/nps-check",
+      "destination": "/api/nps.js?action=check"
+    },
+    {
+      "source": "/api/nps-submit",
+      "destination": "/api/nps.js?action=submit"
+    },
+    {
+      "source": "/api/send-nps",
+      "destination": "/api/nps.js?action=send"
+    },
+    {
+      "source": "/api/advisors",
+      "destination": "/api/advisors.js?action=list"
+    },
+    {
+      "source": "/api/advisor-dashboard",
+      "destination": "/api/advisors.js?action=dashboard"
+    },
+    {
+      "source": "/api/advisor-update-review",
+      "destination": "/api/advisors.js?action=update-review"
+    },
+    {
+      "source": "/api/funding-readiness",
+      "destination": "/api/funding.js?action=funding-readiness"
+    },
+    {
+      "source": "/api/funding-readiness/",
+      "destination": "/api/funding.js?action=funding-readiness"
+    },
+    {
+      "source": "/api/bank-partner-request",
+      "destination": "/api/funding.js?action=bank-partner-request"
+    },
+    {
+      "source": "/api/bank-partner-request/",
+      "destination": "/api/funding.js?action=bank-partner-request"
+    },
+    {
+      "source": "/api/create-checkout",
+      "destination": "/api/checkout.js?action=create"
+    },
+    {
+      "source": "/api/create-checkout/",
+      "destination": "/api/checkout.js?action=create"
+    },
+    {
+      "source": "/api/create-oneoff-checkout",
+      "destination": "/api/checkout.js?action=oneoff"
+    },
+    {
+      "source": "/api/create-oneoff-checkout/",
+      "destination": "/api/checkout.js?action=oneoff"
+    },
+    {
+      "source": "/api/webhook",
+      "destination": "/api/billing.js?action=stripe-webhook"
+    },
+    {
+      "source": "/api/webhook/",
+      "destination": "/api/billing.js?action=stripe-webhook"
+    },
+    {
+      "source": "/api/bank-transfer",
+      "destination": "/api/funding.js?action=bank-transfer"
+    },
+    {
+      "source": "/api/bank-transfer/",
+      "destination": "/api/funding.js?action=bank-transfer"
+    },
+    {
+      "source": "/api/funding-sources",
+      "destination": "/api/funding.js?action=sources"
+    },
+    {
+      "source": "/api/funding-sources/",
+      "destination": "/api/funding.js?action=sources"
+    },
+    {
+      "source": "/api/contact",
+      "destination": "/api/site.js?action=contact"
+    },
+    {
+      "source": "/api/contact/",
+      "destination": "/api/site.js?action=contact"
+    },
+    {
+      "source": "/api/usage",
+      "destination": "/api/site.js?action=usage"
+    },
+    {
+      "source": "/api/usage/",
+      "destination": "/api/site.js?action=usage"
     },
     {
       "source": "/api/([^/]+)",

@@ -1,14 +1,12 @@
 // ============================================
-// Send NPS Surveys
-// POST /api/send-nps
-// Authorization: Bearer <admin-jwt> OR internal cron
-// Finds reports approved in last 24h without survey, sends email
+// NPS API dispatcher
+// Routes by ?action=check|submit|send
 // ============================================
 
 const getSupabase = require('../lib/api/supabase');
 const { sendEmail } = require('../lib/api/email');
 const { verifyBearer } = require('../lib/api/auth-helper');
-const { withRateLimit } = require('../lib/api/rate-limit');
+const { checkRateLimit } = require('../lib/api/rate-limit');
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
 
@@ -21,14 +19,79 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
-async function handler(req, res) {
+async function checkAction(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+  if (checkRateLimit('public', req, res)) return;
+
+  const { id } = req.query || {};
+  if (!id) return res.status(400).json({ valid: false, error: 'Missing id' });
+
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase.from('nps_surveys')
+      .select('id, status')
+      .eq('id', id)
+      .in('status', ['sent', 'pending'])
+      .single();
+
+    if (error || !data) {
+      return res.status(200).json({ valid: false });
+    }
+
+    res.status(200).json({ valid: true });
+  } catch (err) {
+    console.error('[nps-check] Error:', err);
+    res.status(500).json({ valid: false, error: 'Server error' });
+  }
+}
+
+async function submitAction(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  if (checkRateLimit('public', req, res)) return;
+
+  try {
+    const { surveyId, score, feedback } = req.body || {};
+    if (!surveyId || score === undefined || score < 0 || score > 10) {
+      return res.status(400).json({ success: false, error: 'Invalid survey or score' });
+    }
+
+    const supabase = getSupabase();
+    const { data, error } = await supabase.from('nps_surveys').update({
+      score: Number(score),
+      feedback: feedback ? String(feedback).slice(0, 2000) : null,
+      status: 'responded',
+      responded_at: new Date().toISOString()
+    }).eq('id', surveyId).eq('status', 'sent').select().single();
+
+    if (error) throw error;
+    if (!data) return res.status(404).json({ success: false, error: 'Survey not found or already responded' });
+
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('[nps-submit] Error:', err);
+    res.status(500).json({ success: false, error: 'Failed to submit' });
+  }
+}
+
+async function sendAction(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // Optional admin auth; if missing, still allow internal cron via secret
+  if (checkRateLimit('auth', req, res)) return;
+
   const cronSecret = req.headers['x-cron-secret'];
   const expectedCronSecret = process.env.CRON_SECRET;
   let isAdmin = false;
@@ -39,7 +102,7 @@ async function handler(req, res) {
     try {
       const user = await verifyBearer(req);
       const { data: role } = await getSupabase().from('admin_roles').select('role').eq('user_id', user.id).single();
-      if (['super_admin','admin','support'].includes(role?.role)) isAdmin = true;
+      if (['super_admin', 'admin', 'support'].includes(role?.role)) isAdmin = true;
     } catch { /* not admin */ }
   }
 
@@ -51,7 +114,6 @@ async function handler(req, res) {
     const supabase = getSupabase();
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-    // Find approved reports in last 24h without a survey
     const { data: reports, error } = await supabase.from('ai_advisor_reports')
       .select('id, title, approved_at, advisor_name, client_id, advisory_clients!inner(id, auth_user_id, name, email)')
       .gte('approved_at', since)
@@ -64,7 +126,6 @@ async function handler(req, res) {
       const client = report.advisory_clients;
       if (!client?.auth_user_id || !client?.email) continue;
 
-      // Skip if survey already exists
       const { count } = await supabase.from('nps_surveys')
         .select('*', { count: 'exact', head: true })
         .eq('report_id', report.id)
@@ -118,4 +179,19 @@ async function handler(req, res) {
   }
 }
 
-module.exports = withRateLimit('auth', handler);
+async function handler(req, res) {
+  const action = req.query?.action || req.body?.action;
+  switch (action) {
+    case 'check': return checkAction(req, res);
+    case 'submit': return submitAction(req, res);
+    case 'send': return sendAction(req, res);
+    default:
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      if (req.method === 'OPTIONS') return res.status(200).end();
+      return res.status(400).json({ error: 'Invalid or missing action' });
+  }
+}
+
+module.exports = handler;
