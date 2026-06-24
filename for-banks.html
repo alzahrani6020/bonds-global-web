@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>بوندز للبنوك والشركات التمويلية | Bonds for Banks</title>
+  <meta name="description" content="استخدم تقارير Bonds لتقييم جدوى المشاريع والجدارة الائتمانية لعملائك. اطلب API sandbox الآن." />
+  <meta property="og:title" content="بوندز للبنوك والشركات التمويلية" />
+  <meta property="og:description" content="تقييم جدوى ومخاطر المشاريع الصغيرة والمتوسطة بدعم من AI ومستشارين معتمدين." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
+  <style>
+    .fb-hero { min-height: 70vh; display: flex; align-items: center; background: var(--bg); padding-top: 100px; padding-bottom: 3rem; }
+    .fb-container { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; width: 100%; }
+    .fb-title { font-size: 2.5rem; font-weight: 900; color: var(--text); margin-bottom: 1rem; line-height: 1.2; }
+    .fb-title span { color: var(--gold); }
+    .fb-subtitle { color: var(--text-secondary); font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem; max-width: 700px; }
+    .fb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 3rem 0; }
+    .fb-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; }
+    .fb-card h3 { color: var(--gold); font-size: 1.1rem; margin-bottom: 0.75rem; }
+    .fb-card p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7; }
+    .fb-form { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-top: 2rem; }
+    .fb-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media(max-width:600px){ .fb-form-grid { grid-template-columns: 1fr; } }
+    .fb-form-group { margin-bottom: 1rem; }
+    .fb-form-group label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.4rem; }
+    .fb-form-group input, .fb-form-group select, .fb-form-group textarea { width: 100%; padding: 0.875rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 0.95rem; }
+    .fb-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--gold); color: #0a0f1a; font-weight: 800; padding: 0.9rem 2rem; border-radius: 10px; border: none; cursor: pointer; font-size: 0.95rem; }
+    .fb-error { background: rgba(220,38,38,0.1); color: #ff8a8a; padding: 0.75rem 1rem; border-radius: 8px; margin-top: 1rem; display: none; }
+    .fb-success { background: rgba(34,197,94,0.1); color: #86efac; padding: 0.75rem 1rem; border-radius: 8px; margin-top: 1rem; display: none; }
+  </style>
+<link rel="stylesheet" href="components/universal-dropdown.css" />
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <section class="fb-hero">
+    <div class="fb-container">
+      <h1 class="fb-title">بوندز <span>للبنوك والشركات التمويلية</span></h1>
+      <p class="fb-subtitle">قلّل وقت قرار التمويل وحسّن تقييم المخاطر لعملائك من المنشآت الصغيرة والمتوسطة عبر تقارير جدوى وجدارة ائتمانية مدعومة بالذكاء الاصطناعي ومراجعة بشرية.</p>
+
+      <div class="fb-grid">
+        <div class="fb-card">
+          <h3>📊 تقييم جدوى موحد</h3>
+          <p>تقرير قياسي لكل طلب تمويل يشمل المؤشرات المالية، مخاطر القطاع، وقابلية السداد.</p>
+        </div>
+        <div class="fb-card">
+          <h3>🤖 AI + مراجعة بشرية</h3>
+          <p>تحليل أولي سريع عبر AI ثم مراجعة من مستشار مالي معتمد قبل إصدار التقرير النهائي.</p>
+        </div>
+        <div class="fb-card">
+          <h3>🌍 تغطية 22 دولة</h3>
+          <p>بيانات ومعايير مخصصة للأسواق العربية والعالمية التي تعمل بها مؤسستك.</p>
+        </div>
+        <div class="fb-card">
+          <h3>🔌 API Sandbox</h3>
+          <p>دمج تقارير Bonds في نظامك الداخلي عبر API آمن وموثق.</p>
+        </div>
+      </div>
+
+      <div class="fb-form">
+        <h2 style="color:var(--text);margin-bottom:0.5rem;">اطلب Sandbox أو عرض توضيحي</h2>
+        <p style="color:var(--text-secondary);margin-bottom:1.5rem;">املأ النموذج وسيتواصل معك فريقنا خلال يومي عمل.</p>
+        <form id="bankForm" onsubmit="submitBankForm(event)">
+          <div class="fb-form-grid">
+            <div class="fb-form-group">
+              <label>اسم الجهة *</label>
+              <input type="text" id="orgName" required placeholder="مثال: بنك الرياض" />
+            </div>
+            <div class="fb-form-group">
+              <label>الشخص المسؤول *</label>
+              <input type="text" id="contactName" required placeholder="الاسم الكامل" />
+            </div>
+            <div class="fb-form-group">
+              <label>البريد الإلكتروني *</label>
+              <input type="email" id="contactEmail" required placeholder="name@bank.com" />
+            </div>
+            <div class="fb-form-group">
+              <label>رقم الجوال</label>
+              <input type="tel" id="contactPhone" placeholder="0500000000" />
+            </div>
+            <div class="fb-form-group">
+              <label>الدولة</label>
+              <input type="text" id="country" placeholder="السعودية" />
+            </div>
+            <div class="fb-form-group">
+              <label>نوع الجهة</label>
+              <select data-universal-dropdown="true" id="orgType">
+                <option value="bank">بنك</option>
+                <option value="fintech">شركة تمويل رقمي</option>
+                <option value="investment_firm">شركة استثمارية</option>
+                <option value="government">جهة حكومية</option>
+                <option value="other">أخرى</option>
+              </select>
+            </div>
+          </div>
+          <div class="fb-form-group">
+            <label>حجم محفظة التمويل المتوقع شهرياً</label>
+            <select data-universal-dropdown="true" id="volume">
+              <option value="">اختر...</option>
+              <option value="under_5m">أقل من 5 مليون ر.س</option>
+              <option value="5m_50m">5 — 50 مليون ر.س</option>
+              <option value="50m_200m">50 — 200 مليون ر.س</option>
+              <option value="over_200m">أكثر من 200 مليون ر.س</option>
+            </select>
+          </div>
+          <div class="fb-form-group">
+            <label>كيف تخطط لاستخدام Bonds؟</label>
+            <textarea id="useCase" rows="4" placeholder="صف حالة الاستخدام والتكامل المطلوب..."></textarea>
+          </div>
+          <button type="submit" class="fb-btn" id="bankSubmitBtn">إرسال الطلب</button>
+          <div class="fb-error" id="bankError"></div>
+          <div class="fb-success" id="bankSuccess"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script src="site-layout.js"></script>
+  <script>
+    async function submitBankForm(e) {
+      e.preventDefault();
+      const btn = document.getElementById('bankSubmitBtn');
+      const errorEl = document.getElementById('bankError');
+      const successEl = document.getElementById('bankSuccess');
+      errorEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      const phone = document.getElementById('contactPhone').value.trim();
+      if (phone && !/^(05\d{8}|\+\d{7,15})$/.test(phone)) {
+        errorEl.textContent = 'رقم الجوال غير صالح.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'جاري الإرسال...';
+
+      try {
+        const res = await fetch('/api/bank-partner-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            organizationName: document.getElementById('orgName').value.trim(),
+            contactName: document.getElementById('contactName').value.trim(),
+            email: document.getElementById('contactEmail').value.trim(),
+            phone: phone,
+            country: document.getElementById('country').value.trim(),
+            organizationType: document.getElementById('orgType').value,
+            estimatedVolume: document.getElementById('volume').value,
+            useCase: document.getElementById('useCase').value.trim()
+          })
+        });
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById('bankForm').reset();
+          successEl.textContent = 'تم إرسال طلبك بنجاح. سنتواصل معك قريباً.';
+          successEl.style.display = 'block';
+          if (typeof gtag !== 'undefined') gtag('event', 'bank_partner_request');
+        } else {
+          throw new Error(json.error || 'فشل الإرسال');
+        }
+      } catch (err) {
+        errorEl.textContent = err.message || 'حدث خطأ. حاول مرة أخرى.';
+        errorEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'إرسال الطلب';
+      }
+    }
+  </script>
+<script src="components/universal-dropdown.js"></script>
+<script src="components/universal-dropdown-init.js"></script>
+</body>
+</html>

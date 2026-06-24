@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bonds for Banks & Lenders | Bonds</title>
+  <meta name="description" content="Use Bonds reports to assess project feasibility and creditworthiness for your customers. Request an API sandbox today." />
+  <meta property="og:title" content="Bonds for Banks & Lenders" />
+  <meta property="og:description" content="Feasibility and risk assessment for SME financing, powered by AI and certified advisors." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    .fb-hero { min-height: 70vh; display: flex; align-items: center; background: var(--bg); padding-top: 100px; padding-bottom: 3rem; }
+    .fb-container { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; width: 100%; }
+    .fb-title { font-size: 2.5rem; font-weight: 900; color: var(--text); margin-bottom: 1rem; line-height: 1.2; }
+    .fb-title span { color: var(--gold); }
+    .fb-subtitle { color: var(--text-secondary); font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem; max-width: 700px; }
+    .fb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 3rem 0; }
+    .fb-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; }
+    .fb-card h3 { color: var(--gold); font-size: 1.1rem; margin-bottom: 0.75rem; }
+    .fb-card p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7; }
+    .fb-form { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-top: 2rem; }
+    .fb-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media(max-width:600px){ .fb-form-grid { grid-template-columns: 1fr; } }
+    .fb-form-group { margin-bottom: 1rem; }
+    .fb-form-group label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.4rem; }
+    .fb-form-group input, .fb-form-group select, .fb-form-group textarea { width: 100%; padding: 0.875rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 0.95rem; }
+    .fb-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--gold); color: #0a0f1a; font-weight: 800; padding: 0.9rem 2rem; border-radius: 10px; border: none; cursor: pointer; font-size: 0.95rem; }
+    .fb-error { background: rgba(220,38,38,0.1); color: #ff8a8a; padding: 0.75rem 1rem; border-radius: 8px; margin-top: 1rem; display: none; }
+    .fb-success { background: rgba(34,197,94,0.1); color: #86efac; padding: 0.75rem 1rem; border-radius: 8px; margin-top: 1rem; display: none; }
+  </style>
+<link rel="stylesheet" href="../components/universal-dropdown.css" />
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <section class="fb-hero">
+    <div class="fb-container">
+      <h1 class="fb-title">Bonds <span>for Banks & Lenders</span></h1>
+      <p class="fb-subtitle">Reduce financing decision time and improve risk assessment for your SME customers with AI-powered feasibility and creditworthiness reports reviewed by certified advisors.</p>
+
+      <div class="fb-grid">
+        <div class="fb-card">
+          <h3>📊 Standardized Feasibility Score</h3>
+          <p>A consistent report for every financing application with financial indicators, sector risk, and repayment ability.</p>
+        </div>
+        <div class="fb-card">
+          <h3>🤖 AI + Human Review</h3>
+          <p>Fast initial analysis by AI, then review by a certified financial advisor before final report issuance.</p>
+        </div>
+        <div class="fb-card">
+          <h3>🌍 22-Country Coverage</h3>
+          <p>Data and criteria tailored to the Arab and global markets where your institution operates.</p>
+        </div>
+        <div class="fb-card">
+          <h3>🔌 API Sandbox</h3>
+          <p>Integrate Bonds reports into your internal systems via a secure, documented API.</p>
+        </div>
+      </div>
+
+      <div class="fb-form">
+        <h2 style="color:var(--text);margin-bottom:0.5rem;">Request Sandbox or Demo</h2>
+        <p style="color:var(--text-secondary);margin-bottom:1.5rem;">Fill out the form and our team will contact you within 2 business days.</p>
+        <form id="bankForm" onsubmit="submitBankForm(event)">
+          <div class="fb-form-grid">
+            <div class="fb-form-group">
+              <label>Organization Name *</label>
+              <input type="text" id="orgName" required placeholder="e.g. Riyad Bank" />
+            </div>
+            <div class="fb-form-group">
+              <label>Contact Person *</label>
+              <input type="text" id="contactName" required placeholder="Full name" />
+            </div>
+            <div class="fb-form-group">
+              <label>Email *</label>
+              <input type="email" id="contactEmail" required placeholder="name@bank.com" />
+            </div>
+            <div class="fb-form-group">
+              <label>Phone</label>
+              <input type="tel" id="contactPhone" placeholder="0500000000" />
+            </div>
+            <div class="fb-form-group">
+              <label>Country</label>
+              <input type="text" id="country" placeholder="Saudi Arabia" />
+            </div>
+            <div class="fb-form-group">
+              <label>Organization Type</label>
+              <select data-universal-dropdown="true" id="orgType">
+                <option value="bank">Bank</option>
+                <option value="fintech">Fintech Lender</option>
+                <option value="investment_firm">Investment Firm</option>
+                <option value="government">Government Entity</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="fb-form-group">
+            <label>Expected Monthly Financing Volume</label>
+            <select data-universal-dropdown="true" id="volume">
+              <option value="">Select...</option>
+              <option value="under_5m">Under 5M SAR</option>
+              <option value="5m_50m">5M — 50M SAR</option>
+              <option value="50m_200m">50M — 200M SAR</option>
+              <option value="over_200m">Over 200M SAR</option>
+            </select>
+          </div>
+          <div class="fb-form-group">
+            <label>How do you plan to use Bonds?</label>
+            <textarea id="useCase" rows="4" placeholder="Describe your use case and required integration..."></textarea>
+          </div>
+          <button type="submit" class="fb-btn" id="bankSubmitBtn">Submit Request</button>
+          <div class="fb-error" id="bankError"></div>
+          <div class="fb-success" id="bankSuccess"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script src="../site-layout.js"></script>
+  <script>
+    async function submitBankForm(e) {
+      e.preventDefault();
+      const btn = document.getElementById('bankSubmitBtn');
+      const errorEl = document.getElementById('bankError');
+      const successEl = document.getElementById('bankSuccess');
+      errorEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      const phone = document.getElementById('contactPhone').value.trim();
+      if (phone && !/^(05\d{8}|\+\d{7,15})$/.test(phone)) {
+        errorEl.textContent = 'Invalid phone number.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      try {
+        const res = await fetch('/api/bank-partner-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            organizationName: document.getElementById('orgName').value.trim(),
+            contactName: document.getElementById('contactName').value.trim(),
+            email: document.getElementById('contactEmail').value.trim(),
+            phone: phone,
+            country: document.getElementById('country').value.trim(),
+            organizationType: document.getElementById('orgType').value,
+            estimatedVolume: document.getElementById('volume').value,
+            useCase: document.getElementById('useCase').value.trim()
+          })
+        });
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById('bankForm').reset();
+          successEl.textContent = 'Your request has been submitted. We will contact you soon.';
+          successEl.style.display = 'block';
+          if (typeof gtag !== 'undefined') gtag('event', 'bank_partner_request');
+        } else {
+          throw new Error(json.error || 'Submission failed');
+        }
+      } catch (err) {
+        errorEl.textContent = err.message || 'An error occurred. Please try again.';
+        errorEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Request';
+      }
+    }
+  </script>
+<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown-init.js"></script>
+</body>
+</html>

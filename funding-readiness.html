@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>درجة جاهزية التمويل المجانية | بوندز</title>
+  <meta name="description" content="اكتشف مدى جاهزية مشروعك للتمويل خلال دقيقتين. أداة مجانية مدعومة بالذكاء الاصطناعي والبيانات المحلية." />
+  <meta property="og:title" content="درجة جاهزية التمويل المجانية | بوندز" />
+  <meta property="og:description" content="اكتشف مدى جاهزية مشروعك للتمويل خلال دقيقتين." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/funding-readiness.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
+  <style>
+    .fr-hero { min-height: 70vh; display: flex; align-items: center; background: var(--bg); padding-top: 100px; padding-bottom: 3rem; }
+    .fr-container { max-width: 720px; margin: 0 auto; padding: 0 1.5rem; width: 100%; }
+    .fr-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+    .fr-title { font-size: 2rem; font-weight: 900; color: var(--text); margin-bottom: 0.75rem; }
+    .fr-subtitle { color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8; }
+    .fr-step { display: none; }
+    .fr-step.active { display: block; }
+    .fr-question { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
+    .fr-options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .fr-option { display: block; padding: 1rem 1.25rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; color: var(--text); font-size: 0.95rem; }
+    .fr-option:hover { border-color: var(--gold); background: rgba(212,168,83,0.08); }
+    .fr-option.selected { border-color: var(--gold); background: rgba(212,168,83,0.12); }
+    .fr-progress { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-bottom: 2rem; overflow: hidden; }
+    .fr-progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.3s; }
+    .fr-score { text-align: center; padding: 2rem 0; }
+    .fr-score-value { font-size: 4rem; font-weight: 900; color: var(--gold); line-height: 1; }
+    .fr-score-label { font-size: 1.25rem; font-weight: 700; color: var(--text); margin-top: 0.75rem; }
+    .fr-score-desc { color: var(--text-secondary); margin-top: 1rem; line-height: 1.8; }
+    .fr-form-group { margin-bottom: 1rem; }
+    .fr-form-group label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.4rem; }
+    .fr-form-group input { width: 100%; padding: 0.875rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 0.95rem; }
+    .fr-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--gold); color: #0a0f1a; font-weight: 800; padding: 0.9rem 2rem; border-radius: 10px; border: none; cursor: pointer; font-size: 0.95rem; transition: transform 0.2s; }
+    .fr-btn:hover { transform: translateY(-2px); }
+    .fr-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .fr-btn-secondary { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+    .fr-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+    .fr-result-card { background: rgba(212,168,83,0.08); border: 1px solid rgba(212,168,83,0.3); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+    .fr-bullets { list-style: none; padding: 0; margin: 1rem 0 0; }
+    .fr-bullets li { padding: 0.5rem 0; color: var(--text-secondary); }
+    .fr-bullets li::before { content: '→'; color: var(--gold); margin-left: 0.5rem; }
+    .fr-error { background: rgba(220,38,38,0.1); color: #ff8a8a; padding: 0.75rem 1rem; border-radius: 8px; margin-top: 1rem; display: none; }
+    .fr-success { background: rgba(34,197,94,0.1); color: #86efac; padding: 0.75rem 1rem; border-radius: 8px; margin-top: 1rem; display: none; }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <section class="fr-hero">
+    <div class="fr-container">
+      <div class="fr-card">
+        <div class="fr-progress"><div class="fr-progress-bar" id="progressBar"></div></div>
+
+        <!-- Step 1 -->
+        <div class="fr-step active" data-step="1">
+          <h1 class="fr-title">درجة جاهزية التمويل المجانية</h1>
+          <p class="fr-subtitle">أجب عن 5 أسئلة سريعة واحصل على تقييم أولي لمشروعك بناءً على معايير البنوك والمستثمرين.</p>
+          <div class="fr-question">في أي قطاع مشروعك؟</div>
+          <div class="fr-options">
+            <button class="fr-option" data-value="restaurant">مطاعم وخدمات طعام</button>
+            <button class="fr-option" data-value="retail">تجارة وبيع بالتجزئة</button>
+            <button class="fr-option" data-value="real_estate">عقارات وتطوير</button>
+            <button class="fr-option" data-value="manufacturing">تصنيع وإنتاج</button>
+            <button class="fr-option" data-value="tech">تقنية وبرمجيات</button>
+            <button class="fr-option" data-value="services">خدمات أخرى</button>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="fr-step" data-step="2">
+          <div class="fr-question">ما حجم الاستثمار المطلوب؟</div>
+          <div class="fr-options">
+            <button class="fr-option" data-value="under_500k">أقل من 500,000 ر.س</button>
+            <button class="fr-option" data-value="500k_2m">500,000 — 2,000,000 ر.س</button>
+            <button class="fr-option" data-value="2m_5m">2,000,000 — 5,000,000 ر.س</button>
+            <button class="fr-option" data-value="over_5m">أكثر من 5,000,000 ر.س</button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="fr-step" data-step="3">
+          <div class="fr-question">ما مرحلة المشروع؟</div>
+          <div class="fr-options">
+            <button class="fr-option" data-value="idea">فكرة فقط</button>
+            <button class="fr-option" data-value="early">بدأت للتو</button>
+            <button class="fr-option" data-value="revenue">لدي إيرادات شهرية</button>
+            <button class="fr-option" data-value="profitable">مربح حالياً</button>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="fr-step" data-step="4">
+          <div class="fr-question">هل لديك ضمانات أو أصول؟</div>
+          <div class="fr-options">
+            <button class="fr-option" data-value="property">عقار</button>
+            <button class="fr-option" data-value="equipment">معدات/أصول</button>
+            <button class="fr-option" data-value="cash_flow">تدفقات نقدية فقط</button>
+            <button class="fr-option" data-value="none">لا يوجد</button>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="fr-step" data-step="5">
+          <div class="fr-question">ما خبرتك في هذا القطاع؟</div>
+          <div class="fr-options">
+            <button class="fr-option" data-value="none">لا خبرة</button>
+            <button class="fr-option" data-value="some">خبرة عامين أو أقل</button>
+            <button class="fr-option" data-value="experienced">خبرة 3–5 سنوات</button>
+            <button class="fr-option" data-value="expert">أكثر من 5 سنوات</button>
+          </div>
+        </div>
+
+        <!-- Lead Capture -->
+        <div class="fr-step" data-step="lead">
+          <div class="fr-score">
+            <div class="fr-score-value" id="scoreValue">0</div>
+            <div class="fr-score-label" id="scoreLabel">جاري الحساب...</div>
+            <p class="fr-score-desc" id="scoreDesc">أدخل بياناتك لاستلام ملخصك المفصل وخطواتك التالية.</p>
+          </div>
+          <div class="fr-result-card">
+            <div style="font-weight:700;color:var(--gold);margin-bottom:0.5rem;">🎁 ماذا ستستلم مجاناً؟</div>
+            <ul class="fr-bullets">
+              <li>ملخص PDF بدرجة جاهزية التمويل</li>
+              <li>أهم 3 نقاط قوة و3 نقاط ضعف في مشروعك</li>
+              <li>قائمة البنوك/البرامج المناسبة لقطاعك</li>
+            </ul>
+          </div>
+          <div class="fr-form-group">
+            <label>الاسم الكامل *</label>
+            <input type="text" id="leadName" placeholder="مثال: أحمد محمد" />
+          </div>
+          <div class="fr-form-group">
+            <label>البريد الإلكتروني *</label>
+            <input type="email" id="leadEmail" placeholder="ahmed@example.com" />
+          </div>
+          <div class="fr-form-group">
+            <label>رقم الجوال *</label>
+            <input type="tel" id="leadPhone" placeholder="0500000000" />
+          </div>
+          <div class="fr-form-group">
+            <label>المدينة</label>
+            <input type="text" id="leadCity" placeholder="الرياض" />
+          </div>
+          <div class="fr-actions">
+            <button class="fr-btn" id="submitLeadBtn" onclick="submitLead()">إرسال واستلام الملخص</button>
+            <button class="fr-btn fr-btn-secondary" onclick="goToStep(5)">السؤال السابق</button>
+          </div>
+          <div class="fr-error" id="leadError"></div>
+          <div class="fr-success" id="leadSuccess"></div>
+        </div>
+
+        <!-- Result -->
+        <div class="fr-step" data-step="result">
+          <div class="fr-score">
+            <div class="fr-score-value" id="finalScore">0</div>
+            <div class="fr-score-label" id="finalLabel">-</div>
+            <p class="fr-score-desc" id="finalDesc">-</p>
+          </div>
+          <div class="fr-result-card" id="finalTips"></div>
+          <div class="fr-actions" style="justify-content:center;">
+            <a href="pricing.html" class="fr-btn">احصل على تحليل AI كامل</a>
+            <a href="contact.html" class="fr-btn fr-btn-secondary">تحدث مع مستشار</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="site-layout.js"></script>
+  <script src="/api/env"></script>
+  <script>
+    const answers = {};
+    const questions = [
+      { key: 'sector', step: 1 },
+      { key: 'investment', step: 2 },
+      { key: 'stage', step: 3 },
+      { key: 'collateral', step: 4 },
+      { key: 'experience', step: 5 }
+    ];
+
+    function updateProgress() {
+      const filled = questions.filter(q => answers[q.key]).length;
+      const pct = (filled / questions.length) * 100;
+      document.getElementById('progressBar').style.width = pct + '%';
+    }
+
+    function goToStep(step) {
+      document.querySelectorAll('.fr-step').forEach(el => el.classList.remove('active'));
+      document.querySelector(`.fr-step[data-step="${step}"]`).classList.add('active');
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function calculateScore() {
+      let score = 50;
+      const s = answers;
+
+      // Sector risk
+      const sectorRisk = { restaurant: -2, retail: -1, real_estate: 2, manufacturing: 1, tech: 3, services: 0 };
+      score += sectorRisk[s.sector] || 0;
+
+      // Investment size
+      const invScore = { under_500k: 5, '500k_2m': 3, '2m_5m': 0, over_5m: -3 };
+      score += invScore[s.investment] || 0;
+
+      // Stage
+      const stageScore = { idea: -10, early: -3, revenue: 8, profitable: 15 };
+      score += stageScore[s.stage] || 0;
+
+      // Collateral
+      const collScore = { property: 12, equipment: 8, cash_flow: 4, none: -8 };
+      score += collScore[s.collateral] || 0;
+
+      // Experience
+      const expScore = { none: -8, some: 0, experienced: 6, expert: 12 };
+      score += expScore[s.experience] || 0;
+
+      return Math.max(10, Math.min(98, score));
+    }
+
+    function getVerdict(score) {
+      if (score >= 80) return { label: 'جاهز للتمويل بقوة', desc: 'مشروعك يمتاز بعناصر قوية تجعله جذاباً للبنوك والمستثمرين.' };
+      if (score >= 60) return { label: 'جاهز نسبياً — يحتاج تحسين', desc: 'لديك أساس جيد، لكن بعض النقاط تحتاج توضيحاً أو تقوية قبل التوجه للتمويل.' };
+      if (score >= 40) return { label: 'يحتاج عملاً على الجاهزية', desc: 'مشروعك يحتاج إلى بناء نقاط قوة إضافية (إيرادات، ضمانات، أو خبرة) قبل طلب التمويل.' };
+      return { label: 'غير جاهز حالياً للتمويل', desc: 'المؤشرات الحالية ضعيفة. نوصي بدراسة جدوى مفصلة وتحسين النموذج قبل التقدم للبنوك.' };
+    }
+
+    function getTips(score) {
+      const tips = [];
+      if (answers.stage === 'idea') tips.push('حوّل فكرتك إلى نموذج أولي أو خطاب نوايا من عملاء محتملين.');
+      if (answers.collateral === 'none') tips.push('ابحث عن ضامن أو أصول يمكن رهنها لزيادة فرصة القبول.');
+      if (answers.experience === 'none' || answers.experience === 'some') tips.push('انضم لشريك صناعي أو استعن بمستشار يملك خبرة في القطاع.');
+      if (answers.investment === 'over_5m') tips.push('للمشاريع الكبيرة، قسّم التمويل إلى مراحل لتقليل مخاطر المقرض.');
+      if (score >= 70) tips.push('جهّز دراسة جدوى احترافية وابدأ بمقابلة 3 بنوك على الأقل.');
+      if (tips.length === 0) tips.push('حسّن إدارة التدفقات النقدية ووثّق مصادر الإيرادات.');
+      return tips;
+    }
+
+    function showScoreStep() {
+      const score = calculateScore();
+      const verdict = getVerdict(score);
+      document.getElementById('scoreValue').textContent = score;
+      document.getElementById('scoreLabel').textContent = verdict.label;
+      document.getElementById('scoreDesc').textContent = verdict.desc;
+      goToStep('lead');
+    }
+
+    document.querySelectorAll('.fr-option').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const stepEl = this.closest('.fr-step');
+        const step = parseInt(stepEl.dataset.step);
+        const q = questions.find(q => q.step === step);
+        answers[q.key] = this.dataset.value;
+
+        document.querySelectorAll(`.fr-step[data-step="${step}"] .fr-option`).forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+
+        setTimeout(() => {
+          if (step < 5) goToStep(step + 1);
+          else showScoreStep();
+        }, 250);
+      });
+    });
+
+    async function submitLead() {
+      const name = document.getElementById('leadName').value.trim();
+      const email = document.getElementById('leadEmail').value.trim();
+      const phone = document.getElementById('leadPhone').value.trim();
+      const city = document.getElementById('leadCity').value.trim();
+      const errorEl = document.getElementById('leadError');
+      const successEl = document.getElementById('leadSuccess');
+      const btn = document.getElementById('submitLeadBtn');
+
+      errorEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      if (!name || !email || !phone) {
+        errorEl.textContent = 'الرجاء إدخال الاسم والبريد والجوال.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errorEl.textContent = 'البريد الإلكتروني غير صالح.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      if (!/^(05\d{8}|\+\d{7,15})$/.test(phone)) {
+        errorEl.textContent = 'رقم الجوال غير صالح (مثال: 0500000000).';        errorEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'جاري الإرسال...';
+
+      const score = calculateScore();
+      const verdict = getVerdict(score);
+      const tips = getTips(score);
+
+      try {
+        const res = await fetch('/api/funding-readiness', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            email,
+            phone,
+            city,
+            sector: answers.sector,
+            investmentRange: answers.investment,
+            revenueRange: answers.stage,
+            experienceLevel: answers.experience,
+            collateral: answers.collateral,
+            score,
+            verdict: verdict.label,
+            summary: { text: verdict.desc, tips }
+          })
+        });
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById('finalScore').textContent = score;
+          document.getElementById('finalLabel').textContent = verdict.label;
+          document.getElementById('finalDesc').textContent = verdict.desc;
+          document.getElementById('finalTips').innerHTML = `
+            <div style="font-weight:700;color:var(--gold);margin-bottom:0.75rem;">خطواتك المقترحة:</div>
+            <ul class="fr-bullets">${tips.map(t => `<li>${t}</li>`).join('')}</ul>
+          `;
+          goToStep('result');
+          if (typeof gtag !== 'undefined') gtag('event', 'funding_readiness_lead', { score });
+        } else {
+          throw new Error(json.error || 'فشل الإرسال');
+        }
+      } catch (err) {
+        errorEl.textContent = err.message || 'حدث خطأ. حاول مرة أخرى.';
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'إرسال واستلام الملخص';
+      }
+    }
+  </script>
+</body>
+</html>
