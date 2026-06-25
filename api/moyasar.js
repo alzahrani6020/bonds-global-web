@@ -199,7 +199,7 @@ async function webhookAction(req, res) {
     return res.status(400).json({ error: 'Invalid payload' });
   }
 
-  const invoiceId = payload?.id;
+  const invoiceId = payload?.invoice_id || payload?.id;
   if (!invoiceId) {
     return res.status(400).json({ error: 'Missing invoice id' });
   }
