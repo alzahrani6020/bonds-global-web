@@ -329,7 +329,10 @@
       try {
         const res = await fetch('/api/moyasar-checkout', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + s.session.access_token
+          },
           body: JSON.stringify({
             tier: tier,
             userId: s.session.user.id,
