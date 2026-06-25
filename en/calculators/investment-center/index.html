@@ -6,19 +6,19 @@
   <title>Investment & Financial Calculators Center | Bonds</title>
   <meta name="description" content="Specialized investment calculators for 63 sectors with ROI, IRR, NPV, payback period, break-even, profit margin, and risk score." />
   <meta property="og:title" content="Investment & Financial Calculators Center | Bonds" />
-  <meta property="og:description" content="Specialized investment calculators for 12 sectors with smart investment recommendations." />
+  <meta property="og:description" content="Specialized investment calculators for 63 sectors with smart investment recommendations." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
   <meta property="og:url" content="https://bonds-global.com/en/calculators/investment-center/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Investment & Financial Calculators Center | Bonds" />
-  <meta name="twitter:description" content="Specialized investment calculators for 12 sectors with smart investment recommendations." />
+  <meta name="twitter:description" content="Specialized investment calculators for 63 sectors with smart investment recommendations." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
   <link rel="canonical" href="https://bonds-global.com/en/calculators/investment-center/" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../../styles.css" />
-  <link rel="stylesheet" href="../../../header-footer.css?v=4" />
-  <link rel="stylesheet" href="../../../calculators/investment-center/investment-center.css" />
+  <link rel="stylesheet" href="../../../header-footer.css?v=5" />
+  <link rel="stylesheet" href="../../../calculators/investment-center/investment-center.css?v=2" />
   <link rel="icon" type="image/svg+xml" href="../../../assets/bonds-mark.svg" />
 </head>
 <body>
@@ -26,96 +26,236 @@
 
   <section class="investment-hero">
     <h1>Investment & Financial Calculators Center</h1>
-    <p>Specialized analysis tools for 63 economic sectors. Calculate unified investment indicators and get a smart recommendation based on your data.</p>
+    <p>Choose your sector and calculate your project's feasibility accurately. 63 specialized calculators with smart financial analysis.</p>
+
+    <div class="investment-search">
+      <input type="text" id="sectorSearch" placeholder="Search for a sector… e.g. hospital, water factory, restaurant" autocomplete="off" />
+      <button type="button" id="searchClear" aria-label="Clear search">×</button>
+    </div>
+
+    <div class="investment-categories" id="categoryChips">
+      <button class="category-chip active" data-category="all">All</button>
+      <button class="category-chip" data-category="medical">Health & Medical</button>
+      <button class="category-chip" data-category="real-estate">Real Estate & Construction</button>
+      <button class="category-chip" data-category="industrial">Industry</button>
+      <button class="category-chip" data-category="restaurants">Restaurants & Hospitality</button>
+      <button class="category-chip" data-category="education">Education & Technology</button>
+      <button class="category-chip" data-category="commerce">Commerce & Logistics</button>
+    </div>
+
+    <div class="results-count" id="resultsCount">63 calculators available</div>
   </section>
 
-  <main class="sectors-grid" id="sectorsGrid">
+  <main class="investment-main" id="investmentMain">
     <!-- Filled by JS -->
   </main>
 
   <div id="site-footer"></div>
 
-  <script src="../../../site-layout.js?v=4"></script>
+  <script src="../../../site-layout.js?v=5"></script>
   <script src="../../../page-tracker-v2.js"></script>
   <script>
-    const sectors = [
-      { id: 'medical', icon: '🏥', title: 'Medical Sector', desc: 'Clinics, hospitals, pharmacies, and medical labs.' },
-      { id: 'industrial', icon: '🏭', title: 'Industrial Sector', desc: 'Factories, workshops, and industrial production.' },
-      { id: 'real-estate', icon: '🏢', title: 'Real Estate Sector', desc: 'Property development, rentals, residential and commercial investments.' },
-      { id: 'commercial', icon: '🤝', title: 'Commercial Sector', desc: 'Trading agencies, import/export, and general trade.' },
-      { id: 'tourism', icon: '✈️', title: 'Tourism Sector', desc: 'Hotels, furnished apartments, and tourism services.' },
-      { id: 'education', icon: '🎓', title: 'Education Sector', desc: 'Schools, training centers, and educational platforms.' },
-      { id: 'logistics', icon: '🚛', title: 'Logistics Sector', desc: 'Transportation, warehousing, delivery, and supply chain.' },
-      { id: 'agriculture', icon: '🌾', title: 'Agriculture Sector', desc: 'Farms, poultry farms, and food production.' },
-      { id: 'technology', icon: '💻', title: 'Technology Sector', desc: 'Software companies, SaaS, and applications.' },
-      { id: 'restaurants', icon: '🍽️', title: 'Restaurants & Cafés', desc: 'Restaurants, cafés, and food services.' },
-      { id: 'retail', icon: '🛒', title: 'Retail Sector', desc: 'Retail stores, supermarkets, and e-commerce.' },
-      { id: 'construction', icon: '🏗️', title: 'Construction & Contracting', desc: 'Construction contracting, finishing, and infrastructure projects.' },
-      { id: 'hospital', icon: '🏥', title: 'Hospital', desc: 'Multi-department and specialty hospital.' },
-      { id: 'medical-complex', icon: '🏨', title: 'Medical Complex', desc: 'Complex with multiple specialty clinics.' },
-      { id: 'dental-clinic', icon: '🦷', title: 'Dental Clinic', desc: 'Specialized dental clinic.' },
-      { id: 'radiology-center', icon: '🩻', title: 'Radiology Center', desc: 'Diagnostic radiology and medical imaging center.' },
-      { id: 'medical-lab', icon: '🧪', title: 'Medical Laboratory', desc: 'Medical analysis laboratory.' },
-      { id: 'physiotherapy-center', icon: '💆', title: 'Physiotherapy Center', desc: 'Physiotherapy and rehabilitation center.' },
-      { id: 'pharmacy', icon: '💊', title: 'Pharmacy', desc: 'Retail pharmacy.' },
-      { id: 'optical-center', icon: '👓', title: 'Optical Center', desc: 'Optical shop and prescription lenses.' },
-      { id: 'land-development', icon: '🏞️', title: 'Land Development', desc: 'Residential or commercial land development.' },
-      { id: 'villa-construction', icon: '🏡', title: 'Villa Construction', desc: 'Build and sell residential villas.' },
-      { id: 'residential-building', icon: '🏢', title: 'Residential Building', desc: 'Build residential apartments for sale.' },
-      { id: 'commercial-complex', icon: '🏬', title: 'Commercial Complex', desc: 'Commercial complex for rent.' },
-      { id: 'commercial-mall', icon: '🛍️', title: 'Commercial Mall', desc: 'Large commercial mall.' },
-      { id: 'hotel-apartments', icon: '🏨', title: 'Hotel Apartments', desc: 'Furnished hotel apartments.' },
-      { id: 'warehouses', icon: '🏭', title: 'Warehouses', desc: 'Warehouses for rent.' },
-      { id: 'property-rehabilitation', icon: '🔧', title: 'Property Rehabilitation', desc: 'Buy and rehabilitate a distressed property for sale.' },
-      { id: 'buy-to-rent', icon: '🏠', title: 'Buy-to-Rent', desc: 'Buy a ready property and rent it out.' },
-      { id: 'quick-real-estate', icon: '⚡', title: 'Quick Real Estate', desc: 'Quick real estate investment return evaluation.' },
-      { id: 'food-factory', icon: '🍞', title: 'Food Factory', desc: 'Food products factory.' },
-      { id: 'water-factory', icon: '💧', title: 'Water Factory', desc: 'Drinking water bottling factory.' },
-      { id: 'plastic-factory', icon: '🧴', title: 'Plastic Factory', desc: 'Plastic products factory.' },
-      { id: 'building-materials-factory', icon: '🧱', title: 'Building Materials Factory', desc: 'Construction materials factory.' },
-      { id: 'furniture-factory', icon: '🛋️', title: 'Furniture Factory', desc: 'Home and office furniture factory.' },
-      { id: 'textiles-factory', icon: '🧵', title: 'Textiles Factory', desc: 'Textiles and fabrics factory.' },
-      { id: 'chemicals-factory', icon: '⚗️', title: 'Chemicals Factory', desc: 'Chemical products factory.' },
-      { id: 'packaging-factory', icon: '📦', title: 'Packaging Factory', desc: 'Packaging factory.' },
-      { id: 'construction-profitability', icon: '🏗️', title: 'Construction Profitability', desc: 'Analyze construction contract profitability.' },
-      { id: 'tender-pricing', icon: '📋', title: 'Tender Pricing', desc: 'Accurate tender pricing.' },
-      { id: 'contractor-cashflow', icon: '💵', title: 'Contractor Cash Flow', desc: 'Forecast cash flows.' },
-      { id: 'concrete-structure-cost', icon: '🧱', title: 'Concrete Structure Cost', desc: 'Concrete structure cost estimation.' },
-      { id: 'finishing-cost', icon: '🎨', title: 'Finishing Cost', desc: 'Finishing cost estimation.' },
-      { id: 'distressed-project-evaluation', icon: '⚠️', title: 'Distressed Project Evaluation', desc: 'Feasibility of completing a distressed project.' },
-      { id: 'restaurant', icon: '🍽️', title: 'Restaurant', desc: 'New restaurant.' },
-      { id: 'coffee-shop', icon: '☕', title: 'Coffee Shop', desc: 'Coffee shop.' },
-      { id: 'cloud-kitchen', icon: '☁️', title: 'Cloud Kitchen', desc: 'Delivery-only cloud kitchen.' },
-      { id: 'food-truck', icon: '🚚', title: 'Food Truck', desc: 'Mobile food truck.' },
-      { id: 'fast-food-restaurant', icon: '🍔', title: 'Fast Food Restaurant', desc: 'Fast food restaurant.' },
-      { id: 'fine-dining-restaurant', icon: '🍷', title: 'Fine Dining Restaurant', desc: 'Fine dining and premium service.' },
-      { id: 'private-school', icon: '🏫', title: 'Private School', desc: 'Private school.' },
-      { id: 'nursery', icon: '🧸', title: 'Nursery', desc: 'Children nursery.' },
-      { id: 'private-university', icon: '🎓', title: 'Private University', desc: 'Private university.' },
-      { id: 'training-center', icon: '📚', title: 'Training Center', desc: 'Vocational and academic training.' },
-      { id: 'e-learning-platform', icon: '💻', title: 'E-Learning Platform', desc: 'E-learning platform.' },
-      { id: 'hotel', icon: '🏨', title: 'Hotel', desc: 'New hotel.' },
-      { id: 'tourist-resort', icon: '🏖️', title: 'Tourist Resort', desc: 'Comprehensive tourist resort.' },
-      { id: 'tourist-camp', icon: '⛺', title: 'Tourist Camp', desc: 'Tourist camp.' },
-      { id: 'tourism-company', icon: '✈️', title: 'Tourism Company', desc: 'Travel and tourism company.' },
-      { id: 'shipping-company', icon: '🚢', title: 'Shipping Company', desc: 'Local and international shipping.' },
-      { id: 'transport-fleet', icon: '🚛', title: 'Transport Fleet', desc: 'Own and operate a transport fleet.' },
-      { id: 'distribution-center', icon: '🏭', title: 'Distribution Center', desc: 'Order sorting and distribution.' },
-      { id: 'last-mile-delivery', icon: '🛵', title: 'Last-Mile Delivery', desc: 'Last-mile delivery service.' }
+    const groups = [
+      {
+        id: 'medical',
+        title: 'Health & Medical',
+        desc: 'Clinics, hospitals, pharmacies, labs, and medical centers.',
+        sectors: [
+          { id: 'medical', icon: '🏥', title: 'Medical Facilities', desc: 'General medical sector evaluation.' },
+          { id: 'hospital', icon: '🏥', title: 'Hospital', desc: 'Multi-department and specialty hospital.' },
+          { id: 'medical-complex', icon: '🏨', title: 'Medical Complex', desc: 'Complex with multiple specialty clinics.' },
+          { id: 'dental-clinic', icon: '🦷', title: 'Dental Clinic', desc: 'Specialized dental clinic.' },
+          { id: 'radiology-center', icon: '🩻', title: 'Radiology Center', desc: 'Diagnostic radiology and medical imaging center.' },
+          { id: 'medical-lab', icon: '🧪', title: 'Medical Laboratory', desc: 'Medical analysis laboratory.' },
+          { id: 'physiotherapy-center', icon: '💆', title: 'Physiotherapy Center', desc: 'Physiotherapy and rehabilitation center.' },
+          { id: 'pharmacy', icon: '💊', title: 'Pharmacy', desc: 'Retail pharmacy.' },
+          { id: 'optical-center', icon: '👓', title: 'Optical Center', desc: 'Optical shop and prescription lenses.' },
+        ]
+      },
+      {
+        id: 'real-estate',
+        title: 'Real Estate & Construction',
+        desc: 'Property development, contracting, building, and finishing.',
+        sectors: [
+          { id: 'real-estate', icon: '🏢', title: 'Real Estate Investment', desc: 'General real estate sector evaluation.' },
+          { id: 'land-development', icon: '🏞️', title: 'Land Development', desc: 'Residential or commercial land development.' },
+          { id: 'villa-construction', icon: '🏡', title: 'Villa Construction', desc: 'Build and sell residential villas.' },
+          { id: 'residential-building', icon: '🏢', title: 'Residential Building', desc: 'Build residential apartments for sale.' },
+          { id: 'commercial-complex', icon: '🏬', title: 'Commercial Complex', desc: 'Commercial complex for rent.' },
+          { id: 'commercial-mall', icon: '🛍️', title: 'Commercial Mall', desc: 'Large commercial mall.' },
+          { id: 'hotel-apartments', icon: '🏨', title: 'Hotel Apartments', desc: 'Furnished hotel apartments.' },
+          { id: 'warehouses', icon: '🏭', title: 'Warehouses', desc: 'Warehouses for rent.' },
+          { id: 'property-rehabilitation', icon: '🔧', title: 'Property Rehabilitation', desc: 'Buy and rehabilitate a distressed property for sale.' },
+          { id: 'buy-to-rent', icon: '🏠', title: 'Buy-to-Rent', desc: 'Buy a ready property and rent it out.' },
+          { id: 'quick-real-estate', icon: '⚡', title: 'Quick Real Estate', desc: 'Quick real estate investment return evaluation.' },
+          { id: 'construction', icon: '🏗️', title: 'Construction', desc: 'General construction projects evaluation.' },
+          { id: 'construction-profitability', icon: '🏗️', title: 'Construction Profitability', desc: 'Analyze construction contract profitability.' },
+          { id: 'tender-pricing', icon: '📋', title: 'Tender Pricing', desc: 'Accurate tender pricing.' },
+          { id: 'contractor-cashflow', icon: '💵', title: 'Contractor Cash Flow', desc: 'Forecast cash flows.' },
+          { id: 'concrete-structure-cost', icon: '🧱', title: 'Concrete Structure Cost', desc: 'Concrete structure cost estimation.' },
+          { id: 'finishing-cost', icon: '🎨', title: 'Finishing Cost', desc: 'Finishing cost estimation.' },
+          { id: 'distressed-project-evaluation', icon: '⚠️', title: 'Distressed Project Evaluation', desc: 'Feasibility of completing a distressed project.' },
+        ]
+      },
+      {
+        id: 'industrial',
+        title: 'Industry',
+        desc: 'Food, plastic, furniture, chemicals, textiles, and packaging factories.',
+        sectors: [
+          { id: 'industrial', icon: '🏭', title: 'Industrial Investment', desc: 'General industrial sector evaluation.' },
+          { id: 'food-factory', icon: '🍞', title: 'Food Factory', desc: 'Food products factory.' },
+          { id: 'water-factory', icon: '💧', title: 'Water Factory', desc: 'Drinking water bottling factory.' },
+          { id: 'plastic-factory', icon: '🧴', title: 'Plastic Factory', desc: 'Plastic products factory.' },
+          { id: 'building-materials-factory', icon: '🧱', title: 'Building Materials Factory', desc: 'Construction materials factory.' },
+          { id: 'furniture-factory', icon: '🛋️', title: 'Furniture Factory', desc: 'Home and office furniture factory.' },
+          { id: 'textiles-factory', icon: '🧵', title: 'Textiles Factory', desc: 'Textiles and fabrics factory.' },
+          { id: 'chemicals-factory', icon: '⚗️', title: 'Chemicals Factory', desc: 'Chemical products factory.' },
+          { id: 'packaging-factory', icon: '📦', title: 'Packaging Factory', desc: 'Packaging factory.' },
+        ]
+      },
+      {
+        id: 'restaurants',
+        title: 'Restaurants & Hospitality',
+        desc: 'Restaurants, cafés, hotels, resorts, and tourism services.',
+        sectors: [
+          { id: 'restaurants', icon: '🍽️', title: 'Restaurant Sector', desc: 'General restaurants and cafés evaluation.' },
+          { id: 'restaurant', icon: '🍽️', title: 'Restaurant', desc: 'New restaurant.' },
+          { id: 'coffee-shop', icon: '☕', title: 'Coffee Shop', desc: 'Coffee shop.' },
+          { id: 'cloud-kitchen', icon: '☁️', title: 'Cloud Kitchen', desc: 'Delivery-only cloud kitchen.' },
+          { id: 'food-truck', icon: '🚚', title: 'Food Truck', desc: 'Mobile food truck.' },
+          { id: 'fast-food-restaurant', icon: '🍔', title: 'Fast Food Restaurant', desc: 'Fast food restaurant.' },
+          { id: 'fine-dining-restaurant', icon: '🍷', title: 'Fine Dining Restaurant', desc: 'Fine dining and premium service.' },
+          { id: 'hotel', icon: '🏨', title: 'Hotel', desc: 'New hotel.' },
+          { id: 'tourist-resort', icon: '🏖️', title: 'Tourist Resort', desc: 'Comprehensive tourist resort.' },
+          { id: 'tourist-camp', icon: '⛺', title: 'Tourist Camp', desc: 'Tourist camp.' },
+          { id: 'tourism-company', icon: '✈️', title: 'Tourism Company', desc: 'Travel and tourism company.' },
+          { id: 'tourism', icon: '✈️', title: 'Tourism Sector', desc: 'General tourism sector evaluation.' },
+        ]
+      },
+      {
+        id: 'education',
+        title: 'Education & Technology',
+        desc: 'Schools, universities, training centers, and tech companies.',
+        sectors: [
+          { id: 'education', icon: '🎓', title: 'Education Sector', desc: 'General education sector evaluation.' },
+          { id: 'private-school', icon: '🏫', title: 'Private School', desc: 'Private school.' },
+          { id: 'nursery', icon: '🧸', title: 'Nursery', desc: 'Children nursery.' },
+          { id: 'private-university', icon: '🎓', title: 'Private University', desc: 'Private university.' },
+          { id: 'training-center', icon: '📚', title: 'Training Center', desc: 'Vocational and academic training.' },
+          { id: 'e-learning-platform', icon: '💻', title: 'E-Learning Platform', desc: 'E-learning platform.' },
+          { id: 'technology', icon: '💻', title: 'Technology Sector', desc: 'Software companies, SaaS, and applications.' },
+        ]
+      },
+      {
+        id: 'commerce',
+        title: 'Commerce & Logistics',
+        desc: 'General trade, retail, transport, warehousing, and agriculture.',
+        sectors: [
+          { id: 'commercial', icon: '🤝', title: 'Commercial Sector', desc: 'Trading agencies, import/export, and general trade.' },
+          { id: 'retail', icon: '🛒', title: 'Retail Sector', desc: 'Retail stores, supermarkets, and e-commerce.' },
+          { id: 'logistics', icon: '🚛', title: 'Logistics Sector', desc: 'Transportation, warehousing, delivery, and supply chain.' },
+          { id: 'shipping-company', icon: '🚢', title: 'Shipping Company', desc: 'Local and international shipping.' },
+          { id: 'transport-fleet', icon: '🚛', title: 'Transport Fleet', desc: 'Own and operate a transport fleet.' },
+          { id: 'distribution-center', icon: '🏭', title: 'Distribution Center', desc: 'Order sorting and distribution.' },
+          { id: 'last-mile-delivery', icon: '🛵', title: 'Last-Mile Delivery', desc: 'Last-mile delivery service.' },
+          { id: 'agriculture', icon: '🌾', title: 'Agriculture Sector', desc: 'Farms, poultry farms, and food production.' },
+        ]
+      }
     ];
 
-    const grid = document.getElementById('sectorsGrid');
-    sectors.forEach(s => {
+    const main = document.getElementById('investmentMain');
+    const searchInput = document.getElementById('sectorSearch');
+    const searchClear = document.getElementById('searchClear');
+    const categoryChips = document.getElementById('categoryChips');
+    const resultsCount = document.getElementById('resultsCount');
+
+    function createCard(sector) {
       const card = document.createElement('a');
-      card.href = s.id + '.html';
+      card.href = sector.id + '.html';
       card.className = 'sector-card';
+      card.dataset.title = sector.title;
+      card.dataset.category = sector.categoryId;
       card.innerHTML = `
-        <div class="sector-card__icon">${s.icon}</div>
-        <div class="sector-card__title">${s.title}</div>
-        <div class="sector-card__desc">${s.desc}</div>
+        <div class="sector-card__icon">${sector.icon}</div>
+        <div class="sector-card__title">${sector.title}</div>
+        <div class="sector-card__desc">${sector.desc}</div>
       `;
-      grid.appendChild(card);
+      return card;
+    }
+
+    function render() {
+      main.innerHTML = '';
+      groups.forEach(group => {
+        const section = document.createElement('section');
+        section.className = 'sector-group';
+        section.dataset.category = group.id;
+        section.innerHTML = `
+          <div class="sector-group__header">
+            <h2 class="sector-group__title">${group.title}</h2>
+            <p class="sector-group__desc">${group.desc}</p>
+          </div>
+          <div class="sectors-grid"></div>
+        `;
+        const grid = section.querySelector('.sectors-grid');
+        group.sectors.forEach(s => {
+          s.categoryId = group.id;
+          grid.appendChild(createCard(s));
+        });
+        main.appendChild(section);
+      });
+    }
+
+    function normalize(str) {
+      return str.toLowerCase().trim().replace(/[^\w\s]/g, '');
+    }
+
+    function filter() {
+      const query = normalize(searchInput.value);
+      const activeChip = categoryChips.querySelector('.category-chip.active');
+      const activeCategory = activeChip ? activeChip.dataset.category : 'all';
+      let visibleCount = 0;
+
+      document.querySelectorAll('.sector-group').forEach(section => {
+        const groupId = section.dataset.category;
+        const groupMatches = activeCategory === 'all' || activeCategory === groupId;
+        let groupVisible = false;
+
+        section.querySelectorAll('.sector-card').forEach(card => {
+          const title = normalize(card.dataset.title);
+          const desc = normalize(card.querySelector('.sector-card__desc').textContent);
+          const matchesSearch = !query || title.includes(query) || desc.includes(query);
+          const matchesCategory = groupMatches;
+          const visible = matchesSearch && matchesCategory;
+          card.style.display = visible ? '' : 'none';
+          if (visible) {
+            visibleCount++;
+            groupVisible = true;
+          }
+        });
+
+        section.style.display = groupVisible ? '' : 'none';
+      });
+
+      resultsCount.textContent = `${visibleCount} calculator${visibleCount !== 1 ? 's' : ''} ${query ? 'matched' : 'available'}`;
+      searchClear.style.display = query ? 'flex' : 'none';
+    }
+
+    categoryChips.addEventListener('click', e => {
+      if (!e.target.classList.contains('category-chip')) return;
+      categoryChips.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+      e.target.classList.add('active');
+      filter();
     });
+
+    searchInput.addEventListener('input', filter);
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      filter();
+      searchInput.focus();
+    });
+
+    render();
+    filter();
   </script>
 </body>
 </html>

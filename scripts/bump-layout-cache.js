@@ -3,7 +3,6 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const EXCLUDED = ['node_modules', '.vercel', '.git', 'bonds-v2', 'v3'];
-const VERSION = '4';
 
 function walk(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -23,6 +22,7 @@ const files = walk(ROOT);
 let changed = 0;
 let siteLayoutRefs = 0;
 let headerFooterRefs = 0;
+let investmentCenterRefs = 0;
 
 for (const file of files) {
   let content = fs.readFileSync(file, 'utf8');
@@ -32,7 +32,7 @@ for (const file of files) {
     /site-layout\.js\?v=\d+/g,
     () => {
       siteLayoutRefs++;
-      return `site-layout.js?v=${VERSION}`;
+      return 'site-layout.js?v=5';
     }
   );
 
@@ -40,7 +40,15 @@ for (const file of files) {
     /header-footer\.css\?v=\d+/g,
     () => {
       headerFooterRefs++;
-      return `header-footer.css?v=${VERSION}`;
+      return 'header-footer.css?v=5';
+    }
+  );
+
+  content = content.replace(
+    /investment-center\.css(?!\?v=2)(\?v=[^"']*)?/g,
+    (match, existing) => {
+      investmentCenterRefs++;
+      return 'investment-center.css?v=2';
     }
   );
 
@@ -53,4 +61,5 @@ for (const file of files) {
 console.log(`Files changed: ${changed}`);
 console.log(`site-layout.js refs bumped: ${siteLayoutRefs}`);
 console.log(`header-footer.css refs bumped: ${headerFooterRefs}`);
+console.log(`investment-center.css refs bumped: ${investmentCenterRefs}`);
 console.log(`Total HTML files scanned: ${files.length}`);

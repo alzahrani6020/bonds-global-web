@@ -6,19 +6,19 @@
   <title>مركز الحاسبات الاستثمارية والمالية | بوندز</title>
   <meta name="description" content="حاسبات استثمارية متخصصة لـ 63 قطاعًا مع مؤشرات ROI، IRR، NPV، فترة الاسترداد، نقطة التعادل، هامش الربح، ودرجة المخاطرة." />
   <meta property="og:title" content="مركز الحاسبات الاستثمارية والمالية | بوندز" />
-  <meta property="og:description" content="حاسبات استثمارية متخصصة لـ 12 قطاعًا مع توصية استثمارية ذكية." />
+  <meta property="og:description" content="حاسبات استثمارية متخصصة لـ 63 قطاعًا مع توصية استثمارية ذكية." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
   <meta property="og:url" content="https://bonds-global.com/calculators/investment-center/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="مركز الحاسبات الاستثمارية والمالية | بوندز" />
-  <meta name="twitter:description" content="حاسبات استثمارية متخصصة لـ 12 قطاعًا مع توصية استثمارية ذكية." />
+  <meta name="twitter:description" content="حاسبات استثمارية متخصصة لـ 63 قطاعًا مع توصية استثمارية ذكية." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
   <link rel="canonical" href="https://bonds-global.com/calculators/investment-center/" />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../styles.css" />
-  <link rel="stylesheet" href="../../header-footer.css?v=4" />
-  <link rel="stylesheet" href="investment-center.css" />
+  <link rel="stylesheet" href="../../header-footer.css?v=5" />
+  <link rel="stylesheet" href="investment-center.css?v=2" />
   <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg" />
 </head>
 <body>
@@ -26,96 +26,236 @@
 
   <section class="investment-hero">
     <h1>مركز الحاسبات الاستثمارية والمالية</h1>
-    <p>أدوات تحليل متخصصة لـ 63 قطاعًا اقتصاديًا. احسب مؤشرات الاستثمار الموحدة واحصل على توصية ذكية مبنية على بياناتك.</p>
+    <p>اختر قطاعك و احسب جدوى مشروعك بدقّة. 63 حاسبة متخصصة مع تحليل مالي ذكي.</p>
+
+    <div class="investment-search">
+      <input type="text" id="sectorSearch" placeholder="ابحث عن قطاع… مثال: مستشفى، مصنع مياه، مطعم" autocomplete="off" />
+      <button type="button" id="searchClear" aria-label="مسح البحث">×</button>
+    </div>
+
+    <div class="investment-categories" id="categoryChips">
+      <button class="category-chip active" data-category="all">الكل</button>
+      <button class="category-chip" data-category="medical">الصحة والطب</button>
+      <button class="category-chip" data-category="real-estate">العقار والإنشاءات</button>
+      <button class="category-chip" data-category="industrial">الصناعة</button>
+      <button class="category-chip" data-category="restaurants">المطاعم والضيافة</button>
+      <button class="category-chip" data-category="education">التعليم والتقنية</button>
+      <button class="category-chip" data-category="commerce">التجارة واللوجستيات</button>
+    </div>
+
+    <div class="results-count" id="resultsCount">63 حاسبة متاحة</div>
   </section>
 
-  <main class="sectors-grid" id="sectorsGrid">
+  <main class="investment-main" id="investmentMain">
     <!-- Filled by JS -->
   </main>
 
   <div id="site-footer"></div>
 
-  <script src="../../site-layout.js?v=4"></script>
+  <script src="../../site-layout.js?v=5"></script>
   <script src="../../page-tracker-v2.js"></script>
   <script>
-    const sectors = [
-      { id: 'medical', icon: '🏥', title: 'القطاع الطبي', desc: 'عيادات، مستشفيات، صيدليات، ومختبرات طبية.' },
-      { id: 'industrial', icon: '🏭', title: 'القطاع الصناعي', desc: 'مصانع، ورش، وإنتاج صناعي متنوع.' },
-      { id: 'real-estate', icon: '🏢', title: 'القطاع العقاري', desc: 'تطوير عقاري، إيجارات، واستثمارات سكنية وتجارية.' },
-      { id: 'commercial', icon: '🤝', title: 'القطاع التجاري', desc: 'وكالات تجارية، استيراد وتصدير، وتجارة عامة.' },
-      { id: 'tourism', icon: '✈️', title: 'القطاع السياحي', desc: 'فنادق، شقق مفروشة، وخدمات سياحية.' },
-      { id: 'education', icon: '🎓', title: 'القطاع التعليمي', desc: 'مدارس، مراكز تدريب، ومنصات تعليمية.' },
-      { id: 'logistics', icon: '🚛', title: 'القطاع اللوجستي', desc: 'نقل، تخزين، توصيل، وإدارة سلاسل الإمداد.' },
-      { id: 'agriculture', icon: '🌾', title: 'القطاع الزراعي', desc: 'مزارع، مزارع دواجن، وإنتاج غذائي.' },
-      { id: 'technology', icon: '💻', title: 'القطاع التقني', desc: 'شركات برمجة، SaaS، وتطبيقات.' },
-      { id: 'restaurants', icon: '🍽️', title: 'قطاع المطاعم والمقاهي', desc: 'مطاعم، مقاهي، وخدمات الطعام.' },
-      { id: 'retail', icon: '🛒', title: 'قطاع التجزئة', desc: 'محلات تجزئة، سوبرماركت، ومتاجر إلكترونية.' },
-      { id: 'construction', icon: '🏗️', title: 'قطاع التشييد والمقاولات', desc: 'مقاولات بناء، تشطيبات، ومشاريع إنشائية.' },
-      { id: 'hospital', icon: '🏥', title: 'مستشفى', desc: 'مستشفى متعدد الأقسام والتخصصات.' },
-      { id: 'medical-complex', icon: '🏨', title: 'مجمع طبي', desc: 'مجمع يضم عيادات متعددة التخصصات.' },
-      { id: 'dental-clinic', icon: '🦷', title: 'عيادة أسنان', desc: 'عيادة أسنان متخصصة.' },
-      { id: 'radiology-center', icon: '🩻', title: 'مركز أشعة', desc: 'مركز تشخيصي للأشعة والتصوير الطبي.' },
-      { id: 'medical-lab', icon: '🧪', title: 'مختبر طبي', desc: 'مختبر تحاليل طبية.' },
-      { id: 'physiotherapy-center', icon: '💆', title: 'مركز علاج طبيعي', desc: 'مركز علاج طبيعي وتأهيل.' },
-      { id: 'pharmacy', icon: '💊', title: 'صيدلية', desc: 'صيدلية تجزئة أدوية.' },
-      { id: 'optical-center', icon: '👓', title: 'مركز بصريات', desc: 'محل نظارات وعدسات طبية.' },
-      { id: 'land-development', icon: '🏞️', title: 'تطوير أرض', desc: 'تطوير أرض سكنية أو تجارية.' },
-      { id: 'villa-construction', icon: '🏡', title: 'بناء فلل للبيع', desc: 'بناء وبيع فلل سكنية.' },
-      { id: 'residential-building', icon: '🏢', title: 'بناء عمائر سكنية', desc: 'بناء عماره سكنية للبيع.' },
-      { id: 'commercial-complex', icon: '🏬', title: 'مجمع تجاري', desc: 'مجمع تجاري للإيجار.' },
-      { id: 'commercial-mall', icon: '🛍️', title: 'مول تجاري', desc: 'مول تجاري كبير.' },
-      { id: 'hotel-apartments', icon: '🏨', title: 'شقق فندقية', desc: 'شقق فندقية مفروشة.' },
-      { id: 'warehouses', icon: '🏭', title: 'مستودعات', desc: 'مستودعات للإيجار.' },
-      { id: 'property-rehabilitation', icon: '🔧', title: 'إعادة تأهيل عقار متعثر', desc: 'شراء وإعادة تأهيل عقار للبيع.' },
-      { id: 'buy-to-rent', icon: '🏠', title: 'شراء عقار وتأجيره', desc: 'شراء عقار جاهز وتأجيره.' },
-      { id: 'quick-real-estate', icon: '⚡', title: 'الاستثمار العقاري السريع', desc: 'تقييم سريع لعائد الاستثمار العقاري.' },
-      { id: 'food-factory', icon: '🍞', title: 'مصنع أغذية', desc: 'منتجات غذائية.' },
-      { id: 'water-factory', icon: '💧', title: 'مصنع مياه', desc: 'تعبئة مياه شرب.' },
-      { id: 'plastic-factory', icon: '🧴', title: 'مصنع بلاستيك', desc: 'منتجات بلاستيكية.' },
-      { id: 'building-materials-factory', icon: '🧱', title: 'مصنع مواد بناء', desc: 'مواد بناء وتشييد.' },
-      { id: 'furniture-factory', icon: '🛋️', title: 'مصنع أثاث', desc: 'أثاث منزلي ومكتبي.' },
-      { id: 'textiles-factory', icon: '🧵', title: 'مصنع منسوجات', desc: 'منسوجات وأقمشة.' },
-      { id: 'chemicals-factory', icon: '⚗️', title: 'مصنع كيماويات', desc: 'منتجات كيماوية.' },
-      { id: 'packaging-factory', icon: '📦', title: 'مصنع تعبئة وتغليف', desc: 'تعبئة وتغليف.' },
-      { id: 'construction-profitability', icon: '🏗️', title: 'ربحية مشروع مقاولات', desc: 'تحليل ربحية العقود الإنشائية.' },
-      { id: 'tender-pricing', icon: '📋', title: 'تسعير المناقصات', desc: 'تسعير المناقصات بدقة.' },
-      { id: 'contractor-cashflow', icon: '💵', title: 'التدفق النقدي للمقاولين', desc: 'توقع التدفقات النقدية.' },
-      { id: 'concrete-structure-cost', icon: '🧱', title: 'تكلفة الهيكل الخرساني', desc: 'تكلفة الهيكل الإنشائي.' },
-      { id: 'finishing-cost', icon: '🎨', title: 'تكلفة التشطيب', desc: 'تقدير تكاليف التشطيب.' },
-      { id: 'distressed-project-evaluation', icon: '⚠️', title: 'تقييم مشروع متعثر', desc: 'جدوى استكمال مشروع متعثر.' },
-      { id: 'restaurant', icon: '🍽️', title: 'مطعم', desc: 'مطعم جديد.' },
-      { id: 'coffee-shop', icon: '☕', title: 'كوفي شوب', desc: 'كوفي شوب.' },
-      { id: 'cloud-kitchen', icon: '☁️', title: 'مطبخ سحابي', desc: 'مطبخ سحابي للتوصيل.' },
-      { id: 'food-truck', icon: '🚚', title: 'فود ترك', desc: 'عربة طعام متنقلة.' },
-      { id: 'fast-food-restaurant', icon: '🍔', title: 'مطعم وجبات سريعة', desc: 'وجبات سريعة.' },
-      { id: 'fine-dining-restaurant', icon: '🍷', title: 'مطعم فاخر', desc: 'مطعم فاخر وخدمة راقية.' },
-      { id: 'private-school', icon: '🏫', title: 'مدرسة أهلية', desc: 'مدرسة أهلية أو خاصة.' },
-      { id: 'nursery', icon: '🧸', title: 'حضانة', desc: 'حضانة أطفال.' },
-      { id: 'private-university', icon: '🎓', title: 'جامعة خاصة', desc: 'جامعة خاصة.' },
-      { id: 'training-center', icon: '📚', title: 'مركز تدريب', desc: 'تدريب مهني وأكاديمي.' },
-      { id: 'e-learning-platform', icon: '💻', title: 'منصة تعليم إلكتروني', desc: 'تعليم إلكتروني.' },
-      { id: 'hotel', icon: '🏨', title: 'فندق', desc: 'فندق جديد.' },
-      { id: 'tourist-resort', icon: '🏖️', title: 'منتجع سياحي', desc: 'منتجع سياحي متكامل.' },
-      { id: 'tourist-camp', icon: '⛺', title: 'مخيم سياحي', desc: 'مخيم سياحي.' },
-      { id: 'tourism-company', icon: '✈️', title: 'شركة سياحة', desc: 'شركة سياحة وسفر.' },
-      { id: 'shipping-company', icon: '🚢', title: 'شركة شحن', desc: 'شحن محلي ودولي.' },
-      { id: 'transport-fleet', icon: '🚛', title: 'أسطول نقل', desc: 'امتلاك وتشغيل أسطول نقل.' },
-      { id: 'distribution-center', icon: '🏭', title: 'مركز توزيع', desc: 'توزيع وفرز الطلبات.' },
-      { id: 'last-mile-delivery', icon: '🛵', title: 'خدمات الميل الأخير', desc: 'توصيل الطلبات للميل الأخير.' }
+    const groups = [
+      {
+        id: 'medical',
+        title: 'الصحة والطب',
+        desc: 'عيادات، مستشفيات، صيدليات، مختبرات ومراكز طبية.',
+        sectors: [
+          { id: 'medical', icon: '🏥', title: 'المنشآت الطبية', desc: 'تقييم عام للقطاع الطبي.' },
+          { id: 'hospital', icon: '🏥', title: 'مستشفى', desc: 'مستشفى متعدد الأقسام والتخصصات.' },
+          { id: 'medical-complex', icon: '🏨', title: 'مجمع طبي', desc: 'مجمع يضم عيادات متعددة التخصصات.' },
+          { id: 'dental-clinic', icon: '🦷', title: 'عيادة أسنان', desc: 'عيادة أسنان متخصصة.' },
+          { id: 'radiology-center', icon: '🩻', title: 'مركز أشعة', desc: 'مركز تشخيصي للأشعة والتصوير الطبي.' },
+          { id: 'medical-lab', icon: '🧪', title: 'مختبر طبي', desc: 'مختبر تحاليل طبية.' },
+          { id: 'physiotherapy-center', icon: '💆', title: 'مركز علاج طبيعي', desc: 'مركز علاج طبيعي وتأهيل.' },
+          { id: 'pharmacy', icon: '💊', title: 'صيدلية', desc: 'صيدلية تجزئة أدوية.' },
+          { id: 'optical-center', icon: '👓', title: 'مركز بصريات', desc: 'محل نظارات وعدسات طبية.' },
+        ]
+      },
+      {
+        id: 'real-estate',
+        title: 'العقار والإنشاءات',
+        desc: 'تطوير عقاري، مقاولات، بناء وتشطيب.',
+        sectors: [
+          { id: 'real-estate', icon: '🏢', title: 'الاستثمار العقاري', desc: 'تقييم عام للقطاع العقاري.' },
+          { id: 'land-development', icon: '🏞️', title: 'تطوير أرض', desc: 'تطوير أرض سكنية أو تجارية.' },
+          { id: 'villa-construction', icon: '🏡', title: 'بناء فلل للبيع', desc: 'بناء وبيع فلل سكنية.' },
+          { id: 'residential-building', icon: '🏢', title: 'بناء عمائر سكنية', desc: 'بناء عماره سكنية للبيع.' },
+          { id: 'commercial-complex', icon: '🏬', title: 'مجمع تجاري', desc: 'مجمع تجاري للإيجار.' },
+          { id: 'commercial-mall', icon: '🛍️', title: 'مول تجاري', desc: 'مول تجاري كبير.' },
+          { id: 'hotel-apartments', icon: '🏨', title: 'شقق فندقية', desc: 'شقق فندقية مفروشة.' },
+          { id: 'warehouses', icon: '🏭', title: 'مستودعات', desc: 'مستودعات للإيجار.' },
+          { id: 'property-rehabilitation', icon: '🔧', title: 'إعادة تأهيل عقار متعثر', desc: 'شراء وإعادة تأهيل عقار للبيع.' },
+          { id: 'buy-to-rent', icon: '🏠', title: 'شراء عقار وتأجيره', desc: 'شراء عقار جاهز وتأجيره.' },
+          { id: 'quick-real-estate', icon: '⚡', title: 'الاستثمار العقاري السريع', desc: 'تقييم سريع لعائد الاستثمار العقاري.' },
+          { id: 'construction', icon: '🏗️', title: 'المقاولات', desc: 'تقييم عام لمشاريع المقاولات.' },
+          { id: 'construction-profitability', icon: '🏗️', title: 'ربحية مشروع مقاولات', desc: 'تحليل ربحية العقود الإنشائية.' },
+          { id: 'tender-pricing', icon: '📋', title: 'تسعير المناقصات', desc: 'تسعير المناقصات بدقة.' },
+          { id: 'contractor-cashflow', icon: '💵', title: 'التدفق النقدي للمقاولين', desc: 'توقع التدفقات النقدية.' },
+          { id: 'concrete-structure-cost', icon: '🧱', title: 'تكلفة الهيكل الخرساني', desc: 'تكلفة الهيكل الإنشائي.' },
+          { id: 'finishing-cost', icon: '🎨', title: 'تكلفة التشطيب', desc: 'تقدير تكاليف التشطيب.' },
+          { id: 'distressed-project-evaluation', icon: '⚠️', title: 'تقييم مشروع متعثر', desc: 'جدوى استكمال مشروع متعثر.' },
+        ]
+      },
+      {
+        id: 'industrial',
+        title: 'الصناعة',
+        desc: 'مصانع الأغذية، البلاستيك، الأثاث، الكيماويات والتعبئة.',
+        sectors: [
+          { id: 'industrial', icon: '🏭', title: 'الاستثمار الصناعي', desc: 'تقييم عام للقطاع الصناعي.' },
+          { id: 'food-factory', icon: '🍞', title: 'مصنع أغذية', desc: 'منتجات غذائية.' },
+          { id: 'water-factory', icon: '💧', title: 'مصنع مياه', desc: 'تعبئة مياه شرب.' },
+          { id: 'plastic-factory', icon: '🧴', title: 'مصنع بلاستيك', desc: 'منتجات بلاستيكية.' },
+          { id: 'building-materials-factory', icon: '🧱', title: 'مصنع مواد بناء', desc: 'مواد بناء وتشييد.' },
+          { id: 'furniture-factory', icon: '🛋️', title: 'مصنع أثاث', desc: 'أثاث منزلي ومكتبي.' },
+          { id: 'textiles-factory', icon: '🧵', title: 'مصنع منسوجات', desc: 'منسوجات وأقمشة.' },
+          { id: 'chemicals-factory', icon: '⚗️', title: 'مصنع كيماويات', desc: 'منتجات كيماوية.' },
+          { id: 'packaging-factory', icon: '📦', title: 'مصنع تعبئة وتغليف', desc: 'تعبئة وتغليف.' },
+        ]
+      },
+      {
+        id: 'restaurants',
+        title: 'المطاعم والضيافة',
+        desc: 'مطاعم، مقاهي، فنادق، منتجعات وخدمات سياحية.',
+        sectors: [
+          { id: 'restaurants', icon: '🍽️', title: 'قطاع المطاعم', desc: 'تقييم عام للمطاعم والمقاهي.' },
+          { id: 'restaurant', icon: '🍽️', title: 'مطعم', desc: 'مطعم جديد.' },
+          { id: 'coffee-shop', icon: '☕', title: 'كوفي شوب', desc: 'كوفي شوب.' },
+          { id: 'cloud-kitchen', icon: '☁️', title: 'مطبخ سحابي', desc: 'مطبخ سحابي للتوصيل.' },
+          { id: 'food-truck', icon: '🚚', title: 'فود ترك', desc: 'عربة طعام متنقلة.' },
+          { id: 'fast-food-restaurant', icon: '🍔', title: 'مطعم وجبات سريعة', desc: 'وجبات سريعة.' },
+          { id: 'fine-dining-restaurant', icon: '🍷', title: 'مطعم فاخر', desc: 'مطعم فاخر وخدمة راقية.' },
+          { id: 'hotel', icon: '🏨', title: 'فندق', desc: 'فندق جديد.' },
+          { id: 'tourist-resort', icon: '🏖️', title: 'منتجع سياحي', desc: 'منتجع سياحي متكامل.' },
+          { id: 'tourist-camp', icon: '⛺', title: 'مخيم سياحي', desc: 'مخيم سياحي.' },
+          { id: 'tourism-company', icon: '✈️', title: 'شركة سياحة', desc: 'شركة سياحة وسفر.' },
+          { id: 'tourism', icon: '✈️', title: 'القطاع السياحي', desc: 'تقييم عام للقطاع السياحي.' },
+        ]
+      },
+      {
+        id: 'education',
+        title: 'التعليم والتقنية',
+        desc: 'مدارس، جامعات، مراكز تدريب وشركات تقنية.',
+        sectors: [
+          { id: 'education', icon: '🎓', title: 'القطاع التعليمي', desc: 'تقييم عام للقطاع التعليمي.' },
+          { id: 'private-school', icon: '🏫', title: 'مدرسة أهلية', desc: 'مدرسة أهلية أو خاصة.' },
+          { id: 'nursery', icon: '🧸', title: 'حضانة', desc: 'حضانة أطفال.' },
+          { id: 'private-university', icon: '🎓', title: 'جامعة خاصة', desc: 'جامعة خاصة.' },
+          { id: 'training-center', icon: '📚', title: 'مركز تدريب', desc: 'تدريب مهني وأكاديمي.' },
+          { id: 'e-learning-platform', icon: '💻', title: 'منصة تعليم إلكتروني', desc: 'تعليم إلكتروني.' },
+          { id: 'technology', icon: '💻', title: 'القطاع التقني', desc: 'شركات برمجة، SaaS، وتطبيقات.' },
+        ]
+      },
+      {
+        id: 'commerce',
+        title: 'التجارة واللوجستيات',
+        desc: 'تجارة عامة، تجزئة، نقل، تخزين وزراعة.',
+        sectors: [
+          { id: 'commercial', icon: '🤝', title: 'القطاع التجاري', desc: 'وكالات تجارية، استيراد وتصدير، وتجارة عامة.' },
+          { id: 'retail', icon: '🛒', title: 'قطاع التجزئة', desc: 'محلات تجزئة، سوبرماركت، ومتاجر إلكترونية.' },
+          { id: 'logistics', icon: '🚛', title: 'القطاع اللوجستي', desc: 'نقل، تخزين، توصيل، وإدارة سلاسل الإمداد.' },
+          { id: 'shipping-company', icon: '🚢', title: 'شركة شحن', desc: 'شحن محلي ودولي.' },
+          { id: 'transport-fleet', icon: '🚛', title: 'أسطول نقل', desc: 'امتلاك وتشغيل أسطول نقل.' },
+          { id: 'distribution-center', icon: '🏭', title: 'مركز توزيع', desc: 'توزيع وفرز الطلبات.' },
+          { id: 'last-mile-delivery', icon: '🛵', title: 'خدمات الميل الأخير', desc: 'توصيل الطلبات للميل الأخير.' },
+          { id: 'agriculture', icon: '🌾', title: 'القطاع الزراعي', desc: 'مزارع، مزارع دواجن، وإنتاج غذائي.' },
+        ]
+      }
     ];
 
-    const grid = document.getElementById('sectorsGrid');
-    sectors.forEach(s => {
+    const main = document.getElementById('investmentMain');
+    const searchInput = document.getElementById('sectorSearch');
+    const searchClear = document.getElementById('searchClear');
+    const categoryChips = document.getElementById('categoryChips');
+    const resultsCount = document.getElementById('resultsCount');
+
+    function createCard(sector) {
       const card = document.createElement('a');
-      card.href = s.id + '.html';
+      card.href = sector.id + '.html';
       card.className = 'sector-card';
+      card.dataset.title = sector.title;
+      card.dataset.category = sector.categoryId;
       card.innerHTML = `
-        <div class="sector-card__icon">${s.icon}</div>
-        <div class="sector-card__title">${s.title}</div>
-        <div class="sector-card__desc">${s.desc}</div>
+        <div class="sector-card__icon">${sector.icon}</div>
+        <div class="sector-card__title">${sector.title}</div>
+        <div class="sector-card__desc">${sector.desc}</div>
       `;
-      grid.appendChild(card);
+      return card;
+    }
+
+    function render() {
+      main.innerHTML = '';
+      groups.forEach(group => {
+        const section = document.createElement('section');
+        section.className = 'sector-group';
+        section.dataset.category = group.id;
+        section.innerHTML = `
+          <div class="sector-group__header">
+            <h2 class="sector-group__title">${group.title}</h2>
+            <p class="sector-group__desc">${group.desc}</p>
+          </div>
+          <div class="sectors-grid"></div>
+        `;
+        const grid = section.querySelector('.sectors-grid');
+        group.sectors.forEach(s => {
+          s.categoryId = group.id;
+          grid.appendChild(createCard(s));
+        });
+        main.appendChild(section);
+      });
+    }
+
+    function normalize(str) {
+      return str.toLowerCase().replace(/[أإآا]/g, 'ا').replace(/[ىي]/g, 'ي').replace(/ة/g, 'ه').replace(/[^\w\s]/g, '').trim();
+    }
+
+    function filter() {
+      const query = normalize(searchInput.value);
+      const activeChip = categoryChips.querySelector('.category-chip.active');
+      const activeCategory = activeChip ? activeChip.dataset.category : 'all';
+      let visibleCount = 0;
+
+      document.querySelectorAll('.sector-group').forEach(section => {
+        const groupId = section.dataset.category;
+        const groupMatches = activeCategory === 'all' || activeCategory === groupId;
+        let groupVisible = false;
+
+        section.querySelectorAll('.sector-card').forEach(card => {
+          const title = normalize(card.dataset.title);
+          const desc = normalize(card.querySelector('.sector-card__desc').textContent);
+          const matchesSearch = !query || title.includes(query) || desc.includes(query);
+          const matchesCategory = groupMatches;
+          const visible = matchesSearch && matchesCategory;
+          card.style.display = visible ? '' : 'none';
+          if (visible) {
+            visibleCount++;
+            groupVisible = true;
+          }
+        });
+
+        section.style.display = groupVisible ? '' : 'none';
+      });
+
+      resultsCount.textContent = `${visibleCount} حاسبة ${query ? 'متطابقة' : 'متاحة'}`;
+      searchClear.style.display = query ? 'flex' : 'none';
+    }
+
+    categoryChips.addEventListener('click', e => {
+      if (!e.target.classList.contains('category-chip')) return;
+      categoryChips.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+      e.target.classList.add('active');
+      filter();
     });
+
+    searchInput.addEventListener('input', filter);
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      filter();
+      searchInput.focus();
+    });
+
+    render();
+    filter();
   </script>
 </body>
 </html>
