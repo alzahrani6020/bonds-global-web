@@ -56,6 +56,7 @@ class BaseAdapter {
       google_places: 85,
       manual: 85,
       scraped: 60,
+      mixed: 55,
       estimated: 50,
       fallback: 45,
       llm: 40
