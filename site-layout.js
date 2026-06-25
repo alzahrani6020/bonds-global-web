@@ -81,6 +81,7 @@
       projectRescue: isEn ? 'Project Rescue' : 'إحياء المشاريع',
       breakEven: isEn ? 'Break-Even' : 'نقطة التعادل',
       projectWizard: isEn ? 'Project Feasibility Wizard' : 'معالج جدوى المشاريع',
+      investmentCenter: isEn ? 'Investment Center' : 'مركز الحاسبات الاستثمارية',
       cashFlowCalc: isEn ? 'Cash Flow' : 'تدفق النقد',
       pricingCalc: isEn ? 'Pricing' : 'تسعير المنتج',
       loanCalc: isEn ? 'Loan & Finance' : 'القرض والتمويل',
@@ -121,6 +122,7 @@
 
     const calcDropdown = [
       { label: labels.projectWizard, href: langBase + 'calculator-wizard.html' },
+      { label: labels.investmentCenter, href: calcBase + 'investment-center/index.html' },
       { label: labels.breakEven, href: calcBreakEven },
       { label: labels.cashFlowCalc, href: calcBase + 'cash-flow.html' },
       { label: labels.pricingCalc, href: calcBase + 'pricing.html' },
