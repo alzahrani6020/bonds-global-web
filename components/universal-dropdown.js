@@ -27,13 +27,14 @@
   ]);
 
   const defaults = {
-    search: false,
+    search: true,            // search enabled by default (Select2-style)
     searchPlaceholder: 'بحث...',
     sort: false,
     sortLocale: 'ar',
     deduplicate: false,
     removeEmpty: false,
     emptyText: 'لا توجد بيانات متاحة',
+    noResultsText: 'لا توجد نتائج مطابقة',
     loadingText: 'جاري التحميل...',
     placeholder: null,
     selectAllText: 'تحديد الكل',
@@ -41,6 +42,8 @@
     direction: null, // 'rtl' | 'ltr' | auto-detect
     fixed: false,    // use fixed positioning for menus
     maxHeight: null, // e.g. '260px'
+    maxResults: 10,  // show first N results with scrolling
+    debounce: 150,   // ms for search input debounce
     onChange: null,  // function(value, label, dd)
     className: '',
     virtualize: false,
@@ -48,6 +51,14 @@
     virtualOverscan: 5,
     virtualThreshold: 50
   };
+
+  function debounce(fn, wait) {
+    let t;
+    return function (...args) {
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(this, args), wait);
+    };
+  }
 
   function detectDirection(select) {
     const htmlDir = document.documentElement.getAttribute('dir');
@@ -221,6 +232,20 @@
           e.preventDefault();
           if (!this.isOpen) this.open();
           else if (e.key === 'Enter' || e.key === ' ') this._selectHighlighted();
+          return;
+        }
+        // Type-ahead: open dropdown and forward printable keys to search input
+        if (!this.isOpen && e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+          e.preventDefault();
+          this.open();
+          setTimeout(() => {
+            const input = this.searchEl && this.searchEl.querySelector('input');
+            if (input) {
+              input.value = e.key;
+              input.focus();
+              input.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+          }, 15);
         }
       });
     }
@@ -323,19 +348,26 @@
         return;
       }
 
-      const filtered = this._filteredItems();
+      let filtered = this._filteredItems();
 
       if (!filtered.length) {
         const empty = document.createElement('li');
         empty.className = 'ud-empty';
-        empty.textContent = this.opts.emptyText;
+        empty.textContent = this.searchTerm.trim() ? this.opts.noResultsText : this.opts.emptyText;
         this.listEl.appendChild(empty);
         this.itemEls = [];
         this._virtualActive = false;
         return;
       }
 
-      const useVirtual = this.opts.virtualize && filtered.length > (this.opts.virtualThreshold || 0);
+      const useVirtual = this.opts.virtualize && this.items.length > (this.opts.virtualThreshold || 0);
+
+      if (!useVirtual) {
+        const maxResults = parseInt(this.opts.maxResults, 10) || 0;
+        if (maxResults > 0 && filtered.length > maxResults) {
+          filtered = filtered.slice(0, maxResults);
+        }
+      }
       if (useVirtual) {
         this._virtualActive = true;
         this._virtualRender(filtered);
@@ -413,7 +445,7 @@
       const seenGroups = new Set();
       const matches = all.filter(i => {
         if (i.type === 'group') return false;
-        return i.label.toLowerCase().includes(term);
+        return i.label.toLowerCase().includes(term) || i.value.toLowerCase().includes(term);
       });
       return matches.reduce((acc, i) => {
         if (i.group && !seenGroups.has(i.group)) {
@@ -434,11 +466,24 @@
       input.type = 'text';
       input.placeholder = this.opts.searchPlaceholder;
       input.setAttribute('aria-label', this.opts.searchPlaceholder);
-      input.addEventListener('input', (e) => {
-        this.searchTerm = e.target.value;
+      input.setAttribute('autocomplete', 'off');
+      input.setAttribute('autocorrect', 'off');
+      input.setAttribute('autocapitalize', 'off');
+      input.setAttribute('spellcheck', 'false');
+
+      const doSearch = (value) => {
+        this.searchTerm = value;
         this._renderItems();
         this._setHighlight(this.itemEls.length ? 0 : -1);
-        if (clearBtn) clearBtn.style.display = e.target.value ? 'flex' : 'none';
+        if (clearBtn) clearBtn.style.display = value ? 'flex' : 'none';
+      };
+
+      const debouncedSearch = this.opts.debounce > 0
+        ? debounce(doSearch, this.opts.debounce)
+        : doSearch;
+
+      input.addEventListener('input', (e) => {
+        debouncedSearch(e.target.value);
       });
       input.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowDown') {

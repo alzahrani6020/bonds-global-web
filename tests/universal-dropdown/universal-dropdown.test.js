@@ -53,6 +53,7 @@ describe('UniversalDropdown', () => {
     const wrapper = wrapperBySelectId(page, 'countrySelect');
     await wrapper.locator('.ud-trigger').click();
     await wrapper.locator('.ud-search input').fill('مص');
+    await page.waitForTimeout(200); // debounce
     const items = await wrapper.locator('.ud-item').allTextContents();
     expect(items).toEqual(['مصر']);
 
@@ -258,10 +259,12 @@ describe('UniversalDropdown', () => {
     const wrapper = wrapperBySelectId(page, 'countrySelect');
     await wrapper.locator('.ud-trigger').click();
     await wrapper.locator('.ud-search input').fill('مص');
+    await page.waitForTimeout(200); // debounce
     let items = await wrapper.locator('.ud-item').count();
     expect(items).toBe(1);
 
     await wrapper.locator('.ud-search-clear').click();
+    await page.waitForTimeout(200); // debounce
     items = await wrapper.locator('.ud-item').count();
     expect(items).toBe(4);
 
@@ -301,6 +304,7 @@ describe('UniversalDropdown', () => {
     expect(headers).toEqual(['المجموعة أ', 'المجموعة ب']);
 
     await wrapper.locator('.ud-search input').fill('ب1');
+    await page.waitForTimeout(200); // debounce
     const items = await wrapper.locator('.ud-item').allTextContents();
     expect(items).toEqual(['عنصر ب1']);
     const visibleHeaders = await wrapper.locator('.ud-group-header').allTextContents();

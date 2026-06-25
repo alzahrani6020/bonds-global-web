@@ -58,7 +58,7 @@
   border: 0 !important;
 }
 
-/* ---------- Trigger ---------- */
+/* ---------- Trigger (Select2 / Ant Design style) ---------- */
 .ud-trigger {
   display: flex;
   align-items: center;
@@ -66,31 +66,34 @@
   gap: 0.6rem;
   width: 100%;
   min-height: 2.75rem;
-  padding: 0.6rem 0.9rem;
+  padding: 0.55rem 0.85rem;
   background: var(--ud-bg);
   color: var(--ud-text);
-  border: 1px solid var(--ud-border);
+  border: 1px solid var(--ud-border-subtle);
   border-radius: var(--ud-radius);
   font-size: 0.95rem;
   font-weight: 500;
-  cursor: pointer;
+  cursor: text;
   user-select: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .ud-trigger:hover {
-  background: #1a2436;
-  border-color: #f0c96a;
+  border-color: var(--ud-border);
 }
 
 .ud-trigger:focus-visible,
-.ud-trigger.ud-focus {
+.ud-trigger.ud-focus,
+.ud-trigger[aria-expanded="true"] {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(212, 169, 74, 0.35);
+  border-color: var(--ud-border);
+  box-shadow: 0 0 0 3px rgba(212, 169, 74, 0.3);
 }
 
-.ud-trigger[aria-expanded="true"] {
-  border-color: #f0c96a;
+.ud-trigger.ud-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .ud-trigger.ud-disabled {
@@ -104,6 +107,7 @@
   white-space: nowrap;
   flex: 1 1 auto;
   text-align: start;
+  pointer-events: none;
 }
 
 .ud-trigger-value.ud-placeholder {
@@ -116,6 +120,7 @@
   height: 1rem;
   color: var(--ud-border);
   transition: transform 0.2s ease;
+  pointer-events: none;
 }
 
 .ud-trigger[aria-expanded="true"] .ud-arrow {
@@ -170,29 +175,40 @@
   position: fixed;
 }
 
-/* ---------- Search ---------- */
+/* ---------- Search (Select2 / Ant Design style) ---------- */
 .ud-search {
   position: sticky;
   top: 0;
   z-index: 2;
-  padding: 0.55rem;
+  padding: 0.6rem 0.7rem;
   background: var(--ud-bg);
   border-bottom: 1px solid var(--ud-border-subtle);
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .ud-search input {
   flex: 1 1 auto;
   min-width: 0;
-  padding: 0.55rem 0.75rem;
+  padding: 0.55rem 0.8rem;
   background: rgba(255, 255, 255, 0.05);
   color: var(--ud-text);
   border: 1px solid var(--ud-border-subtle);
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.ud-search input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--ud-border);
+  box-shadow: 0 0 0 2px rgba(212, 169, 74, 0.25);
+}
+
+.ud-search input::placeholder {
+  color: var(--ud-text-muted);
 }
 
 .ud-search-clear {
@@ -200,8 +216,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.8rem;
-  height: 1.8rem;
+  width: 1.85rem;
+  height: 1.85rem;
   padding: 0;
   background: transparent;
   color: var(--ud-text-muted);
@@ -214,15 +230,6 @@
 .ud-search-clear:hover {
   background: var(--ud-bg-hover);
   color: var(--ud-text);
-}
-
-.ud-search input:focus {
-  border-color: var(--ud-border);
-  box-shadow: 0 0 0 2px rgba(212, 169, 74, 0.25);
-}
-
-.ud-search input::placeholder {
-  color: var(--ud-text-muted);
 }
 
 /* ---------- Items ---------- */
@@ -279,10 +286,10 @@
 }
 
 .ud-empty {
-  padding: 1rem;
+  padding: 1.1rem;
   text-align: center;
   color: var(--ud-text-muted);
-  font-size: 0.9rem;
+  font-size: 0.92rem;
 }
 
 .ud-empty.ud-loading {

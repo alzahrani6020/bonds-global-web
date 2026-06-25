@@ -22,18 +22,21 @@
     const dataset = select.dataset;
     const direction = dataset.udDirection || (document.documentElement.getAttribute('dir') === 'ltr' ? 'ltr' : 'rtl');
     return {
-      search: parseBool(dataset.udSearch, select.options.length > 10),
+      search: parseBool(dataset.udSearch, true), // searchable by default
       searchPlaceholder: dataset.udSearchPlaceholder || (direction === 'ltr' ? 'Search...' : 'بحث...'),
       sort: parseBool(dataset.udSort, false),
       sortLocale: dataset.udSortLocale || (direction === 'ltr' ? 'en' : 'ar'),
       deduplicate: parseBool(dataset.udDeduplicate, false),
       removeEmpty: parseBool(dataset.udRemoveEmpty, false),
       emptyText: dataset.udEmptyText || (direction === 'ltr' ? 'No data available' : 'لا توجد بيانات متاحة'),
+      noResultsText: dataset.udNoResultsText || (direction === 'ltr' ? 'No matching results' : 'لا توجد نتائج مطابقة'),
       loadingText: dataset.udLoadingText || (direction === 'ltr' ? 'Loading...' : 'جاري التحميل...'),
       placeholder: dataset.udPlaceholder || null,
       direction: direction,
       fixed: parseBool(dataset.udFixed, false),
       maxHeight: dataset.udMaxHeight || null,
+      maxResults: parseInt(dataset.udMaxResults || '10', 10),
+      debounce: parseInt(dataset.udDebounce || '150', 10),
       theme: dataset.udTheme || null,
       className: dataset.udClass || '',
       virtualize: parseBool(dataset.udVirtualize, false),
