@@ -120,22 +120,169 @@
       { label: labels.projectRescue, href: projectRescueHref },
     ];
 
+    // Helper builders for bilingual investment-center / factory-cost links.
+    const ic = (slug, ar, en) => ({ slug, label: isEn ? en : ar });
+    const fc = (code, ar, en) => ({ code, label: isEn ? en : ar });
+
+    const medicalInvestmentItems = [
+      ic('medical', 'المنشآت الطبية', 'Medical'),
+      ic('hospital', 'مستشفى', 'Hospital'),
+      ic('dental-clinic', 'عيادة أسنان', 'Dental Clinic'),
+      ic('medical-complex', 'مجمع طبي', 'Medical Complex'),
+      ic('medical-lab', 'مختبر طبي', 'Medical Lab'),
+      ic('pharmacy', 'صيدلية', 'Pharmacy'),
+      ic('physiotherapy-center', 'مركز علاج طبيعي', 'Physiotherapy Center'),
+      ic('optical-center', 'مركز بصريات', 'Optical Center'),
+      ic('radiology-center', 'مركز أشعة', 'Radiology Center'),
+    ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
+
+    const realEstateItems = [
+      ic('real-estate', 'عقارات', 'Real Estate'),
+      ic('land-development', 'تطوير أراضٍ', 'Land Development'),
+      ic('villa-construction', 'بناء فيلل', 'Villa Construction'),
+      ic('residential-building', 'مبنى سكني', 'Residential Building'),
+      ic('commercial-complex', 'مجمع تجاري', 'Commercial Complex'),
+      ic('commercial-mall', 'مول تجاري', 'Commercial Mall'),
+      ic('hotel-apartments', 'شقق فندقية', 'Hotel Apartments'),
+      ic('warehouses', 'مستودعات', 'Warehouses'),
+      ic('property-rehabilitation', 'تأهيل عقارات', 'Property Rehabilitation'),
+      ic('buy-to-rent', 'شراء للإيجار', 'Buy-to-Rent'),
+      ic('quick-real-estate', 'تقييم عقاري سريع', 'Quick Real Estate'),
+    ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
+
+    const industryConstructionItems = [
+      ic('industrial', 'صناعي', 'Industrial'),
+      ic('food-factory', 'مصنع غذائي', 'Food Factory'),
+      ic('water-factory', 'مصنع مياه', 'Water Factory'),
+      ic('plastic-factory', 'مصنع بلاستيك', 'Plastic Factory'),
+      ic('building-materials-factory', 'مصنع مواد بناء', 'Building Materials Factory'),
+      ic('furniture-factory', 'مصنع أثاث', 'Furniture Factory'),
+      ic('textiles-factory', 'مصنع نسيج', 'Textiles Factory'),
+      ic('chemicals-factory', 'مصنع كيماويات', 'Chemicals Factory'),
+      ic('packaging-factory', 'مصنع تعبئة', 'Packaging Factory'),
+      ic('construction', 'مقاولات', 'Construction'),
+      ic('construction-profitability', 'ربحية المقاولات', 'Construction Profitability'),
+      ic('tender-pricing', 'تسعير المناقصات', 'Tender Pricing'),
+      ic('contractor-cashflow', 'التدفق النقدي للمقاول', 'Contractor Cashflow'),
+      ic('concrete-structure-cost', 'تكلفة الهيكل الخرساني', 'Concrete Structure Cost'),
+      ic('finishing-cost', 'تكلفة التشطيبات', 'Finishing Cost'),
+      ic('distressed-project-evaluation', 'تقييم المشروع المتعثر', 'Distressed Project Evaluation'),
+    ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
+
+    const restaurantsHospitalityItems = [
+      ic('restaurant', 'مطعم', 'Restaurant'),
+      ic('coffee-shop', 'مقهى', 'Coffee Shop'),
+      ic('cloud-kitchen', 'مطبخ سحابي', 'Cloud Kitchen'),
+      ic('food-truck', 'عربة طعام', 'Food Truck'),
+      ic('fast-food-restaurant', 'مطعم وجبات سريعة', 'Fast Food Restaurant'),
+      ic('fine-dining-restaurant', 'مطعم فاخر', 'Fine Dining Restaurant'),
+      ic('hotel', 'فندق', 'Hotel'),
+      ic('tourist-resort', 'منتجع سياحي', 'Tourist Resort'),
+      ic('tourist-camp', 'مخيم سياحي', 'Tourist Camp'),
+      ic('tourism-company', 'شركة سياحة', 'Tourism Company'),
+    ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
+
+    const educationTechnologyItems = [
+      ic('education', 'تعليم', 'Education'),
+      ic('private-school', 'مدرسة خاصة', 'Private School'),
+      ic('nursery', 'حضانة', 'Nursery'),
+      ic('private-university', 'جامعة خاصة', 'Private University'),
+      ic('training-center', 'مركز تدريب', 'Training Center'),
+      ic('e-learning-platform', 'منصة تعليم إلكتروني', 'E-learning Platform'),
+      ic('technology', 'تقنية', 'Technology'),
+    ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
+
+    const logisticsCommerceItems = [
+      ic('logistics', 'لوجستيات', 'Logistics'),
+      ic('shipping-company', 'شركة شحن', 'Shipping Company'),
+      ic('transport-fleet', 'أسطول نقل', 'Transport Fleet'),
+      ic('distribution-center', 'مركز توزيع', 'Distribution Center'),
+      ic('last-mile-delivery', 'التوصيل الأخير', 'Last Mile Delivery'),
+      ic('commercial', 'تجاري', 'Commercial'),
+      ic('retail', 'تجزئة', 'Retail'),
+      ic('agriculture', 'زراعة', 'Agriculture'),
+    ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
+
+    const factoryCostCountries = [
+      fc('', 'السعودية', 'Saudi Arabia'),
+      fc('eg', 'مصر', 'Egypt'),
+      fc('ae', 'الإمارات', 'UAE'),
+      fc('jo', 'الأردن', 'Jordan'),
+      fc('om', 'عمان', 'Oman'),
+      fc('bh', 'البحرين', 'Bahrain'),
+      fc('kw', 'الكويت', 'Kuwait'),
+      fc('qa', 'قطر', 'Qatar'),
+      fc('ma', 'المغرب', 'Morocco'),
+      fc('tn', 'تونس', 'Tunisia'),
+      fc('iq', 'العراق', 'Iraq'),
+      fc('sd', 'السودان', 'Sudan'),
+      fc('ly', 'ليبيا', 'Libya'),
+      fc('dz', 'الجزائر', 'Algeria'),
+      fc('lb', 'لبنان', 'Lebanon'),
+      fc('ye', 'اليمن', 'Yemen'),
+      fc('sy', 'سوريا', 'Syria'),
+      fc('dj', 'جيبوتي', 'Djibouti'),
+      fc('km', 'جزر القمر', 'Comoros'),
+      fc('mr', 'موريتانيا', 'Mauritania'),
+      fc('ps', 'فلسطين', 'Palestine'),
+      fc('so', 'الصومال', 'Somalia'),
+    ].map(i => ({ label: i.label, href: calcBase + 'factory-cost' + (i.code ? '-' + i.code : '') + '.html' }));
+
     const calcDropdown = [
-      { label: labels.projectWizard, href: langBase + 'calculator-wizard.html' },
-      { label: labels.investmentCenter, href: calcBase + 'investment-center/index.html' },
-      { label: labels.breakEven, href: calcBreakEven },
-      { label: labels.cashFlowCalc, href: calcBase + 'cash-flow.html' },
-      { label: labels.pricingCalc, href: calcBase + 'pricing.html' },
-      { label: labels.loanCalc, href: calcBase + 'loan.html' },
-      { label: labels.restaurantCalc, href: calcBase + 'restaurant.html' },
-      { label: labels.menuEngCalc, href: calcBase + 'menu-engineering.html' },
-      { label: labels.feasibilityCalc, href: calcBase + 'feasibility.html' },
-      { label: labels.medicalCalc, href: calcBase + 'medical-viability.html' },
-      { label: labels.invoiceCalc, href: calcBase + 'invoice-analyzer.html' },
-      { label: labels.templateCalc, href: calcBase + 'feasibility-template.html' },
-      { label: labels.creditworthinessCalc, href: calcBase + 'creditworthiness.html' },
-      { label: labels.factorySa, href: calcBase + 'factory-cost.html' },
-      { label: labels.factoryEg, href: calcBase + 'factory-cost-eg.html' },
+      {
+        heading: { ar: 'الأدوات الرئيسية', en: 'Main Tools' },
+        items: [
+          { label: labels.projectWizard, href: langBase + 'calculator-wizard.html' },
+          { label: labels.investmentCenter, href: calcBase + 'investment-center/index.html' },
+          { label: labels.breakEven, href: calcBreakEven },
+        ],
+      },
+      {
+        heading: { ar: 'الصحة المالية', en: 'Financial Health' },
+        items: [
+          { label: labels.cashFlowCalc, href: calcBase + 'cash-flow.html' },
+          { label: labels.loanCalc, href: calcBase + 'loan.html' },
+          { label: labels.creditworthinessCalc, href: calcBase + 'creditworthiness.html' },
+          { label: labels.invoiceCalc, href: calcBase + 'invoice-analyzer.html' },
+        ],
+      },
+      {
+        heading: { ar: 'التشغيل والتسعير', en: 'Operations & Pricing' },
+        items: [
+          { label: labels.pricingCalc, href: calcBase + 'pricing.html' },
+          { label: labels.menuEngCalc, href: calcBase + 'menu-engineering.html' },
+          { label: labels.feasibilityCalc, href: calcBase + 'feasibility.html' },
+          { label: labels.templateCalc, href: calcBase + 'feasibility-template.html' },
+        ],
+      },
+      {
+        heading: { ar: 'الاستثمار الطبي', en: 'Medical Investment' },
+        items: medicalInvestmentItems,
+      },
+      {
+        heading: { ar: 'الاستثمار العقاري', en: 'Real Estate Investment' },
+        items: realEstateItems,
+      },
+      {
+        heading: { ar: 'الصناعة والمقاولات', en: 'Industry & Construction' },
+        items: industryConstructionItems,
+      },
+      {
+        heading: { ar: 'المطاعم والضيافة', en: 'Restaurants & Hospitality' },
+        items: restaurantsHospitalityItems,
+      },
+      {
+        heading: { ar: 'التعليم والتقنية', en: 'Education & Technology' },
+        items: educationTechnologyItems,
+      },
+      {
+        heading: { ar: 'اللوجستيات والتجارة', en: 'Logistics & Commerce' },
+        items: logisticsCommerceItems,
+      },
+      {
+        heading: { ar: 'تكلفة المصنع حسب الدولة', en: 'Factory Cost by Country' },
+        items: factoryCostCountries,
+      },
     ];
 
     const intelligenceDropdown = [
@@ -170,11 +317,23 @@
     const caretSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>';
 
     function buildDropdown(items, extraAll, isLarge) {
-      let html = items.map(i => `<a href="${i.href}">${i.label}</a>`).join('');
-      if (extraAll) {
-        html += `<div style="border-top:1px solid var(--border); margin:0.4rem 0;"></div><a href="${extraAll.href}">${extraAll.label}</a>`;
+      const isGrouped = Array.isArray(items) && items.length > 0 && Array.isArray(items[0].items);
+      let html = '';
+      if (isGrouped) {
+        html = items.map(g => {
+          const heading = isEn ? g.heading.en : g.heading.ar;
+          const links = g.items.map(i => `<a href="${i.href}">${i.label}</a>`).join('');
+          return `<div class="dropdown-group"><div class="dropdown-group__heading">${heading}</div>${links}</div>`;
+        }).join('');
+      } else {
+        html = items.map(i => `<a href="${i.href}">${i.label}</a>`).join('');
       }
-      const cls = isLarge ? 'dropdown-menu dropdown-menu--large' : 'dropdown-menu';
+      if (extraAll) {
+        html += `<div class="dropdown-menu__divider"></div><a href="${extraAll.href}">${extraAll.label}</a>`;
+      }
+      const cls = isGrouped
+        ? 'dropdown-menu dropdown-menu--grouped'
+        : (isLarge ? 'dropdown-menu dropdown-menu--large' : 'dropdown-menu');
       return `<div class="${cls}">${html}</div>`;
     }
 
@@ -337,7 +496,7 @@
   }
 
   function ensureLayoutCSS(base) {
-    const href = base + 'header-footer.css?v=2';
+    const href = base + 'header-footer.css?v=3';
     if (document.querySelector('link[href*="header-footer.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
