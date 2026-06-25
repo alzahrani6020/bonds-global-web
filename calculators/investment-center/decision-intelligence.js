@@ -1355,7 +1355,7 @@
     const data = [];
     let cumulative = -toNumber(metrics.totalInvestment);
     for (let i = 1; i <= months; i++) {
-      labels.push(i % 3 === 0 || i === 1 || i === months ? (isEn ? 'M' + i : i + 'ش') : '');
+      labels.push(i % 3 === 0 || i === 1 || i === months ? (lang === 'en' ? 'M' + i : i + 'ش') : '');
       cumulative += cashFlow.monthlyNetCashFlow;
       data.push(cumulative);
     }

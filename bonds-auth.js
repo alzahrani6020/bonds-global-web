@@ -13,6 +13,10 @@
   function getSupabase() {
     if (_supabase) return _supabase;
     if (typeof supabase === 'undefined') return null;
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+      // Missing env config (e.g. local dev without .env); gracefully degrade auth features
+      return null;
+    }
     _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
       auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
     });

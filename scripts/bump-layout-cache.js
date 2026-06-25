@@ -22,7 +22,11 @@ const files = walk(ROOT);
 let changed = 0;
 let siteLayoutRefs = 0;
 let headerFooterRefs = 0;
-let investmentCenterRefs = 0;
+let investmentCenterCssRefs = 0;
+let decisionIntelligenceRefs = 0;
+let investmentEngineRefs = 0;
+let investmentValidatorRefs = 0;
+let scriptRefs = 0;
 
 for (const file of files) {
   let content = fs.readFileSync(file, 'utf8');
@@ -47,8 +51,42 @@ for (const file of files) {
   content = content.replace(
     /investment-center\.css(?!\?v=2)(\?v=[^"']*)?/g,
     () => {
-      investmentCenterRefs++;
+      investmentCenterCssRefs++;
       return 'investment-center.css?v=2';
+    }
+  );
+
+  content = content.replace(
+    /decision-intelligence\.js(?!\?v=2)(\?v=[^"']*)?/g,
+    () => {
+      decisionIntelligenceRefs++;
+      return 'decision-intelligence.js?v=2';
+    }
+  );
+
+  content = content.replace(
+    /investment-engine\.js(?!\?v=2)(\?v=[^"']*)?/g,
+    () => {
+      investmentEngineRefs++;
+      return 'investment-engine.js?v=2';
+    }
+  );
+
+  content = content.replace(
+    /investment-validator\.js(?!\?v=2)(\?v=[^"']*)?/g,
+    () => {
+      investmentValidatorRefs++;
+      return 'investment-validator.js?v=2';
+    }
+  );
+
+  // Bump script.js (but not _vercel/insights/script.js or other unrelated scripts)
+  content = content.replace(
+    /src="([^"]*\/)?script\.js(?!\?v=2)(\?v=[^"']*)?"/g,
+    (match, dir) => {
+      if (match.includes('_vercel') || match.includes('insights')) return match;
+      scriptRefs++;
+      return `src="${dir || ''}script.js?v=2"`;
     }
   );
 
@@ -61,5 +99,9 @@ for (const file of files) {
 console.log(`Files changed: ${changed}`);
 console.log(`site-layout.js refs bumped: ${siteLayoutRefs}`);
 console.log(`header-footer.css refs bumped: ${headerFooterRefs}`);
-console.log(`investment-center.css refs bumped: ${investmentCenterRefs}`);
+console.log(`investment-center.css refs bumped: ${investmentCenterCssRefs}`);
+console.log(`decision-intelligence.js refs bumped: ${decisionIntelligenceRefs}`);
+console.log(`investment-engine.js refs bumped: ${investmentEngineRefs}`);
+console.log(`investment-validator.js refs bumped: ${investmentValidatorRefs}`);
+console.log(`script.js refs bumped: ${scriptRefs}`);
 console.log(`Total HTML files scanned: ${files.length}`);

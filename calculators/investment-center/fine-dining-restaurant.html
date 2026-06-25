@@ -694,9 +694,9 @@
 
   <script src="../../site-layout.js?v=7"></script>
   <script src="../../page-tracker-v2.js"></script>
-  <script src="./investment-engine.js"></script>
-  <script src="./investment-validator.js"></script>
-  <script src="./decision-intelligence.js"></script>
+  <script src="./investment-engine.js?v=2"></script>
+  <script src="./investment-validator.js?v=2"></script>
+  <script src="./decision-intelligence.js?v=2"></script>
   <script src="../../calculators/shared-export.js"></script>
   <script>
     const sectorId = 'fine-dining-restaurant';
@@ -1388,11 +1388,9 @@
       container.classList.remove('hidden');
       const title = isAr ? 'تحذيرات التحقق من البيانات' : 'Data Validation Warnings';
       const fixMsg = isAr ? 'يرجى تصحيح التحذيرات أعلاه قبل إصدار التقرير.' : 'Please fix the warnings above before generating the report.';
-      container.innerHTML = '
-        <div class="validation-warnings__title">⚠️ ' + title + '</div>
-        <ul>' + validation.warnings.map(w => '<li>' + w + '</li>').join('') + '</ul>
-        <div class="validation-warnings__footer">' + fixMsg + '</div>
-      ';
+      container.innerHTML = '<div class="validation-warnings__title">⚠️ ' + title + '</div>' +
+        '<ul>' + validation.warnings.map(w => '<li>' + w + '</li>').join('') + '</ul>' +
+        '<div class="validation-warnings__footer">' + fixMsg + '</div>';
     }
 
     function calculate() {
@@ -1452,6 +1450,7 @@
       const panel = document.getElementById('decisionIntelligencePanel');
       if (!panel) return;
       panel.classList.remove('hidden');
+      const t = isAr ? window.DecisionIntelligence.i18n.ar : window.DecisionIntelligence.i18n.en;
 
       const conf = di.confidenceScore;
       window.DecisionIntelligence.renderCircularGauge('diConfidenceGauge', conf.score, isAr ? 'درجة الثقة' : 'Confidence Score');
@@ -1473,7 +1472,6 @@
 
       const finSummary = document.getElementById('diFinancingSummary');
       if (finSummary) {
-        const t = isAr ? window.DecisionIntelligence.i18n.ar : window.DecisionIntelligence.i18n.en;
         finSummary.innerHTML = `
           <div class="di-metric"><span class="di-metric__label">${t.debtEquityRatio}</span><span class="di-metric__value">${di.financingAnalysis.debtEquityRatio.toFixed(2)}</span></div>
           <div class="di-metric"><span class="di-metric__label">${t.collateralCoverage}</span><span class="di-metric__value">${di.financingAnalysis.collateralCoverage.toFixed(2)}</span></div>

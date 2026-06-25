@@ -1568,8 +1568,8 @@ function generatePage(sector, lang) {
   <link rel="canonical" href="https://bonds-global.com/${isAr ? '' : 'en/'}calculators/investment-center/${sector.id}.html" />
   <link href="https://fonts.googleapis.com/css2?family=${isAr ? 'Vazirmatn' : 'Inter'}:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="${isAr ? '../../' : '../../../'}styles.css" />
-  <link rel="stylesheet" href="${isAr ? '../../' : '../../../'}header-footer.css?v=2" />
-  <link rel="stylesheet" href="${isAr ? './investment-center.css' : '../../../calculators/investment-center/investment-center.css'}" />
+  <link rel="stylesheet" href="${isAr ? '../../' : '../../../'}header-footer.css?v=7" />
+  <link rel="stylesheet" href="${isAr ? './investment-center.css?v=2' : '../../../calculators/investment-center/investment-center.css?v=2'}" />
   <link rel="icon" type="image/svg+xml" href="${isAr ? '../../' : '../../../'}assets/bonds-mark.svg" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
@@ -1743,11 +1743,11 @@ function generatePage(sector, lang) {
 
   <div id="site-footer"></div>
 
-  <script src="${isAr ? '../../' : '../../../'}site-layout.js"></script>
+  <script src="${isAr ? '../../' : '../../../'}site-layout.js?v=7"></script>
   <script src="${isAr ? '../../' : '../../../'}page-tracker-v2.js"></script>
-  <script src="${isAr ? './investment-engine.js' : '../../../calculators/investment-center/investment-engine.js'}"></script>
-  <script src="${isAr ? './investment-validator.js' : '../../../calculators/investment-center/investment-validator.js'}"></script>
-  <script src="${isAr ? './decision-intelligence.js' : '../../../calculators/investment-center/decision-intelligence.js'}"></script>
+  <script src="${isAr ? './investment-engine.js?v=2' : '../../../calculators/investment-center/investment-engine.js?v=2'}"></script>
+  <script src="${isAr ? './investment-validator.js?v=2' : '../../../calculators/investment-center/investment-validator.js?v=2'}"></script>
+  <script src="${isAr ? './decision-intelligence.js?v=2' : '../../../calculators/investment-center/decision-intelligence.js?v=2'}"></script>
   <script src="${isAr ? '../../calculators/' : '../../../calculators/'}shared-export.js"></script>
   <script>
     const sectorId = '${sector.id}';
@@ -2439,7 +2439,9 @@ function generatePage(sector, lang) {
       container.classList.remove('hidden');
       const title = isAr ? 'تحذيرات التحقق من البيانات' : 'Data Validation Warnings';
       const fixMsg = isAr ? 'يرجى تصحيح التحذيرات أعلاه قبل إصدار التقرير.' : 'Please fix the warnings above before generating the report.';
-      container.innerHTML = '\n        <div class="validation-warnings__title">⚠️ ' + title + '</div>\n        <ul>' + validation.warnings.map(w => '<li>' + w + '</li>').join('') + '</ul>\n        <div class="validation-warnings__footer">' + fixMsg + '</div>\n      ';
+      container.innerHTML = '<div class="validation-warnings__title">⚠️ ' + title + '</div>' +
+        '<ul>' + validation.warnings.map(w => '<li>' + w + '</li>').join('') + '</ul>' +
+        '<div class="validation-warnings__footer">' + fixMsg + '</div>';
     }
 
     function calculate() {
@@ -2499,6 +2501,7 @@ function generatePage(sector, lang) {
       const panel = document.getElementById('decisionIntelligencePanel');
       if (!panel) return;
       panel.classList.remove('hidden');
+      const t = isAr ? window.DecisionIntelligence.i18n.ar : window.DecisionIntelligence.i18n.en;
 
       const conf = di.confidenceScore;
       window.DecisionIntelligence.renderCircularGauge('diConfidenceGauge', conf.score, isAr ? 'درجة الثقة' : 'Confidence Score');
@@ -2520,7 +2523,6 @@ function generatePage(sector, lang) {
 
       const finSummary = document.getElementById('diFinancingSummary');
       if (finSummary) {
-        const t = isAr ? window.DecisionIntelligence.i18n.ar : window.DecisionIntelligence.i18n.en;
         finSummary.innerHTML = \`
           <div class="di-metric"><span class="di-metric__label">\${t.debtEquityRatio}</span><span class="di-metric__value">\${di.financingAnalysis.debtEquityRatio.toFixed(2)}</span></div>
           <div class="di-metric"><span class="di-metric__label">\${t.collateralCoverage}</span><span class="di-metric__value">\${di.financingAnalysis.collateralCoverage.toFixed(2)}</span></div>
