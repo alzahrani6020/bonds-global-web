@@ -15,6 +15,7 @@
     "audit": "node scripts/site-audit.js",
     "audit:og": "node scripts/og-audit.js",
     "audit:i18n": "node scripts/i18n-audit.js",
+    "audit:api": "node scripts/api-auth-audit.js",
     "install-hooks": "node scripts/install-hooks.js",
     "setup:supabase": "node scripts/setup-supabase.js",
     "setup:stripe": "node scripts/setup-stripe.js",

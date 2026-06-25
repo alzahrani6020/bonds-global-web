@@ -304,7 +304,7 @@
         const client = supabase.createClient(window.__ENV?.SUPABASE_URL || '', window.__ENV?.SUPABASE_ANON_KEY || '');
         const { data: { session } } = await client.auth.getSession();
         if (!session) return;
-        const res = await fetch('/api/admin-verify', {
+        const res = await fetch('/api/admin?action=verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token }
         });

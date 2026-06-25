@@ -36,6 +36,10 @@ jobs:
 
       - name: Run i18n Audit
         run: npm run audit:i18n
+
+      - name: Run API Auth & Routing Audit
+        run: npm run audit:api
+
       - name: Start Local Dev Server
         run: npm run dev:local &
 

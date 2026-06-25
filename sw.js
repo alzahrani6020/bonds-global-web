@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v2.6.1';
+const CACHE_VERSION = 'v2.6.7';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -27,6 +27,13 @@ const CORE_ASSETS = [
   '/assets/bonds-logo-2026-header.webp',
   '/assets/bonds-logo-2026.webp',
   '/manifest.json',
+  '/calculator-wizard.html',
+  '/en/calculator-wizard.html',
+  '/styles/calculator-wizard.css',
+  '/calculator-wizard.js',
+  '/calculators/investment-center/investment-center.css',
+  '/calculators/investment-center/investment-validator.js',
+  '/calculators/investment-center/decision-intelligence.js',
   '/calculators/creditworthiness.html',
   '/en/calculators/creditworthiness.html',
   '/calculators/creditworthiness-engine.js',

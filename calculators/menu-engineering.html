@@ -296,8 +296,11 @@ async function clearAllData() {
   if (!confirm('هل أنت متأكد من مسح كل بياناتك؟')) return;
     BondsUI.toast('⏳ جاري المسح...', 'info');
   try {
+    const { data: s } = await window.BondsAuth.getSession();
+    const token = s?.session?.access_token || '';
     const res = await fetch('/api/clear-user-data', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ user_id: currentUser.id })
     });
     const json = await res.json();

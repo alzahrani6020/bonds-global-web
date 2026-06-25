@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>حاسبة مول تجاري | بوندز</title>
+  <meta name="description" content="حاسبة استثمارية لتحليل جدوى المشاريع في قطاع حاسبة مول تجاري" />
+  <meta property="og:title" content="حاسبة مول تجاري | بوندز" />
+  <meta property="og:description" content="احسب ROI، IRR، NPV، فترة الاسترداد، نقطة التعادل، ودرجة المخاطرة." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/investment-center/commercial-mall.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="حاسبة مول تجاري | بوندز" />
+  <meta name="twitter:description" content="احسب ROI، IRR، NPV، فترة الاسترداد، نقطة التعادل، ودرجة المخاطرة." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <link rel="canonical" href="https://bonds-global.com/calculators/investment-center/commercial-mall.html" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../header-footer.css?v=2" />
+  <link rel="stylesheet" href="./investment-center.css" />
+  <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg" />
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main class="investment-calculator">
+    <div class="investment-calculator__header">
+      <div style="font-size:3rem;margin-bottom:var(--space-3);">🛍️</div>
+      <h1>حاسبة مول تجاري</h1>
+      <p>حلل جدوى إنشاء مول تجاري كبير.</p>
+    </div>
+
+    <div class="mode-toggle" role="group" aria-label="تبديل الوضع">
+      <button type="button" class="mode-toggle__btn active" data-mode="basic" onclick="setMode('basic')">أساسي</button>
+      <button type="button" class="mode-toggle__btn" data-mode="expert" onclick="setMode('expert')">احترافي</button>
+    </div>
+
+    <div id="basicMode" class="mode-panel" data-active="true">
+      <div class="investment-form">
+        <div class="investment-panel">
+          <h2>بيانات المشروع</h2>
+          
+          <div class="investment-input-group">
+            <label for="rentableArea">المساحة القابلة للإيجار (م²)</label>
+            <input type="number" id="rentableArea" value="10000" />
+          </div>
+          <div class="investment-input-group">
+            <label for="landCost">تكلفة الأرض (ر.س)</label>
+            <input type="number" id="landCost" value="15000000" />
+          </div>
+          <div class="investment-input-group">
+            <label for="constructionCostPerM2">تكلفة البناء للمتر المربع (ر.س)</label>
+            <input type="number" id="constructionCostPerM2" value="3500" />
+          </div>
+          <div class="investment-input-group">
+            <label for="annualRentPerM2">الإيجار السنوي للمتر المربع (ر.س)</label>
+            <input type="number" id="annualRentPerM2" value="650" />
+          </div>
+          <div class="investment-input-group">
+            <label for="projectMonths">مدة المشروع (شهر)</label>
+            <input type="number" id="projectMonths" value="30" />
+          </div>
+          <div class="investment-input-group">
+            <label for="monthlyExpenses">المصاريف الشهرية (ر.س)</label>
+            <input type="number" id="monthlyExpenses" value="150000" />
+          </div>
+        </div>
+
+        <div class="investment-panel">
+          <h2>المعطيات المالية</h2>
+          <div class="investment-input-group">
+            <label for="analysisDuration">مدة التحليل (شهر)</label>
+            <input type="number" id="analysisDuration" value="60" />
+          </div>
+          <div class="investment-input-group">
+            <label for="discountRate">معدل الخصم السنوي (%)</label>
+            <input type="number" id="discountRate" value="10" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="expertMode" class="mode-panel mode-panel--expert">
+      <nav class="stage-nav" aria-label="مراحل الإدخال">
+        
+          <button type="button" class="stage-nav__item active" data-stage="1" onclick="goToStage(1)">
+            <span class="stage-nav__number">1</span>
+            <span class="stage-nav__label">المشروع</span>
+          </button>
+          <button type="button" class="stage-nav__item " data-stage="2" onclick="goToStage(2)">
+            <span class="stage-nav__number">2</span>
+            <span class="stage-nav__label">السوق</span>
+          </button>
+          <button type="button" class="stage-nav__item " data-stage="3" onclick="goToStage(3)">
+            <span class="stage-nav__number">3</span>
+            <span class="stage-nav__label">التشغيل</span>
+          </button>
+          <button type="button" class="stage-nav__item " data-stage="4" onclick="goToStage(4)">
+            <span class="stage-nav__number">4</span>
+            <span class="stage-nav__label">الاستثمار</span>
+          </button>
+          <button type="button" class="stage-nav__item " data-stage="5" onclick="goToStage(5)">
+            <span class="stage-nav__number">5</span>
+            <span class="stage-nav__label">التمويل</span>
+          </button>
+          <button type="button" class="stage-nav__item " data-stage="6" onclick="goToStage(6)">
+            <span class="stage-nav__number">6</span>
+            <span class="stage-nav__label">المخاطر</span>
+          </button>
+          <button type="button" class="stage-nav__item " data-stage="7" onclick="goToStage(7)">
+            <span class="stage-nav__number">7</span>
+            <span class="stage-nav__label">المراجعة</span>
+          </button>
+      </nav>
+      
+        <div class="expert-stage" data-stage="1" data-active="true">
+          <div class="investment-panel">
+            <h2><span class="stage-number">1</span>المشروع</h2>
+            <p class="subtitle">معلومات المشروع الأساسية والمخصصة.</p>
+            <div class="investment-form">
+              
+              <div class="expert-basic-fields">
+                <h3>البيانات الأساسية للقطاع</h3>
+                
+          <div class="investment-input-group">
+            <label for="expert_basic_rentableArea">المساحة القابلة للإيجار (م²)</label>
+            <input type="number" id="expert_basic_rentableArea" value="10000" />
+          </div>
+          <div class="investment-input-group">
+            <label for="expert_basic_landCost">تكلفة الأرض (ر.س)</label>
+            <input type="number" id="expert_basic_landCost" value="15000000" />
+          </div>
+          <div class="investment-input-group">
+            <label for="expert_basic_constructionCostPerM2">تكلفة البناء للمتر المربع (ر.س)</label>
+            <input type="number" id="expert_basic_constructionCostPerM2" value="3500" />
+          </div>
+          <div class="investment-input-group">
+            <label for="expert_basic_annualRentPerM2">الإيجار السنوي للمتر المربع (ر.س)</label>
+            <input type="number" id="expert_basic_annualRentPerM2" value="650" />
+          </div>
+          <div class="investment-input-group">
+            <label for="expert_basic_projectMonths">مدة المشروع (شهر)</label>
+            <input type="number" id="expert_basic_projectMonths" value="30" />
+          </div>
+          <div class="investment-input-group">
+            <label for="expert_basic_monthlyExpenses">المصاريف الشهرية (ر.س)</label>
+            <input type="number" id="expert_basic_monthlyExpenses" value="150000" />
+          </div>
+              </div>
+              
+              <div class="expert-basic-fields">
+                <h3>المعطيات المالية</h3>
+                <div class="investment-input-group">
+                  <label for="expert_basic_analysisDuration">مدة التحليل (شهر)</label>
+                  <input type="number" id="expert_basic_analysisDuration" value="60" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_discountRate">معدل الخصم السنوي (%)</label>
+                  <input type="number" id="expert_basic_discountRate" value="10" />
+                </div>
+              </div>
+              <div class="expert-stage-fields">
+            <div class="investment-input-group">
+              <label for="expert_projectName">اسم المشروع</label>
+              <input type="text" id="expert_projectName" value="" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_projectOwner">اسم المالك / الجهة المنفذة</label>
+              <input type="text" id="expert_projectOwner" value="" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_projectLocation">موقع المشروع</label>
+              <input type="text" id="expert_projectLocation" value="" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_legalStructure">الشكل القانوني</label>
+              <select id="expert_legalStructure"><option value="LLC">شركة ذات مسؤولية محدودة</option><option value="Joint Stock">شركة مساهمة</option><option value="Sole Proprietorship">مؤسسة فردية</option><option value="Partnership">شركة تضامن</option><option value="Branch">فرع</option></select>
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_startMonth">شهر البدء المتوقع</label>
+              <input type="number" id="expert_startMonth" value="1" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_projectPhase">مرحلة المشروع</label>
+              <select id="expert_projectPhase"><option value="Idea">فكرة</option><option value="Feasibility">دراسة جدوى</option><option value="Establishment" selected>تأسيس</option><option value="Operation">تشغيل</option><option value="Expansion">توسع</option></select>
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_projectDurationYears">مدة المشروع (سنوات)</label>
+              <input type="number" id="expert_projectDurationYears" value="5" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_regulatoryApprovalsNeeded">عدد التراخيص المطلوبة</label>
+              <input type="number" id="expert_regulatoryApprovalsNeeded" value="3" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_projectManagerExperience">خبرة مدير المشروع (سنوات)</label>
+              <input type="number" id="expert_projectManagerExperience" value="5" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_environmentalImpact">التأثير البيئي (1 = منخفض، 5 = عالٍ)</label>
+              <input type="number" id="expert_environmentalImpact" value="2" />
+            </div></div>
+            </div>
+          </div>
+        </div>
+        <div class="expert-stage" data-stage="2" >
+          <div class="investment-panel">
+            <h2><span class="stage-number">2</span>السوق</h2>
+            <p class="subtitle">تحليل السوق والمنافسة والعملاء.</p>
+            <div class="investment-form">
+              
+              
+              <div class="expert-stage-fields">
+            <div class="investment-input-group">
+              <label for="expert_tam">إجمالي السوق المتاح (TAM) سنويًا (ر.س)</label>
+              <input type="number" id="expert_tam" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_sam">السوق الموجه (SAM) سنويًا (ر.س)</label>
+              <input type="number" id="expert_sam" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_som">السوق الم obtainable (SOM) سنويًا (ر.س)</label>
+              <input type="number" id="expert_som" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_competitorCount">عدد المنافسين المباشرين</label>
+              <input type="number" id="expert_competitorCount" value="5" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_avgCompetitorPrice">متوسط سعر المنافس (ر.س)</label>
+              <input type="number" id="expert_avgCompetitorPrice" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_marketEntryBarrier">حاجز دخول السوق (1 = منخفض، 5 = مرتفع)</label>
+              <input type="number" id="expert_marketEntryBarrier" value="3" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_customerAcquisitionCost">تكلفة اكتساب العميل (ر.س)</label>
+              <input type="number" id="expert_customerAcquisitionCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_customerLifetimeValue">قيمة العميل مدى الحياة (ر.س)</label>
+              <input type="number" id="expert_customerLifetimeValue" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_digitalAdBudget">الميزانية الشهرية للإعلانات الرقمية (ر.س)</label>
+              <input type="number" id="expert_digitalAdBudget" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_brandAwareness">مستوى الوعي بالعلامة التجارية (%)</label>
+              <input type="number" id="expert_brandAwareness" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_marketGrowthRate">معدل نمو السوق السنوي (%)</label>
+              <input type="number" id="expert_marketGrowthRate" value="5" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_seasonalFactor">معامل الموسمية (0.5 = منخفضة، 1.5 = مرتفعة)</label>
+              <input type="number" id="expert_seasonalFactor" value="1" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_churnRate">معدل تسرب العملاء الشهري (%)</label>
+              <input type="number" id="expert_churnRate" value="5" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_repeatPurchaseRate">معدل إعادة الشراء الشهري (%)</label>
+              <input type="number" id="expert_repeatPurchaseRate" value="20" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_onlineVsOfflineRatio">نسبة المبيعات الرقمية (%)</label>
+              <input type="number" id="expert_onlineVsOfflineRatio" value="30" />
+            </div></div>
+            </div>
+          </div>
+        </div>
+        <div class="expert-stage" data-stage="3" >
+          <div class="investment-panel">
+            <h2><span class="stage-number">3</span>التشغيل</h2>
+            <p class="subtitle">افتراضات التشغيل والتكاليف التشغيلية.</p>
+            <div class="investment-form">
+              
+              
+              <div class="expert-stage-fields">
+            <div class="investment-input-group">
+              <label for="expert_operatingDaysPerMonth">أيام التشغيل الشهرية</label>
+              <input type="number" id="expert_operatingDaysPerMonth" value="26" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_operatingHoursPerDay">ساعات التشغيل اليومية</label>
+              <input type="number" id="expert_operatingHoursPerDay" value="10" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_shiftCount">عدد الورديات</label>
+              <input type="number" id="expert_shiftCount" value="1" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_capacityUtilizationTarget">مستهدف استغلال الطاقة (%)</label>
+              <input type="number" id="expert_capacityUtilizationTarget" value="75" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_employeeProductivityIndex">مؤشر إنتاجية الموظف (1 = منخفض، 5 = مرتفع)</label>
+              <input type="number" id="expert_employeeProductivityIndex" value="3" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_maintenanceCostRate">نسبة الصيانة من الإيرادات (%)</label>
+              <input type="number" id="expert_maintenanceCostRate" value="3" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_insuranceCostAnnual">تكلفة التأمين السنوية (ر.س)</label>
+              <input type="number" id="expert_insuranceCostAnnual" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_licenseRenewalCost">تكلفة تجديد الترخيص السنوية (ر.س)</label>
+              <input type="number" id="expert_licenseRenewalCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_softwareSubscriptions">اشتراكات البرامج الشهرية (ر.س)</label>
+              <input type="number" id="expert_softwareSubscriptions" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_marketingBudget">الميزانية الشهرية للتسويق (ر.س)</label>
+              <input type="number" id="expert_marketingBudget" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_salesCommissionRate">نسبة عمولة المبيعات (%)</label>
+              <input type="number" id="expert_salesCommissionRate" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_energyCostMonthly">تكلفة الطاقة الشهرية (ر.س)</label>
+              <input type="number" id="expert_energyCostMonthly" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_waterCostMonthly">تكلفة المياه الشهرية (ر.س)</label>
+              <input type="number" id="expert_waterCostMonthly" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_wasteDisposalCost">تكلفة التخلص من النفايات الشهرية (ر.س)</label>
+              <input type="number" id="expert_wasteDisposalCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_securityCost">تكلفة الأمن الشهرية (ر.س)</label>
+              <input type="number" id="expert_securityCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_cleaningCost">تكلفة النظافة الشهرية (ر.س)</label>
+              <input type="number" id="expert_cleaningCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_outsourcingCost">تكلفة الاستعانة بمصادر خارجية شهرية (ر.س)</label>
+              <input type="number" id="expert_outsourcingCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_trainingCost">تكلفة التدريب الشهرية (ر.س)</label>
+              <input type="number" id="expert_trainingCost" value="0" />
+            </div></div>
+            </div>
+          </div>
+        </div>
+        <div class="expert-stage" data-stage="4" >
+          <div class="investment-panel">
+            <h2><span class="stage-number">4</span>الاستثمار</h2>
+            <p class="subtitle">تفاصيل الاستثمار والأصول.</p>
+            <div class="investment-form">
+              
+              
+              <div class="expert-stage-fields">
+            <div class="investment-input-group">
+              <label for="expert_landCost">تكلفة الأرض (ر.س)</label>
+              <input type="number" id="expert_landCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_buildingCost">تكلفة البناء (ر.س)</label>
+              <input type="number" id="expert_buildingCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_renovationCost">تكلفة التجديد والتجهيز (ر.س)</label>
+              <input type="number" id="expert_renovationCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_machineryCost">تكلفة الآلات والمعدات (ر.س)</label>
+              <input type="number" id="expert_machineryCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_furnitureCost">تكلفة الأثاث والتجهيزات المكتبية (ر.س)</label>
+              <input type="number" id="expert_furnitureCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_vehiclesCost">تكلفة المركبات (ر.س)</label>
+              <input type="number" id="expert_vehiclesCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_workingCapital">رأس المال العامل (ر.س)</label>
+              <input type="number" id="expert_workingCapital" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_contingencyReserve">احتياطي الطوارئ (ر.س)</label>
+              <input type="number" id="expert_contingencyReserve" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_salvageValue">القيمة المتبقية للأصول (ر.س)</label>
+              <input type="number" id="expert_salvageValue" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_assetLifeYears">العمر الافتراضي للأصول (سنة)</label>
+              <input type="number" id="expert_assetLifeYears" value="10" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_preOpeningCost">تكلفة ما قبل الافتتاح (ر.س)</label>
+              <input type="number" id="expert_preOpeningCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_initialInventoryCost">تكلفة المخزون الافتتاحي (ر.س)</label>
+              <input type="number" id="expert_initialInventoryCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_permitsAndLicensesCost">تكلفة التراخيص والموافقات (ر.س)</label>
+              <input type="number" id="expert_permitsAndLicensesCost" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_feasibilityStudyCost">تكلفة دراسة الجدوى (ر.س)</label>
+              <input type="number" id="expert_feasibilityStudyCost" value="0" />
+            </div></div>
+            </div>
+          </div>
+        </div>
+        <div class="expert-stage" data-stage="5" >
+          <div class="investment-panel">
+            <h2><span class="stage-number">5</span>التمويل</h2>
+            <p class="subtitle">هيكل التمويل والعوائد المطلوبة.</p>
+            <div class="investment-form">
+              
+              
+              <div class="expert-stage-fields">
+            <div class="investment-input-group">
+              <label for="expert_equityAmount">مبلغ رأس المال الملكي (ر.س)</label>
+              <input type="number" id="expert_equityAmount" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_loanAmount">مبلغ القرض (ر.س)</label>
+              <input type="number" id="expert_loanAmount" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_interestRate">معدل الفائدة السنوي (%)</label>
+              <input type="number" id="expert_interestRate" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_loanTermYears">مدة القرض (سنة)</label>
+              <input type="number" id="expert_loanTermYears" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_gracePeriodMonths">فترة السماح (شهر)</label>
+              <input type="number" id="expert_gracePeriodMonths" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_requiredRoi">العائد المطلوب سنويًا (%)</label>
+              <input type="number" id="expert_requiredRoi" value="15" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_minDscr">الحد الأدنى لمعدل تغطية خدمة الدين</label>
+              <input type="number" id="expert_minDscr" value="1.25" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_balloonPayment">دفعة بالونية نهائية (ر.س)</label>
+              <input type="number" id="expert_balloonPayment" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_earlyRepaymentPenalty">عقوبة السداد المبكر (%)</label>
+              <input type="number" id="expert_earlyRepaymentPenalty" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_collateralValue">قيمة الضمانات (ر.س)</label>
+              <input type="number" id="expert_collateralValue" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_debtServiceStartMonth">شهر بدء سداد القرض</label>
+              <input type="number" id="expert_debtServiceStartMonth" value="1" />
+            </div></div>
+            </div>
+          </div>
+        </div>
+        <div class="expert-stage" data-stage="6" >
+          <div class="investment-panel">
+            <h2><span class="stage-number">6</span>المخاطر</h2>
+            <p class="subtitle">تقييم المخاطر والتخفيف منها.</p>
+            <div class="investment-form">
+              
+              
+              <div class="expert-stage-fields">
+            <div class="investment-input-group">
+              <label for="expert_marketRiskScore">مخاطر السوق (1 = منخفضة، 5 = مرتفعة)</label>
+              <input type="number" id="expert_marketRiskScore" value="3" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_operationalRiskScore">المخاطر التشغيلية (1 = منخفضة، 5 = مرتفعة)</label>
+              <input type="number" id="expert_operationalRiskScore" value="3" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_financialRiskScore">المخاطر المالية (1 = منخفضة، 5 = مرتفعة)</label>
+              <input type="number" id="expert_financialRiskScore" value="3" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_regulatoryRiskScore">المخاطر التنظيمية (1 = منخفضة، 5 = مرتفعة)</label>
+              <input type="number" id="expert_regulatoryRiskScore" value="3" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_technologyRiskScore">مخاطر التقنية (1 = منخفضة، 5 = مرتفعة)</label>
+              <input type="number" id="expert_technologyRiskScore" value="3" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_reputationRiskScore">مخاطر السمعة (1 = منخفضة، 5 = مرتفعة)</label>
+              <input type="number" id="expert_reputationRiskScore" value="3" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_mitigationBudget">ميزانية التخفيف من المخاطر الشهرية (ر.س)</label>
+              <input type="number" id="expert_mitigationBudget" value="0" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_supplyChainRiskScore">مخاطر سلسلة التوريد (1 = منخفضة، 5 = مرتفعة)</label>
+              <input type="number" id="expert_supplyChainRiskScore" value="3" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_competitionRiskScore">مخاطر المنافسة (1 = منخفضة، 5 = مرتفعة)</label>
+              <input type="number" id="expert_competitionRiskScore" value="3" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_currencyRiskScore">مخاطر العملة (1 = منخفضة، 5 = مرتفعة)</label>
+              <input type="number" id="expert_currencyRiskScore" value="2" />
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_geopoliticalRiskScore">المخاطر الجيوسياسية (1 = منخفضة، 5 = مرتفعة)</label>
+              <input type="number" id="expert_geopoliticalRiskScore" value="2" />
+            </div></div>
+            </div>
+          </div>
+        </div>
+        <div class="expert-stage" data-stage="7" >
+          <div class="investment-panel">
+            <h2><span class="stage-number">7</span>المراجعة</h2>
+            <p class="subtitle">مراجعة الافتراضات وعوامل النجاح.</p>
+            <div class="investment-form">
+              
+              
+              <div class="expert-stage-fields">
+            <div class="investment-input-group full-width">
+              <label for="expert_keyAssumptions">الافتراضات الرئيسية</label>
+              <textarea id="expert_keyAssumptions" rows="3"></textarea>
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_sensitivityCase">سيناريو الحساسية</label>
+              <select id="expert_sensitivityCase"><option value="Base" selected>أساسي</option><option value="Optimistic">تفاؤل</option><option value="Pessimistic">تشاؤم</option></select>
+            </div>
+            <div class="investment-input-group full-width">
+              <label for="expert_successFactors">عوامل النجاح الرئيسية</label>
+              <textarea id="expert_successFactors" rows="3"></textarea>
+            </div>
+            <div class="investment-input-group">
+              <label for="expert_exitStrategy">استراتيجية الخروج</label>
+              <select id="expert_exitStrategy"><option value="Sale">بيع</option><option value="IPO">الاكتتاب</option><option value="Retain Ownership" selected>الاحتفاظ بالملكية</option><option value="Merger">الاندماج</option><option value="Liquidation">تصفية</option></select>
+            </div></div>
+            </div>
+          </div>
+        </div>
+      <div class="stage-actions">
+        <button type="button" class="bonds-btn bonds-btn-secondary" id="stagePrev" onclick="prevStage()">السابق</button>
+        <div class="stage-dots">
+          <span class="stage-dot active" data-stage="1"></span><span class="stage-dot " data-stage="2"></span><span class="stage-dot " data-stage="3"></span><span class="stage-dot " data-stage="4"></span><span class="stage-dot " data-stage="5"></span><span class="stage-dot " data-stage="6"></span><span class="stage-dot " data-stage="7"></span>
+        </div>
+        <button type="button" class="bonds-btn bonds-btn-primary" id="stageNext" onclick="nextStage()">التالي</button>
+      </div>
+    </div>
+
+    <div class="investment-actions">
+      <button class="bonds-btn bonds-btn-primary" onclick="calculate()">احسب التحليل الاستثماري</button>
+      <button class="bonds-btn bonds-btn-secondary" onclick="saveAnalysis()">حفظ النتيجة</button>
+      <button class="bonds-btn bonds-btn-secondary" onclick="printReport()">طباعة / PDF</button>
+      <button class="bonds-btn bonds-btn-secondary" onclick="printExecutiveReport()">تقرير تنفيذي</button>
+    </div>
+
+    <div id="validationWarnings" class="validation-warnings hidden"></div>
+
+    <div id="resultsSection" class="results-dashboard hidden">
+      <h2>التحليل الاستثماري الموحد</h2>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-card__label">ROI</div>
+          <div class="metric-card__value" id="metricRoi">--</div>
+          <div class="metric-card__unit">%</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__label">IRR</div>
+          <div class="metric-card__value" id="metricIrr">--</div>
+          <div class="metric-card__unit">%</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__label">NPV</div>
+          <div class="metric-card__value" id="metricNpv">--</div>
+          <div class="metric-card__unit">ر.س</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__label">فترة الاسترداد</div>
+          <div class="metric-card__value" id="metricPayback">--</div>
+          <div class="metric-card__unit">شهر</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__label">نقطة التعادل</div>
+          <div class="metric-card__value" id="metricBreakEven">--</div>
+          <div class="metric-card__unit">وحدة</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__label">هامش الربح</div>
+          <div class="metric-card__value" id="metricMargin">--</div>
+          <div class="metric-card__unit">%</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__label">درجة المخاطرة</div>
+          <div class="metric-card__value" id="metricRisk">--</div>
+          <div class="metric-card__unit">/ 100</div>
+        </div>
+      </div>
+
+      <div class="recommendation-bar" id="recommendationBar">
+        <div class="recommendation-bar__label">التوصية الاستثمارية</div>
+        <div class="recommendation-bar__decision" id="recommendationDecision">--</div>
+      </div>
+
+      <div class="recommendation-reasons">
+        <h3>أسباب القرار</h3>
+        <ul id="recommendationReasons"></ul>
+      </div>
+
+      <!-- Decision Intelligence Layer -->
+      <div id="decisionIntelligencePanel" class="decision-intelligence hidden">
+        <h2>ذكاء اتخاذ القرار الاستثماري</h2>
+
+        <div class="di-confidence">
+          <div class="di-confidence__label">درجة الثقة في القرار</div>
+          <div class="di-confidence__gauge">
+            <div class="di-confidence__fill" id="diConfidenceFill" style="width: 0%"></div>
+          </div>
+          <div class="di-confidence__value" id="diConfidenceValue">0</div>
+        </div>
+
+        <div class="di-verdict" id="diVerdict"></div>
+
+        <div id="diSummary"></div>
+
+        <div class="di-grid">
+          <div class="di-card">
+            <h3>تحليل المخاطر</h3>
+            <div id="diRiskGauge"></div>
+            <div id="diRiskList" class="di-list"></div>
+          </div>
+          <div class="di-card">
+            <h3>تحليل التمويل</h3>
+            <div id="diFinancingSummary"></div>
+          </div>
+          <div class="di-card">
+            <h3>تحليل السوق</h3>
+            <div id="diMarketGauge"></div>
+            <div id="diMarketSummary"></div>
+          </div>
+          <div class="di-card">
+            <h3>تحليل التدفقات النقدية</h3>
+            <div id="diCashFlowGauge"></div>
+            <div id="diCashFlowSummary"></div>
+          </div>
+        </div>
+
+        <div class="di-card di-card--wide">
+          <h3>قائمة المخاطر الرئيسية</h3>
+          <div id="diKeyRisks" class="di-list di-list--risks"></div>
+        </div>
+
+        <div class="di-card di-card--wide">
+          <h3>قائمة الفرص الرئيسية</h3>
+          <div id="diKeyOpportunities" class="di-list di-list--opportunities"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="../../site-layout.js"></script>
+  <script src="../../page-tracker-v2.js"></script>
+  <script src="./investment-engine.js"></script>
+  <script src="./investment-validator.js"></script>
+  <script src="./decision-intelligence.js"></script>
+  <script src="../../calculators/shared-export.js"></script>
+  <script>
+    const sectorId = 'commercial-mall';
+    const baseRiskWeight = 1.3;
+    const isAr = true;
+    const expertStageCount = 7;
+
+    let currentMode = 'basic';
+    let currentStage = 1;
+    let lastValidationValid = false;
+
+    function getValue(id) {
+      const el = document.getElementById(id);
+      if (!el) return 0;
+      const v = parseFloat(el.value);
+      return Number.isFinite(v) ? v : 0;
+    }
+
+    function getText(id) {
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : '';
+    }
+
+    function formatNumber(n) {
+      if (!Number.isFinite(n)) return '∞';
+      return n.toLocaleString(isAr ? 'ar-SA' : 'en-US');
+    }
+
+    function syncField(basicId, expertId, direction) {
+      const basicEl = document.getElementById(basicId);
+      const expertEl = document.getElementById(expertId);
+      if (!basicEl || !expertEl) return;
+      if (direction === 'toExpert') {
+        expertEl.value = basicEl.value;
+      } else {
+        basicEl.value = expertEl.value;
+      }
+    }
+
+    function setMode(mode) {
+      const previousMode = currentMode;
+      currentMode = mode;
+      const direction = mode === 'expert' ? 'toExpert' : 'toBasic';
+
+      const fields = [{"name":"rentableArea","label":"المساحة القابلة للإيجار (م²)","type":"number","default":10000},{"name":"landCost","label":"تكلفة الأرض (ر.س)","type":"number","default":15000000},{"name":"constructionCostPerM2","label":"تكلفة البناء للمتر المربع (ر.س)","type":"number","default":3500},{"name":"annualRentPerM2","label":"الإيجار السنوي للمتر المربع (ر.س)","type":"number","default":650},{"name":"projectMonths","label":"مدة المشروع (شهر)","type":"number","default":30},{"name":"monthlyExpenses","label":"المصاريف الشهرية (ر.س)","type":"number","default":150000}];
+      fields.forEach(f => syncField(f.name, 'expert_basic_' + f.name, direction));
+      syncField('analysisDuration', 'expert_basic_analysisDuration', direction);
+      syncField('discountRate', 'expert_basic_discountRate', direction);
+
+      document.querySelectorAll('.mode-toggle__btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+      document.getElementById('basicMode').setAttribute('data-active', mode === 'basic');
+      document.getElementById('expertMode').setAttribute('data-active', mode === 'expert');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goToStage(stage) {
+      if (stage < 1 || stage > expertStageCount) return;
+      currentStage = stage;
+      updateStageUI();
+    }
+
+    function nextStage() {
+      if (currentStage < expertStageCount) {
+        currentStage++;
+        updateStageUI();
+      }
+    }
+
+    function prevStage() {
+      if (currentStage > 1) {
+        currentStage--;
+        updateStageUI();
+      }
+    }
+
+    function updateStageUI() {
+      document.querySelectorAll('.expert-stage').forEach(el => {
+        el.setAttribute('data-active', Number(el.dataset.stage) === currentStage);
+      });
+      document.querySelectorAll('.stage-nav__item').forEach(btn => {
+        const active = Number(btn.dataset.stage) === currentStage;
+        btn.classList.toggle('active', active);
+      });
+      document.querySelectorAll('.stage-dot').forEach(dot => {
+        dot.classList.toggle('active', Number(dot.dataset.stage) === currentStage);
+      });
+      document.getElementById('stagePrev').disabled = currentStage === 1;
+      const nextBtn = document.getElementById('stageNext');
+      nextBtn.textContent = currentStage === expertStageCount ? (isAr ? 'إنهاء' : 'Finish') : (isAr ? 'التالي' : 'Next');
+    }
+
+    function mapInputs() {
+      const inputs = {};
+      const fields = [{"name":"rentableArea","label":"المساحة القابلة للإيجار (م²)","type":"number","default":10000},{"name":"landCost","label":"تكلفة الأرض (ر.س)","type":"number","default":15000000},{"name":"constructionCostPerM2","label":"تكلفة البناء للمتر المربع (ر.س)","type":"number","default":3500},{"name":"annualRentPerM2","label":"الإيجار السنوي للمتر المربع (ر.س)","type":"number","default":650},{"name":"projectMonths","label":"مدة المشروع (شهر)","type":"number","default":30},{"name":"monthlyExpenses","label":"المصاريف الشهرية (ر.س)","type":"number","default":150000}];
+      const basicPrefix = currentMode === 'expert' ? 'expert_basic_' : '';
+      fields.forEach(f => inputs[f.name] = getValue(basicPrefix + f.name));
+      inputs.analysisDuration = getValue(basicPrefix + 'analysisDuration');
+      inputs.discountRate = getValue(basicPrefix + 'discountRate') / 100;
+
+      const expertFieldNames = ["projectName","projectOwner","projectLocation","legalStructure","startMonth","projectPhase","projectDurationYears","regulatoryApprovalsNeeded","projectManagerExperience","environmentalImpact","tam","sam","som","competitorCount","avgCompetitorPrice","marketEntryBarrier","customerAcquisitionCost","customerLifetimeValue","digitalAdBudget","brandAwareness","marketGrowthRate","seasonalFactor","churnRate","repeatPurchaseRate","onlineVsOfflineRatio","operatingDaysPerMonth","operatingHoursPerDay","shiftCount","capacityUtilizationTarget","employeeProductivityIndex","maintenanceCostRate","insuranceCostAnnual","licenseRenewalCost","softwareSubscriptions","marketingBudget","salesCommissionRate","energyCostMonthly","waterCostMonthly","wasteDisposalCost","securityCost","cleaningCost","outsourcingCost","trainingCost","landCost","buildingCost","renovationCost","machineryCost","furnitureCost","vehiclesCost","workingCapital","contingencyReserve","salvageValue","assetLifeYears","preOpeningCost","initialInventoryCost","permitsAndLicensesCost","feasibilityStudyCost","equityAmount","loanAmount","interestRate","loanTermYears","gracePeriodMonths","requiredRoi","minDscr","balloonPayment","earlyRepaymentPenalty","collateralValue","debtServiceStartMonth","marketRiskScore","operationalRiskScore","financialRiskScore","regulatoryRiskScore","technologyRiskScore","reputationRiskScore","mitigationBudget","supplyChainRiskScore","competitionRiskScore","currencyRiskScore","geopoliticalRiskScore","keyAssumptions","sensitivityCase","successFactors","exitStrategy"];
+      expertFieldNames.forEach(name => {
+        const fieldMeta = [{"name":"projectName","labelAr":"اسم المشروع","labelEn":"Project Name","type":"text","default":""},{"name":"projectOwner","labelAr":"اسم المالك / الجهة المنفذة","labelEn":"Project Owner / Entity","type":"text","default":""},{"name":"projectLocation","labelAr":"موقع المشروع","labelEn":"Project Location","type":"text","default":""},{"name":"legalStructure","labelAr":"الشكل القانوني","labelEn":"Legal Structure","type":"select","optionsAr":["شركة ذات مسؤولية محدودة","شركة مساهمة","مؤسسة فردية","شركة تضامن","فرع"],"optionsEn":["LLC","Joint Stock","Sole Proprietorship","Partnership","Branch"],"default":""},{"name":"startMonth","labelAr":"شهر البدء المتوقع","labelEn":"Expected Start Month","type":"number","default":1},{"name":"projectPhase","labelAr":"مرحلة المشروع","labelEn":"Project Phase","type":"select","optionsAr":["فكرة","دراسة جدوى","تأسيس","تشغيل","توسع"],"optionsEn":["Idea","Feasibility","Establishment","Operation","Expansion"],"default":"تأسيس"},{"name":"projectDurationYears","labelAr":"مدة المشروع (سنوات)","labelEn":"Project Duration (Years)","type":"number","default":5},{"name":"regulatoryApprovalsNeeded","labelAr":"عدد التراخيص المطلوبة","labelEn":"Required Regulatory Approvals","type":"number","default":3},{"name":"projectManagerExperience","labelAr":"خبرة مدير المشروع (سنوات)","labelEn":"Project Manager Experience (Years)","type":"number","default":5},{"name":"environmentalImpact","labelAr":"التأثير البيئي (1 = منخفض، 5 = عالٍ)","labelEn":"Environmental Impact (1 = low, 5 = high)","type":"number","default":2},{"name":"tam","labelAr":"إجمالي السوق المتاح (TAM) سنويًا (ر.س)","labelEn":"Total Addressable Market (TAM) Annual (SAR)","type":"number","default":0},{"name":"sam","labelAr":"السوق الموجه (SAM) سنويًا (ر.س)","labelEn":"Serviceable Addressable Market (SAM) Annual (SAR)","type":"number","default":0},{"name":"som","labelAr":"السوق الم obtainable (SOM) سنويًا (ر.س)","labelEn":"Serviceable Obtainable Market (SOM) Annual (SAR)","type":"number","default":0},{"name":"competitorCount","labelAr":"عدد المنافسين المباشرين","labelEn":"Number of Direct Competitors","type":"number","default":5},{"name":"avgCompetitorPrice","labelAr":"متوسط سعر المنافس (ر.س)","labelEn":"Average Competitor Price (SAR)","type":"number","default":0},{"name":"marketEntryBarrier","labelAr":"حاجز دخول السوق (1 = منخفض، 5 = مرتفع)","labelEn":"Market Entry Barrier (1 = low, 5 = high)","type":"number","default":3},{"name":"customerAcquisitionCost","labelAr":"تكلفة اكتساب العميل (ر.س)","labelEn":"Customer Acquisition Cost (SAR)","type":"number","default":0},{"name":"customerLifetimeValue","labelAr":"قيمة العميل مدى الحياة (ر.س)","labelEn":"Customer Lifetime Value (SAR)","type":"number","default":0},{"name":"digitalAdBudget","labelAr":"الميزانية الشهرية للإعلانات الرقمية (ر.س)","labelEn":"Monthly Digital Ad Budget (SAR)","type":"number","default":0},{"name":"brandAwareness","labelAr":"مستوى الوعي بالعلامة التجارية (%)","labelEn":"Brand Awareness Level (%)","type":"number","default":0},{"name":"marketGrowthRate","labelAr":"معدل نمو السوق السنوي (%)","labelEn":"Annual Market Growth Rate (%)","type":"number","default":5},{"name":"seasonalFactor","labelAr":"معامل الموسمية (0.5 = منخفضة، 1.5 = مرتفعة)","labelEn":"Seasonality Factor (0.5 = low, 1.5 = high)","type":"number","default":1},{"name":"churnRate","labelAr":"معدل تسرب العملاء الشهري (%)","labelEn":"Monthly Customer Churn Rate (%)","type":"number","default":5},{"name":"repeatPurchaseRate","labelAr":"معدل إعادة الشراء الشهري (%)","labelEn":"Monthly Repeat Purchase Rate (%)","type":"number","default":20},{"name":"onlineVsOfflineRatio","labelAr":"نسبة المبيعات الرقمية (%)","labelEn":"Online Sales Ratio (%)","type":"number","default":30},{"name":"operatingDaysPerMonth","labelAr":"أيام التشغيل الشهرية","labelEn":"Operating Days per Month","type":"number","default":26},{"name":"operatingHoursPerDay","labelAr":"ساعات التشغيل اليومية","labelEn":"Operating Hours per Day","type":"number","default":10},{"name":"shiftCount","labelAr":"عدد الورديات","labelEn":"Number of Shifts","type":"number","default":1},{"name":"capacityUtilizationTarget","labelAr":"مستهدف استغلال الطاقة (%)","labelEn":"Capacity Utilization Target (%)","type":"number","default":75},{"name":"employeeProductivityIndex","labelAr":"مؤشر إنتاجية الموظف (1 = منخفض، 5 = مرتفع)","labelEn":"Employee Productivity Index (1 = low, 5 = high)","type":"number","default":3},{"name":"maintenanceCostRate","labelAr":"نسبة الصيانة من الإيرادات (%)","labelEn":"Maintenance Cost Ratio (%)","type":"number","default":3},{"name":"insuranceCostAnnual","labelAr":"تكلفة التأمين السنوية (ر.س)","labelEn":"Annual Insurance Cost (SAR)","type":"number","default":0},{"name":"licenseRenewalCost","labelAr":"تكلفة تجديد الترخيص السنوية (ر.س)","labelEn":"Annual License Renewal Cost (SAR)","type":"number","default":0},{"name":"softwareSubscriptions","labelAr":"اشتراكات البرامج الشهرية (ر.س)","labelEn":"Monthly Software Subscriptions (SAR)","type":"number","default":0},{"name":"marketingBudget","labelAr":"الميزانية الشهرية للتسويق (ر.س)","labelEn":"Monthly Marketing Budget (SAR)","type":"number","default":0},{"name":"salesCommissionRate","labelAr":"نسبة عمولة المبيعات (%)","labelEn":"Sales Commission Rate (%)","type":"number","default":0},{"name":"energyCostMonthly","labelAr":"تكلفة الطاقة الشهرية (ر.س)","labelEn":"Monthly Energy Cost (SAR)","type":"number","default":0},{"name":"waterCostMonthly","labelAr":"تكلفة المياه الشهرية (ر.س)","labelEn":"Monthly Water Cost (SAR)","type":"number","default":0},{"name":"wasteDisposalCost","labelAr":"تكلفة التخلص من النفايات الشهرية (ر.س)","labelEn":"Monthly Waste Disposal Cost (SAR)","type":"number","default":0},{"name":"securityCost","labelAr":"تكلفة الأمن الشهرية (ر.س)","labelEn":"Monthly Security Cost (SAR)","type":"number","default":0},{"name":"cleaningCost","labelAr":"تكلفة النظافة الشهرية (ر.س)","labelEn":"Monthly Cleaning Cost (SAR)","type":"number","default":0},{"name":"outsourcingCost","labelAr":"تكلفة الاستعانة بمصادر خارجية شهرية (ر.س)","labelEn":"Monthly Outsourcing Cost (SAR)","type":"number","default":0},{"name":"trainingCost","labelAr":"تكلفة التدريب الشهرية (ر.س)","labelEn":"Monthly Training Cost (SAR)","type":"number","default":0},{"name":"landCost","labelAr":"تكلفة الأرض (ر.س)","labelEn":"Land Cost (SAR)","type":"number","default":0},{"name":"buildingCost","labelAr":"تكلفة البناء (ر.س)","labelEn":"Building Cost (SAR)","type":"number","default":0},{"name":"renovationCost","labelAr":"تكلفة التجديد والتجهيز (ر.س)","labelEn":"Renovation & Setup Cost (SAR)","type":"number","default":0},{"name":"machineryCost","labelAr":"تكلفة الآلات والمعدات (ر.س)","labelEn":"Machinery & Equipment Cost (SAR)","type":"number","default":0},{"name":"furnitureCost","labelAr":"تكلفة الأثاث والتجهيزات المكتبية (ر.س)","labelEn":"Furniture & Office Equipment Cost (SAR)","type":"number","default":0},{"name":"vehiclesCost","labelAr":"تكلفة المركبات (ر.س)","labelEn":"Vehicles Cost (SAR)","type":"number","default":0},{"name":"workingCapital","labelAr":"رأس المال العامل (ر.س)","labelEn":"Working Capital (SAR)","type":"number","default":0},{"name":"contingencyReserve","labelAr":"احتياطي الطوارئ (ر.س)","labelEn":"Contingency Reserve (SAR)","type":"number","default":0},{"name":"salvageValue","labelAr":"القيمة المتبقية للأصول (ر.س)","labelEn":"Asset Salvage Value (SAR)","type":"number","default":0},{"name":"assetLifeYears","labelAr":"العمر الافتراضي للأصول (سنة)","labelEn":"Asset Life (Years)","type":"number","default":10},{"name":"preOpeningCost","labelAr":"تكلفة ما قبل الافتتاح (ر.س)","labelEn":"Pre-Opening Cost (SAR)","type":"number","default":0},{"name":"initialInventoryCost","labelAr":"تكلفة المخزون الافتتاحي (ر.س)","labelEn":"Initial Inventory Cost (SAR)","type":"number","default":0},{"name":"permitsAndLicensesCost","labelAr":"تكلفة التراخيص والموافقات (ر.س)","labelEn":"Permits & Licenses Cost (SAR)","type":"number","default":0},{"name":"feasibilityStudyCost","labelAr":"تكلفة دراسة الجدوى (ر.س)","labelEn":"Feasibility Study Cost (SAR)","type":"number","default":0},{"name":"equityAmount","labelAr":"مبلغ رأس المال الملكي (ر.س)","labelEn":"Equity Amount (SAR)","type":"number","default":0},{"name":"loanAmount","labelAr":"مبلغ القرض (ر.س)","labelEn":"Loan Amount (SAR)","type":"number","default":0},{"name":"interestRate","labelAr":"معدل الفائدة السنوي (%)","labelEn":"Annual Interest Rate (%)","type":"number","default":0},{"name":"loanTermYears","labelAr":"مدة القرض (سنة)","labelEn":"Loan Term (Years)","type":"number","default":0},{"name":"gracePeriodMonths","labelAr":"فترة السماح (شهر)","labelEn":"Grace Period (Months)","type":"number","default":0},{"name":"requiredRoi","labelAr":"العائد المطلوب سنويًا (%)","labelEn":"Required Annual ROI (%)","type":"number","default":15},{"name":"minDscr","labelAr":"الحد الأدنى لمعدل تغطية خدمة الدين","labelEn":"Minimum DSCR","type":"number","default":1.25},{"name":"balloonPayment","labelAr":"دفعة بالونية نهائية (ر.س)","labelEn":"Balloon Payment (SAR)","type":"number","default":0},{"name":"earlyRepaymentPenalty","labelAr":"عقوبة السداد المبكر (%)","labelEn":"Early Repayment Penalty (%)","type":"number","default":0},{"name":"collateralValue","labelAr":"قيمة الضمانات (ر.س)","labelEn":"Collateral Value (SAR)","type":"number","default":0},{"name":"debtServiceStartMonth","labelAr":"شهر بدء سداد القرض","labelEn":"Debt Service Start Month","type":"number","default":1},{"name":"marketRiskScore","labelAr":"مخاطر السوق (1 = منخفضة، 5 = مرتفعة)","labelEn":"Market Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"operationalRiskScore","labelAr":"المخاطر التشغيلية (1 = منخفضة، 5 = مرتفعة)","labelEn":"Operational Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"financialRiskScore","labelAr":"المخاطر المالية (1 = منخفضة، 5 = مرتفعة)","labelEn":"Financial Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"regulatoryRiskScore","labelAr":"المخاطر التنظيمية (1 = منخفضة، 5 = مرتفعة)","labelEn":"Regulatory Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"technologyRiskScore","labelAr":"مخاطر التقنية (1 = منخفضة، 5 = مرتفعة)","labelEn":"Technology Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"reputationRiskScore","labelAr":"مخاطر السمعة (1 = منخفضة، 5 = مرتفعة)","labelEn":"Reputation Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"mitigationBudget","labelAr":"ميزانية التخفيف من المخاطر الشهرية (ر.س)","labelEn":"Monthly Risk Mitigation Budget (SAR)","type":"number","default":0},{"name":"supplyChainRiskScore","labelAr":"مخاطر سلسلة التوريد (1 = منخفضة، 5 = مرتفعة)","labelEn":"Supply Chain Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"competitionRiskScore","labelAr":"مخاطر المنافسة (1 = منخفضة، 5 = مرتفعة)","labelEn":"Competition Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"currencyRiskScore","labelAr":"مخاطر العملة (1 = منخفضة، 5 = مرتفعة)","labelEn":"Currency Risk (1 = low, 5 = high)","type":"number","default":2},{"name":"geopoliticalRiskScore","labelAr":"المخاطر الجيوسياسية (1 = منخفضة، 5 = مرتفعة)","labelEn":"Geopolitical Risk (1 = low, 5 = high)","type":"number","default":2},{"name":"keyAssumptions","labelAr":"الافتراضات الرئيسية","labelEn":"Key Assumptions","type":"textarea","default":""},{"name":"sensitivityCase","labelAr":"سيناريو الحساسية","labelEn":"Sensitivity Case","type":"select","optionsAr":["أساسي","تفاؤل","تشاؤم"],"optionsEn":["Base","Optimistic","Pessimistic"],"default":"أساسي"},{"name":"successFactors","labelAr":"عوامل النجاح الرئيسية","labelEn":"Key Success Factors","type":"textarea","default":""},{"name":"exitStrategy","labelAr":"استراتيجية الخروج","labelEn":"Exit Strategy","type":"select","optionsAr":["بيع","الاكتتاب","الاحتفاظ بالملكية","الاندماج","تصفية"],"optionsEn":["Sale","IPO","Retain Ownership","Merger","Liquidation"],"default":"الاحتفاظ بالملكية"}].find(f => f.name === name);
+        if (fieldMeta && (fieldMeta.type === 'text' || fieldMeta.type === 'textarea' || fieldMeta.type === 'select')) {
+          inputs[name] = getText('expert_' + name);
+        } else {
+          inputs[name] = getValue('expert_' + name);
+        }
+      });
+
+      return inputs;
+    }
+
+    function calculateEngineInputs(inputs) {
+      let totalInvestment = 0, monthlyFixed = 0, monthlyVariable = 0, monthlyRevenue = 0;
+      let unitPrice = 0, unitVariableCost = 0;
+      let expertRiskWeight = baseRiskWeight;
+
+      switch (sectorId) {
+        case 'medical':
+          totalInvestment = inputs.equipmentCost;
+          monthlyRevenue = inputs.unitsCount * inputs.avgDailyRevenue * 30;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyRent;
+          monthlyVariable = monthlyRevenue * (inputs.materialCostRate / 100);
+          unitPrice = inputs.avgDailyRevenue;
+          unitVariableCost = unitPrice * (inputs.materialCostRate / 100);
+          break;
+        case 'industrial':
+          totalInvestment = inputs.factoryCost;
+          monthlyRevenue = inputs.monthlyCapacity * inputs.unitPrice;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = inputs.monthlyCapacity * inputs.rawMaterialCost;
+          unitPrice = inputs.unitPrice;
+          unitVariableCost = inputs.rawMaterialCost;
+          break;
+        case 'real-estate':
+          totalInvestment = inputs.landValue + inputs.constructionCost;
+          monthlyRevenue = (inputs.unitsCount * inputs.unitPrice) / 12;
+          monthlyFixed = inputs.monthlyExpenses;
+          monthlyVariable = monthlyRevenue * 0.05;
+          unitPrice = inputs.unitPrice;
+          unitVariableCost = unitPrice * 0.05;
+          break;
+        case 'commercial':
+          totalInvestment = inputs.inventoryCost;
+          monthlyRevenue = inputs.monthlySales;
+          monthlyFixed = inputs.monthlyRent + inputs.monthlySalaries + inputs.marketingCost;
+          monthlyVariable = inputs.monthlySales * (1 - inputs.profitMargin / 100);
+          unitPrice = 100;
+          unitVariableCost = 100 * (1 - inputs.profitMargin / 100);
+          break;
+        case 'tourism':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.unitsCount * (inputs.occupancyRate / 100) * inputs.avgDailyRate * 30;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = monthlyRevenue * 0.15;
+          unitPrice = inputs.avgDailyRate;
+          unitVariableCost = unitPrice * 0.15;
+          break;
+        case 'education':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.capacity * (inputs.enrollmentRate / 100) * inputs.monthlyFee;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyRent;
+          monthlyVariable = monthlyRevenue * 0.10;
+          unitPrice = inputs.monthlyFee;
+          unitVariableCost = unitPrice * 0.10;
+          break;
+        case 'logistics':
+          totalInvestment = inputs.vehicleCost;
+          monthlyRevenue = inputs.monthlyTrips * inputs.revenuePerTrip;
+          monthlyFixed = inputs.monthlySalaries;
+          monthlyVariable = inputs.monthlyTrips * inputs.fuelMaintenance;
+          unitPrice = inputs.revenuePerTrip;
+          unitVariableCost = inputs.fuelMaintenance;
+          break;
+        case 'agriculture':
+          totalInvestment = inputs.landSetupCost;
+          monthlyRevenue = (inputs.areaSize * inputs.yieldPerHectare * inputs.pricePerKg * inputs.harvestsPerYear) / 12;
+          monthlyFixed = totalInvestment * 0.03;
+          monthlyVariable = (inputs.areaSize * inputs.yieldPerHectare * inputs.operationalCostPerKg * inputs.harvestsPerYear) / 12;
+          unitPrice = inputs.pricePerKg;
+          unitVariableCost = inputs.operationalCostPerKg;
+          break;
+        case 'technology':
+          totalInvestment = inputs.developmentCost;
+          monthlyRevenue = inputs.subscribers * inputs.subscriptionPrice;
+          monthlyFixed = inputs.monthlyServers + inputs.monthlySalaries;
+          monthlyVariable = inputs.monthlyMarketing + (monthlyRevenue * 0.05);
+          unitPrice = inputs.subscriptionPrice;
+          unitVariableCost = unitPrice * 0.05;
+          break;
+        case 'restaurants':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.dailyCustomers * inputs.avgTicket * 30;
+          monthlyFixed = inputs.monthlyRentSalaries;
+          monthlyVariable = monthlyRevenue * (inputs.foodCostRate / 100);
+          unitPrice = inputs.avgTicket;
+          unitVariableCost = unitPrice * (inputs.foodCostRate / 100);
+          break;
+        case 'retail':
+          totalInvestment = inputs.inventoryCost;
+          monthlyRevenue = inputs.dailySales * 30;
+          monthlyFixed = inputs.monthlyRent + inputs.monthlySalaries;
+          monthlyVariable = monthlyRevenue * (1 - inputs.profitMargin / 100);
+          unitPrice = 100;
+          unitVariableCost = 100 * (1 - inputs.profitMargin / 100);
+          break;
+        case 'construction':
+          totalInvestment = inputs.initialEquipment;
+          monthlyRevenue = inputs.projectValue / inputs.projectMonths;
+          monthlyFixed = monthlyRevenue * (inputs.overheadRate / 100);
+          monthlyVariable = monthlyRevenue * ((inputs.materialCostRate + inputs.laborCostRate) / 100);
+          unitPrice = monthlyRevenue;
+          unitVariableCost = monthlyVariable;
+          break;
+        case 'hospital':
+          totalInvestment = inputs.constructionAndEquipmentCost;
+          monthlyRevenue = inputs.numberOfBeds * inputs.avgDailyRevenuePerBed * 30;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = monthlyRevenue * (inputs.medicalSuppliesRate / 100);
+          unitPrice = inputs.avgDailyRevenuePerBed;
+          unitVariableCost = unitPrice * (inputs.medicalSuppliesRate / 100);
+          break;
+        case 'medical-complex':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.numberOfClinics * inputs.avgMonthlyRevenuePerClinic;
+          monthlyFixed = inputs.monthlyRent + inputs.monthlySalaries;
+          monthlyVariable = monthlyRevenue * (inputs.operatingCostRate / 100);
+          unitPrice = inputs.avgMonthlyRevenuePerClinic;
+          unitVariableCost = unitPrice * (inputs.operatingCostRate / 100);
+          break;
+        case 'dental-clinic':
+          totalInvestment = inputs.equipmentCost;
+          monthlyRevenue = inputs.numberOfChairs * inputs.avgDailyRevenuePerChair * 30;
+          monthlyFixed = inputs.monthlyRent + inputs.monthlySalaries;
+          monthlyVariable = monthlyRevenue * (inputs.materialCostRate / 100);
+          unitPrice = inputs.avgDailyRevenuePerChair;
+          unitVariableCost = unitPrice * (inputs.materialCostRate / 100);
+          break;
+        case 'radiology-center':
+          totalInvestment = inputs.equipmentCost;
+          monthlyRevenue = inputs.numberOfMachines * inputs.avgDailyRevenuePerMachine * 30;
+          monthlyFixed = inputs.monthlyRent + inputs.monthlySalaries;
+          monthlyVariable = monthlyRevenue * (inputs.contrastMaterialRate / 100);
+          unitPrice = inputs.avgDailyRevenuePerMachine;
+          unitVariableCost = unitPrice * (inputs.contrastMaterialRate / 100);
+          break;
+        case 'medical-lab':
+          totalInvestment = inputs.equipmentCost;
+          monthlyRevenue = inputs.avgDailyTests * inputs.avgRevenuePerTest * 30;
+          monthlyFixed = inputs.monthlyRent + inputs.monthlySalaries;
+          monthlyVariable = monthlyRevenue * (inputs.reagentCostRate / 100);
+          unitPrice = inputs.avgRevenuePerTest;
+          unitVariableCost = unitPrice * (inputs.reagentCostRate / 100);
+          break;
+        case 'physiotherapy-center':
+          totalInvestment = inputs.equipmentCost;
+          monthlyRevenue = inputs.numberOfSessionsPerDay * inputs.avgRevenuePerSession * 30;
+          monthlyFixed = inputs.monthlyRent + inputs.monthlySalaries;
+          monthlyVariable = monthlyRevenue * (inputs.disposableCostRate / 100);
+          unitPrice = inputs.avgRevenuePerSession;
+          unitVariableCost = unitPrice * (inputs.disposableCostRate / 100);
+          break;
+        case 'pharmacy':
+          totalInvestment = inputs.inventoryCost + inputs.licenseCost;
+          monthlyRevenue = inputs.avgDailySales * 30;
+          monthlyFixed = inputs.monthlyRent + inputs.monthlySalaries;
+          monthlyVariable = monthlyRevenue * (1 - inputs.profitMargin / 100);
+          unitPrice = 100;
+          unitVariableCost = 100 * (1 - inputs.profitMargin / 100);
+          break;
+        case 'optical-center':
+          totalInvestment = inputs.inventoryCost;
+          monthlyRevenue = inputs.avgDailySales * inputs.avgTicketValue * 30;
+          monthlyFixed = inputs.monthlyRent + inputs.monthlySalaries;
+          monthlyVariable = monthlyRevenue * (inputs.lensCostRate / 100);
+          unitPrice = inputs.avgTicketValue;
+          unitVariableCost = unitPrice * (inputs.lensCostRate / 100);
+          break;
+        case 'land-development':
+          totalInvestment = (inputs.landArea * inputs.landPricePerM2) + (inputs.landArea * inputs.developmentCostPerM2);
+          monthlyRevenue = (inputs.landArea * inputs.sellingPricePerM2) / inputs.projectMonths;
+          monthlyFixed = inputs.monthlyExpenses;
+          monthlyVariable = monthlyRevenue * 0.05;
+          unitPrice = inputs.sellingPricePerM2;
+          unitVariableCost = unitPrice * 0.05;
+          break;
+        case 'villa-construction':
+          totalInvestment = inputs.landCost + (inputs.numberOfVillas * inputs.constructionCostPerVilla);
+          monthlyRevenue = (inputs.numberOfVillas * inputs.sellingPricePerVilla) / inputs.projectMonths;
+          monthlyFixed = inputs.monthlyExpenses;
+          monthlyVariable = monthlyRevenue * 0.05;
+          unitPrice = inputs.sellingPricePerVilla;
+          unitVariableCost = unitPrice * 0.05;
+          break;
+        case 'residential-building':
+          totalInvestment = inputs.landCost + (inputs.numberOfApartments * inputs.constructionCostPerApartment);
+          monthlyRevenue = (inputs.numberOfApartments * inputs.sellingPricePerApartment) / inputs.projectMonths;
+          monthlyFixed = inputs.monthlyExpenses;
+          monthlyVariable = monthlyRevenue * 0.05;
+          unitPrice = inputs.sellingPricePerApartment;
+          unitVariableCost = unitPrice * 0.05;
+          break;
+        case 'commercial-complex':
+          totalInvestment = inputs.landCost + (inputs.numberOfUnits * inputs.constructionCostPerUnit);
+          monthlyRevenue = (inputs.numberOfUnits * inputs.annualRentPerUnit) / 12;
+          monthlyFixed = inputs.monthlyExpenses;
+          monthlyVariable = monthlyRevenue * 0.10;
+          unitPrice = inputs.annualRentPerUnit / 12;
+          unitVariableCost = unitPrice * 0.10;
+          break;
+        case 'commercial-mall':
+          totalInvestment = inputs.landCost + (inputs.rentableArea * inputs.constructionCostPerM2);
+          monthlyRevenue = (inputs.rentableArea * inputs.annualRentPerM2) / 12;
+          monthlyFixed = inputs.monthlyExpenses;
+          monthlyVariable = monthlyRevenue * 0.15;
+          unitPrice = inputs.annualRentPerM2 / 12;
+          unitVariableCost = unitPrice * 0.15;
+          break;
+        case 'hotel-apartments':
+          totalInvestment = inputs.landCost + (inputs.numberOfApartments * inputs.setupCostPerApartment);
+          monthlyRevenue = inputs.numberOfApartments * inputs.avgDailyRate * (inputs.occupancyRate / 100) * 30;
+          monthlyFixed = inputs.monthlyExpenses;
+          monthlyVariable = monthlyRevenue * 0.20;
+          unitPrice = inputs.avgDailyRate;
+          unitVariableCost = unitPrice * 0.20;
+          break;
+        case 'warehouses':
+          totalInvestment = inputs.landCost + (inputs.warehouseArea * inputs.constructionCostPerM2);
+          monthlyRevenue = (inputs.warehouseArea * inputs.annualRentPerM2) / 12;
+          monthlyFixed = inputs.monthlyExpenses;
+          monthlyVariable = monthlyRevenue * 0.08;
+          unitPrice = inputs.annualRentPerM2 / 12;
+          unitVariableCost = unitPrice * 0.08;
+          break;
+        case 'property-rehabilitation':
+          totalInvestment = inputs.purchasePrice + inputs.rehabilitationCost;
+          monthlyRevenue = inputs.expectedSellingPrice / inputs.projectMonths;
+          monthlyFixed = inputs.monthlyExpenses;
+          monthlyVariable = monthlyRevenue * (inputs.holdingCostRate / 100);
+          unitPrice = inputs.expectedSellingPrice / inputs.projectMonths;
+          unitVariableCost = unitPrice * (inputs.holdingCostRate / 100);
+          break;
+        case 'buy-to-rent':
+          totalInvestment = inputs.propertyPrice + inputs.setupCost;
+          monthlyRevenue = (inputs.annualRent * (1 - inputs.vacancyRate / 100)) / 12;
+          monthlyFixed = inputs.monthlyExpenses;
+          monthlyVariable = 0;
+          unitPrice = inputs.annualRent / 12;
+          unitVariableCost = 0;
+          break;
+        case 'quick-real-estate':
+          totalInvestment = inputs.propertyPrice * (1 - inputs.financingRate / 100);
+          monthlyRevenue = (inputs.annualRent * (1 - inputs.vacancyRate / 100)) / 12;
+          monthlyFixed = monthlyRevenue * (inputs.operatingExpenseRate / 100);
+          monthlyVariable = 0;
+          unitPrice = inputs.annualRent / 12;
+          unitVariableCost = 0;
+          break;
+        case 'food-factory':
+          totalInvestment = inputs.factoryCost;
+          monthlyRevenue = inputs.monthlyCapacity * inputs.unitPrice;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = inputs.monthlyCapacity * inputs.rawMaterialCostPerUnit;
+          unitPrice = inputs.unitPrice;
+          unitVariableCost = inputs.rawMaterialCostPerUnit;
+          break;
+        case 'water-factory':
+          totalInvestment = inputs.factoryCost;
+          monthlyRevenue = inputs.dailyProduction * inputs.bottlePrice * 30;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = inputs.dailyProduction * inputs.rawMaterialCostPerBottle * 30;
+          unitPrice = inputs.bottlePrice;
+          unitVariableCost = inputs.rawMaterialCostPerBottle;
+          break;
+        case 'plastic-factory':
+          totalInvestment = inputs.factoryCost;
+          monthlyRevenue = inputs.monthlyCapacity * inputs.pricePerKg;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = inputs.monthlyCapacity * inputs.rawMaterialCostPerKg;
+          unitPrice = inputs.pricePerKg;
+          unitVariableCost = inputs.rawMaterialCostPerKg;
+          break;
+        case 'building-materials-factory':
+          totalInvestment = inputs.factoryCost;
+          monthlyRevenue = inputs.monthlyCapacity * inputs.unitPrice;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = inputs.monthlyCapacity * inputs.rawMaterialCostPerUnit;
+          unitPrice = inputs.unitPrice;
+          unitVariableCost = inputs.rawMaterialCostPerUnit;
+          break;
+        case 'furniture-factory':
+          totalInvestment = inputs.factoryCost;
+          monthlyRevenue = inputs.monthlyCapacity * inputs.unitPrice;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = inputs.monthlyCapacity * inputs.rawMaterialCostPerUnit;
+          unitPrice = inputs.unitPrice;
+          unitVariableCost = inputs.rawMaterialCostPerUnit;
+          break;
+        case 'textiles-factory':
+          totalInvestment = inputs.factoryCost;
+          monthlyRevenue = inputs.monthlyCapacity * inputs.pricePerMeter;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = inputs.monthlyCapacity * inputs.rawMaterialCostPerMeter;
+          unitPrice = inputs.pricePerMeter;
+          unitVariableCost = inputs.rawMaterialCostPerMeter;
+          break;
+        case 'chemicals-factory':
+          totalInvestment = inputs.factoryCost;
+          monthlyRevenue = inputs.monthlyCapacity * inputs.pricePerLiter;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = inputs.monthlyCapacity * inputs.rawMaterialCostPerLiter;
+          unitPrice = inputs.pricePerLiter;
+          unitVariableCost = inputs.rawMaterialCostPerLiter;
+          break;
+        case 'packaging-factory':
+          totalInvestment = inputs.factoryCost;
+          monthlyRevenue = inputs.monthlyCapacity * inputs.unitPrice;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = inputs.monthlyCapacity * inputs.rawMaterialCostPerUnit;
+          unitPrice = inputs.unitPrice;
+          unitVariableCost = inputs.rawMaterialCostPerUnit;
+          break;
+        case 'construction-profitability':
+          totalInvestment = inputs.projectValue * 0.10;
+          monthlyRevenue = inputs.projectValue / inputs.projectMonths;
+          monthlyFixed = monthlyRevenue * (inputs.overheadRate / 100);
+          monthlyVariable = monthlyRevenue * ((inputs.materialCostRate + inputs.laborCostRate + inputs.subcontractorCostRate) / 100);
+          unitPrice = monthlyRevenue;
+          unitVariableCost = monthlyVariable;
+          break;
+        case 'tender-pricing':
+          {
+            const directCosts = inputs.directMaterialCost + inputs.directLaborCost + inputs.equipmentCost;
+            const totalPrice = directCosts * (1 + (inputs.indirectCostRate + inputs.profitMargin + inputs.contingencyRate) / 100);
+            totalInvestment = directCosts;
+            monthlyRevenue = totalPrice / 12;
+            monthlyFixed = directCosts * (inputs.indirectCostRate / 100) / 12;
+            monthlyVariable = (inputs.directMaterialCost + inputs.equipmentCost) / 12;
+            unitPrice = monthlyRevenue;
+            unitVariableCost = monthlyVariable;
+          }
+          break;
+        case 'contractor-cashflow':
+          totalInvestment = inputs.projectValue * (inputs.advancePaymentRate / 100);
+          monthlyRevenue = inputs.projectValue * (inputs.monthlyProgressRate / 100);
+          monthlyFixed = inputs.monthlyExpenses;
+          monthlyVariable = monthlyRevenue * (inputs.retentionRate / 100);
+          unitPrice = monthlyRevenue;
+          unitVariableCost = monthlyVariable;
+          break;
+        case 'concrete-structure-cost':
+          {
+            const totalCostPerM2 = inputs.concreteCostPerM2 + inputs.steelCostPerM2 + inputs.formworkCostPerM2 + inputs.laborCostPerM2 + inputs.finishingCostPerM2;
+            totalInvestment = inputs.builtUpArea * totalCostPerM2;
+            monthlyRevenue = (totalInvestment * 1.15) / 6;
+            monthlyFixed = 0;
+            monthlyVariable = totalInvestment / 6;
+            unitPrice = monthlyRevenue;
+            unitVariableCost = monthlyVariable;
+          }
+          break;
+        case 'finishing-cost':
+          {
+            const totalFinishingCost = inputs.finishingArea * (inputs.flooringCostPerM2 + inputs.paintingCostPerM2 + inputs.electricalCostPerM2 + inputs.plumbingCostPerM2 + inputs.acCostPerM2);
+            totalInvestment = totalFinishingCost;
+            monthlyRevenue = (totalFinishingCost * 1.20) / 3;
+            monthlyFixed = 0;
+            monthlyVariable = totalFinishingCost / 3;
+            unitPrice = monthlyRevenue;
+            unitVariableCost = monthlyVariable;
+          }
+          break;
+        case 'distressed-project-evaluation':
+          totalInvestment = inputs.estimatedCompletionCost + inputs.legalCost;
+          monthlyRevenue = inputs.marketValueIfCompleted / inputs.completionMonths;
+          monthlyFixed = inputs.existingLiabilities / inputs.completionMonths;
+          monthlyVariable = 0;
+          unitPrice = monthlyRevenue;
+          unitVariableCost = 0;
+          break;
+        case 'restaurant':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.avgDailyCustomers * inputs.avgTicketValue * 30;
+          monthlyFixed = inputs.monthlyRentSalaries;
+          monthlyVariable = monthlyRevenue * (inputs.foodCostRate / 100);
+          unitPrice = inputs.avgTicketValue;
+          unitVariableCost = unitPrice * (inputs.foodCostRate / 100);
+          break;
+        case 'coffee-shop':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.avgDailyCustomers * inputs.avgTicketValue * 30;
+          monthlyFixed = inputs.monthlyRentSalaries;
+          monthlyVariable = monthlyRevenue * (inputs.foodCostRate / 100);
+          unitPrice = inputs.avgTicketValue;
+          unitVariableCost = unitPrice * (inputs.foodCostRate / 100);
+          break;
+        case 'cloud-kitchen':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.dailyOrders * inputs.avgTicketValue * 30;
+          monthlyFixed = inputs.monthlyRentSalaries;
+          monthlyVariable = monthlyRevenue * ((inputs.foodCostRate + inputs.platformCommissionRate) / 100);
+          unitPrice = inputs.avgTicketValue;
+          unitVariableCost = unitPrice * ((inputs.foodCostRate + inputs.platformCommissionRate) / 100);
+          break;
+        case 'food-truck':
+          totalInvestment = inputs.truckCost + inputs.permitsCost;
+          monthlyRevenue = inputs.dailyCustomers * inputs.avgTicketValue * 30;
+          monthlyFixed = inputs.monthlyFuelMaintenance;
+          monthlyVariable = monthlyRevenue * (inputs.foodCostRate / 100);
+          unitPrice = inputs.avgTicketValue;
+          unitVariableCost = unitPrice * (inputs.foodCostRate / 100);
+          break;
+        case 'fast-food-restaurant':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.dailyCustomers * inputs.avgTicketValue * 30;
+          monthlyFixed = inputs.monthlyRentSalaries;
+          monthlyVariable = monthlyRevenue * (inputs.foodCostRate / 100);
+          unitPrice = inputs.avgTicketValue;
+          unitVariableCost = unitPrice * (inputs.foodCostRate / 100);
+          break;
+        case 'fine-dining-restaurant':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.avgDailyCustomers * inputs.avgTicketValue * 30;
+          monthlyFixed = inputs.monthlyRentSalaries;
+          monthlyVariable = monthlyRevenue * (inputs.foodCostRate / 100);
+          unitPrice = inputs.avgTicketValue;
+          unitVariableCost = unitPrice * (inputs.foodCostRate / 100);
+          break;
+        case 'private-school':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = (inputs.numberOfStudents * inputs.annualFee) / 12;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyRent;
+          monthlyVariable = monthlyRevenue * (inputs.operatingCostRate / 100);
+          unitPrice = inputs.annualFee / 12;
+          unitVariableCost = unitPrice * (inputs.operatingCostRate / 100);
+          break;
+        case 'nursery':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.numberOfChildren * inputs.monthlyFee;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyRent;
+          monthlyVariable = monthlyRevenue * (inputs.operatingCostRate / 100);
+          unitPrice = inputs.monthlyFee;
+          unitVariableCost = unitPrice * (inputs.operatingCostRate / 100);
+          break;
+        case 'private-university':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = (inputs.numberOfStudents * inputs.annualFee) / 12;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyRent;
+          monthlyVariable = monthlyRevenue * (inputs.operatingCostRate / 100);
+          unitPrice = inputs.annualFee / 12;
+          unitVariableCost = unitPrice * (inputs.operatingCostRate / 100);
+          break;
+        case 'training-center':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.monthlyTrainees * inputs.courseFee;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyRent;
+          monthlyVariable = monthlyRevenue * (inputs.operatingCostRate / 100);
+          unitPrice = inputs.courseFee;
+          unitVariableCost = unitPrice * (inputs.operatingCostRate / 100);
+          break;
+        case 'e-learning-platform':
+          totalInvestment = inputs.developmentCost;
+          monthlyRevenue = inputs.numberOfSubscribers * inputs.monthlySubscription;
+          monthlyFixed = inputs.monthlyMarketing + inputs.monthlyServers;
+          monthlyVariable = monthlyRevenue * (inputs.contentCostRate / 100);
+          unitPrice = inputs.monthlySubscription;
+          unitVariableCost = unitPrice * (inputs.contentCostRate / 100);
+          break;
+        case 'hotel':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.numberOfRooms * (inputs.occupancyRate / 100) * inputs.avgDailyRate * 30;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = monthlyRevenue * 0.15;
+          unitPrice = inputs.avgDailyRate;
+          unitVariableCost = unitPrice * 0.15;
+          break;
+        case 'tourist-resort':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.numberOfUnits * (inputs.occupancyRate / 100) * inputs.avgDailyRate * 30;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = monthlyRevenue * 0.18;
+          unitPrice = inputs.avgDailyRate;
+          unitVariableCost = unitPrice * 0.18;
+          break;
+        case 'tourist-camp':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.numberOfTents * (inputs.occupancyRate / 100) * inputs.avgDailyRate * 30;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
+          monthlyVariable = monthlyRevenue * 0.12;
+          unitPrice = inputs.avgDailyRate;
+          unitVariableCost = unitPrice * 0.12;
+          break;
+        case 'tourism-company':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.monthlyPackages * inputs.avgPackagePrice;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyRent;
+          monthlyVariable = monthlyRevenue * (inputs.commissionCostRate / 100);
+          unitPrice = inputs.avgPackagePrice;
+          unitVariableCost = unitPrice * (inputs.commissionCostRate / 100);
+          break;
+        case 'shipping-company':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.monthlyShipments * inputs.revenuePerShipment;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyRent;
+          monthlyVariable = monthlyRevenue * (inputs.operatingCostRate / 100);
+          unitPrice = inputs.revenuePerShipment;
+          unitVariableCost = unitPrice * (inputs.operatingCostRate / 100);
+          break;
+        case 'transport-fleet':
+          totalInvestment = inputs.vehicleCost;
+          monthlyRevenue = inputs.numberOfVehicles * inputs.monthlyTripsPerVehicle * inputs.revenuePerTrip;
+          monthlyFixed = inputs.monthlySalaries;
+          monthlyVariable = inputs.numberOfVehicles * inputs.monthlyTripsPerVehicle * inputs.fuelMaintenancePerTrip;
+          unitPrice = inputs.revenuePerTrip;
+          unitVariableCost = inputs.fuelMaintenancePerTrip;
+          break;
+        case 'distribution-center':
+          totalInvestment = inputs.setupCost;
+          monthlyRevenue = inputs.monthlyOrders * inputs.revenuePerOrder;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyRent;
+          monthlyVariable = monthlyRevenue * (inputs.operatingCostRate / 100);
+          unitPrice = inputs.revenuePerOrder;
+          unitVariableCost = unitPrice * (inputs.operatingCostRate / 100);
+          break;
+        case 'last-mile-delivery':
+          totalInvestment = inputs.vehicleCost;
+          monthlyRevenue = inputs.dailyDeliveries * inputs.revenuePerDelivery * 30;
+          monthlyFixed = inputs.monthlySalaries + inputs.monthlyFuelMaintenance;
+          monthlyVariable = monthlyRevenue * (inputs.operatingCostRate / 100);
+          unitPrice = inputs.revenuePerDelivery;
+          unitVariableCost = unitPrice * (inputs.operatingCostRate / 100);
+          break;
+      }
+
+      // Expert mode refinements
+      if (currentMode === 'expert') {
+        const expertInvestmentTotal = inputs.landCost + inputs.buildingCost + inputs.renovationCost + inputs.machineryCost + inputs.furnitureCost + inputs.vehiclesCost + inputs.workingCapital + inputs.contingencyReserve + inputs.preOpeningCost + inputs.initialInventoryCost + inputs.permitsAndLicensesCost + inputs.feasibilityStudyCost;
+        if (expertInvestmentTotal > 0) {
+          totalInvestment = expertInvestmentTotal;
+        }
+
+        monthlyFixed += (inputs.insuranceCostAnnual / 12) + (inputs.licenseRenewalCost / 12) + inputs.softwareSubscriptions + inputs.marketingBudget + inputs.mitigationBudget + inputs.energyCostMonthly + inputs.waterCostMonthly + inputs.wasteDisposalCost + inputs.securityCost + inputs.cleaningCost + inputs.outsourcingCost + inputs.trainingCost;
+        monthlyVariable += monthlyRevenue * (inputs.maintenanceCostRate / 100) + monthlyRevenue * (inputs.salesCommissionRate / 100);
+
+        if (inputs.loanAmount > 0 && inputs.equityAmount > 0 && (inputs.loanAmount + inputs.equityAmount) > 0) {
+          const debtRatio = inputs.loanAmount / (inputs.loanAmount + inputs.equityAmount);
+          if (debtRatio > 0.6) expertRiskWeight += 0.15;
+          else if (debtRatio > 0.4) expertRiskWeight += 0.05;
+        }
+        if (inputs.collateralValue > 0 && inputs.loanAmount > 0) {
+          const collateralCoverage = inputs.collateralValue / inputs.loanAmount;
+          if (collateralCoverage < 1) expertRiskWeight += 0.1;
+          else if (collateralCoverage > 1.5) expertRiskWeight -= 0.05;
+        }
+
+        const riskScores = [inputs.marketRiskScore, inputs.operationalRiskScore, inputs.financialRiskScore, inputs.regulatoryRiskScore, inputs.technologyRiskScore, inputs.reputationRiskScore, inputs.supplyChainRiskScore, inputs.competitionRiskScore, inputs.currencyRiskScore, inputs.geopoliticalRiskScore].filter(v => typeof v === 'number' && Number.isFinite(v));
+        if (riskScores.length > 0) {
+          const avgRisk = riskScores.reduce((a, b) => a + b, 0) / riskScores.length;
+          expertRiskWeight += (avgRisk - 3) * 0.06;
+        }
+
+        if (inputs.regulatoryApprovalsNeeded > 5) expertRiskWeight += 0.05;
+        if (inputs.environmentalImpact >= 4) expertRiskWeight += 0.08;
+      }
+
+      return {
+        totalInvestment,
+        monthlyFixedCosts: monthlyFixed,
+        monthlyVariableCosts: monthlyVariable,
+        monthlyRevenue,
+        unitPrice,
+        unitVariableCost,
+        projectMonths: inputs.analysisDuration,
+        sectorRiskWeight: Math.max(0.5, expertRiskWeight)
+      };
+    }
+
+    function showValidationWarnings(validation) {
+      const container = document.getElementById('validationWarnings');
+      lastValidationValid = validation.valid;
+      if (!container) return;
+      if (validation.valid) {
+        container.classList.add('hidden');
+        container.innerHTML = '';
+        return;
+      }
+      container.classList.remove('hidden');
+      const title = isAr ? 'تحذيرات التحقق من البيانات' : 'Data Validation Warnings';
+      const fixMsg = isAr ? 'يرجى تصحيح التحذيرات أعلاه قبل إصدار التقرير.' : 'Please fix the warnings above before generating the report.';
+      container.innerHTML = '
+        <div class="validation-warnings__title">⚠️ ' + title + '</div>
+        <ul>' + validation.warnings.map(w => '<li>' + w + '</li>').join('') + '</ul>
+        <div class="validation-warnings__footer">' + fixMsg + '</div>
+      ';
+    }
+
+    function calculate() {
+      const inputs = mapInputs();
+      const engineInputs = calculateEngineInputs(inputs);
+
+      if (window.InvestmentValidator && window.InvestmentValidator.validate) {
+        const validationInputs = { ...inputs, monthlyRevenue: engineInputs.monthlyRevenue };
+        const validation = window.InvestmentValidator.validate(sectorId, validationInputs, isAr ? 'ar' : 'en');
+        showValidationWarnings(validation);
+        if (!validation.valid) {
+          document.getElementById('resultsSection').classList.add('hidden');
+          window._lastResult = null;
+          return;
+        }
+      }
+
+      const result = isAr ? window.InvestmentEngine.analyze(engineInputs) : window.InvestmentEngine.analyzeEn(engineInputs);
+      if (!result.success) {
+        alert(result.error);
+        return;
+      }
+
+      const m = result.metrics;
+      document.getElementById('metricRoi').textContent = formatNumber(m.roi);
+      document.getElementById('metricIrr').textContent = formatNumber(m.irr);
+      document.getElementById('metricNpv').textContent = formatNumber(m.npv);
+      document.getElementById('metricPayback').textContent = formatNumber(m.paybackMonths);
+      document.getElementById('metricBreakEven').textContent = formatNumber(m.breakEvenUnits);
+      document.getElementById('metricMargin').textContent = formatNumber(m.profitMargin);
+      document.getElementById('metricRisk').textContent = formatNumber(m.riskScore);
+
+      const rec = result.recommendation;
+      const bar = document.getElementById('recommendationBar');
+      bar.style.backgroundColor = rec.color + '20';
+      bar.style.borderColor = rec.color;
+      document.getElementById('recommendationDecision').textContent = rec.decision;
+      document.getElementById('recommendationDecision').style.color = rec.color;
+
+      const reasonsList = document.getElementById('recommendationReasons');
+      reasonsList.innerHTML = rec.reasons.map(r => `<li>${r}</li>`).join('');
+
+      // Decision Intelligence Layer
+      if (window.DecisionIntelligence && window.DecisionIntelligence.analyze) {
+        const diResult = window.DecisionIntelligence.analyze(inputs, result, isAr ? 'ar' : 'en');
+        window._lastDecisionResult = diResult;
+        renderDecisionIntelligence(diResult);
+      }
+
+      document.getElementById('resultsSection').classList.remove('hidden');
+      window._lastResult = result;
+    }
+
+    function renderDecisionIntelligence(di) {
+      const panel = document.getElementById('decisionIntelligencePanel');
+      if (!panel) return;
+      panel.classList.remove('hidden');
+
+      const conf = di.confidenceScore;
+      const fill = document.getElementById('diConfidenceFill');
+      const val = document.getElementById('diConfidenceValue');
+      if (fill) fill.style.width = conf.score + '%';
+      if (val) val.textContent = conf.score + (isAr ? '/100' : '/100');
+
+      window.DecisionIntelligence.renderDecisionPanel('diVerdict', di.recommendation);
+      window.DecisionIntelligence.renderSummary('diSummary', di.dataQuality, di.riskAnalysis, di.financingAnalysis, di.marketAnalysis, di.cashFlowAnalysis);
+      window.DecisionIntelligence.renderGauge('diRiskGauge', di.riskAnalysis.score, isAr ? 'درجة المخاطر' : 'Risk Score', di.i18n || {});
+      window.DecisionIntelligence.renderGauge('diMarketGauge', di.marketAnalysis.score, isAr ? 'درجة السوق' : 'Market Score', di.i18n || {});
+      window.DecisionIntelligence.renderGauge('diCashFlowGauge', di.cashFlowAnalysis.score, isAr ? 'درجة التدفق النقدي' : 'Cash Flow Score', di.i18n || {});
+      window.DecisionIntelligence.renderList('diRiskList', di.riskAnalysis.categories || [], 'risk');
+      window.DecisionIntelligence.renderList('diKeyRisks', di.keyRisks, 'risk');
+      window.DecisionIntelligence.renderList('diKeyOpportunities', di.keyOpportunities, 'opportunity');
+
+      const finSummary = document.getElementById('diFinancingSummary');
+      if (finSummary) {
+        const t = isAr ? window.DecisionIntelligence.i18n.ar : window.DecisionIntelligence.i18n.en;
+        finSummary.innerHTML = `
+          <div class="di-metric"><span class="di-metric__label">${t.debtEquityRatio}</span><span class="di-metric__value">${di.financingAnalysis.debtEquityRatio.toFixed(2)}</span></div>
+          <div class="di-metric"><span class="di-metric__label">${t.collateralCoverage}</span><span class="di-metric__value">${di.financingAnalysis.collateralCoverage.toFixed(2)}</span></div>
+          <div class="di-metric"><span class="di-metric__label">${t.dscrEstimate}</span><span class="di-metric__value">${di.financingAnalysis.dscr.toFixed(2)}</span></div>
+          <div class="di-metric"><span class="di-metric__label">${t.selfFinanceRatio}</span><span class="di-metric__value">${di.financingAnalysis.selfFinanceRatio.toFixed(1)}%</span></div>
+          <p class="di-summary-text">${di.financingAnalysis.summary}</p>
+        `;
+      }
+
+      const marketSummary = document.getElementById('diMarketSummary');
+      if (marketSummary) {
+        marketSummary.innerHTML = `
+          <p class="di-summary-text">${di.marketAnalysis.summary}</p>
+          <div class="di-metric"><span class="di-metric__label">${isAr ? 'حصة السوق' : 'Market Share'}</span><span class="di-metric__value">${di.marketAnalysis.marketShare.toFixed(2)}%</span></div>
+        `;
+      }
+
+      const cfSummary = document.getElementById('diCashFlowSummary');
+      if (cfSummary) {
+        const liquidityLabel = t[di.cashFlowAnalysis.liquidity] || di.cashFlowAnalysis.liquidity;
+        cfSummary.innerHTML = `
+          <p class="di-summary-text">${di.cashFlowAnalysis.summary}</p>
+          <div class="di-metric"><span class="di-metric__label">${isAr ? 'السيولة' : 'Liquidity'}</span><span class="di-metric__value">${liquidityLabel}</span></div>
+        `;
+      }
+    }
+
+    async function saveAnalysis() {
+      if (!window._lastResult) return alert(isAr ? 'احسب النتيجة أولاً' : 'Calculate first');
+      if (!lastValidationValid) return alert(isAr ? 'يرجى تصحيح تحذيرات التحقق قبل الحفظ.' : 'Please fix validation warnings before saving.');
+      try {
+        const session = await window.BondsAuth?.getSession?.();
+        const token = session?.data?.session?.access_token;
+        if (!token) return alert(isAr ? 'يجب تسجيل الدخول لحفظ النتيجة' : 'Please sign in to save');
+        const res = await fetch('/api/investment-analysis', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({
+            sector: sectorId,
+            inputs: mapInputs(),
+            results: window._lastResult.metrics,
+            recommendation: window._lastResult.recommendation,
+            decisionIntelligence: window._lastDecisionResult || null
+          })
+        });
+        const json = await res.json();
+        alert(json.success ? (isAr ? '✅ تم الحفظ' : '✅ Saved') : (json.error || 'Error'));
+      } catch (e) {
+        alert(isAr ? 'تعذر الحفظ' : 'Save failed');
+      }
+    }
+
+    function printReport() {
+      if (!window._lastResult) return alert(isAr ? 'احسب النتيجة أولاً' : 'Calculate first');
+      if (!lastValidationValid) return alert(isAr ? 'يرجى تصحيح تحذيرات التحقق قبل طباعة التقرير.' : 'Please fix validation warnings before printing the report.');
+      const content = document.getElementById('resultsSection').outerHTML;
+      if (window.openPrintWindow) {
+        window.openPrintWindow({
+          content,
+          title: title,
+          reportType: 'default',
+          lang: isAr ? 'ar' : 'en'
+        });
+      } else {
+        window.print();
+      }
+    }
+
+    function printExecutiveReport() {
+      if (!window._lastDecisionResult) return alert(isAr ? 'احسب النتيجة أولاً' : 'Calculate first');
+      if (!lastValidationValid) return alert(isAr ? 'يرجى تصحيح تحذيرات التحقق قبل طباعة التقرير.' : 'Please fix validation warnings before printing the report.');
+      const html = window._lastDecisionResult.executiveReport;
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) return alert(isAr ? 'تم حظر النافذة المنبثقة' : 'Popup blocked');
+      printWindow.document.write(html);
+      printWindow.document.close();
+      printWindow.onload = function() {
+        setTimeout(function() { printWindow.print(); }, 600);
+      };
+    }
+  </script>
+</body>
+</html>

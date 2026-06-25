@@ -597,16 +597,31 @@ module.exports = async function handler(req, res) {
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await getExceptions(sb, admin));
       }
-      if (action === 'stats') { return res.status(200).json(await getStats(sb)); }
-      if (action === 'messages') { return res.status(200).json(await getMessages(sb)); }
+      if (action === 'stats') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getStats(sb));
+      }
+      if (action === 'messages') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getMessages(sb));
+      }
       if (action === 'roles') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await getRoles(sb));
       }
-      if (action === 'users') { return res.status(200).json(await getUsers(sb)); }
-      if (action === 'subscriptions') { return res.status(200).json(await getSubscriptions(sb)); }
-      if (action === 'subscriptions') { return res.status(200).json(await getSubscriptions(sb)); }
+      if (action === 'users') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getUsers(sb));
+      }
+      if (action === 'subscriptions') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getSubscriptions(sb));
+      }
       if (action === 'analytics') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });

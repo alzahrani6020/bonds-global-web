@@ -110,6 +110,21 @@ async function getSession() {
   return { data, error };
 }
 
+// ===== API Fetch Helpers =====
+async function getAuthHeaders() {
+  const { data } = await getSession();
+  const token = data?.session?.access_token;
+  return token ? { 'Authorization': 'Bearer ' + token } : {};
+}
+
+async function apiFetch(url, options = {}) {
+  const headers = {
+    ...(options.headers || {}),
+    ...(await getAuthHeaders())
+  };
+  return fetch(url, { ...options, headers });
+}
+
 // ===== Subscription Helpers =====
 async function getSubscription(userId) {
   const sb = getSupabase();
@@ -176,5 +191,5 @@ async function checkFeatureAccess(feature) {
 window.BondsAuth = {
   getSupabase, signUp, signIn, signInWithOAuth, signInWithOTP, signOut,
   getUser, getSession, getSubscription, getProfile, checkFeatureAccess,
-  getRedirectUrl, clearRedirectUrl
+  getRedirectUrl, clearRedirectUrl, getAuthHeaders, apiFetch
 };

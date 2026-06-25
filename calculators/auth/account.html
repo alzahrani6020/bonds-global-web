@@ -257,13 +257,17 @@
         document.getElementById('btnManageSub').addEventListener('click', async () => {
           // Create portal session via API
           try {
-            const res = await fetch('/api/create-portal', {
+            const res = await fetch('/api/billing?action=portal', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ customerId: sub.stripe_customer_id, returnUrl: location.href })
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + session.access_token
+              },
+              body: JSON.stringify({ userId: user.id })
             });
             const json = await res.json();
             if (json.url) window.location.href = json.url;
+            else alert(json.error || 'تعذر فتح بوابة الإدارة');
           } catch(e) { alert('تعذر فتح بوابة الإدارة'); }
         });
       }

@@ -286,9 +286,22 @@
     let revenueChart = null;
     let subsChart = null;
 
+    async function getAdminToken() {
+      let token = window.__ADMIN_TOKEN || '';
+      if (!token && typeof supabase !== 'undefined' && window.__ENV?.SUPABASE_URL) {
+        const client = supabase.createClient(window.__ENV.SUPABASE_URL, window.__ENV.SUPABASE_ANON_KEY);
+        const { data: { session } } = await client.auth.getSession();
+        token = session?.access_token || '';
+      }
+      return token;
+    }
+
     async function fetchStats() {
       try {
-        const res = await fetch('/api/admin?action=stats');
+        const token = await getAdminToken();
+        const res = await fetch('/api/admin?action=stats', {
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         if (!data.success) throw new Error(data.error || 'Unknown error');

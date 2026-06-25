@@ -80,6 +80,7 @@
       research: isEn ? 'Surveys & Research' : 'الاستبيانات والبحوث',
       projectRescue: isEn ? 'Project Rescue' : 'إحياء المشاريع',
       breakEven: isEn ? 'Break-Even' : 'نقطة التعادل',
+      projectWizard: isEn ? 'Project Feasibility Wizard' : 'معالج جدوى المشاريع',
       cashFlowCalc: isEn ? 'Cash Flow' : 'تدفق النقد',
       pricingCalc: isEn ? 'Pricing' : 'تسعير المنتج',
       loanCalc: isEn ? 'Loan & Finance' : 'القرض والتمويل',
@@ -119,6 +120,7 @@
     ];
 
     const calcDropdown = [
+      { label: labels.projectWizard, href: langBase + 'calculator-wizard.html' },
       { label: labels.breakEven, href: calcBreakEven },
       { label: labels.cashFlowCalc, href: calcBase + 'cash-flow.html' },
       { label: labels.pricingCalc, href: calcBase + 'pricing.html' },

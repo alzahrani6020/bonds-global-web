@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Feasibility Wizard | Bonds</title>
+  <meta name="description" content="Bonds Project Feasibility Wizard: 7-stage project evaluation with Investment, Finance, Market, and Risk scores plus a professional PDF report." />
+  <meta property="og:title" content="Project Feasibility Wizard | Bonds" />
+  <meta property="og:description" content="Evaluate your project in 7 stages and get a final investment decision with a PDF report." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:url" content="https://bonds-global.com/en/calculator-wizard.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Project Feasibility Wizard | Bonds" />
+  <meta name="twitter:description" content="Evaluate your project in 7 stages and get a final investment decision with a PDF report." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <link rel="canonical" href="https://bonds-global.com/en/calculator-wizard.html" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../header-footer.css?v=2" />
+  <link rel="stylesheet" href="../styles/calculator-wizard.css" />
+  <link rel="icon" type="image/svg+xml" href="../assets/bonds-mark.svg" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="../calculators/investment-center/decision-intelligence.js"></script>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main>
+    <section class="wizard-hero">
+      <h1>Project Feasibility Wizard</h1>
+      <p>Bonds' comprehensive project feasibility wizard. Enter your project data in 7 stages and receive a professional investment evaluation and PDF report.</p>
+    </section>
+
+    <div class="wizard-container">
+      <div class="mode-toggle wizard-mode-toggle" role="group" aria-label="Mode toggle">
+        <button type="button" class="mode-toggle__btn active" data-mode="basic" onclick="window.WizardApp.setMode('basic')">Basic</button>
+        <button type="button" class="mode-toggle__btn" data-mode="expert" onclick="window.WizardApp.setMode('expert')">Expert</button>
+      </div>
+
+      <div class="wizard-progress" id="wizardProgress">
+        <div class="wizard-progress__bar" style="width: 5%;"></div>
+        <div class="wizard-step active" data-step="1">
+          <div class="wizard-step__number">1</div>
+          <div class="wizard-step__label">Project</div>
+        </div>
+        <div class="wizard-step" data-step="2">
+          <div class="wizard-step__number">2</div>
+          <div class="wizard-step__label">Market</div>
+        </div>
+        <div class="wizard-step" data-step="3">
+          <div class="wizard-step__number">3</div>
+          <div class="wizard-step__label">Operations</div>
+        </div>
+        <div class="wizard-step" data-step="4">
+          <div class="wizard-step__number">4</div>
+          <div class="wizard-step__label">Investment</div>
+        </div>
+        <div class="wizard-step" data-step="5">
+          <div class="wizard-step__number">5</div>
+          <div class="wizard-step__label">Financing</div>
+        </div>
+        <div class="wizard-step" data-step="6">
+          <div class="wizard-step__number">6</div>
+          <div class="wizard-step__label">Risks</div>
+        </div>
+        <div class="wizard-step" data-step="7">
+          <div class="wizard-step__number">7</div>
+          <div class="wizard-step__label">Review</div>
+        </div>
+      </div>
+
+      <form id="wizardForm">
+        <!-- Step 1: Project -->
+        <div class="wizard-step-content active" id="step1">
+          <div class="wizard-panel">
+            <h2>Step 1: Project Data</h2>
+            <p class="subtitle">Enter the basic information about your project.</p>
+            <div class="wizard-grid">
+              <div class="wizard-input-group full-width" data-basic data-expert>
+                <label for="projectName">Project Name</label>
+                <input type="text" id="projectName" data-required="true" placeholder="e.g. Healthy Restaurant" />
+              </div>
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="projectSector">Sector</label>
+                <select id="projectSector" data-required="true">
+                  <option value="">Select sector</option>
+                  <option value="medical">Medical</option>
+                  <option value="industrial">Industrial</option>
+                  <option value="real-estate">Real Estate</option>
+                  <option value="commercial">Commercial</option>
+                  <option value="tourism">Tourism</option>
+                  <option value="education">Education</option>
+                  <option value="logistics">Logistics</option>
+                  <option value="agriculture">Agriculture</option>
+                  <option value="technology">Technology</option>
+                  <option value="restaurants">Restaurants</option>
+                  <option value="retail">Retail</option>
+                  <option value="construction">Construction</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="projectLocation">Location</label>
+                <input type="text" id="projectLocation" placeholder="e.g. Riyadh" />
+              </div>
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="projectDuration">Project Duration (months)</label>
+                <input type="number" id="projectDuration" data-required="true" value="60" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="projectOwner">Project Owner / Entity</label>
+                <input type="text" id="projectOwner" placeholder="e.g. Bonds Investment Co." />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="legalStructure">Legal Structure</label>
+                <select id="legalStructure">
+                  <option value="">Select</option>
+                  <option value="llc">LLC</option>
+                  <option value="joint-stock">Joint Stock</option>
+                  <option value="sole">Sole Proprietorship</option>
+                  <option value="partnership">Partnership</option>
+                  <option value="branch">Branch</option>
+                </select>
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="startMonth">Expected Start Month</label>
+                <input type="number" id="startMonth" value="1" min="1" max="12" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="projectPhase">Project Phase</label>
+                <select id="projectPhase">
+                  <option value="idea">Idea</option>
+                  <option value="feasibility">Feasibility</option>
+                  <option value="establishment" selected>Establishment</option>
+                  <option value="operation">Operation</option>
+                  <option value="expansion">Expansion</option>
+                </select>
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="projectDurationYears">Project Duration (Years)</label>
+                <input type="number" id="projectDurationYears" value="5" min="1" max="30" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="regulatoryApprovalsNeeded">Required Regulatory Approvals</label>
+                <input type="number" id="regulatoryApprovalsNeeded" value="3" min="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="projectManagerExperience">Project Manager Experience (Years)</label>
+                <input type="number" id="projectManagerExperience" value="5" min="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="environmentalImpact">Environmental Impact (1 = low, 5 = high)</label>
+                <input type="number" id="environmentalImpact" value="2" min="1" max="5" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Market -->
+        <div class="wizard-step-content" id="step2">
+          <div class="wizard-panel">
+            <h2>Step 2: Market Analysis</h2>
+            <p class="subtitle">Provide your market size and competition estimates.</p>
+            <div class="wizard-grid">
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="marketSize">Annual Market Size (SAR)</label>
+                <input type="number" id="marketSize" data-required="true" value="50000000" />
+              </div>
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="competitionLevel">Competition Level (1 = low, 5 = high)</label>
+                <input type="number" id="competitionLevel" data-required="true" min="1" max="5" value="3" />
+              </div>
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="marketGrowthRate">Annual Market Growth Rate (%)</label>
+                <input type="number" id="marketGrowthRate" data-required="true" value="8" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="tam">Total Addressable Market (TAM) Annual (SAR)</label>
+                <input type="number" id="tam" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="sam">Serviceable Addressable Market (SAM) Annual (SAR)</label>
+                <input type="number" id="sam" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="som">Serviceable Obtainable Market (SOM) Annual (SAR)</label>
+                <input type="number" id="som" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="competitorCount">Number of Direct Competitors</label>
+                <input type="number" id="competitorCount" value="5" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="avgCompetitorPrice">Average Competitor Price (SAR)</label>
+                <input type="number" id="avgCompetitorPrice" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="marketEntryBarrier">Market Entry Barrier (1 = low, 5 = high)</label>
+                <input type="number" id="marketEntryBarrier" min="1" max="5" value="3" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="customerAcquisitionCost">Customer Acquisition Cost (SAR)</label>
+                <input type="number" id="customerAcquisitionCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="customerLifetimeValue">Customer Lifetime Value (SAR)</label>
+                <input type="number" id="customerLifetimeValue" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="digitalAdBudget">Monthly Digital Ad Budget (SAR)</label>
+                <input type="number" id="digitalAdBudget" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="brandAwareness">Brand Awareness Level (%)</label>
+                <input type="number" id="brandAwareness" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="seasonalFactor">Seasonality Factor (0.5 = low, 1.5 = high)</label>
+                <input type="number" id="seasonalFactor" value="1" min="0.1" max="3" step="0.1" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="churnRate">Monthly Customer Churn Rate (%)</label>
+                <input type="number" id="churnRate" value="5" min="0" max="100" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="repeatPurchaseRate">Monthly Repeat Purchase Rate (%)</label>
+                <input type="number" id="repeatPurchaseRate" value="20" min="0" max="100" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="onlineVsOfflineRatio">Online Sales Ratio (%)</label>
+                <input type="number" id="onlineVsOfflineRatio" value="30" min="0" max="100" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Operations -->
+        <div class="wizard-step-content" id="step3">
+          <div class="wizard-panel">
+            <h2>Step 3: Operations & Expenses</h2>
+            <p class="subtitle">Assess operating expenses and efficiency.</p>
+            <div class="wizard-grid">
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="operatingExpenseRate">Operating Expense Ratio (%)</label>
+                <input type="number" id="operatingExpenseRate" data-required="true" value="20" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="operatingDaysPerMonth">Operating Days per Month</label>
+                <input type="number" id="operatingDaysPerMonth" value="26" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="operatingHoursPerDay">Operating Hours per Day</label>
+                <input type="number" id="operatingHoursPerDay" value="10" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="shiftCount">Number of Shifts</label>
+                <input type="number" id="shiftCount" value="1" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="capacityUtilizationTarget">Capacity Utilization Target (%)</label>
+                <input type="number" id="capacityUtilizationTarget" value="75" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="employeeProductivityIndex">Employee Productivity Index (1 = low, 5 = high)</label>
+                <input type="number" id="employeeProductivityIndex" min="1" max="5" value="3" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="maintenanceCostRate">Maintenance Cost Ratio (%)</label>
+                <input type="number" id="maintenanceCostRate" value="3" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="insuranceCostAnnual">Annual Insurance Cost (SAR)</label>
+                <input type="number" id="insuranceCostAnnual" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="licenseRenewalCost">Annual License Renewal Cost (SAR)</label>
+                <input type="number" id="licenseRenewalCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="softwareSubscriptions">Monthly Software Subscriptions (SAR)</label>
+                <input type="number" id="softwareSubscriptions" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="marketingBudget">Monthly Marketing Budget (SAR)</label>
+                <input type="number" id="marketingBudget" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="salesCommissionRate">Sales Commission Rate (%)</label>
+                <input type="number" id="salesCommissionRate" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="energyCostMonthly">Monthly Energy Cost (SAR)</label>
+                <input type="number" id="energyCostMonthly" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="waterCostMonthly">Monthly Water Cost (SAR)</label>
+                <input type="number" id="waterCostMonthly" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="wasteDisposalCost">Monthly Waste Disposal Cost (SAR)</label>
+                <input type="number" id="wasteDisposalCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="securityCost">Monthly Security Cost (SAR)</label>
+                <input type="number" id="securityCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="cleaningCost">Monthly Cleaning Cost (SAR)</label>
+                <input type="number" id="cleaningCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="outsourcingCost">Monthly Outsourcing Cost (SAR)</label>
+                <input type="number" id="outsourcingCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="trainingCost">Monthly Training Cost (SAR)</label>
+                <input type="number" id="trainingCost" value="0" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Investment -->
+        <div class="wizard-step-content" id="step4">
+          <div class="wizard-panel">
+            <h2>Step 4: Investment & Costs</h2>
+            <p class="subtitle">Enter investment costs.</p>
+            <div class="wizard-grid">
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="totalInvestment">Total Investment (SAR)</label>
+                <input type="number" id="totalInvestment" data-required="true" value="1000000" />
+              </div>
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="setupCost">Setup & Establishment Cost (SAR)</label>
+                <input type="number" id="setupCost" data-required="true" value="400000" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="landCost">Land Cost (SAR)</label>
+                <input type="number" id="landCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="buildingCost">Building Cost (SAR)</label>
+                <input type="number" id="buildingCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="renovationCost">Renovation & Setup Cost (SAR)</label>
+                <input type="number" id="renovationCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="machineryCost">Machinery & Equipment Cost (SAR)</label>
+                <input type="number" id="machineryCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="furnitureCost">Furniture & Office Equipment Cost (SAR)</label>
+                <input type="number" id="furnitureCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="vehiclesCost">Vehicles Cost (SAR)</label>
+                <input type="number" id="vehiclesCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="workingCapital">Working Capital (SAR)</label>
+                <input type="number" id="workingCapital" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="contingencyReserve">Contingency Reserve (SAR)</label>
+                <input type="number" id="contingencyReserve" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="salvageValue">Asset Salvage Value (SAR)</label>
+                <input type="number" id="salvageValue" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="assetLifeYears">Asset Life (Years)</label>
+                <input type="number" id="assetLifeYears" value="10" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="preOpeningCost">Pre-Opening Cost (SAR)</label>
+                <input type="number" id="preOpeningCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="initialInventoryCost">Initial Inventory Cost (SAR)</label>
+                <input type="number" id="initialInventoryCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="permitsAndLicensesCost">Permits & Licenses Cost (SAR)</label>
+                <input type="number" id="permitsAndLicensesCost" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="feasibilityStudyCost">Feasibility Study Cost (SAR)</label>
+                <input type="number" id="feasibilityStudyCost" value="0" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5: Financing -->
+        <div class="wizard-step-content" id="step5">
+          <div class="wizard-panel">
+            <h2>Step 5: Financing</h2>
+            <p class="subtitle">Define financing structure and required returns.</p>
+            <div class="wizard-grid">
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="availableCapital">Available Capital (SAR)</label>
+                <input type="number" id="availableCapital" data-required="true" value="500000" />
+              </div>
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="monthlyRevenue">Expected Monthly Revenue (SAR)</label>
+                <input type="number" id="monthlyRevenue" data-required="true" value="150000" />
+              </div>
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="revenueGrowthRate">Annual Revenue Growth Rate (%)</label>
+                <input type="number" id="revenueGrowthRate" data-required="true" value="10" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="equityAmount">Equity Amount (SAR)</label>
+                <input type="number" id="equityAmount" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="loanAmount">Loan Amount (SAR)</label>
+                <input type="number" id="loanAmount" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="interestRate">Annual Interest Rate (%)</label>
+                <input type="number" id="interestRate" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="loanTermYears">Loan Term (Years)</label>
+                <input type="number" id="loanTermYears" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="gracePeriodMonths">Grace Period (Months)</label>
+                <input type="number" id="gracePeriodMonths" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="requiredRoi">Required Annual ROI (%)</label>
+                <input type="number" id="requiredRoi" value="15" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="minDscr">Minimum DSCR</label>
+                <input type="number" id="minDscr" value="1.25" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="balloonPayment">Balloon Payment (SAR)</label>
+                <input type="number" id="balloonPayment" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="earlyRepaymentPenalty">Early Repayment Penalty (%)</label>
+                <input type="number" id="earlyRepaymentPenalty" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="collateralValue">Collateral Value (SAR)</label>
+                <input type="number" id="collateralValue" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="debtServiceStartMonth">Debt Service Start Month</label>
+                <input type="number" id="debtServiceStartMonth" value="1" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 6: Risks -->
+        <div class="wizard-step-content" id="step6">
+          <div class="wizard-panel">
+            <h2>Step 6: Risks</h2>
+            <p class="subtitle">Assess potential risks.</p>
+            <div class="wizard-grid">
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="marketRisk">Market Risk (1 = low, 5 = high)</label>
+                <input type="number" id="marketRisk" data-required="true" min="1" max="5" value="3" />
+              </div>
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="operationalRisk">Operational Risk (1 = low, 5 = high)</label>
+                <input type="number" id="operationalRisk" data-required="true" min="1" max="5" value="3" />
+              </div>
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="financialRisk">Financial Risk (1 = low, 5 = high)</label>
+                <input type="number" id="financialRisk" data-required="true" min="1" max="5" value="3" />
+              </div>
+              <div class="wizard-input-group" data-basic data-expert>
+                <label for="regulatoryRisk">Regulatory Risk (1 = low, 5 = high)</label>
+                <input type="number" id="regulatoryRisk" data-required="true" min="1" max="5" value="2" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="technologyRiskScore">Technology Risk (1 = low, 5 = high)</label>
+                <input type="number" id="technologyRiskScore" min="1" max="5" value="3" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="reputationRiskScore">Reputation Risk (1 = low, 5 = high)</label>
+                <input type="number" id="reputationRiskScore" min="1" max="5" value="3" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="mitigationBudget">Monthly Risk Mitigation Budget (SAR)</label>
+                <input type="number" id="mitigationBudget" value="0" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="supplyChainRiskScore">Supply Chain Risk (1 = low, 5 = high)</label>
+                <input type="number" id="supplyChainRiskScore" min="1" max="5" value="3" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="competitionRiskScore">Competition Risk (1 = low, 5 = high)</label>
+                <input type="number" id="competitionRiskScore" min="1" max="5" value="3" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="currencyRiskScore">Currency Risk (1 = low, 5 = high)</label>
+                <input type="number" id="currencyRiskScore" min="1" max="5" value="2" />
+              </div>
+              <div class="wizard-input-group" data-expert>
+                <label for="geopoliticalRiskScore">Geopolitical Risk (1 = low, 5 = high)</label>
+                <input type="number" id="geopoliticalRiskScore" min="1" max="5" value="2" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 7: Review / Results -->
+        <div class="wizard-step-content" id="step7">
+          <div class="wizard-panel">
+            <h2>Step 7: Review & Final Result</h2>
+            <p class="subtitle">Review assumptions and view the investment report.</p>
+
+            <div class="wizard-grid" data-expert>
+              <div class="wizard-input-group full-width">
+                <label for="keyAssumptions">Key Assumptions</label>
+                <textarea id="keyAssumptions" rows="3" placeholder="Key assumptions behind your projections..."></textarea>
+              </div>
+              <div class="wizard-input-group">
+                <label for="sensitivityCase">Sensitivity Case</label>
+                <select id="sensitivityCase">
+                  <option value="base" selected>Base</option>
+                  <option value="optimistic">Optimistic</option>
+                  <option value="pessimistic">Pessimistic</option>
+                </select>
+              </div>
+              <div class="wizard-input-group">
+                <label for="exitStrategy">Exit Strategy</label>
+                <select id="exitStrategy">
+                  <option value="retain" selected>Retain Ownership</option>
+                  <option value="sale">Sale</option>
+                  <option value="ipo">IPO</option>
+                  <option value="merger">Merger</option>
+                  <option value="liquidation">Liquidation</option>
+                </select>
+              </div>
+              <div class="wizard-input-group full-width">
+                <label for="successFactors">Key Success Factors</label>
+                <textarea id="successFactors" rows="3" placeholder="Key factors that will make the project succeed..."></textarea>
+              </div>
+            </div>
+
+            <div id="wizardValidationWarnings" class="validation-warnings wizard-hidden"></div>
+
+            <div class="overall-score">
+              <div class="overall-score__label">Overall Score</div>
+              <div class="overall-score__value" id="overallValue">0</div>
+              <div class="overall-score__verdict" id="overallVerdict">--</div>
+            </div>
+
+            <div class="scores-grid">
+              <div class="score-card">
+                <div class="score-card__label" id="labelInvestment">Investment Score</div>
+                <div class="score-card__value" id="scoreInvestment">0</div>
+                <div class="score-card__bar"><div class="score-card__fill" id="fillInvestment" style="width:0%"></div></div>
+              </div>
+              <div class="score-card">
+                <div class="score-card__label" id="labelFinance">Finance Score</div>
+                <div class="score-card__value" id="scoreFinance">0</div>
+                <div class="score-card__bar"><div class="score-card__fill" id="fillFinance" style="width:0%"></div></div>
+              </div>
+              <div class="score-card">
+                <div class="score-card__label" id="labelMarket">Market Score</div>
+                <div class="score-card__value" id="scoreMarket">0</div>
+                <div class="score-card__bar"><div class="score-card__fill" id="fillMarket" style="width:0%"></div></div>
+              </div>
+              <div class="score-card">
+                <div class="score-card__label" id="labelRisk">Risk Score</div>
+                <div class="score-card__value" id="scoreRisk">0</div>
+                <div class="score-card__bar"><div class="score-card__fill" id="fillRisk" style="width:0%"></div></div>
+              </div>
+            </div>
+
+            <h3 style="color: var(--gold); margin-bottom: 1rem;">Key Financial Metrics</h3>
+            <div class="metrics-summary">
+              <div class="metric-small">
+                <div class="metric-small__label">Return on Investment</div>
+                <div class="metric-small__value" id="metricRoi">--</div>
+              </div>
+              <div class="metric-small">
+                <div class="metric-small__label">Profit Margin</div>
+                <div class="metric-small__value" id="metricMargin">--</div>
+              </div>
+              <div class="metric-small">
+                <div class="metric-small__label">Payback Period</div>
+                <div class="metric-small__value" id="metricPayback">--</div>
+              </div>
+              <div class="metric-small">
+                <div class="metric-small__label">Break-Even Revenue</div>
+                <div class="metric-small__value" id="metricBreakEven">--</div>
+              </div>
+              <div class="metric-small">
+                <div class="metric-small__label">Annual Net Profit</div>
+                <div class="metric-small__value" id="metricAnnualProfit">--</div>
+              </div>
+            </div>
+
+            <div class="recommendations">
+              <h3>Investment Decision & Recommendations</h3>
+              <ul id="recommendationList"></ul>
+            </div>
+
+            <div id="decisionIntelligencePanel" class="decision-intelligence wizard-hidden">
+              <h2>Investment Decision Intelligence</h2>
+              <div class="di-confidence">
+                <div class="di-confidence__label">Confidence Score</div>
+                <div class="di-confidence__gauge"><div class="di-confidence__fill" id="diConfidenceFill" style="width: 0%"></div></div>
+                <div class="di-confidence__value" id="diConfidenceValue">0</div>
+              </div>
+              <div class="di-verdict" id="diVerdict"></div>
+              <div id="diSummary"></div>
+              <div class="di-grid">
+                <div class="di-card"><h3>Risk Analysis</h3><div id="diRiskGauge"></div><div id="diRiskList" class="di-list"></div></div>
+                <div class="di-card"><h3>Financing Analysis</h3><div id="diFinancingSummary"></div></div>
+                <div class="di-card"><h3>Market Analysis</h3><div id="diMarketGauge"></div><div id="diMarketSummary"></div></div>
+                <div class="di-card"><h3>Cash Flow Analysis</h3><div id="diCashFlowGauge"></div><div id="diCashFlowSummary"></div></div>
+              </div>
+              <div class="di-card di-card--wide"><h3>Key Risks</h3><div id="diKeyRisks" class="di-list di-list--risks"></div></div>
+              <div class="di-card di-card--wide"><h3>Key Opportunities</h3><div id="diKeyOpportunities" class="di-list di-list--opportunities"></div></div>
+            </div>
+
+            <div class="wizard-actions center" style="margin-top: 2rem;">
+              <button type="button" class="wizard-btn wizard-btn-primary" id="pdfBtn">Download PDF Report</button>
+              <button type="button" class="wizard-btn wizard-btn-secondary" id="execReportBtn">Print Executive Report</button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <div class="wizard-actions">
+        <button type="button" class="wizard-btn wizard-btn-secondary wizard-hidden" id="wizardBack">Back</button>
+        <button type="button" class="wizard-btn wizard-btn-primary" id="wizardNext">Next</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="../site-layout.js"></script>
+  <script src="../page-tracker-v2.js"></script>
+  <script src="../calculator-wizard.js"></script>
+</body>
+</html>
