@@ -267,6 +267,18 @@
       "destination": "/api/research"
     },
     {
+      "source": "/calculators/investment-center",
+      "destination": "/calculators/investment-center/index.html"
+    },
+    {
+      "source": "/calculators/investment-center/",
+      "destination": "/calculators/investment-center/index.html"
+    },
+    {
+      "source": "/calculators/:sector",
+      "destination": "/calculators/investment-center/:sector.html"
+    },
+    {
       "source": "/api/([^/]+)",
       "destination": "/api/$1"
     },
