@@ -38,13 +38,16 @@
     ART_COLLECTIBLES: 'artCollectibles',
     JEWELRY_PRECIOUS_METALS: 'jewelryPreciousMetals',
     SOFTWARE_TECHNOLOGY: 'softwareTechnology',
+    MEDICAL_EQUIPMENT: 'medicalEquipment',
+    EDUCATIONAL_EQUIPMENT: 'educationalEquipment',
+    DISTRESSED_ASSET: 'distressedAsset',
 
     _labels: {
       realEstate: { ar: 'العقارات', en: 'Real Estate', active: true },
       business: { ar: 'الشركات', en: 'Businesses', active: true },
       factory: { ar: 'المصانع', en: 'Factories', active: true },
-      machineryEquipment: { ar: 'الآلات والمعدات', en: 'Machinery & Equipment', active: false },
-      vehiclesFleet: { ar: 'المركبات والأساطيل', en: 'Vehicles & Fleet', active: false },
+      machineryEquipment: { ar: 'الآلات والمعدات', en: 'Machinery & Equipment', active: true },
+      vehiclesFleet: { ar: 'المركبات والأساطيل', en: 'Vehicles & Fleet', active: true },
       agricultureFarms: { ar: 'الزراعة والمزارع', en: 'Agriculture & Farms', active: false },
       livestock: { ar: 'الثروة الحيوانية', en: 'Livestock', active: false },
       naturalResourcesMining: { ar: 'الموارد الطبيعية والتعدين', en: 'Natural Resources & Mining', active: false },
@@ -58,10 +61,13 @@
       licensesPermits: { ar: 'التراخيص والتصاريح', en: 'Licenses & Permits', active: false },
       financialAssets: { ar: 'الأصول المالية', en: 'Financial Assets', active: false },
       cryptoDigital: { ar: 'العملات الرقمية والأصول الرقمية', en: 'Crypto & Digital Assets', active: false },
-      commodities: { ar: 'السلع', en: 'Commodities', active: false },
+      commodities: { ar: 'السلع', en: 'Commodities', active: true },
       artCollectibles: { ar: 'الفنون والمقتنيات', en: 'Art & Collectibles', active: false },
-      jewelryPreciousMetals: { ar: 'المجوهرات والمعادن الثمينة', en: 'Jewelry & Precious Metals', active: false },
+      jewelryPreciousMetals: { ar: 'المجوهرات والمعادن الثمينة', en: 'Jewelry & Precious Metals', active: true },
       softwareTechnology: { ar: 'البرمجيات والتقنية', en: 'Software & Technology', active: false },
+      medicalEquipment: { ar: 'الأجهزة والمعدات الطبية', en: 'Medical Equipment', active: true },
+      educationalEquipment: { ar: 'التجهيزات التعليمية', en: 'Educational Equipment', active: true },
+      distressedAsset: { ar: 'الأصول المتعثرة', en: 'Distressed Assets', active: true },
     },
 
     getLabel(slug, lang) {
@@ -270,6 +276,178 @@
       return { bookValue, marketValue, fairValue, investmentValue, liquidationValue };
     }
 
+    /* ---------- Depreciable Tangible Engine (machinery, vehicles, medical, educational) ---------- */
+    _calcDepreciableTangible(i, config = {}) {
+      const historicalCost = safe(i.purchasePrice) + safe(i.installationCost) +
+        safe(i.transportCost) + safe(i.improvementCosts);
+      const age = Math.max(0, CURRENT_YEAR - safe(i.yearAcquired));
+      const usefulLife = Math.max(1, safe(i.usefulLifeYears) || 15);
+      const accumulatedDep = safe(i.accumulatedDepreciation) ||
+        (historicalCost / usefulLife * Math.min(age, usefulLife));
+      const obsolescence = clamp(i.obsolescenceFactor, 0, 1);
+      const residualRate = clamp(i.residualValueRate, 0, 1) || 0.2;
+      const bookValue = Math.max(0,
+        historicalCost - accumulatedDep - obsolescence * historicalCost * 0.5
+      );
+
+      const replacementNew = safe(i.replacementCostNew) || historicalCost;
+      const conditionScore = clamp(i.conditionScore, 1, 10) || 5;
+      const conditionAdj = 0.55 + 0.045 * conditionScore;
+      const replacementValue = replacementNew * conditionAdj * (1 - obsolescence) *
+        (1 + residualRate * 0.1);
+      const comparableSales = safe(i.comparableSalesValue);
+      const demand = clamp(i.demandIndex, 1, 10) || 5;
+      const supply = clamp(i.supplyIndex, 1, 10) || 5;
+      const demandSupplyFactor = (demand / 5) / (supply / 5);
+      const marketGrowth = clamp(i.marketGrowthRate, -0.2, 0.5);
+      const marketValue = Math.max(0,
+        (replacementValue + comparableSales) / 2 * demandSupplyFactor * (1 + marketGrowth)
+      );
+
+      const monthlyRevenue = safe(i.monthlyOperatingRevenue);
+      const utilization = clamp(i.utilizationRate, 0, 1) || 0.7;
+      const opexRate = clamp(i.operatingExpensesRate, 0, 1) || 0.3;
+      const operatingValue = monthlyRevenue * 12 * utilization * (1 - opexRate);
+      const capRate = config.capRate || 0.12;
+      const incomeValue = operatingValue / capRate;
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.5, 1 - avgRisk / 20);
+      const weights = config.weights || { book: 0.3, market: 0.35, income: 0.35 };
+      const fairValue = (bookValue * weights.book + marketValue * weights.market +
+        incomeValue * weights.income) * riskAdj;
+
+      const certs = safe(i.certificationValue) + safe(i.maintenanceContractValue);
+      const accreditation = safe(i.accreditationValue);
+      const brandPrem = clamp(i.brandPremium, 0, 1);
+      const regulatoryBoost = config.regulatoryBoost || 0;
+      const esg = clamp(i.esgScore, 0, 100) / 100;
+      const automation = clamp(i.automationPlan, 0, 1);
+      const investmentValue = fairValue * (1 + brandPrem + automation * 0.05 + esg * 0.02) +
+        certs + accreditation + regulatoryBoost;
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.05;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 5;
+      const liquidationTime = clamp(i.liquidationTimeMonths, 1, 36) || 12;
+      const liquidationValue = Math.max(0,
+        marketValue * (1 - transactionCosts - 0.15 / buyerPool) *
+        (1 - liquidationTime / 36) * (1 - avgRisk / 30)
+      );
+
+      const insuranceValue = replacementValue * 1.1;
+
+      return {
+        bookValue,
+        replacementValue,
+        marketValue,
+        operatingValue,
+        incomeValue,
+        fairValue,
+        investmentValue,
+        liquidationValue,
+        insuranceValue
+      };
+    }
+
+    /* ---------- Commodity-like Engine (jewelry, precious metals, commodities) ---------- */
+    _calcCommodityLike(i) {
+      const quantity = safe(i.quantityUnits);
+      const spot = safe(i.spotPricePerUnit);
+      const purity = clamp(i.purityFactor, 0, 1) || 1;
+      const premium = clamp(i.premiumRate, 0, 1);
+      const brandPrem = clamp(i.brandPremium, 0, 1);
+      const bookValue = safe(i.purchasePrice);
+      const marketValue = quantity * spot * purity * (1 + premium + brandPrem);
+
+      const demand = clamp(i.demandIndex, 1, 10) || 5;
+      const supply = clamp(i.supplyIndex, 1, 10) || 5;
+      const demandSupplyFactor = (demand / 5) / (supply / 5);
+      const marketGrowth = clamp(i.marketGrowthRate, -0.2, 0.5);
+      const adjustedMarket = marketValue * demandSupplyFactor * (1 + marketGrowth);
+
+      const volatility = clamp(i.marketVolatility, 0, 10);
+      const volatilityDiscount = volatility / 40;
+      const fairValue = adjustedMarket * (1 - volatilityDiscount);
+
+      const rarity = clamp(i.rarityPremium, 0, 1);
+      const brandValue = safe(i.brandValue);
+      const investmentValue = fairValue * (1 + rarity) + brandValue;
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.04;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 6;
+      const liquidationValue = Math.max(0,
+        marketValue * (1 - transactionCosts - 0.1 / buyerPool) * (1 - volatilityDiscount)
+      );
+
+      const storage = safe(i.storageCost);
+      const insurance = safe(i.insuranceCost);
+      const operatingValue = Math.max(0, marketValue - storage - insurance);
+      const insuranceValue = marketValue * 1.1;
+
+      return {
+        bookValue,
+        marketValue: adjustedMarket,
+        operatingValue,
+        fairValue,
+        investmentValue,
+        liquidationValue,
+        insuranceValue
+      };
+    }
+
+    /* ---------- Distressed Asset Engine ---------- */
+    _calcDistressed(i) {
+      const bookValue = Math.max(0, safe(i.bookValue));
+      const debt = safe(i.accumulatedDebt);
+      const legalHold = safe(i.legalHoldCost);
+      const adjustedBook = Math.max(0, bookValue - debt - legalHold);
+
+      const distressSeverity = clamp(i.distressSeverity, 0, 10);
+      const forcedDiscount = clamp(i.forcedSaleDiscount, 0, 1) || 0.3;
+      const recoveryRate = clamp(i.recoveryRate, 0, 1) || 0.55;
+      const marketValueNoDistress = safe(i.marketValue) || safe(i.comparableSalesValue);
+      const marketValue = marketValueNoDistress * (1 - forcedDiscount) * recoveryRate;
+
+      const stabilizedNOI = safe(i.stabilizedNOI);
+      const capRate = clamp(i.stabilizedCapRate, 0.01, 0.5) || 0.08;
+      const discountRate = clamp(i.discountRate, 0.01, 1) || 0.15;
+      const timeToStabilize = Math.max(1, Math.min(60, safe(i.timeToStabilizeMonths) || 18));
+      const incomeValue = stabilizedNOI / capRate / Math.pow(1 + discountRate, timeToStabilize / 12);
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.4, 1 - avgRisk / 20);
+      const fairValue = (adjustedBook * 0.25 + marketValue * 0.35 + incomeValue * 0.4) * riskAdj;
+
+      const restructuring = safe(i.restructuringCost);
+      const planValue = safe(i.restructuringPlanValue);
+      const strategic = safe(i.strategicValue);
+      const restructuredValue = Math.max(0, fairValue - restructuring + planValue + strategic);
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.07;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 4;
+      const liquidationTime = clamp(i.liquidationTimeMonths, 1, 36) || 6;
+      const liquidationValue = Math.max(0,
+        marketValue * (1 - transactionCosts - 0.2 / buyerPool) * (1 - liquidationTime / 36)
+      );
+      const quickExitValue = marketValue * (1 - forcedDiscount * 1.3) * (1 - transactionCosts);
+
+      const operatingValue = Math.max(0, stabilizedNOI - restructuring / 12);
+      const insuranceValue = marketValueNoDistress * 0.85;
+
+      return {
+        bookValue: adjustedBook,
+        marketValue,
+        operatingValue,
+        incomeValue,
+        fairValue,
+        investmentValue: restructuredValue,
+        restructuredValue,
+        liquidationValue,
+        quickExitValue,
+        insuranceValue
+      };
+    }
+
     /* ---------- Generic fallback (for completeness / future classes) ---------- */
     _calcGeneric(i) {
       const base = safe(i.purchasePrice) || safe(i.equityBookValue) ||
@@ -278,10 +456,13 @@
       const market = base * (1 + clamp(i.marketGrowthRate, -0.2, 0.5)) * riskAdj;
       return {
         bookValue: round2(base),
+        replacementValue: round2(base * 1.05),
         marketValue: round2(market),
+        operatingValue: round2(market * 0.06),
         fairValue: round2(market * 0.95),
         investmentValue: round2(market * 1.05),
-        liquidationValue: round2(market * 0.7)
+        liquidationValue: round2(market * 0.7),
+        insuranceValue: round2(base * 1.1)
       };
     }
 
@@ -291,6 +472,26 @@
           case AssetClass.REAL_ESTATE: return this._calcRealEstate(inputs);
           case AssetClass.BUSINESS: return this._calcBusiness(inputs);
           case AssetClass.FACTORY: return this._calcFactory(inputs);
+          case AssetClass.MACHINERY_EQUIPMENT:
+            return this._calcDepreciableTangible(inputs, { weights: { book: 0.25, market: 0.35, income: 0.4 } });
+          case AssetClass.VEHICLES_FLEET:
+            return this._calcDepreciableTangible(inputs, { weights: { book: 0.2, market: 0.45, income: 0.35 } });
+          case AssetClass.MEDICAL_EQUIPMENT:
+            return this._calcDepreciableTangible(inputs, {
+              weights: { book: 0.25, market: 0.3, income: 0.45 },
+              regulatoryBoost: 50000,
+              capRate: 0.1
+            });
+          case AssetClass.EDUCATIONAL_EQUIPMENT:
+            return this._calcDepreciableTangible(inputs, {
+              weights: { book: 0.3, market: 0.3, income: 0.4 },
+              capRate: 0.1
+            });
+          case AssetClass.JEWELRY_PRECIOUS_METALS:
+          case AssetClass.COMMODITIES:
+            return this._calcCommodityLike(inputs);
+          case AssetClass.DISTRESSED_ASSET:
+            return this._calcDistressed(inputs);
           default: return this._calcGeneric(inputs);
         }
       })();
@@ -327,6 +528,35 @@
           clamp(i.digitalMaturity, 1, 10) * 3 +
           (1 - clamp(i.functionalObsolescence, 0, 1)) * 10
         );
+      } else if ([
+        AssetClass.MACHINERY_EQUIPMENT,
+        AssetClass.VEHICLES_FLEET,
+        AssetClass.MEDICAL_EQUIPMENT,
+        AssetClass.EDUCATIONAL_EQUIPMENT
+      ].includes(assetClass)) {
+        const age = Math.max(0, CURRENT_YEAR - safe(i.yearAcquired));
+        score = (
+          clamp(i.conditionScore, 1, 10) * 7 +
+          clamp(i.maintenanceLevel, 1, 10) * 5 +
+          clamp(i.inspectionScore, 1, 10) * 4 +
+          (10 - Math.min(age, 30) / 3) * 4 +
+          (1 - clamp(i.obsolescenceFactor, 0, 1)) * 15 +
+          clamp(i.utilizationRate, 0, 1) * 10
+        );
+      } else if ([AssetClass.JEWELRY_PRECIOUS_METALS, AssetClass.COMMODITIES].includes(assetClass)) {
+        score = (
+          clamp(i.conditionScore, 1, 10) * 5 +
+          clamp(i.purityFactor, 0, 1) * 30 +
+          clamp(i.authenticationScore, 1, 10) * 4 +
+          (1 - clamp(i.marketVolatility, 0, 10) / 20) * 10
+        );
+      } else if (assetClass === AssetClass.DISTRESSED_ASSET) {
+        score = (
+          clamp(i.conditionScore, 1, 10) * 5 +
+          (10 - clamp(i.distressSeverity, 0, 10)) * 6 +
+          clamp(i.recoveryRate, 0, 1) * 20 +
+          (1 - clamp(i.forcedSaleDiscount, 0, 1)) * 15
+        );
       }
       return clamp(score, 0, 100);
     }
@@ -361,6 +591,13 @@
         [AssetClass.REAL_ESTATE]: 0.75,
         [AssetClass.BUSINESS]: 0.65,
         [AssetClass.FACTORY]: 0.55,
+        [AssetClass.MACHINERY_EQUIPMENT]: 0.5,
+        [AssetClass.VEHICLES_FLEET]: 0.6,
+        [AssetClass.MEDICAL_EQUIPMENT]: 0.45,
+        [AssetClass.EDUCATIONAL_EQUIPMENT]: 0.45,
+        [AssetClass.JEWELRY_PRECIOUS_METALS]: 0.85,
+        [AssetClass.COMMODITIES]: 0.75,
+        [AssetClass.DISTRESSED_ASSET]: 0.35,
         [AssetClass.FINANCIAL_ASSETS]: 1.0,
         [AssetClass.CRYPTO_DIGITAL]: 0.85
       }[assetClass] || 0.6;
@@ -429,14 +666,77 @@
       };
     }
 
+    /* ---------- AI Decision Engine helpers ---------- */
+    _buildSwot(inputs, lang = 'ar') {
+      const isEn = lang === 'en';
+      const strengths = [];
+      const weaknesses = [];
+      const opportunities = [];
+      const threats = [];
+
+      if (clamp(inputs.conditionScore, 1, 10) >= 8) {
+        strengths.push(isEn ? 'Excellent physical/technical condition' : 'حالة فنية/بدنية ممتازة');
+      } else if (clamp(inputs.conditionScore, 1, 10) <= 4) {
+        weaknesses.push(isEn ? 'Poor physical/technical condition' : 'حالة فنية/بدنية ضعيفة');
+      }
+
+      if (clamp(inputs.buyerPoolDepth, 1, 10) >= 7) {
+        strengths.push(isEn ? 'Deep buyer pool supports liquidity' : 'سوق مشترين عميق يدعم السيولة');
+      } else if (clamp(inputs.buyerPoolDepth, 1, 10) <= 3) {
+        weaknesses.push(isEn ? 'Limited buyer pool' : 'سوق مشترين محدود');
+      }
+
+      if (clamp(inputs.brandStrength || 0, 0, 100) >= 70) {
+        strengths.push(isEn ? 'Strong brand or strategic position' : 'علامة تجارية أو مكانة استراتيجية قوية');
+      }
+
+      const riskScore = this._riskScore(inputs);
+      if (riskScore >= 70) {
+        strengths.push(isEn ? 'Low overall risk profile' : 'ملف مخاطر منخفض بشكل عام');
+      } else if (riskScore <= 40) {
+        weaknesses.push(isEn ? 'Elevated risk profile' : 'ملف مخاطر مرتفع');
+      }
+
+      if (clamp(inputs.marketGrowthRate, -0.2, 0.5) >= 0.05) {
+        opportunities.push(isEn ? 'Favorable market growth trajectory' : 'مسار نمو سوقي مواتٍ');
+      }
+      if (clamp(inputs.automationPlan || 0, 0, 1) >= 0.5) {
+        opportunities.push(isEn ? 'Automation/digital upgrade potential' : 'إمكانات التحسين بالأتمتة/الرقمنة');
+      }
+      if (clamp(inputs.infrastructurePlans || 0, 0, 1) >= 0.5) {
+        opportunities.push(isEn ? 'Infrastructure catalysts nearby' : 'محفزات بنية تحتية قريبة');
+      }
+
+      if (clamp(inputs.marketVolatility, 0, 10) >= 7) {
+        threats.push(isEn ? 'High market volatility' : 'تقلب سوقي مرتفع');
+      }
+      if (clamp(inputs.regulatoryRisk, 0, 10) >= 7) {
+        threats.push(isEn ? 'Significant regulatory risk' : 'مخاطر تنظيمية كبيرة');
+      }
+      if (clamp(inputs.obsolescenceFactor || 0, 0, 1) >= 0.5) {
+        threats.push(isEn ? 'Technology obsolescence risk' : 'مخاطر عطل التقنية');
+      }
+
+      return { strengths, weaknesses, opportunities, threats };
+    }
+
+    _projectValue(fairValue, growthRate, riskScore, years) {
+      const g = clamp(growthRate, -0.2, 0.5);
+      const riskDecay = 1 - (100 - riskScore) / 200; // risk reduces long-term value
+      return years.map(t => round2(fairValue * Math.pow(1 + g, t) * Math.pow(riskDecay, t / 5)));
+    }
+
     /* ---------- Executive Report ---------- */
     generateReport(result, lang = 'ar') {
       const v = result.valuations;
       const s = result.scores;
+      const i = result.inputs || {};
       const isEn = lang === 'en';
 
       let rec = 'keep';
-      if (s.investmentAttractiveness >= 75 && s.growth >= 60 && v.fairValue >= v.marketValue * 0.95) {
+      if (i.distressSeverity !== undefined && clamp(i.distressSeverity, 0, 10) >= 7 && s.investmentAttractiveness < 50) {
+        rec = 'restructure';
+      } else if (s.investmentAttractiveness >= 75 && s.growth >= 60 && v.fairValue >= v.marketValue * 0.95) {
         rec = 'keep';
       } else if (s.marketStrength >= 65 && v.marketValue > v.fairValue * 1.1 && s.liquidity >= 50) {
         rec = 'sell';
@@ -465,21 +765,73 @@
         }
       }[rec][isEn ? 'en' : 'ar'];
 
-      const fmt = (n) => n.toLocaleString(isEn ? 'en-US' : 'ar-SA', { maximumFractionDigits: 2 });
-      const lines = isEn ? [
-        `Executive Summary — BONDS Valuation Intelligence`,
-        `Book Value: ${fmt(v.bookValue)} | Market Value: ${fmt(v.marketValue)} | Fair Value: ${fmt(v.fairValue)}`,
-        `Investment Value: ${fmt(v.investmentValue)} | Liquidation Value: ${fmt(v.liquidationValue)}`,
-        `Asset Quality: ${s.assetQuality}/100 · Market Strength: ${s.marketStrength}/100 · Risk: ${s.risk}/100 · Liquidity: ${s.liquidity}/100`,
-        `Growth: ${s.growth}/100 · Management: ${s.management}/100 · Brand Strength: ${s.brandStrength}/100 · Investment Attractiveness: ${s.investmentAttractiveness}/100`,
-        `Recommendation: ${recMeta.label} — ${recMeta.desc}`
-      ] : [
-        `الملخص التنفيذي — منصة بوندز الذكية للتقييم`,
-        `القيمة الدفترية: ${fmt(v.bookValue)} | القيمة السوقية: ${fmt(v.marketValue)} | القيمة العادلة: ${fmt(v.fairValue)}`,
-        `قيمة الاستثمار: ${fmt(v.investmentValue)} | قيمة التصفية: ${fmt(v.liquidationValue)}`,
-        `جودة الأصل: ${s.assetQuality}/100 · قوة السوق: ${s.marketStrength}/100 · المخاطر: ${s.risk}/100 · السيولة: ${s.liquidity}/100`,
-        `النمو: ${s.growth}/100 · الإدارة: ${s.management}/100 · قوة العلامة: ${s.brandStrength}/100 · جاذبية الاستثمار: ${s.investmentAttractiveness}/100`,
-        `التوصية: ${recMeta.label} — ${recMeta.desc}`
+      const fmt = (n) => (Number(n) || 0).toLocaleString(isEn ? 'en-US' : 'ar-SA', { maximumFractionDigits: 2 });
+      const growthRate = clamp(i.marketGrowthRate || i.marketGrowth || 0.03, -0.2, 0.5);
+      const avgRisk = 10 - s.risk / 10;
+
+      const scenarios = {
+        base: v.fairValue,
+        optimistic: round2(v.fairValue * (1 + growthRate) * 1.05),
+        pessimistic: round2(v.fairValue * (1 - avgRisk / 20) * (1 - (100 - s.liquidity) / 200))
+      };
+      const projections = this._projectValue(v.fairValue, growthRate, s.risk, [1, 3, 5]);
+      const swot = this._buildSwot(i, lang);
+
+      const t = isEn ? {
+        summary: 'Executive Summary — BONDS Valuation Intelligence',
+        values: 'Core Values',
+        scores: 'Scores',
+        scenarios: 'Value Scenarios',
+        projections: 'Projections',
+        swot: 'SWOT Analysis',
+        rec: 'Recommendation',
+        base: 'Base',
+        optimistic: 'Optimistic',
+        pessimistic: 'Pessimistic',
+        year: 'Year',
+        none: 'None identified'
+      } : {
+        summary: 'الملخص التنفيذي — منصة بوندز الذكية للتقييم',
+        values: 'القيم الأساسية',
+        scores: 'المؤشرات',
+        scenarios: 'سيناريوهات القيمة',
+        projections: 'التوقعات',
+        swot: 'تحليل SWOT',
+        rec: 'التوصية',
+        base: 'الأساسي',
+        optimistic: 'الإيجابي',
+        pessimistic: 'السلبي',
+        year: 'سنة',
+        none: 'لا يوجد'
+      };
+
+      const valueLines = [
+        `${t.values}:`,
+        `  Book: ${fmt(v.bookValue)} | Market: ${fmt(v.marketValue)} | Fair: ${fmt(v.fairValue)}`,
+        `  Investment: ${fmt(v.investmentValue)} | Liquidation: ${fmt(v.liquidationValue)}`
+      ];
+      if (v.insuranceValue !== undefined) valueLines.push(`  Insurance: ${fmt(v.insuranceValue)}`);
+      if (v.operatingValue !== undefined) valueLines.push(`  Operating: ${fmt(v.operatingValue)}`);
+      if (v.quickExitValue !== undefined) valueLines.push(`  Quick Exit: ${fmt(v.quickExitValue)}`);
+      if (v.restructuredValue !== undefined) valueLines.push(`  Restructured: ${fmt(v.restructuredValue)}`);
+
+      const swotSection = [
+        `${t.swot}:`,
+        `  S: ${swot.strengths.length ? swot.strengths.join(' · ') : t.none}`,
+        `  W: ${swot.weaknesses.length ? swot.weaknesses.join(' · ') : t.none}`,
+        `  O: ${swot.opportunities.length ? swot.opportunities.join(' · ') : t.none}`,
+        `  T: ${swot.threats.length ? swot.threats.join(' · ') : t.none}`
+      ];
+
+      const lines = [
+        t.summary,
+        ...valueLines,
+        `${t.scores}: Quality ${s.assetQuality}/100 · Market ${s.marketStrength}/100 · Risk ${s.risk}/100 · Liquidity ${s.liquidity}/100`,
+        `  Growth ${s.growth}/100 · Management ${s.management}/100 · Brand ${s.brandStrength}/100 · Attractiveness ${s.investmentAttractiveness}/100`,
+        `${t.scenarios}: ${t.base} ${fmt(scenarios.base)} · ${t.optimistic} ${fmt(scenarios.optimistic)} · ${t.pessimistic} ${fmt(scenarios.pessimistic)}`,
+        `${t.projections}: ${t.year} 1: ${fmt(projections[0])} · ${t.year} 3: ${fmt(projections[1])} · ${t.year} 5: ${fmt(projections[2])}`,
+        ...swotSection,
+        `${t.rec}: ${recMeta.label} — ${recMeta.desc}`
       ];
       return lines.join('\n');
     }

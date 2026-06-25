@@ -18,6 +18,8 @@ const PAGES = [
   { name: 'calculator-ar', url: '/calculator.html' },
   { name: 'cash-flow-ar', url: '/calculators/cash-flow.html' },
   { name: 'index-en', url: '/en/index.html' },
+  { name: 'valuation-ar', url: '/valuation/index.html' },
+  { name: 'valuation-en', url: '/en/valuation/index.html' },
 ];
 
 (async () => {

@@ -56,6 +56,7 @@
       this.btnNext = $('#wizardNext');
       this.btnSubmit = $('#wizardSubmit');
       this.results = $('#resultsDashboard');
+      this.valuationCards = $('#valuationCards');
       this.restoreBanner = $('#restoreBanner');
       this.restoreText = $('#restoreText');
     }
@@ -280,11 +281,27 @@
       const s = result.scores;
       const t = this.locale.texts;
 
-      $('#valuationBookValue').textContent = formatCurrency(v.bookValue, this.lang);
-      $('#valuationMarketValue').textContent = formatCurrency(v.marketValue, this.lang);
-      $('#valuationFairValue').textContent = formatCurrency(v.fairValue, this.lang);
-      $('#valuationInvestmentValue').textContent = formatCurrency(v.investmentValue, this.lang);
-      $('#valuationLiquidationValue').textContent = formatCurrency(v.liquidationValue, this.lang);
+      const valueOrder = [
+        { key: 'bookValue', label: t.bookValue },
+        { key: 'marketValue', label: t.marketValue },
+        { key: 'fairValue', label: t.fairValue },
+        { key: 'investmentValue', label: t.investmentValue },
+        { key: 'liquidationValue', label: t.liquidationValue },
+        { key: 'replacementValue', label: t.replacementValue },
+        { key: 'insuranceValue', label: t.insuranceValue },
+        { key: 'operatingValue', label: t.operatingValue },
+        { key: 'quickExitValue', label: t.quickExitValue },
+        { key: 'restructuredValue', label: t.restructuredValue }
+      ];
+
+      this.valuationCards.innerHTML = valueOrder
+        .filter(item => v[item.key] !== undefined)
+        .map(item => `
+          <div class="valuation-card">
+            <div class="valuation-card__label">${item.label}</div>
+            <div class="valuation-card__value">${formatCurrency(v[item.key], this.lang)}</div>
+          </div>
+        `).join('');
 
       const scoreItems = [
         { key: 'assetQuality', label: t.assetQuality },
