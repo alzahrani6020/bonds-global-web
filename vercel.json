@@ -276,7 +276,7 @@
     },
     {
       "source": "/calculators/:sector",
-      "destination": "/calculators/investment-center/:sector.html"
+      "destination": "/calculators/investment-center/:sector"
     },
     {
       "source": "/api/([^/]+)",
