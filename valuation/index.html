@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BONDS Valuation Intelligence Platform | بوندز</title>
+  <meta name="description" content="منصة بوندز الذكية للتقييم — تقييم متعدد الأصول بناءً على 10 محاور رئيسية و3 منهجيات متقدمة." />
+  <meta property="og:title" content="BONDS Valuation Intelligence Platform | بوندز" />
+  <meta property="og:description" content="تقييم احترافي للعقارات والشركات والمصانع باستخدام منهجيات القيمة الدفترية والسوقية والدخل." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/valuation/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../header-footer.css?v=7" />
+  <link rel="stylesheet" href="valuation.css?v=1" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://bonds-global.com/valuation/" />
+</head>
+<body class="valuation-page" style="font-family:Vazirmatn,system-ui,sans-serif">
+  <div id="site-header"></div>
+
+  <main>
+    <!-- Hero -->
+    <section class="val-hero">
+      <div class="container val-hero__inner">
+        <span class="val-hero__eyebrow">BONDS Valuation Intelligence Platform</span>
+        <h1 class="val-hero__title">محرك تقييم احترافي <span>للأصول والشركات</span></h1>
+        <p class="val-hero__desc">
+          قيّم أصولك بمنهجيات متقدمة تجمع بين القيمة الدفترية والسوقية والدخل، مع تحليل المخاطر والفرص المستقبلية عبر 10 محاور رئيسية.
+        </p>
+        <div class="section-actions">
+          <a href="#asset-classification" class="btn-primary">ابدأ التقييم</a>
+          <a href="#how-it-works" class="btn-outline">كيف يعمل؟</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Asset Classification -->
+    <section class="val-section" id="asset-classification">
+      <div class="container">
+        <h2 class="val-section__title">محرك تصنيف الأصول</h2>
+        <p class="val-section__subtitle">اختر فئة الأصل لبدء معالج التقييم. المرحلة الأولى تدعم العقارات والشركات والمصانع، وباقي الفئات قيد التطوير.</p>
+
+        <div id="restoreBanner" class="restore-banner">
+          <span id="restoreText"></span>
+          <div>
+            <button id="restoreBtn" class="btn-primary" style="padding:0.45rem 1rem;font-size:0.8rem">استعادة</button>
+            <button id="discardBtn" class="btn-outline" style="padding:0.45rem 1rem;font-size:0.8rem">تجاهل</button>
+          </div>
+        </div>
+
+        <div class="asset-grid" id="assetGrid"></div>
+      </div>
+    </section>
+
+    <!-- Wizard -->
+    <section class="val-section" id="wizardSection" style="padding-top:0">
+      <div class="container">
+        <div class="wizard" id="wizard">
+          <div class="wizard__header">
+            <h3 class="wizard__title" id="wizardTitle">معالج التقييم</h3>
+            <button class="wizard__close" id="wizardClose">إغلاق</button>
+          </div>
+
+          <div class="step-indicator" id="stepIndicator"></div>
+
+          <div class="wizard__body">
+            <div class="wizard__step-title" id="wizardStepTitle"></div>
+            <div class="wizard__step-desc" id="wizardStepDesc"></div>
+            <div id="wizardFields"></div>
+          </div>
+
+          <div class="wizard__actions" id="wizardActions">
+            <button class="btn-outline" id="wizardPrev">السابق</button>
+            <button class="btn-primary" id="wizardNext">التالي</button>
+            <button class="btn-primary" id="wizardSubmit" style="display:none">إنشاء التقرير</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section class="val-section" id="resultsSection" style="padding-top:0">
+      <div class="container">
+        <div class="results-dashboard" id="resultsDashboard">
+          <h2 class="val-section__title">لوحة النتائج</h2>
+
+          <div class="valuation-cards">
+            <div class="valuation-card">
+              <div class="valuation-card__label">القيمة الدفترية</div>
+              <div class="valuation-card__value" id="valuationBookValue">—</div>
+            </div>
+            <div class="valuation-card">
+              <div class="valuation-card__label">القيمة السوقية</div>
+              <div class="valuation-card__value" id="valuationMarketValue">—</div>
+            </div>
+            <div class="valuation-card">
+              <div class="valuation-card__label">القيمة العادلة</div>
+              <div class="valuation-card__value" id="valuationFairValue">—</div>
+            </div>
+            <div class="valuation-card">
+              <div class="valuation-card__label">قيمة الاستثمار</div>
+              <div class="valuation-card__value" id="valuationInvestmentValue">—</div>
+            </div>
+            <div class="valuation-card">
+              <div class="valuation-card__label">قيمة التصفية</div>
+              <div class="valuation-card__value" id="valuationLiquidationValue">—</div>
+            </div>
+          </div>
+
+          <h3 class="val-section__title" style="font-size:var(--text-2xl)">مؤشرات الأداء</h3>
+          <div class="score-grid" id="scoreGrid"></div>
+
+          <div class="report-card">
+            <div class="report-card__title">الملخص التنفيذي</div>
+            <div class="report-card__text" id="reportText"></div>
+          </div>
+
+          <div class="section-actions">
+            <button class="btn-outline" onclick="window.BondsValuationUI.app.closeWizard(); window.location.hash='asset-classification'">تقييم أصل آخر</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="val-section" id="how-it-works">
+      <div class="container">
+        <h2 class="val-section__title">كيف يعمل المحرك؟</h2>
+        <p class="val-section__subtitle">يستند التقييم إلى 10 محاور و3 منهجيات رئيسية، مع أكثر من 30 عاملاً مالياً وسوقياً وتشغيلياً.</p>
+        <div class="score-grid">
+          <div class="score-item">
+            <div class="score-item__header"><span class="score-item__name">منهجية القيمة التاريخية</span></div>
+            <p style="color:var(--text-secondary);font-size:0.9rem">تحليل التكلفة الأصلية والإهلاك والاكتساب لتحديد القيمة الدفترية.</p>
+          </div>
+          <div class="score-item">
+            <div class="score-item__header"><span class="score-item__name">منهجية السوق</span></div>
+            <p style="color:var(--text-secondary);font-size:0.9rem">مقارنة الأصل بمعاملات ومضاعفات السوق مع تعديلات الطلب والعرض.</p>
+          </div>
+          <div class="score-item">
+            <div class="score-item__header"><span class="score-item__name">منهجية الدخل</span></div>
+            <p style="color:var(--text-secondary);font-size:0.9rem">تقييم التدفقات النقدية المستقبلية ومعدلات العائد والنمو.</p>
+          </div>
+          <div class="score-item">
+            <div class="score-item__header"><span class="score-item__name">تعديل المخاطر</span></div>
+            <p style="color:var(--text-secondary);font-size:0.9rem">دمج المخاطر التنظيمية والبيئية والسوقية في القيمة النهائية.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="valuation-engine.js?v=1"></script>
+  <script src="valuation-ui.js?v=1"></script>
+  <script src="../site-layout.js?v=7"></script>
+
+  <script>
+    const VALUATION_LOCALE = {
+      lang: 'ar',
+      texts: {
+        activeBadge: 'متاح',
+        comingSoonBadge: 'قريباً',
+        restorePrompt: 'لديك مسودة سابقة: {asset}',
+        assetQuality: 'جودة الأصل',
+        marketStrength: 'قوة السوق',
+        risk: 'إدارة المخاطر',
+        liquidity: 'السيولة',
+        growth: 'النمو',
+        management: 'الإدارة',
+        brandStrength: 'قوة العلامة',
+        investmentAttractiveness: 'جاذبية الاستثمار'
+      },
+      icons: {
+        realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',
+        vehiclesFleet: '🚛', agricultureFarms: '🌾', livestock: '🐄',
+        naturalResourcesMining: '⛏️', oilGas: '🛢️', infrastructure: '🌉',
+        intellectualProperty: '💡', brandsTrademarks: '™️', patents: '📜',
+        copyrightsContent: '©️', franchises: '📋', licensesPermits: '📄',
+        financialAssets: '📈', cryptoDigital: '₿', commodities: '🌾',
+        artCollectibles: '🎨', jewelryPreciousMetals: '💎', softwareTechnology: '💻'
+      },
+      steps: [
+        { title: 'الهوية', description: 'بيانات التعريف الأساسية للأصل والموقع والقطاع.' },
+        { title: 'الحالة', description: 'التقييم الفني والتشغيلي والصيانة والجودة.' },
+        { title: 'القيمة التاريخية', description: 'التكلفة الأصلية والتحسينات والمصاريف المرتبطة.' },
+        { title: 'الإهلاكات', description: 'العمر الافتراضي والإهلاك المتراكم والعوامل التقنية.' },
+        { title: 'السوق', description: 'المقارنات السوقية ومؤشرات الطلب والعرض والنمو.' },
+        { title: 'الإيراد', description: 'الإيرادات والتدفقات النقدية ومعدلات العائد.' },
+        { title: 'المخاطر', description: 'المخاطر التنظيمية والبيئية والسوقية والتشغيلية.' },
+        { title: 'الأصول غير الملموسة', description: 'العلامة التجارية والتراخيص والعلاقات والموقع.' },
+        { title: 'التخارج', description: 'تكاليف البيع وعمق سوق المشترين وفترة التصفية.' },
+        { title: 'التوقعات المستقبلية', description: 'نمو السوق والبنية التحتية والاستدامة والابتكار.' }
+      ],
+      fieldsByClass: {
+        realEstate: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم الأصل', type: 'text', placeholder: 'مثلاً: فيلا الرياض', default: 'عقار نموذجي' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'propertyType', label: 'نوع العقار', type: 'select', options: [
+              { value: 'residential', label: 'سكني' },
+              { value: 'commercial', label: 'تجاري' },
+              { value: 'industrial', label: 'صناعي' },
+              { value: 'office', label: 'مكتبي' },
+              { value: 'retail', label: 'تجزئة' },
+              { value: 'land', label: 'أرض' }
+            ], default: 'commercial' },
+            { name: 'areaSqm', label: 'المساحة (م²)', type: 'number', min: 1, default: 500 },
+            { name: 'yearBuilt', label: 'سنة البناء', type: 'number', min: 1900, max: 2030, default: 2015 },
+            { name: 'ownershipType', label: 'نوع الملكية', type: 'select', options: [
+              { value: 'freehold', label: 'ملكية حرة' },
+              { value: 'leasehold', label: 'إيجار طويل الأمد' }
+            ], default: 'freehold' }
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الحالة (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'maintenanceLevel', label: 'مستوى الصيانة (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'renovationInvestment', label: 'استثمارات التجديد', type: 'number', min: 0, default: 100000 }
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'سعر الشراء', type: 'number', min: 0, default: 2000000 },
+            { name: 'improvementCosts', label: 'تكاليف التحسينات', type: 'number', min: 0, default: 200000 },
+            { name: 'acquisitionCosts', label: 'مصاريف الاكتساب', type: 'number', min: 0, default: 100000 },
+            { name: 'legalCosts', label: 'المصاريف القانونية', type: 'number', min: 0, default: 50000 }
+          ],
+          // 4. Depreciation
+          [
+            { name: 'usefulLifeYears', label: 'العمر الافتراضي (سنة)', type: 'number', min: 1, default: 50 },
+            { name: 'accumulatedDepreciation', label: 'الإهلاك المتراكم', type: 'number', min: 0, default: 300000 },
+            { name: 'obsolescenceFactor', label: 'معامل العطل التقني (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 }
+          ],
+          // 5. Market
+          [
+            { name: 'comparablePricePerSqm', label: 'السعر المقارن للم²', type: 'number', min: 0, default: 4500 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'transactionVolume', label: 'حجم التداول (1-10)', type: 'number', min: 1, max: 10, default: 6 }
+          ],
+          // 6. Income
+          [
+            { name: 'monthlyRent', label: 'الإيجار الشهري', type: 'number', min: 0, default: 20000 },
+            { name: 'occupancyRate', label: 'نسبة الإشغال (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.9 },
+            { name: 'operatingExpensesRate', label: 'نسبة المصاريف التشغيلية (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.25 },
+            { name: 'capRate', label: 'معدل العائد الرأسمالي (0-1)', type: 'number', min: 0.01, max: 0.5, step: 0.005, default: 0.07 }
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'environmentalRisk', label: 'المخاطر البيئية (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+            { name: 'marketVolatility', label: 'تقلب السوق (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 3 }
+          ],
+          // 8. Intangibles
+          [
+            { name: 'locationPremium', label: 'علاوة الموقع (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.15 },
+            { name: 'permitsValue', label: 'قيمة التراخيص/الإعفاءات', type: 'number', min: 0, default: 50000 }
+          ],
+          // 9. Exit
+          [
+            { name: 'holdingYears', label: 'فترة الاحتفاظ (سنوات)', type: 'number', min: 0, default: 5 },
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف التسويق (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 6 }
+          ],
+          // 10. Future
+          [
+            { name: 'gdpGrowth', label: 'نمو الناتج المحلي (0-1)', type: 'number', min: 0, max: 0.2, step: 0.01, default: 0.03 },
+            { name: 'populationGrowth', label: 'نمو السكان (0-1)', type: 'number', min: 0, max: 0.1, step: 0.001, default: 0.015 },
+            { name: 'infrastructurePlans', label: 'خطط البنية التحتية (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.3 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 65 }
+          ]
+        ],
+        business: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم الشركة', type: 'text', placeholder: 'شركة نموذجية', default: 'شركة نموذجية' },
+            { name: 'industrySector', label: 'القطاع', type: 'text', placeholder: 'التجزئة', default: 'التجزئة' },
+            { name: 'yearsInOperation', label: 'سنوات التشغيل', type: 'number', min: 0, default: 8 },
+            { name: 'employeeCount', label: 'عدد الموظفين', type: 'number', min: 0, default: 45 }
+          ],
+          // 2. Condition
+          [
+            { name: 'operationalStatus', label: 'الحالة التشغيلية', type: 'select', options: [
+              { value: 'operating', label: 'مشغّلة بالكامل' },
+              { value: 'partial', label: 'تشغيل جزئي' },
+              { value: 'distressed', label: 'متعثرة' }
+            ], default: 'operating' },
+            { name: 'managementQuality', label: 'جودة الإدارة (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'governanceScore', label: 'حوكمة الشركات (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'techMaturity', label: 'نضج التقنية (1-10)', type: 'number', min: 1, max: 10, default: 6 }
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'equityBookValue', label: 'قيمة حقوق الملكية الدفترية', type: 'number', min: 0, default: 2500000 },
+            { name: 'retainedEarnings', label: 'الأرباح المحتجزة', type: 'number', default: 800000 },
+            { name: 'intangibleAssetsBook', label: 'الأصول غير الملموسة دفترياً', type: 'number', min: 0, default: 400000 },
+            { name: 'totalDebt', label: 'إجمالي الديون', type: 'number', min: 0, default: 600000 },
+            { name: 'cashAndEquiv', label: 'النقدية وما يعادلها', type: 'number', min: 0, default: 300000 }
+          ],
+          // 4. Depreciation/Amortization
+          [
+            { name: 'amortizationExpense', label: 'مصاريف الإطفاء السنوية', type: 'number', min: 0, default: 80000 },
+            { name: 'goodwillImpairment', label: 'معاناة السمعة', type: 'number', min: 0, default: 0 },
+            { name: 'annualCapex', label: 'الاستثمارات الرأسمالية السنوية', type: 'number', min: 0, default: 200000 }
+          ],
+          // 5. Market
+          [
+            { name: 'evRevenueMultiple', label: 'مضاعف القيمة/الإيراد', type: 'number', min: 0, step: 0.1, default: 1.2 },
+            { name: 'evEbitdaMultiple', label: 'مضاعف القيمة/EBITDA', type: 'number', min: 0, step: 0.5, default: 7 },
+            { name: 'sectorMultiple', label: 'مضاعف القطاع', type: 'number', min: 0.5, step: 0.1, default: 1 },
+            { name: 'transactionPremium', label: 'علاوة الصفقات (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 },
+            { name: 'marketLiquidity', label: 'سيولة السوق (1-10)', type: 'number', min: 1, max: 10, default: 6 }
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'الإيرادات السنوية', type: 'number', min: 0, default: 5000000 },
+            { name: 'revenueGrowthRate', label: 'معدل نمو الإيرادات (0-1)', type: 'number', min: -0.1, max: 0.5, step: 0.01, default: 0.08 },
+            { name: 'ebitdaMargin', label: 'هامش EBITDA (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.18 },
+            { name: 'taxRate', label: 'معدل الضريبة (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+            { name: 'discountRate', label: 'معدل الخصم (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.12 },
+            { name: 'projectionYears', label: 'سنوات الإسقاط', type: 'number', min: 1, max: 20, default: 5 }
+          ],
+          // 7. Risks
+          [
+            { name: 'customerConcentration', label: 'تركيز العملاء (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'competitiveIntensity', label: 'شدة المنافسة (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'currencyRisk', label: 'مخاطر العملة (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+            { name: 'successionRisk', label: 'مخاطر خلافة الإدارة (0-10)', type: 'number', min: 0, max: 10, default: 4 }
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'قوة العلامة التجارية (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+            { name: 'proprietaryTechnology', label: 'التقنية الملكية (0-100)', type: 'number', min: 0, max: 100, default: 40 },
+            { name: 'patentsValue', label: 'قيمة براءات الاختراع', type: 'number', min: 0, default: 100000 },
+            { name: 'customerRelationships', label: 'العلاقات مع العملاء (0-100)', type: 'number', min: 0, max: 100, default: 55 }
+          ],
+          // 9. Exit
+          [
+            { name: 'exitMultiple', label: 'مضاعف التخارج', type: 'number', min: 0, step: 0.5, default: 7 },
+            { name: 'strategicBuyerPremium', label: 'علاوة المشتري الاستراتيجي (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.15 },
+            { name: 'marketabilityDiscount', label: 'خصم السيولة (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.2 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 6 }
+          ],
+          // 10. Future
+          [
+            { name: 'marketGrowth', label: 'نمو السوق (0-1)', type: 'number', min: 0, max: 0.2, step: 0.01, default: 0.05 },
+            { name: 'innovationPipeline', label: 'خطط الابتكار (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.4 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 60 }
+          ]
+        ],
+        factory: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم المصنع', type: 'text', placeholder: 'مصنع نموذجي', default: 'مصنع نموذجي' },
+            { name: 'factorySector', label: 'قطاع المصنع', type: 'select', options: [
+              { value: 'food', label: 'غذائي' },
+              { value: 'plastic', label: 'بلاستيك' },
+              { value: 'water', label: 'مياه' },
+              { value: 'building', label: 'مواد بناء' },
+              { value: 'textiles', label: 'نسيج' },
+              { value: 'chemicals', label: 'كيماويات' },
+              { value: 'packaging', label: 'تعبئة' },
+              { value: 'furniture', label: 'أثاث' },
+              { value: 'other', label: 'آخر' }
+            ], default: 'food' },
+            { name: 'builtYear', label: 'سنة الإنشاء', type: 'number', min: 1900, max: 2030, default: 2012 },
+            { name: 'floorAreaSqm', label: 'المساحة المبنية (م²)', type: 'number', min: 1, default: 3000 }
+          ],
+          // 2. Condition
+          [
+            { name: 'equipmentAgeYears', label: 'عمر المعدات (سنوات)', type: 'number', min: 0, default: 8 },
+            { name: 'utilizationRate', label: 'نسبة الاستخدام (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.75 },
+            { name: 'conditionScore', label: 'درجة الحالة (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'safetyCertificationScore', label: 'شهادات السلامة (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'digitalMaturity', label: 'النضج الرقمي (1-10)', type: 'number', min: 1, max: 10, default: 5 }
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'landCost', label: 'تكلفة الأرض', type: 'number', min: 0, default: 800000 },
+            { name: 'buildingCost', label: 'تكلفة المبنى', type: 'number', min: 0, default: 1500000 },
+            { name: 'machineryCost', label: 'تكلفة المعدات', type: 'number', min: 0, default: 2000000 },
+            { name: 'installationCost', label: 'تكلفة التركيب', type: 'number', min: 0, default: 250000 },
+            { name: 'workingCapital', label: 'رأس المال العامل', type: 'number', min: 0, default: 400000 }
+          ],
+          // 4. Depreciation
+          [
+            { name: 'accumulatedDepreciation', label: 'الإهلاك المتراكم', type: 'number', min: 0, default: 900000 },
+            { name: 'functionalObsolescence', label: 'العطل الوظيفي (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.15 }
+          ],
+          // 5. Market
+          [
+            { name: 'replacementCostNew', label: 'تكلفة الاستبدال الجديدة', type: 'number', min: 0, default: 5000000 },
+            { name: 'costIndex', label: 'مؤشر التكلفة', type: 'number', min: 0.5, max: 2, step: 0.05, default: 1.05 },
+            { name: 'comparableSalesValue', label: 'قيمة المبيعات المقارنة', type: 'number', min: 0, default: 4500000 },
+            { name: 'scrapValueRate', label: 'نسبة الخردة (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.25 }
+          ],
+          // 6. Income
+          [
+            { name: 'annualCapacityUnits', label: 'الطاقة الإنتاجية السنوية (وحدة)', type: 'number', min: 1, default: 100000 },
+            { name: 'capacityUtilization', label: 'نسبة استخدام الطاقة (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.7 },
+            { name: 'unitPrice', label: 'سعر الوحدة', type: 'number', min: 0, default: 50 },
+            { name: 'variableCostPerUnit', label: 'التكلفة المتغيرة للوحدة', type: 'number', min: 0, default: 28 },
+            { name: 'annualFixedCosts', label: 'التكاليف الثابتة السنوية', type: 'number', min: 0, default: 600000 },
+            { name: 'taxRate', label: 'معدل الضريبة (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 }
+          ],
+          // 7. Risks
+          [
+            { name: 'rawMaterialRisk', label: 'مخاطر المواد الأولية (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'energyRisk', label: 'مخاطر الطاقة (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'demandRisk', label: 'مخاطر الطلب (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'geopoliticalRisk', label: 'المخاطر الجيوسياسية (0-10)', type: 'number', min: 0, max: 10, default: 3 }
+          ],
+          // 8. Intangibles
+          [
+            { name: 'patentsValue', label: 'قيمة براءات الاختراع', type: 'number', min: 0, default: 150000 },
+            { name: 'licensesValue', label: 'قيمة التراخيص', type: 'number', min: 0, default: 100000 },
+            { name: 'workforceSkill', label: 'مهارة القوى العاملة (1-10)', type: 'number', min: 1, max: 10, default: 7 }
+          ],
+          // 9. Exit
+          [
+            { name: 'dismantlingCost', label: 'تكلفة فك المعدات', type: 'number', min: 0, default: 200000 },
+            { name: 'salvageValue', label: 'قيمة الإنقاذ', type: 'number', min: 0, default: 300000 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 12 }
+          ],
+          // 10. Future
+          [
+            { name: 'marketGrowth', label: 'نمو السوق (0-1)', type: 'number', min: 0, max: 0.2, step: 0.01, default: 0.04 },
+            { name: 'automationPlan', label: 'خطط الأتمتة (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.3 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 55 }
+          ]
+        ]
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      window.BondsValuationUI.app = window.BondsValuationUI.init(VALUATION_LOCALE);
+    });
+  </script>
+</body>
+</html>

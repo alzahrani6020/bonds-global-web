@@ -12,7 +12,9 @@
   'use strict';
 
   function getDepth() {
-    const path = window.location.pathname.replace(/^\/+/, '').replace(/\/+$/, '');
+    // Keep trailing slash so directory index pages (e.g. /valuation/) get the
+    // correct depth and relative paths resolve to the parent directory.
+    const path = window.location.pathname.replace(/^\/+/, '');
     if (!path) return 0;
     return path.split('/').length - 1;
   }
@@ -91,6 +93,7 @@
       medicalCalc: isEn ? 'Medical Viability' : 'الجدوى الطبية',
       invoiceCalc: isEn ? 'Invoice Analyzer' : 'تحليل الفواتير',
       templateCalc: isEn ? 'Feasibility Template' : 'نموذج دراسة الجدوى',
+      valuation: isEn ? 'Valuation' : 'التقييم',
       creditworthinessCalc: isEn ? 'Credit Rating' : 'تقييم الجدارة الائتمانية',
       factorySa: isEn ? 'Factory Cost — Saudi' : 'تكلفة المصنع — السعودية',
       factoryEg: isEn ? 'Factory Cost — Egypt' : 'تكلفة المصنع — مصر',
@@ -104,6 +107,7 @@
     const servicesHref = langBase + 'services.html';
     const contactHref = langBase + 'contact.html';
     const blogHref = langBase + '../blog/index.html';
+    const valuationHref = langBase + 'valuation/index.html';
     const clientPortalHref = isEn ? langBase + 'client/index.html' : langBase + '../client/index.html';
     const v3Base = 'v3/';
     const fundingReadinessHref = langBase + 'calculators/creditworthiness.html';
@@ -352,6 +356,7 @@
       { href: cityIntelligenceHref, label: labels.cityIntelligence },
       { href: fundingReadinessHref, label: isEn ? 'Funding Readiness' : 'جاهزية التمويل' },
       { type: 'dropdown', label: labels.intelligence, items: intelligenceDropdown },
+      { href: valuationHref, label: labels.valuation },
       { href: blogHref, label: labels.articles },
       { href: clientPortalHref, label: labels.clientPortal },
       { href: contactHref, label: labels.contact },
@@ -502,7 +507,7 @@
   }
 
   function ensureLayoutCSS(base) {
-    const href = base + 'header-footer.css?v=3';
+    const href = base + 'header-footer.css?v=7';
     if (document.querySelector('link[href*="header-footer.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';

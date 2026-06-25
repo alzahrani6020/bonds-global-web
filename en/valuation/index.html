@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BONDS Valuation Intelligence Platform | بوندز</title>
+  <meta name="description" content="BONDS Valuation Intelligence — multi-asset valuation across 10 axes and 3 advanced methodologies." />
+  <meta property="og:title" content="BONDS Valuation Intelligence Platform | بوندز" />
+  <meta property="og:description" content="Professional valuation for real estate, businesses and factories using book, market and income approaches." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/en/valuation/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../header-footer.css?v=7" />
+  <link rel="stylesheet" href="../../valuation/valuation.css?v=1" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://bonds-global.com/en/valuation/" />
+</head>
+<body class="valuation-page" style="font-family:Inter,system-ui,sans-serif">
+  <div id="site-header"></div>
+
+  <main>
+    <!-- Hero -->
+    <section class="val-hero">
+      <div class="container val-hero__inner">
+        <span class="val-hero__eyebrow">BONDS Valuation Intelligence Platform</span>
+        <h1 class="val-hero__title">Professional Valuation Engine <span>for Assets &amp; Companies</span></h1>
+        <p class="val-hero__desc">
+          Value your assets with advanced methodologies combining book, market and income approaches, plus risk and future-growth analysis across 10 core axes.
+        </p>
+        <div class="section-actions">
+          <a href="#asset-classification" class="btn-primary">Start Valuation</a>
+          <a href="#how-it-works" class="btn-outline">How it works</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Asset Classification -->
+    <section class="val-section" id="asset-classification">
+      <div class="container">
+        <h2 class="val-section__title">Asset Classification Engine</h2>
+        <p class="val-section__subtitle">Choose an asset class to launch the valuation wizard. Phase 1 supports Real Estate, Businesses and Factories; the remaining classes are in development.</p>
+
+        <div id="restoreBanner" class="restore-banner">
+          <span id="restoreText"></span>
+          <div>
+            <button id="restoreBtn" class="btn-primary" style="padding:0.45rem 1rem;font-size:0.8rem">Restore</button>
+            <button id="discardBtn" class="btn-outline" style="padding:0.45rem 1rem;font-size:0.8rem">Discard</button>
+          </div>
+        </div>
+
+        <div class="asset-grid" id="assetGrid"></div>
+      </div>
+    </section>
+
+    <!-- Wizard -->
+    <section class="val-section" id="wizardSection" style="padding-top:0">
+      <div class="container">
+        <div class="wizard" id="wizard">
+          <div class="wizard__header">
+            <h3 class="wizard__title" id="wizardTitle">Valuation Wizard</h3>
+            <button class="wizard__close" id="wizardClose">Close</button>
+          </div>
+
+          <div class="step-indicator" id="stepIndicator"></div>
+
+          <div class="wizard__body">
+            <div class="wizard__step-title" id="wizardStepTitle"></div>
+            <div class="wizard__step-desc" id="wizardStepDesc"></div>
+            <div id="wizardFields"></div>
+          </div>
+
+          <div class="wizard__actions" id="wizardActions">
+            <button class="btn-outline" id="wizardPrev">Previous</button>
+            <button class="btn-primary" id="wizardNext">Next</button>
+            <button class="btn-primary" id="wizardSubmit" style="display:none">Generate Report</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section class="val-section" id="resultsSection" style="padding-top:0">
+      <div class="container">
+        <div class="results-dashboard" id="resultsDashboard">
+          <h2 class="val-section__title">Results Dashboard</h2>
+
+          <div class="valuation-cards">
+            <div class="valuation-card">
+              <div class="valuation-card__label">Book Value</div>
+              <div class="valuation-card__value" id="valuationBookValue">—</div>
+            </div>
+            <div class="valuation-card">
+              <div class="valuation-card__label">Market Value</div>
+              <div class="valuation-card__value" id="valuationMarketValue">—</div>
+            </div>
+            <div class="valuation-card">
+              <div class="valuation-card__label">Fair Value</div>
+              <div class="valuation-card__value" id="valuationFairValue">—</div>
+            </div>
+            <div class="valuation-card">
+              <div class="valuation-card__label">Investment Value</div>
+              <div class="valuation-card__value" id="valuationInvestmentValue">—</div>
+            </div>
+            <div class="valuation-card">
+              <div class="valuation-card__label">Liquidation Value</div>
+              <div class="valuation-card__value" id="valuationLiquidationValue">—</div>
+            </div>
+          </div>
+
+          <h3 class="val-section__title" style="font-size:var(--text-2xl)">Performance Indicators</h3>
+          <div class="score-grid" id="scoreGrid"></div>
+
+          <div class="report-card">
+            <div class="report-card__title">Executive Summary</div>
+            <div class="report-card__text" id="reportText"></div>
+          </div>
+
+          <div class="section-actions">
+            <button class="btn-outline" onclick="window.BondsValuationUI.app.closeWizard(); window.location.hash='asset-classification'">Value Another Asset</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="val-section" id="how-it-works">
+      <div class="container">
+        <h2 class="val-section__title">How the Engine Works</h2>
+        <p class="val-section__subtitle">Valuation is built on 10 axes and 3 core methodologies, combining more than 30 financial, market and operational factors.</p>
+        <div class="score-grid">
+          <div class="score-item">
+            <div class="score-item__header"><span class="score-item__name">Book Value Approach</span></div>
+            <p style="color:var(--text-secondary);font-size:0.9rem">Original cost, improvements, depreciation and impairment analysis.</p>
+          </div>
+          <div class="score-item">
+            <div class="score-item__header"><span class="score-item__name">Market Approach</span></div>
+            <p style="color:var(--text-secondary);font-size:0.9rem">Comparable transactions and market multiples adjusted for supply and demand.</p>
+          </div>
+          <div class="score-item">
+            <div class="score-item__header"><span class="score-item__name">Income Approach</span></div>
+            <p style="color:var(--text-secondary);font-size:0.9rem">Future cash-flow projections, discount rates and terminal growth.</p>
+          </div>
+          <div class="score-item">
+            <div class="score-item__header"><span class="score-item__name">Risk Adjustment</span></div>
+            <p style="color:var(--text-secondary);font-size:0.9rem">Regulatory, environmental, market and operational risks are embedded in final value.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="../../valuation/valuation-engine.js?v=1"></script>
+  <script src="../../valuation/valuation-ui.js?v=1"></script>
+  <script src="../../site-layout.js?v=7"></script>
+
+  <script>
+    const VALUATION_LOCALE = {
+      lang: 'en',
+      texts: {
+        activeBadge: 'Available',
+        comingSoonBadge: 'Coming Soon',
+        restorePrompt: 'You have a saved draft: {asset}',
+        assetQuality: 'Asset Quality',
+        marketStrength: 'Market Strength',
+        risk: 'Risk Management',
+        liquidity: 'Liquidity',
+        growth: 'Growth',
+        management: 'Management',
+        brandStrength: 'Brand Strength',
+        investmentAttractiveness: 'Investment Attractiveness'
+      },
+      icons: {
+        realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',
+        vehiclesFleet: '🚛', agricultureFarms: '🌾', livestock: '🐄',
+        naturalResourcesMining: '⛏️', oilGas: '🛢️', infrastructure: '🌉',
+        intellectualProperty: '💡', brandsTrademarks: '™️', patents: '📜',
+        copyrightsContent: '©️', franchises: '📋', licensesPermits: '📄',
+        financialAssets: '📈', cryptoDigital: '₿', commodities: '🌾',
+        artCollectibles: '🎨', jewelryPreciousMetals: '💎', softwareTechnology: '💻'
+      },
+      steps: [
+        { title: 'Identity', description: 'Basic identification, location and sector of the asset.' },
+        { title: 'Condition', description: 'Technical, operational, maintenance and quality assessment.' },
+        { title: 'Historical Cost', description: 'Original cost, improvements and acquisition expenses.' },
+        { title: 'Depreciation', description: 'Useful life, accumulated depreciation and obsolescence factors.' },
+        { title: 'Market', description: 'Comparable pricing, demand/supply indices and growth.' },
+        { title: 'Income', description: 'Revenue, cash flows and capitalization/discount rates.' },
+        { title: 'Risks', description: 'Regulatory, environmental, market and operational risks.' },
+        { title: 'Intangibles', description: 'Brand, licenses, customer relationships and location premium.' },
+        { title: 'Exit', description: 'Transaction costs, buyer pool depth and liquidation horizon.' },
+        { title: 'Future Outlook', description: 'Market growth, infrastructure, sustainability and innovation.' }
+      ],
+      fieldsByClass: {
+        realEstate: [
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'e.g. Riyadh Villa', default: 'Sample Property' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Saudi Arabia', default: 'Saudi Arabia' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'Riyadh', default: 'Riyadh' },
+            { name: 'propertyType', label: 'Property Type', type: 'select', options: [
+              { value: 'residential', label: 'Residential' },
+              { value: 'commercial', label: 'Commercial' },
+              { value: 'industrial', label: 'Industrial' },
+              { value: 'office', label: 'Office' },
+              { value: 'retail', label: 'Retail' },
+              { value: 'land', label: 'Land' }
+            ], default: 'commercial' },
+            { name: 'areaSqm', label: 'Area (m²)', type: 'number', min: 1, default: 500 },
+            { name: 'yearBuilt', label: 'Year Built', type: 'number', min: 1900, max: 2030, default: 2015 },
+            { name: 'ownershipType', label: 'Ownership Type', type: 'select', options: [
+              { value: 'freehold', label: 'Freehold' },
+              { value: 'leasehold', label: 'Long-term Leasehold' }
+            ], default: 'freehold' }
+          ],
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'maintenanceLevel', label: 'Maintenance Level (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'renovationInvestment', label: 'Renovation Investment', type: 'number', min: 0, default: 100000 }
+          ],
+          [
+            { name: 'purchasePrice', label: 'Purchase Price', type: 'number', min: 0, default: 2000000 },
+            { name: 'improvementCosts', label: 'Improvement Costs', type: 'number', min: 0, default: 200000 },
+            { name: 'acquisitionCosts', label: 'Acquisition Costs', type: 'number', min: 0, default: 100000 },
+            { name: 'legalCosts', label: 'Legal Costs', type: 'number', min: 0, default: 50000 }
+          ],
+          [
+            { name: 'usefulLifeYears', label: 'Useful Life (years)', type: 'number', min: 1, default: 50 },
+            { name: 'accumulatedDepreciation', label: 'Accumulated Depreciation', type: 'number', min: 0, default: 300000 },
+            { name: 'obsolescenceFactor', label: 'Obsolescence Factor (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 }
+          ],
+          [
+            { name: 'comparablePricePerSqm', label: 'Comparable Price per m²', type: 'number', min: 0, default: 4500 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'transactionVolume', label: 'Transaction Volume (1-10)', type: 'number', min: 1, max: 10, default: 6 }
+          ],
+          [
+            { name: 'monthlyRent', label: 'Monthly Rent', type: 'number', min: 0, default: 20000 },
+            { name: 'occupancyRate', label: 'Occupancy Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.9 },
+            { name: 'operatingExpensesRate', label: 'Operating Expenses Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.25 },
+            { name: 'capRate', label: 'Capitalization Rate (0-1)', type: 'number', min: 0.01, max: 0.5, step: 0.005, default: 0.07 }
+          ],
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'environmentalRisk', label: 'Environmental Risk (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 3 }
+          ],
+          [
+            { name: 'locationPremium', label: 'Location Premium (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.15 },
+            { name: 'permitsValue', label: 'Permits / Incentives Value', type: 'number', min: 0, default: 50000 }
+          ],
+          [
+            { name: 'holdingYears', label: 'Expected Holding Period (years)', type: 'number', min: 0, default: 5 },
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 6 }
+          ],
+          [
+            { name: 'gdpGrowth', label: 'GDP Growth (0-1)', type: 'number', min: 0, max: 0.2, step: 0.01, default: 0.03 },
+            { name: 'populationGrowth', label: 'Population Growth (0-1)', type: 'number', min: 0, max: 0.1, step: 0.001, default: 0.015 },
+            { name: 'infrastructurePlans', label: 'Infrastructure Plans (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.3 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 65 }
+          ]
+        ],
+        business: [
+          [
+            { name: 'assetName', label: 'Company Name', type: 'text', placeholder: 'Sample Company', default: 'Sample Company' },
+            { name: 'industrySector', label: 'Industry Sector', type: 'text', placeholder: 'Retail', default: 'Retail' },
+            { name: 'yearsInOperation', label: 'Years in Operation', type: 'number', min: 0, default: 8 },
+            { name: 'employeeCount', label: 'Employee Count', type: 'number', min: 0, default: 45 }
+          ],
+          [
+            { name: 'operationalStatus', label: 'Operational Status', type: 'select', options: [
+              { value: 'operating', label: 'Fully Operating' },
+              { value: 'partial', label: 'Partially Operating' },
+              { value: 'distressed', label: 'Distressed' }
+            ], default: 'operating' },
+            { name: 'managementQuality', label: 'Management Quality (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'governanceScore', label: 'Governance Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'techMaturity', label: 'Technology Maturity (1-10)', type: 'number', min: 1, max: 10, default: 6 }
+          ],
+          [
+            { name: 'equityBookValue', label: 'Equity Book Value', type: 'number', min: 0, default: 2500000 },
+            { name: 'retainedEarnings', label: 'Retained Earnings', type: 'number', default: 800000 },
+            { name: 'intangibleAssetsBook', label: 'Intangible Assets (Book)', type: 'number', min: 0, default: 400000 },
+            { name: 'totalDebt', label: 'Total Debt', type: 'number', min: 0, default: 600000 },
+            { name: 'cashAndEquiv', label: 'Cash & Equivalents', type: 'number', min: 0, default: 300000 }
+          ],
+          [
+            { name: 'amortizationExpense', label: 'Annual Amortization', type: 'number', min: 0, default: 80000 },
+            { name: 'goodwillImpairment', label: 'Goodwill Impairment', type: 'number', min: 0, default: 0 },
+            { name: 'annualCapex', label: 'Annual CapEx', type: 'number', min: 0, default: 200000 }
+          ],
+          [
+            { name: 'evRevenueMultiple', label: 'EV/Revenue Multiple', type: 'number', min: 0, step: 0.1, default: 1.2 },
+            { name: 'evEbitdaMultiple', label: 'EV/EBITDA Multiple', type: 'number', min: 0, step: 0.5, default: 7 },
+            { name: 'sectorMultiple', label: 'Sector Multiple', type: 'number', min: 0.5, step: 0.1, default: 1 },
+            { name: 'transactionPremium', label: 'Transaction Premium (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 },
+            { name: 'marketLiquidity', label: 'Market Liquidity (1-10)', type: 'number', min: 1, max: 10, default: 6 }
+          ],
+          [
+            { name: 'annualRevenue', label: 'Annual Revenue', type: 'number', min: 0, default: 5000000 },
+            { name: 'revenueGrowthRate', label: 'Revenue Growth Rate (0-1)', type: 'number', min: -0.1, max: 0.5, step: 0.01, default: 0.08 },
+            { name: 'ebitdaMargin', label: 'EBITDA Margin (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.18 },
+            { name: 'taxRate', label: 'Tax Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+            { name: 'discountRate', label: 'Discount Rate (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.12 },
+            { name: 'projectionYears', label: 'Projection Years', type: 'number', min: 1, max: 20, default: 5 }
+          ],
+          [
+            { name: 'customerConcentration', label: 'Customer Concentration (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'competitiveIntensity', label: 'Competitive Intensity (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'currencyRisk', label: 'Currency Risk (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+            { name: 'successionRisk', label: 'Succession Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 }
+          ],
+          [
+            { name: 'brandStrength', label: 'Brand Strength (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+            { name: 'proprietaryTechnology', label: 'Proprietary Technology (0-100)', type: 'number', min: 0, max: 100, default: 40 },
+            { name: 'patentsValue', label: 'Patents Value', type: 'number', min: 0, default: 100000 },
+            { name: 'customerRelationships', label: 'Customer Relationships (0-100)', type: 'number', min: 0, max: 100, default: 55 }
+          ],
+          [
+            { name: 'exitMultiple', label: 'Exit Multiple', type: 'number', min: 0, step: 0.5, default: 7 },
+            { name: 'strategicBuyerPremium', label: 'Strategic Buyer Premium (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.15 },
+            { name: 'marketabilityDiscount', label: 'Marketability Discount (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.2 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 6 }
+          ],
+          [
+            { name: 'marketGrowth', label: 'Market Growth (0-1)', type: 'number', min: 0, max: 0.2, step: 0.01, default: 0.05 },
+            { name: 'innovationPipeline', label: 'Innovation Pipeline (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.4 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 60 }
+          ]
+        ],
+        factory: [
+          [
+            { name: 'assetName', label: 'Factory Name', type: 'text', placeholder: 'Sample Factory', default: 'Sample Factory' },
+            { name: 'factorySector', label: 'Factory Sector', type: 'select', options: [
+              { value: 'food', label: 'Food' },
+              { value: 'plastic', label: 'Plastic' },
+              { value: 'water', label: 'Water' },
+              { value: 'building', label: 'Building Materials' },
+              { value: 'textiles', label: 'Textiles' },
+              { value: 'chemicals', label: 'Chemicals' },
+              { value: 'packaging', label: 'Packaging' },
+              { value: 'furniture', label: 'Furniture' },
+              { value: 'other', label: 'Other' }
+            ], default: 'food' },
+            { name: 'builtYear', label: 'Year Built', type: 'number', min: 1900, max: 2030, default: 2012 },
+            { name: 'floorAreaSqm', label: 'Built-up Area (m²)', type: 'number', min: 1, default: 3000 }
+          ],
+          [
+            { name: 'equipmentAgeYears', label: 'Equipment Age (years)', type: 'number', min: 0, default: 8 },
+            { name: 'utilizationRate', label: 'Utilization Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.75 },
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'safetyCertificationScore', label: 'Safety Certifications (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'digitalMaturity', label: 'Digital Maturity (1-10)', type: 'number', min: 1, max: 10, default: 5 }
+          ],
+          [
+            { name: 'landCost', label: 'Land Cost', type: 'number', min: 0, default: 800000 },
+            { name: 'buildingCost', label: 'Building Cost', type: 'number', min: 0, default: 1500000 },
+            { name: 'machineryCost', label: 'Machinery Cost', type: 'number', min: 0, default: 2000000 },
+            { name: 'installationCost', label: 'Installation Cost', type: 'number', min: 0, default: 250000 },
+            { name: 'workingCapital', label: 'Working Capital', type: 'number', min: 0, default: 400000 }
+          ],
+          [
+            { name: 'accumulatedDepreciation', label: 'Accumulated Depreciation', type: 'number', min: 0, default: 900000 },
+            { name: 'functionalObsolescence', label: 'Functional Obsolescence (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.15 }
+          ],
+          [
+            { name: 'replacementCostNew', label: 'Replacement Cost New', type: 'number', min: 0, default: 5000000 },
+            { name: 'costIndex', label: 'Cost Index', type: 'number', min: 0.5, max: 2, step: 0.05, default: 1.05 },
+            { name: 'comparableSalesValue', label: 'Comparable Sales Value', type: 'number', min: 0, default: 4500000 },
+            { name: 'scrapValueRate', label: 'Scrap Value Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.25 }
+          ],
+          [
+            { name: 'annualCapacityUnits', label: 'Annual Capacity (units)', type: 'number', min: 1, default: 100000 },
+            { name: 'capacityUtilization', label: 'Capacity Utilization (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.7 },
+            { name: 'unitPrice', label: 'Unit Price', type: 'number', min: 0, default: 50 },
+            { name: 'variableCostPerUnit', label: 'Variable Cost per Unit', type: 'number', min: 0, default: 28 },
+            { name: 'annualFixedCosts', label: 'Annual Fixed Costs', type: 'number', min: 0, default: 600000 },
+            { name: 'taxRate', label: 'Tax Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 }
+          ],
+          [
+            { name: 'rawMaterialRisk', label: 'Raw Material Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'energyRisk', label: 'Energy Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'demandRisk', label: 'Demand Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'geopoliticalRisk', label: 'Geopolitical Risk (0-10)', type: 'number', min: 0, max: 10, default: 3 }
+          ],
+          [
+            { name: 'patentsValue', label: 'Patents Value', type: 'number', min: 0, default: 150000 },
+            { name: 'licensesValue', label: 'Licenses Value', type: 'number', min: 0, default: 100000 },
+            { name: 'workforceSkill', label: 'Workforce Skill (1-10)', type: 'number', min: 1, max: 10, default: 7 }
+          ],
+          [
+            { name: 'dismantlingCost', label: 'Dismantling Cost', type: 'number', min: 0, default: 200000 },
+            { name: 'salvageValue', label: 'Salvage Value', type: 'number', min: 0, default: 300000 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 12 }
+          ],
+          [
+            { name: 'marketGrowth', label: 'Market Growth (0-1)', type: 'number', min: 0, max: 0.2, step: 0.01, default: 0.04 },
+            { name: 'automationPlan', label: 'Automation Plan (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.3 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 55 }
+          ]
+        ]
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      window.BondsValuationUI.app = window.BondsValuationUI.init(VALUATION_LOCALE);
+    });
+  </script>
+</body>
+</html>

@@ -32,7 +32,7 @@ for (const file of files) {
     /site-layout\.js\?v=\d+/g,
     () => {
       siteLayoutRefs++;
-      return 'site-layout.js?v=6';
+      return 'site-layout.js?v=7';
     }
   );
 
@@ -40,7 +40,7 @@ for (const file of files) {
     /header-footer\.css\?v=\d+/g,
     () => {
       headerFooterRefs++;
-      return 'header-footer.css?v=6';
+      return 'header-footer.css?v=7';
     }
   );
 
