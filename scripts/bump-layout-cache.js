@@ -32,7 +32,7 @@ for (const file of files) {
     /site-layout\.js\?v=\d+/g,
     () => {
       siteLayoutRefs++;
-      return 'site-layout.js?v=5';
+      return 'site-layout.js?v=6';
     }
   );
 
@@ -40,13 +40,13 @@ for (const file of files) {
     /header-footer\.css\?v=\d+/g,
     () => {
       headerFooterRefs++;
-      return 'header-footer.css?v=5';
+      return 'header-footer.css?v=6';
     }
   );
 
   content = content.replace(
     /investment-center\.css(?!\?v=2)(\?v=[^"']*)?/g,
-    (match, existing) => {
+    () => {
       investmentCenterRefs++;
       return 'investment-center.css?v=2';
     }

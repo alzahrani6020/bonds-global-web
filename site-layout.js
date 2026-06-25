@@ -172,6 +172,7 @@
     ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
 
     const restaurantsHospitalityItems = [
+      ic('restaurants', 'قطاع المطاعم والمقاهي', 'Restaurants & Cafés'),
       ic('restaurant', 'مطعم', 'Restaurant'),
       ic('coffee-shop', 'مقهى', 'Coffee Shop'),
       ic('cloud-kitchen', 'مطبخ سحابي', 'Cloud Kitchen'),
@@ -182,6 +183,7 @@
       ic('tourist-resort', 'منتجع سياحي', 'Tourist Resort'),
       ic('tourist-camp', 'مخيم سياحي', 'Tourist Camp'),
       ic('tourism-company', 'شركة سياحة', 'Tourism Company'),
+      ic('tourism', 'القطاع السياحي', 'Tourism Sector'),
     ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
 
     const educationTechnologyItems = [
