@@ -10,9 +10,31 @@ const { projectsRouter } = require('./projects');
 const { billingRouter } = require('./billing');
 const { dataEngineRouter } = require('./data-engine');
 const { getUserFromToken } = require('../lib/auth');
+// AI handlers from the main project are optional; V3 can be deployed standalone.
+// If the files are not available, stub handlers return 503 so the rest of the API works.
+function aiNotAvailable(req, res) {
+  res.statusCode = 503;
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.end(JSON.stringify({
+    error: 'AI analyze service not available in standalone V3 deployment',
+    hint: 'Deploy from the monorepo root or copy lib/ai/analyze-handler.js and review-handler.js into v3/lib/ai/'
+  }));
+}
+
+let handleAiAnalyze = aiNotAvailable;
+let handleAiReviewRequest = aiNotAvailable;
+try {
+  ({ handleAiAnalyze } = require('../../lib/ai/analyze-handler'));
+} catch (err) {
+  console.warn('[v3/api] analyze-handler not available, AI analyze endpoint disabled');
+}
+try {
+  ({ handleAiReviewRequest } = require('../../lib/ai/review-handler'));
+} catch (err) {
+  console.warn('[v3/api] review-handler not available, AI request-review endpoint disabled');
+}
+
 const { aiChatHandler } = require('./ai');
-const { handleAiAnalyze } = require('../../lib/ai/analyze-handler');
-const { handleAiReviewRequest } = require('../../lib/ai/review-handler');
 const { scenariosRouter } = require('./scenarios');
 const { alertsRouter } = require('./alerts');
 const { compareRouter } = require('./compare');
