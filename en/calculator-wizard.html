@@ -22,6 +22,7 @@
   <link rel="icon" type="image/svg+xml" href="../assets/bonds-mark.svg" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="../calculators/investment-center/decision-intelligence.js"></script>
 </head>
 <body>
@@ -613,21 +614,53 @@
 
             <div id="decisionIntelligencePanel" class="decision-intelligence wizard-hidden">
               <h2>Investment Decision Intelligence</h2>
-              <div class="di-confidence">
-                <div class="di-confidence__label">Confidence Score</div>
-                <div class="di-confidence__gauge"><div class="di-confidence__fill" id="diConfidenceFill" style="width: 0%"></div></div>
-                <div class="di-confidence__value" id="diConfidenceValue">0</div>
+              <div class="di-top-grid">
+                <div class="di-verdict" id="diVerdict"></div>
+                <div class="di-confidence-card">
+                  <div id="diConfidenceGauge"></div>
+                  <div id="diConfidenceBreakdown"></div>
+                </div>
               </div>
-              <div class="di-verdict" id="diVerdict"></div>
               <div id="diSummary"></div>
-              <div class="di-grid">
-                <div class="di-card"><h3>Risk Analysis</h3><div id="diRiskGauge"></div><div id="diRiskList" class="di-list"></div></div>
-                <div class="di-card"><h3>Financing Analysis</h3><div id="diFinancingSummary"></div></div>
-                <div class="di-card"><h3>Market Analysis</h3><div id="diMarketGauge"></div><div id="diMarketSummary"></div></div>
-                <div class="di-card"><h3>Cash Flow Analysis</h3><div id="diCashFlowGauge"></div><div id="diCashFlowSummary"></div></div>
+              <div class="di-charts-grid">
+                <div class="di-card di-card--chart">
+                  <h3>Cash Flow Analysis</h3>
+                  <canvas id="diCashFlowChart"></canvas>
+                  <div id="diCashFlowSummary"></div>
+                </div>
+                <div class="di-card di-card--chart">
+                  <h3>Risk Analysis</h3>
+                  <canvas id="diRiskChart"></canvas>
+                  <div id="diRiskList" class="di-list"></div>
+                </div>
+                <div class="di-card di-card--chart">
+                  <h3>Financing Analysis</h3>
+                  <canvas id="diFinancingChart"></canvas>
+                  <div id="diFinancingSummary"></div>
+                </div>
+                <div class="di-card di-card--chart">
+                  <h3>Market Analysis</h3>
+                  <div id="diMarketScores" class="di-market-scores"></div>
+                  <div id="diMarketSummary"></div>
+                </div>
               </div>
-              <div class="di-card di-card--wide"><h3>Key Risks</h3><div id="diKeyRisks" class="di-list di-list--risks"></div></div>
-              <div class="di-card di-card--wide"><h3>Key Opportunities</h3><div id="diKeyOpportunities" class="di-list di-list--opportunities"></div></div>
+              <div class="di-card di-card--wide">
+                <h3>Data Quality</h3>
+                <div id="diDataQuality"></div>
+              </div>
+              <div class="di-card di-card--wide">
+                <h3>Key Risks & Opportunities</h3>
+                <div class="di-risks-opportunities-grid">
+                  <div>
+                    <h3 style="font-size:0.9rem;margin-bottom:0.75rem">Key Risks</h3>
+                    <div id="diKeyRisks" class="di-list di-list--risks"></div>
+                  </div>
+                  <div>
+                    <h3 style="font-size:0.9rem;margin-bottom:0.75rem">Key Opportunities</h3>
+                    <div id="diKeyOpportunities" class="di-list di-list--opportunities"></div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="wizard-actions center" style="margin-top: 2rem;">

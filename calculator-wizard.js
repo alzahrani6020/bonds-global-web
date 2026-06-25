@@ -598,23 +598,29 @@
     const diInputs = mapWizardInputsToDecisionIntelligence();
     const engineResult = buildSyntheticEngineResult();
     const di = window.DecisionIntelligence.analyze(diInputs, engineResult, lang);
+    di._inputs = diInputs;
+    di._engineResultMetrics = engineResult.metrics;
     window._lastWizardDecisionResult = di;
 
     document.getElementById('decisionIntelligencePanel').classList.remove('wizard-hidden');
     document.getElementById('execReportBtn').classList.remove('wizard-hidden');
 
     const conf = di.confidenceScore;
-    document.getElementById('diConfidenceFill').style.width = conf.score + '%';
-    document.getElementById('diConfidenceValue').textContent = conf.score + '/100';
+    window.DecisionIntelligence.renderCircularGauge('diConfidenceGauge', conf.score, lang === 'en' ? 'Confidence Score' : 'درجة الثقة');
+    window.DecisionIntelligence.renderConfidenceBreakdown('diConfidenceBreakdown', conf);
 
     window.DecisionIntelligence.renderDecisionPanel('diVerdict', di.recommendation);
     window.DecisionIntelligence.renderSummary('diSummary', di.dataQuality, di.riskAnalysis, di.financingAnalysis, di.marketAnalysis, di.cashFlowAnalysis);
-    window.DecisionIntelligence.renderGauge('diRiskGauge', di.riskAnalysis.score, lang === 'en' ? 'Risk Score' : 'درجة المخاطر', window.DecisionIntelligence.i18n[lang] || {});
-    window.DecisionIntelligence.renderGauge('diMarketGauge', di.marketAnalysis.score, lang === 'en' ? 'Market Score' : 'درجة السوق', window.DecisionIntelligence.i18n[lang] || {});
-    window.DecisionIntelligence.renderGauge('diCashFlowGauge', di.cashFlowAnalysis.score, lang === 'en' ? 'Cash Flow Score' : 'درجة التدفق النقدي', window.DecisionIntelligence.i18n[lang] || {});
+    window.DecisionIntelligence.renderDataQuality('diDataQuality', di.dataQuality);
+    window.DecisionIntelligence.renderMarketScores('diMarketScores', di.marketAnalysis);
     window.DecisionIntelligence.renderList('diRiskList', di.riskAnalysis.categories || [], 'risk');
     window.DecisionIntelligence.renderList('diKeyRisks', di.keyRisks, 'risk');
     window.DecisionIntelligence.renderList('diKeyOpportunities', di.keyOpportunities, 'opportunity');
+
+    // Charts (Chart.js)
+    window.DecisionIntelligence.renderCashFlowChart('diCashFlowChart', di.cashFlowAnalysis, engineResult.metrics);
+    window.DecisionIntelligence.renderRiskChart('diRiskChart', di.riskAnalysis);
+    window.DecisionIntelligence.renderFinancingChart('diFinancingChart', diInputs, di.financingAnalysis);
 
     const finSummary = document.getElementById('diFinancingSummary');
     if (finSummary) {

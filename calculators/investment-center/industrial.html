@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="../../header-footer.css?v=2" />
   <link rel="stylesheet" href="./investment-center.css" />
   <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
   <div id="site-header"></div>
@@ -634,48 +635,56 @@
       <div id="decisionIntelligencePanel" class="decision-intelligence hidden">
         <h2>ذكاء اتخاذ القرار الاستثماري</h2>
 
-        <div class="di-confidence">
-          <div class="di-confidence__label">درجة الثقة في القرار</div>
-          <div class="di-confidence__gauge">
-            <div class="di-confidence__fill" id="diConfidenceFill" style="width: 0%"></div>
+        <div class="di-top-grid">
+          <div class="di-verdict" id="diVerdict"></div>
+          <div class="di-confidence-card">
+            <div id="diConfidenceGauge"></div>
+            <div id="diConfidenceBreakdown"></div>
           </div>
-          <div class="di-confidence__value" id="diConfidenceValue">0</div>
         </div>
-
-        <div class="di-verdict" id="diVerdict"></div>
 
         <div id="diSummary"></div>
 
-        <div class="di-grid">
-          <div class="di-card">
-            <h3>تحليل المخاطر</h3>
-            <div id="diRiskGauge"></div>
-            <div id="diRiskList" class="di-list"></div>
-          </div>
-          <div class="di-card">
-            <h3>تحليل التمويل</h3>
-            <div id="diFinancingSummary"></div>
-          </div>
-          <div class="di-card">
-            <h3>تحليل السوق</h3>
-            <div id="diMarketGauge"></div>
-            <div id="diMarketSummary"></div>
-          </div>
-          <div class="di-card">
+        <div class="di-charts-grid">
+          <div class="di-card di-card--chart">
             <h3>تحليل التدفقات النقدية</h3>
-            <div id="diCashFlowGauge"></div>
+            <canvas id="diCashFlowChart"></canvas>
             <div id="diCashFlowSummary"></div>
           </div>
+          <div class="di-card di-card--chart">
+            <h3>تحليل المخاطر</h3>
+            <canvas id="diRiskChart"></canvas>
+            <div id="diRiskList" class="di-list"></div>
+          </div>
+          <div class="di-card di-card--chart">
+            <h3>تحليل التمويل</h3>
+            <canvas id="diFinancingChart"></canvas>
+            <div id="diFinancingSummary"></div>
+          </div>
+          <div class="di-card di-card--chart">
+            <h3>تحليل السوق</h3>
+            <div id="diMarketScores" class="di-market-scores"></div>
+            <div id="diMarketSummary"></div>
+          </div>
         </div>
 
         <div class="di-card di-card--wide">
-          <h3>قائمة المخاطر الرئيسية</h3>
-          <div id="diKeyRisks" class="di-list di-list--risks"></div>
+          <h3>جودة البيانات</h3>
+          <div id="diDataQuality"></div>
         </div>
 
         <div class="di-card di-card--wide">
-          <h3>قائمة الفرص الرئيسية</h3>
-          <div id="diKeyOpportunities" class="di-list di-list--opportunities"></div>
+          <h3>المخاطر والفرص الرئيسية</h3>
+          <div class="di-risks-opportunities-grid">
+            <div>
+              <h3 style="font-size:0.9rem;margin-bottom:0.75rem">قائمة المخاطر الرئيسية</h3>
+              <div id="diKeyRisks" class="di-list di-list--risks"></div>
+            </div>
+            <div>
+              <h3 style="font-size:0.9rem;margin-bottom:0.75rem">قائمة الفرص الرئيسية</h3>
+              <div id="diKeyOpportunities" class="di-list di-list--opportunities"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1429,6 +1438,8 @@
       // Decision Intelligence Layer
       if (window.DecisionIntelligence && window.DecisionIntelligence.analyze) {
         const diResult = window.DecisionIntelligence.analyze(inputs, result, isAr ? 'ar' : 'en');
+        diResult._inputs = inputs;
+        diResult._engineResultMetrics = result.metrics;
         window._lastDecisionResult = diResult;
         renderDecisionIntelligence(diResult);
       }
@@ -1443,19 +1454,22 @@
       panel.classList.remove('hidden');
 
       const conf = di.confidenceScore;
-      const fill = document.getElementById('diConfidenceFill');
-      const val = document.getElementById('diConfidenceValue');
-      if (fill) fill.style.width = conf.score + '%';
-      if (val) val.textContent = conf.score + (isAr ? '/100' : '/100');
+      window.DecisionIntelligence.renderCircularGauge('diConfidenceGauge', conf.score, isAr ? 'درجة الثقة' : 'Confidence Score');
+      window.DecisionIntelligence.renderConfidenceBreakdown('diConfidenceBreakdown', conf);
 
       window.DecisionIntelligence.renderDecisionPanel('diVerdict', di.recommendation);
       window.DecisionIntelligence.renderSummary('diSummary', di.dataQuality, di.riskAnalysis, di.financingAnalysis, di.marketAnalysis, di.cashFlowAnalysis);
-      window.DecisionIntelligence.renderGauge('diRiskGauge', di.riskAnalysis.score, isAr ? 'درجة المخاطر' : 'Risk Score', di.i18n || {});
-      window.DecisionIntelligence.renderGauge('diMarketGauge', di.marketAnalysis.score, isAr ? 'درجة السوق' : 'Market Score', di.i18n || {});
-      window.DecisionIntelligence.renderGauge('diCashFlowGauge', di.cashFlowAnalysis.score, isAr ? 'درجة التدفق النقدي' : 'Cash Flow Score', di.i18n || {});
+      window.DecisionIntelligence.renderDataQuality('diDataQuality', di.dataQuality);
+      window.DecisionIntelligence.renderMarketScores('diMarketScores', di.marketAnalysis);
       window.DecisionIntelligence.renderList('diRiskList', di.riskAnalysis.categories || [], 'risk');
       window.DecisionIntelligence.renderList('diKeyRisks', di.keyRisks, 'risk');
       window.DecisionIntelligence.renderList('diKeyOpportunities', di.keyOpportunities, 'opportunity');
+
+      // Charts (Chart.js)
+      const metrics = di._engineResultMetrics || (window._lastResult && window._lastResult.metrics) || {};
+      window.DecisionIntelligence.renderCashFlowChart('diCashFlowChart', di.cashFlowAnalysis, metrics);
+      window.DecisionIntelligence.renderRiskChart('diRiskChart', di.riskAnalysis);
+      window.DecisionIntelligence.renderFinancingChart('diFinancingChart', di._inputs || {}, di.financingAnalysis);
 
       const finSummary = document.getElementById('diFinancingSummary');
       if (finSummary) {
