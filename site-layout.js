@@ -94,6 +94,8 @@
       creditworthinessCalc: isEn ? 'Credit Rating' : 'تقييم الجدارة الائتمانية',
       factorySa: isEn ? 'Factory Cost — Saudi' : 'تكلفة المصنع — السعودية',
       factoryEg: isEn ? 'Factory Cost — Egypt' : 'تكلفة المصنع — مصر',
+      pricingFeasibilityGroup: isEn ? 'Pricing & Feasibility' : 'التسعير والجدوى',
+      financialAnalysisGroup: isEn ? 'Financial Analysis' : 'التحليل المالي',
     };
 
     const langHref = langBase + '../index.html';
@@ -232,27 +234,9 @@
       {
         heading: { ar: 'الأدوات الرئيسية', en: 'Main Tools' },
         items: [
-          { label: labels.projectWizard, href: langBase + 'calculator-wizard.html' },
           { label: labels.investmentCenter, href: calcBase + 'investment-center/index.html' },
+          { label: labels.projectWizard, href: langBase + 'calculator-wizard.html' },
           { label: labels.breakEven, href: calcBreakEven },
-        ],
-      },
-      {
-        heading: { ar: 'الصحة المالية', en: 'Financial Health' },
-        items: [
-          { label: labels.cashFlowCalc, href: calcBase + 'cash-flow.html' },
-          { label: labels.loanCalc, href: calcBase + 'loan.html' },
-          { label: labels.creditworthinessCalc, href: calcBase + 'creditworthiness.html' },
-          { label: labels.invoiceCalc, href: calcBase + 'invoice-analyzer.html' },
-        ],
-      },
-      {
-        heading: { ar: 'التشغيل والتسعير', en: 'Operations & Pricing' },
-        items: [
-          { label: labels.pricingCalc, href: calcBase + 'pricing.html' },
-          { label: labels.menuEngCalc, href: calcBase + 'menu-engineering.html' },
-          { label: labels.feasibilityCalc, href: calcBase + 'feasibility.html' },
-          { label: labels.templateCalc, href: calcBase + 'feasibility-template.html' },
         ],
       },
       {
@@ -269,7 +253,11 @@
       },
       {
         heading: { ar: 'المطاعم والضيافة', en: 'Restaurants & Hospitality' },
-        items: restaurantsHospitalityItems,
+        items: [
+          ...restaurantsHospitalityItems,
+          { label: labels.menuEngCalc, href: calcBase + 'menu-engineering.html' },
+          { label: labels.feasibilityCalc, href: calcBase + 'feasibility.html' },
+        ],
       },
       {
         heading: { ar: 'التعليم والتقنية', en: 'Education & Technology' },
@@ -278,6 +266,22 @@
       {
         heading: { ar: 'اللوجستيات والتجارة', en: 'Logistics & Commerce' },
         items: logisticsCommerceItems,
+      },
+      {
+        heading: { ar: labels.financialAnalysisGroup, en: 'Financial Analysis' },
+        items: [
+          { label: labels.cashFlowCalc, href: calcBase + 'cash-flow.html' },
+          { label: labels.loanCalc, href: calcBase + 'loan.html' },
+          { label: labels.creditworthinessCalc, href: calcBase + 'creditworthiness.html' },
+          { label: labels.invoiceCalc, href: calcBase + 'invoice-analyzer.html' },
+        ],
+      },
+      {
+        heading: { ar: labels.pricingFeasibilityGroup, en: 'Pricing & Feasibility' },
+        items: [
+          { label: labels.pricingCalc, href: calcBase + 'pricing.html' },
+          { label: labels.templateCalc, href: calcBase + 'feasibility-template.html' },
+        ],
       },
       {
         heading: { ar: 'تكلفة المصنع حسب الدولة', en: 'Factory Cost by Country' },

@@ -3,6 +3,7 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const EXCLUDED = ['node_modules', '.vercel', '.git', 'bonds-v2', 'v3'];
+const VERSION = '4';
 
 function walk(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -27,30 +28,19 @@ for (const file of files) {
   let content = fs.readFileSync(file, 'utf8');
   const original = content;
 
-  // Add cache-buster to site-layout.js references that don't have one
   content = content.replace(
-    /site-layout\.js(?!\?v=3)(\?v=[^"']*)?/g,
-    (match, existing) => {
+    /site-layout\.js\?v=\d+/g,
+    () => {
       siteLayoutRefs++;
-      return 'site-layout.js?v=3';
+      return `site-layout.js?v=${VERSION}`;
     }
   );
 
-  // Bump header-footer.css cache-buster to v=3
   content = content.replace(
     /header-footer\.css\?v=\d+/g,
-    (match) => {
+    () => {
       headerFooterRefs++;
-      return 'header-footer.css?v=3';
-    }
-  );
-
-  // Also handle header-footer.css without version
-  content = content.replace(
-    /header-footer\.css(?!\?v=3)(?!\?v=\d)/g,
-    (match) => {
-      headerFooterRefs++;
-      return 'header-footer.css?v=3';
+      return `header-footer.css?v=${VERSION}`;
     }
   );
 
