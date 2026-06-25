@@ -16,11 +16,11 @@
     },
     {
       "source": "/api/pro",
-      "destination": "/api/pro"
+      "destination": "/api/platform"
     },
     {
       "source": "/api/pro/",
-      "destination": "/api/pro"
+      "destination": "/api/platform"
     },
     {
       "source": "/api/force-reset",
@@ -44,11 +44,11 @@
     },
     {
       "source": "/api/v3/billing/webhook",
-      "destination": "/api/billing?action=v3-stripe-webhook"
+      "destination": "/api/payments"
     },
     {
       "source": "/api/v3/billing/webhook/",
-      "destination": "/api/billing?action=v3-stripe-webhook"
+      "destination": "/api/payments"
     },
     {
       "source": "/api/v3/(.*)",
@@ -60,47 +60,75 @@
     },
     {
       "source": "/api/track",
-      "destination": "/api/site?action=usage"
+      "destination": "/api/platform"
     },
     {
       "source": "/api/track/",
-      "destination": "/api/site?action=usage"
+      "destination": "/api/platform"
     },
     {
       "source": "/api/moyasar-checkout",
-      "destination": "/api/moyasar?action=checkout"
+      "destination": "/api/payments"
     },
     {
       "source": "/api/moyasar-verify",
-      "destination": "/api/moyasar?action=verify"
+      "destination": "/api/payments"
     },
     {
       "source": "/api/moyasar-webhook",
-      "destination": "/api/moyasar?action=webhook"
+      "destination": "/api/payments"
+    },
+    {
+      "source": "/api/moyasar",
+      "destination": "/api/payments"
+    },
+    {
+      "source": "/api/moyasar/",
+      "destination": "/api/payments"
     },
     {
       "source": "/api/nps-check",
-      "destination": "/api/nps?action=check"
+      "destination": "/api/platform"
     },
     {
       "source": "/api/nps-submit",
-      "destination": "/api/nps?action=submit"
+      "destination": "/api/platform"
     },
     {
       "source": "/api/send-nps",
-      "destination": "/api/nps?action=send"
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/nps",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/nps/",
+      "destination": "/api/platform"
     },
     {
       "source": "/api/advisors",
-      "destination": "/api/advisors?action=list"
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/advisors/",
+      "destination": "/api/platform"
     },
     {
       "source": "/api/advisor-dashboard",
-      "destination": "/api/advisors?action=dashboard"
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/advisor-dashboard/",
+      "destination": "/api/platform"
     },
     {
       "source": "/api/advisor-update-review",
-      "destination": "/api/advisors?action=update-review"
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/advisor-update-review/",
+      "destination": "/api/platform"
     },
     {
       "source": "/api/funding-readiness",
@@ -119,28 +147,44 @@
       "destination": "/api/funding?action=bank-partner-request"
     },
     {
+      "source": "/api/checkout",
+      "destination": "/api/payments"
+    },
+    {
+      "source": "/api/checkout/",
+      "destination": "/api/payments"
+    },
+    {
       "source": "/api/create-checkout",
-      "destination": "/api/checkout?action=create"
+      "destination": "/api/payments"
     },
     {
       "source": "/api/create-checkout/",
-      "destination": "/api/checkout?action=create"
+      "destination": "/api/payments"
     },
     {
       "source": "/api/create-oneoff-checkout",
-      "destination": "/api/checkout?action=oneoff"
+      "destination": "/api/payments"
     },
     {
       "source": "/api/create-oneoff-checkout/",
-      "destination": "/api/checkout?action=oneoff"
+      "destination": "/api/payments"
+    },
+    {
+      "source": "/api/billing",
+      "destination": "/api/payments"
+    },
+    {
+      "source": "/api/billing/",
+      "destination": "/api/payments"
     },
     {
       "source": "/api/webhook",
-      "destination": "/api/billing?action=stripe-webhook"
+      "destination": "/api/payments"
     },
     {
       "source": "/api/webhook/",
-      "destination": "/api/billing?action=stripe-webhook"
+      "destination": "/api/payments"
     },
     {
       "source": "/api/bank-transfer",
@@ -160,19 +204,67 @@
     },
     {
       "source": "/api/contact",
-      "destination": "/api/site?action=contact"
+      "destination": "/api/platform"
     },
     {
       "source": "/api/contact/",
-      "destination": "/api/site?action=contact"
+      "destination": "/api/platform"
     },
     {
       "source": "/api/usage",
-      "destination": "/api/site?action=usage"
+      "destination": "/api/platform"
     },
     {
       "source": "/api/usage/",
-      "destination": "/api/site?action=usage"
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/site",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/site/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/log-usage",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/log-usage/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/image-search",
+      "destination": "/api/research"
+    },
+    {
+      "source": "/api/image-search/",
+      "destination": "/api/research"
+    },
+    {
+      "source": "/api/market-research",
+      "destination": "/api/research"
+    },
+    {
+      "source": "/api/market-research/",
+      "destination": "/api/research"
+    },
+    {
+      "source": "/api/promo-simulator",
+      "destination": "/api/research"
+    },
+    {
+      "source": "/api/promo-simulator/",
+      "destination": "/api/research"
+    },
+    {
+      "source": "/api/omnichannel-calculator",
+      "destination": "/api/research"
+    },
+    {
+      "source": "/api/omnichannel-calculator/",
+      "destination": "/api/research"
     },
     {
       "source": "/api/([^/]+)",
