@@ -358,6 +358,7 @@
         <div class="ca-actions">
           <button type="button" class="btn-primary" id="caCalculateBtn">${t.conditionAssessmentCalculate}</button>
           <button type="button" class="btn-outline" id="caResetBtn">${t.conditionAssessmentReset}</button>
+          <button type="button" class="btn-outline" id="caExportPdfBtn">${t.conditionExportPdf || 'PDF'}</button>
         </div>
       `;
 
@@ -410,6 +411,7 @@
         this.renderConditionAssessment();
         updateResult();
       });
+      $('#caExportPdfBtn', panel).addEventListener('click', () => this.exportConditionAssessmentPDF(panel));
 
       const saveStatusEl = $('#caSaveStatus', panel);
       const showSaveStatus = (msg, isError) => {
@@ -523,6 +525,63 @@
       // If answers already exist, show result
       if (Object.keys(this.inputs.conditionAssessment).length > 0) {
         updateResult();
+      }
+    }
+
+    async exportConditionAssessmentPDF(panel) {
+      if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+        alert('PDF libraries not loaded');
+        return;
+      }
+      const t = this.locale.texts;
+      const result = this.inputs.conditionAssessmentResult;
+      if (!result) {
+        alert(this.lang === 'en' ? 'Calculate the condition score first' : 'احتسب درجة الحالة أولاً');
+        return;
+      }
+
+      // Temporarily hide action buttons and status from capture
+      const toHide = panel.querySelectorAll('.ca-actions, .ca-save-status');
+      toHide.forEach(el => el.style.visibility = 'hidden');
+
+      try {
+        const canvas = await html2canvas(panel, { scale: 2, useCORS: true, backgroundColor: '#0a0f1a' });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const imgWidth = pageWidth;
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        const meta = this.inputs.conditionAssessmentMeta || {};
+        const assetName = meta.assetName || this.inputs.assetName || this.currentAsset;
+        const dateStr = meta.assessmentDate || new Date().toISOString().split('T')[0];
+        const filename = `condition-assessment-${this.currentAsset}-${dateStr}.pdf`;
+
+        // Header text on first page (English only to avoid missing Arabic font)
+        pdf.setFontSize(10);
+        pdf.setTextColor(180, 180, 180);
+        const header = `Condition Assessment Report — ${this.currentAsset} — ${assetName} — ${dateStr}`;
+        pdf.text(header, 10, 10);
+
+        pdf.addImage(imgData, 'PNG', 0, 15, imgWidth, imgHeight);
+        heightLeft -= (pageHeight - 15);
+
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight + 15;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+
+        pdf.save(filename);
+      } catch (err) {
+        console.error('[ValuationUI] PDF export failed:', err);
+        alert('PDF export failed: ' + err.message);
+      } finally {
+        toHide.forEach(el => el.style.visibility = '');
       }
     }
 

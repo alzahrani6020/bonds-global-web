@@ -111,7 +111,17 @@
         conditionNoAssessments: 'لا توجد تقييمات سابقة',
         conditionDraft: 'مسودة',
         conditionFinal: 'نهائي',
-        conditionArchived: 'مؤرشف'
+        conditionArchived: 'مؤرشف',
+        conditionExportPdf: 'تصدير PDF',
+        conditionReportTitle: 'تقرير تقييم الحالة',
+        conditionReportGenerated: 'تم الإنشاء',
+        conditionReportAsset: 'الأصل',
+        conditionReportScore: 'درجة الحالة',
+        conditionReportGrade: 'التقدير',
+        conditionReportConfidence: 'نسبة الثقة',
+        conditionReportPoints: 'نقاط الفحص',
+        conditionReportCritical: 'إخفاقات حرجة',
+        conditionReportNotes: 'ملاحظات'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',
@@ -2682,7 +2692,17 @@
         conditionNoAssessments: 'No previous assessments',
         conditionDraft: 'Draft',
         conditionFinal: 'Final',
-        conditionArchived: 'Archived'
+        conditionArchived: 'Archived',
+        conditionExportPdf: 'Export PDF',
+        conditionReportTitle: 'Condition Assessment Report',
+        conditionReportGenerated: 'Generated',
+        conditionReportAsset: 'Asset',
+        conditionReportScore: 'Condition Score',
+        conditionReportGrade: 'Grade',
+        conditionReportConfidence: 'Confidence',
+        conditionReportPoints: 'Inspection Points',
+        conditionReportCritical: 'Critical Failures',
+        conditionReportNotes: 'Notes'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',
