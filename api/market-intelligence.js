@@ -101,8 +101,8 @@ async function refreshSources(supabase) {
           const raw = getPath(rec, String(srcPath));
           const col = toSnake(destKey);
           if (['asset_class', 'country', 'region', 'city', 'sector', 'source', 'outlook', 'notes', 'recorded_at'].includes(col)) {
-            payload[col] = raw !== undefined ? String(raw) : payload[col];
-          } else {
+            payload[col] = raw !== undefined && raw !== null ? String(raw) : payload[col];
+          } else if (raw !== undefined && raw !== null && raw !== '') {
             payload[col] = safeNum(raw);
           }
         }

@@ -10,7 +10,8 @@
 - `supabase/migrations/20260709000000_depreciation_factors.sql` — جدول `depreciation_factors`.
 - `supabase/migrations/20260710000000_market_intelligence.sql` — جدول `market_data`.
 - `supabase/migrations/20260711000000_market_intelligence_v2.sql` — التوسعة الكاملة للذكاء السوقي (تاريخ، رؤى، جغرافيا، مصادر).
-- `supabase/migrations/20260712000000_market_intelligence_sources.sql` — مصادر بيانات خارجية موثوقة جاهزة للعمل (KAPSARC + World Bank).
+- `supabase/migrations/20260712000000_market_intelligence_sources.sql` — مصادر بيانات خارجية موثوقة جاهزة للعمل (KAPSARC + World Bank) للسعودية.
+- `supabase/migrations/20260713000000_market_intelligence_arab_sources.sql` — مؤشرات ماكرو اقتصادية (تضخم + نمو ناتج محلي) لجميع الدول العربية الـ 22.
 
 ## الخطوة 1: إضافة الأسرار في GitHub
 
@@ -128,14 +129,18 @@ curl -X POST "https://bonds-global.com/api/market-intelligence?cronSecret=$CRON_
 
 ### المصادر الخارجية المُفعّلة
 
-بعد تطبيق `20260712000000_market_intelligence_sources.sql`، ستجد مصادر جاهزة في جدول `market_data_sources`:
+بعد تطبيق الترحيلات، ستجد مصادر جاهزة في جدول `market_data_sources`:
 
-| المصدر | البيانات | الرابط |
-|---|---|---|
-| KAPSARC Saudi RE Index | مؤشر أسعار العقارات السعودية (عام، سكني، تجاري) | `datasource.kapsarc.org` |
-| KAPSARC Saudi Repo Rate (RR) | سعر الريبو الرسمي من SAMA | `datasource.kapsarc.org` |
-| World Bank — Saudi Inflation | التضخم السنوي (CPI) | `api.worldbank.org` |
-| World Bank — Saudi GDP Growth | النمو الاقتصادي السنوي | `api.worldbank.org` |
+| المصدر | النطاق | البيانات | الرابط |
+|---|---|---|---|
+| KAPSARC Saudi RE Index | السعودية | مؤشر أسعار العقارات (عام، سكني، تجاري) | `datasource.kapsarc.org` |
+| KAPSARC Saudi Repo Rate (RR) | السعودية | سعر الريبو الرسمي من SAMA | `datasource.kapsarc.org` |
+| World Bank — Inflation (CPI) | 22 دولة عربية | التضخم السنوي | `api.worldbank.org` |
+| World Bank — GDP Growth | 22 دولة عربية | النمو الاقتصادي السنوي | `api.worldbank.org` |
+
+الدول العربية المدعومة:
+
+`SA` `AE` `BH` `DZ` `EG` `IQ` `JO` `KW` `LB` `LY` `MA` `OM` `PS` `QA` `SD` `SY` `TN` `YE` `DJ` `SO` `MR` `KM`
 
 جميعها APIs عامة ولا تحتاج مفاتيح. يمكن إضافة/تعديل المصادر من `/admin/market-intelligence.html`.
 
