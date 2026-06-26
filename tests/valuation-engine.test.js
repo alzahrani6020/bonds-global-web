@@ -4,7 +4,9 @@
 const fs = require('fs');
 const path = require('path');
 
+const bvsCode = fs.readFileSync(path.join(__dirname, '../valuation/valuation-standards.js'), 'utf8');
 const engineCode = fs.readFileSync(path.join(__dirname, '../valuation/valuation-engine.js'), 'utf8');
+eval(bvsCode);
 eval(engineCode);
 
 function buildInputs(defaults) {
@@ -440,6 +442,51 @@ describe('ValuationEngine', () => {
       });
       const result = engine.calculate('business', inputs);
       expect(result.goodwillImpairmentFlag).toBe(false);
+    });
+  });
+
+  describe('BONDS Valuation Standards (BVS)', () => {
+    it('has BVS standards for all active asset classes', () => {
+      const active = AssetClass.list().filter(s => AssetClass.isActive(s));
+      active.forEach(cls => {
+        expect(BVS.hasStandard(cls)).toBe(true);
+      });
+    });
+
+    it('returns factor definitions with weight, calculation, verification, source and confidence', () => {
+      const f = BVS.getFactorDefinition('realEstate', 'conditionScore');
+      expect(f).toBeDefined();
+      expect(f.weight).toBeGreaterThan(0);
+      expect(f.calculationMethod).toBeTruthy();
+      expect(f.verificationMethod).toBeTruthy();
+      expect(f.dataSource).toBeTruthy();
+      expect(f.confidenceLevel).toBeGreaterThanOrEqual(0);
+      expect(f.confidenceLevel).toBeLessThanOrEqual(1);
+    });
+
+    it('returns confidence score between 0 and 1', () => {
+      const inputs = buildInputs({ purchasePrice: 2000000, areaSqm: 500 });
+      const score = engine.getConfidenceScore('realEstate', inputs);
+      expect(score).toBeGreaterThanOrEqual(0);
+      expect(score).toBeLessThanOrEqual(1);
+    });
+
+    it('includes confidenceScore and bvsValidation in every valuation result', () => {
+      const inputs = buildInputs({ purchasePrice: 2000000, areaSqm: 500 });
+      const result = engine.calculate('realEstate', inputs);
+      expect(result.confidenceScore).toBeDefined();
+      expect(result.bvsValidation).toBeDefined();
+      expect(result.bvsCompliant).toBe(true);
+    });
+
+    it('blocks valuation for asset classes without BVS standard', () => {
+      expect(() => engine.calculate('nonExistentClass', {})).toThrow();
+    });
+
+    it('reports validation issues when too few BVS factors are provided', () => {
+      const validation = engine.validateInputs('realEstate', {});
+      expect(validation.valid).toBe(false);
+      expect(validation.issues.length).toBeGreaterThan(0);
     });
   });
 

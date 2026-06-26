@@ -898,6 +898,49 @@
       };
     }
 
+    /* ---------- BVS integration helpers ---------- */
+    _bvs() {
+      return (typeof BVS !== 'undefined' && BVS) || null;
+    }
+
+    _bvsOutputWeights(assetClass) {
+      const bvs = this._bvs();
+      if (bvs && bvs.hasStandard(assetClass)) {
+        return bvs.getOutputWeights(assetClass);
+      }
+      return { book: 0.25, market: 0.35, income: 0.35, liquidation: 0.05 };
+    }
+
+    _applyBVSWeights(values, weights) {
+      const book = safe(values.bookValue);
+      const market = safe(values.marketValue);
+      const income = safe(values.incomeValue);
+      const liquidation = safe(values.liquidationValue);
+      const hasIncome = income > 0;
+      const w = { ...weights };
+      const total = (w.book || 0) + (w.market || 0) + (hasIncome ? (w.income || 0) : 0) + (w.liquidation || 0);
+      if (total <= 0) return values;
+      let fair = 0;
+      fair += book * (w.book || 0);
+      fair += market * (w.market || 0);
+      if (hasIncome) fair += income * (w.income || 0);
+      fair += liquidation * (w.liquidation || 0);
+      fair = fair / total;
+      return { ...values, fairValue: round2(fair) };
+    }
+
+    validateInputs(assetClass, inputs) {
+      const bvs = this._bvs();
+      if (!bvs) return { valid: true, issues: ['BVS not loaded'] };
+      return bvs.validateInputs(assetClass, inputs);
+    }
+
+    getConfidenceScore(assetClass, inputs) {
+      const bvs = this._bvs();
+      if (!bvs) return 0;
+      return bvs.getConfidenceScore(assetClass, inputs);
+    }
+
     /* ---------- Generic fallback (for completeness / future classes) ---------- */
     _calcGeneric(i) {
       const base = safe(i.purchasePrice) || safe(i.equityBookValue) ||
@@ -917,24 +960,30 @@
     }
 
     calculate(assetClass, inputs) {
-      const values = (() => {
+      const bvs = this._bvs();
+      if (bvs && !bvs.hasStandard(assetClass)) {
+        throw new Error(`BVS standard missing for asset class: ${assetClass}. Valuation blocked by BONDS Valuation Standards.`);
+      }
+
+      const outputWeights = this._bvsOutputWeights(assetClass);
+      const rawValues = (() => {
         switch (assetClass) {
           case AssetClass.REAL_ESTATE: return this._calcRealEstate(inputs);
           case AssetClass.BUSINESS: return this._calcBusiness(inputs);
           case AssetClass.FACTORY: return this._calcFactory(inputs);
           case AssetClass.MACHINERY_EQUIPMENT:
-            return this._calcDepreciableTangible(inputs, { weights: { book: 0.25, market: 0.35, income: 0.4 } });
+            return this._calcDepreciableTangible(inputs, { weights: outputWeights, regulatoryBoost: 0, capRate: 0.12 });
           case AssetClass.VEHICLES_FLEET:
-            return this._calcDepreciableTangible(inputs, { weights: { book: 0.2, market: 0.45, income: 0.35 } });
+            return this._calcDepreciableTangible(inputs, { weights: outputWeights, regulatoryBoost: 0, capRate: 0.12 });
           case AssetClass.MEDICAL_EQUIPMENT:
             return this._calcDepreciableTangible(inputs, {
-              weights: { book: 0.25, market: 0.3, income: 0.45 },
+              weights: outputWeights,
               regulatoryBoost: 50000,
               capRate: 0.1
             });
           case AssetClass.EDUCATIONAL_EQUIPMENT:
             return this._calcDepreciableTangible(inputs, {
-              weights: { book: 0.3, market: 0.3, income: 0.4 },
+              weights: outputWeights,
               capRate: 0.1
             });
           case AssetClass.JEWELRY_PRECIOUS_METALS:
@@ -943,26 +992,26 @@
           case AssetClass.DISTRESSED_ASSET:
             return this._calcDistressed(inputs);
           case AssetClass.AGRICULTURE_FARMS:
-            return this._calcBiologicalNatural(inputs, { weights: { book: 0.25, market: 0.35, income: 0.4 }, capRate: 0.12 });
+            return this._calcBiologicalNatural(inputs, { weights: outputWeights, capRate: 0.12 });
           case AssetClass.LIVESTOCK:
-            return this._calcBiologicalNatural(inputs, { isLivestock: true, weights: { book: 0.2, market: 0.45, income: 0.35 }, capRate: 0.15 });
+            return this._calcBiologicalNatural(inputs, { isLivestock: true, weights: outputWeights, capRate: 0.15 });
           case AssetClass.NATURAL_RESOURCES_MINING:
           case AssetClass.OIL_GAS:
-            return this._calcResourceInfrastructure(inputs, { weights: { book: 0.15, market: 0.35, income: 0.5 } });
+            return this._calcResourceInfrastructure(inputs, { weights: outputWeights });
           case AssetClass.INFRASTRUCTURE:
-            return this._calcResourceInfrastructure(inputs, { weights: { book: 0.2, market: 0.25, income: 0.55 }, growthRate: 0.03 });
+            return this._calcResourceInfrastructure(inputs, { weights: outputWeights, growthRate: 0.03 });
           case AssetClass.INTELLECTUAL_PROPERTY:
-            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.05, weights: { book: 0.1, market: 0.2, income: 0.7 } });
+            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.05, weights: outputWeights });
           case AssetClass.BRANDS_TRADEMARKS:
-            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.04, weights: { book: 0.1, market: 0.3, income: 0.6 } });
+            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.04, weights: outputWeights });
           case AssetClass.PATENTS:
-            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.06, weights: { book: 0.15, market: 0.2, income: 0.65 } });
+            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.06, weights: outputWeights });
           case AssetClass.COPYRIGHTS_CONTENT:
-            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.07, weights: { book: 0.1, market: 0.15, income: 0.75 } });
+            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.07, weights: outputWeights });
           case AssetClass.FRANCHISES:
-            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.06, weights: { book: 0.1, market: 0.25, income: 0.65 } });
+            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.06, weights: outputWeights });
           case AssetClass.LICENSES_PERMITS:
-            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.03, weights: { book: 0.15, market: 0.25, income: 0.6 } });
+            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.03, weights: outputWeights });
           case AssetClass.FINANCIAL_ASSETS:
             return this._calcMarketableSecurities(inputs, { defaultTxCost: 0.015 });
           case AssetClass.CRYPTO_DIGITAL:
@@ -980,10 +1029,26 @@
           default: return this._calcGeneric(inputs);
         }
       })();
-      return Object.fromEntries(Object.entries(values).map(([k, v]) => [
+
+      // Apply BVS-mandated output weights to fair value combination
+      const values = this._applyBVSWeights(rawValues, outputWeights);
+
+      // BVS validation and confidence
+      const validation = this.validateInputs(assetClass, inputs);
+      const confidenceScore = this.getConfidenceScore(assetClass, inputs);
+
+      const rounded = Object.fromEntries(Object.entries(values).map(([k, v]) => [
         k,
         typeof v === 'boolean' ? v : round2(v)
       ]));
+
+      return {
+        ...rounded,
+        confidenceScore: round2(confidenceScore),
+        bvsValidation: validation,
+        bvsVersion: bvs ? bvs.version : null,
+        bvsCompliant: validation.valid
+      };
     }
 
     /* ---------- Scoring ---------- */
