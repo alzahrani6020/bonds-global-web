@@ -32,6 +32,8 @@
         operatingValue: 'القيمة التشغيلية',
         quickExitValue: 'قيمة التخارج السريع',
         restructuredValue: 'القيمة بعد إعادة الهيكلة',
+        goodwillValue: 'قيمة الشهرة',
+        goodwillImpairmentFlag: 'علامة إنقاص الشهرة',
         replacementValue: 'قيمة الاستبدال',
         scenarioBase: 'السيناريو الأساسي',
         scenarioOptimistic: 'السيناريو الإيجابي',
@@ -52,7 +54,8 @@
         copyrightsContent: '©️', franchises: '📋', licensesPermits: '📄',
         financialAssets: '📈', cryptoDigital: '₿', commodities: '🌾',
         artCollectibles: '🎨', jewelryPreciousMetals: '💎', softwareTechnology: '💻',
-        medicalEquipment: '🏥', educationalEquipment: '🎓', distressedAsset: '⚠️'
+        medicalEquipment: '🏥', educationalEquipment: '🎓', distressedAsset: '⚠️',
+        tourismAsset: '🏖️', personalWealth: '💼', scrapSalvage: '🔩'
       },
       steps: [
         { title: 'الهوية', description: 'بيانات التعريف الأساسية للأصل والموقع والقطاع.' },
@@ -843,6 +846,205 @@
             { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.03 },
             { name: 'automationPlan', label: 'خطة التحسين (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.2 },
             { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 45 }
+          ]
+        ],
+        tourismAsset: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم الأصل السياحي', type: 'text', placeholder: 'منتجع نموذجي', default: 'منتجع نموذجي' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'جدة', default: 'جدة' },
+            { name: 'assetType', label: 'نوع الأصل السياحي', type: 'select', options: [
+              { value: 'hotel', label: 'فندق' },
+              { value: 'resort', label: 'منتجع' },
+              { value: 'attraction', label: 'معلم سياحي' },
+              { value: 'restaurant', label: 'مطعم/مقهى' },
+              { value: 'tourOperator', label: 'منظم رحلات' },
+              { value: 'other', label: 'أخرى' }
+            ], default: 'resort' },
+            { name: 'yearBuilt', label: 'سنة التأسيس', type: 'number', min: 1900, max: 2030, default: 2015 }
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الحالة (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'starRating', label: 'التصنيف النجمي (1-5)', type: 'number', min: 1, max: 5, default: 4 },
+            { name: 'renovationInvestment', label: 'استثمارات التجديد', type: 'number', min: 0, default: 200000 }
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'سعر الشراء', type: 'number', min: 0, default: 5000000 },
+            { name: 'improvementCosts', label: 'تكاليف التحسينات', type: 'number', min: 0, default: 800000 },
+            { name: 'acquisitionCosts', label: 'مصاريف الاكتساب', type: 'number', min: 0, default: 200000 }
+          ],
+          // 4. Depreciation
+          [
+            { name: 'usefulLifeYears', label: 'العمر الافتراضي (سنة)', type: 'number', min: 1, default: 30 },
+            { name: 'accumulatedDepreciation', label: 'الإهلاك المتراكم', type: 'number', min: 0, default: 800000 },
+            { name: 'obsolescenceFactor', label: 'معامل العطل التقني (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 }
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'قيمة الصفقات المقارنة', type: 'number', min: 0, default: 8000000 },
+            { name: 'tourismGrowthRate', label: 'معدل نمو السياحة (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.06 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 }
+          ],
+          // 6. Income
+          [
+            { name: 'dailyVisitors', label: 'عدد الزوار اليومي', type: 'number', min: 0, default: 500 },
+            { name: 'avgSpendPerVisitor', label: 'متوسط الإنفاق للزائر', type: 'number', min: 0, default: 250 },
+            { name: 'occupancyRate', label: 'نسبة الإشغال (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.7 },
+            { name: 'seasonalityFactor', label: 'معامل الموسمية (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.8 },
+            { name: 'capRate', label: 'معدل العائد الرأسمالي (0-1)', type: 'number', min: 0.01, max: 0.5, step: 0.005, default: 0.08 }
+          ],
+          // 7. Costs / Risks
+          [
+            { name: 'staffCost', label: 'تكلفة الموظفين سنوياً', type: 'number', min: 0, default: 1200000 },
+            { name: 'maintenanceCost', label: 'تكلفة الصيانة سنوياً', type: 'number', min: 0, default: 300000 },
+            { name: 'utilitiesCost', label: 'تكلفة المرافق سنوياً', type: 'number', min: 0, default: 200000 },
+            { name: 'marketingCost', label: 'تكلفة التسويق سنوياً', type: 'number', min: 0, default: 150000 },
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 4 }
+          ],
+          // 8. Intangibles
+          [
+            { name: 'qualityMultiplier', label: 'مضاعف الجودة (0.5-2)', type: 'number', min: 0.5, max: 2, step: 0.05, default: 1 },
+            { name: 'locationQualityScore', label: 'جودة الموقع (0-10)', type: 'number', min: 0, max: 10, default: 8 },
+            { name: 'permitsValue', label: 'قيمة التراخيص السياحية', type: 'number', min: 0, default: 300000 }
+          ],
+          // 9. Exit
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 12 }
+          ],
+          // 10. Future
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'infrastructurePlans', label: 'خطط البنية التحتية (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.3 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 60 }
+          ]
+        ],
+        personalWealth: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم المحفظة', type: 'text', placeholder: 'محفظة عائلة نموذجية', default: 'محفظة عائلة نموذجية' },
+            { name: 'ownerName', label: 'اسم المالك', type: 'text', placeholder: 'محمد أحمد', default: 'محمد أحمد' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'currency', label: 'العملة', type: 'text', placeholder: 'SAR', default: 'SAR' }
+          ],
+          // 2. Condition
+          [
+            { name: 'creditScore', label: 'درجة الائتمان (0-10)', type: 'number', min: 0, max: 10, default: 8 },
+            { name: 'authenticationScore', label: 'درجة توثيق الأصول (1-10)', type: 'number', min: 1, max: 10, default: 8 }
+          ],
+          // 3. Assets
+          [
+            { name: 'realEstateValue', label: 'قيمة العقارات', type: 'number', min: 0, default: 2000000 },
+            { name: 'securitiesValue', label: 'قيمة الأوراق المالية', type: 'number', min: 0, default: 800000 },
+            { name: 'cashValue', label: 'قيمة النقد', type: 'number', min: 0, default: 300000 },
+            { name: 'personalAssetsValue', label: 'قيمة الأصول الشخصية', type: 'number', min: 0, default: 400000 },
+            { name: 'vehicleValue', label: 'قيمة المركبات', type: 'number', min: 0, default: 200000 }
+          ],
+          // 4. Liabilities
+          [
+            { name: 'mortgageBalance', label: 'رصيد الرهن العقاري', type: 'number', min: 0, default: 600000 },
+            { name: 'loansBalance', label: 'رصيد القروض', type: 'number', min: 0, default: 200000 },
+            { name: 'creditBalance', label: 'رصيد البطاقات الائتمانية', type: 'number', min: 0, default: 30000 },
+            { name: 'otherLiabilities', label: 'التزامات أخرى', type: 'number', min: 0, default: 50000 }
+          ],
+          // 5. Market
+          [
+            { name: 'marketVolatility', label: 'تقلب السوق (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 }
+          ],
+          // 6. Income
+          [
+            { name: 'annualIncome', label: 'الدخل السنوي', type: 'number', min: 0, default: 600000 },
+            { name: 'passiveIncome', label: 'الدخل السلبي السنوي', type: 'number', min: 0, default: 80000 }
+          ],
+          // 7. Risks
+          [
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'currencyRisk', label: 'مخاطر العملة (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+            { name: 'successionRisk', label: 'مخاطر الاستمرارية (0-10)', type: 'number', min: 0, max: 10, default: 4 }
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'قوة السمعة/العلامة (0-100)', type: 'number', min: 0, max: 100, default: 50 }
+          ],
+          // 9. Exit
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف التسويق (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.03 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 6 }
+          ],
+          // 10. Future
+          [
+            { name: 'innovationPipeline', label: 'خطط النمو الاستثمارية (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.3 },
+            { name: 'projectedDecline', label: 'انخفاض متوقع في القيمة', type: 'number', min: 0, default: 0 }
+          ]
+        ],
+        scrapSalvage: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم المادة/الأصل', type: 'text', placeholder: 'خردة نحاس نموذجية', default: 'خردة نحاس نموذجية' },
+            { name: 'materialType', label: 'نوع المادة', type: 'select', options: [
+              { value: 'metal', label: 'معادن' },
+              { value: 'plastic', label: 'بلاستيك' },
+              { value: 'wood', label: 'خشب' },
+              { value: 'electronics', label: 'إلكترونيات' },
+              { value: 'paper', label: 'ورق' },
+              { value: 'other', label: 'أخرى' }
+            ], default: 'metal' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' }
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الحالة (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'purityRate', label: 'نسبة النقاء (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.9 }
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'سعر الشراء/التكلفة', type: 'number', min: 0, default: 100000 }
+          ],
+          // 4. Quantity
+          [
+            { name: 'weightKg', label: 'الوزن (كجم)', type: 'number', min: 0, default: 10000 },
+            { name: 'volumeM3', label: 'الحجم (م³)', type: 'number', min: 0, default: 50 }
+          ],
+          // 5. Market
+          [
+            { name: 'marketPricePerKg', label: 'السعر السوقي للكجم', type: 'number', min: 0, default: 25 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.03 }
+          ],
+          // 6. Costs
+          [
+            { name: 'dismantlingCost', label: 'تكلفة الفك', type: 'number', min: 0, default: 30000 },
+            { name: 'transportCost', label: 'تكلفة النقل', type: 'number', min: 0, default: 15000 },
+            { name: 'storageCost', label: 'تكلفة التخزين', type: 'number', min: 0, default: 5000 }
+          ],
+          // 7. Risks
+          [
+            { name: 'priceVolatility', label: 'تقلب الأسعار (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 3 }
+          ],
+          // 8. Quality
+          [
+            { name: 'recoveryRate', label: 'معدل الاسترداد (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.85 }
+          ],
+          // 9. Exit
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.04 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 3 }
+          ],
+          // 10. Future
+          [
+            { name: 'infrastructurePlans', label: 'خطط البنية التحتية (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.2 },
+            { name: 'projectedDecline', label: 'انخفاض متوقع في القيمة', type: 'number', min: 0, default: 0 }
           ]
         ],
         agricultureFarms: [
@@ -1848,6 +2050,8 @@
         operatingValue: 'Operating Value',
         quickExitValue: 'Quick Exit Value',
         restructuredValue: 'Restructured Value',
+        goodwillValue: 'Goodwill Value',
+        goodwillImpairmentFlag: 'Goodwill Impairment Flag',
         replacementValue: 'Replacement Value',
         scenarioBase: 'Base Scenario',
         scenarioOptimistic: 'Optimistic Scenario',
@@ -1868,7 +2072,8 @@
         copyrightsContent: '©️', franchises: '📋', licensesPermits: '📄',
         financialAssets: '📈', cryptoDigital: '₿', commodities: '🌾',
         artCollectibles: '🎨', jewelryPreciousMetals: '💎', softwareTechnology: '💻',
-        medicalEquipment: '🏥', educationalEquipment: '🎓', distressedAsset: '⚠️'
+        medicalEquipment: '🏥', educationalEquipment: '🎓', distressedAsset: '⚠️',
+        tourismAsset: '🏖️', personalWealth: '💼', scrapSalvage: '🔩'
       },
       steps: [
         { title: 'Identity', description: 'Basic identification, location and sector of the asset.' },
@@ -2659,6 +2864,205 @@
             { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.03 },
             { name: 'automationPlan', label: 'Improvement Plan (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.2 },
             { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 45 }
+          ]
+        ],
+        tourismAsset: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Tourism Asset Name', type: 'text', placeholder: 'Sample Resort', default: 'Sample Resort' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Saudi Arabia', default: 'Saudi Arabia' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'Jeddah', default: 'Jeddah' },
+            { name: 'assetType', label: 'Tourism Asset Type', type: 'select', options: [
+              { value: 'hotel', label: 'Hotel' },
+              { value: 'resort', label: 'Resort' },
+              { value: 'attraction', label: 'Attraction' },
+              { value: 'restaurant', label: 'Restaurant/Cafe' },
+              { value: 'tourOperator', label: 'Tour Operator' },
+              { value: 'other', label: 'Other' }
+            ], default: 'resort' },
+            { name: 'yearBuilt', label: 'Year Established', type: 'number', min: 1900, max: 2030, default: 2015 }
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'starRating', label: 'Star Rating (1-5)', type: 'number', min: 1, max: 5, default: 4 },
+            { name: 'renovationInvestment', label: 'Renovation Investment', type: 'number', min: 0, default: 200000 }
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'Purchase Price', type: 'number', min: 0, default: 5000000 },
+            { name: 'improvementCosts', label: 'Improvement Costs', type: 'number', min: 0, default: 800000 },
+            { name: 'acquisitionCosts', label: 'Acquisition Costs', type: 'number', min: 0, default: 200000 }
+          ],
+          // 4. Depreciation
+          [
+            { name: 'usefulLifeYears', label: 'Useful Life (years)', type: 'number', min: 1, default: 30 },
+            { name: 'accumulatedDepreciation', label: 'Accumulated Depreciation', type: 'number', min: 0, default: 800000 },
+            { name: 'obsolescenceFactor', label: 'Obsolescence Factor (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 }
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'Comparable Transaction Value', type: 'number', min: 0, default: 8000000 },
+            { name: 'tourismGrowthRate', label: 'Tourism Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.06 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 }
+          ],
+          // 6. Income
+          [
+            { name: 'dailyVisitors', label: 'Daily Visitors', type: 'number', min: 0, default: 500 },
+            { name: 'avgSpendPerVisitor', label: 'Average Spend per Visitor', type: 'number', min: 0, default: 250 },
+            { name: 'occupancyRate', label: 'Occupancy Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.7 },
+            { name: 'seasonalityFactor', label: 'Seasonality Factor (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.8 },
+            { name: 'capRate', label: 'Capitalization Rate (0-1)', type: 'number', min: 0.01, max: 0.5, step: 0.005, default: 0.08 }
+          ],
+          // 7. Costs / Risks
+          [
+            { name: 'staffCost', label: 'Annual Staff Cost', type: 'number', min: 0, default: 1200000 },
+            { name: 'maintenanceCost', label: 'Annual Maintenance Cost', type: 'number', min: 0, default: 300000 },
+            { name: 'utilitiesCost', label: 'Annual Utilities Cost', type: 'number', min: 0, default: 200000 },
+            { name: 'marketingCost', label: 'Annual Marketing Cost', type: 'number', min: 0, default: 150000 },
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 }
+          ],
+          // 8. Intangibles
+          [
+            { name: 'qualityMultiplier', label: 'Quality Multiplier (0.5-2)', type: 'number', min: 0.5, max: 2, step: 0.05, default: 1 },
+            { name: 'locationQualityScore', label: 'Location Quality (0-10)', type: 'number', min: 0, max: 10, default: 8 },
+            { name: 'permitsValue', label: 'Tourism Permits Value', type: 'number', min: 0, default: 300000 }
+          ],
+          // 9. Exit
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 12 }
+          ],
+          // 10. Future
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'infrastructurePlans', label: 'Infrastructure Plans (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.3 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 60 }
+          ]
+        ],
+        personalWealth: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Portfolio Name', type: 'text', placeholder: 'Sample Family Portfolio', default: 'Sample Family Portfolio' },
+            { name: 'ownerName', label: 'Owner Name', type: 'text', placeholder: 'Mohammed Ahmed', default: 'Mohammed Ahmed' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Saudi Arabia', default: 'Saudi Arabia' },
+            { name: 'currency', label: 'Currency', type: 'text', placeholder: 'SAR', default: 'SAR' }
+          ],
+          // 2. Condition
+          [
+            { name: 'creditScore', label: 'Credit Score (0-10)', type: 'number', min: 0, max: 10, default: 8 },
+            { name: 'authenticationScore', label: 'Asset Authentication Score (1-10)', type: 'number', min: 1, max: 10, default: 8 }
+          ],
+          // 3. Assets
+          [
+            { name: 'realEstateValue', label: 'Real Estate Value', type: 'number', min: 0, default: 2000000 },
+            { name: 'securitiesValue', label: 'Securities Value', type: 'number', min: 0, default: 800000 },
+            { name: 'cashValue', label: 'Cash Value', type: 'number', min: 0, default: 300000 },
+            { name: 'personalAssetsValue', label: 'Personal Assets Value', type: 'number', min: 0, default: 400000 },
+            { name: 'vehicleValue', label: 'Vehicles Value', type: 'number', min: 0, default: 200000 }
+          ],
+          // 4. Liabilities
+          [
+            { name: 'mortgageBalance', label: 'Mortgage Balance', type: 'number', min: 0, default: 600000 },
+            { name: 'loansBalance', label: 'Loans Balance', type: 'number', min: 0, default: 200000 },
+            { name: 'creditBalance', label: 'Credit Card Balance', type: 'number', min: 0, default: 30000 },
+            { name: 'otherLiabilities', label: 'Other Liabilities', type: 'number', min: 0, default: 50000 }
+          ],
+          // 5. Market
+          [
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 }
+          ],
+          // 6. Income
+          [
+            { name: 'annualIncome', label: 'Annual Income', type: 'number', min: 0, default: 600000 },
+            { name: 'passiveIncome', label: 'Annual Passive Income', type: 'number', min: 0, default: 80000 }
+          ],
+          // 7. Risks
+          [
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'currencyRisk', label: 'Currency Risk (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+            { name: 'successionRisk', label: 'Succession Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 }
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'Reputation/Brand Strength (0-100)', type: 'number', min: 0, max: 100, default: 50 }
+          ],
+          // 9. Exit
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.03 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 6 }
+          ],
+          // 10. Future
+          [
+            { name: 'innovationPipeline', label: 'Investment Growth Plans (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.3 },
+            { name: 'projectedDecline', label: 'Projected Value Decline', type: 'number', min: 0, default: 0 }
+          ]
+        ],
+        scrapSalvage: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Material/Asset Name', type: 'text', placeholder: 'Sample Copper Scrap', default: 'Sample Copper Scrap' },
+            { name: 'materialType', label: 'Material Type', type: 'select', options: [
+              { value: 'metal', label: 'Metal' },
+              { value: 'plastic', label: 'Plastic' },
+              { value: 'wood', label: 'Wood' },
+              { value: 'electronics', label: 'Electronics' },
+              { value: 'paper', label: 'Paper' },
+              { value: 'other', label: 'Other' }
+            ], default: 'metal' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Saudi Arabia', default: 'Saudi Arabia' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'Riyadh', default: 'Riyadh' }
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'purityRate', label: 'Purity Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.9 }
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'Purchase/Carrying Cost', type: 'number', min: 0, default: 100000 }
+          ],
+          // 4. Quantity
+          [
+            { name: 'weightKg', label: 'Weight (kg)', type: 'number', min: 0, default: 10000 },
+            { name: 'volumeM3', label: 'Volume (m³)', type: 'number', min: 0, default: 50 }
+          ],
+          // 5. Market
+          [
+            { name: 'marketPricePerKg', label: 'Market Price per kg', type: 'number', min: 0, default: 25 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.03 }
+          ],
+          // 6. Costs
+          [
+            { name: 'dismantlingCost', label: 'Dismantling Cost', type: 'number', min: 0, default: 30000 },
+            { name: 'transportCost', label: 'Transport Cost', type: 'number', min: 0, default: 15000 },
+            { name: 'storageCost', label: 'Storage Cost', type: 'number', min: 0, default: 5000 }
+          ],
+          // 7. Risks
+          [
+            { name: 'priceVolatility', label: 'Price Volatility (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 3 }
+          ],
+          // 8. Quality
+          [
+            { name: 'recoveryRate', label: 'Recovery Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.85 }
+          ],
+          // 9. Exit
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.04 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 3 }
+          ],
+          // 10. Future
+          [
+            { name: 'infrastructurePlans', label: 'Infrastructure Plans (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.2 },
+            { name: 'projectedDecline', label: 'Projected Value Decline', type: 'number', min: 0, default: 0 }
           ]
         ],
         agricultureFarms: [

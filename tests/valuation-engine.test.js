@@ -231,9 +231,87 @@ describe('ValuationEngine', () => {
       expect(result.marketValue).toBeGreaterThan(0);
       expect(result.fairValue).toBeGreaterThan(0);
     });
+
+    it('calculates tourism asset values', () => {
+      const inputs = buildInputs({
+        purchasePrice: 5000000,
+        improvementCosts: 800000,
+        yearBuilt: 2015,
+        dailyVisitors: 500,
+        avgSpendPerVisitor: 250,
+        occupancyRate: 0.7,
+        seasonalityFactor: 0.8,
+        staffCost: 1200000,
+        maintenanceCost: 300000,
+        utilitiesCost: 200000,
+        marketingCost: 150000,
+        capRate: 0.08,
+        qualityMultiplier: 1,
+        locationQualityScore: 8,
+        comparableTransactionValue: 8000000
+      });
+      const result = engine.calculate('tourismAsset', inputs);
+      expect(result.bookValue).toBeGreaterThanOrEqual(0);
+      expect(result.marketValue).toBeGreaterThan(0);
+      expect(result.fairValue).toBeGreaterThan(0);
+      expect(result.operatingValue).toBeGreaterThan(0);
+    });
+
+    it('calculates personal wealth values', () => {
+      const inputs = buildInputs({
+        realEstateValue: 2000000,
+        securitiesValue: 800000,
+        cashValue: 300000,
+        personalAssetsValue: 400000,
+        vehicleValue: 200000,
+        mortgageBalance: 600000,
+        loansBalance: 200000,
+        creditBalance: 30000,
+        otherLiabilities: 50000,
+        annualIncome: 600000,
+        passiveIncome: 80000
+      });
+      const result = engine.calculate('personalWealth', inputs);
+      expect(result.bookValue).toBeGreaterThan(0);
+      expect(result.netWorth).toBeGreaterThan(0);
+      expect(result.liquidityRatio).toBeGreaterThanOrEqual(0);
+      expect(result.fairValue).toBeGreaterThan(0);
+    });
+
+    it('calculates scrap and salvage values', () => {
+      const inputs = buildInputs({
+        purchasePrice: 100000,
+        weightKg: 10000,
+        marketPricePerKg: 25,
+        purityRate: 0.9,
+        dismantlingCost: 30000,
+        transportCost: 15000,
+        storageCost: 5000,
+        recoveryRate: 0.85,
+        demandIndex: 6,
+        supplyIndex: 5
+      });
+      const result = engine.calculate('scrapSalvage', inputs);
+      expect(result.bookValue).toBeGreaterThanOrEqual(0);
+      expect(result.recoverableValue).toBeGreaterThan(0);
+      expect(result.marketValue).toBeGreaterThan(0);
+      expect(result.fairValue).toBeGreaterThan(0);
+    });
   });
 
   describe('Scoring', () => {
+    it('returns eight scores for tourism, personalWealth and scrapSalvage', () => {
+      ['tourismAsset', 'personalWealth', 'scrapSalvage'].forEach(cls => {
+        const inputs = buildInputs({ assetClass: cls, dailyVisitors: 500, weightKg: 10000 });
+        const scores = engine.calculateScores(inputs);
+        expect(Object.keys(scores).length).toBe(8);
+        Object.values(scores).forEach(v => {
+          expect(v).toBeGreaterThanOrEqual(0);
+          expect(v).toBeLessThanOrEqual(100);
+        });
+      });
+    });
+
     it('returns eight scores for new classes', () => {
       const inputs = buildInputs({
         purchasePrice: 800000,
@@ -297,8 +375,76 @@ describe('ValuationEngine', () => {
     });
   });
 
+  describe('Goodwill Value', () => {
+    it('returns explicit goodwillValue for business assets', () => {
+      const inputs = buildInputs({
+        equityBookValue: 2500000,
+        intangibleAssetsBook: 400000,
+        tangibleAssets: 2000000,
+        identifiedIntangibles: 300000,
+        totalLiabilities: 600000,
+        totalDebt: 600000,
+        cashAndEquiv: 300000,
+        annualRevenue: 5000000,
+        ebitdaMargin: 0.18,
+        evRevenueMultiple: 1.2,
+        evEbitdaMultiple: 7,
+        discountRate: 0.12,
+        taxRate: 0.2,
+        marketGrowth: 0.05
+      });
+      const result = engine.calculate('business', inputs);
+      expect(result.goodwillValue).toBeDefined();
+      expect(result.goodwillValue).toBeGreaterThanOrEqual(0);
+      expect(result.enterpriseValue).toBeDefined();
+      expect(result.enterpriseValue).toBeGreaterThan(0);
+    });
+
+    it('sets goodwillImpairmentFlag when projected decline exceeds goodwill', () => {
+      const inputs = buildInputs({
+        equityBookValue: 1000000,
+        intangibleAssetsBook: 200000,
+        tangibleAssets: 800000,
+        identifiedIntangibles: 100000,
+        totalLiabilities: 300000,
+        totalDebt: 300000,
+        cashAndEquiv: 100000,
+        annualRevenue: 2000000,
+        ebitdaMargin: 0.15,
+        evRevenueMultiple: 1,
+        evEbitdaMultiple: 6,
+        discountRate: 0.12,
+        taxRate: 0.2,
+        projectedDecline: 5000000
+      });
+      const result = engine.calculate('business', inputs);
+      expect(result.goodwillImpairmentFlag).toBe(true);
+    });
+
+    it('does not flag impairment when projected decline is below goodwill', () => {
+      const inputs = buildInputs({
+        equityBookValue: 2500000,
+        intangibleAssetsBook: 400000,
+        tangibleAssets: 2000000,
+        identifiedIntangibles: 300000,
+        totalLiabilities: 600000,
+        totalDebt: 600000,
+        cashAndEquiv: 300000,
+        annualRevenue: 5000000,
+        ebitdaMargin: 0.18,
+        evRevenueMultiple: 1.2,
+        evEbitdaMultiple: 7,
+        discountRate: 0.12,
+        taxRate: 0.2,
+        projectedDecline: 0
+      });
+      const result = engine.calculate('business', inputs);
+      expect(result.goodwillImpairmentFlag).toBe(false);
+    });
+  });
+
   describe('AssetClass metadata', () => {
-    it('has all 25 classes active', () => {
+    it('has all 28 classes active', () => {
       const active = AssetClass.list().filter(s => AssetClass.isActive(s));
       const expected = [
         'realEstate', 'business', 'factory', 'machineryEquipment', 'vehiclesFleet',
@@ -306,10 +452,10 @@ describe('ValuationEngine', () => {
         'intellectualProperty', 'brandsTrademarks', 'patents', 'copyrightsContent', 'franchises',
         'licensesPermits', 'financialAssets', 'cryptoDigital', 'commodities', 'artCollectibles',
         'jewelryPreciousMetals', 'softwareTechnology', 'medicalEquipment', 'educationalEquipment',
-        'distressedAsset'
+        'distressedAsset', 'tourismAsset', 'personalWealth', 'scrapSalvage'
       ];
       expected.forEach(cls => expect(active).toContain(cls));
-      expect(active.length).toBe(25);
+      expect(active.length).toBe(28);
     });
   });
 });

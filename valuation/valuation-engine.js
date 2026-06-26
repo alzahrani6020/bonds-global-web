@@ -41,6 +41,9 @@
     MEDICAL_EQUIPMENT: 'medicalEquipment',
     EDUCATIONAL_EQUIPMENT: 'educationalEquipment',
     DISTRESSED_ASSET: 'distressedAsset',
+    TOURISM_ASSET: 'tourismAsset',
+    PERSONAL_WEALTH: 'personalWealth',
+    SCRAP_SALVAGE: 'scrapSalvage',
 
     _labels: {
       realEstate: { ar: 'العقارات', en: 'Real Estate', active: true },
@@ -68,6 +71,9 @@
       medicalEquipment: { ar: 'الأجهزة والمعدات الطبية', en: 'Medical Equipment', active: true },
       educationalEquipment: { ar: 'التجهيزات التعليمية', en: 'Educational Equipment', active: true },
       distressedAsset: { ar: 'الأصول المتعثرة', en: 'Distressed Assets', active: true },
+      tourismAsset: { ar: 'الأصول السياحية', en: 'Tourism Assets', active: true },
+      personalWealth: { ar: 'الثروة الشخصية', en: 'Personal Wealth', active: true },
+      scrapSalvage: { ar: 'السكراب والخردة', en: 'Scrap & Salvage', active: true },
     },
 
     getLabel(slug, lang) {
@@ -225,7 +231,23 @@
       const buyerPool = clamp(i.buyerPoolDepth, 1, 10) / 10 || 0.5;
       const liquidationValue = Math.max(0, adjustedBook * (1 - marketability) * buyerPool);
 
-      return { bookValue: adjustedBook, marketValue, fairValue, investmentValue, liquidationValue };
+      const tangibleAssets = safe(i.tangibleAssets);
+      const identifiedIntangibles = safe(i.identifiedIntangibles) || intangibleBook;
+      const totalLiabilities = safe(i.totalLiabilities) || debt;
+      const identifiableNetAssets = Math.max(0, tangibleAssets + identifiedIntangibles - totalLiabilities);
+      const goodwillValue = Math.max(0, round2(enterpriseValue - identifiableNetAssets));
+      const goodwillImpairmentFlag = safe(i.projectedDecline) > goodwillValue;
+
+      return {
+        bookValue: adjustedBook,
+        marketValue,
+        fairValue,
+        investmentValue,
+        liquidationValue,
+        enterpriseValue: round2(enterpriseValue),
+        goodwillValue,
+        goodwillImpairmentFlag
+      };
     }
 
     /* ---------- Factory ---------- */
@@ -728,6 +750,154 @@
       };
     }
 
+    /* ---------- Tourism Asset Engine ---------- */
+    _calcTourismAsset(i) {
+      const dailyVisitors = Math.max(0, safe(i.dailyVisitors));
+      const avgSpend = Math.max(0, safe(i.avgSpendPerVisitor));
+      const occupancy = clamp(i.occupancyRate, 0, 1) || 0.6;
+      const seasonality = clamp(i.seasonalityFactor, 0, 1) || 0.8;
+      const annualRevenue = dailyVisitors * avgSpend * 365 * occupancy * seasonality;
+
+      const staffCost = safe(i.staffCost);
+      const maintenanceCost = safe(i.maintenanceCost);
+      const utilitiesCost = safe(i.utilitiesCost);
+      const marketingCost = safe(i.marketingCost);
+      const operatingCosts = staffCost + maintenanceCost + utilitiesCost + marketingCost;
+      const noi = Math.max(0, annualRevenue - operatingCosts);
+
+      const historicalCost = safe(i.purchasePrice) + safe(i.improvementCosts) + safe(i.acquisitionCosts);
+      const age = Math.max(0, CURRENT_YEAR - safe(i.yearBuilt));
+      const usefulLife = Math.max(1, safe(i.usefulLifeYears) || 30);
+      const accumulatedDep = safe(i.accumulatedDepreciation) ||
+        (historicalCost / usefulLife * Math.min(age, usefulLife));
+      const obsolescence = clamp(i.obsolescenceFactor, 0, 1);
+      const bookValue = Math.max(0, historicalCost - accumulatedDep - obsolescence * historicalCost * 0.5);
+
+      const capRate = clamp(i.capRate, 0.01, 0.5) || 0.08;
+      const qualityMultiplier = clamp(i.qualityMultiplier, 0.5, 2) || 1;
+      const incomeValue = (noi / capRate) * qualityMultiplier;
+
+      const marketValue = Math.max(0, safe(i.comparableTransactionValue) || incomeValue * 0.9);
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.5, 1 - avgRisk / 20);
+      const fairValue = (bookValue * 0.2 + marketValue * 0.3 + incomeValue * 0.5) * riskAdj;
+
+      const locationQuality = clamp(i.locationQualityScore, 0, 10) / 10 || 0.6;
+      const tourismGrowth = clamp(i.tourismGrowthRate, -0.2, 0.5) || 0.04;
+      const permits = safe(i.permitsValue);
+      const investmentValue = fairValue * (1 + locationQuality * 0.05 + tourismGrowth * 0.5) + permits;
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.06;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 5;
+      const liquidationValue = Math.max(0,
+        marketValue * (1 - transactionCosts - 0.15 / buyerPool) * (1 - avgRisk / 30)
+      );
+
+      return {
+        bookValue,
+        marketValue,
+        operatingValue: round2(noi),
+        incomeValue,
+        fairValue,
+        investmentValue,
+        liquidationValue
+      };
+    }
+
+    /* ---------- Personal Wealth Engine ---------- */
+    _calcPersonalWealth(i) {
+      const realEstateValue = safe(i.realEstateValue);
+      const securitiesValue = safe(i.securitiesValue);
+      const cashValue = safe(i.cashValue);
+      const personalAssetsValue = safe(i.personalAssetsValue);
+      const vehicleValue = safe(i.vehicleValue);
+      const portfolioValue = realEstateValue + securitiesValue + cashValue + personalAssetsValue + vehicleValue;
+
+      const mortgageBalance = safe(i.mortgageBalance);
+      const loansBalance = safe(i.loansBalance);
+      const creditBalance = safe(i.creditBalance);
+      const otherLiabilities = safe(i.otherLiabilities);
+      const totalLiabilities = mortgageBalance + loansBalance + creditBalance + otherLiabilities;
+
+      const netWorth = Math.max(0, portfolioValue - totalLiabilities);
+      const liquidityRatio = portfolioValue > 0 ? (cashValue + securitiesValue) / portfolioValue : 0;
+
+      const marketVolatility = clamp(i.marketVolatility, 0, 10) || 4;
+      const volatilityDiscount = marketVolatility / 40;
+      const fairValue = netWorth * (1 - volatilityDiscount);
+
+      const passiveIncome = safe(i.passiveIncome);
+      const annualIncome = safe(i.annualIncome);
+      const operatingValue = Math.max(0, passiveIncome + annualIncome * 0.1);
+
+      const investmentValue = fairValue * (1 + clamp(i.innovationPipeline, 0, 1) * 0.02);
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.03;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 6;
+      const liquidationValue = Math.max(0,
+        fairValue * (1 - transactionCosts - 0.1 / buyerPool) * liquidityRatio
+      );
+
+      return {
+        bookValue: round2(portfolioValue),
+        marketValue: round2(portfolioValue),
+        operatingValue: round2(operatingValue),
+        fairValue: round2(fairValue),
+        investmentValue: round2(investmentValue),
+        liquidationValue: round2(liquidationValue),
+        netWorth: round2(netWorth),
+        liquidityRatio: round2(liquidityRatio)
+      };
+    }
+
+    /* ---------- Scrap & Salvage Engine ---------- */
+    _calcScrapSalvage(i) {
+      const weightKg = Math.max(0, safe(i.weightKg));
+      const marketPricePerKg = Math.max(0, safe(i.marketPricePerKg));
+      const purityRate = clamp(i.purityRate, 0, 1) || 1;
+      const grossScrapValue = weightKg * marketPricePerKg * purityRate;
+
+      const dismantlingCost = safe(i.dismantlingCost);
+      const transportCost = safe(i.transportCost);
+      const storageCost = safe(i.storageCost);
+      const netScrapValue = Math.max(0, grossScrapValue - dismantlingCost - transportCost - storageCost);
+
+      const recoveryRate = clamp(i.recoveryRate, 0, 1) || 0.85;
+      const recoverableValue = netScrapValue * recoveryRate;
+
+      const bookValue = safe(i.purchasePrice) || recoverableValue * 0.7;
+
+      const demand = clamp(i.demandIndex, 1, 10) || 5;
+      const supply = clamp(i.supplyIndex, 1, 10) || 5;
+      const demandSupplyFactor = (demand / 5) / (supply / 5);
+      const marketGrowth = clamp(i.marketGrowthRate, -0.2, 0.5);
+      const marketValue = recoverableValue * demandSupplyFactor * (1 + marketGrowth);
+
+      const priceVolatility = clamp(i.priceVolatility, 0, 10) || 4;
+      const volatilityDiscount = priceVolatility / 40;
+      const fairValue = marketValue * (1 - volatilityDiscount);
+
+      const investmentValue = fairValue * (1 + clamp(i.infrastructurePlans, 0, 1) * 0.02);
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.04;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 5;
+      const liquidationTime = clamp(i.liquidationTimeMonths, 1, 36) || 3;
+      const liquidationValue = Math.max(0,
+        marketValue * (1 - transactionCosts - 0.1 / buyerPool) * (1 - liquidationTime / 36)
+      );
+
+      return {
+        bookValue: round2(bookValue),
+        marketValue: round2(marketValue),
+        operatingValue: round2(recoverableValue),
+        fairValue: round2(fairValue),
+        investmentValue: round2(investmentValue),
+        liquidationValue: round2(liquidationValue),
+        recoverableValue: round2(recoverableValue)
+      };
+    }
+
     /* ---------- Generic fallback (for completeness / future classes) ---------- */
     _calcGeneric(i) {
       const base = safe(i.purchasePrice) || safe(i.equityBookValue) ||
@@ -801,10 +971,19 @@
             return this._calcSaaSTechnology(inputs);
           case AssetClass.ART_COLLECTIBLES:
             return this._calcGeneric(inputs);
+          case AssetClass.TOURISM_ASSET:
+            return this._calcTourismAsset(inputs);
+          case AssetClass.PERSONAL_WEALTH:
+            return this._calcPersonalWealth(inputs);
+          case AssetClass.SCRAP_SALVAGE:
+            return this._calcScrapSalvage(inputs);
           default: return this._calcGeneric(inputs);
         }
       })();
-      return Object.fromEntries(Object.entries(values).map(([k, v]) => [k, round2(v)]));
+      return Object.fromEntries(Object.entries(values).map(([k, v]) => [
+        k,
+        typeof v === 'boolean' ? v : round2(v)
+      ]));
     }
 
     /* ---------- Scoring ---------- */
@@ -911,6 +1090,29 @@
           Math.min(safe(i.lifetimeValue) / Math.max(1, safe(i.customerAcquisitionCost)), 5) * 5 +
           clamp(i.conditionScore, 1, 10) * 2
         );
+      } else if (assetClass === AssetClass.TOURISM_ASSET) {
+        score = (
+          clamp(i.conditionScore, 1, 10) * 5 +
+          clamp(i.qualityMultiplier, 0.5, 2) * 25 +
+          clamp(i.locationQualityScore, 0, 10) * 4 +
+          clamp(i.occupancyRate, 0, 1) * 20 +
+          (1 - clamp(i.obsolescenceFactor, 0, 1)) * 10
+        );
+      } else if (assetClass === AssetClass.PERSONAL_WEALTH) {
+        score = (
+          clamp(i.creditScore, 0, 10) * 5 +
+          clamp(i.liquidityRatio, 0, 1) * 40 +
+          clamp(i.authenticationScore || 5, 1, 10) * 3 +
+          (1 - clamp(i.marketVolatility, 0, 10) / 20) * 10
+        );
+      } else if (assetClass === AssetClass.SCRAP_SALVAGE) {
+        score = (
+          clamp(i.conditionScore, 1, 10) * 5 +
+          clamp(i.purityRate, 0, 1) * 30 +
+          clamp(i.recoveryRate, 0, 1) * 20 +
+          clamp(i.demandIndex, 1, 10) * 3 +
+          (1 - clamp(i.priceVolatility, 0, 10) / 20) * 10
+        );
       }
       return clamp(score, 0, 100);
     }
@@ -966,7 +1168,10 @@
         [AssetClass.FRANCHISES]: 0.6,
         [AssetClass.LICENSES_PERMITS]: 0.65,
         [AssetClass.ART_COLLECTIBLES]: 0.5,
-        [AssetClass.SOFTWARE_TECHNOLOGY]: 0.75
+        [AssetClass.SOFTWARE_TECHNOLOGY]: 0.75,
+        [AssetClass.TOURISM_ASSET]: 0.55,
+        [AssetClass.PERSONAL_WEALTH]: 0.85,
+        [AssetClass.SCRAP_SALVAGE]: 0.6
       }[assetClass] || 0.6;
       const score = (buyerPool * 5 + marketability * 25 + transactionCost * 20) * classFactor;
       return clamp(score, 0, 100);
