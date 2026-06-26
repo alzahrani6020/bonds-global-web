@@ -98,7 +98,20 @@
         yes: 'نعم',
         no: 'لا',
         pass: 'مطابق',
-        fail: 'غير مطابق'
+        fail: 'غير مطابق',
+        conditionAssetName: 'اسم الأصل',
+        conditionAssetIdentifier: 'معرّف الأصل',
+        conditionAssessmentDate: 'تاريخ الفحص',
+        conditionStatus: 'حالة الفحص',
+        conditionNotes: 'ملاحظات',
+        conditionSaveAssessment: 'حفظ تقييم الحالة',
+        conditionLoadPrevious: 'تحميل تقييم سابق',
+        conditionSavedSuccess: 'تم حفظ التقييم بنجاح',
+        conditionSaveError: 'فشل الحفظ: ',
+        conditionNoAssessments: 'لا توجد تقييمات سابقة',
+        conditionDraft: 'مسودة',
+        conditionFinal: 'نهائي',
+        conditionArchived: 'مؤرشف'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',
@@ -2656,7 +2669,20 @@
         yes: 'Yes',
         no: 'No',
         pass: 'Pass',
-        fail: 'Fail'
+        fail: 'Fail',
+        conditionAssetName: 'Asset Name',
+        conditionAssetIdentifier: 'Asset Identifier',
+        conditionAssessmentDate: 'Assessment Date',
+        conditionStatus: 'Status',
+        conditionNotes: 'Notes',
+        conditionSaveAssessment: 'Save Condition Assessment',
+        conditionLoadPrevious: 'Load Previous Assessment',
+        conditionSavedSuccess: 'Assessment saved successfully',
+        conditionSaveError: 'Save failed: ',
+        conditionNoAssessments: 'No previous assessments',
+        conditionDraft: 'Draft',
+        conditionFinal: 'Final',
+        conditionArchived: 'Archived'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',

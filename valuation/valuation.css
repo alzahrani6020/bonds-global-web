@@ -807,3 +807,56 @@ html[dir="rtl"] .section-actions {
     flex-direction: column;
   }
 }
+
+/* ===== Condition Assessment Meta & Save ===== */
+.ca-meta {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.ca-meta__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.ca-meta__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.ca-meta__field--full {
+  grid-column: 1 / -1;
+}
+
+.ca-meta__field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.ca-meta__field input,
+.ca-meta__field select,
+.ca-meta__field textarea {
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.ca-save-status {
+  margin-top: var(--space-3);
+  font-size: 0.85rem;
+  min-height: 1.5rem;
+  color: var(--text-secondary);
+}
+
+.ca-save-status.success { color: #4ade80; }
+.ca-save-status.error { color: #f87171; }

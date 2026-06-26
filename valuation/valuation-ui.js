@@ -28,6 +28,15 @@
     };
   }
 
+  function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
   class ValuationUI {
     constructor(locale) {
       this.locale = locale;
@@ -256,12 +265,59 @@
 
       const isEn = this.lang === 'en';
 
+      this.inputs.conditionAssessmentMeta = this.inputs.conditionAssessmentMeta || {};
+      const meta = this.inputs.conditionAssessmentMeta;
+
+      const statusOptions = [
+        { value: 'draft', label: t.conditionDraft || 'مسودة' },
+        { value: 'final', label: t.conditionFinal || 'نهائي' },
+        { value: 'archived', label: t.conditionArchived || 'مؤرشف' }
+      ];
+
+      const today = new Date().toISOString().split('T')[0];
+
       let html = `
         <div class="ca-header">
           <h4 class="ca-title">${t.conditionAssessmentTitle || 'تقييم الحالة التفصيلي'}</h4>
           <p class="ca-desc">${t.conditionAssessmentDesc || ''}</p>
         </div>
         <div class="ca-result" id="caResult" style="display:none"></div>
+
+        <div class="ca-meta">
+          <div class="ca-meta__grid">
+            <div class="ca-meta__field">
+              <label>${t.conditionAssetName || 'اسم الأصل'}</label>
+              <input type="text" id="caAssetName" value="${escapeHtml(meta.assetName || this.inputs.assetName || '')}" />
+            </div>
+            <div class="ca-meta__field">
+              <label>${t.conditionAssetIdentifier || 'معرّف الأصل'}</label>
+              <input type="text" id="caAssetIdentifier" value="${escapeHtml(meta.assetIdentifier || '')}" />
+            </div>
+            <div class="ca-meta__field">
+              <label>${t.conditionAssessmentDate || 'تاريخ الفحص'}</label>
+              <input type="date" id="caAssessmentDate" value="${meta.assessmentDate || today}" />
+            </div>
+            <div class="ca-meta__field">
+              <label>${t.conditionStatus || 'حالة الفحص'}</label>
+              <select id="caStatus">
+                ${statusOptions.map(o => `<option value="${o.value}" ${(meta.status || 'draft') === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="ca-meta__field ca-meta__field--full">
+            <label>${t.conditionNotes || 'ملاحظات'}</label>
+            <textarea id="caNotes" rows="2">${escapeHtml(meta.notes || '')}</textarea>
+          </div>
+          <div class="ca-meta__field ca-meta__field--full" id="caPreviousWrap" style="display:none">
+            <label>${t.conditionLoadPrevious || 'تحميل تقييم سابق'}</label>
+            <select id="caPreviousSelect"><option value="">—</option></select>
+          </div>
+          <div class="ca-actions" style="margin-top:1rem">
+            <button type="button" class="btn-primary" id="caSaveBtn">${t.conditionSaveAssessment || 'حفظ التقييم'}</button>
+            <button type="button" class="btn-outline" id="caLoadBtn">${t.conditionLoadPrevious || 'تحميل تقييم سابق'}</button>
+          </div>
+          <div id="caSaveStatus" class="ca-save-status"></div>
+        </div>
       `;
 
       categories.forEach(cat => {
@@ -350,9 +406,119 @@
       $('#caCalculateBtn', panel).addEventListener('click', updateResult);
       $('#caResetBtn', panel).addEventListener('click', () => {
         this.inputs.conditionAssessment = {};
+        this.inputs.conditionAssessmentMeta = {};
         this.renderConditionAssessment();
         updateResult();
       });
+
+      const saveStatusEl = $('#caSaveStatus', panel);
+      const showSaveStatus = (msg, isError) => {
+        if (!saveStatusEl) return;
+        saveStatusEl.textContent = msg;
+        saveStatusEl.className = 'ca-save-status ' + (isError ? 'error' : 'success');
+        setTimeout(() => { saveStatusEl.textContent = ''; saveStatusEl.className = 'ca-save-status'; }, 5000);
+      };
+
+      const readMeta = () => {
+        return {
+          assetName: $('#caAssetName', panel)?.value?.trim() || '',
+          assetIdentifier: $('#caAssetIdentifier', panel)?.value?.trim() || '',
+          assessmentDate: $('#caAssessmentDate', panel)?.value || new Date().toISOString().split('T')[0],
+          status: $('#caStatus', panel)?.value || 'draft',
+          notes: $('#caNotes', panel)?.value?.trim() || ''
+        };
+      };
+
+      $('#caSaveBtn', panel).addEventListener('click', async () => {
+        if (typeof BondsConditionAssessmentClient === 'undefined') {
+          showSaveStatus('Client not available', true);
+          return;
+        }
+        const meta = readMeta();
+        this.inputs.conditionAssessmentMeta = meta;
+        const result = this.inputs.conditionAssessmentResult;
+        if (!result || Object.keys(this.inputs.conditionAssessment).length === 0) {
+          showSaveStatus('احتسب الدرجة أولاً / Calculate score first', true);
+          return;
+        }
+        const payload = {
+          assetClass,
+          assetName: meta.assetName,
+          assetIdentifier: meta.assetIdentifier,
+          assessmentDate: meta.assessmentDate,
+          status: meta.status,
+          notes: meta.notes,
+          answers: this.inputs.conditionAssessment,
+          score: result.score,
+          grade: result.grade,
+          confidenceScore: result.confidenceScore,
+          categoryScores: result.categoryScores,
+          criticalFailures: result.criticalFailures,
+          valuationInputs: result.valuationInputs
+        };
+        const res = await BondsConditionAssessmentClient.saveAssessment(payload);
+        if (res.success) {
+          this.inputs.conditionAssessmentMeta.id = res.data?.id;
+          showSaveStatus(t.conditionSavedSuccess || 'تم الحفظ', false);
+          loadPreviousAssessments();
+        } else {
+          showSaveStatus((t.conditionSaveError || 'فشل الحفظ: ') + res.error, true);
+        }
+      });
+
+      const loadPreviousAssessments = async () => {
+        if (typeof BondsConditionAssessmentClient === 'undefined') return;
+        const wrap = $('#caPreviousWrap', panel);
+        const select = $('#caPreviousSelect', panel);
+        if (!wrap || !select) return;
+        const res = await BondsConditionAssessmentClient.loadAssessments({ assetClass, limit: 20 });
+        if (!res.success || !res.data || res.data.length === 0) {
+          wrap.style.display = 'none';
+          return;
+        }
+        wrap.style.display = 'block';
+        const currentId = this.inputs.conditionAssessmentMeta?.id;
+        select.innerHTML = `<option value="">${t.conditionNoAssessments || '—'}</option>` +
+          res.data.map(a => {
+            const label = `${a.assessment_date} — ${a.asset_name || a.asset_identifier || a.id} — ${a.grade || ''}`;
+            return `<option value="${a.id}" ${a.id === currentId ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+          }).join('');
+
+        select.addEventListener('change', async () => {
+          const id = select.value;
+          if (!id) return;
+          const detail = await BondsConditionAssessmentClient.loadAssessment(id);
+          if (!detail.success) return;
+          const a = detail.data;
+          this.inputs.conditionAssessment = a.answers || {};
+          this.inputs.conditionAssessmentMeta = {
+            id: a.id,
+            assetName: a.asset_name || '',
+            assetIdentifier: a.asset_identifier || '',
+            assessmentDate: a.assessment_date,
+            status: a.status,
+            notes: a.notes || ''
+          };
+          this.renderConditionAssessment();
+        }, { once: true });
+      };
+
+      $('#caLoadBtn', panel).addEventListener('click', () => {
+        const wrap = $('#caPreviousWrap', panel);
+        if (wrap) wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+        loadPreviousAssessments();
+      });
+
+      // Meta change handlers
+      ['caAssetName', 'caAssetIdentifier', 'caAssessmentDate', 'caStatus', 'caNotes'].forEach(id => {
+        const el = $('#' + id, panel);
+        if (el) el.addEventListener('change', () => {
+          this.inputs.conditionAssessmentMeta = readMeta();
+          this.saveDraft();
+        });
+      });
+
+      loadPreviousAssessments();
 
       // If answers already exist, show result
       if (Object.keys(this.inputs.conditionAssessment).length > 0) {

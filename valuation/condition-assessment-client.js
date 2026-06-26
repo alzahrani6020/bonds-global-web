@@ -119,11 +119,117 @@
     cache.clear();
   }
 
+  async function getCurrentUserId() {
+    const sb = getSupabase();
+    if (!sb) return null;
+    try {
+      const { data, error } = await sb.auth.getUser();
+      if (error) return null;
+      return data?.user?.id || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function prepareAssessmentRow(assessment) {
+    return {
+      asset_class: assessment.assetClass,
+      asset_name: assessment.assetName || null,
+      asset_identifier: assessment.assetIdentifier || null,
+      recovery_asset_id: assessment.recoveryAssetId || null,
+      client_id: assessment.clientId || null,
+      assessment_date: assessment.assessmentDate || new Date().toISOString().split('T')[0],
+      answers: assessment.answers || {},
+      score: assessment.score ?? 0,
+      grade: assessment.grade || null,
+      confidence_score: assessment.confidenceScore ?? 0,
+      category_scores: assessment.categoryScores || {},
+      critical_failures: assessment.criticalFailures || [],
+      valuation_inputs: assessment.valuationInputs || {},
+      notes: assessment.notes || null,
+      status: assessment.status || 'draft'
+    };
+  }
+
+  async function saveAssessment(assessment) {
+    const sb = getSupabase();
+    if (!sb) return { success: false, error: 'Supabase not initialized' };
+
+    const userId = await getCurrentUserId();
+    if (!userId) return { success: false, error: 'User not authenticated' };
+
+    const row = prepareAssessmentRow(assessment);
+    row.assessed_by = userId;
+
+    if (assessment.id) {
+      const { data, error } = await sb
+        .from('asset_condition_assessments')
+        .update(row)
+        .eq('id', assessment.id)
+        .select()
+        .single();
+      if (error) return { success: false, error: error.message };
+      return { success: true, data };
+    }
+
+    const { data, error } = await sb
+      .from('asset_condition_assessments')
+      .insert([row])
+      .select()
+      .single();
+    if (error) return { success: false, error: error.message };
+    return { success: true, data };
+  }
+
+  async function loadAssessment(id) {
+    const sb = getSupabase();
+    if (!sb) return { success: false, error: 'Supabase not initialized' };
+    const { data, error } = await sb
+      .from('asset_condition_assessments')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) return { success: false, error: error.message };
+    return { success: true, data };
+  }
+
+  async function loadAssessments(filters) {
+    const sb = getSupabase();
+    if (!sb) return { success: false, error: 'Supabase not initialized' };
+    filters = filters || {};
+
+    let query = sb
+      .from('asset_condition_assessments')
+      .select('*')
+      .order('assessment_date', { ascending: false });
+
+    if (filters.assetClass) query = query.eq('asset_class', filters.assetClass);
+    if (filters.status) query = query.eq('status', filters.status);
+    if (filters.recoveryAssetId) query = query.eq('recovery_asset_id', filters.recoveryAssetId);
+    if (filters.limit) query = query.limit(Math.min(1000, Math.max(1, filters.limit)));
+
+    const { data, error } = await query;
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: data || [] };
+  }
+
+  async function deleteAssessment(id) {
+    const sb = getSupabase();
+    if (!sb) return { success: false, error: 'Supabase not initialized' };
+    const { error } = await sb.from('asset_condition_assessments').delete().eq('id', id);
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  }
+
   return {
     loadStandards,
     saveStandards,
     clearCache,
     getEmbedded,
-    getSupabase
+    getSupabase,
+    saveAssessment,
+    loadAssessment,
+    loadAssessments,
+    deleteAssessment
   };
 }));

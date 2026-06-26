@@ -69,6 +69,14 @@
     </div>
 
     <div class="table-wrap" id="tableContainer"><p style="padding:1rem">اختر فئة الأصل لتحميل المعايير.</p></div>
+
+    <div class="section" style="margin-top:3rem">
+      <h2>التقييمات المحفوظة</h2>
+      <div class="toolbar">
+        <button id="refreshAssessmentsBtn" class="secondary">تحديث القائمة</button>
+      </div>
+      <div class="table-wrap" id="assessmentsContainer"><p style="padding:1rem">جارِ التحميل...</p></div>
+    </div>
   </div>
 
   <script src="/api/env"></script>
@@ -381,10 +389,77 @@
         render();
       }
 
+      async function fetchAssessments() {
+        const container = document.getElementById('assessmentsContainer');
+        const client = getClient();
+        if (!client) {
+          container.innerHTML = '<p style="padding:1rem;color:#f87171">عميل Supabase غير متوفر</p>';
+          return;
+        }
+        container.innerHTML = '<p style="padding:1rem">جارِ التحميل...</p>';
+        try {
+          const { data, error } = await client
+            .from('asset_condition_assessments')
+            .select('*')
+            .order('assessment_date', { ascending: false })
+            .limit(100);
+          if (error) throw error;
+          renderAssessments(data || []);
+        } catch (err) {
+          container.innerHTML = '<p style="padding:1rem;color:#f87171">فشل التحميل: ' + err.message + '</p>';
+        }
+      }
+
+      function renderAssessments(rows) {
+        const container = document.getElementById('assessmentsContainer');
+        if (rows.length === 0) {
+          container.innerHTML = '<p style="padding:1rem">لا توجد تقييمات محفوظة.</p>';
+          return;
+        }
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>التاريخ</th>
+                <th>فئة الأصل</th>
+                <th>اسم الأصل</th>
+                <th>المعرّف</th>
+                <th>الدرجة</th>
+                <th>التقدير</th>
+                <th>الثقة</th>
+                <th>الحالة</th>
+                <th>ملاحظات</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        rows.forEach(r => {
+          const assetLabel = (BondsConditionStandards.ASSET_STANDARDS && BondsConditionStandards.ASSET_STANDARDS[r.asset_class]?.nameAr) || r.asset_class;
+          html += `
+            <tr>
+              <td>${r.assessment_date}</td>
+              <td>${assetLabel}</td>
+              <td>${escapeHtml(r.asset_name || '—')}</td>
+              <td>${escapeHtml(r.asset_identifier || '—')}</td>
+              <td>${r.score}</td>
+              <td>${r.grade || '—'}</td>
+              <td>${r.confidence_score}%</td>
+              <td>${r.status}</td>
+              <td>${escapeHtml(r.notes || '—')}</td>
+            </tr>
+          `;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+      }
+
       loadBtn.addEventListener('click', loadStandards);
       saveBtn.addEventListener('click', saveStandards);
       resetBtn.addEventListener('click', resetDefaults);
       addBtn.addEventListener('click', addPoint);
+      document.getElementById('refreshAssessmentsBtn').addEventListener('click', fetchAssessments);
+
+      fetchAssessments();
     })();
   </script>
 </body>
