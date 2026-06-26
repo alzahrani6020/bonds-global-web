@@ -888,3 +888,174 @@ html[dir="rtl"] .section-actions {
   text-align: center;
   padding: var(--space-4);
 }
+
+/* ===== Condition Assessment Maintenance Plan ===== */
+.ca-maintenance {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.ca-maintenance__title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: var(--space-3);
+}
+
+.ca-maintenance__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.ca-maintenance__empty {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: var(--space-4);
+}
+
+.ca-maintenance__item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: var(--space-3);
+  border-right: 4px solid var(--text-secondary);
+}
+
+[dir="ltr"] .ca-maintenance__item {
+  border-right: none;
+  border-left: 4px solid var(--text-secondary);
+}
+
+.ca-maintenance__item--high {
+  border-right-color: #ef4444;
+}
+
+[dir="ltr"] .ca-maintenance__item--high {
+  border-left-color: #ef4444;
+}
+
+.ca-maintenance__item--medium {
+  border-right-color: #f59e0b;
+}
+
+[dir="ltr"] .ca-maintenance__item--medium {
+  border-left-color: #f59e0b;
+}
+
+.ca-maintenance__item--low {
+  border-right-color: #22c55e;
+}
+
+[dir="ltr"] .ca-maintenance__item--low {
+  border-left-color: #22c55e;
+}
+
+.ca-maintenance__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.ca-maintenance__num {
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.ca-maintenance__priority {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+}
+
+.ca-maintenance__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+/* ===== Condition Assessment Comparison ===== */
+.ca-comparison {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.ca-comparison__title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: var(--space-3);
+}
+
+.ca-comparison__select-wrap select {
+  width: 100%;
+  min-height: 120px;
+  padding: var(--space-2);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  margin-bottom: var(--space-3);
+}
+
+.ca-comparison__select-wrap option {
+  padding: 0.4rem 0.5rem;
+}
+
+.ca-comparison__empty {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: var(--space-4);
+}
+
+.ca-comparison__table-wrap {
+  overflow-x: auto;
+  margin-bottom: var(--space-4);
+}
+
+.ca-comparison__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.ca-comparison__table th,
+.ca-comparison__table td {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.ca-comparison__table th {
+  background: rgba(255,255,255,0.06);
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.ca-comparison__chart-wrap {
+  position: relative;
+  height: 240px;
+  margin-bottom: var(--space-4);
+}
+
+@media (max-width: 640px) {
+  .ca-comparison__table th,
+  .ca-comparison__table td {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+}

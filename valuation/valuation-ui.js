@@ -37,6 +37,18 @@
       .replace(/"/g, '&quot;');
   }
 
+  function formatDueIndicator(dueStr) {
+    if (!dueStr) return '';
+    const due = new Date(dueStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    due.setHours(0, 0, 0, 0);
+    const diff = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+    if (diff < 0) return ' ⚠️ متأخر';
+    if (diff <= 30) return ' ⏳ قريب';
+    return '';
+  }
+
   class ValuationUI {
     constructor(locale) {
       this.locale = locale;
@@ -284,12 +296,30 @@
         </div>
         <div class="ca-result" id="caResult" style="display:none"></div>
 
+        <div class="ca-maintenance" id="caMaintenance" style="display:none">
+          <h5 class="ca-maintenance__title">${t.conditionMaintenanceTitle || 'خطة الصيانة المقترحة'}</h5>
+          <button type="button" class="btn-outline" id="caMaintenanceBtn">${t.conditionMaintenanceGenerate || 'توليد خطة الصيانة'}</button>
+          <div id="caMaintenanceList" class="ca-maintenance__list"></div>
+        </div>
+
         <div class="ca-history" id="caHistory" style="display:none">
           <h5 class="ca-history__title">${t.conditionHistoryTitle || 'تاريخ التقييمات'}</h5>
           <div class="ca-history__chart-wrap">
             <canvas id="caHistoryChart"></canvas>
           </div>
           <p class="ca-history__empty" id="caHistoryEmpty" style="display:none">${t.conditionHistoryNoData || ''}</p>
+        </div>
+
+        <div class="ca-comparison" id="caComparison" style="display:none">
+          <h5 class="ca-comparison__title">${t.conditionCompareTitle || 'مقارنة الأصول'}</h5>
+          <div class="ca-comparison__select-wrap">
+            <select id="caComparisonSelect" multiple></select>
+          </div>
+          <div class="ca-comparison__table-wrap" id="caComparisonTableWrap"></div>
+          <div class="ca-comparison__chart-wrap">
+            <canvas id="caComparisonChart"></canvas>
+          </div>
+          <button type="button" class="btn-outline" id="caComparisonExportBtn">${t.conditionCompareExport || 'تصدير المقارنة'}</button>
         </div>
 
         <div class="ca-meta">
@@ -422,6 +452,21 @@
       });
       $('#caExportPdfBtn', panel).addEventListener('click', () => this.exportConditionAssessmentPDF(panel));
 
+      const maintenanceBtn = $('#caMaintenanceBtn', panel);
+      if (maintenanceBtn) {
+        maintenanceBtn.addEventListener('click', () => this.renderMaintenancePlan());
+      }
+
+      const comparisonSelect = $('#caComparisonSelect', panel);
+      if (comparisonSelect) {
+        comparisonSelect.addEventListener('change', () => this.renderComparison());
+      }
+
+      const comparisonExportBtn = $('#caComparisonExportBtn', panel);
+      if (comparisonExportBtn) {
+        comparisonExportBtn.addEventListener('click', () => this.exportComparisonTable());
+      }
+
       const saveStatusEl = $('#caSaveStatus', panel);
       const showSaveStatus = (msg, isError) => {
         if (!saveStatusEl) return;
@@ -483,18 +528,26 @@
         const wrap = $('#caPreviousWrap', panel);
         const select = $('#caPreviousSelect', panel);
         if (!wrap || !select) return;
-        const res = await BondsConditionAssessmentClient.loadAssessments({ assetClass, limit: 20 });
+        const res = await BondsConditionAssessmentClient.loadAssessments({ assetClass, limit: 50 });
         if (!res.success || !res.data || res.data.length === 0) {
           wrap.style.display = 'none';
+          this._conditionAssessmentsList = [];
+          this.populateComparisonSelect();
           return;
         }
+        this._conditionAssessmentsList = res.data;
         wrap.style.display = 'block';
         const currentId = this.inputs.conditionAssessmentMeta?.id;
         select.innerHTML = `<option value="">${t.conditionNoAssessments || '—'}</option>` +
           res.data.map(a => {
-            const label = `${a.assessment_date} — ${a.asset_name || a.asset_identifier || a.id} — ${a.grade || ''}`;
+            const dueIndicator = formatDueIndicator(a.next_assessment_due);
+            const label = `${a.assessment_date} — ${a.asset_name || a.asset_identifier || a.id} — ${a.grade || ''}${dueIndicator}`;
             return `<option value="${a.id}" ${a.id === currentId ? 'selected' : ''}>${escapeHtml(label)}</option>`;
           }).join('');
+
+        this.populateComparisonSelect();
+        const comparisonEl = $('#caComparison', panel);
+        if (comparisonEl) comparisonEl.style.display = res.data.length >= 2 ? 'block' : 'none';
 
         select.addEventListener('change', async () => {
           const id = select.value;
@@ -644,6 +697,189 @@
           }
         }
       });
+    }
+
+    populateComparisonSelect() {
+      const panel = $('#conditionAssessmentPanel');
+      const select = panel ? $('#caComparisonSelect', panel) : null;
+      if (!select) return;
+      const list = this._conditionAssessmentsList || [];
+      if (list.length < 2) {
+        select.innerHTML = '';
+        select.disabled = true;
+        return;
+      }
+      select.disabled = false;
+      select.innerHTML = list.map(a => {
+        const label = `${a.assessment_date} — ${a.asset_name || a.asset_identifier || a.id} — ${a.grade || ''}`;
+        return `<option value="${a.id}">${escapeHtml(label)}</option>`;
+      }).join('');
+    }
+
+    renderComparison() {
+      const panel = $('#conditionAssessmentPanel');
+      const select = panel ? $('#caComparisonSelect', panel) : null;
+      const tableWrap = panel ? $('#caComparisonTableWrap', panel) : null;
+      const chartWrap = panel ? $('#caComparisonChart', panel) : null;
+      const comparisonEl = panel ? $('#caComparison', panel) : null;
+      if (!select || !tableWrap || !chartWrap || !comparisonEl) return;
+
+      const t = this.locale.texts;
+      const selectedIds = Array.from(select.selectedOptions).map(o => o.value);
+      if (selectedIds.length < 2) {
+        comparisonEl.style.display = 'block';
+        tableWrap.innerHTML = `<p class="ca-comparison__empty">${t.conditionCompareEmpty || ''}</p>`;
+        if (this.caComparisonChart) { this.caComparisonChart.destroy(); this.caComparisonChart = null; }
+        return;
+      }
+
+      const list = this._conditionAssessmentsList || [];
+      const rows = selectedIds.map(id => list.find(a => a.id === id)).filter(Boolean);
+      if (rows.length < 2) return;
+
+      comparisonEl.style.display = 'block';
+      const isEn = this.lang === 'en';
+
+      tableWrap.innerHTML = `
+        <table class="ca-comparison__table">
+          <thead>
+            <tr>
+              <th>${t.conditionCompareAsset}</th>
+              <th>${t.conditionCompareDate}</th>
+              <th>${t.conditionCompareScore}</th>
+              <th>${t.conditionCompareGrade}</th>
+              <th>${t.conditionCompareConfidence}</th>
+              <th>${t.conditionCompareCriticalCount}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(a => `
+              <tr>
+                <td>${escapeHtml(a.asset_name || a.asset_identifier || a.id)}</td>
+                <td>${a.assessment_date}</td>
+                <td>${a.score}</td>
+                <td>${a.grade || ''}</td>
+                <td>${a.confidence_score}%</td>
+                <td>${Array.isArray(a.critical_failures) ? a.critical_failures.length : 0}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+
+      if (this.caComparisonChart) this.caComparisonChart.destroy();
+      const ctx = chartWrap.getContext('2d');
+      this.caComparisonChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: rows.map(a => a.assessment_date),
+          datasets: [
+            {
+              label: t.conditionScoreResult || 'Score',
+              data: rows.map(a => Number(a.score) || 0),
+              backgroundColor: '#d4a853'
+            },
+            {
+              label: t.conditionConfidenceResult || 'Confidence',
+              data: rows.map(a => Number(a.confidence_score) || 0),
+              backgroundColor: '#3b82f6'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#e8ecf4' } } },
+          scales: {
+            x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { min: 0, max: 100, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+
+    exportComparisonTable() {
+      const t = this.locale.texts;
+      const panel = $('#conditionAssessmentPanel');
+      const select = panel ? $('#caComparisonSelect', panel) : null;
+      if (!select) return;
+      const selectedIds = Array.from(select.selectedOptions).map(o => o.value);
+      const list = this._conditionAssessmentsList || [];
+      const rows = selectedIds.map(id => list.find(a => a.id === id)).filter(Boolean);
+      if (rows.length === 0) return;
+
+      const headers = [t.conditionCompareAsset, t.conditionCompareDate, t.conditionCompareScore, t.conditionCompareGrade, t.conditionCompareConfidence, t.conditionCompareCriticalCount];
+      const csv = [
+        headers.join(','),
+        ...rows.map(a => [
+          `"${String(a.asset_name || a.asset_identifier || a.id).replace(/"/g, '""')}"`,
+          a.assessment_date,
+          a.score,
+          a.grade || '',
+          a.confidence_score,
+          Array.isArray(a.critical_failures) ? a.critical_failures.length : 0
+        ].join(','))
+      ].join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `condition-comparison-${this.currentAsset}-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    renderMaintenancePlan() {
+      const panel = $('#conditionAssessmentPanel');
+      const listEl = panel ? $('#caMaintenanceList', panel) : null;
+      const maintenanceEl = panel ? $('#caMaintenance', panel) : null;
+      if (!listEl || !maintenanceEl) return;
+
+      const t = this.locale.texts;
+      const result = this.inputs.conditionAssessmentResult;
+      if (!result) {
+        listEl.innerHTML = `<p>${t.conditionMaintenanceGenerate || 'احتسب الدرجة أولاً'}</p>`;
+        maintenanceEl.style.display = 'block';
+        return;
+      }
+
+      const tasks = BondsConditionAssessmentEngine.generateMaintenancePlan(result, { lang: this.lang });
+      if (tasks.length === 0) {
+        listEl.innerHTML = `<p class="ca-maintenance__empty">${t.conditionMaintenanceEmpty || ''}</p>`;
+        maintenanceEl.style.display = 'block';
+        return;
+      }
+
+      const priorityLabel = {
+        high: t.conditionMaintenancePriorityHigh || 'عالية',
+        medium: t.conditionMaintenancePriorityMedium || 'متوسطة',
+        low: t.conditionMaintenancePriorityLow || 'منخفضة'
+      };
+
+      const isEn = this.lang === 'en';
+      listEl.innerHTML = tasks.map((task, idx) => {
+        const label = task.source === 'critical'
+          ? (isEn ? task.labelEn : task.labelAr)
+          : (task.category || '');
+        const action = isEn ? task.actionEn : task.actionAr;
+        return `
+          <div class="ca-maintenance__item ca-maintenance__item--${task.priority}">
+            <div class="ca-maintenance__header">
+              <span class="ca-maintenance__num">#${idx + 1}</span>
+              <span class="ca-maintenance__priority">${priorityLabel[task.priority] || task.priority}</span>
+            </div>
+            <div class="ca-maintenance__body">
+              <div><strong>${t.conditionMaintenanceCategory || 'الفئة'}:</strong> ${escapeHtml(label)}</div>
+              <div><strong>${t.conditionMaintenanceAction || 'الإجراء'}:</strong> ${escapeHtml(action)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      maintenanceEl.style.display = 'block';
     }
 
     async exportConditionAssessmentPDF(panel) {

@@ -454,6 +454,36 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - **الاختبارات**: `tests/depreciation-engine.test.js` + `tests/valuation-engine.test.js`.
 - **تطبيق الـ migrations على DB الفعلية**: راجع `docs/MIGRATIONS.md` للخطوات التفصيلية. يتطلب إضافة `SUPABASE_ACCESS_TOKEN` و `SUPABASE_PROJECT_REF` في GitHub Secrets.
 
+### 11.10 Condition Assessment Engine (CAE) — تقييم حالة الأصول
+
+محرك تقييم الحالة التفصيلي مدمج في خطوة Condition بواجهة التقييم (`valuation/valuation-ui.js`) ويغذي `ValuationEngine` بالمدخلات الفنية.
+
+- **الملفات الأساسية**:
+  - `valuation/condition-assessment-engine.js` — محرك حساب Condition Score (0–100)، التقدير A–E، الثقة، الإخفاقات الحرجة، ومدخلات التقييم.
+  - `valuation/condition-assessment-standards.js` — 120 نقطة فحص في 10 فئات ومعايير 35 فئة أصل.
+  - `valuation/condition-assessment-client.js` — عميل Supabase لحفظ/تحميل المعايير والتقييمات الفردية.
+  - `valuation/valuation-locale.js` — النصوص العربية والإنجليزية.
+  - `valuation/valuation.css` — تنسيقات CAE والسجل والرسم البياني.
+  - `admin/condition-assessment.html` — لوحة إدارة لتحرير المعايير وعرض التقييمات.
+- **الجداول**:
+  - `condition_assessment_standards` — معايير قابلة للتخصيص لكل فئة أصل.
+  - `asset_condition_assessments` — تقييمات فردية محفوظة.
+  - `assets_due_for_reassessment` — view للأصول التي تقترب أو تجاوزت تاريخ إعادة التقييم.
+- **الترحيلات**:
+  - `supabase/migrations/20260714000000_condition_assessment.sql`
+  - `supabase/migrations/20260715000000_asset_condition_assessments.sql`
+  - `supabase/migrations/20260716000000_assessment_due_date.sql`
+- **الخصائص الحالية**:
+  - قائمة فحص تفاعلية حسب فئة الأصل.
+  - حساب الدرجة وتعبئة حقول التقييم الأساسية تلقائيًا.
+  - حفظ/تحميل التقييمات السابقة.
+  - تصدير تقرير PDF.
+  - سجل تاريخي + رسم بياني لتطور Condition Score.
+  - مقارنة بين تقييمات متعددة (جدول + رسم بياني + تصدير CSV).
+  - توليد خطة صيانة مقترحة من الإخفاقات الحرجة والفئات الضعيفة.
+  - تذكير بتاريخ إعادة التقييم (next_assessment_due).
+- **القيود**: لا يوجد API جديد على Vercel؛ يتم تجنب الحد الأقصى 12/12 دالة باستخدام Supabase client مباشرة من المتصفح مع RLS.
+
 ---
 
 ## 12. تصميم footer التقرير (Report Footer)

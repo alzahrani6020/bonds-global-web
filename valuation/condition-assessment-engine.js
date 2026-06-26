@@ -202,6 +202,68 @@
     return dict[grade] || grade;
   }
 
+  const DEFAULT_MAINTENANCE_ACTIONS = {
+    structural: { ar: 'فحص هيكلي شامل وإصلاح الشروخ أو الضعف', en: 'Comprehensive structural inspection and repair cracks or weaknesses' },
+    mechanical: { ar: 'صيانة المعدات الميكانيكية وتبديل القطع التالفة', en: 'Maintain mechanical equipment and replace damaged parts' },
+    electrical: { ar: 'مراجعة أنظمة الكهرباء وتوصيلات الأمان', en: 'Review electrical systems and safety connections' },
+    safety: { ar: 'تصحيح مخالفات السلامة وتحديث إجراءات الطوارئ', en: 'Correct safety violations and update emergency procedures' },
+    environmental: { ar: 'معالجة التلوث والمخاطر البيئية', en: 'Treat pollution and environmental hazards' },
+    maintenance: { ar: 'تحسين خطة الصيانة الدورية وتسجيل الأعطال', en: 'Improve periodic maintenance plan and log failures' },
+    operational: { ar: 'مراجعة الإجراءات التشغيلية وتدريب الفرق', en: 'Review operational procedures and train teams' },
+    aesthetic: { ar: 'إعادة تأهيل المظهر والطلاء/التشطيبات', en: 'Rehabilitate appearance, paint and finishes' },
+    documentation: { ar: 'إكمال المستندات الفنية والشهادات', en: 'Complete technical documents and certificates' },
+    technology: { ar: 'تحديث الأنظمة التقنية والبرمجيات', en: 'Update technology systems and software' }
+  };
+
+  function generateMaintenancePlan(result, options) {
+    options = options || {};
+    const lang = options.lang || 'ar';
+    const isEn = lang === 'en';
+    const scoreThreshold = options.scoreThreshold || 60;
+    const tasks = [];
+
+    (result.criticalFailures || []).forEach(f => {
+      tasks.push({
+        priority: 'high',
+        source: 'critical',
+        labelAr: f.labelAr || '',
+        labelEn: f.labelEn || '',
+        category: '',
+        actionAr: `معالجة الإخفاق الحرج: ${f.labelAr || ''}`,
+        actionEn: `Address critical failure: ${f.labelEn || ''}`
+      });
+    });
+
+    Object.entries(result.categoryScores || {}).forEach(([cat, data]) => {
+      if (data.score < scoreThreshold) {
+        const action = DEFAULT_MAINTENANCE_ACTIONS[cat] || { ar: 'مراجعة وتحسين', en: 'Review and improve' };
+        tasks.push({
+          priority: result.criticalFailures && result.criticalFailures.length > 0 ? 'medium' : 'high',
+          source: 'category',
+          category: cat,
+          score: data.score,
+          actionAr: action.ar,
+          actionEn: action.en
+        });
+      }
+    });
+
+    if (tasks.length === 0 && result.score < scoreThreshold) {
+      tasks.push({
+        priority: 'medium',
+        source: 'overall',
+        category: '',
+        actionAr: 'إجراء فحص عام وتحسين الحالة العامة للأصل',
+        actionEn: 'Perform general inspection and improve overall asset condition'
+      });
+    }
+
+    return tasks.sort((a, b) => {
+      const rank = { high: 0, medium: 1, low: 2 };
+      return (rank[a.priority] || 0) - (rank[b.priority] || 0);
+    });
+  }
+
   function generateReport(result, lang) {
     lang = lang || 'ar';
     const isEn = lang === 'en';
@@ -263,6 +325,7 @@
     getGrade,
     getGradeLabel,
     generateReport,
+    generateMaintenancePlan,
     normalizeValue,
     version: '1.0.0'
   };
