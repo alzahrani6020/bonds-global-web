@@ -13,6 +13,7 @@
     "test:a11y": "node tests/a11y/a11y-tests.js",
     "test:mobile": "node tests/mobile/mobile-tests.js",
     "audit": "node scripts/site-audit.js",
+    "audit:migrations": "node scripts/verify-migrations.js",
     "audit:og": "node scripts/og-audit.js",
     "audit:i18n": "node scripts/i18n-audit.js",
     "audit:api": "node scripts/api-auth-audit.js",

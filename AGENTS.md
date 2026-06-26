@@ -444,7 +444,7 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - `depreciationReplacementValue` — تكلفة الاستبدال بأصل مكافئ حديث.
 - **الدمج**: `valuation-engine.js` يستدعي `DepreciationEngine` تلقائياً ويُضيف النتائج إلى ناتج `calculate()`.
 - **الاختبارات**: `tests/depreciation-engine.test.js` + `tests/valuation-engine.test.js`.
-- **تطبيق الـ migrations على DB الفعلية**: إضافة `SUPABASE_ACCESS_TOKEN` و `SUPABASE_PROJECT_REF` في GitHub Secrets، ثم push إلى `main` أو تشغيل `supabase db push` يدوياً.
+- **تطبيق الـ migrations على DB الفعلية**: راجع `docs/MIGRATIONS.md` للخطوات التفصيلية. يتطلب إضافة `SUPABASE_ACCESS_TOKEN` و `SUPABASE_PROJECT_REF` في GitHub Secrets.
 
 ---
 
