@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>إدارة معايير تقييم الحالة | بوندز</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { background: var(--bg); color: var(--text); font-family: Vazirmatn, system-ui, sans-serif; min-height: 100vh; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    h1 { color: var(--gold); margin-bottom: 1rem; }
+    .toolbar { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
+    input, select, button, textarea { padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text); }
+    button { background: var(--gold); color: #0a0f1a; font-weight: 700; cursor: pointer; border: none; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.secondary { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+    button.danger { background: transparent; border: 1px solid #f87171; color: #f87171; }
+    .table-wrap { overflow-x: auto; background: var(--bg-card); border-radius: 12px; margin-bottom: 2rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 900px; }
+    th, td { padding: 0.6rem; border-bottom: 1px solid var(--border); text-align: right; vertical-align: middle; }
+    th { background: rgba(212,168,83,0.1); color: var(--gold); font-weight: 700; position: sticky; top: 0; }
+    tr:hover { background: rgba(255,255,255,0.03); }
+    .status { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: none; }
+    .status.is-open { display: block; }
+    .status.success { background: rgba(34,197,94,0.1); color: #4ade80; }
+    .status.error { background: rgba(239,68,68,0.1); color: #f87171; }
+    .back-link { color: var(--gold); text-decoration: none; display: inline-block; margin-bottom: 1rem; }
+    .category-row { background: rgba(212,168,83,0.06); }
+    .category-row td { font-weight: 700; color: var(--gold); }
+    .small-input { width: 90px; }
+    .med-input { width: 160px; }
+    .wide-input { width: 240px; }
+    .check-cell { text-align: center; }
+    .meta-card { background: var(--bg-card); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .meta-card label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem; }
+    .meta-card input { width: 100%; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/admin/dashboard.html" class="back-link">⬅️ العودة إلى لوحة الإدارة</a>
+    <h1>إدارة معايير تقييم الحالة (Condition Assessment)</h1>
+    <div id="status" class="status"></div>
+
+    <div class="toolbar">
+      <select id="assetClassSelect"><option value="">اختر فئة الأصل</option></select>
+      <button id="loadBtn">تحميل</button>
+      <button id="saveBtn" disabled>حفظ في قاعدة البيانات</button>
+      <button id="resetBtn" class="secondary" disabled>استعادة الافتراضيات</button>
+      <button id="addBtn" class="secondary" disabled>+ إضافة نقطة</button>
+    </div>
+
+    <div class="meta-card" id="metaCard" style="display:none">
+      <div>
+        <label>الاسم بالعربية</label>
+        <input type="text" id="nameAr" />
+      </div>
+      <div>
+        <label>الاسم بالإنجليزية</label>
+        <input type="text" id="nameEn" />
+      </div>
+      <div>
+        <label>درجة التقصير للإخفاق الحرج (0-100)</label>
+        <input type="number" id="criticalCap" min="0" max="100" step="1" value="60" />
+      </div>
+    </div>
+
+    <div class="table-wrap" id="tableContainer"><p style="padding:1rem">اختر فئة الأصل لتحميل المعايير.</p></div>
+  </div>
+
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/supabase-client.js"></script>
+  <script src="/valuation/condition-assessment-standards.js?v=1"></script>
+  <script src="/valuation/condition-assessment-engine.js?v=1"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      const ASSET_CLASSES = (typeof BondsConditionStandards !== 'undefined' && BondsConditionStandards.listAssetClasses)
+        ? BondsConditionStandards.listAssetClasses()
+        : [
+          'realEstate','business','factory','machineryEquipment','vehiclesFleet','agricultureFarms','livestock',
+          'naturalResourcesMining','oilGas','infrastructure','intellectualProperty','brandsTrademarks','patents',
+          'copyrightsContent','franchises','licensesPermits','financialAssets','cryptoDigital','commodities',
+          'artCollectibles','jewelryPreciousMetals','softwareTechnology','medicalEquipment','educationalEquipment',
+          'distressedAsset','tourismAsset','personalWealth','scrapSalvage','maritimeAsset','logisticsAsset',
+          'fuelStation','beautyWellness','giftsStationery','furnitureAsset','retailBusiness'
+        ];
+
+      const CATEGORIES = (typeof BondsConditionStandards !== 'undefined' && BondsConditionStandards.CATEGORIES)
+        ? BondsConditionStandards.CATEGORIES
+        : [
+          { id: 'structural', labelAr: 'إنشائي / فيزيائي', labelEn: 'Structural / Physical' },
+          { id: 'mechanical', labelAr: 'ميكانيكي / وظيفي', labelEn: 'Mechanical / Functional' },
+          { id: 'electrical', labelAr: 'كهربائي / إلكتروني', labelEn: 'Electrical / Electronics' },
+          { id: 'safety', labelAr: 'سلامة / امتثال', labelEn: 'Safety / Compliance' },
+          { id: 'environmental', labelAr: 'بيئي / استدامة', labelEn: 'Environmental / ESG' },
+          { id: 'maintenance', labelAr: 'صيانة / سجلات', labelEn: 'Maintenance / Records' },
+          { id: 'operational', labelAr: 'تشغيلي / استخدام', labelEn: 'Operational / Utilization' },
+          { id: 'aesthetic', labelAr: 'جمالي / مظهري', labelEn: 'Aesthetics / Cosmetic' },
+          { id: 'documentation', labelAr: 'توثيق / قانوني', labelEn: 'Documentation / Legal' },
+          { id: 'technology', labelAr: 'تقني / عدم ملاءمة', labelEn: 'Technology / Obsolescence' }
+        ];
+
+      const POINT_TYPES = ['0-5', '0-10', 'yes/no', 'pass/fail', 'numeric'];
+
+      const assetSelect = document.getElementById('assetClassSelect');
+      const loadBtn = document.getElementById('loadBtn');
+      const saveBtn = document.getElementById('saveBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const addBtn = document.getElementById('addBtn');
+      const statusEl = document.getElementById('status');
+      const tableContainer = document.getElementById('tableContainer');
+      const metaCard = document.getElementById('metaCard');
+      const nameArInput = document.getElementById('nameAr');
+      const nameEnInput = document.getElementById('nameEn');
+      const criticalCapInput = document.getElementById('criticalCap');
+
+      let currentAsset = '';
+      let currentStandards = null;
+
+      ASSET_CLASSES.forEach(cls => {
+        const opt = document.createElement('option');
+        opt.value = cls;
+        const label = (typeof BondsConditionStandards !== 'undefined' && BondsConditionStandards.ASSET_STANDARDS && BondsConditionStandards.ASSET_STANDARDS[cls])
+          ? BondsConditionStandards.ASSET_STANDARDS[cls].nameAr
+          : cls;
+        opt.textContent = label;
+        assetSelect.appendChild(opt);
+      });
+
+      function showStatus(msg, isError) {
+        statusEl.textContent = msg;
+        statusEl.className = 'status is-open ' + (isError ? 'error' : 'success');
+        setTimeout(() => statusEl.classList.remove('is-open'), 6000);
+      }
+
+      function getClient() {
+        if (typeof BondsAuth !== 'undefined' && BondsAuth.getSupabase) {
+          return BondsAuth.getSupabase();
+        }
+        return window.supabaseClient || (window.supabase && window.supabase.client);
+      }
+
+      async function getToken() {
+        const client = getClient();
+        if (!client || !client.auth) return null;
+        const { data } = await client.auth.getSession();
+        return data && data.session && data.session.access_token;
+      }
+
+      function getCategoryLabel(id) {
+        const cat = CATEGORIES.find(c => c.id === id);
+        return cat ? `${cat.labelAr} / ${cat.labelEn}` : id;
+      }
+
+      function render() {
+        if (!currentStandards || !Array.isArray(currentStandards.points)) {
+          tableContainer.innerHTML = '<p style="padding:1rem">لا توجد معايير.</p>';
+          return;
+        }
+
+        const byCategory = {};
+        currentStandards.points.forEach((p, idx) => {
+          byCategory[p.category] = byCategory[p.category] || [];
+          byCategory[p.category].push({ point: p, idx });
+        });
+
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>الفئة</th>
+                <th>النص العربي</th>
+                <th>النص الإنجليزي</th>
+                <th>النوع</th>
+                <th>الوزن</th>
+                <th>حرج</th>
+                <th>طريقة التحقق</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        CATEGORIES.forEach(cat => {
+          const rows = byCategory[cat.id];
+          if (!rows || rows.length === 0) return;
+          html += `<tr class="category-row"><td colspan="9">${getCategoryLabel(cat.id)}</td></tr>`;
+          rows.forEach(({ point, idx }) => {
+            html += renderPointRow(point, idx);
+          });
+        });
+
+        html += '</tbody></table>';
+        tableContainer.innerHTML = html;
+
+        tableContainer.querySelectorAll('.delete-row-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const idx = Number(btn.dataset.idx);
+            currentStandards.points.splice(idx, 1);
+            render();
+          });
+        });
+      }
+
+      function renderPointRow(point, idx) {
+        const typeOptions = POINT_TYPES.map(t => `<option value="${t}" ${point.type === t ? 'selected' : ''}>${t}</option>`).join('');
+        return `
+          <tr data-idx="${idx}">
+            <td><input type="text" class="med-input p-id" value="${escapeHtml(point.id)}" /></td>
+            <td>
+              <select class="p-category">
+                ${CATEGORIES.map(c => `<option value="${c.id}" ${point.category === c.id ? 'selected' : ''}>${c.labelAr}</option>`).join('')}
+              </select>
+            </td>
+            <td><input type="text" class="wide-input p-labelAr" value="${escapeHtml(point.labelAr)}" /></td>
+            <td><input type="text" class="wide-input p-labelEn" value="${escapeHtml(point.labelEn)}" /></td>
+            <td><select class="p-type">${typeOptions}</select></td>
+            <td><input type="number" class="small-input p-weight" value="${point.weight}" step="0.001" min="0" max="1" /></td>
+            <td class="check-cell"><input type="checkbox" class="p-critical" ${point.critical ? 'checked' : ''} /></td>
+            <td><input type="text" class="med-input p-verification" value="${escapeHtml(point.verification || '')}" /></td>
+            <td><button type="button" class="danger delete-row-btn" data-idx="${idx}">حذف</button></td>
+          </tr>
+        `;
+      }
+
+      function escapeHtml(str) {
+        if (str == null) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function collectStandardsFromUI() {
+        const rows = tableContainer.querySelectorAll('tbody tr[data-idx]');
+        const points = [];
+        rows.forEach(row => {
+          points.push({
+            id: row.querySelector('.p-id').value.trim(),
+            category: row.querySelector('.p-category').value,
+            labelAr: row.querySelector('.p-labelAr').value.trim(),
+            labelEn: row.querySelector('.p-labelEn').value.trim(),
+            type: row.querySelector('.p-type').value,
+            weight: Number(row.querySelector('.p-weight').value) || 0,
+            critical: row.querySelector('.p-critical').checked,
+            verification: row.querySelector('.p-verification').value.trim()
+          });
+        });
+        return {
+          assetClass: currentAsset,
+          nameAr: nameArInput.value.trim(),
+          nameEn: nameEnInput.value.trim(),
+          points,
+          categories: CATEGORIES,
+          gradingScale: { A: 90, B: 80, C: 70, D: 60, E: 0 },
+          criticalRules: [{ cap: Number(criticalCapInput.value) || 60, appliesTo: 'any_critical_failure' }],
+          criticalCap: Number(criticalCapInput.value) || 60
+        };
+      }
+
+      async function loadFromSupabase(assetClass) {
+        const client = getClient();
+        if (!client) throw new Error('Supabase client not initialized');
+        const { data, error } = await client
+          .from('condition_assessment_standards')
+          .select('*')
+          .eq('asset_class', assetClass)
+          .single();
+        if (error) throw error;
+        return data;
+      }
+
+      async function loadStandards() {
+        currentAsset = assetSelect.value;
+        if (!currentAsset) {
+          showStatus('اختر فئة أولاً', true);
+          return;
+        }
+
+        tableContainer.innerHTML = '<p style="padding:1rem">جارِ التحميل...</p>';
+        let loaded = null;
+
+        try {
+          const db = await loadFromSupabase(currentAsset);
+          if (db && Array.isArray(db.inspection_points) && db.inspection_points.length > 0) {
+            loaded = {
+              assetClass: db.asset_class,
+              nameAr: db.name_ar,
+              nameEn: db.name_en,
+              points: db.inspection_points,
+              categories: db.categories || CATEGORIES,
+              gradingScale: db.grading_scale || { A: 90, B: 80, C: 70, D: 60, E: 0 },
+              criticalRules: db.critical_rules || [],
+              criticalCap: (db.critical_rules && db.critical_rules[0] && db.critical_rules[0].cap) || 60
+            };
+          }
+        } catch (err) {
+          console.warn('[ConditionAssessmentAdmin] DB load failed, falling back to defaults:', err);
+        }
+
+        if (!loaded) {
+          const defaults = BondsConditionAssessmentEngine.getEmbeddedStandards(currentAsset);
+          loaded = defaults ? JSON.parse(JSON.stringify(defaults)) : null;
+        }
+
+        if (!loaded) {
+          showStatus('لا توجد معايير افتراضية لهذه الفئة', true);
+          return;
+        }
+
+        currentStandards = loaded;
+        nameArInput.value = currentStandards.nameAr || '';
+        nameEnInput.value = currentStandards.nameEn || '';
+        criticalCapInput.value = currentStandards.criticalCap || 60;
+        metaCard.style.display = 'grid';
+        saveBtn.disabled = false;
+        resetBtn.disabled = false;
+        addBtn.disabled = false;
+        render();
+      }
+
+      async function saveStandards() {
+        const client = getClient();
+        if (!client) return showStatus('عميل Supabase غير متوفر', true);
+
+        const token = await getToken();
+        if (!token) return showStatus('يجب تسجيل الدخول كمشرف', true);
+
+        const payload = collectStandardsFromUI();
+        const row = {
+          asset_class: payload.assetClass,
+          name_ar: payload.nameAr,
+          name_en: payload.nameEn,
+          inspection_points: payload.points,
+          categories: payload.categories,
+          grading_scale: payload.gradingScale,
+          critical_rules: payload.criticalRules,
+          version: (currentStandards.version || 1) + 1,
+          updated_at: new Date().toISOString()
+        };
+
+        const { error } = await client
+          .from('condition_assessment_standards')
+          .upsert(row, { onConflict: 'asset_class' });
+
+        if (error) return showStatus('فشل الحفظ: ' + error.message, true);
+        currentStandards = payload;
+        showStatus('تم حفظ المعايير بنجاح', false);
+      }
+
+      function resetDefaults() {
+        const defaults = BondsConditionAssessmentEngine.getEmbeddedStandards(currentAsset);
+        if (!defaults) return showStatus('لا توجد معايير افتراضية', true);
+        currentStandards = JSON.parse(JSON.stringify(defaults));
+        nameArInput.value = currentStandards.nameAr || '';
+        nameEnInput.value = currentStandards.nameEn || '';
+        criticalCapInput.value = currentStandards.criticalCap || 60;
+        render();
+        showStatus('تمت استعادة الافتراضيات', false);
+      }
+
+      function addPoint() {
+        currentStandards.points.push({
+          id: 'new_point_' + (currentStandards.points.length + 1),
+          category: CATEGORIES[0].id,
+          labelAr: 'نقطة جديدة',
+          labelEn: 'New point',
+          type: '0-5',
+          weight: 0.01,
+          critical: false,
+          verification: ''
+        });
+        render();
+      }
+
+      loadBtn.addEventListener('click', loadStandards);
+      saveBtn.addEventListener('click', saveStandards);
+      resetBtn.addEventListener('click', resetDefaults);
+      addBtn.addEventListener('click', addPoint);
+    })();
+  </script>
+</body>
+</html>

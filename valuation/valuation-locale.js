@@ -86,7 +86,19 @@
         outlookNegative: 'سلبية',
         riskScore: 'درجة المخاطرة',
         confidence: 'الثقة',
-        dataQualityScore: 'جودة البيانات'
+        dataQualityScore: 'جودة البيانات',
+        conditionAssessmentTitle: 'تقييم الحالة التفصيلي',
+        conditionAssessmentDesc: 'أجب عن نقاط الفحص أدناه لحساب درجة الحالة بدقة. سيتم تحديث الحقول الأساسية تلقائيًا.',
+        conditionAssessmentCalculate: 'احتساب درجة الحالة',
+        conditionAssessmentReset: 'إعادة تعيين',
+        conditionScoreResult: 'درجة الحالة',
+        conditionGradeResult: 'التقدير',
+        conditionConfidenceResult: 'نسبة الثقة',
+        conditionCriticalWarning: 'هناك إخفاقات حرجة — تم تقصير الدرجة.',
+        yes: 'نعم',
+        no: 'لا',
+        pass: 'مطابق',
+        fail: 'غير مطابق'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',
@@ -2632,7 +2644,19 @@
         outlookNegative: 'Negative',
         riskScore: 'Risk Score',
         confidence: 'Confidence',
-        dataQualityScore: 'Data Quality'
+        dataQualityScore: 'Data Quality',
+        conditionAssessmentTitle: 'Detailed Condition Assessment',
+        conditionAssessmentDesc: 'Answer the inspection points below to compute an accurate condition score. Core fields update automatically.',
+        conditionAssessmentCalculate: 'Calculate Condition Score',
+        conditionAssessmentReset: 'Reset',
+        conditionScoreResult: 'Condition Score',
+        conditionGradeResult: 'Grade',
+        conditionConfidenceResult: 'Confidence',
+        conditionCriticalWarning: 'Critical failures detected — score capped.',
+        yes: 'Yes',
+        no: 'No',
+        pass: 'Pass',
+        fail: 'Fail'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',

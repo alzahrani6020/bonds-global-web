@@ -666,3 +666,144 @@ html[dir="rtl"] .section-actions {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== Condition Assessment Panel ===== */
+.condition-assessment-panel {
+  margin-top: var(--space-8);
+  padding: var(--space-6);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.ca-header {
+  margin-bottom: var(--space-5);
+}
+
+.ca-title {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--gold);
+  margin-bottom: var(--space-2);
+}
+
+.ca-desc {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.ca-category {
+  margin-bottom: var(--space-5);
+}
+
+.ca-category__title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.ca-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-4);
+}
+
+.ca-point {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.ca-point--critical {
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.ca-point__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.ca-critical {
+  color: #ef4444;
+  font-weight: 800;
+}
+
+.ca-input {
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.ca-input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.ca-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.ca-result {
+  margin-bottom: var(--space-5);
+  padding: var(--space-4);
+  background: rgba(212,168,83,0.08);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+}
+
+.ca-result__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-4);
+}
+
+.ca-result__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.ca-result__item span {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.ca-result__item strong {
+  font-size: var(--text-xl);
+  color: var(--gold);
+}
+
+.ca-critical-warning {
+  margin-top: var(--space-3);
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.ca-loading {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: var(--space-4);
+}
+
+@media (max-width: 640px) {
+  .ca-grid {
+    grid-template-columns: 1fr;
+  }
+  .ca-actions {
+    flex-direction: column;
+  }
+}

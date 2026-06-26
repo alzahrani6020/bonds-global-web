@@ -1422,6 +1422,25 @@
       return result;
     }
 
+    /* ---------- Condition Assessment Engine integration ---------- */
+    _applyConditionAssessment(assetClass, inputs) {
+      if (!inputs || !inputs.conditionAssessment || typeof BondsConditionAssessmentEngine === 'undefined') {
+        return inputs;
+      }
+      try {
+        const ca = BondsConditionAssessmentEngine.calculate(assetClass, inputs.conditionAssessment, {
+          standards: inputs._conditionAssessmentStandards
+        });
+        if (ca && ca.valuationInputs) {
+          Object.assign(inputs, ca.valuationInputs);
+          inputs._conditionAssessmentResult = ca;
+        }
+      } catch (err) {
+        console.warn('[ValuationEngine] Condition Assessment failed:', err);
+      }
+      return inputs;
+    }
+
     /* ---------- Generic fallback (for completeness / future classes) ---------- */
     _calcGeneric(i) {
       const base = safe(i.purchasePrice) || safe(i.equityBookValue) ||
@@ -1451,6 +1470,9 @@
       if (!enrichedInputs.usefulLifeYears) {
         enrichedInputs.usefulLifeYears = this._usefulLifeFromEconomic(assetClass, enrichedInputs);
       }
+
+      // Condition Assessment Engine enrichment (overrides conditionScore etc. when provided)
+      this._applyConditionAssessment(assetClass, enrichedInputs);
 
       const outputWeights = this._bvsOutputWeights(assetClass);
       const rawValues = (() => {

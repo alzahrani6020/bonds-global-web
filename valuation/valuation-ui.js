@@ -204,8 +204,160 @@
         if (val !== undefined) el.value = val;
       });
 
+      if (this.currentStep === 1 && typeof BondsConditionAssessmentEngine !== 'undefined') {
+        this.renderConditionAssessment();
+      }
+
       this.attachInputListeners();
       this.updateActions();
+    }
+
+    async renderConditionAssessment() {
+      const t = this.locale.texts;
+      const assetClass = this.currentAsset;
+      if (!assetClass) return;
+
+      let panel = $('#conditionAssessmentPanel');
+      if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'conditionAssessmentPanel';
+        panel.className = 'condition-assessment-panel';
+        this.wizardFields.appendChild(panel);
+      }
+
+      panel.innerHTML = `<div class="ca-loading">${this.lang === 'en' ? 'Loading condition checklist...' : 'جاري تحميل قائمة الفحص...'}</div>`;
+
+      let standards = null;
+      if (typeof BondsConditionAssessmentClient !== 'undefined') {
+        try {
+          const res = await BondsConditionAssessmentClient.loadStandards(assetClass);
+          standards = res.success ? res.data : null;
+        } catch (e) {
+          console.warn('[ValuationUI] Failed to load CA standards:', e);
+        }
+      }
+      if (!standards) {
+        standards = BondsConditionAssessmentEngine.getEmbeddedStandards(assetClass);
+      }
+
+      if (!standards || !Array.isArray(standards.points) || standards.points.length === 0) {
+        panel.innerHTML = '';
+        return;
+      }
+
+      this.inputs.conditionAssessment = this.inputs.conditionAssessment || {};
+
+      const categories = standards.categories || [];
+      const pointsByCategory = {};
+      standards.points.forEach(p => {
+        pointsByCategory[p.category] = pointsByCategory[p.category] || [];
+        pointsByCategory[p.category].push(p);
+      });
+
+      const isEn = this.lang === 'en';
+
+      let html = `
+        <div class="ca-header">
+          <h4 class="ca-title">${t.conditionAssessmentTitle || 'تقييم الحالة التفصيلي'}</h4>
+          <p class="ca-desc">${t.conditionAssessmentDesc || ''}</p>
+        </div>
+        <div class="ca-result" id="caResult" style="display:none"></div>
+      `;
+
+      categories.forEach(cat => {
+        const catPoints = pointsByCategory[cat.id];
+        if (!catPoints || catPoints.length === 0) return;
+        const catLabel = isEn ? cat.labelEn : cat.labelAr;
+        html += `<div class="ca-category"><h5 class="ca-category__title">${catLabel}</h5><div class="ca-grid">`;
+        catPoints.forEach(p => {
+          const label = isEn ? p.labelEn : p.labelAr;
+          const current = this.inputs.conditionAssessment[p.id];
+          const valAttr = current !== undefined ? `value="${current}"` : '';
+          let input = '';
+          if (p.type === 'yes/no') {
+            const yesSel = current === 'yes' ? 'selected' : '';
+            const noSel = current === 'no' ? 'selected' : '';
+            input = `<select data-point-id="${p.id}" class="ca-input ca-select"><option value="">—</option><option value="yes" ${yesSel}>${t.yes}</option><option value="no" ${noSel}>${t.no}</option></select>`;
+          } else if (p.type === 'pass/fail') {
+            const passSel = current === 'pass' ? 'selected' : '';
+            const failSel = current === 'fail' ? 'selected' : '';
+            input = `<select data-point-id="${p.id}" class="ca-input ca-select"><option value="">—</option><option value="pass" ${passSel}>${t.pass}</option><option value="fail" ${failSel}>${t.fail}</option></select>`;
+          } else if (p.type === '0-10') {
+            input = `<input type="number" data-point-id="${p.id}" class="ca-input" min="0" max="10" step="1" ${valAttr} placeholder="0-10" />`;
+          } else {
+            input = `<input type="number" data-point-id="${p.id}" class="ca-input" min="0" max="5" step="1" ${valAttr} placeholder="0-5" />`;
+          }
+          const criticalBadge = p.critical ? `<span class="ca-critical" title="${isEn ? 'Critical' : 'حرج'}">*</span>` : '';
+          html += `
+            <div class="ca-point ${p.critical ? 'ca-point--critical' : ''}">
+              <label class="ca-point__label">${label} ${criticalBadge}</label>
+              ${input}
+            </div>
+          `;
+        });
+        html += '</div></div>';
+      });
+
+      html += `
+        <div class="ca-actions">
+          <button type="button" class="btn-primary" id="caCalculateBtn">${t.conditionAssessmentCalculate}</button>
+          <button type="button" class="btn-outline" id="caResetBtn">${t.conditionAssessmentReset}</button>
+        </div>
+      `;
+
+      panel.innerHTML = html;
+
+      const updateResult = () => {
+        const result = BondsConditionAssessmentEngine.calculate(assetClass, this.inputs.conditionAssessment, { standards });
+        this.inputs.conditionAssessmentResult = result;
+        Object.assign(this.inputs, result.valuationInputs);
+
+        // Update visible static fields if present
+        ['conditionScore', 'maintenanceLevel', 'inspectionScore', 'environmentalExposure', 'techObsolescenceRate', 'functionalObsolescence', 'maintenanceNeglect', 'misuseFactor'].forEach(key => {
+          const el = $(`[name="${key}"]`);
+          if (el && result.valuationInputs[key] !== undefined) el.value = result.valuationInputs[key];
+        });
+
+        const resultEl = $('#caResult');
+        if (resultEl) {
+          resultEl.style.display = 'block';
+          const gradeLabel = BondsConditionAssessmentEngine.getGradeLabel(result.grade, this.lang);
+          resultEl.innerHTML = `
+            <div class="ca-result__grid">
+              <div class="ca-result__item"><span>${t.conditionScoreResult}</span><strong>${result.score}</strong></div>
+              <div class="ca-result__item"><span>${t.conditionGradeResult}</span><strong>${result.grade} — ${gradeLabel}</strong></div>
+              <div class="ca-result__item"><span>${t.conditionConfidenceResult}</span><strong>${result.confidenceScore}%</strong></div>
+            </div>
+            ${result.capped ? `<div class="ca-critical-warning">⚠ ${t.conditionCriticalWarning}</div>` : ''}
+          `;
+        }
+        this.saveDraft();
+      };
+
+      $$('.ca-input', panel).forEach(el => {
+        el.addEventListener('change', () => {
+          const id = el.dataset.pointId;
+          const raw = el.value;
+          if (raw === '') {
+            delete this.inputs.conditionAssessment[id];
+          } else {
+            this.inputs.conditionAssessment[id] = raw;
+          }
+          updateResult();
+        });
+      });
+
+      $('#caCalculateBtn', panel).addEventListener('click', updateResult);
+      $('#caResetBtn', panel).addEventListener('click', () => {
+        this.inputs.conditionAssessment = {};
+        this.renderConditionAssessment();
+        updateResult();
+      });
+
+      // If answers already exist, show result
+      if (Object.keys(this.inputs.conditionAssessment).length > 0) {
+        updateResult();
+      }
     }
 
     renderField(def) {
