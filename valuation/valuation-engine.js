@@ -48,23 +48,23 @@
       factory: { ar: 'المصانع', en: 'Factories', active: true },
       machineryEquipment: { ar: 'الآلات والمعدات', en: 'Machinery & Equipment', active: true },
       vehiclesFleet: { ar: 'المركبات والأساطيل', en: 'Vehicles & Fleet', active: true },
-      agricultureFarms: { ar: 'الزراعة والمزارع', en: 'Agriculture & Farms', active: false },
-      livestock: { ar: 'الثروة الحيوانية', en: 'Livestock', active: false },
-      naturalResourcesMining: { ar: 'الموارد الطبيعية والتعدين', en: 'Natural Resources & Mining', active: false },
-      oilGas: { ar: 'النفط والغاز', en: 'Oil & Gas Assets', active: false },
-      infrastructure: { ar: 'البنية التحتية', en: 'Infrastructure', active: false },
-      intellectualProperty: { ar: 'الملكية الفكرية', en: 'Intellectual Property', active: false },
-      brandsTrademarks: { ar: 'العلامات التجارية', en: 'Brands & Trademarks', active: false },
-      patents: { ar: 'براءات الاختراع', en: 'Patents', active: false },
-      copyrightsContent: { ar: 'حقوق المؤلف والمحتوى', en: 'Copyrights & Content', active: false },
-      franchises: { ar: 'الامتيازات التجارية', en: 'Franchises', active: false },
-      licensesPermits: { ar: 'التراخيص والتصاريح', en: 'Licenses & Permits', active: false },
-      financialAssets: { ar: 'الأصول المالية', en: 'Financial Assets', active: false },
-      cryptoDigital: { ar: 'العملات الرقمية والأصول الرقمية', en: 'Crypto & Digital Assets', active: false },
+      agricultureFarms: { ar: 'الزراعة والمزارع', en: 'Agriculture & Farms', active: true },
+      livestock: { ar: 'الثروة الحيوانية', en: 'Livestock', active: true },
+      naturalResourcesMining: { ar: 'الموارد الطبيعية والتعدين', en: 'Natural Resources & Mining', active: true },
+      oilGas: { ar: 'النفط والغاز', en: 'Oil & Gas Assets', active: true },
+      infrastructure: { ar: 'البنية التحتية', en: 'Infrastructure', active: true },
+      intellectualProperty: { ar: 'الملكية الفكرية', en: 'Intellectual Property', active: true },
+      brandsTrademarks: { ar: 'العلامات التجارية', en: 'Brands & Trademarks', active: true },
+      patents: { ar: 'براءات الاختراع', en: 'Patents', active: true },
+      copyrightsContent: { ar: 'حقوق المؤلف والمحتوى', en: 'Copyrights & Content', active: true },
+      franchises: { ar: 'الامتيازات التجارية', en: 'Franchises', active: true },
+      licensesPermits: { ar: 'التراخيص والتصاريح', en: 'Licenses & Permits', active: true },
+      financialAssets: { ar: 'الأصول المالية', en: 'Financial Assets', active: true },
+      cryptoDigital: { ar: 'العملات الرقمية والأصول الرقمية', en: 'Crypto & Digital Assets', active: true },
       commodities: { ar: 'السلع', en: 'Commodities', active: true },
-      artCollectibles: { ar: 'الفنون والمقتنيات', en: 'Art & Collectibles', active: false },
+      artCollectibles: { ar: 'الفنون والمقتنيات', en: 'Art & Collectibles', active: true },
       jewelryPreciousMetals: { ar: 'المجوهرات والمعادن الثمينة', en: 'Jewelry & Precious Metals', active: true },
-      softwareTechnology: { ar: 'البرمجيات والتقنية', en: 'Software & Technology', active: false },
+      softwareTechnology: { ar: 'البرمجيات والتقنية', en: 'Software & Technology', active: true },
       medicalEquipment: { ar: 'الأجهزة والمعدات الطبية', en: 'Medical Equipment', active: true },
       educationalEquipment: { ar: 'التجهيزات التعليمية', en: 'Educational Equipment', active: true },
       distressedAsset: { ar: 'الأصول المتعثرة', en: 'Distressed Assets', active: true },
@@ -448,6 +448,286 @@
       };
     }
 
+    /* ---------- Biological & Natural Engine (agriculture, livestock) ---------- */
+    _calcBiologicalNatural(i, config = {}) {
+      const historicalCost = safe(i.purchasePrice) + safe(i.installationCost) +
+        safe(i.transportCost) + safe(i.improvementCosts);
+      const biologicalAge = Math.max(0, safe(i.biologicalAgeYears) || 0);
+      const usefulLife = Math.max(1, safe(i.usefulLifeYears) || 15);
+      const accumulatedDep = safe(i.accumulatedDepreciation) ||
+        (historicalCost / usefulLife * Math.min(biologicalAge, usefulLife));
+      const mortality = clamp(i.mortalityRate, 0, 1) || 0;
+      const biologicalFactor = config.isLivestock ? (1 - mortality) : 1;
+      const bookValue = Math.max(0,
+        (historicalCost - accumulatedDep) * biologicalFactor
+      );
+
+      const units = Math.max(0, safe(i.quantityUnits));
+      const marketPrice = safe(i.marketPricePerUnit);
+      const yieldPerUnit = safe(i.yieldPerUnit) || 1;
+      const quality = clamp(i.qualityScore, 0, 10) / 10 || 0.8;
+      const conditionScore = clamp(i.conditionScore, 1, 10) || 7;
+      const conditionAdj = 0.55 + 0.045 * conditionScore;
+      const marketValue = Math.max(0,
+        units * marketPrice * yieldPerUnit * quality * conditionAdj
+      );
+
+      const revenue = units * yieldPerUnit * marketPrice * 12;
+      const feedCost = safe(i.feedCost) || 0;
+      const veterinaryCost = safe(i.veterinaryCost) || 0;
+      const storageCost = safe(i.storageCost) || 0;
+      const otherCosts = safe(i.otherOperatingCosts) || 0;
+      const operatingValue = Math.max(0, revenue - feedCost - veterinaryCost - storageCost - otherCosts);
+      const capRate = config.capRate || 0.12;
+      const incomeValue = operatingValue / capRate;
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.5, 1 - avgRisk / 20);
+      const weights = config.weights || { book: 0.25, market: 0.35, income: 0.4 };
+      const fairValue = (bookValue * weights.book + marketValue * weights.market +
+        incomeValue * weights.income) * riskAdj;
+
+      const certs = safe(i.certificationValue);
+      const landQuality = clamp(i.landQualityScore, 0, 10) / 10 || 0.5;
+      const water = clamp(i.waterAvailabilityScore, 0, 10) / 10 || 0.5;
+      const esg = clamp(i.esgScore, 0, 100) / 100;
+      const investmentValue = fairValue * (1 + landQuality * 0.05 + water * 0.05 + esg * 0.02) + certs;
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.06;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 5;
+      const liquidationTime = clamp(i.liquidationTimeMonths, 1, 36) || 12;
+      const liquidationValue = Math.max(0,
+        marketValue * (1 - transactionCosts - 0.15 / buyerPool) *
+        (1 - liquidationTime / 36) * (1 - mortality * 0.5)
+      );
+
+      const insuranceValue = marketValue * 0.9;
+
+      return {
+        bookValue,
+        marketValue,
+        operatingValue,
+        incomeValue,
+        fairValue,
+        investmentValue,
+        liquidationValue,
+        insuranceValue
+      };
+    }
+
+    /* ---------- Resource & Infrastructure Engine (mining, oil & gas, infrastructure) ---------- */
+    _calcResourceInfrastructure(i, config = {}) {
+      const historicalCost = safe(i.landCost) + safe(i.developmentCost) +
+        safe(i.equipmentCost) + safe(i.acquisitionCost);
+      const depletionRate = clamp(i.depletionRate, 0, 1) || 0.05;
+      const accumulatedDepletion = safe(i.accumulatedDepletion) ||
+        (historicalCost * depletionRate * Math.min(safe(i.operatingYears) || 5, 30));
+      const bookValue = Math.max(0, historicalCost - accumulatedDepletion);
+
+      const reserveUnits = Math.max(0, safe(i.reserveUnits) || safe(i.capacityUnits));
+      const commodityPrice = safe(i.commodityPricePerUnit) || safe(i.tariffRevenuePerUnit);
+      const extractionCost = safe(i.extractionCostPerUnit) || safe(i.opexPerUnit);
+      const reserveGrade = clamp(i.reserveGrade, 0, 1) || 1;
+      const marketValue = Math.max(0,
+        reserveUnits * (commodityPrice - extractionCost) * reserveGrade
+      );
+
+      const annualProduction = reserveUnits * clamp(i.utilizationRate, 0, 1) || (reserveUnits * 0.1);
+      const annualRevenue = annualProduction * commodityPrice;
+      const annualCost = annualProduction * extractionCost + safe(i.annualFixedCosts);
+      const taxRate = clamp(i.taxRate, 0, 1) || 0.2;
+      const annualNOI = Math.max(0, (annualRevenue - annualCost) * (1 - taxRate));
+      const discountRate = clamp(i.discountRate, 0.01, 1) || 0.1;
+      const remainingLife = Math.max(1, Math.min(50, safe(i.licenseExpiryYears) || safe(i.remainingLifeYears) || 10));
+
+      let pv = 0;
+      for (let t = 1; t <= remainingLife; t++) {
+        pv += annualNOI * Math.pow(1 + (config.growthRate || 0.02), t - 1) / Math.pow(1 + discountRate, t);
+      }
+      const incomeValue = pv;
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.5, 1 - avgRisk / 20);
+      const weights = config.weights || { book: 0.2, market: 0.3, income: 0.5 };
+      const fairValue = (bookValue * weights.book + marketValue * weights.market +
+        incomeValue * weights.income) * riskAdj;
+
+      const licenses = safe(i.licensesValue);
+      const strategic = safe(i.strategicValue);
+      const esg = clamp(i.esgScore, 0, 100) / 100;
+      const investmentValue = fairValue * (1 + esg * 0.03) + licenses + strategic;
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.07;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 4;
+      const liquidationValue = Math.max(0,
+        (bookValue * 0.7 + marketValue * 0.3) * (1 - transactionCosts - 0.2 / buyerPool)
+      );
+
+      const insuranceValue = (historicalCost + marketValue) / 2;
+
+      return {
+        bookValue,
+        marketValue,
+        operatingValue: annualNOI,
+        incomeValue,
+        fairValue,
+        investmentValue,
+        liquidationValue,
+        insuranceValue
+      };
+    }
+
+    /* ---------- Intangible Income Engine (IP, brands, patents) ---------- */
+    _calcIntangibleIncome(i, config = {}) {
+      const bookValue = Math.max(0, safe(i.purchasePrice) - safe(i.accumulatedAmortization));
+
+      const comparableValue = safe(i.comparableTransactionValue);
+      const marketValue = Math.max(0, comparableValue);
+
+      const revenue = safe(i.annualRevenue) || safe(i.licenseFeeAnnual) || safe(i.royaltyIncome);
+      const royaltyRate = clamp(i.royaltyRate, 0, 1) || config.defaultRoyaltyRate || 0.05;
+      const notionalRoyalty = revenue * royaltyRate;
+      const taxRate = clamp(i.taxRate, 0, 1) || 0.2;
+      const remainingLife = Math.max(1, Math.min(30, safe(i.remainingLifeYears) || 10));
+      const discountRate = clamp(i.discountRate, 0.01, 1) || 0.12;
+      const growthRate = Math.min(clamp(i.growthRate, -0.1, 0.2), discountRate * 0.8) || 0.03;
+
+      let pv = 0;
+      for (let t = 1; t <= remainingLife; t++) {
+        pv += notionalRoyalty * Math.pow(1 + growthRate, t - 1) * (1 - taxRate) / Math.pow(1 + discountRate, t);
+      }
+      const incomeValue = pv;
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.5, 1 - avgRisk / 20);
+      const weights = config.weights || { book: 0.15, market: 0.25, income: 0.6 };
+      const fairValue = (bookValue * weights.book + marketValue * weights.market +
+        incomeValue * weights.income) * riskAdj;
+
+      const brandStrength = clamp(i.brandStrength || i.intangibleStrength, 0, 100) / 100;
+      const legalProtection = clamp(i.legalProtectionScore, 0, 10) / 10 || 0.5;
+      const marketShare = clamp(i.marketShare, 0, 1);
+      const investmentValue = fairValue * (1 + brandStrength * 0.1 + legalProtection * 0.05 + marketShare * 0.05);
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.08;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 5;
+      const liquidationValue = Math.max(0,
+        fairValue * (1 - transactionCosts - 0.15 / buyerPool)
+      );
+
+      const operatingValue = Math.max(0, notionalRoyalty * 12);
+      const insuranceValue = fairValue * 0.9;
+
+      return {
+        bookValue,
+        marketValue,
+        operatingValue,
+        incomeValue,
+        fairValue,
+        investmentValue,
+        liquidationValue,
+        insuranceValue
+      };
+    }
+
+    /* ---------- Marketable Securities Engine (financial assets, crypto) ---------- */
+    _calcMarketableSecurities(i, config = {}) {
+      const quantity = safe(i.quantityUnits);
+      const marketPrice = safe(i.marketPricePerUnit);
+      const costBasis = safe(i.purchasePrice) || (quantity * marketPrice);
+      const bookValue = costBasis;
+      const marketValue = quantity * marketPrice;
+
+      const demand = clamp(i.demandIndex, 1, 10) || 5;
+      const supply = clamp(i.supplyIndex, 1, 10) || 5;
+      const demandSupplyFactor = (demand / 5) / (supply / 5);
+      const adjustedMarket = marketValue * demandSupplyFactor;
+
+      const volatility = clamp(i.volatilityIndex, 0, 100) / 100 || clamp(i.marketVolatility, 0, 10) / 10 || 0.3;
+      const liquidityScore = clamp(i.liquidityScore, 0, 10) / 10 || 0.7;
+      const fairValue = adjustedMarket * (1 - volatility * 0.2) * (0.7 + liquidityScore * 0.3);
+
+      const yieldIncome = safe(i.dividendYield) || safe(i.stakingYield) || 0;
+      const investmentValue = fairValue * (1 + yieldIncome);
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || config.defaultTxCost || 0.02;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 6;
+      const liquidationValue = Math.max(0,
+        marketValue * (1 - transactionCosts - 0.05 / buyerPool) * liquidityScore
+      );
+
+      const operatingValue = Math.max(0, marketValue * yieldIncome);
+      const insuranceValue = marketValue * (config.isCrypto ? 0.85 : 0.95);
+
+      return {
+        bookValue,
+        marketValue: adjustedMarket,
+        operatingValue,
+        fairValue,
+        investmentValue,
+        liquidationValue,
+        insuranceValue
+      };
+    }
+
+    /* ---------- SaaS & Technology Engine ---------- */
+    _calcSaaSTechnology(i) {
+      const arr = safe(i.annualRecurringRevenue) || safe(i.annualRevenue);
+      const grossMargin = clamp(i.grossMargin, 0, 1) || 0.75;
+      const opex = safe(i.annualOpex) || arr * 0.6;
+      const customerCount = safe(i.customerCount) || 100;
+      const arpu = safe(i.averageRevenuePerUser) || (customerCount > 0 ? arr / customerCount : 0);
+      const churnRate = clamp(i.churnRate, 0, 1) || 0.05;
+      const growthRate = clamp(i.growthRate, -0.2, 0.5) || 0.2;
+      const discountRate = clamp(i.discountRate, 0.01, 1) || 0.15;
+      const terminalGrowth = Math.min(clamp(i.terminalGrowth, 0, 0.1), discountRate * 0.8) || 0.03;
+      const projYears = Math.max(1, Math.min(10, safe(i.projectionYears) || 5));
+
+      const bookValue = Math.max(0, safe(i.developmentCost) - safe(i.accumulatedAmortization));
+
+      const revenueMultiple = safe(i.revenueMultiple) || 8;
+      const marketValue = arr * revenueMultiple;
+
+      let fcf = (arr * grossMargin - opex);
+      let pv = 0;
+      for (let t = 1; t <= projYears; t++) {
+        fcf = fcf * (1 + growthRate * Math.pow(1 - t / projYears, 0.5));
+        pv += fcf / Math.pow(1 + discountRate, t);
+      }
+      const terminalValue = fcf * (1 + terminalGrowth) / Math.max(0.005, discountRate - terminalGrowth);
+      const pvTerminal = terminalValue / Math.pow(1 + discountRate, projYears);
+      const incomeValue = pv + pvTerminal;
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.5, 1 - avgRisk / 20);
+      const fairValue = (bookValue * 0.1 + marketValue * 0.35 + incomeValue * 0.55) * riskAdj;
+
+      const techMoat = clamp(i.techMoatScore, 0, 10) / 10 || 0.5;
+      const retention = 1 - churnRate;
+      const ltvCacRatio = safe(i.lifetimeValue) / Math.max(1, safe(i.customerAcquisitionCost));
+      const investmentValue = fairValue * (1 + techMoat * 0.1 + (retention - 0.9) * 0.2 + Math.min(ltvCacRatio, 5) * 0.02);
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.05;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 6;
+      const liquidationValue = Math.max(0,
+        (bookValue + marketValue * 0.5) * (1 - transactionCosts - 0.1 / buyerPool)
+      );
+
+      const operatingValue = Math.max(0, arr * grossMargin - opex);
+      const insuranceValue = marketValue * 0.8;
+
+      return {
+        bookValue,
+        marketValue,
+        operatingValue,
+        incomeValue,
+        fairValue,
+        investmentValue,
+        liquidationValue,
+        insuranceValue
+      };
+    }
+
     /* ---------- Generic fallback (for completeness / future classes) ---------- */
     _calcGeneric(i) {
       const base = safe(i.purchasePrice) || safe(i.equityBookValue) ||
@@ -492,6 +772,35 @@
             return this._calcCommodityLike(inputs);
           case AssetClass.DISTRESSED_ASSET:
             return this._calcDistressed(inputs);
+          case AssetClass.AGRICULTURE_FARMS:
+            return this._calcBiologicalNatural(inputs, { weights: { book: 0.25, market: 0.35, income: 0.4 }, capRate: 0.12 });
+          case AssetClass.LIVESTOCK:
+            return this._calcBiologicalNatural(inputs, { isLivestock: true, weights: { book: 0.2, market: 0.45, income: 0.35 }, capRate: 0.15 });
+          case AssetClass.NATURAL_RESOURCES_MINING:
+          case AssetClass.OIL_GAS:
+            return this._calcResourceInfrastructure(inputs, { weights: { book: 0.15, market: 0.35, income: 0.5 } });
+          case AssetClass.INFRASTRUCTURE:
+            return this._calcResourceInfrastructure(inputs, { weights: { book: 0.2, market: 0.25, income: 0.55 }, growthRate: 0.03 });
+          case AssetClass.INTELLECTUAL_PROPERTY:
+            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.05, weights: { book: 0.1, market: 0.2, income: 0.7 } });
+          case AssetClass.BRANDS_TRADEMARKS:
+            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.04, weights: { book: 0.1, market: 0.3, income: 0.6 } });
+          case AssetClass.PATENTS:
+            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.06, weights: { book: 0.15, market: 0.2, income: 0.65 } });
+          case AssetClass.COPYRIGHTS_CONTENT:
+            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.07, weights: { book: 0.1, market: 0.15, income: 0.75 } });
+          case AssetClass.FRANCHISES:
+            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.06, weights: { book: 0.1, market: 0.25, income: 0.65 } });
+          case AssetClass.LICENSES_PERMITS:
+            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.03, weights: { book: 0.15, market: 0.25, income: 0.6 } });
+          case AssetClass.FINANCIAL_ASSETS:
+            return this._calcMarketableSecurities(inputs, { defaultTxCost: 0.015 });
+          case AssetClass.CRYPTO_DIGITAL:
+            return this._calcMarketableSecurities(inputs, { defaultTxCost: 0.025, isCrypto: true });
+          case AssetClass.SOFTWARE_TECHNOLOGY:
+            return this._calcSaaSTechnology(inputs);
+          case AssetClass.ART_COLLECTIBLES:
+            return this._calcGeneric(inputs);
           default: return this._calcGeneric(inputs);
         }
       })();
@@ -557,6 +866,51 @@
           clamp(i.recoveryRate, 0, 1) * 20 +
           (1 - clamp(i.forcedSaleDiscount, 0, 1)) * 15
         );
+      } else if ([AssetClass.AGRICULTURE_FARMS, AssetClass.LIVESTOCK].includes(assetClass)) {
+        const age = clamp(i.biologicalAgeYears, 0, 30);
+        score = (
+          clamp(i.conditionScore, 1, 10) * 6 +
+          clamp(i.qualityScore, 0, 10) * 5 +
+          clamp(i.landQualityScore || i.healthScore, 0, 10) * 4 +
+          (10 - age / 3) * 3 +
+          (1 - clamp(i.mortalityRate || 0, 0, 1)) * 15
+        );
+      } else if ([AssetClass.NATURAL_RESOURCES_MINING, AssetClass.OIL_GAS, AssetClass.INFRASTRUCTURE].includes(assetClass)) {
+        score = (
+          clamp(i.reserveGrade || i.utilizationRate, 0, 1) * 30 +
+          clamp(i.conditionScore, 1, 10) * 4 +
+          clamp(i.environmentalComplianceScore || 5, 1, 10) * 4 +
+          (clamp(i.licenseExpiryYears, 1, 50) / 5) * 2
+        );
+      } else if ([AssetClass.INTELLECTUAL_PROPERTY, AssetClass.BRANDS_TRADEMARKS, AssetClass.PATENTS, AssetClass.COPYRIGHTS_CONTENT, AssetClass.FRANCHISES, AssetClass.LICENSES_PERMITS].includes(assetClass)) {
+        score = (
+          clamp(i.brandStrength || i.intangibleStrength, 0, 100) * 0.25 +
+          clamp(i.legalProtectionScore, 0, 10) * 5 +
+          clamp(i.marketShare, 0, 1) * 20 +
+          (clamp(i.remainingLifeYears, 1, 30) / 30) * 15
+        );
+      } else if ([AssetClass.JEWELRY_PRECIOUS_METALS, AssetClass.COMMODITIES, AssetClass.ART_COLLECTIBLES].includes(assetClass)) {
+        score = (
+          clamp(i.conditionScore, 1, 10) * 5 +
+          clamp(i.purityFactor || i.rarityScore / 100, 0, 1) * 30 +
+          clamp(i.authenticationScore, 1, 10) * 4 +
+          (1 - clamp(i.marketVolatility, 0, 10) / 20) * 10
+        );
+      } else if ([AssetClass.FINANCIAL_ASSETS, AssetClass.CRYPTO_DIGITAL].includes(assetClass)) {
+        score = (
+          clamp(i.authenticationScore || i.custodyScore, 1, 10) * 5 +
+          clamp(i.liquidityScore, 0, 10) * 6 +
+          (1 - clamp(i.volatilityIndex, 0, 100) / 150) * 20 +
+          clamp(i.conditionScore, 1, 10) * 3
+        );
+      } else if (assetClass === AssetClass.SOFTWARE_TECHNOLOGY) {
+        score = (
+          clamp(i.techMoatScore, 0, 10) * 5 +
+          (1 - clamp(i.churnRate, 0, 1)) * 25 +
+          clamp(i.grossMargin, 0, 1) * 15 +
+          Math.min(safe(i.lifetimeValue) / Math.max(1, safe(i.customerAcquisitionCost)), 5) * 5 +
+          clamp(i.conditionScore, 1, 10) * 2
+        );
       }
       return clamp(score, 0, 100);
     }
@@ -599,7 +953,20 @@
         [AssetClass.COMMODITIES]: 0.75,
         [AssetClass.DISTRESSED_ASSET]: 0.35,
         [AssetClass.FINANCIAL_ASSETS]: 1.0,
-        [AssetClass.CRYPTO_DIGITAL]: 0.85
+        [AssetClass.CRYPTO_DIGITAL]: 0.85,
+        [AssetClass.AGRICULTURE_FARMS]: 0.55,
+        [AssetClass.LIVESTOCK]: 0.5,
+        [AssetClass.NATURAL_RESOURCES_MINING]: 0.45,
+        [AssetClass.OIL_GAS]: 0.5,
+        [AssetClass.INFRASTRUCTURE]: 0.6,
+        [AssetClass.INTELLECTUAL_PROPERTY]: 0.55,
+        [AssetClass.BRANDS_TRADEMARKS]: 0.6,
+        [AssetClass.PATENTS]: 0.5,
+        [AssetClass.COPYRIGHTS_CONTENT]: 0.55,
+        [AssetClass.FRANCHISES]: 0.6,
+        [AssetClass.LICENSES_PERMITS]: 0.65,
+        [AssetClass.ART_COLLECTIBLES]: 0.5,
+        [AssetClass.SOFTWARE_TECHNOLOGY]: 0.75
       }[assetClass] || 0.6;
       const score = (buyerPool * 5 + marketability * 25 + transactionCost * 20) * classFactor;
       return clamp(score, 0, 100);

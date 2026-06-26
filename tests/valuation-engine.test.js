@@ -104,6 +104,133 @@ describe('ValuationEngine', () => {
       expect(result.restructuredValue).toBeDefined();
       expect(result.quickExitValue).toBeDefined();
     });
+
+    it('calculates biological and natural resource values', () => {
+      const farmInputs = buildInputs({
+        purchasePrice: 500000,
+        developmentCost: 200000,
+        equipmentCost: 100000,
+        areaUnits: 10,
+        yieldPerUnit: 5,
+        marketPricePerUnit: 1000,
+        annualRevenue: 100000,
+        feedCost: 20000,
+        veterinaryCost: 10000,
+        otherOperatingCosts: 15000,
+        biologicalAgeYears: 5,
+        mortalityRate: 0.05,
+        landQualityScore: 7,
+        waterAvailabilityScore: 6
+      });
+      ['agricultureFarms', 'livestock'].forEach(cls => {
+        const inputs = buildInputs({ ...farmInputs, quantityUnits: 100, marketPricePerUnit: 3500 });
+        const result = engine.calculate(cls, inputs);
+        expect(result.bookValue).toBeGreaterThanOrEqual(0);
+        expect(result.marketValue).toBeGreaterThan(0);
+        expect(result.fairValue).toBeGreaterThan(0);
+      });
+    });
+
+    it('calculates resource and infrastructure values', () => {
+      const base = {
+        landCost: 1000000,
+        developmentCost: 2000000,
+        equipmentCost: 1500000,
+        reserveUnits: 100000,
+        commodityPricePerUnit: 500,
+        extractionCostPerUnit: 250,
+        utilizationRate: 0.1,
+        annualFixedCosts: 500000,
+        licenseExpiryYears: 15,
+        reserveGrade: 0.8
+      };
+      ['naturalResourcesMining', 'oilGas', 'infrastructure'].forEach(cls => {
+        const inputs = buildInputs({ ...base, capacityUnits: 10, tariffRevenuePerUnit: 50000 });
+        const result = engine.calculate(cls, inputs);
+        expect(result.bookValue).toBeGreaterThanOrEqual(0);
+        expect(result.marketValue).toBeGreaterThan(0);
+        expect(result.fairValue).toBeGreaterThan(0);
+      });
+    });
+
+    it('calculates intangible income-based values', () => {
+      const base = {
+        purchasePrice: 1000000,
+        accumulatedAmortization: 200000,
+        comparableTransactionValue: 2500000,
+        annualRevenue: 2000000,
+        royaltyRate: 0.05,
+        growthRate: 0.04,
+        discountRate: 0.12,
+        remainingLifeYears: 10,
+        brandStrength: 60,
+        marketShare: 0.1,
+        legalProtectionScore: 7
+      };
+      ['intellectualProperty', 'brandsTrademarks', 'patents', 'copyrightsContent', 'franchises', 'licensesPermits'].forEach(cls => {
+        const inputs = buildInputs({ ...base });
+        const result = engine.calculate(cls, inputs);
+        expect(result.bookValue).toBeGreaterThanOrEqual(0);
+        expect(result.marketValue).toBeGreaterThan(0);
+        expect(result.fairValue).toBeGreaterThan(0);
+      });
+    });
+
+    it('calculates marketable securities values', () => {
+      const base = {
+        purchasePrice: 250000,
+        quantityUnits: 1000,
+        marketPricePerUnit: 250,
+        dividendYield: 0.03,
+        liquidityScore: 8,
+        custodyScore: 9
+      };
+      ['financialAssets', 'cryptoDigital'].forEach(cls => {
+        const inputs = buildInputs({ ...base });
+        const result = engine.calculate(cls, inputs);
+        expect(result.bookValue).toBeGreaterThanOrEqual(0);
+        expect(result.marketValue).toBeGreaterThan(0);
+        expect(result.fairValue).toBeGreaterThan(0);
+      });
+    });
+
+    it('calculates SaaS and technology values', () => {
+      const inputs = buildInputs({
+        developmentCost: 800000,
+        accumulatedAmortization: 150000,
+        annualRecurringRevenue: 1200000,
+        annualOpex: 600000,
+        growthRate: 0.2,
+        discountRate: 0.15,
+        grossMargin: 0.75,
+        revenueMultiple: 8,
+        customerCount: 500,
+        lifetimeValue: 1200,
+        customerAcquisitionCost: 200,
+        techMoatScore: 7,
+        churnRate: 0.05
+      });
+      const result = engine.calculate('softwareTechnology', inputs);
+      expect(result.bookValue).toBeGreaterThanOrEqual(0);
+      expect(result.marketValue).toBeGreaterThan(0);
+      expect(result.fairValue).toBeGreaterThan(0);
+    });
+
+    it('calculates art and collectibles values', () => {
+      const inputs = buildInputs({
+        purchasePrice: 500000,
+        comparableTransactionValue: 800000,
+        rarityScore: 70,
+        provenanceScore: 75,
+        authenticationScore: 8,
+        buyerPoolDepth: 5,
+        transactionCostsRate: 0.1
+      });
+      const result = engine.calculate('artCollectibles', inputs);
+      expect(result.bookValue).toBeGreaterThanOrEqual(0);
+      expect(result.marketValue).toBeGreaterThan(0);
+      expect(result.fairValue).toBeGreaterThan(0);
+    });
   });
 
   describe('Scoring', () => {
@@ -171,19 +298,18 @@ describe('ValuationEngine', () => {
   });
 
   describe('AssetClass metadata', () => {
-    it('has 7 active classes plus existing 3', () => {
+    it('has all 25 classes active', () => {
       const active = AssetClass.list().filter(s => AssetClass.isActive(s));
-      expect(active).toContain('realEstate');
-      expect(active).toContain('business');
-      expect(active).toContain('factory');
-      expect(active).toContain('machineryEquipment');
-      expect(active).toContain('vehiclesFleet');
-      expect(active).toContain('medicalEquipment');
-      expect(active).toContain('educationalEquipment');
-      expect(active).toContain('jewelryPreciousMetals');
-      expect(active).toContain('commodities');
-      expect(active).toContain('distressedAsset');
-      expect(active.length).toBe(10);
+      const expected = [
+        'realEstate', 'business', 'factory', 'machineryEquipment', 'vehiclesFleet',
+        'agricultureFarms', 'livestock', 'naturalResourcesMining', 'oilGas', 'infrastructure',
+        'intellectualProperty', 'brandsTrademarks', 'patents', 'copyrightsContent', 'franchises',
+        'licensesPermits', 'financialAssets', 'cryptoDigital', 'commodities', 'artCollectibles',
+        'jewelryPreciousMetals', 'softwareTechnology', 'medicalEquipment', 'educationalEquipment',
+        'distressedAsset'
+      ];
+      expected.forEach(cls => expect(active).toContain(cls));
+      expect(active.length).toBe(25);
     });
   });
 });

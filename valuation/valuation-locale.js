@@ -844,7 +844,984 @@
             { name: 'automationPlan', label: 'خطة التحسين (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.2 },
             { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 45 }
           ]
-        ]
+        ],
+        agricultureFarms: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم المزرعة', type: 'text', placeholder: 'مزرعة نموذجية', default: 'مزرعة نموذجية' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع المزرعة', type: 'select', options: [ { value: 'crop', label: 'محاصيل حقلية' }, { value: 'orchard', label: 'أشجار مثمرة' }, { value: 'greenhouse', label: 'بيوت محمية' }, { value: 'livestock', label: 'تربية حيوانية' }, { value: 'mixed', label: 'مختلطة' } ], default: 'crop' },
+            { name: 'areaUnits', label: 'المساحة (هكتار)', type: 'number', min: 0.1, step: 0.1, default: 10 },
+            { name: 'yearAcquired', label: 'سنة الاقتناء', type: 'number', min: 1900, max: 2030, default: 2018 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الحالة (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'qualityScore', label: 'جودة المحصول/الإنتاج (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'landQualityScore', label: 'جودة الأرض (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'waterAvailabilityScore', label: 'توفر المياه (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'سعر شراء الأرض/المزرعة', type: 'number', min: 0, default: 500000 },
+            { name: 'developmentCost', label: 'تكاليف التطوير', type: 'number', min: 0, default: 200000 },
+            { name: 'equipmentCost', label: 'تكلفة المعدات', type: 'number', min: 0, default: 100000 },
+            { name: 'installationCost', label: 'تكاليف التركيب', type: 'number', min: 0, default: 30000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'usefulLifeYears', label: 'العمر الإنتاجي (سنة)', type: 'number', min: 1, default: 20 },
+            { name: 'accumulatedDepreciation', label: 'الإهلاك المتراكم', type: 'number', min: 0, default: 80000 },
+            { name: 'biologicalAgeYears', label: 'العمر البيولوجي (سنوات)', type: 'number', min: 0, default: 5 },
+            { name: 'mortalityRate', label: 'معدل الهلاك/الفقد (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.05 },
+          ],
+          // 5. Market
+          [
+            { name: 'yieldPerUnit', label: 'الإنتاجية للوحدة (طن/هكتار)', type: 'number', min: 0, step: 0.1, default: 5 },
+            { name: 'marketPricePerUnit', label: 'السعر السوقي للوحدة', type: 'number', min: 0, default: 1000 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.03 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'الإيراد السنوي', type: 'number', min: 0, default: 100000 },
+            { name: 'feedCost', label: 'تكلفة التغذية/الأسمدة', type: 'number', min: 0, default: 20000 },
+            { name: 'veterinaryCost', label: 'تكلفة الرعاية البيطرية/المبيدات', type: 'number', min: 0, default: 10000 },
+            { name: 'storageCost', label: 'تكلفة التخزين', type: 'number', min: 0, default: 8000 },
+            { name: 'otherOperatingCosts', label: 'تكاليف تشغيلية أخرى', type: 'number', min: 0, default: 15000 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'environmentalRisk', label: 'المخاطر البيئية/المناخية (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'marketVolatility', label: 'تقلب السوق (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'certificationValue', label: 'قيمة شهادات العضوية/الحلال', type: 'number', min: 0, default: 20000 },
+            { name: 'brandPremium', label: 'علاوة العلامة التجارية (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.05 },
+            { name: 'waterRightsValue', label: 'قيمة حقوق المياه', type: 'number', min: 0, default: 30000 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 12 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.03 },
+            { name: 'automationPlan', label: 'خطة الأتمتة/الرقمنة (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.2 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        livestock: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم الثروة الحيوانية', type: 'text', placeholder: 'قطيع نموذجي', default: 'قطيع نموذجي' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع الثروة', type: 'select', options: [ { value: 'cattle', label: 'أبقار' }, { value: 'sheep', label: 'أغنام' }, { value: 'poultry', label: 'دواجن' }, { value: 'camels', label: 'إبل' }, { value: 'other', label: 'أخرى' } ], default: 'cattle' },
+            { name: 'quantityUnits', label: 'عدد الرؤوس', type: 'number', min: 1, default: 100 },
+            { name: 'yearAcquired', label: 'سنة الاقتناء', type: 'number', min: 1900, max: 2030, default: 2020 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الحالة (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'healthScore', label: 'الصحة العامة (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'qualityScore', label: 'جودة السلالة (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'biologicalAgeYears', label: 'متوسط العمر (سنوات)', type: 'number', min: 0, default: 3 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'تكلفة الشراء', type: 'number', min: 0, default: 300000 },
+            { name: 'developmentCost', label: 'تكاليف الحظيرة/المسكن', type: 'number', min: 0, default: 80000 },
+            { name: 'equipmentCost', label: 'تكلفة المعدات', type: 'number', min: 0, default: 30000 },
+            { name: 'installationCost', label: 'تكاليف التجهيز', type: 'number', min: 0, default: 10000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'usefulLifeYears', label: 'العمر الإنتاجي (سنة)', type: 'number', min: 1, default: 8 },
+            { name: 'accumulatedDepreciation', label: 'الإهلاك المتراكم', type: 'number', min: 0, default: 50000 },
+            { name: 'mortalityRate', label: 'معدل الهلاك السنوي (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.05 },
+          ],
+          // 5. Market
+          [
+            { name: 'marketPricePerUnit', label: 'السعر السوقي للرأس', type: 'number', min: 0, default: 3500 },
+            { name: 'yieldPerUnit', label: 'الإنتاجية السنوية للرأس (حليب/لحم كجم)', type: 'number', min: 0, default: 200 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'الإيراد السنوي', type: 'number', min: 0, default: 120000 },
+            { name: 'feedCost', label: 'تكلفة العلف', type: 'number', min: 0, default: 40000 },
+            { name: 'veterinaryCost', label: 'الرعاية البيطرية', type: 'number', min: 0, default: 12000 },
+            { name: 'storageCost', label: 'تكلفة التخزين/النقل', type: 'number', min: 0, default: 8000 },
+            { name: 'otherOperatingCosts', label: 'تكاليف تشغيلية أخرى', type: 'number', min: 0, default: 10000 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'environmentalRisk', label: 'المخاطر البيئية/الوبائية (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'marketVolatility', label: 'تقلب السوق (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'certificationValue', label: 'قيمة الشهادات/التسجيلات', type: 'number', min: 0, default: 15000 },
+            { name: 'brandPremium', label: 'علاوة المزرعة/العلامة (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.05 },
+            { name: 'waterRightsValue', label: 'قيمة حقوق المراعي/المياه', type: 'number', min: 0, default: 10000 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 6 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+            { name: 'automationPlan', label: 'خطة التحسين الوراثي/الأتمتة (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.2 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        naturalResourcesMining: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم الأصل', type: 'text', placeholder: 'منجم نموذجي', default: 'منجم نموذجي' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع المورد', type: 'select', options: [ { value: 'mineral', label: 'معدني' }, { value: 'quarry', label: 'محجر' }, { value: 'salt', label: 'ملح' }, { value: 'other', label: 'أخرى' } ], default: 'mineral' },
+            { name: 'reserveUnits', label: 'الاحتياطي (طن/وحدة)', type: 'number', min: 0, default: 100000 },
+            { name: 'operatingYears', label: 'سنوات التشغيل', type: 'number', min: 0, default: 5 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الحالة (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'reserveGrade', label: 'درجة الاحتياطي/الجودة (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.8 },
+            { name: 'environmentalComplianceScore', label: 'الالتزام البيئي (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'landCost', label: 'تكلفة الأرض/الترخيص', type: 'number', min: 0, default: 1000000 },
+            { name: 'developmentCost', label: 'تكاليف التطوير/الاستكشاف', type: 'number', min: 0, default: 2000000 },
+            { name: 'equipmentCost', label: 'تكلفة المعدات', type: 'number', min: 0, default: 1500000 },
+            { name: 'acquisitionCost', label: 'تكاليف الاكتساب', type: 'number', min: 0, default: 200000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'depletionRate', label: 'معدل الاستنزاف (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+            { name: 'accumulatedDepletion', label: 'الاستنزاف المتراكم', type: 'number', min: 0, default: 500000 },
+            { name: 'licenseExpiryYears', label: 'سنوات باقية من الترخيص', type: 'number', min: 1, max: 100, default: 15 },
+          ],
+          // 5. Market
+          [
+            { name: 'commodityPricePerUnit', label: 'السعر السوقي للوحدة', type: 'number', min: 0, default: 500 },
+            { name: 'extractionCostPerUnit', label: 'تكلفة الاستخراج للوحدة', type: 'number', min: 0, default: 250 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.03 },
+          ],
+          // 6. Income
+          [
+            { name: 'utilizationRate', label: 'معدل الاستغلال السنوي (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 },
+            { name: 'annualFixedCosts', label: 'التكاليف الثابتة السنوية', type: 'number', min: 0, default: 500000 },
+            { name: 'taxRate', label: 'معدل الضريبة (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+            { name: 'discountRate', label: 'معدل الخصم (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.1 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'environmentalRisk', label: 'المخاطر البيئية (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'marketVolatility', label: 'تقلب السلعة (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'geopoliticalRisk', label: 'المخاطر الجيوسياسية (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'licensesValue', label: 'قيمة التراخيص', type: 'number', min: 0, default: 300000 },
+            { name: 'strategicValue', label: 'القيمة الاستراتيجية', type: 'number', min: 0, default: 200000 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.07 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 18 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.03 },
+            { name: 'automationPlan', label: 'خطة الأتمتة (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.25 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 50 },
+          ],
+        ],
+        oilGas: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم الأصل', type: 'text', placeholder: 'حقل نفطي نموذجي', default: 'حقل نفطي نموذجي' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الظهران', default: 'الظهران' },
+            { name: 'assetType', label: 'نوع الأصل', type: 'select', options: [ { value: 'oilField', label: 'حقل نفط' }, { value: 'gasField', label: 'حقل غاز' }, { value: 'well', label: 'بئر' }, { value: 'pipeline', label: 'أنابيب' }, { value: 'other', label: 'أخرى' } ], default: 'oilField' },
+            { name: 'reserveUnits', label: 'الاحتياطي (برميل/مليون قدم مكعب)', type: 'number', min: 0, default: 5000000 },
+            { name: 'operatingYears', label: 'سنوات التشغيل', type: 'number', min: 0, default: 8 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الحالة (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'reserveGrade', label: 'جودة الاحتياطي (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.85 },
+            { name: 'environmentalComplianceScore', label: 'الالتزام البيئي (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'landCost', label: 'تكلفة الامتياز/الأرض', type: 'number', min: 0, default: 5000000 },
+            { name: 'developmentCost', label: 'تكاليف الحفر/التطوير', type: 'number', min: 0, default: 10000000 },
+            { name: 'equipmentCost', label: 'تكلفة المنشآت/الآبار', type: 'number', min: 0, default: 8000000 },
+            { name: 'acquisitionCost', label: 'تكاليف الاكتساب', type: 'number', min: 0, default: 1000000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'depletionRate', label: 'معدل الاستنزاف (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'accumulatedDepletion', label: 'الاستنزاف المتراكم', type: 'number', min: 0, default: 3000000 },
+            { name: 'licenseExpiryYears', label: 'سنوات باقية من الامتياز', type: 'number', min: 1, max: 100, default: 20 },
+          ],
+          // 5. Market
+          [
+            { name: 'commodityPricePerUnit', label: 'سعر النفط/الغاز للوحدة', type: 'number', min: 0, default: 75 },
+            { name: 'extractionCostPerUnit', label: 'تكلفة الاستخراج للوحدة', type: 'number', min: 0, default: 25 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.02 },
+          ],
+          // 6. Income
+          [
+            { name: 'utilizationRate', label: 'معدل الإنتاج السنوي (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.08 },
+            { name: 'annualFixedCosts', label: 'التكاليف الثابتة السنوية', type: 'number', min: 0, default: 2000000 },
+            { name: 'taxRate', label: 'معدل الضريبة (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+            { name: 'discountRate', label: 'معدل الخصم (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.1 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'environmentalRisk', label: 'المخاطر البيئية (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'marketVolatility', label: 'تقلب الأسعار (0-10)', type: 'number', min: 0, max: 10, default: 7 },
+            { name: 'geopoliticalRisk', label: 'المخاطر الجيوسياسية (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'licensesValue', label: 'قيمة تراخيص/امتيازات', type: 'number', min: 0, default: 1000000 },
+            { name: 'strategicValue', label: 'القيمة الاستراتيجية', type: 'number', min: 0, default: 2000000 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 18 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.02 },
+            { name: 'automationPlan', label: 'خطة الأتمتة/التقنية (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.3 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 50 },
+          ],
+        ],
+        infrastructure: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم الأصل', type: 'text', placeholder: 'طريق/برج اتصالات نموذجي', default: 'أصل بنية تحتية نموذجي' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع الأصل', type: 'select', options: [ { value: 'road', label: 'طريق' }, { value: 'bridge', label: 'جسر' }, { value: 'tower', label: 'برج اتصالات' }, { value: 'utility', label: 'مرافق عامة' }, { value: 'logistics', label: 'بنية تحتية لوجستية' }, { value: 'other', label: 'أخرى' } ], default: 'tower' },
+            { name: 'capacityUnits', label: 'السعة/الطول (كم/وحدة)', type: 'number', min: 0, default: 10 },
+            { name: 'operatingYears', label: 'سنوات التشغيل', type: 'number', min: 0, default: 5 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الحالة (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'utilizationRate', label: 'معدل الاستخدام (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.7 },
+            { name: 'environmentalComplianceScore', label: 'الالتزام البيئي (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'landCost', label: 'تكلفة الأرض/الحقوق', type: 'number', min: 0, default: 2000000 },
+            { name: 'developmentCost', label: 'تكاليف البناء/التطوير', type: 'number', min: 0, default: 5000000 },
+            { name: 'equipmentCost', label: 'تكلفة المعدات', type: 'number', min: 0, default: 1500000 },
+            { name: 'acquisitionCost', label: 'تكاليف الاكتساب', type: 'number', min: 0, default: 300000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'depletionRate', label: 'معدل الإهلاك/الاستنزاف (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.03 },
+            { name: 'accumulatedDepletion', label: 'الإهلاك المتراكم', type: 'number', min: 0, default: 800000 },
+            { name: 'licenseExpiryYears', label: 'سنوات باقية من العقد/الترخيص', type: 'number', min: 1, max: 100, default: 25 },
+          ],
+          // 5. Market
+          [
+            { name: 'tariffRevenuePerUnit', label: 'الإيراد للوحدة/رسوم الاستخدام', type: 'number', min: 0, default: 50000 },
+            { name: 'comparableTransactionValue', label: 'قيمة صفقات مقارنة', type: 'number', min: 0, default: 8000000 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualFixedCosts', label: 'التكاليف الثابتة السنوية', type: 'number', min: 0, default: 800000 },
+            { name: 'taxRate', label: 'معدل الضريبة (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+            { name: 'discountRate', label: 'معدل الخصم (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.08 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'environmentalRisk', label: 'المخاطر البيئية (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'marketVolatility', label: 'تقلب الطلب (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'geopoliticalRisk', label: 'المخاطر الجيوسياسية (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'licensesValue', label: 'قيمة العقود/التراخيص', type: 'number', min: 0, default: 500000 },
+            { name: 'strategicValue', label: 'القيمة الاستراتيجية', type: 'number', min: 0, default: 1000000 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 15 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+            { name: 'automationPlan', label: 'خطة الرقمنة/الصيانة (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.25 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+          ],
+        ],
+        intellectualProperty: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم المحفظة', type: 'text', placeholder: 'محفظة ملكية فكرية نموذجية', default: 'محفظة ملكية فكرية نموذجية' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع الملكية الفكرية', type: 'select', options: [ { value: 'portfolio', label: 'محفظة متنوعة' }, { value: 'tradeSecrets', label: 'أسرار تجارية' }, { value: 'industrialDesigns', label: 'تصاميم صناعية' }, { value: 'other', label: 'أخرى' } ], default: 'portfolio' },
+            { name: 'remainingLifeYears', label: 'العمر المتبقي (سنوات)', type: 'number', min: 1, max: 30, default: 10 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الحماية/القوة (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'legalProtectionScore', label: 'درجة الحماية القانونية (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'intangibleStrength', label: 'قوة الملكية (0-100)', type: 'number', min: 0, max: 100, default: 65 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'تكلفة التطوير/الشراء', type: 'number', min: 0, default: 1000000 },
+            { name: 'accumulatedAmortization', label: 'الإطفاء المتراكم', type: 'number', min: 0, default: 200000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'remainingLifeYears', label: 'العمر المتبقي (سنوات)', type: 'number', min: 1, max: 30, default: 10 },
+            { name: 'taxRate', label: 'معدل الضريبة (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'قيمة صفقات مقارنة', type: 'number', min: 0, default: 2500000 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'الإيرادات السنوية المرتبطة', type: 'number', min: 0, default: 2000000 },
+            { name: 'royaltyRate', label: 'معدل الاستحقاق (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+            { name: 'growthRate', label: 'معدل النمو (0-1)', type: 'number', min: -0.1, max: 0.2, step: 0.01, default: 0.04 },
+            { name: 'discountRate', label: 'معدل الخصم (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.12 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'marketVolatility', label: 'تقلب السوق (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'technologyObsolescenceRisk', label: 'مخاطر العطل التقني (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'قوة العلامة (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+            { name: 'marketShare', label: 'حصة السوق (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.08 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 12 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'innovationPipeline', label: 'خط الإنتاج الابتكاري (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.4 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        brandsTrademarks: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم العلامة', type: 'text', placeholder: 'علامة تجارية نموذجية', default: 'علامة تجارية نموذجية' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع العلامة', type: 'select', options: [ { value: 'brand', label: 'علامة تجارية' }, { value: 'trademark', label: 'علامة مسجلة' }, { value: 'domain', label: 'اسم نطاق' }, { value: 'other', label: 'أخرى' } ], default: 'brand' },
+            { name: 'remainingLifeYears', label: 'العمر المتبقي (سنوات)', type: 'number', min: 1, max: 30, default: 15 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الاعتراف (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'legalProtectionScore', label: 'درجة الحماية القانونية (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'brandStrength', label: 'قوة العلامة (0-100)', type: 'number', min: 0, max: 100, default: 70 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'تكلفة التطوير/الشراء', type: 'number', min: 0, default: 500000 },
+            { name: 'accumulatedAmortization', label: 'الإطفاء المتراكم', type: 'number', min: 0, default: 100000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'remainingLifeYears', label: 'العمر المتبقي (سنوات)', type: 'number', min: 1, max: 30, default: 15 },
+            { name: 'taxRate', label: 'معدل الضريبة (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'قيمة صفقات مقارنة', type: 'number', min: 0, default: 3000000 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'الإيرادات السنوية المرتبطة', type: 'number', min: 0, default: 3000000 },
+            { name: 'royaltyRate', label: 'معدل الاستحقاق (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.04 },
+            { name: 'growthRate', label: 'معدل النمو (0-1)', type: 'number', min: -0.1, max: 0.2, step: 0.01, default: 0.05 },
+            { name: 'discountRate', label: 'معدل الخصم (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.12 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'marketVolatility', label: 'تقلب السوق (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'technologyObsolescenceRisk', label: 'مخاطر العطل التقني (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'قوة العلامة (0-100)', type: 'number', min: 0, max: 100, default: 70 },
+            { name: 'marketShare', label: 'حصة السوق (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.15 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.08 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 10 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'innovationPipeline', label: 'خط الإنتاج الابتكاري (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.45 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+          ],
+        ],
+        patents: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم البراءة/المحفظة', type: 'text', placeholder: 'براءة اختراع نموذجية', default: 'براءة اختراع نموذجية' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع البراءة', type: 'select', options: [ { value: 'invention', label: 'اختراع' }, { value: 'utilityModel', label: 'نموذج منفعة' }, { value: 'design', label: 'تصميم صناعي' }, { value: 'portfolio', label: 'محفظة' } ], default: 'invention' },
+            { name: 'remainingLifeYears', label: 'العمر المتبقي (سنوات)', type: 'number', min: 1, max: 30, default: 12 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة القوة التقنية (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'legalProtectionScore', label: 'درجة الحماية القانونية (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'intangibleStrength', label: 'قوة البراءة (0-100)', type: 'number', min: 0, max: 100, default: 65 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'تكلفة التطوير/الشراء', type: 'number', min: 0, default: 400000 },
+            { name: 'accumulatedAmortization', label: 'الإطفاء المتراكم', type: 'number', min: 0, default: 80000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'remainingLifeYears', label: 'العمر المتبقي (سنوات)', type: 'number', min: 1, max: 30, default: 12 },
+            { name: 'taxRate', label: 'معدل الضريبة (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'قيمة صفقات مقارنة', type: 'number', min: 0, default: 1500000 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'الإيرادات السنوية المرتبطة', type: 'number', min: 0, default: 1500000 },
+            { name: 'royaltyRate', label: 'معدل الاستحقاق (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'growthRate', label: 'معدل النمو (0-1)', type: 'number', min: -0.1, max: 0.2, step: 0.01, default: 0.03 },
+            { name: 'discountRate', label: 'معدل الخصم (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.12 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'marketVolatility', label: 'تقلب السوق (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'technologyObsolescenceRisk', label: 'مخاطر العطل التقني (0-10)', type: 'number', min: 0, max: 10, default: 7 },
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'قوة التقنية (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+            { name: 'marketShare', label: 'حصة السوق (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.08 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.08 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 12 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+            { name: 'innovationPipeline', label: 'خط الإنتاج الابتكاري (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.4 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        copyrightsContent: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم المحتوى/المحفظة', type: 'text', placeholder: 'مكتبة محتوى نموذجية', default: 'مكتبة محتوى نموذجية' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع المحتوى', type: 'select', options: [ { value: 'books', label: 'كتب' }, { value: 'music', label: 'موسيقى' }, { value: 'video', label: 'فيديو/أفلام' }, { value: 'software', label: 'برمجيات' }, { value: 'database', label: 'قواعد بيانات' }, { value: 'other', label: 'أخرى' } ], default: 'video' },
+            { name: 'remainingLifeYears', label: 'العمر المتبقي (سنوات)', type: 'number', min: 1, max: 30, default: 10 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الجودة/الشهرة (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'legalProtectionScore', label: 'درجة الحماية القانونية (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'intangibleStrength', label: 'قوة المحتوى (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'تكلفة الإنتاج/الشراء', type: 'number', min: 0, default: 300000 },
+            { name: 'accumulatedAmortization', label: 'الإطفاء المتراكم', type: 'number', min: 0, default: 60000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'remainingLifeYears', label: 'العمر المتبقي (سنوات)', type: 'number', min: 1, max: 30, default: 10 },
+            { name: 'taxRate', label: 'معدل الضريبة (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'قيمة صفقات مقارنة', type: 'number', min: 0, default: 800000 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'الإيرادات السنوية من المحتوى', type: 'number', min: 0, default: 600000 },
+            { name: 'royaltyRate', label: 'معدل الاستحقاق (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.07 },
+            { name: 'growthRate', label: 'معدل النمو (0-1)', type: 'number', min: -0.1, max: 0.2, step: 0.01, default: 0.04 },
+            { name: 'discountRate', label: 'معدل الخصم (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.12 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'marketVolatility', label: 'تقلب السوق (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'technologyObsolescenceRisk', label: 'مخاطر العطل التقني (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'قوة العلامة (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+            { name: 'marketShare', label: 'حصة السوق (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.08 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.08 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 10 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'innovationPipeline', label: 'خط الإنتاج الابتكاري (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.35 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        franchises: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم الامتياز', type: 'text', placeholder: 'امتياز تجاري نموذجي', default: 'امتياز تجاري نموذجي' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع الامتياز', type: 'select', options: [ { value: 'restaurant', label: 'مطاعم' }, { value: 'retail', label: 'تجزئة' }, { value: 'service', label: 'خدمات' }, { value: 'education', label: 'تعليم' }, { value: 'healthcare', label: 'صحة' }, { value: 'other', label: 'أخرى' } ], default: 'restaurant' },
+            { name: 'remainingLifeYears', label: 'العمر المتبقي (سنوات)', type: 'number', min: 1, max: 30, default: 10 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة أداء الامتياز (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'legalProtectionScore', label: 'قوة اتفاقية الامتياز (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'intangibleStrength', label: 'قوة العلامة المانحة (0-100)', type: 'number', min: 0, max: 100, default: 70 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'رسوم الامتياز الأولية', type: 'number', min: 0, default: 400000 },
+            { name: 'accumulatedAmortization', label: 'الإطفاء المتراكم', type: 'number', min: 0, default: 80000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'remainingLifeYears', label: 'العمر المتبقي (سنوات)', type: 'number', min: 1, max: 30, default: 10 },
+            { name: 'taxRate', label: 'معدل الضريبة (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'قيمة صفقات مقارنة', type: 'number', min: 0, default: 1200000 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'إيرادات الامتياز السنوية', type: 'number', min: 0, default: 1500000 },
+            { name: 'royaltyRate', label: 'نسبة الامتياز (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'growthRate', label: 'معدل النمو (0-1)', type: 'number', min: -0.1, max: 0.2, step: 0.01, default: 0.05 },
+            { name: 'discountRate', label: 'معدل الخصم (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.12 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'marketVolatility', label: 'تقلب السوق (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'technologyObsolescenceRisk', label: 'مخاطر العطل التقني (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'قوة العلامة المانحة (0-100)', type: 'number', min: 0, max: 100, default: 75 },
+            { name: 'marketShare', label: 'حصة السوق (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.07 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 9 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'innovationPipeline', label: 'خط التوسع الجغرافي (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.4 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+          ],
+        ],
+        licensesPermits: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم الترخيص/التصريح', type: 'text', placeholder: 'ترخيص نموذجي', default: 'ترخيص نموذجي' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع الترخيص', type: 'select', options: [ { value: 'commercial', label: 'تجاري' }, { value: 'industrial', label: 'صناعي' }, { value: 'telecom', label: 'اتصالات' }, { value: 'healthcare', label: 'صحي' }, { value: 'financial', label: 'مالي' }, { value: 'other', label: 'أخرى' } ], default: 'commercial' },
+            { name: 'remainingLifeYears', label: 'العمر المتبقي (سنوات)', type: 'number', min: 1, max: 30, default: 8 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة صلاحية الترخيص (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'legalProtectionScore', label: 'درجة الحماية القانونية (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'intangibleStrength', label: 'ندرة/قوة الترخيص (0-100)', type: 'number', min: 0, max: 100, default: 65 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'تكلفة الحصول على الترخيص', type: 'number', min: 0, default: 250000 },
+            { name: 'accumulatedAmortization', label: 'الإطفاء المتراكم', type: 'number', min: 0, default: 50000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'remainingLifeYears', label: 'العمر المتبقي (سنوات)', type: 'number', min: 1, max: 30, default: 8 },
+            { name: 'taxRate', label: 'معدل الضريبة (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'قيمة صفقات مقارنة', type: 'number', min: 0, default: 600000 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'الإيرادات السنوية المرتبطة', type: 'number', min: 0, default: 800000 },
+            { name: 'royaltyRate', label: 'رسوم الترخيص (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.03 },
+            { name: 'growthRate', label: 'معدل النمو (0-1)', type: 'number', min: -0.1, max: 0.2, step: 0.01, default: 0.03 },
+            { name: 'discountRate', label: 'معدل الخصم (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.1 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'marketVolatility', label: 'تقلب السوق (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'technologyObsolescenceRisk', label: 'مخاطر العطل التقني (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'قيمة الترخيص للعلامة (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+            { name: 'marketShare', label: 'حصة السوق (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 8 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+            { name: 'innovationPipeline', label: 'فرص التجديد/التوسع (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.3 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        financialAssets: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم الأصل', type: 'text', placeholder: 'محفظة أسهم نموذجية', default: 'محفظة أسهم نموذجية' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع الأصل المالي', type: 'select', options: [ { value: 'stocks', label: 'أسهم' }, { value: 'bonds', label: 'سندات' }, { value: 'etf', label: 'صناديق متداولة' }, { value: 'loan', label: 'قرض/دين' }, { value: 'portfolio', label: 'محفظة مختلطة' } ], default: 'stocks' },
+            { name: 'quantityUnits', label: 'الكمية/عدد الوحدات', type: 'number', min: 0, step: 0.01, default: 1000 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الجودة (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'liquidityScore', label: 'درجة السيولة (0-10)', type: 'number', min: 0, max: 10, default: 8 },
+            { name: 'custodyScore', label: 'درجة أمن الحفظ (1-10)', type: 'number', min: 1, max: 10, default: 9 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'التكلفة الأصلية', type: 'number', min: 0, default: 250000 },
+            { name: 'storageCost', label: 'رسوم الحفظ السنوية', type: 'number', min: 0, default: 1000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'holdingPeriodYears', label: 'فترة الاحتفاظ (سنوات)', type: 'number', min: 0, default: 2 },
+          ],
+          // 5. Market
+          [
+            { name: 'marketPricePerUnit', label: 'السعر السوقي للوحدة', type: 'number', min: 0, step: 0.01, default: 250 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'dividendYield', label: 'عائد التوزيعات (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.03 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+            { name: 'marketVolatility', label: 'تقلب السوق (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'currencyRisk', label: 'مخاطر العملة (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandValue', label: 'قيمة الاستراتيجية/العلامة', type: 'number', min: 0, default: 0 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.015 },
+            { name: 'buyerPoolDepth', label: 'عمق السيولة (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 1 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        cryptoDigital: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم الأصل الرقمي', type: 'text', placeholder: 'بيتكوين/محفظة رقمية', default: 'أصل رقمي نموذجي' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع الأصل الرقمي', type: 'select', options: [ { value: 'bitcoin', label: 'بيتكوين' }, { value: 'ethereum', label: 'إيثيريوم' }, { value: 'altcoin', label: 'عملة بديلة' }, { value: 'nft', label: 'NFT' }, { value: 'token', label: 'رمز رقمي' }, { value: 'other', label: 'أخرى' } ], default: 'bitcoin' },
+            { name: 'quantityUnits', label: 'الكمية', type: 'number', min: 0, step: 1e-06, default: 1 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الجودة/الندرة (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'authenticationScore', label: 'درجة التحقق/الأمان (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'liquidityScore', label: 'درجة السيولة (0-10)', type: 'number', min: 0, max: 10, default: 7 },
+            { name: 'custodyScore', label: 'درجة أمن الحفظ (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'التكلفة الأصلية', type: 'number', min: 0, default: 100000 },
+            { name: 'storageCost', label: 'رسوم الحفظ السنوية', type: 'number', min: 0, default: 500 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'holdingPeriodYears', label: 'فترة الاحتفاظ (سنوات)', type: 'number', min: 0, default: 1 },
+          ],
+          // 5. Market
+          [
+            { name: 'marketPricePerUnit', label: 'السعر السوقي', type: 'number', min: 0, step: 0.01, default: 250000 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'stakingYield', label: 'عائد Staking (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.04 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'marketVolatility', label: 'التقلب (0-10)', type: 'number', min: 0, max: 10, default: 8 },
+            { name: 'currencyRisk', label: 'مخاطر العملة (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandValue', label: 'قيمة الندرة/المجتمع', type: 'number', min: 0, default: 0 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.025 },
+            { name: 'buyerPoolDepth', label: 'عمق السيولة (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 1 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 45 },
+          ],
+        ],
+        artCollectibles: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم العمل/المجموعة', type: 'text', placeholder: 'عمل فني نموذجي', default: 'عمل فني نموذجي' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع الأصل', type: 'select', options: [ { value: 'painting', label: 'لوحة' }, { value: 'sculpture', label: 'نحت' }, { value: 'antique', label: 'تحفة' }, { value: 'watch', label: 'ساعة فاخرة' }, { value: 'collectible', label: 'قطعة نادرة' }, { value: 'other', label: 'أخرى' } ], default: 'painting' },
+            { name: 'yearAcquired', label: 'سنة الاقتناء', type: 'number', min: 1900, max: 2030, default: 2018 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'درجة الحالة (1-10)', type: 'number', min: 1, max: 10, default: 9 },
+            { name: 'authenticationScore', label: 'درجة المصداقية/التوثيق (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'rarityScore', label: 'درجة الندرة (0-100)', type: 'number', min: 0, max: 100, default: 70 },
+            { name: 'provenanceScore', label: 'درجة الأصالة/المصدر (0-100)', type: 'number', min: 0, max: 100, default: 75 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'سعر الشراء', type: 'number', min: 0, default: 500000 },
+            { name: 'storageCost', label: 'تكلفة التخزين/التأمين السنوية', type: 'number', min: 0, default: 5000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'holdingPeriodYears', label: 'فترة الاحتفاظ (سنوات)', type: 'number', min: 0, default: 5 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'قيمة صفقات مقارنة', type: 'number', min: 0, default: 800000 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+          ],
+          // 6. Income
+          [
+            { name: 'dividendYield', label: 'عائد الإيجار/عرض (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.0 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+            { name: 'marketVolatility', label: 'تقلب السوق (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'currencyRisk', label: 'مخاطر العملة (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandValue', label: 'قيمة الفنان/العلامة', type: 'number', min: 0, default: 0 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.1 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 12 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 50 },
+          ],
+        ],
+        softwareTechnology: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'اسم المنتج/الشركة', type: 'text', placeholder: 'منتج SaaS نموذجي', default: 'منتج SaaS نموذجي' },
+            { name: 'country', label: 'الدولة', type: 'text', placeholder: 'السعودية', default: 'السعودية' },
+            { name: 'city', label: 'المدينة', type: 'text', placeholder: 'الرياض', default: 'الرياض' },
+            { name: 'assetType', label: 'نوع التقنية', type: 'select', options: [ { value: 'saas', label: 'SaaS' }, { value: 'mobileApp', label: 'تطبيق جوال' }, { value: 'platform', label: 'منصة' }, { value: 'ai', label: 'AI/تعلم آلي' }, { value: 'other', label: 'أخرى' } ], default: 'saas' },
+            { name: 'customerCount', label: 'عدد العملاء', type: 'number', min: 0, default: 500 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'جودة المنتج (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'techMoatScore', label: 'درجة الحماية التقنية (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'churnRate', label: 'معدل الرحيل (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'developmentCost', label: 'تكلفة التطوير', type: 'number', min: 0, default: 800000 },
+            { name: 'accumulatedAmortization', label: 'الإطفاء المتراكم', type: 'number', min: 0, default: 150000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'annualRecurringRevenue', label: 'ARR (الإيراد المتكرر السنوي)', type: 'number', min: 0, default: 1200000 },
+            { name: 'averageRevenuePerUser', label: 'متوسط الإيراد للعميل (ARPU)', type: 'number', min: 0, default: 200 },
+            { name: 'grossMargin', label: 'هامش الربح الإجمالي (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.75 },
+          ],
+          // 5. Market
+          [
+            { name: 'revenueMultiple', label: 'مضاعف الإيرادات', type: 'number', min: 0, step: 0.5, default: 8 },
+            { name: 'demandIndex', label: 'مؤشر الطلب (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'مؤشر العرض (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'معدل نمو السوق (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualOpex', label: 'المصاريف التشغيلية السنوية', type: 'number', min: 0, default: 600000 },
+            { name: 'growthRate', label: 'معدل نمو الإيرادات (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.2 },
+            { name: 'taxRate', label: 'معدل الضريبة (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+            { name: 'discountRate', label: 'معدل الخصم (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.15 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'المخاطر التنظيمية (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'marketVolatility', label: 'تقلب السوق (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'technologyObsolescenceRisk', label: 'مخاطر العطل التقني (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'concentrationRisk', label: 'مخاطر التركيز (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'lifetimeValue', label: 'قيمة العميل مدى الحياة (LTV)', type: 'number', min: 0, default: 1200 },
+            { name: 'customerAcquisitionCost', label: 'تكلفة اكتساب العميل (CAC)', type: 'number', min: 0, default: 200 },
+            { name: 'proprietaryTechnology', label: 'التقنية الملكية (0-100)', type: 'number', min: 0, max: 100, default: 70 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'نسبة تكاليف البيع (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+            { name: 'buyerPoolDepth', label: 'عمق سوق المشترين (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'liquidationTimeMonths', label: 'مدة التصفية (شهر)', type: 'number', min: 1, max: 36, default: 9 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'terminalGrowth', label: 'نمو النهاية (0-1)', type: 'number', min: 0, max: 0.1, step: 0.01, default: 0.03 },
+            { name: 'projectionYears', label: 'سنوات الإسقاط', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'esgScore', label: 'درجة الاستدامة ESG (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+          ],
+        ],
       }
     },
     en: {
@@ -1683,7 +2660,984 @@
             { name: 'automationPlan', label: 'Improvement Plan (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.2 },
             { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 45 }
           ]
-        ]
+        ],
+        agricultureFarms: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'مزرعة نموذجية' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'crop', label: 'Field Crops' }, { value: 'orchard', label: 'Orchard' }, { value: 'greenhouse', label: 'Greenhouse' }, { value: 'livestock', label: 'Livestock Farming' }, { value: 'mixed', label: 'Mixed' } ], default: 'crop' },
+            { name: 'areaUnits', label: 'Area (hectares)', type: 'number', min: 0.1, step: 0.1, default: 10 },
+            { name: 'yearAcquired', label: 'Year Acquired', type: 'number', min: 1900, max: 2030, default: 2018 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'qualityScore', label: 'Quality Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'landQualityScore', label: 'Land Quality (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'waterAvailabilityScore', label: 'Water Availability (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'Purchase Price', type: 'number', min: 0, default: 500000 },
+            { name: 'developmentCost', label: 'Development Cost', type: 'number', min: 0, default: 200000 },
+            { name: 'equipmentCost', label: 'Equipment Cost', type: 'number', min: 0, default: 100000 },
+            { name: 'installationCost', label: 'Installation Cost', type: 'number', min: 0, default: 30000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'usefulLifeYears', label: 'Useful Life (years)', type: 'number', min: 1, default: 20 },
+            { name: 'accumulatedDepreciation', label: 'Accumulated Depreciation', type: 'number', min: 0, default: 80000 },
+            { name: 'biologicalAgeYears', label: 'Biological Age (years)', type: 'number', min: 0, default: 5 },
+            { name: 'mortalityRate', label: 'Mortality Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.05 },
+          ],
+          // 5. Market
+          [
+            { name: 'yieldPerUnit', label: 'Yield per Unit', type: 'number', min: 0, step: 0.1, default: 5 },
+            { name: 'marketPricePerUnit', label: 'Market Price per Unit', type: 'number', min: 0, default: 1000 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.03 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'Annual Revenue', type: 'number', min: 0, default: 100000 },
+            { name: 'feedCost', label: 'Feed Cost', type: 'number', min: 0, default: 20000 },
+            { name: 'veterinaryCost', label: 'Veterinary Cost', type: 'number', min: 0, default: 10000 },
+            { name: 'storageCost', label: 'Storage Cost', type: 'number', min: 0, default: 8000 },
+            { name: 'otherOperatingCosts', label: 'Other Operating Costs', type: 'number', min: 0, default: 15000 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'environmentalRisk', label: 'Environmental Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'certificationValue', label: 'Certifications Value', type: 'number', min: 0, default: 20000 },
+            { name: 'brandPremium', label: 'Brand Premium (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.05 },
+            { name: 'waterRightsValue', label: 'Water Rights Value', type: 'number', min: 0, default: 30000 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 12 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.03 },
+            { name: 'automationPlan', label: 'Automation Plan (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.2 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        livestock: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'قطيع نموذجي' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'cattle', label: 'Cattle' }, { value: 'sheep', label: 'Sheep' }, { value: 'poultry', label: 'Poultry' }, { value: 'camels', label: 'Camels' }, { value: 'other', label: 'Other' } ], default: 'cattle' },
+            { name: 'quantityUnits', label: 'Quantity', type: 'number', min: 1, default: 100 },
+            { name: 'yearAcquired', label: 'Year Acquired', type: 'number', min: 1900, max: 2030, default: 2020 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'healthScore', label: 'Health Score (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'qualityScore', label: 'Quality Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'biologicalAgeYears', label: 'Biological Age (years)', type: 'number', min: 0, default: 3 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'Purchase Price', type: 'number', min: 0, default: 300000 },
+            { name: 'developmentCost', label: 'Development Cost', type: 'number', min: 0, default: 80000 },
+            { name: 'equipmentCost', label: 'Equipment Cost', type: 'number', min: 0, default: 30000 },
+            { name: 'installationCost', label: 'Installation Cost', type: 'number', min: 0, default: 10000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'usefulLifeYears', label: 'Useful Life (years)', type: 'number', min: 1, default: 8 },
+            { name: 'accumulatedDepreciation', label: 'Accumulated Depreciation', type: 'number', min: 0, default: 50000 },
+            { name: 'mortalityRate', label: 'Mortality Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.05 },
+          ],
+          // 5. Market
+          [
+            { name: 'marketPricePerUnit', label: 'Market Price per Unit', type: 'number', min: 0, default: 3500 },
+            { name: 'yieldPerUnit', label: 'Yield per Unit', type: 'number', min: 0, default: 200 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'Annual Revenue', type: 'number', min: 0, default: 120000 },
+            { name: 'feedCost', label: 'Feed Cost', type: 'number', min: 0, default: 40000 },
+            { name: 'veterinaryCost', label: 'Veterinary Cost', type: 'number', min: 0, default: 12000 },
+            { name: 'storageCost', label: 'Storage Cost', type: 'number', min: 0, default: 8000 },
+            { name: 'otherOperatingCosts', label: 'Other Operating Costs', type: 'number', min: 0, default: 10000 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'environmentalRisk', label: 'Environmental Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'certificationValue', label: 'Certifications Value', type: 'number', min: 0, default: 15000 },
+            { name: 'brandPremium', label: 'Brand Premium (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.05 },
+            { name: 'waterRightsValue', label: 'Water Rights Value', type: 'number', min: 0, default: 10000 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 6 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+            { name: 'automationPlan', label: 'Automation Plan (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.2 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        naturalResourcesMining: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'منجم نموذجي' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'mineral', label: 'Mineral' }, { value: 'quarry', label: 'Quarry' }, { value: 'salt', label: 'Salt' }, { value: 'other', label: 'Other' } ], default: 'mineral' },
+            { name: 'reserveUnits', label: 'Reserve Units', type: 'number', min: 0, default: 100000 },
+            { name: 'operatingYears', label: 'Operating Years', type: 'number', min: 0, default: 5 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'reserveGrade', label: 'Reserve Grade (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.8 },
+            { name: 'environmentalComplianceScore', label: 'Environmental Compliance (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'landCost', label: 'Land Cost', type: 'number', min: 0, default: 1000000 },
+            { name: 'developmentCost', label: 'Development Cost', type: 'number', min: 0, default: 2000000 },
+            { name: 'equipmentCost', label: 'Equipment Cost', type: 'number', min: 0, default: 1500000 },
+            { name: 'acquisitionCost', label: 'Acquisition Cost', type: 'number', min: 0, default: 200000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'depletionRate', label: 'Depletion Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+            { name: 'accumulatedDepletion', label: 'Accumulated Depletion', type: 'number', min: 0, default: 500000 },
+            { name: 'licenseExpiryYears', label: 'License Remaining (years)', type: 'number', min: 1, max: 100, default: 15 },
+          ],
+          // 5. Market
+          [
+            { name: 'commodityPricePerUnit', label: 'Commodity Price per Unit', type: 'number', min: 0, default: 500 },
+            { name: 'extractionCostPerUnit', label: 'Extraction Cost per Unit', type: 'number', min: 0, default: 250 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.03 },
+          ],
+          // 6. Income
+          [
+            { name: 'utilizationRate', label: 'Utilization Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 },
+            { name: 'annualFixedCosts', label: 'Annual Fixed Costs', type: 'number', min: 0, default: 500000 },
+            { name: 'taxRate', label: 'Tax Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+            { name: 'discountRate', label: 'Discount Rate (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.1 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'environmentalRisk', label: 'Environmental Risk (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'geopoliticalRisk', label: 'Geopolitical Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'licensesValue', label: 'Licenses Value', type: 'number', min: 0, default: 300000 },
+            { name: 'strategicValue', label: 'Strategic Value', type: 'number', min: 0, default: 200000 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.07 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 18 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.03 },
+            { name: 'automationPlan', label: 'Automation Plan (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.25 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 50 },
+          ],
+        ],
+        oilGas: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'حقل نفطي نموذجي' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الظهران' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'oilField', label: 'Oil Field' }, { value: 'gasField', label: 'Gas Field' }, { value: 'well', label: 'Well' }, { value: 'pipeline', label: 'Pipeline' }, { value: 'other', label: 'Other' } ], default: 'oilField' },
+            { name: 'reserveUnits', label: 'Reserve Units', type: 'number', min: 0, default: 5000000 },
+            { name: 'operatingYears', label: 'Operating Years', type: 'number', min: 0, default: 8 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'reserveGrade', label: 'Reserve Grade (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.85 },
+            { name: 'environmentalComplianceScore', label: 'Environmental Compliance (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'landCost', label: 'Land Cost', type: 'number', min: 0, default: 5000000 },
+            { name: 'developmentCost', label: 'Development Cost', type: 'number', min: 0, default: 10000000 },
+            { name: 'equipmentCost', label: 'Equipment Cost', type: 'number', min: 0, default: 8000000 },
+            { name: 'acquisitionCost', label: 'Acquisition Cost', type: 'number', min: 0, default: 1000000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'depletionRate', label: 'Depletion Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'accumulatedDepletion', label: 'Accumulated Depletion', type: 'number', min: 0, default: 3000000 },
+            { name: 'licenseExpiryYears', label: 'License Remaining (years)', type: 'number', min: 1, max: 100, default: 20 },
+          ],
+          // 5. Market
+          [
+            { name: 'commodityPricePerUnit', label: 'Commodity Price per Unit', type: 'number', min: 0, default: 75 },
+            { name: 'extractionCostPerUnit', label: 'Extraction Cost per Unit', type: 'number', min: 0, default: 25 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.02 },
+          ],
+          // 6. Income
+          [
+            { name: 'utilizationRate', label: 'Utilization Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.08 },
+            { name: 'annualFixedCosts', label: 'Annual Fixed Costs', type: 'number', min: 0, default: 2000000 },
+            { name: 'taxRate', label: 'Tax Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+            { name: 'discountRate', label: 'Discount Rate (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.1 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'environmentalRisk', label: 'Environmental Risk (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 7 },
+            { name: 'geopoliticalRisk', label: 'Geopolitical Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'licensesValue', label: 'Licenses Value', type: 'number', min: 0, default: 1000000 },
+            { name: 'strategicValue', label: 'Strategic Value', type: 'number', min: 0, default: 2000000 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 18 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.02 },
+            { name: 'automationPlan', label: 'Automation Plan (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.3 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 50 },
+          ],
+        ],
+        infrastructure: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'أصل بنية تحتية نموذجي' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'road', label: 'Road' }, { value: 'bridge', label: 'Bridge' }, { value: 'tower', label: 'Telecom Tower' }, { value: 'utility', label: 'Utility' }, { value: 'logistics', label: 'Logistics Infrastructure' }, { value: 'other', label: 'Other' } ], default: 'tower' },
+            { name: 'capacityUnits', label: 'Capacity/Length', type: 'number', min: 0, default: 10 },
+            { name: 'operatingYears', label: 'Operating Years', type: 'number', min: 0, default: 5 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'utilizationRate', label: 'Utilization Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.7 },
+            { name: 'environmentalComplianceScore', label: 'Environmental Compliance (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'landCost', label: 'Land Cost', type: 'number', min: 0, default: 2000000 },
+            { name: 'developmentCost', label: 'Development Cost', type: 'number', min: 0, default: 5000000 },
+            { name: 'equipmentCost', label: 'Equipment Cost', type: 'number', min: 0, default: 1500000 },
+            { name: 'acquisitionCost', label: 'Acquisition Cost', type: 'number', min: 0, default: 300000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'depletionRate', label: 'Depletion Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.03 },
+            { name: 'accumulatedDepletion', label: 'Accumulated Depletion', type: 'number', min: 0, default: 800000 },
+            { name: 'licenseExpiryYears', label: 'License Remaining (years)', type: 'number', min: 1, max: 100, default: 25 },
+          ],
+          // 5. Market
+          [
+            { name: 'tariffRevenuePerUnit', label: 'Tariff Revenue per Unit', type: 'number', min: 0, default: 50000 },
+            { name: 'comparableTransactionValue', label: 'Comparable Transaction Value', type: 'number', min: 0, default: 8000000 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualFixedCosts', label: 'Annual Fixed Costs', type: 'number', min: 0, default: 800000 },
+            { name: 'taxRate', label: 'Tax Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+            { name: 'discountRate', label: 'Discount Rate (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.08 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'environmentalRisk', label: 'Environmental Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'geopoliticalRisk', label: 'Geopolitical Risk (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'licensesValue', label: 'Licenses Value', type: 'number', min: 0, default: 500000 },
+            { name: 'strategicValue', label: 'Strategic Value', type: 'number', min: 0, default: 1000000 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 15 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+            { name: 'automationPlan', label: 'Automation Plan (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.25 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+          ],
+        ],
+        intellectualProperty: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'محفظة ملكية فكرية نموذجية' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'portfolio', label: 'Portfolio' }, { value: 'tradeSecrets', label: 'Trade Secrets' }, { value: 'industrialDesigns', label: 'Industrial Designs' }, { value: 'other', label: 'Other' } ], default: 'portfolio' },
+            { name: 'remainingLifeYears', label: 'Remaining Life (years)', type: 'number', min: 1, max: 30, default: 10 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'legalProtectionScore', label: 'درجة الحماية القانونية (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'intangibleStrength', label: 'Intangible Strength (0-100)', type: 'number', min: 0, max: 100, default: 65 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'Purchase Price', type: 'number', min: 0, default: 1000000 },
+            { name: 'accumulatedAmortization', label: 'Accumulated Amortization', type: 'number', min: 0, default: 200000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'remainingLifeYears', label: 'Remaining Life (years)', type: 'number', min: 1, max: 30, default: 10 },
+            { name: 'taxRate', label: 'Tax Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'Comparable Transaction Value', type: 'number', min: 0, default: 2500000 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'Annual Revenue', type: 'number', min: 0, default: 2000000 },
+            { name: 'royaltyRate', label: 'Royalty Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+            { name: 'growthRate', label: 'Growth Rate (0-1)', type: 'number', min: -0.1, max: 0.2, step: 0.01, default: 0.04 },
+            { name: 'discountRate', label: 'Discount Rate (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.12 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'technologyObsolescenceRisk', label: 'Technology Obsolescence Risk (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'Brand Strength (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+            { name: 'marketShare', label: 'Market Share (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.08 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 12 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'innovationPipeline', label: 'Innovation Pipeline (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.4 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        brandsTrademarks: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'علامة تجارية نموذجية' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'brand', label: 'Brand' }, { value: 'trademark', label: 'Trademark' }, { value: 'domain', label: 'Domain' }, { value: 'other', label: 'Other' } ], default: 'brand' },
+            { name: 'remainingLifeYears', label: 'Remaining Life (years)', type: 'number', min: 1, max: 30, default: 15 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'legalProtectionScore', label: 'درجة الحماية القانونية (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'brandStrength', label: 'Brand Strength (0-100)', type: 'number', min: 0, max: 100, default: 70 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'Purchase Price', type: 'number', min: 0, default: 500000 },
+            { name: 'accumulatedAmortization', label: 'Accumulated Amortization', type: 'number', min: 0, default: 100000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'remainingLifeYears', label: 'Remaining Life (years)', type: 'number', min: 1, max: 30, default: 15 },
+            { name: 'taxRate', label: 'Tax Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'Comparable Transaction Value', type: 'number', min: 0, default: 3000000 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'Annual Revenue', type: 'number', min: 0, default: 3000000 },
+            { name: 'royaltyRate', label: 'Royalty Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.04 },
+            { name: 'growthRate', label: 'Growth Rate (0-1)', type: 'number', min: -0.1, max: 0.2, step: 0.01, default: 0.05 },
+            { name: 'discountRate', label: 'Discount Rate (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.12 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'technologyObsolescenceRisk', label: 'Technology Obsolescence Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'Brand Strength (0-100)', type: 'number', min: 0, max: 100, default: 70 },
+            { name: 'marketShare', label: 'Market Share (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.15 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.08 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 10 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'innovationPipeline', label: 'Innovation Pipeline (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.45 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+          ],
+        ],
+        patents: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'براءة اختراع نموذجية' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'invention', label: 'Invention' }, { value: 'utilityModel', label: 'Utility Model' }, { value: 'design', label: 'Design' }, { value: 'portfolio', label: 'Portfolio' } ], default: 'invention' },
+            { name: 'remainingLifeYears', label: 'Remaining Life (years)', type: 'number', min: 1, max: 30, default: 12 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'legalProtectionScore', label: 'درجة الحماية القانونية (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'intangibleStrength', label: 'Intangible Strength (0-100)', type: 'number', min: 0, max: 100, default: 65 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'Purchase Price', type: 'number', min: 0, default: 400000 },
+            { name: 'accumulatedAmortization', label: 'Accumulated Amortization', type: 'number', min: 0, default: 80000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'remainingLifeYears', label: 'Remaining Life (years)', type: 'number', min: 1, max: 30, default: 12 },
+            { name: 'taxRate', label: 'Tax Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'Comparable Transaction Value', type: 'number', min: 0, default: 1500000 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'Annual Revenue', type: 'number', min: 0, default: 1500000 },
+            { name: 'royaltyRate', label: 'Royalty Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'growthRate', label: 'Growth Rate (0-1)', type: 'number', min: -0.1, max: 0.2, step: 0.01, default: 0.03 },
+            { name: 'discountRate', label: 'Discount Rate (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.12 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'technologyObsolescenceRisk', label: 'Technology Obsolescence Risk (0-10)', type: 'number', min: 0, max: 10, default: 7 },
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'Brand Strength (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+            { name: 'marketShare', label: 'Market Share (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.08 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.08 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 12 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+            { name: 'innovationPipeline', label: 'Innovation Pipeline (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.4 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        copyrightsContent: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'مكتبة محتوى نموذجية' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'books', label: 'Books' }, { value: 'music', label: 'Music' }, { value: 'video', label: 'Video/Film' }, { value: 'software', label: 'Software' }, { value: 'database', label: 'Database' }, { value: 'other', label: 'Other' } ], default: 'video' },
+            { name: 'remainingLifeYears', label: 'Remaining Life (years)', type: 'number', min: 1, max: 30, default: 10 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'legalProtectionScore', label: 'درجة الحماية القانونية (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'intangibleStrength', label: 'Intangible Strength (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'Purchase Price', type: 'number', min: 0, default: 300000 },
+            { name: 'accumulatedAmortization', label: 'Accumulated Amortization', type: 'number', min: 0, default: 60000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'remainingLifeYears', label: 'Remaining Life (years)', type: 'number', min: 1, max: 30, default: 10 },
+            { name: 'taxRate', label: 'Tax Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'Comparable Transaction Value', type: 'number', min: 0, default: 800000 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'Annual Revenue', type: 'number', min: 0, default: 600000 },
+            { name: 'royaltyRate', label: 'Royalty Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.07 },
+            { name: 'growthRate', label: 'Growth Rate (0-1)', type: 'number', min: -0.1, max: 0.2, step: 0.01, default: 0.04 },
+            { name: 'discountRate', label: 'Discount Rate (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.12 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'technologyObsolescenceRisk', label: 'Technology Obsolescence Risk (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'Brand Strength (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+            { name: 'marketShare', label: 'Market Share (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.08 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.08 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 10 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'innovationPipeline', label: 'Innovation Pipeline (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.35 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        franchises: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'امتياز تجاري نموذجي' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'restaurant', label: 'Restaurant' }, { value: 'retail', label: 'Retail' }, { value: 'service', label: 'Service' }, { value: 'education', label: 'Education' }, { value: 'healthcare', label: 'Healthcare' }, { value: 'other', label: 'Other' } ], default: 'restaurant' },
+            { name: 'remainingLifeYears', label: 'Remaining Life (years)', type: 'number', min: 1, max: 30, default: 10 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'legalProtectionScore', label: 'قوة اتفاقية الامتياز (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'intangibleStrength', label: 'Intangible Strength (0-100)', type: 'number', min: 0, max: 100, default: 70 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'Purchase Price', type: 'number', min: 0, default: 400000 },
+            { name: 'accumulatedAmortization', label: 'Accumulated Amortization', type: 'number', min: 0, default: 80000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'remainingLifeYears', label: 'Remaining Life (years)', type: 'number', min: 1, max: 30, default: 10 },
+            { name: 'taxRate', label: 'Tax Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'Comparable Transaction Value', type: 'number', min: 0, default: 1200000 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'Annual Revenue', type: 'number', min: 0, default: 1500000 },
+            { name: 'royaltyRate', label: 'Royalty Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'growthRate', label: 'Growth Rate (0-1)', type: 'number', min: -0.1, max: 0.2, step: 0.01, default: 0.05 },
+            { name: 'discountRate', label: 'Discount Rate (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.12 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'technologyObsolescenceRisk', label: 'Technology Obsolescence Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'Brand Strength (0-100)', type: 'number', min: 0, max: 100, default: 75 },
+            { name: 'marketShare', label: 'Market Share (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.07 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 9 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'innovationPipeline', label: 'Innovation Pipeline (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.4 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+          ],
+        ],
+        licensesPermits: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'ترخيص نموذجي' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'commercial', label: 'Commercial' }, { value: 'industrial', label: 'Industrial' }, { value: 'telecom', label: 'Telecom' }, { value: 'healthcare', label: 'Healthcare' }, { value: 'financial', label: 'Financial' }, { value: 'other', label: 'Other' } ], default: 'commercial' },
+            { name: 'remainingLifeYears', label: 'Remaining Life (years)', type: 'number', min: 1, max: 30, default: 8 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'legalProtectionScore', label: 'درجة الحماية القانونية (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'intangibleStrength', label: 'Intangible Strength (0-100)', type: 'number', min: 0, max: 100, default: 65 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'Purchase Price', type: 'number', min: 0, default: 250000 },
+            { name: 'accumulatedAmortization', label: 'Accumulated Amortization', type: 'number', min: 0, default: 50000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'remainingLifeYears', label: 'Remaining Life (years)', type: 'number', min: 1, max: 30, default: 8 },
+            { name: 'taxRate', label: 'Tax Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'Comparable Transaction Value', type: 'number', min: 0, default: 600000 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualRevenue', label: 'Annual Revenue', type: 'number', min: 0, default: 800000 },
+            { name: 'royaltyRate', label: 'Royalty Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.03 },
+            { name: 'growthRate', label: 'Growth Rate (0-1)', type: 'number', min: -0.1, max: 0.2, step: 0.01, default: 0.03 },
+            { name: 'discountRate', label: 'Discount Rate (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.1 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'technologyObsolescenceRisk', label: 'Technology Obsolescence Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandStrength', label: 'Brand Strength (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+            { name: 'marketShare', label: 'Market Share (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.1 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.06 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 8 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+            { name: 'innovationPipeline', label: 'Innovation Pipeline (0-1)', type: 'number', min: 0, max: 1, step: 0.05, default: 0.3 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        financialAssets: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'محفظة أسهم نموذجية' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'stocks', label: 'Stocks' }, { value: 'bonds', label: 'Bonds' }, { value: 'etf', label: 'ETF' }, { value: 'loan', label: 'Loan/Debt' }, { value: 'portfolio', label: 'Portfolio' } ], default: 'stocks' },
+            { name: 'quantityUnits', label: 'Quantity', type: 'number', min: 0, step: 0.01, default: 1000 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'liquidityScore', label: 'Liquidity Score (0-10)', type: 'number', min: 0, max: 10, default: 8 },
+            { name: 'custodyScore', label: 'Custody Score (1-10)', type: 'number', min: 1, max: 10, default: 9 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'Purchase Price', type: 'number', min: 0, default: 250000 },
+            { name: 'storageCost', label: 'Storage Cost', type: 'number', min: 0, default: 1000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'holdingPeriodYears', label: 'Holding Period (years)', type: 'number', min: 0, default: 2 },
+          ],
+          // 5. Market
+          [
+            { name: 'marketPricePerUnit', label: 'Market Price per Unit', type: 'number', min: 0, step: 0.01, default: 250 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'dividendYield', label: 'Dividend Yield (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.03 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'currencyRisk', label: 'Currency Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandValue', label: 'Brand/Strategic Value', type: 'number', min: 0, default: 0 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.015 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 1 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 55 },
+          ],
+        ],
+        cryptoDigital: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'أصل رقمي نموذجي' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'bitcoin', label: 'Bitcoin' }, { value: 'ethereum', label: 'Ethereum' }, { value: 'altcoin', label: 'Altcoin' }, { value: 'nft', label: 'NFT' }, { value: 'token', label: 'Token' }, { value: 'other', label: 'Other' } ], default: 'bitcoin' },
+            { name: 'quantityUnits', label: 'Quantity', type: 'number', min: 0, step: 1e-06, default: 1 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'authenticationScore', label: 'Authentication Score (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'liquidityScore', label: 'Liquidity Score (0-10)', type: 'number', min: 0, max: 10, default: 7 },
+            { name: 'custodyScore', label: 'Custody Score (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'Purchase Price', type: 'number', min: 0, default: 100000 },
+            { name: 'storageCost', label: 'Storage Cost', type: 'number', min: 0, default: 500 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'holdingPeriodYears', label: 'Holding Period (years)', type: 'number', min: 0, default: 1 },
+          ],
+          // 5. Market
+          [
+            { name: 'marketPricePerUnit', label: 'Market Price per Unit', type: 'number', min: 0, step: 0.01, default: 250000 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'stakingYield', label: 'Staking Yield (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.04 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 8 },
+            { name: 'currencyRisk', label: 'Currency Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandValue', label: 'Brand/Strategic Value', type: 'number', min: 0, default: 0 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.025 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 1 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 45 },
+          ],
+        ],
+        artCollectibles: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'عمل فني نموذجي' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'painting', label: 'Painting' }, { value: 'sculpture', label: 'Sculpture' }, { value: 'antique', label: 'Antique' }, { value: 'watch', label: 'Luxury Watch' }, { value: 'collectible', label: 'Collectible' }, { value: 'other', label: 'Other' } ], default: 'painting' },
+            { name: 'yearAcquired', label: 'Year Acquired', type: 'number', min: 1900, max: 2030, default: 2018 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 9 },
+            { name: 'authenticationScore', label: 'Authentication Score (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'rarityScore', label: 'Rarity Score (0-100)', type: 'number', min: 0, max: 100, default: 70 },
+            { name: 'provenanceScore', label: 'Provenance Score (0-100)', type: 'number', min: 0, max: 100, default: 75 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'purchasePrice', label: 'Purchase Price', type: 'number', min: 0, default: 500000 },
+            { name: 'storageCost', label: 'Storage Cost', type: 'number', min: 0, default: 5000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'holdingPeriodYears', label: 'Holding Period (years)', type: 'number', min: 0, default: 5 },
+          ],
+          // 5. Market
+          [
+            { name: 'comparableTransactionValue', label: 'Comparable Transaction Value', type: 'number', min: 0, default: 800000 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 4 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+          ],
+          // 6. Income
+          [
+            { name: 'dividendYield', label: 'Dividend Yield (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.0 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 3 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'currencyRisk', label: 'Currency Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 5 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'brandValue', label: 'Brand/Strategic Value', type: 'number', min: 0, default: 0 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.1 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 12 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.04 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 50 },
+          ],
+        ],
+        softwareTechnology: [
+          // 1. Identity
+          [
+            { name: 'assetName', label: 'Asset Name', type: 'text', placeholder: 'Asset Name', default: 'منتج SaaS نموذجي' },
+            { name: 'country', label: 'Country', type: 'text', placeholder: 'Country', default: 'السعودية' },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'City', default: 'الرياض' },
+            { name: 'assetType', label: 'Asset Type', type: 'select', options: [ { value: 'saas', label: 'SaaS' }, { value: 'mobileApp', label: 'Mobile App' }, { value: 'platform', label: 'Platform' }, { value: 'ai', label: 'AI/Machine Learning' }, { value: 'other', label: 'Other' } ], default: 'saas' },
+            { name: 'customerCount', label: 'Customer Count', type: 'number', min: 0, default: 500 },
+          ],
+          // 2. Condition
+          [
+            { name: 'conditionScore', label: 'Condition Score (1-10)', type: 'number', min: 1, max: 10, default: 8 },
+            { name: 'techMoatScore', label: 'Tech Moat Score (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'churnRate', label: 'Churn Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+          ],
+          // 3. Historical Cost
+          [
+            { name: 'developmentCost', label: 'Development Cost', type: 'number', min: 0, default: 800000 },
+            { name: 'accumulatedAmortization', label: 'Accumulated Amortization', type: 'number', min: 0, default: 150000 },
+          ],
+          // 4. Depreciation / Life
+          [
+            { name: 'annualRecurringRevenue', label: 'Annual Recurring Revenue (ARR)', type: 'number', min: 0, default: 1200000 },
+            { name: 'averageRevenuePerUser', label: 'Average Revenue per User (ARPU)', type: 'number', min: 0, default: 200 },
+            { name: 'grossMargin', label: 'Gross Margin (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.75 },
+          ],
+          // 5. Market
+          [
+            { name: 'revenueMultiple', label: 'Revenue Multiple', type: 'number', min: 0, step: 0.5, default: 8 },
+            { name: 'demandIndex', label: 'Demand Index (1-10)', type: 'number', min: 1, max: 10, default: 7 },
+            { name: 'supplyIndex', label: 'Supply Index (1-10)', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'marketGrowthRate', label: 'Market Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.05 },
+          ],
+          // 6. Income
+          [
+            { name: 'annualOpex', label: 'Annual OpEx', type: 'number', min: 0, default: 600000 },
+            { name: 'growthRate', label: 'Growth Rate (0-1)', type: 'number', min: -0.2, max: 0.5, step: 0.01, default: 0.2 },
+            { name: 'taxRate', label: 'Tax Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+            { name: 'discountRate', label: 'Discount Rate (0-1)', type: 'number', min: 0.01, max: 1, step: 0.01, default: 0.15 },
+          ],
+          // 7. Risks
+          [
+            { name: 'regulatoryRisk', label: 'Regulatory Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+            { name: 'marketVolatility', label: 'Market Volatility (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'technologyObsolescenceRisk', label: 'Technology Obsolescence Risk (0-10)', type: 'number', min: 0, max: 10, default: 6 },
+            { name: 'concentrationRisk', label: 'Concentration Risk (0-10)', type: 'number', min: 0, max: 10, default: 4 },
+          ],
+          // 8. Intangibles
+          [
+            { name: 'lifetimeValue', label: 'Lifetime Value (LTV)', type: 'number', min: 0, default: 1200 },
+            { name: 'customerAcquisitionCost', label: 'Customer Acquisition Cost (CAC)', type: 'number', min: 0, default: 200 },
+            { name: 'proprietaryTechnology', label: 'Proprietary Technology (0-100)', type: 'number', min: 0, max: 100, default: 70 },
+          ],
+          // 9. Exit / Liquidity
+          [
+            { name: 'transactionCostsRate', label: 'Transaction Costs Rate (0-1)', type: 'number', min: 0, max: 1, step: 0.01, default: 0.05 },
+            { name: 'buyerPoolDepth', label: 'Buyer Pool Depth (1-10)', type: 'number', min: 1, max: 10, default: 6 },
+            { name: 'liquidationTimeMonths', label: 'Liquidation Time (months)', type: 'number', min: 1, max: 36, default: 9 },
+          ],
+          // 10. Future / Growth
+          [
+            { name: 'terminalGrowth', label: 'Terminal Growth (0-1)', type: 'number', min: 0, max: 0.1, step: 0.01, default: 0.03 },
+            { name: 'projectionYears', label: 'Projection Years', type: 'number', min: 1, max: 10, default: 5 },
+            { name: 'esgScore', label: 'ESG Score (0-100)', type: 'number', min: 0, max: 100, default: 60 },
+          ],
+        ],
       }
     }
   };
