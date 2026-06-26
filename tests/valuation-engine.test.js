@@ -299,6 +299,128 @@ describe('ValuationEngine', () => {
       expect(result.marketValue).toBeGreaterThan(0);
       expect(result.fairValue).toBeGreaterThan(0);
     });
+
+    it('calculates new specialty asset values', () => {
+      const maritime = buildInputs({
+        purchasePrice: 5000000,
+        refitCosts: 500000,
+        regulatoryCertificationValue: 200000,
+        acquisitionCosts: 150000,
+        yearBuilt: 2010,
+        replacementCostNew: 6000000,
+        comparableSalesValue: 4500000,
+        dailyCharterRate: 15000,
+        operatingDaysPerYear: 220,
+        annualOperatingCost: 1200000,
+        capRate: 0.1,
+        licensesValue: 300000,
+        routeValue: 500000
+      });
+      expect(engine.calculate('maritimeAsset', maritime).fairValue).toBeGreaterThan(0);
+
+      const logistics = buildInputs({
+        landCost: 2000000,
+        buildingCost: 4000000,
+        equipmentCost: 800000,
+        rackingCost: 400000,
+        improvementCosts: 300000,
+        yearBuilt: 2015,
+        areaSqm: 5000,
+        comparablePricePerSqm: 1500,
+        annualRentalRevenue: 800000,
+        occupancyRate: 0.75,
+        permitsValue: 200000,
+        automationPlan: 0.3,
+        locationPremium: 0.15
+      });
+      expect(engine.calculate('logisticsAsset', logistics).fairValue).toBeGreaterThan(0);
+
+      const fuel = buildInputs({
+        landCost: 1500000,
+        constructionCost: 1200000,
+        equipmentCost: 800000,
+        tanksPumpsCost: 600000,
+        improvementCosts: 200000,
+        yearBuilt: 2015,
+        dailyFuelVolume: 5000,
+        marginPerLiter: 0.2,
+        annualConvenienceRevenue: 400000,
+        operatingExpensesRate: 0.3,
+        capRate: 0.1,
+        permitsValue: 300000,
+        occupancyRate: 0.9,
+        brandStrength: 60,
+        trafficGrowthRate: 0.03
+      });
+      expect(engine.calculate('fuelStation', fuel).fairValue).toBeGreaterThan(0);
+
+      const beauty = buildInputs({
+        equipmentCost: 300000,
+        leaseholdImprovements: 400000,
+        inventoryCost: 150000,
+        furnitureCost: 100000,
+        yearAcquired: 2018,
+        dailyCustomers: 30,
+        avgSpendPerCustomer: 200,
+        occupancyRate: 0.7,
+        cogsRate: 0.35,
+        operatingExpensesRate: 0.35,
+        capRate: 0.12,
+        revenueMultiple: 1.2,
+        brandStrength: 60,
+        recurringRevenueShare: 0.3,
+        membershipsValue: 50000
+      });
+      expect(engine.calculate('beautyWellness', beauty).fairValue).toBeGreaterThan(0);
+
+      const gifts = buildInputs({
+        inventoryCost: 200000,
+        fixturesCost: 120000,
+        leaseholdImprovements: 150000,
+        yearAcquired: 2019,
+        monthlyRevenue: 50000,
+        cogsRate: 0.5,
+        operatingExpensesRate: 0.3,
+        capRate: 0.12,
+        revenueMultiple: 0.8,
+        locationPremium: 0.15,
+        brandStrength: 50
+      });
+      expect(engine.calculate('giftsStationery', gifts).fairValue).toBeGreaterThan(0);
+
+      const furniture = buildInputs({
+        inventoryValue: 500000,
+        showroomCost: 300000,
+        warehouseCost: 200000,
+        deliveryFleetValue: 150000,
+        yearAcquired: 2018,
+        monthlyRevenue: 80000,
+        cogsRate: 0.55,
+        operatingExpensesRate: 0.25,
+        capRate: 0.12,
+        brandStrength: 55,
+        warrantyValue: 30000
+      });
+      expect(engine.calculate('furnitureAsset', furniture).fairValue).toBeGreaterThan(0);
+
+      const retail = buildInputs({
+        equityBookValue: 800000,
+        inventoryValue: 400000,
+        fixedAssetsValue: 300000,
+        totalLiabilities: 250000,
+        annualRevenue: 2500000,
+        ebitdaMargin: 0.12,
+        revenueMultiple: 0.6,
+        ebitdaMultiple: 5,
+        growthRate: 0.05,
+        taxRate: 0.2,
+        discountRate: 0.12,
+        projectionYears: 5,
+        brandStrength: 55,
+        locationPremium: 0.15
+      });
+      expect(engine.calculate('retailBusiness', retail).fairValue).toBeGreaterThan(0);
+    });
   });
 
   describe('Scoring', () => {
@@ -491,7 +613,7 @@ describe('ValuationEngine', () => {
   });
 
   describe('AssetClass metadata', () => {
-    it('has all 28 classes active', () => {
+    it('has all 35 classes active', () => {
       const active = AssetClass.list().filter(s => AssetClass.isActive(s));
       const expected = [
         'realEstate', 'business', 'factory', 'machineryEquipment', 'vehiclesFleet',
@@ -499,10 +621,12 @@ describe('ValuationEngine', () => {
         'intellectualProperty', 'brandsTrademarks', 'patents', 'copyrightsContent', 'franchises',
         'licensesPermits', 'financialAssets', 'cryptoDigital', 'commodities', 'artCollectibles',
         'jewelryPreciousMetals', 'softwareTechnology', 'medicalEquipment', 'educationalEquipment',
-        'distressedAsset', 'tourismAsset', 'personalWealth', 'scrapSalvage'
+        'distressedAsset', 'tourismAsset', 'personalWealth', 'scrapSalvage',
+        'maritimeAsset', 'logisticsAsset', 'fuelStation', 'beautyWellness', 'giftsStationery',
+        'furnitureAsset', 'retailBusiness'
       ];
       expected.forEach(cls => expect(active).toContain(cls));
-      expect(active.length).toBe(28);
+      expect(active.length).toBe(35);
     });
   });
 });

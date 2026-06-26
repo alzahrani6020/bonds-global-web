@@ -44,6 +44,13 @@
     TOURISM_ASSET: 'tourismAsset',
     PERSONAL_WEALTH: 'personalWealth',
     SCRAP_SALVAGE: 'scrapSalvage',
+    MARITIME_ASSET: 'maritimeAsset',
+    LOGISTICS_ASSET: 'logisticsAsset',
+    FUEL_STATION: 'fuelStation',
+    BEAUTY_WELLNESS: 'beautyWellness',
+    GIFTS_STATIONERY: 'giftsStationery',
+    FURNITURE_ASSET: 'furnitureAsset',
+    RETAIL_BUSINESS: 'retailBusiness',
 
     _labels: {
       realEstate: { ar: 'العقارات', en: 'Real Estate', active: true },
@@ -74,6 +81,13 @@
       tourismAsset: { ar: 'الأصول السياحية', en: 'Tourism Assets', active: true },
       personalWealth: { ar: 'الثروة الشخصية', en: 'Personal Wealth', active: true },
       scrapSalvage: { ar: 'السكراب والخردة', en: 'Scrap & Salvage', active: true },
+      maritimeAsset: { ar: 'الأصول البحرية', en: 'Maritime Assets', active: true },
+      logisticsAsset: { ar: 'الأصول اللوجستية', en: 'Logistics Assets', active: true },
+      fuelStation: { ar: 'محطات الوقود', en: 'Fuel Stations', active: true },
+      beautyWellness: { ar: 'التجميل والصحة', en: 'Beauty & Wellness', active: true },
+      giftsStationery: { ar: 'الهدايا والماليات', en: 'Gifts & Stationery', active: true },
+      furnitureAsset: { ar: 'الأثاث المنزلي والمكتبي', en: 'Furniture Assets', active: true },
+      retailBusiness: { ar: 'نشاط تجاري عام', en: 'Retail Business', active: true },
     },
 
     getLabel(slug, lang) {
@@ -898,6 +912,344 @@
       };
     }
 
+    /* ---------- Maritime Asset Engine (vessels, ships, boats) ---------- */
+    _calcMaritimeAsset(i) {
+      const historicalCost = safe(i.purchasePrice) + safe(i.refitCosts) +
+        safe(i.regulatoryCertificationValue) + safe(i.acquisitionCosts);
+      const age = Math.max(0, CURRENT_YEAR - safe(i.yearBuilt));
+      const usefulLife = Math.max(1, safe(i.usefulLifeYears) || 25);
+      const accumulatedDep = safe(i.accumulatedDepreciation) ||
+        (historicalCost / usefulLife * Math.min(age, usefulLife));
+      const obsolescence = clamp(i.obsolescenceFactor, 0, 1);
+      const bookValue = Math.max(0, historicalCost - accumulatedDep - obsolescence * historicalCost * 0.5);
+
+      const replacementNew = safe(i.replacementCostNew) || historicalCost;
+      const conditionScore = clamp(i.conditionScore, 1, 10) || 5;
+      const conditionAdj = 0.55 + 0.045 * conditionScore;
+      const replacementValue = replacementNew * conditionAdj * (1 - obsolescence);
+      const comparableSales = safe(i.comparableSalesValue);
+      const demand = clamp(i.demandIndex, 1, 10) || 5;
+      const supply = clamp(i.supplyIndex, 1, 10) || 5;
+      const demandSupplyFactor = (demand / 5) / (supply / 5);
+      const marketValue = Math.max(0, (replacementValue + comparableSales) / 2 * demandSupplyFactor);
+
+      const dailyCharterRate = safe(i.dailyCharterRate);
+      const operatingDays = Math.max(0, Math.min(365, safe(i.operatingDaysPerYear) || 200));
+      const utilization = clamp(i.utilizationRate, 0, 1) || 0.6;
+      const annualRevenue = dailyCharterRate * operatingDays * utilization;
+      const operatingCost = safe(i.annualOperatingCost) || annualRevenue * 0.5;
+      const noi = Math.max(0, annualRevenue - operatingCost);
+      const capRate = clamp(i.capRate, 0.01, 0.5) || 0.1;
+      const incomeValue = noi / capRate;
+      const operatingValue = noi;
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.5, 1 - avgRisk / 20);
+      const fairValue = (bookValue * 0.25 + marketValue * 0.35 + incomeValue * 0.4) * riskAdj;
+
+      const licenses = safe(i.licensesValue);
+      const routeValue = safe(i.routeValue);
+      const esg = clamp(i.esgScore, 0, 100) / 100;
+      const investmentValue = fairValue * (1 + esg * 0.02) + licenses + routeValue;
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.06;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 5;
+      const liquidationTime = clamp(i.liquidationTimeMonths, 1, 36) || 12;
+      const liquidationValue = Math.max(0,
+        marketValue * (1 - transactionCosts - 0.15 / buyerPool) * (1 - liquidationTime / 36) * (1 - avgRisk / 30)
+      );
+
+      const insuranceValue = replacementValue * 1.1;
+
+      return { bookValue, marketValue, operatingValue, incomeValue, fairValue, investmentValue, liquidationValue, insuranceValue };
+    }
+
+    /* ---------- Logistics Asset Engine (warehouses, distribution centers, fleets) ---------- */
+    _calcLogisticsAsset(i) {
+      const historicalCost = safe(i.landCost) + safe(i.buildingCost) + safe(i.equipmentCost) +
+        safe(i.rackingCost) + safe(i.improvementCosts);
+      const age = Math.max(0, CURRENT_YEAR - safe(i.yearBuilt));
+      const usefulLife = Math.max(1, safe(i.usefulLifeYears) || 40);
+      const accumulatedDep = safe(i.accumulatedDepreciation) ||
+        (historicalCost / usefulLife * Math.min(age, usefulLife));
+      const obsolescence = clamp(i.obsolescenceFactor, 0, 1);
+      const bookValue = Math.max(0, historicalCost - accumulatedDep - obsolescence * historicalCost * 0.5);
+
+      const area = Math.max(1, safe(i.areaSqm));
+      const pricePerSqm = safe(i.comparablePricePerSqm) || 1500;
+      const comparableSales = safe(i.comparableSalesValue);
+      const conditionScore = clamp(i.conditionScore, 1, 10) || 6;
+      const conditionAdj = 0.55 + 0.045 * conditionScore;
+      const replacementValue = historicalCost * conditionAdj * (1 - obsolescence);
+      const marketValue = Math.max(0, comparableSales || (area * pricePerSqm * conditionAdj));
+
+      const occupancy = clamp(i.occupancyRate, 0, 1) || 0.75;
+      const annualRevenue = safe(i.annualRentalRevenue) || (area * pricePerSqm * 0.08 * occupancy);
+      const opexRate = clamp(i.operatingExpensesRate, 0, 1) || 0.25;
+      const noi = annualRevenue * (1 - opexRate);
+      const capRate = clamp(i.capRate, 0.01, 0.5) || 0.08;
+      const incomeValue = noi / capRate;
+      const operatingValue = noi;
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.5, 1 - avgRisk / 20);
+      const fairValue = (bookValue * 0.3 + marketValue * 0.3 + incomeValue * 0.4) * riskAdj;
+
+      const automation = clamp(i.automationPlan, 0, 1);
+      const locationPremium = clamp(i.locationPremium, 0, 1);
+      const permits = safe(i.permitsValue);
+      const investmentValue = fairValue * (1 + locationPremium * 0.05 + automation * 0.05) + permits;
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.05;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 6;
+      const liquidationTime = clamp(i.liquidationTimeMonths, 1, 36) || 12;
+      const liquidationValue = Math.max(0,
+        marketValue * (1 - transactionCosts - 0.1 / buyerPool) * (1 - liquidationTime / 36)
+      );
+
+      const insuranceValue = replacementValue * 1.1;
+
+      return { bookValue, marketValue, operatingValue, incomeValue, fairValue, investmentValue, liquidationValue, insuranceValue };
+    }
+
+    /* ---------- Fuel Station Engine ---------- */
+    _calcFuelStation(i) {
+      const historicalCost = safe(i.landCost) + safe(i.constructionCost) + safe(i.equipmentCost) +
+        safe(i.tanksPumpsCost) + safe(i.improvementCosts);
+      const age = Math.max(0, CURRENT_YEAR - safe(i.yearBuilt));
+      const usefulLife = Math.max(1, safe(i.usefulLifeYears) || 30);
+      const accumulatedDep = safe(i.accumulatedDepreciation) ||
+        (historicalCost / usefulLife * Math.min(age, usefulLife));
+      const obsolescence = clamp(i.obsolescenceFactor, 0, 1);
+      const bookValue = Math.max(0, historicalCost - accumulatedDep - obsolescence * historicalCost * 0.5);
+
+      const conditionScore = clamp(i.conditionScore, 1, 10) || 6;
+      const conditionAdj = 0.55 + 0.045 * conditionScore;
+      const replacementValue = historicalCost * conditionAdj * (1 - obsolescence);
+      const comparableSales = safe(i.comparableSalesValue);
+      const marketValue = Math.max(0, comparableSales || replacementValue);
+
+      const dailyFuelVolume = Math.max(0, safe(i.dailyFuelVolume) || 5000);
+      const marginPerLiter = safe(i.marginPerLiter) || 0.2;
+      const convenienceRevenue = safe(i.annualConvenienceRevenue) || 0;
+      const occupancy = clamp(i.occupancyRate, 0, 1) || 0.9;
+      const annualRevenue = dailyFuelVolume * 365 * marginPerLiter * occupancy + convenienceRevenue;
+      const opexRate = clamp(i.operatingExpensesRate, 0, 1) || 0.3;
+      const noi = annualRevenue * (1 - opexRate);
+      const capRate = clamp(i.capRate, 0.01, 0.5) || 0.1;
+      const incomeValue = noi / capRate;
+      const operatingValue = noi;
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.5, 1 - avgRisk / 20);
+      const fairValue = (bookValue * 0.25 + marketValue * 0.35 + incomeValue * 0.4) * riskAdj;
+
+      const permits = safe(i.permitsValue);
+      const trafficGrowth = clamp(i.trafficGrowthRate, 0, 0.5) || 0.03;
+      const brand = clamp(i.brandStrength, 0, 100) / 100;
+      const investmentValue = fairValue * (1 + trafficGrowth * 0.5 + brand * 0.05) + permits;
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.05;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 5;
+      const liquidationTime = clamp(i.liquidationTimeMonths, 1, 36) || 9;
+      const liquidationValue = Math.max(0,
+        marketValue * (1 - transactionCosts - 0.12 / buyerPool) * (1 - liquidationTime / 36)
+      );
+
+      const insuranceValue = replacementValue * 1.1;
+
+      return { bookValue, marketValue, operatingValue, incomeValue, fairValue, investmentValue, liquidationValue, insuranceValue };
+    }
+
+    /* ---------- Beauty & Wellness Engine (salons, spas, wellness centers) ---------- */
+    _calcBeautyWellness(i) {
+      const historicalCost = safe(i.equipmentCost) + safe(i.leaseholdImprovements) +
+        safe(i.inventoryCost) + safe(i.furnitureCost);
+      const age = Math.max(0, CURRENT_YEAR - safe(i.yearAcquired));
+      const usefulLife = Math.max(1, safe(i.usefulLifeYears) || 10);
+      const accumulatedDep = safe(i.accumulatedDepreciation) ||
+        (historicalCost / usefulLife * Math.min(age, usefulLife));
+      const obsolescence = clamp(i.obsolescenceFactor, 0, 1);
+      const bookValue = Math.max(0, historicalCost - accumulatedDep - obsolescence * historicalCost * 0.5);
+
+      const dailyCustomers = Math.max(0, safe(i.dailyCustomers) || 30);
+      const avgSpend = safe(i.avgSpendPerCustomer) || 200;
+      const occupancy = clamp(i.occupancyRate, 0, 1) || 0.7;
+      const annualRevenue = dailyCustomers * avgSpend * 365 * occupancy;
+      const cogsRate = clamp(i.cogsRate, 0, 1) || 0.35;
+      const opexRate = clamp(i.operatingExpensesRate, 0, 1) || 0.35;
+      const noi = Math.max(0, annualRevenue * (1 - cogsRate - opexRate));
+      const capRate = clamp(i.capRate, 0.01, 0.5) || 0.12;
+      const incomeValue = noi / capRate;
+      const operatingValue = noi;
+
+      const revenueMultiple = safe(i.revenueMultiple) || 1.2;
+      const comparableSales = safe(i.comparableSalesValue);
+      const marketValue = Math.max(0, comparableSales || (annualRevenue * revenueMultiple));
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.5, 1 - avgRisk / 20);
+      const fairValue = (bookValue * 0.2 + marketValue * 0.35 + incomeValue * 0.45) * riskAdj;
+
+      const brand = clamp(i.brandStrength, 0, 100) / 100;
+      const recurring = clamp(i.recurringRevenueShare, 0, 1);
+      const memberships = safe(i.membershipsValue);
+      const investmentValue = fairValue * (1 + brand * 0.08 + recurring * 0.05) + memberships;
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.06;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 5;
+      const liquidationTime = clamp(i.liquidationTimeMonths, 1, 36) || 6;
+      const liquidationValue = Math.max(0,
+        marketValue * (1 - transactionCosts - 0.15 / buyerPool) * (1 - liquidationTime / 36)
+      );
+
+      const insuranceValue = historicalCost * 1.1;
+
+      return { bookValue, marketValue, operatingValue, incomeValue, fairValue, investmentValue, liquidationValue, insuranceValue };
+    }
+
+    /* ---------- Gifts & Stationery Engine ---------- */
+    _calcGiftsStationery(i) {
+      const inventory = safe(i.inventoryCost);
+      const fixtures = safe(i.fixturesCost);
+      const leasehold = safe(i.leaseholdImprovements);
+      const historicalCost = inventory + fixtures + leasehold;
+      const age = Math.max(0, CURRENT_YEAR - safe(i.yearAcquired));
+      const usefulLife = Math.max(1, safe(i.usefulLifeYears) || 10);
+      const accumulatedDep = safe(i.accumulatedDepreciation) ||
+        ((fixtures + leasehold) / usefulLife * Math.min(age, usefulLife));
+      const obsolescence = clamp(i.obsolescenceFactor, 0, 1);
+      const bookValue = Math.max(0, historicalCost - accumulatedDep - obsolescence * historicalCost * 0.5);
+
+      const monthlyRevenue = safe(i.monthlyRevenue) || 50000;
+      const annualRevenue = monthlyRevenue * 12;
+      const cogsRate = clamp(i.cogsRate, 0, 1) || 0.5;
+      const opexRate = clamp(i.operatingExpensesRate, 0, 1) || 0.3;
+      const noi = Math.max(0, annualRevenue * (1 - cogsRate - opexRate));
+      const capRate = clamp(i.capRate, 0.01, 0.5) || 0.12;
+      const incomeValue = noi / capRate;
+      const operatingValue = noi;
+
+      const revenueMultiple = safe(i.revenueMultiple) || 0.8;
+      const comparableSales = safe(i.comparableSalesValue);
+      const marketValue = Math.max(0, comparableSales || (annualRevenue * revenueMultiple));
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.5, 1 - avgRisk / 20);
+      const fairValue = (bookValue * 0.25 + marketValue * 0.35 + incomeValue * 0.4) * riskAdj;
+
+      const brand = clamp(i.brandStrength, 0, 100) / 100;
+      const locationPremium = clamp(i.locationPremium, 0, 1);
+      const investmentValue = fairValue * (1 + brand * 0.06 + locationPremium * 0.04);
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.05;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 6;
+      const liquidationTime = clamp(i.liquidationTimeMonths, 1, 36) || 4;
+      const liquidationValue = Math.max(0,
+        (inventory * 0.7 + fixtures * 0.5 + marketValue * 0.3) * (1 - transactionCosts - 0.1 / buyerPool) * (1 - liquidationTime / 36)
+      );
+
+      const insuranceValue = historicalCost * 1.05;
+
+      return { bookValue, marketValue, operatingValue, incomeValue, fairValue, investmentValue, liquidationValue, insuranceValue };
+    }
+
+    /* ---------- Furniture Asset Engine (home & office furniture inventory) ---------- */
+    _calcFurnitureAsset(i) {
+      const historicalCost = safe(i.inventoryValue) + safe(i.showroomCost) + safe(i.warehouseCost) +
+        safe(i.deliveryFleetValue);
+      const age = Math.max(0, CURRENT_YEAR - safe(i.yearAcquired));
+      const usefulLife = Math.max(1, safe(i.usefulLifeYears) || 15);
+      const accumulatedDep = safe(i.accumulatedDepreciation) ||
+        (historicalCost / usefulLife * Math.min(age, usefulLife));
+      const obsolescence = clamp(i.obsolescenceFactor, 0, 1);
+      const bookValue = Math.max(0, historicalCost - accumulatedDep - obsolescence * historicalCost * 0.5);
+
+      const conditionScore = clamp(i.conditionScore, 1, 10) || 6;
+      const conditionAdj = 0.55 + 0.045 * conditionScore;
+      const replacementValue = historicalCost * conditionAdj * (1 - obsolescence);
+      const comparableSales = safe(i.comparableSalesValue);
+      const marketValue = Math.max(0, comparableSales || replacementValue);
+
+      const monthlyRevenue = safe(i.monthlyRevenue) || 80000;
+      const annualRevenue = monthlyRevenue * 12;
+      const cogsRate = clamp(i.cogsRate, 0, 1) || 0.55;
+      const opexRate = clamp(i.operatingExpensesRate, 0, 1) || 0.25;
+      const noi = Math.max(0, annualRevenue * (1 - cogsRate - opexRate));
+      const capRate = clamp(i.capRate, 0.01, 0.5) || 0.12;
+      const incomeValue = noi / capRate;
+      const operatingValue = noi;
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.5, 1 - avgRisk / 20);
+      const fairValue = (bookValue * 0.3 + marketValue * 0.3 + incomeValue * 0.4) * riskAdj;
+
+      const brand = clamp(i.brandStrength, 0, 100) / 100;
+      const warranty = safe(i.warrantyValue);
+      const marketGrowth = clamp(i.marketGrowthRate, -0.2, 0.5);
+      const investmentValue = fairValue * (1 + brand * 0.06 + marketGrowth) + warranty;
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.05;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 5;
+      const liquidationTime = clamp(i.liquidationTimeMonths, 1, 36) || 6;
+      const liquidationValue = Math.max(0,
+        marketValue * (1 - transactionCosts - 0.12 / buyerPool) * (1 - liquidationTime / 36)
+      );
+
+      const insuranceValue = replacementValue * 1.1;
+
+      return { bookValue, marketValue, operatingValue, incomeValue, fairValue, investmentValue, liquidationValue, insuranceValue };
+    }
+
+    /* ---------- Retail Business Engine (general retail activity) ---------- */
+    _calcRetailBusiness(i) {
+      const bookEquity = safe(i.equityBookValue);
+      const inventory = safe(i.inventoryValue);
+      const fixedAssets = safe(i.fixedAssetsValue);
+      const totalLiabilities = safe(i.totalLiabilities);
+      const bookValue = Math.max(0, bookEquity || (inventory + fixedAssets - totalLiabilities));
+
+      const annualRevenue = safe(i.annualRevenue);
+      const ebitdaMargin = clamp(i.ebitdaMargin, 0, 1) || 0.12;
+      const ebitda = annualRevenue * ebitdaMargin;
+      const revenueMultiple = safe(i.revenueMultiple) || 0.6;
+      const ebitdaMultiple = safe(i.ebitdaMultiple) || 5;
+      const marketValue = Math.max(0, (annualRevenue * revenueMultiple + ebitda * ebitdaMultiple) / 2);
+
+      const taxRate = clamp(i.taxRate, 0, 1) || 0.2;
+      const annualCapex = safe(i.annualCapex) || 0;
+      const fcf = ebitda * (1 - taxRate) - annualCapex;
+      const discountRate = clamp(i.discountRate, 0.01, 1) || 0.12;
+      const projYears = Math.max(1, Math.min(10, safe(i.projectionYears) || 5));
+      const terminalGrowth = Math.min(clamp(i.marketGrowthRate, 0, 0.1), discountRate * 0.8) || 0.02;
+
+      let pv = 0;
+      for (let t = 1; t <= projYears; t++) {
+        pv += fcf * Math.pow(1 + terminalGrowth, t - 1) / Math.pow(1 + discountRate, t);
+      }
+      const terminal = fcf * Math.pow(1 + terminalGrowth, projYears) * (1 + terminalGrowth) /
+        Math.max(0.005, discountRate - terminalGrowth);
+      const pvTerminal = terminal / Math.pow(1 + discountRate, projYears);
+      const incomeValue = pv + pvTerminal;
+      const operatingValue = fcf;
+
+      const avgRisk = this._avgRisk(i);
+      const riskAdj = Math.max(0.5, 1 - avgRisk / 20);
+      const fairValue = (bookValue * 0.2 + marketValue * 0.3 + incomeValue * 0.5) * riskAdj;
+
+      const brand = clamp(i.brandStrength, 0, 100) / 100;
+      const locationPremium = clamp(i.locationPremium, 0, 1);
+      const investmentValue = fairValue * (1 + brand * 0.06 + locationPremium * 0.04);
+
+      const transactionCosts = clamp(i.transactionCostsRate, 0, 1) || 0.05;
+      const buyerPool = clamp(i.buyerPoolDepth, 1, 10) || 6;
+      const liquidationValue = Math.max(0,
+        bookValue * (1 - transactionCosts - 0.1 / buyerPool)
+      );
+
+      return { bookValue, marketValue, operatingValue, incomeValue, fairValue, investmentValue, liquidationValue };
+    }
+
     /* ---------- BVS integration helpers ---------- */
     _bvs() {
       return (typeof BVS !== 'undefined' && BVS) || null;
@@ -1026,6 +1378,20 @@
             return this._calcPersonalWealth(inputs);
           case AssetClass.SCRAP_SALVAGE:
             return this._calcScrapSalvage(inputs);
+          case AssetClass.MARITIME_ASSET:
+            return this._calcMaritimeAsset(inputs);
+          case AssetClass.LOGISTICS_ASSET:
+            return this._calcLogisticsAsset(inputs);
+          case AssetClass.FUEL_STATION:
+            return this._calcFuelStation(inputs);
+          case AssetClass.BEAUTY_WELLNESS:
+            return this._calcBeautyWellness(inputs);
+          case AssetClass.GIFTS_STATIONERY:
+            return this._calcGiftsStationery(inputs);
+          case AssetClass.FURNITURE_ASSET:
+            return this._calcFurnitureAsset(inputs);
+          case AssetClass.RETAIL_BUSINESS:
+            return this._calcRetailBusiness(inputs);
           default: return this._calcGeneric(inputs);
         }
       })();
@@ -1178,6 +1544,64 @@
           clamp(i.demandIndex, 1, 10) * 3 +
           (1 - clamp(i.priceVolatility, 0, 10) / 20) * 10
         );
+      } else if (assetClass === AssetClass.MARITIME_ASSET) {
+        const age = Math.max(0, CURRENT_YEAR - safe(i.yearBuilt));
+        score = (
+          clamp(i.conditionScore, 1, 10) * 6 +
+          clamp(i.maintenanceLevel, 1, 10) * 5 +
+          (10 - Math.min(age, 40) / 4) * 4 +
+          (1 - clamp(i.obsolescenceFactor, 0, 1)) * 15 +
+          clamp(i.utilizationRate, 0, 1) * 10
+        );
+      } else if (assetClass === AssetClass.LOGISTICS_ASSET) {
+        const age = Math.max(0, CURRENT_YEAR - safe(i.yearBuilt));
+        score = (
+          clamp(i.conditionScore, 1, 10) * 6 +
+          clamp(i.occupancyRate, 0, 1) * 25 +
+          (10 - Math.min(age, 50) / 5) * 3 +
+          clamp(i.automationPlan, 0, 1) * 10 +
+          (1 - clamp(i.obsolescenceFactor, 0, 1)) * 10
+        );
+      } else if (assetClass === AssetClass.FUEL_STATION) {
+        score = (
+          clamp(i.conditionScore, 1, 10) * 6 +
+          clamp(i.occupancyRate, 0, 1) * 25 +
+          clamp(i.trafficGrowthRate || 0, 0, 0.5) * 40 +
+          clamp(i.brandStrength, 0, 100) * 0.1 +
+          (1 - clamp(i.obsolescenceFactor, 0, 1)) * 10
+        );
+      } else if (assetClass === AssetClass.BEAUTY_WELLNESS) {
+        score = (
+          clamp(i.conditionScore, 1, 10) * 6 +
+          clamp(i.occupancyRate, 0, 1) * 25 +
+          clamp(i.brandStrength, 0, 100) * 0.15 +
+          clamp(i.recurringRevenueShare || 0, 0, 1) * 15 +
+          (1 - clamp(i.obsolescenceFactor, 0, 1)) * 10
+        );
+      } else if (assetClass === AssetClass.GIFTS_STATIONERY) {
+        score = (
+          clamp(i.conditionScore, 1, 10) * 6 +
+          clamp(i.brandStrength, 0, 100) * 0.15 +
+          clamp(i.locationPremium, 0, 1) * 25 +
+          (1 - clamp(i.obsolescenceFactor, 0, 1)) * 10 +
+          clamp(i.inventoryTurnover || 5, 1, 10) * 4
+        );
+      } else if (assetClass === AssetClass.FURNITURE_ASSET) {
+        score = (
+          clamp(i.conditionScore, 1, 10) * 6 +
+          clamp(i.brandStrength, 0, 100) * 0.15 +
+          (1 - clamp(i.obsolescenceFactor, 0, 1)) * 15 +
+          clamp(i.marketGrowthRate, -0.2, 0.5) * 30 +
+          clamp(i.inventoryTurnover || 5, 1, 10) * 4
+        );
+      } else if (assetClass === AssetClass.RETAIL_BUSINESS) {
+        score = (
+          clamp(i.managementQuality, 1, 10) * 6 +
+          clamp(i.brandStrength, 0, 100) * 0.15 +
+          clamp(i.locationPremium, 0, 1) * 25 +
+          (1 - clamp(i.obsolescenceFactor || 0, 0, 1)) * 10 +
+          clamp(i.ebitdaMargin, 0, 1) * 15
+        );
       }
       return clamp(score, 0, 100);
     }
@@ -1236,7 +1660,14 @@
         [AssetClass.SOFTWARE_TECHNOLOGY]: 0.75,
         [AssetClass.TOURISM_ASSET]: 0.55,
         [AssetClass.PERSONAL_WEALTH]: 0.85,
-        [AssetClass.SCRAP_SALVAGE]: 0.6
+        [AssetClass.SCRAP_SALVAGE]: 0.6,
+        [AssetClass.MARITIME_ASSET]: 0.45,
+        [AssetClass.LOGISTICS_ASSET]: 0.65,
+        [AssetClass.FUEL_STATION]: 0.7,
+        [AssetClass.BEAUTY_WELLNESS]: 0.6,
+        [AssetClass.GIFTS_STATIONERY]: 0.7,
+        [AssetClass.FURNITURE_ASSET]: 0.55,
+        [AssetClass.RETAIL_BUSINESS]: 0.65
       }[assetClass] || 0.6;
       const score = (buyerPool * 5 + marketability * 25 + transactionCost * 20) * classFactor;
       return clamp(score, 0, 100);

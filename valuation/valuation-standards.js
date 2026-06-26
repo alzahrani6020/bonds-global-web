@@ -611,6 +611,167 @@
       outputWeights: { book: 0.10, market: 0.70, income: 0.15, liquidation: 0.05 },
       valuationMethods: ['Market Approach', 'Income Approach', 'Cost Approach'],
       minFactorsRequired: 6
+    },
+    maritimeAsset: {
+      id: 'maritimeAsset',
+      nameAr: 'الأصول البحرية',
+      nameEn: 'Maritime Assets',
+      factors: [
+        factor('purchasePrice', 0.12, 'Original vessel acquisition cost', 'Invoice / shipyard contract', 'Accounting records', 0.90),
+        factor('replacementCostNew', 0.15, 'Current new replacement cost', 'Shipyard quotes / market listings', 'Maritime brokers', 0.80),
+        factor('conditionScore', 0.12, 'Hull + machinery condition', 'Class society survey', 'Maritime surveyor', 0.80),
+        factor('yearBuilt', 0.08, 'Age basis for depreciation', 'Vessel register', 'Classification society', 0.95),
+        factor('usefulLifeYears', 0.06, 'Expected service life', 'Class records / industry norms', 'Maritime standards', 0.80),
+        factor('dailyCharterRate', 0.12, 'Market charter rate per day', 'Charterparty contracts', 'Baltic Exchange / brokers', 0.75),
+        factor('operatingDaysPerYear', 0.08, 'Actual operating days', 'Vessel logs', 'Operations', 0.85),
+        factor('obsolescenceFactor', 0.07, 'Engine/technology obsolescence', 'Engineering assessment', 'Technical audit', 0.70),
+        factor('licensesValue', 0.06, 'Registration + trading licenses', 'Flag state / port state', 'Maritime registry', 0.80),
+        factor('routeValue', 0.05, 'Contracted routes / cargo contracts', 'Contract review', 'Charterer', 0.70),
+        factor('demandIndex', 0.04, 'Freight market demand', 'Freight indices', 'Baltic Exchange', 0.70),
+        factor('supplyIndex', 0.03, 'Fleet supply competing', 'Fleet data', 'Clarksons / brokers', 0.70),
+        factor('regulatoryRisk', 0.02, 'IMO / flag state compliance risk', 'Class audit', 'Classification society', 0.75)
+      ],
+      outputWeights: { book: 0.20, market: 0.35, income: 0.40, liquidation: 0.05 },
+      valuationMethods: ['Income Approach', 'Market Approach', 'Cost Approach'],
+      minFactorsRequired: 7
+    },
+    logisticsAsset: {
+      id: 'logisticsAsset',
+      nameAr: 'الأصول اللوجستية',
+      nameEn: 'Logistics Assets',
+      factors: [
+        factor('landCost', 0.10, 'Market value of land', 'Title deed / comparable land sales', 'Land registry', 0.85),
+        factor('buildingCost', 0.10, 'Replacement cost of buildings', 'Construction cost index', 'Cost databases', 0.80),
+        factor('equipmentCost', 0.08, 'Material handling equipment value', 'Supplier quotes', 'Vendor quotes', 0.80),
+        factor('areaSqm', 0.10, 'Warehouse / facility area', 'Measured survey', 'Surveyor', 0.90),
+        factor('occupancyRate', 0.12, 'Occupied / utilized space', 'Lease records / operations', 'Property management', 0.85),
+        factor('annualRentalRevenue', 0.12, 'Rental or contract revenue', 'Lease contracts', 'Operations', 0.80),
+        factor('comparablePricePerSqm', 0.08, 'Market price per m2', 'Comparable transactions', 'Industrial real estate market', 0.75),
+        factor('automationPlan', 0.06, 'Automation / WMS maturity', 'Technology assessment', 'Logistics consultants', 0.70),
+        factor('locationPremium', 0.07, 'Proximity to ports / highways', 'Location benchmark', 'Market data', 0.75),
+        factor('permitsValue', 0.05, 'Operational permits value', 'Permit documents', 'Government / logistics authority', 0.75),
+        factor('demandIndex', 0.05, 'Logistics space demand', 'Market reports', 'Industrial real estate', 0.70),
+        factor('supplyIndex', 0.04, 'Competing logistics supply', 'Market reports', 'Industrial real estate', 0.70),
+        factor('esgScore', 0.03, 'Sustainability certification', 'Certification body', 'LEED / Estidama', 0.65)
+      ],
+      outputWeights: { book: 0.25, market: 0.30, income: 0.40, liquidation: 0.05 },
+      valuationMethods: ['Income Approach', 'Cost Approach', 'Market Approach'],
+      minFactorsRequired: 7
+    },
+    fuelStation: {
+      id: 'fuelStation',
+      nameAr: 'محطات الوقود',
+      nameEn: 'Fuel Stations',
+      factors: [
+        factor('landCost', 0.10, 'Market value of station land', 'Title deed / comparable sales', 'Land registry', 0.85),
+        factor('constructionCost', 0.08, 'Station construction cost', 'Construction records', 'Cost databases', 0.80),
+        factor('equipmentCost', 0.10, 'Pumps / tanks / canopy value', 'Supplier quotes', 'Vendor quotes', 0.80),
+        factor('dailyFuelVolume', 0.15, 'Daily fuel sales volume', 'POS / meter readings', 'Station records', 0.85),
+        factor('marginPerLiter', 0.12, 'Gross margin per liter', 'Fuel supplier contracts', 'Operator / supplier', 0.80),
+        factor('annualConvenienceRevenue', 0.08, 'Non-fuel retail revenue', 'POS data', 'Station records', 0.75),
+        factor('occupancyRate', 0.07, 'Capacity utilization', 'Traffic count / sales', 'Operations', 0.80),
+        factor('trafficGrowthRate', 0.06, 'Traffic / volume growth', 'High traffic counts / forecasts', 'Transport data', 0.70),
+        factor('permitsValue', 0.06, 'Fuel retail licenses', 'Government permits', 'Energy authority', 0.85),
+        factor('brandStrength', 0.05, 'Franchise / brand strength', 'Brand audit', 'Market research', 0.70),
+        factor('conditionScore', 0.05, 'Physical condition', 'Inspection report', 'Engineer inspection', 0.80),
+        factor('regulatoryRisk', 0.04, 'Fuel pricing / environmental risk', 'Regulatory review', 'Energy / environment authority', 0.70),
+        factor('comparableSalesValue', 0.04, 'Comparable station sales', 'Market transactions', 'Brokers', 0.70)
+      ],
+      outputWeights: { book: 0.20, market: 0.30, income: 0.45, liquidation: 0.05 },
+      valuationMethods: ['Income Approach', 'Market Approach', 'Cost Approach'],
+      minFactorsRequired: 7
+    },
+    beautyWellness: {
+      id: 'beautyWellness',
+      nameAr: 'التجميل والصحة',
+      nameEn: 'Beauty & Wellness',
+      factors: [
+        factor('equipmentCost', 0.10, 'Salon / spa equipment cost', 'Invoices', 'Accounting records', 0.85),
+        factor('leaseholdImprovements', 0.10, 'Leasehold fit-out cost', 'Invoices', 'Accounting records', 0.80),
+        factor('inventoryCost', 0.08, 'Products / consumables inventory', 'Inventory count', 'Operator', 0.80),
+        factor('dailyCustomers', 0.15, 'Average daily customers', 'POS data', 'Operations', 0.85),
+        factor('avgSpendPerCustomer', 0.12, 'Average ticket size', 'POS data', 'Operations', 0.80),
+        factor('occupancyRate', 0.10, 'Appointment / chair utilization', 'Booking system', 'Operations', 0.80),
+        factor('cogsRate', 0.07, 'Cost of goods / services sold', 'P&L', 'Accounting', 0.75),
+        factor('operatingExpensesRate', 0.07, 'Rent / labor / utilities ratio', 'P&L', 'Accounting', 0.75),
+        factor('brandStrength', 0.06, 'Brand / reputation score', 'Brand audit', 'Market research', 0.70),
+        factor('recurringRevenueShare', 0.05, 'Membership / package revenue', 'Billing system', 'Operations', 0.75),
+        factor('comparableSalesValue', 0.04, 'Comparable salon / spa sales', 'Market transactions', 'Brokers', 0.65),
+        factor('conditionScore', 0.03, 'Physical condition', 'Inspection', 'Facilities', 0.75),
+        factor('regulatoryRisk', 0.03, 'Health / licensing risk', 'License review', 'Municipality / health authority', 0.70)
+      ],
+      outputWeights: { book: 0.15, market: 0.30, income: 0.50, liquidation: 0.05 },
+      valuationMethods: ['Income Approach', 'Market Approach', 'Cost Approach'],
+      minFactorsRequired: 6
+    },
+    giftsStationery: {
+      id: 'giftsStationery',
+      nameAr: 'الهدايا والماليات',
+      nameEn: 'Gifts & Stationery',
+      factors: [
+        factor('inventoryCost', 0.18, 'Retail inventory value', 'Inventory count', 'Operator', 0.85),
+        factor('fixturesCost', 0.10, 'Shelving / display / POS fixtures', 'Invoices', 'Accounting records', 0.80),
+        factor('leaseholdImprovements', 0.08, 'Store fit-out cost', 'Invoices', 'Accounting records', 0.80),
+        factor('monthlyRevenue', 0.15, 'Average monthly revenue', 'POS / P&L', 'Accounting', 0.85),
+        factor('cogsRate', 0.10, 'Cost of goods sold', 'P&L', 'Accounting', 0.80),
+        factor('operatingExpensesRate', 0.08, 'Rent / labor / utilities ratio', 'P&L', 'Accounting', 0.75),
+        factor('locationPremium', 0.08, 'Footfall / location quality', 'Location benchmark', 'Market data', 0.75),
+        factor('brandStrength', 0.06, 'Brand / reputation score', 'Brand audit', 'Market research', 0.70),
+        factor('inventoryTurnover', 0.05, 'Inventory turns per year', 'Inventory / sales data', 'Accounting', 0.75),
+        factor('comparableSalesValue', 0.04, 'Comparable retail sales', 'Market transactions', 'Brokers', 0.65),
+        factor('conditionScore', 0.04, 'Store / fixture condition', 'Inspection', 'Facilities', 0.75),
+        factor('marketGrowthRate', 0.03, 'Retail sector growth', 'Industry data', 'Research firms', 0.65),
+        factor('regulatoryRisk', 0.01, 'Municipal / licensing risk', 'License review', 'Municipality', 0.70)
+      ],
+      outputWeights: { book: 0.25, market: 0.30, income: 0.40, liquidation: 0.05 },
+      valuationMethods: ['Income Approach', 'Market Approach', 'Cost Approach'],
+      minFactorsRequired: 6
+    },
+    furnitureAsset: {
+      id: 'furnitureAsset',
+      nameAr: 'الأثاث المنزلي والمكتبي',
+      nameEn: 'Furniture Assets',
+      factors: [
+        factor('inventoryValue', 0.18, 'Furniture inventory value', 'Inventory count', 'Operator', 0.85),
+        factor('showroomCost', 0.08, 'Showroom fit-out cost', 'Invoices', 'Accounting records', 0.80),
+        factor('warehouseCost', 0.07, 'Warehouse cost', 'Invoices / lease', 'Accounting records', 0.80),
+        factor('replacementCostNew', 0.12, 'Current new replacement cost', 'Supplier quotes', 'Vendor quotes', 0.80),
+        factor('conditionScore', 0.08, 'Physical / display condition', 'Inspection', 'Facilities', 0.80),
+        factor('monthlyRevenue', 0.12, 'Average monthly revenue', 'POS / P&L', 'Accounting', 0.85),
+        factor('cogsRate', 0.09, 'Cost of goods sold', 'P&L', 'Accounting', 0.80),
+        factor('operatingExpensesRate', 0.07, 'Rent / labor / utilities ratio', 'P&L', 'Accounting', 0.75),
+        factor('brandStrength', 0.06, 'Brand / manufacturer reputation', 'Brand audit', 'Market research', 0.70),
+        factor('marketGrowthRate', 0.04, 'Furniture market growth', 'Industry data', 'Research firms', 0.65),
+        factor('comparableSalesValue', 0.04, 'Comparable furniture business sales', 'Market transactions', 'Brokers', 0.65),
+        factor('inventoryTurnover', 0.04, 'Inventory turns per year', 'Inventory / sales data', 'Accounting', 0.75),
+        factor('warrantyValue', 0.01, 'Warranty / service value', 'Warranty records', 'Operator', 0.70)
+      ],
+      outputWeights: { book: 0.25, market: 0.30, income: 0.40, liquidation: 0.05 },
+      valuationMethods: ['Cost Approach', 'Income Approach', 'Market Approach'],
+      minFactorsRequired: 6
+    },
+    retailBusiness: {
+      id: 'retailBusiness',
+      nameAr: 'نشاط تجاري عام',
+      nameEn: 'Retail Business',
+      factors: [
+        factor('equityBookValue', 0.10, 'Book value of equity', 'Financial statements', 'Company accounts', 0.85),
+        factor('inventoryValue', 0.12, 'Retail inventory value', 'Inventory count', 'Operator', 0.85),
+        factor('fixedAssetsValue', 0.07, 'Fixed assets value', 'Asset register', 'Accounting records', 0.80),
+        factor('annualRevenue', 0.15, 'Trailing 12 months revenue', 'P&L / audited accounts', 'Accounting', 0.90),
+        factor('ebitdaMargin', 0.12, 'EBITDA / Revenue', 'P&L', 'Accounting', 0.85),
+        factor('revenueMultiple', 0.08, 'Retail revenue multiple', 'Comparable transactions', 'Market data', 0.75),
+        factor('ebitdaMultiple', 0.08, 'Retail EBITDA multiple', 'Comparable transactions', 'Market data', 0.75),
+        factor('locationPremium', 0.07, 'Store location quality', 'Location benchmark', 'Market data', 0.75),
+        factor('brandStrength', 0.06, 'Brand / reputation score', 'Brand audit', 'Market research', 0.70),
+        factor('inventoryTurnover', 0.05, 'Inventory turns per year', 'Inventory / sales data', 'Accounting', 0.75),
+        factor('growthRate', 0.04, 'Revenue growth rate', 'Historical financials', 'Company accounts', 0.70),
+        factor('customerConcentration', 0.03, 'Customer concentration risk', 'Sales records', 'Company systems', 0.70),
+        factor('regulatoryRisk', 0.03, 'Municipal / licensing risk', 'License review', 'Municipality', 0.70)
+      ],
+      outputWeights: { book: 0.15, market: 0.30, income: 0.50, liquidation: 0.05 },
+      valuationMethods: ['Income Approach', 'Market Approach', 'Cost Approach'],
+      minFactorsRequired: 7
     }
   };
 
