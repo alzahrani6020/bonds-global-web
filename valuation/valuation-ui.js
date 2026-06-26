@@ -59,6 +59,7 @@
       this.valuationCards = $('#valuationCards');
       this.restoreBanner = $('#restoreBanner');
       this.restoreText = $('#restoreText');
+      this.deprecationChart = null;
     }
 
     bindEvents() {
@@ -282,14 +283,19 @@
     }
 
     async submit() {
-      this.collectStepInputs();
-      await this.engine.preloadDepreciationFactors(this.currentAsset);
-      const valuations = this.engine.calculate(this.currentAsset, this.inputs);
-      const scores = this.engine.calculateScores(this.inputs);
-      const result = { valuations, scores, assetClass: this.currentAsset, inputs: { ...this.inputs } };
-      this.showResults(result);
-      this.saveDraft();
-      this.results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      try {
+        this.collectStepInputs();
+        await this.engine.preloadDepreciationFactors(this.currentAsset);
+        const valuations = this.engine.calculate(this.currentAsset, this.inputs);
+        const scores = this.engine.calculateScores(this.inputs);
+        const result = { valuations, scores, assetClass: this.currentAsset, inputs: { ...this.inputs } };
+        this.showResults(result);
+        this.saveDraft();
+        this.results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        console.error('[ValuationUI] Submit error:', err);
+        alert(this.locale.texts.submitError || 'حدث خطأ أثناء إنشاء التقييم. يرجى التحقق من البيانات المدخلة.');
+      }
     }
 
     showResults(result) {
@@ -380,9 +386,75 @@
               <div class="valuation-card__value">${formatCurrency(dep[item.key], this.lang)}</div>
             </div>
           `).join('');
+
+        this._renderDeprecationChart(dep);
+      } else {
+        const canvas = $('#deprecationChart');
+        if (canvas) canvas.style.display = 'none';
       }
 
       $('#reportText').textContent = this.engine.generateReport(result, this.lang);
+    }
+
+    _renderDeprecationChart(dep) {
+      const canvas = $('#deprecationChart');
+      if (!canvas || typeof Chart === 'undefined') return;
+      canvas.style.display = 'block';
+      const ctx = canvas.getContext('2d');
+
+      if (this.deprecationChart) {
+        this.deprecationChart.destroy();
+      }
+
+      const items = [
+        { label: this.locale.texts.accountingDepreciation, value: dep.accountingDepreciation },
+        { label: this.locale.texts.economicDepreciation, value: dep.economicDepreciation },
+        { label: this.locale.texts.operationalDepreciation, value: dep.operationalDepreciation },
+        { label: this.locale.texts.environmentalDepreciation, value: dep.environmentalDepreciation },
+        { label: this.locale.texts.technicalDepreciation, value: dep.technicalDepreciation },
+        { label: this.locale.texts.functionalDepreciation, value: dep.functionalDepreciation },
+        { label: this.locale.texts.maintenanceDepreciation, value: dep.maintenanceDepreciation },
+        { label: this.locale.texts.misuseDepreciation, value: dep.misuseDepreciation }
+      ].filter(i => i.value > 0);
+
+      const isEn = this.lang === 'en';
+      this.deprecationChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: items.map(i => i.label),
+          datasets: [{
+            label: isEn ? 'Depreciation Amount' : 'مبلغ الاستهلاك',
+            data: items.map(i => i.value),
+            backgroundColor: 'rgba(212, 168, 83, 0.7)',
+            borderColor: 'rgba(212, 168, 83, 1)',
+            borderWidth: 1,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: this.locale.texts.depreciationAnalysis,
+              color: getComputedStyle(document.body).getPropertyValue('--text').trim() || '#e8ecf4'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-secondary').trim() || '#94a3b8' },
+              grid: { color: 'rgba(197, 160, 40, 0.1)' }
+            },
+            x: {
+              ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-secondary').trim() || '#94a3b8' },
+              grid: { display: false }
+            }
+          }
+        }
+      });
     }
 
     closeWizard() {

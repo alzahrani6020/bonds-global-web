@@ -59,6 +59,8 @@ const CORE_ASSETS = [
   '/admin/city-intelligence/index.html',
   '/admin/city-intelligence/styles.css',
   '/admin/admin-embed.js',
+  '/admin/economic-life.html',
+  '/admin/depreciation-factors.html',
   '/admin/city-intelligence/service.js',
   '/admin/city-intelligence/app.js',
   '/admin/ai-business-advisor/index.html',

@@ -1948,7 +1948,10 @@
         optimistic: 'Optimistic',
         pessimistic: 'Pessimistic',
         year: 'Year',
-        none: 'None identified'
+        none: 'None identified',
+        depreciation: 'Depreciation Analysis',
+        depreciatedValue: 'Depreciated current value',
+        remainingValue: 'Remaining after total depreciation'
       } : {
         summary: 'الملخص التنفيذي — منصة بوندز الذكية للتقييم',
         values: 'القيم الأساسية',
@@ -1961,7 +1964,10 @@
         optimistic: 'الإيجابي',
         pessimistic: 'السلبي',
         year: 'سنة',
-        none: 'لا يوجد'
+        none: 'لا يوجد',
+        depreciation: 'تحليل الاستهلاك',
+        depreciatedValue: 'القيمة الحالية بعد الاستهلاك',
+        remainingValue: 'المتبقي بعد إجمالي الاستهلاك'
       };
 
       const valueLines = [
@@ -1982,9 +1988,15 @@
         `  T: ${swot.threats.length ? swot.threats.join(' · ') : t.none}`
       ];
 
+      const depreciationLines = v.totalDepreciation !== undefined ? [
+        `${t.depreciation}:`,
+        `  ${t.remainingValue}: ${fmt(v.totalDepreciation)} → ${t.depreciatedValue}: ${fmt(v.depreciationCurrentValue)}`
+      ] : [];
+
       const lines = [
         t.summary,
         ...valueLines,
+        ...depreciationLines,
         `${t.scores}: Quality ${s.assetQuality}/100 · Market ${s.marketStrength}/100 · Risk ${s.risk}/100 · Liquidity ${s.liquidity}/100`,
         `  Growth ${s.growth}/100 · Management ${s.management}/100 · Brand ${s.brandStrength}/100 · Attractiveness ${s.investmentAttractiveness}/100`,
         `${t.scenarios}: ${t.base} ${fmt(scenarios.base)} · ${t.optimistic} ${fmt(scenarios.optimistic)} · ${t.pessimistic} ${fmt(scenarios.pessimistic)}`,

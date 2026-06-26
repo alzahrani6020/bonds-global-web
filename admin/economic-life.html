@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>إدارة العمر الاقتصادي للأصول | بوندز</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { background: var(--bg); color: var(--text); font-family: Vazirmatn, system-ui, sans-serif; min-height: 100vh; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    h1 { color: var(--gold); margin-bottom: 1rem; }
+    .toolbar { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
+    input, select, button { padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text); }
+    button { background: var(--gold); color: #0a0f1a; font-weight: 700; cursor: pointer; border: none; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; background: var(--bg-card); border-radius: 12px; overflow: hidden; }
+    th, td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); text-align: right; }
+    th { background: rgba(212,168,83,0.1); color: var(--gold); font-weight: 700; }
+    tr:hover { background: rgba(255,255,255,0.03); }
+    .life-input { width: 80px; text-align: center; }
+    .status { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: none; }
+    .status.is-open { display: block; }
+    .status.success { background: rgba(34,197,94,0.1); color: #4ade80; }
+    .status.error { background: rgba(239,68,68,0.1); color: #f87171; }
+    .back-link { color: var(--gold); text-decoration: none; display: inline-block; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/admin/dashboard.html" class="back-link">⬅️ العودة إلى لوحة الإدارة</a>
+    <h1>إدارة العمر الاقتصادي للأصول (Economic Life Database)</h1>
+    <div id="status" class="status"></div>
+    <div class="toolbar">
+      <select id="assetFilter"><option value="">كل الفئات</option></select>
+      <input type="text" id="searchInput" placeholder="بحث..." />
+      <button id="saveBtn">حفظ التغييرات</button>
+      <button id="refreshBtn" style="background:transparent;border:1px solid var(--gold);color:var(--gold)">تحديث</button>
+    </div>
+    <div id="tableContainer"><p>جارِ التحميل...</p></div>
+  </div>
+
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/supabase-client.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      const LIFE_FIELDS = [
+        { key: 'economic_life_years', label: 'اقتصادي' },
+        { key: 'accounting_life_years', label: 'محاسبي' },
+        { key: 'technical_life_years', label: 'فني' },
+        { key: 'design_life_years', label: 'تصميمي' },
+        { key: 'operational_life_years', label: 'تشغيلي' },
+        { key: 'min_life_years', label: 'أدنى' },
+        { key: 'max_life_years', label: 'أقصى' }
+      ];
+      const container = document.getElementById('tableContainer');
+      const statusEl = document.getElementById('status');
+      const filterEl = document.getElementById('assetFilter');
+      const searchEl = document.getElementById('searchInput');
+      let rows = [];
+
+      function showStatus(msg, isError) {
+        statusEl.textContent = msg;
+        statusEl.className = 'status is-open ' + (isError ? 'error' : 'success');
+        setTimeout(() => statusEl.classList.remove('is-open'), 5000);
+      }
+
+      function getClient() {
+        return window.supabaseClient || (window.supabase && window.supabase.client);
+      }
+
+      async function fetchData() {
+        container.innerHTML = '<p>جارِ التحميل...</p>';
+        try {
+          const res = await fetch('/api/economic-life');
+          const json = await res.json();
+          if (!json.success) throw new Error(json.error);
+          rows = json.data || [];
+          render();
+        } catch (err) {
+          container.innerHTML = '<p style="color:#f87171">فشل التحميل: ' + err.message + '</p>';
+        }
+      }
+
+      function render() {
+        const term = searchEl.value.trim().toLowerCase();
+        const filter = filterEl.value;
+        const filtered = rows.filter(r => {
+          const matchesTerm = !term || (r.asset_class + ' ' + (r.name_ar || '') + ' ' + (r.name_en || '')).toLowerCase().includes(term);
+          const matchesFilter = !filter || r.asset_class === filter;
+          return matchesTerm && matchesFilter;
+        });
+
+        if (!rows.length) {
+          container.innerHTML = '<p>لا توجد بيانات</p>';
+          return;
+        }
+
+        // Populate filter once
+        if (!filterEl.options.length > 1) {
+          rows.forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r.asset_class;
+            opt.textContent = (r.name_ar || r.asset_class);
+            filterEl.appendChild(opt);
+          });
+        }
+
+        let html = '<table><thead><tr><th>الفئة</th>';
+        LIFE_FIELDS.forEach(f => html += '<th>' + f.label + '</th>');
+        html += '<th>المصدر</th><th>ملاحظات</th></tr></thead><tbody>';
+
+        filtered.forEach(r => {
+          html += '<tr data-asset="' + r.asset_class + '"><td><strong>' + (r.name_ar || r.asset_class) + '</strong><br><small style="color:var(--text-secondary)">' + r.asset_class + '</small></td>';
+          LIFE_FIELDS.forEach(f => {
+            html += '<td><input type="number" step="0.5" class="life-input" data-field="' + f.key + '" value="' + (r[f.key] || 0) + '"></td>';
+          });
+          html += '<td><input type="text" data-field="source" value="' + (r.source || '') + '"></td>';
+          html += '<td><input type="text" data-field="notes" value="' + (r.notes || '') + '"></td></tr>';
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+      }
+
+      async function save() {
+        const client = getClient();
+        if (!client || !client.auth) {
+          showStatus('لم يتم العثور على جلسة Supabase. يرجى تسجيل الدخول.', true);
+          return;
+        }
+
+        const { data: sessionData } = await client.auth.getSession();
+        const token = sessionData && sessionData.session && sessionData.session.access_token;
+        if (!token) {
+          showStatus('لا يوجد توكن صالح. يرجى تسجيل الدخول.', true);
+          return;
+        }
+
+        const updates = [];
+        document.querySelectorAll('tbody tr').forEach(tr => {
+          const assetClass = tr.dataset.asset;
+          const payload = { assetClass };
+          tr.querySelectorAll('[data-field]').forEach(el => {
+            const field = el.dataset.field;
+            if (field === 'source' || field === 'notes') {
+              payload[field] = el.value;
+            } else {
+              payload[field] = parseFloat(el.value) || 0;
+            }
+          });
+          updates.push(payload);
+        });
+
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'جارِ الحفظ...';
+
+        try {
+          for (const payload of updates) {
+            const res = await fetch('/api/economic-life', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+              body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+            if (!json.success) throw new Error(json.error || 'Save failed');
+          }
+          showStatus('تم حفظ التغييرات بنجاح.', false);
+          await fetchData();
+        } catch (err) {
+          showStatus('فشل الحفظ: ' + err.message, true);
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'حفظ التغييرات';
+        }
+      }
+
+      document.getElementById('saveBtn').addEventListener('click', save);
+      document.getElementById('refreshBtn').addEventListener('click', fetchData);
+      searchEl.addEventListener('input', render);
+      filterEl.addEventListener('change', render);
+
+      fetchData();
+    })();
+  </script>
+</body>
+</html>

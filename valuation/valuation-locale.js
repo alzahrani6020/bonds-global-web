@@ -64,7 +64,8 @@
         maintenanceNeglect: 'إهمال الصيانة (0-1)',
         misuseFactor: 'معامل سوء الاستخدام (0-1)',
         projectionYears: 'سنوات التوقع المستقبلي',
-        inflationRate: 'معدل التضخم السنوي'
+        inflationRate: 'معدل التضخم السنوي',
+        submitError: 'حدث خطأ أثناء إنشاء التقييم. يرجى التحقق من البيانات المدخلة.'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',
@@ -2588,7 +2589,8 @@
         maintenanceNeglect: 'Maintenance Neglect (0-1)',
         misuseFactor: 'Misuse Factor (0-1)',
         projectionYears: 'Projection Years',
-        inflationRate: 'Annual Inflation Rate'
+        inflationRate: 'Annual Inflation Rate',
+        submitError: 'An error occurred while generating the valuation. Please check your inputs.'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',
