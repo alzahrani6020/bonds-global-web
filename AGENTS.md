@@ -413,6 +413,32 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - **الاختبارات**: `tests/universal-dropdown/universal-dropdown.test.js` يغطي البحث، الفرز، الاختيار، الثيم الفاتح، multi-select، virtualization، optgroups، setLoading، reduced-motion، والتهيئة التلقائية.
 - **صفحة العرض**: `components/universal-dropdown/showcase.html` (عربي) و `showcase-en.html` (إنجليزي) تُظهر جميع الخصائص تفاعلياً.
 
+### 11.9 BONDS Valuation Intelligence — محرك التقييم
+
+منصة التقييم في `valuation/` تدعم 35 فئة أصول وتستخدم معايير BONDS Valuation Standards (BVS).
+
+- **الملفات الأساسية**:
+  - `valuation/valuation-engine.js` — محرك التقييم الرئيسي (book, market, fair, investment, liquidation values).
+  - `valuation/valuation-standards.js` — معايير BVS لكل فئة أصل.
+  - `valuation/economic-life-client.js` — عميل جلب العمر الاقتصادي من `economic_life_database`.
+  - `valuation/depreciation-engine.js` — **محرك الاستهلاك** (BDE) يحسب 8 أنواع من الاستهلاك.
+  - `valuation/depreciation-standards.js` — معايير BONDS Depreciation Standards (BDS) لكل فئة.
+- **أنواع الاستهلاك المحسوبة**:
+  1. الاستهلاك المحاسبي (`accountingDepreciation`)
+  2. الاستهلاك الاقتصادي (`economicDepreciation`)
+  3. الاستهلاك التشغيلي (`operationalDepreciation`)
+  4. الاستهلاك البيئي (`environmentalDepreciation`)
+  5. الاستهلاك التقني (`technicalDepreciation`)
+  6. الاستهلاك الوظيفي (`functionalDepreciation`)
+  7. الاستهلاك الناتج عن قلة الصيانة (`maintenanceDepreciation`)
+  8. الاستهلاك الناتج عن سوء الاستخدام (`misuseDepreciation`)
+- **المخرجات الإضافية من محرك الاستهلاك**:
+  - `depreciationCurrentValue` — القيمة الحالية بعد الاستهلاك.
+  - `depreciationFutureValue` — القيمة المتوقعة بعد `projectionYears`.
+  - `depreciationReplacementValue` — تكلفة الاستبدال بأصل مكافئ حديث.
+- **الدمج**: `valuation-engine.js` يستدعي `DepreciationEngine` تلقائياً ويُضيف النتائج إلى ناتج `calculate()`.
+- **الاختبارات**: `tests/depreciation-engine.test.js` + `tests/valuation-engine.test.js`.
+
 ---
 
 ## 12. تصميم footer التقرير (Report Footer)
@@ -448,4 +474,4 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 
 ---
 
-*آخر تحديث: 2026-06-21*
+*آخر تحديث: 2026-06-24*

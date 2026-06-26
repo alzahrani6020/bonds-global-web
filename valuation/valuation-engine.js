@@ -135,6 +135,17 @@
       return (typeof economicLifeClient !== 'undefined' && economicLifeClient) || null;
     }
 
+    /* ---------- Depreciation Engine helpers ---------- */
+    _depreciationEngine() {
+      if (typeof DepreciationEngine !== 'undefined' && DepreciationEngine) {
+        const standards = (typeof DepreciationStandards !== 'undefined' && DepreciationStandards)
+          ? new DepreciationStandards()
+          : null;
+        return new DepreciationEngine(standards);
+      }
+      return null;
+    }
+
     _getEconomicLife(assetClass, inputs = {}) {
       const client = this._economicLifeClient();
       const year = safe(inputs.yearAcquired) || safe(inputs.yearBuilt) || safe(inputs.constructionYear) || CURRENT_YEAR;
@@ -1450,6 +1461,12 @@
       // Economic Life Database integration
       const lifeData = this._getEconomicLife(assetClass, enrichedInputs);
 
+      // Depreciation Engine integration
+      const depEngine = this._depreciationEngine();
+      const depreciation = depEngine
+        ? depEngine.calculate(assetClass, enrichedInputs, lifeData)
+        : null;
+
       return {
         ...rounded,
         confidenceScore: round2(confidenceScore),
@@ -1466,7 +1483,21 @@
         remainingAccountingLife: round2(lifeData.remaining.accounting),
         remainingTechnicalLife: round2(lifeData.remaining.technical),
         remainingDesignLife: round2(lifeData.remaining.design),
-        remainingOperationalLife: round2(lifeData.remaining.operational)
+        remainingOperationalLife: round2(lifeData.remaining.operational),
+        ...(depreciation && {
+          accountingDepreciation: depreciation.accountingDepreciation,
+          economicDepreciation: depreciation.economicDepreciation,
+          operationalDepreciation: depreciation.operationalDepreciation,
+          environmentalDepreciation: depreciation.environmentalDepreciation,
+          technicalDepreciation: depreciation.technicalDepreciation,
+          functionalDepreciation: depreciation.functionalDepreciation,
+          maintenanceDepreciation: depreciation.maintenanceDepreciation,
+          misuseDepreciation: depreciation.misuseDepreciation,
+          totalDepreciation: depreciation.totalDepreciation,
+          depreciationCurrentValue: depreciation.currentValue,
+          depreciationFutureValue: depreciation.futureValue,
+          depreciationReplacementValue: depreciation.replacementValue
+        })
       };
     }
 
