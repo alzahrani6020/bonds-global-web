@@ -5,8 +5,10 @@ const fs = require('fs');
 const path = require('path');
 
 const bvsCode = fs.readFileSync(path.join(__dirname, '../valuation/valuation-standards.js'), 'utf8');
+const economicLifeCode = fs.readFileSync(path.join(__dirname, '../valuation/economic-life-client.js'), 'utf8');
 const engineCode = fs.readFileSync(path.join(__dirname, '../valuation/valuation-engine.js'), 'utf8');
 eval(bvsCode);
+eval(economicLifeCode);
 eval(engineCode);
 
 function buildInputs(defaults) {
@@ -609,6 +611,34 @@ describe('ValuationEngine', () => {
       const validation = engine.validateInputs('realEstate', {});
       expect(validation.valid).toBe(false);
       expect(validation.issues.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Economic Life Database', () => {
+    it('includes economic life data in every valuation result', () => {
+      const inputs = buildInputs({ purchasePrice: 2000000, areaSqm: 500, yearBuilt: 2015 });
+      const result = engine.calculate('realEstate', inputs);
+      expect(result.economicLife).toBeGreaterThan(0);
+      expect(result.accountingLife).toBeGreaterThan(0);
+      expect(result.technicalLife).toBeGreaterThan(0);
+      expect(result.designLife).toBeGreaterThan(0);
+      expect(result.operationalLife).toBeGreaterThan(0);
+      expect(result.assetAge).toBeGreaterThanOrEqual(0);
+      expect(result.remainingEconomicLife).toBeGreaterThanOrEqual(0);
+    });
+
+    it('computes remaining life based on acquisition year', () => {
+      const inputs = buildInputs({ purchasePrice: 500000, yearAcquired: 2010 });
+      const result = engine.calculate('machineryEquipment', inputs);
+      expect(result.assetAge).toBeGreaterThan(0);
+      expect(result.remainingEconomicLife).toBeLessThan(result.economicLife);
+    });
+
+    it('falls back to economic life when usefulLifeYears is missing', () => {
+      const inputs = buildInputs({ purchasePrice: 500000, yearAcquired: 2018 });
+      delete inputs.usefulLifeYears;
+      const result = engine.calculate('vehiclesFleet', inputs);
+      expect(result.bookValue).toBeGreaterThanOrEqual(0);
     });
   });
 

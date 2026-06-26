@@ -130,6 +130,39 @@
   }
 
   class ValuationEngine {
+    /* ---------- Economic Life Database helpers ---------- */
+    _economicLifeClient() {
+      return (typeof economicLifeClient !== 'undefined' && economicLifeClient) || null;
+    }
+
+    _getEconomicLife(assetClass, inputs = {}) {
+      const client = this._economicLifeClient();
+      const year = safe(inputs.yearAcquired) || safe(inputs.yearBuilt) || safe(inputs.constructionYear) || CURRENT_YEAR;
+      if (client) {
+        return client.computeRemainingLife(assetClass, year, CURRENT_YEAR);
+      }
+      const fallback = {
+        economic: 15, accounting: 10, technical: 18, design: 20, operational: 15
+      };
+      const age = Math.max(0, CURRENT_YEAR - year);
+      return {
+        ...fallback,
+        age,
+        remaining: {
+          economic: Math.max(0, fallback.economic - age),
+          accounting: Math.max(0, fallback.accounting - age),
+          technical: Math.max(0, fallback.technical - age),
+          design: Math.max(0, fallback.design - age),
+          operational: Math.max(0, fallback.operational - age)
+        }
+      };
+    }
+
+    _usefulLifeFromEconomic(assetClass, inputs) {
+      const life = this._getEconomicLife(assetClass, inputs);
+      return safe(inputs.usefulLifeYears) || life.economic || 15;
+    }
+
     /* ---------- Risk helper ---------- */
     _avgRisk(inputs) {
       const keys = [
@@ -1317,24 +1350,30 @@
         throw new Error(`BVS standard missing for asset class: ${assetClass}. Valuation blocked by BONDS Valuation Standards.`);
       }
 
+      // Enrich inputs with Economic Life Database defaults if usefulLifeYears is missing
+      const enrichedInputs = { ...inputs };
+      if (!enrichedInputs.usefulLifeYears) {
+        enrichedInputs.usefulLifeYears = this._usefulLifeFromEconomic(assetClass, enrichedInputs);
+      }
+
       const outputWeights = this._bvsOutputWeights(assetClass);
       const rawValues = (() => {
         switch (assetClass) {
-          case AssetClass.REAL_ESTATE: return this._calcRealEstate(inputs);
-          case AssetClass.BUSINESS: return this._calcBusiness(inputs);
-          case AssetClass.FACTORY: return this._calcFactory(inputs);
+          case AssetClass.REAL_ESTATE: return this._calcRealEstate(enrichedInputs);
+          case AssetClass.BUSINESS: return this._calcBusiness(enrichedInputs);
+          case AssetClass.FACTORY: return this._calcFactory(enrichedInputs);
           case AssetClass.MACHINERY_EQUIPMENT:
-            return this._calcDepreciableTangible(inputs, { weights: outputWeights, regulatoryBoost: 0, capRate: 0.12 });
+            return this._calcDepreciableTangible(enrichedInputs, { weights: outputWeights, regulatoryBoost: 0, capRate: 0.12 });
           case AssetClass.VEHICLES_FLEET:
-            return this._calcDepreciableTangible(inputs, { weights: outputWeights, regulatoryBoost: 0, capRate: 0.12 });
+            return this._calcDepreciableTangible(enrichedInputs, { weights: outputWeights, regulatoryBoost: 0, capRate: 0.12 });
           case AssetClass.MEDICAL_EQUIPMENT:
-            return this._calcDepreciableTangible(inputs, {
+            return this._calcDepreciableTangible(enrichedInputs, {
               weights: outputWeights,
               regulatoryBoost: 50000,
               capRate: 0.1
             });
           case AssetClass.EDUCATIONAL_EQUIPMENT:
-            return this._calcDepreciableTangible(inputs, {
+            return this._calcDepreciableTangible(enrichedInputs, {
               weights: outputWeights,
               capRate: 0.1
             });
@@ -1344,55 +1383,55 @@
           case AssetClass.DISTRESSED_ASSET:
             return this._calcDistressed(inputs);
           case AssetClass.AGRICULTURE_FARMS:
-            return this._calcBiologicalNatural(inputs, { weights: outputWeights, capRate: 0.12 });
+            return this._calcBiologicalNatural(enrichedInputs, { weights: outputWeights, capRate: 0.12 });
           case AssetClass.LIVESTOCK:
-            return this._calcBiologicalNatural(inputs, { isLivestock: true, weights: outputWeights, capRate: 0.15 });
+            return this._calcBiologicalNatural(enrichedInputs, { isLivestock: true, weights: outputWeights, capRate: 0.15 });
           case AssetClass.NATURAL_RESOURCES_MINING:
           case AssetClass.OIL_GAS:
-            return this._calcResourceInfrastructure(inputs, { weights: outputWeights });
+            return this._calcResourceInfrastructure(enrichedInputs, { weights: outputWeights });
           case AssetClass.INFRASTRUCTURE:
-            return this._calcResourceInfrastructure(inputs, { weights: outputWeights, growthRate: 0.03 });
+            return this._calcResourceInfrastructure(enrichedInputs, { weights: outputWeights, growthRate: 0.03 });
           case AssetClass.INTELLECTUAL_PROPERTY:
-            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.05, weights: outputWeights });
+            return this._calcIntangibleIncome(enrichedInputs, { defaultRoyaltyRate: 0.05, weights: outputWeights });
           case AssetClass.BRANDS_TRADEMARKS:
-            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.04, weights: outputWeights });
+            return this._calcIntangibleIncome(enrichedInputs, { defaultRoyaltyRate: 0.04, weights: outputWeights });
           case AssetClass.PATENTS:
-            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.06, weights: outputWeights });
+            return this._calcIntangibleIncome(enrichedInputs, { defaultRoyaltyRate: 0.06, weights: outputWeights });
           case AssetClass.COPYRIGHTS_CONTENT:
-            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.07, weights: outputWeights });
+            return this._calcIntangibleIncome(enrichedInputs, { defaultRoyaltyRate: 0.07, weights: outputWeights });
           case AssetClass.FRANCHISES:
-            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.06, weights: outputWeights });
+            return this._calcIntangibleIncome(enrichedInputs, { defaultRoyaltyRate: 0.06, weights: outputWeights });
           case AssetClass.LICENSES_PERMITS:
-            return this._calcIntangibleIncome(inputs, { defaultRoyaltyRate: 0.03, weights: outputWeights });
+            return this._calcIntangibleIncome(enrichedInputs, { defaultRoyaltyRate: 0.03, weights: outputWeights });
           case AssetClass.FINANCIAL_ASSETS:
-            return this._calcMarketableSecurities(inputs, { defaultTxCost: 0.015 });
+            return this._calcMarketableSecurities(enrichedInputs, { defaultTxCost: 0.015 });
           case AssetClass.CRYPTO_DIGITAL:
-            return this._calcMarketableSecurities(inputs, { defaultTxCost: 0.025, isCrypto: true });
+            return this._calcMarketableSecurities(enrichedInputs, { defaultTxCost: 0.025, isCrypto: true });
           case AssetClass.SOFTWARE_TECHNOLOGY:
-            return this._calcSaaSTechnology(inputs);
+            return this._calcSaaSTechnology(enrichedInputs);
           case AssetClass.ART_COLLECTIBLES:
-            return this._calcGeneric(inputs);
+            return this._calcGeneric(enrichedInputs);
           case AssetClass.TOURISM_ASSET:
-            return this._calcTourismAsset(inputs);
+            return this._calcTourismAsset(enrichedInputs);
           case AssetClass.PERSONAL_WEALTH:
-            return this._calcPersonalWealth(inputs);
+            return this._calcPersonalWealth(enrichedInputs);
           case AssetClass.SCRAP_SALVAGE:
-            return this._calcScrapSalvage(inputs);
+            return this._calcScrapSalvage(enrichedInputs);
           case AssetClass.MARITIME_ASSET:
-            return this._calcMaritimeAsset(inputs);
+            return this._calcMaritimeAsset(enrichedInputs);
           case AssetClass.LOGISTICS_ASSET:
-            return this._calcLogisticsAsset(inputs);
+            return this._calcLogisticsAsset(enrichedInputs);
           case AssetClass.FUEL_STATION:
-            return this._calcFuelStation(inputs);
+            return this._calcFuelStation(enrichedInputs);
           case AssetClass.BEAUTY_WELLNESS:
-            return this._calcBeautyWellness(inputs);
+            return this._calcBeautyWellness(enrichedInputs);
           case AssetClass.GIFTS_STATIONERY:
-            return this._calcGiftsStationery(inputs);
+            return this._calcGiftsStationery(enrichedInputs);
           case AssetClass.FURNITURE_ASSET:
-            return this._calcFurnitureAsset(inputs);
+            return this._calcFurnitureAsset(enrichedInputs);
           case AssetClass.RETAIL_BUSINESS:
-            return this._calcRetailBusiness(inputs);
-          default: return this._calcGeneric(inputs);
+            return this._calcRetailBusiness(enrichedInputs);
+          default: return this._calcGeneric(enrichedInputs);
         }
       })();
 
@@ -1400,20 +1439,34 @@
       const values = this._applyBVSWeights(rawValues, outputWeights);
 
       // BVS validation and confidence
-      const validation = this.validateInputs(assetClass, inputs);
-      const confidenceScore = this.getConfidenceScore(assetClass, inputs);
+      const validation = this.validateInputs(assetClass, enrichedInputs);
+      const confidenceScore = this.getConfidenceScore(assetClass, enrichedInputs);
 
       const rounded = Object.fromEntries(Object.entries(values).map(([k, v]) => [
         k,
         typeof v === 'boolean' ? v : round2(v)
       ]));
 
+      // Economic Life Database integration
+      const lifeData = this._getEconomicLife(assetClass, enrichedInputs);
+
       return {
         ...rounded,
         confidenceScore: round2(confidenceScore),
         bvsValidation: validation,
         bvsVersion: bvs ? bvs.version : null,
-        bvsCompliant: validation.valid
+        bvsCompliant: validation.valid,
+        economicLife: round2(lifeData.economic),
+        accountingLife: round2(lifeData.accounting),
+        technicalLife: round2(lifeData.technical),
+        designLife: round2(lifeData.design),
+        operationalLife: round2(lifeData.operational),
+        assetAge: round2(lifeData.age),
+        remainingEconomicLife: round2(lifeData.remaining.economic),
+        remainingAccountingLife: round2(lifeData.remaining.accounting),
+        remainingTechnicalLife: round2(lifeData.remaining.technical),
+        remainingDesignLife: round2(lifeData.remaining.design),
+        remainingOperationalLife: round2(lifeData.remaining.operational)
       };
     }
 
