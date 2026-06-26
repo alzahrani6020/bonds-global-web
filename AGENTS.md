@@ -426,13 +426,15 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - `valuation/depreciation-factors-client.js` — عميل frontend لجلب العوامل من جدول `depreciation_factors`.
   - `api/depreciation-factors.js` — API endpoint للقراءة العامة والتحديث (admin/editor).
   - `supabase/migrations/20260709000000_depreciation_factors.sql` — جدول عوامل الاستهلاك المركزي.
-  - `valuation/market-intelligence-client.js` — عميل frontend لجلب البيانات السوقية من `market_data`.
-  - `api/market-intelligence.js` — API endpoint للقراءة العامة والتحديث (admin/editor).
-  - `supabase/migrations/20260710000000_market_intelligence.sql` — جدول البيانات السوقية المركزي.
-  - `admin/market-intelligence.html` — لوحة إدارة البيانات السوقية.
-  - `valuation/valuation-ui.js` — يعرض نتائج الاستهلاك في لوحة النتائج.
-  - `valuation/valuation-locale.js` — التسميات العربية والإنجليزية لحقول ومخرجات الاستهلاك.
-  - `valuation/valuation.css` — تنسيق قسم تحليل الاستهلاك.
+  - `valuation/market-intelligence-client.js` — عميل frontend لجلب البيانات السوقية من `market_data` مع دعم الجغرافيا والتاريخ.
+  - `api/market-intelligence.js` — API endpoint للقراءة العامة والتحديث (admin/editor) + التحديث التلقائي من المصادر الخارجية.
+  - `supabase/migrations/20260710000000_market_intelligence.sql` — جدول `market_data` الأساسي.
+  - `supabase/migrations/20260711000000_market_intelligence_v2.sql` — توسعة المحرك: `market_data_history`، `market_data_sources`، وأعمدة `region/sector/risk_score/outlook/confidence/data_quality_score/notes`.
+  - `admin/market-intelligence.html` — لوحة إدارة البيانات السوقية ومصادر البيانات.
+  - `.github/workflows/market-intelligence-refresh.yml` — جدولة تحديث يومي للمصادر الخارجية.
+  - `valuation/valuation-ui.js` — يعرض البيانات السوقية والاتجاهات في لوحة النتائج.
+  - `valuation/valuation-locale.js` — التسميات العربية والإنجليزية لحقول ومخرجات الذكاء السوقي.
+  - `valuation/valuation.css` — تنسيق بطاقات وبادجات الذكاء السوقي.
 - **أنواع الاستهلاك المحسوبة**:
   1. الاستهلاك المحاسبي (`accountingDepreciation`)
   2. الاستهلاك الاقتصادي (`economicDepreciation`)

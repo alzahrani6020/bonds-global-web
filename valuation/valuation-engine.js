@@ -158,17 +158,21 @@
       return (typeof marketIntelligenceClient !== 'undefined' && marketIntelligenceClient) || null;
     }
 
-    async preloadMarketIntelligence(assetClass, country = null, city = null) {
+    async preloadMarketIntelligence(assetClass, inputs = {}) {
       const client = this._marketIntelligenceClient();
       if (client && client.getData) {
         this._preloadedMarketData = this._preloadedMarketData || {};
-        const key = [assetClass, country, city].join('|');
-        this._preloadedMarketData[key] = await client.getData(assetClass, country, city);
+        const country = inputs.country || '';
+        const region = inputs.region || '';
+        const city = inputs.city || '';
+        const sector = inputs.sector || '';
+        const key = [assetClass, country, region, city, sector].join('|');
+        this._preloadedMarketData[key] = await client.getData(assetClass, country, region, city, sector);
       }
     }
 
     _getMarketData(assetClass, inputs = {}) {
-      const key = [assetClass, inputs.country, inputs.city].join('|');
+      const key = [assetClass, inputs.country || '', inputs.region || '', inputs.city || '', inputs.sector || ''].join('|');
       if (this._preloadedMarketData && this._preloadedMarketData[key]) {
         return this._preloadedMarketData[key];
       }
@@ -1376,11 +1380,25 @@
       const fairValue = safe(values.fairValue);
       const investmentValue = safe(values.investmentValue);
 
+      const confidence = clamp(market.confidence, 0, 1) || 0.5;
+      const risk = clamp(market.riskScore, 0, 10);
+      const riskAdj = 1 - (risk / 10) * 0.1;
+      const outlook = market.outlook || 'neutral';
+      const outlookAdj = outlook === 'positive' ? 0.025 : outlook === 'negative' ? -0.025 : 0;
+
+      function applyInsightFactor(baseValue) {
+        if (!baseValue || baseValue <= 0) return baseValue;
+        const adjusted = baseValue * riskAdj * (1 + outlookAdj);
+        return baseValue + (adjusted - baseValue) * confidence;
+      }
+
       // Blend market value with average selling price if available
       if (market.averageSellingPrice > 0 && marketValue > 0) {
         const volumeWeight = Math.min(1, market.transactionCount / 100);
         const blended = marketValue * (1 - volumeWeight) + market.averageSellingPrice * volumeWeight;
-        result.marketValue = round2(blended);
+        result.marketValue = round2(applyInsightFactor(blended));
+      } else if (marketValue > 0) {
+        result.marketValue = round2(applyInsightFactor(marketValue));
       }
 
       // Adjust fair value by demand/supply ratio
@@ -1388,7 +1406,7 @@
         const demand = clamp(market.demandIndex, 1, 10);
         const supply = clamp(market.supplyIndex, 1, 10);
         const ratio = (demand / 5) / (supply / 5);
-        result.fairValue = round2(fairValue * ratio);
+        result.fairValue = round2(applyInsightFactor(fairValue * ratio));
       }
 
       // Adjust investment value by inflation/interest/growth
@@ -1398,7 +1416,7 @@
         const interest = clamp(market.interestRate, 0, 0.5);
         const interestDiscount = 1 - (interest - 0.05) * 0.5;
         const growthPremium = 1 + growth + inflation;
-        result.investmentValue = round2(investmentValue * growthPremium * interestDiscount);
+        result.investmentValue = round2(applyInsightFactor(investmentValue * growthPremium * interestDiscount));
       }
 
       return result;

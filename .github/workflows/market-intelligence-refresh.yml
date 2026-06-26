@@ -1,0 +1,21 @@
+name: Market Intelligence Refresh
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    name: Refresh market intelligence data
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger ingestion
+        run: |
+          curl -fsS -X POST "${SITE_URL}/api/market-intelligence?cronSecret=${CRON_SECRET}" \
+            -H "Content-Type: application/json" \
+            -d '{"action":"refresh"}'
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://bonds-global.com' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}

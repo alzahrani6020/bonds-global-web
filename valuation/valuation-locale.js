@@ -77,7 +77,16 @@
         marketInflationRate: 'معدل التضخم السوقي',
         marketInterestRate: 'معدل الفائدة السوقي',
         economicGrowthRate: 'معدل النمو الاقتصادي',
-        marketDataSource: 'مصدر البيانات'
+        marketDataSource: 'مصدر البيانات',
+        marketScope: 'النطاق',
+        globalScope: 'عالمي',
+        outlook: 'النظرة المستقبلية',
+        outlookPositive: 'إيجابية',
+        outlookNeutral: 'محايدة',
+        outlookNegative: 'سلبية',
+        riskScore: 'درجة المخاطرة',
+        confidence: 'الثقة',
+        dataQualityScore: 'جودة البيانات'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',
@@ -2614,7 +2623,16 @@
         marketInflationRate: 'Market Inflation Rate',
         marketInterestRate: 'Market Interest Rate',
         economicGrowthRate: 'Economic Growth Rate',
-        marketDataSource: 'Data Source'
+        marketDataSource: 'Data Source',
+        marketScope: 'Scope',
+        globalScope: 'Global',
+        outlook: 'Outlook',
+        outlookPositive: 'Positive',
+        outlookNeutral: 'Neutral',
+        outlookNegative: 'Negative',
+        riskScore: 'Risk Score',
+        confidence: 'Confidence',
+        dataQualityScore: 'Data Quality'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',

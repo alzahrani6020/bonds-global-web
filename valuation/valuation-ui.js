@@ -60,6 +60,7 @@
       this.restoreBanner = $('#restoreBanner');
       this.restoreText = $('#restoreText');
       this.deprecationChart = null;
+      this.marketTrendChart = null;
     }
 
     bindEvents() {
@@ -287,7 +288,7 @@
         this.collectStepInputs();
         await Promise.all([
           this.engine.preloadDepreciationFactors(this.currentAsset),
-          this.engine.preloadMarketIntelligence(this.currentAsset, this.inputs.country, this.inputs.city)
+          this.engine.preloadMarketIntelligence(this.currentAsset, this.inputs)
         ]);
         const valuations = this.engine.calculate(this.currentAsset, this.inputs);
         const scores = this.engine.calculateScores(this.inputs);
@@ -362,30 +363,66 @@
 
       if (hasMarket && marketCards) {
         if (marketSummary) {
-          marketSummary.innerHTML = `<p><strong>${t.marketIntelligence}:</strong> ${t.marketDataSource}: ${market.source || 'BONDS Market Intelligence'}</p>`;
+          const dims = [];
+          if (market.country) dims.push(market.country);
+          if (market.region) dims.push(market.region);
+          if (market.city) dims.push(market.city);
+          if (market.sector) dims.push(market.sector);
+          const scope = dims.length ? dims.join(' / ') : (t.globalScope || 'عالمي');
+          marketSummary.innerHTML = `
+            <p><strong>${t.marketIntelligence}:</strong> ${t.marketDataSource}: ${market.source || 'BONDS Market Intelligence'} — ${t.marketScope}: ${scope}</p>
+            ${market.notes ? `<p class="market-notes">${market.notes}</p>` : ''}
+          `;
         }
 
         const marketOrder = [
-          { key: 'averageSellingPrice', label: t.averageSellingPrice },
-          { key: 'averageBuyingPrice', label: t.averageBuyingPrice },
-          { key: 'transactionCount', label: t.transactionCount },
-          { key: 'supplyIndex', label: t.supplyIndex },
-          { key: 'demandIndex', label: t.demandIndex },
-          { key: 'competitorCount', label: t.competitorCount },
-          { key: 'averageSaleSpeedDays', label: t.averageSaleSpeedDays },
-          { key: 'inflationRate', label: t.marketInflationRate },
-          { key: 'interestRate', label: t.marketInterestRate },
-          { key: 'economicGrowthRate', label: t.economicGrowthRate }
+          { key: 'averageSellingPrice', label: t.averageSellingPrice, type: 'currency' },
+          { key: 'averageBuyingPrice', label: t.averageBuyingPrice, type: 'currency' },
+          { key: 'transactionCount', label: t.transactionCount, type: 'number' },
+          { key: 'supplyIndex', label: t.supplyIndex, type: 'number' },
+          { key: 'demandIndex', label: t.demandIndex, type: 'number' },
+          { key: 'competitorCount', label: t.competitorCount, type: 'number' },
+          { key: 'averageSaleSpeedDays', label: t.averageSaleSpeedDays, type: 'number' },
+          { key: 'inflationRate', label: t.marketInflationRate, type: 'percent' },
+          { key: 'interestRate', label: t.marketInterestRate, type: 'percent' },
+          { key: 'economicGrowthRate', label: t.economicGrowthRate, type: 'percent' },
+          { key: 'riskScore', label: t.riskScore, type: 'number' },
+          { key: 'confidence', label: t.confidence, type: 'percent' },
+          { key: 'dataQualityScore', label: t.dataQualityScore, type: 'number' }
         ];
 
-        marketCards.innerHTML = marketOrder
+        let cardsHtml = marketOrder
           .filter(item => market[item.key] !== undefined)
-          .map(item => `
-            <div class="valuation-card">
-              <div class="valuation-card__label">${item.label}</div>
-              <div class="valuation-card__value">${formatCurrency(market[item.key], this.lang)}</div>
+          .map(item => {
+            const num = Number(market[item.key]) || 0;
+            let val;
+            if (item.type === 'currency') val = formatCurrency(num, this.lang);
+            else if (item.type === 'percent') val = `${(num * 100).toFixed(1)}%`;
+            else val = formatCurrency(num, this.lang);
+            return `
+              <div class="valuation-card">
+                <div class="valuation-card__label">${item.label}</div>
+                <div class="valuation-card__value">${val}</div>
+              </div>
+            `;
+          }).join('');
+
+        if (market.outlook) {
+          const outlookKey = market.outlook === 'positive' ? 'positive'
+            : market.outlook === 'negative' ? 'negative' : 'neutral';
+          const badgeClass = `market-badge--${outlookKey}`;
+          const labelKey = `outlook${outlookKey.charAt(0).toUpperCase() + outlookKey.slice(1)}`;
+          cardsHtml += `
+            <div class="valuation-card market-badge ${badgeClass}">
+              <div class="valuation-card__label">${t.outlook}</div>
+              <div class="valuation-card__value">${t[labelKey] || market.outlook}</div>
             </div>
-          `).join('');
+          `;
+        }
+
+        marketCards.innerHTML = cardsHtml;
+
+        this._renderMarketTrend(market);
       }
 
       // Depreciation analysis
@@ -439,6 +476,7 @@
       const canvas = $('#deprecationChart');
       if (!canvas || typeof Chart === 'undefined') return;
       canvas.style.display = 'block';
+      if (container) container.style.display = 'block';
       const ctx = canvas.getContext('2d');
 
       if (this.deprecationChart) {
@@ -486,6 +524,102 @@
               beginAtZero: true,
               ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-secondary').trim() || '#94a3b8' },
               grid: { color: 'rgba(197, 160, 40, 0.1)' }
+            },
+            x: {
+              ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-secondary').trim() || '#94a3b8' },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    async _renderMarketTrend(market) {
+      const canvas = $('#marketTrendChart');
+      const container = $('#marketTrendContainer');
+      if (!canvas || typeof Chart === 'undefined') return;
+      if (container) container.style.display = 'none';
+      canvas.style.display = 'none';
+      if (!market || !market.assetClass) return;
+
+      const client = this.engine._marketIntelligenceClient();
+      if (!client || !client.fetchHistory) return;
+
+      const history = await client.fetchHistory(market.assetClass, {
+        country: market.country,
+        region: market.region,
+        city: market.city,
+        sector: market.sector,
+        limit: 30
+      });
+
+      if (!history || history.length < 2) return;
+
+      history.sort((a, b) => new Date(a.updatedAt || a.createdAt || 0) - new Date(b.updatedAt || b.createdAt || 0));
+      const labels = history.map((_, i) => `${i + 1}`);
+      const prices = history.map(h => h.averageSellingPrice || 0);
+      const demand = history.map(h => h.demandIndex || 0);
+
+      canvas.style.display = 'block';
+      const ctx = canvas.getContext('2d');
+      if (this.marketTrendChart) {
+        this.marketTrendChart.destroy();
+      }
+
+      const t = this.locale.texts;
+      const isEn = this.lang === 'en';
+      this.marketTrendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: t.averageSellingPrice,
+              data: prices,
+              borderColor: 'rgba(212, 168, 83, 1)',
+              backgroundColor: 'rgba(212, 168, 83, 0.1)',
+              yAxisID: 'y',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: t.demandIndex,
+              data: demand,
+              borderColor: 'rgba(74, 222, 128, 1)',
+              backgroundColor: 'rgba(74, 222, 128, 0.1)',
+              yAxisID: 'y1',
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              labels: { color: getComputedStyle(document.body).getPropertyValue('--text').trim() || '#e8ecf4' }
+            },
+            title: {
+              display: true,
+              text: isEn ? 'Market Trend (latest snapshots)' : 'الاتجاه السوقي (آخر اللقطات)',
+              color: getComputedStyle(document.body).getPropertyValue('--text').trim() || '#e8ecf4'
+            }
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-secondary').trim() || '#94a3b8' },
+              grid: { color: 'rgba(197, 160, 40, 0.1)' }
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              grid: { drawOnChartArea: false },
+              ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-secondary').trim() || '#94a3b8' }
             },
             x: {
               ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-secondary').trim() || '#94a3b8' },

@@ -419,6 +419,43 @@ html[dir="rtl"] .wizard__actions--end {
   color: var(--gold);
 }
 
+.market-badge .valuation-card__value {
+  font-size: var(--text-lg);
+}
+
+.market-badge--positive {
+  border-color: rgba(74, 222, 128, 0.4);
+  background: rgba(74, 222, 128, 0.08);
+}
+
+.market-badge--positive .valuation-card__value {
+  color: #4ade80;
+}
+
+.market-badge--negative {
+  border-color: rgba(248, 113, 113, 0.4);
+  background: rgba(248, 113, 113, 0.08);
+}
+
+.market-badge--negative .valuation-card__value {
+  color: #f87171;
+}
+
+.market-badge--neutral {
+  border-color: rgba(148, 163, 184, 0.4);
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.market-badge--neutral .valuation-card__value {
+  color: #94a3b8;
+}
+
+.market-notes {
+  margin-top: var(--space-2);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
 /* Deprecation summary */
 .deprecation-summary,
 .market-summary {

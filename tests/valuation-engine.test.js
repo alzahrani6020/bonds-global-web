@@ -666,7 +666,7 @@ describe('ValuationEngine', () => {
     it('preloads and applies market intelligence data', async () => {
       const inputs = buildInputs({ purchasePrice: 1000000, yearAcquired: 2019, usefulLifeYears: 15 });
       engine._preloadedMarketData = {
-        'factory||': {
+        'factory||||': {
           averageSellingPrice: 2000000,
           transactionCount: 50,
           demandIndex: 8,
@@ -694,7 +694,7 @@ describe('ValuationEngine', () => {
       const baseline = engine.calculate('factory', inputs);
 
       engine._preloadedMarketData = {
-        'factory||': {
+        'factory||||': {
           averageSellingPrice: 3000000,
           transactionCount: 100,
           demandIndex: 8,

@@ -2,7 +2,7 @@
  * Market Intelligence Client
  *
  * Loads market data from the central database via /api/market-intelligence.
- * Falls back to sensible defaults if the API is unavailable.
+ * Supports country/region/city/sector fallbacks and historical snapshots.
  */
 (function () {
   'use strict';
@@ -17,7 +17,12 @@
     averageSaleSpeedDays: 90,
     inflationRate: 0.03,
     interestRate: 0.06,
-    economicGrowthRate: 0.03
+    economicGrowthRate: 0.03,
+    riskScore: 5,
+    outlook: 'neutral',
+    confidence: 0.5,
+    dataQualityScore: 50,
+    notes: ''
   };
 
   class MarketIntelligenceClient {
@@ -30,8 +35,10 @@
     _normalizeRecord(row) {
       return {
         assetClass: row.asset_class,
-        country: row.country,
-        city: row.city,
+        country: row.country || '',
+        region: row.region || '',
+        city: row.city || '',
+        sector: row.sector || '',
         averageSellingPrice: Number(row.average_selling_price) || 0,
         averageBuyingPrice: Number(row.average_buying_price) || 0,
         transactionCount: Number(row.transaction_count) || 0,
@@ -42,6 +49,11 @@
         inflationRate: Number(row.inflation_rate) || 0.03,
         interestRate: Number(row.interest_rate) || 0.06,
         economicGrowthRate: Number(row.economic_growth_rate) || 0.03,
+        riskScore: Number(row.risk_score) || 5,
+        outlook: row.outlook || 'neutral',
+        confidence: Number(row.confidence) || 0.5,
+        dataQualityScore: Number(row.data_quality_score) || 50,
+        notes: row.notes || '',
         source: row.source,
         recordedAt: row.recorded_at,
         updatedAt: row.updated_at
@@ -50,6 +62,15 @@
 
     _defaultData(assetClass) {
       return { ...DEFAULT_MARKET_DATA, assetClass };
+    }
+
+    _scoreMatch(row, dims) {
+      let score = 0;
+      if (row.country && row.country === dims.country) score += 8;
+      if (row.region && row.region === dims.region) score += 4;
+      if (row.city && row.city === dims.city) score += 2;
+      if (row.sector && row.sector === dims.sector) score += 1;
+      return score;
     }
 
     async fetchAll(force = false) {
@@ -72,30 +93,32 @@
       }
     }
 
-    async getData(assetClass, country = null, city = null, force = false) {
-      const all = await this.fetchAll(force);
-      const exact = all.find(r =>
-        r.assetClass === assetClass &&
-        r.country === country &&
-        r.city === city
-      );
-      if (exact) return exact;
+    async getData(assetClass, country = '', region = '', city = '', sector = '') {
+      const all = await this.fetchAll();
+      const dims = { country: country || '', region: region || '', city: city || '', sector: sector || '' };
+      const candidates = all.filter(r => r.assetClass === assetClass);
+      if (!candidates.length) return this._defaultData(assetClass);
 
-      const countryOnly = all.find(r =>
-        r.assetClass === assetClass &&
-        r.country === country &&
-        !r.city
-      );
-      if (countryOnly) return countryOnly;
+      candidates.sort((a, b) => this._scoreMatch(b, dims) - this._scoreMatch(a, dims));
+      const best = candidates[0];
+      return this._scoreMatch(best, dims) > 0 ? best : this._defaultData(assetClass);
+    }
 
-      const global = all.find(r =>
-        r.assetClass === assetClass &&
-        !r.country &&
-        !r.city
-      );
-      if (global) return global;
-
-      return this._defaultData(assetClass);
+    async fetchHistory(assetClass, { country = '', region = '', city = '', sector = '', limit = 30 } = {}) {
+      try {
+        const params = new URLSearchParams({ history: '1', assetClass, limit: String(limit) });
+        if (country) params.set('country', country);
+        if (region) params.set('region', region);
+        if (city) params.set('city', city);
+        if (sector) params.set('sector', sector);
+        const res = await fetch(`/api/market-intelligence?${params.toString()}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error || 'Fetch failed');
+        return (json.data || []).map(r => this._normalizeRecord(r));
+      } catch (err) {
+        return [];
+      }
     }
 
     clearCache() {

@@ -9,6 +9,7 @@
 - `supabase/migrations/20260708000000_economic_life_database.sql` — جدول `economic_life_database`.
 - `supabase/migrations/20260709000000_depreciation_factors.sql` — جدول `depreciation_factors`.
 - `supabase/migrations/20260710000000_market_intelligence.sql` — جدول `market_data`.
+- `supabase/migrations/20260711000000_market_intelligence_v2.sql` — التوسعة الكاملة للذكاء السوقي (تاريخ، رؤى، جغرافيا، مصادر).
 
 ## الخطوة 1: إضافة الأسرار في GitHub
 
@@ -54,6 +55,8 @@ npx supabase db push
 - `public.economic_life_database`
 - `public.depreciation_factors`
 - `public.market_data`
+- `public.market_data_history`
+- `public.market_data_sources`
 
 وأن بيانات 35 فئة الأصل موجودة في كليهما.
 
@@ -93,10 +96,41 @@ curl -X POST https://bonds-global.com/api/market-intelligence \
   -H "Content-Type: application/json" \
   -d '{
     "assetClass": "factory",
+    "country": "SA",
+    "region": "Riyadh",
+    "sector": "industrial",
     "averageSellingPrice": 2000000,
     "demandIndex": 8,
-    "supplyIndex": 3
+    "supplyIndex": 3,
+    "riskScore": 5,
+    "outlook": "neutral",
+    "confidence": 0.8,
+    "dataQualityScore": 75
   }'
+```
+
+لجلب التاريخ:
+
+```bash
+curl "https://bonds-global.com/api/market-intelligence?history=1&assetClass=factory&limit=30"
+```
+
+لتشغيل التحديث التلقائي من المصادر الخارجية يدوياً:
+
+```bash
+curl -X POST "https://bonds-global.com/api/market-intelligence?cronSecret=$CRON_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"action":"refresh"}'
+```
+
+جدولة التحديث التلقائي موجودة في `.github/workflows/market-intelligence-refresh.yml` وتعمل يومياً الساعة 6 صباحاً (تحتاج `CRON_SECRET` و `SITE_URL` في GitHub Secrets/Variables).
+
+### Depreciation Factors
+
+يمكن التعديل من لوحة الإدارة:
+
+```
+/admin/depreciation-factors.html
 ```
 
 أو عبر API:
