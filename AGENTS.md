@@ -430,6 +430,7 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - `api/market-intelligence.js` — API endpoint للقراءة العامة والتحديث (admin/editor) + التحديث التلقائي من المصادر الخارجية.
   - `supabase/migrations/20260710000000_market_intelligence.sql` — جدول `market_data` الأساسي.
   - `supabase/migrations/20260711000000_market_intelligence_v2.sql` — توسعة المحرك: `market_data_history`، `market_data_sources`، وأعمدة `region/sector/risk_score/outlook/confidence/data_quality_score/notes`.
+  - `supabase/migrations/20260712000000_market_intelligence_sources.sql` — مصادر بيانات خارجية موثوقة: KAPSARC (عقارات + ريو) و World Bank (تضخم + نمو).
   - `admin/market-intelligence.html` — لوحة إدارة البيانات السوقية ومصادر البيانات.
   - `.github/workflows/market-intelligence-refresh.yml` — جدولة تحديث يومي للمصادر الخارجية.
   - `valuation/valuation-ui.js` — يعرض البيانات السوقية والاتجاهات في لوحة النتائج.

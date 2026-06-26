@@ -37,6 +37,9 @@ function getPath(obj, path) {
       const idx = Number(idxStr.replace(']', ''));
       return Array.isArray(node) ? node[idx] : undefined;
     }
+    if (Array.isArray(acc) && /^\d+$/.test(part)) {
+      return acc[Number(part)];
+    }
     return acc[part];
   }, obj);
 }
