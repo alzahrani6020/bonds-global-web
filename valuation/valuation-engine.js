@@ -153,6 +153,28 @@
       }
     }
 
+    /* ---------- Market Intelligence helpers ---------- */
+    _marketIntelligenceClient() {
+      return (typeof marketIntelligenceClient !== 'undefined' && marketIntelligenceClient) || null;
+    }
+
+    async preloadMarketIntelligence(assetClass, country = null, city = null) {
+      const client = this._marketIntelligenceClient();
+      if (client && client.getData) {
+        this._preloadedMarketData = this._preloadedMarketData || {};
+        const key = [assetClass, country, city].join('|');
+        this._preloadedMarketData[key] = await client.getData(assetClass, country, city);
+      }
+    }
+
+    _getMarketData(assetClass, inputs = {}) {
+      const key = [assetClass, inputs.country, inputs.city].join('|');
+      if (this._preloadedMarketData && this._preloadedMarketData[key]) {
+        return this._preloadedMarketData[key];
+      }
+      return null;
+    }
+
     _getEconomicLife(assetClass, inputs = {}) {
       const client = this._economicLifeClient();
       const year = safe(inputs.yearAcquired) || safe(inputs.yearBuilt) || safe(inputs.constructionYear) || CURRENT_YEAR;
@@ -1344,6 +1366,44 @@
       return bvs.getConfidenceScore(assetClass, inputs);
     }
 
+    /* ---------- Market Intelligence adjustments ---------- */
+    _applyMarketIntelligence(values, assetClass, inputs) {
+      const market = this._getMarketData(assetClass, inputs);
+      if (!market) return values;
+
+      const result = { ...values, marketIntelligence: market };
+      const marketValue = safe(values.marketValue);
+      const fairValue = safe(values.fairValue);
+      const investmentValue = safe(values.investmentValue);
+
+      // Blend market value with average selling price if available
+      if (market.averageSellingPrice > 0 && marketValue > 0) {
+        const volumeWeight = Math.min(1, market.transactionCount / 100);
+        const blended = marketValue * (1 - volumeWeight) + market.averageSellingPrice * volumeWeight;
+        result.marketValue = round2(blended);
+      }
+
+      // Adjust fair value by demand/supply ratio
+      if (fairValue > 0) {
+        const demand = clamp(market.demandIndex, 1, 10);
+        const supply = clamp(market.supplyIndex, 1, 10);
+        const ratio = (demand / 5) / (supply / 5);
+        result.fairValue = round2(fairValue * ratio);
+      }
+
+      // Adjust investment value by inflation/interest/growth
+      if (investmentValue > 0) {
+        const growth = clamp(market.economicGrowthRate, -0.1, 0.5);
+        const inflation = clamp(market.inflationRate, -0.1, 0.5);
+        const interest = clamp(market.interestRate, 0, 0.5);
+        const interestDiscount = 1 - (interest - 0.05) * 0.5;
+        const growthPremium = 1 + growth + inflation;
+        result.investmentValue = round2(investmentValue * growthPremium * interestDiscount);
+      }
+
+      return result;
+    }
+
     /* ---------- Generic fallback (for completeness / future classes) ---------- */
     _calcGeneric(i) {
       const base = safe(i.purchasePrice) || safe(i.equityBookValue) ||
@@ -1474,8 +1534,11 @@
         ? depEngine.calculate(assetClass, enrichedInputs, lifeData)
         : null;
 
+      // Market Intelligence integration
+      const marketAdjusted = this._applyMarketIntelligence(rounded, assetClass, enrichedInputs);
+
       return {
-        ...rounded,
+        ...marketAdjusted,
         confidenceScore: round2(confidenceScore),
         bvsValidation: validation,
         bvsVersion: bvs ? bvs.version : null,

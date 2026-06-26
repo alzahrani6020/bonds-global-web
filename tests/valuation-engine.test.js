@@ -6,9 +6,11 @@ const path = require('path');
 
 const bvsCode = fs.readFileSync(path.join(__dirname, '../valuation/valuation-standards.js'), 'utf8');
 const economicLifeCode = fs.readFileSync(path.join(__dirname, '../valuation/economic-life-client.js'), 'utf8');
+const marketCode = fs.readFileSync(path.join(__dirname, '../valuation/market-intelligence-client.js'), 'utf8');
 const engineCode = fs.readFileSync(path.join(__dirname, '../valuation/valuation-engine.js'), 'utf8');
 eval(bvsCode);
 eval(economicLifeCode);
+eval(marketCode);
 eval(engineCode);
 
 function buildInputs(defaults) {
@@ -657,6 +659,54 @@ describe('ValuationEngine', () => {
       ];
       expected.forEach(cls => expect(active).toContain(cls));
       expect(active.length).toBe(35);
+    });
+  });
+
+  describe('Market Intelligence', () => {
+    it('preloads and applies market intelligence data', async () => {
+      const inputs = buildInputs({ purchasePrice: 1000000, yearAcquired: 2019, usefulLifeYears: 15 });
+      engine._preloadedMarketData = {
+        'factory||': {
+          averageSellingPrice: 2000000,
+          transactionCount: 50,
+          demandIndex: 8,
+          supplyIndex: 3,
+          inflationRate: 0.03,
+          interestRate: 0.06,
+          economicGrowthRate: 0.04
+        }
+      };
+
+      const result = engine.calculate('factory', inputs);
+      expect(result.marketIntelligence).toBeDefined();
+      expect(result.marketIntelligence.averageSellingPrice).toBe(2000000);
+    });
+
+    it('adjusts market value based on preloaded market data', () => {
+      const inputs = buildInputs({
+        purchasePrice: 1000000,
+        replacementCostNew: 1200000,
+        comparableSalesValue: 1100000,
+        yearAcquired: 2022,
+        usefulLifeYears: 15
+      });
+
+      const baseline = engine.calculate('factory', inputs);
+
+      engine._preloadedMarketData = {
+        'factory||': {
+          averageSellingPrice: 3000000,
+          transactionCount: 100,
+          demandIndex: 8,
+          supplyIndex: 3,
+          inflationRate: 0.03,
+          interestRate: 0.06,
+          economicGrowthRate: 0.04
+        }
+      };
+
+      const adjusted = engine.calculate('factory', inputs);
+      expect(adjusted.marketValue).not.toEqual(baseline.marketValue);
     });
   });
 });

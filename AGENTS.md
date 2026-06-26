@@ -426,6 +426,10 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - `valuation/depreciation-factors-client.js` — عميل frontend لجلب العوامل من جدول `depreciation_factors`.
   - `api/depreciation-factors.js` — API endpoint للقراءة العامة والتحديث (admin/editor).
   - `supabase/migrations/20260709000000_depreciation_factors.sql` — جدول عوامل الاستهلاك المركزي.
+  - `valuation/market-intelligence-client.js` — عميل frontend لجلب البيانات السوقية من `market_data`.
+  - `api/market-intelligence.js` — API endpoint للقراءة العامة والتحديث (admin/editor).
+  - `supabase/migrations/20260710000000_market_intelligence.sql` — جدول البيانات السوقية المركزي.
+  - `admin/market-intelligence.html` — لوحة إدارة البيانات السوقية.
   - `valuation/valuation-ui.js` — يعرض نتائج الاستهلاك في لوحة النتائج.
   - `valuation/valuation-locale.js` — التسميات العربية والإنجليزية لحقول ومخرجات الاستهلاك.
   - `valuation/valuation.css` — تنسيق قسم تحليل الاستهلاك.

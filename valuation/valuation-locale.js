@@ -65,7 +65,19 @@
         misuseFactor: 'معامل سوء الاستخدام (0-1)',
         projectionYears: 'سنوات التوقع المستقبلي',
         inflationRate: 'معدل التضخم السنوي',
-        submitError: 'حدث خطأ أثناء إنشاء التقييم. يرجى التحقق من البيانات المدخلة.'
+        submitError: 'حدث خطأ أثناء إنشاء التقييم. يرجى التحقق من البيانات المدخلة.',
+        marketIntelligence: 'الذكاء السوقي',
+        averageSellingPrice: 'متوسط سعر البيع',
+        averageBuyingPrice: 'متوسط سعر الشراء',
+        transactionCount: 'عدد الصفقات',
+        supplyIndex: 'مؤشر العرض',
+        demandIndex: 'مؤشر الطلب',
+        competitorCount: 'عدد المنافسين',
+        averageSaleSpeedDays: 'متوسط سرعة البيع (يوم)',
+        marketInflationRate: 'معدل التضخم السوقي',
+        marketInterestRate: 'معدل الفائدة السوقي',
+        economicGrowthRate: 'معدل النمو الاقتصادي',
+        marketDataSource: 'مصدر البيانات'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',
@@ -2590,7 +2602,19 @@
         misuseFactor: 'Misuse Factor (0-1)',
         projectionYears: 'Projection Years',
         inflationRate: 'Annual Inflation Rate',
-        submitError: 'An error occurred while generating the valuation. Please check your inputs.'
+        submitError: 'An error occurred while generating the valuation. Please check your inputs.',
+        marketIntelligence: 'Market Intelligence',
+        averageSellingPrice: 'Average Selling Price',
+        averageBuyingPrice: 'Average Buying Price',
+        transactionCount: 'Transaction Count',
+        supplyIndex: 'Supply Index',
+        demandIndex: 'Demand Index',
+        competitorCount: 'Competitor Count',
+        averageSaleSpeedDays: 'Avg Sale Speed (days)',
+        marketInflationRate: 'Market Inflation Rate',
+        marketInterestRate: 'Market Interest Rate',
+        economicGrowthRate: 'Economic Growth Rate',
+        marketDataSource: 'Data Source'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',

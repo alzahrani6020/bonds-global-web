@@ -8,6 +8,7 @@
 - `.github/workflows/apply-migrations.yml` — GitHub Actions workflow لتطبيق الترحيلات تلقائياً.
 - `supabase/migrations/20260708000000_economic_life_database.sql` — جدول `economic_life_database`.
 - `supabase/migrations/20260709000000_depreciation_factors.sql` — جدول `depreciation_factors`.
+- `supabase/migrations/20260710000000_market_intelligence.sql` — جدول `market_data`.
 
 ## الخطوة 1: إضافة الأسرار في GitHub
 
@@ -52,6 +53,7 @@ npx supabase db push
 
 - `public.economic_life_database`
 - `public.depreciation_factors`
+- `public.market_data`
 
 وأن بيانات 35 فئة الأصل موجودة في كليهما.
 
@@ -73,6 +75,28 @@ npx supabase db push
 
 ```
 /admin/depreciation-factors.html
+```
+
+### Market Intelligence
+
+يمكن التعديل من لوحة الإدارة:
+
+```
+/admin/market-intelligence.html
+```
+
+أو عبر API:
+
+```bash
+curl -X POST https://bonds-global.com/api/market-intelligence \
+  -H "Authorization: Bearer <USER_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "assetClass": "factory",
+    "averageSellingPrice": 2000000,
+    "demandIndex": 8,
+    "supplyIndex": 3
+  }'
 ```
 
 أو عبر API:

@@ -285,7 +285,10 @@
     async submit() {
       try {
         this.collectStepInputs();
-        await this.engine.preloadDepreciationFactors(this.currentAsset);
+        await Promise.all([
+          this.engine.preloadDepreciationFactors(this.currentAsset),
+          this.engine.preloadMarketIntelligence(this.currentAsset, this.inputs.country, this.inputs.city)
+        ]);
         const valuations = this.engine.calculate(this.currentAsset, this.inputs);
         const scores = this.engine.calculateScores(this.inputs);
         const result = { valuations, scores, assetClass: this.currentAsset, inputs: { ...this.inputs } };
@@ -348,6 +351,42 @@
           </div>
         </div>
       `).join('');
+
+      // Market Intelligence analysis
+      const market = v.marketIntelligence;
+      const marketSummary = $('#marketSummary');
+      const marketCards = $('#marketCards');
+      const hasMarket = market && market.averageSellingPrice !== undefined;
+      if (marketSummary) marketSummary.style.display = hasMarket ? 'block' : 'none';
+      if (marketCards) marketCards.style.display = hasMarket ? 'grid' : 'none';
+
+      if (hasMarket && marketCards) {
+        if (marketSummary) {
+          marketSummary.innerHTML = `<p><strong>${t.marketIntelligence}:</strong> ${t.marketDataSource}: ${market.source || 'BONDS Market Intelligence'}</p>`;
+        }
+
+        const marketOrder = [
+          { key: 'averageSellingPrice', label: t.averageSellingPrice },
+          { key: 'averageBuyingPrice', label: t.averageBuyingPrice },
+          { key: 'transactionCount', label: t.transactionCount },
+          { key: 'supplyIndex', label: t.supplyIndex },
+          { key: 'demandIndex', label: t.demandIndex },
+          { key: 'competitorCount', label: t.competitorCount },
+          { key: 'averageSaleSpeedDays', label: t.averageSaleSpeedDays },
+          { key: 'inflationRate', label: t.marketInflationRate },
+          { key: 'interestRate', label: t.marketInterestRate },
+          { key: 'economicGrowthRate', label: t.economicGrowthRate }
+        ];
+
+        marketCards.innerHTML = marketOrder
+          .filter(item => market[item.key] !== undefined)
+          .map(item => `
+            <div class="valuation-card">
+              <div class="valuation-card__label">${item.label}</div>
+              <div class="valuation-card__value">${formatCurrency(market[item.key], this.lang)}</div>
+            </div>
+          `).join('');
+      }
 
       // Depreciation analysis
       const dep = v;

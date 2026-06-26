@@ -420,7 +420,8 @@ html[dir="rtl"] .wizard__actions--end {
 }
 
 /* Deprecation summary */
-.deprecation-summary {
+.deprecation-summary,
+.market-summary {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -428,7 +429,8 @@ html[dir="rtl"] .wizard__actions--end {
   margin-bottom: var(--space-4);
 }
 
-.deprecation-summary p {
+.deprecation-summary p,
+.market-summary p {
   margin: 0;
   color: var(--text);
 }
