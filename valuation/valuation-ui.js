@@ -281,8 +281,9 @@
       this.saveDraft();
     }
 
-    submit() {
+    async submit() {
       this.collectStepInputs();
+      await this.engine.preloadDepreciationFactors(this.currentAsset);
       const valuations = this.engine.calculate(this.currentAsset, this.inputs);
       const scores = this.engine.calculateScores(this.inputs);
       const result = { valuations, scores, assetClass: this.currentAsset, inputs: { ...this.inputs } };

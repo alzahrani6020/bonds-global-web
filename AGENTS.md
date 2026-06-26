@@ -422,7 +422,10 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - `valuation/valuation-standards.js` — معايير BVS لكل فئة أصل.
   - `valuation/economic-life-client.js` — عميل جلب العمر الاقتصادي من `economic_life_database`.
   - `valuation/depreciation-engine.js` — **محرك الاستهلاك** (BDE) يحسب 8 أنواع من الاستهلاك.
-  - `valuation/depreciation-standards.js` — معايير BONDS Depreciation Standards (BDS) لكل فئة.
+  - `valuation/depreciation-standards.js` — معايير BONDS Depreciation Standards (BDS) لكل فئة (fallback محلي).
+  - `valuation/depreciation-factors-client.js` — عميل frontend لجلب العوامل من جدول `depreciation_factors`.
+  - `api/depreciation-factors.js` — API endpoint للقراءة العامة والتحديث (admin/editor).
+  - `supabase/migrations/20260709000000_depreciation_factors.sql` — جدول عوامل الاستهلاك المركزي.
   - `valuation/valuation-ui.js` — يعرض نتائج الاستهلاك في لوحة النتائج.
   - `valuation/valuation-locale.js` — التسميات العربية والإنجليزية لحقول ومخرجات الاستهلاك.
   - `valuation/valuation.css` — تنسيق قسم تحليل الاستهلاك.

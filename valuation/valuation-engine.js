@@ -146,6 +146,13 @@
       return null;
     }
 
+    async preloadDepreciationFactors(assetClass) {
+      const engine = this._depreciationEngine();
+      if (engine && engine.preload) {
+        await engine.preload(assetClass);
+      }
+    }
+
     _getEconomicLife(assetClass, inputs = {}) {
       const client = this._economicLifeClient();
       const year = safe(inputs.yearAcquired) || safe(inputs.yearBuilt) || safe(inputs.constructionYear) || CURRENT_YEAR;

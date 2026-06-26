@@ -39,12 +39,31 @@
   class DepreciationEngine {
     constructor(standards = null) {
       this.standards = standards;
+      this.preloadedStandards = {};
+    }
+
+    /* ---------- Factors client helpers ---------- */
+    _factorsClient() {
+      return (typeof depreciationFactorsClient !== 'undefined' && depreciationFactorsClient) || null;
+    }
+
+    async preload(assetClass) {
+      const client = this._factorsClient();
+      if (!client) return;
+      const std = await client.getStandard(assetClass);
+      if (std) this.preloadedStandards[assetClass] = std;
     }
 
     /* ---------- Standard helpers ---------- */
     _standard(assetClass) {
+      if (this.preloadedStandards[assetClass]) {
+        return this.preloadedStandards[assetClass];
+      }
       if (this.standards && this.standards.getStandard) {
         return this.standards.getStandard(assetClass) || {};
+      }
+      if (typeof BDS_STANDARDS !== 'undefined' && BDS_STANDARDS[assetClass]) {
+        return BDS_STANDARDS[assetClass];
       }
       return {};
     }

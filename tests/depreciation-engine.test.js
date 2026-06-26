@@ -6,8 +6,10 @@ const path = require('path');
 
 const standardsCode = fs.readFileSync(path.join(__dirname, '../valuation/depreciation-standards.js'), 'utf8');
 const engineCode = fs.readFileSync(path.join(__dirname, '../valuation/depreciation-engine.js'), 'utf8');
+const clientCode = fs.readFileSync(path.join(__dirname, '../valuation/depreciation-factors-client.js'), 'utf8');
 eval(standardsCode);
 eval(engineCode);
+eval(clientCode);
 
 describe('DepreciationEngine', () => {
   const standards = new DepreciationStandards();
@@ -236,5 +238,73 @@ describe('DepreciationEngine', () => {
       expect(result.currentValue).toBeGreaterThan(0);
       expect(result.totalDepreciation).toBeGreaterThanOrEqual(0);
     });
+  });
+
+  describe('Preloaded factors override static standards', () => {
+    it('uses preloaded standards when available', async () => {
+      const customEngine = new DepreciationEngine();
+      customEngine.preloadedStandards = {
+        realEstate: {
+          factors: { economic: 5.0, operational: 5.0, environmental: 5.0, technical: 5.0, functional: 5.0, maintenance: 5.0, misuse: 5.0 },
+          methods: { accounting: 'straight-line' }
+        }
+      };
+      const result = customEngine.calculate('realEstate', {
+        purchasePrice: 1000000,
+        yearBuilt: 2020,
+        usefulLifeYears: 50,
+        salvageValue: 100000
+      });
+
+      expect(result.economicDepreciation).toBeGreaterThan(0);
+    });
+  });
+});
+
+describe('DepreciationFactorsClient', () => {
+  beforeEach(() => {
+    if (globalThis.depreciationFactorsClient) {
+      globalThis.depreciationFactorsClient.clearCache();
+    }
+  });
+
+  it('falls back to BDS_STANDARDS when API fails', async () => {
+    global.fetch = jest.fn(() => Promise.resolve({ ok: false, status: 500 }));
+    const client = new DepreciationFactorsClient();
+    const std = await client.getStandard('realEstate');
+
+    expect(std).not.toBeNull();
+    expect(std.assetClass).toBe('realEstate');
+    expect(std.factors.economic).toBe(1.0);
+  });
+
+  it('parses API response and caches it', async () => {
+    global.fetch = jest.fn(() => Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({
+        success: true,
+        data: [
+          {
+            asset_class: 'factory',
+            name_ar: 'المصانع',
+            name_en: 'Factory',
+            factors: { economic: 2.0 },
+            methods: { accounting: 'straight-line' },
+            notes: 'Test',
+            updated_at: '2026-01-01T00:00:00Z'
+          }
+        ]
+      })
+    }));
+
+    const client = new DepreciationFactorsClient();
+    const std = await client.getStandard('factory');
+    expect(std.assetClass).toBe('factory');
+    expect(std.factors.economic).toBe(2.0);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+
+    // Second call uses cache
+    await client.getStandard('factory');
+    expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 });
