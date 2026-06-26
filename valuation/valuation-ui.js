@@ -254,6 +254,7 @@
         return;
       }
 
+      this._currentConditionStandards = standards;
       this.inputs.conditionAssessment = this.inputs.conditionAssessment || {};
 
       const categories = standards.categories || [];
@@ -282,6 +283,14 @@
           <p class="ca-desc">${t.conditionAssessmentDesc || ''}</p>
         </div>
         <div class="ca-result" id="caResult" style="display:none"></div>
+
+        <div class="ca-history" id="caHistory" style="display:none">
+          <h5 class="ca-history__title">${t.conditionHistoryTitle || 'تاريخ التقييمات'}</h5>
+          <div class="ca-history__chart-wrap">
+            <canvas id="caHistoryChart"></canvas>
+          </div>
+          <p class="ca-history__empty" id="caHistoryEmpty" style="display:none">${t.conditionHistoryNoData || ''}</p>
+        </div>
 
         <div class="ca-meta">
           <div class="ca-meta__grid">
@@ -463,6 +472,7 @@
           this.inputs.conditionAssessmentMeta.id = res.data?.id;
           showSaveStatus(t.conditionSavedSuccess || 'تم الحفظ', false);
           loadPreviousAssessments();
+          this.renderHistoryChart(this._currentConditionStandards);
         } else {
           showSaveStatus((t.conditionSaveError || 'فشل الحفظ: ') + res.error, true);
         }
@@ -517,15 +527,123 @@
         if (el) el.addEventListener('change', () => {
           this.inputs.conditionAssessmentMeta = readMeta();
           this.saveDraft();
+          this.renderHistoryChart(this._currentConditionStandards);
         });
       });
 
       loadPreviousAssessments();
 
+      this.renderHistoryChart(standards);
+
       // If answers already exist, show result
       if (Object.keys(this.inputs.conditionAssessment).length > 0) {
         updateResult();
       }
+    }
+
+    async renderHistoryChart(standards) {
+      if (typeof BondsConditionAssessmentClient === 'undefined' || typeof Chart === 'undefined') return;
+      const t = this.locale.texts;
+      const assetClass = this.currentAsset;
+      const meta = this.inputs.conditionAssessmentMeta || {};
+      const identifier = meta.assetIdentifier || '';
+
+      const historyEl = $('#caHistory');
+      const emptyEl = $('#caHistoryEmpty');
+      const canvas = $('#caHistoryChart');
+      if (!historyEl || !canvas) return;
+
+      const res = await BondsConditionAssessmentClient.loadAssessments({ assetClass, limit: 100 });
+      if (!res.success || !res.data || res.data.length === 0) {
+        historyEl.style.display = 'none';
+        return;
+      }
+
+      let rows = res.data.filter(a => a.status !== 'archived');
+      if (identifier) {
+        rows = rows.filter(a => (a.asset_identifier || '').toLowerCase() === identifier.toLowerCase());
+      }
+      if (rows.length < 2) {
+        historyEl.style.display = 'none';
+        return;
+      }
+
+      rows.sort((a, b) => new Date(a.assessment_date) - new Date(b.assessment_date));
+      const labels = rows.map(r => r.assessment_date);
+      const scores = rows.map(r => Number(r.score) || 0);
+      const confidence = rows.map(r => Number(r.confidence_score) || 0);
+
+      historyEl.style.display = 'block';
+      if (emptyEl) emptyEl.style.display = 'none';
+
+      if (this.caHistoryChart) {
+        this.caHistoryChart.destroy();
+      }
+
+      const ctx = canvas.getContext('2d');
+      const isEn = this.lang === 'en';
+      this.caHistoryChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: t.conditionScoreResult || 'Condition Score',
+              data: scores,
+              borderColor: '#d4a853',
+              backgroundColor: 'rgba(212,168,83,0.1)',
+              fill: true,
+              tension: 0.3,
+              pointRadius: 4
+            },
+            {
+              label: t.conditionConfidenceResult || 'Confidence',
+              data: confidence,
+              borderColor: '#3b82f6',
+              backgroundColor: 'transparent',
+              borderDash: [5, 5],
+              tension: 0.3,
+              pointRadius: 3,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { labels: { color: '#e8ecf4' } },
+            tooltip: {
+              callbacks: {
+                afterLabel: (ctx) => {
+                  const row = rows[ctx.dataIndex];
+                  return row.asset_name || '';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            },
+            y: {
+              min: 0,
+              max: 100,
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            },
+            y1: {
+              position: 'right',
+              min: 0,
+              max: 100,
+              ticks: { color: '#94a3b8' },
+              grid: { drawOnChartArea: false }
+            }
+          }
+        }
+      });
     }
 
     async exportConditionAssessmentPDF(panel) {

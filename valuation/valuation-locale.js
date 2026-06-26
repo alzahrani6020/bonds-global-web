@@ -121,7 +121,9 @@
         conditionReportConfidence: 'نسبة الثقة',
         conditionReportPoints: 'نقاط الفحص',
         conditionReportCritical: 'إخفاقات حرجة',
-        conditionReportNotes: 'ملاحظات'
+        conditionReportNotes: 'ملاحظات',
+        conditionHistoryTitle: 'تاريخ تقييمات الحالة',
+        conditionHistoryNoData: 'لا توجد تقييمات سابقة لهذه الفئة'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',
@@ -2702,7 +2704,9 @@
         conditionReportConfidence: 'Confidence',
         conditionReportPoints: 'Inspection Points',
         conditionReportCritical: 'Critical Failures',
-        conditionReportNotes: 'Notes'
+        conditionReportNotes: 'Notes',
+        conditionHistoryTitle: 'Condition Assessment History',
+        conditionHistoryNoData: 'No previous assessments for this asset class'
       },
       icons: {
         realEstate: '🏢', business: '🏭', factory: '🏭', machineryEquipment: '⚙️',

@@ -860,3 +860,31 @@ html[dir="rtl"] .section-actions {
 
 .ca-save-status.success { color: #4ade80; }
 .ca-save-status.error { color: #f87171; }
+
+/* ===== Condition Assessment History Chart ===== */
+.ca-history {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.ca-history__title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: var(--space-3);
+}
+
+.ca-history__chart-wrap {
+  position: relative;
+  height: 240px;
+}
+
+.ca-history__empty {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: var(--space-4);
+}
