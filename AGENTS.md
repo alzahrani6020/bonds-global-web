@@ -423,6 +423,9 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - `valuation/economic-life-client.js` — عميل جلب العمر الاقتصادي من `economic_life_database`.
   - `valuation/depreciation-engine.js` — **محرك الاستهلاك** (BDE) يحسب 8 أنواع من الاستهلاك.
   - `valuation/depreciation-standards.js` — معايير BONDS Depreciation Standards (BDS) لكل فئة.
+  - `valuation/valuation-ui.js` — يعرض نتائج الاستهلاك في لوحة النتائج.
+  - `valuation/valuation-locale.js` — التسميات العربية والإنجليزية لحقول ومخرجات الاستهلاك.
+  - `valuation/valuation.css` — تنسيق قسم تحليل الاستهلاك.
 - **أنواع الاستهلاك المحسوبة**:
   1. الاستهلاك المحاسبي (`accountingDepreciation`)
   2. الاستهلاك الاقتصادي (`economicDepreciation`)

@@ -419,6 +419,20 @@ html[dir="rtl"] .wizard__actions--end {
   color: var(--gold);
 }
 
+/* Deprecation summary */
+.deprecation-summary {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-4);
+}
+
+.deprecation-summary p {
+  margin: 0;
+  color: var(--text);
+}
+
 /* Score grid */
 .score-grid {
   display: grid;

@@ -128,7 +128,23 @@
 
     getFieldDefinitions() {
       const fields = this.locale.fieldsByClass[this.currentAsset] || [];
-      return fields[this.currentStep] || [];
+      const stepFields = fields[this.currentStep] || [];
+
+      // Universal depreciation factors injected into the Depreciation step
+      if (this.currentStep === 3) {
+        return [
+          ...stepFields,
+          { name: 'environmentalExposure', label: this.locale.texts.environmentalExposure, type: 'number', min: 0, max: 1, step: 0.1, default: 0 },
+          { name: 'techObsolescenceRate', label: this.locale.texts.techObsolescenceRate, type: 'number', min: 0, max: 1, step: 0.1, default: 0 },
+          { name: 'functionalObsolescence', label: this.locale.texts.functionalObsolescence, type: 'number', min: 0, max: 1, step: 0.1, default: 0 },
+          { name: 'maintenanceNeglect', label: this.locale.texts.maintenanceNeglect, type: 'number', min: 0, max: 1, step: 0.1, default: 0 },
+          { name: 'misuseFactor', label: this.locale.texts.misuseFactor, type: 'number', min: 0, max: 1, step: 0.1, default: 0 },
+          { name: 'projectionYears', label: this.locale.texts.projectionYears, type: 'number', min: 0, max: 100, step: 1, default: 5 },
+          { name: 'inflationRate', label: this.locale.texts.inflationRate, type: 'number', min: -0.1, max: 0.5, step: 0.01, default: 0.03 }
+        ];
+      }
+
+      return stepFields;
     }
 
     collectStepInputs() {
@@ -325,6 +341,45 @@
           </div>
         </div>
       `).join('');
+
+      // Depreciation analysis
+      const dep = v;
+      const hasDepreciation = dep && dep.totalDepreciation !== undefined;
+      const depSummary = $('#deprecationSummary');
+      const depCards = $('#deprecationCards');
+      if (depSummary) depSummary.style.display = hasDepreciation ? 'block' : 'none';
+      if (depCards) depCards.style.display = hasDepreciation ? 'grid' : 'none';
+
+      if (hasDepreciation && depCards) {
+        if (depSummary) {
+          depSummary.innerHTML = `
+            <p><strong>${t.depreciationAnalysis}:</strong> ${t.totalDepreciation} = ${formatCurrency(dep.totalDepreciation, this.lang)}</p>
+          `;
+        }
+
+        const depOrder = [
+          { key: 'accountingDepreciation', label: t.accountingDepreciation },
+          { key: 'economicDepreciation', label: t.economicDepreciation },
+          { key: 'operationalDepreciation', label: t.operationalDepreciation },
+          { key: 'environmentalDepreciation', label: t.environmentalDepreciation },
+          { key: 'technicalDepreciation', label: t.technicalDepreciation },
+          { key: 'functionalDepreciation', label: t.functionalDepreciation },
+          { key: 'maintenanceDepreciation', label: t.maintenanceDepreciation },
+          { key: 'misuseDepreciation', label: t.misuseDepreciation },
+          { key: 'depreciationCurrentValue', label: t.depreciationCurrentValue },
+          { key: 'depreciationFutureValue', label: t.depreciationFutureValue },
+          { key: 'depreciationReplacementValue', label: t.depreciationReplacementValue }
+        ];
+
+        depCards.innerHTML = depOrder
+          .filter(item => dep[item.key] !== undefined)
+          .map(item => `
+            <div class="valuation-card">
+              <div class="valuation-card__label">${item.label}</div>
+              <div class="valuation-card__value">${formatCurrency(dep[item.key], this.lang)}</div>
+            </div>
+          `).join('');
+      }
 
       $('#reportText').textContent = this.engine.generateReport(result, this.lang);
     }
