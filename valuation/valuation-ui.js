@@ -1200,7 +1200,139 @@
         if (canvas) canvas.style.display = 'none';
       }
 
+      this.renderRiskIntelligence(result);
+
       $('#reportText').textContent = this.engine.generateReport(result, this.lang);
+    }
+
+    renderRiskIntelligence(result) {
+      const riskSummary = $('#riskSummary');
+      const riskCards = $('#riskCards');
+      const riskScoreGrid = $('#riskScoreGrid');
+      if (!riskSummary || !riskCards || !riskScoreGrid) return;
+      if (typeof BondsRiskIntelligenceEngine === 'undefined' || typeof BondsRiskIntelligenceStandards === 'undefined') {
+        riskSummary.style.display = 'none';
+        riskCards.style.display = 'none';
+        riskScoreGrid.style.display = 'none';
+        return;
+      }
+
+      const t = this.locale.texts;
+      const isEn = this.lang === 'en';
+      const assetClass = result.assetClass;
+      const answers = this.buildRiskAnswers();
+      const externalData = {};
+      const caResult = this.inputs.conditionAssessmentResult;
+      if (caResult && caResult.success) {
+        externalData.conditionAssessment = {
+          score: caResult.score,
+          conditionScore: caResult.valuationInputs && caResult.valuationInputs.conditionScore
+        };
+      }
+      const market = result.valuations && result.valuations.marketIntelligence;
+      if (market && typeof market.riskScore === 'number') {
+        externalData.marketData = {
+          riskScore: market.riskScore,
+          outlook: market.outlook
+        };
+      }
+      const vi = result.valuations || {};
+      if (vi.techObsolescenceRate !== undefined || vi.environmentalExposure !== undefined) {
+        externalData.valuationInputs = {
+          techObsolescenceRate: vi.techObsolescenceRate,
+          environmentalExposure: vi.environmentalExposure
+        };
+      }
+
+      const riskResult = BondsRiskIntelligenceEngine.calculate(assetClass, answers, { externalData });
+      if (!riskResult.success) {
+        riskSummary.style.display = 'none';
+        riskCards.style.display = 'none';
+        riskScoreGrid.style.display = 'none';
+        return;
+      }
+
+      this._lastRiskResult = riskResult;
+      riskSummary.style.display = 'block';
+      riskCards.style.display = 'grid';
+      riskScoreGrid.style.display = 'grid';
+
+      const gradeLabel = BondsRiskIntelligenceEngine.getGradeLabel(riskResult.riskGrade, this.lang);
+      const levelLabel = BondsRiskIntelligenceEngine.getRiskLevelLabel(riskResult.riskLevel, this.lang);
+      riskSummary.innerHTML = `
+        <p><strong>${isEn ? 'Overall Risk Index' : 'مؤشر المخاطر الكلي'}:</strong> ${riskResult.riskIndex} — ${gradeLabel} (${levelLabel})</p>
+        <p style="color:var(--text-secondary);font-size:0.9rem">${isEn ? 'Confidence' : 'نسبة الثقة'}: ${riskResult.confidenceScore}%</p>
+      `;
+
+      const cardItems = [
+        { label: isEn ? 'Risk Index' : 'مؤشر المخاطر', value: riskResult.riskIndex },
+        { label: isEn ? 'Risk Grade' : 'درجة المخاطر', value: riskResult.riskGrade },
+        { label: isEn ? 'Confidence' : 'الثقة %', value: riskResult.confidenceScore + '%' },
+        { label: isEn ? 'Risk Premium' : 'علاوة المخاطر', value: riskResult.valuationAdjustments.riskPremiumPct + '%' },
+        { label: isEn ? 'Value Haircut' : 'خصم القيمة', value: riskResult.valuationAdjustments.valueHaircutPct + '%' }
+      ];
+      riskCards.innerHTML = cardItems.map(item => `
+        <div class="valuation-card">
+          <div class="valuation-card__label">${item.label}</div>
+          <div class="valuation-card__value">${item.value}</div>
+        </div>
+      `).join('');
+
+      const categoryItems = Object.values(riskResult.categoryScores);
+      riskScoreGrid.innerHTML = categoryItems.map(item => `
+        <div class="score-item">
+          <div class="score-item__header">
+            <span class="score-item__name">${isEn ? item.labelEn : item.labelAr}</span>
+            <span class="score-item__value">${item.score}</span>
+          </div>
+          <div class="score-bar">
+            <div class="score-bar__fill" style="width: ${Math.max(0, Math.min(100, item.score))}%; opacity: 0.85"></div>
+          </div>
+        </div>
+      `).join('');
+
+      if (riskResult.mitigations.length) {
+        const mitigationsHtml = riskResult.mitigations.map(m => {
+          const actions = isEn ? m.actionsEn : m.actionsAr;
+          return `
+            <div style="margin-bottom:1rem">
+              <strong>${isEn ? m.labelEn : m.labelAr} (${m.score})</strong>
+              <ul>${actions.map(a => `<li>${a}</li>`).join('')}</ul>
+            </div>
+          `;
+        }).join('');
+        riskScoreGrid.innerHTML += `
+          <div class="score-item" style="grid-column:1/-1">
+            <div class="score-item__header">
+              <span class="score-item__name">${isEn ? 'Recommended Mitigations' : 'إجراءات التخفيف المقترحة'}</span>
+            </div>
+            <div style="color:var(--text-secondary);font-size:0.9rem">${mitigationsHtml}</div>
+          </div>
+        `;
+      }
+    }
+
+    buildRiskAnswers() {
+      const i = this.inputs;
+      const answers = {};
+      const map = {
+        regulatoryRisk: { id: 'legal_regulatory_changes', scale: 0.5 },
+        environmentalRisk: { id: 'env_energy_efficiency', scale: 0.5 },
+        marketVolatility: { id: 'market_price_volatility', scale: 0.5 },
+        concentrationRisk: { id: 'market_customer_concentration', scale: 0.5 },
+        successionRisk: { id: 'mgmt_succession_plan', scale: 0.5 },
+        geopoliticalRisk: { id: 'future_geopolitical', scale: 0.5 },
+        rawMaterialRisk: { id: 'market_supply_pressure', scale: 0.5 },
+        demandRisk: { id: 'market_demand_volatility', scale: 0.5 },
+        energyRisk: { id: 'env_energy_efficiency', scale: 0.5 }
+      };
+      Object.keys(map).forEach(key => {
+        if (i[key] !== undefined && i[key] !== '') {
+          const cfg = map[key];
+          answers[cfg.id] = Number(i[key]) * cfg.scale;
+        }
+      });
+      return answers;
     }
 
     _renderDeprecationChart(dep) {

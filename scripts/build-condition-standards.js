@@ -371,18 +371,9 @@ function generateJs() {
 function generateSql() {
   const resolved = Object.keys(ASSET_CLASS_LABELS).map(resolveAssetStandards).filter(Boolean);
 
+  const esc = (v) => String(v).replace(/'/g, "''");
   let seed = resolved.map(r => {
-    const payload = {
-      asset_class: r.assetClass,
-      name_ar: r.nameAr,
-      name_en: r.nameEn,
-      inspection_points: r.points,
-      categories: r.categories,
-      grading_scale: r.gradingScale,
-      critical_rules: [{ cap: r.criticalCap, appliesTo: 'any_critical_failure' }],
-      version: 1
-    };
-    return `    (${JSON.stringify(JSON.stringify(payload))})`;
+    return `    ('${esc(r.assetClass)}', '${esc(r.nameAr)}', '${esc(r.nameEn)}', '${esc(JSON.stringify(r.points))}'::jsonb, '${esc(JSON.stringify(r.categories))}'::jsonb, '${esc(JSON.stringify(r.gradingScale))}'::jsonb, '${esc(JSON.stringify([{ cap: r.criticalCap, appliesTo: 'any_critical_failure' }]))}'::jsonb, 1)`;
   }).join(',\n');
 
   return `-- Condition Assessment Standards migration
@@ -405,9 +396,11 @@ CREATE TABLE IF NOT EXISTS public.condition_assessment_standards (
 
 ALTER TABLE public.condition_assessment_standards ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Condition assessment standards are readable by everyone" ON public.condition_assessment_standards;
 CREATE POLICY "Condition assessment standards are readable by everyone"
   ON public.condition_assessment_standards FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Condition assessment standards editable by admins" ON public.condition_assessment_standards;
 CREATE POLICY "Condition assessment standards editable by admins"
   ON public.condition_assessment_standards FOR ALL
   USING (auth.uid() IN (

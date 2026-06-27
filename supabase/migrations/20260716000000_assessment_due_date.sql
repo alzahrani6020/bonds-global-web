@@ -35,7 +35,7 @@ SELECT
   score,
   grade,
   status,
-  created_by,
+  assessed_by,
   created_at,
   GREATEST(next_assessment_due - CURRENT_DATE, 0) AS days_until_due
 FROM public.asset_condition_assessments

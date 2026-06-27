@@ -284,7 +284,7 @@ DELETE FROM public.subscriptions
 WHERE id NOT IN (
   SELECT DISTINCT ON (user_id) id
   FROM public.subscriptions
-  ORDER BY user_id, COALESCE(updated_at, created_at, id::text) DESC NULLS LAST
+  ORDER BY user_id, updated_at DESC NULLS LAST, created_at DESC NULLS LAST, id DESC
 );
 
 DO $$

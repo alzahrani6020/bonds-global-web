@@ -138,12 +138,14 @@ COMMENT ON TABLE public.market_data_sources IS 'Configurable external data feeds
 ALTER TABLE public.market_data_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.market_data_sources ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Market data history is readable by everyone"
+DROP POLICY IF EXISTS "Market data history is readable by everyone" ON public.market_data_history;
+CREATE POLICY "Market data history is readable by everyone"
   ON public.market_data_history
   FOR SELECT
   USING (true);
 
-CREATE POLICY IF NOT EXISTS "Market data history is editable by admins"
+DROP POLICY IF EXISTS "Market data history is editable by admins" ON public.market_data_history;
+CREATE POLICY "Market data history is editable by admins"
   ON public.market_data_history
   FOR ALL
   USING (auth.uid() IN (
@@ -153,14 +155,16 @@ CREATE POLICY IF NOT EXISTS "Market data history is editable by admins"
     SELECT user_id FROM public.user_roles WHERE role IN ('admin', 'editor')
   ));
 
-CREATE POLICY IF NOT EXISTS "Market data sources are readable by admins"
+DROP POLICY IF EXISTS "Market data sources are readable by admins" ON public.market_data_sources;
+CREATE POLICY "Market data sources are readable by admins"
   ON public.market_data_sources
   FOR SELECT
   USING (auth.uid() IN (
     SELECT user_id FROM public.user_roles WHERE role IN ('admin', 'editor')
   ));
 
-CREATE POLICY IF NOT EXISTS "Market data sources are editable by admins"
+DROP POLICY IF EXISTS "Market data sources are editable by admins" ON public.market_data_sources;
+CREATE POLICY "Market data sources are editable by admins"
   ON public.market_data_sources
   FOR ALL
   USING (auth.uid() IN (

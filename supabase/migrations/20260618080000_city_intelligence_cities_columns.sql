@@ -26,9 +26,9 @@ BEGIN
         ADD CONSTRAINT cities_status_check CHECK (status IN ('active','archived'));
     END IF;
 
-    -- Populate name from name_ar / name_en for existing v3 cities
+    -- Populate name from existing name / name_en for existing v3 cities
     UPDATE public.cities
-    SET name = COALESCE(name_ar, name_en)
+    SET name = COALESCE(NULLIF(name, ''), name_en)
     WHERE name IS NULL OR name = '';
   END IF;
 END $$;
