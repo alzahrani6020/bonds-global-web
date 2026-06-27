@@ -58,6 +58,9 @@
       this.inputs = {};
       this.engine = new window.ValuationEngine();
       this.model = null;
+      this._lastResult = null;
+      this._lastRiskResult = null;
+      this._lastValuationId = null;
 
       this.cacheElements();
       this.bindEvents();
@@ -91,6 +94,11 @@
       $('#wizardClose').addEventListener('click', () => this.closeWizard());
       $('#restoreBtn').addEventListener('click', () => this.restoreDraft());
       $('#discardBtn').addEventListener('click', () => this.discardDraft());
+
+      const saveBtn = $('#saveValuationBtn');
+      const validateBtn = $('#validateValuationBtn');
+      if (saveBtn) saveBtn.addEventListener('click', () => this.saveValuation());
+      if (validateBtn) validateBtn.addEventListener('click', () => this.validateValuation());
     }
 
     renderAssetGrid() {
@@ -1034,6 +1042,7 @@
     }
 
     showResults(result) {
+      this._lastResult = result;
       this.results.classList.add('is-open');
       const v = result.valuations;
       const s = result.scores;
@@ -1491,6 +1500,210 @@
           }
         }
       });
+    }
+
+    async saveValuation() {
+      const t = this.locale.texts;
+      if (!this._lastResult) {
+        alert(t.saveValuationNoResult || 'لا توجد نتيجة تقييم لحفظها.');
+        return;
+      }
+
+      const BondsAuth = window.BondsAuth;
+      if (!BondsAuth) {
+        alert(t.saveValuationNoAuth || 'نظام المصادقة غير محمل.');
+        return;
+      }
+
+      const { data: userData } = await BondsAuth.getUser();
+      const user = userData?.user;
+      if (!user) {
+        alert(t.saveValuationLoginRequired || 'يرجى تسجيل الدخول لحفظ التقييم.');
+        return;
+      }
+
+      const sb = BondsAuth.getSupabase();
+      if (!sb) {
+        alert(t.saveValuationNoSupabase || 'عميل Supabase غير متوفر.');
+        return;
+      }
+
+      const v = this._lastResult.valuations;
+      const inputs = this._lastResult.inputs || this.inputs;
+      const market = v.marketIntelligence || {};
+      const condition = this.inputs.conditionAssessmentResult || null;
+      const risk = this._lastRiskResult || null;
+
+      const payload = {
+        asset_class: this.currentAsset,
+        asset_name: inputs.assetName || inputs.name || null,
+        asset_identifier: inputs.assetIdentifier || inputs.identifier || null,
+        user_id: user.id,
+        valuation_inputs: inputs,
+        market_data_snapshot: {
+          asset_class: market.assetClass,
+          country: market.country,
+          region: market.region,
+          city: market.city,
+          sector: market.sector,
+          average_selling_price: market.averageSellingPrice,
+          average_buying_price: market.averageBuyingPrice,
+          transaction_count: market.transactionCount,
+          supply_index: market.supplyIndex,
+          demand_index: market.demandIndex,
+          competitor_count: market.competitorCount,
+          risk_score: market.riskScore,
+          outlook: market.outlook,
+          confidence: market.confidence,
+          data_quality_score: market.dataQualityScore,
+          source: market.source
+        },
+        economic_life_snapshot: {
+          economic_life: v.economicLife,
+          accounting_life: v.accountingLife,
+          technical_life: v.technicalLife,
+          design_life: v.designLife,
+          operational_life: v.operationalLife,
+          asset_age: v.assetAge,
+          remaining_economic_life: v.remainingEconomicLife,
+          remaining_accounting_life: v.remainingAccountingLife
+        },
+        depreciation_snapshot: {
+          accounting_depreciation: v.accountingDepreciation,
+          economic_depreciation: v.economicDepreciation,
+          operational_depreciation: v.operationalDepreciation,
+          environmental_depreciation: v.environmentalDepreciation,
+          technical_depreciation: v.technicalDepreciation,
+          functional_depreciation: v.functionalDepreciation,
+          maintenance_depreciation: v.maintenanceDepreciation,
+          misuse_depreciation: v.misuseDepreciation,
+          total_depreciation: v.totalDepreciation,
+          current_value: v.depreciationCurrentValue,
+          future_value: v.depreciationFutureValue,
+          replacement_value: v.depreciationReplacementValue
+        },
+        condition_snapshot: condition ? {
+          score: condition.score,
+          grade: condition.grade,
+          confidence_score: condition.confidenceScore,
+          category_scores: condition.categoryScores,
+          critical_failures: condition.criticalFailures
+        } : null,
+        risk_snapshot: risk ? {
+          risk_index: risk.riskIndex,
+          risk_grade: risk.riskGrade,
+          risk_level: risk.riskLevel,
+          confidence_score: risk.confidenceScore,
+          category_scores: risk.categoryScores,
+          critical_risks: risk.criticalRisks,
+          top_risks: risk.topRisks
+        } : null,
+        results: {
+          book_value: v.bookValue,
+          market_value: v.marketValue,
+          fair_value: v.fairValue,
+          investment_value: v.investmentValue,
+          liquidation_value: v.liquidationValue,
+          replacement_value: v.replacementValue,
+          insurance_value: v.insuranceValue,
+          operating_value: v.operatingValue,
+          quick_exit_value: v.quickExitValue,
+          restructured_value: v.restructuredValue,
+          enterprise_value: v.enterpriseValue,
+          goodwill_value: v.goodwillValue
+        },
+        confidence_score: v.confidenceScore || 0,
+        data_quality_score: market.dataQualityScore || 0,
+        status: 'draft',
+        valuation_date: new Date().toISOString().split('T')[0]
+      };
+
+      try {
+        const { data, error } = await sb
+          .from('asset_valuations')
+          .insert(payload)
+          .select('id')
+          .single();
+
+        if (error) throw error;
+        this._lastValuationId = data.id;
+        alert((t.saveValuationSuccess || 'تم حفظ التقييم بنجاح.').replace('{id}', data.id));
+      } catch (err) {
+        console.error('[ValuationUI] saveValuation error:', err);
+        alert((t.saveValuationError || 'فشل حفظ التقييم: {error}').replace('{error}', err.message));
+      }
+    }
+
+    validateValuation() {
+      const t = this.locale.texts;
+      if (!this._lastResult || typeof BondsAiValidationEngine === 'undefined') {
+        alert(t.validateNoResult || 'لا توجد نتيجة للتحقق.');
+        return;
+      }
+
+      const v = this._lastResult.valuations;
+      const market = v.marketIntelligence || null;
+      const condition = this.inputs.conditionAssessmentResult || null;
+      const risk = this._lastRiskResult || null;
+
+      const validation = BondsAiValidationEngine.validate({
+        assetClass: this.currentAsset,
+        inputs: this._lastResult.inputs || this.inputs,
+        result: v,
+        marketData: market,
+        conditionAssessment: condition,
+        riskAssessment: risk
+      });
+
+      this._lastValidation = validation;
+      this.renderValidation(validation);
+    }
+
+    renderValidation(validation) {
+      const panel = $('#validationPanel');
+      const header = $('#validationHeader');
+      const scores = $('#validationScores');
+      const issues = $('#validationIssues');
+      if (!panel || !header || !scores || !issues) return;
+
+      const t = this.locale.texts;
+      const isEn = this.lang === 'en';
+      const ar = (obj) => isEn ? obj.en : obj.ar;
+
+      panel.style.display = 'block';
+      header.innerHTML = validation.passed
+        ? `<div class="validation-badge validation-badge--pass">${t.validationPassed || '✅ البيانات صالحة'}</div>`
+        : `<div class="validation-badge validation-badge--fail">${t.validationFailed || '❌ البيانات غير كافية'}</div>`;
+
+      const scoreItems = [
+        { label: t.confidenceScore || 'درجة الثقة', value: validation.confidenceScore },
+        { label: t.dataQualityScore || 'جودة البيانات', value: validation.dataQualityScore },
+        { label: t.completenessScore || 'الاكتمال', value: validation.completenessScore },
+        { label: t.marketScore || 'بيانات السوق', value: validation.marketScore },
+        { label: t.conditionScore || 'حالة الأصل', value: validation.conditionScore },
+        { label: t.riskScore || 'المخاطر', value: validation.riskScore }
+      ];
+
+      scores.innerHTML = scoreItems.map(item => `
+        <div class="validation-score">
+          <span class="validation-score__label">${item.label}</span>
+          <span class="validation-score__value">${item.value}%</span>
+          <div class="validation-score__bar"><div style="width:${item.value}%"></div></div>
+        </div>
+      `).join('');
+
+      const missing = (validation.missingFields || []).map(f => ar(f)).join('، ');
+      const conflicts = (validation.conflicts || []).map(c => ar(c)).join('، ');
+      const outliers = (validation.outliers || []).map(o => ar(o)).join('، ');
+
+      let issuesHtml = '';
+      if (missing) issuesHtml += `<div class="validation-issue"><strong>${t.missingFields || 'الحقول الناقصة:'}</strong> ${missing}</div>`;
+      if (conflicts) issuesHtml += `<div class="validation-issue"><strong>${t.conflicts || 'التعارضات:'}</strong> ${conflicts}</div>`;
+      if (outliers) issuesHtml += `<div class="validation-issue"><strong>${t.outliers || 'القيم الشاذة:'}</strong> ${outliers}</div>`;
+      if (!issuesHtml) issuesHtml = `<div class="validation-issue validation-issue--ok">${t.noIssues || 'لا توجد مشاكل.'}</div>`;
+
+      issues.innerHTML = issuesHtml;
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     closeWizard() {

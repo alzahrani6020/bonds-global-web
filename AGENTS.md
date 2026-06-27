@@ -312,6 +312,14 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - `ingredient_prices` — أسعار المكونات
 - `recipes` — وصفات/أطباق
 - `recipe_ingredients` — ربط الوصفات بالمكونات
+- `asset_valuations` — رأس كل عملية تقييم (BONDS Valuation Intelligence)
+- `valuation_ai_reports` — تقارير AI Valuation Analyst (إصدارات)
+- `valuation_certificates` — شهادات BONDS Digital Valuation Certificate (BDVC)
+- `asset_condition_assessments` — نتائج فحص حالة الأصل
+- `risk_assessments` — نتائج تقييم المخاطر
+- `market_data` / `market_data_history` / `market_data_sources` — بيانات الذكاء السوقي
+- `economic_life_database` — قاعدة بيانات العمر الاقتصادي
+- `depreciation_factors` — عوامل الاستهلاك
 
 ### 11.2 Stripe — المنتجات
 - Bonds Pro: سعر شهري **71 ر.س** (إجمالي 82 ر.س شامل VAT 15%)

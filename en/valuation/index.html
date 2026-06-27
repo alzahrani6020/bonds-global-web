@@ -94,6 +94,17 @@
 
           <div class="valuation-cards" id="valuationCards"></div>
 
+          <div class="valuation-actions" id="valuationActions" style="margin: var(--space-6) 0; display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="btn-primary" id="saveValuationBtn">💾 Save Valuation</button>
+            <button class="btn-outline" id="validateValuationBtn">✅ Validate Data</button>
+          </div>
+
+          <div class="validation-panel" id="validationPanel" style="display:none; margin-bottom: var(--space-8);">
+            <div class="validation-panel__header" id="validationHeader"></div>
+            <div class="validation-panel__scores" id="validationScores"></div>
+            <div class="validation-panel__issues" id="validationIssues"></div>
+          </div>
+
           <h3 class="val-section__title" style="font-size:var(--text-2xl)">Performance Indicators</h3>
           <div class="score-grid" id="scoreGrid"></div>
 
@@ -168,6 +179,9 @@
   <script src="/valuation/condition-assessment-client.js?v=1"></script>
   <script src="/valuation/risk-intelligence-standards.js?v=1"></script>
   <script src="/valuation/risk-intelligence-engine.js?v=1"></script>
+  <script src="/valuation/ai-validation-engine.js?v=1"></script>
+  <script src="/api/env"></script>
+  <script src="/supabase-client.js"></script>
   <script src="/valuation/valuation-engine.js?v=4"></script>
   <script src="/valuation/valuation-ui.js?v=3"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
