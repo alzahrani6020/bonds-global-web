@@ -452,6 +452,14 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - `v3/api/index.js` — يوجّه `/ai/valuate` إلى المعالج أعلاه ضمن الدالة الواحدة لتجنب تجاوز حد Vercel.
   - واجهة النتائج (`valuation/index.html` + `en/valuation/index.html`) — تحتوي على زر "تقرير تنفيذي ذكي" ولوحة عرض التقرير.
   - شروط الجودة لتوليد التقرير: `confidence_score ≥ 80` و `data_quality_score ≥ 80`.
+- **BONDS Digital Valuation Certificate — BDVC (Phase 3)**:
+  - `lib/ai/valuation-certificate-handler.js` — ثلاثة مسارات:
+    - `POST /api/v3/ai/valuate/:report_id/approve` — اعتماد التقرير الذكي.
+    - `POST /api/v3/valuations/:id/certificate` — إصدار شهادة BDVC برقم فريد `BDVC-YYYY-CC-NNNNNNNN` وبصمة ختم HMAC-SHA256.
+    - `GET /api/v3/certificates/:number/verify` — التحقق العام من صلاحية الشهادة.
+  - شروط إصدار الشهادة: تقرير معتمد + `confidence_score ≥ 85` + `data_quality_score ≥ 80`.
+  - واجهة النتائج — أزرار "اعتماد التقرير" و"إصدار شهادة BDVC" ومعاينة الشهادة مع QR Code للتحقق.
+  - `tests/valuation-certificate.test.js` — اختبارات وحدة لبصمة الختم.
 - **أنواع الاستهلاك المحسوبة**:
   1. الاستهلاك المحاسبي (`accountingDepreciation`)
   2. الاستهلاك الاقتصادي (`economicDepreciation`)

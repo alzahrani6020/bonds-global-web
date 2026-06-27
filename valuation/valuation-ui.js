@@ -98,9 +98,11 @@
       const saveBtn = $('#saveValuationBtn');
       const validateBtn = $('#validateValuationBtn');
       const generateAiReportBtn = $('#generateAiReportBtn');
+      const issueCertificateBtn = $('#issueCertificateBtn');
       if (saveBtn) saveBtn.addEventListener('click', () => this.saveValuation());
       if (validateBtn) validateBtn.addEventListener('click', () => this.validateValuation());
       if (generateAiReportBtn) generateAiReportBtn.addEventListener('click', () => this.generateAiReport());
+      if (issueCertificateBtn) issueCertificateBtn.addEventListener('click', () => this.issueCertificate());
     }
 
     renderAssetGrid() {
@@ -1075,6 +1077,9 @@
       const generateAiReportBtn = $('#generateAiReportBtn');
       if (generateAiReportBtn) generateAiReportBtn.style.display = 'inline-flex';
 
+      const issueCertificateBtn = $('#issueCertificateBtn');
+      if (issueCertificateBtn) issueCertificateBtn.style.display = 'inline-flex';
+
       const scoreItems = [
         { key: 'assetQuality', label: t.assetQuality },
         { key: 'marketStrength', label: t.marketStrength },
@@ -1800,6 +1805,7 @@
 
       const printBtn = $('#printAiReportBtn');
       const regenerateBtn = $('#regenerateAiReportBtn');
+      const approveBtn = $('#approveAiReportBtn');
       if (printBtn) {
         const freshPrint = printBtn.cloneNode(true);
         printBtn.parentNode.replaceChild(freshPrint, printBtn);
@@ -1809,6 +1815,18 @@
         const freshRegenerate = regenerateBtn.cloneNode(true);
         regenerateBtn.parentNode.replaceChild(freshRegenerate, regenerateBtn);
         freshRegenerate.addEventListener('click', () => this.generateAiReport());
+      }
+      if (approveBtn) {
+        const isApproved = data.status === 'approved';
+        approveBtn.textContent = isApproved
+          ? (isEn ? '✅ Approved' : '✅ تم الاعتماد')
+          : (isEn ? '✅ Approve Report' : '✅ اعتماد التقرير');
+        approveBtn.disabled = isApproved;
+        const freshApprove = approveBtn.cloneNode(true);
+        approveBtn.parentNode.replaceChild(freshApprove, approveBtn);
+        if (!isApproved) {
+          freshApprove.addEventListener('click', () => this.approveAiReport());
+        }
       }
 
       panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1832,6 +1850,184 @@
           <style>
             body { background:#fff; color:#111; padding:2rem; }
             .ai-valuation-report { max-width:900px; margin:0 auto; }
+          </style>
+        </head>
+        <body>
+          ${content.innerHTML}
+          <script>window.onload = function() { window.print(); };</script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    async approveAiReport() {
+      const isEn = this.lang === 'en';
+      if (!this._lastAiReport || !this._lastAiReport.report_id) {
+        alert(isEn ? 'Generate an AI report first.' : 'ولّد التقرير الذكي أولاً.');
+        return;
+      }
+
+      const token = await this._getSessionToken();
+      if (!token) {
+        alert(isEn ? 'Please sign in.' : 'يرجى تسجيل الدخول.');
+        return;
+      }
+
+      const approveBtn = $('#approveAiReportBtn');
+      if (approveBtn) {
+        approveBtn.textContent = isEn ? 'Approving…' : 'جاري الاعتماد…';
+        approveBtn.disabled = true;
+      }
+
+      try {
+        const res = await fetch(`/api/v3/ai/valuate/${this._lastAiReport.report_id}/approve`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ notes: '' })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || (isEn ? 'Approval failed' : 'فشل الاعتماد'));
+        }
+
+        this._lastAiReport.status = 'approved';
+        this.renderAiReport(this._lastAiReport);
+      } catch (err) {
+        console.error('[ValuationUI] approveAiReport error:', err);
+        alert(err.message);
+        if (approveBtn) {
+          approveBtn.textContent = isEn ? '✅ Approve Report' : '✅ اعتماد التقرير';
+          approveBtn.disabled = false;
+        }
+      }
+    }
+
+    async issueCertificate() {
+      const isEn = this.lang === 'en';
+      if (!this._lastValuationId) {
+        alert(isEn ? 'Save the valuation first.' : 'احفظ التقييم أولاً.');
+        return;
+      }
+
+      const token = await this._getSessionToken();
+      if (!token) {
+        alert(isEn ? 'Please sign in.' : 'يرجى تسجيل الدخول.');
+        return;
+      }
+
+      const panel = $('#certificatePanel');
+      const body = $('#certificateBody');
+      const status = $('#certificateStatus');
+      const toolbar = $('#certificateToolbar');
+      if (panel) panel.style.display = 'block';
+      if (toolbar) toolbar.style.display = 'none';
+      if (status) status.textContent = isEn ? 'Issuing certificate…' : 'جاري إصدار الشهادة…';
+      if (body) body.innerHTML = `<div class="certificate-loading">${isEn ? 'Please wait while BONDS prepares your BDVC certificate…' : 'يرجى الانتظار بينما تُعدّ بوندز شهادة BDVC…'}</div>`;
+
+      try {
+        const res = await fetch(`/api/v3/valuations/${this._lastValuationId}/certificate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || (isEn ? 'Failed to issue certificate' : 'فشل إصدار الشهادة'));
+        }
+
+        this._lastCertificate = data;
+        this.renderCertificatePanel(data);
+      } catch (err) {
+        console.error('[ValuationUI] issueCertificate error:', err);
+        if (status) status.textContent = isEn ? 'Issuance failed' : 'فشل الإصدار';
+        if (body) body.innerHTML = `<div class="certificate-error">${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    renderCertificatePanel(data) {
+      const isEn = this.lang === 'en';
+      const panel = $('#certificatePanel');
+      const body = $('#certificateBody');
+      const status = $('#certificateStatus');
+      const toolbar = $('#certificateToolbar');
+      if (!panel || !body) return;
+
+      panel.style.display = 'block';
+      if (toolbar) toolbar.style.display = 'flex';
+      if (status) status.textContent = isEn ? 'Certificate issued' : 'تم إصدار الشهادة';
+
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(data.verification_url)}`;
+
+      body.innerHTML = `
+        <div class="bdvc-certificate" id="bdvcCertificate">
+          <div class="bdvc-certificate__header">
+            <div class="bdvc-certificate__logo">BONDS</div>
+            <div class="bdvc-certificate__title">${isEn ? 'Digital Valuation Certificate' : 'شهادة التقييم الرقمية'}</div>
+            <div class="bdvc-certificate__subtitle">${isEn ? 'BDVC' : 'بوندز'}</div>
+          </div>
+          <div class="bdvc-certificate__number">${data.certificate_number}</div>
+          <div class="bdvc-certificate__grid">
+            <div><strong>${isEn ? 'Asset' : 'الأصل'}:</strong> ${escapeHtml(this._lastResult.inputs?.assetName || this._lastResult.inputs?.name || '')}</div>
+            <div><strong>${isEn ? 'Class' : 'الفئة'}:</strong> ${escapeHtml(this.currentAsset)}</div>
+            <div><strong>${isEn ? 'Issued' : 'تاريخ الإصدار'}:</strong> ${new Date(data.issued_at).toLocaleDateString(isEn ? 'en-US' : 'ar-SA')}</div>
+            <div><strong>${isEn ? 'Valid until' : 'صالحة حتى'}:</strong> ${new Date(data.valid_until).toLocaleDateString(isEn ? 'en-US' : 'ar-SA')}</div>
+          </div>
+          <div class="bdvc-certificate__seal">
+            <div class="bdvc-certificate__seal-id">${isEn ? 'Seal ID' : 'رقم الختم'}: ${escapeHtml(data.seal_metadata.seal_id)}</div>
+            <div class="bdvc-certificate__seal-hash">${isEn ? 'Seal Hash' : 'بصمة الختم'}: ${escapeHtml(data.seal_metadata.seal_hash)}</div>
+          </div>
+          <div class="bdvc-certificate__qr">
+            <img src="${qrUrl}" alt="${isEn ? 'Verification QR' : 'QR للتحقق'}" />
+            <div class="bdvc-certificate__verify-url">${escapeHtml(data.verification_url)}</div>
+          </div>
+          <div class="bdvc-certificate__footer">
+            ${isEn ? 'This certificate was issued by BONDS AI Valuation Analyst and is verified cryptographically.' : 'هذه الشهادة صادرة عن محلل بوندز الذكي للتقييم ومُتحققة تشفيرياً.'}
+          </div>
+        </div>
+      `;
+
+      const printBtn = $('#printCertificateBtn');
+      const verifyBtn = $('#verifyCertificateBtn');
+      if (printBtn) {
+        const freshPrint = printBtn.cloneNode(true);
+        printBtn.parentNode.replaceChild(freshPrint, printBtn);
+        freshPrint.addEventListener('click', () => this.printCertificate());
+      }
+      if (verifyBtn) {
+        const freshVerify = verifyBtn.cloneNode(true);
+        verifyBtn.parentNode.replaceChild(freshVerify, verifyBtn);
+        freshVerify.addEventListener('click', () => window.open(data.verification_url, '_blank'));
+      }
+
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    printCertificate() {
+      const content = $('#certificateBody');
+      if (!content || !content.innerHTML.trim()) return;
+
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) return;
+
+      const isEn = this.lang === 'en';
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="${isEn ? 'en' : 'ar'}" dir="${isEn ? 'ltr' : 'rtl'}">
+        <head>
+          <meta charset="UTF-8" />
+          <title>${isEn ? 'BONDS Digital Valuation Certificate' : 'شهادة بوندز الرقمية للتقييم'}</title>
+          <link rel="stylesheet" href="/valuation/valuation.css?v=1" />
+          <style>
+            body { background:#fff; color:#111; padding:2rem; }
+            .bdvc-certificate { max-width:900px; margin:0 auto; }
           </style>
         </head>
         <body>

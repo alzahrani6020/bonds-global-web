@@ -24,6 +24,9 @@ function aiNotAvailable(req, res) {
 let handleAiAnalyze = aiNotAvailable;
 let handleAiReviewRequest = aiNotAvailable;
 let handleValuationAnalyze = aiNotAvailable;
+let handleApproveReport = aiNotAvailable;
+let handleIssueCertificate = aiNotAvailable;
+let handleVerifyCertificate = aiNotAvailable;
 try {
   ({ handleAiAnalyze } = require('../../lib/ai/analyze-handler'));
 } catch (err) {
@@ -38,6 +41,15 @@ try {
   ({ handleValuationAnalyze } = require('../../lib/ai/valuation-analyze-handler'));
 } catch (err) {
   console.warn('[v3/api] valuation-analyze-handler not available, AI valuation endpoint disabled');
+}
+try {
+  ({
+    handleApproveReport,
+    handleIssueCertificate,
+    handleVerifyCertificate
+  } = require('../../lib/ai/valuation-certificate-handler'));
+} catch (err) {
+  console.warn('[v3/api] valuation-certificate-handler not available, certificate endpoints disabled');
 }
 
 const { aiChatHandler } = require('./ai');
@@ -559,7 +571,10 @@ module.exports = async function handler(req, res) {
     if (path === '/ai/chat' && req.method === 'POST') return await aiChatHandler(req, res);
     if (path === '/ai/analyze' && req.method === 'POST') return await handleAiAnalyze(req, res);
     if (path === '/ai/valuate' && req.method === 'POST') return await handleValuationAnalyze(req, res);
+    if (path.match(/^\/ai\/valuate\/[^/]+\/approve$/) && req.method === 'POST') return await handleApproveReport(req, res, path);
     if (path === '/ai/request-review' && req.method === 'POST') return await handleAiReviewRequest(req, res);
+    if (path.match(/^\/valuations\/[^/]+\/certificate$/) && req.method === 'POST') return await handleIssueCertificate(req, res, path);
+    if (path.match(/^\/certificates\/[^/]+\/verify$/) && req.method === 'GET') return await handleVerifyCertificate(req, res, path);
     if (path.startsWith('/scenarios')) return await scenariosRouter(req, res, path);
     if (path.startsWith('/admin/alert-rules') || path.startsWith('/admin/alerts') || path.startsWith('/alerts')) {
       return await alertsRouter(req, res, path);

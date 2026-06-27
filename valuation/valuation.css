@@ -1323,3 +1323,168 @@ html[dir="rtl"] .section-actions {
   .ai-report-section h3 { color: #111 !important; }
   .ai-report-section ul { color: #333 !important; }
 }
+
+/* ===== BONDS Digital Valuation Certificate (BDVC) ===== */
+
+.certificate-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  backdrop-filter: blur(16px);
+  animation: fadeIn 0.4s ease;
+}
+
+.certificate-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.certificate-panel__status {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.certificate-panel__toolbar {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.certificate-loading,
+.certificate-error {
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-weight: 600;
+}
+
+.certificate-loading {
+  background: rgba(212, 168, 83, 0.08);
+  color: var(--gold);
+  border: 1px dashed rgba(212, 168, 83, 0.3);
+}
+
+.certificate-error {
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--danger);
+  border: 1px dashed rgba(239, 68, 68, 0.3);
+}
+
+.bdvc-certificate {
+  background: linear-gradient(180deg, rgba(212,168,83,0.06), rgba(212,168,83,0.02));
+  border: 2px solid rgba(212, 168, 83, 0.35);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--text);
+}
+
+.bdvc-certificate__header {
+  margin-bottom: var(--space-6);
+}
+
+.bdvc-certificate__logo {
+  font-size: var(--text-3xl);
+  font-weight: 900;
+  color: var(--gold);
+  letter-spacing: 3px;
+}
+
+.bdvc-certificate__title {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  margin-top: var(--space-2);
+}
+
+.bdvc-certificate__subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.bdvc-certificate__number {
+  font-family: 'Courier New', monospace;
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--gold);
+  margin: var(--space-4) 0;
+  padding: var(--space-3);
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-md);
+  display: inline-block;
+}
+
+.bdvc-certificate__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+  text-align: start;
+  margin-bottom: var(--space-6);
+  font-size: 0.95rem;
+}
+
+.bdvc-certificate__seal {
+  background: rgba(255,255,255,0.03);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  word-break: break-all;
+}
+
+.bdvc-certificate__seal-id,
+.bdvc-certificate__seal-hash {
+  margin-bottom: var(--space-2);
+}
+
+.bdvc-certificate__qr {
+  margin-bottom: var(--space-6);
+}
+
+.bdvc-certificate__qr img {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 0.5rem;
+}
+
+.bdvc-certificate__verify-url {
+  margin-top: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--gold);
+  word-break: break-all;
+}
+
+.bdvc-certificate__footer {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-4);
+}
+
+@media print {
+  body { background: #fff !important; color: #111 !important; }
+  .bdvc-certificate {
+    background: #fff !important;
+    border-color: #d4a853 !important;
+    color: #111 !important;
+  }
+  .bdvc-certificate__logo,
+  .bdvc-certificate__number,
+  .bdvc-certificate__verify-url { color: #111 !important; }
+  .bdvc-certificate__subtitle,
+  .bdvc-certificate__footer,
+  .bdvc-certificate__seal { color: #333 !important; }
+}
