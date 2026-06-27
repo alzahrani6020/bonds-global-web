@@ -12,6 +12,10 @@
 - `supabase/migrations/20260711000000_market_intelligence_v2.sql` — التوسعة الكاملة للذكاء السوقي (تاريخ، رؤى، جغرافيا، مصادر).
 - `supabase/migrations/20260712000000_market_intelligence_sources.sql` — مصادر بيانات خارجية موثوقة جاهزة للعمل (KAPSARC + World Bank) للسعودية.
 - `supabase/migrations/20260713000000_market_intelligence_arab_sources.sql` — مؤشرات ماكرو اقتصادية (تضخم + نمو ناتج محلي) لجميع الدول العربية الـ 22.
+- `supabase/migrations/20260714000000_condition_assessment.sql` — جدول `condition_assessment_standards` + معايير 35 فئة أصل.
+- `supabase/migrations/20260715000000_asset_condition_assessments.sql` — جدول حفظ التقييمات الفردية `asset_condition_assessments`.
+- `supabase/migrations/20260716000000_assessment_due_date.sql` — تتبع `next_assessment_due` + view `assets_due_for_reassessment`.
+- `supabase/apply-cae-migrations.sql` — ملف مجمع للتطبيق اليدوي السريع للثلاثة ترحيلات السابقة.
 
 ## الخطوة 1: إضافة الأسرار في GitHub
 
@@ -59,6 +63,9 @@ npx supabase db push
 - `public.market_data`
 - `public.market_data_history`
 - `public.market_data_sources`
+- `public.condition_assessment_standards`
+- `public.asset_condition_assessments`
+- `public.assets_due_for_reassessment` (view)
 
 وأن بيانات 35 فئة الأصل موجودة في كليهما.
 
