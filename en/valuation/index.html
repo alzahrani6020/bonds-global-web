@@ -19,7 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../header-footer.css?v=7" />
-  <link rel="stylesheet" href="/valuation/valuation.css?v=1" />
+  <link rel="stylesheet" href="/valuation/valuation.css?v=2" />
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://bonds-global.com/en/valuation/" />
 </head>
@@ -97,12 +97,25 @@
           <div class="valuation-actions" id="valuationActions" style="margin: var(--space-6) 0; display: flex; gap: 1rem; flex-wrap: wrap;">
             <button class="btn-primary" id="saveValuationBtn">💾 Save Valuation</button>
             <button class="btn-outline" id="validateValuationBtn">✅ Validate Data</button>
+            <button class="btn-outline" id="generateAiReportBtn" style="display:none">🤖 AI Executive Report</button>
           </div>
 
           <div class="validation-panel" id="validationPanel" style="display:none; margin-bottom: var(--space-8);">
             <div class="validation-panel__header" id="validationHeader"></div>
             <div class="validation-panel__scores" id="validationScores"></div>
             <div class="validation-panel__issues" id="validationIssues"></div>
+          </div>
+
+          <div class="executive-report-panel" id="executiveReportPanel" style="display:none; margin-bottom: var(--space-8);">
+            <div class="executive-report-panel__header">
+              <h3 class="val-section__title" style="margin:0">📊 AI Executive Report</h3>
+              <span class="executive-report-panel__status" id="executiveReportStatus"></span>
+            </div>
+            <div class="executive-report-panel__toolbar" id="executiveReportToolbar" style="display:none">
+              <button class="btn-outline" id="printAiReportBtn">🖨️ Print / PDF</button>
+              <button class="btn-outline" id="regenerateAiReportBtn">🔄 Regenerate</button>
+            </div>
+            <div class="executive-report-panel__content" id="executiveReportContent"></div>
           </div>
 
           <h3 class="val-section__title" style="font-size:var(--text-2xl)">Performance Indicators</h3>
@@ -183,7 +196,7 @@
   <script src="/api/env"></script>
   <script src="/supabase-client.js"></script>
   <script src="/valuation/valuation-engine.js?v=4"></script>
-  <script src="/valuation/valuation-ui.js?v=3"></script>
+  <script src="/valuation/valuation-ui.js?v=4"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

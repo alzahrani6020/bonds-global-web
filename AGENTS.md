@@ -445,6 +445,13 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - `valuation/valuation-ui.js` — يعرض البيانات السوقية والاتجاهات في لوحة النتائج.
   - `valuation/valuation-locale.js` — التسميات العربية والإنجليزية لحقول ومخرجات الذكاء السوقي.
   - `valuation/valuation.css` — تنسيق بطاقات وبادجات الذكاء السوقي.
+- **BONDS AI Valuation Analyst (Phase 2)**:
+  - `valuation/valuation-knowledge-base.js` — قاعدة معرفة قطاعية نوعية فقط؛ لا تحتوي على أرقام.
+  - `lib/ai/prompts.js` — قالب `asset_valuation` يطلب JSON منظّم (ملخص تنفيذي، SWOT، قرار BONDS، توقعات).
+  - `lib/ai/valuation-analyze-handler.js` — معالج `POST /api/v3/ai/valuate`؛ يتحقق من ملكية السجل، يجمع المعرفة والبيانات، ويستدعي `lib/ai/orchestrator.js`.
+  - `v3/api/index.js` — يوجّه `/ai/valuate` إلى المعالج أعلاه ضمن الدالة الواحدة لتجنب تجاوز حد Vercel.
+  - واجهة النتائج (`valuation/index.html` + `en/valuation/index.html`) — تحتوي على زر "تقرير تنفيذي ذكي" ولوحة عرض التقرير.
+  - شروط الجودة لتوليد التقرير: `confidence_score ≥ 80` و `data_quality_score ≥ 80`.
 - **أنواع الاستهلاك المحسوبة**:
   1. الاستهلاك المحاسبي (`accountingDepreciation`)
   2. الاستهلاك الاقتصادي (`economicDepreciation`)

@@ -23,6 +23,7 @@ function aiNotAvailable(req, res) {
 
 let handleAiAnalyze = aiNotAvailable;
 let handleAiReviewRequest = aiNotAvailable;
+let handleValuationAnalyze = aiNotAvailable;
 try {
   ({ handleAiAnalyze } = require('../../lib/ai/analyze-handler'));
 } catch (err) {
@@ -32,6 +33,11 @@ try {
   ({ handleAiReviewRequest } = require('../../lib/ai/review-handler'));
 } catch (err) {
   console.warn('[v3/api] review-handler not available, AI request-review endpoint disabled');
+}
+try {
+  ({ handleValuationAnalyze } = require('../../lib/ai/valuation-analyze-handler'));
+} catch (err) {
+  console.warn('[v3/api] valuation-analyze-handler not available, AI valuation endpoint disabled');
 }
 
 const { aiChatHandler } = require('./ai');
@@ -552,6 +558,7 @@ module.exports = async function handler(req, res) {
     if (path.startsWith('/calculate/scenarios')) return await scenariosRouter(req, res, path);
     if (path === '/ai/chat' && req.method === 'POST') return await aiChatHandler(req, res);
     if (path === '/ai/analyze' && req.method === 'POST') return await handleAiAnalyze(req, res);
+    if (path === '/ai/valuate' && req.method === 'POST') return await handleValuationAnalyze(req, res);
     if (path === '/ai/request-review' && req.method === 'POST') return await handleAiReviewRequest(req, res);
     if (path.startsWith('/scenarios')) return await scenariosRouter(req, res, path);
     if (path.startsWith('/admin/alert-rules') || path.startsWith('/admin/alerts') || path.startsWith('/alerts')) {

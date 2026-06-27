@@ -97,8 +97,10 @@
 
       const saveBtn = $('#saveValuationBtn');
       const validateBtn = $('#validateValuationBtn');
+      const generateAiReportBtn = $('#generateAiReportBtn');
       if (saveBtn) saveBtn.addEventListener('click', () => this.saveValuation());
       if (validateBtn) validateBtn.addEventListener('click', () => this.validateValuation());
+      if (generateAiReportBtn) generateAiReportBtn.addEventListener('click', () => this.generateAiReport());
     }
 
     renderAssetGrid() {
@@ -1070,6 +1072,9 @@
           </div>
         `).join('');
 
+      const generateAiReportBtn = $('#generateAiReportBtn');
+      if (generateAiReportBtn) generateAiReportBtn.style.display = 'inline-flex';
+
       const scoreItems = [
         { key: 'assetQuality', label: t.assetQuality },
         { key: 'marketStrength', label: t.marketStrength },
@@ -1502,6 +1507,17 @@
       });
     }
 
+    async _getSessionToken() {
+      if (!window.BondsAuth || !window.BondsAuth.getSession) return null;
+      try {
+        const { data: { session }, error } = await window.BondsAuth.getSession();
+        if (error || !session) return null;
+        return session.access_token;
+      } catch (e) {
+        return null;
+      }
+    }
+
     async saveValuation() {
       const t = this.locale.texts;
       if (!this._lastResult) {
@@ -1704,6 +1720,127 @@
 
       issues.innerHTML = issuesHtml;
       panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    async generateAiReport() {
+      const t = this.locale.texts;
+      const isEn = this.lang === 'en';
+
+      if (!this._lastResult) {
+        alert(isEn ? 'Run a valuation first' : 'نفّذ التقييم أولاً');
+        return;
+      }
+
+      // Ensure valuation is saved so we have an asset_valuation_id
+      if (!this._lastValuationId) {
+        const proceed = confirm(isEn
+          ? 'Save valuation before generating the AI executive report?'
+          : 'هل تريد حفظ التقييم قبل توليد التقرير التنفيذي الذكي؟');
+        if (!proceed) return;
+        await this.saveValuation();
+        if (!this._lastValuationId) return;
+      }
+
+      const token = await this._getSessionToken();
+      if (!token) {
+        alert(isEn ? 'Please sign in to generate the AI report.' : 'يرجى تسجيل الدخول لتوليد التقرير الذكي.');
+        return;
+      }
+
+      const status = $('#executiveReportStatus');
+      const content = $('#executiveReportContent');
+      const panel = $('#executiveReportPanel');
+      const toolbar = $('#executiveReportToolbar');
+      if (panel) panel.style.display = 'block';
+      if (status) status.textContent = isEn ? 'Generating executive report…' : 'جاري توليد التقرير التنفيذي…';
+      if (content) content.innerHTML = `<div class="ai-report-loading">${isEn ? 'Please wait while BONDS AI Analyst prepares your report…' : 'يرجى الانتظار بينما يُعدّ محلل بوندز الذكي تقريرك…'}</div>`;
+      if (toolbar) toolbar.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/v3/ai/valuate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ asset_valuation_id: this._lastValuationId })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || (isEn ? 'Failed to generate report' : 'فشل توليد التقرير'));
+        }
+
+        this._lastAiReport = data;
+        this.renderAiReport(data);
+      } catch (err) {
+        console.error('[ValuationUI] generateAiReport error:', err);
+        if (status) status.textContent = isEn ? 'Generation failed' : 'فشل التوليد';
+        if (content) content.innerHTML = `<div class="ai-report-error">${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    renderAiReport(data) {
+      const panel = $('#executiveReportPanel');
+      const status = $('#executiveReportStatus');
+      const content = $('#executiveReportContent');
+      const toolbar = $('#executiveReportToolbar');
+      const isEn = this.lang === 'en';
+
+      if (!panel || !content) return;
+
+      panel.style.display = 'block';
+      if (status) {
+        const cachedLabel = data.cached ? (isEn ? ' (cached)' : ' (مخزّن)') : '';
+        status.textContent = (isEn ? 'Report generated' : 'تم توليد التقرير') + cachedLabel;
+      }
+
+      content.innerHTML = data.content_html || '';
+      if (toolbar) toolbar.style.display = 'flex';
+
+      const printBtn = $('#printAiReportBtn');
+      const regenerateBtn = $('#regenerateAiReportBtn');
+      if (printBtn) {
+        const freshPrint = printBtn.cloneNode(true);
+        printBtn.parentNode.replaceChild(freshPrint, printBtn);
+        freshPrint.addEventListener('click', () => this.printAiReport());
+      }
+      if (regenerateBtn) {
+        const freshRegenerate = regenerateBtn.cloneNode(true);
+        regenerateBtn.parentNode.replaceChild(freshRegenerate, regenerateBtn);
+        freshRegenerate.addEventListener('click', () => this.generateAiReport());
+      }
+
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    printAiReport() {
+      const content = $('#executiveReportContent');
+      if (!content || !content.innerHTML.trim()) return;
+
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) return;
+
+      const isEn = this.lang === 'en';
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="${isEn ? 'en' : 'ar'}" dir="${isEn ? 'ltr' : 'rtl'}">
+        <head>
+          <meta charset="UTF-8" />
+          <title>${isEn ? 'Executive Report' : 'التقرير التنفيذي'} — BONDS</title>
+          <link rel="stylesheet" href="/valuation/valuation.css?v=1" />
+          <style>
+            body { background:#fff; color:#111; padding:2rem; }
+            .ai-valuation-report { max-width:900px; margin:0 auto; }
+          </style>
+        </head>
+        <body>
+          ${content.innerHTML}
+          <script>window.onload = function() { window.print(); };</script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
     }
 
     closeWizard() {
