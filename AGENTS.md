@@ -10,6 +10,7 @@
 - **لا يوجد إطار عمل frontend**: لا React، لا Vue، لا Next.js. الكود هو HTML/CSS/JS vanilla.
 - **الاستضافة**: Vercel. ملف `vercel.json` يحدد الإعدادات.
 - **PWA**: يوجد Service Worker (`sw.js`) يستخدم `CACHE_VERSION` يدوي. عند تغيير ملفات CSS/JS الأساسية، رفع رقم الإصدار في `sw.js` وأعد تشغيل `scripts/generate-icons.js` إذا تغيّر الشعار.
+- **الدستور المعماري**: قبل أي تطوير جديد، راجع `docs/BONDS_CONSTITUTION.md` — وهو المرجع الأعلى لرؤية المنصة ومعماريتها.
 
 ---
 
