@@ -1,0 +1,212 @@
+{
+  "version": "1.0",
+  "rules": [
+    {
+      "id": "BR-SECTOR-001",
+      "name": "Hide vehicle fields for real estate",
+      "category": "Sector",
+      "priority": "High",
+      "condition": "asset_class == 'realEstate'",
+      "action": "Hide mileage, model_year, fuel_type, plate_number",
+      "engine": "Valuation Engine + Knowledge Engine"
+    },
+    {
+      "id": "BR-SECTOR-002",
+      "name": "Show food cost for restaurants",
+      "category": "Sector",
+      "priority": "High",
+      "condition": "sector == 'restaurant' OR activity contains 'food'",
+      "action": "Show food_cost_percentage, menu_items, ingredient_prices",
+      "engine": "Feasibility Engine + Knowledge Engine"
+    },
+    {
+      "id": "BR-SECTOR-003",
+      "name": "Show production lines for factories",
+      "category": "Sector",
+      "priority": "High",
+      "condition": "sector == 'manufacturing'",
+      "action": "Show production_lines, capacity_per_line, machine_cost",
+      "engine": "Feasibility Engine + Valuation Engine"
+    },
+    {
+      "id": "BR-SECTOR-004",
+      "name": "Show capacity fields for schools",
+      "category": "Sector",
+      "priority": "High",
+      "condition": "sector == 'education'",
+      "action": "Show student_capacity, classrooms, tuition_fee",
+      "engine": "Feasibility Engine"
+    },
+    {
+      "id": "BR-SECTOR-005",
+      "name": "Show bed fields for hospitals",
+      "category": "Sector",
+      "priority": "High",
+      "condition": "sector == 'healthcare' AND activity contains 'hospital'",
+      "action": "Show beds, occupancy_rate, avg_patient_revenue",
+      "engine": "Feasibility Engine"
+    },
+    {
+      "id": "BR-VAL-001",
+      "name": "Select valuation methodology",
+      "category": "Valuation",
+      "priority": "Critical",
+      "condition": "asset_class is known",
+      "action": "Choose market/income/cost approach by asset class",
+      "engine": "Valuation Engine + Knowledge Engine"
+    },
+    {
+      "id": "BR-VAL-002",
+      "name": "Minimum data quality for AI report",
+      "category": "Valuation",
+      "priority": "Critical",
+      "condition": "data_quality_score < 80",
+      "action": "Do not create AI Report",
+      "engine": "Confidence Engine + AI Analyst"
+    },
+    {
+      "id": "BR-CRT-001",
+      "name": "Minimum thresholds for certificate",
+      "category": "Certificate",
+      "priority": "Critical",
+      "condition": "confidence_score < 85 OR data_quality_score < 80 OR report not approved",
+      "action": "Do not issue BDVC",
+      "engine": "Certificate Engine"
+    },
+    {
+      "id": "BR-FIN-001",
+      "name": "DSCR warning threshold",
+      "category": "Financing",
+      "priority": "High",
+      "condition": "dscr < 1.25",
+      "action": "Warn: high-risk financing",
+      "engine": "Financing Engine"
+    },
+    {
+      "id": "BR-FIN-002",
+      "name": "LTV limit",
+      "category": "Financing",
+      "priority": "High",
+      "condition": "ltv > 0.80",
+      "action": "Reject or request additional collateral",
+      "engine": "Financing Engine + Risk Engine"
+    },
+    {
+      "id": "BR-SUB-001",
+      "name": "Free tier limits",
+      "category": "Subscription",
+      "priority": "High",
+      "condition": "tier == 'free'",
+      "action": "Max 3 scenarios, 5 countries, Excel export only",
+      "engine": "Usage Guard"
+    },
+    {
+      "id": "BR-SUB-002",
+      "name": "Pro/Enterprise features",
+      "category": "Subscription",
+      "priority": "High",
+      "condition": "tier IN ('pro', 'enterprise')",
+      "action": "Allow PDF export and access to 22 countries",
+      "engine": "Subscription Engine"
+    },
+    {
+      "id": "BR-DATA-001",
+      "name": "Low-confidence source block",
+      "category": "Data",
+      "priority": "High",
+      "condition": "source_confidence == 'D'",
+      "action": "Do not use datum without manual confirmation",
+      "engine": "Live Intelligence + Confidence Engine"
+    },
+    {
+      "id": "BR-DATA-002",
+      "name": "Override audit requirement",
+      "category": "Data",
+      "priority": "High",
+      "condition": "user overrides a data value",
+      "action": "Log reason, difference and recalculate",
+      "engine": "Unified Data Layer + Audit Trail"
+    },
+    {
+      "id": "BR-AI-001",
+      "name": "AI does not make final decisions",
+      "category": "AI",
+      "priority": "Critical",
+      "condition": "always",
+      "action": "AI provides analysis; final decision is human",
+      "engine": "AI Analyst + Recommendation Engine"
+    },
+    {
+      "id": "BR-AI-002",
+      "name": "AI structured output",
+      "category": "AI",
+      "priority": "Critical",
+      "condition": "always",
+      "action": "AI output must conform to JSON schema",
+      "engine": "AI Analyst"
+    },
+    {
+      "id": "BR-SEC-001",
+      "name": "No secrets in frontend",
+      "category": "Security",
+      "priority": "Critical",
+      "condition": "always",
+      "action": "Do not expose API Key or Secret in HTML/JS",
+      "engine": "Security Layer"
+    },
+    {
+      "id": "BR-SEC-002",
+      "name": "RLS on sensitive tables",
+      "category": "Security",
+      "priority": "Critical",
+      "condition": "always",
+      "action": "Enable RLS on all sensitive tables",
+      "engine": "Database"
+    },
+    {
+      "id": "BR-WF-001",
+      "name": "Submitted project lock",
+      "category": "Workflow",
+      "priority": "High",
+      "condition": "project status == 'submitted'",
+      "action": "Only Reviewer can edit data",
+      "engine": "Workflow Engine"
+    },
+    {
+      "id": "BR-WF-002",
+      "name": "Rejected report return",
+      "category": "Workflow",
+      "priority": "High",
+      "condition": "report status == 'rejected'",
+      "action": "Return to Owner with notes",
+      "engine": "Workflow Engine"
+    },
+    {
+      "id": "BR-AUD-001",
+      "name": "Audit sensitive changes",
+      "category": "Audit",
+      "priority": "Critical",
+      "condition": "any sensitive data change",
+      "action": "Log in Audit Trail",
+      "engine": "Audit Trail"
+    },
+    {
+      "id": "BR-I18N-001",
+      "name": "Arabic UI layout",
+      "category": "i18n",
+      "priority": "High",
+      "condition": "language == 'ar'",
+      "action": "RTL layout and Arabic/English numbers",
+      "engine": "UI Layer"
+    },
+    {
+      "id": "BR-I18N-002",
+      "name": "English UI layout",
+      "category": "i18n",
+      "priority": "High",
+      "condition": "language == 'en'",
+      "action": "LTR layout",
+      "engine": "UI Layer"
+    }
+  ]
+}

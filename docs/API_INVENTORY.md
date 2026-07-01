@@ -244,6 +244,57 @@ All routes require **`x-admin-token`** header matching `ADMIN_TOKEN`.
 | `/api/v3/cron/calibrate-competitors` | POST | Auto-calibrate competitor counts | cron secret or x-admin-token | Sundays 03:00 |
 | `/api/v3/cron/check-source-quality` | GET, POST | Check source quality and alert | cron secret or x-admin-token | Daily 09:00 |
 
+### 4.11 Orchestrator (Wave 4.1)
+
+| Route | Methods | Description | Auth | Rate limit |
+|---|---|---|---|---|
+| `/api/v3/orchestrate/intents` | GET | List supported intents | none | `compute` |
+| `/api/v3/orchestrate/form` | POST | Build dynamic form + auto-populate | none | `compute` |
+| `/api/v3/orchestrate` | POST | Run full orchestrator pipeline | none | `compute` |
+
+### 4.12 Trusted Data Fabric (Wave 4.2)
+
+| Route | Methods | Description | Auth | Rate limit |
+|---|---|---|---|---|
+| `/api/v3/fabric/connectors` | GET | List registered connectors | none | `compute` |
+| `/api/v3/fabric/connectors/health` | GET | Health check all connectors | none | `compute` |
+| `/api/v3/fabric/connectors/:code/health` | GET | Health check one connector | none | `compute` |
+| `/api/v3/fabric/connectors/:code/fetch` | POST | Fetch via connector | none | `compute` |
+| `/api/v3/fabric/sources` | GET | Source registry | none | `compute` |
+| `/api/v3/fabric/sources/:code/rank` | GET | Source ranking | none | `compute` |
+| `/api/v3/fabric/resolve` | POST | Resolve metric via full fabric | none | `compute` |
+| `/api/v3/fabric/quality` | GET | Data quality summary | none | `compute` |
+| `/api/v3/fabric/provenance/:id` | GET | Provenance chain | none | `compute` |
+| `/api/v3/fabric/override` | POST | Smart override | Bearer JWT | `compute` |
+| `/api/v3/fabric/impact` | GET | Decision impact analysis | none | `compute` |
+| `/api/v3/fabric/monitoring/summary` | GET | Monitoring summary | none | `compute` |
+| `/api/v3/fabric/marketplace` | GET | Marketplace catalog | none | `compute` |
+| `/api/v3/fabric/plugins` | GET | Plugin list | none | `compute` |
+| `/api/v3/fabric/plugins/validate` | POST | Validate plugin manifest | none | `compute` |
+
+### 4.13 Enterprise Intelligence (Wave 4.3)
+
+| Route | Methods | Description | Auth | Rate limit |
+|---|---|---|---|---|
+| `/api/v3/intelligence/engines` | GET | List available intelligence engines | none | `compute` |
+| `/api/v3/intelligence/engines/:code` | GET | Engine metadata | none | `compute` |
+| `/api/v3/intelligence/run` | POST | Run one or more engines | none | `compute` |
+| `/api/v3/intelligence/adapt` | POST | Run a single engine adapter directly | none | `compute` |
+| `/api/v3/intelligence/synthesize` | POST | Synthesize actions from engine outputs | none | `compute` |
+
+### 4.14 Investment Intelligence (Phase D.1)
+
+| Route | Methods | Description | Auth | Rate limit |
+|---|---|---|---|---|
+| `/api/v3/investment-intelligence/engines` | GET | List BIIS engines | none | `compute` |
+| `/api/v3/investment-intelligence/readiness/:projectId` | GET | Investment readiness score | Bearer JWT | `compute` |
+| `/api/v3/investment-intelligence/memorandum` | POST | Generate & save memorandum | Bearer JWT | `compute` |
+| `/api/v3/investment-intelligence/memorandum/:id` | GET | Retrieve memorandum | Bearer JWT | `compute` |
+| `/api/v3/investment-intelligence/memorandum/:id/html` | GET | Render memorandum as HTML | Bearer JWT | `compute` |
+| `/api/v3/investment-intelligence/memorandum/:id/review` | POST | AI review of memorandum | Bearer JWT | `compute` |
+| `/api/v3/investment-intelligence/memorandum/:id/versions` | GET | List versions | Bearer JWT | `compute` |
+| `/api/v3/investment-intelligence/memorandum/:id/version` | POST | Create manual version | Bearer JWT | `compute` |
+
 ---
 
 ## Notes

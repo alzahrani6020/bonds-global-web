@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>بوندز — ابدأ بهدفك</title>
+  <meta name="description" content="منصة بوندز الذكية: ابدأ بنيتك واترك النظام يحدد القطاع والنموذج والنماذج والتقارير." />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    :root { font-family: 'Vazirmatn', system-ui, sans-serif; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+    .brand {
+      display: flex; align-items: center; gap: 0.75rem;
+      font-weight: 800; font-size: 1.25rem; color: var(--gold);
+      margin-bottom: 2rem;
+    }
+    .brand img { height: 36px; }
+    .hero { text-align: center; margin-bottom: 2.5rem; }
+    .hero h1 { font-size: 2rem; margin: 0 0 0.5rem; }
+    .hero p { color: var(--text-secondary); margin: 0; }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-md);
+    }
+    label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary); }
+    textarea, input, select {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      font: inherit;
+      box-sizing: border-box;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    textarea:focus, input:focus, select:focus { outline: none; border-color: var(--gold); }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+    .chip {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+    .chip:hover, .chip.active { border-color: var(--gold); color: var(--gold); background: var(--gold-glow); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      background: var(--gold);
+      color: #0a0f1a;
+      border: none;
+      padding: 0.9rem 1.6rem;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn:hover { background: var(--gold-bright); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-secondary {
+      background: transparent; color: var(--gold); border: 1px solid var(--gold);
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+    .field { margin-bottom: 1rem; }
+    .field small { color: var(--text-muted); font-size: 0.8rem; }
+    .field-populated input, .field-populated select { border-color: var(--gold-dim); }
+    .source-badge {
+      display: inline-block; font-size: 0.75rem; color: var(--gold);
+      border: 1px solid var(--gold-dim); padding: 0.1rem 0.4rem; border-radius: 4px; margin-inline-start: 0.5rem;
+    }
+    .hidden { display: none; }
+    .result-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .meta-box { background: var(--bg-secondary); padding: 0.75rem 1rem; border-radius: var(--radius-sm); flex: 1; min-width: 140px; }
+    .meta-box strong { display: block; color: var(--gold); font-size: 1.1rem; }
+    .meta-box span { color: var(--text-secondary); font-size: 0.85rem; }
+    .evidence-list { list-style: none; padding: 0; margin: 0; }
+    .evidence-list li { padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+    .error { color: #ef4444; background: rgba(239,68,68,0.1); padding: 1rem; border-radius: var(--radius-sm); }
+    .loading { text-align: center; color: var(--text-secondary); padding: 2rem; }
+    h2 { font-size: 1.25rem; margin-top: 0; color: var(--gold-bright); }
+  </style>
+  <link rel="canonical" href="https://bonds-global.com/wave4/" />
+  <meta property="og:title" content="بوندز — ابدأ بهدفك" />
+  <meta property="og:description" content="منصة بوندز الذكية: ابدأ بنيتك واترك النظام يحدد القطاع والنموذج والنماذج والتقارير." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:url" content="https://bonds-global.com/wave4/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="بوندز — ابدأ بهدفك" />
+  <meta name="twitter:description" content="منصة بوندز الذكية: ابدأ بنيتك واترك النظام يحدد القطاع والنموذج والنماذج والتقارير." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+
+</head>
+<body>
+  <div class="container">
+    <div class="brand">
+      <img src="../assets/bonds-logo-v2.webp" alt="بوندز" />
+      <span>بوندز — المنصة الاقتصادية الذكية</span>
+    </div>
+
+    <section class="hero">
+      <h1>ما الذي تريد تحقيقه؟</h1>
+      <p>لا حاسبات، لا قطاعات، لا نماذج معقدة. ابدأ بهدفك وسنبني كل شيء تلقائياً.</p>
+    </section>
+
+    <div class="card" id="intent-card">
+      <label for="intent-input">صف هدفك بجملة واحدة</label>
+      <textarea id="intent-input" placeholder="مثال: أريد دراسة جدوى لمطعم سريع في الرياض"></textarea>
+      <div class="chips" id="intent-chips">
+        <button class="chip" data-text="أريد تقييم أصل">تقييم أصل</button>
+        <button class="chip" data-text="أريد شراء عقار">شراء أصل</button>
+        <button class="chip" data-text="أريد تمويل لمشروعي">طلب تمويل</button>
+        <button class="chip" data-text="أريد دراسة جدوى لمشروع">دراسة جدوى</button>
+        <button class="chip" data-text="أريد مقارنة فرص استثمارية">مقارنة فرص</button>
+        <button class="chip" data-text="أريد إصدار شهادة تقييم">إصدار شهادة</button>
+      </div>
+
+      <div class="form-grid" style="margin-top: 1rem;">
+        <div class="field">
+          <label for="sector-select">القطاع (اختياري)</label>
+          <select id="sector-select">
+            <option value="">يُحدد تلقائياً</option>
+            <option value="restaurant">مطعم</option>
+            <option value="manufacturing">مصنع</option>
+            <option value="retail">تجزئة</option>
+            <option value="hotel">فندق</option>
+            <option value="healthcare">رعاية صحية</option>
+            <option value="education">تعليم</option>
+            <option value="company">شركة</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="country-select">الدولة</label>
+          <select id="country-select">
+            <option value="SA" selected>السعودية</option>
+            <option value="AE">الإمارات</option>
+            <option value="EG">مصر</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn" id="build-form-btn" style="margin-top: 1rem;">ابدأ الرحلة</button>
+    </div>
+
+    <div id="form-section" class="hidden">
+      <div class="card">
+        <h2 id="form-title">البيانات المطلوبة</h2>
+        <p id="form-subtitle" style="color: var(--text-secondary);"></p>
+        <form id="dynamic-form"></form>
+        <button class="btn" id="run-btn" style="margin-top: 1rem;">احسب واستكشف النتيجة</button>
+      </div>
+    </div>
+
+    <div id="result-section" class="hidden"></div>
+    <div id="error-section"></div>
+  </div>
+
+  <script>
+    const API_BASE = '/api/v3';
+    const intentInput = document.getElementById('intent-input');
+    const chips = document.querySelectorAll('.chip');
+    const buildBtn = document.getElementById('build-form-btn');
+    const formSection = document.getElementById('form-section');
+    const dynamicForm = document.getElementById('dynamic-form');
+    const runBtn = document.getElementById('run-btn');
+    const resultSection = document.getElementById('result-section');
+    const errorSection = document.getElementById('error-section');
+    const sectorSelect = document.getElementById('sector-select');
+    const countrySelect = document.getElementById('country-select');
+
+    let currentForm = null;
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        intentInput.value = chip.dataset.text;
+      });
+    });
+
+    function showError(msg) {
+      errorSection.innerHTML = `<div class="error">${msg}</div>`;
+    }
+    function clearError() { errorSection.innerHTML = ''; }
+
+    function setLoading(el, loading) {
+      el.disabled = loading;
+      el.dataset.original = el.dataset.original || el.innerHTML;
+      el.innerHTML = loading ? 'جارٍ التحميل...' : el.dataset.original;
+    }
+
+    async function post(path, body) {
+      const res = await fetch(API_BASE + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+
+    function renderForm(data) {
+      currentForm = data;
+      const form = data.form;
+      document.getElementById('form-title').textContent = `هدفك: ${data.intent.names.ar}`;
+      document.getElementById('form-subtitle').textContent = `القطاع: ${form.sectorName.ar || form.sector} · السياق: ${data.context ? data.context.names.ar : 'عام'}`;
+
+      dynamicForm.innerHTML = '';
+      for (const field of form.fields) {
+        if (field.hidden) continue;
+        const div = document.createElement('div');
+        div.className = 'field' + (field.populated ? ' field-populated' : '');
+        const label = document.createElement('label');
+        label.textContent = (field.label && field.label.ar) || field.name;
+        if (field.required) label.innerHTML += ' <span style="color:var(--gold)">*</span>';
+        if (field.populated) {
+          const badge = document.createElement('span');
+          badge.className = 'source-badge';
+          badge.textContent = (field.populationMode === 'auto' ? 'تلقائي' : 'مقترح') + ': ' + (field.populationSource || field.source);
+          label.appendChild(badge);
+        }
+        div.appendChild(label);
+
+        const input = document.createElement('input');
+        input.type = field.type === 'integer' ? 'number' : (field.type === 'string' ? 'text' : 'number');
+        input.step = field.type === 'integer' ? '1' : 'any';
+        input.name = field.name;
+        input.placeholder = field.helpText || '';
+        if (field.value !== undefined && field.value !== null) input.value = field.value;
+        if (field.default !== undefined && field.default !== null && input.value === '') input.value = field.default;
+        div.appendChild(input);
+
+        if (field.helpText) {
+          const small = document.createElement('small');
+          small.textContent = field.helpText;
+          div.appendChild(small);
+        }
+        dynamicForm.appendChild(div);
+      }
+      formSection.classList.remove('hidden');
+      formSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    buildBtn.addEventListener('click', async () => {
+      clearError();
+      if (!intentInput.value.trim()) return showError('يرجى كتابة هدفك أولاً.');
+      setLoading(buildBtn, true);
+      try {
+        const body = {
+          input: intentInput.value,
+          sector: sectorSelect.value || intentInput.value,
+          country: countrySelect.value,
+          userTier: 'pro',
+          language: 'ar'
+        };
+        const data = await post('/orchestrate/form', body);
+        renderForm(data);
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        setLoading(buildBtn, false);
+      }
+    });
+
+    runBtn.addEventListener('click', async () => {
+      clearError();
+      setLoading(runBtn, true);
+      try {
+        const values = {};
+        const inputs = dynamicForm.querySelectorAll('input, select');
+        inputs.forEach(input => {
+          const v = input.type === 'number' ? parseFloat(input.value) : input.value;
+          if (!Number.isNaN(v)) values[input.name] = v;
+        });
+
+        const data = await post('/orchestrate', {
+          input: intentInput.value,
+          sector: currentForm.sector.sector,
+          country: countrySelect.value,
+          userTier: 'pro',
+          language: 'ar',
+          values
+        });
+        renderResult(data);
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        setLoading(runBtn, false);
+      }
+    });
+
+    function formatValue(v) {
+      if (v === null || v === undefined) return '—';
+      if (typeof v === 'number') return v.toLocaleString('ar-SA');
+      return String(v);
+    }
+
+    function renderResult(data) {
+      const r = data.confidence || {};
+      const outputs = data.ucp && data.ucp.outputs ? data.ucp.outputs : {};
+      const evidence = data.evidence || [];
+      const scenarios = data.ucp && data.ucp.scenarios ? data.ucp.scenarios : [];
+
+      let outputsHtml = '<div class="form-grid">';
+      for (const [key, out] of Object.entries(outputs)) {
+        const val = typeof out === 'object' ? out.value : out;
+        outputsHtml += `<div class="meta-box"><strong>${key.replace(/_/g, ' ')}</strong><span>${formatValue(val)}</span></div>`;
+      }
+      outputsHtml += '</div>';
+
+      let evidenceHtml = '';
+      if (evidence.length) {
+        evidenceHtml = '<ul class="evidence-list">' + evidence.slice(0, 10).map(e => `
+          <li>
+            <strong>${e.evidence_type || e.source || 'مدخل'}</strong>
+            ${e.evidence_code ? `: ${e.evidence_code}` : ''}
+            <span style="color:var(--text-secondary);display:block;font-size:0.85rem;">${formatValue(e.value)} · ثقة ${e.confidence !== undefined ? Math.round(e.confidence * 100) / 100 : '—'}</span>
+          </li>
+        `).join('') + '</ul>';
+      }
+
+      let scenariosHtml = '';
+      if (scenarios.length > 1) {
+        scenariosHtml = '<h3>السيناريوهات</h3><div class="form-grid">' + scenarios.map(s => {
+          const np = s.outputs && s.outputs.net_profit ? s.outputs.net_profit.value : '—';
+          return `<div class="meta-box"><strong>${s.scenarioType === 'expected' ? 'المتوقع' : (s.scenarioType === 'optimistic' ? 'الإيجابي' : 'السلبي')}</strong><span>صافي ربح: ${formatValue(np)}</span></div>`;
+        }).join('') + '</div>';
+      }
+
+      resultSection.innerHTML = `
+        <div class="card">
+          <h2>النتيجة والتفسير</h2>
+          <div class="result-meta">
+            <div class="meta-box"><strong>${r.grade || '—'}</strong><span>درجة الثقة (${r.score || 0})</span></div>
+            <div class="meta-box"><strong>${data.intent.names.ar}</strong><span>النية</span></div>
+            <div class="meta-box"><strong>${data.form.sectorName.ar || data.form.sector}</strong><span>القطاع</span></div>
+          </div>
+          <p>${data.explanation ? data.explanation.summary || data.explanation.text || '' : ''}</p>
+          ${outputsHtml}
+          ${scenariosHtml}
+        </div>
+        <div class="card">
+          <h2>الأدلة والمصادر</h2>
+          ${evidenceHtml || '<p style="color:var(--text-secondary)">لا توجد أدلة مسجلة.</p>'}
+        </div>
+      `;
+      resultSection.classList.remove('hidden');
+      resultSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

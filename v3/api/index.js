@@ -10,6 +10,7 @@ const { projectsRouter } = require('./projects');
 const { billingRouter } = require('./billing');
 const { dataEngineRouter } = require('./data-engine');
 const { getUserFromToken } = require('../lib/auth');
+const { checkRateLimit } = require('../../lib/api/rate-limit');
 // AI handlers from the main project are optional; V3 can be deployed standalone.
 // If the files are not available, stub handlers return 503 so the rest of the API works.
 function aiNotAvailable(req, res) {
@@ -56,11 +57,28 @@ const { aiChatHandler } = require('./ai');
 const { scenariosRouter } = require('./scenarios');
 const { alertsRouter } = require('./alerts');
 const { compareRouter } = require('./compare');
+const { fabricRouter } = require('./fabric');
+const { intelligenceRouter } = require('./intelligence');
+const { investmentIntelligenceRouter } = require('./investment-intelligence');
+const { UniversalCalculationPlatform } = require('../../lib/ucp');
+const { adaptToUcp, adaptFromUcp } = require('../../lib/ucp/adapters');
+const { run: orchestratorRun, buildIntentForm } = require('../../lib/orchestrator/intelligence-orchestrator');
+const { listIntents } = require('../../lib/intent/intent-engine');
 
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,x-admin-token');
+}
+
+function getCategory(path) {
+  if (path === '/billing/webhook' || path.startsWith('/billing/webhook/')) return 'webhook';
+  if (path === '/billing/checkout' || path === '/billing/subscription') return 'auth';
+  if (path.startsWith('/auth')) return 'auth';
+  if (path.startsWith('/admin') || path.startsWith('/cron')) return 'strict';
+  if (path === '/ai/chat') return 'ai';
+  if (path === '/calculate' || path.startsWith('/calculate/') || path === '/compare/cities' || path.startsWith('/ucp/') || path.startsWith('/wave4/') || path.startsWith('/orchestrate') || path.startsWith('/fabric') || path.startsWith('/intelligence') || path.startsWith('/investment-intelligence')) return 'compute';
+  return 'public';
 }
 
 function sendJson(res, status, data) {
@@ -449,6 +467,101 @@ async function handleCityMarket(req, res, path) {
   sendJson(res, 200, { marketData: data || [] });
 }
 
+async function handleUcpCalculate(req, res) {
+  if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
+  const body = await parseBody(req);
+  const {
+    sector, country, templateCode, inputs = {}, scenarioCodes, weightCode,
+    policyCodes, businessFormulaCodes, context = {}, asset, legacyAdapter
+  } = body;
+
+  try {
+    const supabase = getSupabaseClient();
+    const ucp = await UniversalCalculationPlatform.create({ supabase, preferStatic: true });
+
+    let ucpInputs = inputs;
+    let resolvedSector = sector;
+    if (legacyAdapter) {
+      const adapted = adaptToUcp(legacyAdapter, inputs);
+      resolvedSector = adapted.sector;
+      ucpInputs = adapted.inputs;
+    }
+
+    const result = await ucp.calculate({
+      templateCode,
+      sector: resolvedSector,
+      country,
+      inputs: ucpInputs,
+      scenarioCodes,
+      weightCode,
+      policyCodes,
+      businessFormulaCodes,
+      context,
+      asset
+    });
+
+    if (legacyAdapter) {
+      result.legacyOutputs = adaptFromUcp(legacyAdapter, result.outputs);
+    }
+
+    sendJson(res, 200, result);
+  } catch (err) {
+    console.error('[ucp/calculate]', err.message);
+    sendJson(res, 400, { error: err.message });
+  }
+}
+
+async function handleUcpTemplates(req, res) {
+  if (req.method !== 'GET') return sendJson(res, 405, { error: 'Method not allowed' });
+  const url = getQuery(req);
+  const sector = url.searchParams.get('sector');
+  const country = url.searchParams.get('country');
+
+  try {
+    const ucp = await UniversalCalculationPlatform.create({ preferStatic: true });
+    const template = ucp.resolveTemplate({ sector, country });
+    const all = ucp.templates.list();
+    sendJson(res, 200, { template, all, count: all.length });
+  } catch (err) {
+    console.error('[ucp/templates]', err.message);
+    sendJson(res, 500, { error: err.message });
+  }
+}
+
+async function handleWave4Intents(req, res) {
+  if (req.method !== 'GET') return sendJson(res, 405, { error: 'Method not allowed' });
+  try {
+    sendJson(res, 200, { intents: listIntents() });
+  } catch (err) {
+    console.error('[wave4/intents]', err.message);
+    sendJson(res, 500, { error: err.message });
+  }
+}
+
+async function handleWave4Intent(req, res) {
+  if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
+  try {
+    const body = await parseBody(req);
+    const { result, trace } = await buildIntentForm(body);
+    sendJson(res, 200, { ...result, trace });
+  } catch (err) {
+    console.error('[wave4/intent]', err.message);
+    sendJson(res, 400, { error: err.message });
+  }
+}
+
+async function handleWave4Run(req, res) {
+  if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
+  try {
+    const body = await parseBody(req);
+    const { result, trace } = await orchestratorRun(body);
+    sendJson(res, 200, { ...result, trace });
+  } catch (err) {
+    console.error('[wave4/run]', err.message);
+    sendJson(res, 400, { error: err.message });
+  }
+}
+
 async function handleCalculate(req, res) {
   const body = await parseBody(req);
   const { projectModelCode, cityCode, assumptions: customAssumptions = {}, projectionYears = 5 } = body;
@@ -556,6 +669,25 @@ module.exports = async function handler(req, res) {
   // Support both /api/v3/... (production under main site) and /api/... (standalone dev)
   const path = url.pathname.replace(/^\/api\/v3/, '').replace(/^\/api/, '') || '/';
 
+  // Legacy analyze-document proxy (previously handled by api/v3/index.js wrapper)
+  if (path === '/analyze-document' || path === '/analyze-document/') {
+    if (req.method === 'OPTIONS') {
+      res.statusCode = 204;
+      res.end();
+      return;
+    }
+    if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
+    return require('../../lib/api/analyze-document')(req, res);
+  }
+
+  const category = getCategory(path);
+  if (checkRateLimit(category, req, res)) {
+    return;
+  }
+
+  // Support both /api/v3/... (production under main site) and /api/... (standalone dev)
+  // `path` already computed above before rate limiting.
+
   try {
     if (path === '/health' || path === '/') return await handleHealth(req, res);
     if (path === '/sectors' && req.method === 'GET') return await handleSectors(req, res);
@@ -567,6 +699,14 @@ module.exports = async function handler(req, res) {
     if (path.match(/^\/cities\/[^\/]+\/market$/) && req.method === 'GET') return await handleCityMarket(req, res, path);
     if (path.match(/^\/cities\/[^\/]+$/) && req.method === 'GET') return await handleCityDetail(req, res, path);
     if (path === '/calculate' && req.method === 'POST') return await handleCalculate(req, res);
+    if (path === '/ucp/calculate' && req.method === 'POST') return await handleUcpCalculate(req, res);
+    if (path === '/ucp/templates' && req.method === 'GET') return await handleUcpTemplates(req, res);
+    if (path === '/wave4/intents' && req.method === 'GET') return await handleWave4Intents(req, res);
+    if (path === '/wave4/intent' && req.method === 'POST') return await handleWave4Intent(req, res);
+    if (path === '/wave4/run' && req.method === 'POST') return await handleWave4Run(req, res);
+    if (path === '/orchestrate/intents' && req.method === 'GET') return await handleWave4Intents(req, res);
+    if (path === '/orchestrate/form' && req.method === 'POST') return await handleWave4Intent(req, res);
+    if (path === '/orchestrate' && req.method === 'POST') return await handleWave4Run(req, res);
     if (path.startsWith('/calculate/scenarios')) return await scenariosRouter(req, res, path);
     if (path === '/ai/chat' && req.method === 'POST') return await aiChatHandler(req, res);
     if (path === '/ai/analyze' && req.method === 'POST') return await handleAiAnalyze(req, res);
@@ -580,6 +720,20 @@ module.exports = async function handler(req, res) {
       return await alertsRouter(req, res, path);
     }
     if (path === '/compare/cities') return await compareRouter(req, res, path);
+    if (path.startsWith('/fabric')) {
+      const supabase = getSupabaseClient();
+      return await fabricRouter(req, res, path, supabase);
+    }
+    if (path.startsWith('/intelligence')) {
+      const supabase = getSupabaseClient();
+      return await intelligenceRouter(req, res, path, supabase);
+    }
+    if (path.startsWith('/investment-intelligence')) {
+      const supabase = getSupabaseClient();
+      const user = await getUserFromToken(req);
+      if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
+      return await investmentIntelligenceRouter(req, res, path, supabase, user);
+    }
     if (path === '/cron/calibrate-competitors') return await handleCronCalibrate(req, res);
     if (path === '/cron/check-source-quality') return await handleCronCheckQuality(req, res);
 

@@ -197,6 +197,7 @@ Same pages mirrored under `/en/calculators/auth/`.
 | `/v3/alerts.html` | `v3/alerts.html` | v3 | `site-layout.js` | none | public |
 | `/v3/admin` (rewrite) | `v3/admin/index.html` | v3-admin | `site-layout.js` | admin token login | admin |
 | `/v3/admin/*` (rewrite) | `v3/admin/index.html` | v3-admin | `site-layout.js` | admin token login | admin |
+| `/wave4/` | `wave4/index.html` | v3-intent | standalone | none | public |
 
 ## 12. API routes
 
@@ -226,3 +227,7 @@ Same pages mirrored under `/en/calculators/auth/`.
 | Authenticated | `POST /calculate/scenarios?save=true`, `/scenarios`, `/scenarios/:id`, `DELETE /scenarios/:id`, `/projects/*`, `/billing/subscription` | authenticated |
 | Admin / cron | `/admin/*`, `/cron/*`, `/alerts/*`, `/admin/alerts/evaluate` | admin / cron secret |
 | Auth helpers | `/auth/*` | varies |
+| Orchestrator (Wave 4) | `GET /orchestrate/intents`, `POST /orchestrate/form`, `POST /orchestrate` | public (compute rate limit) |
+| Trusted Data Fabric (Wave 4.2) | `/fabric/connectors`, `/fabric/connectors/health`, `/fabric/connectors/:code/*`, `/fabric/sources`, `/fabric/sources/:code/rank`, `/fabric/resolve`, `/fabric/quality`, `/fabric/provenance/:id`, `/fabric/override`, `/fabric/impact`, `/fabric/monitoring/summary`, `/fabric/marketplace`, `/fabric/plugins`, `/fabric/plugins/validate` | public / auth (compute rate limit) |
+| Enterprise Intelligence (Wave 4.3) | `/intelligence/engines`, `/intelligence/engines/:code`, `/intelligence/run`, `/intelligence/adapt`, `/intelligence/synthesize` | public (compute rate limit) |
+| Investment Intelligence (Phase D.1) | `/investment-intelligence/engines`, `/investment-intelligence/readiness/:projectId`, `/investment-intelligence/memorandum`, `/investment-intelligence/memorandum/:id`, `/investment-intelligence/memorandum/:id/html`, `/investment-intelligence/memorandum/:id/review`, `/investment-intelligence/memorandum/:id/versions`, `/investment-intelligence/memorandum/:id/version` | authenticated (compute rate limit) |

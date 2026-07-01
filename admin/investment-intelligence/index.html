@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>الذكاء الاستثماري | بوندز</title>
+  <meta name="description" content="Investment Intelligence Suite — توليد النشرات الاستثمارية" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/supabase-client.js"></script>
+  <style>
+    :root { --gold:#d4a853; --bg:#0a0f1a; --card:rgba(16,24,45,0.6); --text:#e8ecf4; --muted:#94a3b8; --border:rgba(212,168,83,0.15); }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:'Vazirmatn',Arial,sans-serif; background:var(--bg); color:var(--text); }
+    .ii-layout { display:flex; min-height:100vh; }
+    .ii-sidebar { width:260px; border-left:1px solid var(--border); padding:24px; display:flex; flex-direction:column; }
+    .ii-sidebar h1 { font-size:18px; color:var(--gold); margin:0 0 24px; }
+    .ii-nav { list-style:none; padding:0; margin:0; }
+    .ii-nav li { margin-bottom:8px; }
+    .ii-nav a { color:var(--muted); text-decoration:none; display:block; padding:10px 12px; border-radius:8px; }
+    .ii-nav a:hover, .ii-nav a.active { background:rgba(212,168,83,0.1); color:var(--gold); }
+    .ii-main { flex:1; padding:32px; overflow:auto; }
+    .ii-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:24px; }
+    .ii-card h2 { margin-top:0; font-size:18px; color:var(--gold); }
+    .ii-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+    .ii-form label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+    .ii-form input, .ii-form select { width:100%; padding:12px; border-radius:10px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:var(--text); }
+    .ii-btn { background:var(--gold); color:#0a0f1a; border:none; padding:12px 24px; border-radius:10px; font-weight:700; cursor:pointer; }
+    .ii-btn:disabled { opacity:0.5; cursor:not-allowed; }
+    .ii-btn.secondary { background:transparent; border:1px solid var(--gold); color:var(--gold); }
+    .ii-score { font-size:32px; font-weight:800; color:var(--gold); }
+    .ii-section { margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+    .ii-section h3 { color:var(--gold); margin:0 0 8px; }
+    .ii-section p { margin:0; line-height:1.7; color:var(--text); }
+    .ii-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; }
+    .ii-metric { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:16px; }
+    .ii-metric .label { font-size:12px; color:var(--muted); }
+    .ii-metric .value { font-size:18px; font-weight:700; color:var(--gold); margin-top:4px; }
+    .embed .ii-sidebar { display:none; }
+    .embed .ii-main { padding:16px; }
+    .ii-toast { position:fixed; bottom:24px; left:24px; background:var(--gold); color:#0a0f1a; padding:12px 20px; border-radius:10px; font-weight:700; display:none; }
+    pre { background:rgba(0,0,0,0.2); padding:12px; border-radius:8px; overflow:auto; font-size:12px; }
+  </style>
+</head>
+<body>
+  <div class="ii-layout" id="ii-layout">
+    <aside class="ii-sidebar">
+      <h1>📈 الذكاء الاستثماري</h1>
+      <ul class="ii-nav">
+        <li><a href="#" class="active" data-view="generator">توليد النشرة</a></li>
+        <li><a href="/admin/dashboard.html">⬅️ لوحة الإدارة</a></li>
+      </ul>
+      <div style="margin-top:auto;color:var(--muted);font-size:12px;" id="ii-user">جارِ التحقق...</div>
+    </aside>
+    <main class="ii-main" id="ii-main">
+      <div class="ii-card">
+        <h2>توليد نشرة استثمارية</h2>
+        <div class="ii-form">
+          <div>
+            <label>معرف المشروع (UUID)</label>
+            <input type="text" id="projectId" placeholder="Project UUID" />
+          </div>
+          <div>
+            <label>اللغة</label>
+            <select id="language"><option value="ar">العربية</option><option value="en">English</option></select>
+          </div>
+        </div>
+        <div>
+          <button class="ii-btn" id="btn-readiness">تحليل الجاهزية</button>
+          <button class="ii-btn secondary" id="btn-generate">توليد النشرة</button>
+        </div>
+      </div>
+      <div id="ii-output"></div>
+    </main>
+  </div>
+  <div class="ii-toast" id="ii-toast"></div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const embed = params.get('embed') === '1';
+      if (embed) document.getElementById('ii-layout').classList.add('embed');
+
+      async function getToken() {
+        const { data } = await window.supabaseClient.auth.getSession();
+        return data.session?.access_token;
+      }
+
+      function toast(msg) {
+        const t = document.getElementById('ii-toast');
+        t.textContent = msg;
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 3000);
+      }
+
+      async function api(path, opts = {}) {
+        const token = await getToken();
+        const res = await fetch('/api/v3' + path, {
+          ...opts,
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, ...(opts.headers || {}) }
+        });
+        const text = await res.text();
+        try { return { status: res.status, json: JSON.parse(text) }; }
+        catch { return { status: res.status, text }; }
+      }
+
+      function renderReadiness(r) {
+        const out = r.output || r;
+        return `
+          <div class="ii-card">
+            <h2>درجة الجاهزية: <span class="ii-score">${out.readinessScore}/100</span> (${out.grade})</h2>
+            <div class="ii-metrics">
+              <div class="ii-metric"><div class="label">نقاط القوة</div><div class="value">${(out.strengths || []).length}</div></div>
+              <div class="ii-metric"><div class="label">نقاط الضعف</div><div class="value">${(out.weaknesses || []).length}</div></div>
+              <div class="ii-metric"><div class="label">البيانات الناقصة</div><div class="value">${(out.missingItems || []).length}</div></div>
+            </div>
+            ${out.actionPlan?.length ? `<h3 style="margin-top:16px;">خطة العمل</h3><ul>${out.actionPlan.map(a => `<li>${a}</li>`).join('')}</ul>` : ''}
+          </div>`;
+      }
+
+      function renderMemorandum(data) {
+        const memo = data.memorandum || data.generated || data;
+        const content = memo.content || memo.output || {};
+        const sections = content.sections || {};
+        let html = `<div class="ii-card"><h2>${content.title || 'النشرة الاستثمارية'}</h2>`;
+        html += `<p>درجة الثقة: <strong>${memo.confidence_score || memo.confidence || 0}%</strong></p>`;
+        if (content.readiness) html += renderReadiness(content.readiness);
+        for (const [key, sec] of Object.entries(sections)) {
+          html += `<div class="ii-section"><h3>${sec.title || key}</h3>`;
+          if (sec.text) html += `<p>${sec.text}</p>`;
+          if (sec.value) html += `<p style="font-size:20px;font-weight:700;color:var(--gold);">${sec.value}</p>`;
+          if (sec.bullets) html += `<ul>${sec.bullets.map(b => `<li>${b}</li>`).join('')}</ul>`;
+          if (sec.metrics) html += `<div class="ii-metrics">${sec.metrics.map(m => `<div class="ii-metric"><div class="label">${m.label}</div><div class="value">${m.value}</div></div>`).join('')}</div>`;
+          html += `</div>`;
+        }
+        html += `<div><button class="ii-btn" id="btn-review">مراجعة AI</button> <a class="ii-btn secondary" href="/api/v3/investment-intelligence/memorandum/${memo.id}/html" target="_blank">عرض HTML</a></div>`;
+        html += `</div>`;
+        return html;
+      }
+
+      document.getElementById('btn-readiness').addEventListener('click', async () => {
+        const pid = document.getElementById('projectId').value.trim();
+        if (!pid) return toast('أدخل معرف المشروع');
+        const { status, json } = await api(`/investment-intelligence/readiness/${pid}?persist=false`);
+        if (status !== 200) return toast(json?.error || 'فشل التحليل');
+        document.getElementById('ii-output').innerHTML = renderReadiness(json);
+      });
+
+      document.getElementById('btn-generate').addEventListener('click', async () => {
+        const pid = document.getElementById('projectId').value.trim();
+        const lang = document.getElementById('language').value;
+        if (!pid) return toast('أدخل معرف المشروع');
+        const { status, json } = await api('/investment-intelligence/memorandum', {
+          method: 'POST',
+          body: JSON.stringify({ projectId: pid, language: lang, type: 'investment_memorandum', useAi: false })
+        });
+        if (status !== 201) return toast(json?.error || 'فشل التوليد');
+        document.getElementById('ii-output').innerHTML = renderMemorandum(json);
+        window._lastMemoId = json.memorandum.id;
+        toast('تم توليد وحفظ النشرة');
+      });
+
+      document.getElementById('ii-output').addEventListener('click', async (e) => {
+        if (e.target.id === 'btn-review' && window._lastMemoId) {
+          const { status, json } = await api(`/investment-intelligence/memorandum/${window._lastMemoId}/review`, { method: 'POST' });
+          if (status !== 200) return toast(json?.error || 'فشل المراجعة');
+          const r = json.review;
+          document.getElementById('ii-output').innerHTML += `
+            <div class="ii-card">
+              <h2>نتيجة مراجعة AI: ${r.verdict}</h2>
+              <p>الثقة: ${r.confidence_score}%</p>
+              ${r.issues?.length ? `<ul>${r.issues.map(i => `<li>${i}</li>`).join('')}</ul>` : '<p>لا توجد ملاحظات كبيرة.</p>'}
+            </div>`;
+        }
+      });
+
+      window.supabaseClient.auth.getUser().then(({ data }) => {
+        document.getElementById('ii-user').textContent = data.user ? data.user.email : 'غير مسجل';
+      });
+    })();
+  </script>
+</body>
+</html>

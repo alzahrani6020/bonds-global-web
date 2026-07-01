@@ -1,0 +1,206 @@
+{
+  "version": "1.0",
+  "profiles": {
+    "restaurant": {
+      "sector": "restaurant",
+      "names": { "ar": "مطعم", "en": "Restaurant" },
+      "aliases": ["مطعم", "مطاعم", "restaurant", "cafe", "كافيه", "food truck", "فود ترك", "cloud kitchen", "مطبخ سحابي"],
+      "concepts": [
+        "food_cost_percentage",
+        "menu_items",
+        "ingredient_prices",
+        "kitchen",
+        "pos",
+        "delivery",
+        "cloud_kitchen",
+        "inventory",
+        "licenses",
+        "labor",
+        "occupancy",
+        "rent",
+        "utilities",
+        "marketing",
+        "packaging",
+        "delivery_commission"
+      ],
+      "defaultFields": [
+        { "name": "monthly_revenue", "type": "number", "unit": "currency/month", "required": true },
+        { "name": "food_cost_percentage", "type": "number", "unit": "%", "required": true },
+        { "name": "rent", "type": "number", "unit": "currency/month", "auto": true },
+        { "name": "labor_cost", "type": "number", "unit": "currency/month", "required": true },
+        { "name": "delivery_commission", "type": "number", "unit": "%", "auto": true },
+        { "name": "number_of_seats", "type": "integer", "unit": "seats", "required": false },
+        { "name": "licenses", "type": "array", "required": false }
+      ],
+      "defaultEngines": ["feasibility", "valuation", "risk", "financing"],
+      "defaultContexts": ["investment", "financing", "expansion", "purchase"],
+      "dataSources": ["market_rent", "labor_statistics", "platform_commissions", "ingredient_prices"]
+    },
+    "manufacturing": {
+      "sector": "manufacturing",
+      "names": { "ar": "مصنع", "en": "Manufacturing" },
+      "aliases": ["مصنع", "صناعة", "manufacturing", "factory", "production", "إنتاج", "صناعي"],
+      "concepts": [
+        "production_lines",
+        "capacity_per_line",
+        "machine_cost",
+        "utilities",
+        "maintenance",
+        "depreciation",
+        "raw_materials",
+        "labor",
+        "energy",
+        "output_volume",
+        "defect_rate",
+        "logistics"
+      ],
+      "defaultFields": [
+        { "name": "production_lines", "type": "integer", "unit": "lines", "required": true },
+        { "name": "capacity_per_line", "type": "number", "unit": "units/month", "required": true },
+        { "name": "machine_cost", "type": "number", "unit": "currency", "required": true },
+        { "name": "raw_material_cost_per_unit", "type": "number", "unit": "currency/unit", "required": true },
+        { "name": "energy_cost", "type": "number", "unit": "currency/month", "auto": true },
+        { "name": "maintenance_cost", "type": "number", "unit": "currency/month", "auto": true },
+        { "name": "defect_rate", "type": "number", "unit": "%", "required": false }
+      ],
+      "defaultEngines": ["feasibility", "valuation", "risk"],
+      "defaultContexts": ["investment", "financing", "expansion", "purchase"],
+      "dataSources": ["industrial_energy_rates", "machinery_prices", "raw_material_indices"]
+    },
+    "hotel": {
+      "sector": "hotel",
+      "names": { "ar": "فندق", "en": "Hotel" },
+      "aliases": ["فندق", "فنادق", "hotel", "hospitality", "ضيافة", "resort", "منتجع"],
+      "concepts": [
+        "adr",
+        "revpar",
+        "occupancy",
+        "seasonality",
+        "housekeeping",
+        "food_and_beverage",
+        "rooms",
+        "stars",
+        "location_index",
+        "ota_commission",
+        "events"
+      ],
+      "defaultFields": [
+        { "name": "number_of_rooms", "type": "integer", "unit": "rooms", "required": true },
+        { "name": "average_daily_rate", "type": "number", "unit": "currency/night", "required": true },
+        { "name": "occupancy_rate", "type": "number", "unit": "%", "required": true },
+        { "name": "housekeeping_cost_per_room", "type": "number", "unit": "currency/night", "auto": true },
+        { "name": "food_and_beverage_revenue", "type": "number", "unit": "currency/month", "required": false },
+        { "name": "star_rating", "type": "integer", "unit": "stars", "required": false }
+      ],
+      "defaultEngines": ["feasibility", "valuation", "risk"],
+      "defaultContexts": ["investment", "financing", "purchase", "sale"],
+      "dataSources": ["hotel_market_data", "tourism_statistics", "ota_commissions"]
+    },
+    "company": {
+      "sector": "company",
+      "names": { "ar": "شركة", "en": "Company" },
+      "aliases": ["شركة", "شركات", "company", "business", "مؤسسة", "enterprise", " SME"],
+      "concepts": [
+        "revenue",
+        "ebitda",
+        "growth",
+        "assets",
+        "liabilities",
+        "cash_flow",
+        "net_profit",
+        "customers",
+        "market_share",
+        "debt",
+        "equity"
+      ],
+      "defaultFields": [
+        { "name": "annual_revenue", "type": "number", "unit": "currency/year", "required": true },
+        { "name": "net_profit", "type": "number", "unit": "currency/year", "required": true },
+        { "name": "total_assets", "type": "number", "unit": "currency", "required": true },
+        { "name": "total_liabilities", "type": "number", "unit": "currency", "required": true },
+        { "name": "growth_rate", "type": "number", "unit": "%", "auto": true },
+        { "name": "ebitda", "type": "number", "unit": "currency/year", "auto": true },
+        { "name": "number_of_employees", "type": "integer", "unit": "employees", "required": false }
+      ],
+      "defaultEngines": ["valuation", "financing", "risk"],
+      "defaultContexts": ["investment", "purchase", "sale", "merger", "acquisition", "financing"],
+      "dataSources": ["company_registry", "financial_statements", "market_indices"]
+    },
+    "education": {
+      "sector": "education",
+      "names": { "ar": "تعليم", "en": "Education" },
+      "aliases": ["مدرسة", "جامعة", "تعليم", "school", "university", "kindergarten", "حضانة", "تدريب"],
+      "concepts": [
+        "student_capacity",
+        "classrooms",
+        "tuition_fee",
+        "enrollment_rate",
+        "staff",
+        "curriculum",
+        "accreditation",
+        "facilities"
+      ],
+      "defaultFields": [
+        { "name": "student_capacity", "type": "integer", "unit": "students", "required": true },
+        { "name": "classrooms", "type": "integer", "unit": "rooms", "required": true },
+        { "name": "tuition_fee", "type": "number", "unit": "currency/student/year", "required": true },
+        { "name": "enrollment_rate", "type": "number", "unit": "%", "required": true },
+        { "name": "staff_count", "type": "integer", "unit": "staff", "auto": true }
+      ],
+      "defaultEngines": ["feasibility", "valuation", "risk"],
+      "defaultContexts": ["investment", "financing", "expansion"],
+      "dataSources": ["education_statistics", "tuition_benchmarks"]
+    },
+    "healthcare": {
+      "sector": "healthcare",
+      "names": { "ar": "رعاية صحية", "en": "Healthcare" },
+      "aliases": ["مستشفى", "عيادة", "صيدلية", "hospital", "clinic", "pharmacy", "medical", "صحية"],
+      "concepts": [
+        "beds",
+        "occupancy_rate",
+        "avg_patient_revenue",
+        "specialties",
+        "staff",
+        "equipment",
+        "licenses",
+        "insurance_acceptance"
+      ],
+      "defaultFields": [
+        { "name": "beds", "type": "integer", "unit": "beds", "required": true },
+        { "name": "occupancy_rate", "type": "number", "unit": "%", "required": true },
+        { "name": "avg_patient_revenue", "type": "number", "unit": "currency/patient", "required": true },
+        { "name": "specialties", "type": "array", "required": false },
+        { "name": "staff_count", "type": "integer", "unit": "staff", "auto": true }
+      ],
+      "defaultEngines": ["feasibility", "valuation", "risk"],
+      "defaultContexts": ["investment", "financing", "expansion", "purchase"],
+      "dataSources": ["healthcare_statistics", "medical_equipment_prices"]
+    },
+    "retail": {
+      "sector": "retail",
+      "names": { "ar": "تجزئة", "en": "Retail" },
+      "aliases": ["محل", "متجر", "تجزئة", "retail", "shop", "store", "supermarket", "هايبر"],
+      "concepts": [
+        "sqm",
+        "foot_traffic",
+        "conversion_rate",
+        "average_ticket",
+        "inventory_turnover",
+        "rent",
+        "shrinkage",
+        "seasonality"
+      ],
+      "defaultFields": [
+        { "name": "store_area", "type": "number", "unit": "m²", "required": true },
+        { "name": "foot_traffic", "type": "integer", "unit": "visitors/month", "required": true },
+        { "name": "conversion_rate", "type": "number", "unit": "%", "required": true },
+        { "name": "average_ticket", "type": "number", "unit": "currency", "required": true },
+        { "name": "inventory_turnover", "type": "number", "unit": "times/year", "auto": true },
+        { "name": "shrinkage_rate", "type": "number", "unit": "%", "required": false }
+      ],
+      "defaultEngines": ["feasibility", "valuation", "risk"],
+      "defaultContexts": ["investment", "financing", "purchase", "expansion"],
+      "dataSources": ["retail_rent", "foot_traffic_data"]
+    }
+  }
+}

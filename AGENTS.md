@@ -417,6 +417,24 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - **ثيم فاتح**: أضف `data-ud-theme="light"` على `<html>` أو أي أصل، أو يُكتشف تلقائياً بواسطة `scripts/apply-universal-dropdown.py`.
   - **تراجع الجوال**: على أجهزة اللمس، القوائم القصيرة (≤6 خيارات افتراضياً) تبقى `<select>` أصلي؛ القوائم الطويلة تُحسّن.
   - **reduced-motion**: يحترم `prefers-reduced-motion` ويُلغي الحركات.
+
+### 11.9 Enterprise Intelligence Layer (Wave 4.3)
+طبقة موحّدة لتشغيل المحركات الذكية معاً وإنتاج قرار موثوق.
+
+- **الملفات**: `lib/enterprise-intelligence/` (registry.js, runner.js, engine-adapter.js, blind-spot-engine.js, decision-graph-engine.js, recommendation-synthesizer.js, index.js).
+- **المدخل API**: `v3/api/intelligence.js` ومسارات `/api/v3/intelligence/*` موجّهة عبر `v3/api/index.js`.
+- **المبدأ**: جميع الحسابات المالية تمر عبر UCP؛ المحركات المستقلة تُغلّف فقط (`engine-adapter.js`).
+- **المحركات المتاحة**: valuation, risk, opportunity, scenario, recommendation, feasibility, financing, market، بالإضافة إلى المحركات الوصفية: blind_spot, decision_graph, recommendation_synthesizer.
+- **الجداول**: `enterprise_intelligence_runs`, `enterprise_intelligence_graphs`, `enterprise_intelligence_recommendations` (migration: `20260723000000_enterprise_intelligence_layer.sql`).
+
+### 11.10 Investment Intelligence Suite (Phase D.1)
+منصة تحويل المشاريع إلى نشرات استثمارية جاهزة.
+
+- **الملفات**: `lib/investment-intelligence/` (project-resolver.js, investment-readiness-engine.js, investment-memorandum-engine.js, investment-story-engine.js, ai-investment-review.js, versioning-engine.js, document-generator.js, index.js).
+- **المدخل API**: `v3/api/investment-intelligence.js` ومسارات `/api/v3/investment-intelligence/*`.
+- **واجهة الإدارة**: `admin/investment-intelligence/index.html`.
+- **المبدأ**: جميع الأرقام من UCP؛ لا محرك حسابي جديد؛ البيانات تُقرأ من `bonds_projects` / `bonds_valuations` / `bonds_financing`.
+- **الجداول**: `investment_memoranda`, `investment_memoranda_versions`, `investment_readiness_scores`, `ai_investment_reviews` (migration: `20260724000000_phase_d_investment_intelligence_core.sql`).
 - **التراجع الاحتياطي**: ملف `styles/select-reset.css` يُخزَّن في ذاكرة Service Worker (`sw.js`) ويُعطي `<select>` الأصلي مظهراً مقبولاً إذا لم يُحمّل المكون أو على أجهزة اللمس التي تُبقي القائمة الأصلية.
 - **النشر**: تم تطبيق المكون على الصفحات التي تحتوي `<select>` عبر `scripts/apply-universal-dropdown.py`.
 - **الاختبارات**: `tests/universal-dropdown/universal-dropdown.test.js` يغطي البحث، الفرز، الاختيار، الثيم الفاتح، multi-select، virtualization، optgroups، setLoading، reduced-motion، والتهيئة التلقائية.

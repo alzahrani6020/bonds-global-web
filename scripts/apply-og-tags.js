@@ -18,6 +18,7 @@ const PATTERNS = [
   'calculators/**/*.html',
   'sectors/**/*.html',
   'v3/**/*.html',
+  'wave4/**/*.html',
 ];
 
 const files = PATTERNS.flatMap((p) => {
