@@ -88,7 +88,7 @@ Per the approved plan, the following remain for future phases:
 
 | Limitation | Impact | Mitigation / Next Step |
 |---|---|---|
-| `expression` gate evaluator still returns "not implemented" | Complex formula gates cannot be evaluated | Implemented in a future lifecycle patch; no blocker for E.0 |
+| ~~`expression` gate evaluator still returns "not implemented"~~ | ✅ Implemented | `lib/enterprise-lifecycle/expression-evaluator.js` supports comparisons, logic, arithmetic, and helper functions (present, empty, len, contains). |
 | `parallelBranches()` is stubbed | Parallel lifecycle branches not enforced | Documented; not needed for standard project workflow |
 | Task completion rules not enforced | Tasks are advisory only | Acceptable for MVP; enforcement in E.1 |
 | RLS policies are user-only | Multi-user approvals may fail if approver is not the owner | Apply team/role-aware RLS policies in E.1 |
@@ -101,6 +101,7 @@ Per the approved plan, the following remain for future phases:
 ## 5. Deployment Notes
 
 - No new Supabase migration is required for E.0; it reuses existing tables from Phases D.1 and D.1.5.
+- The `expression` gate evaluator is now implemented and tested in `lib/enterprise-lifecycle/expression-evaluator.js`.
 - Ensure `20260725000000_enterprise_lifecycle_engine.sql` is applied in production (still pending from Phase D.1.5).
 - Vercel production will pick up the new routes automatically after push.
 
