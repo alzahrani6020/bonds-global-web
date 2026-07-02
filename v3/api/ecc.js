@@ -3,10 +3,13 @@
  *
  * Routes:
  *   POST /ecc/project-status   — unified project status aggregator
+ *   POST /ecc/portfolio        — multi-project portfolio overview
+ *   POST /ecc/notifications    — smart notification feed
+ *   POST /ecc/search           — executive cross-project search
  *   POST /ecc/advisor          — AI Chief Advisor context-aware chat
  */
 
-const { aggregateProjectStatus } = require('../../lib/ecc');
+const { aggregateProjectStatus, aggregatePortfolioStatus, generateNotifications, executiveSearch } = require('../../lib/ecc');
 const { analyze } = require('../../lib/ai/orchestrator');
 const { buildPrompt } = require('../../lib/ai/prompts');
 
@@ -69,6 +72,68 @@ async function handleProjectStatus(req, res, path, supabase, user) {
     return sendJson(res, 200, { status });
   } catch (err) {
     console.error('[ecc/project-status]', err.message);
+    return sendJson(res, 400, { error: err.message });
+  }
+}
+
+async function handlePortfolio(req, res, path, supabase, user) {
+  if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
+
+  try {
+    const body = await parseBody(req);
+    const { status: statusFilter } = body;
+
+    const result = await aggregatePortfolioStatus({
+      userId: user?.id,
+      supabase,
+      options: statusFilter ? { status: statusFilter } : {}
+    });
+
+    return sendJson(res, 200, result);
+  } catch (err) {
+    console.error('[ecc/portfolio]', err.message);
+    return sendJson(res, 400, { error: err.message });
+  }
+}
+
+async function handleNotifications(req, res, path, supabase, user) {
+  if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
+
+  try {
+    const body = await parseBody(req);
+    const { limit = 50 } = body;
+
+    const result = await generateNotifications({
+      userId: user?.id,
+      supabase,
+      options: { limit }
+    });
+
+    return sendJson(res, 200, result);
+  } catch (err) {
+    console.error('[ecc/notifications]', err.message);
+    return sendJson(res, 400, { error: err.message });
+  }
+}
+
+async function handleSearch(req, res, path, supabase, user) {
+  if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
+
+  try {
+    const body = await parseBody(req);
+    const { query, limit = 50 } = body;
+    if (!query || !query.trim()) return sendJson(res, 400, { error: 'query is required' });
+
+    const result = await executiveSearch({
+      userId: user?.id,
+      supabase,
+      query: query.trim(),
+      options: { limit }
+    });
+
+    return sendJson(res, 200, result);
+  } catch (err) {
+    console.error('[ecc/search]', err.message);
     return sendJson(res, 400, { error: err.message });
   }
 }
@@ -145,6 +210,15 @@ function generateFallbackReply(message, status) {
 async function eccRouter(req, res, path, supabase, user) {
   if (path === '/ecc/project-status') {
     return handleProjectStatus(req, res, path, supabase, user);
+  }
+  if (path === '/ecc/portfolio') {
+    return handlePortfolio(req, res, path, supabase, user);
+  }
+  if (path === '/ecc/notifications') {
+    return handleNotifications(req, res, path, supabase, user);
+  }
+  if (path === '/ecc/search') {
+    return handleSearch(req, res, path, supabase, user);
   }
   if (path === '/ecc/advisor') {
     return handleAdvisor(req, res, path, supabase, user);

@@ -443,6 +443,22 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - **صفحة العرض**: `/v3/project?id=PROJECT_ID`.
 - **الوثائق**: `docs/phase-e/PHASE_E_ADR.md` و `PHASE_E_EXIT_REPORT.md`.
 
+### 11.10.1 Portfolio Dashboard (Phase E.1)
+لوحة المدير التنفيذي لمتابعة محفظة المشاريع الاستثمارية.
+
+- **الملفات**:
+  - `lib/ecc/portfolio-status-aggregator.js` — يجمع حالة كل المشاريع المملوكة للمستخدم عبر `project-status-aggregator`.
+  - `lib/ecc/notification-engine.js` — يولد إشعارات ذكية من الموافقات المعلقة، المهام، التنبيهات الحرجة، فجوات الجاهزية، والخطوات التالية.
+  - `lib/ecc/executive-search-engine.js` — بحث تنفيذي عبر المشاريع، المذكرات، مراجعات AI، الجدول الزمني، المهام، والموافقات.
+  - `lib/ecc/role-guard.js` — إدراك الأدوار: يقرأ `profiles.role` ويحدد صلاحيات `viewer / advisor / admin / owner`.
+  - `v3/api/ecc.js` — مسارات `POST /api/v3/ecc/portfolio` و `POST /api/v3/ecc/notifications` و `POST /api/v3/ecc/search`.
+  - `v3/portfolio/index.html` + `v3/portfolio/portfolio-dashboard.js` — واجهة لوحة المحفظة مع جرس إشعارات وشريط بحث وتحديث حي (عربي).
+  - `v3/project/project-command-center.js` — يخفي أزرار التعديل عن `viewer` و `advisor`.
+  - `en/v3/portfolio/index.html` + `en/v3/portfolio/portfolio-dashboard.js` + `en/v3/project/project-command-center.js` — النسخة الإنجليزية.
+- **المبدأ**: لا محرك حسابي جديد؛ إعادة استخدام `aggregateProjectStatus` وقراءة الجداول الموجودة.
+- **المخرجات**: ملخص المحفظة، توزيع القطاعات والمراحل والصحة، جدول المشاريع، التنبيهات الحرجة، الخطوات التالية، إشعارات ذكية، نتائج بحث، وتحكم بالأدوار.
+- **صفحة العرض**: `/v3/portfolio` (عربي) و `/en/v3/portfolio` (إنجليزي).
+
 ### 11.11 Investment Intelligence Suite (Phase D.1)
 منصة تحويل المشاريع إلى نشرات استثمارية جاهزة.
 

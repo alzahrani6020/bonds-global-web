@@ -198,15 +198,20 @@
     `;
   }
 
-  function renderActionBar(project, lifecycle) {
+  function canWrite(role) {
+    return role === 'owner' || role === 'admin';
+  }
+
+  function renderActionBar(project, lifecycle, role) {
     const currentStage = lifecycle?.currentStage || 'idea';
     const nextTransition = (lifecycle?.allowedTransitions || []).find(t => !t.optional);
+    const writable = canWrite(role);
 
     return `
       <div class="action-bar">
-        ${nextTransition ? `<button class="ecc-btn ecc-btn--primary" onclick="ProjectCommandCenter.transition('${nextTransition.to}')">الانتقال إلى ${nextTransition.to}</button>` : ''}
-        <button class="ecc-btn ecc-btn--secondary" onclick="ProjectCommandCenter.runReadiness()">تحديث جاهزية الاستثمار</button>
-        <button class="ecc-btn ecc-btn--secondary" onclick="ProjectCommandCenter.generateMemorandum()">إنشاء مذكرة استثمارية</button>
+        ${writable && nextTransition ? `<button class="ecc-btn ecc-btn--primary" onclick="ProjectCommandCenter.transition('${nextTransition.to}')">الانتقال إلى ${nextTransition.to}</button>` : ''}
+        ${writable ? `<button class="ecc-btn ecc-btn--secondary" onclick="ProjectCommandCenter.runReadiness()">تحديث جاهزية الاستثمار</button>` : ''}
+        ${writable ? `<button class="ecc-btn ecc-btn--secondary" onclick="ProjectCommandCenter.generateMemorandum()">إنشاء مذكرة استثمارية</button>` : ''}
         <button class="ecc-btn ecc-btn--secondary" onclick="ProjectCommandCenter.refresh()">↻ تحديث</button>
       </div>
     `;
@@ -214,10 +219,14 @@
 
   function render(data) {
     const { project, health, lifecycle, mission, documents, financial, timeline, approvals } = data.status;
+    const role = data.status.meta?.role || 'owner';
 
     root.innerHTML = `
       <div class="ecc-header">
         <div class="ecc-header__title">
+          <div style="margin-bottom:0.35rem;">
+            <a href="/v3/portfolio" style="font-size:0.8rem;color:var(--gold);text-decoration:none;">← العودة إلى لوحة المحفظة</a>
+          </div>
           <h1>${project.name}</h1>
           <p>${project.sector}${project.activity ? ' · ' + project.activity : ''} · ${project.city || ''}</p>
         </div>
@@ -230,7 +239,7 @@
         ${renderDecisionCockpit(approvals, timeline)}
         ${renderTimeline(timeline)}
         ${renderAlerts(mission)}
-        ${renderActionBar(project, lifecycle)}
+        ${renderActionBar(project, lifecycle, role)}
       </div>
     `;
 
