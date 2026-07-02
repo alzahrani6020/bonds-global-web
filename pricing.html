@@ -24,14 +24,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="/api/env"></script>
   <script defer src="/_vercel/insights/script.js"></script>
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
 <link rel="stylesheet" href="header-footer.css?v=7" />
@@ -66,9 +58,9 @@
   <section class="section" style="background: var(--bg-dark); padding: var(--space-16) 0;">
     <div class="container">
       <div class="section-header reveal">
-        <span class="section__eyebrow" style="color: var(--gold-400);">حاسبة المطاعم</span>
+        <span class="section__eyebrow" style="color: var(--gold-400);">باقات البرنامج</span>
         <h2 class="section__title" style="color: var(--white);">اختر باقتك</h2>
-        <p class="section__subtitle" style="color: var(--cream-300);">حاسبة ربحية المطاعم — 22 دولة، 186 منصة</p>
+        <p class="section__subtitle" style="color: var(--cream-300);">ابدأ مجاناً وجرّب Pro أو Enterprise لـ 14 يوم بدون التزام.</p>
       </div>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-6);">
         <!-- Free -->
@@ -79,8 +71,8 @@
             <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7;">للمطاعم الصغيرة والتجربة</p>
           </div>
           <div style="margin-bottom: var(--space-6);">
-            <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--navy-950);">$0</div>
-            <div style="font-size: var(--text-sm); color: var(--text-muted);">/شهر</div>
+            <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--navy-950);">مجاني</div>
+            <div style="font-size: var(--text-sm); color: var(--text-muted);">بدون بطاقة ائتمان</div>
           </div>
           <ul style="display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-8); flex-grow: 1;">
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-secondary);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-500)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 3 سيناريوهات محفوظة</li>
@@ -89,7 +81,7 @@
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-muted);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--border-light)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> تصدير PDF</li>
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-muted);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--border-light)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> أرشيف Health Score</li>
           </ul>
-          <a href="calculators/restaurant.html" class="btn btn-outline" style="width: 100%;">ابدأ مجاناً</a>
+          <a href="calculators/auth/index.html?redirect=/calculators/restaurant.html" class="btn btn-outline" style="width: 100%;">ابدأ مجاناً</a>
         </div>
 
         <!-- Pro -->
@@ -104,6 +96,7 @@
             <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--gold-400);">82 ر.س</div>
             <div style="font-size: var(--text-sm); color: var(--cream-300);">/شهر (شامل VAT 15%)</div>
             <div style="font-size: var(--text-xs); color: var(--cream-300); opacity: 0.8; margin-top: 0.25rem;">71 ر.س + 11 ر.س ضريبة</div>
+            <div style="font-size: var(--text-xs); color: var(--gold-400); margin-top: 0.5rem;">🚀 14 يوم تجربة مجانية</div>
           </div>
           <ul style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-8); flex-grow: 1;">
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--cream-200);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> سيناريوهات غير محدودة</li>
@@ -127,6 +120,7 @@
             <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--navy-950);">212 ر.س</div>
             <div style="font-size: var(--text-sm); color: var(--text-muted);">/شهر (شامل VAT 15%)</div>
             <div style="font-size: var(--text-xs); color: var(--text-muted); margin-top: 0.25rem;">184 ر.س + 28 ر.س ضريبة</div>
+            <div style="font-size: var(--text-xs); color: var(--gold-600); margin-top: 0.5rem;">🚀 14 يوم تجربة مجانية</div>
           </div>
           <ul style="display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-8); flex-grow: 1;">
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-secondary);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-500)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> كل مميزات Pro</li>
@@ -147,7 +141,8 @@
     <div class="container">
       <div class="section-header reveal">
         <span class="section__eyebrow">الاستشارات المالية</span>
-        <h2 class="section__title">باقات الاستشارة</h2>
+        <h2 class="section__title">باقات الاستشارة المخصصة</h2>
+        <p class="section__subtitle">خدمات استشارية بشرية يقدمها مستشار مالي معتمد حسب حجم مشروعك.</p>
       </div>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6);">
         <!-- Starter -->
@@ -222,20 +217,24 @@
       </div>
       <div class="faq-list">
         <details class="faq-item reveal" open>
-          <summary>لماذا لا توجد أسعار ثابتة؟</summary>
-          <div class="faq-item__content">كل مشروع له حجمه وقطاعه وتحدياته المختلفة. نفضّل نرسل عرض سعر مخصص يعكس قيمة الخدمة الفعلية بدل تسعير عام قد لا يناسب الجميع.</div>
+          <summary>هل توجد فترة تجربة مجانية؟</summary>
+          <div class="faq-item__content">نعم. باقات Pro وEnterprise تشمل <strong>14 يوماً تجربة مجانية</strong>. يمكنك الإلغاء قبل نهاية الفترة ولن يتم خصم أي مبلغ.</div>
         </details>
         <details class="faq-item reveal reveal-delay-1">
+          <summary>ما الفرق بين Pro وEnterprise؟</summary>
+          <div class="faq-item__content">Pro تناسب المطاعم والشركات النامية التي تحتاج سيناريوهات غير محدودة وتصدير PDF. Enterprise مخصص للسلاسل والمجموعات الكبرى ويشمل تكاملات Webhook وحسابات فرعية متعددة.</div>
+        </details>
+        <details class="faq-item reveal reveal-delay-2">
+          <summary>هل يمكن استرداد المبلغ؟</summary>
+          <div class="faq-item__content">خلال فترة التجربة المجانية لا يتم خصم أي مبلغ. بعد بدء الاشتراك، يمكنك الإلغاء في أي وقت وستبقى مميزاتك حتى نهاية الفترة المدفوعة.</div>
+        </details>
+        <details class="faq-item reveal reveal-delay-3">
           <summary>هل الاستشارة الأولى حقاً مجانية؟</summary>
           <div class="faq-item__content">نعم، 100%. نستمع لوضعك ونحدد إذا كنا الأنسب لمساعدتك — بدون أي التزام أو دفع.</div>
         </details>
-        <details class="faq-item reveal reveal-delay-2">
-          <summary>كيف أحصل على عرض السعر؟</summary>
+        <details class="faq-item reveal reveal-delay-4">
+          <summary>كيف أحصل على عرض سعر للاستشارة؟</summary>
           <div class="faq-item__content">املأ نموذج التواصل أو تواصل عبر واتساب. نرد خلال 2–3 أيام عمل بعرض مكتوب يوضح النطاق، المدة، والتكلفة.</div>
-        </details>
-        <details class="faq-item reveal reveal-delay-3">
-          <summary>هل يمكن تقسيم الدفع؟</summary>
-          <div class="faq-item__content">نعم، في المشاريع الكبيرة نقدم خيارات دفع مرنة (دفعات أو مراحل) حسب الاتفاق.</div>
         </details>
       </div>
     </div>
@@ -274,7 +273,6 @@
   </script>
   <!-- Supabase + Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/supabase-client.js?v=6"></script>
   <script src="/auth-guard.js?v=5"></script>
   <script>
     // Env validation

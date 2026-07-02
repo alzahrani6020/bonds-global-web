@@ -619,6 +619,18 @@
       font-size: 0.9rem;
     }
 
+    /* ===== Demo Section ===== */
+    .demo-section { padding: 5rem 2rem; background: var(--bg-card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .demo-section__inner { max-width: 1100px; margin: 0 auto; text-align: center; }
+    .demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin: 2rem 0; }
+    .demo-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.75rem 1.25rem; text-decoration: none; color: inherit; transition: all 0.2s; text-align: right; }
+    .demo-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
+    .demo-card__icon { width: 44px; height: 44px; margin-bottom: 1rem; color: var(--gold); }
+    .demo-card__title { font-weight: 800; margin-bottom: 0.5rem; color: var(--text); }
+    .demo-card__desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    .demo-section__cta { margin-top: 1rem; }
+    @media (max-width: 900px) { .demo-grid { grid-template-columns: 1fr; } }
+
     /* ===== Journey Section ===== */
     .journey-section {
       background: var(--bg);
@@ -681,6 +693,19 @@
     @media (max-width: 480px) {
       .journey-steps { grid-template-columns: 1fr; }
     }
+    .intent-section { padding: 4rem 1.5rem; background: var(--bg-card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .intent-section__inner { max-width: 1100px; margin: 0 auto; text-align: center; }
+    .intent-section__title { font-size: 1.75rem; font-weight: 800; color: var(--text); margin-bottom: 0.75rem; }
+    .intent-section .section__eyebrow { color: var(--text); }
+    .intent-section__subtitle { color: var(--text-secondary); margin-bottom: 2rem; }
+    .intent-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
+    .intent-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem 1rem; text-decoration: none; color: inherit; transition: all 0.2s; }
+    .intent-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
+    .intent-card__icon { width: 40px; height: 40px; margin: 0 auto 1rem; color: var(--gold); }
+    .intent-card__title { font-weight: 700; margin-bottom: 0.5rem; color: var(--text); }
+    .intent-card__desc { font-size: 0.85rem; color: var(--text-secondary); }
+    @media (max-width: 900px) { .intent-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .intent-grid { grid-template-columns: 1fr; } }
   </style>
 <link rel="stylesheet" href="header-footer.css?v=7" />
   <link rel="canonical" href="https://bonds-global.com/" />
@@ -717,37 +742,49 @@
           <li>تقرير تنفيذي معتمد</li>
         </ul>
         <div class="hero__actions">
-          <a href="client/index.html" class="btn-primary">ابدأ تحليل مشروعك ←</a>
-          <a href="contact.html" class="btn-outline">تواصل مع مستشار ←</a>
+          <a href="/v3/portfolio" class="btn-primary">ابدأ تقييم مشروعك ←</a>
+          <a href="contact.html" class="btn-ghost" style="color:var(--text-secondary);">تواصل مع مستشار</a>
         </div>
       </div>
       <div class="hero__right">
-        <div class="hero-calc" id="heroCalc">
-          <div class="hero-calc__title">📊 تقييم أولي مجاني</div>
-          <div class="hero-calc__subtitle">أدخل بيانات أساسية واحصل على نتيجة أولية</div>
-          <div class="hero-calc__group">
-            <label>المدينة</label>
-            <input type="text" id="calcCity" placeholder="مثال: جدة" />
-          </div>
-          <div class="hero-calc__group">
-            <label>النشاط التجاري</label>
-            <input type="text" id="calcSector" placeholder="مثال: مطعم، مجمع تجاري" />
-          </div>
-          <div class="hero-calc__group">
-            <label>حجم الاستثمار (ر.س)</label>
-            <input type="number" id="calcInvestment" placeholder="500000" />
-          </div>
-          <button class="hero-calc__btn" id="calcBtn">قيّم مشروعك الآن</button>
-          <div class="hero-calc__result" id="calcResult">
-            <div class="hero-calc__score">
-              <span class="hero-calc__score-num" id="calcScore">0</span>
-              <span class="hero-calc__score-label">/ 100 درجة جدوى</span>
-            </div>
-            <span class="hero-calc__risk" id="calcRisk">مستوى المخاطر</span>
-            <div class="hero-calc__rec" id="calcRec">التوصية</div>
-            <a href="client/index.html" class="hero-calc__cta">احصل على التحليل الكامل والمراجعة الاستشارية</a>
-          </div>
+        <div class="hero-calc" id="heroCalc" style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" style="opacity:0.9;">
+            <path d="M12 2v20M2 12h20"/>
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+          <div class="hero-calc__title" style="font-size:1.25rem; font-weight:800; color:var(--gold);">ابدأ رحلة مشروعك</div>
+          <p style="color:var(--text-secondary); font-size:0.95rem; margin:0;">أنشئ مشروعك، حلّل الفرصة، واحصل على تقرير استثماري معتمد.</p>
+          <a href="/v3/portfolio" class="hero-calc__btn" style="text-decoration:none; display:inline-flex; justify-content:center;">ابدأ الآن</a>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Free Calculator Demo -->
+  <section class="demo-section">
+    <div class="demo-section__inner">
+      <span class="section__eyebrow">جرّب مجاناً</span>
+      <h2 class="section__title">احسب نتيجة أولية في 60 ثانية</h2>
+      <p class="section__subtitle">بدون تسجيل. اختر الحاسبة المناسبة لمشروعك.</p>
+      <div class="demo-grid">
+        <a href="calculator.html" class="demo-card">
+          <svg class="demo-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
+          <h3 class="demo-card__title">حاسبة نقطة التعادل</h3>
+          <p class="demo-card__desc">اعرف عدد الوحدات أو الطلبات اللازمة لتغطية تكاليفك.</p>
+        </a>
+        <a href="calculators/cash-flow.html" class="demo-card">
+          <svg class="demo-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          <h3 class="demo-card__title">حاسبة التدفق النقدي</h3>
+          <p class="demo-card__desc">راجع نقاط الضغط النقدي وتوقعات السيولة الشهرية.</p>
+        </a>
+        <a href="calculators/creditworthiness.html" class="demo-card">
+          <svg class="demo-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          <h3 class="demo-card__title">جاهزية التمويل</h3>
+          <p class="demo-card__desc">تقييم سريع لمدى استعداد مشروعك للحصول على تمويل.</p>
+        </a>
+      </div>
+      <div class="demo-section__cta">
+        <a href="contact.html" class="btn-outline">احجز استشارة مجانية 30 دقيقة</a>
       </div>
     </div>
   </section>
@@ -843,91 +880,35 @@
     </div>
   </section>
 
-  <!-- Calculators -->
-  <section class="section" id="calculators" style="background:var(--bg-white);">
-    <div class="container">
-      <div class="section-header">
-        <span class="section__eyebrow">الأدوات المجانية</span>
-        <h2 class="section__title">ابدأ بأداة واحدة — بدون تسجيل</h2>
-        <p class="section__subtitle">من تقييم التمويل إلى تحليل المدن، أدوات Bonds تحوّل البيانات إلى قرار استثماري واضح.</p>
-      </div>
-      <div class="services-grid">
-        <a href="calculators/creditworthiness.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
-          <h3 class="service-card__title">تقييم جاهزية التمويل</h3>
-          <p class="service-card__text">احسب درجة جاهزية مشروعك للتمويل بناءً على 9 معايير ائتمانية دولية. احصل على نقاط القوة والضعف.</p>
+  <!-- Intent -->
+  <section class="intent-section" id="intent">
+    <div class="intent-section__inner">
+      <span class="section__eyebrow">اختر هدفك</span>
+      <h2 class="intent-section__title">ما الذي تريد بناءه اليوم؟</h2>
+      <p class="intent-section__subtitle">ابدأ من هدفك، لا من قائمة أدوات. بوندز تربطك بمسار العمل المناسب مباشرة.</p>
+      <div class="intent-grid">
+        <a href="/v3/portfolio" class="intent-card">
+          <svg class="intent-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
+          <div class="intent-card__title">مشروع جديد</div>
+          <div class="intent-card__desc">أنشئ مشروعك، حلّل الجدوى، واحصل على تقرير استثماري.</div>
         </a>
-        <a href="v3/city-intelligence.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-          <h3 class="service-card__title">ذكاء المدن</h3>
-          <p class="service-card__text">اختر المدينة والحي وتحليل فرص الاستثمار، المخاطر، والعائد المتوقع قبل أن تشتري أو تؤجر.</p>
+        <a href="/v3/portfolio" class="intent-card">
+          <svg class="intent-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          <div class="intent-card__title">توسيع قائم</div>
+          <div class="intent-card__desc">قيم فرصة التوسع واختر أفضل هيكل تمويلي.</div>
         </a>
-        <a href="v3/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
-          <h3 class="service-card__title">Bonds V3 — دراسات الجدوى الذكية</h3>
-          <p class="service-card__text">NPV، IRR، DSCR، وتحليل مخاطر مفصل حسب المدينة والقطاع.</p>
+        <a href="/v3/portfolio" class="intent-card">
+          <svg class="intent-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          <div class="intent-card__title">إحياء متعثر</div>
+          <div class="intent-card__desc">حلل الأصول المتعثرة وضع خطة إنقاذ واضحة.</div>
         </a>
-        <a href="calculator-wizard.html" class="service-card" style="text-decoration:none; color:inherit; border:2px solid var(--gold); background: rgba(212,168,83,0.05);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg></div>
-          <h3 class="service-card__title">Project Feasibility Wizard</h3>
-          <p class="service-card__text">معالج جدوى المشاريع الرئيسي: 5 خطوات، 5 درجات (استثمار، تمويل، سوق، مخاطرة، إجمالية)، قرار استثماري نهائي، وتقرير PDF.</p>
-        </a>
-        <a href="calculators/investment-center/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg></div>
-          <h3 class="service-card__title">مركز الحاسبات الاستثمارية</h3>
-          <p class="service-card__text">63+ قطاعًا اقتصاديًا مع مؤشرات ROI، IRR، NPV، فترة الاسترداد، نقطة التعادل، وتوصية استثمارية ذكية.</p>
-        </a>
-        <a href="calculators/restaurant.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div>
-          <h3 class="service-card__title">حاسبة المطاعم</h3>
-          <p class="service-card__text">4 نماذج عمل (تقليدي، سحابي، كافيه، حلويات) × 22 دولة × 179 منصة توصيل.</p>
-        </a>
-        <a href="calculators/medical-viability.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-          <h3 class="service-card__title">الجدوى الطبية</h3>
-          <p class="service-card__text">احسب جدوى صيدليتك، عيادتك، أو مختبرك قبل الاستثمار. تأمين، تلف، نقطة التعادل.</p>
-        </a>
-        <a href="calculators/dish-margin.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/></svg></div>
-          <h3 class="service-card__title">ربحية الوجبة</h3>
-          <p class="service-card__text">احسب ربح كل صنف قبل ما تضيفه للمنيو. مقارنة ديناميكية بين كل المنصات.</p>
-        </a>
-        <a href="calculator.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-          <h3 class="service-card__title">نقطة التعادل</h3>
-          <p class="service-card__text">كم طلب تحتاج يومياً لتغطية مصاريفك؟ حاسبة عامة لأي نشاط تجاري.</p>
-        </a>
-        <a href="calculators/cash-flow.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
-          <h3 class="service-card__title">تدفق النقد</h3>
-          <p class="service-card__text">توقع فواتيرك ومدفوعاتك 12 شهر قادمة. اكتشف متى تنفذ قبل ما يصير.</p>
-        </a>
-        <a href="calculators/pricing.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-          <h3 class="service-card__title">تسعير المنتج</h3>
-          <p class="service-card__text">احسب السعر الأمثل بناءً على التكلفة والمنافسة والهامش المستهدف.</p>
-        </a>
-        <a href="calculators/loan.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
-          <h3 class="service-card__title">القرض والتمويل</h3>
-          <p class="service-card__text">قارن بين 4 أنواع قروض، احسب القسط الشهري، ونسبة الدين للدخل.</p>
-        </a>
-        <a href="calculators/creditworthiness.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
-          <h3 class="service-card__title">تقييم الجدارة الائتمانية</h3>
-          <p class="service-card__text">قيم أي شركة أو مصنع أو سند مالي وفق 9 معايير دولية واحصل على تصنيف AAA إلى عالي المخاطر.</p>
-        </a>
-        <a href="calculators/factory-cost.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 22h20"/><path d="M20 22v-5a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3v5"/><path d="M4 22v-5a3 3 0 0 1 3-3h1"/><path d="M14.5 9a2.5 2.5 0 0 0-5 0V5.5a2.5 2.5 0 0 1 5 0V9Z"/></svg></div>
-          <h3 class="service-card__title">تكلفة المصنع</h3>
-          <p class="service-card__text">قدر تكلفة إنشاء مصنع في مدن صناعية سعودية — إيجار، كهرباء، رسوم تراخيص.</p>
-        </a>
-        <a href="https://bonds-v3.vercel.app" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
-          <h3 class="service-card__title">Bonds V3 <span style="color:var(--gold);font-size:.75rem">جديد</span></h3>
-          <p class="service-card__text">دراسات جدوى ذكية حسب المدينة والقطاع. NPV، IRR، DSCR، وتحليل مخاطر مفصل.</p>
+        <a href="calculators/investment-center/index.html" class="intent-card">
+          <svg class="intent-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <div class="intent-card__title">تقييم فرصة</div>
+          <div class="intent-card__desc">قارن بين القطاعات والمدن واختر الأفضل.</div>
         </a>
       </div>
+      <a href="/v3/portfolio" class="btn-primary">ابدأ تقييم مشروعك</a>
     </div>
   </section>
 
@@ -935,50 +916,30 @@
   <section class="section">
     <div class="container">
       <div class="section-header">
-        <span class="section__eyebrow">خدماتنا</span>
-        <h2 class="section__title">حلول متكاملة لتحقيق أهدافك</h2>
+        <span class="section__eyebrow">الحلول</span>
+        <h2 class="section__title">سير عمل موحّد لكل مرحلة</h2>
+        <p class="section__subtitle">أربع مسارات تبدأ بفكرة خام وتنتهي بمذكرة استثمارية جاهزة للنشر.</p>
       </div>
       <div class="services-grid">
-        <div class="service-card">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-          <h3 class="service-card__title">إدارة المخاطر والحوكمة</h3>
-          <p class="service-card__text">نساعدك على إدارة المخاطر بفعالية وتعزيز الامتثال بكفاءة</p>
-          <a href="services.html" class="service-card__link">←</a>
-        </div>
-        <div class="service-card">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-          <h3 class="service-card__title">الاستشارات المالية</h3>
-          <p class="service-card__text">حلول مالية تدعم قراراتك وتعزز الأداء المالي</p>
-          <a href="services.html" class="service-card__link">←</a>
-        </div>
-        <div class="service-card">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-          <h3 class="service-card__title">دراسات الجدوى</h3>
-          <p class="service-card__text">دراسات دقيقة تساعدك على تقييم الفرص الاستثمارية</p>
-          <a href="services.html" class="service-card__link">←</a>
-        </div>
-        <div class="service-card">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
-          <h3 class="service-card__title">تقييم المنشآت</h3>
-          <p class="service-card__text">تقييم دقيق للمنشآت وفقاً لأعلى المعايير العالمية</p>
-          <a href="services.html" class="service-card__link">←</a>
-        </div>
-        <div class="service-card">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
-          <h3 class="service-card__title">إعادة هيكلة الشركات</h3>
-          <p class="service-card__text">إعادة تصميم الهياكل التنظيمية والمالية لرفع الكفاءة والقيمة</p>
-          <a href="services.html" class="service-card__link">←</a>
-        </div>
-        <div class="service-card">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-          <h3 class="service-card__title">الاستشارات الإدارية</h3>
-          <p class="service-card__text">حلول إدارية مبتكرة لتحسين العمليات وزيادة الأداء</p>
-          <a href="services.html" class="service-card__link">←</a>
-        </div>
-        <a href="project-rescue.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
-          <h3 class="service-card__title">إحياء المشاريع المتعثرة</h3>
-          <p class="service-card__text">تشخيص دقيق، خطة إحياء واقعية، ومتابعة حتى التعافي للأصول والمشاريع المتعثرة.</p>
+        <a href="v3/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
+          <h3 class="service-card__title">دراسة جدوى ذكية</h3>
+          <p class="service-card__text">NPV، IRR، DSCR وتقييم مخاطر حسب المدينة والقطاع.</p>
+        </a>
+        <a href="valuation/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+          <h3 class="service-card__title">تقييم الأصول</h3>
+          <p class="service-card__text">35 فئة أصل، استهلاك، وشهادة تقييم رقمية من بوندز.</p>
+        </a>
+        <a href="/v3/portfolio" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+          <h3 class="service-card__title">جاهزية التمويل</h3>
+          <p class="service-card__text">تصنيف ائتماني، مطابقة تمويل، ومستندات جهة التمويل.</p>
+        </a>
+        <a href="v3/project/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+          <h3 class="service-card__title">مذكرة استثمارية</h3>
+          <p class="service-card__text">حوّل مشروعك إلى مذكرة استثمارية جاهزة للمستثمرين.</p>
         </a>
       </div>
     </div>
@@ -987,34 +948,34 @@
   <!-- Partners -->
   <section class="partners-section">
     <div class="partners-header">
-      <h3>شراكات تصنع أثراً</h3>
-      <a href="services.html">استعرض جميع المشاريع →</a>
+      <h3>قطاعات نعمل معها</h3>
+      <a href="case-studies.html">اقرأ دراسات الحالة →</a>
     </div>
     <div class="partners-grid">
-      <div class="partner-card">
-        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop&q=80" alt="مشروع صناعي" loading="lazy" />
+      <a href="case-studies.html" class="partner-card" style="text-decoration:none; color:inherit;">
+        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop&q=80" alt="قطاع المطاعم" loading="lazy" />
         <div class="partner-card__overlay">
           <span class="partner-card__tag">+</span>
-          <div class="partner-card__title">مشروع صناعي</div>
-          <div class="partner-card__desc">دراسة جدوى وتقييم مالي</div>
+          <div class="partner-card__title">قطاع المطاعم</div>
+          <div class="partner-card__desc">خفض تكلفة الوحدة وتحسين الهامش</div>
         </div>
-      </div>
-      <div class="partner-card">
-        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop&q=80" alt="مشروع عقاري" loading="lazy" />
+      </a>
+      <a href="case-studies.html" class="partner-card" style="text-decoration:none; color:inherit;">
+        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop&q=80" alt="قطاع الصناعة" loading="lazy" />
         <div class="partner-card__overlay">
           <span class="partner-card__tag">+</span>
-          <div class="partner-card__title">مشروع عقاري</div>
-          <div class="partner-card__desc">استشارات مالية وهيكلة تمويل</div>
+          <div class="partner-card__title">قطاع الصناعة</div>
+          <div class="partner-card__desc">تقليل تكلفة التأسيس وتحسين الجدوى</div>
         </div>
-      </div>
-      <div class="partner-card">
-        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop&q=80" alt="مشروع تجاري" loading="lazy" />
+      </a>
+      <a href="case-studies.html" class="partner-card" style="text-decoration:none; color:inherit;">
+        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop&q=80" alt="الأصول المتعثرة" loading="lazy" />
         <div class="partner-card__overlay">
           <span class="partner-card__tag">+</span>
-          <div class="partner-card__title">مشروع تجاري</div>
-          <div class="partner-card__desc">دراسة جدوى وتخطيط مالي</div>
+          <div class="partner-card__title">الأصول المتعثرة</div>
+          <div class="partner-card__desc">إعادة تقييم وخطة إحياء واضحة</div>
         </div>
-      </div>
+      </a>
     </div>
   </section>
 
@@ -1060,44 +1021,47 @@
   <section class="section" style="background:var(--bg-white);">
     <div class="container">
       <div class="section-header">
-        <span class="section__eyebrow">آراء عملائنا</span>
-        <h2 class="section__title">ماذا يقول عملاؤنا عنا</h2>
-        <p class="section__subtitle">تجارب حقيقية من أصحاب الشركات والمؤسسات الذين عملنا معهم.</p>
+        <span class="section__eyebrow">قصص نجاح</span>
+        <h2 class="section__title">ماذا قال عملاؤنا بعد التحليل</h2>
+        <p class="section__subtitle">اقتباسات من دراسات الحالة المجهولة الهوية التي نفذناها مع أصحاب المشاريع.</p>
       </div>
       <div class="services-grid" style="grid-template-columns:repeat(3,1fr);">
         <div class="service-card" style="text-align:right;">
           <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
-          <p class="service-card__text" style="font-style:italic;">"ساعدتنا بوندز على فهم واقع وضعنا المالي خلال أسبوع واحد. الخطة التي قدمتها كانت واقعية وقابلة للتنفيذ فوراً."</p>
+          <p class="service-card__text" style="font-style:italic;">"رأينا الأرقام الحقيقية لأول مرة. غيّرنا المنيو وأوقفنا خصومات تدمر الهامش، وانخفضت تكلفة الوحدة 12%."</p>
           <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
-            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">م</div>
+            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">ع</div>
             <div>
-              <div style="font-weight:800; font-size:0.85rem;">محمد العلي</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">صاحب متجر تجاري — القاهرة</div>
+              <div style="font-weight:800; font-size:0.85rem;">عمر الراشد</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">صاحب مطعم برجر — الرياض</div>
             </div>
           </div>
         </div>
         <div class="service-card" style="text-align:right;">
           <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
-          <p class="service-card__text" style="font-style:italic;">"الاستشارة كانت عملية لا نظرية. حددوا نقاط ضعف التدفق النقدي وأعطونا خارطة طريق واضحة لـ 90 يوم."</p>
+          <p class="service-card__text" style="font-style:italic;">"أنقذنا استثماراً كبيراً بتعديلات بسيطة في قائمة المعدات. تكلفة التأسيس انخفضت 18% والاسترداد اختصر 8 أشهر."</p>
           <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
-            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">س</div>
+            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">ف</div>
             <div>
-              <div style="font-weight:800; font-size:0.85rem;">سارة محمود</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">مديرة خدمات مهنية — الشيخ زايد</div>
+              <div style="font-weight:800; font-size:0.85rem;">فاطمة الزهابي</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">مديرة عمليات — مصنع دبي</div>
             </div>
           </div>
         </div>
         <div class="service-card" style="text-align:right;">
           <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
-          <p class="service-card__text" style="font-style:italic;">"عملنا مع بوندز قبل توسيع مصنعنا. دراسة الجدوى الأولية أنقذتنا من دخول استثمار كبير قبل أن نكون جاهزين."</p>
+          <p class="service-card__text" style="font-style:italic;">"التحليل أعاد لنا الأمل في الأصل. نعرف الآن لماذا فشل وكيف نعيد بناءه، والعائد المتوقع واضح."</p>
           <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
-            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">أ</div>
+            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">ك</div>
             <div>
-              <div style="font-weight:800; font-size:0.85rem;">أحمد حسين</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">شريك مؤسس — شركة صناعية — 6 أكتوبر</div>
+              <div style="font-weight:800; font-size:0.85rem;">كريم حافظ</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">مدير أصول — القاهرة</div>
             </div>
           </div>
         </div>
+      </div>
+      <div style="text-align:center; margin-top:2rem;">
+        <a href="case-studies.html" class="btn-outline">اقرأ دراسات الحالة الكاملة</a>
       </div>
     </div>
   </section>

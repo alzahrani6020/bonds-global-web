@@ -73,6 +73,7 @@
       contact: isEn ? 'Contact' : 'تواصل معنا',
       cta: isEn ? 'Book Consultation' : 'احجز استشارة',
       clientPortal: isEn ? 'Client Portal' : 'بوابة العميل',
+      caseStudies: isEn ? 'Case Studies' : 'دراسات الحالة',
       langSwitch: isEn ? 'العربية' : 'EN',
       allServices: isEn ? 'View All Services →' : 'استعراض جميع الخدمات →',
       analysis: isEn ? 'Financial Analysis' : 'التحليل المالي',
@@ -108,7 +109,7 @@
     const contactHref = langBase + 'contact.html';
     const blogHref = langBase + '../blog/index.html';
     const valuationHref = langBase + 'valuation/index.html';
-    const clientPortalHref = isEn ? langBase + 'client/index.html' : langBase + '../client/index.html';
+    const clientPortalHref = isEn ? '/en/v3/portfolio' : '/v3/portfolio';
     const v3Base = 'v3/';
     const fundingReadinessHref = langBase + 'calculators/creditworthiness.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
@@ -350,6 +351,7 @@
     const navItems = [
       { href: homeHref, label: labels.home },
       { href: aboutHref, label: labels.about },
+      { href: caseStudiesHref, label: labels.caseStudies },
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
       { type: 'dropdown', label: labels.guides, items: guideCountries.map(c => ({ href: sectorsBase + c.code + '.html', label: c.flag + ' ' + c.label })), isLarge: true },
       { type: 'dropdown', label: labels.calculators, items: calcDropdown, isLarge: true },
@@ -412,11 +414,12 @@
 
     const servicesHref = langBase + 'services.html';
     const aboutHref = langBase + 'about.html';
+    const caseStudiesHref = langBase + 'case-studies.html';
     const projectRescueHref = langBase + 'project-rescue.html';
     const blogHref = langBase + '../blog/index.html';
     const faqHref = langBase + 'faq.html';
     const contactHref = langBase + 'contact.html';
-    const clientPortalHref = isEn ? langBase + 'client/index.html' : langBase + '../client/index.html';
+    const clientPortalHref = isEn ? '/en/v3/portfolio' : '/v3/portfolio';
     const privacyHref = langBase + 'privacy.html';
     const termsHref = langBase + 'terms.html';
 
@@ -443,9 +446,9 @@
       <div class="footer-title">${labels.aboutTitle}</div>
       <div class="footer-links">
         <a href="${aboutHref}">${isEn ? 'About Us' : 'من نحن'}</a>
+        <a href="${caseStudiesHref}">${isEn ? 'Case Studies' : 'دراسات الحالة'}</a>
         <a href="${aboutHref}">${isEn ? 'Our Values' : 'قيمنا'}</a>
         <a href="${aboutHref}">${isEn ? 'Our Team' : 'فريقنا'}</a>
-        <a href="${aboutHref}">${isEn ? 'Partners' : 'شركاؤنا'}</a>
       </div>
     </div>
     <div>
@@ -468,7 +471,7 @@
       <div class="footer-links">
         <a href="${termsHref}">${labels.terms}</a>
         <a href="${privacyHref}">${labels.privacy}</a>
-        <span>+966 11 123 4567</span>
+        <a href="https://wa.me/966567566616" target="_blank" rel="noopener">+966 56 756 6616</a>
         <span>info@bonds-global.com</span>
       </div>
     </div>
@@ -476,9 +479,9 @@
   <div class="footer-bottom">
     <span>${labels.rights}</span>
     <div class="footer-socials">
-      <a href="#">in</a>
-      <a href="#">X</a>
-      <a href="#">📷</a>
+      <a href="https://www.linkedin.com/company/bonds-global" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>
+      <a href="https://x.com/bonds_global" target="_blank" rel="noopener" aria-label="X">X</a>
+      <a href="https://instagram.com/bonds.global" target="_blank" rel="noopener" aria-label="Instagram">📷</a>
     </div>
   </div>
 </footer>

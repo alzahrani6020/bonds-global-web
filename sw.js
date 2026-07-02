@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v2.19.0';
+const CACHE_VERSION = 'v2.24.0';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -16,6 +16,7 @@ const CORE_ASSETS = [
   '/styles/components.css',
   '/styles/select-reset.css',
   '/styles/utilities.css',
+  '/styles/design-system.css',
   '/components/universal-dropdown.css',
   '/components/universal-dropdown.js',
   '/components/universal-dropdown-init.js',
@@ -30,6 +31,7 @@ const CORE_ASSETS = [
   '/calculator-wizard.html',
   '/en/calculator-wizard.html',
   '/styles/calculator-wizard.css',
+  '/styles/case-studies.css',
   '/calculator-wizard.js',
   '/valuation/index.html',
   '/en/valuation/index.html',
@@ -72,6 +74,10 @@ const CORE_ASSETS = [
   '/admin/ai-business-advisor/app.js',
   '/admin/ai-business-advisor/redirect-standalone.js',
   '/admin/ai-business-advisor/guard.js',
+  '/v3/project/project-command-center.css',
+  '/v3/portfolio/portfolio-dashboard.css',
+  '/en/v3/project/project-command-center.css',
+  '/en/v3/portfolio/portfolio-dashboard.css',
   '/lib/enterprise/validation.js',
   '/lib/enterprise/rules-engine.js',
   '/lib/enterprise/cache.js',

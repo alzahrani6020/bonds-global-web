@@ -687,7 +687,7 @@ textarea::placeholder {
   color: var(--text-muted);
 }
 .topbar a {
-  color: var(--gold);
+  color: var(--text);
   font-weight: 700;
   transition: color var(--transition);
 }

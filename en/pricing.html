@@ -24,14 +24,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="/api/env"></script>
   <script defer src="/_vercel/insights/script.js"></script>
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
   <link rel="stylesheet" href="../styles.css" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
 <link rel="stylesheet" href="../header-footer.css?v=7" />
@@ -66,9 +58,9 @@
   <section class="section" style="background: var(--bg-dark); padding: var(--space-16) 0;">
     <div class="container">
       <div class="section-header reveal">
-        <span class="section__eyebrow" style="color: var(--gold-400);">Restaurant Calculator</span>
+        <span class="section__eyebrow" style="color: var(--gold-400);">Software Plans</span>
         <h2 class="section__title" style="color: var(--white);">Choose Your Plan</h2>
-        <p class="section__subtitle" style="color: var(--cream-300);">Restaurant profitability calculator — 22 countries, 186 platforms</p>
+        <p class="section__subtitle" style="color: var(--cream-300);">Start free. Try Pro or Enterprise for 14 days with no commitment.</p>
       </div>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-6);">
         <!-- Free -->
@@ -79,8 +71,8 @@
             <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7;">For small restaurants and testing</p>
           </div>
           <div style="margin-bottom: var(--space-6);">
-            <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--navy-950);">$0</div>
-            <div style="font-size: var(--text-sm); color: var(--text-muted);">/month</div>
+            <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--navy-950);">Free</div>
+            <div style="font-size: var(--text-sm); color: var(--text-muted);">No credit card</div>
           </div>
           <ul style="display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-8); flex-grow: 1;">
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-secondary);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-500)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 3 saved scenarios</li>
@@ -89,7 +81,7 @@
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-muted);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--border-light)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> PDF export</li>
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-muted);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--border-light)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Health Score history</li>
           </ul>
-          <a href="../calculators/restaurant.html" class="btn btn-outline" style="width: 100%;">Start Free</a>
+          <a href="../calculators/auth/index.html?redirect=/calculators/restaurant.html" class="btn btn-outline" style="width: 100%;">Start Free</a>
         </div>
 
         <!-- Pro -->
@@ -104,6 +96,7 @@
             <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--gold-400);">SAR 82</div>
             <div style="font-size: var(--text-sm); color: var(--cream-300);">/month (incl. VAT 15%)</div>
             <div style="font-size: var(--text-xs); color: var(--cream-300); opacity: 0.8; margin-top: 0.25rem;">SAR 71 + SAR 11 tax</div>
+            <div style="font-size: var(--text-xs); color: var(--gold-400); margin-top: 0.5rem;">🚀 14-day free trial</div>
           </div>
           <ul style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-8); flex-grow: 1;">
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--cream-200);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Unlimited scenarios</li>
@@ -127,6 +120,7 @@
             <div style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 900; color: var(--navy-950);">SAR 212</div>
             <div style="font-size: var(--text-sm); color: var(--text-muted);">/month (incl. VAT 15%)</div>
             <div style="font-size: var(--text-xs); color: var(--text-muted); margin-top: 0.25rem;">SAR 184 + SAR 28 tax</div>
+            <div style="font-size: var(--text-xs); color: var(--gold-600); margin-top: 0.5rem;">🚀 14-day free trial</div>
           </div>
           <ul style="display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-8); flex-grow: 1;">
             <li style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-secondary);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-500)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Everything in Pro</li>
@@ -147,7 +141,8 @@
     <div class="container">
       <div class="section-header reveal">
         <span class="section__eyebrow">Financial Consulting</span>
-        <h2 class="section__title">Consulting Packages</h2>
+        <h2 class="section__title">Custom Advisory Packages</h2>
+        <p class="section__subtitle">Human advisory delivered by a certified financial advisor based on your project size.</p>
       </div>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6);">
         <!-- Starter -->
@@ -222,20 +217,24 @@
       </div>
       <div class="faq-list">
         <details class="faq-item reveal" open>
-          <summary>Why aren't there fixed prices?</summary>
-          <div class="faq-item__content">Every project has its own size, sector, and unique challenges. We prefer to send a custom quote that reflects the actual value of the service rather than a generic price that may not suit everyone.</div>
+          <summary>Is there a free trial?</summary>
+          <div class="faq-item__content">Yes. Pro and Enterprise plans include a <strong>14-day free trial</strong>. You can cancel before the trial ends and no charge will be made.</div>
         </details>
         <details class="faq-item reveal reveal-delay-1">
+          <summary>What's the difference between Pro and Enterprise?</summary>
+          <div class="faq-item__content">Pro fits growing restaurants and businesses that need unlimited scenarios and PDF export. Enterprise is built for chains and large groups and includes webhook integrations and multiple sub-accounts.</div>
+        </details>
+        <details class="faq-item reveal reveal-delay-2">
+          <summary>Can I get a refund?</summary>
+          <div class="faq-item__content">During the free trial no charge is made. After the subscription starts, you can cancel anytime and keep your features until the end of the paid period.</div>
+        </details>
+        <details class="faq-item reveal reveal-delay-3">
           <summary>Is the first consultation really free?</summary>
           <div class="faq-item__content">Yes, 100%. We listen to your situation and determine if we are the right fit to help you — with no commitment or payment required.</div>
         </details>
-        <details class="faq-item reveal reveal-delay-2">
-          <summary>How do I get a quote?</summary>
+        <details class="faq-item reveal reveal-delay-4">
+          <summary>How do I get a consulting quote?</summary>
           <div class="faq-item__content">Fill out the contact form or reach us via WhatsApp. We respond within 2–3 business days with a written quote outlining the scope, timeline, and cost.</div>
-        </details>
-        <details class="faq-item reveal reveal-delay-3">
-          <summary>Can payments be split?</summary>
-          <div class="faq-item__content">Yes, for larger projects we offer flexible payment options (installments or milestones) based on agreement.</div>
         </details>
       </div>
     </div>
@@ -274,7 +273,6 @@
   </script>
   <!-- Supabase + Auth + Checkout -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/supabase-client.js?v=6"></script>
   <script src="/auth-guard.js?v=5"></script>
   <script>
     // Env validation

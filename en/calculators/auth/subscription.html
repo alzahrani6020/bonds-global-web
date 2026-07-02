@@ -139,6 +139,7 @@
   <script>
     (function(){
       var _user = null;
+      var _token = null;
       var _tier = 'free';
       var _sub = null;
 
@@ -150,6 +151,7 @@
         var {data:sessionData} = await window.BondsAuth.getSession();
         if(!sessionData.session){window.location.href='index.html?redirect='+encodeURIComponent(window.location.pathname);return;}
         _user = sessionData.session.user;
+        _token = sessionData.session.access_token;
         var {data:sub} = await window.BondsAuth.getSubscription(_user.id);
         _sub = sub;
         _tier = sub?.tier || 'free';
@@ -210,18 +212,17 @@
         window.location.href = '../../pricing.html?plan='+tier;
       };
       window.moyasarUpgrade = async function(tier){
-        var {data: s} = await window.BondsAuth.getSession();
-        if(!s?.session){window.location.href='index.html?redirect='+encodeURIComponent(window.location.pathname);return;}
+        if(!_token){ window.location.href='index.html?redirect='+encodeURIComponent(window.location.pathname); return; }
         try{
           var res = await fetch('/api/moyasar-checkout',{
             method:'POST',
-            headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.session.access_token},
+            headers:{'Content-Type':'application/json','Authorization':'Bearer '+_token},
             body:JSON.stringify({
               tier:tier,
-              userId:s.session.user.id,
-              email:s.session.user.email,
-              successUrl:location.origin+'/calculators/auth/subscription.html?moyasar=success',
-              cancelUrl:location.origin+'/pricing.html?canceled=1'
+              userId:_user.id,
+              email:_user.email,
+              successUrl: window.location.href.split('?')[0] + '?moyasar=success',
+              cancelUrl: location.origin + '/en/pricing.html?canceled=1'
             })
           });
           var json = await res.json();
@@ -229,17 +230,33 @@
           else alert(json.error || 'Error creating SADAD invoice');
         }catch(e){console.error(e);alert('Unable to connect to server');}
       };
-      window.openBilling = function(){
-        alert('You will be redirected to Stripe billing portal.');
+      window.openBilling = async function(){
+        if(!_token) return;
+        try {
+          var res = await fetch('/api/billing?action=portal', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':'Bearer '+_token},
+            body: JSON.stringify({userId: _user.id})
+          });
+          var json = await res.json();
+          if(json.url) window.location.href = json.url;
+          else alert('No Stripe billing portal linked');
+        } catch(e){ alert('Unable to connect to billing portal'); }
       };
       window.cancelSub = async function(){
         if(!confirm('Are you sure you want to cancel? You will keep your features until the end of the paid period.'))return;
-        var sb = window.BondsAuth.getSupabase();
-        if(!sb)return;
-        var {error} = await sb.from('subscriptions').update({cancel_at_period_end:true}).eq('user_id',_user.id);
-        if(error){showError(error.message);return;}
-        alert('Cancellation requested. You will keep your features until the end of the paid period.');
-        location.reload();
+        if(!_token) return;
+        try {
+          var res = await fetch('/api/billing?action=cancel', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':'Bearer '+_token},
+            body: JSON.stringify({userId: _user.id})
+          });
+          if(res.ok){
+            alert('Cancellation requested. You will keep your features until the end of the paid period.');
+            location.reload();
+          } else throw new Error('Failed');
+        } catch(e){ showError('Cancellation failed. Please try again or contact support.'); }
       };
 
       init();

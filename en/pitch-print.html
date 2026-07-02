@@ -7,25 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
-  <!-- Google Analytics 4 — replace G-XXXXXXXXXX with your real Measurement ID -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-    function gaEvent(name, params) {
-      if (typeof gtag === 'function' && !window.location.hostname.includes('localhost')) {
-        gtag('event', name, params || {});
-      }
-    }
-    const pitchStart = Date.now();
-    gaEvent('pitch_open', { version: 'pdf_print', referrer: document.referrer || 'direct' });
-    window.addEventListener('beforeunload', () => {
-      gaEvent('time_spent', { duration_seconds: Math.round((Date.now() - pitchStart) / 1000), version: 'pdf_print' });
-    });
-  </script>
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" /><script>function gaEvent(name,params){}</script>
   <style>
     :root {
       --gold: #b8954e;

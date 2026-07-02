@@ -1,115 +1,23 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>إثبات عمل النظام | بوندز</title>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: Vazirmatn, sans-serif; background: #0c0c0c; color: #f5f5f5; padding: 2rem; max-width: 700px; margin: 0 auto; }
-    h1 { color: #c8a45c; }
-    .test { background: #141414; border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.5rem; margin: 1rem 0; }
-    .pass { color: #4ade80; font-weight: 700; }
-    .fail { color: #f87171; font-weight: 700; }
-    button { background: #c8a45c; color: #0c0c0c; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; }
-    pre { background: #050a15; padding: 1rem; border-radius: 8px; overflow: auto; font-size: 0.85rem; direction: ltr; text-align: left; }
-  </style>
-  <link rel="canonical" href="https://bonds-global.com/proof" />
-  <meta property="og:title" content="إثبات عمل النظام | بوندز" />
-  <meta property="og:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-  <meta property="og:url" content="https://bonds-global.com/proof" />
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="0; url=/case-studies.html" />
+  <title>دراسات الحالة | بوندز</title>
+  <meta name="description" content="نتائج قابلة للقياس من مشاريع استخدمت أدوات بوندز والاستشارات المالية." />
+  <meta property="og:title" content="دراسات الحالة | بوندز" />
+  <meta property="og:description" content="نتائج قابلة للقياس من مشاريع استخدمت أدوات بوندز والاستشارات المالية." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/case-studies" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="إثبات عمل النظام | بوندز" />
-  <meta name="twitter:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-
-  <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
-
+  <meta name="twitter:title" content="دراسات الحالة | بوندز" />
+  <meta name="twitter:description" content="نتائج قابلة للقياس من مشاريع استخدمت أدوات بوندز والاستشارات المالية." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="canonical" href="https://bonds-global.com/case-studies" />
+  <script>window.location.href='/case-studies.html';</script>
 </head>
 <body>
-  <h1>🔬 إثبات عمل النظام</h1>
-  <p>هذه الصفحة تُثبت أن Supabase يعمل بدون تسجيل دخولك.</p>
-
-  <div class="test">
-    <h3>1. الاتصال بـ Supabase</h3>
-    <div id="r1">جاري الاختبار...</div>
-    <pre id="r1d"></pre>
-  </div>
-
-  <div class="test">
-    <h3>2. محاولة تسجيل دخول وهمي</h3>
-    <div id="r2">جاري الاختبار...</div>
-    <pre id="r2d"></pre>
-  </div>
-
-  <div class="test">
-    <h3>3. الجلسة الحالية</h3>
-    <div id="r3">جاري الاختبار...</div>
-    <pre id="r3d"></pre>
-  </div>
-
-  <button onclick="runTests()">إعادة الاختبار</button>
-  <button onclick="location.href='auth-v2.html'" style="background:#16a34a;color:white;margin-right:0.5rem;">→ اذهب لتسجيل الدخول</button>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script>
-    const SUPABASE_URL = 'https://hutxsqzplyuqgnghsrcs.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_45XVdlKR2isOJ_OvZVO61Q_oYbhnVnF';
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    async function runTests() {
-      // Test 1: Connection
-      const r1 = document.getElementById('r1');
-      const r1d = document.getElementById('r1d');
-      try {
-        const { data, error } = await sb.auth.getSession();
-        if (error) throw error;
-        r1.innerHTML = '<span class="pass">✅ PASS</span> — الاتصال بـ Supabase ناجح';
-        r1d.textContent = 'Client ID: ' + sb.supabaseUrl;
-      } catch (e) {
-        r1.innerHTML = '<span class="fail">❌ FAIL</span> — ' + e.message;
-      }
-
-      // Test 2: Sign in with wrong password
-      const r2 = document.getElementById('r2');
-      const r2d = document.getElementById('r2d');
-      try {
-        const { data, error } = await sb.auth.signInWithPassword({ email: 'test@example.com', password: 'wrong' });
-        if (error && error.message.includes('Invalid')) {
-          r2.innerHTML = '<span class="pass">✅ PASS</span> — API يرد بشكل صحيح (رفض البيانات الخاطئة)';
-          r2d.textContent = 'Error: ' + error.message + '\nThis proves the API is working.';
-        } else if (error) {
-          r2.innerHTML = '<span class="fail">❌ FAIL</span> — ' + error.message;
-        } else {
-          r2.innerHTML = '<span class="pass">✅ PASS</span> — نجح تسجيل الدخول (هذا مستخدم وهمي!)';
-        }
-      } catch (e) {
-        r2.innerHTML = '<span class="fail">❌ FAIL</span> — ' + e.message;
-      }
-
-      // Test 3: Current session
-      const r3 = document.getElementById('r3');
-      const r3d = document.getElementById('r3d');
-      try {
-        const { data } = await sb.auth.getSession();
-        if (data.session) {
-          r3.innerHTML = '<span class="pass">✅ PASS</span> — أنت مسجل دخول!';
-          r3d.textContent = 'Email: ' + data.session.user.email;
-        } else {
-          r3.innerHTML = '<span class="fail">⚠️ لا توجد جلسة</span> — لم تسجل دخول بعد (هذا طبيعي)';
-          r3d.textContent = 'localStorage keys:\n';
-          for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('sb-')) r3d.textContent += k + '\n';
-          }
-        }
-      } catch (e) {
-        r3.innerHTML = '<span class="fail">❌ FAIL</span> — ' + e.message;
-      }
-    }
-
-    window.addEventListener('load', runTests);
-  </script>
+  <p>جاري تحويلك إلى <a href="/case-studies.html">دراسات الحالة</a>...</p>
 </body>
 </html>

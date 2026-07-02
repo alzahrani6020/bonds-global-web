@@ -282,6 +282,18 @@
       font-size: 0.9rem;
     }
 
+    /* ===== Demo Section ===== */
+    .demo-section { padding: 5rem 2rem; background: var(--bg-card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .demo-section__inner { max-width: 1100px; margin: 0 auto; text-align: center; }
+    .demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin: 2rem 0; }
+    .demo-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.75rem 1.25rem; text-decoration: none; color: inherit; transition: all 0.2s; text-align: left; }
+    .demo-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
+    .demo-card__icon { width: 44px; height: 44px; margin-bottom: 1rem; color: var(--gold); }
+    .demo-card__title { font-weight: 800; margin-bottom: 0.5rem; color: var(--text); }
+    .demo-card__desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    .demo-section__cta { margin-top: 1rem; }
+    @media (max-width: 900px) { .demo-grid { grid-template-columns: 1fr; } }
+
     /* ===== Journey Section ===== */
     .journey-section {
       background: var(--bg);
@@ -344,6 +356,19 @@
     @media (max-width: 480px) {
       .journey-steps { grid-template-columns: 1fr; }
     }
+    .intent-section { padding: 4rem 1.5rem; background: var(--bg-card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .intent-section__inner { max-width: 1100px; margin: 0 auto; text-align: center; }
+    .intent-section__title { font-size: 1.75rem; font-weight: 800; color: var(--text); margin-bottom: 0.75rem; }
+    .intent-section .section__eyebrow { color: var(--text); }
+    .intent-section__subtitle { color: var(--text-secondary); margin-bottom: 2rem; }
+    .intent-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
+    .intent-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem 1rem; text-decoration: none; color: inherit; transition: all 0.2s; }
+    .intent-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
+    .intent-card__icon { width: 40px; height: 40px; margin: 0 auto 1rem; color: var(--gold); }
+    .intent-card__title { font-weight: 700; margin-bottom: 0.5rem; color: var(--text); }
+    .intent-card__desc { font-size: 0.85rem; color: var(--text-secondary); }
+    @media (max-width: 900px) { .intent-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .intent-grid { grid-template-columns: 1fr; } }
   </style>
 <link rel="stylesheet" href="../header-footer.css?v=7" />
   <link rel="canonical" href="https://bonds-global.com/en/" />
@@ -380,37 +405,49 @@
           <li>Certified executive report</li>
         </ul>
         <div class="hero__actions">
-          <a href="client/index.html" class="btn-primary">Start Analyzing Your Project ←</a>
-          <a href="../en/contact.html" class="btn-outline">Speak to an Advisor ←</a>
+          <a href="/en/v3/portfolio" class="btn-primary">Start Your Project Assessment ←</a>
+          <a href="../en/contact.html" class="btn-ghost" style="color:var(--text-secondary);">Speak to an Advisor</a>
         </div>
       </div>
       <div class="hero__right">
-        <div class="hero-calc" id="heroCalc">
-          <div class="hero-calc__title">📊 Free Instant Assessment</div>
-          <div class="hero-calc__subtitle">Enter basic details and get an initial score</div>
-          <div class="hero-calc__group">
-            <label>City</label>
-            <input type="text" id="calcCity" placeholder="e.g. Jeddah" />
-          </div>
-          <div class="hero-calc__group">
-            <label>Business Activity</label>
-            <input type="text" id="calcSector" placeholder="e.g. Restaurant, Retail" />
-          </div>
-          <div class="hero-calc__group">
-            <label>Investment Amount (SAR)</label>
-            <input type="number" id="calcInvestment" placeholder="500000" />
-          </div>
-          <button class="hero-calc__btn" id="calcBtn">Assess My Project</button>
-          <div class="hero-calc__result" id="calcResult">
-            <div class="hero-calc__score">
-              <span class="hero-calc__score-num" id="calcScore">0</span>
-              <span class="hero-calc__score-label">/ 100 Feasibility Score</span>
-            </div>
-            <span class="hero-calc__risk" id="calcRisk">Risk Level</span>
-            <div class="hero-calc__rec" id="calcRec">Recommendation</div>
-            <a href="client/index.html" class="hero-calc__cta">Get Full Analysis & Expert Review</a>
-          </div>
+        <div class="hero-calc" id="heroCalc" style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" style="opacity:0.9;">
+            <path d="M12 2v20M2 12h20"/>
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+          <div class="hero-calc__title" style="font-size:1.25rem; font-weight:800; color:var(--gold);">Start Your Project Journey</div>
+          <p style="color:var(--text-secondary); font-size:0.95rem; margin:0;">Create your project, analyze the opportunity, and receive an investment-ready report.</p>
+          <a href="/en/v3/portfolio" class="hero-calc__btn" style="text-decoration:none; display:inline-flex; justify-content:center;">Start Now</a>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Free Calculator Demo -->
+  <section class="demo-section">
+    <div class="demo-section__inner">
+      <span class="section__eyebrow">Try Free</span>
+      <h2 class="section__title">Get a Quick Result in 60 Seconds</h2>
+      <p class="section__subtitle">No sign-up required. Pick the calculator that matches your project.</p>
+      <div class="demo-grid">
+        <a href="calculator.html" class="demo-card">
+          <svg class="demo-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
+          <h3 class="demo-card__title">Break-Even Calculator</h3>
+          <p class="demo-card__desc">Find the units or orders you need to cover your costs.</p>
+        </a>
+        <a href="calculators/cash-flow.html" class="demo-card">
+          <svg class="demo-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          <h3 class="demo-card__title">Cash Flow Calculator</h3>
+          <p class="demo-card__desc">Spot monthly liquidity pressure points and forecasts.</p>
+        </a>
+        <a href="calculators/creditworthiness.html" class="demo-card">
+          <svg class="demo-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          <h3 class="demo-card__title">Funding Readiness</h3>
+          <p class="demo-card__desc">Quickly assess how ready your project is for financing.</p>
+        </a>
+      </div>
+      <div class="demo-section__cta">
+        <a href="contact.html" class="btn-outline">Book a Free 30-Minute Consultation</a>
       </div>
     </div>
   </section>
@@ -505,176 +542,100 @@
     </div>
   </section>
 
-  <!-- Calculators -->
-  <section class="section" id="calculators" style="background:var(--bg-white);">
-    <div class="container">
-      <div class="section-header">
-        <span class="section__eyebrow">Free Tools</span>
-        <h2 class="section__title">Start with One Tool — No Sign-Up</h2>
-        <p class="section__subtitle">From funding readiness to city analysis, Bonds turns data into a clear investment decision.</p>
-      </div>
-      <div class="services-grid">
-        <a href="calculators/creditworthiness.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
-          <h3 class="service-card__title">Funding Readiness Score</h3>
-          <p class="service-card__text">Calculate your project's funding readiness based on 9 international credit criteria. Get strengths and weaknesses.</p>
+  <!-- Intent -->
+  <section class="intent-section" id="calculators">
+    <div class="intent-section__inner">
+      <span class="section__eyebrow">Choose Your Goal</span>
+      <h2 class="intent-section__title">What Do You Need to Build Today?</h2>
+      <p class="intent-section__subtitle">Start from your intent, not from a catalog. Bonds matches the right workflow to your objective.</p>
+      <div class="intent-grid">
+        <a href="/en/v3/portfolio" class="intent-card">
+          <div class="intent-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg></div>
+          <div class="intent-card__title">Analyze a New Project</div>
+          <div class="intent-card__desc">Feasibility, valuation, and funding readiness in one guided workflow.</div>
         </a>
-        <a href="../v3/city-intelligence.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-          <h3 class="service-card__title">City Intelligence</h3>
-          <p class="service-card__text">Pick a city and district, analyze investment opportunity, risks, and expected return before you buy or lease.</p>
+        <a href="/en/v3/portfolio" class="intent-card">
+          <div class="intent-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+          <div class="intent-card__title">Expand an Existing Business</div>
+          <div class="intent-card__desc">Compare locations, forecast growth, and size the investment.</div>
         </a>
-        <a href="../v3/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
-          <h3 class="service-card__title">Bonds V3 — Smart Feasibility</h3>
-          <p class="service-card__text">NPV, IRR, DSCR, and detailed risk analysis by city and sector.</p>
+        <a href="advisor/index.html" class="intent-card">
+          <div class="intent-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div class="intent-card__title">Turnaround a Struggling Asset</div>
+          <div class="intent-card__desc">Get expert help with restructuring, recovery, and capital planning.</div>
         </a>
-        <a href="calculator-wizard.html" class="service-card" style="text-decoration:none; color:inherit; border:2px solid var(--gold); background: rgba(212,168,83,0.05);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg></div>
-          <h3 class="service-card__title">Project Feasibility Wizard</h3>
-          <p class="service-card__text">The main project feasibility wizard: 5 steps, 5 scores (Investment, Finance, Market, Risk, Overall), final decision, and PDF report.</p>
-        </a>
-        <a href="calculators/investment-center/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg></div>
-          <h3 class="service-card__title">Investment Calculators Center</h3>
-          <p class="service-card__text">63+ economic sectors with ROI, IRR, NPV, payback, break-even, and smart investment recommendations.</p>
-        </a>
-        <a href="calculators/restaurant.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div>
-          <h3 class="service-card__title">Restaurant & Cloud Kitchens</h3>
-          <p class="service-card__text">4 operating models × 22 countries × 179 delivery platforms. Full P&L and break-even.</p>
-        </a>
-        <a href="calculators/medical-viability.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-          <h3 class="service-card__title">Medical Viability</h3>
-          <p class="service-card__text">Check the viability of your pharmacy, clinic, or lab before investing.</p>
-        </a>
-        <a href="calculators/dish-margin.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/></svg></div>
-          <h3 class="service-card__title">Dish Margin</h3>
-          <p class="service-card__text">Calculate profit per menu item before adding it. Dynamic comparison across platforms.</p>
-        </a>
-        <a href="calculator.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-          <h3 class="service-card__title">Break-Even</h3>
-          <p class="service-card__text">How many orders do you need daily to cover your costs?</p>
-        </a>
-        <a href="calculators/cash-flow.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
-          <h3 class="service-card__title">Cash Flow</h3>
-          <p class="service-card__text">Forecast your bills and payments for the next 12 months.</p>
-        </a>
-        <a href="calculators/pricing.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-          <h3 class="service-card__title">Product Pricing</h3>
-          <p class="service-card__text">Find the optimal price based on cost, fees, and target margin.</p>
-        </a>
-        <a href="calculators/loan.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
-          <h3 class="service-card__title">Loan & Finance</h3>
-          <p class="service-card__text">Compare 4 loan types, calculate monthly installment, and debt-to-income ratio.</p>
-        </a>
-        <a href="calculators/creditworthiness.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
-          <h3 class="service-card__title">Credit Rating</h3>
-          <p class="service-card__text">Assess any company, factory, or bond using 9 criteria and get an AAA to High Risk rating.</p>
-        </a>
-        <a href="calculators/factory-cost.html" class="service-card" style="text-decoration:none; color:inherit;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 22h20"/><path d="M20 22v-5a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3v5"/><path d="M4 22v-5a3 3 0 0 1 3-3h1"/><path d="M14.5 9a2.5 2.5 0 0 0-5 0V5.5a2.5 2.5 0 0 1 5 0V9Z"/></svg></div>
-          <h3 class="service-card__title">Factory Cost</h3>
-          <p class="service-card__text">Estimate factory setup cost in Saudi industrial cities — rent, electricity, license fees.</p>
-        </a>
-        <a href="https://bonds-v3.vercel.app" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
-          <h3 class="service-card__title">Bonds V3 <span style="color:var(--gold-700);font-size:.75rem">NEW</span></h3>
-          <p class="service-card__text">AI-powered feasibility studies by city & sector. NPV, IRR, DSCR & risk analysis.</p>
+        <a href="calculators/investment-center/index.html" class="intent-card">
+          <div class="intent-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+          <div class="intent-card__title">Evaluate an Opportunity</div>
+          <div class="intent-card__desc">Quick calculators for break-even, pricing, cash flow, and margins.</div>
         </a>
       </div>
+      <a href="/en/v3/portfolio" class="btn-primary">Start Your Project Assessment ←</a>
     </div>
   </section>
 
   <section class="section">
     <div class="container">
-        <div class="section-header">
-            <span class="section__eyebrow">Our Services</span>
-            <h2 class="section__title">Comprehensive Solutions for Your Goals</h2>
-        </div>
-        <div class="services-grid">
-            <div class="service-card">
-                <div class="service-card__icon">🛡️</div>
-                <h3 class="service-card__title">Risk & Governance</h3>
-                <p class="service-card__text">Effectively manage risks and enhance compliance efficiency</p>
-                <a href="services.html" class="service-card__link">←</a>
-            </div>
-            <div class="service-card">
-                <div class="service-card__icon">📊</div>
-                <h3 class="service-card__title">Financial Consulting</h3>
-                <p class="service-card__text">Financial solutions that support your decisions and enhance performance</p>
-                <a href="services.html" class="service-card__link">←</a>
-            </div>
-            <div class="service-card">
-                <div class="service-card__icon">📋</div>
-                <h3 class="service-card__title">Feasibility Studies</h3>
-                <p class="service-card__text">Accurate studies to help you evaluate investment opportunities</p>
-                <a href="services.html" class="service-card__link">←</a>
-            </div>
-            <div class="service-card">
-                <div class="service-card__icon">🏢</div>
-                <h3 class="service-card__title">Business Valuation</h3>
-                <p class="service-card__text">Accurate valuation of businesses according to highest global standards</p>
-                <a href="services.html" class="service-card__link">←</a>
-            </div>
-            <div class="service-card">
-                <div class="service-card__icon">🔄</div>
-                <h3 class="service-card__title">Corporate Restructuring</h3>
-                <p class="service-card__text">Redesign organizational and financial structures to increase efficiency</p>
-                <a href="services.html" class="service-card__link">←</a>
-            </div>
-            <div class="service-card">
-                <div class="service-card__icon">🤝</div>
-                <h3 class="service-card__title">Management Consulting</h3>
-                <p class="service-card__text">Innovative management solutions to improve operations and performance</p>
-                <a href="services.html" class="service-card__link">←</a>
-            </div>
-            <a href="project-rescue.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-                <div class="service-card__icon">🚑</div>
-                <h3 class="service-card__title">Project Rescue</h3>
-                <p class="service-card__text">Accurate diagnosis, actionable recovery plan, and monthly follow-up for distressed assets and stalled projects.</p>
-            </a>
-        </div>
+      <div class="section-header">
+        <span class="section__eyebrow">Solutions</span>
+        <h2 class="section__title">The Right Workflow for Every Stage</h2>
+        <p class="section__subtitle">Four integrated paths that turn raw ideas into investor-ready documents.</p>
+      </div>
+      <div class="services-grid">
+        <a href="calculator-wizard.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
+          <h3 class="service-card__title">Smart Feasibility Study</h3>
+          <p class="service-card__text">NPV, IRR, DSCR and risk-adjusted scoring by city and sector.</p>
+        </a>
+        <a href="valuation/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+          <h3 class="service-card__title">Asset Valuation</h3>
+          <p class="service-card__text">35 asset classes, depreciation, and BONDS Digital Valuation Certificate.</p>
+        </a>
+        <a href="/en/v3/portfolio" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+          <h3 class="service-card__title">Funding Readiness</h3>
+          <p class="service-card__text">Credit scoring, funding matchmaking, and lender documents.</p>
+        </a>
+        <a href="v3/project/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+          <h3 class="service-card__title">Investment Memorandum</h3>
+          <p class="service-card__text">Turn your project into a publishable, investor-ready memorandum.</p>
+        </a>
+      </div>
     </div>
   </section>
 
   <section class="partners-section">
     <div class="partners-header">
-      <h3>Partnerships That Make an Impact</h3>
-      <a href="services.html">View All Projects →</a>
+      <h3>Sectors We Work With</h3>
+      <a href="case-studies.html">Read Case Studies →</a>
     </div>
     <div class="partners-grid">
-      <div class="partner-card">
-        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop" alt="Industrial Project" />
+      <a href="case-studies.html" class="partner-card" style="text-decoration:none; color:inherit;">
+        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop" alt="Restaurant Sector" />
         <div class="partner-card__overlay">
           <span class="partner-card__tag">+</span>
-          <div class="partner-card__title">Industrial Project</div>
-          <div class="partner-card__desc">Feasibility study and financial valuation</div>
+          <div class="partner-card__title">Restaurants</div>
+          <div class="partner-card__desc">Lower unit cost and improve margins</div>
         </div>
-      </div>
-      <div class="partner-card">
-        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop" alt="Real Estate Project" />
+      </a>
+      <a href="case-studies.html" class="partner-card" style="text-decoration:none; color:inherit;">
+        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop" alt="Manufacturing Sector" />
         <div class="partner-card__overlay">
           <span class="partner-card__tag">+</span>
-          <div class="partner-card__title">Real Estate Project</div>
-          <div class="partner-card__desc">Financial consulting and funding structure</div>
+          <div class="partner-card__title">Manufacturing</div>
+          <div class="partner-card__desc">Reduce setup cost and sharpen feasibility</div>
         </div>
-      </div>
-      <div class="partner-card">
-        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop" alt="Commercial Project" />
+      </a>
+      <a href="case-studies.html" class="partner-card" style="text-decoration:none; color:inherit;">
+        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop" alt="Distressed Assets Sector" />
         <div class="partner-card__overlay">
           <span class="partner-card__tag">+</span>
-          <div class="partner-card__title">Commercial Project</div>
-          <div class="partner-card__desc">Feasibility study and financial planning</div>
+          <div class="partner-card__title">Distressed Assets</div>
+          <div class="partner-card__desc">Reassess value and build a recovery plan</div>
         </div>
-      </div>
+      </a>
     </div>
   </section>
 
@@ -719,44 +680,47 @@
   <section class="section" style="background:var(--bg-white);">
     <div class="container">
       <div class="section-header">
-        <span class="section__eyebrow">Client Stories</span>
-        <h2 class="section__title">What Our Clients Say</h2>
-        <p class="section__subtitle">Real experiences from business owners and organizations we have worked with.</p>
+        <span class="section__eyebrow">Success Stories</span>
+        <h2 class="section__title">What Clients Said After the Analysis</h2>
+        <p class="section__subtitle">Quotes from anonymized case studies we delivered with project owners.</p>
       </div>
       <div class="services-grid" style="grid-template-columns:repeat(3,1fr);">
         <div class="service-card" style="text-align:left;">
           <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
-          <p class="service-card__text" style="font-style:italic;">"Bonds helped us understand our real financial position in one week. The plan was practical and immediately actionable."</p>
+          <p class="service-card__text" style="font-style:italic;">"We saw the real numbers for the first time. We changed the menu and stopped margin-killing discounts, and unit cost dropped 12%."</p>
           <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
-            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">M</div>
+            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">O</div>
             <div>
-              <div style="font-weight:800; font-size:0.85rem;">Mohamed Ali</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">Retail Store Owner — Cairo</div>
+              <div style="font-weight:800; font-size:0.85rem;">Omar Al-Rashid</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">Burger Restaurant Owner — Riyadh</div>
             </div>
           </div>
         </div>
         <div class="service-card" style="text-align:left;">
           <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
-          <p class="service-card__text" style="font-style:italic;">"The advisory was practical, not theoretical. They identified cash flow gaps and gave us a clear 90-day roadmap."</p>
+          <p class="service-card__text" style="font-style:italic;">"We saved a major investment with simple changes to the equipment list. Setup cost fell 18% and payback shortened by 8 months."</p>
           <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
-            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">S</div>
+            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">F</div>
             <div>
-              <div style="font-weight:800; font-size:0.85rem;">Sara Mahmoud</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">Professional Services Director — Sheikh Zayed</div>
+              <div style="font-weight:800; font-size:0.85rem;">Fatima Al-Zahabi</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">Operations Manager — Dubai Factory</div>
             </div>
           </div>
         </div>
         <div class="service-card" style="text-align:left;">
           <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
-          <p class="service-card__text" style="font-style:italic;">"We worked with Bonds before expanding our factory. The initial feasibility study saved us from a major investment before we were ready."</p>
+          <p class="service-card__text" style="font-style:italic;">"The analysis gave us hope for the asset again. We now know why it failed and how to rebuild it, and the projected return is clear."</p>
           <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
-            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">A</div>
+            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">K</div>
             <div>
-              <div style="font-weight:800; font-size:0.85rem;">Ahmed Hussein</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">Co-Founder — Industrial Company — 6th of October</div>
+              <div style="font-weight:800; font-size:0.85rem;">Karim Hafez</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">Asset Manager — Cairo</div>
             </div>
           </div>
         </div>
+      </div>
+      <div style="text-align:center; margin-top:2rem;">
+        <a href="case-studies.html" class="btn-outline">Read Full Case Studies</a>
       </div>
     </div>
   </section>

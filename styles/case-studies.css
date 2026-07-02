@@ -1,0 +1,230 @@
+/* BONDS — Case Studies Page Styles */
+
+.case-hero {
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem 4rem;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.case-hero__inner {
+  max-width: 800px;
+  position: relative;
+  z-index: 1;
+}
+
+.case-hero__eyebrow {
+  display: inline-block;
+  color: var(--gold);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.case-hero__title {
+  font-size: 2.6rem;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.case-hero__title span {
+  color: var(--gold);
+}
+
+.case-hero__desc {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.8;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.case-disclaimer {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.case-section {
+  padding: 3rem 2rem 5rem;
+  background: var(--bg-white);
+}
+
+.case-grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.case-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.case-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+}
+
+.case-card__visual {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg-dark) 0%, #1a2332 100%);
+  color: var(--gold);
+}
+
+.case-card__visual svg {
+  width: 64px;
+  height: 64px;
+  opacity: 0.9;
+}
+
+.case-card__body {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.case-card__tag {
+  display: inline-flex;
+  width: fit-content;
+  background: rgba(212,168,83,0.12);
+  color: var(--gold-700);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.case-card__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.case-card__client {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.case-card__text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.case-card__results {
+  margin-top: auto;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.case-card__result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.case-card__result:last-child {
+  border-bottom: none;
+}
+
+.case-card__result span:first-child {
+  color: var(--text-secondary);
+}
+
+.case-card__result span:last-child {
+  font-weight: 800;
+  color: var(--gold-700);
+}
+
+.case-card__quote {
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.7;
+  border-right: 3px solid var(--gold);
+  padding-right: 1rem;
+  margin-bottom: 1rem;
+}
+
+[dir="ltr"] .case-card__quote {
+  border-right: none;
+  border-left: 3px solid var(--gold);
+  padding-right: 0;
+  padding-left: 1rem;
+}
+
+.case-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--gold-700);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: gap 0.2s ease;
+}
+
+.case-card__cta:hover {
+  gap: 0.7rem;
+}
+
+.case-cta {
+  padding: 4rem 2rem;
+  background: var(--bg);
+  text-align: center;
+}
+
+.case-cta__title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.case-cta__desc {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 900px) {
+  .case-grid { grid-template-columns: 1fr; }
+  .case-hero__title { font-size: 2rem; }
+}
