@@ -21,55 +21,21 @@ const fs = require('fs');
   await page.goto(fileUrl, { waitUntil: 'networkidle0', timeout: 120000 });
   await new Promise(r => setTimeout(r, 5000));
 
-  // Remove ALL existing @media print rules from style tags
-  await page.evaluate(() => {
-    const styleSheets = document.styleSheets;
-    for (let i = styleSheets.length - 1; i >= 0; i--) {
-      try {
-        const sheet = styleSheets[i];
-        const rules = sheet.cssRules || sheet.rules;
-        if (!rules) continue;
-        for (let j = rules.length - 1; j >= 0; j--) {
-          if (rules[j].type === CSSRule.MEDIA_RULE && rules[j].conditionText.includes('print')) {
-            sheet.deleteRule(j);
-          }
-        }
-      } catch (e) {
-        // Cross-origin stylesheets can't be accessed
-      }
-    }
-  });
-
-  // Inject clean print styles
+  // Keep the stylesheet's @media print rules (headers, footers, page numbers).
+  // Only add minimal overrides that the CSS cannot express.
   await page.addStyleTag({
     content: `
       .print-btn, button { display: none !important; }
-      body { padding-bottom: 0 !important; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-      
-      /* Page breaks */
-      .cover { page-break-after: always !important; }
-      h2 { page-break-before: always !important; page-break-after: avoid !important; }
-      table, .kpi-grid, .scenario, .alert, .comparison, .before-after { page-break-inside: avoid !important; }
-      img, canvas { page-break-inside: avoid !important; max-width: 100% !important; }
-      
-      /* Typography for print */
-      body { font-size: 10.5pt !important; line-height: 1.7 !important; }
-      .content { padding: 0 !important; }
-      .page { box-shadow: none !important; max-width: 100% !important; }
-      h2 { font-size: 18pt !important; }
-      h3 { font-size: 14pt !important; }
-      table { font-size: 9.5pt !important; box-shadow: none !important; border: 1px solid #ddd !important; }
     `
   });
 
-  // Generate PDF
+  // Generate PDF using the CSS @page rules (A4, margins, headers/footers).
   await page.pdf({
     path: outputPath,
     format: 'A4',
     printBackground: true,
-    margin: { top: '18mm', right: '15mm', bottom: '18mm', left: '15mm' },
-    preferCSSPageSize: false
+    preferCSSPageSize: true
   });
 
   const content = fs.readFileSync(outputPath);

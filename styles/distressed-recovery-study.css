@@ -177,7 +177,9 @@
     margin: 40px 0 20px;
     padding-bottom: 10px;
     border-bottom: 3px solid var(--accent);
-    display: inline-block;
+    display: block;
+    page-break-before: always;
+    page-break-after: avoid;
   }
 
   
@@ -562,39 +564,111 @@
 @media print {
     @page {
       size: A4;
-      margin: 1.8cm 1.5cm 2.2cm 1.5cm;
+      margin: 2cm 1.5cm 2.4cm 1.5cm;
+      @bottom-left { content: url("../assets/qr-bonds-global.png"); }
+      @bottom-center { content: counter(page); font-size: 8pt; color: #666; }
+      @bottom-right { content: "www.bonds-global.com  |  © Bonds Global 2026"; font-size: 7.5pt; color: #666; text-align: right; }
     }
 
-    
-    @page :first { margin-top: 0; }.distressed-study-page .print-btn, .distressed-study-page button, .distressed-study-page .toc a::after, .distressed-study-page .alert.success a { display: none !important; }.distressed-study-page .cover { page-break-after: always; }.distressed-study-page h2 { page-break-before: always; page-break-after: avoid; }.distressed-study-page h3 { page-break-after: avoid; }.distressed-study-page table, .distressed-study-page .scenario, .distressed-study-page .kpi-grid, .distressed-study-page .before-after, .distressed-study-page .comparison, .distressed-study-page .alert, .distressed-study-page .source-box, .distressed-study-page .timeline { page-break-inside: avoid; }.distressed-study-page img, .distressed-study-page canvas { page-break-inside: avoid; max-width: 100% !important; }.distressed-study-page .section-divider { page-break-after: avoid; page-break-before: avoid; }.distressed-study-page { font-size: 10.5pt; line-height: 1.7; background: white; }.distressed-study-page .content { padding: 0; }.distressed-study-page h2 { font-size: 18pt; }.distressed-study-page h3 { font-size: 14pt; }.distressed-study-page h4 { font-size: 12pt; }.distressed-study-page table { font-size: 9.5pt; box-shadow: none; border: 1px solid #ddd; }.distressed-study-page th, .distressed-study-page td { padding: 6px 8px; }.distressed-study-page .kpi-card { padding: 15px; }.distressed-study-page .kpi-card .value { font-size: 1.6em; }.distressed-study-page .cover {
+    @page :first {
+      margin-top: 0;
+      margin-bottom: 1.5cm;
+      @bottom-left { content: none; }
+      @bottom-center { content: none; }
+      @bottom-right { content: none; }
+    }
+
+    .distressed-study-page .print-btn,
+    .distressed-study-page button,
+    .distressed-study-page .toc a::after,
+    .distressed-study-page .alert.success a,
+    .distressed-study-page .print-footer,
+    .distressed-study-page .cover-qr-wrap,
+    .distressed-study-page .cover-website {
+      display: none !important;
+    }
+
+    .distressed-study-page .cover {
+      page-break-after: always;
+      height: 100vh;
+    }
+
+    .distressed-study-page h2 { page-break-before: always; page-break-after: avoid; font-size: 18pt; }
+    .distressed-study-page h3 { page-break-after: avoid; font-size: 14pt; }
+    .distressed-study-page h4 { font-size: 12pt; }
+
+    .distressed-study-page table,
+    .distressed-study-page .scenario,
+    .distressed-study-page .kpi-grid,
+    .distressed-study-page .before-after,
+    .distressed-study-page .comparison,
+    .distressed-study-page .alert,
+    .distressed-study-page .source-box,
+    .distressed-study-page .timeline { page-break-inside: avoid; }
+
+    .distressed-study-page img,
+    .distressed-study-page canvas { page-break-inside: avoid; max-width: 100% !important; }
+
+    .distressed-study-page .section-divider { page-break-after: avoid; page-break-before: avoid; }
+
+    .distressed-study-page {
+      font-size: 10.5pt;
+      line-height: 1.7;
+      background: white;
+    }
+
+    .distressed-study-page .content { padding: 0; }
+
+    .distressed-study-page table {
+      font-size: 9.5pt;
+      box-shadow: none;
+      border: 1px solid #ddd;
+    }
+
+    .distressed-study-page th,
+    .distressed-study-page td { padding: 6px 8px; }
+
+    .distressed-study-page .kpi-card { padding: 15px; }
+    .distressed-study-page .kpi-card .value { font-size: 1.6em; }
+
+    .distressed-study-page .cover {
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-      height: 100vh;
-      page-break-after: always;
-    }.distressed-study-page .watermark {
-      opacity: 0.06 !important;
+    }
+
+    .distressed-study-page .watermark {
+      opacity: 0.04 !important;
       display: block !important;
-    }.distressed-study-page .page { box-shadow: none; max-width: 100%; }.distressed-study-page p { margin-bottom: 0.6em; }.distressed-study-page .section-divider { margin: 25px 0; }.distressed-study-page .alert { padding: 12px 16px; margin: 12px 0; }.distressed-study-page .comparison { gap: 12px; margin: 12px 0; }.distressed-study-page .comparison-box { padding: 15px; }.distressed-study-page .kpi-grid { gap: 10px; margin: 12px 0; }.distressed-study-page .scenario { padding: 15px; margin: 12px 0; }.distressed-study-page .timeline { gap: 12px; }.distressed-study-page .timeline-item { padding: 12px; }.distressed-study-page table thead tr:first-child th:nth-child(6), .distressed-study-page table thead tr:first-child th:nth-child(7) {
+    }
+
+    .distressed-study-page .page {
+      box-shadow: none;
+      max-width: 100%;
+    }
+
+    .distressed-study-page p { margin-bottom: 0.6em; }
+    .distressed-study-page .section-divider { margin: 25px 0; }
+    .distressed-study-page .alert { padding: 12px 16px; margin: 12px 0; }
+    .distressed-study-page .comparison { gap: 12px; margin: 12px 0; }
+    .distressed-study-page .comparison-box { padding: 15px; }
+    .distressed-study-page .kpi-grid { gap: 10px; margin: 12px 0; }
+    .distressed-study-page .scenario { padding: 15px; margin: 12px 0; }
+    .distressed-study-page .timeline { gap: 12px; }
+    .distressed-study-page .timeline-item { padding: 12px; }
+
+    .distressed-study-page table thead tr:first-child th:nth-child(6),
+    .distressed-study-page table thead tr:first-child th:nth-child(7) {
       font-size: 8pt;
       padding: 4px 5px;
-    }.distressed-study-page table tbody td:nth-child(6), .distressed-study-page table tbody td:nth-child(7) {
+    }
+
+    .distressed-study-page table tbody td:nth-child(6),
+    .distressed-study-page table tbody td:nth-child(7) {
       font-size: 8pt;
       padding: 4px 5px;
-    }.distressed-study-page .print-footer {
-      display: flex !important;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 4px 1.5cm;
-      background: white;
-      border-top: 0.5pt solid #ddd;
-      font-size: 7.5pt;
-      color: #666;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 100;
-    }.distressed-study-page .print-footer .footer-text { text-align: right; line-height: 1.4; }.distressed-study-page .print-footer .footer-text strong { color: var(--accent); font-size: 8pt; }.distressed-study-page .print-footer img { width: 24px; height: 24px; border-radius: 3px; border: 0.5pt solid #ddd; padding: 1px; }.distressed-study-page { padding-bottom: 0; }
+    }
+
+    .distressed-study-page { padding-bottom: 0; }
   }
 
 
