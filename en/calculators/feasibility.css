@@ -1,0 +1,10 @@
+.feas-container { max-width: 900px; margin: 0 auto; padding: var(--space-8) var(--space-4); }
+    .feas-header { text-align: center; margin-bottom: var(--space-8); }
+    .feas-header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; color: var(--gold); margin-bottom: var(--space-3); }
+    .feas-header p { color: var(--text-secondary); font-size: 1.05rem; max-width: 560px; margin: 0 auto; }
+    .feas-badge { display: inline-block; background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; margin-bottom: var(--space-4); }
+    .feas-section-title { font-size: 1.1rem; font-weight: 800; color: var(--gold); margin: var(--space-6) 0 var(--space-4); display: flex; align-items: center; gap: 0.5rem; }
+    .feas-result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); margin-bottom: var(--space-6); text-align: center; }
+    .feas-result-card h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: var(--space-2); }
+    .feas-result-card .big-number { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; margin: var(--space-2) 0; }
+    .feas-result-card .subtitle { color: var(--text-secondary); font-size: 0.9rem; }

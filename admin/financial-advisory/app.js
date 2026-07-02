@@ -64,9 +64,23 @@
     if (n === undefined || n === null) return '—';
     return Number(n).toLocaleString('ar-SA') + ' ر.س';
   }
+  const BADGE_CLASS = {
+    active: 'status-badge--healthy',
+    inactive: 'status-badge--neutral',
+    archived: 'status-badge--neutral',
+    lead: 'status-badge--attention',
+    draft: 'status-badge--neutral',
+    review: 'status-badge--attention',
+    approved: 'status-badge--healthy',
+    rejected: 'status-badge--at-risk',
+    on_hold: 'status-badge--attention',
+    completed: 'status-badge--healthy',
+    cancelled: 'status-badge--at-risk'
+  };
+
   function badge(status, type) {
     const label = STATUS_LABELS[type]?.[status] || status;
-    return `<span class="fa-badge ${status}">${label}</span>`;
+    return `<span class="status-badge ${BADGE_CLASS[status] || 'status-badge--neutral'}">${label}</span>`;
   }
 
   function toast(message, type) {
@@ -90,10 +104,9 @@
       if (!role) {
         $('#fa-content').innerHTML = `
           <div class="fa-empty">
-            <div style="font-size:3rem;margin-bottom:1rem;">🚫</div>
             <h2>لا توجد صلاحية وصول</h2>
             <p>يجب أن تكون مستشاراً أو مديراً للوصول إلى هذه الوحدة.</p>
-            <a href="../calculators/auth/index.html" class="fa-btn fa-btn-primary" style="margin-top:1rem;">تسجيل الدخول</a>
+            <a href="../calculators/auth/index.html" class="ecc-btn ecc-btn--primary" style="margin-top:1rem;">تسجيل الدخول</a>
           </div>`;
         return false;
       }
@@ -104,10 +117,10 @@
     } catch (err) {
       $('#fa-content').innerHTML = `
         <div class="fa-empty">
-          <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
+
           <h2>يجب تسجيل الدخول</h2>
           <p>${err.message}</p>
-          <a href="../calculators/auth/index.html?redirect=${encodeURIComponent(location.href)}" class="fa-btn fa-btn-primary" style="margin-top:1rem;">تسجيل الدخول</a>
+          <a href="../calculators/auth/index.html?redirect=${encodeURIComponent(location.href)}" class="ecc-btn ecc-btn--primary" style="margin-top:1rem;">تسجيل الدخول</a>
         </div>`;
       return false;
     }
@@ -141,7 +154,7 @@
       }
     } catch (err) {
       console.error(err);
-      content.innerHTML = `<div class="fa-empty">❌ حدث خطأ: ${err.message}</div>`;
+      content.innerHTML = `<div class="fa-empty">حدث خطأ: ${err.message}</div>`;
     }
   }
 
@@ -151,34 +164,38 @@
     const stats = await AdvisoryService.getDashboardStats();
     const content = $('#fa-content');
     const errorsHtml = stats.errors?.length ? `
-      <div class="fa-card" style="border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.08);">
-        <div style="font-weight:800;color:#ef4444;margin-bottom:0.5rem;">⚠️ تحذير: بعض البيانات لم تُحمل</div>
-        <ul style="margin:0;padding-right:1.25rem;color:var(--fa-muted);font-size:0.9rem;">
-          ${stats.errors.map(e => `<li><strong>${e.key}:</strong> ${e.message}</li>`).join('')}
-        </ul>
+      <div class="ecc-alert ecc-alert--danger">
+        <div>
+          <div class="ecc-alert__title">تحذير: بعض البيانات لم تُحمل</div>
+          <div class="ecc-alert__msg">
+            <ul style="margin:0.5rem 0 0;padding-right:1.25rem;">
+              ${stats.errors.map(e => `<li><strong>${e.key}:</strong> ${e.message}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
       </div>
     ` : '';
     content.innerHTML = `
       <div class="fa-header"><h1>لوحة الاستشارات المالية</h1></div>
       ${errorsHtml}
-      <div class="fa-grid">
-        <div class="fa-card fa-stat"><div class="label">العملاء</div><div class="value">${stats.counts.clients}</div></div>
-        <div class="fa-card fa-stat"><div class="label">المشاريع</div><div class="value">${stats.counts.projects}</div></div>
-        <div class="fa-card fa-stat"><div class="label">دراسات الجدوى</div><div class="value">${stats.counts.studies}</div></div>
-        <div class="fa-card fa-stat"><div class="label">النماذج المالية</div><div class="value">${stats.counts.models}</div></div>
+      <div class="ecc-grid-auto">
+        <div class="ecc-metric"><div class="ecc-metric__value">${stats.counts.clients}</div><div class="ecc-metric__label">العملاء</div></div>
+        <div class="ecc-metric"><div class="ecc-metric__value">${stats.counts.projects}</div><div class="ecc-metric__label">المشاريع</div></div>
+        <div class="ecc-metric"><div class="ecc-metric__value">${stats.counts.studies}</div><div class="ecc-metric__label">دراسات الجدوى</div></div>
+        <div class="ecc-metric"><div class="ecc-metric__value">${stats.counts.models}</div><div class="ecc-metric__label">النماذج المالية</div></div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1rem;">
-        <div class="fa-card">
-          <div style="font-weight:800;color:var(--fa-gold);margin-bottom:1rem;">آخر النشاطات</div>
+      <div class="ecc-grid-auto">
+        <div class="ecc-card">
+          <div class="ecc-card__title">آخر النشاطات</div>
           ${renderActivityList(stats.recentActivity)}
         </div>
-        <div class="fa-card">
-          <div style="font-weight:800;color:var(--fa-gold);margin-bottom:1rem;">آخر العملاء</div>
-          ${stats.recentClients.length ? `<div class="fa-table-wrap"><table class="fa-table"><tbody>${stats.recentClients.map(c => `<tr><td><a href="#" onclick="AdvisoryApp.openDetail('client','${c.id}');return false;">${c.name}</a></td><td>${badge(c.status,'client')}</td><td>${fmtDate(c.created_at)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="fa-empty">لا يوجد عملاء</div>'}
+        <div class="ecc-card">
+          <div class="ecc-card__title">آخر العملاء</div>
+          ${stats.recentClients.length ? `<div class="ecc-table-wrap"><table class="ecc-table"><tbody>${stats.recentClients.map(c => `<tr><td><a href="#" onclick="AdvisoryApp.openDetail('client','${c.id}');return false;">${c.name}</a></td><td>${badge(c.status,'client')}</td><td>${fmtDate(c.created_at)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="fa-empty">لا يوجد عملاء</div>'}
         </div>
-        <div class="fa-card" style="grid-column:1/-1;">
-          <div style="font-weight:800;color:var(--fa-gold);margin-bottom:1rem;">مشاريع نشطة</div>
-          ${stats.activeProjects.length ? `<div class="fa-table-wrap"><table class="fa-table"><thead><tr><th>المشروع</th><th>العميل</th><th>الحالة</th><th>الميزانية</th></tr></thead><tbody>${stats.activeProjects.map(p => `<tr><td><a href="#" onclick="AdvisoryApp.openDetail('project','${p.id}');return false;">${p.name}</a></td><td>${p.advisory_clients?.name || '—'}</td><td>${badge(p.status,'project')}</td><td>${fmtMoney(p.budget)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="fa-empty">لا توجد مشاريع نشطة</div>'}
+        <div class="ecc-card fa-card--full">
+          <div class="ecc-card__title">مشاريع نشطة</div>
+          ${stats.activeProjects.length ? `<div class="ecc-table-wrap"><table class="ecc-table"><thead><tr><th>المشروع</th><th>العميل</th><th>الحالة</th><th>الميزانية</th></tr></thead><tbody>${stats.activeProjects.map(p => `<tr><td><a href="#" onclick="AdvisoryApp.openDetail('project','${p.id}');return false;">${p.name}</a></td><td>${p.advisory_clients?.name || '—'}</td><td>${badge(p.status,'project')}</td><td>${fmtMoney(p.budget)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="fa-empty">لا توجد مشاريع نشطة</div>'}
         </div>
       </div>
     `;
@@ -202,15 +219,15 @@
     return `
       <div class="fa-header">
         <h1>${title}</h1>
-        ${state.role !== 'viewer' ? `<button class="fa-btn fa-btn-primary" onclick="${onAdd}">➕ ${addLabel}</button>` : ''}
+        ${state.role !== 'viewer' ? `<button class="ecc-btn ecc-btn--primary" onclick="${onAdd}">${addLabel}</button>` : ''}
       </div>
       <div class="fa-search">
         <input type="text" class="fa-input" id="fa-search-input" placeholder="${searchPlaceholder}" oninput="${onSearch}" />
         ${filtersHtml || ''}
       </div>
-      <div class="fa-card">
-        <div class="fa-table-wrap">
-          <table class="fa-table">
+      <div class="ecc-card">
+        <div class="ecc-table-wrap">
+          <table class="ecc-table">
             <thead><tr>${tableHeaders}</tr></thead>
             <tbody>${rowsHtml || '<tr><td colspan="99"><div class="fa-empty">لا توجد بيانات</div></td></tr>'}</tbody>
           </table>
@@ -233,8 +250,8 @@
         <td>${badge(c.status,'client')}</td>
         <td>${fmtDate(c.created_at)}</td>
         <td>
-          ${state.role !== 'viewer' ? `<button class="fa-btn fa-btn-secondary fa-btn-sm" onclick="AdvisoryApp.editClient('${c.id}')">تعديل</button>` : ''}
-          ${state.role === 'manager' ? `<button class="fa-btn fa-btn-danger fa-btn-sm" onclick="AdvisoryApp.deleteClient('${c.id}')">حذف</button>` : ''}
+          ${state.role !== 'viewer' ? `<button class="ecc-btn ecc-btn--ghost ecc-btn--sm" onclick="AdvisoryApp.editClient('${c.id}')">تعديل</button>` : ''}
+          ${state.role === 'manager' ? `<button class="ecc-btn ecc-btn--ghost ecc-btn--sm fa-btn--danger" onclick="AdvisoryApp.deleteClient('${c.id}')">حذف</button>` : ''}
         </td>
       </tr>
     `).join('');
@@ -262,7 +279,7 @@
           <div class="fa-form-group"><label>المدينة</label><input class="fa-input" name="city" value="${esc(client?.city || '')}" /></div>
           <div class="fa-form-group"><label>القطاع</label><input class="fa-input" name="sector" value="${esc(client?.sector || '')}" /></div>
           <div class="fa-form-group"><label>الرقم الضريبي</label><input class="fa-input" name="tax_number" value="${esc(client?.tax_number || '')}" /></div>
-          <div class="fa-form-group" style="grid-column:1/-1;"><label>العنوان</label><input class="fa-input" name="address" value="${esc(client?.address || '')}" /></div>
+          <div class="fa-form-group ecc-form-group--full"><label>العنوان</label><input class="fa-input" name="address" value="${esc(client?.address || '')}" /></div>
           <div class="fa-form-group">
             <label>الحالة</label>
             <select class="fa-select" name="status">
@@ -273,8 +290,8 @@
           </div>
         </div>
         <div style="margin-top:1.5rem;display:flex;gap:0.75rem;justify-content:flex-end;">
-          <button type="button" class="fa-btn fa-btn-secondary" onclick="AdvisoryApp.closeModal()">إلغاء</button>
-          <button type="submit" class="fa-btn fa-btn-primary">حفظ</button>
+          <button type="button" class="ecc-btn ecc-btn--ghost" onclick="AdvisoryApp.closeModal()">إلغاء</button>
+          <button type="submit" class="ecc-btn ecc-btn--primary">حفظ</button>
         </div>
       </form>
     `;
@@ -318,8 +335,8 @@
         <td>${fmtMoney(p.budget)}</td>
         <td>${fmtDate(p.start_date)}</td>
         <td>
-          ${state.role !== 'viewer' ? `<button class="fa-btn fa-btn-secondary fa-btn-sm" onclick="AdvisoryApp.editProject('${p.id}')">تعديل</button>` : ''}
-          ${state.role === 'manager' ? `<button class="fa-btn fa-btn-danger fa-btn-sm" onclick="AdvisoryApp.deleteProject('${p.id}')">حذف</button>` : ''}
+          ${state.role !== 'viewer' ? `<button class="ecc-btn ecc-btn--ghost ecc-btn--sm" onclick="AdvisoryApp.editProject('${p.id}')">تعديل</button>` : ''}
+          ${state.role === 'manager' ? `<button class="ecc-btn ecc-btn--ghost ecc-btn--sm fa-btn--danger" onclick="AdvisoryApp.deleteProject('${p.id}')">حذف</button>` : ''}
         </td>
       </tr>
     `).join('');
@@ -332,7 +349,7 @@
       tableHeaders: '<th>المشروع</th><th>العميل</th><th>الحالة</th><th>الميزانية</th><th>تاريخ البدء</th><th>إجراءات</th>',
       rowsHtml: rows,
       onSearch: 'AdvisoryApp.renderProjects()',
-      filtersHtml: `<select class="fa-select" id="fa-project-client" style="width:220px;" onchange="AdvisoryApp.renderProjects()"><option value="">كل العملاء</option>${clientOptions}</select>`
+      filtersHtml: `<select class="fa-select fa-select--fixed" id="fa-project-client" onchange="AdvisoryApp.renderProjects()"><option value="">كل العملاء</option>${clientOptions}</select>`
     });
     if (clientFilter) $('#fa-project-client').value = clientFilter;
   }
@@ -355,11 +372,11 @@
           <div class="fa-form-group"><label>الميزانية</label><input class="fa-input" type="number" name="budget" value="${project?.budget || ''}" /></div>
           <div class="fa-form-group"><label>تاريخ البدء</label><input class="fa-input" type="date" name="start_date" value="${project?.start_date || ''}" /></div>
           <div class="fa-form-group"><label>تاريخ الانتهاء</label><input class="fa-input" type="date" name="end_date" value="${project?.end_date || ''}" /></div>
-          <div class="fa-form-group" style="grid-column:1/-1;"><label>الوصف</label><textarea class="fa-textarea" name="description">${esc(project?.description || '')}</textarea></div>
+          <div class="fa-form-group ecc-form-group--full"><label>الوصف</label><textarea class="fa-textarea" name="description">${esc(project?.description || '')}</textarea></div>
         </div>
         <div style="margin-top:1.5rem;display:flex;gap:0.75rem;justify-content:flex-end;">
-          <button type="button" class="fa-btn fa-btn-secondary" onclick="AdvisoryApp.closeModal()">إلغاء</button>
-          <button type="submit" class="fa-btn fa-btn-primary">حفظ</button>
+          <button type="button" class="ecc-btn ecc-btn--ghost" onclick="AdvisoryApp.closeModal()">إلغاء</button>
+          <button type="submit" class="ecc-btn ecc-btn--primary">حفظ</button>
         </div>
       </form>
     `;
@@ -403,8 +420,8 @@
         <td>${badge(s.status,'study')}</td>
         <td>${fmtDate(s.updated_at)}</td>
         <td>
-          ${state.role !== 'viewer' ? `<button class="fa-btn fa-btn-secondary fa-btn-sm" onclick="AdvisoryApp.editStudy('${s.id}')">تعديل</button>` : ''}
-          ${state.role === 'manager' ? `<button class="fa-btn fa-btn-danger fa-btn-sm" onclick="AdvisoryApp.deleteStudy('${s.id}')">حذف</button>` : ''}
+          ${state.role !== 'viewer' ? `<button class="ecc-btn ecc-btn--ghost ecc-btn--sm" onclick="AdvisoryApp.editStudy('${s.id}')">تعديل</button>` : ''}
+          ${state.role === 'manager' ? `<button class="ecc-btn ecc-btn--ghost ecc-btn--sm fa-btn--danger" onclick="AdvisoryApp.deleteStudy('${s.id}')">حذف</button>` : ''}
         </td>
       </tr>
     `).join('');
@@ -417,7 +434,7 @@
       tableHeaders: '<th>العنوان</th><th>العميل</th><th>القطاع</th><th>الحالة</th><th>آخر تحديث</th><th>إجراءات</th>',
       rowsHtml: rows,
       onSearch: 'AdvisoryApp.renderStudies()',
-      filtersHtml: `<select class="fa-select" id="fa-study-client" style="width:220px;" onchange="AdvisoryApp.renderStudies()"><option value="">كل العملاء</option>${clientOptions}</select>`
+      filtersHtml: `<select class="fa-select fa-select--fixed" id="fa-study-client" onchange="AdvisoryApp.renderStudies()"><option value="">كل العملاء</option>${clientOptions}</select>`
     });
     if (clientFilter) $('#fa-study-client').value = clientFilter;
   }
@@ -441,13 +458,13 @@
             <option value="approved" ${study?.status==='approved'?'selected':''}>معتمدة</option>
             <option value="rejected" ${study?.status==='rejected'?'selected':''}>مرفوضة</option>
           </select></div>
-          <div class="fa-form-group" style="grid-column:1/-1;"><label>الافتراضات (JSON)</label><textarea class="fa-textarea" name="assumptions_json" dir="ltr">${esc(JSON.stringify(study?.assumptions || {}, null, 2))}</textarea></div>
-          <div class="fa-form-group" style="grid-column:1/-1;"><label>البيانات المالية (JSON)</label><textarea class="fa-textarea" name="financials_json" dir="ltr">${esc(JSON.stringify(study?.financials || {}, null, 2))}</textarea></div>
-          <div class="fa-form-group" style="grid-column:1/-1;"><label>النتيجة (JSON)</label><textarea class="fa-textarea" name="result_json" dir="ltr">${esc(JSON.stringify(study?.result || {}, null, 2))}</textarea></div>
+          <div class="fa-form-group ecc-form-group--full"><label>الافتراضات (JSON)</label><textarea class="fa-textarea" name="assumptions_json" dir="ltr">${esc(JSON.stringify(study?.assumptions || {}, null, 2))}</textarea></div>
+          <div class="fa-form-group ecc-form-group--full"><label>البيانات المالية (JSON)</label><textarea class="fa-textarea" name="financials_json" dir="ltr">${esc(JSON.stringify(study?.financials || {}, null, 2))}</textarea></div>
+          <div class="fa-form-group ecc-form-group--full"><label>النتيجة (JSON)</label><textarea class="fa-textarea" name="result_json" dir="ltr">${esc(JSON.stringify(study?.result || {}, null, 2))}</textarea></div>
         </div>
         <div style="margin-top:1.5rem;display:flex;gap:0.75rem;justify-content:flex-end;">
-          <button type="button" class="fa-btn fa-btn-secondary" onclick="AdvisoryApp.closeModal()">إلغاء</button>
-          <button type="submit" class="fa-btn fa-btn-primary">حفظ</button>
+          <button type="button" class="ecc-btn ecc-btn--ghost" onclick="AdvisoryApp.closeModal()">إلغاء</button>
+          <button type="submit" class="ecc-btn ecc-btn--primary">حفظ</button>
         </div>
       </form>
     `;
@@ -494,8 +511,8 @@
         <td>${badge(m.status,'model')}</td>
         <td>${fmtDate(m.updated_at)}</td>
         <td>
-          ${state.role !== 'viewer' ? `<button class="fa-btn fa-btn-secondary fa-btn-sm" onclick="AdvisoryApp.editModel('${m.id}')">تعديل</button>` : ''}
-          ${state.role === 'manager' ? `<button class="fa-btn fa-btn-danger fa-btn-sm" onclick="AdvisoryApp.deleteModel('${m.id}')">حذف</button>` : ''}
+          ${state.role !== 'viewer' ? `<button class="ecc-btn ecc-btn--ghost ecc-btn--sm" onclick="AdvisoryApp.editModel('${m.id}')">تعديل</button>` : ''}
+          ${state.role === 'manager' ? `<button class="ecc-btn ecc-btn--ghost ecc-btn--sm fa-btn--danger" onclick="AdvisoryApp.deleteModel('${m.id}')">حذف</button>` : ''}
         </td>
       </tr>
     `).join('');
@@ -508,7 +525,7 @@
       tableHeaders: '<th>الاسم</th><th>العميل</th><th>النوع</th><th>الحالة</th><th>آخر تحديث</th><th>إجراءات</th>',
       rowsHtml: rows,
       onSearch: 'AdvisoryApp.renderModels()',
-      filtersHtml: `<select class="fa-select" id="fa-model-client" style="width:220px;" onchange="AdvisoryApp.renderModels()"><option value="">كل العملاء</option>${clientOptions}</select>`
+      filtersHtml: `<select class="fa-select fa-select--fixed" id="fa-model-client" onchange="AdvisoryApp.renderModels()"><option value="">كل العملاء</option>${clientOptions}</select>`
     });
     if (clientFilter) $('#fa-model-client').value = clientFilter;
   }
@@ -537,12 +554,12 @@
             <option value="approved" ${model?.status==='approved'?'selected':''}>معتمد</option>
             <option value="archived" ${model?.status==='archived'?'selected':''}>مؤرشف</option>
           </select></div>
-          <div class="fa-form-group" style="grid-column:1/-1;"><label>الافتراضات (JSON)</label><textarea class="fa-textarea" name="assumptions_json" dir="ltr">${esc(JSON.stringify(model?.assumptions || {}, null, 2))}</textarea></div>
-          <div class="fa-form-group" style="grid-column:1/-1;"><label>التوقعات (JSON)</label><textarea class="fa-textarea" name="projections_json" dir="ltr">${esc(JSON.stringify(model?.projections || {}, null, 2))}</textarea></div>
+          <div class="fa-form-group ecc-form-group--full"><label>الافتراضات (JSON)</label><textarea class="fa-textarea" name="assumptions_json" dir="ltr">${esc(JSON.stringify(model?.assumptions || {}, null, 2))}</textarea></div>
+          <div class="fa-form-group ecc-form-group--full"><label>التوقعات (JSON)</label><textarea class="fa-textarea" name="projections_json" dir="ltr">${esc(JSON.stringify(model?.projections || {}, null, 2))}</textarea></div>
         </div>
         <div style="margin-top:1.5rem;display:flex;gap:0.75rem;justify-content:flex-end;">
-          <button type="button" class="fa-btn fa-btn-secondary" onclick="AdvisoryApp.closeModal()">إلغاء</button>
-          <button type="submit" class="fa-btn fa-btn-primary">حفظ</button>
+          <button type="button" class="ecc-btn ecc-btn--ghost" onclick="AdvisoryApp.closeModal()">إلغاء</button>
+          <button type="submit" class="ecc-btn ecc-btn--primary">حفظ</button>
         </div>
       </form>
     `;
@@ -597,17 +614,17 @@
 
     const title = `${ENTITY_NAMES[type]}: ${entity.name || entity.title}`;
     const html = `
-      <div class="fa-tabs">
-        <div class="fa-tab active" data-tab="overview" onclick="AdvisoryApp.switchDetailTab(this,'overview')">نظرة عامة</div>
-        <div class="fa-tab" data-tab="documents" onclick="AdvisoryApp.switchDetailTab(this,'documents')">المستندات</div>
-        <div class="fa-tab" data-tab="notes" onclick="AdvisoryApp.switchDetailTab(this,'notes')">الملاحظات</div>
-        <div class="fa-tab" data-tab="activity" onclick="AdvisoryApp.switchDetailTab(this,'activity')">السجل الزمني</div>
+      <div class="ecc-tabs">
+        <div class="ecc-tab active" data-tab="overview" onclick="AdvisoryApp.switchDetailTab(this,'overview')">نظرة عامة</div>
+        <div class="ecc-tab" data-tab="documents" onclick="AdvisoryApp.switchDetailTab(this,'documents')">المستندات</div>
+        <div class="ecc-tab" data-tab="notes" onclick="AdvisoryApp.switchDetailTab(this,'notes')">الملاحظات</div>
+        <div class="ecc-tab" data-tab="activity" onclick="AdvisoryApp.switchDetailTab(this,'activity')">السجل الزمني</div>
       </div>
       <div id="fa-detail-content" data-type="${type}" data-id="${id}">
         ${renderOverview(type, entity)}
       </div>
     `;
-    openModal(title, html, '1000px');
+    openModal(title, html, 'ecc-modal--wide');
   }
 
   function renderOverview(type, entity) {
@@ -626,13 +643,13 @@
         ${fields.map(([k, v]) => `<div class="fa-form-group"><label>${k}</label><div class="fa-input" style="background:transparent;">${v || '—'}</div></div>`).join('')}
       </div>
       ${type === 'client' && entity.advisory_projects?.length ? `
-        <div style="margin-top:1.5rem;"><strong style="color:var(--fa-gold);">مشاريع العميل:</strong>
-        <div class="fa-table-wrap"><table class="fa-table"><tbody>${entity.advisory_projects.map(p => `<tr><td><a href="#" onclick="AdvisoryApp.openDetail('project','${p.id}');return false;">${p.name}</a></td><td>${badge(p.status,'project')}</td></tr>`).join('')}</tbody></table></div></div>` : ''}
+        <div style="margin-top:1.5rem;"><strong style="color:var(--gold);">مشاريع العميل:</strong>
+        <div class="ecc-table-wrap"><table class="ecc-table"><tbody>${entity.advisory_projects.map(p => `<tr><td><a href="#" onclick="AdvisoryApp.openDetail('project','${p.id}');return false;">${p.name}</a></td><td>${badge(p.status,'project')}</td></tr>`).join('')}</tbody></table></div></div>` : ''}
     `;
   }
 
   async function switchDetailTab(tabEl, tab) {
-    $$('.fa-tab').forEach(t => t.classList.remove('active'));
+    $$('.ecc-tab').forEach(t => t.classList.remove('active'));
     tabEl.classList.add('active');
     const container = $('#fa-detail-content');
     const type = container.dataset.type;
@@ -666,8 +683,8 @@
           <div class="fa-activity-meta">${(d.file_size / 1024).toFixed(1)} KB • ${fmtDateTime(d.created_at)}</div>
         </div>
         <div style="display:flex;gap:0.5rem;">
-          <button class="fa-btn fa-btn-secondary fa-btn-sm" onclick="AdvisoryApp.downloadDocument('${d.storage_path}')">تحميل</button>
-          ${state.role !== 'viewer' ? `<button class="fa-btn fa-btn-danger fa-btn-sm" onclick="AdvisoryApp.deleteDocument('${d.id}')">حذف</button>` : ''}
+          <button class="ecc-btn ecc-btn--ghost ecc-btn--sm" onclick="AdvisoryApp.downloadDocument('${d.storage_path}')">تحميل</button>
+          ${state.role !== 'viewer' ? `<button class="ecc-btn ecc-btn--ghost ecc-btn--sm fa-btn--danger" onclick="AdvisoryApp.deleteDocument('${d.id}')">حذف</button>` : ''}
         </div>
       </div>
     `).join('') : '<div class="fa-empty">لا توجد مستندات</div>';
@@ -714,7 +731,7 @@
         <div style="flex:1;">
           <div>${esc(n.content).replace(/\n/g,'<br>')}</div>
           <div class="fa-activity-meta">${n.profiles?.email || '—'} • ${fmtDateTime(n.created_at)}</div>
-          ${state.role !== 'viewer' ? `<div style="margin-top:0.5rem;"><button class="fa-btn fa-btn-danger fa-btn-sm" onclick="AdvisoryApp.deleteNote('${n.id}')">حذف</button></div>` : ''}
+          ${state.role !== 'viewer' ? `<div style="margin-top:0.5rem;"><button class="ecc-btn ecc-btn--ghost ecc-btn--sm fa-btn--danger" onclick="AdvisoryApp.deleteNote('${n.id}')">حذف</button></div>` : ''}
         </div>
       </div>
     `).join('') : '<div class="fa-empty">لا توجد ملاحظات</div>';
@@ -722,7 +739,7 @@
       ${state.role !== 'viewer' ? `
         <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
           <textarea class="fa-textarea" id="fa-note-input" placeholder="اكتب ملاحظة..." style="min-height:60px;flex:1;"></textarea>
-          <button class="fa-btn fa-btn-primary" onclick="AdvisoryApp.addNote('${entityType}','${entityId}')" style="align-self:flex-start;">إضافة</button>
+          <button class="ecc-btn ecc-btn--primary" onclick="AdvisoryApp.addNote('${entityType}','${entityId}')" style="align-self:flex-start;">إضافة</button>
         </div>` : ''}
       ${list}
     `;
@@ -760,19 +777,19 @@
     const logs = await AdvisoryService.listActivity({});
     $('#fa-content').innerHTML = `
       <div class="fa-header"><h1>السجل الزمني</h1></div>
-      <div class="fa-card">
+      <div class="ecc-card">
         ${renderActivityList(logs)}
       </div>
     `;
   }
 
   // ========== Modal ==========
-  function openModal(title, html, maxWidth) {
+  function openModal(title, html, modalClass) {
     closeModal();
     const overlay = el('div', 'fa-modal-overlay');
     overlay.id = 'fa-modal';
     overlay.innerHTML = `
-      <div class="fa-modal" style="${maxWidth ? `max-width:${maxWidth};` : ''}">
+      <div class="fa-modal ${modalClass || ''}">
         <div class="fa-modal-header">
           <h2>${title}</h2>
           <button class="fa-close" onclick="AdvisoryApp.closeModal()">&times;</button>

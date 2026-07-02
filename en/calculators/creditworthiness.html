@@ -18,6 +18,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
+  <link rel="stylesheet" href="../../styles/design-system.css" />
+  <link rel="stylesheet" href="creditworthiness.css" />
   <link rel="stylesheet" href="../../calculators/scenario-cards-shared.css" />
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/shared-export.js"></script>
@@ -25,118 +27,7 @@
   <link rel="stylesheet" href="../../header-footer.css?v=7" />
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://bonds-global.com/en/calculators/creditworthiness" />
-  <style>
-    .cw-container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 4rem; }
-    .cw-header { text-align: center; margin-bottom: 2rem; }
-    .cw-header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; color: var(--gold); margin-bottom: 0.5rem; }
-    .cw-header p { color: var(--text-secondary); max-width: 680px; margin: 0 auto; }
-    .cw-badge { display: inline-block; background: rgba(212,168,83,0.12); color: var(--gold); border: 1px solid rgba(212,168,83,0.3); padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem; }
-    .cw-card { margin-bottom: 1.5rem; }
-    .cw-section-title { font-size: 1.15rem; font-weight: 800; color: var(--gold); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-    .cw-section-subtitle { font-size: 0.95rem; font-weight: 700; color: var(--text-secondary); margin: 1.25rem 0 0.75rem; }
-    .cw-result { display: none; margin-top: 2rem; }
-    .cw-score-box { text-align: center; padding: 2rem; border-radius: 1rem; background: var(--bg-card); border: 1px solid var(--border); margin-bottom: 1.5rem; }
-    .cw-score-box .big-score { font-size: clamp(3rem, 7vw, 5rem); font-weight: 900; line-height: 1; margin: 0.5rem 0; }
-    .cw-score-box .rating-label { display: inline-block; padding: 0.5rem 1.25rem; border-radius: 999px; font-weight: 800; font-size: 1.2rem; margin-top: 0.5rem; }
-    .axis-row { display: grid; grid-template-columns: 1fr 3.5rem 3.5rem; gap: 1rem; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
-    .axis-row:last-child { border-bottom: none; }
-    .axis-name { font-weight: 700; }
-    .axis-weight { color: var(--text-secondary); font-size: 0.85rem; }
-    .axis-bar-bg { height: 8px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; margin-top: 0.35rem; }
-    .axis-bar { height: 100%; border-radius: 999px; transition: width 0.8s ease; }
-    .cw-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-    .cw-list { list-style: none; padding: 0; margin: 0; }
-    .cw-list li { padding: 0.6rem 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; }
-    .cw-list li:last-child { border-bottom: none; }
-    .cw-risk { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; }
-    .cw-strength { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 0.75rem; padding: 1rem; }
-    .cw-weak { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-radius: 0.75rem; padding: 1rem; }
-    .cw-recommend { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; }
-    .ratings-legend { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1rem; }
-    .ratings-legend span { padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
-    @media print {
-      #site-header, #site-footer, .bonds-btn, form, .lead-modal { display: none !important; }
-      .cw-result { display: block !important; }
-      body { background: #fff; color: #000; }
-    }
-
-    /* Lead capture modal */
-    .lead-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(10,15,26,0.85);
-      backdrop-filter: blur(8px);
-      z-index: 9999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-    .lead-modal.is-open { display: flex; }
-    .lead-modal__card {
-      width: 100%;
-      max-width: 460px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 1rem;
-      padding: 2rem;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
-    }
-    .lead-modal__title {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: var(--gold);
-      margin: 0 0 0.5rem;
-    }
-    .lead-modal__subtitle {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-bottom: 1.5rem;
-    }
-    .lead-modal__form .bonds-form-group { margin-bottom: 1rem; }
-    .lead-modal__form label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text-secondary);
-      margin-bottom: 0.35rem;
-    }
-    .lead-modal__form input {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
-      border-radius: 0.6rem;
-      color: var(--text);
-      font-family: inherit;
-      font-size: 0.95rem;
-    }
-    .lead-modal__form input:focus {
-      outline: none;
-      border-color: var(--gold);
-    }
-    .lead-modal__note {
-      font-size: 0.78rem;
-      color: var(--text-secondary);
-      margin-top: 1rem;
-      line-height: 1.6;
-    }
-    .lead-modal__actions {
-      display: flex;
-      gap: 0.75rem;
-      margin-top: 1.25rem;
-    }
-    .lead-modal__actions button { flex: 1; }
-    .lead-cta {
-      margin-top: 1.5rem;
-      padding: 1.25rem;
-      background: rgba(212,168,83,0.1);
-      border: 1px solid rgba(212,168,83,0.25);
-      border-radius: 0.75rem;
-      text-align: center;
-    }
-    .lead-cta p { margin: 0 0 0.75rem; color: var(--text); }
-  </style>
+  
 <link rel="stylesheet" href="../../components/universal-dropdown.css" />
   <meta name="twitter:description" content="Evaluate any company, factory, or financial bond using 9 international credit criteria and get a rating from AAA to High Risk with a full analytical report." />
 
@@ -515,7 +406,7 @@
           <div class="bonds-card cw-card lead-cta">
             <p style="font-size:1.05rem;font-weight:700;color:var(--gold);">🎁 Want a PDF copy of the report + a free 15-minute consultation?</p>
             <p>Sign in to the client portal to track your request and receive the full report.</p>
-            <a href="/en/client/login.html?redirect=/en/client/index.html" class="bonds-btn bonds-btn-primary">Client Portal Sign In</a>
+            <a href="/en/calculators/auth/index.html?redirect=/en/v3/portfolio" class="bonds-btn bonds-btn-primary">Client Portal Sign In</a>
             <a href="/en/contact.html" class="bonds-btn bonds-btn-secondary" style="margin-left:0.75rem;">Request Consultation</a>
           </div>
         `;

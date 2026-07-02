@@ -363,7 +363,7 @@
             <label>${t.conditionLoadPrevious || 'تحميل تقييم سابق'}</label>
             <select id="caPreviousSelect"><option value="">—</option></select>
           </div>
-          <div class="ca-actions" style="margin-top:1rem">
+          <div class="ca-actions">
             <button type="button" class="btn-primary" id="caSaveBtn">${t.conditionSaveAssessment || 'حفظ التقييم'}</button>
             <button type="button" class="btn-outline" id="caLoadBtn">${t.conditionLoadPrevious || 'تحميل تقييم سابق'}</button>
           </div>
@@ -1280,7 +1280,7 @@
       const levelLabel = BondsRiskIntelligenceEngine.getRiskLevelLabel(riskResult.riskLevel, this.lang);
       riskSummary.innerHTML = `
         <p><strong>${isEn ? 'Overall Risk Index' : 'مؤشر المخاطر الكلي'}:</strong> ${riskResult.riskIndex} — ${gradeLabel} (${levelLabel})</p>
-        <p style="color:var(--text-secondary);font-size:0.9rem">${isEn ? 'Confidence' : 'نسبة الثقة'}: ${riskResult.confidenceScore}%</p>
+        <p class="text-secondary-sm">${isEn ? 'Confidence' : 'نسبة الثقة'}: ${riskResult.confidenceScore}%</p>
       `;
 
       const cardItems = [
@@ -1321,11 +1321,11 @@
           `;
         }).join('');
         riskScoreGrid.innerHTML += `
-          <div class="score-item" style="grid-column:1/-1">
+          <div class="score-item ecc-form-group--full">
             <div class="score-item__header">
               <span class="score-item__name">${isEn ? 'Recommended Mitigations' : 'إجراءات التخفيف المقترحة'}</span>
             </div>
-            <div style="color:var(--text-secondary);font-size:0.9rem">${mitigationsHtml}</div>
+            <div class="text-secondary-sm">${mitigationsHtml}</div>
           </div>
         `;
       }

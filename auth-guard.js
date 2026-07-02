@@ -3,7 +3,7 @@
 (function() {
   'use strict';
 
-  const AUTH_PAGES = ['/calculators/auth/', '/en/calculators/auth/', '/auth.html'];
+  const AUTH_PAGES = ['/calculators/auth/', '/en/calculators/auth/', '/auth', '/auth-v2'];
 
   async function initAuth() {
     if (!window.BondsAuth) {
@@ -59,6 +59,10 @@
 
   async function checkProfileCompletion(user, profile) {
     if (isProfileComplete(profile)) return;
+
+    // Allow the user to skip onboarding for 24 hours
+    const skipped = sessionStorage.getItem('bonds_onboarding_skipped');
+    if (skipped && (Date.now() - parseInt(skipped, 10)) < 24 * 60 * 60 * 1000) return;
 
     // Redirect to onboarding page to force profile completion
     const current = window.location.pathname;

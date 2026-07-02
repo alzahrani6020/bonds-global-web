@@ -92,11 +92,11 @@
       return true;
     } catch (err) {
       $('#ex-content').innerHTML = `
-        <div class="ex-empty">
+        <div class="ecc-empty">
           <div style="font-size:3rem;margin-bottom:1rem;">🚫</div>
           <h2>لا توجد صلاحية وصول</h2>
           <p>${err.message}</p>
-          <a href="/calculators/auth/index.html" class="ex-btn ex-btn-primary" style="margin-top:1rem;">تسجيل الدخول</a>
+          <a href="/calculators/auth/index.html" class="ecc-btn ecc-btn--primary" style="margin-top:1rem;">تسجيل الدخول</a>
         </div>`;
       return false;
     }
@@ -110,7 +110,7 @@
     if (!(await guard())) return;
     state.view = view;
     setActiveNav(view);
-    $('#ex-content').innerHTML = '<div class="ex-empty"><div class="ex-spinner"></div><p>جارِ تحميل المؤشرات...</p></div>';
+    $('#ex-content').innerHTML = '<div class="ecc-empty"><div class="loading__spinner"></div><p>جارِ تحميل المؤشرات...</p></div>';
     try {
       if (!state.stats) state.stats = await ExecutiveService.getStats();
       updateLastUpdate();
@@ -122,7 +122,7 @@
       }
     } catch (err) {
       console.error(err);
-      $('#ex-content').innerHTML = `<div class="ex-empty">❌ حدث خطأ: ${err.message}</div>`;
+      $('#ex-content').innerHTML = `<div class="ecc-empty">❌ حدث خطأ: ${err.message}</div>`;
     }
   }
 
@@ -133,7 +133,7 @@
   function renderErrors() {
     if (!state.stats?.errors?.length) return '';
     return `
-      <div class="ex-alert ex-alert-warning">
+      <div class="ecc-alert ecc-alert--warning">
         <strong>⚠️ بعض البيانات غير متوفرة:</strong>
         <ul>${state.stats.errors.map(e => `<li><strong>${e.key}:</strong> ${e.message}</li>`).join('')}</ul>
       </div>
@@ -142,11 +142,11 @@
 
   function kpiCard(icon, label, value, sub) {
     return `
-      <div class="ex-kpi">
-        <div class="ex-kpi-icon">${icon}</div>
-        <div class="ex-kpi-label">${label}</div>
-        <div class="ex-kpi-value">${value}</div>
-        ${sub ? `<div class="ex-kpi-sub">${sub}</div>` : ''}
+      <div class="ecc-metric">
+        <div style="font-size:1.5rem;margin-bottom:0.25rem;">${icon}</div>
+        <div class="ecc-metric__value">${value}</div>
+        <div class="ecc-metric__label">${label}</div>
+        ${sub ? `<div class="ecc-metric__status">${sub}</div>` : ''}
       </div>
     `;
   }
@@ -183,7 +183,7 @@
 
     $('#ex-content').innerHTML = `
       ${renderErrors()}
-      <div class="ex-kpi-grid">
+      <div class="ecc-grid-auto">
         ${kpiCard('💰', 'إجمالي الإيرادات', fmtMoney(s.totalRevenue), 'اشتراكات نشطة')}
         ${kpiCard('📈', 'صافي الربح المقدر', fmtMoney(totalProfit), `هامش ${Math.round(state.settings.margin * 100)}%`)}
         ${kpiCard('💵', 'التدفق النقدي الصافي المقدر', fmtMoney(netCashFlow), 'شهرياً')}
@@ -193,32 +193,32 @@
         ${kpiCard('👥', 'العملاء', (s.totalAdvisoryClients + s.totalProfiles).toLocaleString('ar-SA'), `${s.totalProfiles} مستخدم + ${s.totalAdvisoryClients} عميل استشاري`)}
       </div>
 
-      <div class="ex-grid-2">
-        <div class="ex-card">
-          <div class="ex-card-title">📊 الإيرادات والأرباح (12 شهر)</div>
-          <div class="ex-chart-wrap"><canvas id="ex-revenue-chart"></canvas></div>
+      <div class="ecc-grid-2">
+        <div class="ecc-card">
+          <div class="ecc-card__title">📊 الإيرادات والأرباح (12 شهر)</div>
+          <div class="ecc-chart"><canvas id="ex-revenue-chart"></canvas></div>
         </div>
-        <div class="ex-card">
-          <div class="ex-card-title">📈 نمو العملاء (12 شهر)</div>
-          <div class="ex-chart-wrap"><canvas id="ex-clients-chart"></canvas></div>
+        <div class="ecc-card">
+          <div class="ecc-card__title">📈 نمو العملاء (12 شهر)</div>
+          <div class="ecc-chart"><canvas id="ex-clients-chart"></canvas></div>
         </div>
-        <div class="ex-card">
-          <div class="ex-card-title">📁 حالات المشاريع الاستشارية</div>
-          <div class="ex-chart-wrap ex-chart-wrap-sm"><canvas id="ex-projects-chart"></canvas></div>
+        <div class="ecc-card">
+          <div class="ecc-card__title">📁 حالات المشاريع الاستشارية</div>
+          <div class="ecc-chart ecc-chart--sm"><canvas id="ex-projects-chart"></canvas></div>
         </div>
-        <div class="ex-card">
-          <div class="ex-card-title">💵 التدفق النقدي الصافي المقدر (12 شهر)</div>
-          <div class="ex-chart-wrap"><canvas id="ex-cashflow-chart"></canvas></div>
+        <div class="ecc-card">
+          <div class="ecc-card__title">💵 التدفق النقدي الصافي المقدر (12 شهر)</div>
+          <div class="ecc-chart"><canvas id="ex-cashflow-chart"></canvas></div>
         </div>
       </div>
 
-      <div class="ex-grid-2">
-        <div class="ex-card">
-          <div class="ex-card-title">🎯 أبرز الفرص الاستثمارية</div>
+      <div class="ecc-grid-2">
+        <div class="ecc-card">
+          <div class="ecc-card__title">🎯 أبرز الفرص الاستثمارية</div>
           ${renderOpportunitiesTable(s.topOpportunities)}
         </div>
-        <div class="ex-card">
-          <div class="ex-card-title">🕘 آخر الاشتراكات</div>
+        <div class="ecc-card">
+          <div class="ecc-card__title">🕘 آخر الاشتراكات</div>
           ${renderSubscriptionsTable(s.recentSubscriptions)}
         </div>
       </div>
@@ -240,18 +240,18 @@
 
     $('#ex-content').innerHTML = `
       ${renderErrors()}
-      <div class="ex-kpi-grid">
+      <div class="ecc-grid-auto">
         ${kpiCard('💰', 'إجمالي الإيرادات المتكررة (MRR)', fmtMoney(s.mrr), 'شهرياً')}
         ${kpiCard('📅', 'إجمالي الإيرادات السنوية', fmtMoney(annualRevenue), '12 شهر')}
         ${kpiCard('📈', 'صافي الربح السنوي المقدر', fmtMoney(annualProfit), `هامش ${Math.round(state.settings.margin * 100)}%`)}
         ${kpiCard('💵', 'التدفق النقدي الصافي الشهري', fmtMoney(calcCashFlow(s.mrr)), 'بعد التكاليف')}
       </div>
-      <div class="ex-card">
-        <div class="ex-card-title">📊 تفصيل الإيرادات والأرباح شهراً بشهر</div>
-        <div class="ex-chart-wrap" style="height:360px;"><canvas id="ex-revenue-detail-chart"></canvas></div>
+      <div class="ecc-card">
+        <div class="ecc-card__title">📊 تفصيل الإيرادات والأرباح شهراً بشهر</div>
+        <div class="ecc-chart ecc-chart--tall"><canvas id="ex-revenue-detail-chart"></canvas></div>
       </div>
-      <div class="ex-card">
-        <div class="ex-card-title">🕘 آخر الاشتراكات</div>
+      <div class="ecc-card">
+        <div class="ecc-card__title">🕘 آخر الاشتراكات</div>
         ${renderSubscriptionsTable(s.recentSubscriptions)}
       </div>
     `;
@@ -268,28 +268,28 @@
     const s = state.stats;
     $('#ex-content').innerHTML = `
       ${renderErrors()}
-      <div class="ex-kpi-grid">
+      <div class="ecc-grid-auto">
         ${kpiCard('📁', 'إجمالي المشاريع', s.projectCounts.total.toLocaleString('ar-SA'), '')}
         ${kpiCard('✅', 'المشاريع النشطة', s.projectCounts.active.toLocaleString('ar-SA'), fmtMoney(s.activeProjectsValue))}
         ${kpiCard('⚠️', 'المشاريع المتعثرة', s.distressedProjectsCount.toLocaleString('ar-SA'), 'معلق / ملغى')}
         ${kpiCard('🎯', 'فرص الإنقاذ المتاحة', s.investmentOpportunitiesCount.toLocaleString('ar-SA'), fmtMoney(s.totalOpportunityValue))}
       </div>
-      <div class="ex-grid-2">
-        <div class="ex-card">
-          <div class="ex-card-title">📁 توزيع حالات المشاريع</div>
-          <div class="ex-chart-wrap ex-chart-wrap-sm"><canvas id="ex-projects-detail-chart"></canvas></div>
+      <div class="ecc-grid-2">
+        <div class="ecc-card">
+          <div class="ecc-card__title">📁 توزيع حالات المشاريع</div>
+          <div class="ecc-chart ecc-chart--sm"><canvas id="ex-projects-detail-chart"></canvas></div>
         </div>
-        <div class="ex-card">
-          <div class="ex-card-title">🎯 توزيع فرص الإنقاذ حسب القيمة</div>
-          <div class="ex-chart-wrap ex-chart-wrap-sm"><canvas id="ex-opportunities-chart"></canvas></div>
+        <div class="ecc-card">
+          <div class="ecc-card__title">🎯 توزيع فرص الإنقاذ حسب القيمة</div>
+          <div class="ecc-chart ecc-chart--sm"><canvas id="ex-opportunities-chart"></canvas></div>
         </div>
       </div>
-      <div class="ex-card">
-        <div class="ex-card-title">📁 أحدث المشاريع الاستشارية</div>
+      <div class="ecc-card">
+        <div class="ecc-card__title">📁 أحدث المشاريع الاستشارية</div>
         ${renderProjectsTable(s.recentProjects)}
       </div>
-      <div class="ex-card">
-        <div class="ex-card-title">🎯 أبرز فرص الإنقاذ</div>
+      <div class="ecc-card">
+        <div class="ecc-card__title">🎯 أبرز فرص الإنقاذ</div>
         ${renderOpportunitiesTable(s.topOpportunities)}
       </div>
     `;
@@ -344,16 +344,16 @@
   }
 
   function renderSubscriptionsTable(rows) {
-    if (!rows.length) return '<div class="ex-empty">لا توجد اشتراكات</div>';
+    if (!rows.length) return '<div class="ecc-empty">لا توجد اشتراكات</div>';
     return `
-      <div class="ex-table-wrap">
-        <table class="ex-table">
+      <div class="ecc-table-wrap">
+        <table class="ecc-table">
           <thead><tr><th>الباقة</th><th>الحالة</th><th>القيمة</th><th>التاريخ</th></tr></thead>
           <tbody>
             ${rows.map(r => `
               <tr>
                 <td>${r.tier === 'enterprise' ? 'Enterprise' : r.tier === 'pro' ? 'Pro' : r.tier || '—'}</td>
-                <td><span class="ex-badge ${r.status}">${r.status === 'active' ? 'نشط' : r.status === 'canceled' ? 'ملغى' : r.status}</span></td>
+                <td><span class="status-badge ${r.status === 'active' ? 'status-badge--healthy' : r.status === 'canceled' ? 'status-badge--at-risk' : 'status-badge--neutral'}">${r.status === 'active' ? 'نشط' : r.status === 'canceled' ? 'ملغى' : r.status}</span></td>
                 <td>${fmtMoney(ExecutiveService.TIER_PRICE[r.tier] || 0)}</td>
                 <td>${fmtDate(r.created_at)}</td>
               </tr>
@@ -365,18 +365,19 @@
   }
 
   function renderProjectsTable(rows) {
-    if (!rows.length) return '<div class="ex-empty">لا توجد مشاريع</div>';
+    if (!rows.length) return '<div class="ecc-empty">لا توجد مشاريع</div>';
     const statusLabels = { lead: 'محتمل', active: 'نشط', on_hold: 'معلق', completed: 'مكتمل', cancelled: 'ملغى' };
+    const statusClasses = { lead: 'status-badge--neutral', active: 'status-badge--healthy', on_hold: 'status-badge--attention', completed: 'status-badge--healthy', cancelled: 'status-badge--at-risk' };
     return `
-      <div class="ex-table-wrap">
-        <table class="ex-table">
+      <div class="ecc-table-wrap">
+        <table class="ecc-table">
           <thead><tr><th>المشروع</th><th>العميل</th><th>الحالة</th><th>الميزانية</th><th>تاريخ البدء</th></tr></thead>
           <tbody>
             ${rows.map(p => `
               <tr>
                 <td>${p.name || '—'}</td>
                 <td>${p.advisory_clients?.name || '—'}</td>
-                <td><span class="ex-badge ${p.status}">${statusLabels[p.status] || p.status}</span></td>
+                <td><span class="status-badge ${statusClasses[p.status] || 'status-badge--neutral'}">${statusLabels[p.status] || p.status}</span></td>
                 <td>${fmtMoney(p.budget)}</td>
                 <td>${fmtDate(p.start_date)}</td>
               </tr>
@@ -388,11 +389,11 @@
   }
 
   function renderOpportunitiesTable(rows) {
-    if (!rows.length) return '<div class="ex-empty">لا توجد فرص</div>';
+    if (!rows.length) return '<div class="ecc-empty">لا توجد فرص</div>';
     const catLabels = { real_estate: 'عقار', equipment: 'معدات', vehicle: 'مركبة', inventory: 'مخزون', receivable: 'ذمم مدينة', investment: 'استثمار', other: 'أخرى' };
     return `
-      <div class="ex-table-wrap">
-        <table class="ex-table">
+      <div class="ecc-table-wrap">
+        <table class="ecc-table">
           <thead><tr><th>الأصل</th><th>الفئة</th><th>القيمة الأصلية</th><th>القيمة المتعثرة</th></tr></thead>
           <tbody>
             ${rows.map(a => `
@@ -438,8 +439,8 @@
             <small>تُخصم من الإيرادات الشهرية لحساب الربح والتدفق النقدي.</small>
           </div>
           <div class="ex-modal-actions">
-            <button type="button" class="ex-btn ex-btn-secondary" onclick="ExecutiveApp.closeModal()">إلغاء</button>
-            <button type="submit" class="ex-btn ex-btn-primary">حفظ</button>
+            <button type="button" class="ecc-btn ecc-btn--ghost" onclick="ExecutiveApp.closeModal()">إلغاء</button>
+            <button type="submit" class="ecc-btn ecc-btn--primary">حفظ</button>
           </div>
         </form>
       </div>

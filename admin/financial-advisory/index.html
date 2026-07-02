@@ -9,12 +9,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="/admin/financial-advisory/styles.css?v=7" />
+  <link rel="stylesheet" href="/styles.css?v=8" />
+  <link rel="stylesheet" href="/styles/design-system.css?v=8" />
+  <link rel="stylesheet" href="/admin/financial-advisory/styles.css?v=8" />
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/supabase-client.js"></script>
-  <script src="/admin/financial-advisory/service.js?v=7"></script>
-  <script src="/admin/financial-advisory/app.js?v=7"></script>
+  <script src="/admin/financial-advisory/service.js?v=8"></script>
+  <script src="/admin/financial-advisory/app.js?v=8"></script>
 </head>
 <body>
   <div class="fa-layout">
@@ -24,15 +26,15 @@
         <span>الاستشارات المالية</span>
       </div>
       <ul class="fa-nav">
-        <li><a href="#" data-view="dashboard" class="active">📊 لوحة الاستشارات</a></li>
-        <li><a href="#" data-view="clients">👥 العملاء</a></li>
-        <li><a href="#" data-view="projects">📁 المشاريع</a></li>
-        <li><a href="#" data-view="studies">📈 دراسات الجدوى</a></li>
-        <li><a href="#" data-view="models">🔢 النماذج المالية</a></li>
-        <li><a href="#" data-view="activity">🕘 السجل الزمني</a></li>
-        <li style="margin-top:1.5rem;border-top:1px solid var(--fa-border);padding-top:1rem;"><a href="/admin/dashboard.html">⬅️ لوحة الإدارة الرئيسية</a></li>
+        <li><a href="#" data-view="dashboard" class="active">لوحة الاستشارات</a></li>
+        <li><a href="#" data-view="clients">العملاء</a></li>
+        <li><a href="#" data-view="projects">المشاريع</a></li>
+        <li><a href="#" data-view="studies">دراسات الجدوى</a></li>
+        <li><a href="#" data-view="models">النماذج المالية</a></li>
+        <li><a href="#" data-view="activity">السجل الزمني</a></li>
+        <li style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem;"><a href="/admin/dashboard.html">لوحة الإدارة الرئيسية</a></li>
       </ul>
-      <div style="margin-top:auto;padding-top:2rem;color:var(--fa-muted);font-size:0.8rem;">
+      <div style="margin-top:auto;padding-top:2rem;color:var(--text-secondary);font-size:0.8rem;">
         <div id="fa-user">جارِ التحقق...</div>
       </div>
     </aside>
@@ -45,10 +47,10 @@
       const el = document.getElementById('fa-content');
       function status(msg) { if (el) el.innerHTML = '<div class="fa-empty" style="text-align:center;padding:2rem;"><p>' + msg + '</p></div>'; }
       window.addEventListener('error', function (e) {
-        status('❌ خطأ JavaScript: ' + e.message + ' (' + (e.filename || '') + ':' + (e.lineno || '') + ')');
+        status('خطأ JavaScript: ' + e.message + ' (' + (e.filename || '') + ':' + (e.lineno || '') + ')');
       });
       window.addEventListener('unhandledrejection', function (e) {
-        status('❌ خطأ غير متوقع: ' + (e.reason && e.reason.message ? e.reason.message : e.reason));
+        status('خطأ غير متوقع: ' + (e.reason && e.reason.message ? e.reason.message : e.reason));
       });
       status('جارِ تهيئة الوحدة...');
     })();

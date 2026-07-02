@@ -45,7 +45,7 @@
   }
 
   function showNoAccess(msg) {
-    setContent('<div class="ai-no-access"><h2>⛔ لا توجد صلاحية</h2><p>' + (msg || 'لا تملك صلاحية الوصول إلى مستشار الأعمال الذكي.') + '</p><a href="/admin/dashboard.html" class="ai-btn ai-btn-primary">العودة إلى لوحة الإدارة</a></div>');
+    setContent('<div class="ai-no-access"><h2>⛔ لا توجد صلاحية</h2><p>' + (msg || 'لا تملك صلاحية الوصول إلى مستشار الأعمال الذكي.') + '</p><a href="/admin/dashboard.html" class="ecc-btn ecc-btn--primary">العودة إلى لوحة الإدارة</a></div>');
   }
 
   function destroyChart(key) {
@@ -124,12 +124,12 @@
     const riskColor = a.risks.riskLevel === 'high' ? 'ai-negative' : a.risks.riskLevel === 'medium' ? 'ai-neutral' : 'ai-positive';
     return `
       <div class="ai-grid">
-        <div class="ai-card"><h3>صحة الأعمال</h3><div class="ai-value">${a.financial.healthScore}/100</div><div class="ai-delta ${a.financial.healthScore >= 70 ? 'ai-positive' : a.financial.healthScore >= 45 ? 'ai-neutral' : 'ai-negative'}">${a.financial.healthLabel}</div></div>
-        <div class="ai-card"><h3>إجمالي الإيرادات (12 شهر)</h3><div class="ai-value">${formatCurrency(a.stats.totalRevenue)}</div><div class="ai-delta ${a.financial.revenueTrend === 'up' ? 'ai-positive' : a.financial.revenueTrend === 'down' ? 'ai-negative' : 'ai-neutral'}">${a.financial.revenueTrend === 'up' ? '↑ صاعد' : a.financial.revenueTrend === 'down' ? '↓ هابط' : '→ مستقر'}</div></div>
-        <div class="ai-card"><h3>صافي الربح المقدر</h3><div class="ai-value">${formatCurrency(a.financial.profitEstimate)}</div><div class="ai-delta">هامش افتراضي ${Math.round((_settings.margin)*100)}%</div></div>
-        <div class="ai-card"><h3>قيمة الفرص المتاحة</h3><div class="ai-value">${formatCurrency(a.stats.totalOpportunityValue)}</div><div class="ai-delta">${a.opportunities.length} فرصة</div></div>
-        <div class="ai-card"><h3>المشاريع المتعثرة</h3><div class="ai-value">${a.stats.distressedProjectsCount}</div><div class="ai-delta ${a.stats.distressedProjectsCount ? 'ai-negative' : 'ai-positive'}">${a.stats.distressedProjectsCount ? 'يتطلب تدخل' : 'لا يوجد'}</div></div>
-        <div class="ai-card"><h3>مستوى المخاطر</h3><div class="ai-value ${riskColor}">${a.risks.riskLevel === 'high' ? 'مرتفع' : a.risks.riskLevel === 'medium' ? 'متوسط' : 'منخفض'}</div><div class="ai-delta">${a.risks.risks.length} مخاطر</div></div>
+        <div class="ecc-card"><h3 class="ecc-card__title">صحة الأعمال</h3><div class="ecc-metric__value">${a.financial.healthScore}/100</div><div class="ecc-metric__status ${a.financial.healthScore >= 70 ? 'ai-positive' : a.financial.healthScore >= 45 ? 'ai-neutral' : 'ai-negative'}">${a.financial.healthLabel}</div></div>
+        <div class="ecc-card"><h3 class="ecc-card__title">إجمالي الإيرادات (12 شهر)</h3><div class="ecc-metric__value">${formatCurrency(a.stats.totalRevenue)}</div><div class="ecc-metric__status ${a.financial.revenueTrend === 'up' ? 'ai-positive' : a.financial.revenueTrend === 'down' ? 'ai-negative' : 'ai-neutral'}">${a.financial.revenueTrend === 'up' ? '↑ صاعد' : a.financial.revenueTrend === 'down' ? '↓ هابط' : '→ مستقر'}</div></div>
+        <div class="ecc-card"><h3 class="ecc-card__title">صافي الربح المقدر</h3><div class="ecc-metric__value">${formatCurrency(a.financial.profitEstimate)}</div><div class="ecc-metric__status">هامش افتراضي ${Math.round((_settings.margin)*100)}%</div></div>
+        <div class="ecc-card"><h3 class="ecc-card__title">قيمة الفرص المتاحة</h3><div class="ecc-metric__value">${formatCurrency(a.stats.totalOpportunityValue)}</div><div class="ecc-metric__status">${a.opportunities.length} فرصة</div></div>
+        <div class="ecc-card"><h3 class="ecc-card__title">المشاريع المتعثرة</h3><div class="ecc-metric__value">${a.stats.distressedProjectsCount}</div><div class="ecc-metric__status ${a.stats.distressedProjectsCount ? 'ai-negative' : 'ai-positive'}">${a.stats.distressedProjectsCount ? 'يتطلب تدخل' : 'لا يوجد'}</div></div>
+        <div class="ecc-card"><h3 class="ecc-card__title">مستوى المخاطر</h3><div class="ecc-metric__value ${riskColor}">${a.risks.riskLevel === 'high' ? 'مرتفع' : a.risks.riskLevel === 'medium' ? 'متوسط' : 'منخفض'}</div><div class="ecc-metric__status">${a.risks.risks.length} مخاطر</div></div>
       </div>
     `;
   }
@@ -141,10 +141,10 @@
     a.financing.slice(0, 2).forEach(f => items.push({ type: 'info', text: f.title + ': ' + f.desc }));
     if (!items.length) items.push({ type: 'info', text: 'الوضع العام مستقر؛ لا توجد تنبيهات حرجة.' });
     return `
-      <div class="ai-card">
-        <h3>💡 توصيات سريعة</h3>
+      <div class="ecc-card">
+        <h3 class="ecc-card__title">💡 توصيات سريعة</h3>
         <ul class="ai-insights">
-          ${items.map(i => `<li><span class="ai-badge ai-badge-${i.type === 'danger' ? 'danger' : i.type === 'warning' ? 'warning' : i.type === 'info' ? 'info' : 'success'}">${i.type === 'danger' ? 'خطر' : i.type === 'warning' ? 'تنبيه' : i.type === 'info' ? 'فرصة' : 'جيد'}</span>${escapeHtml(i.text)}</li>`).join('')}
+          ${items.map(i => `<li><span class="status-badge status-badge--${i.type === 'danger' ? 'at-risk' : i.type === 'warning' ? 'attention' : i.type === 'info' ? 'neutral' : 'healthy'}">${i.type === 'danger' ? 'خطر' : i.type === 'warning' ? 'تنبيه' : i.type === 'info' ? 'فرصة' : 'جيد'}</span>${escapeHtml(i.text)}</li>`).join('')}
         </ul>
       </div>
     `;
@@ -161,17 +161,17 @@
     setContent(`
       ${kpiCards(a)}
       <div class="ai-row">
-        <div class="ai-chart-card">
-          <h4>الإيرادات الشهرية</h4>
-          <div style="height:260px"><canvas id="chart-revenue"></canvas></div>
+        <div class="ecc-card">
+          <h4 class="ecc-card__title">الإيرادات الشهرية</h4>
+          <div class="ecc-chart"><canvas id="chart-revenue"></canvas></div>
         </div>
-        <div class="ai-chart-card">
-          <h4>توزيع المشاريع</h4>
-          <div style="height:260px"><canvas id="chart-projects"></canvas></div>
+        <div class="ecc-card">
+          <h4 class="ecc-card__title">توزيع المشاريع</h4>
+          <div class="ecc-chart"><canvas id="chart-projects"></canvas></div>
         </div>
       </div>
       <div class="ai-row">
-        <div class="ai-card ai-health">
+        <div class="ecc-card ai-health">
           <div class="ai-health-ring" style="--score:${scoreDeg}deg"><span>${a.financial.healthScore}</span></div>
           <div class="ai-health-text">
             <h3>الصحة المالية: ${a.financial.healthLabel}</h3>
@@ -182,9 +182,9 @@
         </div>
         ${insightList(a)}
       </div>
-      <div class="ai-chart-card">
-        <h4>الأصول المتعثرة حسب الفئة</h4>
-        <div style="height:260px"><canvas id="chart-assets"></canvas></div>
+      <div class="ecc-card">
+        <h4 class="ecc-card__title">الأصول المتعثرة حسب الفئة</h4>
+        <div class="ecc-chart"><canvas id="chart-assets"></canvas></div>
       </div>
     `);
 
@@ -218,14 +218,14 @@
           <label for="ai-fixed">التكاليف الثابتة السنوية (ر.س)</label>
           <input type="number" id="ai-fixed" step="1000" min="0" value="${_settings.fixedCosts}" />
         </div>
-        <button class="ai-btn ai-btn-primary" onclick="AiAdvisorApp.applySettings()">تطبيق</button>
+        <button class="ecc-btn ecc-btn--primary" onclick="AiAdvisorApp.applySettings()">تطبيق</button>
       </div>
       ${kpiCards(a)}
       <div class="ai-row">
-        <div class="ai-chart-card"><h4>الإيرادات مقابل الربح المقدر</h4><div style="height:260px"><canvas id="chart-profit"></canvas></div></div>
-        <div class="ai-chart-card"><h4>التدفق النقدي الشهري</h4><div style="height:260px"><canvas id="chart-cash"></canvas></div></div>
+        <div class="ecc-card"><h4 class="ecc-card__title">الإيرادات مقابل الربح المقدر</h4><div class="ecc-chart"><canvas id="chart-profit"></canvas></div></div>
+        <div class="ecc-card"><h4 class="ecc-card__title">التدفق النقدي الشهري</h4><div class="ecc-chart"><canvas id="chart-cash"></canvas></div></div>
       </div>
-      ${a.financial.flags.length ? `<div class="ai-card"><h3>⚠️ تنبيهات مالية</h3><ul class="ai-insights">${a.financial.flags.map(f => `<li><span class="ai-badge ai-badge-${f.type === 'danger' ? 'danger' : 'warning'}">${f.type === 'danger' ? 'خطير' : 'تنبيه'}</span>${escapeHtml(f.text)}</li>`).join('')}</ul></div>` : ''}
+      ${a.financial.flags.length ? `<div class="ecc-card"><h3 class="ecc-card__title">⚠️ تنبيهات مالية</h3><ul class="ai-insights">${a.financial.flags.map(f => `<li><span class="status-badge status-badge--${f.type === 'danger' ? 'at-risk' : 'attention'}">${f.type === 'danger' ? 'خطير' : 'تنبيه'}</span>${escapeHtml(f.text)}</li>`).join('')}</ul></div>` : ''}
     `);
 
     createLineChart('chart-profit', a.stats.months.map(m => m.slice(5) + '/' + m.slice(2, 4)), [
@@ -245,14 +245,14 @@
         <td>${formatCurrency(o.original_value)}</td>
         <td>${formatCurrency(o.distressed_value)}</td>
         <td class="ai-positive">${formatCurrency(o.upside)}</td>
-        <td><span class="ai-badge ${o.score >= 70 ? 'ai-badge-success' : o.score >= 45 ? 'ai-badge-warning' : 'ai-badge-danger'}">${o.score}/100</span></td>
+        <td><span class="status-badge ${o.score >= 70 ? 'status-badge--healthy' : o.score >= 45 ? 'status-badge--attention' : 'status-badge--at-risk'}">${o.score}/100</span></td>
         <td>${escapeHtml(o.recommendation)}</td>
       </tr>
     `).join('');
     setContent(`
       <h2 class="ai-section-title">الفرص الاستثمارية الموصى بها</h2>
-      <div class="ai-table-wrap">
-        <table class="ai-table">
+      <div class="ecc-table-wrap">
+        <table class="ecc-table">
           <thead>
             <tr><th>الأصل/الفرصة</th><th>الفئة</th><th>القيمة الأصلية</th><th>القيمة المتعثرة</th><th>هامش الربح</th><th>الدرجة</th><th>التوصية</th></tr>
           </thead>
@@ -267,13 +267,13 @@
     if (!a) return setLoading('جارِ التحليل...');
     const items = a.risks.risks.map(r => `
       <div class="ai-risk-item ${r.level}">
-        <h4>${escapeHtml(r.title)} <span class="ai-badge ai-badge-${r.level === 'high' ? 'danger' : r.level === 'medium' ? 'warning' : 'success'}">${r.level === 'high' ? 'مرتفع' : r.level === 'medium' ? 'متوسط' : 'منخفض'}</span></h4>
+        <h4>${escapeHtml(r.title)} <span class="status-badge status-badge--${r.level === 'high' ? 'at-risk' : r.level === 'medium' ? 'attention' : 'healthy'}">${r.level === 'high' ? 'مرتفع' : r.level === 'medium' ? 'متوسط' : 'منخفض'}</span></h4>
         <p>${escapeHtml(r.text)}</p>
       </div>
     `).join('');
     setContent(`
       <h2 class="ai-section-title">تقييم المخاطر</h2>
-      <div class="ai-card"><h3>المستوى العام للمخاطر</h3><div class="ai-value ${a.risks.riskLevel === 'high' ? 'ai-negative' : a.risks.riskLevel === 'medium' ? 'ai-neutral' : 'ai-positive'}">${a.risks.riskLevel === 'high' ? 'مرتفع' : a.risks.riskLevel === 'medium' ? 'متوسط' : 'منخفض'}</div></div>
+      <div class="ecc-card"><h3 class="ecc-card__title">المستوى العام للمخاطر</h3><div class="ecc-metric__value ${a.risks.riskLevel === 'high' ? 'ai-negative' : a.risks.riskLevel === 'medium' ? 'ai-neutral' : 'ai-positive'}">${a.risks.riskLevel === 'high' ? 'مرتفع' : a.risks.riskLevel === 'medium' ? 'متوسط' : 'منخفض'}</div></div>
       <div class="ai-risk-list">${items || '<p class="ai-empty">لا توجد مخاطر مسجلة حالياً.</p>'}</div>
     `);
   }
@@ -304,7 +304,7 @@
         <td>${escapeHtml(x.category || '—')}</td>
         <td>${escapeHtml(x.status)}</td>
         <td>${escapeHtml(x.priority || '—')}</td>
-        <td><span class="ai-badge ${x.distressScore >= 70 ? 'ai-badge-danger' : x.distressScore >= 40 ? 'ai-badge-warning' : 'ai-badge-success'}">${x.distressScore}/100</span></td>
+        <td><span class="status-badge ${x.distressScore >= 70 ? 'status-badge--at-risk' : x.distressScore >= 40 ? 'status-badge--attention' : 'status-badge--healthy'}">${x.distressScore}/100</span></td>
         <td>${formatCurrency(x.value)}</td>
         <td>${escapeHtml(x.action)}</td>
       </tr>
@@ -321,15 +321,15 @@
     setContent(`
       <h2 class="ai-section-title">المشاريع والأصول المتعثرة</h2>
       <h3 class="ai-section-title">🏭 الأصول المتعثرة (${a.distressed.assets.length})</h3>
-      <div class="ai-table-wrap">
-        <table class="ai-table">
+      <div class="ecc-table-wrap">
+        <table class="ecc-table">
           <thead><tr><th>الأصل</th><th>الفئة</th><th>الحالة</th><th>الأولوية</th><th>درجة التعثر</th><th>القيمة</th><th>الإجراء المقترح</th></tr></thead>
           <tbody>${assetRows || '<tr><td colspan="7" class="ai-empty">لا توجد أصول متعثرة</td></tr>'}</tbody>
         </table>
       </div>
       <h3 class="ai-section-title">📁 المشاريع المتعثرة (${a.distressed.projects.length})</h3>
-      <div class="ai-table-wrap">
-        <table class="ai-table">
+      <div class="ecc-table-wrap">
+        <table class="ecc-table">
           <thead><tr><th>المشروع</th><th>الحالة</th><th>العميل</th><th>الميزانية</th><th>الإجراء المقترح</th></tr></thead>
           <tbody>${projectRows || '<tr><td colspan="5" class="ai-empty">لا توجد مشاريع متعثرة</td></tr>'}</tbody>
         </table>
@@ -373,9 +373,9 @@
     try {
       const report = await SERVICE.getReport(id);
       setContent(`
-        <div class="ai-topbar-actions" style="margin-bottom:1rem">
-          <button class="ai-btn ai-btn-secondary" onclick="AiAdvisorApp.generateFullReport()">⬅️ تقرير جديد</button>
-          <button class="ai-btn ai-btn-primary" onclick="window.print()">🖨️ طباعة / PDF</button>
+        <div class="ai-topbar-actions">
+          <button class="ecc-btn ecc-btn--ghost" onclick="AiAdvisorApp.generateFullReport()">⬅️ تقرير جديد</button>
+          <button class="ecc-btn ecc-btn--primary" onclick="window.print()">🖨️ طباعة / PDF</button>
         </div>
         <div id="ai-report-container">${report.content_html}</div>
       `);
@@ -406,8 +406,8 @@
           <td><strong>${escapeHtml(r.title)}</strong></td>
           <td>${new Date(r.created_at).toLocaleString('ar-SA')}</td>
           <td>
-            <button class="ai-btn ai-btn-secondary" onclick="AiAdvisorApp.loadSavedReport('${r.id}')">عرض</button>
-            <button class="ai-btn" style="color:var(--ai-danger)" onclick="AiAdvisorApp.deleteSavedReport('${r.id}')">حذف</button>
+            <button class="ecc-btn ecc-btn--ghost ecc-btn--sm" onclick="AiAdvisorApp.loadSavedReport('${r.id}')">عرض</button>
+            <button class="ecc-btn ecc-btn--ghost ecc-btn--sm" style="color:var(--danger)" onclick="AiAdvisorApp.deleteSavedReport('${r.id}')">حذف</button>
           </td>
         </tr>
       `).join('');
@@ -415,14 +415,14 @@
       savedRows = `<tr><td colspan="3" class="ai-empty">تعذر تحميل التقارير المحفوظة: ${escapeHtml(e.message)}</td></tr>`;
     }
     setContent(`
-      <div class="ai-topbar-actions" style="margin-bottom:1rem">
-        <button class="ai-btn ai-btn-primary" onclick="AiAdvisorApp.saveCurrentReport()">💾 حفظ التقرير</button>
-        <button class="ai-btn ai-btn-primary" onclick="window.print()">🖨️ طباعة / PDF</button>
+      <div class="ai-topbar-actions">
+        <button class="ecc-btn ecc-btn--primary" onclick="AiAdvisorApp.saveCurrentReport()">💾 حفظ التقرير</button>
+        <button class="ecc-btn ecc-btn--primary" onclick="window.print()">🖨️ طباعة / PDF</button>
       </div>
       <div id="ai-report-container">${html}</div>
       <h2 class="ai-section-title">التقارير المحفوظة</h2>
-      <div class="ai-table-wrap">
-        <table class="ai-table">
+      <div class="ecc-table-wrap">
+        <table class="ecc-table">
           <thead><tr><th>العنوان</th><th>تاريخ الإنشاء</th><th>إجراءات</th></tr></thead>
           <tbody>${savedRows || '<tr><td colspan="3" class="ai-empty">لا توجد تقارير محفوظة</td></tr>'}</tbody>
         </table>
@@ -446,7 +446,7 @@
     };
     setContent(`
       <h2 class="ai-section-title">🤖 تحليل AI</h2>
-      <div class="ai-card">
+      <div class="ecc-card">
         <div class="ai-form-inline" style="flex-wrap:wrap;">
           <div class="ai-form-group">
             <label>نوع التحليل</label>
@@ -475,11 +475,11 @@
           <div class="ai-form-group"><label>DSCR</label><input type="number" id="ai-dscr-credit" value="${defaults.dscr}" step="0.01" /></div>
         </div>
         <div style="margin-top:1rem;">
-          <button class="ai-btn ai-btn-primary" id="ai-run-btn" onclick="AiAdvisorApp.runAiAnalysis()">▶️ تشغيل التحليل</button>
+          <button class="ecc-btn ecc-btn--primary" id="ai-run-btn" onclick="AiAdvisorApp.runAiAnalysis()">▶️ تشغيل التحليل</button>
           <span id="ai-cost" style="color:var(--text-secondary);font-size:0.85rem;margin-right:1rem;"></span>
         </div>
       </div>
-      <div id="ai-result" class="ai-card" style="display:none;"></div>
+      <div id="ai-result" class="ecc-card" style="display:none;"></div>
     `);
 
     document.getElementById('ai-type').addEventListener('change', (e) => {

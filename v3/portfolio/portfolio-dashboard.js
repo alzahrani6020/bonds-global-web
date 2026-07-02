@@ -461,7 +461,8 @@
       window.location.href = `/v3/project?id=${encodeURIComponent(id)}`;
     },
     createProject: () => {
-      window.location.href = '/v3/project/new';
+      const isEn = document.documentElement.lang && document.documentElement.lang.startsWith('en');
+      window.location.href = isEn ? '/en/client/index.html?wizard=1' : '/client/index.html?wizard=1';
     },
     toggleNotifications: (e) => {
       e.stopPropagation();

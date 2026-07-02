@@ -1,7 +1,5 @@
 const { getSupabaseClient } = require('../lib/supabase');
-const { calculate, recommend } = require('../engine/calculator');
-const { generateInsights } = require('../engine/ai');
-const { loadProjectModel } = require('../engine/loader');
+const { LifecycleEngine } = require('../../lib/enterprise-lifecycle');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -27,11 +25,12 @@ async function listProjects(req, res, user) {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
-    .from('user_projects')
+    .from('bonds_projects')
     .select(`
-      *,
-      project_model:project_model_id (code, name_ar),
-      city:city_id (code, name_ar)
+      id, name, project_number, sector, sub_sector, activity,
+      city_id, currency, status, capital, revenue, annual_profit,
+      language, metadata, created_at, updated_at,
+      city:city_id (code, name_ar, name_en, country_code)
     `)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
@@ -40,50 +39,80 @@ async function listProjects(req, res, user) {
   sendJson(res, 200, { projects: data });
 }
 
+async function resolveCityId(supabase, cityCode) {
+  if (!cityCode) return null;
+  const { data, error } = await supabase
+    .from('cities')
+    .select('id')
+    .eq('code', cityCode)
+    .single();
+  if (error || !data) return null;
+  return data.id;
+}
+
 async function createProject(req, res, user) {
   const body = await parseBody(req);
-  const { projectModelCode, cityCode, name, assumptions = {}, projectionYears = 5 } = body;
+  const {
+    name,
+    sector,
+    activity,
+    cityCode,
+    currency,
+    capital,
+    revenue,
+    annualProfit,
+    language
+  } = body;
 
-  if (!projectModelCode || !name) {
-    return sendJson(res, 400, { error: 'projectModelCode and name are required' });
+  if (!name || !sector) {
+    return sendJson(res, 400, { error: 'name and sector are required' });
   }
 
   const supabase = getSupabaseClient();
 
   try {
-    const modelData = await loadProjectModel(supabase, projectModelCode, cityCode);
-    const result = calculate(modelData, {
-      revenue: assumptions.revenue,
-      capex: assumptions.capex,
-      projectionYears
-    });
+    const cityId = await resolveCityId(supabase, cityCode);
 
-    const recommendation = recommend(result, modelData.marketData || {});
-    const ai = await generateInsights(
-      result,
-      modelData.marketData || null,
-      modelData.marketData?.city?.name_ar || cityCode
-    );
+    const insertPayload = {
+      project_number: 'PRJ-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
+      user_id: user.id,
+      name,
+      sector,
+      activity: activity || sector,
+      city_id: cityId,
+      currency: currency || 'SAR',
+      capital: capital || 0,
+      revenue: revenue || 0,
+      annual_profit: annualProfit || 0,
+      language: language || 'ar',
+      status: 'active'
+    };
 
-    const { data, error } = await supabase
-      .from('user_projects')
-      .insert({
-        user_id: user.id,
-        project_model_id: modelData.projectModel.id,
-        city_id: modelData.marketData?.city_id || null,
-        name,
-        status: 'completed',
-        assumptions,
-        financial_results: result.summary,
-        risk_results: result.risk,
-        ai_insights: { recommendation, ai }
-      })
+    const { data: project, error: insertError } = await supabase
+      .from('bonds_projects')
+      .insert(insertPayload)
       .select()
       .single();
 
-    if (error) return sendJson(res, 400, { error: error.message });
+    if (insertError) {
+      console.error('[projects/create] insert failed:', insertError.message);
+      return sendJson(res, 400, { error: insertError.message });
+    }
 
-    sendJson(res, 201, { project: data, calculation: result });
+    // Initialize lifecycle instance so the project appears in ECC/V3 journey.
+    try {
+      const engine = await new LifecycleEngine({ supabase }).initialize();
+      await engine.createInstance({
+        entityType: 'project',
+        entityId: project.id,
+        userId: user.id
+      });
+    } catch (lifecycleErr) {
+      console.warn('[projects/create] lifecycle init failed:', lifecycleErr.message);
+      // Non-fatal: project exists; lifecycle can be created lazily on first status load.
+    }
+
+    sendJson(res, 201, { project });
   } catch (err) {
     console.error('[projects/create]', err.message);
     sendJson(res, 500, { error: err.message });
@@ -94,11 +123,12 @@ async function getProject(req, res, user, projectId) {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
-    .from('user_projects')
+    .from('bonds_projects')
     .select(`
-      *,
-      project_model:project_model_id (code, name_ar),
-      city:city_id (code, name_ar)
+      id, name, project_number, sector, sub_sector, activity,
+      city_id, currency, status, capital, revenue, annual_profit,
+      language, metadata, created_at, updated_at,
+      city:city_id (code, name_ar, name_en, country_code)
     `)
     .eq('id', projectId)
     .eq('user_id', user.id)
@@ -112,7 +142,7 @@ async function deleteProject(req, res, user, projectId) {
   const supabase = getSupabaseClient();
 
   const { error } = await supabase
-    .from('user_projects')
+    .from('bonds_projects')
     .delete()
     .eq('id', projectId)
     .eq('user_id', user.id);

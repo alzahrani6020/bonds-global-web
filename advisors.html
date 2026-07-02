@@ -49,7 +49,7 @@
   <section class="advisors-hero">
     <h1>مستشارون معتمدون من بوندز</h1>
     <p>خبراء ماليون واستثماريون مختارون لمراجعة تحليل مشروعك، الإجابة على استفساراتك، وتوجيهك نحو قرار أفضل.</p>
-    <a href="client/index.html" class="btn btn--primary">اطلب مراجعة من مستشار</a>
+    <a href="/v3/portfolio" class="btn btn--primary">اطلب مراجعة من مستشار</a>
   </section>
 
   <section id="advisorsContainer" class="advisors-loading">جاري تحميل المستشارين...</section>
@@ -90,7 +90,7 @@
               <span>${advisor.years_experience || 0}+ سنة خبرة</span>
               <span><strong>${advisor.commission_rate || 25}%</strong> عمولة</span>
             </div>
-            <a class="advisor-cta" href="client/index.html?advisor=${advisor.id}">اختيار هذا المستشار</a>
+            <a class="advisor-cta" href="/v3/portfolio?advisor=${advisor.id}">اختيار هذا المستشار</a>
           </article>
         `).join('');
       } catch (e) {

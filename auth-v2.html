@@ -1,206 +1,22 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-theme="dark">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="0; url=/calculators/auth/index.html" />
   <title>تسجيل الدخول | بوندز</title>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Vazirmatn',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
-    .card{width:100%;max-width:400px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem}
-    .logo{text-align:center;margin-bottom:1.5rem}
-    .logo img{height:48px}
-    .tabs{display:flex;gap:0.5rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:0.5rem}
-    .tab{flex:1;background:transparent;border:none;color:var(--text-secondary);padding:0.6rem;font-family:inherit;font-size:0.95rem;font-weight:600;cursor:pointer;border-radius:8px}
-    .tab.active{background:var(--gold);color:#0c0c0c}
-    .form-group{margin-bottom:1rem}
-    label{display:block;font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.3rem}
-    input,select,textarea{width:100%;padding:0.7rem 1rem;background:#1c1c1c;border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:0.95rem}
-    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
-    .btn{width:100%;padding:0.75rem;border-radius:8px;border:none;font-family:inherit;font-size:0.95rem;font-weight:700;cursor:pointer;background:var(--gold);color:#0c0c0c;margin-top:0.5rem}
-    .btn:disabled{opacity:0.5;cursor:not-allowed}
-    .btn-secondary{background:#1c1c1c;color:var(--text);border:1px solid var(--border);margin-top:0.5rem}
-    .error{background:#3a1515;color:#ff8a8a;padding:0.75rem;border-radius:8px;margin-bottom:1rem;font-size:0.85rem;display:none}
-    .success{background:#153a1f;color:#8affa0;padding:0.75rem;border-radius:8px;margin-bottom:1rem;font-size:0.85rem;display:none}
-    .divider{display:flex;align-items:center;gap:1rem;margin:1rem 0;color:var(--text-secondary);font-size:0.8rem}
-    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-    .link{color:var(--gold);text-decoration:none;font-size:0.85rem}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
-    @media(max-width:480px){.row{grid-template-columns:1fr}}
-  </style>
-  <link rel="canonical" href="https://bonds-global.com/auth-v2" />
+  <meta name="description" content="تسجيل الدخول | بوندز" />
+  <link rel="canonical" href="https://bonds-global.com/calculators/auth/" />
   <meta property="og:title" content="تسجيل الدخول | بوندز" />
-  <meta property="og:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
+  <meta property="og:description" content="تسجيل الدخول | بوندز" />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-  <meta property="og:url" content="https://bonds-global.com/auth-v2" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/auth/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="تسجيل الدخول | بوندز" />
-  <meta name="twitter:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
+  <meta name="twitter:description" content="تسجيل الدخول | بوندز" />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-
-  <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
-
-<link rel="stylesheet" href="components/universal-dropdown.css" />
 </head>
 <body>
-  <div class="card">
-    <div class="logo"><img src="assets/bonds-logo-2026.webp?v=2026" alt="Bonds"></div>
-    <div class="tabs">
-      <button class="tab active" onclick="showTab('login')">تسجيل الدخول</button>
-      <button class="tab" onclick="showTab('signup')">حساب جديد</button>
-    </div>
-    <div id="error" class="error"></div>
-    <div id="success" class="success"></div>
-
-    <div id="loginPanel">
-      <form onsubmit="return doLogin(event)">
-        <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="le" required placeholder="your@email.com" dir="ltr"></div>
-        <div class="form-group"><label>كلمة المرور</label><input type="password" id="lp" required placeholder="••••••••" dir="ltr"></div>
-        <button type="submit" class="btn" id="lb">تسجيل الدخول</button>
-      </form>
-      <div class="divider">أو</div>
-      <button class="btn btn-secondary" onclick="doOTP()">إرسال رابط سحري 📧</button>
-    </div>
-
-    <div id="signupPanel" style="display:none">
-      <form onsubmit="return doSignup(event)">
-        <div class="form-group"><label>اسم المطعم / الشركة *</label><input type="text" id="sn" required placeholder="مثال: مطعم الذواقة"></div>
-        <div class="form-group"><label>البريد الإلكتروني *</label><input type="email" id="se" required placeholder="your@email.com" dir="ltr"></div>
-        <div class="form-group"><label>كلمة المرور * (8 أحرف)</label><input type="password" id="sp" required minlength="8" placeholder="••••••••" dir="ltr"></div>
-        <div class="form-group"><label>تأكيد كلمة المرور *</label><input type="password" id="sc" required placeholder="أعد كتابة كلمة المرور" dir="ltr"></div>
-        <div class="row">
-          <div class="form-group"><label>الدولة *</label><input type="text" id="sco" required placeholder="السعودية"></div>
-          <div class="form-group"><label>المدينة *</label><input type="text" id="sci" required placeholder="الرياض"></div>
-        </div>
-        <div class="row">
-          <div class="form-group"><label>رقم الجوال *</label><input type="tel" id="sph" required placeholder="05xxxxxxxx" dir="ltr"></div>
-          <div class="form-group"><label>نوع النشاط *</label>
-            <select data-universal-dropdown="true" id="sbt" required><option value="">اختر</option><option value="restaurant">مطعم</option><option value="cafe">مقهى</option><option value="bakery">مخبز</option><option value="food_truck">عربة طعام</option><option value="catering">تموين</option><option value="retail">متجر</option><option value="manufacturing">تصنيع</option><option value="other">أخرى</option></select>
-          </div>
-        </div>
-        <div class="form-group"><label>عدد الموظفين</label><input type="number" id="sec" min="0" placeholder="12"></div>
-        <div class="form-group"><label>نبذة عن المشروع</label><textarea id="sbio" rows="2" placeholder="اكتب نبذة مختصرة..."></textarea></div>
-        <div class="form-group"><label>الاحتياجات</label><textarea id="sne" rows="2" placeholder="مثال: تحليل مالي..."></textarea></div>
-        <div class="form-group" style="display:none"><input type="text" id="website" tabindex="-1" autocomplete="off"></div>
-        <button type="submit" class="btn" id="sb">إنشاء حساب</button>
-      </form>
-    </div>
-
-    <div style="text-align:center;margin-top:1rem"><a href="calculator.html" class="link">← العودة للحاسبة</a></div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script>
-    // ── Inline Supabase Config ──
-    const SUPABASE_URL = 'https://hutxsqzplyuqgnghsrcs.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_45XVdlKR2isOJ_OvZVO61Q_oYbhnVnF';
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true } });
-
-    function showError(m){ document.getElementById('error').textContent=m; document.getElementById('error').style.display='block'; document.getElementById('success').style.display='none'; }
-    function showSuccess(m){ document.getElementById('success').textContent=m; document.getElementById('success').style.display='block'; document.getElementById('error').style.display='none'; }
-    function clearMsgs(){ document.getElementById('error').style.display='none'; document.getElementById('success').style.display='none'; }
-
-    function showTab(t){
-      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('loginPanel').style.display = t==='login'?'block':'none';
-      document.getElementById('signupPanel').style.display = t==='signup'?'block':'none';
-      clearMsgs();
-    }
-
-    async function doLogin(e){
-      e.preventDefault(); clearMsgs();
-      const btn = document.getElementById('lb'); btn.disabled = true;
-      const email = document.getElementById('le').value.trim();
-      const pass = document.getElementById('lp').value;
-      const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-      btn.disabled = false;
-      if(error){
-        if(error.message.includes('Invalid')) showError('البريد أو كلمة المرور غير صحيحة');
-        else if(error.message.includes('not confirmed')) showError('البريد غير مُفعّل');
-        else showError(error.message);
-        return false;
-      }
-      showSuccess('تم تسجيل الدخول! جاري التوجيه...');
-      setTimeout(()=>{ window.location.href = 'https://bonds-global.com/calculator.html'; }, 600);
-      return false;
-    }
-
-    async function doOTP(){
-      clearMsgs();
-      const email = document.getElementById('le').value.trim();
-      if(!email){ showError('أدخل البريد أولاً'); return; }
-      const { error } = await sb.auth.signInWithOtp({ email, options: {} });
-      if(error) showError(error.message);
-      else showSuccess('تم إرسال رابط سحري إلى بريدك!');
-    }
-
-    async function doSignup(e){
-      e.preventDefault(); clearMsgs();
-      const btn = document.getElementById('sb'); btn.disabled = true;
-      const email = document.getElementById('se').value.trim();
-      const pass = document.getElementById('sp').value;
-      const conf = document.getElementById('sc').value;
-      const name = document.getElementById('sn').value.trim();
-      const phone = document.getElementById('sph').value.trim();
-      const country = document.getElementById('sco').value.trim();
-      const city = document.getElementById('sci').value.trim();
-      const biz = document.getElementById('sbt').value;
-      const honeypot = document.getElementById('website').value;
-      
-      // Bot check
-      if(honeypot){ showError('تم رفض الطلب'); btn.disabled=false; return false; }
-      
-      // Validate required fields
-      if(!phone){ showError('رقم الجوال مطلوب'); btn.disabled=false; return false; }
-      if(!country){ showError('الدولة مطلوبة'); btn.disabled=false; return false; }
-      if(!city){ showError('المدينة مطلوبة'); btn.disabled=false; return false; }
-      if(!biz){ showError('نوع النشاط مطلوب'); btn.disabled=false; return false; }
-      
-      // Phone validation: Saudi or international
-      const saPhone = /^05\d{8}$/;
-      const intlPhone = /^\+\d{7,15}$/;
-      if(!saPhone.test(phone) && !intlPhone.test(phone)){ showError('رقم الجوال غير صحيح (05xxxxxxxx أو +966xxxxxxx)'); btn.disabled=false; return false; }
-      
-      if(pass.length<8){ showError('كلمة المرور يجب أن تكون 8 أحرف'); btn.disabled=false; return false; }
-      if(pass!==conf){ showError('كلمة المرور غير متطابقة'); btn.disabled=false; return false; }
-      const { data, error } = await sb.auth.signUp({
-        email, password: pass,
-        options: {
-          data: {
-            restaurant_name: name,
-            country: document.getElementById('sco').value.trim(),
-            city: document.getElementById('sci').value.trim(),
-            phone: document.getElementById('sph').value.trim(),
-            business_type: document.getElementById('sbt').value,
-            employee_count: document.getElementById('sec').value,
-            bio: document.getElementById('sbio').value.trim(),
-            needs: document.getElementById('sne').value.trim(),
-            language: 'ar'
-          },
-          emailRedirectTo: 'https://bonds-global.com/calculators/auth/confirmed.html'
-        }
-      });
-      btn.disabled = false;
-      if(error){
-        if(error.message.includes('already registered')) showError('هذا البريد مسجل مسبقاً');
-        else showError(error.message);
-        return false;
-      }
-      showSuccess('تم إنشاء الحساب! جاري التوجيه...');
-      setTimeout(()=>{ window.location.href = 'https://bonds-global.com/calculator.html'; }, 800);
-      return false;
-    }
-  </script>
-  <script src="page-tracker-v2.js"></script>
-<script src="components/universal-dropdown.js"></script>
-<script src="components/universal-dropdown-init.js"></script>
+  <p>جاري تحويلك إلى <a href="/calculators/auth/index.html">تسجيل الدخول | بوندز</a>...</p>
 </body>
 </html>
- 

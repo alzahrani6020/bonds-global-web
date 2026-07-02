@@ -19,11 +19,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="../header-footer.css?v=7" />
+  <link rel="stylesheet" href="../styles/design-system.css" />
   <link rel="stylesheet" href="/valuation/valuation.css?v=3" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://bonds-global.com/valuation/" />
 </head>
-<body class="valuation-page" style="font-family:Vazirmatn,system-ui,sans-serif">
+<body class="valuation-page">
   <div id="site-header"></div>
 
   <main>
@@ -51,8 +52,8 @@
         <div id="restoreBanner" class="restore-banner">
           <span id="restoreText"></span>
           <div>
-            <button id="restoreBtn" class="btn-primary" style="padding:0.45rem 1rem;font-size:0.8rem">استعادة</button>
-            <button id="discardBtn" class="btn-outline" style="padding:0.45rem 1rem;font-size:0.8rem">تجاهل</button>
+            <button id="restoreBtn" class="btn-primary btn-sm">استعادة</button>
+            <button id="discardBtn" class="btn-outline btn-sm">تجاهل</button>
           </div>
         </div>
 
@@ -61,7 +62,7 @@
     </section>
 
     <!-- Wizard -->
-    <section class="val-section" id="wizardSection" style="padding-top:0">
+    <section class="val-section val-section--no-top-padding" id="wizardSection">
       <div class="container">
         <div class="wizard" id="wizard">
           <div class="wizard__header">
@@ -87,14 +88,14 @@
     </section>
 
     <!-- Results -->
-    <section class="val-section" id="resultsSection" style="padding-top:0">
+    <section class="val-section val-section--no-top-padding" id="resultsSection">
       <div class="container">
         <div class="results-dashboard" id="resultsDashboard">
           <h2 class="val-section__title">لوحة النتائج</h2>
 
           <div class="valuation-cards" id="valuationCards"></div>
 
-          <div class="valuation-actions" id="valuationActions" style="margin: var(--space-6) 0; display: flex; gap: 1rem; flex-wrap: wrap;">
+          <div class="valuation-actions ecc-actions" id="valuationActions">
             <button class="btn-primary" id="saveValuationBtn">💾 حفظ التقييم</button>
             <button class="btn-outline" id="validateValuationBtn">✅ تحقق من البيانات</button>
             <button class="btn-outline" id="generateAiReportBtn" style="display:none">🤖 تقرير تنفيذي ذكي</button>
@@ -109,7 +110,7 @@
 
           <div class="executive-report-panel" id="executiveReportPanel" style="display:none; margin-bottom: var(--space-8);">
             <div class="executive-report-panel__header">
-              <h3 class="val-section__title" style="margin:0">📊 التقرير التنفيذي الذكي</h3>
+              <h3 class="val-section__title val-section__title--flush">📊 التقرير التنفيذي الذكي</h3>
               <span class="executive-report-panel__status" id="executiveReportStatus"></span>
             </div>
             <div class="executive-report-panel__toolbar" id="executiveReportToolbar" style="display:none">
@@ -122,7 +123,7 @@
 
           <div class="certificate-panel" id="certificatePanel" style="display:none; margin-bottom: var(--space-8);">
             <div class="certificate-panel__header">
-              <h3 class="val-section__title" style="margin:0">🏅 شهادة BONDS الرقمية للتقييم</h3>
+              <h3 class="val-section__title val-section__title--flush">🏅 شهادة BONDS الرقمية للتقييم</h3>
               <span class="certificate-panel__status" id="certificateStatus"></span>
             </div>
             <div class="certificate-panel__body" id="certificateBody"></div>
@@ -132,25 +133,25 @@
             </div>
           </div>
 
-          <h3 class="val-section__title" style="font-size:var(--text-2xl)">مؤشرات الأداء</h3>
+          <h3 class="val-section__title val-section__title--large">مؤشرات الأداء</h3>
           <div class="score-grid" id="scoreGrid"></div>
 
-          <h3 class="val-section__title" style="font-size:var(--text-2xl)">ذكاء المخاطر</h3>
+          <h3 class="val-section__title val-section__title--large">ذكاء المخاطر</h3>
           <div class="risk-summary" id="riskSummary"></div>
           <div class="valuation-cards" id="riskCards"></div>
           <div class="score-grid" id="riskScoreGrid"></div>
 
-          <h3 class="val-section__title" style="font-size:var(--text-2xl)">الذكاء السوقي</h3>
+          <h3 class="val-section__title val-section__title--large">الذكاء السوقي</h3>
           <div class="market-summary" id="marketSummary"></div>
           <div class="valuation-cards" id="marketCards"></div>
-          <div class="chart-container" style="position:relative;height:260px;margin-bottom:var(--space-8);display:none" id="marketTrendContainer">
+          <div class="chart-container ecc-chart" style="display:none" id="marketTrendContainer">
             <canvas id="marketTrendChart"></canvas>
           </div>
 
-          <h3 class="val-section__title" style="font-size:var(--text-2xl)">تحليل الاستهلاك</h3>
+          <h3 class="val-section__title val-section__title--large">تحليل الاستهلاك</h3>
           <div class="deprecation-summary" id="deprecationSummary"></div>
           <div class="valuation-cards" id="deprecationCards"></div>
-          <div class="chart-container" style="position:relative;height:300px;margin-bottom:var(--space-8)">
+          <div class="chart-container ecc-chart ecc-chart--tall">
             <canvas id="deprecationChart"></canvas>
           </div>
 
@@ -174,19 +175,19 @@
         <div class="score-grid">
           <div class="score-item">
             <div class="score-item__header"><span class="score-item__name">منهجية القيمة التاريخية</span></div>
-            <p style="color:var(--text-secondary);font-size:0.9rem">تحليل التكلفة الأصلية والإهلاك والاكتساب لتحديد القيمة الدفترية.</p>
+            <p class="text-secondary-sm">تحليل التكلفة الأصلية والإهلاك والاكتساب لتحديد القيمة الدفترية.</p>
           </div>
           <div class="score-item">
             <div class="score-item__header"><span class="score-item__name">منهجية السوق</span></div>
-            <p style="color:var(--text-secondary);font-size:0.9rem">مقارنة الأصل بمعاملات ومضاعفات السوق مع تعديلات الطلب والعرض.</p>
+            <p class="text-secondary-sm">مقارنة الأصل بمعاملات ومضاعفات السوق مع تعديلات الطلب والعرض.</p>
           </div>
           <div class="score-item">
             <div class="score-item__header"><span class="score-item__name">منهجية الدخل</span></div>
-            <p style="color:var(--text-secondary);font-size:0.9rem">تقييم التدفقات النقدية المستقبلية ومعدلات العائد والنمو.</p>
+            <p class="text-secondary-sm">تقييم التدفقات النقدية المستقبلية ومعدلات العائد والنمو.</p>
           </div>
           <div class="score-item">
             <div class="score-item__header"><span class="score-item__name">تعديل المخاطر</span></div>
-            <p style="color:var(--text-secondary);font-size:0.9rem">دمج المخاطر التنظيمية والبيئية والسوقية في القيمة النهائية.</p>
+            <p class="text-secondary-sm">دمج المخاطر التنظيمية والبيئية والسوقية في القيمة النهائية.</p>
           </div>
         </div>
       </div>

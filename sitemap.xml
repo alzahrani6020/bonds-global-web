@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://bonds-global.com/about.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://bonds-global.com/auth-v2.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://bonds-global.com/auth.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://bonds-global.com/calculator-v2.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://bonds-global.com/calculator.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://bonds-global.com/contact.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://bonds-global.com/faq.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -22,7 +19,6 @@
   <url><loc>https://bonds-global.com/suppliers-guide.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://bonds-global.com/test.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://bonds-global.com/v.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://bonds-global.com/verify.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://bonds-global.com/دراسة-جدوى-إحياء-الأصول-الملقحة.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://bonds-global.com/blog/break-even-explained.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/blog/cash-flow-mistakes.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -54,31 +50,13 @@
   <url><loc>https://bonds-global.com/calculators/en/cash-flow.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/en/loan.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/en/pricing.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-ae.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-bh.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-dz.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-eg.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-iq.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-jo.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-kw.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-lb.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-ly.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-ma.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-om.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-qa.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-sd.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-sy.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-tn.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/factory-cost-ye.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/factory-cost.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/feasibility-template-backup.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/feasibility-template-real-estate.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/feasibility-template.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/feasibility.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/medical-viability.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/invoice-analyzer.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/loan.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/calculators/menu-engineering-simple.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/menu-engineering.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/pricing.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/restaurant.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -101,22 +79,6 @@
   <url><loc>https://bonds-global.com/en/calculators/cash-flow.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/dashboard.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/dish-margin.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-ae.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-bh.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-dz.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-eg.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-iq.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-jo.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-kw.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-lb.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-ly.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-ma.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-om.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-qa.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-sd.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-sy.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-tn.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/factory-cost-ye.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/factory-cost.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/feasibility-template-real-estate.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/feasibility-template.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -124,7 +86,6 @@
   <url><loc>https://bonds-global.com/en/calculators/medical-viability.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/invoice-analyzer.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/loan.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://bonds-global.com/en/calculators/menu-engineering-simple.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/menu-engineering.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/pricing.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/en/calculators/restaurant.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>

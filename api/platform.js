@@ -272,7 +272,9 @@ async function proHandler(req, res) {
   setProCors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const action = getProAction(req);
+  let action = getProAction(req);
+  // Normalize legacy pro login actions to the shared auth handler
+  if (action === 'signin' || action === 'signup') action = 'auth';
 
   try {
     switch (action) {

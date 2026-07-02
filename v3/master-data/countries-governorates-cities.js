@@ -92,7 +92,6 @@ const ARAB_COUNTRIES_GEO = {
         { name: 'بقيق', nameEn: 'Buqayq', code: 'SA-05-009' },
         { name: 'النعيرية', nameEn: 'An Nuayriyah', code: 'SA-05-010' },
         { name: 'قرية العليا', nameEn: 'Qaryat al Ulya', code: 'SA-05-011' },
-        { name: 'الاحساء', nameEn: 'Al Hasa', code: 'SA-05-012' }
       ]},
       { name: 'منطقة عسير', nameEn: 'Asir Region', cities: [
         { name: 'أبها', nameEn: 'Abha', code: 'SA-06-001' },

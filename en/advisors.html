@@ -49,7 +49,7 @@
   <section class="advisors-hero">
     <h1>Bonds-Certified Advisors</h1>
     <p>Hand-picked finance and investment experts ready to review your project analysis, answer your questions, and guide you toward a better decision.</p>
-    <a href="client/index.html" class="btn btn--primary">Request an Advisor Review</a>
+    <a href="/en/v3/portfolio" class="btn btn--primary">Request an Advisor Review</a>
   </section>
 
   <section id="advisorsContainer" class="advisors-loading">Loading advisors...</section>
@@ -90,7 +90,7 @@
               <span>${advisor.years_experience || 0}+ years experience</span>
               <span><strong>${advisor.commission_rate || 25}%</strong> commission</span>
             </div>
-            <a class="advisor-cta" href="client/index.html?advisor=${advisor.id}">Choose this advisor</a>
+            <a class="advisor-cta" href="/en/v3/portfolio?advisor=${advisor.id}">Choose this advisor</a>
           </article>
         `).join('');
       } catch (e) {

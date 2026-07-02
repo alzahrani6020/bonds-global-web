@@ -4,15 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>بوابة العميل | Bonds</title>
-  <meta name="description" content="لوحة تحكم العميل في بوندز لمتابعة المشاريع والتقارير." />
+  <meta name="description" content="بوابة العميل في بوندز — رحلة المشروع من الفكرة إلى النشر الاستثماري." />
   <link rel="icon" href="/assets/bonds-mark.svg" type="image/png" />
   <link rel="stylesheet" href="/client/portal.css" />
   <link rel="canonical" href="https://bonds-global.com/client/index.html" />
   <meta property="og:title" content="بوابة العميل | Bonds" />
-  <meta property="og:description" content="لوحة تحكم العميل في بوندز لمتابعة المشاريع والتقارير." />
+  <meta property="og:description" content="بوابة العميل في بوندز — رحلة المشروع من الفكرة إلى النشر الاستثماري." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:url" content="https://bonds-global.com/client/index.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="بوابة العميل | Bonds" />
+  <meta name="twitter:description" content="بوابة العميل في بوندز — رحلة المشروع من الفكرة إلى النشر الاستثماري." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 </head>
 <body>
+  <script>if (!new URLSearchParams(location.search).has('wizard')) { window.location.replace('/v3/portfolio'); }</script>
   <div id="portal-header"></div>
   <div class="portal-layout">
     <aside id="portal-sidebar" class="portal-sidebar"></aside>
@@ -22,8 +29,9 @@
   <script>window.__PORTAL_LANG = 'ar'; window.__PORTAL_PAGE = 'dashboard'; </script>
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
   <script src="/bonds-auth-2026.js?v=1"></script>
+  <script src="/lib/i18n/fields.js"></script>
+  <script src="/calculators/shared-geo.js"></script>
   <script src="/client/portal.js"></script>
   <script>BondsClientPortal.initDashboard();</script>
 </body>

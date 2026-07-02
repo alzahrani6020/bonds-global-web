@@ -1,0 +1,183 @@
+:root {
+  --bg: #0a0f1a;
+  --bg-card: rgba(16,24,45,0.6);
+  --gold: #d4a853;
+  --gold-bright: #f0c96a;
+  --text: #e8ecf4;
+  --text-secondary: #94a3b8;
+  --border: rgba(197,160,40,0.15);
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --info: #3b82f6;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Vazirmatn', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.ecc-shell { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+
+.ecc-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 1rem; margin-bottom: 1.5rem;
+}
+.ecc-header__title h1 { font-size: 1.8rem; font-weight: 800; color: var(--gold-bright); }
+.ecc-header__title p { color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem; }
+.ecc-header__stage {
+  background: rgba(212,168,83,0.12);
+  border: 1px solid var(--border);
+  color: var(--gold);
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.ecc-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.25rem;
+}
+
+.ecc-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  backdrop-filter: blur(10px);
+}
+.ecc-card__title {
+  font-size: 0.9rem; font-weight: 700; color: var(--text-secondary);
+  margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+.health-cards {
+  grid-column: span 12;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+.health-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.2s;
+}
+.health-card:hover { border-color: rgba(212,168,83,0.35); }
+.health-card__value {
+  font-size: 1.75rem; font-weight: 800; color: var(--gold-bright); margin-bottom: 0.25rem;
+}
+.health-card__label { font-size: 0.8rem; color: var(--text-secondary); }
+.health-card__status {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.status--healthy { background: rgba(34,197,94,0.15); color: var(--success); }
+.status--attention { background: rgba(234,179,8,0.15); color: var(--warning); }
+.status--at-risk { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+.mission-control { grid-column: span 8; }
+.decision-cockpit { grid-column: span 4; }
+.timeline-section { grid-column: span 7; }
+.alerts-section { grid-column: span 5; }
+
+.mission-item {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.9rem; border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  margin-bottom: 0.75rem;
+}
+.mission-item__icon { font-size: 1.25rem; }
+.mission-item__title { font-weight: 700; font-size: 0.95rem; }
+.mission-item__desc { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.2rem; }
+
+.priority-critical { border-right: 3px solid var(--danger); }
+.priority-high { border-right: 3px solid var(--warning); }
+.priority-medium { border-right: 3px solid var(--info); }
+.priority-low { border-right: 3px solid var(--success); }
+
+.action-bar {
+  grid-column: span 12;
+  display: flex; flex-wrap: wrap; gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.ecc-btn {
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.ecc-btn--primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #0a0f1a; }
+.ecc-btn--secondary { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); }
+.ecc-btn:hover { transform: translateY(-1px); }
+.ecc-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.timeline { max-height: 360px; overflow-y: auto; padding-left: 0.5rem; }
+.timeline__item {
+  display: flex; gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.timeline__dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--gold); margin-top: 0.4rem; flex-shrink: 0;
+}
+.timeline__title { font-weight: 700; font-size: 0.9rem; }
+.timeline__meta { color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.15rem; }
+
+.alert {
+  display: flex; align-items: flex-start; gap: 0.6rem;
+  padding: 0.75rem; border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  margin-bottom: 0.6rem;
+}
+.alert__icon { font-size: 1.1rem; }
+.alert__title { font-weight: 700; font-size: 0.85rem; }
+.alert__msg { color: var(--text-secondary); font-size: 0.8rem; }
+
+.loading {
+  grid-column: span 12;
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--text-secondary);
+}
+.loading__spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error {
+  grid-column: span 12;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--danger);
+}
+
+@media (max-width: 1024px) {
+  .mission-control, .decision-cockpit, .timeline-section, .alerts-section { grid-column: span 12; }
+}
+@media (max-width: 640px) {
+  .ecc-header { flex-direction: column; }
+  .health-cards { grid-template-columns: repeat(2, 1fr); }
+}

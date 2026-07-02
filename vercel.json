@@ -446,5 +446,217 @@
       "path": "/api/v3/admin/alerts/evaluate",
       "schedule": "0 8 * * *"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/calculators/factory-cost-ae",
+      "destination": "/calculators/factory-cost?country=AE",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-ae",
+      "destination": "/en/calculators/factory-cost?country=AE",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-bh",
+      "destination": "/calculators/factory-cost?country=BH",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-bh",
+      "destination": "/en/calculators/factory-cost?country=BH",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-dj",
+      "destination": "/calculators/factory-cost?country=DJ",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-dj",
+      "destination": "/en/calculators/factory-cost?country=DJ",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-dz",
+      "destination": "/calculators/factory-cost?country=DZ",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-dz",
+      "destination": "/en/calculators/factory-cost?country=DZ",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-eg",
+      "destination": "/calculators/factory-cost?country=EG",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-eg",
+      "destination": "/en/calculators/factory-cost?country=EG",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-iq",
+      "destination": "/calculators/factory-cost?country=IQ",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-iq",
+      "destination": "/en/calculators/factory-cost?country=IQ",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-jo",
+      "destination": "/calculators/factory-cost?country=JO",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-jo",
+      "destination": "/en/calculators/factory-cost?country=JO",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-km",
+      "destination": "/calculators/factory-cost?country=KM",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-km",
+      "destination": "/en/calculators/factory-cost?country=KM",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-kw",
+      "destination": "/calculators/factory-cost?country=KW",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-kw",
+      "destination": "/en/calculators/factory-cost?country=KW",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-lb",
+      "destination": "/calculators/factory-cost?country=LB",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-lb",
+      "destination": "/en/calculators/factory-cost?country=LB",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-ly",
+      "destination": "/calculators/factory-cost?country=LY",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-ly",
+      "destination": "/en/calculators/factory-cost?country=LY",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-ma",
+      "destination": "/calculators/factory-cost?country=MA",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-ma",
+      "destination": "/en/calculators/factory-cost?country=MA",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-mr",
+      "destination": "/calculators/factory-cost?country=MR",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-mr",
+      "destination": "/en/calculators/factory-cost?country=MR",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-om",
+      "destination": "/calculators/factory-cost?country=OM",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-om",
+      "destination": "/en/calculators/factory-cost?country=OM",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-ps",
+      "destination": "/calculators/factory-cost?country=PS",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-ps",
+      "destination": "/en/calculators/factory-cost?country=PS",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-qa",
+      "destination": "/calculators/factory-cost?country=QA",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-qa",
+      "destination": "/en/calculators/factory-cost?country=QA",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-sd",
+      "destination": "/calculators/factory-cost?country=SD",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-sd",
+      "destination": "/en/calculators/factory-cost?country=SD",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-so",
+      "destination": "/calculators/factory-cost?country=SO",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-so",
+      "destination": "/en/calculators/factory-cost?country=SO",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-sy",
+      "destination": "/calculators/factory-cost?country=SY",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-sy",
+      "destination": "/en/calculators/factory-cost?country=SY",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-tn",
+      "destination": "/calculators/factory-cost?country=TN",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-tn",
+      "destination": "/en/calculators/factory-cost?country=TN",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/factory-cost-ye",
+      "destination": "/calculators/factory-cost?country=YE",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/factory-cost-ye",
+      "destination": "/en/calculators/factory-cost?country=YE",
+      "statusCode": 301
+    }
   ]
 }

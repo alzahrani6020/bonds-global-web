@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,7 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
   <script>if (location.search.includes('embed=1')) document.documentElement.classList.add('admin-embed');</script>
-  <link rel="stylesheet" href="/admin/ai-business-advisor/styles.css?v=2" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles/design-system.css?v=1" />
+  <link rel="stylesheet" href="/admin/ai-business-advisor/styles.css?v=3" />
   <link rel="stylesheet" href="/admin/ai-analyze-styles.css?v=1" />
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -52,8 +54,8 @@
           <p class="ai-subtitle">تحليلات مالية واستثمارية مدعومة بالذكاء الاصطناعي</p>
         </div>
         <div class="ai-topbar-actions">
-          <button class="ai-btn ai-btn-primary" onclick="AiAdvisorApp.generateFullReport()">📄 تقرير شامل</button>
-          <button class="ai-btn ai-btn-secondary" onclick="AiAdvisorApp.refresh()">↻ تحديث</button>
+          <button class="ecc-btn ecc-btn--primary" onclick="AiAdvisorApp.generateFullReport()">📄 تقرير شامل</button>
+          <button class="ecc-btn ecc-btn--ghost" onclick="AiAdvisorApp.refresh()">↻ تحديث</button>
         </div>
       </header>
 

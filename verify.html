@@ -1,102 +1,22 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>Verify System | Bonds</title>
-  <style>
-    body { font-family: system-ui, sans-serif; background: #0c0c0c; color: #f5f5f5; padding: 2rem; max-width: 700px; margin: 0 auto; }
-    h1 { color: #c8a45c; }
-    .test { background: #141414; border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.5rem; margin: 1rem 0; }
-    .pass { color: #4ade80; font-weight: 700; }
-    .fail { color: #f87171; font-weight: 700; }
-    button { background: #c8a45c; color: #0c0c0c; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; }
-    pre { background: #050a15; padding: 1rem; border-radius: 8px; overflow: auto; font-size: 0.85rem; direction: ltr; text-align: left; }
-  </style>
-  <link rel="canonical" href="https://bonds-global.com/verify" />
-  <meta property="og:title" content="Verify System | Bonds" />
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="0; url=/calculators/auth/index.html" />
+  <title>إعادة توجيه | بوندز</title>
+  <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
+  <link rel="canonical" href="https://bonds-global.com/calculators/auth/" />
+  <meta property="og:title" content="إعادة توجيه | بوندز" />
   <meta property="og:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-  <meta property="og:url" content="https://bonds-global.com/verify" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/auth/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Verify System | Bonds" />
+  <meta name="twitter:title" content="إعادة توجيه | بوندز" />
   <meta name="twitter:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-
-  <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
-
 </head>
 <body>
-  <h1>System Verification</h1>
-  <div class="test">
-    <h3>1. Supabase Connection</h3>
-    <div id="r1">Testing...</div>
-    <pre id="r1d"></pre>
-  </div>
-  <div class="test">
-    <h3>2. Sign In Test (wrong credentials)</h3>
-    <div id="r2">Testing...</div>
-    <pre id="r2d"></pre>
-  </div>
-  <div class="test">
-    <h3>3. Your Session</h3>
-    <div id="r3">Testing...</div>
-    <pre id="r3d"></pre>
-  </div>
-  <button onclick="runTests()">Retest</button>
-  <button onclick="location.href='auth-v2.html'" style="background:#16a34a;color:white;margin-left:0.5rem;">Go to Login</button>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script>
-    const SUPABASE_URL = 'https://hutxsqzplyuqgnghsrcs.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_45XVdlKR2isOJ_OvZVO61Q_oYbhnVnF';
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    async function runTests() {
-      const r1 = document.getElementById('r1');
-      const r1d = document.getElementById('r1d');
-      try {
-        const { data, error } = await sb.auth.getSession();
-        if (error) throw error;
-        r1.innerHTML = '<span class="pass">PASS</span> — Supabase connected';
-        r1d.textContent = 'URL: ' + SUPABASE_URL;
-      } catch (e) {
-        r1.innerHTML = '<span class="fail">FAIL</span> — ' + e.message;
-      }
-
-      const r2 = document.getElementById('r2');
-      const r2d = document.getElementById('r2d');
-      try {
-        const { data, error } = await sb.auth.signInWithPassword({ email: 'test@example.com', password: 'wrong' });
-        if (error && error.message.includes('Invalid')) {
-          r2.innerHTML = '<span class="pass">PASS</span> — API responds correctly (rejected wrong password)';
-          r2d.textContent = 'Error: ' + error.message;
-        } else if (error) {
-          r2.innerHTML = '<span class="fail">FAIL</span> — ' + error.message;
-        } else {
-          r2.innerHTML = '<span class="pass">PASS</span> — Login succeeded (unexpected!)';
-        }
-      } catch (e) {
-        r2.innerHTML = '<span class="fail">FAIL</span> — ' + e.message;
-      }
-
-      const r3 = document.getElementById('r3');
-      const r3d = document.getElementById('r3d');
-      try {
-        const { data } = await sb.auth.getSession();
-        if (data.session) {
-          r3.innerHTML = '<span class="pass">PASS</span> — You are logged in!';
-          r3d.textContent = 'Email: ' + data.session.user.email;
-        } else {
-          r3.innerHTML = '<span class="fail">No session</span> — Not logged in (normal)';
-          r3d.textContent = 'Try logging in first.';
-        }
-      } catch (e) {
-        r3.innerHTML = '<span class="fail">FAIL</span> — ' + e.message;
-      }
-    }
-
-    window.addEventListener('load', runTests);
-  </script>
+  <p>جاري تحويلك إلى <a href="/calculators/auth/index.html">صفحة تسجيل الدخول</a>...</p>
 </body>
 </html>

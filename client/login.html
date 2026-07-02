@@ -2,103 +2,21 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>بوابة العميل — تسجيل الدخول | Bonds</title>
-  <meta name="description" content="تسجيل الدخول إلى بوابة العميل في بوندز لمتابعة المشاريع والتقارير." />
-  <link rel="icon" href="/assets/bonds-mark.svg" type="image/png" />
-  <link rel="stylesheet" href="/client/portal.css" />
-  <link rel="canonical" href="https://bonds-global.com/client/login.html" />
-  <meta property="og:title" content="بوابة العميل — تسجيل الدخول | Bonds" />
-  <meta property="og:description" content="تسجيل الدخول إلى بوابة العميل في بوندز لمتابعة المشاريع والتقارير." />
+  <meta http-equiv="refresh" content="0; url=/calculators/auth/index.html?redirect=/v3/portfolio" />
+  <title>إعادة توجيه | بوندز</title>
+  <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
+  <link rel="canonical" href="https://bonds-global.com/calculators/auth/" />
+  <meta property="og:title" content="إعادة توجيه | بوندز" />
+  <meta property="og:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/auth/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="إعادة توجيه | بوندز" />
+  <meta name="twitter:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 </head>
 <body>
-  <div class="portal-login">
-    <div class="portal-login__card">
-      <div class="portal-login__logo">
-        <img src="/assets/bonds-logo-2026-header.webp?v=2026" alt="Bonds" />
-        <span>بوابة العميل</span>
-      </div>
-
-      <div id="msg" class="portal-msg"></div>
-
-      <form id="loginForm">
-        <div class="portal-form-group">
-          <label for="email">البريد الإلكتروني</label>
-          <input type="email" id="email" required placeholder="your@email.com" dir="ltr" />
-        </div>
-        <div class="portal-form-group">
-          <label for="password">كلمة المرور</label>
-          <input type="password" id="password" required placeholder="••••••••" dir="ltr" />
-        </div>
-        <div class="portal-form__actions">
-          <a class="portal-link" href="/calculators/auth/index.html?redirect=/client/index.html">ليس لديك حساب؟</a>
-          <a class="portal-link" href="/calculators/auth/reset.html">نسيت كلمة المرور؟</a>
-        </div>
-        <button type="submit" class="portal-btn" id="loginBtn" style="width:100%;justify-content:center;">
-          <span id="btnText">تسجيل الدخول</span>
-        </button>
-      </form>
-
-      <div style="text-align:center;margin-top:1.5rem;">
-        <a class="portal-link" href="/en/client/login.html">English</a>
-      </div>
-    </div>
-  </div>
-
-  <script src="/api/env"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/bonds-auth-2026.js?v=1"></script>
-  <script>
-    (function() {
-      'use strict';
-
-      function showError(msg) {
-        const el = document.getElementById('msg');
-        el.textContent = msg;
-        el.className = 'portal-msg portal-msg--error';
-        el.style.display = 'block';
-      }
-      function showSuccess(msg) {
-        const el = document.getElementById('msg');
-        el.textContent = msg;
-        el.className = 'portal-msg portal-msg--success';
-        el.style.display = 'block';
-      }
-
-      // If already logged in, go to dashboard
-      window.BondsAuth.getUser().then(({ data }) => {
-        if (data?.user) {
-          const params = new URLSearchParams(window.location.search);
-          const redirect = params.get('redirect') || '/client/index.html';
-          window.location.replace(redirect);
-        }
-      });
-
-      document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('loginBtn');
-        const btnText = document.getElementById('btnText');
-        btn.disabled = true;
-        btnText.textContent = 'جاري الدخول...';
-
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-
-        const { data, error } = await window.BondsAuth.signIn(email, password);
-        if (error) {
-          showError(error.message || 'فشل تسجيل الدخول، تأكد من البريد وكلمة المرور.');
-          btn.disabled = false;
-          btnText.textContent = 'تسجيل الدخول';
-          return;
-        }
-
-        showSuccess('تم تسجيل الدخول بنجاح، جاري التوجيه...');
-        const params = new URLSearchParams(window.location.search);
-        const redirect = params.get('redirect') || '/client/index.html';
-        window.location.replace(redirect);
-      });
-    })();
-  </script>
+  <p>جاري تحويلك إلى <a href="/calculators/auth/index.html?redirect=/v3/portfolio">صفحة تسجيل الدخول</a>...</p>
 </body>
 </html>

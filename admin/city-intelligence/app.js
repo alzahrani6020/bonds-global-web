@@ -86,9 +86,9 @@
       return Math.round((sum / districts.length) * 100) / 100;
     },
     rating(score) {
-      if (score >= 75) return { label: 'ممتاز', class: 'score-high' };
-      if (score >= 50) return { label: 'جيد', class: 'score-medium' };
-      return { label: 'ضعيف', class: 'score-low' };
+      if (score >= 75) return { label: 'ممتاز', status: 'healthy' };
+      if (score >= 50) return { label: 'جيد', status: 'attention' };
+      return { label: 'ضعيف', status: 'at-risk' };
     }
   };
 
@@ -106,9 +106,6 @@
   function escapeHtml(str) {
     if (str == null) return '';
     return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
-  }
-  function scoreClass(score) {
-    return CityAnalysisEngine.rating(score).class;
   }
 
   // ── UI helpers ─────────────────────────────────────────────────────
@@ -149,8 +146,8 @@
         </div>
         <div class="modal-body">${html}</div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" id="modalCancel">إلغاء</button>
-          <button class="btn btn-primary" id="modalSave">${escapeHtml(submitText)}</button>
+          <button class="ecc-btn ecc-btn--ghost" id="modalCancel">إلغاء</button>
+          <button class="ecc-btn ecc-btn--primary" id="modalSave">${escapeHtml(submitText)}</button>
         </div>
       </div>`;
     overlay.classList.add('open');
@@ -273,45 +270,45 @@
           <p>نظرة عامة على المدن والأحياء والفرص الاستثمارية</p>
         </div>
         <div class="top-actions">
-          <button class="btn btn-primary" onclick="CityIntelligenceApp.openCityModal()">+ مدينة جديدة</button>
-          <button class="btn btn-secondary" onclick="location.hash='#map'">فتح الخريطة</button>
+          <button class="ecc-btn ecc-btn--primary" onclick="CityIntelligenceApp.openCityModal()">+ مدينة جديدة</button>
+          <button class="ecc-btn ecc-btn--ghost" onclick="location.hash='#map'">فتح الخريطة</button>
         </div>
       </div>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">🏙️</div></div>
-          <div class="stat-card__num">${formatNum(totalCities)}</div>
-          <div class="stat-card__label">المدن</div>
+      <div class="ecc-grid-4">
+        <div class="ecc-metric">
+          <div class="ci-metric-icon ci-metric-icon--gold">🏙️</div>
+          <div class="ecc-metric__value">${formatNum(totalCities)}</div>
+          <div class="ecc-metric__label">المدن</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">📍</div></div>
-          <div class="stat-card__num">${formatNum(totalDistricts)}</div>
-          <div class="stat-card__label">الأحياء</div>
+        <div class="ecc-metric">
+          <div class="ci-metric-icon ci-metric-icon--blue">📍</div>
+          <div class="ecc-metric__value">${formatNum(totalDistricts)}</div>
+          <div class="ecc-metric__label">الأحياء</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">⭐</div></div>
-          <div class="stat-card__num">${formatNum(avgScore, 1)}</div>
-          <div class="stat-card__label">متوسط درجة الاستثمار</div>
+        <div class="ecc-metric">
+          <div class="ci-metric-icon ci-metric-icon--green">⭐</div>
+          <div class="ecc-metric__value">${formatNum(avgScore, 1)}</div>
+          <div class="ecc-metric__label">متوسط درجة الاستثمار</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">🚀</div></div>
-          <div class="stat-card__num">${formatNum(highOpportunity)}</div>
-          <div class="stat-card__label">فرص عالية (≥75)</div>
+        <div class="ecc-metric">
+          <div class="ci-metric-icon ci-metric-icon--purple">🚀</div>
+          <div class="ecc-metric__value">${formatNum(highOpportunity)}</div>
+          <div class="ecc-metric__label">فرص عالية (≥75)</div>
         </div>
       </div>
       <div class="section-row">
-        <div class="card">
+        <div class="ecc-card">
           <h3>🏆 أفضل الأحياء</h3>
-          <div class="chart-box"><canvas id="topDistrictsChart"></canvas></div>
+          <div class="ecc-chart"><canvas id="topDistrictsChart"></canvas></div>
         </div>
-        <div class="card">
+        <div class="ecc-card">
           <h3>📊 توزيع التقييمات</h3>
-          <div class="chart-box"><canvas id="scoreDistChart"></canvas></div>
+          <div class="ecc-chart"><canvas id="scoreDistChart"></canvas></div>
         </div>
       </div>
-      <div class="card card--full">
+      <div class="ecc-card ecc-form-group--full">
         <h3>📈 مؤشرات الأداء</h3>
-        <div class="chart-box"><canvas id="radarChart"></canvas></div>
+        <div class="ecc-chart"><canvas id="radarChart"></canvas></div>
       </div>`;
 
     renderDashboardCharts();
@@ -385,12 +382,12 @@
     container.innerHTML = `
       <div class="page-header">
         <div><h1>${PAGE_TITLES.cities}</h1><p>إدارة المدن المغطاة</p></div>
-        <button class="btn btn-primary" onclick="CityIntelligenceApp.openCityModal()">+ مدينة جديدة</button>
+        <button class="ecc-btn ecc-btn--primary" onclick="CityIntelligenceApp.openCityModal()">+ مدينة جديدة</button>
       </div>
       <div class="city-grid" id="cityGrid"></div>`;
     const grid = $('#cityGrid');
     if (!state.cities.length) {
-      grid.innerHTML = `<div class="empty-state card card--full"><h4>لا توجد مدن</h4><p>أضف أول مدينة لبدء التحليل</p></div>`;
+      grid.innerHTML = `<div class="empty-state ecc-card ecc-form-group--full"><h4>لا توجد مدن</h4><p>أضف أول مدينة لبدء التحليل</p></div>`;
       return;
     }
     grid.innerHTML = state.cities.map(c => {
@@ -401,7 +398,7 @@
         <div class="city-card" onclick="location.hash='#city/${c.id}'">
           <div class="city-card__name">${escapeHtml(c.name)}</div>
           <div class="city-card__meta">${escapeHtml(c.region || '')} · ${formatNum(cityDistricts.length)} حي</div>
-          <div class="city-card__score ${rating.class}">${formatNum(score, 1)} · ${rating.label}</div>
+          <span class="status-badge status-badge--${rating.status}">${formatNum(score, 1)} · ${rating.label}</span>
         </div>`;
     }).join('');
   }
@@ -416,26 +413,26 @@
     container.innerHTML = `
       <div class="page-header">
         <div>
-          <h1>${escapeHtml(city.name)} <span class="city-card__score ${rating.class}">${formatNum(score, 1)} · ${rating.label}</span></h1>
+          <h1>${escapeHtml(city.name)} <span class="status-badge status-badge--${rating.status}">${formatNum(score, 1)} · ${rating.label}</span></h1>
           <p>${escapeHtml(city.region || '')} · ${formatNum(cityDistricts.length)} حي</p>
         </div>
         <div class="top-actions">
-          <button class="btn btn-primary" onclick="CityIntelligenceApp.openDistrictModal('${city.id}')">+ حي</button>
-          <button class="btn btn-secondary" onclick="CityIntelligenceApp.openCityModal('${city.id}')">تعديل المدينة</button>
-          <button class="btn btn-secondary" onclick="CityIntelligenceApp.generateCityReport('${city.id}')">📄 تقرير PDF</button>
-          <button class="btn btn-danger btn-sm" onclick="CityIntelligenceApp.deleteCity('${city.id}')">حذف</button>
+          <button class="ecc-btn ecc-btn--primary" onclick="CityIntelligenceApp.openDistrictModal('${city.id}')">+ حي</button>
+          <button class="ecc-btn ecc-btn--ghost" onclick="CityIntelligenceApp.openCityModal('${city.id}')">تعديل المدينة</button>
+          <button class="ecc-btn ecc-btn--ghost" onclick="CityIntelligenceApp.generateCityReport('${city.id}')">📄 تقرير PDF</button>
+          <button class="ecc-btn ecc-btn--ghost ci-btn-danger ecc-btn--sm" onclick="CityIntelligenceApp.deleteCity('${city.id}')">حذف</button>
         </div>
       </div>
-      <div class="tabs">
-        <button class="tab ${state.activeTab === 'overview' ? 'active' : ''}" data-tab="overview" onclick="CityIntelligenceApp.setTab('overview')">نظرة عامة</button>
-        <button class="tab ${state.activeTab === 'districts' ? 'active' : ''}" data-tab="districts" onclick="CityIntelligenceApp.setTab('districts')">الأحياء</button>
-        <button class="tab ${state.activeTab === 'projects' ? 'active' : ''}" data-tab="projects" onclick="CityIntelligenceApp.setTab('projects')">المشاريع</button>
-        <button class="tab ${state.activeTab === 'competitors' ? 'active' : ''}" data-tab="competitors" onclick="CityIntelligenceApp.setTab('competitors')">المنافسون</button>
-        <button class="tab ${state.activeTab === 'reports' ? 'active' : ''}" data-tab="reports" onclick="CityIntelligenceApp.setTab('reports')">تقارير</button>
-        <button class="tab ${state.activeTab === 'ai' ? 'active' : ''}" data-tab="ai" onclick="CityIntelligenceApp.setTab('ai')">🤖 AI</button>
+      <div class="ecc-tabs">
+        <button class="ecc-tab ${state.activeTab === 'overview' ? 'active' : ''}" data-tab="overview" onclick="CityIntelligenceApp.setTab('overview')">نظرة عامة</button>
+        <button class="ecc-tab ${state.activeTab === 'districts' ? 'active' : ''}" data-tab="districts" onclick="CityIntelligenceApp.setTab('districts')">الأحياء</button>
+        <button class="ecc-tab ${state.activeTab === 'projects' ? 'active' : ''}" data-tab="projects" onclick="CityIntelligenceApp.setTab('projects')">المشاريع</button>
+        <button class="ecc-tab ${state.activeTab === 'competitors' ? 'active' : ''}" data-tab="competitors" onclick="CityIntelligenceApp.setTab('competitors')">المنافسون</button>
+        <button class="ecc-tab ${state.activeTab === 'reports' ? 'active' : ''}" data-tab="reports" onclick="CityIntelligenceApp.setTab('reports')">تقارير</button>
+        <button class="ecc-tab ${state.activeTab === 'ai' ? 'active' : ''}" data-tab="ai" onclick="CityIntelligenceApp.setTab('ai')">🤖 AI</button>
       </div>
       <div id="cityTabContent"></div>
-      <div id="reportCapture" style="position:absolute;left:-9999px;top:-9999px;width:800px;background:#fff;padding:2rem;"></div>`;
+      <div id="reportCapture" class="print-capture"></div>`;
 
     renderCityTab();
   }
@@ -460,21 +457,21 @@
     const population = city.population || districts.reduce((s, d) => s + (Number(d.population) || 0), 0) || 500000;
     const competitors = state.competitors.filter(c => c.city_id === city.id);
     content.innerHTML = `
-      <div class="card card--full">
+      <div class="ecc-card ecc-form-group--full">
         <h3>🤖 تحليل AI للمدينة</h3>
-        <div class="form-grid" style="margin-top:1rem;">
+        <div class="ecc-grid-2 ci-mt-4">
           <div class="form-group"><label>القطاع المستهدف</label><input type="text" id="ai-city-sector" value="التجزئة" /></div>
           <div class="form-group"><label>السكان</label><input type="number" id="ai-city-population" value="${population}" /></div>
           <div class="form-group"><label>متوسط الدخل</label><input type="number" id="ai-city-income" value="${avgIncome}" /></div>
           <div class="form-group"><label>عدد المنافسين</label><input type="number" id="ai-city-competitors" value="${competitors.length || 10}" /></div>
-          <div class="form-group"><label>حجم السوق التقديري (ر.س)</label><input type="number" id="ai-city-market" value="" placeholder="اختياري" /></div>
+          <div class="form-group ecc-form-group--full"><label>حجم السوق التقديري (ر.س)</label><input type="number" id="ai-city-market" value="" placeholder="اختياري" /></div>
         </div>
-        <div style="margin-top:1rem;">
-          <button class="btn btn-primary" id="ai-city-run" onclick="CityIntelligenceApp.runCityAi()">تشغيل التحليل</button>
-          <span id="ai-city-cost" style="color:var(--text-secondary);font-size:0.85rem;margin-right:1rem;"></span>
+        <div class="ci-mt-4">
+          <button class="ecc-btn ecc-btn--primary" id="ai-city-run" onclick="CityIntelligenceApp.runCityAi()">تشغيل التحليل</button>
+          <span id="ai-city-cost" class="ci-text-secondary" style="font-size:0.85rem;margin-right:1rem;"></span>
         </div>
       </div>
-      <div id="ai-city-result" class="card card--full" style="display:none;margin-top:1.5rem;"></div>
+      <div id="ai-city-result" class="ecc-card ecc-form-group--full is-hidden ci-mt-6"></div>
     `;
   }
 
@@ -485,7 +482,7 @@
     const city = state.currentCity;
     btn.disabled = true;
     costEl.textContent = 'جارِ التحليل...';
-    resultEl.style.display = 'none';
+    resultEl.classList.add('is-hidden');
     try {
       const payload = {
         city: city.name,
@@ -497,11 +494,11 @@
       };
       const res = await AiAnalyzeService.analyze({ type: 'city_analysis', payload });
       resultEl.innerHTML = '<h3>نتيجة تحليل المدينة</h3>' + AiAnalyzeService.renderResult(res.result);
-      resultEl.style.display = 'block';
+      resultEl.classList.remove('is-hidden');
       costEl.textContent = res.usage ? `التكلفة: $${res.usage.cost_usd || 0}` : '';
     } catch (err) {
-      resultEl.innerHTML = `<p style="color:var(--danger)">❌ ${escapeHtml(err.message)}</p>`;
-      resultEl.style.display = 'block';
+      resultEl.innerHTML = `<p class="ci-text-danger">❌ ${escapeHtml(err.message)}</p>`;
+      resultEl.classList.remove('is-hidden');
       costEl.textContent = '';
     } finally {
       btn.disabled = false;
@@ -522,29 +519,31 @@
 
     content.innerHTML = `
       <div class="section-row">
-        <div class="card" style="text-align:center;">
+        <div class="ecc-card ci-text-center">
           <h3>درجة الاستثمار الإجمالية</h3>
-          <div class="score-ring" style="--score:${score}"><span>${formatNum(score, 1)}</span></div>
-          <p style="color:var(--text-secondary);font-size:0.9rem;">${CityAnalysisEngine.rating(score).label}</p>
+          <div class="score-ring"><span>${formatNum(score, 1)}</span></div>
+          <p class="ci-text-secondary" style="font-size:0.9rem;">${CityAnalysisEngine.rating(score).label}</p>
         </div>
-        <div class="card">
+        <div class="ecc-card">
           <h3>📌 بيانات المدينة</h3>
-          <div class="form-grid" style="grid-template-columns:1fr;">
+          <div class="ci-grid-1">
             <div class="form-group"><label>السكان</label><input type="text" value="${formatNum(city.population)}" readonly /></div>
             <div class="form-group"><label>المساحة (كم²)</label><input type="text" value="${formatNum(city.area_km2, 2)}" readonly /></div>
             <div class="form-group"><label>الإحداثيات</label><input type="text" value="${formatNum(city.center_lat, 4)}, ${formatNum(city.center_lng, 4)}" readonly /></div>
           </div>
         </div>
       </div>
-      <div class="card card--full">
+      <div class="ecc-card ecc-form-group--full">
         <h3>📊 المؤشرات الرئيسية</h3>
         ${indicatorBars}
       </div>
-      <div class="card card--full">
+      <div class="ecc-card ecc-form-group--full">
         <h3>📈 تحليل المؤشرات</h3>
-        <div class="chart-box"><canvas id="cityRadarChart"></canvas></div>
+        <div class="ecc-chart"><canvas id="cityRadarChart"></canvas></div>
       </div>`;
 
+    const scoreRing = content.querySelector('.score-ring');
+    if (scoreRing) scoreRing.style.setProperty('--score', score);
     destroyChart('cityRadar');
     state.charts.cityRadar = new Chart(document.getElementById('cityRadarChart'), {
       type: 'radar',
@@ -578,10 +577,10 @@
           <td>${formatNum(d.population)}</td>
           <td>${formatNum(d.avg_income)} ر.س</td>
           <td>${formatNum(d.urban_growth_rate, 1)}%</td>
-          <td><span class="city-card__score ${rating.class}">${formatNum(score, 1)}</span></td>
+          <td><span class="status-badge status-badge--${rating.status}">${formatNum(score, 1)}</span></td>
           <td>
-            <button class="btn btn-secondary btn-sm" onclick="CityIntelligenceApp.openDistrictModal('${city.id}', '${d.id}')">تعديل</button>
-            <button class="btn btn-danger btn-sm" onclick="CityIntelligenceApp.deleteDistrict('${d.id}')">حذف</button>
+            <button class="ecc-btn ecc-btn--ghost ecc-btn--sm" onclick="CityIntelligenceApp.openDistrictModal('${city.id}', '${d.id}')">تعديل</button>
+            <button class="ecc-btn ecc-btn--ghost ci-btn-danger ecc-btn--sm" onclick="CityIntelligenceApp.deleteDistrict('${d.id}')">حذف</button>
           </td>
         </tr>`;
     }).join('');
@@ -589,7 +588,7 @@
     content.innerHTML = `
       <div class="table-card">
         <div class="table-header"><h3>الأحياء (${formatNum(state.districts.filter(d => d.city_id === city.id).length)})</h3></div>
-        <table class="data-table">
+        <table class="ecc-table">
           <thead><tr><th>الحي</th><th>السكان</th><th>متوسط الدخل</th><th>النمو العمراني</th><th>الدرجة</th><th>إجراءات</th></tr></thead>
           <tbody>${rows || '<tr><td colspan="6" class="empty-state">لا توجد أحياء</td></tr>'}</tbody>
         </table>
@@ -601,21 +600,21 @@
       <tr>
         <td><strong>${escapeHtml(p.name)}</strong></td>
         <td>${escapeHtml(p.project_type || '—')}</td>
-        <td><span class="badge badge--${p.status}">${projectStatusLabel(p.status)}</span></td>
+        <td><span class="status-badge status-badge--${p.status === 'planned' ? 'neutral' : (p.status === 'ongoing' ? 'attention' : (p.status === 'completed' ? 'healthy' : 'neutral'))}">${projectStatusLabel(p.status)}</span></td>
         <td>${formatNum(p.budget)} ر.س</td>
         <td>${formatDate(p.start_date)}</td>
         <td>
-          <button class="btn btn-secondary btn-sm" onclick="CityIntelligenceApp.openProjectModal('${city.id}', '${p.id}')">تعديل</button>
-          <button class="btn btn-danger btn-sm" onclick="CityIntelligenceApp.deleteProject('${p.id}')">حذف</button>
+          <button class="ecc-btn ecc-btn--ghost ecc-btn--sm" onclick="CityIntelligenceApp.openProjectModal('${city.id}', '${p.id}')">تعديل</button>
+          <button class="ecc-btn ecc-btn--ghost ci-btn-danger ecc-btn--sm" onclick="CityIntelligenceApp.deleteProject('${p.id}')">حذف</button>
         </td>
       </tr>`).join('');
 
     content.innerHTML = `
-      <div class="top-actions" style="margin-bottom:1rem;">
-        <button class="btn btn-primary" onclick="CityIntelligenceApp.openProjectModal('${city.id}')">+ مشروع</button>
+      <div class="top-actions ci-mb-4">
+        <button class="ecc-btn ecc-btn--primary" onclick="CityIntelligenceApp.openProjectModal('${city.id}')">+ مشروع</button>
       </div>
       <div class="table-card">
-        <table class="data-table">
+        <table class="ecc-table">
           <thead><tr><th>المشروع</th><th>النوع</th><th>الحالة</th><th>الميزانية</th><th>البداية</th><th>إجراءات</th></tr></thead>
           <tbody>${rows || '<tr><td colspan="6" class="empty-state">لا توجد مشاريع</td></tr>'}</tbody>
         </table>
@@ -630,17 +629,17 @@
         <td>${formatNum(c.market_share_estimate, 1)}%</td>
         <td>${escapeHtml(c.notes || '—')}</td>
         <td>
-          <button class="btn btn-secondary btn-sm" onclick="CityIntelligenceApp.openCompetitorModal('${city.id}', '${c.id}')">تعديل</button>
-          <button class="btn btn-danger btn-sm" onclick="CityIntelligenceApp.deleteCompetitor('${c.id}')">حذف</button>
+          <button class="ecc-btn ecc-btn--ghost ecc-btn--sm" onclick="CityIntelligenceApp.openCompetitorModal('${city.id}', '${c.id}')">تعديل</button>
+          <button class="ecc-btn ecc-btn--ghost ci-btn-danger ecc-btn--sm" onclick="CityIntelligenceApp.deleteCompetitor('${c.id}')">حذف</button>
         </td>
       </tr>`).join('');
 
     content.innerHTML = `
-      <div class="top-actions" style="margin-bottom:1rem;">
-        <button class="btn btn-primary" onclick="CityIntelligenceApp.openCompetitorModal('${city.id}')">+ منافس</button>
+      <div class="top-actions ci-mb-4">
+        <button class="ecc-btn ecc-btn--primary" onclick="CityIntelligenceApp.openCompetitorModal('${city.id}')">+ منافس</button>
       </div>
       <div class="table-card">
-        <table class="data-table">
+        <table class="ecc-table">
           <thead><tr><th>المنافس</th><th>الفئة</th><th>حصة السوق التقديرية</th><th>ملاحظات</th><th>إجراءات</th></tr></thead>
           <tbody>${rows || '<tr><td colspan="5" class="empty-state">لا يوجد منافسون</td></tr>'}</tbody>
         </table>
@@ -655,17 +654,17 @@
         <td>${formatNum(r.overall_score, 1)}</td>
         <td>${formatDate(r.created_at)}</td>
         <td>
-          ${r.pdf_url ? `<a href="${r.pdf_url}" target="_blank" class="btn btn-secondary btn-sm">تحميل PDF</a>` : ''}
-          <button class="btn btn-danger btn-sm" onclick="CityIntelligenceApp.deleteReport('${r.id}')">حذف</button>
+          ${r.pdf_url ? `<a href="${r.pdf_url}" target="_blank" class="ecc-btn ecc-btn--ghost ecc-btn--sm">تحميل PDF</a>` : ''}
+          <button class="ecc-btn ecc-btn--ghost ci-btn-danger ecc-btn--sm" onclick="CityIntelligenceApp.deleteReport('${r.id}')">حذف</button>
         </td>
       </tr>`).join('');
 
     content.innerHTML = `
-      <div class="top-actions" style="margin-bottom:1rem;">
-        <button class="btn btn-primary" onclick="CityIntelligenceApp.generateCityReport('${city.id}')">+ إنشاء تقرير PDF</button>
+      <div class="top-actions ci-mb-4">
+        <button class="ecc-btn ecc-btn--primary" onclick="CityIntelligenceApp.generateCityReport('${city.id}')">+ إنشاء تقرير PDF</button>
       </div>
       <div class="table-card">
-        <table class="data-table">
+        <table class="ecc-table">
           <thead><tr><th>التقرير</th><th>الدرجة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
           <tbody>${rows || '<tr><td colspan="4" class="empty-state">لا توجد تقارير</td></tr>'}</tbody>
         </table>
@@ -682,14 +681,14 @@
       <div class="page-header">
         <div><h1>${PAGE_TITLES.map}</h1><p>الخرائط التفاعلية للأحياء والمشاريع والمنافسين</p></div>
         <div class="top-actions">
-          <select id="mapCityFilter" class="form-group" style="min-width:160px;">
+          <select id="mapCityFilter" class="form-group ci-minw-160">
             <option value="">كل المدن</option>
             ${state.cities.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('')}
           </select>
-          <button class="btn btn-secondary" onclick="CityIntelligenceApp.refreshMap()">تحديث</button>
+          <button class="ecc-btn ecc-btn--ghost" onclick="CityIntelligenceApp.refreshMap()">تحديث</button>
         </div>
       </div>
-      <div class="card card--full" style="padding:0;">
+      <div class="ecc-card ecc-form-group--full ci-p-0">
         <div class="map-wrap"><div id="cityMap"></div></div>
       </div>`;
 
@@ -735,14 +734,14 @@
     state.projects.forEach(p => {
       if (cityFilter && p.city_id !== cityFilter) return;
       if (!p.lat || !p.lng) return;
-      const icon = L.divIcon({ className: '', html: '<div style="background:#3b82f6;width:12px;height:12px;border-radius:50%;border:2px solid #fff;"></div>', iconSize: [12, 12] });
+      const icon = L.divIcon({ className: '', html: '<div class="map-marker--city"></div>', iconSize: [12, 12] });
       L.marker([p.lat, p.lng], { icon }).bindPopup(`<strong>مشروع:</strong> ${escapeHtml(p.name)}<br/>${projectStatusLabel(p.status)}`).addTo(state.mapLayers);
     });
 
     state.competitors.forEach(c => {
       if (cityFilter && c.city_id !== cityFilter) return;
       if (!c.lat || !c.lng) return;
-      const icon = L.divIcon({ className: '', html: '<div style="background:#a855f7;width:12px;height:12px;border-radius:50%;border:2px solid #fff;"></div>', iconSize: [12, 12] });
+      const icon = L.divIcon({ className: '', html: '<div class="map-marker--district"></div>', iconSize: [12, 12] });
       L.marker([c.lat, c.lng], { icon }).bindPopup(`<strong>منافس:</strong> ${escapeHtml(c.name)}`).addTo(state.mapLayers);
     });
   }
@@ -766,8 +765,8 @@
           <td>${formatNum(r.overall_score, 1)}</td>
           <td>${formatDate(r.created_at)}</td>
           <td>
-            ${r.pdf_url ? `<a href="${r.pdf_url}" target="_blank" class="btn btn-secondary btn-sm">تحميل</a>` : ''}
-            <button class="btn btn-danger btn-sm" onclick="CityIntelligenceApp.deleteReport('${r.id}')">حذف</button>
+            ${r.pdf_url ? `<a href="${r.pdf_url}" target="_blank" class="ecc-btn ecc-btn--ghost ecc-btn--sm">تحميل</a>` : ''}
+            <button class="ecc-btn ecc-btn--ghost ci-btn-danger ecc-btn--sm" onclick="CityIntelligenceApp.deleteReport('${r.id}')">حذف</button>
           </td>
         </tr>`;
     }).join('');
@@ -775,10 +774,10 @@
     container.innerHTML = `
       <div class="page-header">
         <div><h1>${PAGE_TITLES.reports}</h1><p>التقارير المحفوظة والتصدير</p></div>
-        <button class="btn btn-primary" onclick="CityIntelligenceApp.openReportModal()">+ تقرير جديد</button>
+        <button class="ecc-btn ecc-btn--primary" onclick="CityIntelligenceApp.openReportModal()">+ تقرير جديد</button>
       </div>
       <div class="table-card">
-        <table class="data-table">
+        <table class="ecc-table">
           <thead><tr><th>التقرير</th><th>المدينة</th><th>الدرجة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
           <tbody>${rows || '<tr><td colspan="5" class="empty-state">لا توجد تقارير</td></tr>'}</tbody>
         </table>
@@ -800,7 +799,7 @@
         <div><h1>${PAGE_TITLES.activity}</h1><p>سجل العمليات والتغييرات</p></div>
       </div>
       <div class="table-card">
-        <table class="data-table">
+        <table class="ecc-table">
           <thead><tr><th>العملية</th><th>المدينة</th><th>الحي</th><th>التاريخ</th></tr></thead>
           <tbody>${rows || '<tr><td colspan="4" class="empty-state">لا يوجد سجل</td></tr>'}</tbody>
         </table>
@@ -812,11 +811,11 @@
     container.innerHTML = `
       <div class="page-header">
         <div><h1>${PAGE_TITLES.roles}</h1><p>إدارة صلاحيات City Intelligence</p></div>
-        <button class="btn btn-primary" onclick="CityIntelligenceApp.openAssignRoleModal()">+ تعيين دور</button>
+        <button class="ecc-btn ecc-btn--primary" onclick="CityIntelligenceApp.openAssignRoleModal()">+ تعيين دور</button>
       </div>
       <div class="table-card">
         <div class="table-header"><h3>المستخدمون والأدوار</h3></div>
-        <table class="data-table">
+        <table class="ecc-table">
           <thead><tr><th>المستخدم</th><th>البريد</th><th>الدور</th><th>تاريخ التعيين</th><th>إجراءات</th></tr></thead>
           <tbody id="rolesTableBody"><tr><td colspan="5"><div class="spinner">جارِ التحميل...</div></td></tr></tbody>
         </table>
@@ -833,9 +832,9 @@
         <tr>
           <td><strong>${escapeHtml(r.full_name || '—')}</strong></td>
           <td>${escapeHtml(r.email)}</td>
-          <td><span class="badge badge--${r.role === 'admin' ? 'ongoing' : (r.role === 'analyst' ? 'planned' : 'completed')}">${roleLabel(r.role)}</span></td>
+          <td><span class="status-badge status-badge--${r.role === 'admin' ? 'attention' : (r.role === 'analyst' ? 'neutral' : 'healthy')}">${roleLabel(r.role)}</span></td>
           <td>${formatDate(r.created_at)}</td>
-          <td><button class="btn btn-danger btn-sm" onclick="CityIntelligenceApp.removeCityRole('${r.user_id}')">إزالة</button></td>
+          <td><button class="ecc-btn ecc-btn--ghost ci-btn-danger ecc-btn--sm" onclick="CityIntelligenceApp.removeCityRole('${r.user_id}')">إزالة</button></td>
         </tr>`).join('') || '<tr><td colspan="5" class="empty-state">لا توجد أدوار معينة</td></tr>';
     } catch (err) {
       tbody.innerHTML = `<tr><td colspan="5" class="empty-state">خطأ: ${escapeHtml(err.message)}</td></tr>`;
@@ -850,7 +849,7 @@
 
   async function openAssignRoleModal() {
     const html = `
-      <div class="form-grid" style="grid-template-columns:1fr;">
+      <div class="ci-grid-1">
         <div class="form-group">
           <label>ابحث بالبريد الإلكتروني</label>
           <input type="text" id="roleSearchInput" placeholder="example@domain.com" />
@@ -890,17 +889,17 @@
     try {
       const users = await SVC.searchUsers(query);
       roleSearchResults = users;
-      if (!users.length) { resultsEl.innerHTML = '<p style="color:var(--text-muted)">لا توجد نتائج</p>'; return; }
+      if (!users.length) { resultsEl.innerHTML = '<p class="ci-text-muted">لا توجد نتائج</p>'; return; }
       resultsEl.innerHTML = users.map(u => `
-        <label style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border:1px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:0.5rem;">
+        <label class="ci-radio-option">
           <input type="radio" name="selected_user_id" value="${u.id}" />
           <div>
-            <div style="font-weight:700;">${escapeHtml(u.full_name || '—')}</div>
-            <div style="font-size:0.8rem;color:var(--text-muted);">${escapeHtml(u.email)}</div>
+            <div class="ci-radio-option__name">${escapeHtml(u.full_name || '—')}</div>
+            <div class="ci-radio-option__email">${escapeHtml(u.email)}</div>
           </div>
         </label>`).join('');
     } catch (err) {
-      resultsEl.innerHTML = `<p style="color:var(--danger)">${escapeHtml(err.message)}</p>`;
+      resultsEl.innerHTML = `<p class="ci-text-danger">${escapeHtml(err.message)}</p>`;
     }
   }
 
@@ -923,7 +922,7 @@
     }
     if (type === 'textarea') {
       return `
-        <div class="form-group">
+        <div class="form-group ecc-form-group--full">
           <label>${escapeHtml(label)}</label>
           <textarea name="${name}" rows="3" ${attrs}>${val}</textarea>
         </div>`;
@@ -949,7 +948,7 @@
   function openCityModal(cityId = null) {
     const city = cityId ? state.cities.find(c => c.id === cityId) : {};
     const html = `
-      <div class="form-grid">
+      <div class="ecc-grid-2">
         ${modalInput('اسم المدينة', 'name', city.name || '', 'text', 'required')}
         ${modalInput('الاسم الإنجليزي', 'name_en', city.name_en || '')}
         ${modalInput('المنطقة', 'region', city.region || '')}
@@ -980,7 +979,7 @@
   function openDistrictModal(cityId, districtId = null) {
     const district = districtId ? state.districts.find(d => d.id === districtId) : { city_id: cityId };
     const html = `
-      <div class="form-grid">
+      <div class="ecc-grid-2">
         ${modalInput('اسم الحي', 'name', district.name || '', 'text', 'required')}
         ${modalInput('الاسم الإنجليزي', 'name_en', district.name_en || '')}
         ${modalInput('خط العرض', 'center_lat', district.center_lat || '', 'number', 'step="0.0001"')}
@@ -1024,7 +1023,7 @@
     const districtOptions = `<option value="">—</option>` + districts.map(d => `<option value="${d.id}" ${p.district_id === d.id ? 'selected' : ''}>${escapeHtml(d.name)}</option>`).join('');
     const statusOptions = ['planned','ongoing','completed','cancelled'].map(s => `<option value="${s}" ${p.status === s ? 'selected' : ''}>${projectStatusLabel(s)}</option>`).join('');
     const html = `
-      <div class="form-grid">
+      <div class="ecc-grid-2">
         ${modalInput('اسم المشروع', 'name', p.name || '', 'text', 'required')}
         ${modalInput('النوع', 'project_type', p.project_type || '')}
         <div class="form-group"><label>الحي</label><select name="district_id">${districtOptions}</select></div>
@@ -1061,7 +1060,7 @@
     const districts = state.districts.filter(d => d.city_id === cityId);
     const districtOptions = `<option value="">—</option>` + districts.map(d => `<option value="${d.id}" ${c.district_id === d.id ? 'selected' : ''}>${escapeHtml(d.name)}</option>`).join('');
     const html = `
-      <div class="form-grid">
+      <div class="ecc-grid-2">
         ${modalInput('الاسم', 'name', c.name || '', 'text', 'required')}
         ${modalInput('الفئة', 'category', c.category || '')}
         <div class="form-group"><label>الحي</label><select name="district_id">${districtOptions}</select></div>
@@ -1093,7 +1092,7 @@
   function openReportModal() {
     const cityOptions = `<option value="">اختر مدينة</option>` + state.cities.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
     const html = `
-      <div class="form-grid" style="grid-template-columns:1fr;">
+      <div class="ci-grid-1">
         <div class="form-group"><label>المدينة</label><select name="city_id" required>${cityOptions}</select></div>
         ${modalInput('عنوان التقرير', 'title', '', 'text', 'required')}
       </div>`;
@@ -1127,21 +1126,21 @@
     }).join('');
 
     reportEl.innerHTML = `
-      <div style="font-family:'Vazirmatn',Arial,sans-serif;direction:rtl;color:#1a1a1a;">
-        <div style="text-align:center;margin-bottom:1.5rem;">
-          <img src="/assets/bonds-logo-2026.webp" style="height:50px;" />
-          <h1 style="color:#b8954e;margin-top:0.5rem;">City Intelligence Report</h1>
+      <div class="report-paper">
+        <div class="report-paper__header">
+          <img src="/assets/bonds-logo-2026.webp" />
+          <h1>City Intelligence Report</h1>
           <h2>${escapeHtml(title || city.name)}</h2>
-          <p style="color:#555;">تاريخ التقرير: ${new Date().toLocaleDateString('ar-SA')}</p>
+          <p>تاريخ التقرير: ${new Date().toLocaleDateString('ar-SA')}</p>
         </div>
-        <div style="background:#f5f0e8;padding:1rem;border-radius:12px;margin-bottom:1rem;">
-          <h3 style="margin-top:0;">الدرجة الإجمالية: ${formatNum(score, 1)} / 100 — ${rating.label}</h3>
+        <div class="report-paper__summary">
+          <h3>الدرجة الإجمالية: ${formatNum(score, 1)} / 100 — ${rating.label}</h3>
           <p>عدد الأحياء المحللة: ${formatNum(cityDistricts.length)}</p>
         </div>
         <h3>الأحياء</h3>
-        <table style="width:100%;border-collapse:collapse;margin-bottom:1rem;">
-          <thead><tr style="background:#b8954e;color:#fff;"><th style="padding:8px;border:1px solid #ddd;text-align:right;">الحي</th><th style="padding:8px;border:1px solid #ddd;">الدرجة</th><th style="padding:8px;border:1px solid #ddd;">التقييم</th></tr></thead>
-          <tbody>${districtRows || '<tr><td colspan="3" style="padding:8px;border:1px solid #ddd;">لا توجد أحياء</td></tr>'}</tbody>
+        <table class="report-paper__table">
+          <thead><tr><th>الحي</th><th>الدرجة</th><th>التقييم</th></tr></thead>
+          <tbody>${districtRows || '<tr><td colspan="3">لا توجد أحياء</td></tr>'}</tbody>
         </table>
         <h3>ملخص</h3>
         <p>تم إنشاء هذا التقرير تلقائياً بناءً على مؤشرات السكان والدخل والنمو العمراني والمشاريع الحكومية والمنافسة وأسعار الأراضي والإيجارات والكثافة التجارية.</p>

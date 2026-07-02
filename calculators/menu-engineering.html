@@ -7,61 +7,17 @@
   <meta name="description" content="مصنف ذكي للمنيو يصنف الوجبات إلى نجوم، حصان رابح، ألغاز، وكلاب بناءً على بيانات المبيعات الفعلية." />
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="../supabase-client.js"></script>
+  <script src="../bonds-auth-2026.js"></script>
   <script src="../auth-guard.js"></script>
   <script src="shared-geo.js"></script>
   <script src="shared-platforms.js"></script>
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="shared-calculators.css" />
+  <link rel="stylesheet" href="../styles/design-system.css" />
+  <link rel="stylesheet" href="menu-engineering.css" />
   <script src="shared-ui.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
-  <style>
-    .me-container { max-width: 1200px; margin: 0 auto; padding: var(--space-8) var(--space-4); }
-    .me-header { text-align: center; margin-bottom: var(--space-12); }
-    .me-header h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; color: var(--gold); margin-bottom: var(--space-4); }
-    .me-header p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
-    .me-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-12); }
-    .me-quadrant { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); position: relative; overflow: hidden; }
-    .me-quadrant::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
-    .me-quadrant.stars::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
-    .me-quadrant.engines::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
-    .me-quadrant.treasures::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
-    .me-quadrant.stalled::before { background: linear-gradient(90deg, #ef4444, #dc2626); }
-    .me-quadrant h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: var(--space-2); display: flex; align-items: center; gap: var(--space-2); }
-    .me-quadrant .count { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
-    .me-quadrant .items { margin-top: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
-    .me-item { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); }
-    .me-item .name { font-weight: 700; color: var(--text); margin-bottom: var(--space-1); }
-    .me-item .meta { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: var(--space-4); flex-wrap: wrap; }
-    .me-item .badge { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-top: var(--space-2); }
-    .badge-profit { background: rgba(34,197,94,0.15); color: #22c55e; }
-    .badge-loss { background: rgba(239,68,68,0.15); color: #ef4444; }
-    .badge-high { background: rgba(34,197,94,0.15); color: #22c55e; }
-    .badge-mid { background: rgba(245,158,11,0.15); color: #f59e0b; }
-    .badge-low { background: rgba(239,68,68,0.15); color: #ef4444; }
-    .me-actions { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); margin-bottom: var(--space-12); }
-    .me-actions h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: var(--space-6); text-align: center; }
-    .form-group { margin-bottom: var(--space-4); }
-    .form-group label { display: block; font-weight: 600; margin-bottom: var(--space-2); color: var(--text-secondary); }
-    .form-group input, .form-group select { width: 100%; padding: var(--space-3) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text); font-family: inherit; }
-    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-dim)); color: #f5f0e8; font-weight: 800; border: none; padding: var(--space-3) var(--space-6); border-radius: var(--radius); cursor: pointer; width: 100%; font-size: 1rem; }
-    .btn-primary:hover { filter: brightness(1.1); }
-    .btn-secondary { background: var(--bg-secondary); color: var(--gold); font-weight: 700; border: 1px solid var(--border); padding: var(--space-2) var(--space-4); border-radius: var(--radius); cursor: pointer; font-size: 0.9rem; }
-    .result-box { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-top: var(--space-4); }
-    .result-box h4 { color: var(--gold); margin-bottom: var(--space-2); }
-    .loading { text-align: center; color: var(--text-muted); padding: var(--space-8); }
-    .error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; padding: var(--space-4); border-radius: var(--radius); text-align: center; }
-    .success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #22c55e; padding: var(--space-4); border-radius: var(--radius); text-align: center; }
-    .tabs { display: flex; gap: var(--space-2); margin-bottom: var(--space-6); flex-wrap: wrap; justify-content: center; }
-    .tab { padding: var(--space-2) var(--space-4); border-radius: var(--radius); cursor: pointer; border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; }
-    .tab.active { background: var(--gold); color: #f5f0e8; border-color: var(--gold); }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); }
-    .list-box { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3); margin-top: var(--space-4); }
-    .list-box .row { display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-    .list-box .row:last-child { border-bottom: none; }
-  </style>
+  
 
   <script src="db-client.js"></script>
   
