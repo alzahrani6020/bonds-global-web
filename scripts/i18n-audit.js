@@ -20,7 +20,8 @@ const EXCLUDED_DIRS = new Set([
 // Specific root HTML files that are intentionally not translated (tools, redirects, tests, special landings)
 const EXCLUDED_FILES = new Set([
   'test.html', 'v.html', 'proof.html', 'modon_eservices.html', 'modon_home.html',
-  'distressed-recovery-study.html'
+  'distressed-recovery-study.html',
+  'دراسة-جدوى-إحياء-الأصول-الملقحة.html'
 ]);
 
 function isExcluded(filePath) {
