@@ -40,7 +40,7 @@
     },
     {
       "source": "/api/v3",
-      "destination": "/v3/api/index.js"
+      "destination": "/api/v3"
     },
     {
       "source": "/api/v3/billing/webhook",
@@ -52,7 +52,7 @@
     },
     {
       "source": "/api/v3/(.*)",
-      "destination": "/v3/api/index.js"
+      "destination": "/api/v3"
     },
     {
       "source": "/api/analyze-feasibility-v2",
