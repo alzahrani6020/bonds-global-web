@@ -37,13 +37,11 @@
   
 
   <script src="../../calculators/db-client.js"></script>
-  
-<link rel="stylesheet" href="../../header-footer.css?v=7" />
-  <link rel="canonical" href="https://bonds-global.com/en/calculators/loan" />
+<link rel="canonical" href="https://bonds-global.com/en/calculators/loan" />
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
-<body style="font-family:Inter,system-ui,sans-serif">
+<body>
 
   <!-- Top Bar -->
   <div class="topbar">
@@ -57,9 +55,9 @@
   <div id="site-header"></div>
 
   <!-- Hero -->
-  <section class="hero" style="min-height: 40vh; padding: var(--space-20) 0;">
-    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
-    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+  <section class="hero calc-hero--tall">
+    <div class="hero__orb hero__orb--1"></div>
+    <div class="hero__orb hero__orb--2"></div>
     <div class="container hero__content reveal">
       <span class="hero__eyebrow">أداة مجانية</span>
       <h1 class="hero__title">حاسبة <span class="text-gradient">القرض والتمويل</span></h1>
@@ -72,8 +70,8 @@
     <div class="container">
       <div class="calc-grid">
         <!-- Inputs -->
-        <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">بيانات القرض</h2>
+        <div class="reveal calc-panel">
+          <h2 class="calc-section-title">بيانات القرض</h2>
           <div class="calc-input-group">
             <label for="country">Country / Market</label>
             <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
@@ -81,144 +79,144 @@
             </select>
           </div>
           <div class="calc-input-group">
-            <label>Loan Amount</label>
+            <label for="loanAmount">Loan Amount</label>
             <input type="number" id="loanAmount" placeholder="مثلاً: 500000" min="0" />
           </div>
           <div class="calc-input-group">
-            <label>Down Payment</label>
+            <label for="downPayment">Down Payment</label>
             <input type="number" id="downPayment" placeholder="مثلاً: 50000" min="0" value="0" />
           </div>
           <div class="calc-input-group">
-            <label>Annual Interest Rate (%)</label>
+            <label for="interestRate">Annual Interest Rate (%)</label>
             <input type="number" id="interestRate" placeholder="مثلاً: 5" min="0" max="100" step="0.01" />
           </div>
           <div class="calc-input-group">
-            <label>مدة القرض (بالشهور)</label>
+            <label for="loanTerm">مدة القرض (بالشهور)</label>
             <input type="number" id="loanTerm" placeholder="مثلاً: 240" min="1" />
           </div>
           <div class="calc-input-group">
-            <label>Payment Frequency</label>
+            <label for="paymentFrequency">Payment Frequency</label>
             <select data-universal-dropdown="true" id="paymentFrequency">
               <option value="monthly">Monthly</option>
               <option value="quarterly">Quarterly</option>
             </select>
           </div>
           <div class="calc-input-group">
-            <label>Additional Fees</label>
+            <label for="extraFees">Additional Fees</label>
             <input type="number" id="extraFees" placeholder="مثلاً: 2500" min="0" value="0" />
           </div>
           <div class="calc-input-group">
-            <label>الدخل Monthي (اختياري — لتحليل القدرة على السداد)</label>
+            <label for="monthlyIncome">الدخل Monthي (اختياري — لتحليل القدرة على السداد)</label>
             <input type="number" id="monthlyIncome" placeholder="مثلاً: 15000" min="0" />
           </div>
-          <button onclick="calculateAll()" class="btn btn-primary" style="width: 100%;">Calculate Results</button>
-          <button onclick="loadExample()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">🧮 جرب Example توضيحي</button>
-          <button onclick="resetCalc()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">مسح البيانات</button>
+          <button onclick="calculateAll()" class="btn btn-primary calc-width-full">Calculate Results</button>
+          <button onclick="loadExample()" class="btn btn-outline calc-width-full calc-mt-3">🧮 جرب Example توضيحي</button>
+          <button onclick="resetCalc()" class="btn btn-outline calc-width-full calc-mt-3">مسح البيانات</button>
         </div>
 
         <!-- Results -->
         <div class="reveal reveal-delay-1">
-          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); margin-bottom: var(--space-6);">
-            <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Results</h2>
-            <div id="resultsArea" style="display: flex; flex-direction: column; gap: var(--space-3);">
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">صافي Loan Amount</span>
-                <span id="resNetLoan" style="font-weight: 800; color: var(--text);">—</span>
+          <div class="calc-panel calc-mb-6">
+            <h2 class="calc-section-title">Results</h2>
+            <div id="resultsArea" class="calc-result-list">
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">صافي Loan Amount</span>
+                <span id="resNetLoan" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Installment <span id="installmentLabel">Monthي</span></span>
-                <span id="resInstallment" style="font-weight: 800; color: var(--gold);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Installment <span id="installmentLabel">Monthي</span></span>
+                <span id="resInstallment" class="calc-result-row__value calc-result-row__value--gold">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Total Interest</span>
-                <span id="resTotalInterest" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Total Interest</span>
+                <span id="resTotalInterest" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">إجمالي المبلغ المدفوع</span>
-                <span id="resTotalPaid" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">إجمالي المبلغ المدفوع</span>
+                <span id="resTotalPaid" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">معدل Interest الفعلي سنوياً (EAR)</span>
-                <span id="resEAR" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">معدل Interest الفعلي سنوياً (EAR)</span>
+                <span id="resEAR" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0;">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">نسبة Installment من الدخل</span>
-                <span id="resDti" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">نسبة Installment من الدخل</span>
+                <span id="resDti" class="calc-result-row__value">—</span>
               </div>
             </div>
             <div class="share-bar">
               <input type="text" id="shareLink" readonly placeholder="رابط المشاركة..." />
-              <button onclick="copyLink()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">نسخ الرابط</button>
-              <button onclick="window.print()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">🖨️ طباعة</button>
-              <button onclick="exportExcel()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📊 Excel</button>
-              <select data-universal-dropdown="true" id="pdfLang" class="hidden-print" aria-label="PDF export language" style="padding:0.5rem 0.75rem; border-radius:8px; background:var(--bg-card); color:var(--text); border:1px solid var(--border); font-family:inherit; font-size:0.8rem; cursor:pointer;">
+              <button onclick="copyLink()" class="btn btn-outline hidden-print calc-btn-sm">نسخ الرابط</button>
+              <button onclick="window.print()" class="btn btn-outline hidden-print calc-btn-sm">🖨️ طباعة</button>
+              <button onclick="exportExcel()" class="btn btn-outline hidden-print calc-btn-sm">📊 Excel</button>
+              <select data-universal-dropdown="true" id="pdfLang" class="hidden-print calc-select-sm" aria-label="PDF language">
                 <option value="ar">PDF عربي</option>
                 <option value="en">PDF English</option>
               </select>
-              <button onclick="exportPDF()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📄 تصدير</button>
+              <button onclick="exportPDF()" class="btn btn-outline hidden-print calc-btn-sm">📄 تصدير</button>
             </div>
           </div>
 
-          <div style="background: linear-gradient(135deg, var(--navy-900), var(--navy-700)); border-radius: var(--radius-lg); padding: var(--space-8); color: var(--white);">
-            <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3);">ابغى تحليل أعمق؟</h3>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-6);">هذه الأداة تقديرية. لو تبي مقارنة بين عروض تمويل مختلفة — نحن نقدم استشارة مجانية.</p>
+          <div class="calc-cta-box">
+            <h3>ابغى تحليل أعمق؟</h3>
+            <p>هذه الأداة تقديرية. لو تبي مقارنة بين عروض تمويل مختلفة — نحن نقدم استشارة مجانية.</p>
             <a href="../contact.html" class="btn btn-primary">احجز استشارتك المجانية →</a>
           </div>
 
           <!-- Smart Alert CTA -->
-          <div id="smartAlertBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.02)); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius-lg);">
-            <div style="display: flex; align-items: flex-start; gap: var(--space-4);">
-              <div style="font-size: 2rem; flex-shrink: 0;">⚠️</div>
+          <div id="smartAlertBox" class="calc-alert">
+            <div class="calc-alert__flex">
+              <div class="calc-alert__icon">⚠️</div>
               <div>
-                <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-2); color: #fca5a5;">تنبيه مالي</h4>
-                <p id="smartAlertText" style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4); line-height: 1.8;"></p>
-                <a href="../contact.html" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">📞 استشارة مجانية (30 دقيقة)</a>
+                <h4 class="calc-alert__title calc-alert__title--light">تنبيه مالي</h4>
+                <p id="smartAlertText" class="calc-alert__text"></p>
+                <a href="../contact.html" class="btn btn-primary calc-btn-danger">📞 استشارة مجانية (30 دقيقة)</a>
               </div>
             </div>
           </div>
 
           <!-- Lead Capture -->
-          <div id="leadCaptureBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);">
-            <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">💾 احفظ نتائجك واحصل على هدية</h4>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4);">أرسل هذه Results لبريدك + نموذج مقارنة عروض التمويل مجاني.</p>
-            <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
-              <input type="text" name="name" required placeholder="الاسم" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
-              <input type="email" name="email" required placeholder="البريد الإلكتروني" style="flex: 2; min-width: 180px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
-              <input type="tel" name="phone" placeholder="رقم الجوال (اختياري)" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+          <div id="leadCaptureBox" class="calc-lead-box">
+            <h4 class="calc-lead-box__title">💾 احفظ نتائجك واحصل على هدية</h4>
+            <p class="calc-lead-box__text">أرسل هذه Results لبريدك + نموذج مقارنة عروض التمويل مجاني.</p>
+            <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" class="calc-lead-form">
+              <input type="text" name="name" required placeholder="الاسم" class="calc-input-flex" />
+              <input type="email" name="email" required placeholder="البريد الإلكتروني" class="calc-input-flex calc-input-flex--wide" />
+              <input type="tel" name="phone" placeholder="رقم الجوال (اختياري)" class="calc-input-flex" />
               <input type="hidden" name="source" value="loan_calculator_lead" />
               <input type="hidden" name="calc_data" id="leadCalcData" />
-              <button type="submit" class="btn btn-primary" style="flex-shrink: 0;">أرسل لي Results</button>
+              <button type="submit" class="btn btn-primary calc-no-shrink">أرسل لي Results</button>
             </form>
-            <p id="leadCaptureSuccess" style="display:none; color: #16a34a; margin-top: var(--space-3); font-weight: 700;">✓ تم الإرسال! سنContact معك خلال 24 ساعة.</p>
+            <p id="leadCaptureSuccess" class="calc-success-msg calc-hidden" >✓ تم الإرسال! سنContact معك خلال 24 ساعة.</p>
           </div>
         </div>
       </div>
 
       <!-- Charts -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">الرسم البياني: أصل الدين مقابل Interest</h2>
-          <div style="position: relative; height: 320px; max-width: 400px; margin: 0 auto;">
+      <div class="reveal calc-mt-12">
+        <div class="calc-panel">
+          <h2 class="calc-section-title calc-text-center">الرسم البياني: أصل الدين مقابل Interest</h2>
+          <div class="calc-canvas-container-doughnut">
             <canvas id="principalInterestChart"></canvas>
           </div>
         </div>
       </div>
-      <div class="reveal" style="margin-top: var(--space-8);">
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">الرسم البياني: Remaining Balance مع الوقت</h2>
-          <div style="position: relative; height: 400px;">
+      <div class="reveal calc-mt-8">
+        <div class="calc-panel">
+          <h2 class="calc-section-title calc-text-center">الرسم البياني: Remaining Balance مع الوقت</h2>
+          <div class="calc-canvas-container">
             <canvas id="balanceChart"></canvas>
           </div>
         </div>
       </div>
 
       <!-- Amortization Schedule -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div class="section-header" style="margin-bottom: var(--space-8);">
+      <div class="reveal calc-mt-12">
+        <div class="section-header calc-mb-8">
           <span class="section__eyebrow">Amortization Schedule</span>
           <h2 class="section__title">تفاصيل الأقساط والفوائد</h2>
         </div>
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); overflow-x: auto;">
+        <div class="calc-panel calc-overflow-auto">
           <table class="amortization-table" id="amortizationTable">
             <thead>
               <tr>
@@ -230,7 +228,7 @@
               </tr>
             </thead>
             <tbody id="amortizationBody">
-              <tr><td colspan="5" style="color: var(--text-muted);">Calculate Results لعرض الجدول</td></tr>
+              <tr><td colspan="5" class="calc-amort-empty">Calculate Results لعرض الجدول</td></tr>
             </tbody>
           </table>
         </div>
@@ -239,7 +237,7 @@
   </section>
 
   <!-- How It Works -->
-  <section class="section" style="background: var(--bg-secondary);">
+  <section class="section calc-white-section">
     <div class="container">
       <div class="section-header reveal">
         <span class="section__eyebrow">الشفافية</span>
@@ -248,59 +246,59 @@
       </div>
       <div class="grid-2">
         <div class="card reveal">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📐 المعادلات الرياضية</h3>
-          <div style="display: flex; flex-direction: column; gap: var(--space-3); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
-            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+          <h3 class="calc-card-title">📐 المعادلات الرياضية</h3>
+          <div class="calc-equations">
+            <div class="calc-code-block">
               Installment = P × [r(1+r)^n] / [(1+r)^n − 1]
             </div>
-            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+            <div class="calc-code-block">
               P = صافي Loan Amount | r = نسبة Interest الدورية | n = عدد الأقساط
             </div>
-            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+            <div class="calc-code-block">
               معدل Interest الفعلي = (1 + r)^الدورات_في_السنة − 1
             </div>
           </div>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🧮 اختبر بنفسك</h3>
-          <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-4);">اضغط "جرب Example توضيحي" وتحقق من الحساب يدوياً:</p>
-          <div style="display: flex; flex-direction: column; gap: var(--space-2); font-size: 0.85rem; color: var(--text-secondary);">
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+          <h3 class="calc-card-title">🧮 اختبر بنفسك</h3>
+          <p class="calc-example-intro">اضغط "جرب Example توضيحي" وتحقق من الحساب يدوياً:</p>
+          <div class="calc-example-list">
+            <div class="calc-example-row">
               <span>Loan Amount</span><strong>500,000 SAR</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="calc-example-row">
               <span>Down Payment</span><strong>50,000 SAR</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="calc-example-row">
               <span>نسبة Interest</span><strong>5% سنوياً</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="calc-example-row">
               <span>المدة</span><strong>240 شهر (20 سنة)</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0;">
-              <span>النتيجة المتوقعة</span><strong style="color: var(--gold);">قسط Monthly ~2,960 SAR</strong>
+            <div class="calc-example-row">
+              <span>النتيجة المتوقعة</span><strong class="calc-gold-heading">قسط Monthly ~2,960 SAR</strong>
             </div>
           </div>
         </div>
       </div>
-      <div class="grid-2" style="margin-top: var(--space-8);">
+      <div class="grid-2 calc-mt-8">
         <div class="card reveal">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📚 مصادر علمية موثوقة</h3>
-          <div style="display: flex; flex-direction: column; gap: var(--space-3);">
-            <a href="https://en.wikipedia.org/wiki/Amortization_calculator" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
-              <span style="color: var(--gold);">→</span> Wikipedia — Amortization Calculator
+          <h3 class="calc-card-title">📚 مصادر علمية موثوقة</h3>
+          <div class="calc-links-list">
+            <a href="https://en.wikipedia.org/wiki/Amortization_calculator" target="_blank" rel="noopener" class="calc-link-item">
+              <span class="calc-link-arrow">→</span> Wikipedia — Amortization Calculator
             </a>
-            <a href="https://www.investopedia.com/terms/a/amortization.asp" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
-              <span style="color: var(--gold);">→</span> Investopedia — Amortization
+            <a href="https://www.investopedia.com/terms/a/amortization.asp" target="_blank" rel="noopener" class="calc-link-item">
+              <span class="calc-link-arrow">→</span> Investopedia — Amortization
             </a>
-            <a href="https://www.consumerfinance.gov/consumer-tools/auto-loans/answers/what-is-an-amortization-schedule/" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
-              <span style="color: var(--gold);">→</span> CFPB — Amortization Schedule
+            <a href="https://www.consumerfinance.gov/consumer-tools/auto-loans/answers/what-is-an-amortization-schedule/" target="_blank" rel="noopener" class="calc-link-item">
+              <span class="calc-link-arrow">→</span> CFPB — Amortization Schedule
             </a>
           </div>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📌 A note from Bonds</h3>
-          <ul style="font-size: 0.9rem; color: var(--text-secondary); line-height: 2; padding-left: var(--space-4);">
+          <h3 class="calc-card-title">📌 A note from Bonds</h3>
+          <ul class="calc-info-list">
             <li>This calculator gives you a <strong>smart initial financial view</strong> based on your data; it helps you evaluate your loan before deciding. For an accurate financial plan, consult one of our licensed advisors.</li>
             <li>Results تعتمد على <strong>دقة البيانات المدخلة</strong>.</li>
             <li>قد تختلف نسب Interest الفعلية بين البنوك بسبب الرسوم والعمولات الإضافية.</li>
@@ -620,7 +618,7 @@
       // Ellipsis if more than 13
       if (len > 13) {
         var trEllipsis = document.createElement('tr');
-        trEllipsis.innerHTML = '<td colspan="5" style="color: var(--text-muted); font-style: italic;">... ' + (len - showCount - 1) + ' ' + (inputs.frequency === 'monthly' ? 'شهر' : 'ربع') + ' آخر ...</td>';
+        trEllipsis.innerHTML = '<td colspan="5" class="calc-text-muted calc-italic">... ' + (len - showCount - 1) + ' ' + (inputs.frequency === 'monthly' ? 'شهر' : 'ربع') + ' آخر ...</td>';
         tbody.appendChild(trEllipsis);
       }
 
@@ -1065,7 +1063,7 @@
       document.getElementById('resEAR').textContent = '—';
       document.getElementById('resDti').textContent = '—';
       document.getElementById('resDti').style.color = 'var(--text)';
-      document.getElementById('amortizationBody').innerHTML = '<tr><td colspan="5" style="color: var(--text-muted);">Calculate Results لعرض الجدول</td></tr>';
+      document.getElementById('amortizationBody').innerHTML = '<tr><td colspan="5" class="calc-amort-empty">Calculate Results لعرض الجدول</td></tr>';
       document.getElementById('shareLink').value = '';
       document.getElementById('smartAlertBox').style.display = 'none';
       document.getElementById('leadCaptureBox').style.display = 'none';
@@ -1177,7 +1175,7 @@
     }
   </script>
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}</script>
-  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);">↑</button>
+  <button onclick="window.scrollTo({top:0,behavior:\'smooth\'})" id="backToTop" class="back-to-top">↑</button>
   <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
 <!-- Tawk.to Live Chat -->
 <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>

@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>لوحة المحفظة الاستثمارية | بوندز</title>
   <meta name="description" content="لوحة المدير التنفيذي لمتابعة محفظة المشاريع الاستثمارية — المرحلة، الجاهزية، المخاطر، الخطوة التالية." />
   <meta property="og:title" content="لوحة المحفظة الاستثمارية | بوندز" />
@@ -26,16 +29,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=1"></script>
   <script>BondsAuth.initSiteAuth();</script>
-  <script>
-    (async function() {
-      try {
-        const { data, error } = await window.BondsAuth.getUser();
-        if (!data?.user) {
-          window.location.href = '/calculators/auth/index.html?redirect=' + encodeURIComponent('/v3/portfolio');
-        }
-      } catch (e) { /* ignore */ }
-    })();
-  </script>
 </head>
 <body>
   <div class="ecc-shell" id="portfolio-root">
@@ -46,6 +39,26 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/components/ecc-icons.js"></script>
   <script src="portfolio-dashboard.js"></script>
+  <script>
+    (function () {
+      const start = Date.now();
+      const rootId = 'portfolio-root';
+      const interval = setInterval(function () {
+        if (window.__PORTFOLIO_DASHBOARD_LOADED) {
+          clearInterval(interval);
+          return;
+        }
+        if (Date.now() - start > 8000) {
+          clearInterval(interval);
+          const root = document.getElementById(rootId);
+          if (root) {
+            root.innerHTML = '<div class="loading" style="max-width:500px;margin:0 auto;"><p>اللوحة تستغرق وقتاً أطول من المتوقع. قد تكون الذاكرة المؤقتة القديمة هي السبب.</p><button class="ecc-btn ecc-btn--primary" onclick="if(navigator.serviceWorker){navigator.serviceWorker.getRegistrations().then(function(rs){return Promise.all(rs.map(function(r){return r.unregister();}));}).then(function(){return caches.keys().then(function(keys){return Promise.all(keys.map(function(k){return caches.delete(k);}));});}).then(function(){location.href=location.pathname+\'?reload=\'+Date.now();});}else{location.href=location.pathname+\'?reload=\'+Date.now();}">إعادة التحميل بدون ذاكرة مؤقتة</button></div>';
+          }
+        }
+      }, 1000);
+    })();
+  </script>
 </body>
 </html>

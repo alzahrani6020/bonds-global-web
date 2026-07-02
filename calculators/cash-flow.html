@@ -28,6 +28,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="shared-calculators.css" />
+  <link rel="stylesheet" href="cash-flow.css" />
   <link rel="stylesheet" href="../styles/design-system.css" />
   <script src="shared-ui.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
@@ -37,13 +38,11 @@
   
 
   <script src="db-client.js"></script>
-  
-<link rel="stylesheet" href="../header-footer.css?v=7" />
-  <link rel="canonical" href="https://bonds-global.com/calculators/cash-flow" />
+<link rel="canonical" href="https://bonds-global.com/calculators/cash-flow" />
 
 <link rel="stylesheet" href="../components/universal-dropdown.css" />
 </head>
-<body style="font-family:Vazirmatn,system-ui,sans-serif">
+<body>
 
   <!-- Top Bar -->
   <div class="topbar">
@@ -57,9 +56,9 @@
   <div id="site-header"></div>
 
   <!-- Hero -->
-  <section class="hero" style="min-height: 35vh; padding: var(--space-20) 0;">
-    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
-    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+  <section class="hero calc-hero">
+    <div class="hero__orb hero__orb--1"></div>
+    <div class="hero__orb hero__orb--2"></div>
     <div class="container hero__content reveal">
       <span class="hero__eyebrow">أداة مجانية</span>
       <h1 class="hero__title">حاسبة <span class="text-gradient">تدفق النقد</span></h1>
@@ -72,8 +71,8 @@
     <div class="container">
       <div class="calc-grid">
         <!-- Inputs -->
-        <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">بيانات التدفق النقدي</h2>
+        <div class="reveal calc-panel">
+          <h2 class="calc-section-title">بيانات التدفق النقدي</h2>
           
           <div class="calc-input-group">
             <label for="country">الدولة / السوق</label>
@@ -83,14 +82,14 @@
           </div>
 
           <div class="calc-input-group">
-            <label>الرصيد الافتتاحي (بداية الشهر الأول)</label>
+            <label for="openingBalance">الرصيد الافتتاحي (بداية الشهر الأول)</label>
             <input type="number" id="openingBalance" placeholder="مثلاً: 50000" min="0" />
           </div>
 
-          <h3 style="font-size: var(--text-lg); font-weight: 700; margin: var(--space-6) 0 var(--space-4); color: var(--gold);">الواردات الشهرية 💰</h3>
+          <h3 class="calc-subsection-title">الواردات الشهرية 💰</h3>
           <div class="cashflow-table-wrap" id="inflowTableWrap"></div>
 
-          <h3 style="font-size: var(--text-lg); font-weight: 700; margin: var(--space-6) 0 var(--space-4); color: var(--gold);">المصروفات الشهرية 💸</h3>
+          <h3 class="calc-subsection-title">المصروفات الشهرية 💸</h3>
           <div class="cashflow-table-wrap" id="outflowTableWrap"></div>
 
           <div class="section-actions">
@@ -102,10 +101,10 @@
 
         <!-- Results -->
         <div class="reveal reveal-delay-1">
-          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); margin-bottom: var(--space-6);">
-            <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">النتائج الشهرية</h2>
+          <div class="calc-panel calc-mb-6">
+            <h2 class="calc-section-title">النتائج الشهرية</h2>
             
-            <div id="annualSummary" class="annual-summary" style="display:none;">
+            <div id="annualSummary" class="annual-summary calc-hidden" >
               <div class="summary-card gold">
                 <div class="summary-label">إجمالي الواردات السنوي</div>
                 <div class="summary-value" id="sumTotalIn">—</div>
@@ -132,86 +131,86 @@
               </div>
             </div>
 
-            <div id="resultsTableContainer" style="margin-top: var(--space-6);"></div>
+            <div id="resultsTableContainer" class="calc-mt-6"></div>
 
-            <div class="share-bar hidden-print" style="margin-top: var(--space-6);">
-              <button onclick="exportExcel()" class="btn btn-outline" style="font-size: 0.8rem;">📊 Excel</button>
-              <button onclick="exportPDF()" class="btn btn-outline" style="font-size: 0.8rem;">🖨️ طباعة / PDF</button>
+            <div class="share-bar hidden-print calc-mt-6">
+              <button onclick="exportExcel()" class="btn btn-outline calc-btn-sm">📊 Excel</button>
+              <button onclick="exportPDF()" class="btn btn-outline calc-btn-sm">🖨️ طباعة / PDF</button>
             </div>
           </div>
 
-          <div style="background: linear-gradient(135deg, var(--navy-900), var(--navy-700)); border-radius: var(--radius-lg); padding: var(--space-8); color: var(--white);">
-            <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3);">ابغى تحليل أعمق؟</h3>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-6);">هذه الأداة تقديرية. لو تبي تحليل دقيق للتدفقات النقدية — نحن نقدم استشارة مجانية.</p>
+          <div class="calc-cta-box">
+            <h3>ابغى تحليل أعمق؟</h3>
+            <p class="calc-cta-text--primary">هذه الأداة تقديرية. لو تبي تحليل دقيق للتدفقات النقدية — نحن نقدم استشارة مجانية.</p>
             <a href="../contact.html" class="btn btn-primary">احجز استشارتك المجانية →</a>
           </div>
 
           <!-- Smart Alert CTA -->
-          <div id="smartAlertBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.02)); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius-lg);">
-            <div style="display: flex; align-items: flex-start; gap: var(--space-4);">
-              <div style="font-size: 2rem; flex-shrink: 0;">⚠️</div>
+          <div id="smartAlertBox" class="calc-alert">
+            <div class="calc-alert__flex">
+              <div class="calc-alert__icon">⚠️</div>
               <div>
-                <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-2); color: var(--danger);">تنبيه: رصيد نقدي سالب</h4>
-                <p id="smartAlertText" style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4); line-height: 1.8;"></p>
-                <a href="../contact.html" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">📞 استشارة مجانية (30 دقيقة)</a>
+                <h4 class="calc-alert__title">تنبيه: رصيد نقدي سالب</h4>
+                <p id="smartAlertText" class="calc-alert__text"></p>
+                <a href="../contact.html" class="btn btn-primary calc-btn-danger">📞 استشارة مجانية (30 دقيقة)</a>
               </div>
             </div>
           </div>
 
           <!-- Lead Capture -->
-          <div id="leadCaptureBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);">
-            <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold-700);">💾 احفظ نتائجك واحصل على هدية</h4>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4);">أرسل هذه النتائج لبريدك + نموذج Cash Flow Forecast مجاني.</p>
-            <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
-              <input type="text" name="name" required placeholder="الاسم" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
-              <input type="email" name="email" required placeholder="البريد الإلكتروني" style="flex: 2; min-width: 180px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
-              <input type="tel" name="phone" placeholder="رقم الجوال (اختياري)" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+          <div id="leadCaptureBox" class="calc-lead-box">
+            <h4 class="calc-lead-box__title">💾 احفظ نتائجك واحصل على هدية</h4>
+            <p class="calc-lead-box__text">أرسل هذه النتائج لبريدك + نموذج Cash Flow Forecast مجاني.</p>
+            <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" class="calc-lead-form">
+              <input type="text" name="name" required placeholder="الاسم" class="calc-input-flex" />
+              <input type="email" name="email" required placeholder="البريد الإلكتروني" class="calc-input-flex calc-input-flex--wide" />
+              <input type="tel" name="phone" placeholder="رقم الجوال (اختياري)" class="calc-input-flex" />
               <input type="hidden" name="source" value="cashflow_calculator_lead" />
               <input type="hidden" name="calc_data" id="leadCalcData" />
-              <button type="submit" class="btn btn-primary" style="flex-shrink: 0;">أرسل لي النتائج</button>
+              <button type="submit" class="btn btn-primary calc-no-shrink">أرسل لي النتائج</button>
             </form>
-            <p id="leadCaptureSuccess" style="display:none; color: #16a34a; margin-top: var(--space-3); font-weight: 700;">✓ تم الإرسال! سنتواصل معك خلال 24 ساعة.</p>
+            <p id="leadCaptureSuccess" class="calc-success-msg calc-hidden" >✓ تم الإرسال! سنتواصل معك خلال 24 ساعة.</p>
           </div>
         </div>
       </div>
 
       <!-- Chart -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">الرصيد الختامي على مدار 12 شهراً</h2>
-          <div style="position: relative; height: 400px;">
+      <div class="reveal calc-mt-12">
+        <div class="calc-panel">
+          <h2 class="calc-section-title calc-text-center">الرصيد الختامي على مدار 12 شهراً</h2>
+          <div class="calc-canvas-container">
             <canvas id="cashFlowChart"></canvas>
           </div>
         </div>
       </div>
 
       <!-- How It Works -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div class="section-header" style="margin-bottom: var(--space-8);">
+      <div class="reveal calc-mt-12">
+        <div class="section-header calc-mb-8">
           <span class="section__eyebrow">الشفافية</span>
           <h2 class="section__title">كيف تعمل الحاسبة؟</h2>
         </div>
         <div class="grid-2">
           <div class="card reveal">
-            <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📐 المعادلات</h3>
-            <div style="display: flex; flex-direction: column; gap: var(--space-3); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
-              <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+            <h3 class="calc-card-title">📐 المعادلات</h3>
+            <div class="calc-equations">
+              <div class="calc-code-block">
                 إجمالي الواردات = إيرادات المبيعات + إيرادات أخرى + قروض مستلمة
               </div>
-              <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+              <div class="calc-code-block">
                 إجمالي المصروفات = إيجار + رواتب + مواد خام + تسويق + ضرائب + سداد قروض + مصروفات أخرى
               </div>
-              <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+              <div class="calc-code-block">
                 صافي التدفق = إجمالي الواردات − إجمالي المصروفات
               </div>
-              <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+              <div class="calc-code-block">
                 الرصيد الختامي = الرصيد الافتتاحي + صافي التدفق
               </div>
             </div>
           </div>
           <div class="card reveal reveal-delay-1">
-            <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📌 ملاحظة من بوندز</h3>
-            <ul style="font-size: 0.9rem; color: var(--text-secondary); line-height: 2; padding-right: var(--space-4);">
+            <h3 class="calc-card-title">📌 ملاحظة من بوندز</h3>
+            <ul class="calc-info-list">
               <li>هذه الحاسبة تعطيك <strong>رؤية مالية أولية ذكية</strong> بناءً على بياناتك؛ تساعدك على تقييم تدفقاتك النقدية قبل اتخاذ القرار. للتحوّل إلى خطة مالية دقيقة، استشر أحد مستشارينا المعتمدين.</li>
               <li>النتائج تعتمد على <strong>دقة البيانات المدخلة</strong>.</li>
               <li>تأكد من تضمين جميع الالتزامات المتكررة.</li>
@@ -225,35 +224,35 @@
 
   <!-- Footer -->
   <!-- Disclaimer -->
-  <section style="background: var(--bg-secondary); padding: var(--space-8) 0; border-top: 1px solid var(--border);">
+  <section class="calc-white-section">
     <div class="container">
-      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); backdrop-filter: blur(16px); text-align: center;">
-        <h4 style="font-size: var(--text-base); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold-700);">📌 ملاحظة من بوندز</h4>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-3);">
+      <div class="calc-disclaimer">
+        <h4 class="calc-disclaimer-title">📌 ملاحظة من بوندز</h4>
+        <p class="calc-disclaimer-text">
           حاسبات بوندز تمنحك <strong>رؤية مالية أولية ذكية</strong> بناءً على البيانات التي تدخلها؛ تساعدك على تقييم فرص مشروعك وتدفقاته النقدية قبل اتخاذ القرار.
         </p>
-        <div style="display: flex; justify-content: center; gap: var(--space-6); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-4);">
-          <div style="text-align: right; direction: rtl;">
-            <h5 style="font-size: 0.9rem; font-weight: 700; color: var(--gold-700); margin-bottom: var(--space-2);">ماذا بعد؟</h5>
-            <ol style="font-size: 0.85rem; color: var(--text-secondary); line-height: 2; padding-right: var(--space-4); margin: 0;">
+        <div class="calc-flex-center-wrap">
+          <div class="calc-rtl-box">
+            <h5 class="calc-gold-subtitle">ماذا بعد؟</h5>
+            <ol class="calc-info-list calc-info-list--small">
               <li>راجع الأرقام التقديرية أعلاه.</li>
               <li>تحدث إلى مستشار Bonds المعتمد.</li>
               <li>احصل على خطة مالية مخصصة.</li>
             </ol>
           </div>
-          <div style="text-align: center;">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/966567566616" alt="WhatsApp QR" style="width:100px;height:100px;border-radius:8px;border:1px solid var(--border);">
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: var(--space-2);">امسح للتواصل عبر واتساب</p>
+          <div class="calc-text-center">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/966567566616" alt="WhatsApp QR" class="calc-qr-img">
+            <p class="calc-qr-caption">امسح للتواصل عبر واتساب</p>
           </div>
         </div>
-        <a href="https://wa.me/966567566616" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:var(--space-3);padding:10px 24px;background:#d4a853;color:#1a1a1a;border-radius:24px;text-decoration:none;font-weight:700;">📱 تحدث إلى مستشار</a>
-        <div style="margin-top:var(--space-3);padding:var(--space-3);background: var(--bg);border-radius:12px;border-right:3px solid var(--gold-700);text-align:right;">
-          <p style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic; line-height: 1.6; margin: 0;">"رؤية التدفقات النقدية الشهرية غيرت طريقة تخطيطي للمخزون والرواتب ونبهتني لأشهر النقص قبل حدوثها."</p>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin: var(--space-2) 0 0 0;">— صاحب مشروع، الدمام</p>
+        <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="calc-whatsapp-btn">📱 تحدث إلى مستشار</a>
+        <div class="calc-note-box">
+          <p class="calc-testimonial">"رؤية التدفقات النقدية الشهرية غيرت طريقة تخطيطي للمخزون والرواتب ونبهتني لأشهر النقص قبل حدوثها."</p>
+          <p class="calc-testimonial-author">— صاحب مشروع، الدمام</p>
         </div>
-        <p style="margin-top:var(--space-3);font-size:0.85rem;color:var(--gold-700);font-weight:700;">⚡ استشارتك الأولى مجانية — العرض ساري حتى <span class="offer-date-ar"></span>.</p>
-        <p style="margin-top:var(--space-2);font-size:0.8rem;color:var(--text-secondary);">انضم لأكثر من 500 صاحب مشروع وشركة ناشئة استخدموا بوندز لبناء نماذجهم المالية.</p>
-        <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+        <p class="calc-offer-text">⚡ استشارتك الأولى مجانية — العرض ساري حتى <span class="offer-date-ar"></span>.</p>
+        <p class="calc-footer-text">انضم لأكثر من 500 صاحب مشروع وشركة ناشئة استخدموا بوندز لبناء نماذجهم المالية.</p>
+        <p class="calc-copyright">
           <strong>Bonds Global</strong> — دراسات جدوى | نماذج مالية | استشارات مالية معتمدة<br>
           bonds-global.com
         </p>
@@ -788,7 +787,7 @@
     attachAutoCalc();
   </script>
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}</script>
-  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);">↑</button>
+  <button onclick="window.scrollTo({top:0,behavior:\'smooth\'})" id="backToTop" class="back-to-top">↑</button>
   <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
 <!-- Tawk.to Live Chat -->
 <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>

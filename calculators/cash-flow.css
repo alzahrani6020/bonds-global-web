@@ -1,0 +1,89 @@
+
+
+/* ===== Sub-Wave 3.5 additions ===== */
+/* Page-specific styles */
+body { font-family: Vazirmatn, system-ui, sans-serif; }
+
+.calc-hero { min-height: 45vh; padding: 120px 0 40px; }
+@media (max-width: 768px) {
+  .calc-hero { min-height: auto; padding: 100px 0 32px; }
+}
+
+.hero__orb--1 { width: 300px; height: 300px; }
+.hero__orb--2 { width: 250px; height: 250px; }
+
+.calc-mb-8 { margin-bottom: var(--space-8); }
+.calc-mt-8 { margin-top: var(--space-8); }
+
+.calc-result-list { display: flex; flex-direction: column; gap: var(--space-3); }
+.calc-result-row { display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border); }
+.calc-result-row:last-child { border-bottom: none; }
+.calc-result-row__label { color: var(--text-secondary); font-size: 0.9rem; }
+.calc-result-row__value { font-weight: 800; color: var(--text); }
+.calc-result-row__value--danger { color: #dc2626; }
+
+.calc-analysis-box { margin-top: var(--space-6); padding: var(--space-4); background: rgba(212,168,83,0.05); border: 1px solid var(--border); border-radius: var(--radius); display: none; }
+.calc-steps { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); }
+
+.calc-lead-box { display: none; margin-top: var(--space-6); padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.calc-lead-box__title { font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold); }
+.calc-lead-box__text { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4); }
+.calc-success-msg { display: none; color: #16a34a; margin-top: var(--space-3); font-weight: 700; }
+
+.calc-btn-danger { background: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important; }
+.calc-btn-sm { font-size: 0.8rem; }
+.calc-select-sm { padding: 0.5rem 0.75rem; border-radius: 8px; background: var(--bg-card); color: var(--text); border: 1px solid var(--border); font-family: inherit; font-size: 0.8rem; cursor: pointer; }
+
+.calc-canvas-container-doughnut { position: relative; height: 320px; max-width: 400px; margin: 0 auto; }
+
+.calc-disclaimer { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); backdrop-filter: blur(16px); text-align: center; }
+.calc-disclaimer-title { font-size: var(--text-base); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold); }
+.calc-disclaimer-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-3); }
+.calc-flex-center-wrap { display: flex; justify-content: center; gap: var(--space-6); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-4); }
+.calc-rtl-box { text-align: right; direction: rtl; }
+.calc-qr-img { width: 100px; height: 100px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; }
+.calc-qr-caption { font-size: 0.75rem; color: var(--text-muted); margin-top: var(--space-2); }
+.calc-offer-text { margin-top: var(--space-3); font-size: 0.85rem; color: var(--gold); font-weight: 700; }
+.calc-footer-text { margin-top: var(--space-2); font-size: 0.8rem; color: var(--text-secondary); }
+.calc-copyright { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; }
+.calc-testimonial { font-size: 0.85rem; color: var(--text-secondary); font-style: italic; line-height: 1.6; margin: 0; }
+.calc-testimonial-author { font-size: 0.8rem; color: var(--text-secondary); margin: var(--space-2) 0 0 0; }
+.calc-empty-state { color: var(--text-muted); text-align: center; }
+
+.calc-card-title { font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold); }
+.calc-gold-subtitle { font-size: 0.9rem; font-weight: 700; color: var(--gold); margin-bottom: var(--space-2); }
+.calc-equations { display: flex; flex-direction: column; gap: var(--space-3); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8; }
+.calc-example-list { display: flex; flex-direction: column; gap: var(--space-2); font-size: 0.85rem; color: var(--text-secondary); }
+.calc-example-row { display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border); }
+.calc-example-row:last-child { border-bottom: none; }
+.calc-links-list { display: flex; flex-direction: column; gap: var(--space-3); }
+.calc-link-item { color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2); }
+.calc-link-arrow { color: var(--gold); }
+.calc-info-list { font-size: 0.9rem; color: var(--text-secondary); line-height: 2; padding-right: var(--space-4); }
+.calc-info-list--small { font-size: 0.85rem; }
+
+.calc-optional-box { margin: var(--space-4) 0; padding: var(--space-4); background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius); }
+.calc-optional-title { font-size: 0.85rem; color: var(--gold); font-weight: 700; margin-bottom: var(--space-3); }
+.calc-label-small { font-size: 0.85rem; }
+
+.back-to-top { position: fixed; bottom: 80px; right: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--gold); color: var(--bg); border: none; font-size: 1.2rem; cursor: pointer; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; box-shadow: 0 4px 12px rgba(212,168,83,0.4); }
+
+.calc-note-box { margin-top: var(--space-3); padding: var(--space-3); background: var(--bg); border-radius: 12px; border-right: 3px solid var(--gold-700); text-align: right; }
+
+.calc-amort-empty { text-align: center; padding: 2rem; color: var(--text-muted); }
+.calc-amort-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.5; }
+.calc-italic { font-style: italic; }
+/* Sub-Wave 3.5 pass-2 additions */
+.calc-cta-box h3 { font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); }
+.calc-cta-box p { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-6); }
+.calc-optional-title-bright { font-size: 0.85rem; color: var(--gold-bright); font-weight: 700; margin-bottom: var(--space-3); }
+.calc-example-intro { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-4); }
+.calc-step-row { padding: var(--space-2) 0; border-bottom: 1px dashed var(--border); }
+.calc-step-row:last-child { border-bottom: none; }
+.calc-text-center { text-align: center; }
+.calc-no-shrink { flex-shrink: 0; }
+/* Sub-Wave 3.5 pass-3 additions */
+.calc-result-row__value--gold { color: var(--gold); }
+.calc-cta-text--primary { font-size: 0.9rem; color: var(--text); margin-bottom: var(--space-6); }
+
+.calc-hidden { display: none !important; }

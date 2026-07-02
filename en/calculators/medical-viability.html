@@ -29,13 +29,13 @@
   <script src="../../calculators/db-client.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   
-  <link rel="stylesheet" href="../../header-footer.css?v=7" />
+  <link rel="stylesheet" href="../../header-footer.css?v=8" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="canonical" href="https://bonds-global.com/en/calculators/medical-viability" />
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
-<body style="font-family:Inter,system-ui,sans-serif">
+<body class="calc-body-en">
   <div class="topbar">
     <div class="container topbar__inner">
       <span>Your first consultation is free — book now</span>
@@ -45,9 +45,9 @@
 
   <div id="site-header"></div>
 
-  <section class="hero" style="min-height: 38vh; padding: var(--space-20) 0;">
-    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
-    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+  <section class="hero calc-hero-tall">
+    <div class="hero__orb hero__orb--1 calc-img-300"></div>
+    <div class="hero__orb hero__orb--2 calc-img-250"></div>
     <div class="container hero__content reveal">
       <span class="hero__eyebrow">Free Tool</span>
       <h1 class="hero__title">Medical <span class="text-gradient">Investment Decision Engine</span></h1>
@@ -57,14 +57,14 @@
 
   <section class="section">
     <div class="med-container">
-      <div class="bonds-card" style="text-align:center; margin-bottom: var(--space-6);">
+      <div class="bonds-card calc-text-center calc-mb-6">
         <div class="med-badge">Country / Market</div>
         <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" class="activity-select" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
           <option value="">Select country</option>
         </select>
       </div>
 
-      <div class="bonds-card" style="text-align:center; margin-bottom: var(--space-6);">
+      <div class="bonds-card calc-text-center calc-mb-6">
         <div class="med-badge">Select Your Business Activity</div>
         <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activity" class="activity-select" onchange="onActivityChange()">
           <option value="pharmacy">🩺 Pharmacy</option>
@@ -74,8 +74,8 @@
       </div>
 
       <div class="calc-grid">
-        <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Project Data</h2>
+        <div class="reveal calc-panel-default calc-panel-default--compact calc-panel-default--blur">
+          <h2 class="calc-title-xl">Project Data</h2>
 
           <div class="med-section-title">📋 Setup Costs</div>
           <div class="bonds-form-row" id="setupFields"></div>
@@ -98,10 +98,10 @@
           <div class="med-section-title">🧬 Service Mix</div>
           <div class="bonds-form-row" id="serviceMixFields"></div>
 
-          <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top: var(--space-6);">
-            <button onclick="calculateAll()" class="bonds-btn bonds-btn-primary" style="flex:1; min-width:140px;">Calculate Results</button>
-            <button onclick="loadExample()" class="bonds-btn bonds-btn-secondary" style="flex:1; min-width:140px;">🧮 Try Example</button>
-            <button onclick="resetCalc()" class="bonds-btn bonds-btn-outline" style="flex:1; min-width:140px;">Reset</button>
+          <div class="calc-action-row calc-mt-6">
+            <button onclick="calculateAll()" class="bonds-btn bonds-btn-primary calc-flex-1 calc-min-width-140">Calculate Results</button>
+            <button onclick="loadExample()" class="bonds-btn bonds-btn-secondary calc-flex-1 calc-min-width-140">🧮 Try Example</button>
+            <button onclick="resetCalc()" class="bonds-btn bonds-btn-outline calc-flex-1 calc-min-width-140">Reset</button>
           </div>
 
           <div class="share-bar">
@@ -111,11 +111,11 @@
         </div>
 
         <div class="reveal reveal-delay-1">
-          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); margin-bottom: var(--space-6);">
-            <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Results</h2>
+          <div class="calc-panel-default calc-panel-default--compact calc-panel-default--blur calc-panel-default--mb">
+            <h2 class="calc-title-xl">Results</h2>
             <div id="resultContent">
-              <div style="text-align:center; color:var(--text-secondary); padding: var(--space-8) 0;">
-                <div style="font-size:3rem; margin-bottom:var(--space-4);">🏥</div>
+              <div class="calc-empty-state-box">
+                <div class="calc-empty-icon-lg">🏥</div>
                 <p>Select an activity, enter your data, then click "Calculate Results".</p>
               </div>
             </div>

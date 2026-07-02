@@ -12,8 +12,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <link rel="stylesheet" href="../../calculators/feasibility-template-shared-en.css" />
-<link rel="stylesheet" href="../../header-footer.css?v=7" />
-  <link rel="canonical" href="https://bonds-global.com/en/calculators/feasibility-template" />
+<link rel="stylesheet" href="../../header-footer.css?v=8" />
+<link rel="canonical" href="https://bonds-global.com/en/calculators/feasibility-template" />
   <meta property="og:description" content="Professional integrated feasibility study: PESTLE, SWOT, financial analysis, cash flow, scenarios. Free from Bonds." />
   <meta property="og:url" content="https://bonds-global.com/en/calculators/feasibility-template" />
   <meta property="og:type" content="website" />
@@ -32,15 +32,15 @@
 
   <!-- Toolbar -->
   <div class="template-toolbar no-print">
-    <div id="auto-save-indicator" style="position:absolute;top:0.3rem;left:0.5rem;font-size:0.7rem;color:var(--gold);opacity:0;transition:opacity 0.5s;">💾 Auto-saved</div>
+    <div class="auto-save-indicator" id="auto-save-indicator">💾 Auto-saved</div>
     <button class="btn-ghost" onclick="clearAll()">🗑️ Clear All</button>
     <button class="btn-ghost" onclick="saveDraft()">💾 Save Draft</button>
     <button class="btn-ghost" onclick="loadDraft()">📂 Load Draft</button>
     <button class="btn-ghost" onclick="scrollToDashboard()">🎯 Dashboard</button>
-    <button class="btn-ghost" id="btn-import-supabase" onclick="fillFromSupabase()" style="display:none;">📥 Import My Data</button>
-    <button class="btn-ghost" onclick="openResearchModal()" style="color:#38bdf8;border-color:#38bdf8;">Smart Research</button>
+    <button class="hidden" id="btn-import-supabase" onclick="fillFromSupabase()">📥 Import My Data</button>
+    <button class="btn-sky-outline" onclick="openResearchModal()">Smart Research</button>
     <button class="btn-ghost" onclick="exportToExcel()">📊 Export Excel</button>
-    <button class="btn-ghost" onclick="generateProfessionalPDF()" style="color:var(--gold);border-color:var(--gold);">📄 Professional PDF</button>
+    <button class="btn-gold-outline" onclick="generateProfessionalPDF()">📄 Professional PDF</button>
   </div>
 
   <div class="template-wrapper">
@@ -57,32 +57,32 @@
         <div class="field-group"><label>Legal Form</label><input type="text" id="cover-legal-form" placeholder="Sole Proprietorship / LLC" /></div>
         <div class="field-group"><label>Preparation Date</label><input type="date" id="cover-date" /></div>
       </div>
-      <div class="field-group inline-2" style="max-width:520px;width:100%;margin-top:1rem;text-align:right;display:grid;grid-template-columns:2fr 1fr;gap:1rem;">
-        <div class="field-group" style="margin-bottom:0;">
+      <div class="cover-form-row-inline">
+        <div class="mb-0">
           <label>Country</label>
           <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="cover-country" onchange="fillFromCountry()">
             <option value="">Select country...</option>
           </select>
         </div>
-        <div class="field-group" style="margin-bottom:0;">
-          <button type="button" class="btn-ghost" style="width:100%;padding:0.75rem;border-radius:10px;background:rgba(212,168,83,0.1);color:var(--gold);border:1px solid var(--gold);font-weight:700;cursor:pointer;font-family:inherit;" onclick="fillFromCountry()">🔄 Fill Data</button>
+        <div class="mb-0">
+          <button class="btn-fill-gold" type="button" onclick="fillFromCountry()">🔄 Fill Data</button>
         </div>
       </div>
-      <div class="field-group" style="max-width:520px;width:100%;margin-top:1.5rem;text-align:right;">
+      <div class="cover-form-row">
         <label>Project Idea in One Sentence</label><textarea id="cover-idea" rows="2" placeholder="Brief description of the project idea..."></textarea>
       </div>
-      <div class="field-group" style="max-width:520px;width:100%;text-align:right;">
+      <div class="cover-form-row-plain">
         <label>Expected Investment (SAR)</label><input type="number" id="cover-investment" placeholder="0" oninput="linkToCapital()" />
       </div>
     </div>
 
     <!-- ========== PAGE IMPORT: AI FEASIBILITY IMPORTER ========== -->
-    <div class="template-page no-print" id="page-import" style="border:2px solid var(--gold); background:rgba(212,168,83,0.05);">
-      <div class="page-header"><div class="section-number" style="background:var(--gold);color:#f5f0e8;">🤖</div><div><h2 style="color:var(--gold-bright);">AI Feasibility Study Importer</h2><p>Upload a Word file or paste your study text and we will auto-fill the template</p></div></div>
+    <div class="import-page no-print" id="page-import">
+      <div class="page-header"><div class="btn-gold-solid">🤖</div><div><h2 class="text-gold-bright">AI Feasibility Study Importer</h2><p>Upload a Word file or paste your study text and we will auto-fill the template</p></div></div>
 
-      <div class="field-group" style="margin-bottom:1rem;">
+      <div class="mb-1">
         <label>📁 Upload File (Word .docx, PDF .pdf, or Text .txt)</label>
-        <input type="file" id="feasibility-file" accept=".docx,.pdf,.txt" onchange="handleFeasibilityFile(this)" style="padding:0.75rem; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; color:var(--text); width:100%;" />
+        <input class="input-file" type="file" id="feasibility-file" accept=".docx,.pdf,.txt" onchange="handleFeasibilityFile(this)" />
       </div>
 
       <div class="field-group">
@@ -92,19 +92,19 @@
 The text should include: project description, costs, revenue, competitors, SWOT, marketing, timeline..."></textarea>
       </div>
 
-      <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem;">
-        <button onclick="analyzeFeasibilityText()" id="analyze-btn" style="background:linear-gradient(135deg,var(--gold),var(--gold-bright)); color:#f5f0e8; border:none; padding:0.8rem 2rem; border-radius:10px; font-weight:800; font-family:inherit; cursor:pointer; font-size:1rem;">
+      <div class="btn-row">
+        <button class="btn-primary-gradient" onclick="analyzeFeasibilityText()" id="analyze-btn">
           ✨ Analyze & Fill Template
         </button>
-        <button class="btn-ghost" onclick="document.getElementById('feasibility-text').value='';document.getElementById('feasibility-file').value='';" style="padding:0.8rem 1.5rem; border-radius:10px; background:transparent; color:var(--gold); border:1px solid var(--gold); font-family:inherit; cursor:pointer;">
+        <button class="btn-ghost-sm" onclick="document.getElementById('feasibility-text').value='';document.getElementById('feasibility-file').value='';">
           Clear
         </button>
       </div>
 
-      <div id="import-status" style="margin-top:1rem; font-size:0.85rem; color:var(--text-secondary); min-height:1.5rem;"></div>
+      <div class="status-msg" id="import-status"></div>
 
-      <div style="margin-top:1.5rem; padding:1rem; background:rgba(255,255,255,0.02); border-radius:10px; border:1px solid var(--border);">
-        <p style="margin:0; font-size:0.8rem; color:var(--text-secondary);">
+      <div class="tips-box">
+        <p class="tips-text">
           💡 <strong>Tips for best results:</strong><br>
           • Make sure the text contains clear numbers (costs, revenue, investment).<br>
           • Mention country, city, and sector clearly.<br>
@@ -115,18 +115,18 @@ The text should include: project description, costs, revenue, competitors, SWOT,
     </div>
 
     <!-- ========== AI PREVIEW MODAL ========== -->
-    <div id="ai-preview-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; padding:1rem;">
-      <div style="background:var(--bg-card); backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; max-width:900px; width:100%; max-height:85vh; display:flex; flex-direction:column;">
-        <div style="padding:1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-          <h3 style="margin:0; color:var(--gold); font-size:1.2rem;">📋 Preview Extracted Data</h3>
-          <button onclick="closePreview()" style="background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer;">×</button>
+    <div class="modal-overlay" id="ai-preview-modal">
+      <div class="modal-panel-lg">
+        <div class="modal-header">
+          <h3 class="modal-title">📋 Preview Extracted Data</h3>
+          <button class="modal-close" onclick="closePreview()">×</button>
         </div>
-        <div id="ai-preview-content" style="padding:1.5rem; overflow-y:auto; flex:1;">
+        <div class="modal-body" id="ai-preview-content">
           <!-- dynamically filled -->
         </div>
-        <div style="padding:1.5rem; border-top:1px solid var(--border); display:flex; gap:1rem; justify-content:flex-end;">
-          <button onclick="closePreview()" class="btn-ghost" style="padding:0.7rem 1.5rem; border-radius:10px; background:transparent; color:var(--text-secondary); border:1px solid var(--border);">Cancel</button>
-          <button onclick="confirmFillFromPreview()" style="padding:0.7rem 1.5rem; border-radius:10px; background:var(--gold); color:#f5f0e8; border:none; font-weight:800; cursor:pointer;">✅ Fill Template with Selected</button>
+        <div class="modal-footer">
+          <button class="px-1-5-py-0-7 rounded-lg bg-transparent text-secondary border" onclick="closePreview()">Cancel</button>
+          <button class="btn-confirm-sm" onclick="confirmFillFromPreview()">✅ Fill Template with Selected</button>
         </div>
       </div>
     </div>
@@ -166,7 +166,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <div class="template-page" id="page-summary">
       <div class="template-header-print"><img src="../../assets/bonds-logo-2026.webp?v=2026" alt="Bonds" /><div class="doc-title">Feasibility Study — Summary</div></div>
       <div class="page-header"><div class="section-number">2</div><div><h2>Executive Summary</h2><p>Overview of the entire study (best written last)</p></div></div>
-      <div class="field-group"><label>Project Summary (3-5 lines)</label><textarea id="exec-summary" rows="5" placeholder="Comprehensive overview: idea, market, opportunity, expected results..."></textarea><button class="btn-ghost no-print" style="margin-top:0.5rem;font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="autoGenerateSummary()">✨ Auto-generate summary</button></div>
+      <div class="field-group"><label>Project Summary (3-5 lines)</label><textarea id="exec-summary" rows="5" placeholder="Comprehensive overview: idea, market, opportunity, expected results..."></textarea><button class="btn-sm no-print" onclick="autoGenerateSummary()">✨ Auto-generate summary</button></div>
       <div class="field-group inline-3">
         <div class="field-group"><label>Required Capital (SAR)</label><input type="number" id="summary-capital" placeholder="0" /></div>
         <div class="field-group"><label>Payback Period (months)</label><input type="number" id="summary-payback" readonly tabindex="-1" placeholder="Will be calculated automatically" /></div>
@@ -184,7 +184,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="template-header-print"><img src="../../assets/bonds-logo-2026.webp?v=2026" alt="Bonds" /><div class="doc-title">Feasibility Study — Products</div></div>
       <div class="page-header"><div class="section-number">3</div><div><h2>Products & Services Description</h2><p>What you offer and how customers benefit</p></div></div>
       <div class="field-group"><label>Primary Product/Service Description</label><textarea rows="4" placeholder="Describe fundamentally what you sell..."></textarea></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">Product Cards</h3>
+      <h3 class="section-title-sm">Product Cards</h3>
       <table class="template-table" id="products-table">
         <thead><tr><th>#</th><th>Product Name</th><th>Price (SAR)</th><th>Variable Cost</th><th>Contribution Margin</th></tr></thead>
         <tbody>
@@ -194,7 +194,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addProductRow()">+ Add Product</button><button onclick="removeRow('products-table')">- Remove</button></div>
-      <div class="field-group inline" style="margin-top:1rem;">
+      <div class="mt-1">
         <div class="field-group"><label>Added Value</label><textarea rows="2" placeholder="What differentiates you?"></textarea></div>
         <div class="field-group"><label>Customer Benefit</label><textarea rows="2" placeholder="Direct benefit..."></textarea></div>
       </div>
@@ -214,7 +214,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <div class="field-group"><label>Market Gap / Distress Rate (%)</label><input type="number" id="market-gap" placeholder="0" /></div>
         <div class="field-group"><label>Expected Annual Demand (units)</label><input type="number" id="market-demand" placeholder="0" /></div>
       </div>
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">Official Market Data</h3>
+      <h3 class="section-title-sm">Official Market Data</h3>
       <div class="field-group inline">
         <div class="field-group"><label>Real Estate / Official Statistical Indicators</label><textarea id="market-indicators" rows="3" placeholder="Notary data, Real Estate Authority, Central Bank..."></textarea></div>
         <div class="field-group"><label>Financing &amp; Purchasing Trends</label><textarea id="market-financing" rows="3" placeholder="Bank sales, housing support programs, customer preferences..."></textarea></div>
@@ -235,7 +235,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </div>
 
       <!-- 2. Current Status Assessment -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">📊 Initial Assessment of Current Building Status</h3>
+      <h3 class="section-title-sm">📊 Initial Assessment of Current Building Status</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>Actual Completion %</label><input type="number" id="ba-completion-now" min="0" max="100" placeholder="0-100" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>Current Market Value (SAR)</label><input type="number" id="ba-current-value" placeholder="0" oninput="calcBuildingAssessment()" /></div>
@@ -247,7 +247,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </div>
 
       <!-- 3. Violations & Licenses -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">⚠️ Violations &amp; Licenses</h3>
+      <h3 class="section-title-sm">⚠️ Violations &amp; Licenses</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>Any Municipal Violations?</label><select data-universal-dropdown="true" id="ba-violations"><option value="no">No</option><option value="yes">Yes</option></select></div>
         <div class="field-group"><label>Building Permit Status</label><select data-universal-dropdown="true" id="ba-license-status"><option value="valid">Valid</option><option value="expired">Expired</option><option value="no-license">None</option></select></div>
@@ -266,7 +266,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="field-group"><label>Violation &amp; Obligation Details</label><textarea id="ba-violation-details" rows="2" placeholder="Accumulated fines, stop-work orders, liens..."></textarea></div>
 
       <!-- 4. BOQ Table -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">📐 Bill of Quantities (BOQ)</h3>
+      <h3 class="section-title-sm">📐 Bill of Quantities (BOQ)</h3>
       <table class="template-table" id="boq-table">
         <thead><tr><th>No.</th><th>Work Item</th><th>Unit</th><th>Quantity</th><th>Unit Price</th><th>Total</th></tr></thead>
         <tbody>
@@ -277,82 +277,82 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addBOQRow()">+ Add Item</button><button onclick="removeRow('boq-table')">- Remove</button></div>
-      <div class="field-group" style="margin-top:0.5rem;"><label>Total Completion Cost: <span id="boq-grand-total" style="color:var(--gold);font-weight:800;">0</span> SAR</label></div>
+      <div class="mt-0-5"><label>Total Completion Cost: <span class="text-gold fw-extrabold" id="boq-grand-total">0</span> SAR</label></div>
 
       <!-- 5. Profit Sharing Calculator -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">💰 Profit Sharing Calculator (Real Estate Partnership)</h3>
+      <h3 class="section-title">💰 Profit Sharing Calculator (Real Estate Partnership)</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>Land + Skeleton Value (Owner's Share)</label><input type="number" id="ba-owner-value" placeholder="0" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>Completion Cost (Company's Share)</label><input type="number" id="ba-company-cost" placeholder="0" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>Expected Sale Value After Completion</label><input type="number" id="ba-future-value" placeholder="0" oninput="calcBuildingAssessment()" /></div>
       </div>
-      <div class="field-group inline-3" style="margin-top:1rem;">
+      <div class="mt-1">
         <div class="field-group"><label>Admin & Marketing Expenses (SAR)</label><input type="number" id="ba-admin-expenses" placeholder="0" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>Platform Fees / Commissions (SAR)</label><input type="number" id="ba-platform-fees" placeholder="0" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>Property Tax / Zakat (SAR)</label><input type="number" id="ba-tax" placeholder="0" oninput="calcBuildingAssessment()" /></div>
       </div>
-      <div class="field-group inline-3" style="margin-top:0.5rem;">
+      <div class="mt-0-5">
         <div class="field-group"><label>External Office & Broker Commissions (SAR)</label><input type="number" id="ba-broker-fees" placeholder="0" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>Property Transfer Fees (SAR)</label><input type="number" id="ba-transfer-fees" placeholder="0" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>Other Expenses (SAR)</label><input type="number" id="ba-other-expenses" placeholder="0" oninput="calcBuildingAssessment()" /></div>
       </div>
-      <div style="margin-top:0.75rem;padding:0.75rem;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:10px;">
-        <p style="margin:0 0 0.5rem;font-size:0.85rem;color:#f87171;font-weight:700;">⚠️ Additional expenses deducted exclusively for the company (completion risks)</p>
-        <div class="field-group inline-3" style="margin:0;">
-          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">Hidden Defects Treatment (SAR)</label><input type="number" id="ba-hidden-defects" placeholder="0" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
-          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">Interim Construction Emergencies (SAR)</label><input type="number" id="ba-emergency" placeholder="0" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
-          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">Unplanned Modifications (SAR)</label><input type="number" id="ba-unplanned" placeholder="0" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
+      <div class="alert-red">
+        <p class="alert-red-title">⚠️ Additional expenses deducted exclusively for the company (completion risks)</p>
+        <div class="m-0">
+          <div class="mb-0"><label class="fs-0-8 text-secondary">Hidden Defects Treatment (SAR)</label><input class="p-0-6" type="number" id="ba-hidden-defects" placeholder="0" oninput="calcBuildingAssessment()" /></div>
+          <div class="mb-0"><label class="fs-0-8 text-secondary">Interim Construction Emergencies (SAR)</label><input class="p-0-6" type="number" id="ba-emergency" placeholder="0" oninput="calcBuildingAssessment()" /></div>
+          <div class="mb-0"><label class="fs-0-8 text-secondary">Unplanned Modifications (SAR)</label><input class="p-0-6" type="number" id="ba-unplanned" placeholder="0" oninput="calcBuildingAssessment()" /></div>
         </div>
       </div>
-      <div class="scenario-grid" style="margin-top:1rem;">
-        <div class="scenario-card" style="border-left:4px solid #3b82f6;">
-          <div class="scenario-label" style="color:#3b82f6;">Owner's Share (%)</div>
-          <div class="scenario-value" id="ba-owner-share" style="color:#3b82f6;">0%</div>
+      <div class="mt-1">
+        <div class="border-l-blue-4">
+          <div class="text-blue">Owner's Share (%)</div>
+          <div class="text-blue" id="ba-owner-share">0%</div>
           <div class="scenario-desc">Asset Ownership Share</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #f59e0b;">
-          <div class="scenario-label" style="color:#f59e0b;">Company's Share (%)</div>
-          <div class="scenario-value" id="ba-company-share" style="color:#f59e0b;">0%</div>
+        <div class="border-l-amber-4">
+          <div class="text-amber">Company's Share (%)</div>
+          <div class="text-amber" id="ba-company-share">0%</div>
           <div class="scenario-desc">Completion &amp; Operations Share</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #888888;">
-          <div class="scenario-label" style="color:#888888;">Total Company Expenses</div>
-          <div class="scenario-value" id="ba-shared-expenses" style="color:#888888;">0</div>
+        <div class="border-l-gray-4">
+          <div class="text-gray">Total Company Expenses</div>
+          <div class="text-gray" id="ba-shared-expenses">0</div>
           <div class="scenario-desc">Added to company share and deducted from owner</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #16a34a;">
-          <div class="scenario-label" style="color:#16a34a;">Expected Net Profit</div>
-          <div class="scenario-value" id="ba-net-profit" style="color:#16a34a;">0</div>
+        <div class="border-l-green-4">
+          <div class="text-green">Expected Net Profit</div>
+          <div class="text-green" id="ba-net-profit">0</div>
           <div class="scenario-desc">Saudi Riyals</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #dc2626;">
-          <div class="scenario-label" style="color:#dc2626;">Owner's Profit</div>
-          <div class="scenario-value" id="ba-owner-profit" style="color:#dc2626;">0</div>
+        <div class="border-l-red-4">
+          <div class="text-red">Owner's Profit</div>
+          <div class="text-red" id="ba-owner-profit">0</div>
           <div class="scenario-desc">Saudi Riyals</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #8b5cf6;">
-          <div class="scenario-label" style="color:#8b5cf6;">Company's Profit</div>
-          <div class="scenario-value" id="ba-company-profit" style="color:#8b5cf6;">0</div>
+        <div class="border-l-purple-4">
+          <div class="text-purple">Company's Profit</div>
+          <div class="text-purple" id="ba-company-profit">0</div>
           <div class="scenario-desc">Saudi Riyals</div>
         </div>
       </div>
 
       <!-- 6. Sale Period Scenarios -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">📊 Sale &amp; Liquidation Period Scenarios</h3>
+      <h3 class="section-title">📊 Sale &amp; Liquidation Period Scenarios</h3>
       <table class="template-table" id="sale-scenarios-table">
         <thead><tr><th>Metric</th><th>Pessimistic</th><th>Expected</th><th>Optimistic</th></tr></thead>
         <tbody>
-          <tr><td style="font-weight:700;">Sale Period (months)</td><td><input type="number" id="sale-pess-months" placeholder="e.g. 4" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-exp-months" placeholder="e.g. 2" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-opt-months" placeholder="e.g. 1" oninput="calcSaleScenarios()" /></td></tr>
-          <tr><td style="font-weight:700;">Price Discount (%)</td><td><input type="number" id="sale-pess-discount" placeholder="e.g. 10" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-exp-discount" placeholder="0" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-opt-discount" placeholder="0" oninput="calcSaleScenarios()" /></td></tr>
-          <tr><td style="font-weight:700;">Financing Cost During Period (SAR)</td><td><input type="number" id="sale-pess-financing" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-financing" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-financing" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">Sale Value After Discount (SAR)</td><td><input type="number" id="sale-pess-value" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-value" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-value" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">Net Profit (SAR)</td><td><input type="number" id="sale-pess-profit" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-profit" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-profit" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">Monthly Yield (%)</td><td><input type="number" id="sale-pess-yield" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-yield" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-yield" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">Sale Period (months)</td><td><input type="number" id="sale-pess-months" placeholder="e.g. 4" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-exp-months" placeholder="e.g. 2" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-opt-months" placeholder="e.g. 1" oninput="calcSaleScenarios()" /></td></tr>
+          <tr><td class="fw-bold">Price Discount (%)</td><td><input type="number" id="sale-pess-discount" placeholder="e.g. 10" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-exp-discount" placeholder="0" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-opt-discount" placeholder="0" oninput="calcSaleScenarios()" /></td></tr>
+          <tr><td class="fw-bold">Financing Cost During Period (SAR)</td><td><input type="number" id="sale-pess-financing" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-financing" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-financing" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">Sale Value After Discount (SAR)</td><td><input type="number" id="sale-pess-value" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-value" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-value" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">Net Profit (SAR)</td><td><input type="number" id="sale-pess-profit" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-profit" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-profit" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">Monthly Yield (%)</td><td><input type="number" id="sale-pess-yield" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-yield" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-yield" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
 
       <!-- 7. Timeline -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">⏱️ Expected Timeline</h3>
+      <h3 class="section-title">⏱️ Expected Timeline</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>Construction Period (months)</label><input type="number" id="ba-construction-months" placeholder="e.g. 2" /></div>
         <div class="field-group"><label>Sale &amp; Transfer Period (months)</label><input type="number" id="ba-sale-months" placeholder="e.g. 1.5" /></div>
@@ -361,7 +361,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="field-group"><label>Engineering Office Notes on Timeline</label><textarea id="ba-engineer-notes" rows="2" placeholder="Recommendations, warnings, essential conditions..."></textarea></div>
 
       <!-- 8. Document Attachments -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">📎 Attached Documents</h3>
+      <h3 class="section-title">📎 Attached Documents</h3>
       <table class="template-table" id="docs-table">
         <thead><tr><th>Document</th><th>Attached</th><th>Reference No.</th><th>Expiry Date</th></tr></thead>
         <tbody>
@@ -376,16 +376,16 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </table>
 
       <!-- 9. Funding Readiness Score -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">🎯 Funding Readiness Score</h3>
-      <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1rem;padding:1.5rem;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid var(--border);">
-        <div style="width:100px;height:100px;border-radius:50%;background:conic-gradient(var(--gold) var(--score-deg,0deg), rgba(255,255,255,0.05) 0deg);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;" id="funding-score-ring">
-          <div style="width:80px;height:80px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;">
-            <span id="funding-score" style="font-size:1.5rem;font-weight:800;color:var(--gold);">0</span>
+      <h3 class="section-title">🎯 Funding Readiness Score</h3>
+      <div class="health-panel-sm">
+        <div class="score-ring-lg" id="funding-score-ring">
+          <div class="score-inner-lg">
+            <span class="score-value-lg" id="funding-score">0</span>
           </div>
         </div>
-        <div style="flex:1;">
-          <div style="font-size:1rem;font-weight:700;color:var(--gold-bright);" id="funding-score-label">Incomplete</div>
-          <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;" id="funding-score-desc">Complete data and documents to calculate readiness</div>
+        <div class="flex-1">
+          <div class="section-title-label" id="funding-score-label">Incomplete</div>
+          <div class="subtext" id="funding-score-desc">Complete data and documents to calculate readiness</div>
         </div>
       </div>
       <table class="template-table" id="funding-score-table">
@@ -400,9 +400,9 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <tr><td>Final Appraiser Recommendation Attached</td><td>15</td><td><input type="checkbox" id="fs-appraisal" onchange="calcFundingScore()" /></td><td><input type="number" id="fs-appraisal-score" readonly tabindex="-1" value="0" /></td></tr>
         </tbody>
       </table>
-      <div style="margin-top:1rem;padding:1rem;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">📋 Bonds Recommendation:</div>
-        <div id="funding-recommendation" style="font-size:0.9rem;color:var(--text);">Complete the data first...</div>
+      <div class="info-box">
+        <div class="fs-0-85 text-secondary mb-0-5">📋 Bonds Recommendation:</div>
+        <div class="text-sm-primary" id="funding-recommendation">Complete the data first...</div>
       </div>
     </div>
 
@@ -412,8 +412,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="page-header"><div class="section-number">5B</div><div><h2>Professional Real Estate Valuation Standards</h2><p>Saudi &amp; international standards for stalled and completed buildings</p></div></div>
 
       <!-- A. Unfinished Building Assessment -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">🏗️ A. Unfinished Building Assessment (Under Construction)</h3>
-      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">Based on: Saudi Authority for Accredited Valuers (Taqeem) + International Valuation Standards (IVS) + Saudi Building Code (SBC)</p>
+      <h3 class="section-title-sm">🏗️ A. Unfinished Building Assessment (Under Construction)</h3>
+      <p class="hint-text">Based on: Saudi Authority for Accredited Valuers (Taqeem) + International Valuation Standards (IVS) + Saudi Building Code (SBC)</p>
 
       <div class="field-group inline-3">
         <div class="field-group"><label>Last Site Visit Date</label><input type="date" id="val-site-visit-date" /></div>
@@ -421,7 +421,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <div class="field-group"><label>Appraiser License Number</label><input type="text" id="val-license-no" placeholder="Authority license number" /></div>
       </div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">A1. Structural Audit &amp; Safety</h4>
+      <h4 class="subsection-title">A1. Structural Audit &amp; Safety</h4>
       <table class="template-table" id="val-structural-table">
         <thead><tr><th>No.</th><th>Inspection Item</th><th>Status</th><th>Recommendation</th><th>Estimated Cost (SAR)</th></tr></thead>
         <tbody>
@@ -434,7 +434,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('val-structural-table')">+ Add Item</button><button onclick="removeRow('val-structural-table')">- Remove</button></div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">A2. Work Breakdown Structure (WBS) — Completion %</h4>
+      <h4 class="subsection-title">A2. Work Breakdown Structure (WBS) — Completion %</h4>
       <table class="template-table" id="val-wbs-table">
         <thead><tr><th>No.</th><th>Work Item</th><th>Completion %</th><th>Estimated Completion Cost (SAR)</th><th>Notes</th></tr></thead>
         <tbody>
@@ -450,7 +450,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('val-wbs-table')">+ Add Item</button><button onclick="removeRow('val-wbs-table')">- Remove</button></div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">A3. Soft Costs &amp; Risk Premium</h4>
+      <h4 class="subsection-title">A3. Soft Costs &amp; Risk Premium</h4>
       <div class="field-group inline-3">
         <div class="field-group"><label>Appraisal &amp; Engineering Consulting (SAR)</label><input type="number" id="val-consulting-cost" placeholder="0" oninput="calcValuationTotal()" /></div>
         <div class="field-group"><label>Permits &amp; Licensing Fees (SAR)</label><input type="number" id="val-permit-cost" placeholder="0" oninput="calcValuationTotal()" /></div>
@@ -463,10 +463,10 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </div>
 
       <!-- B. Post-Completion Assessment -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">🏠 B. Post-Completion Building Assessment</h3>
-      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">Comprehensive assessment of the completed building per quality, efficiency, and compliance standards</p>
+      <h3 class="section-title">🏠 B. Post-Completion Building Assessment</h3>
+      <p class="hint-text">Comprehensive assessment of the completed building per quality, efficiency, and compliance standards</p>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B1. Mechanical &amp; Electrical Systems (M&amp;E)</h4>
+      <h4 class="subsection-title">B1. Mechanical &amp; Electrical Systems (M&amp;E)</h4>
       <table class="template-table" id="val-me-table">
         <thead><tr><th>No.</th><th>System</th><th>Status</th><th>Remaining Useful Life (years)</th><th>Upgrade Cost (SAR)</th></tr></thead>
         <tbody>
@@ -479,7 +479,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('val-me-table')">+ Add System</button><button onclick="removeRow('val-me-table')">- Remove</button></div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B2. Finishing Quality &amp; Materials</h4>
+      <h4 class="subsection-title">B2. Finishing Quality &amp; Materials</h4>
       <div class="field-group inline-3">
         <div class="field-group"><label>Internal Finishing Quality</label><select data-universal-dropdown="true" id="val-finishing-internal"><option value="">Select...</option><option value="luxury">Luxury</option><option value="premium">Premium</option><option value="standard">Standard</option><option value="basic">Basic</option><option value="poor">Poor</option></select></div>
         <div class="field-group"><label>External Facade Quality</label><select data-universal-dropdown="true" id="val-finishing-external"><option value="">Select...</option><option value="luxury">Luxury</option><option value="premium">Premium</option><option value="standard">Standard</option><option value="basic">Basic</option><option value="poor">Poor</option></select></div>
@@ -487,14 +487,14 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </div>
       <div class="field-group"><label>Notes on Finishing Quality &amp; Materials Used</label><textarea id="val-finishing-notes" rows="2" placeholder="Tile quality, paint, doors, windows..."></textarea></div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B3. Energy Efficiency &amp; Sustainability</h4>
+      <h4 class="subsection-title">B3. Energy Efficiency &amp; Sustainability</h4>
       <div class="field-group inline-3">
         <div class="field-group"><label>Energy Efficiency Rating (EER)</label><input type="text" id="val-eer" placeholder="e.g. 12.5" /></div>
         <div class="field-group"><label>Sustainability / LEED Certificate</label><select data-universal-dropdown="true" id="val-leed"><option value="">Select...</option><option value="platinum">Platinum</option><option value="gold">Gold</option><option value="silver">Silver</option><option value="certified">Certified</option><option value="none">None</option></select></div>
         <div class="field-group"><label>Expected Annual Consumption (kWh/m²)</label><input type="number" id="val-kwh" placeholder="0" /></div>
       </div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B4. Legal Compliance &amp; Licenses</h4>
+      <h4 class="subsection-title">B4. Legal Compliance &amp; Licenses</h4>
       <div class="checklist">
         <li><input type="checkbox" id="val-comp-1" /><span>Building Completion Certificate from Municipality</span></li>
         <li><input type="checkbox" id="val-comp-2" /><span>Structural Safety Certificate from Civil Defense</span></li>
@@ -506,7 +506,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <li><input type="checkbox" id="val-comp-8" /><span>Contractor &amp; Appraiser Liability Insurance</span></li>
       </div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">B5. Architectural Design &amp; Functionality</h4>
+      <h4 class="subsection-title">B5. Architectural Design &amp; Functionality</h4>
       <div class="field-group inline-3">
         <div class="field-group"><label>Architectural Design Quality</label><select data-universal-dropdown="true" id="val-arch-quality"><option value="">Select...</option><option value="iconic">Iconic</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="average">Average</option><option value="poor">Poor</option></select></div>
         <div class="field-group"><label>Space Efficiency (%)</label><input type="number" id="val-space-eff" min="0" max="100" placeholder="0-100" /></div>
@@ -514,38 +514,38 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </div>
 
       <!-- C. Comparison Table -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">📊 C. Comparison Table — Value Before &amp; After Completion</h3>
+      <h3 class="section-title">📊 C. Comparison Table — Value Before &amp; After Completion</h3>
       <table class="template-table" id="val-comparison-table">
         <thead><tr><th>Metric</th><th>Current (Unfinished)</th><th>Expected (Completed)</th><th>Difference</th></tr></thead>
         <tbody>
-          <tr><td style="font-weight:700;">Market Value (SAR)</td><td><input type="number" id="val-comp-current" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-value" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">Value/m² (SAR)</td><td><input type="number" id="val-comp-current-m2" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-m2" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-m2" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">Expected Yield (%)</td><td><input type="number" id="val-comp-current-yield" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-yield" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-yield" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">Liquidation Period (months)</td><td><input type="number" id="val-comp-current-liquidity" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-liquidity" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-liquidity" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">Risk Score (1-10)</td><td><input type="number" id="val-comp-current-risk" min="1" max="10" placeholder="1-10" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-risk" min="1" max="10" placeholder="1-10" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-risk" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">Market Value (SAR)</td><td><input type="number" id="val-comp-current" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-value" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">Value/m² (SAR)</td><td><input type="number" id="val-comp-current-m2" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-m2" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-m2" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">Expected Yield (%)</td><td><input type="number" id="val-comp-current-yield" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-yield" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-yield" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">Liquidation Period (months)</td><td><input type="number" id="val-comp-current-liquidity" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-liquidity" placeholder="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-liquidity" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">Risk Score (1-10)</td><td><input type="number" id="val-comp-current-risk" min="1" max="10" placeholder="1-10" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-risk" min="1" max="10" placeholder="1-10" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-risk" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
 
       <!-- Summary -->
-      <div class="scenario-grid" style="margin-top:1.5rem;">
-        <div class="scenario-card" style="border-left:4px solid #3b82f6;">
-          <div class="scenario-label" style="color:#3b82f6;">Total Appraisal &amp; Completion Costs</div>
-          <div class="scenario-value" id="val-total-costs" style="color:#3b82f6;">0</div>
+      <div class="mt-1-5">
+        <div class="border-l-blue-4">
+          <div class="text-blue">Total Appraisal &amp; Completion Costs</div>
+          <div class="text-blue" id="val-total-costs">0</div>
           <div class="scenario-desc">Saudi Riyals</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #f59e0b;">
-          <div class="scenario-label" style="color:#f59e0b;">Risk Reserve</div>
-          <div class="scenario-value" id="val-total-risk" style="color:#f59e0b;">0</div>
+        <div class="border-l-amber-4">
+          <div class="text-amber">Risk Reserve</div>
+          <div class="text-amber" id="val-total-risk">0</div>
           <div class="scenario-desc">Saudi Riyals</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #16a34a;">
-          <div class="scenario-label" style="color:#16a34a;">Net Value Added</div>
-          <div class="scenario-value" id="val-net-added" style="color:#16a34a;">0</div>
+        <div class="border-l-green-4">
+          <div class="text-green">Net Value Added</div>
+          <div class="text-green" id="val-net-added">0</div>
           <div class="scenario-desc">Saudi Riyals</div>
         </div>
       </div>
 
-      <div class="field-group" style="margin-top:1rem;"><label>Appraiser's Final Notes &amp; Recommendations</label><textarea id="val-final-notes" rows="3" placeholder="Final appraisal summary, investor recommendations, and essential warnings..."></textarea></div>
+      <div class="mt-1"><label>Appraiser's Final Notes &amp; Recommendations</label><textarea id="val-final-notes" rows="3" placeholder="Final appraisal summary, investor recommendations, and essential warnings..."></textarea></div>
     </div>
 
     <!-- ========== PAGE 5: TECHNOLOGICAL IMPACT ========== -->
@@ -582,7 +582,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="template-header-print"><img src="../../assets/bonds-logo-2026.webp?v=2026" alt="Bonds" /><div class="doc-title">Feasibility Study — Market Analysis</div></div>
       <div class="page-header"><div class="section-number">8</div><div><h2>Project Environment Analysis</h2><p>PESTLE + SWOT + Porter's Forces + Customer Persona</p></div></div>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1rem 0 0.5rem;">A. PESTLE Analysis</h3>
+      <h3 class="section-title-xs">A. PESTLE Analysis</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>Political</label><textarea id="pestle-political" rows="2" placeholder="Laws, government support, stability..."></textarea></div>
         <div class="field-group"><label>Economic</label><textarea id="pestle-economic" rows="2" placeholder="Growth, inflation, purchasing power..."></textarea></div>
@@ -594,7 +594,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <div class="field-group"><label>Environmental</label><textarea id="pestle-env" rows="2" placeholder="Sustainability, climate change, resources..."></textarea></div>
       </div>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">B. SWOT Analysis</h3>
+      <h3 class="section-title">B. SWOT Analysis</h3>
       <div class="swot-grid">
         <div class="swot-box s"><h4>✅ Strengths</h4><textarea id="swot-s" rows="4" placeholder="Internal advantages you possess..."></textarea></div>
         <div class="swot-box w"><h4>⚠️ Weaknesses</h4><textarea id="swot-w" rows="4" placeholder="What needs internal improvement..."></textarea></div>
@@ -602,7 +602,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <div class="swot-box t"><h4>⛔ Threats</h4><textarea id="swot-t" rows="4" placeholder="External factors that may negatively impact..."></textarea></div>
       </div>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">C. Porter's Five Forces</h3>
+      <h3 class="section-title">C. Porter's Five Forces</h3>
       <table class="template-table" id="porter-table">
         <thead><tr><th>Force</th><th>Intensity (1-5)</th><th>Explanation</th></tr></thead>
         <tbody>
@@ -614,7 +614,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">D. Ideal Customer Persona</h3>
+      <h3 class="section-title">D. Ideal Customer Persona</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>Age / Gender / Location</label><input type="text" placeholder="e.g. 25-40 years, male & female, Riyadh" /></div>
         <div class="field-group"><label>Estimated Monthly Income</label><input type="text" placeholder="5,000 - 15,000 SAR" /></div>
@@ -647,7 +647,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="field-group"><label>Business Location</label><textarea rows="2" placeholder="City, district, area, annual rent..."></textarea></div>
       <div class="field-group"><label>Working Hours</label><input type="text" placeholder="e.g. 8 AM - 12 AM, 7 days/week" /></div>
       <div class="field-group"><label>Production/Service Process Step by Step</label><textarea rows="4" placeholder="1. Receive order → 2. Prepare → 3. Package → 4. Deliver..."></textarea></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">Detailed Timeline</h3>
+      <h3 class="section-title">Detailed Timeline</h3>
       <table class="template-table" id="timeline-table">
         <thead><tr><th>#</th><th>Task</th><th>Expected Date</th><th>Responsible</th><th>Status</th></tr></thead>
         <tbody>
@@ -667,7 +667,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <div class="template-page" id="page-legal">
       <div class="template-header-print"><img src="../../assets/bonds-logo-2026.webp?v=2026" alt="Bonds" /><div class="doc-title">Feasibility Study — Legal</div></div>
       <div class="page-header"><div class="section-number">11</div><div><h2>Licenses, Laws & Insurance</h2><p>Regulatory obligations and legal protection</p></div></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Required Licenses</h3>
+      <h3 class="section-title-mb">Required Licenses</h3>
       <table class="template-table" id="licenses-table">
         <thead><tr><th>#</th><th>License Name</th><th>Issuing Authority</th><th>Cost (SAR)</th><th>Issuance Duration</th></tr></thead>
         <tbody>
@@ -678,7 +678,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">+ Add</button><button onclick="removeRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">- Remove</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>Required Insurances</label><textarea id="legal-insurance" rows="3" placeholder="Property insurance, liability insurance, employee insurance..."></textarea></div>
+      <div class="mt-1"><label>Required Insurances</label><textarea id="legal-insurance" rows="3" placeholder="Property insurance, liability insurance, employee insurance..."></textarea></div>
       <div class="field-group"><label>Expected Tax Obligations</label><textarea id="legal-taxes" rows="2" placeholder="VAT 15%, Zakat 2.5%, income tax if applicable..."></textarea></div>
     </div>
 
@@ -696,7 +696,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addHRRow()">+ Add</button><button onclick="removeRow('hr-table')">- Remove</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>Total Monthly Salaries: <span id="hr-grand-total" style="color:var(--gold);font-weight:800;">0</span> SAR</label></div>
+      <div class="mt-1"><label>Total Monthly Salaries: <span class="text-gold fw-extrabold" id="hr-grand-total">0</span> SAR</label></div>
       <div class="field-group inline"><div class="field-group"><label>Total Employees</label><input type="number" id="hr-total-employees" readonly tabindex="-1" placeholder="0" /></div><div class="field-group"><label>Salary/Revenue Ratio</label><input type="text" id="hr-salary-ratio" readonly tabindex="-1" placeholder="Will be calculated" /></div></div>
     </div>
 
@@ -705,7 +705,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="template-header-print"><img src="../../assets/bonds-logo-2026.webp?v=2026" alt="Bonds" /><div class="doc-title">Feasibility Study — Organizational Structure</div></div>
       <div class="page-header"><div class="section-number">13</div><div><h2>Organizational Structure</h2><p>Legislative, Executive &amp; Support Authority</p></div></div>
       <div class="field-group"><label>Organizational Chart (Text Description)</label><textarea id="org-chart-desc" rows="4" placeholder="General Assembly → Board of Directors → CEO → Executive Departments..."></textarea></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">Detailed Staffing Table</h3>
+      <h3 class="section-title-sm">Detailed Staffing Table</h3>
       <table class="template-table" id="org-table">
         <thead><tr><th>#</th><th>Job Title</th><th>Count</th><th>Monthly Salary (SAR)</th><th>Annual Total</th><th>Work Location</th></tr></thead>
         <tbody>
@@ -717,7 +717,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addOrgRow()">+ Add Position</button><button onclick="removeRow('org-table')">- Remove</button></div>
-      <div class="field-group inline-3" style="margin-top:1rem;">
+      <div class="mt-1">
         <div class="field-group"><label>Total Staff</label><input type="number" id="org-total-staff" readonly tabindex="-1" placeholder="0" /></div>
         <div class="field-group"><label>Total Annual Salaries</label><input type="number" id="org-total-salaries" readonly tabindex="-1" placeholder="0" /></div>
         <div class="field-group"><label>Salary Ratio from G&amp;A (%)</label><input type="number" id="org-salary-ga-ratio" readonly tabindex="-1" placeholder="Will be calculated" /></div>
@@ -737,7 +737,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addToolRow()">+ Add</button><button onclick="removeRow('tools-table')">- Remove</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>Total Equipment Cost: <span id="tools-grand-total" style="color:var(--gold);font-weight:800;">0</span> SAR</label></div>
+      <div class="mt-1"><label>Total Equipment Cost: <span class="text-gold fw-extrabold" id="tools-grand-total">0</span> SAR</label></div>
       <div class="field-group"><label>Required Technical Systems</label><textarea rows="3" placeholder="POS, inventory management, CRM, website, app..."></textarea></div>
     </div>
 
@@ -757,7 +757,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('fixed-costs-table'); setTimeout(calcFinancials,50)">+ Add</button><button onclick="removeRow('fixed-costs-table'); setTimeout(calcFinancials,50)">- Remove</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>Total Fixed Costs: <span id="total-fixed-display" style="color:var(--gold);font-weight:800;">0</span> SAR/month</label></div>
+      <div class="mt-1"><label>Total Fixed Costs: <span class="text-gold fw-extrabold" id="total-fixed-display">0</span> SAR/month</label></div>
     </div>
 
     <!-- ========== PAGE 13: VARIABLE COSTS ========== -->
@@ -774,7 +774,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('var-costs-table'); setTimeout(calcFinancials,50)">+ Add</button><button onclick="removeRow('var-costs-table'); setTimeout(calcFinancials,50)">- Remove</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>Total Variable Cost Per Unit: <span id="total-var-display" style="color:var(--gold);font-weight:800;">0</span> SAR</label></div>
+      <div class="mt-1"><label>Total Variable Cost Per Unit: <span class="text-gold fw-extrabold" id="total-var-display">0</span> SAR</label></div>
     </div>
 
     <!-- ========== PAGE 14: REVENUE ========== -->
@@ -790,7 +790,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRevenueRow()">+ Add</button><button onclick="removeRow('revenue-table'); setTimeout(calcFinancials,50)">- Remove</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>Total Monthly Revenue: <span id="total-revenue-display" style="color:var(--gold);font-weight:800;">0</span> SAR</label></div>
+      <div class="mt-1"><label>Total Monthly Revenue: <span class="text-gold fw-extrabold" id="total-revenue-display">0</span> SAR</label></div>
     </div>
 
     <!-- ========== PAGE 15: CASH FLOW 12 MONTHS ========== -->
@@ -814,7 +814,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <tr><td>Month 12</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <p style="text-align:center;font-size:0.85rem;color:var(--text-secondary);">💡 Fill first 3 months manually, then click "Auto Fill" for the rest of the year</p>
+      <p class="center-note">💡 Fill first 3 months manually, then click "Auto Fill" for the rest of the year</p>
       <div class="table-actions no-print"><button onclick="autoFillCashFlow()">✨ Auto Fill from Revenue</button></div>
     </div>
 
@@ -838,45 +838,45 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <div class="field-group"><label>Return on Investment ROI (%)</label><input type="number" id="roi-percent" readonly tabindex="-1" placeholder="Will be calculated" /></div>
       </div>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:2rem 0 0.75rem;">Balance Sheet</h3>
-      <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.5rem;">Note: Total assets must equal total liabilities + equity</p>
+      <h3 class="section-title-lg">Balance Sheet</h3>
+      <p class="note-text">Note: Total assets must equal total liabilities + equity</p>
       <table class="template-table">
         <thead><tr><th colspan="2">Assets</th><th colspan="2">Liabilities & Equity</th></tr></thead>
         <tbody>
           <tr>
-            <td style="text-align:left;font-weight:700;">Current Assets</td><td><input type="number" placeholder="0" /></td>
-            <td style="text-align:left;font-weight:700;">Current Liabilities</td><td><input type="number" placeholder="0" /></td>
+            <td class="text-left-bold">Current Assets</td><td><input type="number" placeholder="0" /></td>
+            <td class="text-left-bold">Current Liabilities</td><td><input type="number" placeholder="0" /></td>
           </tr>
           <tr>
-            <td style="text-align:left;font-weight:700;">Fixed Assets</td><td><input type="number" placeholder="0" /></td>
-            <td style="text-align:left;font-weight:700;">Long-term Liabilities</td><td><input type="number" placeholder="0" /></td>
+            <td class="text-left-bold">Fixed Assets</td><td><input type="number" placeholder="0" /></td>
+            <td class="text-left-bold">Long-term Liabilities</td><td><input type="number" placeholder="0" /></td>
           </tr>
           <tr>
-            <td style="text-align:left;font-weight:700;"></td><td></td>
-            <td style="text-align:left;font-weight:700;">Equity</td><td><input type="number" placeholder="0" /></td>
+            <td class="text-left-bold"></td><td></td>
+            <td class="text-left-bold">Equity</td><td><input type="number" placeholder="0" /></td>
           </tr>
-          <tr style="background:rgba(212,168,83,0.1);">
-            <td style="text-align:left;font-weight:800;color:var(--gold);">Total Assets</td><td><input type="number" placeholder="0" /></td>
-            <td style="text-align:left;font-weight:800;color:var(--gold);">Total Liabilities + Equity</td><td><input type="number" placeholder="0" /></td>
+          <tr class="bg-gold-10">
+            <td class="text-left-extrabold-gold">Total Assets</td><td><input type="number" placeholder="0" /></td>
+            <td class="text-left-extrabold-gold">Total Liabilities + Equity</td><td><input type="number" placeholder="0" /></td>
           </tr>
         </tbody>
       </table>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:2rem 0 0.75rem;">Financial Scenarios</h3>
+      <h3 class="section-title-lg">Financial Scenarios</h3>
       <div class="scenario-grid">
         <div class="scenario-card scenario-pessimistic">
-          <div class="scenario-label" style="color:#dc2626;">Pessimistic (-30%)</div>
-          <div class="scenario-value" id="scenario-pessimistic" style="color:#dc2626;">0</div>
+          <div class="text-red">Pessimistic (-30%)</div>
+          <div class="text-red" id="scenario-pessimistic">0</div>
           <div class="scenario-desc">Monthly Net Profit</div>
         </div>
         <div class="scenario-card scenario-expected">
-          <div class="scenario-label" style="color:var(--gold);">Expected</div>
-          <div class="scenario-value" id="scenario-expected" style="color:var(--gold-bright);">0</div>
+          <div class="text-gold">Expected</div>
+          <div class="text-gold-bright" id="scenario-expected">0</div>
           <div class="scenario-desc">Monthly Net Profit</div>
         </div>
         <div class="scenario-card scenario-optimistic">
-          <div class="scenario-label" style="color:#16a34a;">Optimistic (+30%)</div>
-          <div class="scenario-value" id="scenario-optimistic" style="color:#16a34a;">0</div>
+          <div class="text-green">Optimistic (+30%)</div>
+          <div class="text-green" id="scenario-optimistic">0</div>
           <div class="scenario-desc">Monthly Net Profit</div>
         </div>
       </div>
@@ -887,26 +887,26 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="template-header-print"><img src="../../assets/bonds-logo-2026.webp?v=2026" alt="Bonds" /><div class="doc-title">Feasibility Study — Pro Forma Financial Statements</div></div>
       <div class="page-header"><div class="section-number">20</div><div><h2>Pro Forma Financial Statements</h2><p>First Year Financial Projections</p></div></div>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1rem 0 0.5rem;">Pro Forma Income Statement</h3>
+      <h3 class="section-title-xs">Pro Forma Income Statement</h3>
       <table class="template-table" id="proforma-income">
         <thead><tr><th>Item</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Year 1</th></tr></thead>
         <tbody>
-          <tr><td style="font-weight:700;">Total Revenue</td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev-total" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">Total Revenue</td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev" /></td><td><input type="number" class="pf-rev-total" readonly tabindex="-1" /></td></tr>
           <tr><td>Cost of Sales &amp; Execution</td><td><input type="number" class="pf-cogs" /></td><td><input type="number" class="pf-cogs" /></td><td><input type="number" class="pf-cogs" /></td><td><input type="number" class="pf-cogs" /></td><td><input type="number" class="pf-cogs-total" readonly tabindex="-1" /></td></tr>
-          <tr style="background:rgba(212,168,83,0.1);"><td style="font-weight:700;color:var(--gold);">Gross Profit</td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross-total" readonly tabindex="-1" /></td></tr>
+          <tr class="bg-gold-10"><td class="fw-bold text-gold">Gross Profit</td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross-total" readonly tabindex="-1" /></td></tr>
           <tr><td>G&amp;A Expenses</td><td><input type="number" class="pf-ga" /></td><td><input type="number" class="pf-ga" /></td><td><input type="number" class="pf-ga" /></td><td><input type="number" class="pf-ga" /></td><td><input type="number" class="pf-ga-total" readonly tabindex="-1" /></td></tr>
-          <tr style="background:rgba(212,168,83,0.1);"><td style="font-weight:700;color:var(--gold);">Net Profit Before Zakat</td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net-total" readonly tabindex="-1" /></td></tr>
+          <tr class="bg-gold-10"><td class="fw-bold text-gold">Net Profit Before Zakat</td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net-total" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">Pro Forma Balance Sheet</h3>
+      <h3 class="section-title">Pro Forma Balance Sheet</h3>
       <table class="template-table" id="proforma-balance">
         <thead><tr><th colspan="2">Assets</th><th colspan="2">Equity &amp; Liabilities</th></tr></thead>
         <tbody>
           <tr><td>Current Assets (Cash + Receivables)</td><td><input type="number" class="pf-assets-c" /></td><td>Issued &amp; Paid-in Capital</td><td><input type="number" class="pf-equity-cap" /></td></tr>
           <tr><td>Real Estate Assets Under Construction</td><td><input type="number" class="pf-assets-wip" /></td><td>Retained Earnings</td><td><input type="number" class="pf-equity-ret" /></td></tr>
           <tr><td>Fixed Assets &amp; Equipment</td><td><input type="number" class="pf-assets-f" /></td><td>Current Liabilities</td><td><input type="number" class="pf-liab-c" /></td></tr>
-          <tr style="background:rgba(212,168,83,0.1);"><td style="font-weight:700;color:var(--gold);">Total Assets</td><td><input type="number" class="pf-assets-total" readonly tabindex="-1" /></td><td style="font-weight:700;color:var(--gold);">Total Equity + Liabilities</td><td><input type="number" class="pf-equity-total" readonly tabindex="-1" /></td></tr>
+          <tr class="bg-gold-10"><td class="fw-bold text-gold">Total Assets</td><td><input type="number" class="pf-assets-total" readonly tabindex="-1" /></td><td class="fw-bold text-gold">Total Equity + Liabilities</td><td><input type="number" class="pf-equity-total" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="calcProForma()">🔄 Calculate Statements</button></div>
@@ -917,46 +917,46 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="template-header-print"><img src="../../assets/bonds-logo-2026.webp?v=2026" alt="Bonds" /><div class="doc-title">Feasibility Study — Smart Analysis</div></div>
       <div class="page-header"><div class="section-number">21</div><div><h2>Smart Analysis & Recommendations</h2><p>Automated analysis of entered data with practical recommendations</p></div></div>
 
-      <div id="smart-loading" style="text-align:center;padding:2rem;">
-        <p style="color:var(--text-secondary);">Fill in the costs and revenue data in previous pages to analyze automatically...</p>
-        <button class="btn-ghost" style="margin-top:1rem;" onclick="runSmartAnalysis()">🔍 Analyze Now</button>
+      <div class="disclaimer" id="smart-loading">
+        <p class="text-secondary">Fill in the costs and revenue data in previous pages to analyze automatically...</p>
+        <button class="mt-1" onclick="runSmartAnalysis()">🔍 Analyze Now</button>
       </div>
 
-      <div id="smart-results" style="display:none;">
+      <div class="hidden" id="smart-results">
         <!-- Health Score -->
-        <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;padding:1.5rem;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid var(--border);">
-          <div style="width:80px;height:80px;border-radius:50%;background:conic-gradient(var(--gold) var(--score-deg,0deg), rgba(255,255,255,0.05) 0deg);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;">
-            <div style="width:64px;height:64px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;">
-              <span id="smart-score" style="font-size:1.25rem;font-weight:800;color:var(--gold);">0</span>
+        <div class="health-panel">
+          <div class="score-ring-sm">
+            <div class="score-inner-sm">
+              <span class="score-value-sm" id="smart-score">0</span>
             </div>
           </div>
           <div>
-            <div style="font-size:1rem;font-weight:700;color:var(--gold-bright);" id="smart-score-label">Analyzing...</div>
-            <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;" id="smart-score-desc">Project health score out of 100</div>
+            <div class="section-title-label" id="smart-score-label">Analyzing...</div>
+            <div class="subtext" id="smart-score-desc">Project health score out of 100</div>
           </div>
         </div>
 
         <!-- Key Metrics -->
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem;">
-          <div style="padding:1rem;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.3);border-radius:10px;">
-            <div style="font-size:0.75rem;color:#16a34a;font-weight:700;">Strengths</div>
-            <ul id="smart-strengths" style="margin:0.5rem 0 0;padding:0 1.25rem;font-size:0.85rem;color:var(--text);"></ul>
+        <div class="grid-2-mb">
+          <div class="card-green">
+            <div class="card-green-title">Strengths</div>
+            <ul class="list-styled" id="smart-strengths"></ul>
           </div>
-          <div style="padding:1rem;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.3);border-radius:10px;">
-            <div style="font-size:0.75rem;color:#dc2626;font-weight:700;">Areas for Improvement</div>
-            <ul id="smart-weaknesses" style="margin:0.5rem 0 0;padding:0 1.25rem;font-size:0.85rem;color:var(--text);"></ul>
+          <div class="card-red">
+            <div class="card-red-title">Areas for Improvement</div>
+            <ul class="list-styled" id="smart-weaknesses"></ul>
           </div>
         </div>
 
         <!-- Recommendations -->
-        <div style="padding:1.25rem;background:rgba(212,168,83,0.05);border:1px solid var(--border);border-radius:12px;">
-          <div style="font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:0.75rem;">📋 Bonds Recommendations</div>
-          <ol id="smart-recommendations" style="margin:0;padding:0 1.25rem;font-size:0.85rem;color:var(--text);line-height:1.8;"></ol>
+        <div class="card-gold">
+          <div class="panel-title">📋 Bonds Recommendations</div>
+          <ol class="list-reset" id="smart-recommendations"></ol>
         </div>
 
         <!-- Benchmark Comparison -->
-        <div style="margin-top:1.5rem;">
-          <div style="font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:0.75rem;">📊 Industry Benchmark Comparison</div>
+        <div class="mt-1-5">
+          <div class="panel-title">📊 Industry Benchmark Comparison</div>
           <table class="template-table" id="benchmark-table">
             <thead><tr><th>Indicator</th><th>Your Project</th><th>Optimal Benchmark</th><th>Rating</th></tr></thead>
             <tbody>
@@ -970,13 +970,13 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </div>
 
         <!-- Charts -->
-        <div style="margin-top:1.5rem;">
-          <div style="font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:0.75rem;">📈 Charts</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-            <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1rem;"><canvas id="chart-scenarios" height="180"></canvas></div>
-            <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1rem;"><canvas id="chart-costs" height="180"></canvas></div>
+        <div class="mt-1-5">
+          <div class="panel-title">📈 Charts</div>
+          <div class="grid-2">
+            <div class="card-muted"><canvas id="chart-scenarios" height="180"></canvas></div>
+            <div class="card-muted"><canvas id="chart-costs" height="180"></canvas></div>
           </div>
-          <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-top:1rem;"><canvas id="chart-cashflow" height="150"></canvas></div>
+          <div class="card-muted-mt"><canvas id="chart-cashflow" height="150"></canvas></div>
         </div>
       </div>
     </div>
@@ -985,7 +985,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <div class="template-page" id="page-sensitivity">
       <div class="template-header-print"><img src="../../assets/bonds-logo-2026.webp?v=2026" alt="Bonds" /><div class="doc-title">Feasibility Study — Sensitivity</div></div>
       <div class="page-header"><div class="section-number">22</div><div><h2>Sensitivity Analysis & Indicators</h2><p>What if key variables change?</p></div></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Sensitivity Analysis (±10%)</h3>
+      <h3 class="section-title-mb">Sensitivity Analysis (±10%)</h3>
       <table class="template-table" id="sensitivity-table">
         <thead><tr><th>Variable</th><th>-10%</th><th>Base</th><th>+10%</th></tr></thead>
         <tbody>
@@ -995,7 +995,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <tr><td>Variable Costs</td><td><input type="number" class="sens-down" readonly tabindex="-1" /></td><td><input type="number" class="sens-base" readonly tabindex="-1" /></td><td><input type="number" class="sens-up" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">Key Performance Indicators (KPIs)</h3>
+      <h3 class="section-title">Key Performance Indicators (KPIs)</h3>
       <table class="template-table" id="kpi-table">
         <thead><tr><th>Indicator</th><th>Target</th><th>Actual</th><th>Notes</th></tr></thead>
         <tbody>
@@ -1023,7 +1023,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('risks-table')">+ Add</button><button onclick="removeRow('risks-table')">- Remove</button></div>
-      <div class="field-group" style="margin-top:1.5rem;"><label>Emergency Plan (Plan B)</label><textarea rows="3" placeholder="What will you do if the project fails to meet goals within 6 months?"></textarea></div>
+      <div class="mt-1-5"><label>Emergency Plan (Plan B)</label><textarea rows="3" placeholder="What will you do if the project fails to meet goals within 6 months?"></textarea></div>
     </div>
 
     <!-- ========== PAGE 20: CAPABILITY ========== -->
@@ -1036,7 +1036,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <li><input type="checkbox" /><span>Do you have sufficient experience in this field?</span></li>
         <li><input type="checkbox" /><span>Do you have sufficient financial resources to start?</span></li>
       </div>
-      <div class="field-group" style="margin-top:1rem;"><label>Personal / Team Strengths</label><textarea rows="3" placeholder="Previous experience, certifications, connections..."></textarea></div>
+      <div class="mt-1"><label>Personal / Team Strengths</label><textarea rows="3" placeholder="Previous experience, certifications, connections..."></textarea></div>
       <div class="field-group"><label>Weaknesses and Gaps</label><textarea rows="3" placeholder="What needs development or external help..."></textarea></div>
       <div class="field-group"><label>Gap Closure Plan</label><textarea rows="2" placeholder="Training, hiring, partnership..."></textarea></div>
     </div>
@@ -1055,7 +1055,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <div class="template-page" id="page-capital">
       <div class="template-header-print"><img src="../../assets/bonds-logo-2026.webp?v=2026" alt="Bonds" /><div class="doc-title">Feasibility Study — Capital</div></div>
       <div class="page-header"><div class="section-number">26</div><div><h2>Capital Requirements & Results</h2><p>Initial investment and final decision</p></div></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">Initial Investment</h3>
+      <h3 class="section-title-mb">Initial Investment</h3>
       <table class="template-table" id="capital-table">
         <thead><tr><th>#</th><th>Investment Item</th><th>Amount (SAR)</th></tr></thead>
         <tbody>
@@ -1068,7 +1068,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('capital-table'); setTimeout(calcCapital,50)">+ Add</button><button onclick="removeRow('capital-table'); setTimeout(calcCapital,50)">- Remove</button></div>
-      <div class="field-group inline" style="margin-top:1.5rem;">
+      <div class="mt-1-5">
         <div class="field-group"><label>Total Required Capital</label><input type="number" id="total-capital" readonly tabindex="-1" placeholder="0" /></div>
         <div class="field-group"><label>Expected Source</label><input type="text" placeholder="Self-funded / Loan / Investor / Platform" /></div>
       </div>
@@ -1096,32 +1096,32 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="dash-kpi-grid">
         <div class="dash-kpi-card">
           <div class="dash-kpi-label">Monthly Revenue</div>
-          <div class="dash-kpi-value" id="dash-revenue" style="color:var(--gold-bright);">0</div>
+          <div class="text-gold-bright" id="dash-revenue">0</div>
           <div class="dash-kpi-unit">SAR</div>
         </div>
         <div class="dash-kpi-card">
           <div class="dash-kpi-label">Net Profit</div>
-          <div class="dash-kpi-value" id="dash-profit" style="color:#16a34a;">0</div>
+          <div class="text-green" id="dash-profit">0</div>
           <div class="dash-kpi-unit">SAR/month</div>
         </div>
         <div class="dash-kpi-card">
           <div class="dash-kpi-label">Profit Margin</div>
-          <div class="dash-kpi-value" id="dash-margin" style="color:#3b82f6;">0%</div>
+          <div class="text-blue" id="dash-margin">0%</div>
           <div class="dash-kpi-unit">Percentage</div>
         </div>
         <div class="dash-kpi-card">
           <div class="dash-kpi-label">Payback Period</div>
-          <div class="dash-kpi-value" id="dash-payback" style="color:#a855f7;">0</div>
+          <div class="text-purple" id="dash-payback">0</div>
           <div class="dash-kpi-unit">months</div>
         </div>
         <div class="dash-kpi-card">
           <div class="dash-kpi-label">Return on Investment</div>
-          <div class="dash-kpi-value" id="dash-roi" style="color:#eab308;">0%</div>
+          <div class="text-yellow" id="dash-roi">0%</div>
           <div class="dash-kpi-unit">annual</div>
         </div>
         <div class="dash-kpi-card">
           <div class="dash-kpi-label">Break-Even</div>
-          <div class="dash-kpi-value" id="dash-be" style="color:#ef4444;">0</div>
+          <div class="text-red" id="dash-be">0</div>
           <div class="dash-kpi-unit">units/month</div>
         </div>
       </div>
@@ -1151,19 +1151,19 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </div>
         <div class="dash-swot-grid">
           <div class="dash-swot-item">
-            <div class="dash-swot-label" style="color:#16a34a;">Strength #1</div>
+            <div class="text-green">Strength #1</div>
             <div class="dash-swot-text" id="dash-swot-s">-</div>
           </div>
           <div class="dash-swot-item">
-            <div class="dash-swot-label" style="color:#dc2626;">Weakness #1</div>
+            <div class="text-red">Weakness #1</div>
             <div class="dash-swot-text" id="dash-swot-w">-</div>
           </div>
           <div class="dash-swot-item">
-            <div class="dash-swot-label" style="color:var(--gold-bright);">Opportunity #1</div>
+            <div class="text-gold-bright">Opportunity #1</div>
             <div class="dash-swot-text" id="dash-swot-o">-</div>
           </div>
           <div class="dash-swot-item">
-            <div class="dash-swot-label" style="color:#555555;">Threat #1</div>
+            <div class="text-gray">Threat #1</div>
             <div class="dash-swot-text" id="dash-swot-t">-</div>
           </div>
         </div>
@@ -1178,10 +1178,10 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     </div>
 
     <!-- Footer Disclaimer -->
-    <div class="template-page no-print" style="text-align:center;padding:2rem;">
-      <p style="color:var(--text-secondary);font-size:0.85rem;">
-        This template is provided by <strong style="color:var(--gold)">Bonds</strong> as an assistive tool only. Not financial or legal advice.<br/>
-        For a detailed feasibility study, <a href="../../contact.html" style="color:var(--gold)">book your consultation</a>.
+    <div class="disclaimer no-print">
+      <p class="text-secondary fs-0-85">
+        This template is provided by <strong class="text-gold">Bonds</strong> as an assistive tool only. Not financial or legal advice.<br/>
+        For a detailed feasibility study, <a class="text-gold" href="../../contact.html">book your consultation</a>.
       </p>
     </div>
 
@@ -1272,15 +1272,15 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
       // Benchmarks
       document.getElementById('bm-margin').textContent = margin.toFixed(1) + '%';
-      document.getElementById('bm-margin-status').innerHTML = margin >= 25 ? '<span style="color:#16a34a">✅ Excellent</span>' : margin >= 15 ? '<span style="color:var(--gold)">⚠️ Acceptable</span>' : '<span style="color:#dc2626">❌ Needs Improvement</span>';
+      document.getElementById('bm-margin-status').innerHTML = margin >= 25 ? '<span class="text-green">✅ Excellent</span>' : margin >= 15 ? '<span class="text-gold">⚠️ Acceptable</span>' : '<span class="text-red">❌ Needs Improvement</span>';
       document.getElementById('bm-salary').textContent = hrTotal > 0 && revenue > 0 ? ((hrTotal / revenue) * 100).toFixed(1) + '%' : '-';
-      document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span style="color:#16a34a">✅</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span class="text-green">✅</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-payback').textContent = payback > 0 ? payback.toFixed(1) + ' month' : '-';
-      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= 18 ? '<span style="color:#16a34a">✅</span>' : payback > 0 && payback <= 36 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= class="text-green" 18 ? '<span>✅</span>' : payback > 0 && payback <= class="text-gold" 36 ? '<span>⚠️</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-roi').textContent = roi.toFixed(1) + '%';
-      document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span style="color:#16a34a">✅</span>' : roi >= 10 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span class="text-green">✅</span>' : roi >= 10 ? '<span class="text-gold">⚠️</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-be').textContent = totalQty > 0 ? ((beUnits / totalQty) * 100).toFixed(0) + '%' : '-';
-      document.getElementById('bm-be-status').innerHTML = totalQty > 0 && beUnits / totalQty < 0.6 ? '<span style="color:#16a34a">✅</span>' : totalQty > 0 && beUnits / totalQty < 0.9 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-be-status').innerHTML = totalQty > 0 && beUnits / totalQty < 0.6 ? '<span class="text-green">✅</span>' : totalQty > 0 && beUnits / totalQty < 0.9 ? '<span class="text-gold">⚠️</span>' : '<span class="text-red">❌</span>';
 
       renderCharts(revenue, fixed, variable, net);
       updateDashboard(revenue, fixed, variable, net, margin / 100, roi, payback, beUnits);
@@ -1674,9 +1674,9 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       }
       if (desc) desc.textContent = totalScore >= 70 ? 'Study can be presented to banks and financing entities' : totalScore >= 40 ? 'Complete the missing items to raise readiness' : 'Data and documents are insufficient for financing';
       if (rec) {
-        if (totalScore >= 70) rec.innerHTML = '<span style="color:#16a34a;font-weight:700;">✅ Study is ready for submission.</span> Attach it with your funding application.';
-        else if (totalScore >= 40) rec.innerHTML = '<span style="color:var(--gold);font-weight:700;">⚠️ Complete the following:</span><br/>' + criteria.filter(c => !document.getElementById(c.id)?.checked).map(c => '• ' + document.querySelector('label[for="' + c.id + '"]').textContent).join('<br/>');
-        else rec.innerHTML = '<span style="color:#dc2626;font-weight:700;">❌ Study is incomplete.</span> Start by filling the essential data and documents.';
+        if (totalScore >= 70) rec.innerHTML = '<span class="text-green-bold">✅ Study is ready for submission.</span> Attach it with your funding application.';
+        else if (totalScore >= 40) rec.innerHTML = '<span class="text-gold-bold">⚠️ Complete the following:</span><br/>' + criteria.filter(c => !document.getElementById(c.id)?.checked).map(c => '• ' + document.querySelector('label[for="' + c.id + '"]').textContent).join('<br/>');
+        else rec.innerHTML = '<span class="text-red-bold">❌ Study is incomplete.</span> Start by filling the essential data and documents.';
       }
     }
 
@@ -2757,11 +2757,11 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <div class="section-gallery">
             <div class="section-gallery-title">📎 Section Images & Attachments</div>
             <div class="gallery-grid"></div>
-            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
-              <input type="file" accept="image/*" multiple style="display:none;" onchange="handleGalleryFiles('${pageId}', this.files); this.value='';" />
-              <button class="gallery-upload-btn no-print" style="flex:1;min-width:140px;margin-top:0;" onclick="this.previousElementSibling.click()">+ Upload Images</button>
-              <button class="gallery-upload-btn no-print" style="flex:1;min-width:140px;margin-top:0;background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.3);color:#38bdf8;" onclick="openImageSearch('${pageId}')">🔍 Search Images</button>
-              ${hasResearch ? `<button class="gallery-upload-btn no-print" style="flex:1;min-width:140px;margin-top:0;background:rgba(212,168,83,0.08);border-color:rgba(212,168,83,0.3);color:var(--gold);" onclick="openSectionResearch('${pageId}')">🧠 Smart Research</button>` : ''}
+            <div class="btn-row-sm">
+              <input class="hidden" type="file" accept="image/*" multiple onchange="handleGalleryFiles('${pageId}', this.files); this.value='';" />
+              <button class="flex-btn" onclick="this.previousElementSibling.click()">+ Upload Images</button>
+              <button class="flex-btn-sky" onclick="openImageSearch('${pageId}')">🔍 Search Images</button>
+              ${hasResearch ? `<button class="flex-btn-gold" onclick="openSectionResearch('${pageId}')">🧠 Smart Research</button>` : ''}
             </div>
             <div class="gallery-compress-info"></div>
           </div>`;
@@ -2785,12 +2785,12 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
               <button class="imgsearch-close" onclick="closeImageSearch()">&times;</button>
             </div>
             <div class="imgsearch-body">
-              <div class="field-group" style="display:flex;gap:0.5rem;">
-                <input type="text" id="imgsearch-query" placeholder="e.g. burger restaurant interior" style="flex:1;" />
+              <div class="flex-gap-0-5">
+                <input class="flex-1" type="text" id="imgsearch-query" placeholder="e.g. burger restaurant interior" />
                 <button class="imgsearch-run" onclick="searchImages()">Search</button>
               </div>
-              <div id="imgsearch-results" style="margin-top:1rem;"></div>
-              <div id="imgsearch-error" style="color:#f87171;font-size:0.85rem;margin-top:0.5rem;display:none;"></div>
+              <div class="mt-1" id="imgsearch-results"></div>
+              <div class="text-rose fs-0-85 mt-0-5 hidden" id="imgsearch-error"></div>
             </div>
           </div>`;
         document.body.appendChild(modal);
@@ -2820,7 +2820,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       if (!append) {
         currentImageSearchQuery = q;
         currentImagePageNum = 1;
-        results.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:1rem;">Searching...</div>';
+        results.innerHTML = '<div class="empty-state">Searching...</div>';
       } else {
         currentImagePageNum++;
         const existing = results.querySelector('.imgsearch-grid');
@@ -2852,9 +2852,9 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         }
 
         const gridHtml = data.images.map((img) => `
-          <div style="position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--border);aspect-ratio:1;cursor:pointer;" onclick="addSearchedImage('${img.full.replace(/'/g, "\\'")}')">
-            <img src="${img.thumb}" alt="${img.alt}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" />
-            <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);color:#fff;font-size:0.6rem;padding:2px 4px;text-align:center;">${img.photographer || ''}</div>
+          <div class="img-result-item" onclick="addSearchedImage('${img.full.replace(/'/g, "\\'")}')">
+            <img class="img-result-img" src="${img.thumb}" alt="${img.alt}" loading="lazy" />
+            <div class="img-result-meta">${img.photographer || ''}</div>
           </div>
         `).join('');
 
@@ -2869,12 +2869,12 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           }
         } else {
           const optimizedNote = data.optimizedQuery && data.optimizedQuery !== data.originalQuery
-            ? `<div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.5rem;text-align:center;">Actual search: <span style="color:var(--gold);">${data.optimizedQuery}</span></div>`
+            ? `<div class="search-meta">Actual search: <span class="text-gold">${data.optimizedQuery}</span></div>`
             : '';
           results.innerHTML = `
             ${optimizedNote}
-            <div class="imgsearch-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;">${gridHtml}</div>
-            <button id="imgsearch-more" onclick="searchImages(true)" style="width:100%;margin-top:0.75rem;padding:0.6rem;background:rgba(212,168,83,0.1);border:1px solid var(--gold);color:var(--gold);border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;">+ Load More</button>
+            <div class="grid-3-gap-0-5">${gridHtml}</div>
+            <button class="load-more" id="imgsearch-more" onclick="searchImages(true)">+ Load More</button>
           `;
         }
 
@@ -3017,21 +3017,21 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
                 <label>Query</label>
                 <input type="text" id="section-research-query" placeholder="Project description..." />
               </div>
-              <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:1rem;">
+              <div class="note-text-lg">
                 <span id="section-research-meta"></span>
               </div>
               <button class="research-run" onclick="runSectionResearch()" id="section-research-run-btn">
                 <span class="research-btn-text">Search Now</span>
-                <span class="research-spinner" style="display:none;">Searching...</span>
+                <span class="hidden">Searching...</span>
               </button>
-              <div id="section-research-result" style="margin-top:1rem;display:none;">
-                <div style="background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:1rem;">
-                  <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-bottom:0.5rem;">Research Results</div>
-                  <pre id="section-research-output" style="white-space:pre-wrap;font-size:0.85rem;color:var(--text);margin:0;line-height:1.6;max-height:300px;overflow:auto;"></pre>
+              <div class="result-summary" id="section-research-result">
+                <div class="card-sky">
+                  <div class="sky-tag-title">Research Results</div>
+                  <pre class="prewrap-scroll" id="section-research-output"></pre>
                 </div>
                 <button class="research-apply" onclick="applySectionResearch()">Apply to this section only</button>
               </div>
-              <div id="section-research-error" style="margin-top:1rem;display:none;color:#f87171;font-size:0.85rem;"></div>
+              <div class="result-error" id="section-research-error"></div>
             </div>
           </div>`;
         document.body.appendChild(modal);
@@ -3230,16 +3230,16 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
               </div>
               <button class="research-run" onclick="runSmartResearch()" id="research-run-btn">
                 <span class="research-btn-text">Search Now</span>
-                <span class="research-spinner" style="display:none;">Searching...</span>
+                <span class="hidden">Searching...</span>
               </button>
-              <div id="research-result" style="margin-top:1rem;display:none;">
-                <div style="background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:1rem;">
-                  <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-bottom:0.5rem;">Research Results</div>
-                  <pre id="research-output" style="white-space:pre-wrap;font-size:0.85rem;color:var(--text);margin:0;line-height:1.6;max-height:300px;overflow:auto;"></pre>
+              <div class="result-summary" id="research-result">
+                <div class="card-sky">
+                  <div class="sky-tag-title">Research Results</div>
+                  <pre class="prewrap-scroll" id="research-output"></pre>
                 </div>
                 <button class="research-apply" onclick="applyResearchResults()">Fill Template Fields</button>
               </div>
-              <div id="research-error" style="margin-top:1rem;display:none;color:#f87171;font-size:0.85rem;"></div>
+              <div class="result-error" id="research-error"></div>
             </div>
           </div>
         `;
@@ -3476,7 +3476,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
             let seconds = Math.ceil(parseFloat(retryMatch[1]));
             status.style.color = '#d4b87a';
             _retryTimer = setInterval(() => {
-              status.innerHTML = `⏳ Quota full. Retrying automatically in <strong>${seconds}</strong> seconds... <button onclick="clearInterval(_retryTimer);_retryTimer=null;analyzeFeasibilityText();" style="background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:6px;padding:2px 8px;cursor:pointer;font-family:inherit;">Retry now</button>`;
+              status.innerHTML = `⏳ Quota full. Retrying automatically in <strong>${seconds}</strong> seconds... <button class="retry-btn" onclick="clearInterval(_retryTimer);_retryTimer=null;analyzeFeasibilityText();">Retry now</button>`;
               seconds--;
               if (seconds < 0) { clearInterval(_retryTimer); _retryTimer = null; analyzeFeasibilityText(); }
             }, 1000);
@@ -3540,18 +3540,18 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       add('Executive Summary', d.summary, 'summary');
 
       if (!fields.length) {
-        container.innerHTML = '<p style="color:#f87171; text-align:center;">No clear data extracted from text. Try a longer, more detailed text.</p>';
+        container.innerHTML = '<p class="retry-status">No clear data extracted from text. Try a longer, more detailed text.</p>';
         document.getElementById('ai-preview-modal').style.display = 'flex';
         return;
       }
 
-      let html = '<table style="width:100%; border-collapse:collapse; font-size:0.9rem;">';
-      html += '<thead><tr style="border-bottom:2px solid var(--gold);"><th style="text-align:left; padding:0.75rem; color:var(--gold);"><input type="checkbox" id="preview-check-all" checked onchange="togglePreviewAll(this)"></th><th style="text-align:left; padding:0.75rem; color:var(--gold);">Field</th><th style="text-align:left; padding:0.75rem; color:var(--gold);">Extracted Value</th></tr></thead><tbody>';
+      let html = '<table class="table-full">';
+      html += '<thead><tr class="border-b-gold-2"><th class="cell-left-gold"><input type="checkbox" id="preview-check-all" checked onchange="togglePreviewAll(this)"></th><th class="cell-left-gold">Field</th><th class="cell-left-gold">Extracted Value</th></tr></thead><tbody>';
       fields.forEach((f, i) => {
-        html += `<tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:0.6rem; width:40px;"><input type="checkbox" class="preview-check" data-key="${f.key}" checked></td>
-          <td style="padding:0.6rem; color:var(--text-secondary); white-space:nowrap;">${f.label}</td>
-          <td style="padding:0.6rem; color:var(--text);">${f.value}</td>
+        html += `<tr class="border-b">
+          <td class="cell-check"><input type="checkbox" class="preview-check" data-key="${f.key}" checked></td>
+          <td class="cell-label">${f.label}</td>
+          <td class="cell-value">${f.value}</td>
         </tr>`;
       });
       html += '</tbody></table>';

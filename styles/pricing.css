@@ -1,0 +1,287 @@
+/* BONDS Pricing page styles — extracted from pricing.html / en/pricing.html */
+
+/* ===== Page wrapper ===== */
+.pricing-page {
+  font-family: Vazirmatn, system-ui, sans-serif;
+}
+
+/* ===== Section themes ===== */
+.section-dark .section__eyebrow {
+  color: var(--gold-400);
+}
+.section-dark .section__title {
+  color: var(--white);
+}
+.section-dark .section__subtitle {
+  color: var(--text-secondary);
+}
+
+.section-cream {
+  background: var(--cream-100);
+}
+
+/* ===== Pricing card refinements ===== */
+.pricing-card__header {
+  margin-bottom: var(--space-6);
+}
+
+.pricing-card__title {
+  color: var(--navy-950);
+}
+
+.pricing-card__price-block {
+  margin-bottom: var(--space-6);
+}
+
+.pricing-card__tax,
+.pricing-card__period {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.pricing-card__trial {
+  font-size: var(--text-xs);
+  color: var(--gold-bright);
+  margin-top: 0.5rem;
+}
+
+.pricing-card--featured .pricing-card__desc {
+  color: var(--text-secondary);
+}
+.pricing-card--featured .pricing-card__tax,
+.pricing-card--featured .pricing-card__period {
+  color: var(--text-secondary);
+  opacity: 0.9;
+}
+.pricing-card--featured .pricing-card__trial {
+  color: var(--gold-bright);
+}
+
+.pricing-card--featured .feature-list__item {
+  color: var(--text);
+}
+
+.feature-list__item--muted {
+  color: var(--text-secondary);
+}
+
+.pricing-card__badge--solid {
+  color: var(--bg);
+}
+
+.pricing-card--featured .feature-list__icon--check {
+  stroke: var(--gold-400);
+}
+
+.pricing-card__features {
+  margin: 0 0 var(--space-8);
+}
+
+.pricing-card__cta {
+  width: 100%;
+}
+
+.pricing-card__cta--spaced {
+  margin-bottom: 0.5rem;
+}
+
+.pricing-card__cta--gold {
+  border-color: rgba(197, 160, 40, 0.4);
+  color: var(--gold-400);
+}
+
+.pricing-card__cta--blue {
+  border-color: rgba(100, 100, 255, 0.4);
+  color: #88f;
+}
+
+/* Layer all featured-card content above the glow without adding wrappers */
+.pricing-card--featured > *:not(.pricing-card__glow) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== Cookie banner buttons ===== */
+.cookie-banner__btn {
+  font-size: 0.8rem;
+  padding: var(--space-2) var(--space-4);
+}
+
+/* ===== Back to top ===== */
+.back-to-top {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(212, 168, 83, 0.4);
+}
+
+[dir="rtl"] .back-to-top {
+  right: 20px;
+  left: auto;
+}
+
+/* ===== Bank transfer modal ===== */
+.bank-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+[dir="ltr"] .bank-modal {
+  direction: ltr;
+}
+
+.bank-modal__dialog {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  max-width: 480px;
+  width: 100%;
+  padding: 2rem;
+  position: relative;
+}
+
+.bank-modal__close {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+[dir="ltr"] .bank-modal__close {
+  left: auto;
+  right: 1rem;
+}
+
+.bank-modal__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--navy-950);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.bank-modal__details {
+  background: rgba(212, 168, 83, 0.08);
+  border: 1px solid rgba(197, 160, 40, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.bank-modal__detail {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.bank-modal__detail strong {
+  color: var(--text);
+}
+
+.bank-modal__detail strong.bank-modal__amount {
+  color: var(--gold);
+  font-size: 1.1rem;
+}
+
+.bank-modal__iban-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-top: 0.75rem;
+}
+
+.bank-modal__iban {
+  font-size: 0.8rem;
+  color: var(--gold);
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+.bank-modal__copy-btn {
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.bank-modal__form-group {
+  margin-bottom: 1rem;
+}
+
+.bank-modal__form-group--wide {
+  margin-bottom: 1.5rem;
+}
+
+.bank-modal__label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 0.4rem;
+}
+
+.bank-modal__input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.bank-modal__submit {
+  width: 100%;
+}
+
+.bank-modal__success {
+  display: none;
+  text-align: center;
+  padding: 1rem;
+}
+
+.bank-modal__success-emoji {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.bank-modal__success-title {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.bank-modal__success-text {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}

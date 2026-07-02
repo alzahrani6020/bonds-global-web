@@ -6,7 +6,7 @@ This script:
 1. Replaces the existing <header class="main-header">...</header> with <div id="site-header"></div>.
 2. Replaces the existing <footer class="footer">...</footer> with <div id="site-footer"></div>.
 3. Adds <script src="{relative}site-layout.js"></script> before </body>.
-4. Adds <link rel="stylesheet" href="{relative}header-footer.css"> in <head> if not present.
+4. Relies on site-layout.js to inject header-footer.css dynamically.
 
 Usage:
     python scripts/apply-site-layout.py <file-or-directory> [file-or-directory ...]
@@ -71,12 +71,6 @@ def process_file(file_path: Path, dry_run: bool = False) -> bool:
     script_tag = f'<script src="{prefix}site-layout.js"></script>'
     if script_tag not in new_html:
         new_html = BODY_END_RE.sub(f'{script_tag}\n</body>', new_html, count=1)
-
-    # Add header-footer.css if not present
-    css_href = f'{prefix}header-footer.css?v=2'
-    css_tag = f'<link rel="stylesheet" href="{css_href}" />'
-    if 'header-footer.css' not in new_html:
-        new_html = HEAD_END_RE.sub(f'{css_tag}\n</head>', new_html, count=1)
 
     if dry_run:
         print(f"[dry-run] Would update: {file_path.relative_to(ROOT)}")

@@ -1,23 +1,29 @@
+/* BONDS Design Tokens — Wave 3
+ * Default theme is DARK (enterprise navy + gold).
+ * Light theme is opt-in via <html data-theme="light">.
+ */
+
 :root {
-  --bg: #f5f0e8;
-  --bg-secondary: #eef0f5;
-  --bg-card: rgba(255, 255, 255, 0.85);
-  --bg-card-hover: rgba(255, 255, 255, 0.95);
-  --bg-dark: #1a1a1a;
-  --bg-elevated: #ffffff;
-  --bg-white: #ffffff;
-  --border: rgba(0, 0, 0, 0.08);
-  --border-hover: rgba(184, 149, 78, 0.4);
-  --gold: #b8954e;
-  --gold-bright: #d4b87a;
-  --gold-dim: #8a7340;
-  --gold-700: #7a612d;
-  --text: #1a1a1a;
-  --text-secondary: #555555;
-  --text-muted: #666666;
+  /* Dark theme as default */
+  --bg: #0a0f1a;
+  --bg-secondary: #0d1321;
+  --bg-card: rgba(16, 24, 45, 0.6);
+  --bg-card-hover: rgba(20, 30, 55, 0.8);
+  --bg-dark: #070a12;
+  --bg-elevated: #141b2d;
+  --bg-white: #141b2d;
+  --border: rgba(197, 160, 40, 0.15);
+  --border-hover: rgba(197, 160, 40, 0.4);
+  --gold: #d4a853;
+  --gold-bright: #f0c96a;
+  --gold-dim: #a08030;
+  --gold-700: #f0c96a;
+  --text: #e8ecf4;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
   --accent: #3b82f6;
   --accent-glow: rgba(59, 130, 246, 0.15);
-  --gold-glow: rgba(184, 149, 78, 0.12);
+  --gold-glow: rgba(212, 168, 83, 0.12);
   --cream-100: var(--bg-secondary);
   --cream-50: var(--bg);
   --navy-950: var(--text);
@@ -29,13 +35,14 @@
   --surface: var(--bg-card);
   --surface-raised: var(--bg-card-hover);
   --border-light: var(--border);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 30px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
-  --text-inverse: #fff;
-  --white: #fff;
-  --font: "Cairo", system-ui, sans-serif;
-  --font-display: "Cairo", system-ui, sans-serif;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 30px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --text-inverse: var(--text);
+  --white: var(--text);
+  --font: "Vazirmatn", "Cairo", system-ui, sans-serif;
+  --font-display: "Vazirmatn", "Cairo", system-ui, sans-serif;
   --font-en: "Inter", system-ui, sans-serif;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -54,46 +61,12 @@
   --radius-md: 12px;
   --radius-sm: 8px;
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-:root[data-theme="dark"] {
-  --bg: #0a0f1a;
-  --bg-secondary: #0d1321;
-  --bg-card: rgba(16, 24, 45, 0.6);
-  --bg-card-hover: rgba(20, 30, 55, 0.8);
-  --bg-dark: #070a12;
-  --bg-elevated: #141b2d;
-  --bg-white: #141b2d;
-  --border: rgba(197, 160, 40, 0.15);
-  --border-hover: rgba(197, 160, 40, 0.4);
-  --gold: #d4a853;
-  --gold-bright: #f0c96a;
-  --gold-dim: #a08030;
-  --gold-700: #f0c96a;
-  --text: #e8ecf4;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 30px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.4);
-  --text-inverse: var(--text);
-  --white: var(--text);
-  --cream-100: var(--bg-secondary);
-  --cream-50: var(--bg);
-  --navy-950: var(--text);
-  --navy-900: var(--bg-secondary);
-}
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-/* ===== Missing design tokens fallback ===== */
-:root {
-  --gold-400: #c6a45c;
+
+  /* Extended palette */
+  --gold-400: #e8c87a;
   --gold-500: var(--gold);
-  --gold-600: #9a7d3e;
-  --gold-700: #7a612d;
-  --gold-light: var(--gold-bright);
+  --gold-600: #b8943f;
+  --gold-light: #f5e6c0;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -104,26 +77,59 @@
   --text-4xl: 2.25rem;
   --text-5xl: 3rem;
   --text-6xl: 3.75rem;
-  --border-medium: rgba(0, 0, 0, 0.12);
-  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+  --border-medium: rgba(197, 160, 40, 0.25);
   --transition-fast: 0.15s ease;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --success: #22c55e;
+  --warning: #facc15;
+  --info: #3b82f6;
+  --danger: #ef4444;
+}
+
+/* Light theme override */
+:root[data-theme="light"] {
+  --bg: #f5f0e8;
+  --bg-secondary: #eef0f5;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-hover: rgba(255, 255, 255, 0.95);
+  --bg-dark: #1a1a1a;
+  --bg-elevated: #ffffff;
+  --bg-white: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(184, 149, 78, 0.4);
+  --gold: #b8954e;
+  --gold-bright: #d4b87a;
+  --gold-dim: #8a7340;
+  --gold-700: #7a612d;
+  --text: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #666666;
+  --gold-glow: rgba(184, 149, 78, 0.12);
+  --cream-100: var(--bg-secondary);
+  --cream-50: var(--bg);
+  --navy-950: var(--text);
+  --navy-900: var(--bg-secondary);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 30px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+  --text-inverse: #fff;
+  --white: #fff;
+
+  /* Extended palette light */
+  --gold-400: #c6a45c;
+  --gold-500: var(--gold);
+  --gold-600: #9a7d3e;
+  --gold-light: var(--gold-bright);
+  --border-medium: rgba(0, 0, 0, 0.12);
   --success: #16a34a;
   --warning: #ca8a04;
   --info: #2563eb;
   --danger: #dc2626;
 }
 
-:root[data-theme="dark"] {
-  --gold-400: #e8c87a;
-  --gold-500: var(--gold);
-  --gold-600: #b8943f;
-  --gold-700: #f0c96a;
-  --gold-light: #f5e6c0;
-  --border-medium: rgba(197, 160, 40, 0.25);
-  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.5);
-  --success: #22c55e;
-  --warning: #facc15;
-  --info: #3b82f6;
-  --danger: #ef4444;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }

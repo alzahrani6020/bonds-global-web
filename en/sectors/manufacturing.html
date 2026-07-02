@@ -9,72 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/png" />
-  <style>
-    :root {
-      --bg: #f5f0e8; --bg-secondary: #ffffff; --bg-card: rgba(255,255,255,0.85);
-      --gold: #b8954e; --gold-bright: #d4b87a; --gold-dim: #8a7340;
-      --text: #1a1a1a; --text-secondary: #555555; --text-muted: #888888;
-      --border: rgba(0,0,0,0.08); --border-hover: rgba(184,149,78,0.4);
-      --success: #22c55e; --warning: #eab308; --info: #3b82f6;
-      --shadow: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
-    a { color:var(--gold); text-decoration:none; }
-
-    .header { background:#ffffff; border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
-    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
-    .header__logo { display:flex; align-items:center; gap:0.75rem; }
-    .header__logo img { height:40px; border-radius:6px; }
-    .header__logo span { font-weight:800; color:var(--gold); font-size:1.1rem; }
-    .header__nav { display:flex; gap:1.5rem; }
-    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
-    .header__nav a:hover { color:var(--gold); }
-
-    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
-    .hero h1 { font-size:2.2rem; font-weight:800; margin-bottom:1rem; }
-    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; font-size:1.05rem; }
-    .hero a { color:var(--gold); font-size:0.8rem; }
-
-    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
-    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
-
-    .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-bottom:3rem; }
-    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
-    .card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:var(--shadow); }
-    .card__icon { width:48px; height:48px; border-radius:12px; background:rgba(212,168,83,0.1); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1rem; }
-    .card__title { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; }
-    .card__text { font-size:0.85rem; color:var(--text-secondary); line-height:1.7; }
-
-    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:3rem; }
-    table { width:100%; border-collapse:collapse; }
-    th { text-align:left; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(255,255,255,0.9); border-bottom:1px solid var(--border); }
-    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
-    tr:hover td { background:rgba(212,168,40,0.05); }
-    .fee-highlight { background:rgba(212,168,83,0.08); border-radius:8px; padding:0.35rem 0.75rem; font-weight:700; color:var(--gold); white-space:nowrap; }
-
-    .timeline { display:flex; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
-    .stage { display:flex; gap:1.5rem; }
-    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#1a1a1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-    .stage__content { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
-    .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
-    .stage__list { list-style:none; }
-    .stage__list li { padding:0.5rem 0; color:var(--text-secondary); font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
-    .stage__list li::before { content:'✓'; color:var(--success); font-weight:700; }
-
-    .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin:1rem 0; }
-    .note strong { color:var(--warning); }
-
-    footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
-
-    @media (max-width:768px) {
-      .hero h1 { font-size:1.5rem; }
-      .stage { flex-direction:column; }
-      .header__nav { display:none; }
-    }
-  </style>
-<link rel="stylesheet" href="../../header-footer.css?v=7" />
-  <link rel="canonical" href="https://bonds-global.com/en/sectors/manufacturing" />
+  <link rel="stylesheet" href="../../styles/manufacturing.css" />
+<link rel="canonical" href="https://bonds-global.com/en/sectors/manufacturing" />
   <meta property="og:title" content="Industrial Investment Guide | Bonds" />
   <meta property="og:description" content="Complete guide for industrial investment in Saudi MODON cities - building standards, costs, fees, and investor journey" />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
@@ -86,14 +22,14 @@
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
 </head>
-<body>
+<body class="manufacturing-page">
 
   <div id="site-header"></div>
 
   <section class="hero">
     <h1>Industrial Investment Guide in Saudi Arabia</h1>
     <p>Everything an investor needs: building standards, costs, fees, and the investment journey in MODON industrial cities</p>
-    <div style="margin-top:1rem;"><a href="https://modon.gov.sa/ar/Pages/default.aspx" target="_blank" rel="noopener">Official MODON Website ↗</a></div>
+    <div class="hero__link-wrap"><a href="https://modon.gov.sa/ar/Pages/default.aspx" target="_blank" rel="noopener" class="hero__link">Official MODON Website ↗</a></div>
   </section>
 
   <div class="container">
@@ -129,7 +65,7 @@
       <table>
         <thead><tr><th>Service</th><th>Fee</th></tr></thead>
         <tbody>
-          <tr><td>Development License (first time)</td><td><span style="color:var(--success);font-weight:700;">Free</span></td></tr>
+          <tr><td>Development License (first time)</td><td><span class="text-success-bold">Free</span></td></tr>
           <tr><td>Development License Renewal</td><td><span class="fee-highlight">10 halalas/m²</span></td></tr>
           <tr><td>Operating License (every 5 years)</td><td><span class="fee-highlight">5 halalas/m²</span></td></tr>
           <tr><td>City Operator Supervision</td><td><span class="fee-highlight">20 halalas/m² annually</span></td></tr>
@@ -184,15 +120,15 @@
       </table>
     </div>
 
-    <div style="text-align:center; padding:2rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:3rem;">
-      <h3 style="font-size:1.2rem; font-weight:800; margin-bottom:0.5rem;">📞 MODON Customer Service</h3>
-      <p style="color:var(--text-secondary); font-size:1.1rem; direction:ltr;">800-249-9944</p>
+    <div class="contact-card">
+      <h3 class="contact-card__title">📞 MODON Customer Service</h3>
+      <p class="contact-card__phone">800-249-9944</p>
     </div>
 
-    <div style="text-align:center; padding:3rem 1.5rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius);">
-      <h3 style="font-size:1.3rem; font-weight:800; margin-bottom:1rem;">Need a Feasibility Study for Your Factory?</h3>
-      <p style="color:var(--text-secondary); margin-bottom:1.5rem;">Bonds team is ready to help you calculate costs and returns.</p>
-      <a href="../../en/contact.html" style="display:inline-block; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#1a1a1a; font-weight:800; padding:0.9rem 2.5rem; border-radius:12px; text-decoration:none;">Book Free Consultation →</a>
+    <div class="cta">
+      <h3 class="cta__title">Need a Feasibility Study for Your Factory?</h3>
+      <p class="cta__text">Bonds team is ready to help you calculate costs and returns.</p>
+      <a href="../../en/contact.html" class="cta__btn">Book Free Consultation →</a>
     </div>
 
   </div>

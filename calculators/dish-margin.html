@@ -28,15 +28,16 @@
 
   <script src="db-client.js"></script>
   
-<link rel="stylesheet" href="../header-footer.css?v=7" />
+<link rel="stylesheet" href="../header-footer.css?v=8" />
   <link rel="canonical" href="https://bonds-global.com/calculators/dish-margin" />
   <meta name="twitter:title" content="حاسبة ربحية الوجبة | بوندز — هامش الربح لكل صنف" />
   <meta name="twitter:description" content="احسب ربحية كل وجبة قبل إضافتها للمنيو. تكاليف المكونات، عمولات المنصات، هامش الربح، والتسعير العكسي. أداة مجانية من بوندز." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
 <link rel="stylesheet" href="../components/universal-dropdown.css" />
+<link rel="stylesheet" href="scenario-cards-shared.css" />
 </head>
-<body style="font-family:Vazirmatn,system-ui,sans-serif">
+<body class="calc-body-ar">
 
   <!-- Top Bar -->
   <div class="topbar">
@@ -50,30 +51,30 @@
   <div id="site-header"></div>
 
   <!-- Hero -->
-  <section class="hero" style="padding-top: 8rem; padding-bottom: 3rem;">
-    <div class="container" style="text-align: center;">
+  <section class="hero calc-hero-compact">
+    <div class="container calc-text-center">
       <span class="hero__eyebrow reveal">حاسبة مالية متخصصة</span>
       <h1 class="hero__title reveal">حاسبة ربحية الوجبة الواحدة</h1>
-      <p class="hero__desc reveal" style="max-width: 640px; margin: 0 auto;">
+      <p class="hero__desc reveal calc-desc-centered">
         احسب ربحية كل صنف قبل ما تضيفه للمنيو. يدعم 179 منصة توصيل في 22 دولة عربية مع <strong>التسعير العكسي</strong> لتحديد السعر المثالي.
       </p>
     </div>
   </section>
 
   <!-- Main Content -->
-  <section class="section" style="padding-top: 1rem;">
+  <section class="section calc-section-pt-1">
     <div class="container">
 
       <!-- Country & Platform Selector -->
       <div class="country-selector reveal">
-        <div class="calc-grid" style="gap: 1rem;">
-          <div class="calc-input-group" style="margin-bottom:0;">
+        <div class="calc-grid calc-gap-4">
+          <div class="calc-input-group calc-mb-0">
             <label for="countrySelect">🌍 الدولة</label>
             <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="countrySelect" onchange="changeCountry(this.value)">
               <option value="">اختر الدولة...</option>
             </select>
           </div>
-          <div class="calc-input-group" style="margin-bottom:0;">
+          <div class="calc-input-group calc-mb-0">
             <label for="platformSelect">📱 منصة التوصيل</label>
             <select data-universal-dropdown="true" id="platformSelect" onchange="selectPlatform(this.value)">
               <option value="">اختر المنصة...</option>
@@ -102,31 +103,31 @@
       <div class="calc-grid reveal">
         <!-- Left Column: Inputs -->
         <div>
-          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🧮 مدخلات الوجبة</h3>
-          <div class="dish-card" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6);">
+          <h3 class="calc-title-gold">🧮 مدخلات الوجبة</h3>
+          <div class="dish-card calc-panel-default">
             <div class="calc-input-group">
               <label for="dishName">🍽️ اسم الوجبة</label>
-              <input type="text" id="dishName" value="وجبة 1" style="width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem;" />
+              <input class="calc-input-styled" type="text" id="dishName" value="وجبة 1" />
             </div>
-            <div class="calc-grid" style="gap: 1rem;">
-              <div class="calc-input-group" style="margin-bottom:0;">
+            <div class="calc-grid calc-gap-4">
+              <div class="calc-input-group calc-mb-0">
                 <label for="foodCost">تكلفة المكونات الخام</label>
-                <div style="display:flex;gap:var(--space-2);">
-                  <input type="number" id="foodCost" value="11" min="0" step="0.5" style="flex:1;" />
-                  <button type="button" class="btn-small" onclick="openIngredientModal('foodCost')" title="تفصيل المكونات" style="white-space:nowrap;">📋</button>
+                <div class="calc-flex-row">
+                  <input class="calc-flex-1" type="number" id="foodCost" value="11" min="0" step="0.5" />
+                  <button type="button" class="btn-small calc-no-wrap" onclick="openIngredientModal('foodCost')" title="تفصيل المكونات">📋</button>
                 </div>
               </div>
-              <div class="calc-input-group" style="margin-bottom:0;">
+              <div class="calc-input-group calc-mb-0">
                 <label for="packagingCost">تكلفة التغليف</label>
                 <input type="number" id="packagingCost" value="3" min="0" step="0.5" />
               </div>
             </div>
-            <div class="calc-grid" style="gap: 1rem; margin-top: 1rem;">
-              <div class="calc-input-group" style="margin-bottom:0;">
+            <div class="calc-grid calc-gap-4 calc-mt-4">
+              <div class="calc-input-group calc-mb-0">
                 <label for="sellingPrice">💰 سعر البيع المتوقع</label>
                 <input type="number" id="sellingPrice" value="45" min="0" step="0.5" />
               </div>
-              <div class="calc-input-group" style="margin-bottom:0;">
+              <div class="calc-input-group calc-mb-0">
                 <label for="commissionRate">📊 نسبة عمولة المنصة (%)</label>
                 <input type="number" id="commissionRate" value="25" min="0" max="100" step="0.5" />
               </div>
@@ -136,32 +137,32 @@
           <!-- Reverse Pricing -->
           <div class="reverse-section reveal">
             <h4>🎯 التسعير العكسي — كم أبيع؟</h4>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--space-4);">أدخل التكلفة والعمولة والهامش المستهدف، ونحسب لك سعر البيع المثالي.</p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;">
-              <div class="calc-input-group" style="margin-bottom:0;">
+            <p class="calc-text-muted-sm">أدخل التكلفة والعمولة والهامش المستهدف، ونحسب لك سعر البيع المثالي.</p>
+            <div class="calc-auto-grid">
+              <div class="calc-input-group calc-mb-0">
                 <label for="revFoodCost">تكلفة المكونات</label>
-                <div style="display:flex;gap:var(--space-2);">
-                  <input type="number" id="revFoodCost" value="11" min="0" step="0.5" style="flex:1;" />
-                  <button type="button" class="btn-small" onclick="openIngredientModal('revFoodCost')" title="تفصيل المكونات" style="white-space:nowrap;">📋</button>
+                <div class="calc-flex-row">
+                  <input class="calc-flex-1" type="number" id="revFoodCost" value="11" min="0" step="0.5" />
+                  <button type="button" class="btn-small calc-no-wrap" onclick="openIngredientModal('revFoodCost')" title="تفصيل المكونات">📋</button>
                 </div>
               </div>
-              <div class="calc-input-group" style="margin-bottom:0;">
+              <div class="calc-input-group calc-mb-0">
                 <label for="revPackagingCost">تكلفة التغليف</label>
                 <input type="number" id="revPackagingCost" value="3" min="0" step="0.5" />
               </div>
-              <div class="calc-input-group" style="margin-bottom:0;">
+              <div class="calc-input-group calc-mb-0">
                 <label for="revCommissionRate">عمولة المنصة (%)</label>
                 <input type="number" id="revCommissionRate" value="25" min="0" max="100" step="0.5" />
               </div>
             </div>
-            <div class="calc-grid" style="gap: 1rem; margin-top: 1rem;">
-              <div class="calc-input-group" style="margin-bottom:0;">
+            <div class="calc-grid calc-gap-4 calc-mt-4">
+              <div class="calc-input-group calc-mb-0">
                 <label for="targetMargin">🎯 الهامش المستهدف (%)</label>
                 <input type="number" id="targetMargin" value="45" min="0" max="100" step="1" />
               </div>
-              <div class="calc-input-group" style="margin-bottom:0;">
-                <label for="calculatedPrice" style="color: var(--gold);">💡 السعر المُحسَّب</label>
-                <input type="number" id="calculatedPrice" readonly style="background: rgba(212,168,83,0.08); border-color: var(--gold); font-weight: 900; color: var(--gold);" />
+              <div class="calc-input-group calc-mb-0">
+                <label class="calc-text-gold" for="calculatedPrice">💡 السعر المُحسَّب</label>
+                <input class="calc-input-gold" type="number" id="calculatedPrice" readonly />
               </div>
             </div>
           </div>
@@ -169,7 +170,7 @@
 
         <!-- Right Column: Results -->
         <div>
-          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📊 نتائج الوجبة</h3>
+          <h3 class="calc-title-gold">📊 نتائج الوجبة</h3>
           <div id="resultsSection">
             <div class="result-grid">
               <div class="result-card" id="cardCommission">
@@ -192,7 +193,7 @@
             </div>
 
             <!-- Analysis Box -->
-            <div class="analysis-box" id="analysisBox" style="display:none;">
+            <div class="analysis-box calc-hidden" id="analysisBox">
               <h4>🧠 التحليل الذكي</h4>
               <p id="analysisText"></p>
             </div>
@@ -215,17 +216,17 @@
       </div>
 
       <!-- Multi-Platform Dynamic Comparison -->
-      <div class="reveal" style="margin-top: var(--space-8);">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-4);">
-          <h3 style="font-size: var(--text-lg); font-weight: 800; color: var(--gold);">📊 مقارنة ديناميكية — جميع المنصات</h3>
+      <div class="reveal calc-mt-8">
+        <div class="calc-section-header">
+          <h3 class="calc-title-gold calc-mb-0">📊 مقارنة ديناميكية — جميع المنصات</h3>
           <button type="button" class="btn btn-primary" onclick="calculateAllPlatforms()">🔍 احسب لكل المنصات</button>
         </div>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--space-4);">
+        <p class="calc-text-muted-sm">
           نحسب ربحية الوجبة على <strong>كل منصة</strong> في الدولة الحالية مع تطبيق قواعدها الفعلية (العمولة المتدرجة + تحمل التوصيل).
-          <span style="display: inline-block; margin-right: var(--space-2);">✅ مُدقَّق</span>
-          <span style="display: inline-block; margin-right: var(--space-2);">⚠️ تقديري</span>
+          <span class="calc-badge-inline">✅ مُدقَّق</span>
+          <span class="calc-badge-inline">⚠️ تقديري</span>
         </p>
-        <div style="overflow-x: auto;">
+        <div class="calc-table-scroll">
           <table class="comparison-table" id="platformComparisonTable">
             <thead>
               <tr>
@@ -241,16 +242,16 @@
               </tr>
             </thead>
             <tbody id="platformComparisonBody">
-              <tr><td colspan="8" style="text-align:center; padding: 2rem; color: var(--text-muted);"><div style="font-size:2.5rem; margin-bottom:0.75rem; opacity:0.5;">📊</div><p style="font-weight:600;">اضغط "احسب لكل المنصات" أعلاه</p></td></tr>
+              <tr><td class="calc-empty-state" colspan="8"><div class="calc-empty-state__icon">📊</div><p class="calc-font-semibold">اضغط "احسب لكل المنصات" أعلاه</p></td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
       <!-- Comparison Table -->
-      <div class="reveal" style="margin-top: var(--space-8);">
-        <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📋 جدول المقارنة</h3>
-        <div style="overflow-x: auto;">
+      <div class="reveal calc-mt-8">
+        <h3 class="calc-title-gold">📋 جدول المقارنة</h3>
+        <div class="calc-table-scroll">
           <table class="comparison-table" id="comparisonTable">
             <thead>
               <tr>
@@ -267,11 +268,11 @@
               </tr>
             </thead>
             <tbody id="comparisonBody">
-              <tr><td colspan="10" style="text-align:center; padding: 2rem; color: var(--text-muted);"><div style="font-size:2.5rem; margin-bottom:0.75rem; opacity:0.5;">📭</div><p style="font-weight:600;">لا توجد أطباق للمقارنة بعد</p><p style="font-size:0.85rem;">أضف وجبة من الأعلى</p></td></tr>
+              <tr><td class="calc-empty-state" colspan="10"><div class="calc-empty-state__icon">📭</div><p class="calc-font-semibold">لا توجد أطباق للمقارنة بعد</p><p class="calc-text-small">أضف وجبة من الأعلى</p></td></tr>
             </tbody>
           </table>
         </div>
-        <div class="action-bar hidden-print" style="margin-top: var(--space-4);">
+        <div class="action-bar hidden-print calc-mt-4">
           <button type="button" class="btn btn-secondary" onclick="clearComparison()">🗑️ مسح الجدول</button>
         </div>
       </div>
@@ -279,7 +280,7 @@
       <!-- Invoice Correction -->
       <div class="correction-box">
         <h4>🧾 صحّح من فاتورتك</h4>
-        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:var(--space-4);">أدخل بيانات طلب حقيقي لحساب العمولة الفعلية ومقارنتها ببياناتنا.</p>
+        <p class="calc-hint-muted">أدخل بيانات طلب حقيقي لحساب العمولة الفعلية ومقارنتها ببياناتنا.</p>
         <div class="correction-grid">
           <div class="calc-input-group">
             <label>المنصة</label>
@@ -294,33 +295,33 @@
             <input type="number" id="corrPayout" placeholder="مثال: 78" />
           </div>
         </div>
-        <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;">
+        <div class="calc-flex-row--3">
           <button type="button" class="btn btn-primary" onclick="calculateCorrection()">احسب العمولة الفعلية</button>
-          <button type="button" class="btn btn-secondary" onclick="saveCorrection()" id="saveCorrBtn" style="display:none;">💾 احفظ التصحيح</button>
+          <button type="button" class="btn btn-secondary calc-hidden" onclick="saveCorrection()" id="saveCorrBtn">💾 احفظ التصحيح</button>
         </div>
         <div class="correction-result" id="corrResult"></div>
       </div>
 
       <!-- Guide -->
-      <div class="analysis-box reveal" style="margin-top: var(--space-8);">
+      <div class="analysis-box reveal calc-mt-8">
         <h4>📖 كيف تقرأ النتائج</h4>
-        <div class="calc-grid" style="gap: 2rem;">
+        <div class="calc-grid calc-gap-8">
           <div>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
-              <strong style="color: #16a34a;">🟢 ممتاز (>50%):</strong> الوجبة مربحة بشكل صحي. تغطي المصاريف الثابتة بسهولة وتترك هامش ربح جيد.
+            <p class="calc-guide-text">
+              <strong class="calc-text-green">🟢 ممتاز (>50%):</strong> الوجبة مربحة بشكل صحي. تغطي المصاريف الثابتة بسهولة وتترك هامش ربح جيد.
             </p>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
-              <strong style="color: #ca8a04;">🟡 مقبول (40-50%):</strong> الوجبة مربحة لكن الهامش ضيق. ينصح برفع السعر أو خفض التكلفة قليلاً.
+            <p class="calc-guide-text">
+              <strong class="calc-text-amber">🟡 مقبول (40-50%):</strong> الوجبة مربحة لكن الهامش ضيق. ينصح برفع السعر أو خفض التكلفة قليلاً.
             </p>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8;">
-              <strong style="color: #dc2626;">🔴 خطير (<40%):</strong> الوجبة غير مربحة أو هامشها ضعيف جداً. راجع التسعير فوراً.
+            <p class="calc-text-secondary-sm">
+              <strong class="calc-text-red">🔴 خطير (<40%):</strong> الوجبة غير مربحة أو هامشها ضعيف جداً. راجع التسعير فوراً.
             </p>
           </div>
           <div>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
+            <p class="calc-guide-text">
               <strong>💡 المعادلات:</strong>
             </p>
-            <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.8; font-family: monospace;">
+            <p class="calc-code-text">
               عمولة المنصة = السعر × نسبة العمولة<br>
               التكلفة الكلية = مكونات + تغليف<br>
               صافي الربح = السعر - العمولة - التكلفة<br>
@@ -1089,29 +1090,29 @@
   </script>
 
   <!-- Ingredient Breakdown Modal -->
-  <div id="ingredientModalOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;padding:1rem;box-sizing:border-box;">
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);max-width:700px;width:100%;max-height:90vh;overflow-y:auto;padding:var(--space-5);position:relative;">
-      <button type="button" onclick="closeIngredientModal()" style="position:absolute;top:var(--space-3);left:var(--space-3);background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;line-height:1;">×</button>
-      <h3 id="ingredientModalTitle" style="margin-bottom:var(--space-4);font-size:1.25rem;font-weight:800;color:var(--text);">📋 مكونات الوجبة</h3>
-      <table style="width:100%;border-collapse:collapse;margin-bottom:var(--space-3);">
+  <div class="calc-modal-overlay" id="ingredientModalOverlay">
+    <div class="calc-modal">
+      <button class="calc-modal__close" type="button" onclick="closeIngredientModal()">×</button>
+      <h3 class="calc-modal__title" id="ingredientModalTitle">📋 مكونات الوجبة</h3>
+      <table class="calc-modal__table">
         <thead>
-          <tr style="font-size:0.85rem;color:var(--text-muted);text-align:right;">
-            <th style="padding:0.5rem;width:28%;">المكون</th>
-            <th style="padding:0.5rem;width:14%;">الكمية</th>
-            <th style="padding:0.5rem;width:14%;">الوحدة</th>
-            <th style="padding:0.5rem;width:18%;">السعر لكل كغ/لتر</th>
-            <th style="padding:0.5rem;width:16%;text-align:center;">المجموع</th>
-            <th style="padding:0.5rem;width:10%;text-align:center;">حذف</th>
+          <tr class="calc-modal__table-head">
+            <th class="calc-ing-col calc-ing-col-name">المكون</th>
+            <th class="calc-ing-col calc-ing-col-qty">الكمية</th>
+            <th class="calc-ing-col calc-ing-col-qty">الوحدة</th>
+            <th class="calc-ing-col calc-ing-col-price">السعر لكل كغ/لتر</th>
+            <th class="calc-ing-col calc-ing-col-total center">المجموع</th>
+            <th class="calc-ing-col calc-ing-col-action center">حذف</th>
           </tr>
         </thead>
         <tbody id="ingredientRows"></tbody>
       </table>
-      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:var(--space-3);">💡 <strong>ملاحظة:</strong> اختر الوحدة من القائمة. السعر يُحسب تلقائياً (500 غرام = 0.5 كغ).</p>
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-3);">
-        <button type="button" class="btn btn-ghost" onclick="addIngredientRow()" style="font-size:0.9rem;">+ إضافة مكون</button>
-        <div id="ingredientModalTotal" style="font-weight:800;color:var(--gold);font-size:1.1rem;">المجموع: 0</div>
+      <p class="calc-hint-muted">💡 <strong>ملاحظة:</strong> اختر الوحدة من القائمة. السعر يُحسب تلقائياً (500 غرام = 0.5 كغ).</p>
+      <div class="calc-modal__footer">
+        <button type="button" class="btn btn-ghost calc-text-base-sm" onclick="addIngredientRow()">+ إضافة مكون</button>
+        <div class="calc-modal__total" id="ingredientModalTotal">المجموع: 0</div>
       </div>
-      <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4);justify-content:flex-end;">
+      <div class="calc-modal__actions">
         <button type="button" class="btn btn-ghost" onclick="closeIngredientModal()">إلغاء</button>
         <button type="button" class="btn btn-primary" onclick="saveIngredients()">💾 حفظ المكونات</button>
       </div>

@@ -30,15 +30,16 @@
 
   <script src="../../calculators/db-client.js"></script>
   
-<link rel="stylesheet" href="../../header-footer.css?v=7" />
+<link rel="stylesheet" href="../../header-footer.css?v=8" />
   <link rel="canonical" href="https://bonds-global.com/en/calculators/dish-margin" />
   <meta name="twitter:title" content="Dish Profit Margin Calculator | Bonds Global" />
   <meta name="twitter:description" content="Calculate the profit margin for each dish before adding it to your menu. Food costs, platform commissions, reverse pricing. Free tool from Bonds Global." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../../calculators/scenario-cards-shared.css" />
 </head>
-<body style="font-family:Inter,system-ui,sans-serif">
+<body class="calc-body-en">
 
   <!-- Top Bar -->
   <div class="topbar">
@@ -52,30 +53,30 @@
   <div id="site-header"></div>
 
   <!-- Hero -->
-  <section class="hero" style="padding-top: 8rem; padding-bottom: 3rem;">
-    <div class="container" style="text-align: center;">
+  <section class="hero calc-hero-compact">
+    <div class="container calc-text-center">
       <span class="hero__eyebrow reveal">Specialized Financial Calculator</span>
       <h1 class="hero__title reveal">Dish Profit Margin Calculator</h1>
-      <p class="hero__desc reveal" style="max-width: 640px; margin: 0 auto;">
+      <p class="hero__desc reveal calc-desc-centered">
         Calculate the profitability of each dish before adding it to your menu. Supports 179 delivery platforms across 22 Arab countries with <strong>reverse pricing</strong> to find the optimal selling price.
       </p>
     </div>
   </section>
 
   <!-- Main Content -->
-  <section class="section" style="padding-top: 1rem;">
+  <section class="section calc-section-pt-1">
     <div class="container">
 
       <!-- Country & Platform Selector -->
       <div class="country-selector reveal">
-        <div class="calc-grid" style="gap: 1rem;">
-          <div class="calc-input-group" style="margin-bottom:0;">
+        <div class="calc-grid calc-gap-4">
+          <div class="calc-input-group calc-mb-0">
             <label for="countrySelect">🌍 Country</label>
             <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="countrySelect" onchange="changeCountry(this.value)">
               <option value="">Select country...</option>
             </select>
           </div>
-          <div class="calc-input-group" style="margin-bottom:0;">
+          <div class="calc-input-group calc-mb-0">
             <label for="platformSelect">📱 Delivery Platform</label>
             <select data-universal-dropdown="true" id="platformSelect" onchange="selectPlatform(this.value)">
               <option value="">Select platform...</option>
@@ -104,31 +105,31 @@
       <div class="calc-grid reveal">
         <!-- Left Column: Inputs -->
         <div>
-          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🧮 Dish Inputs</h3>
-          <div class="dish-card" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6);">
+          <h3 class="calc-title-gold">🧮 Dish Inputs</h3>
+          <div class="dish-card calc-panel-default">
             <div class="calc-input-group">
               <label for="dishName">🍽️ Dish Name</label>
               <input type="text" id="dishName" value="Dish 1" />
             </div>
-            <div class="calc-grid" style="gap: 1rem;">
-              <div class="calc-input-group" style="margin-bottom:0;">
+            <div class="calc-grid calc-gap-4">
+              <div class="calc-input-group calc-mb-0">
                 <label for="foodCost">Raw Food Cost</label>
-                <div style="display:flex;gap:var(--space-2);">
-                  <input type="number" id="foodCost" value="11" min="0" step="0.5" style="flex:1;" />
-                  <button type="button" class="btn-small" onclick="openIngredientModal('foodCost')" title="Ingredient Breakdown" style="white-space:nowrap;">📋</button>
+                <div class="calc-flex-row">
+                  <input class="calc-flex-1" type="number" id="foodCost" value="11" min="0" step="0.5" />
+                  <button type="button" class="btn-small calc-no-wrap" onclick="openIngredientModal('foodCost')" title="Ingredient Breakdown">📋</button>
                 </div>
               </div>
-              <div class="calc-input-group" style="margin-bottom:0;">
+              <div class="calc-input-group calc-mb-0">
                 <label for="packagingCost">Packaging Cost</label>
                 <input type="number" id="packagingCost" value="3" min="0" step="0.5" />
               </div>
             </div>
-            <div class="calc-grid" style="gap: 1rem; margin-top: 1rem;">
-              <div class="calc-input-group" style="margin-bottom:0;">
+            <div class="calc-grid calc-gap-4 calc-mt-4">
+              <div class="calc-input-group calc-mb-0">
                 <label for="sellingPrice">💰 Selling Price</label>
                 <input type="number" id="sellingPrice" value="45" min="0" step="0.5" />
               </div>
-              <div class="calc-input-group" style="margin-bottom:0;">
+              <div class="calc-input-group calc-mb-0">
                 <label for="commissionRate">📊 Platform Commission (%)</label>
                 <input type="number" id="commissionRate" value="25" min="0" max="100" step="0.5" />
               </div>
@@ -138,32 +139,32 @@
           <!-- Reverse Pricing -->
           <div class="reverse-section reveal">
             <h4>🎯 Reverse Pricing — What should I charge?</h4>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--space-4);">Enter your costs, commission, and target margin. We'll calculate the optimal selling price.</p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;">
-              <div class="calc-input-group" style="margin-bottom:0;">
+            <p class="calc-text-muted-sm">Enter your costs, commission, and target margin. We'll calculate the optimal selling price.</p>
+            <div class="calc-auto-grid">
+              <div class="calc-input-group calc-mb-0">
                 <label for="revFoodCost">Food Cost</label>
-                <div style="display:flex;gap:var(--space-2);">
-                  <input type="number" id="revFoodCost" value="11" min="0" step="0.5" style="flex:1;" />
-                  <button type="button" class="btn-small" onclick="openIngredientModal('revFoodCost')" title="Ingredient Breakdown" style="white-space:nowrap;">📋</button>
+                <div class="calc-flex-row">
+                  <input class="calc-flex-1" type="number" id="revFoodCost" value="11" min="0" step="0.5" />
+                  <button type="button" class="btn-small calc-no-wrap" onclick="openIngredientModal('revFoodCost')" title="Ingredient Breakdown">📋</button>
                 </div>
               </div>
-              <div class="calc-input-group" style="margin-bottom:0;">
+              <div class="calc-input-group calc-mb-0">
                 <label for="revPackagingCost">Packaging Cost</label>
                 <input type="number" id="revPackagingCost" value="3" min="0" step="0.5" />
               </div>
-              <div class="calc-input-group" style="margin-bottom:0;">
+              <div class="calc-input-group calc-mb-0">
                 <label for="revCommissionRate">Commission (%)</label>
                 <input type="number" id="revCommissionRate" value="25" min="0" max="100" step="0.5" />
               </div>
             </div>
-            <div class="calc-grid" style="gap: 1rem; margin-top: 1rem;">
-              <div class="calc-input-group" style="margin-bottom:0;">
+            <div class="calc-grid calc-gap-4 calc-mt-4">
+              <div class="calc-input-group calc-mb-0">
                 <label for="targetMargin">🎯 Target Margin (%)</label>
                 <input type="number" id="targetMargin" value="45" min="0" max="100" step="1" />
               </div>
-              <div class="calc-input-group" style="margin-bottom:0;">
-                <label for="calculatedPrice" style="color: var(--gold);">💡 Calculated Price</label>
-                <input type="number" id="calculatedPrice" readonly style="background: rgba(212,168,83,0.08); border-color: var(--gold); font-weight: 900; color: var(--gold);" />
+              <div class="calc-input-group calc-mb-0">
+                <label class="calc-text-gold" for="calculatedPrice">💡 Calculated Price</label>
+                <input class="calc-input-gold" type="number" id="calculatedPrice" readonly />
               </div>
             </div>
           </div>
@@ -171,7 +172,7 @@
 
         <!-- Right Column: Results -->
         <div>
-          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📊 Dish Results</h3>
+          <h3 class="calc-title-gold">📊 Dish Results</h3>
           <div id="resultsSection">
             <div class="result-grid">
               <div class="result-card" id="cardCommission">
@@ -194,7 +195,7 @@
             </div>
 
             <!-- Analysis Box -->
-            <div class="analysis-box" id="analysisBox" style="display:none;">
+            <div class="analysis-box calc-hidden" id="analysisBox">
               <h4>🧠 Smart Analysis</h4>
               <p id="analysisText"></p>
             </div>
@@ -217,32 +218,32 @@
       </div>
 
       <!-- Multi-Platform Dynamic Comparison -->
-      <div class="reveal" style="margin-top: var(--space-8);">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-4);">
-          <h3 style="font-size: var(--text-lg); font-weight: 800; color: var(--gold);">📊 Dynamic Comparison — All Platforms</h3>
+      <div class="reveal calc-mt-8">
+        <div class="calc-section-header">
+          <h3 class="calc-title-gold calc-mb-0">📊 Dynamic Comparison — All Platforms</h3>
           <button type="button" class="btn btn-primary" onclick="calculateAllPlatforms()">🔍 Calculate All Platforms</button>
         </div>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--space-4);">
+        <p class="calc-text-muted-sm">
           We calculate the dish profitability on <strong>every platform</strong> in the current country, applying their actual rules (tiered commission + delivery subsidy).
-          <span style="display: inline-block; margin-right: var(--space-2);">✅ Verified</span>
-          <span style="display: inline-block; margin-right: var(--space-2);">⚠️ Estimated</span>
+          <span class="calc-badge-inline">✅ Verified</span>
+          <span class="calc-badge-inline">⚠️ Estimated</span>
         </p>
-        <div style="overflow-x: auto;">
+        <div class="calc-table-scroll">
           <table class="comparison-table" id="platformComparisonTable">
             <thead>
-              <tr><th>Platform</th><th>Confidence</th><th>Commission</th><th>Delivery Subsidy</th><th>Profit <small style="color:var(--text-muted);">(with free delivery)</small></th><th>Profit <small style="color:var(--text-muted);">(without)</small></th><th>Difference</th><th>Margin</th><th>Rating</th><th>Optimal Price</th><th>Suggest</th></tr>
+              <tr><th>Platform</th><th>Confidence</th><th>Commission</th><th>Delivery Subsidy</th><th>Profit <small class="calc-text-muted">(with free delivery)</small></th><th>Profit <small class="calc-text-muted">(without)</small></th><th>Difference</th><th>Margin</th><th>Rating</th><th>Optimal Price</th><th>Suggest</th></tr>
             </thead>
             <tbody id="platformComparisonBody">
-              <tr><td colspan="11" style="color: var(--text-muted);">Click "Calculate All Platforms" above.</td></tr>
+              <tr><td class="calc-text-muted" colspan="11">Click "Calculate All Platforms" above.</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
       <!-- Comparison Table -->
-      <div class="reveal" style="margin-top: var(--space-8);">
-        <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📋 Comparison Table</h3>
-        <div style="overflow-x: auto;">
+      <div class="reveal calc-mt-8">
+        <h3 class="calc-title-gold">📋 Comparison Table</h3>
+        <div class="calc-table-scroll">
           <table class="comparison-table" id="comparisonTable">
             <thead>
               <tr>
@@ -259,11 +260,11 @@
               </tr>
             </thead>
             <tbody id="comparisonBody">
-              <tr><td colspan="10" style="color: var(--text-muted);">No dishes to compare yet. Add a dish from above.</td></tr>
+              <tr><td class="calc-text-muted" colspan="10">No dishes to compare yet. Add a dish from above.</td></tr>
             </tbody>
           </table>
         </div>
-        <div class="action-bar hidden-print" style="margin-top: var(--space-4);">
+        <div class="action-bar hidden-print calc-mt-4">
           <button type="button" class="btn btn-secondary" onclick="clearComparison()">🗑️ Clear Table</button>
         </div>
       </div>
@@ -271,7 +272,7 @@
       <!-- Invoice Correction -->
       <div class="correction-box">
         <h4>🧾 Correct from Invoice</h4>
-        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:var(--space-4);">Enter real order data to calculate the actual commission and compare it with our data.</p>
+        <p class="calc-hint-muted">Enter real order data to calculate the actual commission and compare it with our data.</p>
         <div class="correction-grid">
           <div class="calc-input-group">
             <label>Platform</label>
@@ -286,33 +287,33 @@
             <input type="number" id="corrPayout" placeholder="e.g. 78" />
           </div>
         </div>
-        <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;">
+        <div class="calc-flex-row--3">
           <button type="button" class="btn btn-primary" onclick="calculateCorrection()">Calculate Actual Commission</button>
-          <button type="button" class="btn btn-secondary" onclick="saveCorrection()" id="saveCorrBtn" style="display:none;">💾 Save Correction</button>
+          <button type="button" class="btn btn-secondary calc-hidden" onclick="saveCorrection()" id="saveCorrBtn">💾 Save Correction</button>
         </div>
         <div class="correction-result" id="corrResult"></div>
       </div>
 
       <!-- Guide -->
-      <div class="analysis-box reveal" style="margin-top: var(--space-8);">
+      <div class="analysis-box reveal calc-mt-8">
         <h4>📖 How to Read the Results</h4>
-        <div class="calc-grid" style="gap: 2rem;">
+        <div class="calc-grid calc-gap-8">
           <div>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
-              <strong style="color: #16a34a;">🟢 Excellent (>50%):</strong> The dish is highly profitable. It easily covers fixed costs and leaves a healthy net profit.
+            <p class="calc-guide-text">
+              <strong class="calc-text-green">🟢 Excellent (>50%):</strong> The dish is highly profitable. It easily covers fixed costs and leaves a healthy net profit.
             </p>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
-              <strong style="color: #ca8a04;">🟡 Acceptable (40-50%):</strong> The dish is profitable but the margin is tight. Consider raising the price or reducing costs slightly.
+            <p class="calc-guide-text">
+              <strong class="calc-text-amber">🟡 Acceptable (40-50%):</strong> The dish is profitable but the margin is tight. Consider raising the price or reducing costs slightly.
             </p>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8;">
-              <strong style="color: #dc2626;">🔴 Danger (<40%):</strong> The dish is unprofitable or has a very weak margin. Review pricing immediately.
+            <p class="calc-text-secondary-sm">
+              <strong class="calc-text-red">🔴 Danger (<40%):</strong> The dish is unprofitable or has a very weak margin. Review pricing immediately.
             </p>
           </div>
           <div>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: var(--space-3);">
+            <p class="calc-guide-text">
               <strong>💡 Formulas:</strong>
             </p>
-            <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.8; font-family: monospace;">
+            <p class="calc-code-text">
               Platform Commission = Price × Commission Rate<br>
               Total Prime Cost = Food Cost + Packaging<br>
               Net Profit = Price − Commission − Total Cost<br>
@@ -1057,29 +1058,29 @@
   </script>
 
   <!-- Ingredient Breakdown Modal -->
-  <div id="ingredientModalOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;padding:1rem;box-sizing:border-box;">
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);max-width:700px;width:100%;max-height:90vh;overflow-y:auto;padding:var(--space-5);position:relative;">
-      <button type="button" onclick="closeIngredientModal()" style="position:absolute;top:var(--space-3);left:var(--space-3);background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;line-height:1;">×</button>
-      <h3 id="ingredientModalTitle" style="margin-bottom:var(--space-4);font-size:1.25rem;font-weight:800;color:var(--text);">📋 Dish Ingredients</h3>
-      <table style="width:100%;border-collapse:collapse;margin-bottom:var(--space-3);">
+  <div class="calc-modal-overlay" id="ingredientModalOverlay">
+    <div class="calc-modal">
+      <button class="calc-modal__close" type="button" onclick="closeIngredientModal()">×</button>
+      <h3 class="calc-modal__title" id="ingredientModalTitle">📋 Dish Ingredients</h3>
+      <table class="calc-modal__table">
         <thead>
-          <tr style="font-size:0.85rem;color:var(--text-muted);text-align:left;">
-            <th style="padding:0.5rem;width:28%;">Ingredient</th>
-            <th style="padding:0.5rem;width:14%;">Qty</th>
-            <th style="padding:0.5rem;width:14%;">Unit</th>
-            <th style="padding:0.5rem;width:18%;">Price per kg/L</th>
-            <th style="padding:0.5rem;width:16%;text-align:center;">Total</th>
-            <th style="padding:0.5rem;width:10%;text-align:center;">Delete</th>
+          <tr class="calc-text-small calc-text-muted calc-text-left">
+            <th class="calc-ing-col calc-ing-col-name">Ingredient</th>
+            <th class="calc-ing-col calc-ing-col-qty">Qty</th>
+            <th class="calc-ing-col calc-ing-col-qty">Unit</th>
+            <th class="calc-ing-col calc-ing-col-price">Price per kg/L</th>
+            <th class="calc-ing-col calc-ing-col-total center">Total</th>
+            <th class="calc-ing-col calc-ing-col-action center">Delete</th>
           </tr>
         </thead>
         <tbody id="ingredientRows"></tbody>
       </table>
-      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:var(--space-3);">💡 <strong>Note:</strong> Select unit from dropdown. Price auto-converts (500g = 0.5kg).</p>
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-3);">
-        <button type="button" class="btn btn-ghost" onclick="addIngredientRow()" style="font-size:0.9rem;">+ Add Ingredient</button>
-        <div id="ingredientModalTotal" style="font-weight:800;color:var(--gold);font-size:1.1rem;">Total: 0</div>
+      <p class="calc-hint-muted">💡 <strong>Note:</strong> Select unit from dropdown. Price auto-converts (500g = 0.5kg).</p>
+      <div class="calc-modal__footer">
+        <button type="button" class="btn btn-ghost calc-text-base-sm" onclick="addIngredientRow()">+ Add Ingredient</button>
+        <div class="calc-modal__total" id="ingredientModalTotal">Total: 0</div>
       </div>
-      <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4);justify-content:flex-end;">
+      <div class="calc-modal__actions">
         <button type="button" class="btn btn-ghost" onclick="closeIngredientModal()">Cancel</button>
         <button type="button" class="btn btn-primary" onclick="saveIngredients()">💾 Save Ingredients</button>
       </div>

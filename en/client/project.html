@@ -3,35 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Project Details | Client Portal | Bonds</title>
+  <title>Redirect | Bonds</title>
   <meta name="description" content="Unified project page in the Bonds client portal — analyses, reports, reviews, and documents." />
-  <link rel="icon" href="/assets/bonds-mark.svg" type="image/png" />
-  <link rel="stylesheet" href="/client/portal.css" />
-  <link rel="canonical" href="https://bonds-global.com/en/client/project" />
+  <link rel="canonical" href="https://bonds-global.com/en/v3/project" />
   <meta property="og:title" content="Project Details | Client Portal | Bonds" />
   <meta property="og:description" content="Unified project page in the Bonds client portal — analyses, reports, reviews, and documents." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-  <meta property="og:url" content="https://bonds-global.com/en/client/project" />
+  <meta property="og:url" content="https://bonds-global.com/en/v3/project" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Project Details | Client Portal | Bonds" />
   <meta name="twitter:description" content="Unified project page in the Bonds client portal — analyses, reports, reviews, and documents." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-
+  <script>
+    (function () {
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      const target = id ? '/en/v3/project?id=' + encodeURIComponent(id) : '/en/v3/portfolio';
+      window.location.replace(target);
+    })();
+  </script>
 </head>
 <body>
-  <div id="portal-header"></div>
-  <div class="portal-layout">
-    <aside id="portal-sidebar" class="portal-sidebar"></aside>
-    <main id="portal-main" class="portal-main"></main>
-  </div>
-
-  <script>window.__PORTAL_LANG = 'en'; window.__PORTAL_PAGE = 'project'; </script>
-  <script src="/api/env"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-  <script src="/bonds-auth-2026.js?v=1"></script>
-  <script src="/client/portal.js"></script>
-  <script>BondsClientPortal.initProject();</script>
+  <p>Redirecting to <a id="target" href="/en/v3/portfolio">Project</a>...</p>
 </body>
 </html>

@@ -22,7 +22,7 @@
 
   <script src="../../calculators/db-client.js"></script>
   
-<link rel="stylesheet" href="../../header-footer.css?v=7" />
+<link rel="stylesheet" href="../../header-footer.css?v=8" />
   <link rel="canonical" href="https://bonds-global.com/en/calculators/menu-engineering" />
   <meta property="og:title" content="Menu Engineering Engine | Bonds" />
   <meta property="og:description" content="Intelligent menu classifier that categorizes dishes into Stars, Workhorses, Puzzles, and Dogs based on actual sales data." />
@@ -35,6 +35,7 @@
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../../calculators/scenario-cards-shared.css" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -45,9 +46,9 @@
     </div>
 
     <div id="authAlert"></div>
-    <div style="text-align:center;margin-bottom:var(--space-6);display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
+    <div class="calc-flex-center-wrap calc-flex-center-wrap--mb">
       <button class="btn-secondary" onclick="seedDemoData()">🚀 Load Demo Data</button>
-      <button class="btn-secondary" style="background:#ef4444;border-color:#ef4444;color:#fff;" onclick="clearAllData()">🗑️ Clear All Data</button>
+      <button class="btn-secondary calc-tag-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
       <button class="btn-secondary" onclick="exportExcel()">📊 Export Excel</button>
       <button class="btn-secondary" onclick="exportPDF()">📄 Export PDF</button>
     </div>
@@ -70,10 +71,10 @@
           <div class="form-group"><label>Platform</label><select data-universal-dropdown="true" id="pPlatformSelect" onchange="fillPlatformData()"><option value="">Select platform...</option></select></div>
           <div class="form-group"><label>Platform Code</label><input id="pCode" placeholder="jahez" /></div>
           <div class="form-group"><label>Platform Name</label><input id="pName" placeholder="Jahez" /></div>
-          <div class="form-group"><label>Commission (%)</label><input id="pCommission" type="number" value="25" /></div>
-          <div class="form-group"><label>Service Fee (%)</label><input id="pService" type="number" value="2" /></div>
-          <div class="form-group"><label>Payment Gateway (%)</label><input id="pGateway" type="number" value="1.75" /></div>
-          <div class="form-group"><label>Delivery Fee (SAR)</label><input id="pDelivery" type="number" value="0" /></div>
+          <div class="form-group"><label for="pCommission">Commission (%)</label><input id="pCommission" type="number" value="25" /></div>
+          <div class="form-group"><label for="pService">Service Fee (%)</label><input id="pService" type="number" value="2" /></div>
+          <div class="form-group"><label for="pGateway">Payment Gateway (%)</label><input id="pGateway" type="number" value="1.75" /></div>
+          <div class="form-group"><label for="pDelivery">Delivery Fee (SAR)</label><input id="pDelivery" type="number" value="0" /></div>
         </div>
         <button class="btn-primary" onclick="addPlatform()">➕ Add Platform</button>
         <div id="pList" class="list-box"></div>
@@ -145,8 +146,8 @@
       <div class="form-row">
         <div class="form-group"><label>Dish</label><select data-universal-dropdown="true" id="simItem"><option value="">Select...</option></select></div>
         <div class="form-group"><label>Platform</label><select data-universal-dropdown="true" id="simPlatform"><option value="">Select...</option></select></div>
-        <div class="form-group"><label>Discount (%)</label><input type="number" id="simDiscount" value="20" min="0" max="100" /></div>
-        <div class="form-group"><label>Current Daily Sales</label><input type="number" id="simSales" value="50" min="1" /></div>
+        <div class="form-group"><label for="simDiscount">Discount (%)</label><input type="number" id="simDiscount" value="20" min="0" max="100" /></div>
+        <div class="form-group"><label for="simSales">Current Daily Sales</label><input type="number" id="simSales" value="50" min="1" /></div>
       </div>
       <button class="btn-primary" onclick="runPromoSim()">Calculate Campaign Impact</button>
       <div id="simResult"></div>
@@ -155,13 +156,13 @@
     <!-- Omnichannel Margin Calculator -->
     <div class="me-actions">
       <h2>🌐 Omnichannel Margin Calculator</h2>
-      <p style="text-align:center;color:var(--text-secondary);margin-bottom:var(--space-6);">Compare selling via delivery apps vs direct sales from your own website</p>
+      <p class="calc-text-secondary calc-mb-6 calc-text-center">Compare selling via delivery apps vs direct sales from your own website</p>
       <div class="form-row">
         <div class="form-group"><label>Dish</label><select data-universal-dropdown="true" id="omniItem"><option value="">Select...</option></select></div>
         <div class="form-group"><label>Platform to Compare</label><select data-universal-dropdown="true" id="omniPlatform"><option value="">Select...</option></select></div>
-        <div class="form-group"><label>Customer Acquisition Cost (CAC) SAR</label><input type="number" id="omniCAC" value="5" step="0.5" /></div>
-        <div class="form-group"><label>Self-Delivery Cost SAR</label><input type="number" id="omniDelivery" value="15" /></div>
-        <div class="form-group"><label>Monthly Ad Budget SAR</label><input type="number" id="omniAdBudget" value="3000" /></div>
+        <div class="form-group"><label for="omniCAC">Customer Acquisition Cost (CAC) SAR</label><input type="number" id="omniCAC" value="5" step="0.5" /></div>
+        <div class="form-group"><label for="omniDelivery">Self-Delivery Cost SAR</label><input type="number" id="omniDelivery" value="15" /></div>
+        <div class="form-group"><label for="omniAdBudget">Monthly Ad Budget SAR</label><input type="number" id="omniAdBudget" value="3000" /></div>
       </div>
       <button class="btn-primary" onclick="runOmnichannel()">Compare Profits</button>
       <div id="omniResult"></div>

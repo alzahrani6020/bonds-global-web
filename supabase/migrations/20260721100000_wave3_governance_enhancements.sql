@@ -343,15 +343,21 @@ BEGIN
     'ucp_evidence', 'ucp_asset_models', 'ucp_asset_instances'
   ]
   LOOP
-    pol_name := tbl || '_read_active';
-    IF NOT EXISTS (
-      SELECT 1 FROM pg_policies
-      WHERE schemaname = 'public' AND tablename = tbl AND policyname = pol_name
+    -- Only create the active-read policy if the table actually has a status column.
+    IF EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = tbl AND column_name = 'status'
     ) THEN
-      EXECUTE format(
-        'CREATE POLICY %I ON public.%I FOR SELECT TO authenticated USING (status = ''active'');',
-        pol_name, tbl
-      );
+      pol_name := tbl || '_read_active';
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = tbl AND policyname = pol_name
+      ) THEN
+        EXECUTE format(
+          'CREATE POLICY %I ON public.%I FOR SELECT TO authenticated USING (status = ''active'');',
+          pol_name, tbl
+        );
+      END IF;
     END IF;
 
     pol_name := tbl || '_service_role';

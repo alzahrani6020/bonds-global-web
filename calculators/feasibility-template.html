@@ -13,8 +13,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <link rel="stylesheet" href="feasibility-template-shared.css" />
-<link rel="stylesheet" href="../header-footer.css?v=7" />
-  <link rel="canonical" href="https://bonds-global.com/calculators/feasibility-template" />
+<link rel="stylesheet" href="../header-footer.css?v=8" />
+<link rel="canonical" href="https://bonds-global.com/calculators/feasibility-template" />
   <meta property="og:description" content="نموذج دراسة جدوى احترافي متكامل: PESTLE، SWOT، تحليل مالي، تدفق نقدي، سيناريوهات. مجاني من بوندز." />
   <meta property="og:url" content="https://bonds-global.com/calculators/feasibility-template" />
   <meta property="og:type" content="website" />
@@ -33,15 +33,15 @@
 
   <!-- Toolbar -->
   <div class="template-toolbar no-print">
-    <div id="auto-save-indicator" style="position:absolute;top:0.3rem;left:0.5rem;font-size:0.7rem;color:var(--gold);opacity:0;transition:opacity 0.5s;">💾 تم الحفظ تلقائياً</div>
+    <div class="auto-save-indicator" id="auto-save-indicator">💾 تم الحفظ تلقائياً</div>
     <button class="btn-ghost" onclick="clearAll()">🗑️ مسح الكل</button>
     <button class="btn-ghost" onclick="saveDraft()">💾 حفظ مسودة</button>
     <button class="btn-ghost" onclick="loadDraft()">📂 استرجاع مسودة</button>
     <button class="btn-ghost" onclick="scrollToDashboard()">🎯 لوحة التحكم</button>
-    <button class="btn-ghost" id="btn-import-supabase" onclick="fillFromSupabase()" style="display:none;">📥 استيراد من بياناتي</button>
-    <button class="btn-ghost" onclick="openResearchModal()" style="color:#38bdf8;border-color:#38bdf8;">🔍 بحث ذكي</button>
+    <button class="hidden" id="btn-import-supabase" onclick="fillFromSupabase()">📥 استيراد من بياناتي</button>
+    <button class="btn-sky-outline" onclick="openResearchModal()">🔍 بحث ذكي</button>
     <button class="btn-ghost" onclick="exportToExcel()">📊 تصدير Excel</button>
-    <button class="btn-ghost" onclick="generateProfessionalPDF()" style="color:var(--gold);border-color:var(--gold);">📄 تصدير PDF احترافي</button>
+    <button class="btn-gold-outline" onclick="generateProfessionalPDF()">📄 تصدير PDF احترافي</button>
   </div>
 
   <div class="template-wrapper">
@@ -58,32 +58,32 @@
         <div class="field-group"><label>الشكل القانوني</label><input type="text" id="cover-legal-form" value="شركة مساهمة مقفلة" /></div>
         <div class="field-group"><label>تاريخ الإعداد</label><input type="date" id="cover-date" /></div>
       </div>
-      <div class="field-group inline-2" style="max-width:520px;width:100%;margin-top:1rem;text-align:right;display:grid;grid-template-columns:2fr 1fr;gap:1rem;">
-        <div class="field-group" style="margin-bottom:0;">
+      <div class="cover-form-row-inline">
+        <div class="mb-0">
           <label>الدولة</label>
           <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="cover-country" onchange="fillFromCountry()">
             <option value="">اختر الدولة...</option>
           </select>
         </div>
-        <div class="field-group" style="margin-bottom:0;display:flex;align-items:flex-end;">
-          <button type="button" class="btn-ghost" style="width:100%;padding:0.75rem;border-radius:10px;background:rgba(212,168,83,0.1);color:var(--gold);border:1px solid var(--gold);font-weight:700;cursor:pointer;font-family:inherit;" onclick="fillFromCountry()">🔄 ملء البيانات</button>
+        <div class="field-group-end">
+          <button class="btn-fill-gold" type="button" onclick="fillFromCountry()">🔄 ملء البيانات</button>
         </div>
       </div>
-      <div class="field-group" style="max-width:520px;width:100%;margin-top:1.5rem;text-align:right;">
+      <div class="cover-form-row">
         <label>فكرة المشروع بجملة واحدة</label><textarea id="cover-idea" rows="2">شركة استثمارية متخصصة في إعادة تأهيل وإكمال المباني المتعثرة بنسبة إنجاز 40-70% عبر نموذج الشراكة والمحاصة العقارية الذكية، بدءاً من جدة والرياض</textarea>
       </div>
-      <div class="field-group" style="max-width:520px;width:100%;text-align:right;">
+      <div class="cover-form-row-plain">
         <label>المبلغ المستثمر المتوقع (ريال)</label><input type="number" id="cover-investment" value="45000000" oninput="linkToCapital()" />
       </div>
     </div>
 
     <!-- ========== PAGE IMPORT: AI FEASIBILITY IMPORTER ========== -->
-    <div class="template-page no-print" id="page-import" style="border:2px solid var(--gold); background:rgba(212,168,83,0.05);">
-      <div class="page-header"><div class="section-number" style="background:var(--gold);color:#f5f0e8;">🤖</div><div><h2 style="color:var(--gold-bright);">استيراد دراسة جدوى بالذكاء الاصطناعي</h2><p>ارفع ملف Word أو الصق نص الدراسة وسنملأ القالب تلقائياً</p></div></div>
+    <div class="import-page no-print" id="page-import">
+      <div class="page-header"><div class="btn-gold-solid">🤖</div><div><h2 class="text-gold-bright">استيراد دراسة جدوى بالذكاء الاصطناعي</h2><p>ارفع ملف Word أو الصق نص الدراسة وسنملأ القالب تلقائياً</p></div></div>
 
-      <div class="field-group" style="margin-bottom:1rem;">
+      <div class="mb-1">
         <label>📁 رفع ملف (Word .docx أو PDF .pdf أو نص .txt)</label>
-        <input type="file" id="feasibility-file" accept=".docx,.pdf,.txt" onchange="handleFeasibilityFile(this)" style="padding:0.75rem; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; color:var(--text); width:100%;" />
+        <input class="input-file" type="file" id="feasibility-file" accept=".docx,.pdf,.txt" onchange="handleFeasibilityFile(this)" />
       </div>
 
       <div class="field-group">
@@ -93,19 +93,19 @@
 النص يجب أن يتضمن: وصف المشروع، التكاليف، الإيرادات، المنافسين، SWOT، التسويق، الجدول الزمني..."></textarea>
       </div>
 
-      <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem;">
-        <button onclick="analyzeFeasibilityText()" id="analyze-btn" style="background:linear-gradient(135deg,var(--gold),var(--gold-bright)); color:#f5f0e8; border:none; padding:0.8rem 2rem; border-radius:10px; font-weight:800; font-family:inherit; cursor:pointer; font-size:1rem;">
+      <div class="btn-row">
+        <button class="btn-primary-gradient" onclick="analyzeFeasibilityText()" id="analyze-btn">
           ✨ تحليل وملء القالب
         </button>
-        <button class="btn-ghost" onclick="document.getElementById('feasibility-text').value='';document.getElementById('feasibility-file').value='';" style="padding:0.8rem 1.5rem; border-radius:10px; background:transparent; color:var(--gold); border:1px solid var(--gold); font-family:inherit; cursor:pointer;">
+        <button class="btn-ghost-sm" onclick="document.getElementById('feasibility-text').value='';document.getElementById('feasibility-file').value='';">
           مسح
         </button>
       </div>
 
-      <div id="import-status" style="margin-top:1rem; font-size:0.85rem; color:var(--text-secondary); min-height:1.5rem;"></div>
+      <div class="status-msg" id="import-status"></div>
 
-      <div style="margin-top:1.5rem; padding:1rem; background:rgba(255,255,255,0.02); border-radius:10px; border:1px solid var(--border);">
-        <p style="margin:0; font-size:0.8rem; color:var(--text-secondary);">
+      <div class="tips-box">
+        <p class="tips-text">
           💡 <strong>نصائح للحصول على أفضل نتيجة:</strong><br>
           • تأكد أن النص يحتوي على أرقام واضحة (التكاليف، الإيرادات، الاستثمار).<br>
           • اذكر الدولة والمدينة والقطاع بوضوح.<br>
@@ -116,18 +116,18 @@
     </div>
 
     <!-- ========== AI PREVIEW MODAL ========== -->
-    <div id="ai-preview-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; padding:1rem;">
-      <div style="background:var(--bg-card); backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:16px; max-width:900px; width:100%; max-height:85vh; display:flex; flex-direction:column;">
-        <div style="padding:1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-          <h3 style="margin:0; color:var(--gold); font-size:1.2rem;">📋 معاينة البيانات المستخرجة</h3>
-          <button onclick="closePreview()" style="background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer;">×</button>
+    <div class="modal-overlay" id="ai-preview-modal">
+      <div class="modal-panel-lg">
+        <div class="modal-header">
+          <h3 class="modal-title">📋 معاينة البيانات المستخرجة</h3>
+          <button class="modal-close" onclick="closePreview()">×</button>
         </div>
-        <div id="ai-preview-content" style="padding:1.5rem; overflow-y:auto; flex:1;">
+        <div class="modal-body" id="ai-preview-content">
           <!-- سيتم ملؤه ديناميكياً -->
         </div>
-        <div style="padding:1.5rem; border-top:1px solid var(--border); display:flex; gap:1rem; justify-content:flex-end;">
-          <button onclick="closePreview()" class="btn-ghost" style="padding:0.7rem 1.5rem; border-radius:10px; background:transparent; color:var(--text-secondary); border:1px solid var(--border);">إلغاء</button>
-          <button onclick="confirmFillFromPreview()" style="padding:0.7rem 1.5rem; border-radius:10px; background:var(--gold); color:#f5f0e8; border:none; font-weight:800; cursor:pointer;">✅ ملء القالب بالمحدد</button>
+        <div class="modal-footer">
+          <button class="px-1-5-py-0-7 rounded-lg bg-transparent text-secondary border" onclick="closePreview()">إلغاء</button>
+          <button class="btn-confirm-sm" onclick="confirmFillFromPreview()">✅ ملء القالب بالمحدد</button>
         </div>
       </div>
     </div>
@@ -198,7 +198,7 @@
     <div class="template-page" id="page-summary">
       <div class="template-header-print"><img src="../assets/bonds-logo-2026.webp?v=2026" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الملخص</div></div>
       <div class="page-header"><div class="section-number">2</div><div><h2>الملخص التنفيذي</h2><p>نظرة عامة على كامل الدراسة (يُفضل كتابته آخراً)</p></div></div>
-      <div class="field-group"><label>ملخص المشروع (3-5 أسطر)</label><textarea id="exec-summary" rows="5">شركة إحياء الأصول العقارية هي كيان استثماري متخصص في إعادة تأهيل وإكمال المباني المتعثرة بنسبة إنجاز 40-70% عبر نموذج الشراكة والمحاصة الذكية. نستهدف 45 مبنى سنوياً في جدة والرياض بسيولة تشغيلية 45 مليون ريال. نحقق دورة استثمارية خاطفة (3-4 أشهر) بأرباح صافية 15-25% لكل مشروع، وصافي ربح سنوي 27.8 مليون ريال. نعتمد على تقنيات البناء الذكي والعمل 24 ساعة لإنجاز المشاريع بسرعة قياسية.</textarea><button class="btn-ghost no-print" style="margin-top:0.5rem;font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="autoGenerateSummary()">✨ توليد ملخص تلقائي</button></div>
+      <div class="field-group"><label>ملخص المشروع (3-5 أسطر)</label><textarea id="exec-summary" rows="5">شركة إحياء الأصول العقارية هي كيان استثماري متخصص في إعادة تأهيل وإكمال المباني المتعثرة بنسبة إنجاز 40-70% عبر نموذج الشراكة والمحاصة الذكية. نستهدف 45 مبنى سنوياً في جدة والرياض بسيولة تشغيلية 45 مليون ريال. نحقق دورة استثمارية خاطفة (3-4 أشهر) بأرباح صافية 15-25% لكل مشروع، وصافي ربح سنوي 27.8 مليون ريال. نعتمد على تقنيات البناء الذكي والعمل 24 ساعة لإنجاز المشاريع بسرعة قياسية.</textarea><button class="btn-sm no-print" onclick="autoGenerateSummary()">✨ توليد ملخص تلقائي</button></div>
       <div class="field-group inline-3">
         <div class="field-group"><label>رأس المال المطلوب (ريال)</label><input type="number" id="summary-capital" value="45265000" /></div>
         <div class="field-group"><label>فترة الاسترداد (شهر)</label><input type="number" id="summary-payback" readonly tabindex="-1" placeholder="سيُحسب تلقائياً" /></div>
@@ -221,7 +221,7 @@
 • إكمال البناء والتشطيب بجودة عالية
 • تسويق وبيع الوحدات المكتملة
 • إدارة أملاك للمستثمرين</textarea></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">بطاقات المنتجات</h3>
+      <h3 class="section-title-sm">بطاقات المنتجات</h3>
       <table class="template-table" id="products-table">
         <thead><tr><th>م</th><th>اسم المنتج</th><th>السعر (ريال)</th><th>التكلفة المتغيرة</th><th>هامش المساهمة</th></tr></thead>
         <tbody>
@@ -231,7 +231,7 @@
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addProductRow()">+ إضافة منتج</button><button onclick="removeRow('products-table')">- حذف</button></div>
-      <div class="field-group inline" style="margin-top:1rem;">
+      <div class="mt-1">
         <div class="field-group"><label>القيمة المضافة</label><textarea rows="2">• نموذج المحاصة العقارية الذكية (تقاسم الأرباح)
 • سرعة التنفيذ (3-4 أشهر لكل مشروع)
 • ضمان هيكلي 10 سنوات
@@ -257,7 +257,7 @@
         <div class="field-group"><label>نسبة التعثر / الفجوة في السوق (%)</label><input type="number" id="market-gap" value="12" /></div>
         <div class="field-group"><label>الطلب السنوي المتوقع (وحدة)</label><input type="number" id="market-demand" value="150000" /></div>
       </div>
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">بيانات السوق الرسمية</h3>
+      <h3 class="section-title-sm">بيانات السوق الرسمية</h3>
       <div class="field-group inline">
         <div class="field-group"><label>المؤشرات العقارية / الإحصائية الرسمية</label><textarea id="market-indicators" rows="3">• أكثر من 3000 مبنى متعثر في السعودية بحاجة لإعادة تأهيل
 • 1.5 مليون أسرة سعودية بحاجة لمسكن (برنامج الإسكان)
@@ -287,7 +287,7 @@
       </div>
 
       <!-- 2. Current Status Assessment -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">📊 التقييم الأولي لوضع المبنى الراهن</h3>
+      <h3 class="section-title-sm">📊 التقييم الأولي لوضع المبنى الراهن</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>نسبة الإنجاز الفعلي (%)</label><input type="number" id="ba-completion-now" min="0" max="100" value="65" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>القيمة السوقية الراهنة (ريال)</label><input type="number" id="ba-current-value" value="1800000" oninput="calcBuildingAssessment()" /></div>
@@ -299,7 +299,7 @@
       </div>
 
       <!-- 3. Violations & Licenses -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">⚠️ المخالفات والتراخيص</h3>
+      <h3 class="section-title-sm">⚠️ المخالفات والتراخيص</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>هل يوجد مخالفات بلدية؟</label><select data-universal-dropdown="true" id="ba-violations"><option value="no" selected>لا</option><option value="yes">نعم</option></select></div>
         <div class="field-group"><label>حالة رخصة البناء</label><select data-universal-dropdown="true" id="ba-license-status"><option value="valid" selected>سارية</option><option value="expired">منتهية</option><option value="no-license">لا يوجد</option></select></div>
@@ -318,7 +318,7 @@
       <div class="field-group"><label>تفاصيل المخالفات والالتزامات</label><textarea id="ba-violation-details" rows="2">لا توجد مخالفات بلدية. رخصة البناء سارية. شهادة الامتثال قيد الإجراء.</textarea></div>
 
       <!-- 4. BOQ Table -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">📐 جدول الكميات (Bill of Quantities)</h3>
+      <h3 class="section-title-sm">📐 جدول الكميات (Bill of Quantities)</h3>
       <table class="template-table" id="boq-table">
         <thead><tr><th>م</th><th>بند الأعمال</th><th>الوحدة</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr></thead>
         <tbody>
@@ -332,82 +332,82 @@
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addBOQRow()">+ إضافة بند</button><button onclick="removeRow('boq-table')">- حذف</button></div>
-      <div class="field-group" style="margin-top:0.5rem;"><label>إجمالي تكلفة الإكمال: <span id="boq-grand-total" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+      <div class="mt-0-5"><label>إجمالي تكلفة الإكمال: <span class="text-gold fw-extrabold" id="boq-grand-total">0</span> ريال</label></div>
 
       <!-- 5. Profit Sharing Calculator -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">💰 حاسبة توزيع الأرباح (المحاصة العقارية)</h3>
+      <h3 class="section-title">💰 حاسبة توزيع الأرباح (المحاصة العقارية)</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>قيمة الأرض + العظم (حصة المالك)</label><input type="number" id="ba-owner-value" value="1800000" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>تكلفة الإكمال (حصة الشركة)</label><input type="number" id="ba-company-cost" value="1200000" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>القيمة البيعية المتوقعة بعد الإكمال</label><input type="number" id="ba-future-value" value="3500000" oninput="calcBuildingAssessment()" /></div>
       </div>
-      <div class="field-group inline-3" style="margin-top:1rem;">
+      <div class="mt-1">
         <div class="field-group"><label>المصاريف الإدارية والتسويقية (ريال)</label><input type="number" id="ba-admin-expenses" value="150000" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>رسوم المنصة / العمولات (ريال)</label><input type="number" id="ba-platform-fees" value="70000" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>الضريبة العقارية / الزكاة (ريال)</label><input type="number" id="ba-tax" value="87500" oninput="calcBuildingAssessment()" /></div>
       </div>
-      <div class="field-group inline-3" style="margin-top:0.5rem;">
+      <div class="mt-0-5">
         <div class="field-group"><label>عمولات مكاتب خارجية ومسوقين (ريال)</label><input type="number" id="ba-broker-fees" value="105000" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>رسوم التصرفات العقارية (ريال)</label><input type="number" id="ba-transfer-fees" value="175000" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>مصاريف أخرى (ريال)</label><input type="number" id="ba-other-expenses" value="50000" oninput="calcBuildingAssessment()" /></div>
       </div>
-      <div style="margin-top:0.75rem;padding:0.75rem;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:10px;">
-        <p style="margin:0 0 0.5rem;font-size:0.85rem;color:#f87171;font-weight:700;">⚠️ مصاريف إضافية تُحسم حصرياً لصالح الشركة (مخاطر الإكمال)</p>
-        <div class="field-group inline-3" style="margin:0;">
-          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">معالجة عيوب خفية (ريال)</label><input type="number" id="ba-hidden-defects" value="50000" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
-          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">طوارئ إنشائية بينية (ريال)</label><input type="number" id="ba-emergency" value="75000" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
-          <div class="field-group" style="margin-bottom:0;"><label style="font-size:0.8rem;color:var(--text-secondary);">تعديلات غير مخطط لها (ريال)</label><input type="number" id="ba-unplanned" value="25000" oninput="calcBuildingAssessment()" style="padding:0.6rem;" /></div>
+      <div class="alert-red">
+        <p class="alert-red-title">⚠️ مصاريف إضافية تُحسم حصرياً لصالح الشركة (مخاطر الإكمال)</p>
+        <div class="m-0">
+          <div class="mb-0"><label class="fs-0-8 text-secondary">معالجة عيوب خفية (ريال)</label><input class="p-0-6" type="number" id="ba-hidden-defects" value="50000" oninput="calcBuildingAssessment()" /></div>
+          <div class="mb-0"><label class="fs-0-8 text-secondary">طوارئ إنشائية بينية (ريال)</label><input class="p-0-6" type="number" id="ba-emergency" value="75000" oninput="calcBuildingAssessment()" /></div>
+          <div class="mb-0"><label class="fs-0-8 text-secondary">تعديلات غير مخطط لها (ريال)</label><input class="p-0-6" type="number" id="ba-unplanned" value="25000" oninput="calcBuildingAssessment()" /></div>
         </div>
       </div>
-      <div class="scenario-grid" style="margin-top:1rem;">
-        <div class="scenario-card" style="border-left:4px solid #3b82f6;">
-          <div class="scenario-label" style="color:#3b82f6;">حصة المالك (%)</div>
-          <div class="scenario-value" id="ba-owner-share" style="color:#3b82f6;">0%</div>
+      <div class="mt-1">
+        <div class="border-l-blue-4">
+          <div class="text-blue">حصة المالك (%)</div>
+          <div class="text-blue" id="ba-owner-share">0%</div>
           <div class="scenario-desc">نسبة الملكية العينية</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #f59e0b;">
-          <div class="scenario-label" style="color:#f59e0b;">حصة الشركة (%)</div>
-          <div class="scenario-value" id="ba-company-share" style="color:#f59e0b;">0%</div>
+        <div class="border-l-amber-4">
+          <div class="text-amber">حصة الشركة (%)</div>
+          <div class="text-amber" id="ba-company-share">0%</div>
           <div class="scenario-desc">نسبة الإكمال والتشغيل</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #888888;">
-          <div class="scenario-label" style="color:#888888;">إجمالي مصاريف الشركة</div>
-          <div class="scenario-value" id="ba-shared-expenses" style="color:#888888;">0</div>
+        <div class="border-l-gray-4">
+          <div class="text-gray">إجمالي مصاريف الشركة</div>
+          <div class="text-gray" id="ba-shared-expenses">0</div>
           <div class="scenario-desc">تُضاف لحصة الشركة وتُحسم من المالك</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #16a34a;">
-          <div class="scenario-label" style="color:#16a34a;">صافي الربح بعد المصاريف</div>
-          <div class="scenario-value" id="ba-net-profit" style="color:#16a34a;">0</div>
+        <div class="border-l-green-4">
+          <div class="text-green">صافي الربح بعد المصاريف</div>
+          <div class="text-green" id="ba-net-profit">0</div>
           <div class="scenario-desc">ريال سعودي</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #dc2626;">
-          <div class="scenario-label" style="color:#dc2626;">ربح المالك</div>
-          <div class="scenario-value" id="ba-owner-profit" style="color:#dc2626;">0</div>
+        <div class="border-l-red-4">
+          <div class="text-red">ربح المالك</div>
+          <div class="text-red" id="ba-owner-profit">0</div>
           <div class="scenario-desc">ريال سعودي</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #8b5cf6;">
-          <div class="scenario-label" style="color:#8b5cf6;">ربح الشركة</div>
-          <div class="scenario-value" id="ba-company-profit" style="color:#8b5cf6;">0</div>
+        <div class="border-l-purple-4">
+          <div class="text-purple">ربح الشركة</div>
+          <div class="text-purple" id="ba-company-profit">0</div>
           <div class="scenario-desc">ريال سعودي</div>
         </div>
       </div>
 
       <!-- 6. Sale Period Scenarios -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">📊 سيناريوهات فترة البيع والتسييل</h3>
+      <h3 class="section-title">📊 سيناريوهات فترة البيع والتسييل</h3>
       <table class="template-table" id="sale-scenarios-table">
         <thead><tr><th>المعيار</th><th>متشائم</th><th>متوقع</th><th>متفائل</th></tr></thead>
         <tbody>
-          <tr><td style="font-weight:700;">فترة البيع (شهر)</td><td><input type="number" id="sale-pess-months" placeholder="مثال: 4" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-exp-months" placeholder="مثال: 2" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-opt-months" placeholder="مثال: 1" oninput="calcSaleScenarios()" /></td></tr>
-          <tr><td style="font-weight:700;">نسبة الخصم على السعر (%)</td><td><input type="number" id="sale-pess-discount" placeholder="مثال: 10" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-exp-discount" placeholder="0" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-opt-discount" placeholder="0" oninput="calcSaleScenarios()" /></td></tr>
-          <tr><td style="font-weight:700;">تكلفة التمويل خلال الفترة (ريال)</td><td><input type="number" id="sale-pess-financing" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-financing" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-financing" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">القيمة البيعية بعد الخصم (ريال)</td><td><input type="number" id="sale-pess-value" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-value" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-value" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">صافي الربح (ريال)</td><td><input type="number" id="sale-pess-profit" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-profit" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-profit" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">العائد الشهري (%)</td><td><input type="number" id="sale-pess-yield" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-yield" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-yield" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">فترة البيع (شهر)</td><td><input type="number" id="sale-pess-months" placeholder="مثال: 4" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-exp-months" placeholder="مثال: 2" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-opt-months" placeholder="مثال: 1" oninput="calcSaleScenarios()" /></td></tr>
+          <tr><td class="fw-bold">نسبة الخصم على السعر (%)</td><td><input type="number" id="sale-pess-discount" placeholder="مثال: 10" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-exp-discount" placeholder="0" oninput="calcSaleScenarios()" /></td><td><input type="number" id="sale-opt-discount" placeholder="0" oninput="calcSaleScenarios()" /></td></tr>
+          <tr><td class="fw-bold">تكلفة التمويل خلال الفترة (ريال)</td><td><input type="number" id="sale-pess-financing" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-financing" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-financing" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">القيمة البيعية بعد الخصم (ريال)</td><td><input type="number" id="sale-pess-value" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-value" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-value" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">صافي الربح (ريال)</td><td><input type="number" id="sale-pess-profit" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-profit" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-profit" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">العائد الشهري (%)</td><td><input type="number" id="sale-pess-yield" readonly tabindex="-1" /></td><td><input type="number" id="sale-exp-yield" readonly tabindex="-1" /></td><td><input type="number" id="sale-opt-yield" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
 
       <!-- 7. Timeline -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">⏱️ الجدول الزمني المتوقع</h3>
+      <h3 class="section-title">⏱️ الجدول الزمني المتوقع</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>فترة الإنجاز (شهر)</label><input type="number" id="ba-construction-months" value="3" /></div>
         <div class="field-group"><label>فترة البيع والإفراغ (شهر)</label><input type="number" id="ba-sale-months" value="2" /></div>
@@ -418,7 +418,7 @@
 • ضرورة استلام شهادة الإتمام قبل بدء عمليات البيع الرسمي</textarea></div>
 
       <!-- 8. Document Attachments -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">📎 المستندات المُرفقة</h3>
+      <h3 class="section-title">📎 المستندات المُرفقة</h3>
       <table class="template-table" id="docs-table">
         <thead><tr><th>المستند</th><th>مُرفق</th><th>رقم المرجع</th><th>تاريخ الصلاحية</th></tr></thead>
         <tbody>
@@ -433,16 +433,16 @@
       </table>
 
       <!-- 9. Funding Readiness Score -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">🎯 مؤشر الجاهزية للتمويل</h3>
-      <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1rem;padding:1.5rem;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid var(--border);">
-        <div style="width:100px;height:100px;border-radius:50%;background:conic-gradient(var(--gold) var(--score-deg,0deg), rgba(255,255,255,0.05) 0deg);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;" id="funding-score-ring">
-          <div style="width:80px;height:80px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;">
-            <span id="funding-score" style="font-size:1.5rem;font-weight:800;color:var(--gold);">0</span>
+      <h3 class="section-title">🎯 مؤشر الجاهزية للتمويل</h3>
+      <div class="health-panel-sm">
+        <div class="score-ring-lg" id="funding-score-ring">
+          <div class="score-inner-lg">
+            <span class="score-value-lg" id="funding-score">0</span>
           </div>
         </div>
-        <div style="flex:1;">
-          <div style="font-size:1rem;font-weight:700;color:var(--gold-bright);" id="funding-score-label">غير مكتمل</div>
-          <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;" id="funding-score-desc">أكمل البيانات والمستندات لحساب درجة الجاهزية</div>
+        <div class="flex-1">
+          <div class="section-title-label" id="funding-score-label">غير مكتمل</div>
+          <div class="subtext" id="funding-score-desc">أكمل البيانات والمستندات لحساب درجة الجاهزية</div>
         </div>
       </div>
       <table class="template-table" id="funding-score-table">
@@ -457,9 +457,9 @@
           <tr><td>توصية مقيّم نهائية مُرفقة</td><td>15</td><td><input type="checkbox" id="fs-appraisal" onchange="calcFundingScore()" checked /></td><td><input type="number" id="fs-appraisal-score" readonly tabindex="-1" value="15" /></td></tr>
         </tbody>
       </table>
-      <div style="margin-top:1rem;padding:1rem;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">📋 توصية بوندز:</div>
-        <div id="funding-recommendation" style="font-size:0.9rem;color:var(--text);">المشروع جاهز للتمويل بنسبة 100%. جميع المستندات والتحليلات مكتملة. يُنصح بالتقدم للبنوك التجارية أو صناديق الاستثمار العقاري.</div>
+      <div class="info-box">
+        <div class="fs-0-85 text-secondary mb-0-5">📋 توصية بوندز:</div>
+        <div class="text-sm-primary" id="funding-recommendation">المشروع جاهز للتمويل بنسبة 100%. جميع المستندات والتحليلات مكتملة. يُنصح بالتقدم للبنوك التجارية أو صناديق الاستثمار العقاري.</div>
       </div>
     </div>
 
@@ -469,8 +469,8 @@
       <div class="page-header"><div class="section-number">5B</div><div><h2>معايير التقييم العقاري الاحترافي</h2><p>معايير سعودية ودولية لتقييم المباني المتعثرة والمكتملة</p></div></div>
 
       <!-- A. Unfinished Building Assessment -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">🏗️ أ. تقييم المبنى غير المكتمل (Under Construction)</h3>
-      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">مبني على: معايير الهيئة السعودية للمقيمين المعتمدين (تقييم) + معايير التقييم الدولية IVS + كود البناء السعودي SBC</p>
+      <h3 class="section-title-sm">🏗️ أ. تقييم المبنى غير المكتمل (Under Construction)</h3>
+      <p class="hint-text">مبني على: معايير الهيئة السعودية للمقيمين المعتمدين (تقييم) + معايير التقييم الدولية IVS + كود البناء السعودي SBC</p>
 
       <div class="field-group inline-3">
         <div class="field-group"><label>تاريخ آخر زيارة ميدانية</label><input type="date" id="val-site-visit-date" value="2026-05-15" /></div>
@@ -478,7 +478,7 @@
         <div class="field-group"><label>رقم ترخيص المقيم</label><input type="text" id="val-license-no" value="TAQ-2019-00456" /></div>
       </div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">أ1. التدقيق الإنشائي والسلامة (Structural Audit)</h4>
+      <h4 class="subsection-title">أ1. التدقيق الإنشائي والسلامة (Structural Audit)</h4>
       <table class="template-table" id="val-structural-table">
         <thead><tr><th>م</th><th>بند الفحص</th><th>الحالة</th><th>التوصية</th><th>التكلفة التقديرية (ريال)</th></tr></thead>
         <tbody>
@@ -491,7 +491,7 @@
       </table>
       <div class="table-actions no-print"><button onclick="addRow('val-structural-table')">+ إضافة بند</button><button onclick="removeRow('val-structural-table')">- حذف</button></div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">أ2. هيكل تقسيم الأعمال WBS — نسب الإنجاز (Work Breakdown Structure)</h4>
+      <h4 class="subsection-title">أ2. هيكل تقسيم الأعمال WBS — نسب الإنجاز (Work Breakdown Structure)</h4>
       <table class="template-table" id="val-wbs-table">
         <thead><tr><th>م</th><th>بند العمل</th><th>نسبة الإنجاز (%)</th><th>التكلفة التقديرية للإكمال (ريال)</th><th>الملاحظات</th></tr></thead>
         <tbody>
@@ -507,7 +507,7 @@
       </table>
       <div class="table-actions no-print"><button onclick="addRow('val-wbs-table')">+ إضافة بند</button><button onclick="removeRow('val-wbs-table')">- حذف</button></div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">أ3. التكاليف الناعمة والمخاطر (Soft Costs &amp; Risk Premium)</h4>
+      <h4 class="subsection-title">أ3. التكاليف الناعمة والمخاطر (Soft Costs &amp; Risk Premium)</h4>
       <div class="field-group inline-3">
         <div class="field-group"><label>تكلفة التقييم والاستشارات الهندسية (ريال)</label><input type="number" id="val-consulting-cost" value="25000" oninput="calcValuationTotal()" /></div>
         <div class="field-group"><label>رسوم التراخيص والتصاريح (ريال)</label><input type="number" id="val-permit-cost" value="15000" oninput="calcValuationTotal()" /></div>
@@ -520,10 +520,10 @@
       </div>
 
       <!-- B. Post-Completion Assessment -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">🏠 ب. تقييم المبنى بعد الإكمال (Post-Completion)</h3>
-      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">تقييم شامل للمبنى المكتمل وفقاً لمعايير الجودة والكفاءة والامتثال</p>
+      <h3 class="section-title">🏠 ب. تقييم المبنى بعد الإكمال (Post-Completion)</h3>
+      <p class="hint-text">تقييم شامل للمبنى المكتمل وفقاً لمعايير الجودة والكفاءة والامتثال</p>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">ب1. أنظمة الميكانيكا والكهرباء (M&amp;E Systems)</h4>
+      <h4 class="subsection-title">ب1. أنظمة الميكانيكا والكهرباء (M&amp;E Systems)</h4>
       <table class="template-table" id="val-me-table">
         <thead><tr><th>م</th><th>النظام</th><th>الحالة</th><th>العمر الافتراضي المتبقي (سنة)</th><th>تكلفة التحديث (ريال)</th></tr></thead>
         <tbody>
@@ -536,7 +536,7 @@
       </table>
       <div class="table-actions no-print"><button onclick="addRow('val-me-table')">+ إضافة نظام</button><button onclick="removeRow('val-me-table')">- حذف</button></div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">ب2. جودة التشطيبات والمواد (Finishing Quality)</h4>
+      <h4 class="subsection-title">ب2. جودة التشطيبات والمواد (Finishing Quality)</h4>
       <div class="field-group inline-3">
         <div class="field-group"><label>درجة جودة التشطيبات الداخلية</label><select data-universal-dropdown="true" id="val-finishing-internal"><option value="">اختر...</option><option value="luxury">فاخرة</option><option value="premium" selected>ممتازة</option><option value="standard">عادية</option><option value="basic">أساسية</option><option value="poor">ضعيفة</option></select></div>
         <div class="field-group"><label>درجة جودة الواجهات الخارجية</label><select data-universal-dropdown="true" id="val-finishing-external"><option value="">اختر...</option><option value="luxury">فاخرة</option><option value="premium" selected>ممتازة</option><option value="standard">عادية</option><option value="basic">أساسية</option><option value="poor">ضعيفة</option></select></div>
@@ -544,14 +544,14 @@
       </div>
       <div class="field-group"><label>ملاحظات على جودة التشطيبات والمواد المستخدمة</label><textarea id="val-finishing-notes" rows="2">بلاط بورسلان إيطالي، دهانات جوتنز، أبواب خشبية بلوط، نوافذ ألمنيوم مزدوج، مقابض إيطالية</textarea></div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">ب3. الكفاءة الطاقية والاستدامة (Energy Efficiency)</h4>
+      <h4 class="subsection-title">ب3. الكفاءة الطاقية والاستدامة (Energy Efficiency)</h4>
       <div class="field-group inline-3">
         <div class="field-group"><label>تصنيف الكفاءة الطاقية (EER)</label><input type="text" id="val-eer" value="13.2" /></div>
         <div class="field-group"><label>شهادة الاستدامة / LEED</label><select data-universal-dropdown="true" id="val-leed"><option value="">اختر...</option><option value="platinum">بلاتيني</option><option value="gold">ذهبي</option><option value="silver">فضي</option><option value="certified" selected>معتمد</option><option value="none">لا يوجد</option></select></div>
         <div class="field-group"><label>الاستهلاك السنوي المتوقع (kWh/م2)</label><input type="number" id="val-kwh" value="145" /></div>
       </div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">ب4. الامتثال القانوني والتراخيص (Legal Compliance)</h4>
+      <h4 class="subsection-title">ب4. الامتثال القانوني والتراخيص (Legal Compliance)</h4>
       <div class="checklist">
         <li><input type="checkbox" id="val-comp-1" checked /><span>شهادة إتمام البناء من البلدية</span></li>
         <li><input type="checkbox" id="val-comp-2" checked /><span>شهادة السلامة الإنشائية من الدفاع المدني</span></li>
@@ -563,7 +563,7 @@
         <li><input type="checkbox" id="val-comp-8" checked /><span>تأمين المسؤولية المدنية للمقاول والمقيم</span></li>
       </div>
 
-      <h4 style="font-size:0.9rem;color:var(--gold-bright);margin:1rem 0 0.5rem;">ب5. التصميم المعماري والوظيفي (Architectural Design)</h4>
+      <h4 class="subsection-title">ب5. التصميم المعماري والوظيفي (Architectural Design)</h4>
       <div class="field-group inline-3">
         <div class="field-group"><label>جودة التصميم المعماري</label><select data-universal-dropdown="true" id="val-arch-quality"><option value="">اختر...</option><option value="iconic">أيقوني</option><option value="excellent">ممتاز</option><option value="good" selected>جيد</option><option value="average">عادي</option><option value="poor">ضعيف</option></select></div>
         <div class="field-group"><label>كفاءة استخدام المساحة (%)</label><input type="number" id="val-space-eff" min="0" max="100" value="85" /></div>
@@ -571,38 +571,38 @@
       </div>
 
       <!-- C. Comparison Table -->
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">📊 ج. جدول المقارنة — القيمة قبل وبعد الإكمال</h3>
+      <h3 class="section-title">📊 ج. جدول المقارنة — القيمة قبل وبعد الإكمال</h3>
       <table class="template-table" id="val-comparison-table">
         <thead><tr><th>المعيار</th><th>الوضع الحالي (غير مكتمل)</th><th>الوضع المتوقع (مكتمل)</th><th>الفرق</th></tr></thead>
         <tbody>
-          <tr><td style="font-weight:700;">القيمة السوقية (ريال)</td><td><input type="number" id="val-comp-current" value="1800000" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future" value="3500000" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-value" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">القيمة/م2 (ريال)</td><td><input type="number" id="val-comp-current-m2" value="1800" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-m2" value="3500" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-m2" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">معدل العائد المتوقع (%)</td><td><input type="number" id="val-comp-current-yield" value="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-yield" value="15" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-yield" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">فترة التسييل (شهر)</td><td><input type="number" id="val-comp-current-liquidity" value="24" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-liquidity" value="2" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-liquidity" readonly tabindex="-1" /></td></tr>
-          <tr><td style="font-weight:700;">درجة المخاطر (1-10)</td><td><input type="number" id="val-comp-current-risk" min="1" max="10" value="7" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-risk" min="1" max="10" value="3" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-risk" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">القيمة السوقية (ريال)</td><td><input type="number" id="val-comp-current" value="1800000" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future" value="3500000" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-value" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">القيمة/م2 (ريال)</td><td><input type="number" id="val-comp-current-m2" value="1800" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-m2" value="3500" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-m2" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">معدل العائد المتوقع (%)</td><td><input type="number" id="val-comp-current-yield" value="0" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-yield" value="15" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-yield" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">فترة التسييل (شهر)</td><td><input type="number" id="val-comp-current-liquidity" value="24" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-liquidity" value="2" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-liquidity" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">درجة المخاطر (1-10)</td><td><input type="number" id="val-comp-current-risk" min="1" max="10" value="7" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-future-risk" min="1" max="10" value="3" oninput="calcValComparison()" /></td><td><input type="number" id="val-comp-diff-risk" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
 
       <!-- Summary -->
-      <div class="scenario-grid" style="margin-top:1.5rem;">
-        <div class="scenario-card" style="border-left:4px solid #3b82f6;">
-          <div class="scenario-label" style="color:#3b82f6;">إجمالي تكاليف التقييم والإكمال</div>
-          <div class="scenario-value" id="val-total-costs" style="color:#3b82f6;">0</div>
+      <div class="mt-1-5">
+        <div class="border-l-blue-4">
+          <div class="text-blue">إجمالي تكاليف التقييم والإكمال</div>
+          <div class="text-blue" id="val-total-costs">0</div>
           <div class="scenario-desc">ريال سعودي</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #f59e0b;">
-          <div class="scenario-label" style="color:#f59e0b;">احتياطي المخاطر</div>
-          <div class="scenario-value" id="val-total-risk" style="color:#f59e0b;">0</div>
+        <div class="border-l-amber-4">
+          <div class="text-amber">احتياطي المخاطر</div>
+          <div class="text-amber" id="val-total-risk">0</div>
           <div class="scenario-desc">ريال سعودي</div>
         </div>
-        <div class="scenario-card" style="border-left:4px solid #16a34a;">
-          <div class="scenario-label" style="color:#16a34a;">صافي القيمة المضافة</div>
-          <div class="scenario-value" id="val-net-added" style="color:#16a34a;">0</div>
+        <div class="border-l-green-4">
+          <div class="text-green">صافي القيمة المضافة</div>
+          <div class="text-green" id="val-net-added">0</div>
           <div class="scenario-desc">ريال سعودي</div>
         </div>
       </div>
 
-      <div class="field-group" style="margin-top:1rem;"><label>ملاحظات المقيم النهائية والتوصيات</label><textarea id="val-final-notes" rows="3">الخلاصة: المبنى في حالة جيدة بنسبة إنجاز 65%. الهيكل الإنشائي سليم. التكلفة التقديرية للإكمال 1.2 مليون ريال. القيمة البيعية المتوقعة بعد الإكمال 3.5 مليون ريال. صافي الربح المتوقع 500,000 ريال. التوصية: المضي في الصفقة مع احتياطي مخاطر 10%.</textarea></div>
+      <div class="mt-1"><label>ملاحظات المقيم النهائية والتوصيات</label><textarea id="val-final-notes" rows="3">الخلاصة: المبنى في حالة جيدة بنسبة إنجاز 65%. الهيكل الإنشائي سليم. التكلفة التقديرية للإكمال 1.2 مليون ريال. القيمة البيعية المتوقعة بعد الإكمال 3.5 مليون ريال. صافي الربح المتوقع 500,000 ريال. التوصية: المضي في الصفقة مع احتياطي مخاطر 10%.</textarea></div>
     </div>
 
     <!-- ========== PAGE 6: TECHNOLOGICAL IMPACT ========== -->
@@ -669,7 +669,7 @@
       <div class="template-header-print"><img src="../assets/bonds-logo-2026.webp?v=2026" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — تحليل السوق</div></div>
       <div class="page-header"><div class="section-number">8</div><div><h2>تحليل بيئة المشروع</h2><p>PESTLE + SWOT + قوى بورتر + شخصية العميل</p></div></div>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1rem 0 0.5rem;">أ. تحليل PESTLE</h3>
+      <h3 class="section-title-xs">أ. تحليل PESTLE</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>سياسي (Political)</label><textarea id="pestle-political" rows="2">رؤية 2030 ودعم القطاع العقاري، برنامج الإسكان، استقرار سياسي، دعم حكومي لإعادة تأهيل المباني المتعثرة</textarea></div>
         <div class="field-group"><label>اقتصادي (Economic)</label><textarea id="pestle-economic" rows="2">نمو الناتج المحلي 4.4%، ارتفاع أسعار العقارات 8-12% سنوياً، توفر التمويل العقاري، سيولة بنكية عالية</textarea></div>
@@ -681,7 +681,7 @@
         <div class="field-group"><label>بيئي (Environmental)</label><textarea id="pestle-env" rows="2">معايير الكفاءة الطاقية، شهادات الاستدامة LEED، إعادة التدوير، تقليل البصمة الكربونية، العزل الحراري</textarea></div>
       </div>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">ب. تحليل SWOT</h3>
+      <h3 class="section-title">ب. تحليل SWOT</h3>
       <div class="swot-grid">
         <div class="swot-box s"><h4>✅ نقاط القوة (Strengths)</h4><textarea id="swot-s" rows="4">1. نموذج المحاصة العقارية الذكية (تقاسم الأرباح)
 2. فريق هندسي متخصص في المباني المتعثرة
@@ -706,7 +706,7 @@
 5. تباطؤ في سوق العقارات أو تغير معدلات الفائدة</textarea></div>
       </div>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">ج. تحليل قوى بورتر التنافسية</h3>
+      <h3 class="section-title">ج. تحليل قوى بورتر التنافسية</h3>
       <table class="template-table" id="porter-table">
         <thead><tr><th>القوة</th><th>الشدة (1-5)</th><th>التوضيح</th></tr></thead>
         <tbody>
@@ -718,14 +718,14 @@
         </tbody>
       </table>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">د. شخصية العميل المثالية (Persona)</h3>
+      <h3 class="section-title">د. شخصية العميل المثالية (Persona)</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>العمر / الجنس / الموقع</label><input type="text" value="30-50 سنة، ذكور وإناث، جدة والرياض والدمام" /></div>
         <div class="field-group"><label>الدخل الشهري التقديري</label><input type="text" value="20,000 - 60,000 ريال" /></div>
         <div class="field-group"><label>الاحتياجات والآلام</label><input type="text" value="صعوبة العثور على سكن جديد بسعر معقول، خوف من شراء مباني متعثرة بدون ضمانات" /></div>
       </div>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">هـ. تحليل المنافسين التفصيلي</h3>
+      <h3 class="section-title">هـ. تحليل المنافسين التفصيلي</h3>
       <table class="template-table" id="competitors-table">
         <thead><tr><th>المنافس</th><th>النشاط</th><th>نقاط القوة</th><th>نقاط الضعف</th><th>حصة السوق</th></tr></thead>
         <tbody>
@@ -771,7 +771,7 @@
 6. الفحص النهائي واستلام شهادة الإتمام
 7. التسويق وبيع الوحدات
 8. توزيع الأرباح حسب نسبة الشراكة</textarea></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">الجدول الزمني التفصيلي</h3>
+      <h3 class="section-title">الجدول الزمني التفصيلي</h3>
       <table class="template-table" id="timeline-table">
         <thead><tr><th>م</th><th>المهمة</th><th>التاريخ المتوقع</th><th>المسؤول</th><th>الحالة</th></tr></thead>
         <tbody>
@@ -787,8 +787,8 @@
       </table>
       <div class="table-actions no-print"><button onclick="addRow('timeline-table')">+ إضافة</button><button onclick="removeRow('timeline-table')">- حذف</button></div>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">🗺️ خريطة المشاريع المستهدفة</h3>
-      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-top:1rem;">
+      <h3 class="section-title">🗺️ خريطة المشاريع المستهدفة</h3>
+      <div class="card-muted-xl-mt">
         <table class="template-table" id="projects-map-table">
           <thead><tr><th>المدينة</th><th>الحي</th><th>عدد المباني المتعثرة</th><th>متوسط التكلفة</th><th>الأولوية</th></tr></thead>
           <tbody>
@@ -801,7 +801,7 @@
           </tbody>
         </table>
         <div class="table-actions no-print"><button onclick="addRow('projects-map-table')">+ إضافة موقع</button><button onclick="removeRow('projects-map-table')">- حذف</button></div>
-        <p style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.5rem;">📊 إجمالي المباني المتعثرة المستهدفة: 186 مبنى | المتوسط: 2,533,333 ريال</p>
+        <p class="note-text-mt">📊 إجمالي المباني المتعثرة المستهدفة: 186 مبنى | المتوسط: 2,533,333 ريال</p>
       </div>
     </div>
 
@@ -809,7 +809,7 @@
     <div class="template-page" id="page-legal">
       <div class="template-header-print"><img src="../assets/bonds-logo-2026.webp?v=2026" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — القانون</div></div>
       <div class="page-header"><div class="section-number">11</div><div><h2>التراخيص والقوانين والتأمين</h2><p>الالتزامات التنظيمية والحماية القانونية</p></div></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">التراخيص المطلوبة</h3>
+      <h3 class="section-title-mb">التراخيص المطلوبة</h3>
       <table class="template-table" id="licenses-table">
         <thead><tr><th>م</th><th>اسم الترخيص</th><th>الجهة المصدرة</th><th>التكلفة (ريال)</th><th>مدة الإصدار</th></tr></thead>
         <tbody>
@@ -822,7 +822,7 @@
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">+ إضافة</button><button onclick="removeRow('licenses-table'); setTimeout(linkLicensesToCapital,50)">- حذف</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>التأمينات المطلوبة</label><textarea id="legal-insurance" rows="3">• تأمين مسؤولية مدنية (2 مليون ريال)
+      <div class="mt-1"><label>التأمينات المطلوبة</label><textarea id="legal-insurance" rows="3">• تأمين مسؤولية مدنية (2 مليون ريال)
 • تأمين المباني قيد الإنشاء (10 مليون ريال)
 • تأمين المركبات والمعدات
 • تأمين طبي للموظفين (تأمين طبي شامل)
@@ -863,7 +863,7 @@
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addHRRow()">+ إضافة</button><button onclick="removeRow('hr-table')">- حذف</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>إجمالي الرواتب الشهرية: <span id="hr-grand-total" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+      <div class="mt-1"><label>إجمالي الرواتب الشهرية: <span class="text-gold fw-extrabold" id="hr-grand-total">0</span> ريال</label></div>
       <div class="field-group inline"><div class="field-group"><label>إجمالي الموظفين</label><input type="number" id="hr-total-employees" readonly tabindex="-1" placeholder="0" /></div><div class="field-group"><label>نسبة الرواتب/الإيرادات</label><input type="text" id="hr-salary-ratio" readonly tabindex="-1" placeholder="سيُحسب" /></div></div>
     </div>
 
@@ -876,7 +876,7 @@
 • إدارة التشغيل والمشاريع (إشراف، مقاولون، جودة)
 • الإدارة المالية والإدارية (محاسبة، موارد بشرية، قانون)
 • إدارة التطوير والتسويق (تخطيط، تسويق، علاقات حكومية)</textarea></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.25rem 0 0.5rem;">جدول الملاك الوظيفي التفصيلي</h3>
+      <h3 class="section-title-sm">جدول الملاك الوظيفي التفصيلي</h3>
       <table class="template-table" id="org-table">
         <thead><tr><th>م</th><th>المسمى الوظيفي</th><th>العدد</th><th>الراتب الشهري (ريال)</th><th>الإجمالي السنوي</th><th>مقر العمل</th></tr></thead>
         <tbody>
@@ -893,7 +893,7 @@
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addOrgRow()">+ إضافة منصب</button><button onclick="removeRow('org-table')">- حذف</button></div>
-      <div class="field-group inline-3" style="margin-top:1rem;">
+      <div class="mt-1">
         <div class="field-group"><label>إجمالي الكادر</label><input type="number" id="org-total-staff" readonly tabindex="-1" placeholder="0" /></div>
         <div class="field-group"><label>إجمالي الرواتب السنوية</label><input type="number" id="org-total-salaries" readonly tabindex="-1" placeholder="0" /></div>
         <div class="field-group"><label>نسبة الرواتب من G&A (%)</label><input type="number" id="org-salary-ga-ratio" readonly tabindex="-1" placeholder="سيُحسب" /></div>
@@ -916,7 +916,7 @@
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addToolRow()">+ إضافة</button><button onclick="removeRow('tools-table')">- حذف</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>إجمالي تكلفة المعدات: <span id="tools-grand-total" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+      <div class="mt-1"><label>إجمالي تكلفة المعدات: <span class="text-gold fw-extrabold" id="tools-grand-total">0</span> ريال</label></div>
       <div class="field-group"><label>الأنظمة التقنية المطلوبة</label><textarea rows="3">• نظام ERP لإدارة المشاريع والموارد (SAP/Oracle)
 • منصة CRM لإدارة علاقات العملاء (Salesforce)
 • نظام BIM للتصميم الهندسي (Autodesk Revit)
@@ -943,7 +943,7 @@
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('fixed-costs-table'); setTimeout(calcFinancials,50)">+ إضافة</button><button onclick="removeRow('fixed-costs-table'); setTimeout(calcFinancials,50)">- حذف</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>إجمالي التكاليف الثابتة: <span id="total-fixed-display" style="color:var(--gold);font-weight:800;">0</span> ريال/شهر</label></div>
+      <div class="mt-1"><label>إجمالي التكاليف الثابتة: <span class="text-gold fw-extrabold" id="total-fixed-display">0</span> ريال/شهر</label></div>
     </div>
 
     <!-- ========== PAGE 13: VARIABLE COSTS ========== -->
@@ -962,7 +962,7 @@
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('var-costs-table'); setTimeout(calcFinancials,50)">+ إضافة</button><button onclick="removeRow('var-costs-table'); setTimeout(calcFinancials,50)">- حذف</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>إجمالي التكلفة المتغيرة للوحدة: <span id="total-var-display" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+      <div class="mt-1"><label>إجمالي التكلفة المتغيرة للوحدة: <span class="text-gold fw-extrabold" id="total-var-display">0</span> ريال</label></div>
     </div>
 
     <!-- ========== PAGE 14: REVENUE ========== -->
@@ -979,7 +979,7 @@
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRevenueRow()">+ إضافة</button><button onclick="removeRow('revenue-table'); setTimeout(calcFinancials,50)">- حذف</button></div>
-      <div class="field-group" style="margin-top:1rem;"><label>إجمالي الإيرادات الشهرية: <span id="total-revenue-display" style="color:var(--gold);font-weight:800;">0</span> ريال</label></div>
+      <div class="mt-1"><label>إجمالي الإيرادات الشهرية: <span class="text-gold fw-extrabold" id="total-revenue-display">0</span> ريال</label></div>
     </div>
 
     <!-- ========== PAGE 15: CASH FLOW 12 MONTHS ========== -->
@@ -1003,7 +1003,7 @@
           <tr><td>الشهر 12</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="10781250" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="10296875" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <p style="text-align:center;font-size:0.85rem;color:var(--text-secondary);">💡 املأ أول 3 أشهر يدوياً، ثم اضغط "ملء تلقائي" لتوزيع بقية السنة</p>
+      <p class="center-note">💡 املأ أول 3 أشهر يدوياً، ثم اضغط "ملء تلقائي" لتوزيع بقية السنة</p>
       <div class="table-actions no-print"><button onclick="autoFillCashFlow()">✨ ملء تلقائي من الإيرادات</button></div>
     </div>
 
@@ -1027,45 +1027,45 @@
         <div class="field-group"><label>العائد على الاستثمار ROI (%)</label><input type="number" id="roi-percent" readonly tabindex="-1" placeholder="سيُحسب" /></div>
       </div>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:2rem 0 0.75rem;">الميزانية العمومية (Balance Sheet)</h3>
-      <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.5rem;">ملاحظة: إجمالي الأصول يجب أن يساوي إجمالي الالتزامات + حقوق الملكية</p>
+      <h3 class="section-title-lg">الميزانية العمومية (Balance Sheet)</h3>
+      <p class="note-text">ملاحظة: إجمالي الأصول يجب أن يساوي إجمالي الالتزامات + حقوق الملكية</p>
       <table class="template-table">
         <thead><tr><th colspan="2">الأصول</th><th colspan="2">الالتزامات وحقوق الملكية</th></tr></thead>
         <tbody>
           <tr>
-            <td style="text-align:right;font-weight:700;">الأصول المتداولة</td><td><input type="number" value="12500000" /></td>
-            <td style="text-align:right;font-weight:700;">الالتزامات المتداولة</td><td><input type="number" value="7500000" /></td>
+            <td class="text-right-bold">الأصول المتداولة</td><td><input type="number" value="12500000" /></td>
+            <td class="text-right-bold">الالتزامات المتداولة</td><td><input type="number" value="7500000" /></td>
           </tr>
           <tr>
-            <td style="text-align:right;font-weight:700;">الأصول الثابتة</td><td><input type="number" value="31500000" /></td>
-            <td style="text-align:right;font-weight:700;">الالتزامات طويلة الأجل</td><td><input type="number" value="0" /></td>
+            <td class="text-right-bold">الأصول الثابتة</td><td><input type="number" value="31500000" /></td>
+            <td class="text-right-bold">الالتزامات طويلة الأجل</td><td><input type="number" value="0" /></td>
           </tr>
           <tr>
-            <td style="text-align:right;font-weight:700;"></td><td></td>
-            <td style="text-align:right;font-weight:700;">حقوق الملكية</td><td><input type="number" value="36500000" /></td>
+            <td class="text-right-bold"></td><td></td>
+            <td class="text-right-bold">حقوق الملكية</td><td><input type="number" value="36500000" /></td>
           </tr>
-          <tr style="background:rgba(212,168,83,0.1);">
-            <td style="text-align:right;font-weight:800;color:var(--gold);">إجمالي الأصول</td><td><input type="number" value="44000000" /></td>
-            <td style="text-align:right;font-weight:800;color:var(--gold);">إجمالي الالتزامات + حقوق الملكية</td><td><input type="number" value="44000000" /></td>
+          <tr class="bg-gold-10">
+            <td class="text-right-extrabold-gold">إجمالي الأصول</td><td><input type="number" value="44000000" /></td>
+            <td class="text-right-extrabold-gold">إجمالي الالتزامات + حقوق الملكية</td><td><input type="number" value="44000000" /></td>
           </tr>
         </tbody>
       </table>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:2rem 0 0.75rem;">السيناريوهات المالية</h3>
+      <h3 class="section-title-lg">السيناريوهات المالية</h3>
       <div class="scenario-grid">
         <div class="scenario-card scenario-pessimistic">
-          <div class="scenario-label" style="color:#dc2626;">المتشائم (-30%)</div>
-          <div class="scenario-value" id="scenario-pessimistic" style="color:#dc2626;">0</div>
+          <div class="text-red">المتشائم (-30%)</div>
+          <div class="text-red" id="scenario-pessimistic">0</div>
           <div class="scenario-desc">صافي ربح شهري</div>
         </div>
         <div class="scenario-card scenario-expected">
-          <div class="scenario-label" style="color:var(--gold);">المتوقع</div>
-          <div class="scenario-value" id="scenario-expected" style="color:var(--gold-bright);">0</div>
+          <div class="text-gold">المتوقع</div>
+          <div class="text-gold-bright" id="scenario-expected">0</div>
           <div class="scenario-desc">صافي ربح شهري</div>
         </div>
         <div class="scenario-card scenario-optimistic">
-          <div class="scenario-label" style="color:#16a34a;">المتفائل (+30%)</div>
-          <div class="scenario-value" id="scenario-optimistic" style="color:#16a34a;">0</div>
+          <div class="text-green">المتفائل (+30%)</div>
+          <div class="text-green" id="scenario-optimistic">0</div>
           <div class="scenario-desc">صافي ربح شهري</div>
         </div>
       </div>
@@ -1076,26 +1076,26 @@
       <div class="template-header-print"><img src="../assets/bonds-logo-2026.webp?v=2026" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — القوائم المالية التقديرية</div></div>
       <div class="page-header"><div class="section-number">20</div><div><h2>القوائم المالية التقديرية (Pro Forma)</h2><p>التوقعات المالية للسنة الأولى</p></div></div>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1rem 0 0.5rem;">قائمة الدخل التقديرية (Income Statement)</h3>
+      <h3 class="section-title-xs">قائمة الدخل التقديرية (Income Statement)</h3>
       <table class="template-table" id="proforma-income">
         <thead><tr><th>البيان</th><th>الربع الأول</th><th>الربع الثاني</th><th>الربع الثالث</th><th>الربع الرابع</th><th>السنة الأولى</th></tr></thead>
         <tbody>
-          <tr><td style="font-weight:700;">إجمالي الإيرادات</td><td><input type="number" class="pf-rev" value="0" /></td><td><input type="number" class="pf-rev" value="32343750" /></td><td><input type="number" class="pf-rev" value="32343750" /></td><td><input type="number" class="pf-rev" value="32343750" /></td><td><input type="number" class="pf-rev-total" readonly tabindex="-1" /></td></tr>
+          <tr><td class="fw-bold">إجمالي الإيرادات</td><td><input type="number" class="pf-rev" value="0" /></td><td><input type="number" class="pf-rev" value="32343750" /></td><td><input type="number" class="pf-rev" value="32343750" /></td><td><input type="number" class="pf-rev" value="32343750" /></td><td><input type="number" class="pf-rev-total" readonly tabindex="-1" /></td></tr>
           <tr><td>تكلفة المبيعات والتنفيذ</td><td><input type="number" class="pf-cogs" value="1950000" /></td><td><input type="number" class="pf-cogs" value="114375000" /></td><td><input type="number" class="pf-cogs" value="114375000" /></td><td><input type="number" class="pf-cogs" value="114375000" /></td><td><input type="number" class="pf-cogs-total" readonly tabindex="-1" /></td></tr>
-          <tr style="background:rgba(212,168,83,0.1);"><td style="font-weight:700;color:var(--gold);">إجمالي الربح الرأسمالي</td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross-total" readonly tabindex="-1" /></td></tr>
+          <tr class="bg-gold-10"><td class="fw-bold text-gold">إجمالي الربح الرأسمالي</td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross" readonly tabindex="-1" /></td><td><input type="number" class="pf-gross-total" readonly tabindex="-1" /></td></tr>
           <tr><td>المصاريف العمومية والإدارية G&A</td><td><input type="number" class="pf-ga" value="650000" /></td><td><input type="number" class="pf-ga" value="1950000" /></td><td><input type="number" class="pf-ga" value="1950000" /></td><td><input type="number" class="pf-ga" value="1950000" /></td><td><input type="number" class="pf-ga-total" readonly tabindex="-1" /></td></tr>
-          <tr style="background:rgba(212,168,83,0.1);"><td style="font-weight:700;color:var(--gold);">صافي الربح قبل الزكاة</td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net-total" readonly tabindex="-1" /></td></tr>
+          <tr class="bg-gold-10"><td class="fw-bold text-gold">صافي الربح قبل الزكاة</td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net" readonly tabindex="-1" /></td><td><input type="number" class="pf-net-total" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
 
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">الميزانية العمومية التقديرية (Balance Sheet)</h3>
+      <h3 class="section-title">الميزانية العمومية التقديرية (Balance Sheet)</h3>
       <table class="template-table" id="proforma-balance">
         <thead><tr><th colspan="2">الأصول</th><th colspan="2">حقوق الملكية والالتزامات</th></tr></thead>
         <tbody>
           <tr><td>الأصول المتداولة (نقد + مستردات)</td><td><input type="number" class="pf-assets-c" value="12500000" /></td><td>رأس المال المصدر والمدفوع</td><td><input type="number" class="pf-equity-cap" value="45265000" /></td></tr>
           <tr><td>أصول عقارية تحت التنفيذ</td><td><input type="number" class="pf-assets-wip" value="28000000" /></td><td>الأرباح المبقاة والمحتجزة</td><td><input type="number" class="pf-equity-ret" value="15000000" /></td></tr>
           <tr><td>أصول ثابتة ومعدات</td><td><input type="number" class="pf-assets-f" value="3500000" /></td><td>الالتزامات المتداولة</td><td><input type="number" class="pf-liab-c" value="7500000" /></td></tr>
-          <tr style="background:rgba(212,168,83,0.1);"><td style="font-weight:700;color:var(--gold);">إجمالي الأصول</td><td><input type="number" class="pf-assets-total" readonly tabindex="-1" /></td><td style="font-weight:700;color:var(--gold);">إجمالي حقوق الملكية + الالتزامات</td><td><input type="number" class="pf-equity-total" readonly tabindex="-1" /></td></tr>
+          <tr class="bg-gold-10"><td class="fw-bold text-gold">إجمالي الأصول</td><td><input type="number" class="pf-assets-total" readonly tabindex="-1" /></td><td class="fw-bold text-gold">إجمالي حقوق الملكية + الالتزامات</td><td><input type="number" class="pf-equity-total" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="calcProForma()">🔄 حساب القوائم</button></div>
@@ -1106,46 +1106,46 @@
       <div class="template-header-print"><img src="../assets/bonds-logo-2026.webp?v=2026" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — التحليل الذكي</div></div>
       <div class="page-header"><div class="section-number">21</div><div><h2>التحليل الذكي والتوصيات</h2><p>تحليل تلقائي للبيانات المدخلة مع توصيات عملية</p></div></div>
 
-      <div id="smart-loading" style="text-align:center;padding:2rem;">
-        <p style="color:var(--text-secondary);">املأ بيانات التكاليف والإيرادات في الصفحات السابقة لتحليلها تلقائياً...</p>
-        <button class="btn-ghost" style="margin-top:1rem;" onclick="runSmartAnalysis()">🔍 تحليل الآن</button>
+      <div class="disclaimer" id="smart-loading">
+        <p class="text-secondary">املأ بيانات التكاليف والإيرادات في الصفحات السابقة لتحليلها تلقائياً...</p>
+        <button class="mt-1" onclick="runSmartAnalysis()">🔍 تحليل الآن</button>
       </div>
 
-      <div id="smart-results" style="display:none;">
+      <div class="hidden" id="smart-results">
         <!-- Health Score -->
-        <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;padding:1.5rem;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid var(--border);">
-          <div style="width:80px;height:80px;border-radius:50%;background:conic-gradient(var(--gold) var(--score-deg,0deg), rgba(255,255,255,0.05) 0deg);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;">
-            <div style="width:64px;height:64px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;">
-              <span id="smart-score" style="font-size:1.25rem;font-weight:800;color:var(--gold);">0</span>
+        <div class="health-panel">
+          <div class="score-ring-sm">
+            <div class="score-inner-sm">
+              <span class="score-value-sm" id="smart-score">0</span>
             </div>
           </div>
           <div>
-            <div style="font-size:1rem;font-weight:700;color:var(--gold-bright);" id="smart-score-label">جاري التحليل...</div>
-            <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;" id="smart-score-desc">درجة صحة المشروع من 100</div>
+            <div class="section-title-label" id="smart-score-label">جاري التحليل...</div>
+            <div class="subtext" id="smart-score-desc">درجة صحة المشروع من 100</div>
           </div>
         </div>
 
         <!-- Key Metrics -->
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem;">
-          <div style="padding:1rem;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.3);border-radius:10px;">
-            <div style="font-size:0.75rem;color:#16a34a;font-weight:700;">نقاط القوة</div>
-            <ul id="smart-strengths" style="margin:0.5rem 0 0;padding:0 1.25rem;font-size:0.85rem;color:var(--text);"></ul>
+        <div class="grid-2-mb">
+          <div class="card-green">
+            <div class="card-green-title">نقاط القوة</div>
+            <ul class="list-styled" id="smart-strengths"></ul>
           </div>
-          <div style="padding:1rem;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.3);border-radius:10px;">
-            <div style="font-size:0.75rem;color:#dc2626;font-weight:700;">مجالات تحتاج تحسين</div>
-            <ul id="smart-weaknesses" style="margin:0.5rem 0 0;padding:0 1.25rem;font-size:0.85rem;color:var(--text);"></ul>
+          <div class="card-red">
+            <div class="card-red-title">مجالات تحتاج تحسين</div>
+            <ul class="list-styled" id="smart-weaknesses"></ul>
           </div>
         </div>
 
         <!-- Recommendations -->
-        <div style="padding:1.25rem;background:rgba(212,168,83,0.05);border:1px solid var(--border);border-radius:12px;">
-          <div style="font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:0.75rem;">📋 توصيات بوندز</div>
-          <ol id="smart-recommendations" style="margin:0;padding:0 1.25rem;font-size:0.85rem;color:var(--text);line-height:1.8;"></ol>
+        <div class="card-gold">
+          <div class="panel-title">📋 توصيات بوندز</div>
+          <ol class="list-reset" id="smart-recommendations"></ol>
         </div>
 
         <!-- Benchmark Comparison -->
-        <div style="margin-top:1.5rem;">
-          <div style="font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:0.75rem;">📊 مقارنة مع معايير الصناعة</div>
+        <div class="mt-1-5">
+          <div class="panel-title">📊 مقارنة مع معايير الصناعة</div>
           <table class="template-table" id="benchmark-table">
             <thead><tr><th>المؤشر</th><th>مشروعك</th><th>المعيار الأمثل</th><th>التقييم</th></tr></thead>
             <tbody>
@@ -1159,13 +1159,13 @@
         </div>
 
         <!-- Charts -->
-        <div style="margin-top:1.5rem;">
-          <div style="font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:0.75rem;">📈 الرسوم البيانية</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-            <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1rem;"><canvas id="chart-scenarios" height="180"></canvas></div>
-            <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1rem;"><canvas id="chart-costs" height="180"></canvas></div>
+        <div class="mt-1-5">
+          <div class="panel-title">📈 الرسوم البيانية</div>
+          <div class="grid-2">
+            <div class="card-muted"><canvas id="chart-scenarios" height="180"></canvas></div>
+            <div class="card-muted"><canvas id="chart-costs" height="180"></canvas></div>
           </div>
-          <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-top:1rem;"><canvas id="chart-cashflow" height="150"></canvas></div>
+          <div class="card-muted-mt"><canvas id="chart-cashflow" height="150"></canvas></div>
         </div>
       </div>
     </div>
@@ -1174,7 +1174,7 @@
     <div class="template-page" id="page-sensitivity">
       <div class="template-header-print"><img src="../assets/bonds-logo-2026.webp?v=2026" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الحساسية</div></div>
       <div class="page-header"><div class="section-number">22</div><div><h2>التحليل الحساسي والمؤشرات</h2><p>ماذا لو تغيرت المتغيرات الرئيسية؟</p></div></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">تحليل الحساسية (±10%)</h3>
+      <h3 class="section-title-mb">تحليل الحساسية (±10%)</h3>
       <table class="template-table" id="sensitivity-table">
         <thead><tr><th>المتغير</th><th>-10%</th><th>الأساسي</th><th>+10%</th></tr></thead>
         <tbody>
@@ -1184,7 +1184,7 @@
           <tr><td>التكاليف المتغيرة</td><td><input type="number" class="sens-down" readonly tabindex="-1" /></td><td><input type="number" class="sens-base" readonly tabindex="-1" /></td><td><input type="number" class="sens-up" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <h3 style="font-size:1rem;color:var(--gold);margin:1.5rem 0 0.5rem;">المؤشرات الرئيسية للأداء (KPIs)</h3>
+      <h3 class="section-title">المؤشرات الرئيسية للأداء (KPIs)</h3>
       <table class="template-table" id="kpi-table">
         <thead><tr><th>المؤشر</th><th>الهدف</th><th>الواقع</th><th>ملاحظات</th></tr></thead>
         <tbody>
@@ -1215,7 +1215,7 @@
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('risks-table')">+ إضافة</button><button onclick="removeRow('risks-table')">- حذف</button></div>
-      <div class="field-group" style="margin-top:1.5rem;"><label>خطة الطوارئ (Plan B)</label><textarea rows="3">إذا تأخر تحقيق الأهداف 6 أشهر:
+      <div class="mt-1-5"><label>خطة الطوارئ (Plan B)</label><textarea rows="3">إذا تأخر تحقيق الأهداف 6 أشهر:
 1. تقليص حجم المشاريع إلى 30 مبنى بدلاً من 45
 2. إعادة تفاوض شروط الشراكة مع الملاك
 3. البحث عن تمويل إضافي من صناديق استثمارية
@@ -1232,7 +1232,7 @@
         <li><input type="checkbox" checked /><span>هل لديك خبرة كافية في هذا المجال؟</span></li>
         <li><input type="checkbox" checked /><span>هل لديك موارد مالية كافية للبدء؟</span></li>
       </div>
-      <div class="field-group" style="margin-top:1rem;"><label>نقاط القوة الشخصية/الفريق</label><textarea rows="3">• خبرة 15+ سنة في التطوير العقاري
+      <div class="mt-1"><label>نقاط القوة الشخصية/الفريق</label><textarea rows="3">• خبرة 15+ سنة في التطوير العقاري
 • علاقات قوية مع البلديات والهيئة العقارية
 • فريق هندسي متخصص في المباني المتعثرة
 • شبكة علاقات مع بنوك ومؤسسات تمويل</textarea></div>
@@ -1272,7 +1272,7 @@
     <div class="template-page" id="page-capital">
       <div class="template-header-print"><img src="../assets/bonds-logo-2026.webp?v=2026" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — رأس المال</div></div>
       <div class="page-header"><div class="section-number">25</div><div><h2>متطلبات رأس المال والنتائج</h2><p>الاستثمار الأولي والقرار النهائي</p></div></div>
-      <h3 style="font-size:1rem;color:var(--gold);margin-bottom:0.5rem;">الاستثمار الأولي</h3>
+      <h3 class="section-title-mb">الاستثمار الأولي</h3>
       <table class="template-table" id="capital-table">
         <thead><tr><th>م</th><th>بند الاستثمار</th><th>المبلغ (ريال)</th></tr></thead>
         <tbody>
@@ -1286,7 +1286,7 @@
         </tbody>
       </table>
       <div class="table-actions no-print"><button onclick="addRow('capital-table'); setTimeout(calcCapital,50)">+ إضافة</button><button onclick="removeRow('capital-table'); setTimeout(calcCapital,50)">- حذف</button></div>
-      <div class="field-group inline" style="margin-top:1.5rem;">
+      <div class="mt-1-5">
         <div class="field-group"><label>إجمالي رأس المال المطلوب</label><input type="number" id="total-capital" readonly tabindex="-1" placeholder="0" /></div>
         <div class="field-group"><label>المصدر المتوقع</label><input type="text" value="30% تمويل ذاتي (مؤسسون) + 70% مستثمرون استراتيجيون" /></div>
       </div>
@@ -1322,32 +1322,32 @@
       <div class="dash-kpi-grid">
         <div class="dash-kpi-card">
           <div class="dash-kpi-label">الإيرادات الشهرية</div>
-          <div class="dash-kpi-value" id="dash-revenue" style="color:var(--gold-bright);">0</div>
+          <div class="text-gold-bright" id="dash-revenue">0</div>
           <div class="dash-kpi-unit">ريال</div>
         </div>
         <div class="dash-kpi-card">
           <div class="dash-kpi-label">صافي الربح</div>
-          <div class="dash-kpi-value" id="dash-profit" style="color:#16a34a;">0</div>
+          <div class="text-green" id="dash-profit">0</div>
           <div class="dash-kpi-unit">ريال/شهر</div>
         </div>
         <div class="dash-kpi-card">
           <div class="dash-kpi-label">هامش الربح</div>
-          <div class="dash-kpi-value" id="dash-margin" style="color:#3b82f6;">0%</div>
+          <div class="text-blue" id="dash-margin">0%</div>
           <div class="dash-kpi-unit">نسبة مئوية</div>
         </div>
         <div class="dash-kpi-card">
           <div class="dash-kpi-label">فترة الاسترداد</div>
-          <div class="dash-kpi-value" id="dash-payback" style="color:#a855f7;">0</div>
+          <div class="text-purple" id="dash-payback">0</div>
           <div class="dash-kpi-unit">شهر</div>
         </div>
         <div class="dash-kpi-card">
           <div class="dash-kpi-label">العائد على الاستثمار</div>
-          <div class="dash-kpi-value" id="dash-roi" style="color:#eab308;">0%</div>
+          <div class="text-yellow" id="dash-roi">0%</div>
           <div class="dash-kpi-unit">سنوي</div>
         </div>
         <div class="dash-kpi-card">
           <div class="dash-kpi-label">نقطة التعادل</div>
-          <div class="dash-kpi-value" id="dash-be" style="color:#ef4444;">0</div>
+          <div class="text-red" id="dash-be">0</div>
           <div class="dash-kpi-unit">وحدة/شهر</div>
         </div>
       </div>
@@ -1377,19 +1377,19 @@
         </div>
         <div class="dash-swot-grid">
           <div class="dash-swot-item">
-            <div class="dash-swot-label" style="color:#16a34a;">القوة #1</div>
+            <div class="text-green">القوة #1</div>
             <div class="dash-swot-text" id="dash-swot-s">-</div>
           </div>
           <div class="dash-swot-item">
-            <div class="dash-swot-label" style="color:#dc2626;">الضعف #1</div>
+            <div class="text-red">الضعف #1</div>
             <div class="dash-swot-text" id="dash-swot-w">-</div>
           </div>
           <div class="dash-swot-item">
-            <div class="dash-swot-label" style="color:var(--gold-bright);">الفرصة #1</div>
+            <div class="text-gold-bright">الفرصة #1</div>
             <div class="dash-swot-text" id="dash-swot-o">-</div>
           </div>
           <div class="dash-swot-item">
-            <div class="dash-swot-label" style="color:#555555;">التهديد #1</div>
+            <div class="text-gray">التهديد #1</div>
             <div class="dash-swot-text" id="dash-swot-t">-</div>
           </div>
         </div>
@@ -1404,10 +1404,10 @@
     </div>
 
     <!-- Footer Disclaimer -->
-    <div class="template-page no-print" style="text-align:center;padding:2rem;">
-      <p style="color:var(--text-secondary);font-size:0.85rem;">
-        هذا النموذج مقدم من <strong style="color:var(--gold)">بوندز</strong> كأداة مساعدة فقط. لا يُعتبر استشارة مالية أو قانونية.<br/>
-        للحصول على دراسة جدوى مفصلة، <a href="../contact.html" style="color:var(--gold)">احجز استشارتك</a>.
+    <div class="disclaimer no-print">
+      <p class="text-secondary fs-0-85">
+        هذا النموذج مقدم من <strong class="text-gold">بوندز</strong> كأداة مساعدة فقط. لا يُعتبر استشارة مالية أو قانونية.<br/>
+        للحصول على دراسة جدوى مفصلة، <a class="text-gold" href="../contact.html">احجز استشارتك</a>.
       </p>
     </div>
 
@@ -1498,15 +1498,15 @@
 
       // Benchmarks
       document.getElementById('bm-margin').textContent = margin.toFixed(1) + '%';
-      document.getElementById('bm-margin-status').innerHTML = margin >= 25 ? '<span style="color:#16a34a">✅ ممتاز</span>' : margin >= 15 ? '<span style="color:var(--gold)">⚠️ مقبول</span>' : '<span style="color:#dc2626">❌ يحتاج تحسين</span>';
+      document.getElementById('bm-margin-status').innerHTML = margin >= 25 ? '<span class="text-green">✅ ممتاز</span>' : margin >= 15 ? '<span class="text-gold">⚠️ مقبول</span>' : '<span class="text-red">❌ يحتاج تحسين</span>';
       document.getElementById('bm-salary').textContent = hrTotal > 0 && revenue > 0 ? ((hrTotal / revenue) * 100).toFixed(1) + '%' : '-';
-      document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span style="color:#16a34a">✅</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span class="text-green">✅</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-payback').textContent = payback > 0 ? payback.toFixed(1) + ' شهر' : '-';
-      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= 18 ? '<span style="color:#16a34a">✅</span>' : payback > 0 && payback <= 36 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= class="text-green" 18 ? '<span>✅</span>' : payback > 0 && payback <= class="text-gold" 36 ? '<span>⚠️</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-roi').textContent = roi.toFixed(1) + '%';
-      document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span style="color:#16a34a">✅</span>' : roi >= 10 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span class="text-green">✅</span>' : roi >= 10 ? '<span class="text-gold">⚠️</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-be').textContent = totalQty > 0 ? ((beUnits / totalQty) * 100).toFixed(0) + '%' : '-';
-      document.getElementById('bm-be-status').innerHTML = totalQty > 0 && beUnits / totalQty < 0.6 ? '<span style="color:#16a34a">✅</span>' : totalQty > 0 && beUnits / totalQty < 0.9 ? '<span style="color:var(--gold)">⚠️</span>' : '<span style="color:#dc2626">❌</span>';
+      document.getElementById('bm-be-status').innerHTML = totalQty > 0 && beUnits / totalQty < 0.6 ? '<span class="text-green">✅</span>' : totalQty > 0 && beUnits / totalQty < 0.9 ? '<span class="text-gold">⚠️</span>' : '<span class="text-red">❌</span>';
 
       renderCharts(revenue, fixed, variable, net);
       updateDashboard(revenue, fixed, variable, net, margin / 100, roi, payback, beUnits);
@@ -1922,9 +1922,9 @@
       }
       if (desc) desc.textContent = totalScore >= 70 ? 'يمكن عرض الدراسة على البنوك والجهات التمويلية' : totalScore >= 40 ? 'أكمل النقص لرفع درجة الجاهزية' : 'البيانات والمستندات غير كافية للتمويل';
       if (rec) {
-        if (totalScore >= 70) rec.innerHTML = '<span style="color:#16a34a;font-weight:700;">✅ الدراسة جاهزة للعرض.</span> أرفقها مع طلب التمويل.';
-        else if (totalScore >= 40) rec.innerHTML = '<span style="color:var(--gold);font-weight:700;">⚠️ أكمل ما يلي:</span><br/>' + criteria.filter(c => !document.getElementById(c.id)?.checked).map(c => '• ' + document.querySelector('label[for="' + c.id + '"]').textContent).join('<br/>');
-        else rec.innerHTML = '<span style="color:#dc2626;font-weight:700;">❌ الدراسة غير مكتملة.</span> ابدأ بملء البيانات الأساسية والمستندات.';
+        if (totalScore >= 70) rec.innerHTML = '<span class="text-green-bold">✅ الدراسة جاهزة للعرض.</span> أرفقها مع طلب التمويل.';
+        else if (totalScore >= 40) rec.innerHTML = '<span class="text-gold-bold">⚠️ أكمل ما يلي:</span><br/>' + criteria.filter(c => !document.getElementById(c.id)?.checked).map(c => '• ' + document.querySelector('label[for="' + c.id + '"]').textContent).join('<br/>');
+        else rec.innerHTML = '<span class="text-red-bold">❌ الدراسة غير مكتملة.</span> ابدأ بملء البيانات الأساسية والمستندات.';
       }
     }
 
@@ -2964,11 +2964,11 @@
           <div class="section-gallery">
             <div class="section-gallery-title">📎 صور ومرفقات القسم</div>
             <div class="gallery-grid"></div>
-            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
-              <input type="file" accept="image/*" multiple style="display:none;" onchange="handleGalleryFiles('${pageId}', this.files); this.value='';" />
-              <button class="gallery-upload-btn no-print" style="flex:1;min-width:140px;margin-top:0;" onclick="this.previousElementSibling.click()">+ رفع صور</button>
-              <button class="gallery-upload-btn no-print" style="flex:1;min-width:140px;margin-top:0;background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.3);color:#38bdf8;" onclick="openImageSearch('${pageId}')">🔍 بحث عن صور</button>
-              ${hasResearch ? `<button class="gallery-upload-btn no-print" style="flex:1;min-width:140px;margin-top:0;background:rgba(212,168,83,0.08);border-color:rgba(212,168,83,0.3);color:var(--gold);" onclick="openSectionResearch('${pageId}')">🧠 بحث ذكي للقسم</button>` : ''}
+            <div class="btn-row-sm">
+              <input class="hidden" type="file" accept="image/*" multiple onchange="handleGalleryFiles('${pageId}', this.files); this.value='';" />
+              <button class="flex-btn" onclick="this.previousElementSibling.click()">+ رفع صور</button>
+              <button class="flex-btn-sky" onclick="openImageSearch('${pageId}')">🔍 بحث عن صور</button>
+              ${hasResearch ? `<button class="flex-btn-gold" onclick="openSectionResearch('${pageId}')">🧠 بحث ذكي للقسم</button>` : ''}
             </div>
             <div class="gallery-compress-info"></div>
           </div>`;
@@ -3063,12 +3063,12 @@
               <button class="imgsearch-close" onclick="closeImageSearch()">&times;</button>
             </div>
             <div class="imgsearch-body">
-              <div class="field-group" style="display:flex;gap:0.5rem;">
-                <input type="text" id="imgsearch-query" placeholder="مثال: burger restaurant interior" style="flex:1;" />
+              <div class="flex-gap-0-5">
+                <input class="flex-1" type="text" id="imgsearch-query" placeholder="مثال: burger restaurant interior" />
                 <button class="imgsearch-run" onclick="searchImages()">بحث</button>
               </div>
-              <div id="imgsearch-results" style="margin-top:1rem;"></div>
-              <div id="imgsearch-error" style="color:#f87171;font-size:0.85rem;margin-top:0.5rem;display:none;"></div>
+              <div class="mt-1" id="imgsearch-results"></div>
+              <div class="text-rose fs-0-85 mt-0-5 hidden" id="imgsearch-error"></div>
             </div>
           </div>`;
         document.body.appendChild(modal);
@@ -3098,7 +3098,7 @@
       if (!append) {
         currentImageSearchQuery = q;
         currentImagePageNum = 1;
-        results.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:1rem;">جاري البحث...</div>';
+        results.innerHTML = '<div class="empty-state">جاري البحث...</div>';
       } else {
         currentImagePageNum++;
         const existing = results.querySelector('.imgsearch-grid');
@@ -3130,9 +3130,9 @@
         }
 
         const gridHtml = data.images.map((img) => `
-          <div style="position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--border);aspect-ratio:1;cursor:pointer;" onclick="addSearchedImage('${img.full.replace(/'/g, "\\'")}')">
-            <img src="${img.thumb}" alt="${img.alt}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" />
-            <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);color:#fff;font-size:0.6rem;padding:2px 4px;text-align:center;">${img.photographer || ''}</div>
+          <div class="img-result-item" onclick="addSearchedImage('${img.full.replace(/'/g, "\\'")}')">
+            <img class="img-result-img" src="${img.thumb}" alt="${img.alt}" loading="lazy" />
+            <div class="img-result-meta">${img.photographer || ''}</div>
           </div>
         `).join('');
 
@@ -3147,12 +3147,12 @@
           }
         } else {
           const optimizedNote = data.optimizedQuery && data.optimizedQuery !== data.originalQuery
-            ? `<div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.5rem;text-align:center;">البحث الفعلي: <span style="color:var(--gold);">${data.optimizedQuery}</span></div>`
+            ? `<div class="search-meta">البحث الفعلي: <span class="text-gold">${data.optimizedQuery}</span></div>`
             : '';
           results.innerHTML = `
             ${optimizedNote}
-            <div class="imgsearch-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;">${gridHtml}</div>
-            <button id="imgsearch-more" onclick="searchImages(true)" style="width:100%;margin-top:0.75rem;padding:0.6rem;background:rgba(212,168,83,0.1);border:1px solid var(--gold);color:var(--gold);border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;">+ تحميل المزيد</button>
+            <div class="grid-3-gap-0-5">${gridHtml}</div>
+            <button class="load-more" id="imgsearch-more" onclick="searchImages(true)">+ تحميل المزيد</button>
           `;
         }
 
@@ -3307,21 +3307,21 @@
                 <label>الاستعلام</label>
                 <input type="text" id="section-research-query" placeholder="وصف المشروع..." />
               </div>
-              <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:1rem;">
+              <div class="note-text-lg">
                 <span id="section-research-meta"></span>
               </div>
               <button class="research-run" onclick="runSectionResearch()" id="section-research-run-btn">
                 <span class="research-btn-text">بحث الآن</span>
-                <span class="research-spinner" style="display:none;">جاري البحث...</span>
+                <span class="hidden">جاري البحث...</span>
               </button>
-              <div id="section-research-result" style="margin-top:1rem;display:none;">
-                <div style="background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:1rem;">
-                  <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-bottom:0.5rem;">نتائج البحث</div>
-                  <pre id="section-research-output" style="white-space:pre-wrap;font-size:0.85rem;color:var(--text);margin:0;line-height:1.6;max-height:300px;overflow:auto;"></pre>
+              <div class="result-summary" id="section-research-result">
+                <div class="card-sky">
+                  <div class="sky-tag-title">نتائج البحث</div>
+                  <pre class="prewrap-scroll" id="section-research-output"></pre>
                 </div>
                 <button class="research-apply" onclick="applySectionResearch()">تطبيق على هذا القسم فقط</button>
               </div>
-              <div id="section-research-error" style="margin-top:1rem;display:none;color:#f87171;font-size:0.85rem;"></div>
+              <div class="result-error" id="section-research-error"></div>
             </div>
           </div>`;
         document.body.appendChild(modal);
@@ -3516,7 +3516,7 @@
                   </select>
                 </div>
               </div>
-              <div class="field-group" style="margin-top:0.5rem;">
+              <div class="mt-0-5">
                 <label>نوع البحث</label>
                 <select data-universal-dropdown="true" id="research-type">
                   <option value="full_template">بحث شامل (كل الأقسام)</option>
@@ -3528,16 +3528,16 @@
               </div>
               <button class="research-run" onclick="runSmartResearch()" id="research-run-btn">
                 <span class="research-btn-text">بحث الآن</span>
-                <span class="research-spinner" style="display:none;">جاري البحث...</span>
+                <span class="hidden">جاري البحث...</span>
               </button>
-              <div id="research-result" style="margin-top:1rem;display:none;">
-                <div style="background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:1rem;">
-                  <div style="font-size:0.8rem;color:#38bdf8;font-weight:700;margin-bottom:0.5rem;">نتائج البحث</div>
-                  <pre id="research-output" style="white-space:pre-wrap;font-size:0.85rem;color:var(--text);margin:0;line-height:1.6;max-height:300px;overflow:auto;"></pre>
+              <div class="result-summary" id="research-result">
+                <div class="card-sky">
+                  <div class="sky-tag-title">نتائج البحث</div>
+                  <pre class="prewrap-scroll" id="research-output"></pre>
                 </div>
                 <button class="research-apply" onclick="applyResearchResults()">ملء الخانات في النموذج</button>
               </div>
-              <div id="research-error" style="margin-top:1rem;display:none;color:#f87171;font-size:0.85rem;"></div>
+              <div class="result-error" id="research-error"></div>
             </div>
           </div>
         `;
@@ -3842,7 +3842,7 @@
             let seconds = Math.ceil(parseFloat(retryMatch[1]));
             status.style.color = '#d4b87a';
             _retryTimer = setInterval(() => {
-              status.innerHTML = `⏳ الكوتا ممتلئة. إعادة المحاولة تلقائياً بعد <strong>${seconds}</strong> ثانية... <button onclick="clearInterval(_retryTimer);_retryTimer=null;analyzeFeasibilityText();" style="background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:6px;padding:2px 8px;cursor:pointer;font-family:inherit;">إعادة الآن</button>`;
+              status.innerHTML = `⏳ الكوتا ممتلئة. إعادة المحاولة تلقائياً بعد <strong>${seconds}</strong> ثانية... <button class="retry-btn" onclick="clearInterval(_retryTimer);_retryTimer=null;analyzeFeasibilityText();">إعادة الآن</button>`;
               seconds--;
               if (seconds < 0) { clearInterval(_retryTimer); _retryTimer = null; analyzeFeasibilityText(); }
             }, 1000);
@@ -3906,18 +3906,18 @@
       add('الملخص التنفيذي', d.summary, 'summary');
 
       if (!fields.length) {
-        container.innerHTML = '<p style="color:#f87171; text-align:center;">لم يتم استخراج بيانات واضحة من النص. حاول بنص أطول وأكثر تفصيلاً.</p>';
+        container.innerHTML = '<p class="retry-status">لم يتم استخراج بيانات واضحة من النص. حاول بنص أطول وأكثر تفصيلاً.</p>';
         document.getElementById('ai-preview-modal').style.display = 'flex';
         return;
       }
 
-      let html = '<table style="width:100%; border-collapse:collapse; font-size:0.9rem;">';
-      html += '<thead><tr style="border-bottom:2px solid var(--gold);"><th style="text-align:right; padding:0.75rem; color:var(--gold);"><input type="checkbox" id="preview-check-all" checked onchange="togglePreviewAll(this)"></th><th style="text-align:right; padding:0.75rem; color:var(--gold);">الحقل</th><th style="text-align:right; padding:0.75rem; color:var(--gold);">القيمة المستخرجة</th></tr></thead><tbody>';
+      let html = '<table class="table-full">';
+      html += '<thead><tr class="border-b-gold-2"><th class="cell-right-gold"><input type="checkbox" id="preview-check-all" checked onchange="togglePreviewAll(this)"></th><th class="cell-right-gold">الحقل</th><th class="cell-right-gold">القيمة المستخرجة</th></tr></thead><tbody>';
       fields.forEach((f, i) => {
-        html += `<tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:0.6rem; width:40px;"><input type="checkbox" class="preview-check" data-key="${f.key}" checked></td>
-          <td style="padding:0.6rem; color:var(--text-secondary); white-space:nowrap;">${f.label}</td>
-          <td style="padding:0.6rem; color:var(--text);">${f.value}</td>
+        html += `<tr class="border-b">
+          <td class="cell-check"><input type="checkbox" class="preview-check" data-key="${f.key}" checked></td>
+          <td class="cell-label">${f.label}</td>
+          <td class="cell-value">${f.value}</td>
         </tr>`;
       });
       html += '</tbody></table>';

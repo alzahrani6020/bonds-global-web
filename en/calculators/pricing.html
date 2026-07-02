@@ -38,13 +38,11 @@
   
 
   <script src="../../calculators/db-client.js"></script>
-  
-<link rel="stylesheet" href="../../header-footer.css?v=7" />
-  <link rel="canonical" href="https://bonds-global.com/en/calculators/pricing" />
+<link rel="canonical" href="https://bonds-global.com/en/calculators/pricing" />
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css" />
 </head>
-<body style="font-family:Inter,system-ui,sans-serif">
+<body>
 
   <!-- Top Bar -->
   <div class="topbar">
@@ -58,9 +56,9 @@
   <div id="site-header"></div>
 
   <!-- Hero -->
-  <section class="hero" style="min-height: 40vh; padding: var(--space-20) 0;">
-    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
-    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+  <section class="hero calc-hero--tall">
+    <div class="hero__orb hero__orb--1"></div>
+    <div class="hero__orb hero__orb--2"></div>
     <div class="container hero__content reveal">
       <span class="hero__eyebrow">Free Tool</span>
       <h1 class="hero__title">Product <span class="text-gradient">Pricing Calculator</span></h1>
@@ -73,8 +71,8 @@
     <div class="container">
       <div class="calc-grid">
         <!-- Inputs -->
-        <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Pricing Data</h2>
+        <div class="reveal calc-panel">
+          <h2 class="calc-section-title">Pricing Data</h2>
           <div class="calc-input-group">
             <label for="country">Country / Market</label>
             <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
@@ -82,179 +80,179 @@
             </select>
           </div>
           <div class="calc-input-group">
-            <label>Direct Cost per Unit (materials + labor) <abbr title="Cost that changes directly with each unit produced: raw materials + direct labor">ⓘ</abbr></label>
+            <label for="directCost">Direct Cost per Unit (materials + labor) <abbr title="Cost that changes directly with each unit produced: raw materials + direct labor">ⓘ</abbr></label>
             <input type="number" id="directCost" placeholder="e.g. 150" min="0" />
           </div>
           <div class="calc-input-group">
-            <label>Overhead Cost per Unit <abbr title="Operating costs not tied to a single unit; divide monthly overhead by production volume">ⓘ</abbr></label>
+            <label for="overheadCost">Overhead Cost per Unit <abbr title="Operating costs not tied to a single unit; divide monthly overhead by production volume">ⓘ</abbr></label>
             <input type="number" id="overheadCost" placeholder="e.g. 50" min="0" />
           </div>
           <div class="calc-input-group">
-            <label>Monthly Fixed Costs (rent + admin salaries) <abbr title="Fixed monthly costs even if no units sell: rent, admin salaries, utilities">ⓘ</abbr></label>
+            <label for="monthlyFixed">Monthly Fixed Costs (rent + admin salaries) <abbr title="Fixed monthly costs even if no units sell: rent, admin salaries, utilities">ⓘ</abbr></label>
             <input type="number" id="monthlyFixed" placeholder="e.g. 20000" min="0" />
           </div>
           <div class="calc-input-group">
-            <label>Desired Profit Margin (%) <abbr title="Desired profit as a percentage of selling price before platform fee (e.g., 25% means profit = 25% of price)">ⓘ</abbr></label>
+            <label for="desiredMargin">Desired Profit Margin (%) <abbr title="Desired profit as a percentage of selling price before platform fee (e.g., 25% means profit = 25% of price)">ⓘ</abbr></label>
             <input type="number" id="desiredMargin" placeholder="e.g. 25" min="0" max="100" value="25" />
           </div>
           <div class="calc-input-group">
-            <label>Tax Rate (%) <abbr title="Value Added Tax (VAT) rate — applied only on positive profit">ⓘ</abbr></label>
+            <label for="taxRate">Tax Rate (%) <abbr title="Value Added Tax (VAT) rate — applied only on positive profit">ⓘ</abbr></label>
             <input type="number" id="taxRate" placeholder="e.g. 15" min="0" max="100" value="15" />
           </div>
           <div class="calc-input-group">
-            <label>Zakat Rate (%) <abbr title="Annual Zakat rate due — applied only on positive profit">ⓘ</abbr></label>
+            <label for="zakatRate">Zakat Rate (%) <abbr title="Annual Zakat rate due — applied only on positive profit">ⓘ</abbr></label>
             <input type="number" id="zakatRate" placeholder="e.g. 2.5" min="0" max="100" value="2.5" />
           </div>
           <div class="calc-input-group">
-            <label>Target Monthly Sales Volume <abbr title="Number of units you expect to sell monthly; used to calculate monthly profit and minimum break-even price">ⓘ</abbr></label>
+            <label for="monthlyVolume">Target Monthly Sales Volume <abbr title="Number of units you expect to sell monthly; used to calculate monthly profit and minimum break-even price">ⓘ</abbr></label>
             <input type="number" id="monthlyVolume" placeholder="e.g. 500" min="0" />
           </div>
-          <div style="margin: var(--space-4) 0; padding: var(--space-4); background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius);">
-            <p style="font-size: 0.85rem; color: var(--gold); font-weight: 700; margin-bottom: var(--space-3);">🚚 Sales &amp; Delivery Costs (Optional)</p>
+          <div class="calc-optional-box">
+            <p class="calc-optional-title">🚚 Sales &amp; Delivery Costs (Optional)</p>
             <div class="calc-input-group">
-              <label style="font-size:0.85rem;">Platform Fee (%) <abbr title="Commission deducted by sales/delivery platform (e.g., HungerStation, Jahez, Amazon)">ⓘ</abbr></label>
+              <label for="platformFee" class="calc-label-small">Platform Fee (%) <abbr title="Commission deducted by sales/delivery platform (e.g., HungerStation, Jahez, Amazon)">ⓘ</abbr></label>
               <input type="number" id="platformFee" placeholder="e.g. 20" min="0" max="100" value="0" />
             </div>
             <div class="calc-input-group">
-              <label style="font-size:0.85rem;">Packaging Cost per Unit <abbr title="Box/bag/stickers cost per unit">ⓘ</abbr></label>
+              <label for="packagingCost" class="calc-label-small">Packaging Cost per Unit <abbr title="Box/bag/stickers cost per unit">ⓘ</abbr></label>
               <input type="number" id="packagingCost" placeholder="e.g. 3" min="0" value="0" />
             </div>
             <div class="calc-input-group">
-              <label style="font-size:0.85rem;">Delivery Cost per Unit <abbr title="What you pay the delivery company per order (if not included in platform fee)">ⓘ</abbr></label>
+              <label for="deliveryCost" class="calc-label-small">Delivery Cost per Unit <abbr title="What you pay the delivery company per order (if not included in platform fee)">ⓘ</abbr></label>
               <input type="number" id="deliveryCost" placeholder="e.g. 5" min="0" value="0" />
             </div>
             <div class="calc-input-group">
-              <label style="font-size:0.85rem;">Customer Acquisition Cost (CAC) per Unit <abbr title="Total marketing & advertising spend ÷ number of units sold">ⓘ</abbr></label>
+              <label for="cac" class="calc-label-small">Customer Acquisition Cost (CAC) per Unit <abbr title="Total marketing & advertising spend ÷ number of units sold">ⓘ</abbr></label>
               <input type="number" id="cac" placeholder="e.g. 2" min="0" value="0" />
             </div>
           </div>
-          <button onclick="calculateAll()" class="btn btn-primary" style="width: 100%;">Calculate Results</button>
-          <button onclick="loadExample()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">🧮 Try an Example</button>
-          <button onclick="resetCalc()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">Clear Data</button>
+          <button onclick="calculateAll()" class="btn btn-primary calc-width-full">Calculate Results</button>
+          <button onclick="loadExample()" class="btn btn-outline calc-width-full calc-mt-3">🧮 Try an Example</button>
+          <button onclick="resetCalc()" class="btn btn-outline calc-width-full calc-mt-3">Clear Data</button>
         </div>
 
         <!-- Results + Chart -->
         <div class="reveal reveal-delay-1">
-          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); margin-bottom: var(--space-6);">
-            <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Results</h2>
-            <div id="resultsArea" style="display: flex; flex-direction: column; gap: var(--space-3);">
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Base Cost per Unit</span>
-                <span id="resCostPerUnit" style="font-weight: 800; color: var(--text);">—</span>
+          <div class="calc-panel calc-mb-6">
+            <h2 class="calc-section-title">Results</h2>
+            <div id="resultsArea" class="calc-result-list">
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Base Cost per Unit</span>
+                <span id="resCostPerUnit" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Total Cost per Unit</span>
-                <span id="resTotalCostPerUnit" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Total Cost per Unit</span>
+                <span id="resTotalCostPerUnit" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Selling Price before Fees</span>
-                <span id="resPriceBeforeFees" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Selling Price before Fees</span>
+                <span id="resPriceBeforeFees" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Selling Price before Tax (Platform Price)</span>
-                <span id="resPriceBeforeTax" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Selling Price before Tax (Platform Price)</span>
+                <span id="resPriceBeforeTax" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Platform Fee</span>
-                <span id="resPlatformFee" style="font-weight: 800; color: #dc2626;">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Platform Fee</span>
+                <span id="resPlatformFee" class="calc-result-row__value calc-result-row__value--danger">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Profit before Tax (per unit)</span>
-                <span id="resProfitBeforeTax" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Profit before Tax (per unit)</span>
+                <span id="resProfitBeforeTax" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Tax</span>
-                <span id="resTax" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Tax</span>
+                <span id="resTax" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Zakat</span>
-                <span id="resZakat" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Zakat</span>
+                <span id="resZakat" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Net Profit (per unit)</span>
-                <span id="resProfitPerUnit" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Net Profit (per unit)</span>
+                <span id="resProfitPerUnit" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Target Monthly Profit</span>
-                <span id="resMonthlyProfit" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Target Monthly Profit</span>
+                <span id="resMonthlyProfit" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Actual Profit Margin (%)</span>
-                <span id="resActualMargin" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Actual Profit Margin (%)</span>
+                <span id="resActualMargin" class="calc-result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0;">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Minimum Break-Even Price</span>
-                <span id="resBreakEvenPrice" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Minimum Break-Even Price</span>
+                <span id="resBreakEvenPrice" class="calc-result-row__value">—</span>
               </div>
             </div>
-            <div id="analysisBox" style="margin-top: var(--space-6); padding: var(--space-4); background: rgba(212,168,83,0.05); border: 1px solid var(--border); border-radius: var(--radius); display: none;">
-              <h4 style="font-size: 1rem; font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">🔍 Step-by-Step Explanation</h4>
-              <div id="stepsArea" style="display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4);"></div>
-              <p id="analysisText" style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;"></p>
+            <div id="analysisBox" class="calc-analysis-box">
+              <h4 class="calc-card-title">🔍 Step-by-Step Explanation</h4>
+              <div id="stepsArea" class="calc-steps"></div>
+              <p id="analysisText" class="calc-lead-box__text"></p>
             </div>
             <div class="share-bar">
               <input type="text" id="shareLink" readonly placeholder="Share link..." />
-              <button onclick="copyShareLink('shareLink')" class="btn btn-outline" style="font-size: 0.8rem;">Copy Link</button>
-              <button onclick="window.print()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">🖨️ Print</button>
-              <button onclick="exportExcel()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📊 Excel</button>
-              <button onclick="exportPDF()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📄 PDF</button>
+              <button onclick="copyShareLink(\'shareLink\')" class="btn btn-outline calc-btn-sm">Copy Link</button>
+              <button onclick="window.print()" class="btn btn-outline hidden-print calc-btn-sm">🖨️ Print</button>
+              <button onclick="exportExcel()" class="btn btn-outline hidden-print calc-btn-sm">📊 Excel</button>
+              <button onclick="exportPDF()" class="btn btn-outline hidden-print calc-btn-sm">📄 PDF</button>
             </div>
           </div>
 
-          <div style="background: linear-gradient(135deg, var(--navy-900), var(--navy-700)); border-radius: var(--radius-lg); padding: var(--space-8); color: var(--white);">
-            <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3);">Want a Deeper Analysis?</h3>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-6);">This tool is for estimation. If you need a precise analysis of your financial models — we offer a free consultation.</p>
+          <div class="calc-cta-box">
+            <h3>Want a Deeper Analysis?</h3>
+            <p>This tool is for estimation. If you need a precise analysis of your financial models — we offer a free consultation.</p>
             <a href="../../contact.html" class="btn btn-primary">Book Your Free Consultation →</a>
           </div>
 
           <!-- Smart Alert CTA -->
-          <div id="smartAlertBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.02)); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius-lg);">
-            <div style="display: flex; align-items: flex-start; gap: var(--space-4);">
-              <div style="font-size: 2rem; flex-shrink: 0;">⚠️</div>
+          <div id="smartAlertBox" class="calc-alert">
+            <div class="calc-alert__flex">
+              <div class="calc-alert__icon">⚠️</div>
               <div>
-                <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-2); color: #fca5a5;">Profit Margin Needs Review</h4>
-                <p id="smartAlertText" style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4); line-height: 1.8;"></p>
-                <a href="../../contact.html" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">📞 Free Consultation (30 min)</a>
+                <h4 class="calc-alert__title calc-alert__title--light">Profit Margin Needs Review</h4>
+                <p id="smartAlertText" class="calc-alert__text"></p>
+                <a href="../../contact.html" class="btn btn-primary calc-btn-danger">📞 Free Consultation (30 min)</a>
               </div>
             </div>
           </div>
 
           <!-- Lead Capture -->
-          <div id="leadCaptureBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);">
-            <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">💾 Save Your Results &amp; Get a Gift</h4>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4);">Send these results to your email + a free Cash Flow Forecast template.</p>
-            <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
-              <input type="text" name="name" required placeholder="Name" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
-              <input type="email" name="email" required placeholder="Email" style="flex: 2; min-width: 180px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
-              <input type="tel" name="phone" placeholder="Phone (optional)" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+          <div id="leadCaptureBox" class="calc-lead-box">
+            <h4 class="calc-lead-box__title">💾 Save Your Results &amp; Get a Gift</h4>
+            <p class="calc-lead-box__text">Send these results to your email + a free Cash Flow Forecast template.</p>
+            <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" class="calc-lead-form">
+              <input type="text" name="name" required placeholder="Name" class="calc-input-flex" />
+              <input type="email" name="email" required placeholder="Email" class="calc-input-flex calc-input-flex--wide" />
+              <input type="tel" name="phone" placeholder="Phone (optional)" class="calc-input-flex" />
               <input type="hidden" name="source" value="pricing_calculator_lead_en" />
               <input type="hidden" name="calc_data" id="leadCalcData" />
-              <button type="submit" class="btn btn-primary" style="flex-shrink: 0;">Send Me the Results</button>
+              <button type="submit" class="btn btn-primary calc-no-shrink">Send Me the Results</button>
             </form>
-            <p id="leadCaptureSuccess" style="display:none; color: #16a34a; margin-top: var(--space-3); font-weight: 700;">✓ Sent! We will contact you within 24 hours.</p>
+            <p id="leadCaptureSuccess" class="calc-success-msg calc-hidden" >✓ Sent! We will contact you within 24 hours.</p>
           </div>
         </div>
       </div>
 
       <!-- Charts -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">Chart: Cost vs Price vs Profit (per unit)</h2>
-          <div style="position: relative; height: 400px;">
+      <div class="reveal calc-mt-12">
+        <div class="calc-panel">
+          <h2 class="calc-section-title calc-text-center">Chart: Cost vs Price vs Profit (per unit)</h2>
+          <div class="calc-canvas-container">
             <canvas id="pricingChart"></canvas>
           </div>
         </div>
       </div>
 
       <!-- History -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div class="section-header" style="margin-bottom: var(--space-8);">
+      <div class="reveal calc-mt-12">
+        <div class="section-header calc-mb-8">
           <span class="section__eyebrow">History</span>
           <h2 class="section__title">Your Previous Calculations</h2>
         </div>
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
+        <div class="calc-panel">
           <div class="history-list" id="historyList">
-            <p style="color: var(--text-muted); text-align: center;">No previous calculations</p>
+            <p class="calc-empty-state">No previous calculations</p>
           </div>
         </div>
       </div>
@@ -262,7 +260,7 @@
   </section>
 
   <!-- How It Works -->
-  <section class="section" style="background: var(--bg-secondary);">
+  <section class="section calc-white-section">
     <div class="container">
       <div class="section-header reveal">
         <span class="section__eyebrow">Transparency</span>
@@ -271,54 +269,54 @@
       </div>
       <div class="grid-2">
         <div class="card reveal">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📐 Mathematical Formulas</h3>
-          <div style="display: flex; flex-direction: column; gap: var(--space-3); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
-            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+          <h3 class="calc-card-title">📐 Mathematical Formulas</h3>
+          <div class="calc-equations">
+            <div class="calc-code-block">
               Total Cost = Direct + Overhead + Packaging + Delivery + CAC
             </div>
-            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+            <div class="calc-code-block">
               Selling Price before Fees = Total Cost ÷ (1 − Desired Margin)
             </div>
-            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+            <div class="calc-code-block">
               Platform Selling Price = Price before Fees ÷ (1 − Platform Fee)
             </div>
-            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+            <div class="calc-code-block">
               Net Profit = Net Revenue − Total Cost − Tax − Zakat
             </div>
           </div>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🧮 Try It Yourself</h3>
-          <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-4);">Click "Try an Example" and verify the calculation manually:</p>
-          <div style="display: flex; flex-direction: column; gap: var(--space-2); font-size: 0.85rem; color: var(--text-secondary);">
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+          <h3 class="calc-card-title">🧮 Try It Yourself</h3>
+          <p class="calc-example-intro">Click "Try an Example" and verify the calculation manually:</p>
+          <div class="calc-example-list">
+            <div class="calc-example-row">
               <span>Direct Cost</span><strong>150 SAR</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="calc-example-row">
               <span>Overhead Cost</span><strong>50 SAR</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="calc-example-row">
               <span>Packaging + Delivery + CAC</span><strong>23 SAR</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="calc-example-row">
               <span>Platform Fee</span><strong>20%</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="calc-example-row">
               <span>Desired Profit Margin</span><strong>25%</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="calc-example-row">
               <span>Sales Volume</span><strong>500 units</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0;">
-              <span>Expected Result</span><strong style="color: var(--gold);">Platform Selling Price ≈ 372 SAR</strong>
+            <div class="calc-example-row">
+              <span>Expected Result</span><strong class="calc-gold-heading">Platform Selling Price ≈ 372 SAR</strong>
             </div>
           </div>
         </div>
       </div>
-      <div class="grid-2" style="margin-top: var(--space-8);">
+      <div class="grid-2 calc-mt-8">
         <div class="card reveal">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">⚠️ Warnings &amp; Clarifications</h3>
-          <ul style="font-size: 0.9rem; color: var(--text-secondary); line-height: 2; padding-left: var(--space-4);">
+          <h3 class="calc-card-title">⚠️ Warnings &amp; Clarifications</h3>
+          <ul class="calc-info-list">
             <li>This is an <strong>estimation tool</strong> and not a substitute for a licensed accountant.</li>
             <li>Results depend on the <strong>accuracy of your inputs</strong>.</li>
             <li>Tax and zakat are calculated on net profit.</li>
@@ -328,19 +326,19 @@
           </ul>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🔗 Useful Links</h3>
-          <div style="display: flex; flex-direction: column; gap: var(--space-3);">
-            <a href="../../calculator.html" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
-              <span style="color: var(--gold);">→</span> Break-Even Calculator
+          <h3 class="calc-card-title">🔗 Useful Links</h3>
+          <div class="calc-links-list">
+            <a href="../../calculator.html" class="calc-link-item">
+              <span class="calc-link-arrow">→</span> Break-Even Calculator
             </a>
-            <a href="../../index.html" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
-              <span style="color: var(--gold);">→</span> Home
+            <a href="../../index.html" class="calc-link-item">
+              <span class="calc-link-arrow">→</span> Home
             </a>
-            <a href="../../services.html" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
-              <span style="color: var(--gold);">→</span> Our Services
+            <a href="../../services.html" class="calc-link-item">
+              <span class="calc-link-arrow">→</span> Our Services
             </a>
-            <a href="../../contact.html" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
-              <span style="color: var(--gold);">→</span> Book a Free Consultation
+            <a href="../../contact.html" class="calc-link-item">
+              <span class="calc-link-arrow">→</span> Book a Free Consultation
             </a>
           </div>
         </div>
@@ -350,35 +348,35 @@
 
   <!-- Footer -->
   <!-- Disclaimer -->
-  <section style="background: var(--bg-secondary); padding: var(--space-8) 0; border-top: 1px solid var(--border);">
+  <section class="calc-white-section">
     <div class="container">
-      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); backdrop-filter: blur(16px); text-align: center;">
-        <h4 style="font-size: var(--text-base); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">📌 A note from Bonds</h4>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-3);">
+      <div class="calc-disclaimer">
+        <h4 class="calc-disclaimer-title">📌 A note from Bonds</h4>
+        <p class="calc-disclaimer-text">
           Bonds calculators give you a <strong>smart initial financial view</strong> based on the data you enter — helping you evaluate your project's opportunity and costs before making a decision.
         </p>
-        <div style="display: flex; justify-content: center; gap: var(--space-6); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-4);">
-          <div style="text-align: left; direction: ltr;">
-            <h5 style="font-size: 0.9rem; font-weight: 700; color: var(--gold); margin-bottom: var(--space-2);">What's next?</h5>
-            <ol style="font-size: 0.85rem; color: var(--text-secondary); line-height: 2; padding-left: var(--space-4); margin: 0;">
+        <div class="calc-flex-center-wrap">
+          <div class="calc-ltr-box">
+            <h5 class="calc-gold-subtitle">What's next?</h5>
+            <ol class="calc-info-list calc-info-list--small">
               <li>Review the estimate figures above.</li>
               <li>Talk to a licensed Bonds advisor.</li>
               <li>Get a customized financial plan.</li>
             </ol>
           </div>
-          <div style="text-align: center;">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/966567566616" alt="WhatsApp QR" style="width:100px;height:100px;border-radius:8px;border:1px solid var(--border);">
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: var(--space-2);">Scan to chat on WhatsApp</p>
+          <div class="calc-text-center">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/966567566616" alt="WhatsApp QR" class="calc-qr-img">
+            <p class="calc-qr-caption">Scan to chat on WhatsApp</p>
           </div>
         </div>
-        <a href="https://wa.me/966567566616" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:var(--space-3);padding:10px 24px;background:#d4a853;color:#1a1a1a;border-radius:24px;text-decoration:none;font-weight:700;">📱 Talk to an advisor</a>
-        <div style="margin-top:var(--space-3);padding:var(--space-3);background: var(--bg);border-radius:12px;border-left:3px solid var(--gold);text-align:left;">
-          <p style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic; line-height: 1.6; margin: 0;">"The pricing calculator helped me understand the true profit margin after commissions and tax; I no longer guess prices."</p>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin: var(--space-2) 0 0 0;">— E-commerce store owner, Jeddah</p>
+        <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="calc-whatsapp-btn">📱 Talk to an advisor</a>
+        <div class="calc-note-box">
+          <p class="calc-testimonial">"The pricing calculator helped me understand the true profit margin after commissions and tax; I no longer guess prices."</p>
+          <p class="calc-testimonial-author">— E-commerce store owner, Jeddah</p>
         </div>
-        <p style="margin-top:var(--space-3);font-size:0.85rem;color:var(--gold);font-weight:700;">⚡ Your first consultation is free — offer valid until <span class="offer-date-en"></span>.</p>
-        <p style="margin-top:var(--space-2);font-size:0.8rem;color:var(--text-secondary);">Join 500+ entrepreneurs and SMEs who built their financial models with Bonds.</p>
-        <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+        <p class="calc-offer-text">⚡ Your first consultation is free — offer valid until <span class="offer-date-en"></span>.</p>
+        <p class="calc-footer-text">Join 500+ entrepreneurs and SMEs who built their financial models with Bonds.</p>
+        <p class="calc-copyright">
           <strong>Bonds Global</strong> — Feasibility Studies | Financial Models | Licensed Financial Advisory<br>
           bonds-global.com
         </p>
@@ -515,15 +513,15 @@
       analysisBox.style.display = 'block';
 
       var stepsHTML = '';
-      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 1:</strong> Base Cost = ' + formatNumberAR(inputs.direct) + ' + ' + formatNumberAR(inputs.overhead) + ' = <strong>' + formatNumberAR(r.costPerUnit) + ' SAR</strong></div>';
-      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 2:</strong> Total Cost = ' + formatNumberAR(r.costPerUnit) + ' + ' + formatNumberAR(inputs.packagingCostPerUnit + inputs.deliveryCostPerUnit + inputs.cacPerUnit) + ' = <strong>' + formatNumberAR(r.totalCostPerUnit) + ' SAR</strong></div>';
-      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 3:</strong> Selling Price before Fees = ' + formatNumberAR(r.totalCostPerUnit) + ' ÷ (1 − ' + inputs.margin + '%) = <strong>' + formatNumberAR(r.priceBeforeFees) + ' SAR</strong></div>';
-      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 4:</strong> Platform Selling Price = ' + formatNumberAR(r.priceBeforeFees) + ' ÷ (1 − ' + inputs.platformFeePct + '%) = <strong>' + formatNumberAR(r.priceBeforeTax) + ' SAR</strong></div>';
-      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 5:</strong> Platform Fee = ' + formatNumberAR(r.priceBeforeTax) + ' × ' + inputs.platformFeePct + '% = <strong>' + formatNumberAR(r.platformFeeAmount) + ' SAR</strong></div>';
-      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 6:</strong> Profit before Tax = ' + formatNumberAR(r.priceBeforeTax) + ' − ' + formatNumberAR(r.platformFeeAmount) + ' − ' + formatNumberAR(r.totalCostPerUnit) + ' = <strong>' + formatNumberAR(r.profitBeforeTax) + ' SAR</strong></div>';
-      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 7:</strong> Tax = ' + formatNumberAR(r.profitBeforeTax) + ' × ' + inputs.taxRate + '% = <strong>' + formatNumberAR(r.taxAmount) + ' SAR</strong></div>';
-      stepsHTML += '<div style="padding: var(--space-2) 0; border-bottom: 1px dashed var(--border);"><strong>Step 8:</strong> Zakat = ' + formatNumberAR(r.profitAfterTax) + ' × ' + inputs.zakatRate + '% = <strong>' + formatNumberAR(r.zakatAmount) + ' SAR</strong></div>';
-      stepsHTML += '<div style="padding: var(--space-2) 0;"><strong>Step 9:</strong> Net Profit = ' + formatNumberAR(r.profitAfterTax) + ' − ' + formatNumberAR(r.zakatAmount) + ' = <strong>' + formatNumberAR(r.netProfitPerUnit) + ' SAR</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step 1:</strong> Base Cost = ' + formatNumberAR(inputs.direct) + ' + ' + formatNumberAR(inputs.overhead) + ' = <strong>' + formatNumberAR(r.costPerUnit) + ' SAR</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step 2:</strong> Total Cost = ' + formatNumberAR(r.costPerUnit) + ' + ' + formatNumberAR(inputs.packagingCostPerUnit + inputs.deliveryCostPerUnit + inputs.cacPerUnit) + ' = <strong>' + formatNumberAR(r.totalCostPerUnit) + ' SAR</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step 3:</strong> Selling Price before Fees = ' + formatNumberAR(r.totalCostPerUnit) + ' ÷ (1 − ' + inputs.margin + '%) = <strong>' + formatNumberAR(r.priceBeforeFees) + ' SAR</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step 4:</strong> Platform Selling Price = ' + formatNumberAR(r.priceBeforeFees) + ' ÷ (1 − ' + inputs.platformFeePct + '%) = <strong>' + formatNumberAR(r.priceBeforeTax) + ' SAR</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step 5:</strong> Platform Fee = ' + formatNumberAR(r.priceBeforeTax) + ' × ' + inputs.platformFeePct + '% = <strong>' + formatNumberAR(r.platformFeeAmount) + ' SAR</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step 6:</strong> Profit before Tax = ' + formatNumberAR(r.priceBeforeTax) + ' − ' + formatNumberAR(r.platformFeeAmount) + ' − ' + formatNumberAR(r.totalCostPerUnit) + ' = <strong>' + formatNumberAR(r.profitBeforeTax) + ' SAR</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step 7:</strong> Tax = ' + formatNumberAR(r.profitBeforeTax) + ' × ' + inputs.taxRate + '% = <strong>' + formatNumberAR(r.taxAmount) + ' SAR</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step 8:</strong> Zakat = ' + formatNumberAR(r.profitAfterTax) + ' × ' + inputs.zakatRate + '% = <strong>' + formatNumberAR(r.zakatAmount) + ' SAR</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step 9:</strong> Net Profit = ' + formatNumberAR(r.profitAfterTax) + ' − ' + formatNumberAR(r.zakatAmount) + ' = <strong>' + formatNumberAR(r.netProfitPerUnit) + ' SAR</strong></div>';
       stepsArea.innerHTML = stepsHTML;
 
       if (inputs.margin >= 100) {
@@ -927,7 +925,7 @@
     renderHistory();
   </script>
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}</script>
-  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);">↑</button>
+  <button onclick="window.scrollTo({top:0,behavior:\'smooth\'})" id="backToTop" class="back-to-top">↑</button>
   <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
 <!-- Tawk.to Live Chat -->
 <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>

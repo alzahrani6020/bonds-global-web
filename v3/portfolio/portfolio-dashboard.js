@@ -9,10 +9,17 @@
 (function () {
   const root = document.getElementById('portfolio-root');
   let currentData = null;
+  let currentFilter = 'all';
+  let currentTab = 'overview';
   let chartInstances = {};
   let notificationsData = { notifications: [], unreadCount: 0 };
 
   const READ_KEY = 'bonds_ecc_notifications_read';
+
+  function icon(name, size) {
+    if (!window.EccIcons) return '';
+    return window.EccIcons.render ? window.EccIcons.render(name, { size: size || 20 }) : window.EccIcons.get(name);
+  }
 
   function getReadIds() {
     try {
@@ -31,11 +38,35 @@
     return notifications.filter(n => !read.has(n.id)).length;
   }
 
+  function redirectToLogin() {
+    const isEn = document.documentElement.lang && document.documentElement.lang.startsWith('en');
+    const authUrl = isEn ? '/en/calculators/auth/index.html' : '/calculators/auth/index.html';
+    const current = location.pathname + location.search;
+    sessionStorage.setItem('auth_redirect', current);
+    location.href = `${authUrl}?redirect=${encodeURIComponent(current)}`;
+  }
+
+  function fetchWithTimeout(url, options, ms = 20000) {
+    return new Promise((resolve, reject) => {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => {
+        controller.abort();
+        reject(new Error('انتهت مهلة الاتصال بالخادم'));
+      }, ms);
+      fetch(url, { ...options, signal: controller.signal })
+        .then((res) => { clearTimeout(timeout); resolve(res); })
+        .catch((err) => { clearTimeout(timeout); reject(err); });
+    });
+  }
+
   async function getAuthHeaders() {
     const headers = { 'Content-Type': 'application/json' };
     try {
       if (window.BondsAuth && window.BondsAuth.getSession) {
-        const { data } = await window.BondsAuth.getSession();
+        const { data } = await Promise.race([
+          window.BondsAuth.getSession(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('session timeout')), 5000))
+        ]);
         const token = data?.session?.access_token;
         if (token) headers.Authorization = `Bearer ${token}`;
       }
@@ -62,8 +93,18 @@
     return 'priority-' + (['critical', 'high', 'medium', 'low'].includes(priority) ? priority : 'medium');
   }
 
+  function alertIcon(type) {
+    const map = {
+      blocked: 'warning',
+      readiness: 'trendingDown',
+      valuation: 'dollarSign',
+      financing: 'zap'
+    };
+    return icon(map[type] || 'search', 18);
+  }
+
   function showError(message) {
-    root.innerHTML = `<div class="error"><h2>⚠️ خطأ</h2><p>${message}</p></div>`;
+    root.innerHTML = `<div class="error"><h2 style="display:flex;align-items:center;justify-content:center;gap:0.5rem;">${icon('warning', 24)} <span>خطأ</span></h2><p>${message}</p><div style="margin-top:1rem;display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;"><button class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.refresh()">${icon('refresh', 16)} إعادة المحاولة</button><button class="ecc-btn ecc-btn--secondary" onclick="PortfolioDashboard.login()">تسجيل الدخول</button></div></div>`;
   }
 
   function renderSummary(summary) {
@@ -109,16 +150,16 @@
     return `
       <div class="filter-bar">
         <span style="color:var(--text-secondary);font-size:0.85rem;">تصفية:</span>
-        <button class="ecc-btn ecc-btn--secondary active" data-filter="all" onclick="PortfolioDashboard.filter('all')">الكل</button>
-        <button class="ecc-btn ecc-btn--secondary" data-filter="healthy" onclick="PortfolioDashboard.filter('healthy')">صحية</button>
-        <button class="ecc-btn ecc-btn--secondary" data-filter="attention" onclick="PortfolioDashboard.filter('attention')">تحتاج اهتمام</button>
-        <button class="ecc-btn ecc-btn--secondary" data-filter="at_risk" onclick="PortfolioDashboard.filter('at_risk')">مرتفعة المخاطر</button>
-        <button class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.refresh()">↻ تحديث</button>
+        <button type="button" class="ecc-btn ecc-btn--secondary active" data-filter="all" onclick="PortfolioDashboard.filter('all')">الكل</button>
+        <button type="button" class="ecc-btn ecc-btn--secondary" data-filter="healthy" onclick="PortfolioDashboard.filter('healthy')">صحية</button>
+        <button type="button" class="ecc-btn ecc-btn--secondary" data-filter="attention" onclick="PortfolioDashboard.filter('attention')">تحتاج اهتمام</button>
+        <button type="button" class="ecc-btn ecc-btn--secondary" data-filter="at_risk" onclick="PortfolioDashboard.filter('at_risk')">مرتفعة المخاطر</button>
+        <button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.refresh()">${icon('refresh', 16)} تحديث</button>
       </div>
     `;
   }
 
-  function renderCharts(sectors, stages) {
+  function renderCharts() {
     return `
       <div class="ecc-card chart-section">
         <div class="ecc-card__title">توزيع القطاعات</div>
@@ -164,7 +205,7 @@
               ${projects.map(p => `
                 <tr>
                   <td>
-                    <div class="project-name" onclick="PortfolioDashboard.openProject('${p.id}')">${p.name}</div>
+                    <div class="project-name" role="link" tabindex="0" aria-label="فتح مشروع ${p.name}" onclick="PortfolioDashboard.openProject('${p.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')PortfolioDashboard.openProject('${p.id}')">${p.name}</div>
                     <div class="project-meta">${p.sector || ''}${p.activity ? ' · ' + p.activity : ''} · ${p.city || ''}</div>
                   </td>
                   <td><span class="stage-badge">${p.stage}</span></td>
@@ -188,7 +229,7 @@
         <div class="ecc-card__title">التنبيهات الحرجة (${alerts.length})</div>
         ${alerts.length ? alerts.slice(0, 10).map(a => `
           <div class="alert">
-            <div class="alert__icon">${a.type === 'blocked' ? '🚧' : a.type === 'readiness' ? '📉' : a.type === 'valuation' ? '💰' : a.type === 'financing' ? '⚡' : '🔍'}</div>
+            <div class="alert__icon" aria-hidden="true">${alertIcon(a.type)}</div>
             <div>
               <div class="alert__title">${a.title}</div>
               <div class="alert__msg">${a.message}</div>
@@ -206,7 +247,7 @@
         <div class="ecc-card__title">الخطوات التالية الموصى بها (${actions.length})</div>
         ${actions.length ? actions.slice(0, 10).map(a => `
           <div class="action-item ${priorityClass(a.priority)}">
-            <div>🎯</div>
+            <div aria-hidden="true">${icon('target', 18)}</div>
             <div>
               <div class="action-item__title">${a.action_ar || a.action || 'إجراء'}</div>
               <div class="action-item__desc">${a.reason_ar || a.reason || ''}</div>
@@ -225,11 +266,11 @@
 
   function buildCharts(data, filter) {
     if (!data) return;
+    if (typeof Chart === 'undefined') return;
     destroyCharts();
 
     const projects = filter === 'all' ? data.projects : data.projects.filter(p => p.health === filter);
 
-    // Health distribution
     const healthCounts = { healthy: 0, attention: 0, at_risk: 0 };
     projects.forEach(p => { healthCounts[p.health] = (healthCounts[p.health] || 0) + 1; });
 
@@ -255,7 +296,6 @@
       });
     }
 
-    // Sectors
     const sectors = {};
     projects.forEach(p => { sectors[p.sector || 'غير محدد'] = (sectors[p.sector || 'غير محدد'] || 0) + 1; });
     const ctxSectors = document.getElementById('sectors-chart');
@@ -274,7 +314,6 @@
       });
     }
 
-    // Stages
     const stages = {};
     projects.forEach(p => { stages[p.stage || 'idea'] = (stages[p.stage || 'idea'] || 0) + 1; });
     const ctxStages = document.getElementById('stages-chart');
@@ -316,10 +355,10 @@
           <p>متابعة شاملة لجميع مشاريعك الاستثمارية في لوحة مدير تنفيذي واحدة.</p>
         </div>
         <div class="ecc-header__actions" style="position:relative;">
-          ${showCreate ? `<button class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">+ مشروع جديد</button>` : ''}
-          <div class="notification-bell" id="notification-bell" onclick="PortfolioDashboard.toggleNotifications(event)">
-            🔔
-            ${unread > 0 ? `<span class="notification-badge">${unread}</span>` : ''}
+          ${showCreate ? `<button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} مشروع جديد</button>` : ''}
+          <div class="notification-bell" id="notification-bell" role="button" tabindex="0" aria-label="الإشعارات" aria-expanded="false" onclick="PortfolioDashboard.toggleNotifications(event)" onkeydown="if(event.key==='Enter'||event.key===' ')PortfolioDashboard.toggleNotifications(event)">
+            ${icon('bell', 20)}
+            ${unread > 0 ? `<span class="notification-badge" aria-label="${unread} إشعارات غير مقروءة">${unread}</span>` : ''}
             <div class="notification-panel" id="notification-panel" onclick="event.stopPropagation()">
               ${renderNotificationPanel()}
             </div>
@@ -338,10 +377,10 @@
     return `
       <div class="notification-actions">
         <strong style="font-size:0.85rem;">الإشعارات</strong>
-        <button class="ecc-btn ecc-btn--secondary" style="padding:0.35rem 0.6rem;font-size:0.7rem;" onclick="PortfolioDashboard.markAllRead()">تعيين الكل مقروء</button>
+        <button type="button" class="ecc-btn ecc-btn--secondary" style="padding:0.35rem 0.6rem;font-size:0.7rem;" onclick="PortfolioDashboard.markAllRead()">تعيين الكل مقروء</button>
       </div>
       ${notifications.slice(0, 20).map(n => `
-        <div class="notification-item ${read.has(n.id) ? '' : 'unread'} ${priorityClass(n.priority)}" onclick="PortfolioDashboard.clickNotification('${n.id}', '${n.actionUrl || ''}')">
+        <div class="notification-item ${read.has(n.id) ? '' : 'unread'} ${priorityClass(n.priority)}" role="button" tabindex="0" aria-label="${n.title}" onclick="PortfolioDashboard.clickNotification('${n.id}', '${n.actionUrl || ''}')" onkeydown="if(event.key==='Enter'||event.key===' ')PortfolioDashboard.clickNotification('${n.id}', '${n.actionUrl || ''}')">
           <div class="notification-item__title">${n.title}</div>
           <div class="notification-item__msg">${n.message}</div>
           <div class="notification-item__meta">${n.projectName}</div>
@@ -353,10 +392,10 @@
   function renderSearchBar() {
     return `
       <div class="search-bar">
-        <input type="text" class="search-input" id="search-input" placeholder="ابحث في مشاريعك، المذكرات، المهام، الموافقات..." onkeydown="if(event.key==='Enter')PortfolioDashboard.runSearch()" />
-        <button class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.runSearch()">بحث</button>
+        <input type="text" class="search-input" id="search-input" placeholder="ابحث في مشاريعك، المذكرات، المهام، الموافقات..." aria-label="البحث" onkeydown="if(event.key==='Enter')PortfolioDashboard.runSearch()" />
+        <button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.runSearch()">${icon('search', 16)} بحث</button>
       </div>
-      <div id="search-results" class="search-results" style="display:none;"></div>
+      <div id="search-results" class="search-results" style="display:none;" role="region" aria-live="polite"></div>
     `;
   }
 
@@ -373,7 +412,7 @@
       timeline: 'الجدول الزمني', task: 'مهمة', approval: 'موافقة'
     };
     container.innerHTML = results.map(r => `
-      <div class="search-result" onclick="window.location.href='${r.url || '#'}'">
+      <div class="search-result" role="link" tabindex="0" aria-label="${r.title}" onclick="window.location.href='${r.url || '#'}'" onkeydown="if(event.key==='Enter'||event.key===' ')window.location.href='${r.url || '#'}'">
         <span class="search-result__source">${sourceLabels[r.source] || r.source}</span>
         <div class="search-result__title">${r.title}</div>
         <div class="search-result__snippet">${r.snippet}</div>
@@ -383,31 +422,74 @@
     container.style.display = 'block';
   }
 
-  function render(data, filter = 'all') {
+  function renderTabs() {
+    const tabs = [
+      { id: 'overview', label: 'نظرة عامة' },
+      { id: 'actions', label: 'الإجراءات' },
+      { id: 'search', label: 'البحث' }
+    ];
+    return `
+      <div class="ecc-tabs" role="tablist" aria-label="أقسام لوحة المحفظة">
+        ${tabs.map(t => `
+          <button type="button" id="tab-btn-${t.id}" class="ecc-tab ${t.id === currentTab ? 'active' : ''}" role="tab" aria-selected="${t.id === currentTab ? 'true' : 'false'}" aria-controls="tab-panel-${t.id}" data-tab="${t.id}" onclick="PortfolioDashboard.switchTab('${t.id}')">${t.label}</button>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function render(data, filter = 'all', tab = 'overview') {
     currentData = data;
+    currentFilter = filter;
+    currentTab = tab;
     const projects = filter === 'all' ? data.projects : data.projects.filter(p => p.health === filter);
     const summary = data.summary;
 
     root.innerHTML = `
       ${renderHeader()}
+      ${renderTabs()}
 
-      <div class="ecc-grid">
-        ${renderSearchBar()}
-        ${renderSummary(summary)}
-        ${renderFilters()}
-        ${renderCharts(data.sectors, data.stages)}
-        ${renderProjects(projects)}
-        ${renderAlerts(data.alerts)}
-        ${renderActions(data.upcomingActions)}
+      <div id="tab-panel-overview" class="ecc-tab-panel ${tab === 'overview' ? 'active' : ''}" role="tabpanel" aria-labelledby="tab-btn-overview">
+        <div class="ecc-grid">
+          ${renderSummary(summary)}
+          ${renderFilters()}
+          ${renderCharts()}
+          ${renderProjects(projects)}
+        </div>
+      </div>
+
+      <div id="tab-panel-actions" class="ecc-tab-panel ${tab === 'actions' ? 'active' : ''}" role="tabpanel" aria-labelledby="tab-btn-actions">
+        <div class="ecc-grid">
+          ${renderAlerts(data.alerts)}
+          ${renderActions(data.upcomingActions)}
+        </div>
+      </div>
+
+      <div id="tab-panel-search" class="ecc-tab-panel ${tab === 'search' ? 'active' : ''}" role="tabpanel" aria-labelledby="tab-btn-search">
+        <div class="ecc-grid">
+          ${renderSearchBar()}
+        </div>
       </div>
     `;
 
-    // Update active filter button
-    document.querySelectorAll('.filter-bar .ecc-btn[data-filter]').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.filter === filter);
-    });
+    if (tab === 'overview') {
+      buildCharts(data, filter);
+    }
+  }
 
-    buildCharts(data, filter);
+  function switchTab(tab) {
+    if (!['overview', 'actions', 'search'].includes(tab)) return;
+    currentTab = tab;
+    document.querySelectorAll('.ecc-tab').forEach(btn => {
+      const active = btn.dataset.tab === tab;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    document.querySelectorAll('.ecc-tab-panel').forEach(panel => {
+      panel.classList.toggle('active', panel.id === 'tab-panel-' + tab);
+    });
+    if (tab === 'overview') {
+      buildCharts(currentData, currentFilter);
+    }
   }
 
   async function loadNotifications() {
@@ -420,13 +502,14 @@
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'فشل في تحميل الإشعارات');
       notificationsData = data;
-      // re-render header if already rendered
       if (currentData) {
         const header = root.querySelector('.ecc-header');
         if (header) {
           const temp = document.createElement('div');
           temp.innerHTML = renderHeader();
           header.replaceWith(temp.firstElementChild);
+          // restore active tab state on recreated tabs
+          switchTab(currentTab);
         }
       }
     } catch (err) {
@@ -436,41 +519,57 @@
 
   async function load() {
     try {
-      const res = await fetch('/api/v3/ecc/portfolio', {
+      const headers = await getAuthHeaders();
+      if (!headers.Authorization) {
+        return redirectToLogin();
+      }
+      const res = await fetchWithTimeout('/api/v3/ecc/portfolio', {
         method: 'POST',
-        headers: await getAuthHeaders(),
+        headers,
         body: JSON.stringify({})
-      });
+      }, 20000);
       const data = await res.json();
+      if (res.status === 401) {
+        return redirectToLogin();
+      }
       if (!res.ok) throw new Error(data.error || 'فشل في تحميل المحفظة');
-      render(data, 'all');
+      render(data, 'all', 'overview');
       loadNotifications();
     } catch (err) {
       console.error('[PortfolioDashboard]', err);
-      showError('تعذر تحميل بيانات المحفظة: ' + err.message);
+      showError('تعذر تحميل بيانات المحفظة: ' + (err.message || 'خطأ غير معروف'));
+    } finally {
+      window.__PORTFOLIO_DASHBOARD_LOADED = true;
     }
   }
 
   window.PortfolioDashboard = {
     refresh: load,
+    login: redirectToLogin,
     filter: (filter) => {
       if (!currentData) return;
-      render(currentData, filter);
+      render(currentData, filter, currentTab);
     },
+    switchTab,
     openProject: (id) => {
       window.location.href = `/v3/project?id=${encodeURIComponent(id)}`;
     },
     createProject: () => {
       const isEn = document.documentElement.lang && document.documentElement.lang.startsWith('en');
-      window.location.href = isEn ? '/en/client/index.html?wizard=1' : '/client/index.html?wizard=1';
+      window.location.href = isEn ? '/en/v3/portfolio' : '/v3/portfolio';
     },
     toggleNotifications: (e) => {
-      e.stopPropagation();
+      if (e) e.stopPropagation();
       const panel = document.getElementById('notification-panel');
+      const bell = document.getElementById('notification-bell');
       if (!panel) return;
       const isOpen = panel.classList.contains('open');
       document.querySelectorAll('.notification-panel.open').forEach(p => p.classList.remove('open'));
-      if (!isOpen) panel.classList.add('open');
+      document.querySelectorAll('.notification-bell[aria-expanded]').forEach(b => b.setAttribute('aria-expanded', 'false'));
+      if (!isOpen) {
+        panel.classList.add('open');
+        if (bell) bell.setAttribute('aria-expanded', 'true');
+      }
     },
     clickNotification: (id, url) => {
       const read = getReadIds();
@@ -490,7 +589,7 @@
       const query = input?.value?.trim();
       if (!query) return;
       const btn = input.nextElementSibling;
-      if (btn) { btn.disabled = true; btn.textContent = '...'; }
+      if (btn) { btn.disabled = true; btn.innerHTML = `${icon('refresh', 14)}`; }
       try {
         const res = await fetch('/api/v3/ecc/search', {
           method: 'POST',
@@ -503,25 +602,24 @@
       } catch (err) {
         alert('فشل البحث: ' + err.message);
       } finally {
-        if (btn) { btn.disabled = false; btn.textContent = 'بحث'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = `${icon('search', 16)} بحث`; }
       }
     }
   };
 
   document.addEventListener('click', () => {
     document.querySelectorAll('.notification-panel.open').forEach(p => p.classList.remove('open'));
+    document.querySelectorAll('.notification-bell[aria-expanded]').forEach(b => b.setAttribute('aria-expanded', 'false'));
   });
 
   load();
 
-  // Live radar: refresh every 60 seconds, but not when search panel is focused
   setInterval(() => {
     const searchInput = document.getElementById('search-input');
     if (document.hidden || (searchInput && searchInput === document.activeElement)) return;
     load();
   }, 60000);
 
-  // Page visibility change triggers immediate refresh when visible
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) load();
   });

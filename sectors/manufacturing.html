@@ -9,74 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
-  <style>
-    :root {
-      --bg: #f5f0e8; --bg-secondary: #ffffff; --bg-card: rgba(255,255,255,0.85);
-      --gold: #b8954e; --gold-bright: #d4b87a; --gold-dim: #8a7340;
-      --text: #1a1a1a; --text-secondary: #555555; --text-muted: #888888;
-      --border: rgba(0,0,0,0.08); --border-hover: rgba(184,149,78,0.4);
-      --success: #22c55e; --warning: #eab308; --info: #3b82f6;
-      --shadow: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Vazirmatn',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
-    a { color:var(--gold); text-decoration:none; }
-
-    /* Header */
-    .header { background:#ffffff; border-bottom:1px solid var(--border); padding:1rem 1.5rem; }
-    .header__inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
-    .header__logo { display:flex; align-items:center; gap:0.75rem; }
-    .header__logo img { height:40px; border-radius:6px; }
-    .header__logo span { font-weight:800; color:var(--gold); font-size:1.1rem; }
-    .header__nav { display:flex; gap:1.5rem; }
-    .header__nav a { color:var(--text-secondary); font-weight:600; font-size:0.85rem; transition:0.3s; }
-    .header__nav a:hover { color:var(--gold); }
-
-    /* Hero */
-    .hero { background:linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary); padding:4rem 1.5rem; text-align:center; border-bottom:1px solid var(--border); }
-    .hero h1 { font-size:2.2rem; font-weight:800; margin-bottom:1rem; }
-    .hero p { color:var(--text-secondary); max-width:700px; margin:0 auto; font-size:1.05rem; }
-
-    /* Container */
-    .container { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
-    .section-title { font-size:1.4rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; color:var(--gold); }
-
-    /* Cards */
-    .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-bottom:3rem; }
-    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; transition:0.3s; }
-    .card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:var(--shadow); }
-    .card__icon { width:48px; height:48px; border-radius:12px; background:rgba(212,168,83,0.1); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1rem; }
-    .card__title { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; }
-    .card__text { font-size:0.85rem; color:var(--text-secondary); line-height:1.7; }
-
-    /* Tables */
-    .table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:3rem; }
-    table { width:100%; border-collapse:collapse; }
-    th { text-align:right; padding:1rem 1.5rem; font-size:0.8rem; font-weight:700; color:var(--gold); background:rgba(255,255,255,0.9); border-bottom:1px solid var(--border); }
-    td { padding:1rem 1.5rem; font-size:0.9rem; color:var(--text-secondary); border-bottom:1px solid var(--border); }
-    tr:hover td { background:rgba(212,168,40,0.05); }
-
-    /* Journey Timeline */
-    .timeline { display:flex; flex-direction:column; gap:1.5rem; margin-bottom:3rem; }
-    .stage { display:flex; gap:1.5rem; }
-    .stage__num { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#1a1a1a; font-weight:800; font-size:1.2rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-    .stage__content { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
-    .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
-    .stage__list { list-style:none; }
-    .stage__list li { padding:0.5rem 0; color:var(--text-secondary); font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
-    .stage__list li::before { content:'✓'; color:var(--success); font-weight:700; }
-
-    /* Fees */
-    .fee-highlight { background:rgba(212,168,83,0.08); border-radius:8px; padding:0.35rem 0.75rem; font-weight:700; color:var(--gold); white-space:nowrap; }
-
-    @media (max-width:768px) {
-      .hero h1 { font-size:1.5rem; }
-      .stage { flex-direction:column; }
-      .header__nav { display:none; }
-    }
-  </style>
-<link rel="stylesheet" href="../header-footer.css?v=7" />
-  <link rel="canonical" href="https://bonds-global.com/sectors/manufacturing" />
+  <link rel="stylesheet" href="../styles/manufacturing.css" />
+<link rel="canonical" href="https://bonds-global.com/sectors/manufacturing" />
   <meta property="og:title" content="دليل الاستثمار الصناعي | بوندز" />
   <meta property="og:description" content="دليل شامل للاستثمار في المدن الصناعية السعودية - اشتراطات البناء، التكاليف، رحلة المستثمر" />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
@@ -88,14 +22,14 @@
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
 </head>
-<body>
+<body class="manufacturing-page">
 
   <div id="site-header"></div>
 
   <section class="hero">
     <h1>دليل الاستثمار الصناعي في السعودية</h1>
     <p>كل ما يحتاجه المستثمر من اشتراطات البناء، التكاليف، ورحلة الاستثمار في المدن الصناعية التابعة لـ "مدن"</p>
-    <div style="margin-top:1rem; font-size:0.8rem; color:var(--text-muted);"><a href="https://modon.gov.sa/ar/Pages/default.aspx" target="_blank" rel="noopener" style="color:var(--gold);">موقع مدن الرسمي ↗</a></div>
+    <div class="hero__link-wrap"><a href="https://modon.gov.sa/ar/Pages/default.aspx" target="_blank" rel="noopener" class="hero__link">موقع مدن الرسمي ↗</a></div>
   </section>
 
   <div class="container">
@@ -170,7 +104,7 @@
           <tr><th>الخدمة</th><th>المقابل المالي</th></tr>
         </thead>
         <tbody>
-          <tr><td>إصدار رخصة تطوير (أول مرة)</td><td><span style="color:var(--success);font-weight:700;">بدون مقابل</span></td></tr>
+          <tr><td>إصدار رخصة تطوير (أول مرة)</td><td><span class="text-success-bold">بدون مقابل</span></td></tr>
           <tr><td>تجديد رخصة تطوير</td><td><span class="fee-highlight">10 هللات/م²</span></td></tr>
           <tr><td>إصدار رخصة تشغيل (كل 5 سنوات)</td><td><span class="fee-highlight">5 هللات/م²</span></td></tr>
           <tr><td>الإشراف على مشغل المدينة</td><td><span class="fee-highlight">20 هللة/م² سنوياً</span></td></tr>
@@ -284,95 +218,95 @@
 
     <!-- Completion Certificate -->
     <h2 class="section-title">📋 شهادة إتمام وإشغال البناء</h2>
-    <div class="section__content" style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; margin-bottom:3rem;">
-      <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold);">مستندات طلب الإصدار</h3>
-      <ul style="list-style:none; margin-bottom:1.5rem;">
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> مخطط سلامة معتمد من "مدن"</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> شهادة إتمام أعمال العزل</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> نموذج اختبار أنظمة السلامة وحصر الكميات</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> شهادة سلامة التوصيلات والتمديدات الكهربائية</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> عقد صيانة لأنظمة الإطفاء والإنذار (مقاول معتمد)</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> شهادة تشغيل بيئية</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> ترخيص صناعي (للموقع الصناعي)</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> تصريح تأسيسي للمنشآت العسكرية (إن وجد)</li>
+    <div class="section__content">
+      <h3 class="section__subtitle">مستندات طلب الإصدار</h3>
+      <ul class="checklist checklist--spaced">
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> مخطط سلامة معتمد من "مدن"</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> شهادة إتمام أعمال العزل</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> نموذج اختبار أنظمة السلامة وحصر الكميات</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> شهادة سلامة التوصيلات والتمديدات الكهربائية</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> عقد صيانة لأنظمة الإطفاء والإنذار (مقاول معتمد)</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> شهادة تشغيل بيئية</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> ترخيص صناعي (للموقع الصناعي)</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> تصريح تأسيسي للمنشآت العسكرية (إن وجد)</li>
       </ul>
 
-      <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold);">مستندات تجديد رخصة التشغيل</h3>
-      <ul style="list-style:none; margin-bottom:1.5rem;">
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> مخططات سلامة معتمدة من "مدن" / الدفاع المدني</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> عقد صيانة دورية لأنظمة الإطفاء والإنذار</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> نموذج اختبار أنظمة السلامة وحصر الكميات</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> موظف سلامة مؤهل ومصنف</li>
+      <h3 class="section__subtitle">مستندات تجديد رخصة التشغيل</h3>
+      <ul class="checklist checklist--spaced">
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> مخططات سلامة معتمدة من "مدن" / الدفاع المدني</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> عقد صيانة دورية لأنظمة الإطفاء والإنذار</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> نموذج اختبار أنظمة السلامة وحصر الكميات</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> موظف سلامة مؤهل ومصنف</li>
       </ul>
     </div>
 
     <!-- High Risk Facilities -->
     <h2 class="section-title">⚠️ متطلبات المنشآت ذات الخطورة العالية</h2>
-    <div class="section__content" style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; margin-bottom:3rem;">
-      <p style="color:var(--text-secondary); margin-bottom:1rem;">تشمل المنشآت غير الملتزمة باشتراطات السلامة:</p>
-      <ul style="list-style:none; display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:0.5rem;">
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> تصنيع/تخزين المواد الكيميائية</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> تصنيع/تخزين الخشب والفلين والأثاث</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> تصنيع/تخزين الورق ومنتجاته</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> غازات مضغوطة قابلة للاشتعال (LPG, أكسجين, استلين)</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> أنشطة الصهر والحرارة العالية</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> غلايات صناعية (غاز/ديزل)</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> منشآت غير ملتزمة بالسلامة بشكل متكرر</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--warning);">⚠</span> منشآت آيلة للسقوط أو وقعت بها حوادث</li>
+    <div class="section__content">
+      <p class="section__text">تشمل المنشآت غير الملتزمة باشتراطات السلامة:</p>
+      <ul class="checklist checklist--grid">
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--warning">⚠</span> تصنيع/تخزين المواد الكيميائية</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--warning">⚠</span> تصنيع/تخزين الخشب والفلين والأثاث</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--warning">⚠</span> تصنيع/تخزين الورق ومنتجاته</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--warning">⚠</span> غازات مضغوطة قابلة للاشتعال (LPG, أكسجين, استلين)</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--warning">⚠</span> أنشطة الصهر والحرارة العالية</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--warning">⚠</span> غلايات صناعية (غاز/ديزل)</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--warning">⚠</span> منشآت غير ملتزمة بالسلامة بشكل متكرر</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--warning">⚠</span> منشآت آيلة للسقوط أو وقعت بها حوادث</li>
       </ul>
-      <h4 style="margin-top:1.5rem; margin-bottom:0.75rem; color:var(--gold);">الاشتراطات الإضافية:</h4>
-      <ul style="list-style:none;">
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--danger);">•</span> التعاقد مع مكتب هندسي معتمد لفحص أنظمة السلامة</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--danger);">•</span> الإفصاح عن المواد الخطرة في نظام "شريك"</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--danger);">•</span> موظف سلامة مؤهل ومختص في السلامة والصحة المهنية</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--danger);">•</span> حراسة أمنية (سعودي الجنسية)</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--danger);">•</span> كاميرات مراقبة داخلية وخارجية (تسجيل لمدة شهرين)</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--danger);">•</span> نظام تحكم بتسجيل بيانات الدخول والخروج</li>
+      <h4 class="section__subtitle section__subtitle--small section__subtitle--spaced">الاشتراطات الإضافية:</h4>
+      <ul class="checklist">
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--danger">•</span> التعاقد مع مكتب هندسي معتمد لفحص أنظمة السلامة</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--danger">•</span> الإفصاح عن المواد الخطرة في نظام "شريك"</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--danger">•</span> موظف سلامة مؤهل ومختص في السلامة والصحة المهنية</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--danger">•</span> حراسة أمنية (سعودي الجنسية)</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--danger">•</span> كاميرات مراقبة داخلية وخارجية (تسجيل لمدة شهرين)</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--danger">•</span> نظام تحكم بتسجيل بيانات الدخول والخروج</li>
       </ul>
     </div>
 
     <!-- Inspection -->
     <h2 class="section-title">🔍 الزيارة التفتيشية</h2>
-    <div class="section__content" style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; margin-bottom:3rem;">
-      <p style="color:var(--text-secondary); margin-bottom:1rem;">لإصدار شهادة الإتمام أو تجديد التشغيل، يتم التحقق من:</p>
-      <ul style="list-style:none;">
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> مطابقة التراخيص</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> عمل أنظمة مكافحة الحريق والإخلاء وارتباطها بلوحة تحكم رئيسية</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> مطابقة نظام مكافحة الحريق لمخطط السلامة المعتمد</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> وجود موظف سلامة لإدارة نظام السلامة</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> فحص المرافق والمكاتب الإدارية</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> سلامة خطوط الإنتاج والمعدات الكهربائية</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> سلامة الأرضيات والتهوية وقياس الضوضاء</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> تطبيق اشتراطات مناولة ونقل وتخزين المواد الكيميائية</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> عدم وجود تخزين غير آمن أو مخالفات في الارتدادات</li>
+    <div class="section__content">
+      <p class="section__text">لإصدار شهادة الإتمام أو تجديد التشغيل، يتم التحقق من:</p>
+      <ul class="checklist">
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--info">🔹</span> مطابقة التراخيص</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--info">🔹</span> عمل أنظمة مكافحة الحريق والإخلاء وارتباطها بلوحة تحكم رئيسية</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--info">🔹</span> مطابقة نظام مكافحة الحريق لمخطط السلامة المعتمد</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--info">🔹</span> وجود موظف سلامة لإدارة نظام السلامة</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--info">🔹</span> فحص المرافق والمكاتب الإدارية</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--info">🔹</span> سلامة خطوط الإنتاج والمعدات الكهربائية</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--info">🔹</span> سلامة الأرضيات والتهوية وقياس الضوضاء</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--info">🔹</span> تطبيق اشتراطات مناولة ونقل وتخزين المواد الكيميائية</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--info">🔹</span> عدم وجود تخزين غير آمن أو مخالفات في الارتدادات</li>
       </ul>
     </div>
 
     <!-- IP Clinic -->
     <h2 class="section-title">💡 العيادات الاستشارية للملكية الفكرية</h2>
-    <div class="section__content" style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; margin-bottom:3rem;">
-      <p style="color:var(--text-secondary); margin-bottom:1rem;">
-        خدمة مقدمة بالتعاون بين <strong style="color:var(--gold);">"مدن"</strong> و<strong style="color:var(--gold);">الهيئة السعودية للملكية الفكرية</strong> 
+    <div class="section__content">
+      <p class="section__text">
+        خدمة مقدمة بالتعاون بين <strong class="text-gold">"مدن"</strong> و<strong class="text-gold">الهيئة السعودية للملكية الفكرية</strong> 
         لتعزيز مسارات اكتساب حقوق الملكية الفكرية واستغلالها لتوليد قيم اقتصادية.
       </p>
-      <h4 style="margin-bottom:0.75rem; color:var(--gold);">الخدمات المقدمة (مجاناً):</h4>
-      <ul style="list-style:none; margin-bottom:1.5rem;">
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> الإرشاد في مجال الملكية الفكرية</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> الدعم في اكتساب حقوق الملكية الفكرية</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> استغلال الملكية الفكرية لتوليد عوائد مالية</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--success);">✓</span> المساعدة في الحصول على حق حصري للمنتج الصناعي</li>
+      <h4 class="section__subtitle section__subtitle--small">الخدمات المقدمة (مجاناً):</h4>
+      <ul class="checklist checklist--spaced">
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> الإرشاد في مجال الملكية الفكرية</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> الدعم في اكتساب حقوق الملكية الفكرية</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> استغلال الملكية الفكرية لتوليد عوائد مالية</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--success">✓</span> المساعدة في الحصول على حق حصري للمنتج الصناعي</li>
       </ul>
-      <h4 style="margin-bottom:0.75rem; color:var(--gold);">الفئات المستهدفة:</h4>
-      <ul style="list-style:none;">
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> المشاريع القائمة على الابتكار</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> المنتجات الصناعية المبتكرة</li>
-        <li style="padding:0.4rem 0; color:var(--text-secondary); display:flex; align-items:center; gap:0.5rem;"><span style="color:var(--info);">🔹</span> القطاع الصناعي الراغب في حماية منتجاته</li>
+      <h4 class="section__subtitle section__subtitle--small">الفئات المستهدفة:</h4>
+      <ul class="checklist">
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--info">🔹</span> المشاريع القائمة على الابتكار</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--info">🔹</span> المنتجات الصناعية المبتكرة</li>
+        <li class="checklist__item"><span class="checklist__icon checklist__icon--info">🔹</span> القطاع الصناعي الراغب في حماية منتجاته</li>
       </ul>
     </div>
 
     <!-- License Types -->
     <h2 class="section-title">📜 أنواع الرخص التشغيلية ومدتها</h2>
-    <div class="table-wrap" style="margin-bottom:3rem;">
+    <div class="table-wrap">
       <table>
         <thead>
           <tr><th>النوع</th><th>المدة</th><th>الوصف</th></tr>
@@ -380,22 +314,22 @@
         <tbody>
           <tr>
             <td><strong>شهادة إتمام وإشغال البناء</strong></td>
-            <td><span style="color:var(--success);font-weight:700;">سنة</span></td>
+            <td><span class="text-success-bold">سنة</span></td>
             <td>للمصانع الجديدة التي أكملت البناء وانطبقت عليها الاشتراطات</td>
           </tr>
           <tr>
             <td><strong>تجديد قصير المدى</strong></td>
-            <td><span style="color:var(--warning);font-weight:700;">6 أشهر</span></td>
+            <td><span class="text-warning-bold">6 أشهر</span></td>
             <td>للمنشآت ذات الملاحظات الكثيرة مع جدول زمني للتصحيح</td>
           </tr>
           <tr>
             <td><strong>تجديد متوسط المدى</strong></td>
-            <td><span style="color:var(--info);font-weight:700;">1 سنة</span></td>
+            <td><span class="text-info-bold">1 سنة</span></td>
             <td>للمنشآت ذات ملاحظات متوسطة الخطورة</td>
           </tr>
           <tr>
             <td><strong>تجديد طويل المدى</strong></td>
-            <td><span style="color:var(--success);font-weight:700;">3 سنوات</span></td>
+            <td><span class="text-success-bold">3 سنوات</span></td>
             <td>للمنشآت التي لا توجد عليها ملاحظات وتم تطبيق جميع معايير السلامة</td>
           </tr>
         </tbody>
@@ -460,34 +394,34 @@
     </div>
 
     <!-- Contact -->
-    <div style="text-align:center; padding:2rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:3rem;">
-      <h3 style="font-size:1.2rem; font-weight:800; margin-bottom:0.5rem;">📞 خدمة عملاء مدن</h3>
-      <p style="color:var(--text-secondary); font-size:1.1rem; direction:ltr;">800-249-9944</p>
-      <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">موقع حكومي مسجل لدى هيئة الحكومة الرقمية</p>
+    <div class="contact-card">
+      <h3 class="contact-card__title">📞 خدمة عملاء مدن</h3>
+      <p class="contact-card__phone">800-249-9944</p>
+      <p class="contact-card__note">موقع حكومي مسجل لدى هيئة الحكومة الرقمية</p>
     </div>
 
     <!-- CTA -->
-    <div style="text-align:center; padding:3rem 1.5rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); margin-top:2rem;">
-      <h3 style="font-size:1.3rem; font-weight:800; margin-bottom:1rem;">تحتاج دراسة جدوى متكاملة لمصنعك؟</h3>
-      <p style="color:var(--text-secondary); margin-bottom:1.5rem;">فريق بوندز جاهز لمساعدتك في حساب التكاليف والعوائد.</p>
-      <a href="../contact.html" style="display:inline-block; background:linear-gradient(135deg, var(--gold), var(--gold-bright)); color:#1a1a1a; font-weight:800; padding:0.9rem 2.5rem; border-radius:12px; text-decoration:none;">احجز استشارتك المجانية →</a>
+    <div class="cta cta--spaced">
+      <h3 class="cta__title">تحتاج دراسة جدوى متكاملة لمصنعك؟</h3>
+      <p class="cta__text">فريق بوندز جاهز لمساعدتك في حساب التكاليف والعوائد.</p>
+      <a href="../contact.html" class="cta__btn">احجز استشارتك المجانية →</a>
     </div>
 
   </div>
 
-    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:2rem; margin-top:3rem;">
-      <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:1rem; color:var(--gold);">📚 اقرأ أيضاً</h3>
-      <div style="display:flex; flex-wrap:wrap; gap:1rem;">
+    <div class="related-section">
+      <h3 class="related-section__title">📚 اقرأ أيضاً</h3>
+      <div class="related-section__grid">
       <div class="card"><div class="card__icon">🇱🇾</div><div class="card__title"><a href="manufacturing-ly.html">الاستثمار الصناعي في ليبيا</a></div><div class="card__text">دليل المناطق الصناعية الليبية</div></div>
       <div class="card"><div class="card__icon">🇩🇿</div><div class="card__title"><a href="manufacturing-dz.html">الاستثمار الصناعي في الجزائر</a></div><div class="card__text">دليل المناطق الصناعية الجزائرية</div></div>
       <div class="card"><div class="card__icon">🇱🇧</div><div class="card__title"><a href="manufacturing-lb.html">الاستثمار الصناعي في لبنان</a></div><div class="card__text">دليل المناطق الصناعية اللبنانية</div></div>
       <div class="card"><div class="card__icon">🇾🇪</div><div class="card__title"><a href="manufacturing-ye.html">الاستثمار الصناعي في اليمن</a></div><div class="card__text">دليل المناطق الصناعية اليمنية</div></div>
       <div class="card"><div class="card__icon">🇸🇾</div><div class="card__title"><a href="manufacturing-sy.html">الاستثمار الصناعي في سوريا</a></div><div class="card__text">دليل المناطق الصناعية السورية</div></div>
-        <a href="../calculators/factory-cost.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">🏭 حاسبة تكلفة المصنع</a>
-        <a href="../suppliers-guide.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">📦 دليل المورد</a>
-        <a href="../partner-portal-guide.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">🔑 دليل بوابة شريك</a>
-        <a href="manufacturing-eg.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">🇪🇬 الاستثمار الصناعي - مصر</a>
-        <a href="manufacturing-ae.html" style="background:rgba(212,168,83,0.1); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1.25rem; font-weight:600; font-size:0.9rem;">🇦🇪 الاستثمار الصناعي - الإمارات</a>
+        <a href="../calculators/factory-cost.html" class="related-link">🏭 حاسبة تكلفة المصنع</a>
+        <a href="../suppliers-guide.html" class="related-link">📦 دليل المورد</a>
+        <a href="../partner-portal-guide.html" class="related-link">🔑 دليل بوابة شريك</a>
+        <a href="manufacturing-eg.html" class="related-link">🇪🇬 الاستثمار الصناعي - مصر</a>
+        <a href="manufacturing-ae.html" class="related-link">🇦🇪 الاستثمار الصناعي - الإمارات</a>
       </div>
     </div>
 

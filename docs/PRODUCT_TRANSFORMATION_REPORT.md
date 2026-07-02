@@ -1,210 +1,189 @@
-# تقرير تحويل المنتج — BONDS Product Transformation Program
+# تقرير تحويل المنتج — BONDS Product Transformation Report
 
-> **البرنامج:** BONDS Product Transformation Program (PTP)  
-> **الأمواج المغطاة:** Wave 1 (Audit) · Wave 2 (Refactor) · Wave 3 (Design System)  
-> **التاريخ:** 2026-07-02  
-> **الحالة:** مكتمل — المرحلة الأولى
-
----
-
-## 1. ملخص تنفيذي
-
-تم إنجاز المرحلة الأولى من برنامج تحويل منتج BONDS على ثلاث موجات متتالية. بدأنا بتدقيق شامل للمنتج، ثم أعدنا بناء تجربة العميل حول رحلة المشروع، وأخيراً وضعنا نظام تصميم تنفيذي موحّد و أعدنا تصميم الواجهة الرئيسية لتكون موجّهة حسب الهدف.
-
-### النتيجة النهائية
-
-- مصدر حقيقة واحد للمشاريع: `bonds_projects`.
-- بوابة عميل موحّدة تركز على رحلة المشروع من الفكرة إلى التمويل.
-- نظام تصميم تنفيذي يدعم الوضع الداكن/الفاتح ويمكّن من بناء واجهات متسقة بسرعة.
-- الصفحة الرئيسية أصبحت تطرح السؤال: "ما الذي تريد بناءه اليوم؟"
+> **البرنامج:** BONDS Product Transformation Program (PTP)
+> **التاريخ:** 2026-07-02
+> **الحالة:** Wave 1 ✅ | Wave 2 ✅ | Wave 3 ✅ | Wave 4 ⏸️ لم يبدأ
+> **المرجع:** `docs/PTP_CURRENT_STATE.md`
 
 ---
 
-## 2. الخلفية والأهداف
+## 1. الملخص التنفيذي
 
-قبل البرنامج، كان الموقع يعاني من:
+تمّ تنفيذ برنامج تحويل المنتج على ثلاث Waves مستقلة:
 
-- تشتت في تجربة المستخدم: الصفحة الرئيسية كانت كتالوج حاسبات.
-- بيانات مشاريع متفرقة بين `user_projects` و`bonds_projects`.
-- غياب معايير للحقول والمواقع.
-- عدم وجود نظام تصميم موحّد، مما أدى إلى تكرار الأنماط واختلاف الواجهات.
+- **Wave 1 — Product Audit & Normalization:** تدقيق شامل بدون تعديلات، أنتج 7 تقارير توثق مشاكل المنتج.
+- **Wave 2 — Product Experience Refactoring:** إعادة بناء بوابة العميل، توحيد الحقول والمواقع، وربط المشاريع بالمحفظة.
+- **Wave 3 — Visual Experience & Design System:** إنشاء نظام تصميم موحد، تنظيف الأنماط المضمنة، وتحسين الوصولية والأداء.
 
-### أهداف البرنامج
-
-1. توحيد مصدر الحقيقة للمشاريع والمواقع.
-2. تحويل التجربة من "أدوات منفصلة" إلى "رحلة مشروع موحّدة".
-3. بناء نظام تصميم قابل للتوسع.
-4. الحفاظ على جودة الكود وقابلية الوصول (accessibility) across all changes.
+**النتيجة:** BONDS انتقلت من "مجموعة أدوات متفرقة" إلى "منصة قرار موحدة" على مستوى الواجهة والبنية التحتية. جميع البوابات الهندسية والجودة خضراء.
 
 ---
 
-## 3. ملخص الأمواج
+## 2. الحالة عند البدء
 
-### Wave 1 — Product Audit & Normalization
+قبل البرنامج، كانت المنصة تعاني من:
 
-**الهدف:** فهم الوضع الحالي وتوثيق المشاكل.
+- **415 صفحة HTML** معظمهم حاسبات منفصلة.
+- **28 API** و **30 محركًا** بدون رحلة موحدة.
+- **6,363 inline style attribute** و **99 `!important`** — لا يوجد Design System.
+- **أنظمة مصادقة متعددة**: `auth.html`، `auth-v2.html`، `/calculators/auth/`، V3 auth.
+- **تجربة شراء مكسورة**: ترقية كـ `alert`، نجاح الدفع يحول لصفحة غير ذات صلة.
+- **جدار تسجيل الدخول قبل القيمة** في الصفحة الرئيسية والحاسبات.
+- **بيانات مكررة**: `profiles` vs `auth.users`، `scenarios` vs `project_scenarios`.
+- **قوائم دول/مدن غير متسقة** عبر المصادر.
 
-**الإنجازات:**
-
-- 7 تقارير تدقيق:
-  - `PRODUCT_AUDIT_REPORT.md`
-  - `FIELD_DICTIONARY.md`
-  - `LOCATION_AUDIT.md`
-  - `BROKEN_FLOWS.md`
-  - `UNUSED_COMPONENTS.md`
-  - `UX_PROBLEMS.md`
-  - `WAVE1_EXIT_REPORT.md`
-- توثيق الموافقة في `docs/PTP_WAVE1_APPROVAL.md`.
-
-### Wave 2 — Product Experience Refactoring
-
-**الهدف:** إعادة بناء تجربة المنتج حول رحلة المشروع.
-
-**الإنجازات:**
-
-- إنشاء `docs/FIELD_NAMING_STANDARD.md` و`docs/LOCATION_STANDARD.md`.
-- إنشاء قاموس حقول مركزي في `lib/i18n/fields.js`.
-- تحويل `v3/api/projects.js` للكتابة في `bonds_projects` مع إنشاء lifecycle instance.
-- إصلاح `lib/ecc/portfolio-status-aggregator.js` ليقرأ `city_id`.
-- إعادة كتابة بوابة العميل بالكامل (`client/portal.js`, `client/portal.css`, `client/index.html`).
-- إزالة تكرار `الأحساء`/`الاحساء` في بيانات المدن.
-- توثيق النتائج في `docs/PRODUCT_REFACTOR_REPORT.md` و`docs/UX_IMPROVEMENT_REPORT.md`.
-
-### Wave 3 — Visual Experience & Design System
-
-**الهدف:** بناء نظام تصميم وإعادة تصميم الواجهة الرئيسية وتوحيد V3.
-
-**الإنجازات:**
-
-- إنشاء `styles/design-system.css`.
-- كتابة `docs/DESIGN_SYSTEM.md` و`docs/EXECUTIVE_UI_GUIDE.md` و`docs/UX_GUIDELINES.md`.
-- إعادة تصميم `index.html` و`en/index.html` لتكون intent-first.
-- إزالة الـ `<style>` المضمّنة من صفحات V3 واستخراجها إلى CSS خارجية.
-- ربط `styles/design-system.css` في `v3/project/index.html` و`v3/portfolio/index.html` والنسخ الإنجليزية.
-- تحديث `sw.js` إلى `v2.22.0` وإضافة الأصول الجديدة.
-
-### Wave 4 — Executive UI Unification
-
-**الهدف:** تطبيق نظام التصميم على واجهة التقييم ولوحات الإدارة.
-
-**الإنجازات:**
-
-- توحيد `valuation/index.html` و`en/valuation/index.html` مع `styles/design-system.css`.
-- توحيد `admin/executive-dashboard/`.
-- توحيد `admin/financial-advisory/`.
-- توحيد `admin/ai-business-advisor/`.
-- توحيد `admin/city-intelligence/` وتحويلها إلى الثيم الداكن.
-- إضافة utilities مشتركة إلى `styles/design-system.css`.
-- تحديث `sw.js` إلى `v2.23.3`.
-- توثيق النتائج في `docs/WAVE4_EXIT_REPORT.md`.
+رغم ذلك، كانت البنية الهندسية قوية: 690/690 اختبار يمر، لا أخطاء حرجة، OG tags كاملة.
 
 ---
 
-## 4. المقاييس والاختبارات
+## 3. ما تم تنفيذه
 
-| المقياس | Wave 1 | Wave 2 | Wave 3 | النهائي |
-|---|---|---|---|---|
-| `npm test` | ✅ 690/690 | ✅ 690/690 | ✅ 690/690 | ✅ 690/690 |
-| `npm run audit` | ✅ 0 issues | ✅ 0 issues | ✅ 0 issues | ✅ 0 issues |
-| `npm run audit:og` | ✅ clean | ✅ clean | ✅ clean | ✅ clean |
-| `npm run test:a11y` | ✅ pass | ✅ pass | ✅ pass | ✅ pass |
-| `npm run test:mobile` | ✅ pass | ✅ pass | ✅ pass | ✅ pass |
+### 3.1 Wave 1 — التدقيق
 
-### ملاحظات على الاختبارات
+تم إنتاج التقارير التالية في `docs/`:
 
-- بعض التحذيرات تظهر في الـ mocks (DigitalTwinAdapter، AI Orchestrator، clear-user-data) لكنها لا تؤثر على نتائج الاختبارات.
-- جميع الفحوصات تمر بدون أخطاء فعلية.
+| التقرير | الغرض |
+|---|---|
+| `PRODUCT_AUDIT_REPORT.md` | ملخص حالة المنتج والمشاكل الرئيسية |
+| `FIELD_DICTIONARY.md` | قاموس الحقول والتسميات المقترحة |
+| `LOCATION_AUDIT.md` | تدقيق قوائم الدول والمدن |
+| `BROKEN_FLOWS.md` | الرحلات المكسورة |
+| `UNUSED_COMPONENTS.md` | المكونات والصفحات غير المستخدمة |
+| `UX_PROBLEMS.md` | مشاكل تجربة المستخدم |
+| `WAVE1_EXIT_REPORT.md` | تقرير خروج Wave 1 |
 
----
+### 3.2 Wave 2 — إعادة بناء التجربة
 
-## 5. Quality Gates النهائية
+- **بوابة العميل V2**: تحويل `/client` من لوحة أدوات إلى رحلة مشروع موحدة (`/v3/portfolio` و `/v3/project`).
+- **توحيد المصطلحات**: إنشاء `docs/FIELD_NAMING_STANDARD.md` و `lib/i18n/fields.js`.
+- **توحيد المواقع**: اعتماد `v3/master-data/countries-governorates-cities.js` كمصدر وحيد عبر `BondsGeo`.
+- **ربط المشاريع**: إصلاح ظهور المشاريع الجديدة في `/v3/portfolio`.
+- **التقارير**: `PRODUCT_REFACTOR_REPORT.md` و `UX_IMPROVEMENT_REPORT.md`.
 
-- [x] مصدر حقيقة واحد للمشاريع (`bonds_projects`).
-- [x] بوابة العميل تعرض رحلة مشروع موحّدة.
-- [x] الصفحة الرئيسية موجّهة حسب الهدف.
-- [x] نظام تصميم تنفيذي موحّد ومطبّق.
-- [x] لا روابط مكسورة أو أصول مفقودة.
-- [x] لا انتهاكات critical/serious في accessibility.
-- [x] لا أسرار أو مفاتيح API مكشوفة في frontend.
-- [x] جميع الاختبارات تمر.
+### 3.3 Wave 3 — نظام التصميم والواجهة التنفيذية
 
----
-
-## 6. التأثير على المنتج
-
-### للمستخدم
-
-- بدلاً من اختيار حاسبة عشوائية، يبدأ المستخدم من هدفه.
-- رحلة المشروع واضحة: بيانات → جدوى → تقييم → تمويل → مذكرة استثمارية.
-- واجهة V3 متسقة وسريعة القراءة.
-
-### للفريق
-
-- معايير واضحة للحقول والمواقع تقلل من أخطاء البيانات.
-- نظام تصميم يمكن إعادة استخدامه لبناء صفحات جديدة بسرعة.
-- فصل الأنماط عن HTML يسهّل الصيانة.
-
-### للأعمال
-
-- تجربة أكثر احترافية تدعم القرار الاستثماري.
-- قابلية أفضل للتوسع في الأمواج القادمة.
+- **Design System**: `docs/DESIGN_SYSTEM.md` و `docs/UX_GUIDELINES.md`.
+- **Executive UI**: `docs/EXECUTIVE_UI_GUIDE.md`.
+- **استخراج الأنماط**: إنشاء `styles/home.css`، `styles/page-shared.css`، `styles/pricing.css`، `styles/services.css`، `styles/calculator-landing.css`، `styles/manufacturing.css`، `styles/distressed-recovery-study.css`.
+- **مكتبات مشتركة للحاسبات**: `calculators/shared-calculators.css`، `calculators/scenario-cards-shared.css`، `calculators/auth/auth-shared.css`.
+- **إصلاحات وصولية**: labels، contrast، empty buttons، table overflow.
+- **توسيع الاختبارات**: a11y، mobile، visual لتغطية الصفحات التسويقية والقطاعية ودراسة إحياء الأصول الملقحة.
+- **Service Worker**: رفع `CACHE_VERSION` إلى `v2.30.0`.
+- **إزالة صفحات MODON القديمة**: حذف `modon_home.html` و `modon_eservices.html` وإضافة 301 redirects إلى `/sectors/manufacturing.html`.
+- **API Auth Audit**: تحسين `scripts/api-auth-audit.js` وإغلاق 15 مسألة false positive (6 critical، 9 high).
 
 ---
 
-## 7. التحديات والدروس المستفادة
+## 4. نتائج الاختبارات النهائية
 
-### التحديات
-
-- إعادة توجيه البيانات من `user_projects` إلى `bonds_projects` تطلب تعديلات في API والـ aggregators.
-- التوفيق بين النسختين العربية والإنجليزية يتطلب اهتماماً دائماً بالمسارات النسبية.
-- إزالة الـ `<style>` المضمّنة من V3 كانت تتطلب فصل الأنماط مع الحفاظ على المظهر.
-
-### الدروس
-
-- مراجعة المعايير قبل البناء يوفر وقت التصحيح لاحقاً.
-- فصل الأنماط في ملفات خارجية يجعل الاختبارات والصيانة أسهل.
-- الحفاظ على جميع الاختبارات خضراء أثناء كل Wave يمنع تراكم الديون التقنية.
+| الاختبار | النتيجة |
+|---|---|
+| `npm test` | 690/690 ✅ |
+| `npm run audit` | 0 issues ✅ |
+| `npm run audit:og` | جميع الصفحات نظيفة ✅ |
+| `npm run test:a11y` | لا توجد مخالفات خطيرة ✅ |
+| `npm run test:mobile` | لا تمدد أو جداول متجاوزة ✅ |
+| `npm run test:visual` | 27/27 مطابقة للصور الأساسية ✅ |
+| `npm run audit:api` | لا توجد مسائل auth/routing ✅ |
 
 ---
 
-## 8. الخطوات التالية
+## 5. المخرجات الرئيسية
 
-### قصيرة المدى
+### 5.1 Deliverables
 
-- تعميم `styles/design-system.css` على باقي الصفحات التنفيذية.
-- إعادة تصميم صفحات الحاسبات الفردية باستخدام نظام التصميم.
-- مراجعة الصفحات المكررة (`calculator.html`, `auth.html`) وإعادة توجيهها أو حذفها.
+| Deliverable | الملف | الحالة |
+|---|---|---|
+| Product Audit | `docs/PRODUCT_AUDIT_REPORT.md` | ✅ |
+| Field Dictionary | `docs/FIELD_DICTIONARY.md` | ✅ |
+| Location Audit | `docs/LOCATION_AUDIT.md` | ✅ |
+| Broken Flows | `docs/BROKEN_FLOWS.md` | ✅ |
+| Unused Components | `docs/UNUSED_COMPONENTS.md` | ✅ |
+| UX Problems | `docs/UX_PROBLEMS.md` | ✅ |
+| Wave 1 Exit | `docs/WAVE1_EXIT_REPORT.md` | ✅ |
+| Field Naming Standard | `docs/FIELD_NAMING_STANDARD.md` | ✅ |
+| Location Standard | `docs/LOCATION_STANDARD.md` | ✅ |
+| Product Refactor Report | `docs/PRODUCT_REFACTOR_REPORT.md` | ✅ |
+| UX Improvement Report | `docs/UX_IMPROVEMENT_REPORT.md` | ✅ |
+| Wave 2 Exit | `docs/WAVE2_EXIT_REPORT.md` | ✅ |
+| Design System | `docs/DESIGN_SYSTEM.md` | ✅ |
+| Executive UI Guide | `docs/EXECUTIVE_UI_GUIDE.md` | ✅ |
+| UX Guidelines | `docs/UX_GUIDELINES.md` | ✅ |
+| Wave 3 Exit | `docs/WAVE3_EXIT_REPORT.md` | ✅ |
+| Product Transformation Report | هذا الملف | ✅ |
 
-### متوسطة المدى
+### 5.2 الملفات التقنية الجديدة
 
-- إضافة المزيد من المكونات إلى نظام التصميم (نماذج، خطوات معالجة، مخططات).
-- تطبيق اختبارات بصرية (visual regression) على الصفحات الرئيسية.
-
-### طويلة المدى
-
-- تقييم أثر التحويل على معدلات الإكمال والتسجيل.
-- توسيع نظام التصميم ليشمل تطبيقات الجوال المستقبلية.
+- `styles/page-shared.css`
+- `styles/pricing.css`
+- `styles/services.css`
+- `styles/calculator-landing.css`
+- `styles/manufacturing.css`
+- `styles/distressed-recovery-study.css`
+- `calculators/shared-calculators.css` (محدّث)
+- `calculators/scenario-cards-shared.css` (محدّث)
+- `calculators/auth/auth-shared.css` (محدّث)
 
 ---
 
-## 9. القرار
+## 6. الفجوات المتبقية
 
-تم إنجاز المرحلة الأولى من BONDS Product Transformation Program بنجاح، بما في ذلك الموجات الأربع.  
-✅ **تم اعتماد هذا التقرير في 2026-07-02.**
+رغم اكتمال الأمواج الثلاثة، لا تزال هناك فجوات استراتيجية تتطلب Wave 4:
+
+1. **العقل الاقتصادي المركزي (Economic Brain)**
+   - لا يزال المحركات تعمل بشكل مستقل.
+   - مطلوب Engine Registry و Intent Parser و Decision Graph.
+
+2. **طبقة البيانات الموحدة**
+   - بعض البيانات لا تزال مكررة (`profiles` vs `auth.users`).
+   - مطلوب Smart Data Override و Provenance.
+
+3. **Live Data Engine**
+   - بيانات السوق لا تُحدّث تلقائيًا بشكل كامل.
+   - مطلوب مصادر حية مع Confidence و Expiry.
+
+4. **AI Decision Analyst ثنائي اللغة**
+   - التقارير بالعربية فقط أو الإنجليزية فقط حسب السياق.
+   - مطلوب تحليل موحد ينتج تقريرًا بلغة واجهة المستخدم.
+
+5. **Digital Twin و Knowledge Graph**
+   - لم تُبنَ بعد كمنتج قابل للاستخدام.
+
+6. **غرفة البيانات (VDR) والنشرة الاستثمارية الكاملة**
+   - Phase D.2–D.4 لا تزال في مرحلة API/library.
+
+7. **تحويل الحاسبات القديمة**
+   - 226 صفحة حاسبة لا تزال قائمة؛ بعضها يحتاج إعادة توجيه أو دمج في UCP.
 
 ---
 
-## 10. المراجع
+## 7. توصية الانتقال إلى Wave 4
 
-- `docs/WAVE1_EXIT_REPORT.md`
-- `docs/PTP_WAVE1_APPROVAL.md`
-- `docs/WAVE2_EXIT_REPORT.md`
-- `docs/PRODUCT_REFACTOR_REPORT.md`
-- `docs/UX_IMPROVEMENT_REPORT.md`
-- `docs/FIELD_NAMING_STANDARD.md`
-- `docs/LOCATION_STANDARD.md`
-- `docs/WAVE3_EXIT_REPORT.md`
-- `docs/DESIGN_SYSTEM.md`
-- `docs/EXECUTIVE_UI_GUIDE.md`
-- `docs/UX_GUIDELINES.md`
-- `docs/BONDS_CONSTITUTION.md`
+بناءً على `docs/BONDS_CONSTITUTION.md` و `docs/MASTER_EXECUTION_PLAN.md`، يُوصى ببدء **Wave 4 — Intelligence & Growth** بعد اعتماد هذا التقرير.
+
+**أولويات Wave 4:**
+
+1. بناء BONDS Intelligence Core / Economic Brain.
+2. إنشاء Unified Data Layer مع Smart Data Override.
+3. تفعيل Live Data Engine و Confidence Layer.
+4. بناء Decision Graph و Digital Twin.
+5. تطوير AI Decision Analyst ثنائي اللغة.
+6. إنهاء Phase D.2–D.4 (Investor Documents, VDR, Execution Monitoring).
+7. إعادة توجيه/دمج الحاسبات القديمة ضمن UCP.
+8. Lighthouse Performance ≥ 70 و Security Audit 0 high/critical.
+
+---
+
+## 8. معايير إعلان اكتمال البرنامج
+
+بحسب `docs/MASTER_EXECUTION_PLAN.md`، لا يُعتبر البرنامج مكتملًا حتى:
+
+- إنجاز جميع الـ 20 Sprint المخططة.
+- تحقيق جميع Quality Gates (100% اختبارات حرجة، 0 أخطاء حرجة، Lighthouse ≥ 70، a11y نظيف).
+- معالجة الديون التقنية الحرجة والعالية.
+- إعادة توجيه جميع الحاسبات القديمة.
+- التشغيل في الإنتاج بدون أخطاء حرجة.
+- توثيق كامل ومحدّث.
+- تدريب فريق الدعم على Rollback.
+
+**الخلاصة:** Waves 1–3 مكتملة والمنصة جاهزة لـ Wave 4. البرنامج ككل لا يزال يحتاج Wave 4 ليُعتبر مكتملًا بالمعنى الاستراتيجي.

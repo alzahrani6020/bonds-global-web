@@ -14,701 +14,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+  <link rel="preconnect" href="https://images.unsplash.com" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles/design-system.css" />
   <link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
-  <style>
-    /* ===== Hero ===== */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      background: var(--bg);
-      padding-top: 80px;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero__inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 4rem 2rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-      align-items: center;
-      width: 100%;
-    }
-    .hero__left { text-align: right; }
-    .hero__eyebrow {
-      display: inline-block;
-      color: var(--gold);
-      font-size: 0.75rem;
-      font-weight: 800;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 1.5rem;
-    }
-    .hero__title {
-      font-size: 3.2rem;
-      font-weight: 900;
-      line-height: 1.2;
-      color: var(--text);
-      margin-bottom: 1.5rem;
-    }
-    .hero__title span { color: var(--gold); }
-    .hero__divider {
-      width: 80px;
-      height: 3px;
-      background: linear-gradient(90deg, var(--gold), var(--gold-light));
-      margin-bottom: 1.5rem;
-      border-radius: 2px;
-    }
-    .hero__desc {
-      font-size: 1rem;
-      color: var(--text-secondary);
-      max-width: 480px;
-      margin-bottom: 2rem;
-      line-height: 1.9;
-    }
-    .hero__actions { display: flex; gap: 1rem; }
-    .btn-primary {
-      background: var(--text);
-      color: #fff;
-      font-weight: 700;
-      padding: 0.9rem 2rem;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: all 0.3s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      border: none;
-      cursor: pointer;
-    }
-    .btn-primary:hover { background: var(--gold); }
-    .btn-outline {
-      background: transparent;
-      color: var(--text);
-      border: 1.5px solid var(--text);
-      padding: 0.85rem 2rem;
-      border-radius: 8px;
-      font-weight: 700;
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: all 0.3s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .btn-outline:hover { background: var(--text); color: #fff; }
-
-    .hero__right {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      min-height: 500px;
-    }
-    .hero__right::before {
-      content: '';
-      position: absolute;
-      width: 450px;
-      height: 450px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, rgba(184,149,78,0.12) 0%, rgba(245,240,232,0.6) 50%, transparent 70%);
-      z-index: 0;
-    }
-    .hero__right::after {
-      content: '';
-      position: absolute;
-      right: -20px;
-      top: 10%;
-      width: 3px;
-      height: 80%;
-      background: linear-gradient(180deg, transparent, var(--gold), transparent);
-      opacity: 0.3;
-      border-radius: 3px;
-    }
-    .hero__right img {
-      max-width: 420px;
-      position: relative;
-      z-index: 1;
-      filter: drop-shadow(0 30px 80px rgba(184,149,78,0.2));
-      border-radius: 20px;
-    }
-
-    /* Gold flowing lines */
-    .gold-lines {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .gold-line {
-      position: absolute;
-      height: 1px;
-      width: 100%;
-      background: linear-gradient(90deg, transparent, rgba(184,149,78,0.08), rgba(184,149,78,0.15), rgba(184,149,78,0.08), transparent);
-      animation: flowLine linear infinite;
-    }
-    .gold-line:nth-child(1) { top: 25%; animation-duration: 20s; }
-    .gold-line:nth-child(2) { top: 40%; animation-duration: 24s; animation-delay: -6s; }
-    .gold-line:nth-child(3) { top: 55%; animation-duration: 18s; animation-delay: -12s; }
-    .gold-line:nth-child(4) { top: 70%; animation-duration: 22s; animation-delay: -3s; }
-    .gold-line:nth-child(5) { top: 85%; animation-duration: 19s; animation-delay: -9s; }
-    @keyframes flowLine {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-
-    /* ===== Stats ===== */
-    .stats-section {
-      background: var(--bg-white);
-      border-radius: 40px 40px 0 0;
-      margin-top: -40px;
-      position: relative;
-      z-index: 10;
-      padding: 4rem 2rem;
-    }
-    .stats-grid {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 2rem;
-    }
-    .stat-item {
-      text-align: center;
-      padding: 1.5rem;
-      position: relative;
-    }
-    .stat-item:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 20%;
-      height: 60%;
-      width: 1px;
-      background: var(--border);
-    }
-    [dir="rtl"] .stat-item:not(:last-child)::after { left: auto; right: 0; }
-    .stat-icon {
-      width: 48px; height: 48px;
-      margin: 0 auto 0.75rem;
-      color: var(--gold);
-    }
-    .stat-num {
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: var(--text);
-      line-height: 1;
-      margin-bottom: 0.5rem;
-    }
-    .stat-label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    /* ===== Section Headers ===== */
-    .section { padding: 5rem 2rem; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .section-header { text-align: center; margin-bottom: 3rem; }
-    .section__eyebrow {
-      display: inline-block;
-      color: var(--gold-700);
-      font-weight: 800;
-      font-size: 0.75rem;
-      margin-bottom: 0.75rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-    .section__title {
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 0.75rem;
-      color: var(--text);
-    }
-    .section__subtitle {
-      color: var(--text-secondary);
-      max-width: 600px;
-      margin: 0 auto;
-      font-size: 0.95rem;
-    }
-
-    /* ===== Services ===== */
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .service-card {
-      background: var(--bg-white);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2rem;
-      transition: all 0.4s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .service-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.06);
-    }
-    .service-card::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 50%;
-      width: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      transition: width 0.5s ease, left 0.5s ease;
-    }
-    .service-card:hover::after {
-      width: 60%;
-      left: 20%;
-    }
-    .service-card__icon {
-      width: 56px; height: 56px;
-      border-radius: 14px;
-      border: 1.5px solid var(--gold);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1.25rem;
-      color: var(--gold);
-    }
-    .service-card__title { font-size: 1rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text); }
-    .service-card__text { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.8; margin-bottom: 1rem; }
-    .service-card__link {
-      color: var(--gold);
-      font-weight: 700;
-      font-size: 0.8rem;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      transition: gap 0.3s;
-    }
-    .service-card__link:hover { gap: 0.6rem; }
-
-    /* ===== Partners ===== */
-    .partners-section { background: var(--bg-white); padding: 5rem 2rem; }
-    .partners-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-width: 1100px;
-      margin: 0 auto 2rem;
-    }
-    .partners-header h3 { font-size: 1.5rem; font-weight: 800; }
-    .partners-header a { color: var(--text); font-size: 0.85rem; text-decoration: none; font-weight: 600; }
-    .partners-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .partner-card {
-      border-radius: 16px;
-      overflow: hidden;
-      position: relative;
-      aspect-ratio: 4/3;
-    }
-    .partner-card img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      transition: transform 0.6s ease;
-    }
-    .partner-card:hover img { transform: scale(1.05); }
-    .partner-card__overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.7) 100%);
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 1.5rem;
-      color: #fff;
-    }
-    .partner-card__tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      background: var(--gold);
-      color: #fff;
-      padding: 0.3rem 0.75rem;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      width: fit-content;
-      margin-bottom: 0.75rem;
-    }
-    .partner-card__title { font-size: 1rem; font-weight: 800; margin-bottom: 0.25rem; }
-    .partner-card__desc { font-size: 0.75rem; opacity: 0.9; }
-
-    /* ===== Why Us (Dark) ===== */
-    .why-section {
-      background: var(--bg-dark);
-      color: #fff;
-      padding: 5rem 2rem;
-      text-align: center;
-    }
-    .why-section .section__title { color: #fff; }
-    .why-section .section__subtitle { color: rgba(255,255,255,0.6); }
-    .why-section .section__eyebrow { color: var(--gold-bright); }
-    .why-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 2rem;
-      max-width: 1100px;
-      margin: 3rem auto 0;
-    }
-    .why-item { text-align: center; }
-    .why-item__icon {
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(184,149,78,0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1rem;
-      color: var(--gold);
-    }
-    .why-item__title { font-size: 0.9rem; font-weight: 800; margin-bottom: 0.5rem; }
-    .why-item__text { font-size: 0.75rem; color: rgba(255,255,255,0.6); line-height: 1.7; }
-
-    /* ===== Contact ===== */
-    .contact-section {
-      background: var(--bg);
-      padding: 5rem 2rem;
-    }
-    .contact-grid {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-      align-items: center;
-    }
-    .contact-left img {
-      width: 100%;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-    }
-    .contact-right h2 {
-      font-size: 1.8rem;
-      font-weight: 800;
-      margin-bottom: 1rem;
-      color: var(--text);
-    }
-    .contact-right p {
-      color: var(--text-secondary);
-      margin-bottom: 2rem;
-      font-size: 0.9rem;
-      line-height: 1.8;
-    }
-
-    /* ===== Footer ===== */
-    .footer {
-      background: var(--bg-dark);
-      color: rgba(255,255,255,0.6);
-      padding: 4rem 2rem 2rem;
-    }
-    .footer-grid {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
-      gap: 2rem;
-    }
-    .footer-brand img { height: 50px; margin-bottom: 1rem; }
-    .footer-brand p { font-size: 0.8rem; line-height: 1.8; color: rgba(255,255,255,0.5); }
-    .footer-title { font-size: 0.8rem; font-weight: 800; color: #fff; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
-    .footer-links { display: flex; flex-direction: column; gap: 0.5rem; }
-    .footer-links a, .footer-links span {
-      color: rgba(255,255,255,0.5);
-      text-decoration: none;
-      font-size: 0.78rem;
-      transition: color 0.3s;
-    }
-    .footer-links a:hover { color: var(--gold); }
-    .footer-bottom {
-      max-width: 1100px;
-      margin: 3rem auto 0;
-      padding-top: 1.5rem;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.4);
-    }
-    .footer-socials { display: flex; gap: 0.75rem; }
-    .footer-socials a {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255,255,255,0.5);
-      text-decoration: none;
-      font-size: 0.8rem;
-      transition: all 0.3s;
-    }
-    .footer-socials a:hover { border-color: var(--gold); color: var(--gold); }
-
-    /* ===== Responsive ===== */
-    @media (max-width: 900px) {
-      .main-nav { display: none; }
-      .nav-toggle { display: flex; }
-      .hero__inner { grid-template-columns: 1fr; text-align: center; }
-      .hero__left { order: 2; }
-      .hero__right { order: 1; }
-      .hero__right img { max-width: 250px; }
-      .hero__title { font-size: 2.2rem; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .services-grid { grid-template-columns: 1fr; }
-      .partners-grid { grid-template-columns: 1fr; }
-      .why-grid { grid-template-columns: repeat(2, 1fr); }
-      .contact-grid { grid-template-columns: 1fr; }
-      .footer-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 480px) {
-      .stats-grid { grid-template-columns: 1fr; }
-      .why-grid { grid-template-columns: 1fr; }
-      .footer-grid { grid-template-columns: 1fr; }
-      .hero__actions { flex-direction: column; }
-      .partners-header { flex-direction: column; gap: 0.5rem; text-align: center; }
-    }
-
-    /* ===== Hero Calculator v2 ===== */
-    .hero__trust-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin: 1.5rem 0;
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-    }
-    .hero__trust-list li {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      list-style: none;
-    }
-    .hero__trust-list li::before {
-      content: '✓';
-      width: 20px; height: 20px;
-      border-radius: 50%;
-      background: var(--gold);
-      color: #0a0f1a;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.7rem; font-weight: 800;
-      flex-shrink: 0;
-    }
-    .hero-calc {
-      background: var(--bg-white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 2rem;
-      box-shadow: var(--shadow-lg);
-      width: 100%;
-      max-width: 420px;
-    }
-    .hero-calc__title {
-      font-size: 1.15rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-      color: var(--text);
-    }
-    .hero-calc__subtitle {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin-bottom: 1.25rem;
-    }
-    .hero-calc__group { margin-bottom: 1rem; }
-    .hero-calc__group label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-secondary);
-      margin-bottom: 0.35rem;
-    }
-    .hero-calc__group input {
-      width: 100%;
-      padding: 0.85rem 1rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--bg-secondary);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 0.95rem;
-    }
-    .hero-calc__group input:focus {
-      outline: none;
-      border-color: var(--gold);
-    }
-    .hero-calc__btn {
-      width: 100%;
-      background: linear-gradient(135deg, var(--gold), var(--gold-bright));
-      color: #0a0f1a;
-      font-weight: 800;
-      padding: 0.9rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      margin-top: 0.5rem;
-    }
-    .hero-calc__result {
-      margin-top: 1.25rem;
-      padding: 1.25rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      display: none;
-    }
-    .hero-calc__result.open { display: block; }
-    .hero-calc__score {
-      display: flex;
-      align-items: baseline;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-    .hero-calc__score-num {
-      font-size: 2.5rem;
-      font-weight: 900;
-      color: var(--gold);
-      line-height: 1;
-    }
-    .hero-calc__score-label {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-    .hero-calc__risk {
-      display: inline-block;
-      padding: 0.35rem 0.75rem;
-      border-radius: 50px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      margin-bottom: 0.75rem;
-    }
-    .hero-calc__risk--low { background: rgba(22,163,74,0.12); color: var(--success); }
-    .hero-calc__risk--medium { background: rgba(245,158,11,0.12); color: #b45309; }
-    .hero-calc__risk--high { background: rgba(220,38,38,0.12); color: var(--danger); }
-    .hero-calc__rec {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      line-height: 1.7;
-      margin-bottom: 1rem;
-    }
-    .hero-calc__cta {
-      display: block;
-      text-align: center;
-      background: var(--text);
-      color: #fff;
-      padding: 0.75rem;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
-
-    /* ===== Demo Section ===== */
-    .demo-section { padding: 5rem 2rem; background: var(--bg-card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .demo-section__inner { max-width: 1100px; margin: 0 auto; text-align: center; }
-    .demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin: 2rem 0; }
-    .demo-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.75rem 1.25rem; text-decoration: none; color: inherit; transition: all 0.2s; text-align: right; }
-    .demo-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
-    .demo-card__icon { width: 44px; height: 44px; margin-bottom: 1rem; color: var(--gold); }
-    .demo-card__title { font-weight: 800; margin-bottom: 0.5rem; color: var(--text); }
-    .demo-card__desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
-    .demo-section__cta { margin-top: 1rem; }
-    @media (max-width: 900px) { .demo-grid { grid-template-columns: 1fr; } }
-
-    /* ===== Journey Section ===== */
-    .journey-section {
-      background: var(--bg);
-      padding: 5rem 2rem;
-    }
-    .journey-section__inner {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .journey-section__header {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-    .journey-section__title {
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 0.75rem;
-    }
-    .journey-section__subtitle {
-      color: var(--text-secondary);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .journey-steps {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 1.25rem;
-      position: relative;
-    }
-    .journey-step {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem 1rem;
-      text-align: center;
-      position: relative;
-    }
-    .journey-step__num {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      background: var(--gold);
-      color: #0a0f1a;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 900;
-      margin: 0 auto 1rem;
-    }
-    .journey-step__title {
-      font-weight: 800;
-      font-size: 0.95rem;
-      margin-bottom: 0.5rem;
-    }
-    .journey-step__desc {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-    @media (max-width: 900px) {
-      .journey-steps { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 480px) {
-      .journey-steps { grid-template-columns: 1fr; }
-    }
-    .intent-section { padding: 4rem 1.5rem; background: var(--bg-card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .intent-section__inner { max-width: 1100px; margin: 0 auto; text-align: center; }
-    .intent-section__title { font-size: 1.75rem; font-weight: 800; color: var(--text); margin-bottom: 0.75rem; }
-    .intent-section .section__eyebrow { color: var(--text); }
-    .intent-section__subtitle { color: var(--text-secondary); margin-bottom: 2rem; }
-    .intent-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
-    .intent-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem 1rem; text-decoration: none; color: inherit; transition: all 0.2s; }
-    .intent-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
-    .intent-card__icon { width: 40px; height: 40px; margin: 0 auto 1rem; color: var(--gold); }
-    .intent-card__title { font-weight: 700; margin-bottom: 0.5rem; color: var(--text); }
-    .intent-card__desc { font-size: 0.85rem; color: var(--text-secondary); }
-    @media (max-width: 900px) { .intent-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 480px) { .intent-grid { grid-template-columns: 1fr; } }
-  </style>
-<link rel="stylesheet" href="header-footer.css?v=7" />
-  <link rel="canonical" href="https://bonds-global.com/" />
+  <link rel="stylesheet" href="styles/home.css" />
+<link rel="canonical" href="https://bonds-global.com/" />
   <meta name="twitter:title" content="بوندز | اعرف قابلية مشروعك للتمويل" />
   <meta name="twitter:description" content="احصل على تحليل AI ومراجعة استشارية مالية معتمدة لمشروعك خلال وقت قصير." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
@@ -743,49 +56,52 @@
         </ul>
         <div class="hero__actions">
           <a href="/v3/portfolio" class="btn-primary">ابدأ تقييم مشروعك ←</a>
-          <a href="contact.html" class="btn-ghost" style="color:var(--text-secondary);">تواصل مع مستشار</a>
+          <a href="contact.html" class="btn-ghost">تواصل مع مستشار</a>
         </div>
       </div>
       <div class="hero__right">
-        <div class="hero-calc" id="heroCalc" style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" style="opacity:0.9;">
+        <div class="hero-calc hero-calc--centered" id="heroCalc">
+          <svg class="hero-calc__icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5">
             <path d="M12 2v20M2 12h20"/>
             <circle cx="12" cy="12" r="10"/>
           </svg>
-          <div class="hero-calc__title" style="font-size:1.25rem; font-weight:800; color:var(--gold);">ابدأ رحلة مشروعك</div>
-          <p style="color:var(--text-secondary); font-size:0.95rem; margin:0;">أنشئ مشروعك، حلّل الفرصة، واحصل على تقرير استثماري معتمد.</p>
-          <a href="/v3/portfolio" class="hero-calc__btn" style="text-decoration:none; display:inline-flex; justify-content:center;">ابدأ الآن</a>
+          <div class="hero-calc__title hero-calc__title--large">ابدأ رحلة مشروعك</div>
+          <p class="hero-calc__text">أنشئ مشروعك، حلّل الفرصة، واحصل على تقرير استثماري معتمد.</p>
+          <a href="/v3/portfolio" class="hero-calc__btn hero-calc__btn--inline">ابدأ الآن</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Free Calculator Demo -->
-  <section class="demo-section">
-    <div class="demo-section__inner">
-      <span class="section__eyebrow">جرّب مجاناً</span>
-      <h2 class="section__title">احسب نتيجة أولية في 60 ثانية</h2>
-      <p class="section__subtitle">بدون تسجيل. اختر الحاسبة المناسبة لمشروعك.</p>
-      <div class="demo-grid">
-        <a href="calculator.html" class="demo-card">
-          <svg class="demo-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
-          <h3 class="demo-card__title">حاسبة نقطة التعادل</h3>
-          <p class="demo-card__desc">اعرف عدد الوحدات أو الطلبات اللازمة لتغطية تكاليفك.</p>
+  <!-- Intent -->
+  <section class="intent-section" id="intent">
+    <div class="intent-section__inner">
+      <span class="section__eyebrow">اختر هدفك</span>
+      <h2 class="intent-section__title">ما الذي تريد بناءه اليوم؟</h2>
+      <p class="intent-section__subtitle">ابدأ من هدفك، لا من قائمة أدوات. بوندز تربطك بمسار العمل المناسب مباشرة.</p>
+      <div class="intent-grid">
+        <a href="/v3/portfolio" class="intent-card">
+          <svg class="intent-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
+          <div class="intent-card__title">مشروع جديد</div>
+          <div class="intent-card__desc">أنشئ مشروعك، حلّل الجدوى، واحصل على تقرير استثماري.</div>
         </a>
-        <a href="calculators/cash-flow.html" class="demo-card">
-          <svg class="demo-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-          <h3 class="demo-card__title">حاسبة التدفق النقدي</h3>
-          <p class="demo-card__desc">راجع نقاط الضغط النقدي وتوقعات السيولة الشهرية.</p>
+        <a href="/v3/portfolio" class="intent-card">
+          <svg class="intent-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          <div class="intent-card__title">توسيع قائم</div>
+          <div class="intent-card__desc">قيم فرصة التوسع واختر أفضل هيكل تمويلي.</div>
         </a>
-        <a href="calculators/creditworthiness.html" class="demo-card">
-          <svg class="demo-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-          <h3 class="demo-card__title">جاهزية التمويل</h3>
-          <p class="demo-card__desc">تقييم سريع لمدى استعداد مشروعك للحصول على تمويل.</p>
+        <a href="/v3/portfolio" class="intent-card">
+          <svg class="intent-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          <div class="intent-card__title">إحياء متعثر</div>
+          <div class="intent-card__desc">حلل الأصول المتعثرة وضع خطة إنقاذ واضحة.</div>
+        </a>
+        <a href="calculators/investment-center/index.html" class="intent-card">
+          <svg class="intent-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <div class="intent-card__title">تقييم فرصة</div>
+          <div class="intent-card__desc">قارن بين القطاعات والمدن واختر الأفضل.</div>
         </a>
       </div>
-      <div class="demo-section__cta">
-        <a href="contact.html" class="btn-outline">احجز استشارة مجانية 30 دقيقة</a>
-      </div>
+      <a href="/v3/portfolio" class="btn-primary">ابدأ تقييم مشروعك</a>
     </div>
   </section>
 
@@ -827,26 +143,26 @@
   </section>
 
   <!-- Outcome -->
-  <section class="section" style="background:var(--bg-white);">
+  <section class="section" class="bg-white-section">
     <div class="container">
       <div class="section-header">
         <span class="section__eyebrow">النتيجة</span>
         <h2 class="section__title">تقرير تنفيذي يُبني قرارك</h2>
         <p class="section__subtitle">لا مجرد أرقام. تحصل على تحليل واضح ومراجعة استشارية وتقرير جاهز للإرسال للبنوك والمستثمرين.</p>
       </div>
-      <div class="services-grid" style="grid-template-columns:repeat(3,1fr);">
-        <div class="service-card" style="text-align:center;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+      <div class="services-grid" >
+        <div class="service-card" class="text-center">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
           <h3 class="service-card__title">درجة جاهزية واضحة</h3>
           <p class="service-card__text">تقييم أولي لقابلية التمويل يوضح نقاط القوة والضعف.</p>
         </div>
-        <div class="service-card" style="text-align:center;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="service-card" class="text-center">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
           <h3 class="service-card__title">مراجعة مستشار مالي</h3>
           <p class="service-card__text">خبير يراجع النتائج ويضيف توصيات عملية تتناسب مع سوقك.</p>
         </div>
-        <div class="service-card" style="text-align:center;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div class="service-card" class="text-center">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
           <h3 class="service-card__title">تقرير معتمد جاهز للإرسال</h3>
           <p class="service-card__text">ملف تنفيذي احترافي يمكن تقديمه للبنوك والمستثمرين.</p>
         </div>
@@ -880,38 +196,6 @@
     </div>
   </section>
 
-  <!-- Intent -->
-  <section class="intent-section" id="intent">
-    <div class="intent-section__inner">
-      <span class="section__eyebrow">اختر هدفك</span>
-      <h2 class="intent-section__title">ما الذي تريد بناءه اليوم؟</h2>
-      <p class="intent-section__subtitle">ابدأ من هدفك، لا من قائمة أدوات. بوندز تربطك بمسار العمل المناسب مباشرة.</p>
-      <div class="intent-grid">
-        <a href="/v3/portfolio" class="intent-card">
-          <svg class="intent-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
-          <div class="intent-card__title">مشروع جديد</div>
-          <div class="intent-card__desc">أنشئ مشروعك، حلّل الجدوى، واحصل على تقرير استثماري.</div>
-        </a>
-        <a href="/v3/portfolio" class="intent-card">
-          <svg class="intent-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-          <div class="intent-card__title">توسيع قائم</div>
-          <div class="intent-card__desc">قيم فرصة التوسع واختر أفضل هيكل تمويلي.</div>
-        </a>
-        <a href="/v3/portfolio" class="intent-card">
-          <svg class="intent-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-          <div class="intent-card__title">إحياء متعثر</div>
-          <div class="intent-card__desc">حلل الأصول المتعثرة وضع خطة إنقاذ واضحة.</div>
-        </a>
-        <a href="calculators/investment-center/index.html" class="intent-card">
-          <svg class="intent-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <div class="intent-card__title">تقييم فرصة</div>
-          <div class="intent-card__desc">قارن بين القطاعات والمدن واختر الأفضل.</div>
-        </a>
-      </div>
-      <a href="/v3/portfolio" class="btn-primary">ابدأ تقييم مشروعك</a>
-    </div>
-  </section>
-
   <!-- Services -->
   <section class="section">
     <div class="container">
@@ -921,23 +205,23 @@
         <p class="section__subtitle">أربع مسارات تبدأ بفكرة خام وتنتهي بمذكرة استثمارية جاهزة للنشر.</p>
       </div>
       <div class="services-grid">
-        <a href="v3/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
+        <a href="v3/index.html" class="service-card" class="service-card--featured">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
           <h3 class="service-card__title">دراسة جدوى ذكية</h3>
           <p class="service-card__text">NPV، IRR، DSCR وتقييم مخاطر حسب المدينة والقطاع.</p>
         </a>
-        <a href="valuation/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+        <a href="valuation/index.html" class="service-card" class="service-card--featured">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
           <h3 class="service-card__title">تقييم الأصول</h3>
           <p class="service-card__text">35 فئة أصل، استهلاك، وشهادة تقييم رقمية من بوندز.</p>
         </a>
-        <a href="/v3/portfolio" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <a href="/v3/portfolio" class="service-card" class="service-card--featured">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
           <h3 class="service-card__title">جاهزية التمويل</h3>
           <p class="service-card__text">تصنيف ائتماني، مطابقة تمويل، ومستندات جهة التمويل.</p>
         </a>
-        <a href="v3/project/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+        <a href="v3/project/index.html" class="service-card" class="service-card--featured">
+          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
           <h3 class="service-card__title">مذكرة استثمارية</h3>
           <p class="service-card__text">حوّل مشروعك إلى مذكرة استثمارية جاهزة للمستثمرين.</p>
         </a>
@@ -952,7 +236,7 @@
       <a href="case-studies.html">اقرأ دراسات الحالة →</a>
     </div>
     <div class="partners-grid">
-      <a href="case-studies.html" class="partner-card" style="text-decoration:none; color:inherit;">
+      <a href="case-studies.html" class="partner-card" class="partner-card--plain">
         <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop&q=80" alt="قطاع المطاعم" loading="lazy" />
         <div class="partner-card__overlay">
           <span class="partner-card__tag">+</span>
@@ -960,7 +244,7 @@
           <div class="partner-card__desc">خفض تكلفة الوحدة وتحسين الهامش</div>
         </div>
       </a>
-      <a href="case-studies.html" class="partner-card" style="text-decoration:none; color:inherit;">
+      <a href="case-studies.html" class="partner-card" class="partner-card--plain">
         <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop&q=80" alt="قطاع الصناعة" loading="lazy" />
         <div class="partner-card__overlay">
           <span class="partner-card__tag">+</span>
@@ -968,7 +252,7 @@
           <div class="partner-card__desc">تقليل تكلفة التأسيس وتحسين الجدوى</div>
         </div>
       </a>
-      <a href="case-studies.html" class="partner-card" style="text-decoration:none; color:inherit;">
+      <a href="case-studies.html" class="partner-card" class="partner-card--plain">
         <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop&q=80" alt="الأصول المتعثرة" loading="lazy" />
         <div class="partner-card__overlay">
           <span class="partner-card__tag">+</span>
@@ -989,27 +273,27 @@
       </div>
       <div class="why-grid">
         <div class="why-item">
-          <div class="why-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <div class="why-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
           <div class="why-item__title">سرية تامة</div>
           <div class="why-item__text">الالتزام كامل بحماية بيانات عملائنا</div>
         </div>
         <div class="why-item">
-          <div class="why-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="why-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           <div class="why-item__title">سرعة التنفيذ</div>
           <div class="why-item__text">نلتزم بالوقت ونركز على النتائج</div>
         </div>
         <div class="why-item">
-          <div class="why-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h12l4 6-10 13L2 9z"/></svg></div>
+          <div class="why-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 3h12l4 6-10 13L2 9z"/></svg></div>
           <div class="why-item__title">نماذج احترافية</div>
           <div class="why-item__text">مستندات وتقارير عالية الجودة</div>
         </div>
         <div class="why-item">
-          <div class="why-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></div>
+          <div class="why-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></div>
           <div class="why-item__title">قرارات مبنية على البيانات</div>
           <div class="why-item__text">تحليل احترافي يدعم اتخاذ القرار</div>
         </div>
         <div class="why-item">
-          <div class="why-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div class="why-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
           <div class="why-item__title">خبرة عملية</div>
           <div class="why-item__text">فريق متخصص بخبرة محلية ودولية واسعة</div>
         </div>
@@ -1018,77 +302,77 @@
   </section>
 
   <!-- Testimonials -->
-  <section class="section" style="background:var(--bg-white);">
+  <section class="section" class="bg-white-section">
     <div class="container">
       <div class="section-header">
         <span class="section__eyebrow">قصص نجاح</span>
         <h2 class="section__title">ماذا قال عملاؤنا بعد التحليل</h2>
         <p class="section__subtitle">اقتباسات من دراسات الحالة المجهولة الهوية التي نفذناها مع أصحاب المشاريع.</p>
       </div>
-      <div class="services-grid" style="grid-template-columns:repeat(3,1fr);">
-        <div class="service-card" style="text-align:right;">
-          <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
-          <p class="service-card__text" style="font-style:italic;">"رأينا الأرقام الحقيقية لأول مرة. غيّرنا المنيو وأوقفنا خصومات تدمر الهامش، وانخفضت تكلفة الوحدة 12%."</p>
-          <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
-            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">ع</div>
+      <div class="services-grid" >
+        <div class="service-card">
+          <div class="testimonial-rating">★★★★★</div>
+          <p class="service-card__text testimonial-text">"رأينا الأرقام الحقيقية لأول مرة. غيّرنا المنيو وأوقفنا خصومات تدمر الهامش، وانخفضت تكلفة الوحدة 12%."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">ع</div>
             <div>
-              <div style="font-weight:800; font-size:0.85rem;">عمر الراشد</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">صاحب مطعم برجر — الرياض</div>
+              <div class="author-name">عمر الراشد</div>
+              <div class="author-role">صاحب مطعم برجر — الرياض</div>
             </div>
           </div>
         </div>
-        <div class="service-card" style="text-align:right;">
-          <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
-          <p class="service-card__text" style="font-style:italic;">"أنقذنا استثماراً كبيراً بتعديلات بسيطة في قائمة المعدات. تكلفة التأسيس انخفضت 18% والاسترداد اختصر 8 أشهر."</p>
-          <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
-            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">ف</div>
+        <div class="service-card">
+          <div class="testimonial-rating">★★★★★</div>
+          <p class="service-card__text testimonial-text">"أنقذنا استثماراً كبيراً بتعديلات بسيطة في قائمة المعدات. تكلفة التأسيس انخفضت 18% والاسترداد اختصر 8 أشهر."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">ف</div>
             <div>
-              <div style="font-weight:800; font-size:0.85rem;">فاطمة الزهابي</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">مديرة عمليات — مصنع دبي</div>
+              <div class="author-name">فاطمة الزهابي</div>
+              <div class="author-role">مديرة عمليات — مصنع دبي</div>
             </div>
           </div>
         </div>
-        <div class="service-card" style="text-align:right;">
-          <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
-          <p class="service-card__text" style="font-style:italic;">"التحليل أعاد لنا الأمل في الأصل. نعرف الآن لماذا فشل وكيف نعيد بناءه، والعائد المتوقع واضح."</p>
-          <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
-            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">ك</div>
+        <div class="service-card">
+          <div class="testimonial-rating">★★★★★</div>
+          <p class="service-card__text testimonial-text">"التحليل أعاد لنا الأمل في الأصل. نعرف الآن لماذا فشل وكيف نعيد بناءه، والعائد المتوقع واضح."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">ك</div>
             <div>
-              <div style="font-weight:800; font-size:0.85rem;">كريم حافظ</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">مدير أصول — القاهرة</div>
+              <div class="author-name">كريم حافظ</div>
+              <div class="author-role">مدير أصول — القاهرة</div>
             </div>
           </div>
         </div>
       </div>
-      <div style="text-align:center; margin-top:2rem;">
+      <div class="centered-actions">
         <a href="case-studies.html" class="btn-outline">اقرأ دراسات الحالة الكاملة</a>
       </div>
     </div>
   </section>
 
   <!-- FAQ -->
-  <section class="section" style="background:var(--bg-white);">
+  <section class="section" class="bg-white-section">
     <div class="container">
       <div class="section-header">
         <span class="section__eyebrow">الأسئلة الشائعة</span>
         <h2 class="section__title">كل ما تريد معرفته</h2>
       </div>
-      <div style="max-width:800px; margin:0 auto;">
-        <details style="border-bottom:1px solid var(--border); padding:1.5rem 0;">
-          <summary style="font-weight:800; cursor:pointer; font-size:1rem; color:var(--text);">كيف أبدأ وما الذي يحدث بعد تقديم الطلب؟</summary>
-          <div style="padding-top:1rem; color:var(--text-secondary); font-size:0.9rem; line-height:1.8;">من خلال نموذج التواصل أو الواتساب. نهدف للرد خلال <strong>2–3 أيام عمل</strong> لتأكيد نوع الخدمة أو طلب معلومات إضافية.</div>
+      <div class="faq-wrapper">
+        <details class="faq-item">
+          <summary class="faq-summary">كيف أبدأ وما الذي يحدث بعد تقديم الطلب؟</summary>
+          <div class="faq-answer">من خلال نموذج التواصل أو الواتساب. نهدف للرد خلال <strong>2–3 أيام عمل</strong> لتأكيد نوع الخدمة أو طلب معلومات إضافية.</div>
         </details>
-        <details style="border-bottom:1px solid var(--border); padding:1.5rem 0;">
-          <summary style="font-weight:800; cursor:pointer; font-size:1rem; color:var(--text);">كم تستغرق الاستشارة أو المشروع؟</summary>
-          <div style="padding-top:1rem; color:var(--text-secondary); font-size:0.9rem; line-height:1.8;">تختلف حسب النطاق: جلسة استكشاف قد تكون جلسة أو جلستين؛ التحليل المالي أو الميزانية قد يستغرق من أسابيع إلى شهرين.</div>
+        <details class="faq-item">
+          <summary class="faq-summary">كم تستغرق الاستشارة أو المشروع؟</summary>
+          <div class="faq-answer">تختلف حسب النطاق: جلسة استكشاف قد تكون جلسة أو جلستين؛ التحليل المالي أو الميزانية قد يستغرق من أسابيع إلى شهرين.</div>
         </details>
-        <details style="border-bottom:1px solid var(--border); padding:1.5rem 0;">
-          <summary style="font-weight:800; cursor:pointer; font-size:1rem; color:var(--text);">كيف يتم تحديد الأسعار؟</summary>
-          <div style="padding-top:1rem; color:var(--text-secondary); font-size:0.9rem; line-height:1.8;">عادةً كـ <strong>باقة أو مراحل</strong> بناءً على النطاق، أو كعرض مكتوب بعد فهم الطلب. نفضل الشفافية في كل عرض.</div>
+        <details class="faq-item">
+          <summary class="faq-summary">كيف يتم تحديد الأسعار؟</summary>
+          <div class="faq-answer">عادةً كـ <strong>باقة أو مراحل</strong> بناءً على النطاق، أو كعرض مكتوب بعد فهم الطلب. نفضل الشفافية في كل عرض.</div>
         </details>
-        <details style="border-bottom:1px solid var(--border); padding:1.5rem 0;">
-          <summary style="font-weight:800; cursor:pointer; font-size:1rem; color:var(--text);">هل تضمنون عائد الاستثمار أو موافقة التمويل؟</summary>
-          <div style="padding-top:1rem; color:var(--text-secondary); font-size:0.9rem; line-height:1.8;"><strong>لا.</strong> نقدم تحليلاً واستشارات بناءً على معلوماتك؛ القرار والنتائج تبقى مسؤوليتك.</div>
+        <details class="faq-item">
+          <summary class="faq-summary">هل تضمنون عائد الاستثمار أو موافقة التمويل؟</summary>
+          <div class="faq-answer"><strong>لا.</strong> نقدم تحليلاً واستشارات بناءً على معلوماتك؛ القرار والنتائج تبقى مسؤوليتك.</div>
         </details>
       </div>
     </div>
@@ -1196,7 +480,7 @@
   </script>
 
   <script src="/api/env"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
   <script src="/bonds-auth-2026.js?v=1"></script>
   <script>window.BondsAuth && window.BondsAuth.initSiteAuth('authContainer');</script>
   <script>
@@ -1223,7 +507,7 @@
       loadPublicStats();
     })();
   </script>
-  <script src="page-tracker-v2.js"></script>
-<script src="site-layout.js?v=7"></script>
+  <script src="page-tracker-v2.js" defer></script>
+<script src="site-layout.js?v=7" defer></script>
 </body>
 </html>

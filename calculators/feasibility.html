@@ -25,7 +25,7 @@
 
   <script src="db-client.js"></script>
   
-<link rel="stylesheet" href="../header-footer.css?v=7" />
+<link rel="stylesheet" href="../header-footer.css?v=8" />
   <link rel="canonical" href="https://bonds-global.com/calculators/feasibility" />
   <meta property="og:url" content="https://bonds-global.com/calculators/feasibility" />
   <meta property="og:type" content="website" />
@@ -49,7 +49,7 @@
     <div id="progressContainer"></div>
 
     <!-- Country selector -->
-    <div class="bonds-card" style="margin-bottom: var(--space-4);">
+    <div class="bonds-card calc-mb-4">
       <div class="bonds-form-group">
         <label for="country">الدولة / السوق</label>
         <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
@@ -69,7 +69,7 @@
     <!-- Tab 1: Setup Costs -->
     <div id="setup" class="bonds-panel active">
       <div class="bonds-card">
-        <p style="color:var(--text-secondary);margin-bottom:var(--space-4);text-align:center;">💡 هذه التكاليف تُدفع <strong>مرة واحدة</strong> قبل الافتتاح</p>
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 هذه التكاليف تُدفع <strong>مرة واحدة</strong> قبل الافتتاح</p>
         <div class="bonds-form-row">
           <div class="bonds-form-group"><label>الترخيص والتسجيل <abbr title="رسوم تجارية، بلدية، غرفة تجارية، تراخيص صحية">ⓘ</abbr></label><input id="sLicense" class="bonds-input" type="number" value="5000" placeholder="5000" /></div>
           <div class="bonds-form-group"><label>التأثيث والديكور <abbr title="تكلفة التجهيزات الداخلية، الطاولات، الكراسي، الإضاءة، الديكور">ⓘ</abbr></label><input id="sFurniture" class="bonds-input" type="number" value="40000" placeholder="40000" /></div>
@@ -82,7 +82,7 @@
         <div class="metric-row" id="setupSummary">
           <div class="metric-box"><div class="label">الإجمالي</div><div class="value" id="setupTotal">0 ر.س</div></div>
         </div>
-        <div style="text-align:center;">
+        <div class="calc-text-center">
           <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">التالي: التكاليف الشهرية →</button>
         </div>
       </div>
@@ -91,7 +91,7 @@
     <!-- Tab 2: Monthly Costs -->
     <div id="monthly" class="bonds-panel">
       <div class="bonds-card">
-        <p style="color:var(--text-secondary);margin-bottom:var(--space-4);text-align:center;">💡 هذه التكاليف تُدفع <strong>كل شهر</strong></p>
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 هذه التكاليف تُدفع <strong>كل شهر</strong></p>
         <div class="bonds-form-row">
           <div class="bonds-form-group"><label>الإيجار الشهري <abbr title="إيجار الموقع شهرياً">ⓘ</abbr></label><input id="mRent" class="bonds-input" type="number" value="8000" placeholder="8000" /></div>
           <div class="bonds-form-group"><label>الرواتب والأجور <abbr title="رواتب الموظفين الشهرية الثابتة">ⓘ</abbr></label><input id="mSalaries" class="bonds-input" type="number" value="12000" placeholder="12000" /></div>
@@ -105,7 +105,7 @@
         <div class="metric-row" id="monthlySummary">
           <div class="metric-box"><div class="label">الإجمالي الشهري</div><div class="value" id="monthlyTotal">0 ر.س</div></div>
         </div>
-        <div style="text-align:center;">
+        <div class="calc-text-center">
           <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← السابق</button>
           <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">التالي: الإيرادات →</button>
         </div>
@@ -115,7 +115,7 @@
     <!-- Tab 3: Revenue -->
     <div id="revenue" class="bonds-panel">
       <div class="bonds-card">
-        <p style="color:var(--text-secondary);margin-bottom:var(--space-4);text-align:center;">💡 ابدأ بأرقام واقعية — لا تتفائل كثيراً في البداية</p>
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 ابدأ بأرقام واقعية — لا تتفائل كثيراً في البداية</p>
         <div class="bonds-form-row">
           <div class="bonds-form-group"><label>متوسط سعر الطلب الواحد <abbr title="متوسط قيمة الطلب الواحد بعد أي خصم مباشر">ⓘ</abbr></label><input id="rAvgPrice" class="bonds-input" type="number" value="35" placeholder="35" min="1" /></div>
           <div class="bonds-form-group"><label>عدد الطلبات المتوقع / يوم <abbr title="عدد الطلبات اليومية المتوقعة في المتوسط (ابدأ برقم واقعي)">ⓘ</abbr></label><input id="rDailyOrders" class="bonds-input" type="number" value="80" placeholder="80" min="1" /></div>
@@ -135,7 +135,7 @@
           <div class="metric-box"><div class="label">إيراد شهري</div><div class="value" id="revMonthly">0 ر.س</div></div>
           <div class="metric-box"><div class="label">إيراد سنوي</div><div class="value" id="revYearly">0 ر.س</div></div>
         </div>
-        <div style="text-align:center;">
+        <div class="calc-text-center">
           <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← السابق</button>
           <button class="bonds-btn bonds-btn-primary" onclick="calculateAll();nextTab();">احسب النتيجة 🚀</button>
         </div>
@@ -145,10 +145,10 @@
     <!-- Tab 4: Result -->
     <div id="result" class="bonds-panel">
       <div id="resultContent">
-        <div style="text-align:center;padding:3rem;color:var(--text-muted);">
-          <div style="font-size:3rem;margin-bottom:1rem;">📊</div>
-          <p style="font-size:1.1rem;font-weight:700;">اكمل الخطوات السابقة لترى النتيجة</p>
-          <button class="bonds-btn bonds-btn-primary" style="margin-top:1rem;" onclick="showTab('setup')">ابدأ الآن</button>
+        <div class="calc-empty-state-box-lg">
+          <div class="calc-empty-icon-lg">📊</div>
+          <p class="calc-text-lg-semibold">اكمل الخطوات السابقة لترى النتيجة</p>
+          <button class="bonds-btn bonds-btn-primary calc-mt-4" onclick="showTab('setup')">ابدأ الآن</button>
         </div>
       </div>
     </div>

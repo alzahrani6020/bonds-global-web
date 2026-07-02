@@ -104,8 +104,6 @@
 
     </aside>
 
-
-
     <main class="admin-main">
 
       <div class="admin-header">
@@ -115,8 +113,6 @@
         <div id="adminInfo" style="font-size: 0.85rem; color: var(--text-secondary);"></div>
 
       </div>
-
-
 
       <div class="card">
 
@@ -184,8 +180,6 @@
 
       </div>
 
-
-
       <div class="card">
 
         <h3>📋 الاستثناءات الحالية</h3>
@@ -216,13 +210,9 @@
 
   </div>
 
-
-
   <script>
 
     let token = '';
-
-
 
     async function init() {
 
@@ -246,8 +236,6 @@
 
     }
 
-
-
     async function loadExceptions() {
 
       try {
@@ -258,8 +246,6 @@
 
         document.getElementById('loading').style.display = 'none';
 
-
-
         if (!json.data?.length) {
 
           document.getElementById('emptyState').style.display = 'block';
@@ -267,8 +253,6 @@
           return;
 
         }
-
-
 
         const tbody = document.getElementById('excBody');
 
@@ -302,15 +286,11 @@
 
     }
 
-
-
     async function addException() {
 
       const btn = document.querySelector('.btn-add');
 
       btn.disabled = true; btn.textContent = 'جاري الإضافة...';
-
-
 
       try {
 
@@ -354,8 +334,6 @@
 
     }
 
-
-
     async function deleteExc(id) {
 
       if (!confirm('حذف هذا الاستثناء؟')) return;
@@ -375,8 +353,6 @@
       } catch (e) { alert('فشل الحذف'); }
 
     }
-
-
 
     init();
 

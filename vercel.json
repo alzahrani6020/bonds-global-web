@@ -449,6 +449,81 @@
   ],
   "redirects": [
     {
+      "source": "/client",
+      "destination": "/v3/portfolio",
+      "statusCode": 301
+    },
+    {
+      "source": "/client/",
+      "destination": "/v3/portfolio",
+      "statusCode": 301
+    },
+    {
+      "source": "/client/index.html",
+      "destination": "/v3/portfolio",
+      "statusCode": 301
+    },
+    {
+      "source": "/client/project.html",
+      "destination": "/v3/project",
+      "statusCode": 301
+    },
+    {
+      "source": "/modon_home",
+      "destination": "/sectors/manufacturing.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/modon_home.html",
+      "destination": "/sectors/manufacturing.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/modon_eservices",
+      "destination": "/sectors/manufacturing.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/modon_eservices.html",
+      "destination": "/sectors/manufacturing.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/client/login.html",
+      "destination": "/calculators/auth/index.html?redirect=/v3/portfolio",
+      "statusCode": 301
+    },
+    {
+      "source": "/client/reports.html",
+      "destination": "/v3/portfolio",
+      "statusCode": 301
+    },
+    {
+      "source": "/client/report.html",
+      "destination": "/v3/portfolio",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/client",
+      "destination": "/en/v3/portfolio",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/client/",
+      "destination": "/en/v3/portfolio",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/client/index.html",
+      "destination": "/en/v3/portfolio",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/client/project.html",
+      "destination": "/en/v3/project",
+      "statusCode": 301
+    },
+    {
       "source": "/calculators/factory-cost-ae",
       "destination": "/calculators/factory-cost?country=AE",
       "statusCode": 301

@@ -28,54 +28,18 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles/page-shared.css" />
+  <link rel="stylesheet" href="calculators/shared-calculators.css" />
+  <link rel="stylesheet" href="styles/calculator-landing.css" />
   <link rel="icon" href="assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="calculators/shared-utils.js"></script>
   <script src="calculators/calc-functions.js"></script>
-  <style>
-    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
-    .calc-input-group { margin-bottom: 1.5rem; }
-    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
-    .calc-input-group input[type="number"] { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
-    .calc-input-group input[type="number"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
-    .calc-input-group input[type="range"] { width: 100%; margin-top: 0.5rem; accent-color: var(--gold); }
-    .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
-    @media (max-width: 768px) { .scenario-grid { grid-template-columns: 1fr; } }
-    .scenario-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; transition: all 0.3s; }
-    .scenario-card:hover { transform: translateY(-4px); border-color: var(--gold); }
-    .scenario-card.pessimistic { border-top: 3px solid #dc2626; }
-    .scenario-card.expected { border-top: 3px solid var(--gold); }
-    .scenario-card.optimistic { border-top: 3px solid #16a34a; }
-    .scenario-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-    .scenario-value { font-size: 1.5rem; font-weight: 900; }
-    .sensitivity-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    .sensitivity-table th, .sensitivity-table td { padding: 0.75rem 1rem; text-align: center; border: 1px solid var(--border); font-size: 0.85rem; }
-    .sensitivity-table th { background: var(--bg-card); color: var(--gold); font-weight: 700; }
-    .sensitivity-table td.positive { color: #16a34a; font-weight: 700; }
-    .sensitivity-table td.negative { color: #dc2626; font-weight: 700; }
-    .share-bar { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-    .share-bar input { flex: 1; min-width: 200px; }
-    .history-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
-    .history-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-    .history-item:hover { border-color: var(--gold); }
-    @media print {
-      .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
-      .calc-grid { grid-template-columns: 1fr 1fr; }
-      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
-      .section { padding: 0 !important; }
-      canvas { max-height: 280px !important; }
-      a { text-decoration: none; color: #000; }
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    }
-  </style>
-
   <script src="calculators/db-client.js"></script>
-<link rel="stylesheet" href="header-footer.css?v=7" />
-  <link rel="canonical" href="https://bonds-global.com/calculator" />
+<link rel="canonical" href="https://bonds-global.com/calculator" />
 
 <link rel="stylesheet" href="components/universal-dropdown.css" />
 </head>
-<body style="font-family:Vazirmatn,system-ui,sans-serif">
+<body class="body-ar">
 
   <!-- Top Bar -->
   <div class="topbar">
@@ -89,28 +53,28 @@
   <div id="site-header"></div>
 
   <!-- Hero -->
-  <section class="hero" style="min-height: 40vh; padding: var(--space-20) 0;">
-    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
-    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+  <section class="hero page-hero-compact">
+    <div class="hero__orb hero__orb--1"></div>
+    <div class="hero__orb hero__orb--2"></div>
     <div class="container hero__content reveal">
       <span class="hero__eyebrow">أداة مجانية</span>
       <h1 class="hero__title">آلة حاسبة <span class="text-gradient">نقطة التعادل</span></h1>
       <p class="hero__desc">اعرف كم وحدة لازم تبيع، وكم ريال/جنيه تحتاجه، لتغطية تكاليفك وتبدأ الربح.</p>
-      <div style="margin-top:var(--space-6);">
-        <a href="calculators/investment-center/index.html" style="display:inline-block;padding:0.75rem 1.5rem;background:rgba(212,168,83,0.1);border:1px solid var(--gold);color:var(--gold);border-radius:var(--radius);font-weight:700;text-decoration:none;">🚀 اكتشف مركز الحاسبات الاستثمارية</a>
+      <div class="mt-6">
+        <a href="calculators/investment-center/index.html" class="hero-link">🚀 اكتشف مركز الحاسبات الاستثمارية</a>
       </div>
     </div>
   </section>
 
   <!-- Wizard Promo -->
-  <section class="section" style="padding-bottom: 0;">
+  <section class="section section--pb-0">
     <div class="container">
-      <div style="background: linear-gradient(135deg, rgba(212,168,83,0.1), rgba(212,168,83,0.02)); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem 2rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; justify-content: space-between;">
+      <div class="cta-banner">
         <div>
-          <h3 style="color: var(--gold); margin-bottom: 0.5rem;">🚀 Project Feasibility Wizard</h3>
-          <p style="color: var(--text-secondary); margin: 0;">احصل على تقييم استثماري شامل في 5 خطوات مع درجات الاستثمار والتمويل والسوق والمخاطرة وتقرير PDF احترافي.</p>
+          <h3 class="cta-banner__title">🚀 Project Feasibility Wizard</h3>
+          <p class="cta-banner__text">احصل على تقييم استثماري شامل في 5 خطوات مع درجات الاستثمار والتمويل والسوق والمخاطرة وتقرير PDF احترافي.</p>
         </div>
-        <a href="calculator-wizard.html" style="display:inline-block;padding:0.85rem 1.75rem;background:var(--gold);color:#0a0f1a;border-radius:var(--radius);font-weight:800;text-decoration:none;white-space:nowrap;">ابدأ المعالج الآن</a>
+        <a href="calculator-wizard.html" class="cta-banner__btn">ابدأ المعالج الآن</a>
       </div>
     </div>
   </section>
@@ -120,19 +84,19 @@
     <div class="container">
       <div class="calc-grid">
         <!-- Inputs -->
-        <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">بيانات مشروعك</h2>
+        <div class="reveal calc-card">
+          <h2 class="calc-card__title">بيانات مشروعك</h2>
           <div class="calc-input-group">
             <label>التكاليف الثابتة (شهرية) <abbr title="كل ما تدفعه شهرياً بغض النظر عن حجم المبيعات: إيجار، رواتب، فواتير">ⓘ</abbr></label>
             <input type="number" id="fixedCost" placeholder="مثلاً: 50000" min="0" />
-            <button type="button" onclick="toggleDetail('fixedCostDetail', this)" style="margin-top:0.5rem;background:transparent;border:none;color:var(--gold);font-size:0.85rem;cursor:pointer;">▼ تفصيل التكاليف الثابتة</button>
-            <div id="fixedCostDetail" style="display:none;margin-top:var(--space-3);padding:var(--space-3);background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;">
-              <div class="calc-input-group"><label style="font-size:0.8rem;">الإيجار <abbr title="الإيجار الشهري للموقع أو المستودع">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="rent" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">الرواتب <abbr title="الرواتب الثابتة شهرياً (لا تشمل العمالة المباشرة لكل وحدة)">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="salaries" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">كهرباء / ماء <abbr title="الفواتير الشهرية للكهرباء والماء والإنترنت">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="utilities" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">تراخيص <abbr title="رسوم الترخيص والتسجيل السنوية قسّمها على 12 شهراً">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="licenses" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">تسويق ثابت <abbr title="مصروفات التسويق والإعلان الثابتة كل شهر">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="marketing" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">أخرى <abbr title="أي تكاليف ثابتة شهرية أخرى">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="other" placeholder="0" min="0" /></div>
+            <button type="button" onclick="toggleDetail('fixedCostDetail', this)" class="detail-toggle">▼ تفصيل التكاليف الثابتة</button>
+            <div id="fixedCostDetail" class="detail-panel" style="display:none;">
+              <div class="calc-input-group"><label class="detail-label">الإيجار <abbr title="الإيجار الشهري للموقع أو المستودع">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="rent" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">الرواتب <abbr title="الرواتب الثابتة شهرياً (لا تشمل العمالة المباشرة لكل وحدة)">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="salaries" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">كهرباء / ماء <abbr title="الفواتير الشهرية للكهرباء والماء والإنترنت">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="utilities" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">تراخيص <abbr title="رسوم الترخيص والتسجيل السنوية قسّمها على 12 شهراً">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="licenses" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">تسويق ثابت <abbr title="مصروفات التسويق والإعلان الثابتة كل شهر">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="marketing" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">أخرى <abbr title="أي تكاليف ثابتة شهرية أخرى">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="other" placeholder="0" min="0" /></div>
             </div>
           </div>
           <div class="calc-input-group">
@@ -142,12 +106,12 @@
           <div class="calc-input-group">
             <label>التكلفة المتغيرة للوحدة <abbr title="كل ما يكلفك إنتاج/بيع وحدة واحدة: مواد خام، عمالة مباشرة، تغليف">ⓘ</abbr></label>
             <input type="number" id="varCost" placeholder="مثلاً: 300" min="0" />
-            <button type="button" onclick="toggleDetail('varCostDetail', this)" style="margin-top:0.5rem;background:transparent;border:none;color:var(--gold);font-size:0.85rem;cursor:pointer;">▼ تفصيل التكاليف المتغيرة</button>
-            <div id="varCostDetail" style="display:none;margin-top:var(--space-3);padding:var(--space-3);background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;">
-              <div class="calc-input-group"><label style="font-size:0.8rem;">مواد خام <abbr title="تكلفة المواد الخام لكل وحدة منتجة">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="materials" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">عمالة <abbr title="أجرة العمالة المباشرة لكل وحدة">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="labor" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">تغليف <abbr title="تكلفة التغليف لكل وحدة">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="packaging" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">أخرى <abbr title="أي تكاليف متغيرة أخرى لكل وحدة">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="other" placeholder="0" min="0" /></div>
+            <button type="button" onclick="toggleDetail('varCostDetail', this)" class="detail-toggle">▼ تفصيل التكاليف المتغيرة</button>
+            <div id="varCostDetail" class="detail-panel" style="display:none;">
+              <div class="calc-input-group"><label class="detail-label">مواد خام <abbr title="تكلفة المواد الخام لكل وحدة منتجة">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="materials" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">عمالة <abbr title="أجرة العمالة المباشرة لكل وحدة">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="labor" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">تغليف <abbr title="تكلفة التغليف لكل وحدة">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="packaging" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">أخرى <abbr title="أي تكاليف متغيرة أخرى لكل وحدة">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="other" placeholder="0" min="0" /></div>
             </div>
           </div>
           <div class="calc-input-group">
@@ -170,179 +134,179 @@
             <label>نسبة الزكاة (%) <abbr title="نسبة الزكاة السنوية المستحقة — تُطبق فقط على الربح الموجب">ⓘ</abbr></label>
             <input type="number" id="zakatRate" placeholder="مثلاً: 2.5" min="0" max="100" value="2.5" />
           </div>
-          <button onclick="calculateAll()" class="btn btn-primary" style="width: 100%;">احسب النتائج</button>
-          <button onclick="loadExample()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">🧮 جرب مثال توضيحي</button>
-          <button onclick="resetCalc()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">مسح البيانات</button>
+          <button onclick="calculateAll()" class="btn btn-primary btn-block">احسب النتائج</button>
+          <button onclick="loadExample()" class="btn btn-outline btn-block mt-3">🧮 جرب مثال توضيحي</button>
+          <button onclick="resetCalc()" class="btn btn-outline btn-block mt-3">مسح البيانات</button>
         </div>
 
         <!-- Results + Chart -->
         <div class="reveal reveal-delay-1">
-          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); margin-bottom: var(--space-6);">
-            <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">النتائج</h2>
-            <div id="resultsArea" style="display: flex; flex-direction: column; gap: var(--space-3);">
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">نقطة التعادل (وحدات)</span>
-                <span id="resUnits" style="font-weight: 800; color: var(--text);">—</span>
+          <div class="calc-card calc-card--mb">
+            <h2 class="calc-card__title">النتائج</h2>
+            <div id="resultsArea" class="result-list">
+              <div class="result-row">
+                <span class="result-row__label">نقطة التعادل (وحدات)</span>
+                <span id="resUnits" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">نقطة التعادل (مبالغ)</span>
-                <span id="resAmount" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">نقطة التعادل (مبالغ)</span>
+                <span id="resAmount" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">الإيرادات المتوقعة (قبل العمولة)</span>
-                <span id="resRevenue" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">الإيرادات المتوقعة (قبل العمولة)</span>
+                <span id="resRevenue" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">الإيراد الصافي بعد العمولة</span>
-                <span id="resNetRevenue" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">الإيراد الصافي بعد العمولة</span>
+                <span id="resNetRevenue" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">إجمالي التكاليف</span>
-                <span id="resTotalCost" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">إجمالي التكاليف</span>
+                <span id="resTotalCost" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">إجمالي العمولات والخصومات</span>
-                <span id="resTotalDeductions" style="font-weight: 800; color: #dc2626;">—</span>
+              <div class="result-row">
+                <span class="result-row__label">إجمالي العمولات والخصومات</span>
+                <span id="resTotalDeductions" class="result-row__value result-row__value--danger">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">صافي الربح/الخسارة (قبل الضريبة)</span>
-                <span id="resProfit" style="font-weight: 800;">—</span>
+              <div class="result-row">
+                <span class="result-row__label">صافي الربح/الخسارة (قبل الضريبة)</span>
+                <span id="resProfit" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">الضريبة</span>
-                <span id="resTax" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">الضريبة</span>
+                <span id="resTax" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">الربح بعد الضريبة</span>
-                <span id="resProfitAfterTax" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">الربح بعد الضريبة</span>
+                <span id="resProfitAfterTax" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">الزكاة</span>
-                <span id="resZakat" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">الزكاة</span>
+                <span id="resZakat" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">الربح الصافي النهائي</span>
-                <span id="resNetProfit" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">الربح الصافي النهائي</span>
+                <span id="resNetProfit" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">نسبة الربح (%)</span>
-                <span id="resMargin" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">نسبة الربح (%)</span>
+                <span id="resMargin" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0;">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">العائد على التكلفة (%)</span>
-                <span id="resROI" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row result-row--last">
+                <span class="result-row__label">العائد على التكلفة (%)</span>
+                <span id="resROI" class="result-row__value">—</span>
               </div>
             </div>
-            <div id="analysisBox" style="margin-top: var(--space-6); padding: var(--space-4); background: rgba(212,168,83,0.05); border: 1px solid var(--border); border-radius: var(--radius); display: none;">
-              <h4 style="font-size: 1rem; font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">🔍 شرح الحساب خطوة بخطوة</h4>
-              <div id="stepsArea" style="display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4);"></div>
-              <p id="analysisText" style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;"></p>
+            <div id="analysisBox" class="analysis-box" style="display:none;">
+              <h4 class="analysis-box__title">🔍 شرح الحساب خطوة بخطوة</h4>
+              <div id="stepsArea" class="steps-list"></div>
+              <p id="analysisText" class="analysis-text"></p>
             </div>
             <div class="share-bar">
               <input type="text" id="shareLink" readonly placeholder="رابط المشاركة..." />
-              <button onclick="copyLink()" class="btn btn-outline" style="font-size: 0.8rem;">نسخ الرابط</button>
-              <button onclick="window.print()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">🖨️ طباعة</button>
-              <button onclick="exportCSV()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📊 Excel</button>
-              <label for="pdfLang" class="hidden-print" style="font-size:0.8rem;color:var(--text-secondary);">لغة التقرير:</label>
-              <select data-universal-dropdown="true" id="pdfLang" class="hidden-print" aria-label="لغة تصدير PDF" style="padding:0.5rem 0.75rem; border-radius:8px; background:var(--bg-card); color:var(--text); border:1px solid var(--border); font-family:inherit; font-size:0.8rem; cursor:pointer;">
+              <button onclick="copyLink()" class="btn btn-outline btn-sm">نسخ الرابط</button>
+              <button onclick="window.print()" class="btn btn-outline hidden-print btn-sm">🖨️ طباعة</button>
+              <button onclick="exportCSV()" class="btn btn-outline hidden-print btn-sm">📊 Excel</button>
+              <label for="pdfLang" class="hidden-print">لغة التقرير:</label>
+              <select data-universal-dropdown="true" id="pdfLang" class="hidden-print pdf-lang-select" aria-label="لغة تصدير PDF">
                 <option value="ar">PDF عربي</option>
                 <option value="en">PDF English</option>
               </select>
-              <button onclick="exportPDF()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📄 تصدير</button>
+              <button onclick="exportPDF()" class="btn btn-outline hidden-print btn-sm">📄 تصدير</button>
             </div>
           </div>
 
-          <div style="background: linear-gradient(135deg, var(--navy-900), var(--navy-700)); border-radius: var(--radius-lg); padding: var(--space-8); color: var(--white);">
-            <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3);">ابغى تحليل أعمق؟</h3>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-6);">هذه الأداة تقديرية. لو تبي تحليل دقيق لنماذجك المالية — نحن نقدم استشارة مجانية.</p>
+          <div class="calc-cta-card">
+            <h3 class="calc-cta-card__title">ابغى تحليل أعمق؟</h3>
+            <p class="calc-cta-card__text">هذه الأداة تقديرية. لو تبي تحليل دقيق لنماذجك المالية — نحن نقدم استشارة مجانية.</p>
             <a href="contact.html" class="btn btn-primary">احجز استشارتك المجانية →</a>
           </div>
 
           <!-- Smart Alert CTA -->
-          <div id="smartAlertBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.02)); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius-lg);">
-            <div style="display: flex; align-items: flex-start; gap: var(--space-4);">
-              <div style="font-size: 2rem; flex-shrink: 0;">⚠️</div>
+          <div id="smartAlertBox" class="smart-alert" style="display:none;">
+            <div class="smart-alert__inner">
+              <div class="smart-alert__icon">⚠️</div>
               <div>
-                <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-2); color: #fca5a5;">هامش الربح يحتاج مراجعة</h4>
-                <p id="smartAlertText" style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4); line-height: 1.8;"></p>
-                <a href="contact.html" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">📞 استشارة مجانية (30 دقيقة)</a>
+                <h4 class="smart-alert__title">هامش الربح يحتاج مراجعة</h4>
+                <p id="smartAlertText" class="smart-alert__text"></p>
+                <a href="contact.html" class="btn btn-primary smart-alert__btn">📞 استشارة مجانية (30 دقيقة)</a>
               </div>
             </div>
           </div>
 
           <!-- Lead Capture -->
-          <div id="leadCaptureBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);">
-            <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">💾 احفظ نتائجك واحصل على هدية</h4>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4);">أرسل هذه النتائج لبريدك + نموذج Cash Flow Forecast مجاني.</p>
-            <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
-              <input type="text" name="name" required placeholder="الاسم" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
-              <input type="email" name="email" required placeholder="البريد الإلكتروني" style="flex: 2; min-width: 180px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
-              <input type="tel" name="phone" placeholder="رقم الجوال (اختياري)" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+          <div id="leadCaptureBox" class="lead-capture" style="display:none;">
+            <h4 class="lead-capture__title">💾 احفظ نتائجك واحصل على هدية</h4>
+            <p class="lead-capture__text">أرسل هذه النتائج لبريدك + نموذج Cash Flow Forecast مجاني.</p>
+            <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" class="lead-form">
+              <input type="text" name="name" required placeholder="الاسم" class="lead-input" />
+              <input type="email" name="email" required placeholder="البريد الإلكتروني" class="lead-input lead-input--email" />
+              <input type="tel" name="phone" placeholder="رقم الجوال (اختياري)" class="lead-input" />
               <input type="hidden" name="source" value="calculator_lead" />
               <input type="hidden" name="calc_data" id="leadCalcData" />
-              <button type="submit" class="btn btn-primary" style="flex-shrink: 0;">أرسل لي النتائج</button>
+              <button type="submit" class="btn btn-primary lead-form__btn">أرسل لي النتائج</button>
             </form>
-            <p id="leadCaptureSuccess" style="display:none; color: #16a34a; margin-top: var(--space-3); font-weight: 700;">✓ تم الإرسال! سنتواصل معك خلال 24 ساعة.</p>
+            <p id="leadCaptureSuccess" class="lead-success" style="display:none;">✓ تم الإرسال! سنتواصل معك خلال 24 ساعة.</p>
           </div>
         </div>
       </div>
 
       <!-- Charts -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">رسم بياني: التكاليف vs الإيرادات</h2>
-          <div style="position: relative; height: 400px;">
+      <div class="reveal mt-12">
+        <div class="calc-card">
+          <h2 class="calc-card__title calc-card__title--center">رسم بياني: التكاليف vs الإيرادات</h2>
+          <div class="chart-wrapper chart-wrapper--tall">
             <canvas id="breakEvenChart"></canvas>
           </div>
         </div>
       </div>
-      <div class="reveal" style="margin-top: var(--space-8);">
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">تركيبة التكاليف (ثابتة vs متغيرة)</h2>
-          <div style="position: relative; height: 320px; max-width: 400px; margin: 0 auto;">
+      <div class="reveal mt-8">
+        <div class="calc-card">
+          <h2 class="calc-card__title calc-card__title--center">تركيبة التكاليف (ثابتة vs متغيرة)</h2>
+          <div class="chart-wrapper chart-wrapper--pie">
             <canvas id="costPieChart"></canvas>
           </div>
         </div>
       </div>
 
       <!-- Scenarios -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div class="section-header" style="margin-bottom: var(--space-8);">
+      <div class="reveal mt-12">
+        <div class="section-header section-header-compact">
           <span class="section__eyebrow">السيناريوهات</span>
           <h2 class="section__title">مقارنة السيناريوهات</h2>
         </div>
         <div class="scenario-grid" id="scenarioGrid">
           <div class="scenario-card pessimistic">
-            <div class="scenario-label" style="color: #dc2626;">تشاؤم (-20%)</div>
+            <div class="scenario-label scenario-label--pessimistic">تشاؤم (-20%)</div>
             <div class="scenario-value" id="pessimisticProfit">—</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">صافي الربح</div>
+            <div class="scenario-profit-label">صافي الربح</div>
           </div>
           <div class="scenario-card expected">
-            <div class="scenario-label" style="color: var(--gold);">الحالة المتوقعة</div>
+            <div class="scenario-label scenario-label--expected">الحالة المتوقعة</div>
             <div class="scenario-value" id="expectedProfit">—</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">صافي الربح</div>
+            <div class="scenario-profit-label">صافي الربح</div>
           </div>
           <div class="scenario-card optimistic">
-            <div class="scenario-label" style="color: #16a34a;">تفاؤل (+20%)</div>
+            <div class="scenario-label scenario-label--optimistic">تفاؤل (+20%)</div>
             <div class="scenario-value" id="optimisticProfit">—</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">صافي الربح</div>
+            <div class="scenario-profit-label">صافي الربح</div>
           </div>
         </div>
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); margin-top: var(--space-8);">
-          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); text-align: center;">رسم بياني: مقارنة صافي الربح بين السيناريوهات</h3>
-          <div style="position: relative; height: 300px; max-width: 600px; margin: 0 auto;">
+        <div class="calc-card mt-8">
+          <h3 class="calc-card__subtitle">رسم بياني: مقارنة صافي الربح بين السيناريوهات</h3>
+          <div class="chart-wrapper chart-wrapper--medium">
             <canvas id="scenarioChart"></canvas>
           </div>
         </div>
       </div>
 
       <!-- Sensitivity Analysis -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div class="section-header" style="margin-bottom: var(--space-8);">
+      <div class="reveal mt-12">
+        <div class="section-header section-header-compact">
           <span class="section__eyebrow">تحليل الحساسية</span>
           <h2 class="section__title">كيف يتغير الربح بتغيير السعر أو الكمية؟</h2>
         </div>
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); overflow-x: auto;">
+        <div class="calc-card table-wrap">
           <table class="sensitivity-table" id="sensitivityTable">
             <thead>
               <tr>
@@ -361,14 +325,14 @@
       </div>
 
       <!-- History -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div class="section-header" style="margin-bottom: var(--space-8);">
+      <div class="reveal mt-12">
+        <div class="section-header section-header-compact">
           <span class="section__eyebrow">السجل</span>
           <h2 class="section__title">حساباتك السابقة</h2>
         </div>
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
+        <div class="calc-card">
           <div class="history-list" id="historyList">
-            <p style="color: var(--text-muted); text-align: center;">لا توجد حسابات سابقة</p>
+            <p class="empty-history">لا توجد حسابات سابقة</p>
           </div>
         </div>
       </div>
@@ -376,7 +340,7 @@
   </section>
 
   <!-- How It Works -->
-  <section class="section" style="background: var(--bg-secondary);">
+  <section class="section section--bg-secondary">
     <div class="container">
       <div class="section-header reveal">
         <span class="section__eyebrow">الشفافية</span>
@@ -385,59 +349,59 @@
       </div>
       <div class="grid-2">
         <div class="card reveal">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📐 المعادلات الرياضية</h3>
-          <div style="display: flex; flex-direction: column; gap: var(--space-3); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
-            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+          <h3 class="card__title">📐 المعادلات الرياضية</h3>
+          <div class="formula-list">
+            <div class="formula-item">
               نقطة التعادل (وحدات) = التكاليف الثابتة ÷ (سعر البيع − التكلفة المتغيرة)
             </div>
-            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+            <div class="formula-item">
               نقطة التعادل (مبالغ) = نقطة التعادل (وحدات) × سعر البيع
             </div>
-            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+            <div class="formula-item">
               صافي الربح = (الكمية × سعر البيع) − التكاليف الثابتة − (الكمية × التكلفة المتغيرة)
             </div>
           </div>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🧮 اختبر بنفسك</h3>
-          <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-4);">اضغط "جرب مثال توضيحي" وتحقق من الحساب يدوياً:</p>
-          <div style="display: flex; flex-direction: column; gap: var(--space-2); font-size: 0.85rem; color: var(--text-secondary);">
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+          <h3 class="card__title">🧮 اختبر بنفسك</h3>
+          <p class="card__text">اضغط "جرب مثال توضيحي" وتحقق من الحساب يدوياً:</p>
+          <div class="example-list">
+            <div class="example-row">
               <span>التكاليف الثابتة</span><strong>10,000 ر.س</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="example-row">
               <span>سعر البيع</span><strong>500 ر.س</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="example-row">
               <span>التكلفة المتغيرة</span><strong>300 ر.س</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="example-row">
               <span>الكمية</span><strong>100 وحدة</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0;">
-              <span>النتيجة المتوقعة</span><strong style="color: var(--gold);">ربح 10,000 ر.س</strong>
+            <div class="example-row example-row--last">
+              <span>النتيجة المتوقعة</span><strong class="text-gold">ربح 10,000 ر.س</strong>
             </div>
           </div>
         </div>
       </div>
-      <div class="grid-2" style="margin-top: var(--space-8);">
+      <div class="grid-2 mt-8">
         <div class="card reveal">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📚 مصادر علمية موثوقة</h3>
-          <div style="display: flex; flex-direction: column; gap: var(--space-3);">
-            <a href="https://en.wikipedia.org/wiki/Break-even_analysis" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
-              <span style="color: var(--gold);">→</span> Wikipedia — Break-even Analysis
+          <h3 class="card__title">📚 مصادر علمية موثوقة</h3>
+          <div class="source-list">
+            <a href="https://en.wikipedia.org/wiki/Break-even_analysis" target="_blank" rel="noopener" class="source-link">
+              <span class="source-link__arrow">→</span> Wikipedia — Break-even Analysis
             </a>
-            <a href="https://www.investopedia.com/terms/b/breakevenanalysis.asp" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
-              <span style="color: var(--gold);">→</span> Investopedia — Break-Even Point
+            <a href="https://www.investopedia.com/terms/b/breakevenanalysis.asp" target="_blank" rel="noopener" class="source-link">
+              <span class="source-link__arrow">→</span> Investopedia — Break-Even Point
             </a>
-            <a href="https://www.accountingtools.com/articles/break-even-point" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
-              <span style="color: var(--gold);">→</span> AccountingTools — Break-Even Formula
+            <a href="https://www.accountingtools.com/articles/break-even-point" target="_blank" rel="noopener" class="source-link">
+              <span class="source-link__arrow">→</span> AccountingTools — Break-Even Formula
             </a>
           </div>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📌 ملاحظة من بوندز</h3>
-          <ul style="font-size: 0.9rem; color: var(--text-secondary); line-height: 2; padding-right: var(--space-4);">
+          <h3 class="card__title">📌 ملاحظة من بوندز</h3>
+          <ul class="warning-list">
             <li>هذه الحاسبة تعطيك <strong>رؤية مالية أولية ذكية</strong> بناءً على بياناتك؛ تساعدك على تقييم فرص مشروعك قبل اتخاذ القرار. للتحوّل إلى خطة عمل دقيقة، استشر أحد مستشارينا المعتمدين.</li>
             <li>النتائج تعتمد على <strong>دقة البيانات المدخلة</strong>.</li>
             <li>لا تشمل الضرائب، العمولات، أو التضخم.</li>
@@ -975,7 +939,7 @@
         history = history || [];
         var list = document.getElementById('historyList');
         if (history.length === 0) {
-          list.innerHTML = '<p style="color: var(--text-muted); text-align: center;">لا توجد حسابات سابقة</p>';
+          list.innerHTML = '<p class="empty-history">لا توجد حسابات سابقة</p>';
           return;
         }
         list.innerHTML = '';
@@ -1654,7 +1618,7 @@
     renderHistory();
   </script>
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}</script>
-  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);">↑</button>
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" class="back-to-top">↑</button>
   <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
 <!-- Tawk.to Live Chat -->
 <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>

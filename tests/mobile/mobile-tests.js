@@ -12,6 +12,16 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3005';
 const PAGES = [
   { name: 'index-ar', url: '/' },
   { name: 'services-ar', url: '/services.html' },
+  { name: 'pricing-root-ar', url: '/pricing.html' },
+  { name: 'calculator-ar', url: '/calculator.html' },
+  { name: 'manufacturing-ar', url: '/sectors/manufacturing.html' },
+  { name: 'distressed-recovery-study-ar', url: '/%D8%AF%D8%B1%D8%A7%D8%B3%D8%A9-%D8%AC%D8%AF%D9%88%D9%89-%D8%A5%D8%AD%D9%8A%D8%A7%D8%A1-%D8%A7%D9%84%D8%A3%D8%B5%D9%88%D8%A7%D9%84-%D8%A7%D9%84%D9%85%D9%84%D9%82%D8%AD%D8%A9.html' },
+  { name: 'cash-flow-ar', url: '/calculators/cash-flow.html' },
+  { name: 'restaurant-ar', url: '/calculators/restaurant.html' },
+  { name: 'pricing-ar', url: '/calculators/pricing.html' },
+  { name: 'loan-ar', url: '/calculators/loan.html' },
+  { name: 'feasibility-ar', url: '/calculators/feasibility.html' },
+  { name: 'v3-portfolio-ar', url: '/v3/portfolio' },
   { name: 'index-en', url: '/en/index.html' },
 ];
 
@@ -39,6 +49,17 @@ const PAGES = [
         failed++;
       } else {
         console.log(`✅ ${p.name}: no horizontal overflow`);
+      }
+
+      // Check tables do not overflow their containers
+      const overflowingTables = await page.$$eval('table', (tables) =>
+        tables.some((t) => t.scrollWidth > t.clientWidth + 1)
+      );
+      if (overflowingTables) {
+        console.log(`❌ ${p.name}: table overflows container`);
+        failed++;
+      } else {
+        console.log(`✅ ${p.name}: no table overflow`);
       }
 
       // Test dropdown toggle on touch (no hover)

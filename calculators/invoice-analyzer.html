@@ -17,178 +17,8 @@
   <script src="db-client.js"></script>
   <script src="db-client-auto.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
-  <style>
-    :root { --gold:#b8954e; --green:#22c55e; --red:#ef4444; --orange:#f59e0b; }
-    body { background: #f5f0e8; color:#1a1a1a; font-family:'Vazirmatn',system-ui,sans-serif; margin:0; padding:2rem 1rem; }
-    .container { max-width:960px; margin:0 auto; }
-    .invoice-card {
-      background:linear-gradient(135deg, rgba(255,255,255,0.9), rgba(245,240,232,0.95));
-      border:1px solid rgba(212,168,83,0.2);
-      border-radius:16px;
-      padding:1.5rem;
-      margin-bottom:1.5rem;
-      position:relative;
-      overflow:hidden;
-    }
-    .invoice-card::before {
-      content:''; position:absolute; top:0; left:0; right:0; height:3px;
-      background:linear-gradient(90deg, var(--gold), #d4b87a);
-    }
-    .invoice-header {
-      display:flex; justify-content:space-between; align-items:center;
-      margin-bottom:1.25rem; padding-bottom:0.75rem;
-      border-bottom:1px dashed rgba(255,255,255,0.1);
-    }
-    .invoice-header h2 {
-      margin:0; font-size:1.1rem; font-weight:800; color:var(--gold);
-      display:flex; align-items:center; gap:0.5rem;
-    }
-    .invoice-header .badge {
-      background:rgba(34,197,94,0.15); color:var(--green);
-      border:1px solid rgba(34,197,94,0.3); padding:0.2rem 0.6rem;
-      border-radius:999px; font-size:0.75rem; font-weight:700;
-    }
-    .invoice-line {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:0.6rem 0; border-bottom:1px solid rgba(255,255,255,0.04);
-      font-size:0.95rem;
-    }
-    .invoice-line:last-child { border-bottom:none; }
-    .invoice-line .label { color:#555555; }
-    .invoice-line .value { font-weight:700; font-family:monospace; font-size:1rem; }
-    .invoice-line.positive .value { color:var(--green); }
-    .invoice-line.negative .value { color:var(--red); }
-    .invoice-line.total { padding-top:0.75rem; margin-top:0.5rem; border-top:2px solid var(--gold); }
-    .invoice-line.total .label { color:var(--gold); font-weight:800; font-size:1.05rem; }
-    .invoice-line.total .value { color:var(--gold); font-size:1.3rem; font-weight:900; }
-    .receipt-dots {
-      text-align:center; color:rgba(255,255,255,0.15);
-      font-size:1.2rem; letter-spacing:4px; margin:0.5rem 0;
-    }
-    .volume-grid {
-      display:grid; grid-template-columns:repeat(3,1fr); gap:1rem;
-      margin:1.5rem 0;
-    }
-    @media(max-width:640px){ .volume-grid { grid-template-columns:1fr; }
-    }
-
-    .input-group label {
-      display:block; font-size:0.8rem; color:#555555; margin-bottom:0.4rem; font-weight:600;
-    }
-    .input-group input, .input-group select {
-      width:100%; padding:0.7rem 1rem; border-radius:10px; border:1px solid rgba(0,0,0,0.2);
-      background:#ffffff; color:#1a1a1a; font-family:inherit; font-size:1rem;
-      box-sizing:border-box; transition:border-color 0.2s;
-    }
-    .input-group input:focus, .input-group select:focus { outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(212,168,83,0.12); }
-    .input-group select option { background: #ffffff; color:#1a1a1a; }
-    .summary-grid {
-      display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin:1.5rem 0;
-    }
-    @media(max-width:900px){ .summary-grid { grid-template-columns:repeat(2,1fr); }
-    }
-    @media(max-width:640px){ .summary-grid { grid-template-columns:1fr; }
-    }
-
-    .summary-card {
-      background:rgba(255,255,255,0.85); border:1px solid rgba(255,255,255,0.08);
-      border-radius:12px; padding:1.25rem; text-align:center;
-      transition:all 0.3s;
-    }
-    .summary-card:hover { border-color:rgba(212,168,83,0.3); transform:translateY(-2px); }
-    .summary-card .icon { font-size:1.5rem; margin-bottom:0.5rem; }
-    .summary-card .num {
-      font-size:1.6rem; font-weight:900; color:var(--gold); font-family:monospace;
-    }
-    .summary-card .label { font-size:0.75rem; color:#888888; margin-top:0.25rem; }
-    .summary-card .sub { font-size:0.7rem; color:#475569; margin-top:0.15rem; }
-    .promo-box {
-      background:linear-gradient(135deg, rgba(239,68,68,0.08), rgba(245,158,11,0.08));
-      border:1px solid rgba(239,68,68,0.2); border-radius:12px;
-      padding:1.25rem; margin:1.5rem 0;
-    }
-    .promo-box h3 { margin:0 0 0.75rem; font-size:1rem; color:var(--red); display:flex; align-items:center; gap:0.5rem; }
-    .promo-row { display:flex; justify-content:space-between; padding:0.4rem 0; font-size:0.9rem; }
-    .promo-row .label { color:#555555; }
-    .promo-row .value { font-weight:700; }
-    .promo-row.highlight { padding:0.6rem 0; margin-top:0.5rem; border-top:1px dashed rgba(255,255,255,0.1); }
-    .promo-row.highlight .value { color:var(--orange); font-size:1.1rem; }
-    .compare-grid {
-      display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.5rem 0;
-    }
-    @media(max-width:640px){ .compare-grid { grid-template-columns:1fr; }
-    }
-
-    .compare-card {
-      background:rgba(255,255,255,0.85); border:1px solid rgba(255,255,255,0.08);
-      border-radius:12px; padding:1.25rem;
-    }
-    .compare-card.winner { border-color:rgba(34,197,94,0.3); background:rgba(34,197,94,0.05); }
-    .compare-card h4 { margin:0 0 0.75rem; font-size:0.95rem; }
-    .compare-card .big { font-size:1.8rem; font-weight:900; font-family:monospace; }
-    .compare-card .desc { font-size:0.8rem; color:#888888; margin-top:0.3rem; }
-    .inputs-grid {
-      display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin:1.5rem 0;
-    }
-    @media(max-width:640px){ .inputs-grid { grid-template-columns:1fr; }
-    }
-
-    .section-title {
-      font-size:1.1rem; font-weight:800; color:var(--gold); margin:1.5rem 0 1rem;
-      display:flex; align-items:center; gap:0.5rem;
-    }
-    .btn-calc {
-      background:linear-gradient(135deg, var(--gold), #d4b87a); color:#f5f0e8;
-      border:none; padding:0.9rem 2rem; border-radius:10px; font-family:inherit;
-      font-weight:800; font-size:1rem; cursor:pointer; transition:all 0.2s;
-      display:block; width:100%; margin:1rem 0;
-    }
-    .btn-calc:hover { opacity:0.9; transform:translateY(-1px); }
-    .btn-calc.secondary {
-      background:transparent; color:var(--gold); border:1px solid rgba(212,168,83,0.4);
-      margin-top:0.5rem;
-    }
-    .btn-calc.secondary:hover { background:rgba(212,168,83,0.1); }
-    .empty-state { text-align:center; padding:3rem 1rem; color:#888888; }
-    .empty-state .icon { font-size:3rem; margin-bottom:1rem; opacity:0.5; }
-    /* Platform comparison table */
-    .platform-table-wrap { overflow-x:auto; margin:1.5rem 0; }
-    .platform-table {
-      width:100%; border-collapse:collapse; font-size:0.85rem;
-    }
-    .platform-table th {
-      background:rgba(212,168,83,0.1); color:var(--gold); padding:0.7rem 0.5rem;
-      text-align:center; font-weight:700; border-bottom:2px solid rgba(212,168,83,0.3);
-    }
-    .platform-table td {
-      padding:0.6rem 0.5rem; text-align:center;
-      border-bottom:1px solid rgba(255,255,255,0.04);
-    }
-    .platform-table tr:hover td { background:rgba(255,255,255,0.02); }
-    .platform-table .best { color:var(--green); font-weight:800; }
-    .platform-table .worst { color:var(--red); font-weight:800; }
-    .platform-table .name-cell { text-align:right; font-weight:600; }
-    .platform-table .fee-cell { font-family:monospace; }
-    .info-tag {
-      display:inline-block; font-size:0.7rem; padding:0.15rem 0.4rem;
-      border-radius:4px; margin-right:0.3rem;
-    }
-    .info-tag.verified { background:rgba(34,197,94,0.12); color:#22c55e; }
-    .info-tag.estimated { background:rgba(245,158,11,0.12); color:#f59e0b; }
-    .info-tag.tiered { background:rgba(59,130,246,0.12); color:#60a5fa; }
-    .platform-selector-row {
-      display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;
-    }
-    @media(max-width:640px){ .platform-selector-row { grid-template-columns:1fr; }
-    }
-
-    .auto-fill-note {
-      font-size:0.8rem; color:#888888; margin-top:0.5rem; text-align:center;
-    }
-    #compareAllSection { display:none; }
-  </style>
-<link rel="stylesheet" href="../header-footer.css?v=7" />
-  <link rel="canonical" href="https://bonds-global.com/calculators/invoice-analyzer" />
+  <link rel="stylesheet" href="invoice-analyzer.css" />
+<link rel="canonical" href="https://bonds-global.com/calculators/invoice-analyzer" />
   <meta property="og:title" content="حاسبة تحليل الفواتير | بوندز" />
   <meta property="og:description" content="حلل فاتورة كل طلب — ربح الفاتورة، ربح اليوم، الشهر، السنة. قارن بين منصات التوصيل." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
@@ -205,13 +35,13 @@
   <div id="site-header"></div>
 
 <div class="container">
-  <h1 style="text-align:center; font-size:clamp(1.5rem,4vw,2.2rem); font-weight:900; color:var(--gold); margin-bottom:0.5rem;">
+  <h1 class="page-title">
     🧾 حاسبة تحليل الفواتير
   </h1>
-  <p style="text-align:center; color:#555555; margin-bottom:1rem; font-size:0.95rem;">
+  <p class="page-subtitle">
     اختر الدولة والمنصة — أو أدخل البيانات يدوياً. شوف ربح كل طلب، اليوم، الشهر، والسنة
   </p>
-  <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:0.75rem 1rem; margin-bottom:1.5rem; text-align:center; font-size:0.85rem; color:#f59e0b; line-height:1.6;">
+  <div class="warning-box">
     ⚠️ <strong>تنبيه:</strong> البيانات تقديرية بناءً على معلومات عامة. العمولة والرسوم <strong>تختلف من مطعم لمطعم</strong> حسب الاتفاق المباشر مع المنصة. تأكد من أرقام عقدك الفعلي وأعدل القيم يدوياً.
   </div>
 

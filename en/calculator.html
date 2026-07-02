@@ -28,53 +28,17 @@
   <link rel="preload" href="../assets/bonds-logo-2026.webp?v=2026" as="image" type="image/webp" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../styles/page-shared.css" />
+  <link rel="stylesheet" href="../calculators/shared-calculators.css" />
+  <link rel="stylesheet" href="../styles/calculator-landing.css" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="../calculators/shared-utils.js"></script>
   <script src="../calculators/calc-functions.js"></script>
-  <style>
-    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
-    .calc-input-group { margin-bottom: 1.5rem; }
-    .calc-input-group label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; }
-    .calc-input-group input[type="number"] { width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s; }
-    .calc-input-group input[type="number"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.1); }
-    .calc-input-group input[type="range"] { width: 100%; margin-top: 0.5rem; accent-color: var(--gold); }
-    .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
-    @media (max-width: 768px) { .scenario-grid { grid-template-columns: 1fr; } }
-    .scenario-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; transition: all 0.3s; }
-    .scenario-card:hover { transform: translateY(-4px); border-color: var(--gold); }
-    .scenario-card.pessimistic { border-top: 3px solid #dc2626; }
-    .scenario-card.expected { border-top: 3px solid var(--gold); }
-    .scenario-card.optimistic { border-top: 3px solid #16a34a; }
-    .scenario-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-    .scenario-value { font-size: 1.5rem; font-weight: 900; }
-    .sensitivity-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    .sensitivity-table th, .sensitivity-table td { padding: 0.75rem 1rem; text-align: center; border: 1px solid var(--border); font-size: 0.85rem; }
-    .sensitivity-table th { background: var(--bg-card); color: var(--gold); font-weight: 700; }
-    .sensitivity-table td.positive { color: #16a34a; font-weight: 700; }
-    .sensitivity-table td.negative { color: #dc2626; font-weight: 700; }
-    .share-bar { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-    .share-bar input { flex: 1; min-width: 200px; }
-    .history-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
-    .history-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-    .history-item:hover { border-color: var(--gold); }
-    @media print {
-      .hidden-print, .topbar, .main-header, .main-footer, .hero, button, select, .hero__eyebrow, .hero__title, .hero__desc { display: none !important; }
-      .calc-grid { grid-template-columns: 1fr 1fr; }
-      body { background: #fff !important; color: #000 !important; font-size: 12pt; }
-      .section { padding: 0 !important; }
-      canvas { max-height: 280px !important; }
-      a { text-decoration: none; color: #000; }
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    }
-  </style>
-
   <script src="../calculators/db-client.js"></script>
-<link rel="stylesheet" href="../header-footer.css?v=7" />
-  <link rel="canonical" href="https://bonds-global.com/en/calculator" />
+<link rel="canonical" href="https://bonds-global.com/en/calculator" />
 
 </head>
-<body style="font-family:Inter,system-ui,sans-serif">
+<body class="body-en">
 
   <!-- Top Bar -->
   <div class="topbar">
@@ -88,28 +52,28 @@
   <div id="site-header"></div>
 
   <!-- Hero -->
-  <section class="hero" style="min-height: 40vh; padding: var(--space-20) 0;">
-    <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
-    <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
+  <section class="hero page-hero-compact">
+    <div class="hero__orb hero__orb--1"></div>
+    <div class="hero__orb hero__orb--2"></div>
     <div class="container hero__content reveal">
       <span class="hero__eyebrow">Free Tool</span>
       <h1 class="hero__title">Break-Even <span class="text-gradient">Calculator</span></h1>
       <p class="hero__desc">Find out how many units you need to sell, and how much revenue you need, to cover your costs and start making a profit — including platform fees and discounts.</p>
-      <div style="margin-top:var(--space-6);">
-        <a href="calculators/investment-center/index.html" style="display:inline-block;padding:0.75rem 1.5rem;background:rgba(212,168,83,0.1);border:1px solid var(--gold);color:var(--gold);border-radius:var(--radius);font-weight:700;text-decoration:none;">🚀 Explore Investment Calculators Center</a>
+      <div class="mt-6">
+        <a href="calculators/investment-center/index.html" class="hero-link">🚀 Explore Investment Calculators Center</a>
       </div>
     </div>
   </section>
 
   <!-- Wizard Promo -->
-  <section class="section" style="padding-bottom: 0;">
+  <section class="section section--pb-0">
     <div class="container">
-      <div style="background: linear-gradient(135deg, rgba(212,168,83,0.1), rgba(212,168,83,0.02)); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem 2rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; justify-content: space-between;">
+      <div class="cta-banner">
         <div>
-          <h3 style="color: var(--gold); margin-bottom: 0.5rem;">🚀 Project Feasibility Wizard</h3>
-          <p style="color: var(--text-secondary); margin: 0;">Get a comprehensive investment evaluation in 5 steps with Investment, Finance, Market, Risk, and Overall scores plus a professional PDF report.</p>
+          <h3 class="cta-banner__title">🚀 Project Feasibility Wizard</h3>
+          <p class="cta-banner__text">Get a comprehensive investment evaluation in 5 steps with Investment, Finance, Market, Risk, and Overall scores plus a professional PDF report.</p>
         </div>
-        <a href="calculator-wizard.html" style="display:inline-block;padding:0.85rem 1.75rem;background:var(--gold);color:#0a0f1a;border-radius:var(--radius);font-weight:800;text-decoration:none;white-space:nowrap;">Start the Wizard</a>
+        <a href="calculator-wizard.html" class="cta-banner__btn">Start the Wizard</a>
       </div>
     </div>
   </section>
@@ -119,19 +83,19 @@
     <div class="container">
       <div class="calc-grid">
         <!-- Inputs -->
-        <div class="reveal" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Project Data</h2>
+        <div class="reveal calc-card">
+          <h2 class="calc-card__title">Project Data</h2>
           <div class="calc-input-group">
             <label>Fixed Costs (monthly) <abbr title="Costs paid monthly regardless of sales volume: rent, salaries, utilities">ⓘ</abbr></label>
             <input type="number" id="fixedCost" placeholder="e.g., 50000" min="0" />
-            <button type="button" onclick="toggleDetail('fixedCostDetail', this)" style="margin-top:0.5rem;background:transparent;border:none;color:var(--gold);font-size:0.85rem;cursor:pointer;">▼ Fixed Cost Breakdown</button>
-            <div id="fixedCostDetail" style="display:none;margin-top:var(--space-3);padding:var(--space-3);background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;">
-              <div class="calc-input-group"><label style="font-size:0.8rem;">Rent <abbr title="Monthly rent for the location or warehouse">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="rent" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">Salaries <abbr title="Fixed monthly salaries (excludes per-unit direct labor)">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="salaries" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">Electricity / Water <abbr title="Monthly electricity, water, and internet bills">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="utilities" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">Licenses <abbr title="Annual license and registration fees divided by 12 months">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="licenses" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">Fixed Marketing <abbr title="Fixed monthly marketing and advertising spend">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="marketing" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">Other <abbr title="Any other monthly fixed costs">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="other" placeholder="0" min="0" /></div>
+            <button type="button" onclick="toggleDetail('fixedCostDetail', this)" class="detail-toggle">▼ Fixed Cost Breakdown</button>
+            <div id="fixedCostDetail" class="detail-panel" style="display:none;">
+              <div class="calc-input-group"><label class="detail-label">Rent <abbr title="Monthly rent for the location or warehouse">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="rent" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">Salaries <abbr title="Fixed monthly salaries (excludes per-unit direct labor)">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="salaries" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">Electricity / Water <abbr title="Monthly electricity, water, and internet bills">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="utilities" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">Licenses <abbr title="Annual license and registration fees divided by 12 months">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="licenses" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">Fixed Marketing <abbr title="Fixed monthly marketing and advertising spend">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="marketing" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">Other <abbr title="Any other monthly fixed costs">ⓘ</abbr></label><input type="number" class="fixed-detail" data-target="fixedCost" data-key="other" placeholder="0" min="0" /></div>
             </div>
           </div>
           <div class="calc-input-group">
@@ -141,12 +105,12 @@
           <div class="calc-input-group">
             <label>Variable Cost per Unit <abbr title="Cost to produce/sell one unit: raw materials, direct labor, packaging">ⓘ</abbr></label>
             <input type="number" id="varCost" placeholder="e.g., 300" min="0" />
-            <button type="button" onclick="toggleDetail('varCostDetail', this)" style="margin-top:0.5rem;background:transparent;border:none;color:var(--gold);font-size:0.85rem;cursor:pointer;">▼ Variable Cost Breakdown</button>
-            <div id="varCostDetail" style="display:none;margin-top:var(--space-3);padding:var(--space-3);background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;">
-              <div class="calc-input-group"><label style="font-size:0.8rem;">Raw Materials <abbr title="Raw material cost per unit produced">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="materials" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">Labor <abbr title="Direct labor cost per unit">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="labor" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">Packaging <abbr title="Packaging cost per unit">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="packaging" placeholder="0" min="0" /></div>
-              <div class="calc-input-group"><label style="font-size:0.8rem;">Other <abbr title="Any other per-unit variable costs">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="other" placeholder="0" min="0" /></div>
+            <button type="button" onclick="toggleDetail('varCostDetail', this)" class="detail-toggle">▼ Variable Cost Breakdown</button>
+            <div id="varCostDetail" class="detail-panel" style="display:none;">
+              <div class="calc-input-group"><label class="detail-label">Raw Materials <abbr title="Raw material cost per unit produced">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="materials" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">Labor <abbr title="Direct labor cost per unit">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="labor" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">Packaging <abbr title="Packaging cost per unit">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="packaging" placeholder="0" min="0" /></div>
+              <div class="calc-input-group"><label class="detail-label">Other <abbr title="Any other per-unit variable costs">ⓘ</abbr></label><input type="number" class="var-detail" data-target="varCost" data-key="other" placeholder="0" min="0" /></div>
             </div>
           </div>
           <div class="calc-input-group">
@@ -169,174 +133,174 @@
             <label>Zakat Rate (%) <abbr title="Annual Zakat rate due — applied only on positive profit">ⓘ</abbr></label>
             <input type="number" id="zakatRate" placeholder="e.g., 2.5" min="0" max="100" value="2.5" />
           </div>
-          <button onclick="calculateAll()" class="btn btn-primary" style="width: 100%;">Calculate Results</button>
-          <button onclick="loadExample()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">🧮 Try an Example</button>
-          <button onclick="resetCalc()" class="btn btn-outline" style="width: 100%; margin-top: var(--space-3);">Clear Data</button>
+          <button onclick="calculateAll()" class="btn btn-primary btn-block">Calculate Results</button>
+          <button onclick="loadExample()" class="btn btn-outline btn-block mt-3">🧮 Try an Example</button>
+          <button onclick="resetCalc()" class="btn btn-outline btn-block mt-3">Clear Data</button>
         </div>
 
         <!-- Results + Chart -->
         <div class="reveal reveal-delay-1">
-          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); margin-bottom: var(--space-6);">
-            <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6);">Results</h2>
-            <div id="resultsArea" style="display: flex; flex-direction: column; gap: var(--space-3);">
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Break-Even Point (units)</span>
-                <span id="resUnits" style="font-weight: 800; color: var(--text);">—</span>
+          <div class="calc-card calc-card--mb">
+            <h2 class="calc-card__title">Results</h2>
+            <div id="resultsArea" class="result-list">
+              <div class="result-row">
+                <span class="result-row__label">Break-Even Point (units)</span>
+                <span id="resUnits" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Break-Even Point (amount)</span>
-                <span id="resAmount" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">Break-Even Point (amount)</span>
+                <span id="resAmount" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Expected Revenue (before fees)</span>
-                <span id="resRevenue" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">Expected Revenue (before fees)</span>
+                <span id="resRevenue" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Net Revenue after Fees</span>
-                <span id="resNetRevenue" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">Net Revenue after Fees</span>
+                <span id="resNetRevenue" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Total Costs</span>
-                <span id="resTotalCost" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">Total Costs</span>
+                <span id="resTotalCost" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Total Fees &amp; Discounts</span>
-                <span id="resTotalDeductions" style="font-weight: 800; color: #dc2626;">—</span>
+              <div class="result-row">
+                <span class="result-row__label">Total Fees &amp; Discounts</span>
+                <span id="resTotalDeductions" class="result-row__value result-row__value--danger">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Net Profit / Loss (before tax)</span>
-                <span id="resProfit" style="font-weight: 800;">—</span>
+              <div class="result-row">
+                <span class="result-row__label">Net Profit / Loss (before tax)</span>
+                <span id="resProfit" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Tax</span>
-                <span id="resTax" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">Tax</span>
+                <span id="resTax" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Profit After Tax</span>
-                <span id="resProfitAfterTax" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">Profit After Tax</span>
+                <span id="resProfitAfterTax" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Zakat</span>
-                <span id="resZakat" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">Zakat</span>
+                <span id="resZakat" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Final Net Profit</span>
-                <span id="resNetProfit" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">Final Net Profit</span>
+                <span id="resNetProfit" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Profit Margin (%)</span>
-                <span id="resMargin" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row">
+                <span class="result-row__label">Profit Margin (%)</span>
+                <span id="resMargin" class="result-row__value">—</span>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: var(--space-3) 0;">
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Return on Cost (%)</span>
-                <span id="resROI" style="font-weight: 800; color: var(--text);">—</span>
+              <div class="result-row result-row--last">
+                <span class="result-row__label">Return on Cost (%)</span>
+                <span id="resROI" class="result-row__value">—</span>
               </div>
             </div>
-            <div id="analysisBox" style="margin-top: var(--space-6); padding: var(--space-4); background: rgba(212,168,83,0.05); border: 1px solid var(--border); border-radius: var(--radius); display: none;">
-              <h4 style="font-size: 1rem; font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">🔍 Step-by-Step Explanation</h4>
-              <div id="stepsArea" style="display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4);"></div>
-              <p id="analysisText" style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;"></p>
+            <div id="analysisBox" class="analysis-box" style="display:none;">
+              <h4 class="analysis-box__title">🔍 Step-by-Step Explanation</h4>
+              <div id="stepsArea" class="steps-list"></div>
+              <p id="analysisText" class="analysis-text"></p>
             </div>
             <div class="share-bar">
               <input type="text" id="shareLink" readonly placeholder="Share link..." />
-              <button onclick="copyLink()" class="btn btn-outline" style="font-size: 0.8rem;">Copy Link</button>
-              <button onclick="window.print()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">🖨️ Print</button>
-              <button onclick="exportCSV()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📊 Excel</button>
-              <button onclick="exportPDF()" class="btn btn-outline hidden-print" style="font-size: 0.8rem;">📄 Export PDF</button>
+              <button onclick="copyLink()" class="btn btn-outline btn-sm">Copy Link</button>
+              <button onclick="window.print()" class="btn btn-outline hidden-print btn-sm">🖨️ Print</button>
+              <button onclick="exportCSV()" class="btn btn-outline hidden-print btn-sm">📊 Excel</button>
+              <button onclick="exportPDF()" class="btn btn-outline hidden-print btn-sm">📄 Export PDF</button>
             </div>
           </div>
 
-          <div style="background: linear-gradient(135deg, var(--navy-900), var(--navy-700)); border-radius: var(--radius-lg); padding: var(--space-8); color: var(--white);">
-            <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3);">Need deeper analysis?</h3>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-6);">This tool is for estimation. If you need accurate analysis of your financial models — we offer a free consultation.</p>
+          <div class="calc-cta-card">
+            <h3 class="calc-cta-card__title">Need deeper analysis?</h3>
+            <p class="calc-cta-card__text">This tool is for estimation. If you need accurate analysis of your financial models — we offer a free consultation.</p>
             <a href="contact.html" class="btn btn-primary">Book Your Free Consultation &rarr;</a>
           </div>
 
           <!-- Smart Alert CTA -->
-          <div id="smartAlertBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.02)); border: 1px solid rgba(220,38,38,0.3); border-radius: var(--radius-lg);">
-            <div style="display: flex; align-items: flex-start; gap: var(--space-4);">
-              <div style="font-size: 2rem; flex-shrink: 0;">⚠️</div>
+          <div id="smartAlertBox" class="smart-alert" style="display:none;">
+            <div class="smart-alert__inner">
+              <div class="smart-alert__icon">⚠️</div>
               <div>
-                <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-2); color: #fca5a5;">Profit Margin Needs Review</h4>
-                <p id="smartAlertText" style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4); line-height: 1.8;"></p>
-                <a href="contact.html" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;">📞 Free Consultation (30 min)</a>
+                <h4 class="smart-alert__title">Profit Margin Needs Review</h4>
+                <p id="smartAlertText" class="smart-alert__text"></p>
+                <a href="contact.html" class="btn btn-primary smart-alert__btn">📞 Free Consultation (30 min)</a>
               </div>
             </div>
           </div>
 
           <!-- Lead Capture -->
-          <div id="leadCaptureBox" style="display:none; margin-top: var(--space-6); padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);">
-            <h4 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-3); color: var(--gold);">💾 Save your results &amp; get a free gift</h4>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--space-4);">Send these results to your email + get a free Cash Flow Forecast template.</p>
-            <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
-              <input type="text" name="name" required placeholder="Name" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
-              <input type="email" name="email" required placeholder="Email" style="flex: 2; min-width: 180px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
-              <input type="tel" name="phone" placeholder="Phone (optional)" style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;" />
+          <div id="leadCaptureBox" class="lead-capture" style="display:none;">
+            <h4 class="lead-capture__title">💾 Save your results &amp; get a free gift</h4>
+            <p class="lead-capture__text">Send these results to your email + get a free Cash Flow Forecast template.</p>
+            <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" class="lead-form">
+              <input type="text" name="name" required placeholder="Name" class="lead-input" />
+              <input type="email" name="email" required placeholder="Email" class="lead-input lead-input--email" />
+              <input type="tel" name="phone" placeholder="Phone (optional)" class="lead-input" />
               <input type="hidden" name="source" value="calculator_lead_en" />
               <input type="hidden" name="calc_data" id="leadCalcData" />
-              <button type="submit" class="btn btn-primary" style="flex-shrink: 0;">Send me the results</button>
+              <button type="submit" class="btn btn-primary lead-form__btn">Send me the results</button>
             </form>
-            <p id="leadCaptureSuccess" style="display:none; color: #16a34a; margin-top: var(--space-3); font-weight: 700;">✓ Sent! We will contact you within 24 hours.</p>
+            <p id="leadCaptureSuccess" class="lead-success" style="display:none;">✓ Sent! We will contact you within 24 hours.</p>
           </div>
         </div>
       </div>
 
       <!-- Charts -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">Chart: Costs vs Revenue</h2>
-          <div style="position: relative; height: 400px;">
+      <div class="reveal mt-12">
+        <div class="calc-card">
+          <h2 class="calc-card__title calc-card__title--center">Chart: Costs vs Revenue</h2>
+          <div class="chart-wrapper chart-wrapper--tall">
             <canvas id="breakEvenChart"></canvas>
           </div>
         </div>
       </div>
-      <div class="reveal" style="margin-top: var(--space-8);">
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
-          <h2 style="font-size: var(--text-xl); font-weight: 800; margin-bottom: var(--space-6); text-align: center;">Cost Breakdown: Fixed vs Variable</h2>
-          <div style="position: relative; height: 320px; max-width: 400px; margin: 0 auto;">
+      <div class="reveal mt-8">
+        <div class="calc-card">
+          <h2 class="calc-card__title calc-card__title--center">Cost Breakdown: Fixed vs Variable</h2>
+          <div class="chart-wrapper chart-wrapper--pie">
             <canvas id="costPieChart"></canvas>
           </div>
         </div>
       </div>
 
       <!-- Scenarios -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div class="section-header" style="margin-bottom: var(--space-8);">
+      <div class="reveal mt-12">
+        <div class="section-header section-header-compact">
           <span class="section__eyebrow">Scenarios</span>
           <h2 class="section__title">Scenario Comparison</h2>
         </div>
         <div class="scenario-grid" id="scenarioGrid">
           <div class="scenario-card pessimistic">
-            <div class="scenario-label" style="color: #dc2626;">Pessimistic (-20%)</div>
+            <div class="scenario-label scenario-label--pessimistic">Pessimistic (-20%)</div>
             <div class="scenario-value" id="pessimisticProfit">—</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Net Profit</div>
+            <div class="scenario-profit-label">Net Profit</div>
           </div>
           <div class="scenario-card expected">
-            <div class="scenario-label" style="color: var(--gold);">Expected</div>
+            <div class="scenario-label scenario-label--expected">Expected</div>
             <div class="scenario-value" id="expectedProfit">—</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Net Profit</div>
+            <div class="scenario-profit-label">Net Profit</div>
           </div>
           <div class="scenario-card optimistic">
-            <div class="scenario-label" style="color: #16a34a;">Optimistic (+20%)</div>
+            <div class="scenario-label scenario-label--optimistic">Optimistic (+20%)</div>
             <div class="scenario-value" id="optimisticProfit">—</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Net Profit</div>
+            <div class="scenario-profit-label">Net Profit</div>
           </div>
         </div>
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); margin-top: var(--space-8);">
-          <h3 style="font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4); text-align: center;">Scenario Comparison Chart</h3>
-          <div style="position: relative; height: 300px; max-width: 600px; margin: 0 auto;">
+        <div class="calc-card mt-8">
+          <h3 class="calc-card__subtitle">Scenario Comparison Chart</h3>
+          <div class="chart-wrapper chart-wrapper--medium">
             <canvas id="scenarioChart"></canvas>
           </div>
         </div>
       </div>
 
       <!-- Sensitivity Analysis -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div class="section-header" style="margin-bottom: var(--space-8);">
+      <div class="reveal mt-12">
+        <div class="section-header section-header-compact">
           <span class="section__eyebrow">Sensitivity Analysis</span>
           <h2 class="section__title">How does profit change with price or quantity?</h2>
         </div>
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px); overflow-x: auto;">
+        <div class="calc-card table-wrap">
           <table class="sensitivity-table" id="sensitivityTable">
             <thead>
               <tr>
@@ -355,14 +319,14 @@
       </div>
 
       <!-- History -->
-      <div class="reveal" style="margin-top: var(--space-12);">
-        <div class="section-header" style="margin-bottom: var(--space-8);">
+      <div class="reveal mt-12">
+        <div class="section-header section-header-compact">
           <span class="section__eyebrow">History</span>
           <h2 class="section__title">Your Previous Calculations</h2>
         </div>
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-8); backdrop-filter: blur(16px);">
+        <div class="calc-card">
           <div class="history-list" id="historyList">
-            <p style="color: var(--text-muted); text-align: center;">No previous calculations</p>
+            <p class="empty-history">No previous calculations</p>
           </div>
         </div>
       </div>
@@ -370,7 +334,7 @@
   </section>
 
   <!-- How It Works -->
-  <section class="section" style="background: var(--bg-secondary);">
+  <section class="section section--bg-secondary">
     <div class="container">
       <div class="section-header reveal">
         <span class="section__eyebrow">Transparency</span>
@@ -379,59 +343,59 @@
       </div>
       <div class="grid-2">
         <div class="card reveal">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📐 Mathematical Formulas</h3>
-          <div style="display: flex; flex-direction: column; gap: var(--space-3); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
-            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+          <h3 class="card__title">📐 Mathematical Formulas</h3>
+          <div class="formula-list">
+            <div class="formula-item">
               Break-Even (units) = Fixed Costs &divide; (Selling Price &minus; Variable Cost)
             </div>
-            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+            <div class="formula-item">
               Break-Even (amount) = Break-Even (units) &times; Selling Price
             </div>
-            <div style="background: var(--bg); padding: var(--space-3); border-radius: 8px; font-family: monospace; direction: ltr; text-align: left;">
+            <div class="formula-item">
               Net Profit = (Quantity &times; Selling Price) &minus; Fixed Costs &minus; (Quantity &times; Variable Cost)
             </div>
           </div>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">🧮 Try It Yourself</h3>
-          <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-4);">Click "Try an Example" and verify the calculation manually:</p>
-          <div style="display: flex; flex-direction: column; gap: var(--space-2); font-size: 0.85rem; color: var(--text-secondary);">
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+          <h3 class="card__title">🧮 Try It Yourself</h3>
+          <p class="card__text">Click "Try an Example" and verify the calculation manually:</p>
+          <div class="example-list">
+            <div class="example-row">
               <span>Fixed Costs</span><strong>10,000 SAR</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="example-row">
               <span>Selling Price</span><strong>500 SAR</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="example-row">
               <span>Variable Cost</span><strong>300 SAR</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border);">
+            <div class="example-row">
               <span>Quantity</span><strong>100 units</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0;">
-              <span>Expected Result</span><strong style="color: var(--gold);">Profit 10,000 SAR</strong>
+            <div class="example-row example-row--last">
+              <span>Expected Result</span><strong class="text-gold">Profit 10,000 SAR</strong>
             </div>
           </div>
         </div>
       </div>
-      <div class="grid-2" style="margin-top: var(--space-8);">
+      <div class="grid-2 mt-8">
         <div class="card reveal">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">📚 Trusted Scientific Sources</h3>
-          <div style="display: flex; flex-direction: column; gap: var(--space-3);">
-            <a href="https://en.wikipedia.org/wiki/Break-even_analysis" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
-              <span style="color: var(--gold);">&rarr;</span> Wikipedia — Break-even Analysis
+          <h3 class="card__title">📚 Trusted Scientific Sources</h3>
+          <div class="source-list">
+            <a href="https://en.wikipedia.org/wiki/Break-even_analysis" target="_blank" rel="noopener" class="source-link">
+              <span class="source-link__arrow">&rarr;</span> Wikipedia — Break-even Analysis
             </a>
-            <a href="https://www.investopedia.com/terms/b/breakevenanalysis.asp" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
-              <span style="color: var(--gold);">&rarr;</span> Investopedia — Break-Even Point
+            <a href="https://www.investopedia.com/terms/b/breakevenanalysis.asp" target="_blank" rel="noopener" class="source-link">
+              <span class="source-link__arrow">&rarr;</span> Investopedia — Break-Even Point
             </a>
-            <a href="https://www.accountingtools.com/articles/break-even-point" target="_blank" rel="noopener" style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: var(--space-2);">
-              <span style="color: var(--gold);">&rarr;</span> AccountingTools — Break-Even Formula
+            <a href="https://www.accountingtools.com/articles/break-even-point" target="_blank" rel="noopener" class="source-link">
+              <span class="source-link__arrow">&rarr;</span> AccountingTools — Break-Even Formula
             </a>
           </div>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: var(--space-4); color: var(--gold);">⚠️ Warnings &amp; Clarifications</h3>
-          <ul style="font-size: 0.9rem; color: var(--text-secondary); line-height: 2; padding-left: var(--space-4);">
+          <h3 class="card__title">⚠️ Warnings &amp; Clarifications</h3>
+          <ul class="warning-list">
             <li>This is an <strong>estimation tool</strong> and not a substitute for a licensed accountant.</li>
             <li>Results depend on the <strong>accuracy of the data entered</strong>.</li>
             <li>Taxes, commissions, and inflation are configurable but simplified.</li>
@@ -942,7 +906,7 @@
         history = history || [];
         var list = document.getElementById('historyList');
         if (history.length === 0) {
-          list.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No previous calculations</p>';
+          list.innerHTML = '<p class="empty-history">No previous calculations</p>';
           return;
         }
         list.innerHTML = '';
@@ -1390,7 +1354,7 @@
     renderHistory();
   </script>
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}</script>
-  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);">↑</button>
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" class="back-to-top">↑</button>
   <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
 <!-- Tawk.to Live Chat -->
 <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>

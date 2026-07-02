@@ -48,15 +48,6 @@ def process_file(file_path: Path, dry_run: bool = False) -> bool:
             html = new_html
             changed = True
 
-    # Ensure shared assets are linked
-    css_href = f'{prefix}header-footer.css?v=2'
-    css_tag = f'<link rel="stylesheet" href="{css_href}" />'
-    if 'header-footer.css' not in html:
-        head_end = re.compile(r'(</head>)', re.IGNORECASE)
-        html, n = head_end.subn(f'{css_tag}\n\1', html, count=1)
-        if n:
-            changed = True
-
     script_tag = f'<script src="{prefix}site-layout.js"></script>'
     if script_tag not in html and 'site-layout.js' not in html:
         body_end = re.compile(r'(</body>)', re.IGNORECASE)

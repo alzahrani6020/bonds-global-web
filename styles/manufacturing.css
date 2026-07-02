@@ -1,0 +1,332 @@
+/* Manufacturing sector guide — scoped light theme */
+.manufacturing-page {
+  --bg: #f5f0e8;
+  --bg-secondary: #ffffff;
+  --bg-card: rgba(255,255,255,0.85);
+  --gold: #7a5c20;
+  --gold-bright: #b8954e;
+  --gold-dim: #8a7340;
+  --text: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+  --border: rgba(0,0,0,0.08);
+  --border-hover: rgba(184,149,78,0.4);
+  --success: #22c55e;
+  --warning: #eab308;
+  --info: #3b82f6;
+  --danger: #ef4444;
+  --shadow: 0 10px 40px rgba(0,0,0,0.4);
+  --radius: 16px;
+}
+
+.manufacturing-page:lang(ar) { font-family: 'Vazirmatn', system-ui, sans-serif; }
+.manufacturing-page:lang(en) { font-family: 'Inter', system-ui, sans-serif; }
+
+.manufacturing-page {
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.manufacturing-page * { margin: 0; padding: 0; box-sizing: border-box; }
+.manufacturing-page a { color: var(--gold); text-decoration: none; }
+
+/* Header */
+.manufacturing-page .header {
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+}
+.manufacturing-page .header__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.manufacturing-page .header__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.manufacturing-page .header__logo img { height: 40px; border-radius: 6px; }
+.manufacturing-page .header__logo span {
+  font-weight: 800;
+  color: var(--gold);
+  font-size: 1.1rem;
+}
+.manufacturing-page .header__nav { display: flex; gap: 1.5rem; }
+.manufacturing-page .header__nav a {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: 0.3s;
+}
+.manufacturing-page .header__nav a:hover { color: var(--gold); }
+
+/* Hero */
+.manufacturing-page .hero {
+  background: linear-gradient(135deg, rgba(212,168,83,0.1), transparent), var(--bg-secondary);
+  padding: 4rem 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.manufacturing-page .hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 1rem; }
+.manufacturing-page .hero p {
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+}
+.manufacturing-page .hero a { color: var(--gold); font-size: 0.8rem; }
+.manufacturing-page .hero__link-wrap {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.manufacturing-page .hero__link { color: var(--gold); }
+
+/* Container */
+.manufacturing-page .container { max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem; }
+.manufacturing-page .section-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--gold);
+}
+
+/* Cards */
+.manufacturing-page .cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+.manufacturing-page .card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  transition: 0.3s;
+}
+.manufacturing-page .card:hover {
+  border-color: var(--gold);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+}
+.manufacturing-page .card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(212,168,83,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+.manufacturing-page .card__title { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+.manufacturing-page .card__text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; }
+
+/* Tables */
+.manufacturing-page .table-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 3rem;
+}
+.manufacturing-page table { width: 100%; border-collapse: collapse; }
+.manufacturing-page th {
+  text-align: start;
+  padding: 1rem 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--gold);
+  background: rgba(255,255,255,0.9);
+  border-bottom: 1px solid var(--border);
+}
+.manufacturing-page td {
+  padding: 1rem 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+.manufacturing-page tr:hover td { background: rgba(212,168,40,0.05); }
+.manufacturing-page .fee-highlight {
+  background: rgba(212,168,83,0.08);
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+/* Journey Timeline */
+.manufacturing-page .timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+.manufacturing-page .stage { display: flex; gap: 1.5rem; }
+.manufacturing-page .stage__num {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+  color: #1a1a1a;
+  font-weight: 800;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.manufacturing-page .stage__content {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+.manufacturing-page .stage__title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; color: var(--gold); }
+.manufacturing-page .stage__list { list-style: none; }
+.manufacturing-page .stage__list li {
+  padding: 0.5rem 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.manufacturing-page .stage__list li::before { content: '✓'; color: var(--success); font-weight: 700; }
+
+/* Section content blocks (formerly inline styled) */
+.manufacturing-page .section__content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  margin-bottom: 3rem;
+}
+.manufacturing-page .section__subtitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--gold);
+}
+.manufacturing-page .section__subtitle--small { font-size: 1rem; }
+.manufacturing-page .section__subtitle--spaced { margin-top: 1.5rem; }
+.manufacturing-page .section__text { color: var(--text-secondary); margin-bottom: 1rem; }
+.manufacturing-page .text-gold { color: var(--gold); }
+.manufacturing-page .text-success-bold { color: var(--success); font-weight: 700; }
+.manufacturing-page .text-warning-bold { color: var(--warning); font-weight: 700; }
+.manufacturing-page .text-info-bold { color: var(--info); font-weight: 700; }
+
+/* Checklists */
+.manufacturing-page .checklist { list-style: none; }
+.manufacturing-page .checklist--spaced { margin-bottom: 1.5rem; }
+.manufacturing-page .checklist--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 0.5rem;
+}
+.manufacturing-page .checklist__item {
+  padding: 0.4rem 0;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.manufacturing-page .checklist__icon--success { color: var(--success); }
+.manufacturing-page .checklist__icon--warning { color: var(--warning); }
+.manufacturing-page .checklist__icon--info { color: var(--info); }
+.manufacturing-page .checklist__icon--danger { color: var(--danger); }
+
+/* Contact card */
+.manufacturing-page .contact-card {
+  text-align: center;
+  padding: 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 3rem;
+}
+.manufacturing-page .contact-card__title { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem; }
+.manufacturing-page .contact-card__phone { color: var(--text-secondary); font-size: 1.1rem; direction: ltr; }
+.manufacturing-page .contact-card__note { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem; }
+
+/* CTA */
+.manufacturing-page .cta {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.manufacturing-page .cta--spaced { margin-top: 2rem; }
+.manufacturing-page .cta__title { font-size: 1.3rem; font-weight: 800; margin-bottom: 1rem; }
+.manufacturing-page .cta__text { color: var(--text-secondary); margin-bottom: 1.5rem; }
+.manufacturing-page .cta__btn {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+  color: #1a1a1a;
+  font-weight: 800;
+  padding: 0.9rem 2.5rem;
+  border-radius: 12px;
+  text-decoration: none;
+}
+
+/* Related links section */
+.manufacturing-page .related-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-top: 3rem;
+}
+.manufacturing-page .related-section__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: var(--gold);
+}
+.manufacturing-page .related-section__grid { display: flex; flex-wrap: wrap; gap: 1rem; }
+.manufacturing-page .related-link {
+  background: rgba(212,168,83,0.1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Note & footer helpers */
+.manufacturing-page .note {
+  background: rgba(234,179,8,0.08);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 1rem 0;
+}
+.manufacturing-page .note strong { color: var(--warning); }
+.manufacturing-page footer {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border);
+  margin-top: 3rem;
+}
+
+@media (max-width: 768px) {
+  .manufacturing-page .hero h1 { font-size: 1.5rem; }
+  .manufacturing-page .stage { flex-direction: column; }
+  .manufacturing-page .header__nav { display: none; }
+}

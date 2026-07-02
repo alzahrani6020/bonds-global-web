@@ -76,7 +76,7 @@
     var saveBtn = document.createElement('button');
     saveBtn.textContent = t.save;
     saveBtn.className = 'btn-calc secondary';
-    saveBtn.style.cssText = 'flex:1; min-width:140px; background:transparent; color:var(--gold); border:1px solid rgba(212,168,83,0.4); padding:0.9rem 2rem; border-radius:10px; font-family:inherit; font-weight:800; font-size:1rem; cursor:pointer;';
+    saveBtn.style.cssText = 'flex:1; min-width:140px; background:transparent; color:var(--text); border:1px solid rgba(212,168,83,0.4); padding:0.9rem 2rem; border-radius:10px; font-family:inherit; font-weight:800; font-size:1rem; cursor:pointer;';
     saveBtn.onmouseenter = function() { saveBtn.style.background = 'rgba(212,168,83,0.1)'; };
     saveBtn.onmouseleave = function() { saveBtn.style.background = 'transparent'; };
     saveBtn.onclick = function() {
@@ -133,7 +133,7 @@
     var importSpan = document.createElement('span');
     importSpan.textContent = t.import;
     importSpan.className = 'btn-calc secondary';
-    importSpan.style.cssText = 'display:block; text-align:center; background:transparent; color:var(--gold); border:1px solid rgba(212,168,83,0.4); padding:0.9rem 2rem; border-radius:10px; font-family:inherit; font-weight:800; font-size:1rem;';
+    importSpan.style.cssText = 'display:block; text-align:center; background:transparent; color:var(--text); border:1px solid rgba(212,168,83,0.4); padding:0.9rem 2rem; border-radius:10px; font-family:inherit; font-weight:800; font-size:1rem;';
     importLabel.appendChild(importInput);
     importLabel.appendChild(importSpan);
 

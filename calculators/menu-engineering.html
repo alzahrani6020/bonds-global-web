@@ -21,7 +21,7 @@
 
   <script src="db-client.js"></script>
   
-<link rel="stylesheet" href="../header-footer.css?v=7" />
+<link rel="stylesheet" href="../header-footer.css?v=8" />
   <link rel="canonical" href="https://bonds-global.com/calculators/menu-engineering" />
   <meta property="og:title" content="محرك هندسة المنيو | بوندز" />
   <meta property="og:description" content="مصنف ذكي للمنيو يصنف الوجبات إلى نجوم، حصان رابح، ألغاز، وكلاب بناءً على بيانات المبيعات الفعلية." />
@@ -34,6 +34,7 @@
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
 <link rel="stylesheet" href="../components/universal-dropdown.css" />
+<link rel="stylesheet" href="scenario-cards-shared.css" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -44,9 +45,9 @@
     </div>
 
     <div id="authAlert"></div>
-    <div style="text-align:center;margin-bottom:var(--space-6);display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
+    <div class="calc-flex-center-wrap calc-flex-center-wrap--mb">
       <button class="btn-secondary" onclick="seedDemoData()">🚀 تحميل بيانات تجريبية</button>
-      <button class="btn-secondary" style="background:#ef4444;border-color:#ef4444;color:#fff;" onclick="clearAllData()">🗑️ مسح كل البيانات</button>
+      <button class="btn-secondary calc-tag-danger" onclick="clearAllData()">🗑️ مسح كل البيانات</button>
     </div>
 
     <!-- Data Entry Tabs -->
@@ -67,10 +68,10 @@
           <div class="form-group"><label>التطبيق</label><select data-universal-dropdown="true" id="pPlatformSelect" onchange="fillPlatformData()"><option value="">اختر التطبيق...</option></select></div>
           <div class="form-group"><label>رمز التطبيق</label><input id="pCode" placeholder="jahez" /></div>
           <div class="form-group"><label>اسم التطبيق</label><input id="pName" placeholder="جاهز" /></div>
-          <div class="form-group"><label>العمولة (%)</label><input id="pCommission" type="number" value="25" /></div>
-          <div class="form-group"><label>رسوم الخدمة (%)</label><input id="pService" type="number" value="2" /></div>
-          <div class="form-group"><label>بوابة الدفع (%)</label><input id="pGateway" type="number" value="1.75" /></div>
-          <div class="form-group"><label>رسوم التوصيل (ر.س)</label><input id="pDelivery" type="number" value="0" /></div>
+          <div class="form-group"><label for="pCommission">العمولة (%)</label><input id="pCommission" type="number" value="25" /></div>
+          <div class="form-group"><label for="pService">رسوم الخدمة (%)</label><input id="pService" type="number" value="2" /></div>
+          <div class="form-group"><label for="pGateway">بوابة الدفع (%)</label><input id="pGateway" type="number" value="1.75" /></div>
+          <div class="form-group"><label for="pDelivery">رسوم التوصيل (ر.س)</label><input id="pDelivery" type="number" value="0" /></div>
         </div>
         <button class="btn-primary" onclick="addPlatform()">➕ إضافة تطبيق</button>
         <div id="pList" class="list-box"></div>
@@ -136,7 +137,7 @@
       <div class="loading">جاري تحميل البيانات...</div>
     </div>
 
-    <div style="text-align:center;margin:var(--space-6) 0;display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
+    <div class="calc-flex-center-wrap calc-flex-center-wrap--my">
       <button class="btn-secondary" onclick="exportExcel()">📊 تصدير Excel</button>
       <button class="btn-secondary" onclick="exportPDF()">📄 تصدير PDF</button>
     </div>
@@ -147,8 +148,8 @@
       <div class="form-row">
         <div class="form-group"><label>الوجبة</label><select data-universal-dropdown="true" id="simItem"><option value="">اختر...</option></select></div>
         <div class="form-group"><label>المنصة</label><select data-universal-dropdown="true" id="simPlatform"><option value="">اختر...</option></select></div>
-        <div class="form-group"><label>نسبة الخصم (%)</label><input type="number" id="simDiscount" value="20" min="0" max="100" /></div>
-        <div class="form-group"><label>المبيعات اليومية الحالية</label><input type="number" id="simSales" value="50" min="1" /></div>
+        <div class="form-group"><label for="simDiscount">نسبة الخصم (%)</label><input type="number" id="simDiscount" value="20" min="0" max="100" /></div>
+        <div class="form-group"><label for="simSales">المبيعات اليومية الحالية</label><input type="number" id="simSales" value="50" min="1" /></div>
       </div>
       <button class="btn-primary" onclick="runPromoSim()">احسب تأثير الحملة</button>
       <div id="simResult"></div>
@@ -157,13 +158,13 @@
     <!-- Omnichannel Margin Calculator -->
     <div class="me-actions">
       <h2>🌐 حاسبة القنوات المتعددة (Omnichannel)</h2>
-      <p style="text-align:center;color:var(--text-secondary);margin-bottom:var(--space-6);">قارن بين البيع عبر التطبيقات والبيع المباشر من موقعك</p>
+      <p class="calc-text-secondary calc-mb-6 calc-text-center">قارن بين البيع عبر التطبيقات والبيع المباشر من موقعك</p>
       <div class="form-row">
         <div class="form-group"><label>الوجبة</label><select data-universal-dropdown="true" id="omniItem"><option value="">اختر...</option></select></div>
         <div class="form-group"><label>المنصة للمقارنة</label><select data-universal-dropdown="true" id="omniPlatform"><option value="">اختر...</option></select></div>
-        <div class="form-group"><label>تكلفة استحواذ العميل (CAC) ر.س</label><input type="number" id="omniCAC" value="5" step="0.5" /></div>
-        <div class="form-group"><label>تكلفة التوصيل الذاتي ر.س</label><input type="number" id="omniDelivery" value="15" /></div>
-        <div class="form-group"><label>ميزانية الإعلانات الشهرية ر.س</label><input type="number" id="omniAdBudget" value="3000" /></div>
+        <div class="form-group"><label for="omniCAC">تكلفة استحواذ العميل (CAC) ر.س</label><input type="number" id="omniCAC" value="5" step="0.5" /></div>
+        <div class="form-group"><label for="omniDelivery">تكلفة التوصيل الذاتي ر.س</label><input type="number" id="omniDelivery" value="15" /></div>
+        <div class="form-group"><label for="omniAdBudget">ميزانية الإعلانات الشهرية ر.س</label><input type="number" id="omniAdBudget" value="3000" /></div>
       </div>
       <button class="btn-primary" onclick="runOmnichannel()">قارن الأرباح</button>
       <div id="omniResult"></div>

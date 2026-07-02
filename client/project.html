@@ -3,28 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>تفاصيل المشروع | بوابة العميل | Bonds</title>
+  <title>إعادة توجيه | بوندز</title>
   <meta name="description" content="صفحة المشروع الموحدة في بوابة العميل — تحليلات، تقارير، مراجعات، ومستندات." />
-  <link rel="icon" href="/assets/bonds-mark.svg" type="image/png" />
-  <link rel="stylesheet" href="/client/portal.css" />
-  <link rel="canonical" href="https://bonds-global.com/client/project.html" />
+  <link rel="canonical" href="https://bonds-global.com/v3/project" />
   <meta property="og:title" content="تفاصيل المشروع | بوابة العميل | Bonds" />
   <meta property="og:description" content="صفحة المشروع الموحدة في بوابة العميل — تحليلات، تقارير، مراجعات، ومستندات." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:url" content="https://bonds-global.com/v3/project" />
+  <meta property="og:type" content="website" />
+  <script>
+    (function () {
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      const target = id ? '/v3/project?id=' + encodeURIComponent(id) : '/v3/portfolio';
+      window.location.replace(target);
+    })();
+  </script>
 </head>
 <body>
-  <div id="portal-header"></div>
-  <div class="portal-layout">
-    <aside id="portal-sidebar" class="portal-sidebar"></aside>
-    <main id="portal-main" class="portal-main"></main>
-  </div>
-
-  <script>window.__PORTAL_LANG = 'ar'; window.__PORTAL_PAGE = 'project'; </script>
-  <script src="/api/env"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-  <script src="/bonds-auth-2026.js?v=1"></script>
-  <script src="/client/portal.js"></script>
-  <script>BondsClientPortal.initProject();</script>
+  <p>جاري تحويلك إلى <a id="target" href="/v3/portfolio">المشروع</a>...</p>
 </body>
 </html>

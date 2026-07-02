@@ -8,6 +8,13 @@
   const root = document.getElementById('ecc-root');
   const urlParams = new URLSearchParams(window.location.search);
   const projectId = urlParams.get('id');
+  let currentTab = 'overview';
+  let currentData = null;
+
+  function icon(name, size) {
+    if (!window.EccIcons) return '';
+    return window.EccIcons.render ? window.EccIcons.render(name, { size: size || 20 }) : window.EccIcons.get(name);
+  }
 
   async function getAuthHeaders() {
     const headers = { 'Content-Type': 'application/json' };
@@ -53,8 +60,80 @@
     return { low: 'منخفض', medium: 'متوسط', high: 'مرتفع', critical: 'حرج' }[level] || level;
   }
 
+  function alertIcon(type) {
+    const map = {
+      blocked: 'warning',
+      readiness: 'trendingDown',
+      valuation: 'dollarSign',
+      financing: 'zap'
+    };
+    return icon(map[type] || 'search', 18);
+  }
+
   function showError(message) {
-    root.innerHTML = `<div class="error"><h2>⚠️ خطأ</h2><p>${message}</p></div>`;
+    root.innerHTML = `<div class="error"><h2 style="display:flex;align-items:center;justify-content:center;gap:0.5rem;">${icon('warning', 24)} <span>خطأ</span></h2><p>${message}</p></div>`;
+  }
+
+  function renderHeader(project, lifecycle) {
+    return `
+      <div class="ecc-header">
+        <div class="ecc-header__title">
+          <div style="margin-bottom:0.35rem;">
+            <a href="/v3/portfolio" style="font-size:0.8rem;color:var(--gold);text-decoration:none;display:inline-flex;align-items:center;gap:0.35rem;">${icon('arrowRight', 14)} العودة إلى لوحة المحفظة</a>
+          </div>
+          <h1>${project.name}</h1>
+          <p>${project.sector}${project.activity ? ' · ' + project.activity : ''} · ${project.city || ''}</p>
+        </div>
+        <div class="ecc-header__stage">${lifecycle?.currentStage || 'idea'}</div>
+      </div>
+    `;
+  }
+
+  function renderJourney(lifecycle) {
+    const current = (lifecycle?.currentStage || 'idea').toLowerCase().replace(/\s/g, '_');
+    const steps = [
+      { id: 'idea', label: 'الفكرة' },
+      { id: 'feasibility', label: 'جدوى' },
+      { id: 'valuation', label: 'تقييم' },
+      { id: 'financing', label: 'تمويل' },
+      { id: 'readiness', label: 'جاهزية' },
+      { id: 'memorandum', label: 'مذكرة' },
+      { id: 'investors', label: 'مستثمرون' },
+      { id: 'data_room', label: 'غرفة بيانات' },
+      { id: 'publish', label: 'نشر' }
+    ];
+    const currentIndex = steps.findIndex(s => s.id === current);
+    return `
+      <div class="ecc-journey" role="list" aria-label="مراحل رحلة المشروع">
+        ${steps.map((s, idx) => {
+          const state = currentIndex === -1 ? '' : idx < currentIndex ? 'done' : idx === currentIndex ? 'current' : '';
+          const dotContent = state === 'done' ? icon('check', 8) : '';
+          return `
+            <div class="ecc-journey__step ${state ? 'ecc-journey__step--' + state : ''}" role="listitem" aria-current="${state === 'current' ? 'step' : 'false'}">
+              <div class="ecc-journey__dot" aria-hidden="true">${dotContent}</div>
+              <div class="ecc-journey__label">${s.label}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  function renderTabs() {
+    const tabs = [
+      { id: 'overview', label: 'نظرة عامة' },
+      { id: 'timeline', label: 'خط الزمن' },
+      { id: 'approvals', label: 'الموافقات' },
+      { id: 'alerts', label: 'الإنذارات' },
+      { id: 'documents', label: 'المستندات' }
+    ];
+    return `
+      <div class="ecc-tabs" role="tablist" aria-label="أقسام مركز قيادة المشروع">
+        ${tabs.map(t => `
+          <button type="button" id="tab-btn-${t.id}" class="ecc-tab ${t.id === currentTab ? 'active' : ''}" role="tab" aria-selected="${t.id === currentTab ? 'true' : 'false'}" aria-controls="tab-panel-${t.id}" data-tab="${t.id}" onclick="ProjectCommandCenter.switchTab('${t.id}')">${t.label}</button>
+        `).join('')}
+      </div>
+    `;
   }
 
   function renderHealthCards(health) {
@@ -98,7 +177,7 @@
       <div class="ecc-card mission-control">
         <div class="ecc-card__title">مركز المهمة</div>
         <div class="mission-item priority-${action.priority || 'medium'}">
-          <div class="mission-item__icon">🎯</div>
+          <div class="mission-item__icon" aria-hidden="true">${icon('target', 20)}</div>
           <div>
             <div class="mission-item__title">${action.action_ar || action.action || 'لا يوجد إجراء محدد'}</div>
             <div class="mission-item__desc">${action.reason_ar || action.reason || ''}</div>
@@ -107,7 +186,7 @@
         ${alerts.length ? '<div style="margin-top:1rem;"><strong style="font-size:0.85rem;color:#f0c96a;">تنبيهات حرجة</strong></div>' : ''}
         ${alerts.slice(0, 3).map(a => `
           <div class="mission-item priority-${a.priority || 'medium'}">
-            <div class="mission-item__icon">⚠️</div>
+            <div class="mission-item__icon" aria-hidden="true">${icon('warning', 20)}</div>
             <div>
               <div class="mission-item__title">${a.title}</div>
               <div class="mission-item__desc">${a.message}</div>
@@ -129,7 +208,7 @@
         <div class="ecc-card__title">مقصورة القرار</div>
         ${pending.length ? pending.map(a => `
           <div class="mission-item priority-high">
-            <div class="mission-item__icon">⏳</div>
+            <div class="mission-item__icon" aria-hidden="true">${icon('clock', 20)}</div>
             <div>
               <div class="mission-item__title">موافقة معلقة</div>
               <div class="mission-item__desc">الانتقال ${a.transition_id || a.stage_id} في انتظار القرار.</div>
@@ -180,6 +259,56 @@
     `;
   }
 
+  function renderApprovals(approvals) {
+    const list = approvals || [];
+    const statusLabel = {
+      pending: { text: 'معلقة', class: 'status--attention' },
+      approved: { text: 'معتمدة', class: 'status--healthy' },
+      rejected: { text: 'مرفوضة', class: 'status--at-risk' }
+    };
+    return `
+      <div class="ecc-card approvals-section">
+        <div class="ecc-card__title">الموافقات (${list.length})</div>
+        ${list.length ? list.map(a => {
+          const status = statusLabel[a.status] || { text: a.status, class: 'status--attention' };
+          const iconName = a.status === 'pending' ? 'clock' : a.status === 'approved' ? 'checkCircle' : 'xCircle';
+          return `
+            <div class="mission-item priority-${a.priority || 'medium'}">
+              <div class="mission-item__icon" aria-hidden="true">${icon(iconName, 20)}</div>
+              <div>
+                <div class="mission-item__title">${a.transition_id || a.stage_id || 'موافقة'}</div>
+                <div class="mission-item__desc">${a.approver_name || a.approver_id || ''} · ${formatDate(a.created_at)}</div>
+                <span class="health-card__status ${status.class}">${status.text}</span>
+              </div>
+            </div>
+          `;
+        }).join('') : '<p style="color:var(--text-secondary);font-size:0.85rem;">لا توجد موافقات مسجلة.</p>'}
+      </div>
+    `;
+  }
+
+  function renderDocuments(documents) {
+    const docs = documents || [];
+    return `
+      <div class="ecc-card documents-section">
+        <div class="ecc-card__title">المستندات (${docs.length})</div>
+        ${docs.length ? `
+          <div class="documents-list">
+            ${docs.map(d => `
+              <div class="document-item">
+                <div class="document-item__icon" aria-hidden="true">${icon('fileText', 20)}</div>
+                <div>
+                  <div class="document-item__title">${d.name || d.title || 'مستند'}</div>
+                  <div class="document-item__meta">${d.type || ''}${d.updated_at ? ' · ' + formatDate(d.updated_at) : ''}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        ` : '<p style="color:var(--text-secondary);font-size:0.85rem;">لا توجد مستندات مسجلة بعد.</p>'}
+      </div>
+    `;
+  }
+
   function renderAlerts(mission) {
     const alerts = mission.criticalAlerts || [];
     return `
@@ -187,7 +316,7 @@
         <div class="ecc-card__title">الإنذارات الذكية</div>
         ${alerts.length ? alerts.map(a => `
           <div class="alert">
-            <div class="alert__icon">${a.type === 'blocked' ? '🚧' : a.type === 'readiness' ? '📉' : a.type === 'valuation' ? '💰' : a.type === 'financing' ? '⚡' : '🔍'}</div>
+            <div class="alert__icon" aria-hidden="true">${alertIcon(a.type)}</div>
             <div>
               <div class="alert__title">${a.title}</div>
               <div class="alert__msg">${a.message}</div>
@@ -209,48 +338,77 @@
 
     return `
       <div class="action-bar">
-        ${writable && nextTransition ? `<button class="ecc-btn ecc-btn--primary" onclick="ProjectCommandCenter.transition('${nextTransition.to}')">الانتقال إلى ${nextTransition.to}</button>` : ''}
-        ${writable ? `<button class="ecc-btn ecc-btn--secondary" onclick="ProjectCommandCenter.runReadiness()">تحديث جاهزية الاستثمار</button>` : ''}
-        ${writable ? `<button class="ecc-btn ecc-btn--secondary" onclick="ProjectCommandCenter.generateMemorandum()">إنشاء مذكرة استثمارية</button>` : ''}
-        <button class="ecc-btn ecc-btn--secondary" onclick="ProjectCommandCenter.refresh()">↻ تحديث</button>
+        ${writable && nextTransition ? `<button type="button" class="ecc-btn ecc-btn--primary" onclick="ProjectCommandCenter.transition('${nextTransition.to}')">الانتقال إلى ${nextTransition.to}</button>` : ''}
+        ${writable ? `<button type="button" class="ecc-btn ecc-btn--secondary" onclick="ProjectCommandCenter.runReadiness()">تحديث جاهزية الاستثمار</button>` : ''}
+        ${writable ? `<button type="button" class="ecc-btn ecc-btn--secondary" onclick="ProjectCommandCenter.generateMemorandum()">إنشاء مذكرة استثمارية</button>` : ''}
       </div>
     `;
   }
 
+  function switchTab(tab) {
+    const valid = ['overview', 'timeline', 'approvals', 'alerts', 'documents'];
+    if (!valid.includes(tab)) return;
+    currentTab = tab;
+    document.querySelectorAll('.ecc-tab').forEach(btn => {
+      const active = btn.dataset.tab === tab;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    document.querySelectorAll('.ecc-tab-panel').forEach(panel => {
+      panel.classList.toggle('active', panel.id === 'tab-panel-' + tab);
+    });
+  }
+
   function render(data) {
-    const { project, health, lifecycle, mission, documents, financial, timeline, approvals } = data.status;
+    currentData = data;
+    const { project, health, lifecycle, mission, documents, timeline, approvals } = data.status;
     const role = data.status.meta?.role || 'owner';
 
     root.innerHTML = `
-      <div class="ecc-header">
-        <div class="ecc-header__title">
-          <div style="margin-bottom:0.35rem;">
-            <a href="/v3/portfolio" style="font-size:0.8rem;color:var(--gold);text-decoration:none;">← العودة إلى لوحة المحفظة</a>
-          </div>
-          <h1>${project.name}</h1>
-          <p>${project.sector}${project.activity ? ' · ' + project.activity : ''} · ${project.city || ''}</p>
+      ${renderHeader(project, lifecycle)}
+      ${renderJourney(lifecycle)}
+      ${renderTabs()}
+
+      <div id="tab-panel-overview" class="ecc-tab-panel active" role="tabpanel" aria-labelledby="tab-btn-overview">
+        <div class="ecc-grid">
+          ${renderHealthCards(health)}
+          ${renderMissionControl(mission)}
+          ${renderDecisionCockpit(approvals, timeline)}
+          ${renderActionBar(project, lifecycle, role)}
         </div>
-        <div class="ecc-header__stage">${lifecycle?.currentStage || 'idea'}</div>
       </div>
 
-      <div class="ecc-grid">
-        ${renderHealthCards(health)}
-        ${renderMissionControl(mission)}
-        ${renderDecisionCockpit(approvals, timeline)}
-        ${renderTimeline(timeline)}
-        ${renderAlerts(mission)}
-        ${renderActionBar(project, lifecycle, role)}
+      <div id="tab-panel-timeline" class="ecc-tab-panel" role="tabpanel" aria-labelledby="tab-btn-timeline">
+        <div class="ecc-grid">
+          ${renderTimeline(timeline)}
+        </div>
+      </div>
+
+      <div id="tab-panel-approvals" class="ecc-tab-panel" role="tabpanel" aria-labelledby="tab-btn-approvals">
+        <div class="ecc-grid">
+          ${renderApprovals(approvals)}
+        </div>
+      </div>
+
+      <div id="tab-panel-alerts" class="ecc-tab-panel" role="tabpanel" aria-labelledby="tab-btn-alerts">
+        <div class="ecc-grid">
+          ${renderAlerts(mission)}
+        </div>
+      </div>
+
+      <div id="tab-panel-documents" class="ecc-tab-panel" role="tabpanel" aria-labelledby="tab-btn-documents">
+        <div class="ecc-grid">
+          ${renderDocuments(documents)}
+        </div>
       </div>
     `;
 
-    // Expose instance id for action handlers
     if (lifecycle?.instanceId) {
       window.__ECC_INSTANCE_ID = lifecycle.instanceId;
     } else {
       delete window.__ECC_INSTANCE_ID;
     }
 
-    // Mount AI Chief Advisor
     if (window.BondsAIChat && window.BondsAIChat.mount) {
       window.BondsAIChat.mount({ projectId, mode: 'project' });
     }
@@ -291,6 +449,7 @@
 
   window.ProjectCommandCenter = {
     refresh: load,
+    switchTab,
     transition: async (toStage) => {
       const instanceId = window.__ECC_INSTANCE_ID;
       if (!instanceId) {

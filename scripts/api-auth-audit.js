@@ -54,6 +54,9 @@ const AUTH_HELPER_PATTERNS = [
   /session\.access_token/
 ];
 
+// Endpoints where GET/HEAD/OPTIONS still require auth (empty by default)
+const AUTH_REQUIRED_READ_ENDPOINTS = [];
+
 const IGNORED_PATHS = [
   'node_modules',
   '.vercel',
@@ -80,11 +83,15 @@ function resolveEndpoint(rawPath, rewrites, visited = new Set()) {
   if (visited.has(cleanPath)) return { exists: false };
   visited.add(cleanPath);
 
-  // Direct API file
+  // Direct API file or directory index
   const directName = cleanPath.replace(/^\/api\//, '');
   const directFile = path.join(API_DIR, `${directName}.js`);
   if (fs.existsSync(directFile)) {
     return { exists: true, type: 'direct', file: directFile };
+  }
+  const indexFile = path.join(API_DIR, directName, 'index.js');
+  if (fs.existsSync(indexFile)) {
+    return { exists: true, type: 'direct', file: indexFile };
   }
 
   // Check rewrites (skip generic fallback that maps to itself)
@@ -125,9 +132,14 @@ function resolveEndpoint(rawPath, rewrites, visited = new Set()) {
   return { exists: false };
 }
 
-function endpointRequiresAuth(endpoint, resolved, rewrites) {
+function endpointRequiresAuth(endpoint, resolved, rewrites, method = 'GET') {
   const baseEndpoint = endpoint.replace(/\?.*$/, '');
   if (PUBLIC_ENDPOINT_OVERRIDES.includes(baseEndpoint)) return false;
+
+  const readMethod = ['GET', 'HEAD', 'OPTIONS'].includes(method.toUpperCase());
+  if (readMethod && !AUTH_REQUIRED_READ_ENDPOINTS.includes(baseEndpoint)) {
+    return false;
+  }
 
   let handlerPath = null;
 
@@ -161,11 +173,10 @@ function findFetchCalls(filePath) {
     const endpoint = match[1];
     const startPos = match.index;
 
-    // Find the enclosing fetch() call and check for Authorization header
+    // Find the enclosing fetch() call and check for Authorization header and HTTP method
     let parenCount = 1;
     let i = startPos + match[0].length;
     const callEnd = content.length;
-    let hasAuth = false;
 
     while (i < callEnd && parenCount > 0) {
       const char = content[i];
@@ -175,11 +186,18 @@ function findFetchCalls(filePath) {
     }
 
     const callSlice = content.slice(startPos, i);
-    hasAuth = /['"]Authorization['"]\s*:/.test(callSlice) ||
+    const hasAuth = /['"]Authorization['"]\s*:/.test(callSlice) ||
               /Authorization\s*:/.test(callSlice) ||
               AUTH_HELPER_PATTERNS.some(p => p.test(callSlice));
 
-    calls.push({ endpoint, hasAuth, line: content.slice(0, startPos).split('\n').length });
+    // Detect explicit HTTP method; default to GET when absent
+    let method = 'GET';
+    const methodMatch = callSlice.match(/method\s*:\s*['"]([A-Z]+)['"]/i);
+    if (methodMatch) {
+      method = methodMatch[1].toUpperCase();
+    }
+
+    calls.push({ endpoint, hasAuth, method, line: content.slice(0, startPos).split('\n').length });
   }
 
   return calls;
@@ -224,7 +242,7 @@ function main() {
         continue;
       }
 
-      const requiresAuth = endpointRequiresAuth(call.endpoint, resolved, rewrites);
+      const requiresAuth = endpointRequiresAuth(call.endpoint, resolved, rewrites, call.method);
       if (requiresAuth && !call.hasAuth) {
         issues.push({
           type: 'missing_auth',

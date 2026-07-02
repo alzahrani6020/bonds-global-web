@@ -50,20 +50,47 @@ ALTER TABLE enterprise_intelligence_runs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE enterprise_intelligence_graphs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE enterprise_intelligence_recommendations ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS enterprise_intelligence_runs_owner_policy
-  ON enterprise_intelligence_runs
-  USING (user_id = auth.uid());
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'enterprise_intelligence_runs'
+      AND policyname = 'enterprise_intelligence_runs_owner_policy'
+  ) THEN
+    CREATE POLICY enterprise_intelligence_runs_owner_policy
+      ON enterprise_intelligence_runs
+      USING (user_id = auth.uid());
+  END IF;
+END $$;
 
-CREATE POLICY IF NOT EXISTS enterprise_intelligence_graphs_owner_policy
-  ON enterprise_intelligence_graphs
-  USING (EXISTS (
-    SELECT 1 FROM enterprise_intelligence_runs r
-    WHERE r.id = enterprise_intelligence_graphs.run_id AND r.user_id = auth.uid()
-  ));
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'enterprise_intelligence_graphs'
+      AND policyname = 'enterprise_intelligence_graphs_owner_policy'
+  ) THEN
+    CREATE POLICY enterprise_intelligence_graphs_owner_policy
+      ON enterprise_intelligence_graphs
+      USING (EXISTS (
+        SELECT 1 FROM enterprise_intelligence_runs r
+        WHERE r.id = enterprise_intelligence_graphs.run_id AND r.user_id = auth.uid()
+      ));
+  END IF;
+END $$;
 
-CREATE POLICY IF NOT EXISTS enterprise_intelligence_recommendations_owner_policy
-  ON enterprise_intelligence_recommendations
-  USING (EXISTS (
-    SELECT 1 FROM enterprise_intelligence_runs r
-    WHERE r.id = enterprise_intelligence_recommendations.run_id AND r.user_id = auth.uid()
-  ));
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'enterprise_intelligence_recommendations'
+      AND policyname = 'enterprise_intelligence_recommendations_owner_policy'
+  ) THEN
+    CREATE POLICY enterprise_intelligence_recommendations_owner_policy
+      ON enterprise_intelligence_recommendations
+      USING (EXISTS (
+        SELECT 1 FROM enterprise_intelligence_runs r
+        WHERE r.id = enterprise_intelligence_recommendations.run_id AND r.user_id = auth.uid()
+      ));
+  END IF;
+END $$;

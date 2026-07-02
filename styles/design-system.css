@@ -5,54 +5,14 @@
  * Import after styles.css for overrides.
  */
 
+/* Design-system-specific tokens (extends styles/tokens.css) */
 :root {
-  /* Spacing scale */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-10: 2.5rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
-
-  /* Radius */
-  --radius-sm: 8px;
-  --radius: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-
-  /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12);
-  --shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.28);
-
-  /* Status colors */
-  --success: #16a34a;
   --success-light: #4ade80;
-  --warning: #f59e0b;
   --warning-light: #fbbf24;
-  --danger: #dc2626;
   --danger-light: #f87171;
-  --info: #3b82f6;
   --info-light: #60a5fa;
-
-  /* Typography */
   --font-ar: 'Vazirmatn', 'Cairo', system-ui, sans-serif;
   --font-en: 'Inter', system-ui, sans-serif;
-}
-
-/* Light mode support */
-[data-theme="light"],
-html[data-theme="light"] {
-  --bg: #f8fafc;
-  --bg-card: #ffffff;
-  --bg-elevated: #f1f5f9;
-  --text: #0f172a;
-  --text-secondary: #475569;
-  --border: rgba(15, 23, 42, 0.1);
 }
 
 /* Executive containers */

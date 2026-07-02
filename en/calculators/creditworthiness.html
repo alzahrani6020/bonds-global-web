@@ -24,7 +24,7 @@
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/shared-export.js"></script>
   <script src="../../calculators/creditworthiness-engine.js"></script>
-  <link rel="stylesheet" href="../../header-footer.css?v=7" />
+  <link rel="stylesheet" href="../../header-footer.css?v=8" />
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://bonds-global.com/en/calculators/creditworthiness" />
   
@@ -68,7 +68,7 @@
       <!-- Financial statements -->
       <div class="bonds-card cw-card">
         <div class="cw-section-title">📊 Annual Financial Statements</div>
-        <p style="color:var(--text-secondary);font-size:.9rem;margin-bottom:1rem;">Enter figures in local currency. Use zero if an item is not available.</p>
+        <p class="calc-cw-subtitle">Enter figures in local currency. Use zero if an item is not available.</p>
 
         <div class="cw-section-subtitle">Balance Sheet</div>
         <div class="bonds-form-row">
@@ -124,7 +124,7 @@
           <div class="bonds-form-group">
             <label for="paymentRegularity">Payment Regularity (%)</label>
             <input id="paymentRegularity" class="bonds-input" type="range" min="0" max="100" value="80" oninput="document.getElementById('prVal').textContent=this.value+'%'" />
-            <div style="text-align:center;font-weight:700;color:var(--gold);margin-top:.25rem;" id="prVal">80%</div>
+            <div class="calc-cw-value" id="prVal">80%</div>
           </div>
           <div class="bonds-form-group">
             <label for="existingObligations">Current Credit Obligations</label>
@@ -188,7 +188,7 @@
         </div>
       </div>
 
-      <div style="text-align:center;margin:2rem 0 1rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <div class="calc-cw-action-row">
         <button class="bonds-btn bonds-btn-primary" type="submit">🧮 Calculate Credit Rating</button>
         <button class="bonds-btn bonds-btn-secondary" type="button" onclick="loadSampleData()">📋 Sample Data</button>
         <button class="bonds-btn bonds-btn-secondary" type="button" onclick="window.print()">🖨️ Print</button>
@@ -227,7 +227,7 @@
           <button type="submit" class="bonds-btn bonds-btn-primary" id="leadSubmitBtn">Show Result</button>
         </div>
       </form>
-      <div class="lead-modal__note">🔒 Your data is protected and never shared with third parties. By confirming, you agree to our <a href="../../terms.html" target="_blank" style="color:var(--gold);">Terms of Use</a> and <a href="../../privacy.html" target="_blank" style="color:var(--gold);">Privacy Policy</a>.</div>
+      <div class="lead-modal__note">🔒 Your data is protected and never shared with third parties. By confirming, you agree to our <a class="calc-text-gold" href="../../terms.html" target="_blank">Terms of Use</a> and <a class="calc-text-gold" href="../../privacy.html" target="_blank">Privacy Policy</a>.</div>
     </div>
   </div>
 

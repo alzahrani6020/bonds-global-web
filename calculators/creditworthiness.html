@@ -24,7 +24,7 @@
   <script src="shared-utils.js"></script>
   <script src="shared-export.js"></script>
   <script src="creditworthiness-engine.js"></script>
-  <link rel="stylesheet" href="../header-footer.css?v=7" />
+  <link rel="stylesheet" href="../header-footer.css?v=8" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://bonds-global.com/calculators/creditworthiness" />
   
@@ -68,7 +68,7 @@
       <!-- Financial statements -->
       <div class="bonds-card cw-card">
         <div class="cw-section-title">📊 القوائم المالية السنوية</div>
-        <p style="color:var(--text-secondary);font-size:.9rem;margin-bottom:1rem;">أدخل الأرقام بالعملة المحلية. ضع صفراً إذا لم يتوفر البند.</p>
+        <p class="calc-cw-subtitle">أدخل الأرقام بالعملة المحلية. ضع صفراً إذا لم يتوفر البند.</p>
 
         <div class="cw-section-subtitle">الميزانية العمومية</div>
         <div class="bonds-form-row">
@@ -124,7 +124,7 @@
           <div class="bonds-form-group">
             <label for="paymentRegularity">الانتظام في السداد (%)</label>
             <input id="paymentRegularity" class="bonds-input" type="range" min="0" max="100" value="80" oninput="document.getElementById('prVal').textContent=this.value+'%'" />
-            <div style="text-align:center;font-weight:700;color:var(--gold);margin-top:.25rem;" id="prVal">80%</div>
+            <div class="calc-cw-value" id="prVal">80%</div>
           </div>
           <div class="bonds-form-group">
             <label for="existingObligations">عدد الالتزامات الائتمانية الحالية</label>
@@ -188,7 +188,7 @@
         </div>
       </div>
 
-      <div style="text-align:center;margin:2rem 0 1rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <div class="calc-cw-action-row">
         <button class="bonds-btn bonds-btn-primary" type="submit">🧮 احسب التقييم الائتماني</button>
         <button class="bonds-btn bonds-btn-secondary" type="button" onclick="loadSampleData()">📋 بيانات تجريبية</button>
         <button class="bonds-btn bonds-btn-secondary" type="button" onclick="window.print()">🖨️ طباعة</button>
@@ -227,7 +227,7 @@
           <button type="submit" class="bonds-btn bonds-btn-primary" id="leadSubmitBtn">عرض النتيجة</button>
         </div>
       </form>
-      <div class="lead-modal__note">🔒 بياناتك محمية ولا تُشارك مع طرف ثالث. بتأكيدك توافق على <a href="../terms.html" target="_blank" style="color:var(--gold);">شروط الاستخدام</a> و<a href="../privacy.html" target="_blank" style="color:var(--gold);">سياسة الخصوصية</a>.</div>
+      <div class="lead-modal__note">🔒 بياناتك محمية ولا تُشارك مع طرف ثالث. بتأكيدك توافق على <a class="calc-text-gold" href="../terms.html" target="_blank">شروط الاستخدام</a> و<a class="calc-text-gold" href="../privacy.html" target="_blank">سياسة الخصوصية</a>.</div>
     </div>
   </div>
 

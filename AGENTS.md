@@ -38,7 +38,14 @@
 │   ├── tokens.css          ← متغيرات التصميم
 │   ├── base.css            ← الأساسيات والخلفية
 │   ├── components.css      ← مكونات الواجهة
-│   └── utilities.css       ← مساعدات والطباعة والحركات
+│   ├── utilities.css       ← مساعدات والطباعة والحركات
+│   ├── design-system.css   ← طبقة النظام الموحدة
+│   ├── home.css            ← أنماط الصفحة الرئيسية
+│   └── page-shared.css     ← مكونات الصفحات التسويقية والقطاعية
+├── docs/                   ← الوثائق والمعايير
+│   ├── BONDS_CONSTITUTION.md       ← الدستور المعماري
+│   ├── DESIGN_SYSTEM.md            ← نظام التصميم الرسمي
+│   └── EXECUTIVE_UI_GUIDE.md       ← دليل واجهة المستخدم التنفيذية
 ├── supabase/migrations/    ← ترحيلات قاعدة البيانات
 ├── tests/                  ← اختبارات Jest و Playwright
 │   ├── a11y/               ← تدقيق accessibility (axe-core)
@@ -434,8 +441,11 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - `lib/ecc/project-status-aggregator.js` — يجمع الحالة من Investment Intelligence، Enterprise Intelligence، Lifecycle، Digital Twin، Confidence.
   - `lib/ecc/index.js` — واجهة عامة.
   - `v3/api/ecc.js` — مسارات `/api/v3/ecc/*`.
-  - `v3/project/index.html` + `v3/project/project-command-center.js` — واجهة مركز قيادة المشروع.
+  - `v3/project/index.html` + `v3/project/project-command-center.js` + `v3/project/project-command-center.css` — واجهة مركز قيادة المشروع.
+  - `en/v3/project/project-command-center.js` + `en/v3/project/project-command-center.css` — النسخة الإنجليزية.
+  - `components/ecc-icons.js` — مكتبة الأيقونات SVG المشتركة للواجهة التنفيذية.
   - `v3/components/ai-chat-widget.js` — مساعد الذكاء الاصطناعي (يدعم وضع المشروع).
+- **واجهة المستخدم**: شريط رحلة المشروع (`.ecc-journey`) يعرض المراحل من الفكرة إلى النشر، وألسنة تنقل تنفيذية (`.ecc-tabs`) تفصل بين: نظرة عامة، خط الزمن، الموافقات، الإنذارات، المستندات. جميع الأيقونات SVG من `ecc-icons.js` (لا إيموجي) مع تحسينات Accessibility (أدوار ولواحق ARIA).
 - **المبدأ**: لا محرك حسابي جديد؛ كل الأرقام من UCP والمحركات الموجودة. الذكاء الاصطناعي يلخّص وينصح فقط.
 - **المسارات**:
   - `POST /api/v3/ecc/project-status` — حالة موحدة للمشروع.
@@ -452,9 +462,11 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - `lib/ecc/executive-search-engine.js` — بحث تنفيذي عبر المشاريع، المذكرات، مراجعات AI، الجدول الزمني، المهام، والموافقات.
   - `lib/ecc/role-guard.js` — إدراك الأدوار: يقرأ `profiles.role` ويحدد صلاحيات `viewer / advisor / admin / owner`.
   - `v3/api/ecc.js` — مسارات `POST /api/v3/ecc/portfolio` و `POST /api/v3/ecc/notifications` و `POST /api/v3/ecc/search`.
-  - `v3/portfolio/index.html` + `v3/portfolio/portfolio-dashboard.js` — واجهة لوحة المحفظة مع جرس إشعارات وشريط بحث وتحديث حي (عربي).
+  - `v3/portfolio/index.html` + `v3/portfolio/portfolio-dashboard.js` + `v3/portfolio/portfolio-dashboard.css` — واجهة لوحة المحفظة مع جرس إشعارات وشريط بحث وتحديث حي (عربي).
+  - `en/v3/portfolio/index.html` + `en/v3/portfolio/portfolio-dashboard.js` + `en/v3/portfolio/portfolio-dashboard.css` — النسخة الإنجليزية.
   - `v3/project/project-command-center.js` — يخفي أزرار التعديل عن `viewer` و `advisor`.
-  - `en/v3/portfolio/index.html` + `en/v3/portfolio/portfolio-dashboard.js` + `en/v3/project/project-command-center.js` — النسخة الإنجليزية.
+  - `components/ecc-icons.js` — مكتبة الأيقونات SVG المشتركة للواجهة التنفيذية.
+- **واجهة المستخدم**: ألسنة تنقل تنفيذية (`.ecc-tabs`) تفصل بين: نظرة عامة، إجراءات، بحث. جميع الأيقونات SVG من `ecc-icons.js` (لا إيموجي) مع تحسينات Accessibility (أدوار ولواحق ARIA).
 - **المبدأ**: لا محرك حسابي جديد؛ إعادة استخدام `aggregateProjectStatus` وقراءة الجداول الموجودة.
 - **المخرجات**: ملخص المحفظة، توزيع القطاعات والمراحل والصحة، جدول المشاريع، التنبيهات الحرجة، الخطوات التالية، إشعارات ذكية، نتائج بحث، وتحكم بالأدوار.
 - **صفحة العرض**: `/v3/portfolio` (عربي) و `/en/v3/portfolio` (إنجليزي).
