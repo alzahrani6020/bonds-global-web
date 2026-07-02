@@ -295,6 +295,26 @@ All routes require **`x-admin-token`** header matching `ADMIN_TOKEN`.
 | `/api/v3/investment-intelligence/memorandum/:id/versions` | GET | List versions | Bearer JWT | `compute` |
 | `/api/v3/investment-intelligence/memorandum/:id/version` | POST | Create manual version | Bearer JWT | `compute` |
 
+### 4.15 Enterprise Lifecycle (Phase D.1.5)
+
+| Route | Methods | Description | Auth | Rate limit |
+|---|---|---|---|---|
+| `/api/v3/enterprise-lifecycle/definitions` | GET | List workflow + stage definitions | none | `compute` |
+| `/api/v3/enterprise-lifecycle/definitions/:entityType` | GET | Get workflow definition | none | `compute` |
+| `/api/v3/enterprise-lifecycle/instances` | POST | Create lifecycle instance | Bearer JWT | `compute` |
+| `/api/v3/enterprise-lifecycle/instances/:id` | GET | Get instance state + allowed transitions | Bearer JWT | `compute` |
+| `/api/v3/enterprise-lifecycle/instances/:id/state` | GET | Current state, graph, blocked paths | Bearer JWT | `compute` |
+| `/api/v3/enterprise-lifecycle/instances/:id/history` | GET | Transition audit log | Bearer JWT | `compute` |
+| `/api/v3/enterprise-lifecycle/instances/:id/timeline` | GET | Unified timeline | Bearer JWT | `compute` |
+| `/api/v3/enterprise-lifecycle/instances/:id/tasks` | GET | Pending/completed tasks | Bearer JWT | `compute` |
+| `/api/v3/enterprise-lifecycle/instances/:id/transition` | POST | Execute stage transition | Bearer JWT | `compute` |
+| `/api/v3/enterprise-lifecycle/instances/:id/validate` | POST | Validate transition without moving | Bearer JWT | `compute` |
+| `/api/v3/enterprise-lifecycle/instances/:id/gates/:gateId/evaluate` | POST | Evaluate a single gate | Bearer JWT | `compute` |
+| `/api/v3/enterprise-lifecycle/instances/:id/approvals` | GET | List approvals | Bearer JWT | `compute` |
+| `/api/v3/enterprise-lifecycle/instances/:id/approvals` | POST | Request approval for transition | Bearer JWT | `compute` |
+| `/api/v3/enterprise-lifecycle/instances/:id/approvals/:approvalId/decision` | POST | Submit approval decision | Bearer JWT | `compute` |
+| `/api/v3/enterprise-lifecycle/instances/:id/events` | POST | Emit lifecycle event | Bearer JWT | `compute` |
+
 ---
 
 ## Notes

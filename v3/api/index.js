@@ -60,6 +60,7 @@ const { compareRouter } = require('./compare');
 const { fabricRouter } = require('./fabric');
 const { intelligenceRouter } = require('./intelligence');
 const { investmentIntelligenceRouter } = require('./investment-intelligence');
+const { enterpriseLifecycleRouter } = require('./enterprise-lifecycle');
 const { UniversalCalculationPlatform } = require('../../lib/ucp');
 const { adaptToUcp, adaptFromUcp } = require('../../lib/ucp/adapters');
 const { run: orchestratorRun, buildIntentForm } = require('../../lib/orchestrator/intelligence-orchestrator');
@@ -77,7 +78,7 @@ function getCategory(path) {
   if (path.startsWith('/auth')) return 'auth';
   if (path.startsWith('/admin') || path.startsWith('/cron')) return 'strict';
   if (path === '/ai/chat') return 'ai';
-  if (path === '/calculate' || path.startsWith('/calculate/') || path === '/compare/cities' || path.startsWith('/ucp/') || path.startsWith('/wave4/') || path.startsWith('/orchestrate') || path.startsWith('/fabric') || path.startsWith('/intelligence') || path.startsWith('/investment-intelligence')) return 'compute';
+  if (path === '/calculate' || path.startsWith('/calculate/') || path === '/compare/cities' || path.startsWith('/ucp/') || path.startsWith('/wave4/') || path.startsWith('/orchestrate') || path.startsWith('/fabric') || path.startsWith('/intelligence') || path.startsWith('/investment-intelligence') || path.startsWith('/enterprise-lifecycle')) return 'compute';
   return 'public';
 }
 
@@ -733,6 +734,12 @@ module.exports = async function handler(req, res) {
       const user = await getUserFromToken(req);
       if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
       return await investmentIntelligenceRouter(req, res, path, supabase, user);
+    }
+    if (path.startsWith('/enterprise-lifecycle')) {
+      const supabase = getSupabaseClient();
+      const user = await getUserFromToken(req);
+      if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
+      return await enterpriseLifecycleRouter(req, res, path, supabase, user);
     }
     if (path === '/cron/calibrate-competitors') return await handleCronCalibrate(req, res);
     if (path === '/cron/check-source-quality') return await handleCronCheckQuality(req, res);

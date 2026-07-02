@@ -1,0 +1,23 @@
+[
+  { "code": "idea", "name": { "ar": "فكرة", "en": "Idea" }, "category": "discovery" },
+  { "code": "feasibility", "name": { "ar": "جدوى", "en": "Feasibility" }, "category": "analysis" },
+  { "code": "valuation", "name": { "ar": "تقييم", "en": "Valuation" }, "category": "analysis" },
+  { "code": "funding", "name": { "ar": "تمويل", "en": "Funding" }, "category": "structuring" },
+  { "code": "investment_readiness", "name": { "ar": "جاهزية الاستثمار", "en": "Investment Readiness" }, "category": "structuring" },
+  { "code": "investment_memorandum", "name": { "ar": "مذكرة استثمارية", "en": "Investment Memorandum" }, "category": "documentation" },
+  { "code": "ai_review", "name": { "ar": "مراجعة الذكاء الاصطناعي", "en": "AI Review" }, "category": "review" },
+  { "code": "investor_matching", "name": { "ar": "مطابقة المستثمر", "en": "Investor Matching" }, "category": "market" },
+  { "code": "teaser", "name": { "ar": "نبذة استثمارية", "en": "Teaser" }, "category": "market" },
+  { "code": "nda", "name": { "ar": "اتفاقية سرية", "en": "NDA" }, "category": "legal" },
+  { "code": "virtual_data_room", "name": { "ar": "غرفة بيانات افتراضية", "en": "Virtual Data Room" }, "category": "legal" },
+  { "code": "deal_room", "name": { "ar": "غرفة الصفقة", "en": "Deal Room" }, "category": "deal" },
+  { "code": "due_diligence", "name": { "ar": "عناية مستحقة", "en": "Due Diligence" }, "category": "deal" },
+  { "code": "negotiation", "name": { "ar": "تفاوض", "en": "Negotiation" }, "category": "deal" },
+  { "code": "term_sheet", "name": { "ar": "ورقة شروط", "en": "Term Sheet" }, "category": "legal" },
+  { "code": "cap_table", "name": { "ar": "جدولة ملكية", "en": "Cap Table" }, "category": "legal" },
+  { "code": "funding_closed", "name": { "ar": "إغلاق التمويل", "en": "Funding Closed" }, "category": "execution" },
+  { "code": "execution", "name": { "ar": "تنفيذ", "en": "Execution" }, "category": "execution" },
+  { "code": "monitoring", "name": { "ar": "مراقبة", "en": "Monitoring" }, "category": "monitoring" },
+  { "code": "expansion", "name": { "ar": "توسع", "en": "Expansion" }, "category": "monitoring" },
+  { "code": "exit", "name": { "ar": "تخارج", "en": "Exit" }, "category": "exit" }
+]

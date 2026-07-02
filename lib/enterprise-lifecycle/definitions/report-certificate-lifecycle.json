@@ -1,0 +1,93 @@
+{
+  "id": "report-certificate-lifecycle",
+  "entityType": "report",
+  "version": 1,
+  "status": "active",
+  "name": { "ar": "دورة حياة التقرير والشهادة", "en": "Report & Certificate Lifecycle" },
+  "description": {
+    "ar": "مسار موحد لإصدار التقارير والشهادات الرقمية.",
+    "en": "Unified path for issuing reports and digital certificates."
+  },
+  "initialStage": "draft",
+  "finalStages": ["archived"],
+  "stages": ["draft", "submitted", "financial_review", "technical_review", "compliance_review", "executive_approval", "certified", "published", "archived"],
+  "transitions": [
+    { "id": "r1", "from": "draft", "to": "submitted", "guards": ["guard_report_complete"] },
+    { "id": "r2", "from": "submitted", "to": "financial_review", "guards": ["guard_submitted_by_owner"] },
+    { "id": "r3", "from": "financial_review", "to": "technical_review", "guards": ["guard_financial_approved"], "requiresApproval": true },
+    { "id": "r4", "from": "technical_review", "to": "compliance_review", "guards": ["guard_technical_approved"], "requiresApproval": true },
+    { "id": "r5", "from": "compliance_review", "to": "executive_approval", "guards": ["guard_compliance_approved"], "requiresApproval": true },
+    { "id": "r6", "from": "executive_approval", "to": "certified", "guards": ["guard_executive_approved"], "requiresApproval": true },
+    { "id": "r7", "from": "certified", "to": "published", "guards": ["guard_certificate_issued"] },
+    { "id": "r8", "from": "published", "to": "archived", "guards": ["guard_archive_eligible"], "optional": true }
+  ],
+  "guardDefinitions": {
+    "guard_report_complete": {
+      "type": "data_completeness",
+      "name": { "ar": "اكتمال التقرير", "en": "Report complete" },
+      "threshold": 0.95,
+      "requiredFields": ["report.title", "report.sections", "report.conclusion"]
+    },
+    "guard_submitted_by_owner": {
+      "type": "document_status",
+      "name": { "ar": "تقديم التقرير", "en": "Report submitted" },
+      "documentType": "submission",
+      "allowedStatuses": ["submitted"]
+    },
+    "guard_financial_approved": {
+      "type": "document_status",
+      "name": { "ar": "موافقة المراجعة المالية", "en": "Financial review approved" },
+      "documentType": "financial_review",
+      "allowedStatuses": ["approved"]
+    },
+    "guard_technical_approved": {
+      "type": "document_status",
+      "name": { "ar": "موافقة المراجعة الفنية", "en": "Technical review approved" },
+      "documentType": "technical_review",
+      "allowedStatuses": ["approved"]
+    },
+    "guard_compliance_approved": {
+      "type": "document_status",
+      "name": { "ar": "موافقة الالتزام", "en": "Compliance review approved" },
+      "documentType": "compliance_review",
+      "allowedStatuses": ["approved"]
+    },
+    "guard_executive_approved": {
+      "type": "document_status",
+      "name": { "ar": "موافقة الإدارة التنفيذية", "en": "Executive approval" },
+      "documentType": "executive_approval",
+      "allowedStatuses": ["approved"]
+    },
+    "guard_certificate_issued": {
+      "type": "document_status",
+      "name": { "ar": "إصدار الشهادة", "en": "Certificate issued" },
+      "documentType": "certificate",
+      "allowedStatuses": ["issued"]
+    },
+    "guard_archive_eligible": {
+      "type": "confidence_threshold",
+      "name": { "ar": "صلاحية الأرشفة", "en": "Archive eligibility" },
+      "threshold": 90,
+      "contextPath": "report.stabilityScore"
+    }
+  },
+  "stageTasks": {
+    "draft": [
+      { "code": "task_complete_report", "title": { "ar": "استكمال التقرير", "en": "Complete report" }, "ownerRole": "analyst", "priority": "high", "deadlineDays": 5 }
+    ],
+    "financial_review": [
+      { "code": "task_financial_review", "title": { "ar": "مراجعة مالية", "en": "Financial review" }, "ownerRole": "financial_reviewer", "priority": "high", "deadlineDays": 3 }
+    ],
+    "technical_review": [
+      { "code": "task_technical_review", "title": { "ar": "مراجعة فنية", "en": "Technical review" }, "ownerRole": "technical_reviewer", "priority": "high", "deadlineDays": 3 }
+    ]
+  },
+  "approvalRules": {
+    "submitted->financial_review": { "type": "single", "approverRoles": ["financial_reviewer"] },
+    "financial_review->technical_review": { "type": "single", "approverRoles": ["financial_reviewer"] },
+    "technical_review->compliance_review": { "type": "single", "approverRoles": ["technical_reviewer"] },
+    "compliance_review->executive_approval": { "type": "sequential", "approverRoles": ["compliance_officer", "ceo"] },
+    "executive_approval->certified": { "type": "single", "approverRoles": ["ceo"] }
+  },
+  "rollbackRules": { "enabled": true, "requiresReason": true, "maxRollbackStages": 3 }
+}

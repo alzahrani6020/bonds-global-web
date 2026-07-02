@@ -1,0 +1,71 @@
+{
+  "id": "asset-lifecycle",
+  "entityType": "asset",
+  "version": 1,
+  "status": "active",
+  "name": { "ar": "دورة حياة الأصل", "en": "Asset Lifecycle" },
+  "description": {
+    "ar": "مسار موحد لإدارة الأصول من الاكتساب حتى التخارج.",
+    "en": "Unified path from asset acquisition to disposal."
+  },
+  "initialStage": "acquisition",
+  "finalStages": ["disposal"],
+  "stages": ["acquisition", "valuation", "operation", "maintenance", "monitoring", "revaluation", "disposal"],
+  "transitions": [
+    { "id": "a1", "from": "acquisition", "to": "valuation", "guards": ["guard_asset_registered"] },
+    { "id": "a2", "from": "valuation", "to": "operation", "guards": ["guard_valuation_confidence"] },
+    { "id": "a3", "from": "operation", "to": "maintenance", "guards": ["guard_maintenance_due"] },
+    { "id": "a4", "from": "maintenance", "to": "monitoring", "guards": ["guard_maintenance_complete"] },
+    { "id": "a5", "from": "monitoring", "to": "revaluation", "guards": ["guard_revaluation_triggered"] },
+    { "id": "a6", "from": "revaluation", "to": "operation", "guards": ["guard_valuation_confidence"] },
+    { "id": "a7", "from": "monitoring", "to": "disposal", "guards": ["guard_disposal_ready"], "optional": true }
+  ],
+  "guardDefinitions": {
+    "guard_asset_registered": {
+      "type": "data_completeness",
+      "name": { "ar": "تسجيل الأصل", "en": "Asset registered" },
+      "threshold": 0.7,
+      "requiredFields": ["asset.name", "asset.type", "asset.location"]
+    },
+    "guard_valuation_confidence": {
+      "type": "confidence_threshold",
+      "name": { "ar": "ثقة التقييم", "en": "Valuation confidence" },
+      "threshold": 75,
+      "contextPath": "valuation.confidence"
+    },
+    "guard_maintenance_due": {
+      "type": "document_status",
+      "name": { "ar": "استحقاق الصيانة", "en": "Maintenance due" },
+      "documentType": "maintenance_schedule",
+      "allowedStatuses": ["due"]
+    },
+    "guard_maintenance_complete": {
+      "type": "document_status",
+      "name": { "ar": "اكتمال الصيانة", "en": "Maintenance complete" },
+      "documentType": "maintenance_report",
+      "allowedStatuses": ["completed"]
+    },
+    "guard_revaluation_triggered": {
+      "type": "confidence_threshold",
+      "name": { "ar": "فرصة إعادة التقييم", "en": "Revaluation triggered" },
+      "threshold": 80,
+      "contextPath": "revaluation.confidence"
+    },
+    "guard_disposal_ready": {
+      "type": "confidence_threshold",
+      "name": { "ar": "جاهزية التصرف", "en": "Disposal readiness" },
+      "threshold": 85,
+      "contextPath": "disposal.confidence"
+    }
+  },
+  "stageTasks": {
+    "acquisition": [
+      { "code": "task_register_asset", "title": { "ar": "تسجيل بيانات الأصل", "en": "Register asset data" }, "ownerRole": "asset_manager", "priority": "high", "deadlineDays": 3 }
+    ],
+    "valuation": [
+      { "code": "task_run_asset_valuation", "title": { "ar": "تشغيل تقييم الأصل", "en": "Run asset valuation" }, "ownerRole": "valuator", "priority": "high", "deadlineDays": 7 }
+    ]
+  },
+  "approvalRules": {},
+  "rollbackRules": { "enabled": true, "requiresReason": true, "maxRollbackStages": 2 }
+}

@@ -1,0 +1,196 @@
+{
+  "id": "project-investment-lifecycle",
+  "entityType": "project",
+  "version": 1,
+  "status": "active",
+  "name": { "ar": "دورة حياة الاستثمار", "en": "Project Investment Lifecycle" },
+  "description": {
+    "ar": "مسار موحد لتحويل فكرة استثمارية إلى صفقة مغلقة ثم تخارج.",
+    "en": "Unified path from investment idea to closed deal and exit."
+  },
+  "initialStage": "idea",
+  "finalStages": ["exit"],
+  "stages": [
+    "idea", "feasibility", "valuation", "funding", "investment_readiness",
+    "investment_memorandum", "ai_review", "investor_matching", "teaser", "nda",
+    "virtual_data_room", "deal_room", "due_diligence", "negotiation", "term_sheet",
+    "cap_table", "funding_closed", "execution", "monitoring", "expansion", "exit"
+  ],
+  "transitions": [
+    { "id": "t1", "from": "idea", "to": "feasibility", "guards": ["guard_basic_project_info"] },
+    { "id": "t2", "from": "feasibility", "to": "valuation", "guards": ["guard_feasibility_confidence"] },
+    { "id": "t3", "from": "valuation", "to": "funding", "guards": ["guard_valuation_confidence"] },
+    { "id": "t4", "from": "funding", "to": "investment_readiness", "guards": ["guard_funding_structure"] },
+    { "id": "t5", "from": "investment_readiness", "to": "investment_memorandum", "guards": ["guard_readiness_score"], "requiresApproval": true },
+    { "id": "t6", "from": "investment_memorandum", "to": "ai_review", "guards": ["guard_memorandum_exists"] },
+    { "id": "t7", "from": "ai_review", "to": "investor_matching", "guards": ["guard_ai_review_approved"], "requiresApproval": true },
+    { "id": "t8", "from": "investor_matching", "to": "teaser", "guards": ["guard_investor_list"] },
+    { "id": "t9", "from": "teaser", "to": "nda", "guards": ["guard_teaser_sent"] },
+    { "id": "t10", "from": "nda", "to": "virtual_data_room", "guards": ["guard_nda_signed"] },
+    { "id": "t11", "from": "virtual_data_room", "to": "deal_room", "guards": ["guard_vdr_access"] },
+    { "id": "t12", "from": "deal_room", "to": "due_diligence", "guards": ["guard_deal_room_active"] },
+    { "id": "t13", "from": "due_diligence", "to": "negotiation", "guards": ["guard_due_diligence_complete"], "requiresApproval": true },
+    { "id": "t14", "from": "negotiation", "to": "term_sheet", "guards": ["guard_negotiation_terms"] },
+    { "id": "t15", "from": "term_sheet", "to": "cap_table", "guards": ["guard_term_sheet_signed"] },
+    { "id": "t16", "from": "cap_table", "to": "funding_closed", "guards": ["guard_cap_table_approved"], "requiresApproval": true },
+    { "id": "t17", "from": "funding_closed", "to": "execution", "guards": ["guard_funds_received"] },
+    { "id": "t18", "from": "execution", "to": "monitoring", "guards": ["guard_execution_plan"] },
+    { "id": "t19", "from": "monitoring", "to": "expansion", "guards": ["guard_expansion_opportunity"], "optional": true },
+    { "id": "t20", "from": "expansion", "to": "exit", "guards": ["guard_exit_ready"] },
+    { "id": "t21", "from": "monitoring", "to": "exit", "guards": ["guard_exit_ready"], "optional": true }
+  ],
+  "guardDefinitions": {
+    "guard_basic_project_info": {
+      "type": "data_completeness",
+      "name": { "ar": "اكتمال بيانات المشروع الأساسية", "en": "Basic project info complete" },
+      "threshold": 0.6,
+      "requiredFields": ["project.name", "project.sector", "project.city_id", "project.capital"]
+    },
+    "guard_feasibility_confidence": {
+      "type": "confidence_threshold",
+      "name": { "ar": "ثقة دراسة الجدوى", "en": "Feasibility confidence" },
+      "threshold": 70,
+      "contextPath": "ucp.confidence"
+    },
+    "guard_valuation_confidence": {
+      "type": "confidence_threshold",
+      "name": { "ar": "ثقة التقييم", "en": "Valuation confidence" },
+      "threshold": 75,
+      "contextPath": "valuation.confidence"
+    },
+    "guard_funding_structure": {
+      "type": "data_completeness",
+      "name": { "ar": "هيكل التمويل", "en": "Funding structure" },
+      "threshold": 0.5,
+      "requiredFields": ["financing.loan_amount", "financing.interest_rate"]
+    },
+    "guard_readiness_score": {
+      "type": "confidence_threshold",
+      "name": { "ar": "درجة جاهزية الاستثمار", "en": "Investment readiness score" },
+      "threshold": 70,
+      "contextPath": "readiness.readinessScore"
+    },
+    "guard_memorandum_exists": {
+      "type": "document_status",
+      "name": { "ar": "وجود مذكرة استثمارية", "en": "Investment memorandum exists" },
+      "documentType": "investment_memorandum",
+      "allowedStatuses": ["draft", "reviewed", "approved"]
+    },
+    "guard_ai_review_approved": {
+      "type": "document_status",
+      "name": { "ar": "موافقة مراجعة الذكاء الاصطناعي", "en": "AI review approved" },
+      "documentType": "ai_investment_review",
+      "allowedStatuses": ["approved"]
+    },
+    "guard_investor_list": {
+      "type": "data_completeness",
+      "name": { "ar": "قائمة المستثمرين المحتملين", "en": "Investor list" },
+      "threshold": 1.0,
+      "requiredFields": ["investors.matches"]
+    },
+    "guard_teaser_sent": {
+      "type": "document_status",
+      "name": { "ar": "إرسال النبذة الاستثمارية", "en": "Teaser sent" },
+      "documentType": "teaser",
+      "allowedStatuses": ["sent", "viewed"]
+    },
+    "guard_nda_signed": {
+      "type": "document_status",
+      "name": { "ar": "توقيع اتفاقية السرية", "en": "NDA signed" },
+      "documentType": "nda",
+      "allowedStatuses": ["signed"]
+    },
+    "guard_vdr_access": {
+      "type": "data_completeness",
+      "name": { "ar": "تهيئة غرفة البيانات", "en": "VDR ready" },
+      "threshold": 0.8,
+      "requiredFields": ["vdr.documents"]
+    },
+    "guard_deal_room_active": {
+      "type": "document_status",
+      "name": { "ar": "غرفة الصفقة نشطة", "en": "Deal room active" },
+      "documentType": "deal_room",
+      "allowedStatuses": ["active"]
+    },
+    "guard_due_diligence_complete": {
+      "type": "data_completeness",
+      "name": { "ar": "اكتمال العناية المستحقة", "en": "Due diligence complete" },
+      "threshold": 0.95,
+      "requiredFields": ["dueDiligence.checklist"]
+    },
+    "guard_negotiation_terms": {
+      "type": "data_completeness",
+      "name": { "ar": "شروط التفاوض", "en": "Negotiation terms" },
+      "threshold": 0.8,
+      "requiredFields": ["negotiation.terms"]
+    },
+    "guard_term_sheet_signed": {
+      "type": "document_status",
+      "name": { "ar": "توقيع ورقة الشروط", "en": "Term sheet signed" },
+      "documentType": "term_sheet",
+      "allowedStatuses": ["signed"]
+    },
+    "guard_cap_table_approved": {
+      "type": "document_status",
+      "name": { "ar": "اعتماد جدولة الملكية", "en": "Cap table approved" },
+      "documentType": "cap_table",
+      "allowedStatuses": ["approved"]
+    },
+    "guard_funds_received": {
+      "type": "document_status",
+      "name": { "ar": "استلام الأموال", "en": "Funds received" },
+      "documentType": "funding_confirmation",
+      "allowedStatuses": ["confirmed"]
+    },
+    "guard_execution_plan": {
+      "type": "data_completeness",
+      "name": { "ar": "خطة التنفيذ", "en": "Execution plan" },
+      "threshold": 0.8,
+      "requiredFields": ["execution.milestones"]
+    },
+    "guard_expansion_opportunity": {
+      "type": "confidence_threshold",
+      "name": { "ar": "فرصة توسع", "en": "Expansion opportunity" },
+      "threshold": 80,
+      "contextPath": "expansion.confidence",
+      "optional": true
+    },
+    "guard_exit_ready": {
+      "type": "confidence_threshold",
+      "name": { "ar": "جاهزية التخارج", "en": "Exit readiness" },
+      "threshold": 85,
+      "contextPath": "exit.confidence"
+    }
+  },
+  "stageTasks": {
+    "idea": [
+      { "code": "task_capture_intent", "title": { "ar": "توثيق النية الاستثمارية", "en": "Capture investment intent" }, "ownerRole": "founder", "priority": "high", "deadlineDays": 3 }
+    ],
+    "feasibility": [
+      { "code": "task_run_ucp", "title": { "ar": "تشغيل منصة الحساب الموحد", "en": "Run UCP calculation" }, "ownerRole": "analyst", "priority": "high", "deadlineDays": 5 },
+      { "code": "task_validate_assumptions", "title": { "ar": "التحقق من الفرضيات", "en": "Validate assumptions" }, "ownerRole": "analyst", "priority": "medium", "deadlineDays": 7 }
+    ],
+    "investment_readiness": [
+      { "code": "task_readiness_report", "title": { "ar": "إعداد تقرير الجاهزية", "en": "Prepare readiness report" }, "ownerRole": "advisor", "priority": "high", "deadlineDays": 5 }
+    ],
+    "investment_memorandum": [
+      { "code": "task_generate_memo", "title": { "ar": "إنشاء المذكرة الاستثمارية", "en": "Generate investment memorandum" }, "ownerRole": "advisor", "priority": "high", "deadlineDays": 7 }
+    ],
+    "due_diligence": [
+      { "code": "task_financial_dd", "title": { "ar": "العناية المالية", "en": "Financial due diligence" }, "ownerRole": "auditor", "priority": "high", "deadlineDays": 14 },
+      { "code": "task_legal_dd", "title": { "ar": "العناية القانونية", "en": "Legal due diligence" }, "ownerRole": "lawyer", "priority": "high", "deadlineDays": 14 }
+    ]
+  },
+  "approvalRules": {
+    "investment_readiness->investment_memorandum": { "type": "single", "approverRoles": ["advisor"] },
+    "ai_review->investor_matching": { "type": "single", "approverRoles": ["investment_manager"] },
+    "due_diligence->negotiation": { "type": "committee", "approverRoles": ["investment_manager", "legal", "cfo"], "minApprovals": 2 },
+    "cap_table->funding_closed": { "type": "committee", "approverRoles": ["cfo", "ceo"], "minApprovals": 2 }
+  },
+  "rollbackRules": {
+    "enabled": true,
+    "requiresReason": true,
+    "maxRollbackStages": 3,
+    "allowedFrom": ["feasibility", "valuation", "funding", "investment_readiness", "investment_memorandum", "ai_review", "investor_matching", "teaser", "nda", "virtual_data_room", "deal_room", "due_diligence", "negotiation", "term_sheet", "cap_table", "funding_closed", "execution", "monitoring", "expansion"]
+  }
+}

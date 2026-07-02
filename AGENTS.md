@@ -561,4 +561,24 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 
 ---
 
-*آخر تحديث: 2026-06-24*
+### 11.9 Enterprise Lifecycle Engine (Phase D.1.5)
+موقع المحرك: `lib/enterprise-lifecycle/`.  
+يقوم بإدارة دورة حياة المشاريع والأصول والتقارير بشكل موحد وmetadata-driven عبر:
+- `lifecycle-engine.js` — الواجهة الرئيسية.
+- `lifecycle-registry.js` + `definitions/*.json` — تعريفات workflows والمراحل.
+- `state-machine.js` — حماية الحالة الحالية والانتقالات.
+- `transition-engine.js` — تقييم Gates والموافقات وتنفيذ الانتقال.
+- `gate-engine.js` — تقييم الشروط (data completeness, confidence, document status, approval).
+- `task-engine.js` — توليد المهام التلقائية لكل مرحلة.
+- `approval-engine.js` — موافقات single / multi / sequential / parallel / committee.
+- `event-bus.js` — أحداث مثل `ProjectEnteredStage`, `ApprovalGranted`.
+- `timeline-engine.js` — بناء Timeline موحد.
+- `integrations/` — ربط UCP، Trusted Data Fabric، Investment Intelligence، Confidence، Explainability، Decision Memory، Digital Twin.
+
+الـ API موحد تحت `/api/v3/enterprise-lifecycle/*` داخل `v3/api/index.js`.  
+الترحيل: `supabase/migrations/20260725000000_enterprise_lifecycle_engine.sql`.  
+الوثائق: `docs/phase-d/PHASE_D_1_5_ENTERPRISE_LIFECYCLE_ADR.md` و `PHASE_D_1_5_EXIT_REPORT.md` و `docs/ARCHITECTURE_COMPLIANCE_REPORT_D_1_5.md`.
+
+---
+
+*آخر تحديث: 2026-07-02*
