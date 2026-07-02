@@ -307,6 +307,7 @@ All routes require **`x-admin-token`** header matching `ADMIN_TOKEN`.
 | `/api/v3/enterprise-lifecycle/instances/:id/history` | GET | Transition audit log | Bearer JWT | `compute` |
 | `/api/v3/enterprise-lifecycle/instances/:id/timeline` | GET | Unified timeline | Bearer JWT | `compute` |
 | `/api/v3/enterprise-lifecycle/instances/:id/tasks` | GET | Pending/completed tasks | Bearer JWT | `compute` |
+| `/api/v3/enterprise-lifecycle/instances/:id/tasks/:taskId/complete` | POST | Complete a task with evidence and rule validation | Bearer JWT | `compute` |
 | `/api/v3/enterprise-lifecycle/instances/:id/transition` | POST | Execute stage transition | Bearer JWT | `compute` |
 | `/api/v3/enterprise-lifecycle/instances/:id/validate` | POST | Validate transition without moving | Bearer JWT | `compute` |
 | `/api/v3/enterprise-lifecycle/instances/:id/gates/:gateId/evaluate` | POST | Evaluate a single gate | Bearer JWT | `compute` |

@@ -78,4 +78,35 @@ describe('GateEngine', () => {
     expect(result.score).toBe(100);
     expect(result.threshold).toBe(50);
   });
+
+  test('task_completion gate passes when all required tasks completed', () => {
+    const result = engine.evaluate({
+      id: 'g7',
+      type: 'task_completion',
+      taskCodes: ['submit_financials', 'upload_team'],
+      required: 'all'
+    }, {
+      tasks: [
+        { task_code: 'submit_financials', status: 'completed', stage_id: 'idea' },
+        { task_code: 'upload_team', status: 'completed', stage_id: 'idea' }
+      ]
+    });
+    expect(result.passed).toBe(true);
+    expect(result.score).toBe(100);
+  });
+
+  test('task_completion gate fails when required task pending', () => {
+    const result = engine.evaluate({
+      id: 'g8',
+      type: 'task_completion',
+      taskCodes: ['submit_financials', 'upload_team'],
+      required: 'all'
+    }, {
+      tasks: [
+        { task_code: 'submit_financials', status: 'completed', stage_id: 'idea' },
+        { task_code: 'upload_team', status: 'pending', stage_id: 'idea' }
+      ]
+    });
+    expect(result.passed).toBe(false);
+  });
 });

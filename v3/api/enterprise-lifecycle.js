@@ -100,6 +100,20 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
       return sendJson(res, 200, { tasks });
     }
 
+    const taskCompleteMatch = path.match(/^\/enterprise-lifecycle\/instances\/([^/]+)\/tasks\/([^/]+)\/complete$/);
+    if (taskCompleteMatch && req.method === 'POST') {
+      const taskId = taskCompleteMatch[2];
+      const body = await parseBody(req);
+      const { evidence, context } = body;
+      const result = await engine.completeTask({
+        taskId,
+        userId: user.id,
+        evidence: evidence || [],
+        context: context || {}
+      });
+      return sendJson(res, result.success ? 200 : 400, result);
+    }
+
     const transitionMatch = path.match(/^\/enterprise-lifecycle\/instances\/([^/]+)\/transition$/);
     if (transitionMatch && req.method === 'POST') {
       const id = transitionMatch[1];

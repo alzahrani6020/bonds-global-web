@@ -34,4 +34,57 @@ describe('TaskEngine', () => {
     expect(completed.length).toBeGreaterThan(0);
     expect(completed[0].status).toBe('completed');
   });
+
+  test('completeTask validates requiredFields rule', async () => {
+    const task = await store.createTask({
+      instance_id: 'i1',
+      stage_id: 'idea',
+      task_code: 't1',
+      title: 'Task 1',
+      status: 'pending',
+      completion_rules: { requiredFields: ['project.name'] }
+    });
+
+    const fail = await engine.completeTask({ taskId: task.id, store, completedBy: 'u1', context: {} });
+    expect(fail.success).toBe(false);
+    expect(fail.failures.length).toBeGreaterThan(0);
+
+    const pass = await engine.completeTask({ taskId: task.id, store, completedBy: 'u1', context: { project: { name: 'X' } } });
+    expect(pass.success).toBe(true);
+    expect(pass.task.status).toBe('completed');
+  });
+
+  test('completeTask validates expression rule', async () => {
+    const task = await store.createTask({
+      instance_id: 'i1',
+      stage_id: 'idea',
+      task_code: 't2',
+      title: 'Task 2',
+      status: 'pending',
+      completion_rules: { expression: 'readiness.score >= 70' }
+    });
+
+    const fail = await engine.completeTask({ taskId: task.id, store, completedBy: 'u1', context: { readiness: { score: 50 } } });
+    expect(fail.success).toBe(false);
+
+    const pass = await engine.completeTask({ taskId: task.id, store, completedBy: 'u1', context: { readiness: { score: 80 } } });
+    expect(pass.success).toBe(true);
+  });
+
+  test('completeTask validates minEvidence rule', async () => {
+    const task = await store.createTask({
+      instance_id: 'i1',
+      stage_id: 'idea',
+      task_code: 't3',
+      title: 'Task 3',
+      status: 'pending',
+      completion_rules: { minEvidence: 2 }
+    });
+
+    const fail = await engine.completeTask({ taskId: task.id, store, completedBy: 'u1', evidence: ['one'] });
+    expect(fail.success).toBe(false);
+
+    const pass = await engine.completeTask({ taskId: task.id, store, completedBy: 'u1', evidence: ['one', 'two'] });
+    expect(pass.success).toBe(true);
+  });
 });
