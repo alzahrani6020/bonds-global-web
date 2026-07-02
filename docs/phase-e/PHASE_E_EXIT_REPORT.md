@@ -92,7 +92,7 @@ Per the approved plan, the following remain for future phases:
 | ~~`parallelBranches()` is stubbed~~ | ✅ Implemented | `WorkflowGraph.parallelBranches()` returns transitions marked `parallel`; `joinStage()` detects common join point. |
 | ~~Task completion rules not enforced~~ | ✅ Implemented | `TaskEngine.completeTask()` validates `requiredFields`, `expression`, `minEvidence`. New `task_completion` gate checks required tasks before transition. |
 | ~~RLS policies are user-only~~ | ✅ Implemented | `supabase/migrations/20260726000000_enterprise_lifecycle_multi_user_rls.sql` adds `is_lifecycle_instance_participant()` and participant-based SELECT/UPDATE policies. |
-| `v3/project/index.html` is Arabic only | English-speaking users need `/en/v3/project` | Add English mirror in E.1 or when first non-Arabic customer requires it |
+| ~~`v3/project/index.html` is Arabic only~~ | ✅ Implemented | English mirror available at `/en/v3/project/index.html`. |
 | AI advisor relies on OpenAI availability | Falls back to rule-based reply if `analyze()` fails | Fallback implemented in `v3/api/ecc.js` |
 | Aggregator fetches many tables in parallel | Could be slow for very large projects | Add caching layer in E.1 |
 
@@ -109,6 +109,7 @@ Per the approved plan, the following remain for future phases:
   - Participants (creator, requester, or users with decisions) can read lifecycle data.
   - Approvers can update pending approvals to record decisions.
   - Migration must be applied manually via Supabase dashboard (CLI not authenticated locally).
+- English version of the Project Command Center is available at `/en/v3/project?id=PROJECT_ID`.
 - Ensure `20260725000000_enterprise_lifecycle_engine.sql` is applied in production (still pending from Phase D.1.5).
 - Vercel production will pick up the new routes automatically after push.
 

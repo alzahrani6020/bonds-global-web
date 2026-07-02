@@ -291,6 +291,14 @@
       "destination": "/v3/project/index.html"
     },
     {
+      "source": "/en/v3/project",
+      "destination": "/en/v3/project/index.html"
+    },
+    {
+      "source": "/en/v3/project/",
+      "destination": "/en/v3/project/index.html"
+    },
+    {
       "source": "/v3/admin",
       "destination": "/v3/admin/index.html"
     },

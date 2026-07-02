@@ -196,6 +196,7 @@ Same pages mirrored under `/en/calculators/auth/`.
 | `/v3/scenarios.html` | `v3/scenarios.html` | v3 | `site-layout.js` | none | public |
 | `/v3/alerts.html` | `v3/alerts.html` | v3 | `site-layout.js` | none | public |
 | `/v3/project` | `v3/project/index.html` | v3-project | standalone | auth-guard.js (UI only) | authenticated |
+| `/en/v3/project` | `en/v3/project/index.html` | v3-project | standalone | auth-guard.js (UI only) | authenticated |
 | `/v3/admin` (rewrite) | `v3/admin/index.html` | v3-admin | `site-layout.js` | admin token login | admin |
 | `/v3/admin/*` (rewrite) | `v3/admin/index.html` | v3-admin | `site-layout.js` | admin token login | admin |
 | `/wave4/` | `wave4/index.html` | v3-intent | standalone | none | public |
