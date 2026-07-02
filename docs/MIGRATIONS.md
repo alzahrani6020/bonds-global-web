@@ -15,7 +15,9 @@
 - `supabase/migrations/20260714000000_condition_assessment.sql` — جدول `condition_assessment_standards` + معايير 35 فئة أصل.
 - `supabase/migrations/20260715000000_asset_condition_assessments.sql` — جدول حفظ التقييمات الفردية `asset_condition_assessments`.
 - `supabase/migrations/20260716000000_assessment_due_date.sql` — تتبع `next_assessment_due` + view `assets_due_for_reassessment`.
-- `supabase/apply-cae-migrations.sql` — ملف مجمع للتطبيق اليدوي السريع للثلاثة ترحيلات السابقة.
+- `supabase/migrations/20260725000000_enterprise_lifecycle_engine.sql` — جداول محرك دورة الحياة المؤسسية (instances, transitions, approvals, tasks, events, timeline).
+- `supabase/migrations/20260726000000_enterprise_lifecycle_multi_user_rls.sql` — سياسات RLS متعددة المستخدمين للـ Enterprise Lifecycle (للقراءة من المشاركين والموافقات).
+- `supabase/apply-cae-migrations.sql` — ملف مجمع للتطبيق اليدوي السريع لترحيلات Condition Assessment.
 
 ## الخطوة 1: إضافة الأسرار في GitHub
 

@@ -471,8 +471,11 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - `integrations/` — ربط UCP، Trusted Data Fabric، Investment Intelligence، Confidence، Explainability، Decision Memory، Digital Twin.
 
 الـ API موحد تحت `/api/v3/enterprise-lifecycle/*` داخل `v3/api/index.js`.  
-الترحيل: `supabase/migrations/20260725000000_enterprise_lifecycle_engine.sql`.  
-الوثائق: `docs/phase-d/PHASE_D_1_5_ENTERPRISE_LIFECYCLE_ADR.md` و `PHASE_D_1_5_EXIT_REPORT.md` و `docs/ARCHITECTURE_COMPLIANCE_REPORT_D_1_5.md`.
+الترحيلات:
+- `supabase/migrations/20260725000000_enterprise_lifecycle_engine.sql` — الجداول والسياسات الأولية.
+- `supabase/migrations/20260726000000_enterprise_lifecycle_multi_user_rls.sql` — RLS متعدد المستخدمين للسماح للموافقين بالقراءة والتصويت.
+
+الوثائق: `docs/phase-d/PHASE_D_1_5_ENTERPRISE_LIFECYCLE_ADR.md` و `PHASE_D_1_5_EXIT_REPORT.md` و `docs/ARCHITECTURE_COMPLIANCE_REPORT_D_1_5.md` و `docs/MIGRATIONS.md`.
 
 ### 11.13 BONDS Valuation Intelligence — محرك التقييم
 

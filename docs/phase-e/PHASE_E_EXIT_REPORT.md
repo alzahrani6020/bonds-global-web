@@ -91,7 +91,7 @@ Per the approved plan, the following remain for future phases:
 | ~~`expression` gate evaluator still returns "not implemented"~~ | ✅ Implemented | `lib/enterprise-lifecycle/expression-evaluator.js` supports comparisons, logic, arithmetic, and helper functions (present, empty, len, contains). |
 | ~~`parallelBranches()` is stubbed~~ | ✅ Implemented | `WorkflowGraph.parallelBranches()` returns transitions marked `parallel`; `joinStage()` detects common join point. |
 | ~~Task completion rules not enforced~~ | ✅ Implemented | `TaskEngine.completeTask()` validates `requiredFields`, `expression`, `minEvidence`. New `task_completion` gate checks required tasks before transition. |
-| RLS policies are user-only | Multi-user approvals may fail if approver is not the owner | Apply team/role-aware RLS policies in E.1 |
+| ~~RLS policies are user-only~~ | ✅ Implemented | `supabase/migrations/20260726000000_enterprise_lifecycle_multi_user_rls.sql` adds `is_lifecycle_instance_participant()` and participant-based SELECT/UPDATE policies. |
 | `v3/project/index.html` is Arabic only | English-speaking users need `/en/v3/project` | Add English mirror in E.1 or when first non-Arabic customer requires it |
 | AI advisor relies on OpenAI availability | Falls back to rule-based reply if `analyze()` fails | Fallback implemented in `v3/api/ecc.js` |
 | Aggregator fetches many tables in parallel | Could be slow for very large projects | Add caching layer in E.1 |
@@ -105,6 +105,10 @@ Per the approved plan, the following remain for future phases:
 - Task completion rules are now enforced via `TaskEngine.completeTask()` and the `task_completion` gate.
 - New API endpoint: `POST /api/v3/enterprise-lifecycle/instances/:id/tasks/:taskId/complete`.
 - `WorkflowGraph.parallelBranches()` is now implemented with `parallel`/`joinTo` transition metadata support.
+- Multi-user RLS policies for Enterprise Lifecycle are now in `supabase/migrations/20260726000000_enterprise_lifecycle_multi_user_rls.sql`.
+  - Participants (creator, requester, or users with decisions) can read lifecycle data.
+  - Approvers can update pending approvals to record decisions.
+  - Migration must be applied manually via Supabase dashboard (CLI not authenticated locally).
 - Ensure `20260725000000_enterprise_lifecycle_engine.sql` is applied in production (still pending from Phase D.1.5).
 - Vercel production will pick up the new routes automatically after push.
 
