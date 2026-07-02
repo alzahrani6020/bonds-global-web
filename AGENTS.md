@@ -427,7 +427,23 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - **المحركات المتاحة**: valuation, risk, opportunity, scenario, recommendation, feasibility, financing, market، بالإضافة إلى المحركات الوصفية: blind_spot, decision_graph, recommendation_synthesizer.
 - **الجداول**: `enterprise_intelligence_runs`, `enterprise_intelligence_graphs`, `enterprise_intelligence_recommendations` (migration: `20260723000000_enterprise_intelligence_layer.sql`).
 
-### 11.10 Investment Intelligence Suite (Phase D.1)
+### 11.10 Executive Command Center (Phase E.0)
+مركز قيادة المشروع — طبقة مركزية تجمع كل ذكاء المشروع في صفحة واحدة.
+
+- **الملفات**:
+  - `lib/ecc/project-status-aggregator.js` — يجمع الحالة من Investment Intelligence، Enterprise Intelligence، Lifecycle، Digital Twin، Confidence.
+  - `lib/ecc/index.js` — واجهة عامة.
+  - `v3/api/ecc.js` — مسارات `/api/v3/ecc/*`.
+  - `v3/project/index.html` + `v3/project/project-command-center.js` — واجهة مركز قيادة المشروع.
+  - `v3/components/ai-chat-widget.js` — مساعد الذكاء الاصطناعي (يدعم وضع المشروع).
+- **المبدأ**: لا محرك حسابي جديد؛ كل الأرقام من UCP والمحركات الموجودة. الذكاء الاصطناعي يلخّص وينصح فقط.
+- **المسارات**:
+  - `POST /api/v3/ecc/project-status` — حالة موحدة للمشروع.
+  - `POST /api/v3/ecc/advisor` — مستشار بوندز التنفيذي حسب سياق المشروع.
+- **صفحة العرض**: `/v3/project?id=PROJECT_ID`.
+- **الوثائق**: `docs/phase-e/PHASE_E_ADR.md` و `PHASE_E_EXIT_REPORT.md`.
+
+### 11.11 Investment Intelligence Suite (Phase D.1)
 منصة تحويل المشاريع إلى نشرات استثمارية جاهزة.
 
 - **الملفات**: `lib/investment-intelligence/` (project-resolver.js, investment-readiness-engine.js, investment-memorandum-engine.js, investment-story-engine.js, ai-investment-review.js, versioning-engine.js, document-generator.js, index.js).
@@ -440,7 +456,25 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - **الاختبارات**: `tests/universal-dropdown/universal-dropdown.test.js` يغطي البحث، الفرز، الاختيار، الثيم الفاتح، multi-select، virtualization، optgroups، setLoading، reduced-motion، والتهيئة التلقائية.
 - **صفحة العرض**: `components/universal-dropdown/showcase.html` (عربي) و `showcase-en.html` (إنجليزي) تُظهر جميع الخصائص تفاعلياً.
 
-### 11.9 BONDS Valuation Intelligence — محرك التقييم
+### 11.12 Enterprise Lifecycle Engine (Phase D.1.5)
+موقع المحرك: `lib/enterprise-lifecycle/`.  
+يقوم بإدارة دورة حياة المشاريع والأصول والتقارير بشكل موحد وmetadata-driven عبر:
+- `lifecycle-engine.js` — الواجهة الرئيسية.
+- `lifecycle-registry.js` + `definitions/*.json` — تعريفات workflows والمراحل.
+- `state-machine.js` — حماية الحالة الحالية والانتقالات.
+- `transition-engine.js` — تقييم Gates والموافقات وتنفيذ الانتقال.
+- `gate-engine.js` — تقييم الشروط (data completeness, confidence, document status, approval).
+- `task-engine.js` — توليد المهام التلقائية لكل مرحلة.
+- `approval-engine.js` — موافقات single / multi / sequential / parallel / committee.
+- `event-bus.js` — أحداث مثل `ProjectEnteredStage`, `ApprovalGranted`.
+- `timeline-engine.js` — بناء Timeline موحد.
+- `integrations/` — ربط UCP، Trusted Data Fabric، Investment Intelligence، Confidence، Explainability، Decision Memory، Digital Twin.
+
+الـ API موحد تحت `/api/v3/enterprise-lifecycle/*` داخل `v3/api/index.js`.  
+الترحيل: `supabase/migrations/20260725000000_enterprise_lifecycle_engine.sql`.  
+الوثائق: `docs/phase-d/PHASE_D_1_5_ENTERPRISE_LIFECYCLE_ADR.md` و `PHASE_D_1_5_EXIT_REPORT.md` و `docs/ARCHITECTURE_COMPLIANCE_REPORT_D_1_5.md`.
+
+### 11.13 BONDS Valuation Intelligence — محرك التقييم
 
 منصة التقييم في `valuation/` تدعم 35 فئة أصول وتستخدم معايير BONDS Valuation Standards (BVS).
 
@@ -496,7 +530,7 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - **الاختبارات**: `tests/depreciation-engine.test.js` + `tests/valuation-engine.test.js`.
 - **تطبيق الـ migrations على DB الفعلية**: راجع `docs/MIGRATIONS.md` للخطوات التفصيلية. يتطلب إضافة `SUPABASE_ACCESS_TOKEN` و `SUPABASE_PROJECT_REF` في GitHub Secrets.
 
-### 11.10 Condition Assessment Engine (CAE) — تقييم حالة الأصول
+### 11.14 Condition Assessment Engine (CAE) — تقييم حالة الأصول
 
 محرك تقييم الحالة التفصيلي مدمج في خطوة Condition بواجهة التقييم (`valuation/valuation-ui.js`) ويغذي `ValuationEngine` بالمدخلات الفنية.
 
@@ -561,24 +595,4 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 
 ---
 
-### 11.9 Enterprise Lifecycle Engine (Phase D.1.5)
-موقع المحرك: `lib/enterprise-lifecycle/`.  
-يقوم بإدارة دورة حياة المشاريع والأصول والتقارير بشكل موحد وmetadata-driven عبر:
-- `lifecycle-engine.js` — الواجهة الرئيسية.
-- `lifecycle-registry.js` + `definitions/*.json` — تعريفات workflows والمراحل.
-- `state-machine.js` — حماية الحالة الحالية والانتقالات.
-- `transition-engine.js` — تقييم Gates والموافقات وتنفيذ الانتقال.
-- `gate-engine.js` — تقييم الشروط (data completeness, confidence, document status, approval).
-- `task-engine.js` — توليد المهام التلقائية لكل مرحلة.
-- `approval-engine.js` — موافقات single / multi / sequential / parallel / committee.
-- `event-bus.js` — أحداث مثل `ProjectEnteredStage`, `ApprovalGranted`.
-- `timeline-engine.js` — بناء Timeline موحد.
-- `integrations/` — ربط UCP، Trusted Data Fabric، Investment Intelligence، Confidence، Explainability، Decision Memory، Digital Twin.
 
-الـ API موحد تحت `/api/v3/enterprise-lifecycle/*` داخل `v3/api/index.js`.  
-الترحيل: `supabase/migrations/20260725000000_enterprise_lifecycle_engine.sql`.  
-الوثائق: `docs/phase-d/PHASE_D_1_5_ENTERPRISE_LIFECYCLE_ADR.md` و `PHASE_D_1_5_EXIT_REPORT.md` و `docs/ARCHITECTURE_COMPLIANCE_REPORT_D_1_5.md`.
-
----
-
-*آخر تحديث: 2026-07-02*

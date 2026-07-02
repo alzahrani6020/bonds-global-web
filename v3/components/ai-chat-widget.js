@@ -4,9 +4,25 @@
  * Usage:
  *   <script src="/v3/components/ai-chat-widget.js"></script>
  *   <script>BondsAIChat.mount({ cityCode: 'riyadh', activityCode: 'dental_clinics' });</script>
+ *   <script>BondsAIChat.mount({ projectId: 'uuid', mode: 'project' });</script>
  */
 (function (window) {
   const API_URL = '/api/v3/ai/chat';
+  const ECC_ADVISOR_URL = '/api/v3/ecc/advisor';
+
+  async function getAuthHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
+    try {
+      if (window.BondsAuth && window.BondsAuth.getSession) {
+        const { data } = await window.BondsAuth.getSession();
+        const token = data?.session?.access_token;
+        if (token) headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (e) {
+      // ignore
+    }
+    return headers;
+  }
 
   const styles = `
     .bonds-ai-chat-toggle {
@@ -196,7 +212,9 @@
       cityCode: options.cityCode || null,
       activityCode: options.activityCode || null,
       modelCode: options.modelCode || null,
-      calculationResult: options.calculationResult || null
+      calculationResult: options.calculationResult || null,
+      projectId: options.projectId || null,
+      mode: options.mode || 'city'
     };
 
     function updateContext(newContext) {
@@ -229,9 +247,13 @@
       windowEl.classList.toggle('open', state.isOpen);
       if (state.isOpen && state.messages.length === 0) {
         refreshContext();
-        const city = context.cityName || context.cityCode || 'مدينة محددة';
-        const activity = context.activityName || context.activityCode || 'نشاط محدد';
-        addAssistantMessage(`مرحباً! أنا مساعد بوندز. يمكنك سؤالي عن فرصة "${activity}" في ${city}، أو عن أي مدينة/نشاط آخر.`);
+        if (context.mode === 'project' && context.projectId) {
+          addAssistantMessage('مرحباً! أنا مستشار بوندز التنفيذي. أسألني عن مشروعك: أين وصلنا؟ ما الذي ينقص؟ ما الخطوة التالية؟');
+        } else {
+          const city = context.cityName || context.cityCode || 'مدينة محددة';
+          const activity = context.activityName || context.activityCode || 'نشاط محدد';
+          addAssistantMessage(`مرحباً! أنا مساعد بوندز. يمكنك سؤالي عن فرصة "${activity}" في ${city}، أو عن أي مدينة/نشاط آخر.`);
+        }
         renderSuggestions();
       }
       if (state.isOpen) input.focus();
@@ -273,6 +295,25 @@
     }
 
     function renderSuggestions() {
+      if (context.mode === 'project' && context.projectId) {
+        const defaults = [
+          'أين وصل مشروعي؟',
+          'ما الذي ينقص لإكمال المرحلة الحالية؟',
+          'ما الخطوة التالية؟',
+          'ما المخاطر الحرجة؟'
+        ];
+        const suggestions = options.suggestions || defaults;
+        suggestionsEl.innerHTML = '';
+        suggestions.forEach(text => {
+          const chip = document.createElement('button');
+          chip.className = 'bonds-ai-suggestion';
+          chip.textContent = text;
+          chip.addEventListener('click', () => sendMessage(text));
+          suggestionsEl.appendChild(chip);
+        });
+        return;
+      }
+
       const city = context.cityName || context.cityCode || 'هذه المدينة';
       const activity = context.activityName || context.activityCode || 'هذا النشاط';
       const defaults = [
@@ -299,14 +340,17 @@
       setLoading(true);
       input.value = '';
 
+      const isProjectMode = context.mode === 'project' && context.projectId;
+      const url = isProjectMode ? ECC_ADVISOR_URL : API_URL;
+      const payload = isProjectMode
+        ? { projectId: context.projectId, message: text, history: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-6) }
+        : { messages: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-6), context };
+
       try {
-        const res = await fetch(API_URL, {
+        const res = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-6),
-            context
-          })
+          headers: await getAuthHeaders(),
+          body: JSON.stringify(payload)
         });
 
         const data = await res.json();

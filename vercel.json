@@ -283,6 +283,14 @@
       "destination": "/api/$1"
     },
     {
+      "source": "/v3/project",
+      "destination": "/v3/project/index.html"
+    },
+    {
+      "source": "/v3/project/",
+      "destination": "/v3/project/index.html"
+    },
+    {
       "source": "/v3/admin",
       "destination": "/v3/admin/index.html"
     },

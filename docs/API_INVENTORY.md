@@ -315,6 +315,17 @@ All routes require **`x-admin-token`** header matching `ADMIN_TOKEN`.
 | `/api/v3/enterprise-lifecycle/instances/:id/approvals/:approvalId/decision` | POST | Submit approval decision | Bearer JWT | `compute` |
 | `/api/v3/enterprise-lifecycle/instances/:id/events` | POST | Emit lifecycle event | Bearer JWT | `compute` |
 
+### 4.16 Executive Command Center (Phase E.0)
+
+| Route | Methods | Description | Auth | Rate limit |
+|---|---|---|---|---|
+| `/api/v3/ecc/project-status` | POST | Aggregate project status across all engines | Bearer JWT | `compute` |
+| `/api/v3/ecc/advisor` | POST | AI Chief Advisor context-aware chat | Bearer JWT | `compute` |
+
+- **Body** `/api/v3/ecc/project-status`: `{ projectId* }`
+- **Body** `/api/v3/ecc/advisor`: `{ projectId*, message*, history? }`
+- **Response** `/api/v3/ecc/project-status`: `{ status: { project, health, lifecycle, mission, intelligence, documents, financial, digitalTwin, timeline, tasks, approvals, meta } }`
+
 ---
 
 ## Notes

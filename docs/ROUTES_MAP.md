@@ -195,6 +195,7 @@ Same pages mirrored under `/en/calculators/auth/`.
 | `/v3/opportunity-bank.html` | `v3/opportunity-bank.html` | v3 | `site-layout.js` | none | public |
 | `/v3/scenarios.html` | `v3/scenarios.html` | v3 | `site-layout.js` | none | public |
 | `/v3/alerts.html` | `v3/alerts.html` | v3 | `site-layout.js` | none | public |
+| `/v3/project` | `v3/project/index.html` | v3-project | standalone | auth-guard.js (UI only) | authenticated |
 | `/v3/admin` (rewrite) | `v3/admin/index.html` | v3-admin | `site-layout.js` | admin token login | admin |
 | `/v3/admin/*` (rewrite) | `v3/admin/index.html` | v3-admin | `site-layout.js` | admin token login | admin |
 | `/wave4/` | `wave4/index.html` | v3-intent | standalone | none | public |
@@ -232,3 +233,4 @@ Same pages mirrored under `/en/calculators/auth/`.
 | Enterprise Intelligence (Wave 4.3) | `/intelligence/engines`, `/intelligence/engines/:code`, `/intelligence/run`, `/intelligence/adapt`, `/intelligence/synthesize` | public (compute rate limit) |
 | Investment Intelligence (Phase D.1) | `/investment-intelligence/engines`, `/investment-intelligence/readiness/:projectId`, `/investment-intelligence/memorandum`, `/investment-intelligence/memorandum/:id`, `/investment-intelligence/memorandum/:id/html`, `/investment-intelligence/memorandum/:id/review`, `/investment-intelligence/memorandum/:id/versions`, `/investment-intelligence/memorandum/:id/version` | authenticated (compute rate limit) |
 | Enterprise Lifecycle (Phase D.1.5) | `/enterprise-lifecycle/definitions`, `/enterprise-lifecycle/definitions/:entityType`, `/enterprise-lifecycle/instances`, `/enterprise-lifecycle/instances/:id`, `/enterprise-lifecycle/instances/:id/state`, `/enterprise-lifecycle/instances/:id/history`, `/enterprise-lifecycle/instances/:id/timeline`, `/enterprise-lifecycle/instances/:id/tasks`, `/enterprise-lifecycle/instances/:id/transition`, `/enterprise-lifecycle/instances/:id/validate`, `/enterprise-lifecycle/instances/:id/gates/:gateId/evaluate`, `/enterprise-lifecycle/instances/:id/approvals`, `/enterprise-lifecycle/instances/:id/approvals/:approvalId/decision`, `/enterprise-lifecycle/instances/:id/events` | authenticated (compute rate limit) |
+| Executive Command Center (Phase E.0) | `/ecc/project-status`, `/ecc/advisor` | authenticated (compute rate limit) |
