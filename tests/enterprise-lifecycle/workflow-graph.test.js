@@ -42,4 +42,31 @@ describe('WorkflowGraph', () => {
     const blocked = graph.blockedPaths('idea');
     expect(blocked).not.toContain('feasibility');
   });
+
+  test('parallelBranches returns parallel transitions', () => {
+    const parallelWorkflow = {
+      id: 'parallel-test',
+      stages: ['start', 'a', 'b', 'join', 'end'],
+      transitions: [
+        { id: 't1', from: 'start', to: 'a', parallel: true, joinTo: 'join' },
+        { id: 't2', from: 'start', to: 'b', parallel: true, joinTo: 'join' },
+        { id: 't3', from: 'a', to: 'join' },
+        { id: 't4', from: 'b', to: 'join' },
+        { id: 't5', from: 'join', to: 'end' }
+      ]
+    };
+    const graph = new WorkflowGraph(parallelWorkflow);
+    const branches = graph.parallelBranches('start');
+    expect(branches.length).toBe(2);
+    expect(branches.map(b => b.to)).toEqual(['a', 'b']);
+    expect(graph.hasParallelBranches('start')).toBe(true);
+    expect(graph.joinStage('start')).toBe('join');
+  });
+
+  test('parallelBranches returns empty when no parallel transitions', () => {
+    const graph = new WorkflowGraph(workflow);
+    expect(graph.parallelBranches('idea')).toEqual([]);
+    expect(graph.hasParallelBranches('idea')).toBe(false);
+    expect(graph.joinStage('idea')).toBeNull();
+  });
 });

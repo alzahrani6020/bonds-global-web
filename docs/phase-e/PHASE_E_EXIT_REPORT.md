@@ -89,7 +89,7 @@ Per the approved plan, the following remain for future phases:
 | Limitation | Impact | Mitigation / Next Step |
 |---|---|---|
 | ~~`expression` gate evaluator still returns "not implemented"~~ | ✅ Implemented | `lib/enterprise-lifecycle/expression-evaluator.js` supports comparisons, logic, arithmetic, and helper functions (present, empty, len, contains). |
-| `parallelBranches()` is stubbed | Parallel lifecycle branches not enforced | Documented; not needed for standard project workflow |
+| ~~`parallelBranches()` is stubbed~~ | ✅ Implemented | `WorkflowGraph.parallelBranches()` returns transitions marked `parallel`; `joinStage()` detects common join point. |
 | ~~Task completion rules not enforced~~ | ✅ Implemented | `TaskEngine.completeTask()` validates `requiredFields`, `expression`, `minEvidence`. New `task_completion` gate checks required tasks before transition. |
 | RLS policies are user-only | Multi-user approvals may fail if approver is not the owner | Apply team/role-aware RLS policies in E.1 |
 | `v3/project/index.html` is Arabic only | English-speaking users need `/en/v3/project` | Add English mirror in E.1 or when first non-Arabic customer requires it |
@@ -104,6 +104,7 @@ Per the approved plan, the following remain for future phases:
 - The `expression` gate evaluator is now implemented and tested in `lib/enterprise-lifecycle/expression-evaluator.js`.
 - Task completion rules are now enforced via `TaskEngine.completeTask()` and the `task_completion` gate.
 - New API endpoint: `POST /api/v3/enterprise-lifecycle/instances/:id/tasks/:taskId/complete`.
+- `WorkflowGraph.parallelBranches()` is now implemented with `parallel`/`joinTo` transition metadata support.
 - Ensure `20260725000000_enterprise_lifecycle_engine.sql` is applied in production (still pending from Phase D.1.5).
 - Vercel production will pick up the new routes automatically after push.
 
