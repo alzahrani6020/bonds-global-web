@@ -581,3 +581,5 @@
   max-width: 520px;
   margin-inline: auto;
 }
+
+.cookie-banner__text a { text-decoration: underline; }

@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 (async () => {
-  const inputFile = process.argv[2] || 'دراسة-جدوى-إحياء-الأصول-الملقحة.html';
+  const inputFile = process.argv[2] || 'distressed-recovery-study.html';
   const outputFile = process.argv[3] || 'دراسة-جدوى-إحياء-الأصول-الملقحة.pdf';
 
   const inputPath = path.resolve(__dirname, '..', inputFile);

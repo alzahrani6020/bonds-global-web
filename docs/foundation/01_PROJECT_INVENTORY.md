@@ -166,7 +166,7 @@
 | nps.html | `/nps.html` | utility | محدود | لا | نعم | Low |
 | modon_home.html | `/modon_home.html` | utility | محدود | لا | نعم | Low |
 | modon_eservices.html | `/modon_eservices.html` | utility | محدود | لا | نعم | Low |
-| دراسة-جدوى-إحياء-الأصول-الملقحة.html | `/...` | landing | نعم | لا | نعم | Medium |
+| distressed-recovery-study.html | `/distressed-recovery-study` | landing | نعم | لا | نعم | Medium |
 
 ---
 

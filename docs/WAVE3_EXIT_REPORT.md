@@ -32,7 +32,7 @@
   - `services.html` + `en/services.html` ← `styles/services.css`
   - `calculator.html` + `en/calculator.html` ← `styles/calculator-landing.css`
   - `sectors/manufacturing.html` + `en/sectors/manufacturing.html` ← `styles/manufacturing.css`
-  - `دراسة-جدوى-إحياء-الأصول-الملقحة.html` ← `styles/distressed-recovery-study.css`
+  - `distressed-recovery-study.html` ← `styles/distressed-recovery-study.css`
 - حذف `modon_home.html` و `modon_eservices.html` وإضافة 301 redirects إلى `/sectors/manufacturing.html` في `vercel.json`.
 - تحسين `scripts/api-auth-audit.js`:
   - دعم حل index files للـ API directories (`api/v3/index.js`).
@@ -45,7 +45,7 @@
 - توسيع قوائم الاختبارات لتشمل:
   - الصفحات التسويقية: `/pricing.html`
   - الصفحات القطاعية: `/sectors/manufacturing.html`
-  - دراسة إحياء الأصول الملقحة: `/دراسة-جدوى-إحياء-الأصول-الملقحة.html`
+  - دراسة إحياء الأصول الملقحة: `/distressed-recovery-study.html`
   - مركز الاستثمار: `/calculators/investment-center/index.html`
   - المدونة: `/blog/index.html`
   - مشروع V3: `/v3/project`
@@ -85,7 +85,7 @@
 - `services.html` و `en/services.html`
 - `calculator.html` و `en/calculator.html`
 - `sectors/manufacturing.html` و `en/sectors/manufacturing.html`
-- `دراسة-جدوى-إحياء-الأصول-الملقحة.html`
+- `distressed-recovery-study.html`
 - `blog/index.html`
 - `sw.js`
 - `vercel.json`
@@ -103,7 +103,7 @@
 
 - **الألوان غير المعرفة**: في `styles/pricing.css` كانت الصفحة الأصلية تستخدم `--cream-200` و `--cream-300` غير الموجودة في `tokens.css`. تمّ استبدالها بـ `--text` و `--text-secondary` و `--text-muted` لضمان تباين AA.
 - **صفحة التصنيع**: تستخدم موضوعًا فاتحًا مستقلًا (`.manufacturing-page`) وتمّ تظليل `--gold` بقيمة أغمق (`#7a5c20`) لضمان التباين على الخلفيات الفاتحة.
-- **دراسة إحياء الأصول الملقحة**: تمّ استخراج 267 inline style attribute و 2 inline `<style>` block إلى `styles/distressed-recovery-study.css` تحت نطاق `.distressed-study-page`. الأنماط الديناميكية الناتجة عن JavaScript (مثل `onerror="this.style.display='none'"`) بقيت كمنطق JS.
+- **دراسة إحياء الأصول الملقحة**: تمّ استخراج 267 inline style attribute و 2 inline `<style>` block إلى `styles/distressed-recovery-study.css` تحت نطاق `.distressed-study-page`. الأنماط الديناميكية الناتجة عن JavaScript (مثل `onerror="this.style.display='none'"`) بقيت كمنطق JS. ثم أُعيدت تسمية الملف إلى `distressed-recovery-study.html` لضمان توافق Vercel مع الروابط.
 - **الأنماط الديناميكية**: بعض inline styles تبقى لأنها تُولّد بواسطة JavaScript (مثل `display:none` للألواح القابلة للطي ونسب العرض والقوالب PDF). هذا مقبول حسب دليل `AGENTS.md`.
 - **API Auth Audit**: تحسين `scripts/api-auth-audit.js` أغلق 15 مسألة سابقة كانت ناتجة عن:
   - عدم تمييز طريقة HTTP (GET عام لا يحتاج Authorization بينما POST يحمله بالفعل).
@@ -117,7 +117,7 @@
 
 لا توجد مهام Wave 3 متبقية. جميع العناصر المحددة سابقًا تمّت معالجتها:
 
-- `دراسة-جدوى-إحياء-الأصول-الملقحة.html` تمّ تنظيفها بالكامل.
+- `distressed-recovery-study.html` تمّ تنظيفها بالكامل.
 - `modon_home.html` و `modon_eservices.html` تمّ حذفهما وإعادة توجيههما.
 - تغطية `tests/visual` تمّ توسيعها لتشمل `distressed-recovery-study-ar`.
 

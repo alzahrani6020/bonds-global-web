@@ -67,7 +67,7 @@
 - **استخراج الأنماط**: إنشاء `styles/home.css`، `styles/page-shared.css`، `styles/pricing.css`، `styles/services.css`، `styles/calculator-landing.css`، `styles/manufacturing.css`، `styles/distressed-recovery-study.css`.
 - **مكتبات مشتركة للحاسبات**: `calculators/shared-calculators.css`، `calculators/scenario-cards-shared.css`، `calculators/auth/auth-shared.css`.
 - **إصلاحات وصولية**: labels، contrast، empty buttons، table overflow.
-- **توسيع الاختبارات**: a11y، mobile، visual لتغطية الصفحات التسويقية والقطاعية ودراسة إحياء الأصول الملقحة.
+- **توسيع الاختبارات**: a11y، mobile، visual لتغطية الصفحات التسويقية والقطاعية ودراسة إحياء الأصول الملقحة (`distressed-recovery-study.html`).
 - **Service Worker**: رفع `CACHE_VERSION` إلى `v2.30.0`.
 - **إزالة صفحات MODON القديمة**: حذف `modon_home.html` و `modon_eservices.html` وإضافة 301 redirects إلى `/sectors/manufacturing.html`.
 - **API Auth Audit**: تحسين `scripts/api-auth-audit.js` وإغلاق 15 مسألة false positive (6 critical، 9 high).

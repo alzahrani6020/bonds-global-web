@@ -50,7 +50,7 @@
 | `/test.html` | `test.html` | utility | standalone | none | public |
 | `/modon_home.html` | `modon_home.html` | utility | standalone | none | public |
 | `/modon_eservices.html` | `modon_eservices.html` | utility | standalone | none | public |
-| `/دراسة-جدوى-إحياء-الأصول-الملقحة.html` | `دراسة-جدوى-إحياء-الأصول-الملقحة.html` | marketing | standalone | none | public |
+| `/distressed-recovery-study` | `distressed-recovery-study.html` | marketing | standalone | none | public |
 
 ## 2. Marketing pages (English)
 

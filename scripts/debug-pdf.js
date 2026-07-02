@@ -6,7 +6,7 @@ const fs = require('fs');
   const browser = await puppeteer.launch({ headless: 'new' });
   const page = await browser.newPage();
   
-  const inputPath = path.resolve(__dirname, '..', 'دراسة-جدوى-إحياء-الأصول-الملقحة.html');
+  const inputPath = path.resolve(__dirname, '..', 'distressed-recovery-study.html');
   const fileUrl = 'file://' + inputPath.replace(/\\/g, '/');
   
   await page.goto(fileUrl, { waitUntil: 'networkidle0', timeout: 120000 });

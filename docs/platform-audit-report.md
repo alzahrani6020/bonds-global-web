@@ -98,7 +98,7 @@
 |---|---|---|---|---|
 | Medium | `/calculators/auth/debug.html`<br>`/calculators/auth/diagnose.html`<br>`/calculators/auth/login.html`<br>`/calculators/feasibility-template-backup.html` | Calculators (Arabic only) | These calculator pages exist only in Arabic; there is no `en/calculators/` mirror. | Create English mirrors under `en/calculators/` following the project’s translation rules. |
 | Medium | `/auth.html`<br>`/auth-v2.html`<br>`/calculator-v2.html`<br>`/verify.html` | Root pages | Pages in the site root lack English equivalents in `en/`. | Add English versions in `en/` or mark as intentionally internal-only. |
-| Low | `/modon_eservices.html`<br>`/modon_home.html`<br>`/proof.html`<br>`/test.html`<br>`/v.html`<br>`/دراسة-جدوى-إحياء-الأصول-الملقحة.html` | Root pages | No English mirror, but many are external snapshots or test pages. | Either translate required pages or exclude non-production pages from deployment. |
+| Low | `/modon_eservices.html`<br>`/modon_home.html`<br>`/proof.html`<br>`/test.html`<br>`/v.html`<br>`/distressed-recovery-study.html` | Root pages | No English mirror, but many are external snapshots or test pages. | Either translate required pages or exclude non-production pages from deployment. |
 | Low | `/blog/en/*.html` vs `/blog/*.html` | Blog | Blog is explicitly noted as supplementary and not fully translated. | Decide whether blog needs full translation; if yes, translate remaining posts. |
 
 **Positive finding:** No exact duplicate HTML files were found across the entire platform, so content is not unintentionally duplicated.

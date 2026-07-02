@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const inputFile = process.argv[2] || 'دراسة-جدوى-إحياء-الأصول-الملقحة.html';
+const inputFile = process.argv[2] || 'distressed-recovery-study.html';
 const inputPath = path.resolve(__dirname, '..', inputFile);
 
 if (!fs.existsSync(inputPath)) {

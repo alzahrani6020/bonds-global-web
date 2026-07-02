@@ -5,6 +5,18 @@
   "installCommand": null,
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/دراسة-جدوى-إحياء-الأصول-الملقحة.html",
+      "destination": "/distressed-recovery-study",
+      "statusCode": 301
+    },
+    {
+      "source": "/دراسة-جدوى-إحياء-الأصول-الملقحة",
+      "destination": "/distressed-recovery-study",
+      "statusCode": 301
+    }
+  ],
   "rewrites": [
     {
       "source": "/pro",
