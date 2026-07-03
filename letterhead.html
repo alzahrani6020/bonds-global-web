@@ -17,48 +17,26 @@
   <link rel="canonical" href="https://bonds-global.com/letterhead.html" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&family=Almarai:wght@400;700;800&family=Scheherazade+New:wght@400;700&family=Reem+Kufi:wght@400;500;700&family=Aref+Ruqaa:wght@400;700&family=Noto+Naskh+Arabic:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=El+Messiri:wght@400;500;600;700&family=Kufam:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Jomhuria&family=Lateef:wght@400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;600;700&family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ink: #12243a;
-      --muted: #5f6d7f;
       --navy: #020f23;
-      --navy-2: #0a1a33;
       --gold: #c59237;
-      --gold-2: #e0b050;
-      --gold-3: #f0dcae;
-      --paper: #fffdf7;
-      --paper-2: #fdf9ed;
-      --sand: #f2eadb;
-      --line: rgba(18, 36, 58, 0.10);
-      --watermark-opacity: 0.04;
-      --watermark-bg-width-pct: 26%;
-    }
-    .dark-mode {
-      --ink: #e2e8f0;
-      --muted: #94a3b8;
-      --navy: #0f172a;
-      --navy-2: #1e293b;
-      --gold: #fbbf24;
-      --gold-2: #fde68a;
-      --gold-3: #f59e0b;
-      --paper: #0f172a;
-      --paper-2: #1e293b;
-      --sand: #334155;
-      --line: rgba(148, 163, 184, 0.15);
-      --watermark-opacity: 0.03;
+      --gold-light: #e0b050;
+      --paper: #ffffff;
+      --text: #1a1a1a;
+      --muted: #555;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: "Noto Naskh Arabic", "Vazirmatn", Tahoma, serif;
-      background: #dfe5e8;
-      color: var(--ink);
-      -webkit-font-smoothing: antialiased;
-      transition: background 0.3s;
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Vazirmatn', 'Noto Naskh Arabic', Tahoma, sans-serif;
+      background: #e5e7eb;
+      color: var(--text);
     }
-    body.dark-mode { background: #0b1120; }
 
     .toolbar {
       max-width: 220mm;
@@ -66,7 +44,6 @@
       padding: 10px 14px;
       background: linear-gradient(135deg, #0a1428 0%, #122444 100%);
       color: #e8edf5;
-      font-family: "Vazirmatn", system-ui, sans-serif;
       font-size: 12px;
       direction: rtl;
       border-radius: 10px;
@@ -80,12 +57,8 @@
       top: 10px;
       z-index: 1000;
     }
-    .toolbar-title {
-      flex: 1;
-      font-weight: 600;
-      font-size: 13px;
-    }
-    .toolbar button, .toolbar .tool-btn, .toolbar select {
+    .toolbar-title { flex: 1; font-weight: 600; font-size: 13px; }
+    .toolbar button, .toolbar select {
       background: rgba(255,255,255,0.1);
       color: #fff;
       border: 1px solid rgba(255,255,255,0.15);
@@ -96,78 +69,27 @@
       cursor: pointer;
       transition: all 0.2s;
       white-space: nowrap;
-      text-decoration: none;
-      display: inline-block;
-      line-height: 1.4;
       font-family: inherit;
     }
-    .toolbar button:hover, .toolbar .tool-btn:hover {
-      background: rgba(255,255,255,0.2);
-      border-color: var(--gold);
-    }
-    .toolbar button.primary, .toolbar .tool-btn.primary {
-      background: linear-gradient(135deg, var(--gold), var(--navy-2));
-      border-color: transparent;
-    }
-    .toolbar button.primary:hover, .toolbar .tool-btn.primary:hover { opacity: 0.9; }
-    .toolbar button:disabled { opacity: 0.4; cursor: not-allowed; }
-    .toolbar select { appearance: auto; padding: 4px 8px; font-weight: 600; }
+    .toolbar button:hover { background: rgba(255,255,255,0.2); border-color: var(--gold); }
+    .toolbar button.primary { background: linear-gradient(135deg, var(--gold), var(--navy)); border-color: transparent; }
+    .toolbar button.primary:hover { opacity: 0.9; }
+    .toolbar select { appearance: auto; padding: 4px 8px; }
     .toolbar select option { color: #12243a; background: #fff; }
+    .toolbar-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.15); margin: 0 2px; }
 
-    .toolbar-divider {
-      width: 1px;
-      height: 22px;
-      background: rgba(255,255,255,0.15);
-      margin: 0 2px;
-    }
-
-    .dropdown-wrap {
-      position: relative;
-      display: inline-block;
-    }
+    .dropdown-wrap { position: relative; display: inline-block; }
     .dropdown-menu {
-      display: none;
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      min-width: 170px;
-      background: #fff;
-      color: #12243a;
-      border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-      padding: 6px 0;
-      z-index: 1100;
-      direction: rtl;
-      text-align: right;
-      font-size: 12px;
+      display: none; position: absolute; top: calc(100% + 6px); right: 0; min-width: 170px;
+      background: #fff; color: #12243a; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      padding: 6px 0; z-index: 1100; direction: rtl; text-align: right; font-size: 12px;
     }
     .dropdown-wrap.open .dropdown-menu { display: block; }
     .dropdown-menu button {
-      display: block;
-      width: 100%;
-      text-align: right;
-      background: none;
-      border: none;
-      color: #12243a;
-      padding: 7px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      border-radius: 0;
+      display: block; width: 100%; text-align: right; background: none; border: none; color: #12243a;
+      padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
     }
     .dropdown-menu button:hover { background: #f2eadb; color: #0a1a33; }
-
-    .toolbar-check {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--gold-3);
-      cursor: pointer;
-      user-select: none;
-    }
-    .toolbar-check input { cursor: pointer; }
 
     .sheet {
       width: 210mm;
@@ -175,294 +97,91 @@
       margin: 0 auto 12mm;
       display: flex;
       flex-direction: column;
-      background:
-        radial-gradient(ellipse 80% 30% at 50% 8%, rgba(197, 146, 55, 0.06), transparent 60%),
-        radial-gradient(ellipse 60% 50% at 85% 90%, rgba(10, 26, 51, 0.04), transparent 50%),
-        linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 40%, var(--paper) 100%);
+      background: var(--paper);
       position: relative;
-      border-radius: 6mm;
       overflow: hidden;
-      border: 1.5px solid var(--gold);
-      box-shadow:
-        inset 0 0 0 3px #fffdf7,
-        inset 0 0 0 4.5px var(--gold),
-        0 20px 50px rgba(18, 36, 58, 0.10);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
-    .sheet::before {
+
+    .letterhead-header {
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14mm 16mm 8mm;
+      direction: rtl;
+    }
+    .header-logo img { height: 78px; width: auto; display: block; }
+    .header-contacts {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 9pt;
+      color: var(--text);
+    }
+    .contact-cols { display: flex; align-items: stretch; gap: 10px; }
+    .contact-col { display: flex; flex-direction: column; gap: 4px; }
+    .contact-divider {
+      width: 1px;
+      background: var(--gold);
+      margin: 0 4px;
+    }
+    .contact-row { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .contact-row .icon { color: var(--gold); font-size: 10px; }
+    .contact-website {
+      text-align: center;
+      margin-top: 4px;
+      font-size: 9pt;
+      color: var(--text);
+    }
+
+    .header-line {
+      height: 3px;
+      margin: 0 16mm;
+      background: linear-gradient(90deg, var(--gold) 48%, #ffffff 48%, #ffffff 52%, var(--navy) 52%);
+      position: relative;
+    }
+    .header-line::after {
       content: '';
       position: absolute;
-      inset: 6px;
-      border: 0.8px solid rgba(197, 146, 55, 0.25);
-      border-radius: 4mm;
-      pointer-events: none;
-      z-index: 10;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-top: 3px solid var(--navy);
+      border-left: 6px solid transparent;
     }
 
-    .sheet-inner {
-      position: relative;
+    .letter-body {
       flex: 1 1 auto;
-      width: 100%;
-      padding: 14mm 16mm 18mm 16mm;
+      position: relative;
+      padding: 10mm 16mm 0;
       z-index: 1;
     }
 
-    .sheet-inner-watermark {
+    .watermark-b {
       position: absolute;
-      inset: 0;
-      box-sizing: border-box;
+      right: 8mm;
+      bottom: 20mm;
       z-index: 0;
       pointer-events: none;
-      background-image: url("assets/bonds-logo-2026-v2.png?v=2026b");
-      background-repeat: no-repeat;
-      background-position: center center;
-      background-size: var(--watermark-bg-width-pct) auto;
-      background-origin: padding-box;
-      opacity: var(--watermark-opacity);
-      filter: contrast(1.05) brightness(0.95);
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
+      opacity: 0.045;
     }
+    .watermark-b img { height: 150mm; width: auto; }
 
-    .corner-ornament {
-      position: absolute;
-      width: 14mm;
-      height: 14mm;
-      pointer-events: none;
-      z-index: 5;
-      opacity: 0.85;
-    }
-    .corner-ornament.tr {
-      top: 4mm;
-      right: 4mm;
-      border-top: 2.5px solid var(--gold);
-      border-right: 2.5px solid var(--gold);
-      border-radius: 0 12px 0 0;
-    }
-    .corner-ornament.tl {
-      top: 4mm;
-      left: 4mm;
-      border-top: 2.5px solid var(--gold);
-      border-left: 2.5px solid var(--gold);
-      border-radius: 12px 0 0 0;
-    }
-    .corner-ornament.br {
-      bottom: 10mm;
-      right: 4mm;
-      border-bottom: 2.5px solid var(--gold);
-      border-right: 2.5px solid var(--gold);
-      border-radius: 0 0 12px 0;
-    }
-    .corner-ornament.bl {
-      bottom: 10mm;
-      left: 4mm;
-      border-bottom: 2.5px solid var(--gold);
-      border-left: 2.5px solid var(--gold);
-      border-radius: 0 0 0 12px;
-    }
-
-    .top-rule {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      background: linear-gradient(90deg, var(--navy), var(--navy-2) 35%, var(--gold-2) 70%, var(--gold) 100%);
-      z-index: 2;
-    }
-
-    .brand-ribbon {
-      position: relative;
-      z-index: 3;
-      min-height: 30mm;
-      padding: 0 0 3mm 0;
-      margin-bottom: 3mm;
-      border-bottom: 2.5px solid var(--gold);
-      background: linear-gradient(180deg, rgba(255,255,255,0.6) 0%, transparent 100%);
-    }
-    .brand-logo-corner {
-      position: absolute;
-      top: -1mm;
-      right: -1mm;
-      z-index: 3;
-    }
-    .brand-logo-wrap {
-      position: relative;
-      padding: 2mm 1.5mm;
-      background: #fff;
-      border-radius: 12px;
-      border: 2.5px solid var(--navy);
-      box-shadow: 0 4px 12px rgba(18,36,58,0.12);
-    }
-    .brand-logo-xl {
-      position: relative;
-      z-index: 1;
-      width: 30mm;
-      height: auto;
-      max-height: 22mm;
-      max-width: none;
-      object-fit: contain;
-      display: block;
-      border-radius: 8px;
-      filter: contrast(1.2) saturate(1.25) drop-shadow(0 1px 0 rgba(255,255,255,1)) drop-shadow(0 0 3px rgba(197,146,55,0.4));
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-
-    .brand-text-columns {
-      display: flex;
-      flex-direction: row;
-      direction: ltr;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 4mm 5mm;
-      padding-inline-end: 36mm;
-      padding-inline-start: 1mm;
-      padding-top: 1mm;
-      min-height: 22mm;
-    }
-    .brand-block--ar {
-      flex: 1 1 0;
-      min-width: 0;
-      direction: rtl;
-      text-align: right;
-    }
-    .brand-block--en {
-      flex: 0 1 40%;
-      min-width: 0;
-      text-align: left;
-      direction: ltr;
-      font-family: "Cormorant Garamond", "Times New Roman", Georgia, serif;
-      padding-top: 1mm;
-      border-right: 2px solid var(--navy);
-      padding-right: 4mm;
-      margin-right: 1mm;
-    }
-    .brand-block--ar .name {
-      font-family: "El Messiri", "Aref Ruqaa", "Noto Naskh Arabic", serif;
-      font-size: 16pt;
-      font-weight: 700;
-      line-height: 1.35;
-      color: var(--navy);
-      text-shadow: 0 1px 0 rgba(255,255,255,0.96);
-      letter-spacing: 0.04em;
-    }
-    .brand-block--ar .name span.gold { color: var(--gold); }
-    .brand-block--ar .cr {
-      margin-top: 1.2mm;
-      font-size: 9.2pt;
-      font-weight: 600;
-      color: var(--muted);
-      letter-spacing: 0.06em;
-    }
-    .brand-block--ar .cr strong { color: var(--ink); }
-    .brand-block--ar .cr span[contenteditable]:empty::before {
-      content: attr(data-placeholder);
-      color: #aaa;
-      font-weight: 400;
-    }
-    .brand-block--ar .city {
-      margin-top: 0.8mm;
-      font-size: 8.2pt;
-      color: var(--muted);
-      font-weight: 500;
-    }
-    .brand-block--en .name-en {
-      font-size: 10.5pt;
-      font-weight: 600;
-      line-height: 1.3;
-      color: var(--navy);
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-    }
-    .brand-block--en .tagline-en {
-      margin-top: 1mm;
-      font-size: 8.5pt;
-      color: var(--muted);
-      font-style: italic;
-      white-space: pre-line;
-      line-height: 1.4;
-    }
-
-    .meta-fields {
-      display: block;
-      margin: 2mm 0 2.5mm auto;
-      padding: 1.5mm 2.5mm;
-      background: rgba(2, 15, 35, 0.03);
-      border-radius: 2mm;
-      border-right: 2px solid var(--gold);
-      z-index: 3;
-      position: relative;
-      width: fit-content;
-      max-width: 55%;
-      text-align: right;
-    }
-    .meta-row {
-      display: block;
-      font-size: 9.5pt;
-      direction: rtl;
-      text-align: right;
-      margin-bottom: 1.5mm;
-      width: 100%;
-    }
-    .meta-row:last-child { margin-bottom: 0; }
-    .meta-row .meta-label {
-      font-weight: 700;
-      color: var(--navy);
-      font-family: "Noto Naskh Arabic", "Vazirmatn", system-ui, sans-serif;
-      text-align: right;
-      white-space: nowrap;
-      display: inline;
-    }
-    .meta-row .meta-value {
-      border-bottom: 0.8px solid var(--line);
-      padding-bottom: 0.5px;
-      color: var(--ink);
-      font-family: "Noto Naskh Arabic", serif;
-      min-width: 60px;
-      max-width: 180px;
-      text-align: right;
-      display: inline-block;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-      white-space: normal;
-      line-height: 1.5;
-      vertical-align: top;
-      outline: none;
-    }
-    .meta-row .meta-value:empty::before {
-      content: attr(data-placeholder);
-      color: #aaa;
-      font-weight: 400;
-    }
-    .meta-row.ref-row .meta-value { color: #c0392b; font-weight: 700; }
-    .meta-row.ref-row .meta-label { color: var(--navy); font-weight: 700; }
-
-    .writing-surface {
-      position: relative;
-      z-index: 1;
-      min-height: 165mm;
-      margin-bottom: 14mm;
-      border-radius: 3mm;
-    }
-    .writing-surface.lined {
-      background-image: repeating-linear-gradient(
-        transparent,
-        transparent 27px,
-        rgba(18, 36, 58, 0.06) 27px,
-        rgba(18, 36, 58, 0.06) 28px
-      );
-      background-attachment: local;
-    }
     .doc-content {
+      position: relative;
+      z-index: 1;
       width: 100%;
-      min-height: 165mm;
-      padding: 4mm 2mm;
-      font-family: "Noto Naskh Arabic", "Vazirmatn", Tahoma, serif;
+      min-height: 170mm;
+      font-family: 'Noto Naskh Arabic', 'Vazirmatn', Tahoma, serif;
       font-size: 12.5pt;
       line-height: 28px;
-      color: var(--ink);
+      color: var(--text);
       outline: none;
       direction: rtl;
       text-align: justify;
@@ -472,242 +191,124 @@
       color: #aaa;
       pointer-events: none;
     }
-    .doc-content table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 10px 0;
-      font-size: 11.5pt;
-      line-height: 1.6;
-    }
-    .doc-content table th,
-    .doc-content table td {
-      border: 1.5px solid var(--navy-2);
-      padding: 7px 12px;
-      text-align: right;
-      direction: rtl;
-    }
-    .doc-content table th {
-      background: rgba(2, 15, 35, 0.07);
-      font-weight: 700;
-      color: var(--navy);
-    }
     .doc-content p { margin-bottom: 0.5em; }
-    .doc-content[dir="ltr"] {
-      text-align: left;
-      direction: ltr;
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    .doc-content table {
+      width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11.5pt; line-height: 1.6;
     }
+    .doc-content table th, .doc-content table td {
+      border: 1.5px solid var(--navy); padding: 7px 12px; text-align: right; direction: rtl;
+    }
+    .doc-content table th { background: rgba(2,15,35,0.07); font-weight: 700; color: var(--navy); }
 
-    .footer-zone {
+    .letter-stamp {
+      display: inline-block;
+      width: 130px;
+      height: 130px;
+      vertical-align: middle;
+      margin: 6px;
+      opacity: 0.92;
+    }
+    .letter-stamp svg { width: 100%; height: 100%; display: block; }
+
+    .letterhead-footer {
+      background: var(--navy);
+      color: #fff;
+      padding: 5mm 12mm;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8mm;
+      direction: rtl;
+      min-height: 32mm;
+      position: relative;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .letterhead-footer::before,
+    .letterhead-footer::after {
+      content: '';
       position: absolute;
-      left: 9mm;
-      right: 9mm;
-      bottom: 5mm;
-      z-index: 4;
+      bottom: 0;
+      width: 0;
+      height: 0;
+      border-bottom: 14mm solid var(--gold);
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
-    .footer-rule {
-      width: 100%;
-      padding-top: 2mm;
-      border-top: 2.5px solid var(--gold);
-      box-shadow: 0 -1px 0 0 var(--navy);
-    }
-    .footer-line {
+    .letterhead-footer::before { left: 0; border-right: 14mm solid transparent; }
+    .letterhead-footer::after { right: 0; border-left: 14mm solid transparent; }
+    .footer-legal {
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: space-between;
-      gap: 4mm;
-      flex-wrap: wrap;
-      padding: 2mm 0 0.5mm;
+      gap: 8px;
+      font-size: 7.5pt;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.5;
+      text-align: right;
     }
-    .footer-contacts-inline {
-      flex: 1 1 auto;
-      min-width: 0;
-      text-align: center;
-      font-family: "Noto Naskh Arabic", "Vazirmatn", "Segoe UI", system-ui, sans-serif;
-      font-size: 8.2pt;
-      font-weight: 600;
-      color: var(--navy);
-      letter-spacing: 0.02em;
-      direction: rtl;
-      line-height: 1.4;
+    .footer-legal strong { color: var(--gold-light); }
+    .footer-qr img {
+      width: 16mm; height: 16mm; display: block; background: #fff; border-radius: 3px; margin-top: 3px;
     }
-    .footer-contacts-inline .footer-name-ar {
-      font-weight: 700;
-      color: var(--navy-2);
-      font-family: "Noto Naskh Arabic", "Vazirmatn", Tahoma, sans-serif;
-    }
-    .footer-contacts-inline a {
-      color: var(--navy-2);
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    .footer-contacts-inline .dot {
-      margin: 0 0.4em;
-      color: var(--gold);
-      opacity: 0.9;
-    }
-    .footer-qr-inline {
-      flex: 0 0 auto;
+    .footer-icons {
       display: flex;
       align-items: center;
-      text-decoration: none;
-      color: inherit;
+      gap: 10px;
+      flex: 1;
+      justify-content: flex-start;
     }
-    .footer-qr-inline img {
-      width: 12mm;
-      height: 12mm;
-      display: block;
-      border-radius: 5px;
-      border: 2px solid var(--navy);
-      background: #fff;
-      box-shadow: 0 1px 5px rgba(18,36,58,0.08);
+    .f-icon {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #fff;
+      font-size: 8pt;
+      border-left: 1px solid rgba(255,255,255,0.2);
+      padding-left: 10px;
+      direction: rtl;
     }
-
-    .page-number {
-      position: absolute;
-      bottom: 2.5mm;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 7.5pt;
-      color: var(--muted);
-      font-family: "Vazirmatn", system-ui, sans-serif;
-      z-index: 5;
-      direction: ltr;
-    }
+    .f-icon:last-child { border-left: none; padding-left: 0; }
+    .f-icon svg { width: 30px; height: 30px; flex-shrink: 0; stroke: var(--gold); fill: none; stroke-width: 1.8; border: 1.5px solid var(--gold); border-radius: 50%; padding: 5px; }
+    .f-icon .en { font-size: 7pt; color: var(--gold-light); text-transform: uppercase; letter-spacing: 0.5px; }
 
     .toast {
-      position: fixed;
-      bottom: 22px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #0f1a2e;
-      color: #fff;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-family: "Vazirmatn", system-ui, sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      border: 1px solid rgba(197,146,55,0.5);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .3s;
-      z-index: 9999;
-      direction: rtl;
-      white-space: nowrap;
+      position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+      background: #0f1a2e; color: #fff; padding: 10px 18px; border-radius: 8px;
+      font-size: 13px; font-weight: 600; border: 1px solid rgba(197,146,55,0.5);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25); opacity: 0; pointer-events: none;
+      transition: opacity .3s; z-index: 9999; direction: rtl; white-space: nowrap;
     }
     .toast.show { opacity: 1; }
 
-    .sig-modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.55);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(3px);
-    }
-    .sig-modal-overlay.open { display: flex; }
-    .sig-modal {
-      background: #fff;
-      border-radius: 12px;
-      padding: 22px;
-      max-width: 460px;
-      width: 92%;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.28);
-      direction: rtl;
-      text-align: right;
-      font-family: "Vazirmatn", system-ui, sans-serif;
-      color: #12243a;
-    }
-    .sig-modal h3 { margin: 0 0 14px; font-size: 16px; }
-    .sig-modal-actions {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-start;
-      margin-top: 18px;
-    }
-    .sig-modal-actions button { padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px; font-weight: 700; cursor: pointer; }
-    .btn-primary { background: linear-gradient(135deg,#0a1a33,#1a5276); color: #fff; }
-    .btn-secondary { background: #e2e8f0; color: #12243a; }
-
-    #my-inbox-panel {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 320px;
-      max-width: 90vw;
-      background: #fff;
-      box-shadow: 4px 0 24px rgba(0,0,0,0.18);
-      z-index: 9999;
-      transform: translateX(-110%);
-      transition: transform 0.3s ease;
-      direction: rtl;
-      font-family: "Vazirmatn", sans-serif;
-      font-size: 12px;
-    }
-    #my-inbox-panel.open { transform: translateX(0) !important; }
-    #my-inbox-panel .inbox-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      background: linear-gradient(135deg, var(--navy), #1a5276);
-      color: #fff;
-    }
-    #my-inbox-panel .inbox-list {
-      overflow-y: auto;
-      height: calc(100% - 60px);
-    }
-    #my-inbox-panel .inbox-item {
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
-      cursor: pointer;
-    }
-    #my-inbox-panel .inbox-item:hover { background: #f8fafc; }
-    #my-inbox-panel .inbox-item-title { font-weight: 700; font-size: 12px; margin-bottom: 3px; }
-    #my-inbox-panel .inbox-item-meta { font-size: 11px; color: var(--muted); }
-
     @media print {
+      @page { size: A4; margin: 0; }
       body { background: #fff; }
       .toolbar, .toast, .sig-modal-overlay, #my-inbox-panel { display: none !important; }
       .sheet {
-        margin: 0 auto;
-        page-break-after: always;
-        break-after: page;
-        border-radius: 0;
-        box-shadow: none;
-        border: 1pt solid var(--gold);
-        height: 297mm;
-        min-height: 297mm;
+        margin: 0; box-shadow: none; width: 210mm; min-height: 297mm;
+        page-break-after: always; break-after: page;
       }
       .sheet:last-child { page-break-after: auto; break-after: auto; }
-      .sheet-inner { padding: 14mm 16mm 18mm; }
-      .doc-content { min-height: auto; padding: 2mm 0; }
-      [contenteditable]:empty::before,
-      .doc-content:empty::before,
-      .meta-value:empty::before,
-      .cr span[contenteditable]:empty::before { content: none !important; }
-      .meta-value { border-bottom: none !important; }
+      .letterhead-header { padding: 14mm 16mm 8mm; }
+      .letter-body { padding: 10mm 16mm 0; }
+      .doc-content { min-height: auto; }
+      .letterhead-footer { padding: 5mm 12mm; }
+      [contenteditable]:empty::before, .doc-content:empty::before { content: none !important; }
     }
 
     @media (max-width: 480px) {
-      #my-inbox-panel { width: 100vw; }
       .toolbar { border-radius: 0; margin: 0; top: 0; }
-      .sheet { width: 100%; border-radius: 0; margin: 0 auto 6mm; }
-      .brand-text-columns { flex-direction: column; padding-inline-end: 0; }
-      .brand-logo-corner { position: relative; top: auto; right: auto; margin-bottom: 8px; }
-      .brand-block--en { border-right: none; border-top: 2px solid var(--navy); padding-top: 8px; margin-top: 8px; }
-      .meta-fields { max-width: 100%; width: 100%; }
-      .footer-line { flex-direction: column; }
+      .sheet { width: 100%; min-height: auto; }
+      .letterhead-header { flex-direction: column; align-items: center; text-align: center; padding: 10mm 8mm 6mm; }
+      .header-contacts { flex-direction: column; align-items: center; }
+      .contact-cols { flex-direction: column; }
+      .contact-divider { display: none; }
+      .letterhead-footer { flex-direction: column; height: auto; gap: 6mm; }
+      .footer-icons { flex-wrap: wrap; justify-content: center; }
+      .f-icon { border-left: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding: 6px 0; }
+      .watermark-b img { height: 80mm; }
     }
-
-    @page { size: A4; margin: 0; }
   </style>
 </head>
 <body>
@@ -715,177 +316,105 @@
   <div class="toolbar" id="letterhead-toolbar">
     <span class="toolbar-title">🖨️ ورق مراسلات بوندز</span>
     <button onclick="toggleWrite()" id="btn-write">✏️ كتابة</button>
-    <button onclick="copyText()" id="btn-copy">📋 نسخ</button>
+    <button onclick="copyText()">📋 نسخ</button>
     <button onclick="insertDateTime()">📅 تاريخ</button>
     <button onclick="insertSubject()">📌 الموضوع</button>
     <button onclick="generateRef()">🔢 رقم صادر</button>
     <div class="dropdown-wrap" id="archive-dropdown">
       <button onclick="toggleDropdown('archive-dropdown')">📁 أرشيف ▾</button>
-      <div class="dropdown-menu" id="archive-menu">
-        <button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ تحديث الأرشيف</button>
-      </div>
+      <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ تحديث الأرشيف</button></div>
     </div>
     <button onclick="insertTable()">▦ جدول</button>
     <button onclick="addNewPage()">➕ صفحة</button>
-    <button onclick="toggleLines()">📏 خطوط</button>
-    <button onclick="toggleDark()">🌙 داكن</button>
-    <div class="dropdown-wrap" id="color-dropdown">
-      <button onclick="toggleDropdown('color-dropdown')">🎨 لون ▾</button>
-      <div class="dropdown-menu">
-        <button onclick="changeTextColor('#12243a')" style="color:#12243a;font-weight:700;">⬤ أسود</button>
-        <button onclick="changeTextColor('#c0392b')" style="color:#c0392b;font-weight:700;">⬤ أحمر</button>
-        <button onclick="changeTextColor('#020f23')" style="color:#020f23;font-weight:700;">⬤ كحلي</button>
-        <button onclick="changeTextColor('#c59237')" style="color:#c59237;font-weight:700;">⬤ ذهبي</button>
-        <button onclick="changeTextColor('#1a5276')" style="color:#1a5276;font-weight:700;">⬤ أزرق</button>
-        <button onclick="changeTextColor('#7d3c98')" style="color:#7d3c98;font-weight:700;">⬤ بنفسجي</button>
-      </div>
-    </div>
-    <button onclick="insertTemplate()">📄 قالب</button>
+    <button onclick="insertStamp()">🔴 ختم</button>
     <button onclick="undoDoc()">↩️ تراجع</button>
     <button onclick="redoDoc()">↪️ إعادة</button>
-    <button onclick="saveDoc()" id="btn-save">💾 حفظ</button>
+    <button onclick="saveDoc()">💾 حفظ</button>
     <div class="toolbar-divider"></div>
     <select id="font-select" onchange="changeFont(this.value)">
       <option value="Noto Naskh Arabic">Noto Naskh</option>
-      <option value="Vazirmatn">Vazirmatn ★</option>
-      <option value="El Messiri">El Messiri</option>
-      <option value="Kufam">Kufam</option>
-      <option value="Jomhuria">Jomhuria</option>
+      <option value="Vazirmatn">Vazirmatn</option>
       <option value="Amiri">Amiri</option>
       <option value="Cairo">Cairo</option>
       <option value="Tajawal">Tajawal</option>
       <option value="Almarai">Almarai</option>
-      <option value="Scheherazade New">Scheherazade</option>
-      <option value="Reem Kufi">Reem Kufi</option>
-      <option value="Lateef">Lateef</option>
     </select>
     <div class="toolbar-divider"></div>
-    <div class="dropdown-wrap" id="share-dropdown">
-      <button onclick="toggleDropdown('share-dropdown')">📤 مشاركة ▾</button>
-      <div class="dropdown-menu">
-        <button onclick="shareWhatsApp()">💬 واتساب</button>
-        <button onclick="shareTelegram()">✈️ تلغرام</button>
-        <button onclick="shareEmail()">📧 بريد إلكتروني</button>
-        <button onclick="shareTwitter()">𝕏 تويتر</button>
-      </div>
-    </div>
-    <div class="dropdown-wrap" id="translate-dropdown">
-      <button onclick="toggleDropdown('translate-dropdown')">🌐 ترجمة ▾</button>
-      <div class="dropdown-menu">
-        <button onclick="translateDoc('en')">🇬🇧 English</button>
-        <button onclick="translateDoc('fr')">🇫🇷 Français</button>
-        <button onclick="translateDoc('tr')">🇹🇷 Türkçe</button>
-        <button onclick="translateDoc('ar')">🇸🇦 العربية</button>
-      </div>
-    </div>
-    <button onclick="window.print()" class="primary">🖨️ طباعة</button>
-    <button onclick="openSendModal()" class="primary" style="background:linear-gradient(135deg,#0a1a33,#1a5276);">📨 إرسال للمدير</button>
-    <button onclick="toggleMyInbox()" class="primary" style="background:linear-gradient(135deg,#7d3c98,#1a5276);">📥 واردي</button>
+    <button onclick="window.print()" class="primary">🖨️ طباعة / PDF</button>
   </div>
 
   <div id="pages-container">
     <div class="sheet" data-page="1">
-      <span class="corner-ornament tr"></span>
-      <span class="corner-ornament tl"></span>
-      <span class="corner-ornament br"></span>
-      <span class="corner-ornament bl"></span>
-      <div class="top-rule"></div>
-      <div class="sheet-inner">
-        <div class="sheet-inner-watermark"></div>
-
-        <header class="brand-ribbon">
-          <div class="brand-logo-corner">
-            <div class="brand-logo-wrap">
-              <img class="brand-logo-xl" src="assets/bonds-logo-2026-v2.png?v=2026b" alt="شعار بوندز" width="280" height="280">
+      <header class="letterhead-header">
+        <div class="header-logo">
+          <img src="assets/bonds-logo-2026-v2.png?v=2026b" alt="بوندز" />
+        </div>
+        <div class="header-contacts">
+          <div class="contact-cols">
+            <div class="contact-col">
+              <div class="contact-row"><span class="icon">📍</span> السعودية - جدة</div>
+              <div class="contact-row"><span class="icon">📞</span> +966 567 566 616</div>
+              <div class="contact-row"><span class="icon">✉️</span> info@bonds.sa</div>
+            </div>
+            <div class="contact-divider"></div>
+            <div class="contact-col">
+              <div class="contact-row"><span class="icon">📍</span> مصر - الجيزة</div>
+              <div class="contact-row"><span class="icon">📞</span> +201 006 063 557</div>
+              <div class="contact-row"><span class="icon">✉️</span> info@bonds.sa</div>
             </div>
           </div>
-          <div class="brand-text-columns">
-            <div class="brand-block--en" lang="en" dir="ltr">
-              <p class="name-en">Bonds Financial &amp;<br>Management Consulting</p>
-              <p class="tagline-en">Investment Analysis · Feasibility · Valuation
-Head Office: Jeddah, Kingdom of Saudi Arabia</p>
-            </div>
-            <div class="brand-block--ar" lang="ar">
-              <h1 class="name">بوندز للاستشارات المالية <span class="gold">والإدارية</span></h1>
-              <p class="cr"><strong>السجل التجاري:</strong> <span contenteditable="true" data-placeholder="رقم السجل">—</span></p>
-              <p class="city">جدة — منطقة مكة المكرمة — المملكة العربية السعودية</p>
-            </div>
-          </div>
-        </header>
-
-        <div class="meta-fields">
-          <div class="meta-row"><span class="meta-label">التاريخ:</span><span class="meta-value" id="meta-date" contenteditable="true" data-placeholder="أدخل التاريخ"></span></div>
-          <div class="meta-row"><span class="meta-label">الموضوع:</span><span class="meta-value" contenteditable="true" data-placeholder="أدخل الموضوع"></span></div>
-          <div class="meta-row ref-row"><span class="meta-label">الرقم المرجعي:</span><span class="meta-value" id="meta-ref" contenteditable="true" data-placeholder="أدخل الرقم"></span></div>
+          <div class="contact-website"><span class="icon">🌐</span> www.bonds.sa</div>
         </div>
+      </header>
 
-        <div class="writing-surface" id="surface-1">
-          <div class="doc-content" id="doc-1" dir="rtl"></div>
-        </div>
+      <div class="header-line"></div>
 
-        <div class="footer-zone">
-          <div class="footer-rule"></div>
-          <div class="footer-line">
-            <div class="footer-contacts-inline">
-              <span class="footer-name-ar">بوندز للاستشارات المالية والإدارية</span>
-              <span class="dot">·</span>
-              <a href="https://bonds-global.com/" dir="ltr">bonds-global.com</a>
-              <span class="dot">·</span>
-              <a href="mailto:info@bonds-global.com" dir="ltr">info@bonds-global.com</a>
-              <span class="dot">·</span>
-              <span dir="ltr">Jeddah, KSA</span>
-            </div>
-            <a class="footer-qr-inline" href="https://bonds-global.com/" target="_blank" rel="noopener">
-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://bonds-global.com" width="128" height="128" alt="QR">
-            </a>
-          </div>
-        </div>
-        <div class="page-number">1 / 1</div>
+      <div class="letter-body">
+        <div class="watermark-b"><img src="assets/bonds-logo-icon-only.png?v=2026b" alt="" /></div>
+        <div class="doc-content" id="doc-1" dir="rtl"></div>
       </div>
+
+      <footer class="letterhead-footer">
+        <div class="footer-legal">
+          <div><strong>السجل التجاري السعودي:</strong> 4030207506</div>
+          <div><strong>الرقم الضريبي:</strong> 310224728600003</div>
+          <div><strong>السجل التجاري المصري:</strong> 39733</div>
+          <div><strong>رخصة مزاولة النشاط:</strong> 357359</div>
+          <div class="footer-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://bonds.sa" alt="QR" /></div>
+        </div>
+        <div class="footer-icons">
+          <div class="f-icon">
+            <svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"></polyline><polyline points="14 7 21 7 21 14"></polyline></svg>
+            <div><div>نستثمر ذكاء</div><div class="en">Invest</div></div>
+          </div>
+          <div class="f-icon">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <div><div>نحلل بعمق</div><div class="en">Analyze</div></div>
+          </div>
+          <div class="f-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+            <div><div>نقرر بثقة</div><div class="en">Decide</div></div>
+          </div>
+          <div class="f-icon">
+            <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            <div><div>نحقق النمو</div><div class="en">Grow</div></div>
+          </div>
+        </div>
+      </footer>
+
     </div>
   </div>
 
   <div class="toast" id="toast"></div>
 
-  <div class="sig-modal-overlay" id="send-modal-overlay" onclick="if(event.target===this)closeSendModal()">
-    <div class="sig-modal">
-      <h3>📨 إرسال المستند للمدير</h3>
-      <div style="margin:12px 0;">
-        <label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px;color:var(--muted);">الاسم *</label>
-        <input type="text" id="send-name" placeholder="اسم الموظف" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit;">
-      </div>
-      <div style="margin:12px 0;">
-        <label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px;color:var(--muted);">البريد الإلكتروني</label>
-        <input type="email" id="send-email" placeholder="email@example.com" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit;direction:ltr;text-align:left;">
-      </div>
-      <div style="margin:12px 0;">
-        <label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px;color:var(--muted);">ملاحظة</label>
-        <textarea id="send-note" placeholder="ملاحظة للمدير..." rows="3" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;"></textarea>
-      </div>
-      <div class="sig-modal-actions" style="margin-top:16px;">
-        <button class="btn-secondary" onclick="closeSendModal()">إلغاء</button>
-        <button class="btn-primary" onclick="submitDocToManager()">📨 إرسال بالبريد</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="my-inbox-panel">
-    <div class="inbox-header">
-      <strong style="font-size:14px;">📥 واردي — مسودات محفوظة</strong>
-      <button onclick="toggleMyInbox()" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;line-height:1;">×</button>
-    </div>
-    <div class="inbox-list" id="my-inbox-list"></div>
-  </div>
-
   <script>
     (function() {
-      var writingMode = false, pageCounter = 1, isDark = false, isLined = false;
+      var writingMode = false, pageCounter = 1;
       var LS_PREFIX = 'bonds_letterhead_';
 
       function showToast(msg) {
         var t = document.getElementById('toast');
-        t.textContent = msg;
-        t.classList.add('show');
+        t.textContent = msg; t.classList.add('show');
         setTimeout(function() { t.classList.remove('show'); }, 2000);
       }
       window.showToast = showToast;
@@ -897,19 +426,12 @@ Head Office: Jeddah, Kingdom of Saudi Arabia</p>
 
       window.toggleWrite = function() {
         var doc = getActiveDoc(), btn = document.getElementById('btn-write');
-        if (!writingMode) {
-          writingMode = true; btn.textContent = '✅ تم';
-          document.querySelectorAll('.doc-content').forEach(function(d) { d.contentEditable = 'true'; });
-          if (doc) { doc.focus(); }
-        } else {
-          writingMode = false; btn.textContent = '✏️ كتابة';
-          document.querySelectorAll('.doc-content').forEach(function(d) { d.contentEditable = 'false'; });
-        }
+        if (!writingMode) { writingMode = true; btn.textContent = '✅ تم'; document.querySelectorAll('.doc-content').forEach(function(d){d.contentEditable='true';}); if(doc) doc.focus(); }
+        else { writingMode = false; btn.textContent = '✏️ كتابة'; document.querySelectorAll('.doc-content').forEach(function(d){d.contentEditable='false';}); }
       };
 
       window.copyText = function() {
-        var text = getText();
-        if (!text) { showToast('⚠️ لا يوجد نص'); return; }
+        var text = getText(); if (!text) { showToast('⚠️ لا يوجد نص'); return; }
         var ta = document.createElement('textarea'); ta.value = text;
         document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
         showToast('✅ تم النسخ');
@@ -930,294 +452,95 @@ Head Office: Jeddah, Kingdom of Saudi Arabia</p>
       window.insertDateTime = function() {
         if (!ensureDoc()) return;
         var d = new Date(), dateStr = d.toLocaleDateString('ar-SA', {year:'numeric', month:'long', day:'numeric'});
-        var metaDate = document.getElementById('meta-date');
-        if (metaDate) metaDate.textContent = dateStr;
-        insertAtCursor('<div>' + dateStr + '</div><div><br></div>');
-        showToast('✅ تم إدراج التاريخ');
+        insertAtCursor('<div>' + dateStr + '</div><div><br></div>'); showToast('✅ تم إدراج التاريخ');
       };
-
       window.insertSubject = function() {
         if (!ensureDoc()) return;
-        insertAtCursor('<div><strong>الموضوع:</strong> </div><div><br></div>');
-        showToast('✅ تم إدراج الموضوع');
+        insertAtCursor('<div><strong>الموضوع:</strong> </div><div><br></div>'); showToast('✅ تم إدراج الموضوع');
       };
-
       window.generateRef = function() {
         var year = new Date().getFullYear(), num = Math.floor(1000 + Math.random() * 9000);
         var ref = 'BDS-' + year + '-' + num;
         localStorage.setItem(LS_PREFIX + 'last_ref', ref);
-        var metaRef = document.getElementById('meta-ref');
-        if (metaRef) metaRef.textContent = ref;
         var archive = JSON.parse(localStorage.getItem(LS_PREFIX + 'refs') || '[]');
         archive.unshift({ ref: ref, date: new Date().toLocaleDateString('ar-SA'), ts: Date.now() });
         localStorage.setItem(LS_PREFIX + 'refs', JSON.stringify(archive.slice(0, 50)));
+        insertAtCursor('<div><strong>الرقم المرجعي:</strong> ' + ref + '</div><div><br></div>');
         showToast('✅ رقم الصادر: ' + ref);
       };
-
       window.loadArchive = function() {
         var menu = document.getElementById('archive-menu');
         var archive = JSON.parse(localStorage.getItem(LS_PREFIX + 'refs') || '[]');
-        menu.innerHTML = '';
-        var refreshBtn = document.createElement('button');
-        refreshBtn.textContent = '↻ تحديث الأرشيف';
-        refreshBtn.style.fontWeight = '700';
-        refreshBtn.style.color = '#0a1a33';
-        refreshBtn.onclick = function() { loadArchive(); };
-        menu.appendChild(refreshBtn);
-        if (archive.length === 0) {
-          var empty = document.createElement('button');
-          empty.textContent = '⚠️ لا يوجد أرشيف';
-          empty.disabled = true;
-          menu.appendChild(empty);
-        } else {
-          archive.forEach(function(item) {
-            var btn = document.createElement('button');
-            btn.innerHTML = '<span style="color:#c0392b;font-weight:700;">' + escapeHtml(item.ref) + '</span> <span style="color:#888;font-size:11px;">— ' + escapeHtml(item.date) + '</span>';
-            btn.onclick = function() {
-              var metaRef = document.getElementById('meta-ref');
-              if (metaRef) metaRef.textContent = item.ref;
-              showToast('📁 تم استدعاء: ' + item.ref);
-              toggleDropdown('archive-dropdown');
-            };
-            menu.appendChild(btn);
-          });
-        }
+        menu.innerHTML = '<button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ تحديث الأرشيف</button>';
+        if (!archive.length) { menu.innerHTML += '<button disabled>⚠️ لا يوجد أرشيف</button>'; return; }
+        archive.forEach(function(item){
+          var btn = document.createElement('button');
+          btn.innerHTML = '<span style="color:#c0392b;font-weight:700;">' + item.ref + '</span> <span style="color:#888;font-size:11px;">— ' + item.date + '</span>';
+          btn.onclick = function(){ insertAtCursor('<div><strong>الرقم المرجعي:</strong> ' + item.ref + '</div><div><br></div>'); toggleDropdown('archive-dropdown'); showToast('📁 تم استدعاء: ' + item.ref); };
+          menu.appendChild(btn);
+        });
       };
-
-      function escapeHtml(text) {
-        var div = document.createElement('div'); div.textContent = text; return div.innerHTML;
-      }
-
       window.insertTable = function() {
         if (!ensureDoc()) return;
         var rows = prompt('عدد الصفوف:', '3'), cols = prompt('عدد الأعمدة:', '3');
         if (!rows || !cols) return;
         rows = parseInt(rows); cols = parseInt(cols);
-        if (isNaN(rows) || isNaN(cols) || rows < 1 || cols < 1) { showToast('⚠️ أرقام غير صحيحة'); return; }
+        if (isNaN(rows)||isNaN(cols)||rows<1||cols<1) { showToast('⚠️ أرقام غير صحيحة'); return; }
         var html = '<table><thead><tr>';
-        for (var c = 0; c < cols; c++) html += '<th>عنوان ' + (c+1) + '</th>';
+        for (var c=0;c<cols;c++) html += '<th>عنوان '+(c+1)+'</th>';
         html += '</tr></thead><tbody>';
-        for (var r = 0; r < rows; r++) { html += '<tr>'; for (var c = 0; c < cols; c++) html += '<td>بيان ' + (r+1) + '-' + (c+1) + '</td>'; html += '</tr>'; }
+        for (var r=0;r<rows;r++){ html += '<tr>'; for(var c=0;c<cols;c++) html += '<td>بيان '+(r+1)+'-'+(c+1)+'</td>'; html += '</tr>'; }
         html += '</tbody></table><div><br></div>';
         insertAtCursor(html); showToast('✅ تم إدراج الجدول');
       };
-
-      window.insertTemplate = function() {
+      window.insertStamp = function() {
         if (!ensureDoc()) return;
-        var tpl = '<div style="text-align:center;font-weight:700;font-size:13pt;margin-bottom:12px;">خطاب رسمي</div>' +
-          '<div>السادة المحترمون،</div><div><br></div>' +
-          '<div>بالإشارة إلى الموضوع أعلاه، نفيدكم بأن بوندز للاستشارات المالية والإدارية تسعد بتقديم خدماتها لكم.</div><div><br></div>' +
-          '<div>ونأمل منكم التكرم بالاطلاع على المرفقات والتواصل معنا في حال استفسار.</div><div><br></div>' +
-          '<div>وتفضلوا بقبول فائق الاحترام والتقدير،</div><div><br></div>' +
-          '<div style="text-align:left;"><strong>بوندز للاستشارات المالية والإدارية</strong></div>';
-        insertAtCursor(tpl); showToast('✅ تم إدراج القالب');
+        var dateStr = new Date().toLocaleDateString('ar-SA', {year:'numeric', month:'long', day:'numeric'});
+        var id = 'stamp-' + Date.now();
+        var svg = '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">' +
+          '<circle cx="100" cy="100" r="96" fill="none" stroke="#c0392b" stroke-width="3"/>' +
+          '<circle cx="100" cy="100" r="88" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,3"/>' +
+          '<path id="sa'+id+'" d="M 30,100 A 70,70 0 0,1 170,100" fill="none"/>' +
+          '<text fill="#c0392b" font-size="13" font-weight="700" font-family="Noto Naskh Arabic, Tahoma, serif"><textPath href="#sa'+id+'" startOffset="50%" text-anchor="middle">بوندز للاستشارات المالية والإدارية</textPath></text>' +
+          '<path id="sb'+id+'" d="M 40,105 A 60,60 0 0,0 160,105" fill="none"/>' +
+          '<text fill="#c0392b" font-size="11" font-weight="700" font-family="Noto Naskh Arabic, Tahoma, serif"><textPath href="#sb'+id+'" startOffset="50%" text-anchor="middle">موثّق رقمياً</textPath></text>' +
+          '<text x="100" y="92" text-anchor="middle" fill="#c0392b" font-size="10" font-weight="700" font-family="Noto Naskh Arabic, Tahoma, serif">السجل 4030207506</text>' +
+          '<text x="100" y="118" text-anchor="middle" fill="#c0392b" font-size="9" font-weight="700" font-family="Noto Naskh Arabic, Tahoma, serif">'+dateStr+'</text>' +
+          '</svg>';
+        insertAtCursor('<div class="letter-stamp" id="'+id+'" contenteditable="false">' + svg + '</div><span>&nbsp;</span>');
+        showToast('🔴 تم إدراج الختم');
       };
-
       window.addNewPage = function() {
         pageCounter++;
         var container = document.getElementById('pages-container');
         var last = container.querySelector('.sheet:last-child');
         var clone = last.cloneNode(true);
         clone.setAttribute('data-page', pageCounter);
-        clone.querySelector('.page-number').textContent = pageCounter + ' / ' + pageCounter;
-        var content = clone.querySelector('.doc-content');
-        content.id = 'doc-' + pageCounter; content.innerHTML = '';
-        content.contentEditable = writingMode ? 'true' : 'false';
-        var currentFont = getActiveDoc().style.fontFamily || "'Noto Naskh Arabic', Tahoma, serif";
-        content.style.fontFamily = currentFont;
-        var surface = clone.querySelector('.writing-surface');
-        surface.id = 'surface-' + pageCounter;
-        if (isLined) surface.classList.add('lined');
-        document.querySelectorAll('.sheet').forEach(function(s, i) {
-          s.querySelector('.page-number').textContent = (i+1) + ' / ' + (pageCounter);
-        });
+        clone.querySelector('.doc-content').id = 'doc-' + pageCounter;
+        clone.querySelector('.doc-content').innerHTML = '';
+        clone.querySelector('.doc-content').contentEditable = writingMode ? 'true' : 'false';
         container.appendChild(clone);
         showToast('✅ صفحة ' + pageCounter);
         window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
       };
 
-      var undoStack = [], redoStack = [], maxUndo = 30, isUndoing = false;
-      function pushUndo() {
-        if (isUndoing) return;
-        var doc = getActiveDoc(); if (!doc) return;
-        undoStack.push(doc.innerHTML);
-        if (undoStack.length > maxUndo) undoStack.shift();
-        redoStack = [];
-      }
-      window.undoDoc = function() {
-        var doc = getActiveDoc(); if (!doc || undoStack.length === 0) { showToast('⚠️ لا يوجد تراجع'); return; }
-        isUndoing = true;
-        redoStack.push(doc.innerHTML);
-        doc.innerHTML = undoStack.pop();
-        showToast('↩️ تم التراجع');
-        setTimeout(function() { isUndoing = false; }, 100);
-      };
-      window.redoDoc = function() {
-        var doc = getActiveDoc(); if (!doc || redoStack.length === 0) { showToast('⚠️ لا يوجد إعادة'); return; }
-        isUndoing = true;
-        undoStack.push(doc.innerHTML);
-        doc.innerHTML = redoStack.pop();
-        showToast('↪️ تم الإعادة');
-        setTimeout(function() { isUndoing = false; }, 100);
-      };
+      var undoStack=[], redoStack=[], maxUndo=30, isUndoing=false;
+      function pushUndo(){ if(isUndoing) return; var doc=getActiveDoc(); if(!doc) return; undoStack.push(doc.innerHTML); if(undoStack.length>maxUndo) undoStack.shift(); redoStack=[]; }
+      window.undoDoc = function(){ var doc=getActiveDoc(); if(!doc||undoStack.length===0){showToast('⚠️ لا يوجد تراجع');return;} isUndoing=true; redoStack.push(doc.innerHTML); doc.innerHTML=undoStack.pop(); showToast('↩️ تم التراجع'); setTimeout(function(){isUndoing=false;},100); };
+      window.redoDoc = function(){ var doc=getActiveDoc(); if(!doc||redoStack.length===0){showToast('⚠️ لا يوجد إعادة');return;} isUndoing=true; undoStack.push(doc.innerHTML); doc.innerHTML=redoStack.pop(); showToast('↪️ تم الإعادة'); setTimeout(function(){isUndoing=false;},100); };
+      window.saveDoc = function(){ var html=getHtml(); if(html){ localStorage.setItem(LS_PREFIX+'doc_html', html); showToast('✅ تم الحفظ'); } else showToast('⚠️ لا يوجد نص'); };
+      window.changeFont = function(font){ document.querySelectorAll('.doc-content').forEach(function(d){d.style.fontFamily="'"+font+"', Tahoma, serif";}); localStorage.setItem(LS_PREFIX+'font', font); showToast('✅ الخط: '+font); };
+      window.toggleDropdown = function(id){ var wrap=document.getElementById(id); if(!wrap)return; var isOpen=wrap.classList.contains('open'); document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open');}); if(!isOpen) wrap.classList.add('open'); };
+      document.addEventListener('click', function(e){ if(!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open');}); });
+      document.addEventListener('keydown', function(e){ if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undoDoc();} if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redoDoc();} if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveDoc();} });
 
-      window.saveDoc = function() {
-        var html = getHtml();
-        if (html) {
-          localStorage.setItem(LS_PREFIX + 'doc_html', html);
-          var snapshots = JSON.parse(localStorage.getItem(LS_PREFIX + 'snapshots') || '[]');
-          var subject = document.querySelector('.meta-row:nth-child(2) .meta-value') ? document.querySelector('.meta-row:nth-child(2) .meta-value').textContent.trim() : '';
-          snapshots.unshift({ id: Date.now(), subject: subject || 'مسودة بدون موضوع', html: html, date: new Date().toLocaleString('ar-SA') });
-          localStorage.setItem(LS_PREFIX + 'snapshots', JSON.stringify(snapshots.slice(0, 30)));
-          showToast('✅ تم الحفظ');
-        } else showToast('⚠️ لا يوجد نص');
-      };
-
-      document.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undoDoc(); }
-        if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); redoDoc(); }
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveDoc(); }
-      });
-
-      window.changeFont = function(font) {
-        document.querySelectorAll('.doc-content').forEach(function(d) { d.style.fontFamily = "'" + font + "', Tahoma, serif"; });
-        localStorage.setItem(LS_PREFIX + 'font', font); showToast('✅ الخط: ' + font);
-      };
-
-      window.changeTextColor = function(color) {
-        var sel = window.getSelection();
-        if (sel.rangeCount) document.execCommand('foreColor', false, color);
-        showToast('✅ لون الخط تغيّر');
-      };
-
-      window.toggleLines = function() {
-        isLined = !isLined;
-        document.querySelectorAll('.writing-surface').forEach(function(s) { s.classList.toggle('lined', isLined); });
-        showToast(isLined ? '✅ خطوط الكتابة مفعلة' : '✅ خطوط الكتابة معطلة');
-      };
-
-      window.toggleDark = function() {
-        isDark = !isDark;
-        document.body.classList.toggle('dark-mode', isDark);
-        showToast(isDark ? '🌙 الوضع الداكن' : '☀️ الوضع الفاتح');
-      };
-
-      window.toggleDropdown = function(id) {
-        var wrap = document.getElementById(id);
-        if (!wrap) return;
-        var isOpen = wrap.classList.contains('open');
-        document.querySelectorAll('.dropdown-wrap.open').forEach(function(el) { el.classList.remove('open'); });
-        if (!isOpen) wrap.classList.add('open');
-      };
-      document.addEventListener('click', function(e) {
-        if (!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-wrap.open').forEach(function(el) { el.classList.remove('open'); });
-      });
-
-      function shareText() { var text = getText(); if (!text) { showToast('⚠️ لا يوجد نص'); return null; } return text; }
-      window.shareWhatsApp = function() { var t = shareText(); if (!t) return; window.open('https://wa.me/?text=' + encodeURIComponent(t.substring(0,4000)), '_blank'); };
-      window.shareTelegram = function() { var t = shareText(); if (!t) return; window.open('https://t.me/share/url?url=' + encodeURIComponent('https://bonds-global.com/') + '&text=' + encodeURIComponent(t.substring(0,4096)), '_blank'); };
-      window.shareEmail = function() { var t = shareText(); if (!t) return; window.location.href = 'mailto:?subject=' + encodeURIComponent('خطاب من بوندز للاستشارات المالية والإدارية') + '&body=' + encodeURIComponent(t.substring(0,8000)); };
-      window.shareTwitter = function() { var t = shareText(); if (!t) return; window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(t.substring(0,280)), '_blank'); };
-
-      function translateChunks(text, pair, callback, onError) {
-        var chunkSize = 450, chunks = [];
-        for (var i = 0; i < text.length; i += chunkSize) chunks.push(text.substring(i, i + chunkSize));
-        var results = [], idx = 0;
-        function next() {
-          if (idx >= chunks.length) { callback(results.join('')); return; }
-          fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(chunks[idx]) + '&langpair=' + pair)
-            .then(function(r) { return r.json(); })
-            .then(function(data) { results.push(data.responseStatus === 200 ? data.responseData.translatedText : chunks[idx]); idx++; next(); })
-            .catch(function() { onError(); });
-        }
-        next();
-      }
-
-      window.translateDoc = function(lang) {
-        var text = getText();
-        if (!text) { if (lang === 'ar') { showToast('✅ اللغة العربية'); return; } showToast('⚠️ لا يوجد نص'); return; }
-        if (lang === 'ar') { showToast('✅ العربية'); return; }
-        var map = { en:'English', fr:'French', tr:'Turkish', zh:'Chinese', ko:'Korean', es:'Spanish', ur:'Urdu', de:'German' };
-        showToast('⏳ جاري الترجمة إلى ' + (map[lang]||lang) + '...');
-        translateChunks(text, 'ar|' + lang, function(translated) {
-          insertAtCursor('<div style="border-top:1px dashed rgba(2,15,35,0.15);padding-top:8px;margin-top:10px;"><strong>🌐 الترجمة — ' + (map[lang]||lang) + ':</strong></div><div><br></div><div>' + translated.replace(/\n/g, '</div><div>') + '</div><div><br></div>');
-          showToast('✅ تمت الترجمة');
-        }, function() { showToast('❌ فشلت الترجمة'); window.open('https://translate.google.com/?sl=auto&tl=' + encodeURIComponent(lang) + '&text=' + encodeURIComponent(text.substring(0,5000)), '_blank'); });
-      };
-
-      window.openSendModal = function() {
-        var overlay = document.getElementById('send-modal-overlay');
-        if (overlay) overlay.classList.add('open');
-      };
-      window.closeSendModal = function() {
-        var overlay = document.getElementById('send-modal-overlay');
-        if (overlay) overlay.classList.remove('open');
-      };
-      window.submitDocToManager = function() {
-        var name = document.getElementById('send-name').value.trim();
-        var email = document.getElementById('send-email').value.trim();
-        var note = document.getElementById('send-note').value.trim();
-        var text = getText();
-        if (!name) { showToast('⚠️ أدخل اسمك'); return; }
-        if (!text) { showToast('⚠️ لا يوجد محتوى'); return; }
-        var subject = document.querySelector('.meta-row:nth-child(2) .meta-value') ? document.querySelector('.meta-row:nth-child(2) .meta-value').textContent.trim() : '';
-        var ref = document.getElementById('meta-ref') ? document.getElementById('meta-ref').textContent.trim() : '';
-        var body = 'مرحباً،\n\nأرسل إليك ' + name + ' مستنداً عبر ورق مراسلات بوندز.' + (ref ? '\nالرقم المرجعي: ' + ref : '') + (subject ? '\nالموضوع: ' + subject : '') + '\n\n---\n' + text.substring(0,4000) + (note ? '\n\nملاحظة:\n' + note : '');
-        window.location.href = 'mailto:?subject=' + encodeURIComponent('مستند من ' + name + (subject ? ' - ' + subject : '')) + '&body=' + encodeURIComponent(body);
-        closeSendModal();
-        showToast('✅ تم فتح تطبيق البريد');
-      };
-
-      window.toggleMyInbox = function() {
-        var panel = document.getElementById('my-inbox-panel');
-        if (!panel) return;
-        panel.classList.toggle('open');
-        if (panel.classList.contains('open')) loadMyInbox();
-      };
-      window.loadMyInbox = function() {
-        var list = document.getElementById('my-inbox-list');
-        if (!list) return;
-        var snapshots = JSON.parse(localStorage.getItem(LS_PREFIX + 'snapshots') || '[]');
-        if (snapshots.length === 0) { list.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--muted);">📭 لا توجد مسودات محفوظة</div>'; return; }
-        list.innerHTML = '';
-        snapshots.forEach(function(item) {
-          var div = document.createElement('div');
-          div.className = 'inbox-item';
-          div.innerHTML = '<div class="inbox-item-title">' + escapeHtml(item.subject || 'بدون موضوع') + '</div><div class="inbox-item-meta">📅 ' + escapeHtml(item.date || '') + '</div>';
-          div.onclick = function() { loadSnapshot(item.id); };
-          list.appendChild(div);
-        });
-      };
-      window.loadSnapshot = function(id) {
-        var snapshots = JSON.parse(localStorage.getItem(LS_PREFIX + 'snapshots') || '[]');
-        var item = snapshots.find(function(s) { return s.id === id; });
-        if (!item) return;
-        var doc = getActiveDoc();
-        if (doc) doc.innerHTML = item.html || '';
-        showToast('✅ تم استدعاء المسودة');
-        toggleMyInbox();
-      };
-
-      window.resetLetter = function() {
-        document.querySelectorAll('.doc-content').forEach(function(d, i) { if (i === 0) d.innerHTML = ''; else d.closest('.sheet').remove(); });
-        pageCounter = 1;
-        document.querySelectorAll('[contenteditable]').forEach(function(el) { if (!el.classList.contains('doc-content') && el.id !== 'meta-date') el.textContent = ''; });
-        var md = document.getElementById('meta-date'); if (md) md.textContent = new Date().toLocaleDateString('ar-SA', {year:'numeric', month:'long', day:'numeric'});
-        document.querySelectorAll('.page-number').forEach(function(p, i) { p.textContent = (i+1) + ' / 1'; });
-        window.scrollTo({top:0, behavior:'smooth'});
-        showToast('✅ تمت إعادة التعيين');
-      };
-
-      document.addEventListener('DOMContentLoaded', function() {
-        var d = new Date(), dateStr = d.toLocaleDateString('ar-SA', {year:'numeric', month:'long', day:'numeric'});
-        var metaDate = document.getElementById('meta-date');
-        if (metaDate) metaDate.textContent = dateStr;
-        var saved = localStorage.getItem(LS_PREFIX + 'doc_html');
+      document.addEventListener('DOMContentLoaded', function(){
+        var saved = localStorage.getItem(LS_PREFIX+'doc_html');
         var doc = getActiveDoc();
         if (saved && doc) doc.innerHTML = saved;
-        var savedFont = localStorage.getItem(LS_PREFIX + 'font');
-        if (savedFont) { var fs = document.getElementById('font-select'); if (fs) fs.value = savedFont; changeFont(savedFont); }
-        if (doc) doc.addEventListener('input', pushUndo);
+        var savedFont = localStorage.getItem(LS_PREFIX+'font');
+        if (savedFont) { var fs=document.getElementById('font-select'); if(fs) fs.value=savedFont; changeFont(savedFont); }
+        if(doc) doc.addEventListener('input', pushUndo);
       });
     })();
   </script>
