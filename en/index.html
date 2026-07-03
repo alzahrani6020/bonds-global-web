@@ -410,34 +410,56 @@
         </div>
       </div>
       <div class="hero__right">
-        <div class="hero-calc" id="heroCalc" style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; position:relative;">
-          <button class="hero-calc__close" type="button" aria-label="Close" onclick="closeHeroCalc()" style="position:absolute; top:0.75rem; left:0.75rem; width:28px; height:28px; border-radius:50%; border:none; background:rgba(212,168,83,0.15); color:var(--gold); font-size:1.25rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" style="opacity:0.9;">
-            <path d="M12 2v20M2 12h20"/>
-            <circle cx="12" cy="12" r="10"/>
-          </svg>
-          <div class="hero-calc__title" style="font-size:1.25rem; font-weight:800; color:var(--gold);">Start Your Project Journey</div>
-          <p style="color:var(--text-secondary); font-size:0.95rem; margin:0;">Create your project, analyze the opportunity, and receive an investment-ready report.</p>
-          <a href="/en/v3/portfolio" class="hero-calc__btn" style="text-decoration:none; display:inline-flex; justify-content:center;">Start Now</a>
+        <div class="hero-ticker" id="heroTicker" aria-label="Arab markets and banks">
+          <div class="ticker-row ticker-row--ltr" aria-hidden="true">
+            <div class="ticker-track">
+              <span class="ticker-item"><span class="ticker-flag">🇸🇦</span> Tadawul Saudi</span>
+              <span class="ticker-item"><span class="ticker-flag">🇦🇪</span> Dubai Financial Market</span>
+              <span class="ticker-item"><span class="ticker-flag">🇪🇬</span> Egyptian Exchange</span>
+              <span class="ticker-item"><span class="ticker-flag">🇶🇦</span> Qatar Stock Exchange</span>
+              <span class="ticker-item"><span class="ticker-flag">🇰🇼</span> Kuwait Stock Exchange</span>
+              <span class="ticker-item"><span class="ticker-flag">🇴🇲</span> Muscat Securities Market</span>
+              <span class="ticker-item"><span class="ticker-flag">🇧🇭</span> Bahrain Bourse</span>
+              <span class="ticker-item"><span class="ticker-flag">🇯🇴</span> Amman Stock Exchange</span>
+              <span class="ticker-item"><span class="ticker-flag">🇲🇦</span> Casablanca Stock Exchange</span>
+              <span class="ticker-item"><span class="ticker-flag">🇹🇳</span> Tunis Stock Exchange</span>
+              <span class="ticker-item"><span class="ticker-flag">🇸🇦</span> Tadawul Saudi</span>
+              <span class="ticker-item"><span class="ticker-flag">🇦🇪</span> Dubai Financial Market</span>
+              <span class="ticker-item"><span class="ticker-flag">🇪🇬</span> Egyptian Exchange</span>
+              <span class="ticker-item"><span class="ticker-flag">🇶🇦</span> Qatar Stock Exchange</span>
+              <span class="ticker-item"><span class="ticker-flag">🇰🇼</span> Kuwait Stock Exchange</span>
+              <span class="ticker-item"><span class="ticker-flag">🇴🇲</span> Muscat Securities Market</span>
+              <span class="ticker-item"><span class="ticker-flag">🇧🇭</span> Bahrain Bourse</span>
+              <span class="ticker-item"><span class="ticker-flag">🇯🇴</span> Amman Stock Exchange</span>
+              <span class="ticker-item"><span class="ticker-flag">🇲🇦</span> Casablanca Stock Exchange</span>
+              <span class="ticker-item"><span class="ticker-flag">🇹🇳</span> Tunis Stock Exchange</span>
+            </div>
+          </div>
+          <div class="ticker-row ticker-row--rtl" aria-hidden="true">
+            <div class="ticker-track">
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> Saudi National Bank</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> Emirates NBD</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> Qatar National Bank</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> National Bank of Kuwait</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> Arab Bank</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> Al Rajhi Bank</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> FAB</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> CIB Egypt</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> Saudi National Bank</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> Emirates NBD</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> Qatar National Bank</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> National Bank of Kuwait</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> Arab Bank</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> Al Rajhi Bank</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> FAB</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> CIB Egypt</span>
+            </div>
+          </div>
+          <a href="/en/v3/portfolio" class="hero-ticker__cta">Start Your Project Assessment →</a>
         </div>
       </div>
     </div>
   </section>
-
-  <script>
-    (function(){
-      var key = 'bonds_hero_calc_closed';
-      var heroCalc = document.getElementById('heroCalc');
-      if (heroCalc && localStorage.getItem(key) === '1') {
-        heroCalc.classList.add('is-closed');
-      }
-      window.closeHeroCalc = function(){
-        if (!heroCalc) return;
-        heroCalc.classList.add('is-closed');
-        localStorage.setItem(key, '1');
-      };
-    })();
-  </script>
 
   <!-- Intent -->
   <section class="intent-section" id="calculators">

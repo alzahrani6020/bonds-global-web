@@ -60,34 +60,56 @@
         </div>
       </div>
       <div class="hero__right">
-        <div class="hero-calc hero-calc--centered" id="heroCalc">
-          <button class="hero-calc__close" type="button" aria-label="إغلاق" onclick="closeHeroCalc()">×</button>
-          <svg class="hero-calc__icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5">
-            <path d="M12 2v20M2 12h20"/>
-            <circle cx="12" cy="12" r="10"/>
-          </svg>
-          <div class="hero-calc__title hero-calc__title--large">ابدأ رحلة مشروعك</div>
-          <p class="hero-calc__text">أنشئ مشروعك، حلّل الفرصة، واحصل على تقرير استثماري معتمد.</p>
-          <a href="/v3/portfolio" class="hero-calc__btn hero-calc__btn--inline">ابدأ الآن</a>
+        <div class="hero-ticker" id="heroTicker" aria-label="الأسواق والبنوك العربية">
+          <div class="ticker-row ticker-row--rtl" aria-hidden="true">
+            <div class="ticker-track">
+              <span class="ticker-item"><span class="ticker-flag">🇸🇦</span> تداول السعودية</span>
+              <span class="ticker-item"><span class="ticker-flag">🇦🇪</span> سوق دبي المالي</span>
+              <span class="ticker-item"><span class="ticker-flag">🇪🇬</span> البورصة المصرية</span>
+              <span class="ticker-item"><span class="ticker-flag">🇶🇦</span> بورصة قطر</span>
+              <span class="ticker-item"><span class="ticker-flag">🇰🇼</span> بورصة الكويت</span>
+              <span class="ticker-item"><span class="ticker-flag">🇴🇲</span> بورصة مسقط</span>
+              <span class="ticker-item"><span class="ticker-flag">🇧🇭</span> بورصة البحرين</span>
+              <span class="ticker-item"><span class="ticker-flag">🇯🇴</span> بورصة عمان الأردن</span>
+              <span class="ticker-item"><span class="ticker-flag">🇲🇦</span> بورصة الدار البيضاء</span>
+              <span class="ticker-item"><span class="ticker-flag">🇹🇳</span> بورصة تونس</span>
+              <span class="ticker-item"><span class="ticker-flag">🇸🇦</span> تداول السعودية</span>
+              <span class="ticker-item"><span class="ticker-flag">🇦🇪</span> سوق دبي المالي</span>
+              <span class="ticker-item"><span class="ticker-flag">🇪🇬</span> البورصة المصرية</span>
+              <span class="ticker-item"><span class="ticker-flag">🇶🇦</span> بورصة قطر</span>
+              <span class="ticker-item"><span class="ticker-flag">🇰🇼</span> بورصة الكويت</span>
+              <span class="ticker-item"><span class="ticker-flag">🇴🇲</span> بورصة مسقط</span>
+              <span class="ticker-item"><span class="ticker-flag">🇧🇭</span> بورصة البحرين</span>
+              <span class="ticker-item"><span class="ticker-flag">🇯🇴</span> بورصة عمان الأردن</span>
+              <span class="ticker-item"><span class="ticker-flag">🇲🇦</span> بورصة الدار البيضاء</span>
+              <span class="ticker-item"><span class="ticker-flag">🇹🇳</span> بورصة تونس</span>
+            </div>
+          </div>
+          <div class="ticker-row ticker-row--ltr" aria-hidden="true">
+            <div class="ticker-track">
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> البنك الأهلي السعودي</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> بنك الإمارات دبي الوطني</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> بنك قطر الوطني</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> بنك الكويت الوطني</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> البنك العربي</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> مصرف الراجحي</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> بنك أبوظبي الأول</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> البنك التجاري الدولي مصر</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> البنك الأهلي السعودي</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> بنك الإمارات دبي الوطني</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> بنك قطر الوطني</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> بنك الكويت الوطني</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> البنك العربي</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> مصرف الراجحي</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> بنك أبوظبي الأول</span>
+              <span class="ticker-item"><span class="ticker-icon">🏦</span> البنك التجاري الدولي مصر</span>
+            </div>
+          </div>
+          <a href="/v3/portfolio" class="hero-ticker__cta">ابدأ تقييم مشروعك ←</a>
         </div>
       </div>
     </div>
   </section>
-
-  <script>
-    (function(){
-      var key = 'bonds_hero_calc_closed';
-      var heroCalc = document.getElementById('heroCalc');
-      if (heroCalc && localStorage.getItem(key) === '1') {
-        heroCalc.classList.add('is-closed');
-      }
-      window.closeHeroCalc = function(){
-        if (!heroCalc) return;
-        heroCalc.classList.add('is-closed');
-        localStorage.setItem(key, '1');
-      };
-    })();
-  </script>
 
   <!-- Intent -->
   <section class="intent-section" id="intent">
