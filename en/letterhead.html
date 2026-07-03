@@ -132,7 +132,14 @@
       padding: 12mm 16mm 6mm;
       direction: ltr;
     }
-    .header-logo img { height: 120px; width: auto; display: block; }
+    .header-logo { display: flex; align-items: center; gap: 12px; }
+    .header-logo .logo-icon { height: 84px; width: auto; display: block; }
+    .logo-text { display: flex; flex-direction: column; gap: 2px; direction: ltr; text-align: left; }
+    .logo-en { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 800; color: var(--navy); letter-spacing: 2px; line-height: 1; }
+    .logo-ar { font-size: 13px; font-weight: 700; color: var(--text); }
+    .logo-tag { font-family: 'Inter', sans-serif; font-size: 7.5px; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
+    body.dark-mode .logo-en { color: var(--gold); }
+    body.dark-mode .logo-ar { color: var(--text); }
     .header-contacts {
       display: flex;
       flex-direction: column;
@@ -234,16 +241,17 @@
     .letterhead-footer::after { right: 0; border-left: 14mm solid transparent; }
 
     .footer-legal {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 4px;
-      font-size: 8pt;
+      display: grid;
+      grid-template-columns: repeat(4, auto);
+      gap: 10px;
+      font-size: 7.5pt;
       color: rgba(255,255,255,0.9);
-      line-height: 1.5;
+      line-height: 1.4;
       text-align: left;
     }
-    .footer-legal strong { color: var(--gold-light); font-weight: 700; }
+    .footer-legal .legal-item { display: flex; flex-direction: column; gap: 2px; }
+    .footer-legal .label { color: var(--gold-light); font-weight: 700; font-size: 7pt; }
+    .footer-legal .value { color: #fff; font-weight: 500; }
 
     .footer-qr-corner {
       align-self: center;
@@ -308,7 +316,9 @@
       .sheet, body.dark-mode .sheet { margin: 0; box-shadow: none; width: 210mm; min-height: 297mm; background: #fff !important; color: #000 !important; page-break-after: always; break-after: page; }
       .sheet:last-child { page-break-after: auto; break-after: auto; }
       .letterhead-header { padding: 12mm 16mm 6mm; color: #000 !important; }
-      .header-logo img { height: 120px; }
+      .header-logo .logo-icon { height: 84px; }
+      .logo-en { font-size: 22px; }
+      .logo-ar { font-size: 11px; }
       .letter-body { padding: 10mm 16mm 0; }
       .doc-content { min-height: auto; color: #000 !important; }
       .letterhead-footer { padding: 5mm 10mm 5mm 14mm; }
@@ -326,7 +336,7 @@
       .contact-divider { display: none; }
       .contact-row { justify-content: center; }
       .letterhead-footer { flex-direction: column; height: auto; gap: 6mm; padding: 6mm; }
-      .footer-legal { align-items: center; text-align: center; }
+      .footer-legal { grid-template-columns: 1fr 1fr; text-align: center; }
       .footer-icons { flex-wrap: wrap; justify-content: center; }
       .f-icon { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding: 8px 0; }
       .watermark-b img { height: 80mm; }
@@ -402,7 +412,12 @@
     <div class="sheet" data-page="1">
       <header class="letterhead-header">
         <div class="header-logo">
-          <img src="../assets/bonds-logo-2026-v2.png?v=2026b" alt="Bonds" />
+          <img src="../assets/bonds-logo-icon-only.png?v=2026b" alt="Bonds" class="logo-icon" />
+          <div class="logo-text">
+            <div class="logo-en">BONDS</div>
+            <div class="logo-ar">بوندز للاستشارات المالية والإدارية</div>
+            <div class="logo-tag">INVEST · ANALYZE · DECIDE · GROW</div>
+          </div>
         </div>
         <div class="header-contacts">
           <div class="contact-cols">
@@ -448,10 +463,10 @@
 
       <footer class="letterhead-footer">
         <div class="footer-legal">
-          <div><strong>Website:</strong> www.bonds.sa</div>
-          <div><strong>CR:</strong> 39733</div>
-          <div><strong>Tax No:</strong> 310224728600003</div>
-          <div><strong>Activity License:</strong> 357359</div>
+          <div class="legal-item"><span class="label">Website</span><span class="value">www.bonds.sa</span></div>
+          <div class="legal-item"><span class="label">CR</span><span class="value">39733</span></div>
+          <div class="legal-item"><span class="label">Tax No</span><span class="value">310224728600003</span></div>
+          <div class="legal-item"><span class="label">License</span><span class="value">357359</span></div>
         </div>
         <div class="footer-icons">
           <div class="f-icon">
@@ -686,6 +701,7 @@
       window.undoDoc = function(){ var doc=getActiveDoc(); if(!doc||undoStack.length===0){showToast('⚠️ Nothing to undo');return;} isUndoing=true; redoStack.push(doc.innerHTML); doc.innerHTML=undoStack.pop(); showToast('↩️ Undone'); setTimeout(function(){isUndoing=false;},100); };
       window.redoDoc = function(){ var doc=getActiveDoc(); if(!doc||redoStack.length===0){showToast('⚠️ Nothing to redo');return;} isUndoing=true; undoStack.push(doc.innerHTML); doc.innerHTML=redoStack.pop(); showToast('↪️ Redone'); setTimeout(function(){isUndoing=false;},100); };
       window.saveDoc = function(){ var html=getHtml(); if(html){ localStorage.setItem(LS_PREFIX+'doc_html', html); showToast('✅ Saved'); } else showToast('⚠️ No text to save'); };
+      window.autoSave = function(){ var html=getHtml(); if(html) localStorage.setItem(LS_PREFIX+'doc_html', html); };
       window.changeFont = function(font){ document.querySelectorAll('.doc-content').forEach(function(d){d.style.fontFamily="'"+font+"', Tahoma, serif";}); localStorage.setItem(LS_PREFIX+'font', font); showToast('✅ Font: '+font); };
       window.toggleDropdown = function(id){ var wrap=document.getElementById(id); if(!wrap)return; var isOpen=wrap.classList.contains('open'); document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open');}); if(!isOpen) wrap.classList.add('open'); };
       document.addEventListener('click', function(e){ if(!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open');}); });
@@ -697,7 +713,7 @@
         if (saved && doc) doc.innerHTML = saved;
         var savedFont = localStorage.getItem(LS_PREFIX+'font');
         if (savedFont) { var fs=document.getElementById('font-select'); if(fs) fs.value=savedFont; changeFont(savedFont); }
-        if(doc) doc.addEventListener('input', pushUndo);
+        if(doc) { doc.addEventListener('input', pushUndo); setInterval(autoSave, 30000); }
       });
     })();
   </script>
