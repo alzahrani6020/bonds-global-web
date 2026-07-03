@@ -105,6 +105,8 @@ function resolveApiRoute(reqUrl) {
     '/api/bank-transfer/': 'funding.js',
     '/api/funding-sources': 'funding.js',
     '/api/funding-sources/': 'funding.js',
+    '/api/send-letter': 'platform.js',
+    '/api/send-letter/': 'platform.js',
     '/api/contact': 'platform.js',
     '/api/contact/': 'platform.js',
     '/api/usage': 'platform.js',

@@ -42,6 +42,7 @@ const PUBLIC_ENDPOINT_OVERRIDES = [
   '/api/bank-transfer',
   '/api/analyze-feasibility',
   '/api/analyze-feasibility-v2',
+  '/api/send-letter',
   // Admin password reset uses admin-email check, not Bearer
   '/api/reset-password',
   '/api/force-reset'

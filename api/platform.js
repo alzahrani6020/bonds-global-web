@@ -405,6 +405,26 @@ ${message ? 'الرسالة:\n' + message : ''}
   }
 }
 
+async function sendLetterAction(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Method not allowed' });
+
+  const { to, subject, body, html, text } = req.body || {};
+  const recipient = to && String(to).trim() ? String(to).trim() : process.env.MANAGER_EMAIL;
+  if (!recipient || !recipient.includes('@')) {
+    return res.status(400).json({ ok: false, error: 'A valid recipient email is required.' });
+  }
+
+  const result = await sendEmail({
+    to: recipient,
+    subject: subject || 'New letterhead submission',
+    text: text || body || '',
+    html: Array.isArray(html) ? html.join('<hr>') : (html || '')
+  });
+
+  if (result.success) return res.status(200).json({ ok: true });
+  return res.status(500).json({ ok: false, error: 'Failed to send email.' });
+}
+
 async function siteUsageHandler(req, res) {
   const sb = getSupabase();
   const action = req.query?.action || req.body?.action;
@@ -527,6 +547,7 @@ async function siteHandler(req, res) {
   const action = req.query?.action || req.body?.action || 'contact';
   if (action === 'contact') return siteContactHandler(req, res);
   if (action === 'usage') return siteUsageHandler(req, res);
+  if (action === 'send-letter') return sendLetterAction(req, res);
   return res.status(400).json({ error: 'Unknown action' });
 }
 
@@ -769,6 +790,13 @@ module.exports = async function handler(req, res) {
     if (pathname === '/api/pro' || pathname === '/api/pro/') {
       if (checkRateLimit('compute', req, res)) return;
       return proHandler(req, res);
+    }
+
+    // Letterhead email
+    if (pathname === '/api/send-letter' || pathname === '/api/send-letter/') {
+      req.query = req.query || {}; req.query.action = 'send-letter';
+      if (checkRateLimit('public', req, res)) return;
+      return siteHandler(req, res);
     }
 
     // Site

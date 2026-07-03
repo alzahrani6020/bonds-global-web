@@ -203,6 +203,14 @@
       "destination": "/api/funding?action=sources"
     },
     {
+      "source": "/api/send-letter",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/send-letter/",
+      "destination": "/api/platform"
+    },
+    {
       "source": "/api/contact",
       "destination": "/api/platform"
     },
