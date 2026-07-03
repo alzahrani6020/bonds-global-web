@@ -551,9 +551,43 @@
       }
       window.showToast = showToast;
 
-      function getActiveDoc() { return document.querySelector('.doc-content'); }
+      function getActiveDoc() {
+        var sel = window.getSelection();
+        if (sel && sel.rangeCount) {
+          var node = sel.anchorNode;
+          if (node) {
+            var el = node.nodeType === 1 ? node : node.parentElement;
+            var doc = el.closest('.doc-content');
+            if (doc) return doc;
+          }
+        }
+        return document.querySelector('.doc-content');
+      }
+      function bindDoc(doc) { doc.addEventListener('input', function(){ pushUndo(); updateDocTitle(); }); }
       function getText() { var d = getActiveDoc(); return d ? d.innerText.trim() : ''; }
       function getHtml() { var d = getActiveDoc(); return d ? d.innerHTML : ''; }
+      function getAllHtml() { return Array.from(document.querySelectorAll('.doc-content')).map(function(d){return d.innerHTML;}); }
+      function setAllHtml(data) {
+        var pages = Array.isArray(data) ? data : (typeof data === 'string' ? [data] : ['']);
+        var container = document.getElementById('pages-container');
+        var firstDoc = document.getElementById('doc-1');
+        if (firstDoc) firstDoc.innerHTML = pages[0] || '';
+        var sheets = document.querySelectorAll('.sheet');
+        for (var i=sheets.length-1; i>0; i--) sheets[i].remove();
+        pageCounter = 1;
+        for (var i=1; i<pages.length; i++) {
+          pageCounter++;
+          var last = container.querySelector('.sheet:last-child');
+          var clone = last.cloneNode(true);
+          clone.setAttribute('data-page', pageCounter);
+          clone.querySelector('.doc-content').id = 'doc-' + pageCounter;
+          clone.querySelector('.doc-content').innerHTML = pages[i];
+          clone.querySelector('.doc-content').contentEditable = writingMode ? 'true' : 'false';
+          bindDoc(clone.querySelector('.doc-content'));
+          container.appendChild(clone);
+        }
+        updatePageNumbers();
+      }
       function ensureDoc() { var d = getActiveDoc(); if (!d) { showToast('⚠️ Start writing first'); return null; } return d; }
 
       window.toggleWrite = function() {
@@ -659,6 +693,7 @@
         clone.querySelector('.doc-content').id = 'doc-' + pageCounter;
         clone.querySelector('.doc-content').innerHTML = '';
         clone.querySelector('.doc-content').contentEditable = writingMode ? 'true' : 'false';
+        bindDoc(clone.querySelector('.doc-content'));
         container.appendChild(clone);
         updatePageNumbers();
         showToast('✅ Page ' + pageCounter);
@@ -723,7 +758,8 @@
       window.sendToManager = function() {
         saveDoc();
         var sent = JSON.parse(localStorage.getItem(LS_PREFIX + 'sent') || '[]');
-        sent.unshift({ date: new Date().toLocaleString('en-US'), preview: getText().slice(0, 80) + '...' });
+        var allText = Array.from(document.querySelectorAll('.doc-content')).map(function(d){return d.innerText.trim();}).join(' ');
+        sent.unshift({ date: new Date().toLocaleString('en-US'), preview: allText.slice(0, 80) + '...' });
         localStorage.setItem(LS_PREFIX + 'sent', JSON.stringify(sent.slice(0, 20)));
         showToast('📨 Sent to manager and saved');
         refreshInbox();
@@ -732,7 +768,7 @@
         var nameInput = document.getElementById('draft-name');
         var name = nameInput.value.trim();
         if (!name) { showToast('⚠️ Enter draft name'); return; }
-        var html = getHtml(); if (!html) { showToast('⚠️ No text to save'); return; }
+        var html = getAllHtml();
         var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
         drafts.unshift({ name: name, html: html, date: new Date().toLocaleString('en-US') });
         localStorage.setItem(LS_PREFIX + 'drafts', JSON.stringify(drafts.slice(0, 30)));
@@ -745,9 +781,8 @@
         if (!drafts[index]) return;
         if (!confirm('Replace current content with this draft?')) return;
         var doc = getActiveDoc();
-        if (doc) doc.innerHTML = drafts[index].html;
+        setAllHtml(drafts[index].html);
         saveDoc();
-        updatePageNumbers();
         updateDocTitle();
         showToast('✅ Draft loaded');
       };
@@ -771,8 +806,10 @@
       };
       window.clearAll = function() {
         if (!confirm('All pages and content will be cleared. Continue?')) return;
-        localStorage.removeItem(LS_PREFIX + 'doc_html');
-        location.reload();
+        setAllHtml(['']);
+        saveDoc();
+        updateDocTitle();
+        showToast('🧹 Cleared');
       };
       window.handleImageUpload = function(input) {
         if (!input.files || !input.files[0]) return;
@@ -794,16 +831,17 @@
         var pdf = new window.jspdf.jsPDF('p','mm','a4');
         var count = 0;
         sheets.forEach(function(sheet, idx){
+          var qr = sheet.querySelector('.footer-qr-corner img');
+          var originalQR = qr ? qr.src : null;
+          if (qr && originalQR && /^https?:/.test(originalQR)) { qr.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; }
           html2canvas(sheet, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' }).then(function(canvas){
-            var img = canvas.toDataURL('image/png');
+            try { var img = canvas.toDataURL('image/png'); } catch(e) { showToast('⚠️ PDF generation failed'); if(qr && originalQR) qr.src = originalQR; return; }
             if (idx > 0) pdf.addPage();
             pdf.addImage(img, 'PNG', 0, 0, 210, 297);
             count++;
-            if (count === sheets.length) {
-              pdf.save('bonds-letterhead.pdf');
-              showToast('✅ PDF downloaded');
-            }
-          }).catch(function(){ showToast('⚠️ PDF generation failed'); });
+            if (qr && originalQR) qr.src = originalQR;
+            if (count === sheets.length) { pdf.save('bonds-letterhead.pdf'); showToast('✅ PDF downloaded'); }
+          }).catch(function(){ showToast('⚠️ PDF generation failed'); if(qr && originalQR) qr.src = originalQR; });
         });
       };
       window.updateDocTitle = function() {
@@ -849,8 +887,8 @@
       function pushUndo(){ if(isUndoing) return; var doc=getActiveDoc(); if(!doc) return; undoStack.push(doc.innerHTML); if(undoStack.length>maxUndo) undoStack.shift(); redoStack=[]; }
       window.undoDoc = function(){ var doc=getActiveDoc(); if(!doc||undoStack.length===0){showToast('⚠️ Nothing to undo');return;} isUndoing=true; redoStack.push(doc.innerHTML); doc.innerHTML=undoStack.pop(); showToast('↩️ Undone'); setTimeout(function(){isUndoing=false;},100); };
       window.redoDoc = function(){ var doc=getActiveDoc(); if(!doc||redoStack.length===0){showToast('⚠️ Nothing to redo');return;} isUndoing=true; undoStack.push(doc.innerHTML); doc.innerHTML=redoStack.pop(); showToast('↪️ Redone'); setTimeout(function(){isUndoing=false;},100); };
-      window.saveDoc = function(){ var html=getHtml(); if(html){ localStorage.setItem(LS_PREFIX+'doc_html', html); showToast('✅ Saved'); } else showToast('⚠️ No text to save'); };
-      window.autoSave = function(){ var html=getHtml(); if(html) localStorage.setItem(LS_PREFIX+'doc_html', html); };
+      window.saveDoc = function(){ var html=getAllHtml(); localStorage.setItem(LS_PREFIX+'doc_html', JSON.stringify(html)); showToast('✅ Saved'); };
+      window.autoSave = function(){ var html=getAllHtml(); localStorage.setItem(LS_PREFIX+'doc_html', JSON.stringify(html)); };
       window.changeFont = function(font){ document.querySelectorAll('.doc-content').forEach(function(d){d.style.fontFamily="'"+font+"', Tahoma, serif";}); localStorage.setItem(LS_PREFIX+'font', font); showToast('✅ Font: '+font); };
       window.toggleDropdown = function(id){ var wrap=document.getElementById(id); if(!wrap)return; var isOpen=wrap.classList.contains('open'); document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open');}); if(!isOpen) wrap.classList.add('open'); };
       document.addEventListener('click', function(e){ if(!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open');}); });
@@ -858,12 +896,17 @@
 
       document.addEventListener('DOMContentLoaded', function(){
         var saved = localStorage.getItem(LS_PREFIX+'doc_html');
-        var doc = getActiveDoc();
-        if (saved && doc) doc.innerHTML = saved;
+        if (saved) { try { setAllHtml(JSON.parse(saved)); } catch(e) { setAllHtml(saved); } }
+        document.querySelectorAll('.doc-content').forEach(bindDoc);
+        document.querySelectorAll('.footer-qr-corner img').forEach(function(img){
+          var url = img.src;
+          if (!url) return;
+          fetch(url, { mode: 'cors' }).then(function(r){ return r.blob(); }).then(function(blob){ img.src = URL.createObjectURL(blob); }).catch(function(){});
+        });
         var savedFont = localStorage.getItem(LS_PREFIX+'font');
         if (savedFont) { var fs=document.getElementById('font-select'); if(fs) fs.value=savedFont; changeFont(savedFont); }
         updatePageNumbers(); updateDocTitle();
-        if(doc) { doc.addEventListener('input', function(){ pushUndo(); updateDocTitle(); }); setInterval(autoSave, 30000); }
+        setInterval(autoSave, 30000);
       });
     })();
   </script>
