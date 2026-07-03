@@ -326,7 +326,7 @@
     @media print {
       @page { size: A4; margin: 0; }
       body, body.dark-mode { background: #fff !important; }
-      .toolbar, .toast, .inbox-panel { display: none !important; }
+      .toolbar, .toast, .inbox-panel, .preview-exit { display: none !important; }
       .sheet, body.dark-mode .sheet { margin: 0; box-shadow: none; width: 210mm; min-height: 297mm; background: #fff !important; color: #000 !important; page-break-after: always; break-after: page; }
       .sheet:last-child { page-break-after: auto; break-after: auto; }
       .letterhead-header { padding: 12mm 16mm 6mm; color: #000 !important; }
@@ -358,11 +358,23 @@
       .f-icon { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding: 8px 0; }
       .watermark-b img { height: 80mm; }
     }
+
+    /* Preview mode */
+    .preview-exit { display:none; position:fixed; top:12px; right:12px; z-index:10000; padding:8px 14px; border-radius:8px; background:var(--gold); color:#0a2342; border:none; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.2); }
+    body.preview-mode .preview-exit { display:block; }
+    body.preview-mode .toolbar,
+    body.preview-mode .inbox-panel,
+    body.preview-mode .toast,
+    body.preview-mode .toolbar-mobile-toggle { display:none !important; }
+    body.preview-mode { background:#f5f5f5; }
+    body.preview-mode.dark-mode { background:#0a0f1a; }
+    body.preview-mode .pages-container { margin-top:0; padding:0; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+  <button class="preview-exit" onclick="togglePreview()">❌ Exit Preview</button>
   <input type="file" id="image-upload" accept="image/*" style="display:none" onchange="handleImageUpload(this)" />
 
   <div class="toolbar" id="letterhead-toolbar">
@@ -386,6 +398,7 @@
       <button onclick="clearAll()">🧹 Clear</button>
       <button onclick="insertRuler()">📏 Ruler</button>
       <button onclick="toggleDarkMode()" id="btn-dark">🌙 Dark</button>
+      <button onclick="togglePreview()" id="btn-preview">👁 Preview</button>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
       <button onclick="shareDoc()">📤 Share</button>
@@ -408,6 +421,10 @@
           <button onclick="applyTemplate('memo')">Internal Memo</button>
           <button onclick="applyTemplate('thank')">Thank You</button>
           <button onclick="applyTemplate('reminder')">Reminder</button>
+          <button onclick="applyTemplate('meeting')">Meeting Request</button>
+          <button onclick="applyTemplate('price')">Price Approval</button>
+          <button onclick="applyTemplate('collection')">Payment Request</button>
+          <button onclick="applyTemplate('appointment')">Appointment</button>
         </div>
       </div>
       <div class="dropdown-wrap" id="color-dropdown">
@@ -567,6 +584,12 @@
       function getText() { var d = getActiveDoc(); return d ? d.innerText.trim() : ''; }
       function getHtml() { var d = getActiveDoc(); return d ? d.innerHTML : ''; }
       function getAllHtml() { return Array.from(document.querySelectorAll('.doc-content')).map(function(d){return d.innerHTML;}); }
+      function hasUnsavedChanges() {
+        var saved = localStorage.getItem(LS_PREFIX + 'doc_html');
+        var current = JSON.stringify(getAllHtml());
+        var hasContent = Array.from(document.querySelectorAll('.doc-content')).some(function(d){ return d.innerText.trim() !== ''; });
+        return hasContent && current !== saved;
+      }
       function setAllHtml(data) {
         var pages = Array.isArray(data) ? data : (typeof data === 'string' ? [data] : ['']);
         var container = document.getElementById('pages-container');
@@ -602,6 +625,12 @@
         var btn = document.getElementById('btn-dark');
         btn.textContent = darkMode ? '☀️ Light' : '🌙 Dark';
         showToast(darkMode ? '🌙 Dark mode' : '☀️ Light mode');
+      };
+      window.togglePreview = function() {
+        var isPreview = document.body.classList.toggle('preview-mode');
+        var btn = document.getElementById('btn-preview');
+        if (btn) btn.textContent = isPreview ? '👁 Exit' : '👁 Preview';
+        showToast(isPreview ? '👁 Preview mode' : '🔧 Edit mode');
       };
 
       window.copyText = function() {
@@ -743,6 +772,14 @@
           html = '<div><strong>Subject:</strong> Letter of Appreciation</div><div><br></div><div>Dear,</div><div>We would like to express our sincere thanks for ...</div><div><br></div><div>Best regards.</div><div><br></div>';
         } else if (name === 'reminder') {
           html = '<div><strong>Subject:</strong> Reminder</div><div><br></div><div>This is a friendly reminder regarding ...</div><div><br></div><div>Thank you.</div><div><br></div>';
+        } else if (name === 'meeting') {
+          html = '<div><strong>Subject:</strong> Meeting Invitation</div><div><br></div><div>Dear Sir/Madam,</div><div>We would like to invite you to attend a meeting scheduled on ... at ... to discuss ...</div><div><br></div><div>Best regards.</div><div><br></div>';
+        } else if (name === 'price') {
+          html = '<div><strong>Subject:</strong> Price Approval</div><div><br></div><div>Dear Sir/Madam,</div><div>With reference to your quotation dated ..., we hereby confirm the approved price of ... SAR (VAT inclusive) for the service/product detailed below.</div><div><br></div><div>Best regards.</div><div><br></div>';
+        } else if (name === 'collection') {
+          html = '<div><strong>Subject:</strong> Payment Request</div><div><br></div><div>Dear Sir/Madam,</div><div>We kindly request the settlement of the outstanding amount of ... SAR per invoice no. ... due on ...</div><div><br></div><div>Thank you for your cooperation.</div><div><br></div>';
+        } else if (name === 'appointment') {
+          html = '<div><strong>Subject:</strong> Appointment Request</div><div><br></div><div>Dear Sir/Madam,</div><div>We would like to schedule an appointment with you on ... at ... to discuss ...</div><div><br></div><div>Best regards.</div><div><br></div>';
         }
         insertAtCursor(html);
         toggleDropdown('template-dropdown');
@@ -916,6 +953,9 @@
         if (savedFont) { var fs=document.getElementById('font-select'); if(fs) fs.value=savedFont; changeFont(savedFont); }
         updatePageNumbers(); updateDocTitle();
         setInterval(autoSave, 30000);
+      });
+      window.addEventListener('beforeunload', function(e){
+        if (hasUnsavedChanges()) { e.preventDefault(); e.returnValue = ''; }
       });
     })();
   </script>

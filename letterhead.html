@@ -349,7 +349,7 @@
     @media print {
       @page { size: A4; margin: 0; }
       body, body.dark-mode { background: #fff !important; }
-      .toolbar, .toast, .inbox-panel, #inbox-backdrop { display: none !important; }
+      .toolbar, .toast, .inbox-panel, #inbox-backdrop, .preview-exit { display: none !important; }
       .sheet, body.dark-mode .sheet { margin: 0; box-shadow: none; width: 210mm; min-height: 297mm; background: #fff !important; color: #000 !important; page-break-after: always; break-after: page; }
       .sheet:last-child { page-break-after: auto; break-after: auto; }
       .letterhead-header { padding: 12mm 16mm 6mm; color: #000 !important; }
@@ -381,11 +381,23 @@
       .f-icon { border-left: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding: 8px 0; }
       .watermark-b img { height: 80mm; }
     }
+
+    /* Preview mode */
+    .preview-exit { display:none; position:fixed; top:12px; right:12px; z-index:10000; padding:8px 14px; border-radius:8px; background:var(--gold); color:#0a2342; border:none; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.2); }
+    body.preview-mode .preview-exit { display:block; }
+    body.preview-mode .toolbar,
+    body.preview-mode .inbox-panel,
+    body.preview-mode .toast,
+    body.preview-mode .toolbar-mobile-toggle { display:none !important; }
+    body.preview-mode { background:#f5f5f5; }
+    body.preview-mode.dark-mode { background:#0a0f1a; }
+    body.preview-mode .pages-container { margin-top:0; padding:0; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+  <button class="preview-exit" onclick="togglePreview()">❌ إنهاء المعاينة</button>
   <input type="file" id="image-upload" accept="image/*" style="display:none" onchange="handleImageUpload(this)" />
 
   <div class="toolbar" id="letterhead-toolbar">
@@ -409,6 +421,7 @@
       <button onclick="clearAll()">🧹 مسح</button>
       <button onclick="insertRuler()">📏 خطوط</button>
       <button onclick="toggleDarkMode()" id="btn-dark">🌙 داكن</button>
+      <button onclick="togglePreview()" id="btn-preview">👁 معاينة</button>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
       <button onclick="shareDoc()">📤 مشاركة</button>
@@ -434,6 +447,10 @@
           <button onclick="applyTemplate('memo')">مذكرة داخلية</button>
           <button onclick="applyTemplate('thank')">رسالة شكر</button>
           <button onclick="applyTemplate('reminder')">تذكير</button>
+          <button onclick="applyTemplate('meeting')">طلب اجتماع</button>
+          <button onclick="applyTemplate('price')">اعتماد سعر</button>
+          <button onclick="applyTemplate('collection')">مطالبة مالية</button>
+          <button onclick="applyTemplate('appointment')">تحديد موعد</button>
         </div>
       </div>
       <div class="dropdown-wrap" id="color-dropdown">
@@ -594,6 +611,12 @@
       function getText() { var d = getActiveDoc(); return d ? d.innerText.trim() : ''; }
       function getHtml() { var d = getActiveDoc(); return d ? d.innerHTML : ''; }
       function getAllHtml() { return Array.from(document.querySelectorAll('.doc-content')).map(function(d){return d.innerHTML;}); }
+      function hasUnsavedChanges() {
+        var saved = localStorage.getItem(LS_PREFIX + 'doc_html');
+        var current = JSON.stringify(getAllHtml());
+        var hasContent = Array.from(document.querySelectorAll('.doc-content')).some(function(d){ return d.innerText.trim() !== ''; });
+        return hasContent && current !== saved;
+      }
       function setAllHtml(data) {
         var pages = Array.isArray(data) ? data : (typeof data === 'string' ? [data] : ['']);
         var container = document.getElementById('pages-container');
@@ -629,6 +652,12 @@
         var btn = document.getElementById('btn-dark');
         btn.textContent = darkMode ? '☀️ فاتح' : '🌙 داكن';
         showToast(darkMode ? '🌙 الوضع الداكن' : '☀️ الوضع الفاتح');
+      };
+      window.togglePreview = function() {
+        var isPreview = document.body.classList.toggle('preview-mode');
+        var btn = document.getElementById('btn-preview');
+        if (btn) btn.textContent = isPreview ? '👁 خروج' : '👁 معاينة';
+        showToast(isPreview ? '👁 وضع المعاينة' : '🔧 وضع التحرير');
       };
 
       window.copyText = function() {
@@ -770,6 +799,14 @@
           html = '<div><strong>الموضوع:</strong> شكر وتقدير</div><div><br></div><div>تحية طيبة،</div><div>نتقدم بجزيل الشكر لكم على ...</div><div><br></div><div>مع خالص التقدير.</div><div><br></div>';
         } else if (name === 'reminder') {
           html = '<div><strong>الموضوع:</strong> تذكير</div><div><br></div><div>نود تذكيركم بـ ...</div><div><br></div><div>شاكرين تعاونكم.</div><div><br></div>';
+        } else if (name === 'meeting') {
+          html = '<div><strong>الموضوع:</strong> دعوة لحضور اجتماع</div><div><br></div><div>تحية طيبة،</div><div>نرجو منكم حضور الاجتماع المقرر بتاريخ ... الساعة ... في مكان ... لمناقشة ...</div><div><br></div><div>مع خالص التقدير.</div><div><br></div>';
+        } else if (name === 'price') {
+          html = '<div><strong>الموضوع:</strong> اعتماد سعر عرض</div><div><br></div><div>تحية طيبة،</div><div>بالإشارة إلى عرضكم المقدم بتاريخ ...، نؤكد اعتماد السعر البالغ ... ريال (شامل الضريبة) للخدمة/المنتج الموضح أدناه.</div><div><br></div><div>شاكرين تعاونكم.</div><div><br></div>';
+        } else if (name === 'collection') {
+          html = '<div><strong>الموضوع:</strong> مطالبة مالية</div><div><br></div><div>تحية طيبة،</div><div>نأمل منكم سرعة سداد المستحقات المتأخرة البالغة ... ريال حسب الفاتورة رقم ... والمستحقة بتاريخ ...</div><div><br></div><div>شاكرين تفهمكم.</div><div><br></div>';
+        } else if (name === 'appointment') {
+          html = '<div><strong>الموضوع:</strong> تحديد موعد</div><div><br></div><div>تحية طيبة،</div><div>نرغب في تحديد موعد مناسب لكم يوم ... الموافق ... الساعة ... لمناقشة ...</div><div><br></div><div>مع خالص التقدير.</div><div><br></div>';
         }
         insertAtCursor(html);
         toggleDropdown('template-dropdown');
@@ -943,6 +980,9 @@
         if (savedFont) { var fs=document.getElementById('font-select'); if(fs) fs.value=savedFont; changeFont(savedFont); }
         updatePageNumbers(); updateDocTitle();
         setInterval(autoSave, 30000);
+      });
+      window.addEventListener('beforeunload', function(e){
+        if (hasUnsavedChanges()) { e.preventDefault(); e.returnValue = ''; }
       });
     })();
   </script>
