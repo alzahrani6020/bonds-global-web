@@ -670,6 +670,11 @@
       .sheet:last-child { page-break-after: auto; break-after: auto; }
       .sheet-inner { padding: 14mm 16mm 18mm; }
       .doc-content { min-height: auto; padding: 2mm 0; }
+      [contenteditable]:empty::before,
+      .doc-content:empty::before,
+      .meta-value:empty::before,
+      .cr span[contenteditable]:empty::before { content: none !important; }
+      .meta-value { border-bottom: none !important; }
     }
 
     @media (max-width: 480px) {
