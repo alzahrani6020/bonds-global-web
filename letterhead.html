@@ -405,6 +405,18 @@
     #sig-canvas { background:#fff; border-radius:8px; width:100%; height:180px; cursor:crosshair; touch-action:none; }
     .sig-actions { margin-top:12px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
     .sig-actions button { padding:8px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
+
+    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10001; align-items:center; justify-content:center; }
+    .modal.open { display:flex; }
+    .modal-content { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:20px; max-width:90vw; width:420px; text-align:center; }
+    .modal-content ul { list-style:none; padding:0; margin:12px 0; text-align:start; }
+    .modal-content li { padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.1); }
+    .modal-content button { margin-top:10px; padding:8px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:700; background:var(--gold); color:#0a2342; }
+    .save-status { margin-inline-start:auto; color:var(--text-secondary); font-size:12px; padding:0 8px; }
+    .btn-help { width:28px; height:28px; border-radius:50%; font-weight:700; display:inline-flex; align-items:center; justify-content:center; padding:0; }
+    .zoom-level { color:var(--text-secondary); font-size:12px; min-width:40px; display:inline-block; text-align:center; }
+    .toolbar button:focus-visible, .toolbar select:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+    @media print { .pages-container { transform:none !important; } }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -424,9 +436,9 @@
     </div>
   </div>
 
-    <div class="toolbar" id="letterhead-toolbar">
+    <div class="toolbar" id="letterhead-toolbar" role="toolbar" aria-label="أدوات المستند">
     <div class="toolbar-header">
-      <span class="toolbar-title">🖨️ أدوات المستند</span>
+      <span class="toolbar-title">🖨️ أدوات المستند</span><span id="save-status" class="save-status"></span><button onclick="showShortcuts()" class="btn-help" aria-label="اختصارات الكيبورد" title="اختصارات الكيبورد (?)">?</button>
       <button class="toolbar-mobile-toggle" onclick="toggleMobileToolbar()" title="☰">☰</button>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
@@ -471,6 +483,8 @@
         <button onclick="addNewPage()" title="➕ صفحة">➕ صفحة</button>
         <button onclick="deletePage()" title="🗑️ حذف">🗑️ حذف</button>
         <button onclick="clearAll()" title="🧹 مسح">🧹 مسح</button>
+        <button onclick="movePageUp()" title="نقل للأعلى">⬆️</button>
+        <button onclick="movePageDown()" title="نقل للأسفل">⬇️</button>
       </div>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
@@ -523,10 +537,15 @@
         <button onclick="exportWord()" title="📘 Word">📘 Word</button>
         <button onclick="window.print()" class="btn-print primary" title="🖨️ طباعة">🖨️ طباعة</button>
         <button onclick="toggleInbox()" class="btn-inbox" title="📥 وارد المراسلات">📥 وارد المراسلات</button>
+        <button onclick="syncDraftsToCloud()" title="☁️ مزامنة">☁️ مزامنة</button>
+        <button onclick="loadDraftsFromCloud()" title="☁️ تحميل">☁️ تحميل</button>
         <button onclick="sendToManager()" class="btn-send" title="📨 إرسال للمدير">📨 إرسال للمدير</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">عرض</span>
+        <button onclick="changeZoom(-0.1)" title="تصغير">🔍-</button>
+        <span id="zoom-level" class="zoom-level">100%</span>
+        <button onclick="changeZoom(0.1)" title="تكبير">🔍+</button>
         <button onclick="togglePreview()" id="btn-preview" title="👁 معاينة">👁 معاينة</button>
         <button onclick="toggleDarkMode()" id="btn-dark" title="🌙 داكن">🌙 داكن</button>
         <button onclick="translateSelection()" title="🌐 ترجمة">🌐 ترجمة</button>
@@ -887,7 +906,7 @@
           bodyHtml += '<div style="page-break-after:always; padding:20mm;">' + sheet.innerHTML + '</div>';
         });
         var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/1999/xhtml"><head><meta charset="utf-8"><title>ورق مراسلات بوندز</title></head><body style="font-family:Arial,sans-serif; direction:rtl;">' + bodyHtml + '</body></html>';
-        var blob = new Blob(['﻿', html], {type: 'application/msword'});
+        var blob = new Blob([html], {type: 'application/msword'});
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a'); a.href = url; a.download = 'bonds-letterhead.doc'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         showToast('✅ تم تصدير Word');
@@ -912,10 +931,67 @@
         if(!sigCanvas) return;
         var data = sigCanvas.toDataURL('image/png');
         if(!ensureDoc()) return;
-        insertAtCursor('<img src="' + data + '" style="max-width:200px;height:auto;display:block;margin:10px 0;" />');
+        insertAtCursor('<img src="' + data + '" alt="توقيع" style="max-width:200px;height:auto;display:block;margin:10px 0;" />');
         closeSignatureModal();
         clearSignature();
         showToast('✅ تم حفظ التوقيع');
+      };
+      window.showShortcuts = function(){ document.getElementById('shortcuts-modal').classList.add('open'); };
+      window.closeShortcuts = function(){ document.getElementById('shortcuts-modal').classList.remove('open'); };
+      function updateSaveStatus(){ var s=document.getElementById('save-status'); if(s) s.textContent = 'تم الحفظ ' + new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'}); }
+      var zoomLevel = 1;
+      window.changeZoom = function(delta){
+        zoomLevel = Math.max(0.5, Math.min(2, zoomLevel + delta));
+        var pc = document.getElementById('pages-container');
+        if(pc) pc.style.transform = 'scale(' + zoomLevel + ')';
+        var zl = document.getElementById('zoom-level');
+        if(zl) zl.textContent = Math.round(zoomLevel*100) + '%';
+      };
+      window.movePageUp = function(){
+        var doc = getActiveDoc(); if(!doc) return;
+        var sheet = doc.closest('.sheet'); if(!sheet || !sheet.previousElementSibling) return;
+        sheet.parentNode.insertBefore(sheet, sheet.previousElementSibling);
+        updatePageNumbers();
+      };
+      window.movePageDown = function(){
+        var doc = getActiveDoc(); if(!doc) return;
+        var sheet = doc.closest('.sheet'); if(!sheet || !sheet.nextElementSibling) return;
+        sheet.parentNode.insertBefore(sheet.nextElementSibling, sheet);
+        updatePageNumbers();
+      };
+      window.syncDraftsToCloud = async function(){
+        var sb = (typeof getSupabase === 'function') ? getSupabase() : null;
+        if (!sb) { showToast('⚠️ خدمة التخزين السحابي غير متوفرة'); return; }
+        var userRes = await sb.auth.getUser();
+        var user = userRes.data ? userRes.data.user : null;
+        if (!user) { showToast('⚠️ يرجى تسجيل الدخول أولاً'); return; }
+        var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
+        if (!drafts.length) { showToast('⚠️ لا توجد مسودات محلية'); return; }
+        showToast('⏳ جاري المزامنة...');
+        try {
+          var rows = drafts.map(function(d){ return { user_id: user.id, name: d.name, html: d.html, updated_at: new Date().toISOString() }; });
+          var res = await sb.from('letterhead_drafts').upsert(rows, { onConflict: 'user_id,name' });
+          if (res.error) throw res.error;
+          showToast('✅ تمت مزامنة المسودات');
+        } catch(e) { showToast('⚠️ فشل المزامنة: ' + (e.message || e)); }
+      };
+      window.loadDraftsFromCloud = async function(){
+        var sb = (typeof getSupabase === 'function') ? getSupabase() : null;
+        if (!sb) { showToast('⚠️ خدمة التخزين السحابي غير متوفرة'); return; }
+        var userRes = await sb.auth.getUser();
+        var user = userRes.data ? userRes.data.user : null;
+        if (!user) { showToast('⚠️ يرجى تسجيل الدخول أولاً'); return; }
+        showToast('⏳ جاري التحميل...');
+        try {
+          var res = await sb.from('letterhead_drafts').select('*').eq('user_id', user.id).order('updated_at', { ascending: false });
+          if (res.error) throw res.error;
+          var rows = res.data || [];
+          if (!rows.length) { showToast('⚠️ لا توجد مسودات في السحابة'); return; }
+          var drafts = rows.map(function(r){ return { name: r.name, html: r.html, date: new Date(r.updated_at).toLocaleString('ar-SA') }; });
+          localStorage.setItem(LS_PREFIX + 'drafts', JSON.stringify(drafts));
+          refreshInbox();
+          showToast('✅ تم تحميل المسودات');
+        } catch(e) { showToast('⚠️ فشل التحميل: ' + (e.message || e)); }
       };
       window.setColor = function(color) {
         var sel = window.getSelection();
@@ -964,14 +1040,25 @@
           showToast('✅ تم نسخ الرابط');
         }
       };
-      window.sendToManager = function() {
+      window.sendToManager = async function() {
         saveDoc();
-        var sent = JSON.parse(localStorage.getItem(LS_PREFIX + 'sent') || '[]');
+        var to = prompt('بريد المدير:', localStorage.getItem(LS_PREFIX + 'manager_email') || '');
+        if (!to) return;
+        localStorage.setItem(LS_PREFIX + 'manager_email', to);
         var allText = Array.from(document.querySelectorAll('.doc-content')).map(function(d){return d.innerText.trim();}).join(' ');
-        sent.unshift({ date: new Date().toLocaleString('ar-SA'), preview: allText.slice(0, 80) + '...' });
-        localStorage.setItem(LS_PREFIX + 'sent', JSON.stringify(sent.slice(0, 20)));
-        showToast('📨 تم إرسال المراسلة للمدير وحفظها');
-        refreshInbox();
+        var title = document.title.replace(' | ورق مراسلات بوندز', '').replace(' | Bonds Letterhead', '') || 'مرفق من letterhead';
+        var html = '<html><body dir="rtl">' + Array.from(document.querySelectorAll('.sheet')).map(function(s){ return '<div style="margin-bottom:40px;">' + s.innerHTML + '</div>'; }).join('') + '</body></html>';
+        showToast('⏳ جاري الإرسال...');
+        try {
+          var r = await fetch('/api/send-letter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to: to, subject: title, html: html, text: allText.slice(0, 1200) }) });
+          var data = await r.json();
+          if (!r.ok) { showToast('⚠️ ' + (data.error || 'فشل الإرسال')); return; }
+          var sent = JSON.parse(localStorage.getItem(LS_PREFIX + 'sent') || '[]');
+          sent.unshift({ date: new Date().toLocaleString('ar-SA'), preview: allText.slice(0, 80) + '...' });
+          localStorage.setItem(LS_PREFIX + 'sent', JSON.stringify(sent.slice(0, 20)));
+          showToast('📨 تم الإرسال للمدير');
+          refreshInbox();
+        } catch(e) { showToast('⚠️ فشل الإرسال: ' + e.message); }
       };
       window.saveDraft = function() {
         var nameInput = document.getElementById('draft-name');
@@ -1096,12 +1183,12 @@
       function pushUndo(){ if(isUndoing) return; var doc=getActiveDoc(); if(!doc) return; undoStack.push(doc.innerHTML); if(undoStack.length>maxUndo) undoStack.shift(); redoStack=[]; }
       window.undoDoc = function(){ var doc=getActiveDoc(); if(!doc||undoStack.length===0){showToast('⚠️ لا يوجد تراجع');return;} isUndoing=true; redoStack.push(doc.innerHTML); doc.innerHTML=undoStack.pop(); showToast('↩️ تم التراجع'); setTimeout(function(){isUndoing=false;},100); };
       window.redoDoc = function(){ var doc=getActiveDoc(); if(!doc||redoStack.length===0){showToast('⚠️ لا يوجد إعادة');return;} isUndoing=true; undoStack.push(doc.innerHTML); doc.innerHTML=redoStack.pop(); showToast('↪️ تم الإعادة'); setTimeout(function(){isUndoing=false;},100); };
-      window.saveDoc = function(){ var html=getAllHtml(); localStorage.setItem(LS_PREFIX+'doc_html', JSON.stringify(html)); showToast('✅ تم الحفظ'); };
-      window.autoSave = function(){ var html=getAllHtml(); localStorage.setItem(LS_PREFIX+'doc_html', JSON.stringify(html)); };
+      window.saveDoc = function(){ var html=getAllHtml(); localStorage.setItem(LS_PREFIX+'doc_html', JSON.stringify(html)); updateSaveStatus(); showToast('✅ تم الحفظ'); };
+      window.autoSave = function(){ var html=getAllHtml(); localStorage.setItem(LS_PREFIX+'doc_html', JSON.stringify(html)); updateSaveStatus(); };
       window.changeFont = function(font){ document.querySelectorAll('.doc-content').forEach(function(d){d.style.fontFamily="'"+font+"', Tahoma, serif";}); localStorage.setItem(LS_PREFIX+'font', font); showToast('✅ الخط: '+font); };
-      window.toggleDropdown = function(id){ var wrap=document.getElementById(id); if(!wrap)return; var isOpen=wrap.classList.contains('open'); document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open');}); if(!isOpen) wrap.classList.add('open'); };
-      document.addEventListener('click', function(e){ if(!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open');}); });
-      document.addEventListener('keydown', function(e){ if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undoDoc();} if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redoDoc();} if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveDoc();} });
+      window.toggleDropdown = function(id){ var wrap=document.getElementById(id); if(!wrap)return; var btn=wrap.querySelector(':scope > button'); var isOpen=wrap.classList.contains('open'); document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open'); var b=el.querySelector(':scope > button'); if(b) b.setAttribute('aria-expanded','false');}); if(!isOpen){ wrap.classList.add('open'); if(btn) btn.setAttribute('aria-expanded','true'); } else { if(btn) btn.setAttribute('aria-expanded','false'); } };
+      document.addEventListener('click', function(e){ if(!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open'); var b=el.querySelector(':scope > button'); if(b) b.setAttribute('aria-expanded','false');}); });
+      document.addEventListener('keydown', function(e){ if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undoDoc();} if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redoDoc();} if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveDoc();} if(e.key==='?'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();showShortcuts();} });
 
       document.addEventListener('DOMContentLoaded', function(){
         var saved = localStorage.getItem(LS_PREFIX+'doc_html');
@@ -1115,6 +1202,11 @@
         var savedFont = localStorage.getItem(LS_PREFIX+'font');
         if (savedFont) { var fs=document.getElementById('font-select'); if(fs) fs.value=savedFont; changeFont(savedFont); }
         updatePageNumbers(); updateDocTitle();
+        document.querySelectorAll('.toolbar button').forEach(function(b){ if(!b.getAttribute('aria-label') && b.title) b.setAttribute('aria-label', b.title); });
+        document.querySelectorAll('.dropdown-wrap > button').forEach(function(b){ b.setAttribute('aria-expanded','false'); b.setAttribute('aria-haspopup','true'); });
+        document.querySelectorAll('.doc-content').forEach(function(d){ d.setAttribute('spellcheck','true'); });
+        var fs=document.getElementById('font-select'); if(fs) fs.setAttribute('aria-label','اختيار الخط');
+        updateSaveStatus();
         setInterval(autoSave, 30000);
       });
       window.addEventListener('beforeunload', function(e){
@@ -1122,5 +1214,23 @@
       });
     })();
   </script>
+  <div id="shortcuts-modal" class="modal">
+    <div class="modal-content">
+      <h3>اختصارات الكيبورد</h3>
+      <ul>
+        <li><strong>Ctrl + S</strong> حفظ</li>
+        <li><strong>Ctrl + Z</strong> تراجع</li>
+        <li><strong>Ctrl + Y / Ctrl + Shift + Z</strong> إعادة</li>
+        <li><strong>?</strong> فتح هذا الدليل</li>
+      </ul>
+      <button onclick="closeShortcuts()">إغلاق</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/api/env"></script>
+  <script src="supabase-client.js"></script>
+
+
 </body>
 </html>
