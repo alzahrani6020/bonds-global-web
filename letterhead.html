@@ -363,12 +363,15 @@
     }
 
     @media (max-width: 480px) {
-      .toolbar { border-radius: 0; margin: 0; top: 0; padding: 10px; }
-      .toolbar-mobile-collapsible { display: none; }
-      .toolbar-mobile-collapsible.open { display: flex; }
+      body { padding-bottom: 76px; }
+      .toolbar { position: fixed; top: auto; bottom: 0; left: 0; right: 0; border-radius: 16px 16px 0 0; margin: 0; padding: 8px 10px; box-shadow: 0 -4px 20px rgba(0,0,0,.3); }
+      .toolbar-header { padding: 6px 4px; }
+      .toolbar-row { display: none; }
+      .toolbar-row.open { display: flex; position: fixed; bottom: 56px; left: 0; right: 0; max-height: 70vh; overflow-y: auto; background: var(--bg-card); backdrop-filter: blur(12px); border-radius: 16px 16px 0 0; padding: 14px; gap: 6px; box-shadow: 0 -4px 24px rgba(0,0,0,.35); border-top: 1px solid var(--border); z-index: 999; }
       .toolbar-mobile-toggle { display: inline-flex; }
-      .toolbar-row { gap: 5px; }
-      .toolbar button, .toolbar select { font-size: 11px; padding: 4px 7px; }
+      .toolbar button, .toolbar select { font-size: 12px; padding: 5px 8px; }
+      .toolbar-group { gap: 3px; }
+      .toolbar-group-label { display: none; }
       .sheet { width: 100%; min-height: auto; }
       .letterhead-header { flex-direction: column; align-items: center; text-align: center; padding: 10mm 8mm 6mm; }
       .header-contacts { align-items: center; }
@@ -395,10 +398,13 @@
 
     .toolbar-group { display:inline-flex; align-items:center; gap:4px; flex-wrap:wrap; }
     .toolbar-group-label { color:var(--text-secondary); font-size:11px; font-weight:700; padding:0 6px; border-inline-end:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; min-height:28px; }
-    @media (max-width: 480px) {
-      .toolbar-group { gap:3px; }
-      .toolbar-group-label { display:none; }
-    }
+
+    .sig-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10001; align-items:center; justify-content:center; }
+    .sig-modal.open { display:flex; }
+    .sig-modal-content { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:20px; max-width:90vw; width:640px; text-align:center; }
+    #sig-canvas { background:#fff; border-radius:8px; width:100%; height:180px; cursor:crosshair; touch-action:none; }
+    .sig-actions { margin-top:12px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .sig-actions button { padding:8px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -406,60 +412,71 @@
 <body>
   <button class="preview-exit" onclick="togglePreview()">❌ إنهاء المعاينة</button>
   <input type="file" id="image-upload" accept="image/*" style="display:none" onchange="handleImageUpload(this)" />
+  <div id="sig-modal" class="sig-modal">
+    <div class="sig-modal-content">
+      <h3>ارسم توقيعك</h3>
+      <canvas id="sig-canvas" width="600" height="180"></canvas>
+      <div class="sig-actions">
+        <button onclick="saveSignature()">💾 حفظ</button>
+        <button onclick="clearSignature()">🧹 مسح</button>
+        <button onclick="closeSignatureModal()">❌ إلغاء</button>
+      </div>
+    </div>
+  </div>
 
     <div class="toolbar" id="letterhead-toolbar">
     <div class="toolbar-header">
       <span class="toolbar-title">🖨️ أدوات المستند</span>
-      <button class="toolbar-mobile-toggle" onclick="toggleMobileToolbar()">☰</button>
+      <button class="toolbar-mobile-toggle" onclick="toggleMobileToolbar()" title="☰">☰</button>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
       <div class="toolbar-group">
         <span class="toolbar-group-label">مستند</span>
-        <button onclick="toggleWrite()" id="btn-write">✏️ كتابة</button>
-        <button onclick="saveDoc()">💾 حفظ</button>
-        <button onclick="undoDoc()">↩️ تراجع</button>
-        <button onclick="redoDoc()">↪️ إعادة</button>
-        <button onclick="copyText()">📋 نسخ</button>
+        <button onclick="toggleWrite()" id="btn-write" title="✏️ كتابة">✏️ كتابة</button>
+        <button onclick="saveDoc()" title="💾 حفظ">💾 حفظ</button>
+        <button onclick="undoDoc()" title="↩️ تراجع">↩️ تراجع</button>
+        <button onclick="redoDoc()" title="↪️ إعادة">↪️ إعادة</button>
+        <button onclick="copyText()" title="📋 نسخ">📋 نسخ</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">إدراج</span>
-        <button onclick="insertDateTime()">📅 تاريخ</button>
-        <button onclick="insertSubject()">📌 الموضوع</button>
-        <button onclick="generateRef()">🔢 رقم صادر</button>
+        <button onclick="insertDateTime()" title="📅 تاريخ">📅 تاريخ</button>
+        <button onclick="insertSubject()" title="📌 الموضوع">📌 الموضوع</button>
+        <button onclick="generateRef()" title="🔢 رقم صادر">🔢 رقم صادر</button>
         <div class="dropdown-wrap" id="archive-dropdown">
-          <button onclick="toggleDropdown('archive-dropdown')">📁 أرشيف ▾</button>
-          <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ تحديث الأرشيف</button></div>
+          <button onclick="toggleDropdown('archive-dropdown')" title="📁 أرشيف">📁 أرشيف ▾</button>
+          <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);" title="↻ تحديث الأرشيف">↻ تحديث الأرشيف</button></div>
         </div>
-        <button onclick="insertTable()">▦ جدول</button>
-        <button onclick="insertRuler()">📏 خط</button>
-        <button onclick="insertSignature()">✍️ توقيع</button>
-        <button onclick="insertStamp()">🔴 ختم</button>
-        <button onclick="document.getElementById('image-upload').click()">🖼️ صورة</button>
+        <button onclick="insertTable()" title="▦ جدول">▦ جدول</button>
+        <button onclick="insertRuler()" title="📏 خط">📏 خط</button>
+        <button onclick="openSignatureModal()" title="✍️ توقيع">✍️ توقيع</button>
+        <button onclick="insertStamp()" title="🔴 ختم">🔴 ختم</button>
+        <button onclick="document.getElementById('image-upload').click()" title="🖼️ صورة">🖼️ صورة</button>
         <div class="dropdown-wrap" id="template-dropdown">
-          <button onclick="toggleDropdown('template-dropdown')">📄 قالب ▾</button>
+          <button onclick="toggleDropdown('template-dropdown')" title="📄 قالب">📄 قالب ▾</button>
           <div class="dropdown-menu">
-            <button onclick="applyTemplate('formal')">خطاب رسمي</button>
-            <button onclick="applyTemplate('memo')">مذكرة داخلية</button>
-            <button onclick="applyTemplate('thank')">رسالة شكر</button>
-            <button onclick="applyTemplate('reminder')">تذكير</button>
-            <button onclick="applyTemplate('meeting')">طلب اجتماع</button>
-            <button onclick="applyTemplate('price')">اعتماد سعر</button>
-            <button onclick="applyTemplate('collection')">مطالبة مالية</button>
-            <button onclick="applyTemplate('appointment')">تحديد موعد</button>
+            <button onclick="applyTemplate('formal')" title="خطاب رسمي">خطاب رسمي</button>
+            <button onclick="applyTemplate('memo')" title="مذكرة داخلية">مذكرة داخلية</button>
+            <button onclick="applyTemplate('thank')" title="رسالة شكر">رسالة شكر</button>
+            <button onclick="applyTemplate('reminder')" title="تذكير">تذكير</button>
+            <button onclick="applyTemplate('meeting')" title="طلب اجتماع">طلب اجتماع</button>
+            <button onclick="applyTemplate('price')" title="اعتماد سعر">اعتماد سعر</button>
+            <button onclick="applyTemplate('collection')" title="مطالبة مالية">مطالبة مالية</button>
+            <button onclick="applyTemplate('appointment')" title="تحديد موعد">تحديد موعد</button>
           </div>
         </div>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">صفحات</span>
-        <button onclick="addNewPage()">➕ صفحة</button>
-        <button onclick="deletePage()">🗑️ حذف</button>
-        <button onclick="clearAll()">🧹 مسح</button>
+        <button onclick="addNewPage()" title="➕ صفحة">➕ صفحة</button>
+        <button onclick="deletePage()" title="🗑️ حذف">🗑️ حذف</button>
+        <button onclick="clearAll()" title="🧹 مسح">🧹 مسح</button>
       </div>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
       <div class="toolbar-group">
         <span class="toolbar-group-label">خط</span>
-        <select id="font-select" onchange="changeFont(this.value)">
+        <select id="font-select" onchange="changeFont(this.value)" title="اختيار الخط">
           <option value="Noto Naskh Arabic">Noto Naskh</option>
           <option value="Vazirmatn">Vazirmatn</option>
           <option value="Amiri">Amiri</option>
@@ -470,25 +487,25 @@
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">محاذاة</span>
-        <button onclick="alignText('right')">⬅️ يمين</button>
-        <button onclick="alignText('center')">↔️ وسط</button>
-        <button onclick="alignText('left')">➡️ يسار</button>
-        <button onclick="alignText('justify')">☰ تبرير</button>
+        <button onclick="alignText('right')" title="⬅️ يمين">⬅️ يمين</button>
+        <button onclick="alignText('center')" title="↔️ وسط">↔️ وسط</button>
+        <button onclick="alignText('left')" title="➡️ يسار">➡️ يسار</button>
+        <button onclick="alignText('justify')" title="☰ تبرير">☰ تبرير</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">قائمة</span>
-        <button onclick="toggleList('ul')">• نقطي</button>
-        <button onclick="toggleList('ol')">١. رقمي</button>
-        <button onclick="indentText()">↪ إزاحة</button>
-        <button onclick="outdentText()">↩ تراجع</button>
+        <button onclick="toggleList('ul')" title="• نقطي">• نقطي</button>
+        <button onclick="toggleList('ol')" title="١. رقمي">١. رقمي</button>
+        <button onclick="indentText()" title="↪ إزاحة">↪ إزاحة</button>
+        <button onclick="outdentText()" title="↩ تراجع">↩ تراجع</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">تنسيق</span>
-        <button onclick="toggleBold()">عريض</button>
-        <button onclick="toggleItalic()">مائل</button>
-        <button onclick="toggleUnderline()">تسطير</button>
+        <button onclick="toggleBold()" title="عريض">عريض</button>
+        <button onclick="toggleItalic()" title="مائل">مائل</button>
+        <button onclick="toggleUnderline()" title="تسطير">تسطير</button>
         <div class="dropdown-wrap" id="color-dropdown">
-          <button onclick="toggleDropdown('color-dropdown')">🎨 لون ▾</button>
+          <button onclick="toggleDropdown('color-dropdown')" title="🎨 لون">🎨 لون ▾</button>
           <div class="dropdown-menu">
             <button onclick="setColor('#1a1a1a')"><span class="color-swatch" style="background:#1a1a1a"></span>أسود</button>
             <button onclick="setColor('#c0392b')"><span class="color-swatch" style="background:#c0392b"></span>أحمر</button>
@@ -496,28 +513,29 @@
             <button onclick="setColor('#020f23')"><span class="color-swatch" style="background:#020f23"></span>كحلي</button>
           </div>
         </div>
-        <button onclick="findReplaceText()">🔍 بحث واستبدال</button>
+        <button onclick="findReplaceText()" title="🔍 بحث واستبدال">🔍 بحث واستبدال</button>
       </div>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible toolbar-actions">
       <div class="toolbar-group">
         <span class="toolbar-group-label">ملف</span>
-        <button onclick="exportPDF()" class="btn-pdf">📄 PDF</button>
-        <button onclick="window.print()" class="btn-print primary">🖨️ طباعة</button>
-        <button onclick="toggleInbox()" class="btn-inbox">📥 وارد المراسلات</button>
-        <button onclick="sendToManager()" class="btn-send">📨 إرسال للمدير</button>
+        <button onclick="exportPDF()" class="btn-pdf" title="📄 PDF">📄 PDF</button>
+        <button onclick="exportWord()" title="📘 Word">📘 Word</button>
+        <button onclick="window.print()" class="btn-print primary" title="🖨️ طباعة">🖨️ طباعة</button>
+        <button onclick="toggleInbox()" class="btn-inbox" title="📥 وارد المراسلات">📥 وارد المراسلات</button>
+        <button onclick="sendToManager()" class="btn-send" title="📨 إرسال للمدير">📨 إرسال للمدير</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">عرض</span>
-        <button onclick="togglePreview()" id="btn-preview">👁 معاينة</button>
-        <button onclick="toggleDarkMode()" id="btn-dark">🌙 داكن</button>
-        <button onclick="translateSelection()">🌐 ترجمة</button>
-        <button onclick="shareDoc()">📤 مشاركة</button>
+        <button onclick="togglePreview()" id="btn-preview" title="👁 معاينة">👁 معاينة</button>
+        <button onclick="toggleDarkMode()" id="btn-dark" title="🌙 داكن">🌙 داكن</button>
+        <button onclick="translateSelection()" title="🌐 ترجمة">🌐 ترجمة</button>
+        <button onclick="shareDoc()" title="📤 مشاركة">📤 مشاركة</button>
         <div class="dropdown-wrap" id="lang-dropdown">
-          <button onclick="toggleDropdown('lang-dropdown')">🌐 لغة ▾</button>
+          <button onclick="toggleDropdown('lang-dropdown')" title="🌐 لغة">🌐 لغة ▾</button>
           <div class="dropdown-menu">
-            <button onclick="switchLang('ar')">العربية</button>
-            <button onclick="switchLang('en')">English</button>
+            <button onclick="switchLang('ar')" title="العربية">العربية</button>
+            <button onclick="switchLang('en')" title="English">English</button>
           </div>
         </div>
       </div>
@@ -861,6 +879,43 @@
           }
         });
         showToast('✅ تم استبدال ' + count + ' نتيجة');
+      };
+      window.exportWord = function() {
+        var sheets = document.querySelectorAll('.sheet');
+        var bodyHtml = '';
+        sheets.forEach(function(sheet, idx){
+          bodyHtml += '<div style="page-break-after:always; padding:20mm;">' + sheet.innerHTML + '</div>';
+        });
+        var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/1999/xhtml"><head><meta charset="utf-8"><title>ورق مراسلات بوندز</title></head><body style="font-family:Arial,sans-serif; direction:rtl;">' + bodyHtml + '</body></html>';
+        var blob = new Blob(['﻿', html], {type: 'application/msword'});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a'); a.href = url; a.download = 'bonds-letterhead.doc'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        showToast('✅ تم تصدير Word');
+      };
+      var sigCanvas, sigCtx, sigDrawing=false, sigLast={'x':0,'y':0};
+      window.openSignatureModal = function() {
+        var modal = document.getElementById('sig-modal');
+        modal.classList.add('open');
+        sigCanvas = document.getElementById('sig-canvas');
+        sigCtx = sigCanvas.getContext('2d');
+        sigCtx.lineWidth = 2; sigCtx.lineCap='round'; sigCtx.strokeStyle='#0a2342';
+        sigCanvas.onmousedown = function(e){ sigDrawing=true; var r=sigCanvas.getBoundingClientRect(); sigLast={'x':e.clientX-r.left,'y':e.clientY-r.top}; };
+        sigCanvas.onmousemove = function(e){ if(!sigDrawing) return; var r=sigCanvas.getBoundingClientRect(); var x=e.clientX-r.left,y=e.clientY-r.top; sigCtx.beginPath(); sigCtx.moveTo(sigLast.x,sigLast.y); sigCtx.lineTo(x,y); sigCtx.stroke(); sigLast={x:x,y:y}; };
+        window.onmouseup = function(){ sigDrawing=false; };
+        sigCanvas.ontouchstart = function(e){ e.preventDefault(); sigDrawing=true; var r=sigCanvas.getBoundingClientRect(); var t=e.touches[0]; sigLast={x:t.clientX-r.left,y:t.clientY-r.top}; };
+        sigCanvas.ontouchmove = function(e){ e.preventDefault(); if(!sigDrawing) return; var r=sigCanvas.getBoundingClientRect(); var t=e.touches[0]; var x=t.clientX-r.left,y=t.clientY-r.top; sigCtx.beginPath(); sigCtx.moveTo(sigLast.x,sigLast.y); sigCtx.lineTo(x,y); sigCtx.stroke(); sigLast={x:x,y:y}; };
+        sigCanvas.ontouchend = function(){ sigDrawing=false; };
+      };
+      window.closeSignatureModal = function(){ document.getElementById('sig-modal').classList.remove('open'); };
+      window.clearSignature = function(){ if(!sigCtx) return; sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height); };
+      window.saveSignature = function(){
+        if(!sigCanvas) return;
+        var data = sigCanvas.toDataURL('image/png');
+        if(!ensureDoc()) return;
+        insertAtCursor('<img src="' + data + '" style="max-width:200px;height:auto;display:block;margin:10px 0;" />');
+        closeSignatureModal();
+        clearSignature();
+        showToast('✅ تم حفظ التوقيع');
       };
       window.setColor = function(color) {
         var sel = window.getSelection();

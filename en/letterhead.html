@@ -340,12 +340,15 @@
     }
 
     @media (max-width: 480px) {
-      .toolbar { border-radius: 0; margin: 0; top: 0; padding: 10px; }
-      .toolbar-mobile-collapsible { display: none; }
-      .toolbar-mobile-collapsible.open { display: flex; }
+      body { padding-bottom: 76px; }
+      .toolbar { position: fixed; top: auto; bottom: 0; left: 0; right: 0; border-radius: 16px 16px 0 0; margin: 0; padding: 8px 10px; box-shadow: 0 -4px 20px rgba(0,0,0,.3); }
+      .toolbar-header { padding: 6px 4px; }
+      .toolbar-row { display: none; }
+      .toolbar-row.open { display: flex; position: fixed; bottom: 56px; left: 0; right: 0; max-height: 70vh; overflow-y: auto; background: var(--bg-card); backdrop-filter: blur(12px); border-radius: 16px 16px 0 0; padding: 14px; gap: 6px; box-shadow: 0 -4px 24px rgba(0,0,0,.35); border-top: 1px solid var(--border); z-index: 999; }
       .toolbar-mobile-toggle { display: inline-flex; }
-      .toolbar-row { gap: 5px; }
-      .toolbar button, .toolbar select { font-size: 11px; padding: 4px 7px; }
+      .toolbar button, .toolbar select { font-size: 12px; padding: 5px 8px; }
+      .toolbar-group { gap: 3px; }
+      .toolbar-group-label { display: none; }
       .sheet { width: 100%; min-height: auto; }
       .letterhead-header { flex-direction: column; align-items: center; text-align: center; padding: 10mm 8mm 6mm; }
       .header-contacts { align-items: center; }
@@ -372,10 +375,13 @@
 
     .toolbar-group { display:inline-flex; align-items:center; gap:4px; flex-wrap:wrap; }
     .toolbar-group-label { color:var(--text-secondary); font-size:11px; font-weight:700; padding:0 6px; border-inline-end:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; min-height:28px; }
-    @media (max-width: 480px) {
-      .toolbar-group { gap:3px; }
-      .toolbar-group-label { display:none; }
-    }
+
+    .sig-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:10001; align-items:center; justify-content:center; }
+    .sig-modal.open { display:flex; }
+    .sig-modal-content { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:20px; max-width:90vw; width:640px; text-align:center; }
+    #sig-canvas { background:#fff; border-radius:8px; width:100%; height:180px; cursor:crosshair; touch-action:none; }
+    .sig-actions { margin-top:12px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .sig-actions button { padding:8px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -383,60 +389,71 @@
 <body>
   <button class="preview-exit" onclick="togglePreview()">❌ Exit Preview</button>
   <input type="file" id="image-upload" accept="image/*" style="display:none" onchange="handleImageUpload(this)" />
+  <div id="sig-modal" class="sig-modal">
+    <div class="sig-modal-content">
+      <h3>Draw your signature</h3>
+      <canvas id="sig-canvas" width="600" height="180"></canvas>
+      <div class="sig-actions">
+        <button onclick="saveSignature()">💾 Save</button>
+        <button onclick="clearSignature()">🧹 Clear</button>
+        <button onclick="closeSignatureModal()">❌ Cancel</button>
+      </div>
+    </div>
+  </div>
 
     <div class="toolbar" id="letterhead-toolbar">
     <div class="toolbar-header">
       <span class="toolbar-title">🖨️ Document Tools</span>
-      <button class="toolbar-mobile-toggle" onclick="toggleMobileToolbar()">☰</button>
+      <button class="toolbar-mobile-toggle" onclick="toggleMobileToolbar()" title="☰">☰</button>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
       <div class="toolbar-group">
         <span class="toolbar-group-label">Document</span>
-        <button onclick="toggleWrite()" id="btn-write">✏️ Write</button>
-        <button onclick="saveDoc()">💾 Save</button>
-        <button onclick="undoDoc()">↩️ Undo</button>
-        <button onclick="redoDoc()">↪️ Redo</button>
-        <button onclick="copyText()">📋 Copy</button>
+        <button onclick="toggleWrite()" id="btn-write" title="✏️ Write">✏️ Write</button>
+        <button onclick="saveDoc()" title="💾 Save">💾 Save</button>
+        <button onclick="undoDoc()" title="↩️ Undo">↩️ Undo</button>
+        <button onclick="redoDoc()" title="↪️ Redo">↪️ Redo</button>
+        <button onclick="copyText()" title="📋 Copy">📋 Copy</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">Insert</span>
-        <button onclick="insertDateTime()">📅 Date</button>
-        <button onclick="insertSubject()">📌 Subject</button>
-        <button onclick="generateRef()">🔢 Ref No.</button>
+        <button onclick="insertDateTime()" title="📅 Date">📅 Date</button>
+        <button onclick="insertSubject()" title="📌 Subject">📌 Subject</button>
+        <button onclick="generateRef()" title="🔢 Ref No.">🔢 Ref No.</button>
         <div class="dropdown-wrap" id="archive-dropdown">
-          <button onclick="toggleDropdown('archive-dropdown')">📁 Archive ▾</button>
-          <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ Refresh</button></div>
+          <button onclick="toggleDropdown('archive-dropdown')" title="📁 Archive">📁 Archive ▾</button>
+          <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);" title="↻ Refresh">↻ Refresh</button></div>
         </div>
-        <button onclick="insertTable()">▦ Table</button>
-        <button onclick="insertRuler()">📏 Ruler</button>
-        <button onclick="insertSignature()">✍️ Signature</button>
-        <button onclick="insertStamp()">🔴 Stamp</button>
-        <button onclick="document.getElementById('image-upload').click()">🖼️ Image</button>
+        <button onclick="insertTable()" title="▦ Table">▦ Table</button>
+        <button onclick="insertRuler()" title="📏 Ruler">📏 Ruler</button>
+        <button onclick="openSignatureModal()" title="✍️ Signature">✍️ Signature</button>
+        <button onclick="insertStamp()" title="🔴 Stamp">🔴 Stamp</button>
+        <button onclick="document.getElementById('image-upload').click()" title="🖼️ Image">🖼️ Image</button>
         <div class="dropdown-wrap" id="template-dropdown">
-          <button onclick="toggleDropdown('template-dropdown')">📄 Template ▾</button>
+          <button onclick="toggleDropdown('template-dropdown')" title="📄 Template">📄 Template ▾</button>
           <div class="dropdown-menu">
-            <button onclick="applyTemplate('formal')">Formal Letter</button>
-            <button onclick="applyTemplate('memo')">Internal Memo</button>
-            <button onclick="applyTemplate('thank')">Thank You</button>
-            <button onclick="applyTemplate('reminder')">Reminder</button>
-            <button onclick="applyTemplate('meeting')">Meeting Request</button>
-            <button onclick="applyTemplate('price')">Price Approval</button>
-            <button onclick="applyTemplate('collection')">Payment Request</button>
-            <button onclick="applyTemplate('appointment')">Appointment</button>
+            <button onclick="applyTemplate('formal')" title="Formal Letter">Formal Letter</button>
+            <button onclick="applyTemplate('memo')" title="Internal Memo">Internal Memo</button>
+            <button onclick="applyTemplate('thank')" title="Thank You">Thank You</button>
+            <button onclick="applyTemplate('reminder')" title="Reminder">Reminder</button>
+            <button onclick="applyTemplate('meeting')" title="Meeting Request">Meeting Request</button>
+            <button onclick="applyTemplate('price')" title="Price Approval">Price Approval</button>
+            <button onclick="applyTemplate('collection')" title="Payment Request">Payment Request</button>
+            <button onclick="applyTemplate('appointment')" title="Appointment">Appointment</button>
           </div>
         </div>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">Pages</span>
-        <button onclick="addNewPage()">➕ Page</button>
-        <button onclick="deletePage()">🗑️ Delete</button>
-        <button onclick="clearAll()">🧹 Clear</button>
+        <button onclick="addNewPage()" title="➕ Page">➕ Page</button>
+        <button onclick="deletePage()" title="🗑️ Delete">🗑️ Delete</button>
+        <button onclick="clearAll()" title="🧹 Clear">🧹 Clear</button>
       </div>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
       <div class="toolbar-group">
         <span class="toolbar-group-label">Font</span>
-        <select id="font-select" onchange="changeFont(this.value)">
+        <select id="font-select" onchange="changeFont(this.value)" title="Select font">
           <option value="Inter">Inter</option>
           <option value="system-ui">System UI</option>
           <option value="Noto Naskh Arabic">Noto Naskh</option>
@@ -444,25 +461,25 @@
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">Align</span>
-        <button onclick="alignText('left')">⬅️ Left</button>
-        <button onclick="alignText('center')">↔️ Center</button>
-        <button onclick="alignText('right')">➡️ Right</button>
-        <button onclick="alignText('justify')">☰ Justify</button>
+        <button onclick="alignText('left')" title="⬅️ Left">⬅️ Left</button>
+        <button onclick="alignText('center')" title="↔️ Center">↔️ Center</button>
+        <button onclick="alignText('right')" title="➡️ Right">➡️ Right</button>
+        <button onclick="alignText('justify')" title="☰ Justify">☰ Justify</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">List</span>
-        <button onclick="toggleList('ul')">• Bullet</button>
-        <button onclick="toggleList('ol')">1. Number</button>
-        <button onclick="indentText()">↪ Indent</button>
-        <button onclick="outdentText()">↩ Outdent</button>
+        <button onclick="toggleList('ul')" title="• Bullet">• Bullet</button>
+        <button onclick="toggleList('ol')" title="1. Number">1. Number</button>
+        <button onclick="indentText()" title="↪ Indent">↪ Indent</button>
+        <button onclick="outdentText()" title="↩ Outdent">↩ Outdent</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">Format</span>
-        <button onclick="toggleBold()">Bold</button>
-        <button onclick="toggleItalic()">Italic</button>
-        <button onclick="toggleUnderline()">Underline</button>
+        <button onclick="toggleBold()" title="Bold">Bold</button>
+        <button onclick="toggleItalic()" title="Italic">Italic</button>
+        <button onclick="toggleUnderline()" title="Underline">Underline</button>
         <div class="dropdown-wrap" id="color-dropdown">
-          <button onclick="toggleDropdown('color-dropdown')">🎨 Color ▾</button>
+          <button onclick="toggleDropdown('color-dropdown')" title="🎨 Color">🎨 Color ▾</button>
           <div class="dropdown-menu">
             <button onclick="setColor('#1a1a1a')"><span class="color-swatch" style="background:#1a1a1a"></span>Black</button>
             <button onclick="setColor('#c0392b')"><span class="color-swatch" style="background:#c0392b"></span>Red</button>
@@ -470,28 +487,29 @@
             <button onclick="setColor('#020f23')"><span class="color-swatch" style="background:#020f23"></span>Navy</button>
           </div>
         </div>
-        <button onclick="findReplaceText()">🔍 Find & Replace</button>
+        <button onclick="findReplaceText()" title="🔍 Find & Replace">🔍 Find & Replace</button>
       </div>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible toolbar-actions">
       <div class="toolbar-group">
         <span class="toolbar-group-label">File</span>
-        <button onclick="exportPDF()" class="btn-pdf">📄 PDF</button>
-        <button onclick="window.print()" class="btn-print primary">🖨️ Print</button>
-        <button onclick="toggleInbox()" class="btn-inbox">📥 Inbox</button>
-        <button onclick="sendToManager()" class="btn-send">📨 Send to Manager</button>
+        <button onclick="exportPDF()" class="btn-pdf" title="📄 PDF">📄 PDF</button>
+        <button onclick="exportWord()" title="📘 Word">📘 Word</button>
+        <button onclick="window.print()" class="btn-print primary" title="🖨️ Print">🖨️ Print</button>
+        <button onclick="toggleInbox()" class="btn-inbox" title="📥 Inbox">📥 Inbox</button>
+        <button onclick="sendToManager()" class="btn-send" title="📨 Send to Manager">📨 Send to Manager</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">View</span>
-        <button onclick="togglePreview()" id="btn-preview">👁 Preview</button>
-        <button onclick="toggleDarkMode()" id="btn-dark">🌙 Dark</button>
-        <button onclick="translateSelection()">🌐 Translate</button>
-        <button onclick="shareDoc()">📤 Share</button>
+        <button onclick="togglePreview()" id="btn-preview" title="👁 Preview">👁 Preview</button>
+        <button onclick="toggleDarkMode()" id="btn-dark" title="🌙 Dark">🌙 Dark</button>
+        <button onclick="translateSelection()" title="🌐 Translate">🌐 Translate</button>
+        <button onclick="shareDoc()" title="📤 Share">📤 Share</button>
         <div class="dropdown-wrap" id="lang-dropdown">
-          <button onclick="toggleDropdown('lang-dropdown')">🌐 Language ▾</button>
+          <button onclick="toggleDropdown('lang-dropdown')" title="🌐 Language">🌐 Language ▾</button>
           <div class="dropdown-menu">
-            <button onclick="switchLang('ar')">العربية</button>
-            <button onclick="switchLang('en')">English</button>
+            <button onclick="switchLang('ar')" title="العربية">العربية</button>
+            <button onclick="switchLang('en')" title="English">English</button>
           </div>
         </div>
       </div>
@@ -834,6 +852,43 @@
           }
         });
         showToast('✅ Replaced ' + count + ' occurrences');
+      };
+      window.exportWord = function() {
+        var sheets = document.querySelectorAll('.sheet');
+        var bodyHtml = '';
+        sheets.forEach(function(sheet, idx){
+          bodyHtml += '<div style="page-break-after:always; padding:20mm;">' + sheet.innerHTML + '</div>';
+        });
+        var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/1999/xhtml"><head><meta charset="utf-8"><title>Bonds Letterhead</title></head><body style="font-family:Arial,sans-serif; direction:ltr;">' + bodyHtml + '</body></html>';
+        var blob = new Blob(['﻿', html], {type: 'application/msword'});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a'); a.href = url; a.download = 'bonds-letterhead.doc'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        showToast('✅ Word exported');
+      };
+      var sigCanvas, sigCtx, sigDrawing=false, sigLast={'x':0,'y':0};
+      window.openSignatureModal = function() {
+        var modal = document.getElementById('sig-modal');
+        modal.classList.add('open');
+        sigCanvas = document.getElementById('sig-canvas');
+        sigCtx = sigCanvas.getContext('2d');
+        sigCtx.lineWidth = 2; sigCtx.lineCap='round'; sigCtx.strokeStyle='#0a2342';
+        sigCanvas.onmousedown = function(e){ sigDrawing=true; var r=sigCanvas.getBoundingClientRect(); sigLast={'x':e.clientX-r.left,'y':e.clientY-r.top}; };
+        sigCanvas.onmousemove = function(e){ if(!sigDrawing) return; var r=sigCanvas.getBoundingClientRect(); var x=e.clientX-r.left,y=e.clientY-r.top; sigCtx.beginPath(); sigCtx.moveTo(sigLast.x,sigLast.y); sigCtx.lineTo(x,y); sigCtx.stroke(); sigLast={x:x,y:y}; };
+        window.onmouseup = function(){ sigDrawing=false; };
+        sigCanvas.ontouchstart = function(e){ e.preventDefault(); sigDrawing=true; var r=sigCanvas.getBoundingClientRect(); var t=e.touches[0]; sigLast={x:t.clientX-r.left,y:t.clientY-r.top}; };
+        sigCanvas.ontouchmove = function(e){ e.preventDefault(); if(!sigDrawing) return; var r=sigCanvas.getBoundingClientRect(); var t=e.touches[0]; var x=t.clientX-r.left,y=t.clientY-r.top; sigCtx.beginPath(); sigCtx.moveTo(sigLast.x,sigLast.y); sigCtx.lineTo(x,y); sigCtx.stroke(); sigLast={x:x,y:y}; };
+        sigCanvas.ontouchend = function(){ sigDrawing=false; };
+      };
+      window.closeSignatureModal = function(){ document.getElementById('sig-modal').classList.remove('open'); };
+      window.clearSignature = function(){ if(!sigCtx) return; sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height); };
+      window.saveSignature = function(){
+        if(!sigCanvas) return;
+        var data = sigCanvas.toDataURL('image/png');
+        if(!ensureDoc()) return;
+        insertAtCursor('<img src="' + data + '" style="max-width:200px;height:auto;display:block;margin:10px 0;" />');
+        closeSignatureModal();
+        clearSignature();
+        showToast('✅ Signature saved');
       };
       window.setColor = function(color) {
         var sel = window.getSelection();
