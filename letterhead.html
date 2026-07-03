@@ -392,6 +392,13 @@
     body.preview-mode { background:#f5f5f5; }
     body.preview-mode.dark-mode { background:#0a0f1a; }
     body.preview-mode .pages-container { margin-top:0; padding:0; }
+
+    .toolbar-group { display:inline-flex; align-items:center; gap:4px; flex-wrap:wrap; }
+    .toolbar-group-label { color:var(--text-secondary); font-size:11px; font-weight:700; padding:0 6px; border-inline-end:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; min-height:28px; }
+    @media (max-width: 480px) {
+      .toolbar-group { gap:3px; }
+      .toolbar-group-label { display:none; }
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -400,79 +407,118 @@
   <button class="preview-exit" onclick="togglePreview()">❌ إنهاء المعاينة</button>
   <input type="file" id="image-upload" accept="image/*" style="display:none" onchange="handleImageUpload(this)" />
 
-  <div class="toolbar" id="letterhead-toolbar">
+    <div class="toolbar" id="letterhead-toolbar">
     <div class="toolbar-header">
       <span class="toolbar-title">🖨️ أدوات المستند</span>
       <button class="toolbar-mobile-toggle" onclick="toggleMobileToolbar()">☰</button>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
-      <button onclick="toggleWrite()" id="btn-write">✏️ كتابة</button>
-      <button onclick="copyText()">📋 نسخ</button>
-      <button onclick="insertDateTime()">📅 تاريخ</button>
-      <button onclick="insertSubject()">📌 الموضوع</button>
-      <button onclick="generateRef()">🔢 رقم صادر</button>
-      <div class="dropdown-wrap" id="archive-dropdown">
-        <button onclick="toggleDropdown('archive-dropdown')">📁 أرشيف ▾</button>
-        <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ تحديث الأرشيف</button></div>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">مستند</span>
+        <button onclick="toggleWrite()" id="btn-write">✏️ كتابة</button>
+        <button onclick="saveDoc()">💾 حفظ</button>
+        <button onclick="undoDoc()">↩️ تراجع</button>
+        <button onclick="redoDoc()">↪️ إعادة</button>
+        <button onclick="copyText()">📋 نسخ</button>
       </div>
-      <button onclick="insertTable()">▦ جدول</button>
-      <button onclick="addNewPage()">➕ صفحة</button>
-      <button onclick="deletePage()">🗑️ حذف</button>
-      <button onclick="clearAll()">🧹 مسح</button>
-      <button onclick="insertRuler()">📏 خطوط</button>
-      <button onclick="toggleDarkMode()" id="btn-dark">🌙 داكن</button>
-      <button onclick="togglePreview()" id="btn-preview">👁 معاينة</button>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">إدراج</span>
+        <button onclick="insertDateTime()">📅 تاريخ</button>
+        <button onclick="insertSubject()">📌 الموضوع</button>
+        <button onclick="generateRef()">🔢 رقم صادر</button>
+        <div class="dropdown-wrap" id="archive-dropdown">
+          <button onclick="toggleDropdown('archive-dropdown')">📁 أرشيف ▾</button>
+          <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ تحديث الأرشيف</button></div>
+        </div>
+        <button onclick="insertTable()">▦ جدول</button>
+        <button onclick="insertRuler()">📏 خط</button>
+        <button onclick="insertSignature()">✍️ توقيع</button>
+        <button onclick="insertStamp()">🔴 ختم</button>
+        <button onclick="document.getElementById('image-upload').click()">🖼️ صورة</button>
+        <div class="dropdown-wrap" id="template-dropdown">
+          <button onclick="toggleDropdown('template-dropdown')">📄 قالب ▾</button>
+          <div class="dropdown-menu">
+            <button onclick="applyTemplate('formal')">خطاب رسمي</button>
+            <button onclick="applyTemplate('memo')">مذكرة داخلية</button>
+            <button onclick="applyTemplate('thank')">رسالة شكر</button>
+            <button onclick="applyTemplate('reminder')">تذكير</button>
+            <button onclick="applyTemplate('meeting')">طلب اجتماع</button>
+            <button onclick="applyTemplate('price')">اعتماد سعر</button>
+            <button onclick="applyTemplate('collection')">مطالبة مالية</button>
+            <button onclick="applyTemplate('appointment')">تحديد موعد</button>
+          </div>
+        </div>
+      </div>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">صفحات</span>
+        <button onclick="addNewPage()">➕ صفحة</button>
+        <button onclick="deletePage()">🗑️ حذف</button>
+        <button onclick="clearAll()">🧹 مسح</button>
+      </div>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
-      <button onclick="shareDoc()">📤 مشاركة</button>
-      <select id="font-select" onchange="changeFont(this.value)">
-        <option value="Noto Naskh Arabic">Noto Naskh</option>
-        <option value="Vazirmatn">Vazirmatn</option>
-        <option value="Amiri">Amiri</option>
-        <option value="Cairo">Cairo</option>
-        <option value="Tajawal">Tajawal</option>
-        <option value="Almarai">Almarai</option>
-      </select>
-      <button onclick="translateSelection()">🌐 ترجمة منفصلة</button>
-      <button onclick="saveDoc()">💾 حفظ</button>
-      <button onclick="undoDoc()">↩️ تراجع</button>
-      <button onclick="redoDoc()">↪️ إعادة</button>
-      <button onclick="insertStamp()">🔴 ختم</button>
-      <button onclick="insertSignature()">✍️ توقيع</button>
-      <button onclick="document.getElementById('image-upload').click()">🖼️ صورة</button>
-      <div class="dropdown-wrap" id="template-dropdown">
-        <button onclick="toggleDropdown('template-dropdown')">📄 قالب ▾</button>
-        <div class="dropdown-menu">
-          <button onclick="applyTemplate('formal')">خطاب رسمي</button>
-          <button onclick="applyTemplate('memo')">مذكرة داخلية</button>
-          <button onclick="applyTemplate('thank')">رسالة شكر</button>
-          <button onclick="applyTemplate('reminder')">تذكير</button>
-          <button onclick="applyTemplate('meeting')">طلب اجتماع</button>
-          <button onclick="applyTemplate('price')">اعتماد سعر</button>
-          <button onclick="applyTemplate('collection')">مطالبة مالية</button>
-          <button onclick="applyTemplate('appointment')">تحديد موعد</button>
-        </div>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">خط</span>
+        <select id="font-select" onchange="changeFont(this.value)">
+          <option value="Noto Naskh Arabic">Noto Naskh</option>
+          <option value="Vazirmatn">Vazirmatn</option>
+          <option value="Amiri">Amiri</option>
+          <option value="Cairo">Cairo</option>
+          <option value="Tajawal">Tajawal</option>
+          <option value="Almarai">Almarai</option>
+        </select>
       </div>
-      <div class="dropdown-wrap" id="color-dropdown">
-        <button onclick="toggleDropdown('color-dropdown')">🎨 لون ▾</button>
-        <div class="dropdown-menu">
-          <button onclick="setColor('#1a1a1a')"><span class="color-swatch" style="background:#1a1a1a"></span>أسود</button>
-          <button onclick="setColor('#c0392b')"><span class="color-swatch" style="background:#c0392b"></span>أحمر</button>
-          <button onclick="setColor('#c59237')"><span class="color-swatch" style="background:#c59237"></span>ذهبي</button>
-          <button onclick="setColor('#020f23')"><span class="color-swatch" style="background:#020f23"></span>كحلي</button>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">محاذاة</span>
+        <button onclick="alignText('right')">⬅️ يمين</button>
+        <button onclick="alignText('center')">↔️ وسط</button>
+        <button onclick="alignText('left')">➡️ يسار</button>
+        <button onclick="alignText('justify')">☰ تبرير</button>
+      </div>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">قائمة</span>
+        <button onclick="toggleList('ul')">• نقطي</button>
+        <button onclick="toggleList('ol')">١. رقمي</button>
+        <button onclick="indentText()">↪ إزاحة</button>
+        <button onclick="outdentText()">↩ تراجع</button>
+      </div>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">تنسيق</span>
+        <button onclick="toggleBold()">عريض</button>
+        <button onclick="toggleItalic()">مائل</button>
+        <button onclick="toggleUnderline()">تسطير</button>
+        <div class="dropdown-wrap" id="color-dropdown">
+          <button onclick="toggleDropdown('color-dropdown')">🎨 لون ▾</button>
+          <div class="dropdown-menu">
+            <button onclick="setColor('#1a1a1a')"><span class="color-swatch" style="background:#1a1a1a"></span>أسود</button>
+            <button onclick="setColor('#c0392b')"><span class="color-swatch" style="background:#c0392b"></span>أحمر</button>
+            <button onclick="setColor('#c59237')"><span class="color-swatch" style="background:#c59237"></span>ذهبي</button>
+            <button onclick="setColor('#020f23')"><span class="color-swatch" style="background:#020f23"></span>كحلي</button>
+          </div>
         </div>
+        <button onclick="findReplaceText()">🔍 بحث واستبدال</button>
       </div>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible toolbar-actions">
-      <button onclick="window.print()" class="btn-print primary">🖨️ طباعة</button>
-      <button onclick="exportPDF()" class="btn-pdf">📄 PDF</button>
-      <button onclick="toggleInbox()" class="btn-inbox">📥 وارد المراسلات</button>
-      <button onclick="sendToManager()" class="btn-send">📨 إرسال للمدير</button>
-      <div class="dropdown-wrap" id="lang-dropdown">
-        <button onclick="toggleDropdown('lang-dropdown')">🌐 ترجمة ▾</button>
-        <div class="dropdown-menu">
-          <button onclick="switchLang('ar')">العربية</button>
-          <button onclick="switchLang('en')">English</button>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">ملف</span>
+        <button onclick="exportPDF()" class="btn-pdf">📄 PDF</button>
+        <button onclick="window.print()" class="btn-print primary">🖨️ طباعة</button>
+        <button onclick="toggleInbox()" class="btn-inbox">📥 وارد المراسلات</button>
+        <button onclick="sendToManager()" class="btn-send">📨 إرسال للمدير</button>
+      </div>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">عرض</span>
+        <button onclick="togglePreview()" id="btn-preview">👁 معاينة</button>
+        <button onclick="toggleDarkMode()" id="btn-dark">🌙 داكن</button>
+        <button onclick="translateSelection()">🌐 ترجمة</button>
+        <button onclick="shareDoc()">📤 مشاركة</button>
+        <div class="dropdown-wrap" id="lang-dropdown">
+          <button onclick="toggleDropdown('lang-dropdown')">🌐 لغة ▾</button>
+          <div class="dropdown-menu">
+            <button onclick="switchLang('ar')">العربية</button>
+            <button onclick="switchLang('en')">English</button>
+          </div>
         </div>
       </div>
     </div>
@@ -780,6 +826,41 @@
       };
       window.toggleMobileToolbar = function() {
         document.querySelectorAll('.toolbar-mobile-collapsible').forEach(function(row){ row.classList.toggle('open'); });
+      };
+      window.alignText = function(align) {
+        if (!ensureDoc()) return;
+        var cmd = align === 'right' ? 'justifyRight' : align === 'center' ? 'justifyCenter' : align === 'left' ? 'justifyLeft' : 'justifyFull';
+        document.execCommand(cmd, false, null);
+      };
+      window.toggleList = function(type) {
+        if (!ensureDoc()) return;
+        document.execCommand(type === 'ol' ? 'insertOrderedList' : 'insertUnorderedList', false, null);
+      };
+      window.indentText = function() { if(!ensureDoc()) return; document.execCommand('indent', false, null); };
+      window.outdentText = function() { if(!ensureDoc()) return; document.execCommand('outdent', false, null); };
+      window.toggleBold = function() { if(!ensureDoc()) return; document.execCommand('bold', false, null); };
+      window.toggleItalic = function() { if(!ensureDoc()) return; document.execCommand('italic', false, null); };
+      window.toggleUnderline = function() { if(!ensureDoc()) return; document.execCommand('underline', false, null); };
+      window.findReplaceText = function() {
+        var find = prompt('النص المطلوب البحث عنه:'); if (!find) return;
+        var replace = prompt('استبدال بـ:'); if (replace === null) return;
+        var doc = getActiveDoc(); if (!doc) return;
+        var walker = document.createTreeWalker(doc, NodeFilter.SHOW_TEXT, null, false);
+        var nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+        var count = 0;
+        nodes.forEach(function(node){
+          var parts = node.textContent.split(find);
+          if (parts.length > 1) {
+            count += parts.length - 1;
+            var frag = document.createDocumentFragment();
+            parts.forEach(function(part, idx){
+              frag.appendChild(document.createTextNode(part));
+              if (idx < parts.length - 1) frag.appendChild(document.createTextNode(replace));
+            });
+            node.parentNode.replaceChild(frag, node);
+          }
+        });
+        showToast('✅ تم استبدال ' + count + ' نتيجة');
       };
       window.setColor = function(color) {
         var sel = window.getSelection();

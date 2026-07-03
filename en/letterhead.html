@@ -369,6 +369,13 @@
     body.preview-mode { background:#f5f5f5; }
     body.preview-mode.dark-mode { background:#0a0f1a; }
     body.preview-mode .pages-container { margin-top:0; padding:0; }
+
+    .toolbar-group { display:inline-flex; align-items:center; gap:4px; flex-wrap:wrap; }
+    .toolbar-group-label { color:var(--text-secondary); font-size:11px; font-weight:700; padding:0 6px; border-inline-end:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; min-height:28px; }
+    @media (max-width: 480px) {
+      .toolbar-group { gap:3px; }
+      .toolbar-group-label { display:none; }
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -377,76 +384,115 @@
   <button class="preview-exit" onclick="togglePreview()">❌ Exit Preview</button>
   <input type="file" id="image-upload" accept="image/*" style="display:none" onchange="handleImageUpload(this)" />
 
-  <div class="toolbar" id="letterhead-toolbar">
+    <div class="toolbar" id="letterhead-toolbar">
     <div class="toolbar-header">
       <span class="toolbar-title">🖨️ Document Tools</span>
       <button class="toolbar-mobile-toggle" onclick="toggleMobileToolbar()">☰</button>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
-      <button onclick="toggleWrite()" id="btn-write">✏️ Write</button>
-      <button onclick="copyText()">📋 Copy</button>
-      <button onclick="insertDateTime()">📅 Date</button>
-      <button onclick="insertSubject()">📌 Subject</button>
-      <button onclick="generateRef()">🔢 Ref No.</button>
-      <div class="dropdown-wrap" id="archive-dropdown">
-        <button onclick="toggleDropdown('archive-dropdown')">📁 Archive ▾</button>
-        <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ Refresh</button></div>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">Document</span>
+        <button onclick="toggleWrite()" id="btn-write">✏️ Write</button>
+        <button onclick="saveDoc()">💾 Save</button>
+        <button onclick="undoDoc()">↩️ Undo</button>
+        <button onclick="redoDoc()">↪️ Redo</button>
+        <button onclick="copyText()">📋 Copy</button>
       </div>
-      <button onclick="insertTable()">▦ Table</button>
-      <button onclick="addNewPage()">➕ Page</button>
-      <button onclick="deletePage()">🗑️ Delete</button>
-      <button onclick="clearAll()">🧹 Clear</button>
-      <button onclick="insertRuler()">📏 Ruler</button>
-      <button onclick="toggleDarkMode()" id="btn-dark">🌙 Dark</button>
-      <button onclick="togglePreview()" id="btn-preview">👁 Preview</button>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">Insert</span>
+        <button onclick="insertDateTime()">📅 Date</button>
+        <button onclick="insertSubject()">📌 Subject</button>
+        <button onclick="generateRef()">🔢 Ref No.</button>
+        <div class="dropdown-wrap" id="archive-dropdown">
+          <button onclick="toggleDropdown('archive-dropdown')">📁 Archive ▾</button>
+          <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ Refresh</button></div>
+        </div>
+        <button onclick="insertTable()">▦ Table</button>
+        <button onclick="insertRuler()">📏 Ruler</button>
+        <button onclick="insertSignature()">✍️ Signature</button>
+        <button onclick="insertStamp()">🔴 Stamp</button>
+        <button onclick="document.getElementById('image-upload').click()">🖼️ Image</button>
+        <div class="dropdown-wrap" id="template-dropdown">
+          <button onclick="toggleDropdown('template-dropdown')">📄 Template ▾</button>
+          <div class="dropdown-menu">
+            <button onclick="applyTemplate('formal')">Formal Letter</button>
+            <button onclick="applyTemplate('memo')">Internal Memo</button>
+            <button onclick="applyTemplate('thank')">Thank You</button>
+            <button onclick="applyTemplate('reminder')">Reminder</button>
+            <button onclick="applyTemplate('meeting')">Meeting Request</button>
+            <button onclick="applyTemplate('price')">Price Approval</button>
+            <button onclick="applyTemplate('collection')">Payment Request</button>
+            <button onclick="applyTemplate('appointment')">Appointment</button>
+          </div>
+        </div>
+      </div>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">Pages</span>
+        <button onclick="addNewPage()">➕ Page</button>
+        <button onclick="deletePage()">🗑️ Delete</button>
+        <button onclick="clearAll()">🧹 Clear</button>
+      </div>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
-      <button onclick="shareDoc()">📤 Share</button>
-      <select id="font-select" onchange="changeFont(this.value)">
-        <option value="Inter">Inter</option>
-        <option value="system-ui">System UI</option>
-        <option value="Noto Naskh Arabic">Noto Naskh</option>
-      </select>
-      <button onclick="translateSelection()">🌐 Translate</button>
-      <button onclick="saveDoc()">💾 Save</button>
-      <button onclick="undoDoc()">↩️ Undo</button>
-      <button onclick="redoDoc()">↪️ Redo</button>
-      <button onclick="insertStamp()">🔴 Stamp</button>
-      <button onclick="insertSignature()">✍️ Signature</button>
-      <button onclick="document.getElementById('image-upload').click()">🖼️ Image</button>
-      <div class="dropdown-wrap" id="template-dropdown">
-        <button onclick="toggleDropdown('template-dropdown')">📄 Template ▾</button>
-        <div class="dropdown-menu">
-          <button onclick="applyTemplate('formal')">Formal Letter</button>
-          <button onclick="applyTemplate('memo')">Internal Memo</button>
-          <button onclick="applyTemplate('thank')">Thank You</button>
-          <button onclick="applyTemplate('reminder')">Reminder</button>
-          <button onclick="applyTemplate('meeting')">Meeting Request</button>
-          <button onclick="applyTemplate('price')">Price Approval</button>
-          <button onclick="applyTemplate('collection')">Payment Request</button>
-          <button onclick="applyTemplate('appointment')">Appointment</button>
-        </div>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">Font</span>
+        <select id="font-select" onchange="changeFont(this.value)">
+          <option value="Inter">Inter</option>
+          <option value="system-ui">System UI</option>
+          <option value="Noto Naskh Arabic">Noto Naskh</option>
+        </select>
       </div>
-      <div class="dropdown-wrap" id="color-dropdown">
-        <button onclick="toggleDropdown('color-dropdown')">🎨 Color ▾</button>
-        <div class="dropdown-menu">
-          <button onclick="setColor('#1a1a1a')"><span class="color-swatch" style="background:#1a1a1a"></span>Black</button>
-          <button onclick="setColor('#c0392b')"><span class="color-swatch" style="background:#c0392b"></span>Red</button>
-          <button onclick="setColor('#c59237')"><span class="color-swatch" style="background:#c59237"></span>Gold</button>
-          <button onclick="setColor('#020f23')"><span class="color-swatch" style="background:#020f23"></span>Navy</button>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">Align</span>
+        <button onclick="alignText('left')">⬅️ Left</button>
+        <button onclick="alignText('center')">↔️ Center</button>
+        <button onclick="alignText('right')">➡️ Right</button>
+        <button onclick="alignText('justify')">☰ Justify</button>
+      </div>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">List</span>
+        <button onclick="toggleList('ul')">• Bullet</button>
+        <button onclick="toggleList('ol')">1. Number</button>
+        <button onclick="indentText()">↪ Indent</button>
+        <button onclick="outdentText()">↩ Outdent</button>
+      </div>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">Format</span>
+        <button onclick="toggleBold()">Bold</button>
+        <button onclick="toggleItalic()">Italic</button>
+        <button onclick="toggleUnderline()">Underline</button>
+        <div class="dropdown-wrap" id="color-dropdown">
+          <button onclick="toggleDropdown('color-dropdown')">🎨 Color ▾</button>
+          <div class="dropdown-menu">
+            <button onclick="setColor('#1a1a1a')"><span class="color-swatch" style="background:#1a1a1a"></span>Black</button>
+            <button onclick="setColor('#c0392b')"><span class="color-swatch" style="background:#c0392b"></span>Red</button>
+            <button onclick="setColor('#c59237')"><span class="color-swatch" style="background:#c59237"></span>Gold</button>
+            <button onclick="setColor('#020f23')"><span class="color-swatch" style="background:#020f23"></span>Navy</button>
+          </div>
         </div>
+        <button onclick="findReplaceText()">🔍 Find & Replace</button>
       </div>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible toolbar-actions">
-      <button onclick="window.print()" class="btn-print primary">🖨️ Print</button>
-      <button onclick="exportPDF()" class="btn-pdf">📄 PDF</button>
-      <button onclick="toggleInbox()" class="btn-inbox">📥 Inbox</button>
-      <button onclick="sendToManager()" class="btn-send">📨 Send to Manager</button>
-      <div class="dropdown-wrap" id="lang-dropdown">
-        <button onclick="toggleDropdown('lang-dropdown')">🌐 Language ▾</button>
-        <div class="dropdown-menu">
-          <button onclick="switchLang('en')">English</button>
-          <button onclick="switchLang('ar')">العربية</button>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">File</span>
+        <button onclick="exportPDF()" class="btn-pdf">📄 PDF</button>
+        <button onclick="window.print()" class="btn-print primary">🖨️ Print</button>
+        <button onclick="toggleInbox()" class="btn-inbox">📥 Inbox</button>
+        <button onclick="sendToManager()" class="btn-send">📨 Send to Manager</button>
+      </div>
+      <div class="toolbar-group">
+        <span class="toolbar-group-label">View</span>
+        <button onclick="togglePreview()" id="btn-preview">👁 Preview</button>
+        <button onclick="toggleDarkMode()" id="btn-dark">🌙 Dark</button>
+        <button onclick="translateSelection()">🌐 Translate</button>
+        <button onclick="shareDoc()">📤 Share</button>
+        <div class="dropdown-wrap" id="lang-dropdown">
+          <button onclick="toggleDropdown('lang-dropdown')">🌐 Language ▾</button>
+          <div class="dropdown-menu">
+            <button onclick="switchLang('ar')">العربية</button>
+            <button onclick="switchLang('en')">English</button>
+          </div>
         </div>
       </div>
     </div>
@@ -753,6 +799,41 @@
       };
       window.toggleMobileToolbar = function() {
         document.querySelectorAll('.toolbar-mobile-collapsible').forEach(function(row){ row.classList.toggle('open'); });
+      };
+      window.alignText = function(align) {
+        if (!ensureDoc()) return;
+        var cmd = align === 'right' ? 'justifyRight' : align === 'center' ? 'justifyCenter' : align === 'left' ? 'justifyLeft' : 'justifyFull';
+        document.execCommand(cmd, false, null);
+      };
+      window.toggleList = function(type) {
+        if (!ensureDoc()) return;
+        document.execCommand(type === 'ol' ? 'insertOrderedList' : 'insertUnorderedList', false, null);
+      };
+      window.indentText = function() { if(!ensureDoc()) return; document.execCommand('indent', false, null); };
+      window.outdentText = function() { if(!ensureDoc()) return; document.execCommand('outdent', false, null); };
+      window.toggleBold = function() { if(!ensureDoc()) return; document.execCommand('bold', false, null); };
+      window.toggleItalic = function() { if(!ensureDoc()) return; document.execCommand('italic', false, null); };
+      window.toggleUnderline = function() { if(!ensureDoc()) return; document.execCommand('underline', false, null); };
+      window.findReplaceText = function() {
+        var find = prompt('Find:'); if (!find) return;
+        var replace = prompt('Replace with:'); if (replace === null) return;
+        var doc = getActiveDoc(); if (!doc) return;
+        var walker = document.createTreeWalker(doc, NodeFilter.SHOW_TEXT, null, false);
+        var nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+        var count = 0;
+        nodes.forEach(function(node){
+          var parts = node.textContent.split(find);
+          if (parts.length > 1) {
+            count += parts.length - 1;
+            var frag = document.createDocumentFragment();
+            parts.forEach(function(part, idx){
+              frag.appendChild(document.createTextNode(part));
+              if (idx < parts.length - 1) frag.appendChild(document.createTextNode(replace));
+            });
+            node.parentNode.replaceChild(frag, node);
+          }
+        });
+        showToast('✅ Replaced ' + count + ' occurrences');
       };
       window.setColor = function(color) {
         var sel = window.getSelection();
