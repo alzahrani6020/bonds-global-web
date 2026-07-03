@@ -623,3 +623,6 @@
   border-radius: var(--radius);
   padding: var(--space-6);
 }
+
+/* Hero calc dismissible card */
+.hero-calc.is-closed { display: none !important; }

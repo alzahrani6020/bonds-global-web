@@ -61,6 +61,7 @@
       </div>
       <div class="hero__right">
         <div class="hero-calc hero-calc--centered" id="heroCalc">
+          <button class="hero-calc__close" type="button" aria-label="إغلاق" onclick="closeHeroCalc()">×</button>
           <svg class="hero-calc__icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5">
             <path d="M12 2v20M2 12h20"/>
             <circle cx="12" cy="12" r="10"/>
@@ -72,6 +73,21 @@
       </div>
     </div>
   </section>
+
+  <script>
+    (function(){
+      var key = 'bonds_hero_calc_closed';
+      var heroCalc = document.getElementById('heroCalc');
+      if (heroCalc && localStorage.getItem(key) === '1') {
+        heroCalc.classList.add('is-closed');
+      }
+      window.closeHeroCalc = function(){
+        if (!heroCalc) return;
+        heroCalc.classList.add('is-closed');
+        localStorage.setItem(key, '1');
+      };
+    })();
+  </script>
 
   <!-- Intent -->
   <section class="intent-section" id="intent">
