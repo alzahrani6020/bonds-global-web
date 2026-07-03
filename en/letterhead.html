@@ -633,9 +633,18 @@
         insertAtCursor('<div><strong>Subject:</strong> </div><div><br></div>'); showToast('✅ Subject inserted');
       };
       window.generateRef = function() {
-        var year = new Date().getFullYear(), num = Math.floor(1000 + Math.random() * 9000);
+        var year = new Date().getFullYear();
+        var key = LS_PREFIX + 'ref_counter';
+        var counter = JSON.parse(localStorage.getItem(key) || '{}');
+        if (counter.year !== year) { counter = { year: year, last: 0 }; }
+        counter.last++;
+        localStorage.setItem(key, JSON.stringify(counter));
+        var num = ('000' + counter.last).slice(-4);
         var ref = 'BDS-' + year + '-' + num;
-        insertAtCursor('<div><strong>Reference:</strong> ' + ref + '</div><div><br></div>');
+        var archive = JSON.parse(localStorage.getItem(LS_PREFIX + 'refs') || '[]');
+        archive.unshift({ ref: ref, date: new Date().toLocaleDateString('en-US'), ts: Date.now() });
+        localStorage.setItem(LS_PREFIX + 'refs', JSON.stringify(archive.slice(0, 50)));
+        insertAtCursor('<div><strong>Reference No.:</strong> <span style="color:#c0392b;">' + ref + '</span></div><div><br></div>');
         showToast('✅ Reference: ' + ref);
       };
       window.loadArchive = function() {
@@ -646,7 +655,7 @@
         archive.forEach(function(item){
           var btn = document.createElement('button');
           btn.innerHTML = '<span style="color:#c0392b;font-weight:700;">' + item.ref + '</span> <span style="color:#888;font-size:11px;">— ' + item.date + '</span>';
-          btn.onclick = function(){ insertAtCursor('<div><strong>Reference:</strong> ' + item.ref + '</div><div><br></div>'); toggleDropdown('archive-dropdown'); showToast('📁 Loaded: ' + item.ref); };
+          btn.onclick = function(){ insertAtCursor('<div><strong>Reference No.:</strong> <span style="color:#c0392b;">' + item.ref + '</span></div><div><br></div>'); toggleDropdown('archive-dropdown'); showToast('📁 Loaded: ' + item.ref); };
           menu.appendChild(btn);
         });
       };
