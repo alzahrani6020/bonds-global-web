@@ -93,31 +93,33 @@
 
     .letterhead-header {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      gap: 16px;
-      padding: 14mm 16mm 8mm;
+      gap: 20px;
+      padding: 12mm 16mm 6mm;
       direction: ltr;
     }
-    .header-logo img { height: 78px; width: auto; display: block; }
+    .header-logo img { height: 105px; width: auto; display: block; }
     .header-contacts {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 9pt;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 8.5pt;
       color: var(--text);
+      line-height: 1.45;
     }
-    .contact-cols { display: flex; align-items: stretch; gap: 10px; }
-    .contact-col { display: flex; flex-direction: column; gap: 4px; }
-    .contact-divider { width: 1px; background: var(--gold); margin: 0 4px; }
-    .contact-row { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
-    .contact-row .icon { color: var(--gold); font-size: 10px; }
-    .contact-website { text-align: center; margin-top: 4px; font-size: 9pt; color: var(--text); }
+    .contact-cols { display: flex; align-items: stretch; gap: 14px; }
+    .contact-col { display: flex; flex-direction: column; gap: 6px; }
+    .contact-divider { width: 1px; background: var(--gold); opacity: 0.7; margin: 0 2px; }
+    .contact-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .contact-row .icon { width: 12px; height: 12px; color: var(--gold); flex-shrink: 0; }
+    .contact-website { display: flex; align-items: center; gap: 6px; font-size: 8.5pt; }
 
     .header-line {
       height: 3px;
       margin: 0 16mm;
-      background: linear-gradient(90deg, var(--gold) 48%, #ffffff 48%, #ffffff 52%, var(--navy) 52%);
+      background: linear-gradient(90deg, var(--navy) 48%, #ffffff 48%, #ffffff 52%, var(--gold) 52%);
       position: relative;
     }
     .header-line::after {
@@ -173,13 +175,13 @@
     .letterhead-footer {
       background: var(--navy);
       color: #fff;
-      padding: 5mm 12mm;
+      padding: 5mm 10mm 5mm 14mm;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8mm;
       direction: ltr;
-      min-height: 32mm;
+      min-height: 34mm;
       position: relative;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
@@ -200,36 +202,45 @@
 
     .footer-legal {
       display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 8px;
-      font-size: 7.5pt;
-      color: rgba(255,255,255,0.85);
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      font-size: 8pt;
+      color: rgba(255,255,255,0.9);
       line-height: 1.5;
       text-align: left;
     }
-    .footer-legal strong { color: var(--gold-light); }
-    .footer-qr img { width: 16mm; height: 16mm; display: block; background: #fff; border-radius: 3px; margin-top: 3px; }
+    .footer-legal strong { color: var(--gold-light); font-weight: 700; }
+
+    .footer-qr-corner {
+      align-self: center;
+      flex-shrink: 0;
+    }
+    .footer-qr-corner img {
+      width: 22mm; height: 22mm; display: block; background: #fff;
+      padding: 3px; border-radius: 4px;
+    }
+
     .footer-icons {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 14px;
       flex: 1;
       justify-content: flex-end;
     }
     .f-icon {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       color: #fff;
-      font-size: 8pt;
+      font-size: 8.5pt;
       border-right: 1px solid rgba(255,255,255,0.2);
-      padding-right: 10px;
+      padding-right: 14px;
       direction: ltr;
     }
     .f-icon:last-child { border-right: none; padding-right: 0; }
-    .f-icon svg { width: 30px; height: 30px; flex-shrink: 0; stroke: var(--gold); fill: none; stroke-width: 1.8; border: 1.5px solid var(--gold); border-radius: 50%; padding: 5px; }
-    .f-icon .en { font-size: 7pt; color: var(--gold-light); text-transform: uppercase; letter-spacing: 0.5px; }
+    .f-icon svg { width: 36px; height: 36px; flex-shrink: 0; stroke: var(--gold); fill: none; stroke-width: 1.6; border: 1.5px solid var(--gold); border-radius: 50%; padding: 6px; }
+    .f-icon .en { font-size: 7.5pt; color: var(--gold-light); text-transform: uppercase; letter-spacing: 0.5px; }
 
     .toast {
       position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
@@ -246,10 +257,11 @@
       .toolbar, .toast { display: none !important; }
       .sheet { margin: 0; box-shadow: none; width: 210mm; min-height: 297mm; page-break-after: always; break-after: page; }
       .sheet:last-child { page-break-after: auto; break-after: auto; }
-      .letterhead-header { padding: 14mm 16mm 8mm; }
+      .letterhead-header { padding: 12mm 16mm 6mm; }
+      .header-logo img { height: 105px; }
       .letter-body { padding: 10mm 16mm 0; }
       .doc-content { min-height: auto; }
-      .letterhead-footer { padding: 5mm 12mm; }
+      .letterhead-footer { padding: 5mm 10mm 5mm 14mm; }
       [contenteditable]:empty::before, .doc-content:empty::before { content: none !important; }
     }
 
@@ -257,12 +269,14 @@
       .toolbar { border-radius: 0; margin: 0; top: 0; }
       .sheet { width: 100%; min-height: auto; }
       .letterhead-header { flex-direction: column; align-items: center; text-align: center; padding: 10mm 8mm 6mm; }
-      .header-contacts { flex-direction: column; align-items: center; }
-      .contact-cols { flex-direction: column; }
+      .header-contacts { align-items: center; }
+      .contact-cols { flex-direction: column; gap: 8px; }
       .contact-divider { display: none; }
-      .letterhead-footer { flex-direction: column; height: auto; gap: 6mm; }
+      .contact-row { justify-content: center; }
+      .letterhead-footer { flex-direction: column; height: auto; gap: 6mm; padding: 6mm; }
+      .footer-legal { align-items: center; text-align: center; }
       .footer-icons { flex-wrap: wrap; justify-content: center; }
-      .f-icon { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding: 6px 0; }
+      .f-icon { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding: 8px 0; }
       .watermark-b img { height: 80mm; }
     }
   </style>
@@ -301,18 +315,39 @@
         <div class="header-contacts">
           <div class="contact-cols">
             <div class="contact-col">
-              <div class="contact-row"><span class="icon">📍</span> Saudi Arabia - Jeddah</div>
-              <div class="contact-row"><span class="icon">📞</span> +966 567 566 616</div>
-              <div class="contact-row"><span class="icon">✉️</span> info@bonds.sa</div>
+              <div class="contact-row">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Saudi Arabia - Jeddah
+              </div>
+              <div class="contact-row">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                +966 567 566 616
+              </div>
+              <div class="contact-row">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                info@bonds.sa
+              </div>
             </div>
             <div class="contact-divider"></div>
             <div class="contact-col">
-              <div class="contact-row"><span class="icon">📍</span> Egypt - Giza</div>
-              <div class="contact-row"><span class="icon">📞</span> +201 006 063 557</div>
-              <div class="contact-row"><span class="icon">✉️</span> info@bonds.sa</div>
+              <div class="contact-row">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Egypt - Giza
+              </div>
+              <div class="contact-row">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                +20 100 606 3557
+              </div>
+              <div class="contact-row">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                info@bonds.sa
+              </div>
             </div>
           </div>
-          <div class="contact-website"><span class="icon">🌐</span> www.bonds.sa</div>
+          <div class="contact-website">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            www.bonds.sa
+          </div>
         </div>
       </header>
 
@@ -325,13 +360,9 @@
 
       <footer class="letterhead-footer">
         <div class="footer-legal">
-          <div>
-            <div><strong>Saudi CR:</strong> 4030207506</div>
-            <div><strong>Tax No:</strong> 310224728600003</div>
-            <div><strong>Egyptian CR:</strong> 39733</div>
-            <div><strong>Activity License:</strong> 357359</div>
-          </div>
-          <div class="footer-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://bonds.sa" alt="QR" /></div>
+          <div><strong>CR:</strong> 39733</div>
+          <div><strong>Tax No:</strong> 310224728600003</div>
+          <div><strong>Activity License:</strong> 357359</div>
         </div>
         <div class="footer-icons">
           <div class="f-icon">
@@ -350,6 +381,9 @@
             <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
             <div><div>Achieve Growth</div><div class="en">Grow</div></div>
           </div>
+        </div>
+        <div class="footer-qr-corner">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://bonds.sa" alt="QR" />
         </div>
       </footer>
     </div>
@@ -438,7 +472,7 @@
           '<text fill="#c0392b" font-size="13" font-weight="700"><textPath href="#sa'+id+'" startOffset="50%" text-anchor="middle">Bonds Financial & Management</textPath></text>' +
           '<path id="sb'+id+'" d="M 40,105 A 60,60 0 0,0 160,105" fill="none"/>' +
           '<text fill="#c0392b" font-size="11" font-weight="700"><textPath href="#sb'+id+'" startOffset="50%" text-anchor="middle">Digitally Certified</textPath></text>' +
-          '<text x="100" y="92" text-anchor="middle" fill="#c0392b" font-size="10" font-weight="700">CR 4030207506</text>' +
+          '<text x="100" y="92" text-anchor="middle" fill="#c0392b" font-size="10" font-weight="700">Activity License 357359</text>' +
           '<text x="100" y="118" text-anchor="middle" fill="#c0392b" font-size="9" font-weight="700">'+dateStr+'</text>' +
           '</svg>';
         insertAtCursor('<div class="letter-stamp" id="'+id+'" contenteditable="false">' + svg + '</div><span>&nbsp;</span>');
