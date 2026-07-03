@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const { withRateLimit } = require('../lib/api/rate-limit');
 
 function setCors(res) {
@@ -14,7 +14,7 @@ async function handler(req, res) {
 
   const { to, subject, body, html, text } = req.body || {};
 
-  const required = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'SENDER_EMAIL', 'MANAGER_EMAIL'];
+  const required = ['RESEND_API_KEY', 'SENDER_EMAIL', 'MANAGER_EMAIL'];
   const missing = required.filter(k => !process.env[k]);
   if (missing.length) {
     return res.status(500).json({ ok: false, error: 'Email service is not configured.' });
@@ -25,24 +25,17 @@ async function handler(req, res) {
     return res.status(400).json({ ok: false, error: 'A valid recipient email is required.' });
   }
 
-  const port = Number(process.env.SMTP_PORT);
-  const secure = process.env.SMTP_SECURE ? process.env.SMTP_SECURE === 'true' : port === 465;
-
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port,
-    secure,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
-    await transporter.sendMail({
+    const { error } = await resend.emails.send({
       from: process.env.SENDER_EMAIL,
       to: recipient,
       subject: subject || 'New letterhead submission',
       text: text || body || '',
       html: Array.isArray(html) ? html.join('<hr>') : (html || ''),
     });
+    if (error) throw error;
     return res.status(200).json({ ok: true });
   } catch (err) {
     return res.status(500).json({ ok: false, error: 'Failed to send email.' });
