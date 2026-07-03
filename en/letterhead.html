@@ -219,6 +219,12 @@
     .page-number { color: rgba(255,255,255,0.7); font-size: 7.5pt; white-space: nowrap; }
     .toolbar-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
     .toolbar-mobile-toggle { display: none; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 18px; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
+    .draft-section-title { font-weight: 700; color: var(--navy); margin: 12px 0 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; font-size: 12px; }
+    .draft-input { width: 100%; padding: 6px 8px; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 6px; font-family: inherit; font-size: 12px; }
+    .draft-btn { width: 100%; background: var(--navy); color: #fff; border: none; padding: 7px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px; }
+    .draft-btn:hover { background: var(--gold); color: #12243a; }
+    .draft-delete { color: #c0392b; cursor: pointer; font-size: 11px; margin-right: 6px; }
+    .draft-load { cursor: pointer; color: #0a1a33; }
 
     .letterhead-footer {
       background: var(--navy);
@@ -353,8 +359,11 @@
       .watermark-b img { height: 80mm; }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+  <input type="file" id="image-upload" accept="image/*" style="display:none" onchange="handleImageUpload(this)" />
 
   <div class="toolbar" id="letterhead-toolbar">
     <div class="toolbar-header">
@@ -373,6 +382,8 @@
       </div>
       <button onclick="insertTable()">▦ Table</button>
       <button onclick="addNewPage()">➕ Page</button>
+      <button onclick="deletePage()">🗑️ Delete</button>
+      <button onclick="clearAll()">🧹 Clear</button>
       <button onclick="insertRuler()">📏 Ruler</button>
       <button onclick="toggleDarkMode()" id="btn-dark">🌙 Dark</button>
     </div>
@@ -389,6 +400,7 @@
       <button onclick="redoDoc()">↪️ Redo</button>
       <button onclick="insertStamp()">🔴 Stamp</button>
       <button onclick="insertSignature()">✍️ Signature</button>
+      <button onclick="document.getElementById('image-upload').click()">🖼️ Image</button>
       <div class="dropdown-wrap" id="template-dropdown">
         <button onclick="toggleDropdown('template-dropdown')">📄 Template ▾</button>
         <div class="dropdown-menu">
@@ -410,7 +422,7 @@
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible toolbar-actions">
       <button onclick="window.print()" class="btn-print primary">🖨️ Print</button>
-      <button onclick="window.print()" class="btn-pdf">📄 PDF</button>
+      <button onclick="exportPDF()" class="btn-pdf">📄 PDF</button>
       <button onclick="toggleInbox()" class="btn-inbox">📥 Inbox</button>
       <button onclick="sendToManager()" class="btn-send">📨 Send to Manager</button>
       <div class="dropdown-wrap" id="lang-dropdown">
@@ -517,7 +529,13 @@
       <button onclick="toggleInbox()">✕</button>
     </div>
     <div class="inbox-body" id="inbox-body">
-      <div class="inbox-empty">No saved correspondence</div>
+      <div class="draft-section-title">Save new draft</div>
+      <input type="text" id="draft-name" class="draft-input" placeholder="Draft name" />
+      <button class="draft-btn" onclick="saveDraft()">💾 Save draft</button>
+      <div class="draft-section-title">Saved drafts</div>
+      <div id="drafts-list"><div class="inbox-empty">No drafts</div></div>
+      <div class="draft-section-title">Sent correspondence</div>
+      <div id="sent-list"><div class="inbox-empty">No sent correspondence</div></div>
     </div>
   </div>
 
@@ -710,21 +728,118 @@
         showToast('📨 Sent to manager and saved');
         refreshInbox();
       };
+      window.saveDraft = function() {
+        var nameInput = document.getElementById('draft-name');
+        var name = nameInput.value.trim();
+        if (!name) { showToast('⚠️ Enter draft name'); return; }
+        var html = getHtml(); if (!html) { showToast('⚠️ No text to save'); return; }
+        var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
+        drafts.unshift({ name: name, html: html, date: new Date().toLocaleString('en-US') });
+        localStorage.setItem(LS_PREFIX + 'drafts', JSON.stringify(drafts.slice(0, 30)));
+        nameInput.value = '';
+        showToast('💾 Draft saved: ' + name);
+        refreshInbox();
+      };
+      window.loadDraft = function(index) {
+        var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
+        if (!drafts[index]) return;
+        if (!confirm('Replace current content with this draft?')) return;
+        var doc = getActiveDoc();
+        if (doc) doc.innerHTML = drafts[index].html;
+        saveDoc();
+        updatePageNumbers();
+        updateDocTitle();
+        showToast('✅ Draft loaded');
+      };
+      window.deleteDraft = function(index) {
+        var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
+        drafts.splice(index, 1);
+        localStorage.setItem(LS_PREFIX + 'drafts', JSON.stringify(drafts));
+        refreshInbox();
+      };
+      window.deletePage = function() {
+        var sheets = document.querySelectorAll('.sheet');
+        if (sheets.length > 1) {
+          var last = document.querySelector('.sheet:last-child');
+          if (last) { last.remove(); pageCounter--; updatePageNumbers(); showToast('🗑️ Page deleted'); }
+        } else {
+          if (confirm('This is the only page. Clear its content?')) {
+            var doc = getActiveDoc(); if (doc) doc.innerHTML = '';
+            saveDoc(); showToast('🧹 Content cleared');
+          }
+        }
+      };
+      window.clearAll = function() {
+        if (!confirm('All pages and content will be cleared. Continue?')) return;
+        localStorage.removeItem(LS_PREFIX + 'doc_html');
+        location.reload();
+      };
+      window.handleImageUpload = function(input) {
+        if (!input.files || !input.files[0]) return;
+        var file = input.files[0];
+        if (file.size > 2 * 1024 * 1024) { showToast('⚠️ Max size 2 MB'); input.value=''; return; }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          if (!ensureDoc()) return;
+          insertAtCursor('<img src="' + e.target.result + '" style="max-width:100%;height:auto;display:block;margin:10px 0;" />');
+          showToast('✅ Image inserted');
+        };
+        reader.readAsDataURL(file);
+        input.value = '';
+      };
+      window.exportPDF = function() {
+        if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') { showToast('⚠️ PDF libraries not loaded'); return; }
+        showToast('⏳ Generating PDF...');
+        var sheets = document.querySelectorAll('.sheet');
+        var pdf = new window.jspdf.jsPDF('p','mm','a4');
+        var count = 0;
+        sheets.forEach(function(sheet, idx){
+          html2canvas(sheet, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' }).then(function(canvas){
+            var img = canvas.toDataURL('image/png');
+            if (idx > 0) pdf.addPage();
+            pdf.addImage(img, 'PNG', 0, 0, 210, 297);
+            count++;
+            if (count === sheets.length) {
+              pdf.save('bonds-letterhead.pdf');
+              showToast('✅ PDF downloaded');
+            }
+          }).catch(function(){ showToast('⚠️ PDF generation failed'); });
+        });
+      };
+      window.updateDocTitle = function() {
+        var text = getText();
+        var match = text.match(/Subject[:\s]+(.+)/);
+        var title = match ? match[1].trim().slice(0, 50) : (text ? text.trim().split(/\s+/).slice(0,6).join(' ') : 'Bonds Letterhead');
+        document.title = title + ' | Bonds Letterhead';
+      };
       window.toggleInbox = function() {
         var panel = document.getElementById('inbox-panel');
         panel.classList.toggle('open');
         if (panel.classList.contains('open')) refreshInbox();
       };
       function refreshInbox() {
-        var body = document.getElementById('inbox-body');
+        var draftsList = document.getElementById('drafts-list');
+        var sentList = document.getElementById('sent-list');
+        var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
         var sent = JSON.parse(localStorage.getItem(LS_PREFIX + 'sent') || '[]');
-        if (!sent.length) { body.innerHTML = '<div class="inbox-empty">No saved correspondence</div>'; return; }
-        body.innerHTML = '';
-        sent.forEach(function(item, idx){
-          var div = document.createElement('div'); div.className = 'inbox-item';
-          div.innerHTML = '<strong>#'+(idx+1)+'</strong><br/><span style="color:#64748b;">'+item.date+'</span><br/>'+ (item.preview || '');
-          body.appendChild(div);
-        });
+        if (!drafts.length) draftsList.innerHTML = '<div class="inbox-empty">No drafts</div>';
+        else {
+          draftsList.innerHTML = '';
+          drafts.forEach(function(item, idx){
+            var div = document.createElement('div'); div.className = 'inbox-item';
+            div.innerHTML = '<span class="draft-delete" onclick="deleteDraft('+idx+')">Delete</span><span class="draft-load" onclick="loadDraft('+idx+')">' + (item.name || 'Draft ' + (idx+1)) + '</span><br/><span style="color:#64748b;font-size:11px;">'+item.date+'</span>';
+            draftsList.appendChild(div);
+          });
+        }
+        if (!sent.length) sentList.innerHTML = '<div class="inbox-empty">No sent correspondence</div>';
+        else {
+          sentList.innerHTML = '';
+          sent.forEach(function(item, idx){
+            var div = document.createElement('div'); div.className = 'inbox-item';
+            div.innerHTML = '<strong>#'+(idx+1)+'</strong><br/><span style="color:#64748b;font-size:11px;">'+item.date+'</span><br/>'+ (item.preview || '');
+            sentList.appendChild(div);
+          });
+        }
       }
       window.switchLang = function(lang) {
         if (lang === 'ar') window.location.href = '../letterhead.html';
@@ -747,8 +862,8 @@
         if (saved && doc) doc.innerHTML = saved;
         var savedFont = localStorage.getItem(LS_PREFIX+'font');
         if (savedFont) { var fs=document.getElementById('font-select'); if(fs) fs.value=savedFont; changeFont(savedFont); }
-        updatePageNumbers();
-        if(doc) { doc.addEventListener('input', pushUndo); setInterval(autoSave, 30000); }
+        updatePageNumbers(); updateDocTitle();
+        if(doc) { doc.addEventListener('input', function(){ pushUndo(); updateDocTitle(); }); setInterval(autoSave, 30000); }
       });
     })();
   </script>

@@ -242,6 +242,12 @@
     .page-number { color: rgba(255,255,255,0.7); font-size: 7.5pt; white-space: nowrap; }
     .toolbar-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
     .toolbar-mobile-toggle { display: none; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 18px; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
+    .draft-section-title { font-weight: 700; color: var(--navy); margin: 12px 0 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; font-size: 12px; }
+    .draft-input { width: 100%; padding: 6px 8px; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 6px; font-family: inherit; font-size: 12px; }
+    .draft-btn { width: 100%; background: var(--navy); color: #fff; border: none; padding: 7px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px; }
+    .draft-btn:hover { background: var(--gold); color: #12243a; }
+    .draft-delete { color: #c0392b; cursor: pointer; font-size: 11px; margin-left: 6px; }
+    .draft-load { cursor: pointer; color: #0a1a33; }
 
     .letterhead-footer {
       background: var(--navy);
@@ -376,8 +382,11 @@
       .watermark-b img { height: 80mm; }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+  <input type="file" id="image-upload" accept="image/*" style="display:none" onchange="handleImageUpload(this)" />
 
   <div class="toolbar" id="letterhead-toolbar">
     <div class="toolbar-header">
@@ -396,6 +405,8 @@
       </div>
       <button onclick="insertTable()">▦ جدول</button>
       <button onclick="addNewPage()">➕ صفحة</button>
+      <button onclick="deletePage()">🗑️ حذف</button>
+      <button onclick="clearAll()">🧹 مسح</button>
       <button onclick="insertRuler()">📏 خطوط</button>
       <button onclick="toggleDarkMode()" id="btn-dark">🌙 داكن</button>
     </div>
@@ -415,6 +426,7 @@
       <button onclick="redoDoc()">↪️ إعادة</button>
       <button onclick="insertStamp()">🔴 ختم</button>
       <button onclick="insertSignature()">✍️ توقيع</button>
+      <button onclick="document.getElementById('image-upload').click()">🖼️ صورة</button>
       <div class="dropdown-wrap" id="template-dropdown">
         <button onclick="toggleDropdown('template-dropdown')">📄 قالب ▾</button>
         <div class="dropdown-menu">
@@ -436,7 +448,7 @@
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible toolbar-actions">
       <button onclick="window.print()" class="btn-print primary">🖨️ طباعة</button>
-      <button onclick="window.print()" class="btn-pdf">📄 PDF</button>
+      <button onclick="exportPDF()" class="btn-pdf">📄 PDF</button>
       <button onclick="toggleInbox()" class="btn-inbox">📥 وارد المراسلات</button>
       <button onclick="sendToManager()" class="btn-send">📨 إرسال للمدير</button>
       <div class="dropdown-wrap" id="lang-dropdown">
@@ -544,7 +556,13 @@
       <button onclick="toggleInbox()">✕</button>
     </div>
     <div class="inbox-body" id="inbox-body">
-      <div class="inbox-empty">لا توجد مراسلات محفوظة</div>
+      <div class="draft-section-title">حفظ مسودة جديدة</div>
+      <input type="text" id="draft-name" class="draft-input" placeholder="اسم المسودة" />
+      <button class="draft-btn" onclick="saveDraft()">💾 حفظ مسودة</button>
+      <div class="draft-section-title">المسودات المحفوظة</div>
+      <div id="drafts-list"><div class="inbox-empty">لا توجد مسودات</div></div>
+      <div class="draft-section-title">المراسلات المرسلة</div>
+      <div id="sent-list"><div class="inbox-empty">لا توجد مراسلات مرسلة</div></div>
     </div>
   </div>
 
@@ -741,21 +759,126 @@
         showToast('📨 تم إرسال المراسلة للمدير وحفظها');
         refreshInbox();
       };
+      window.saveDraft = function() {
+        var nameInput = document.getElementById('draft-name');
+        var name = nameInput.value.trim();
+        if (!name) { showToast('⚠️ أدخل اسم المسودة'); return; }
+        var html = getHtml(); if (!html) { showToast('⚠️ لا يوجد نص لحفظه'); return; }
+        var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
+        drafts.unshift({ name: name, html: html, date: new Date().toLocaleString('ar-SA') });
+        localStorage.setItem(LS_PREFIX + 'drafts', JSON.stringify(drafts.slice(0, 30)));
+        nameInput.value = '';
+        showToast('💾 تم حفظ المسودة: ' + name);
+        refreshInbox();
+      };
+      window.loadDraft = function(index) {
+        var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
+        if (!drafts[index]) return;
+        if (!confirm('استبدال المحتوى الحالي بالمسودة؟')) return;
+        var doc = getActiveDoc();
+        if (doc) doc.innerHTML = drafts[index].html;
+        saveDoc();
+        updatePageNumbers();
+        updateDocTitle();
+        showToast('✅ تم تحميل المسودة');
+      };
+      window.deleteDraft = function(index) {
+        var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
+        drafts.splice(index, 1);
+        localStorage.setItem(LS_PREFIX + 'drafts', JSON.stringify(drafts));
+        refreshInbox();
+      };
+      window.deletePage = function() {
+        var sheets = document.querySelectorAll('.sheet');
+        if (sheets.length > 1) {
+          var last = document.querySelector('.sheet:last-child');
+          if (last) { last.remove(); pageCounter--; updatePageNumbers(); showToast('🗑️ تم حذف الصفحة'); }
+        } else {
+          if (confirm('هي الصفحة الوحيدة. هل تريد مسح محتواها؟')) {
+            var doc = getActiveDoc(); if (doc) doc.innerHTML = '';
+            saveDoc(); showToast('🧹 تم مسح المحتوى');
+          }
+        }
+      };
+      window.clearAll = function() {
+        if (!confirm('سيتم مسح كل الصفحات والمحتوى. متابعة؟')) return;
+        var container = document.getElementById('pages-container');
+        container.innerHTML = '';
+        pageCounter = 1;
+        var sheet = document.createElement('div'); sheet.className = 'sheet'; sheet.setAttribute('data-page','1');
+        // Build initial sheet structure
+        sheet.innerHTML = '<header class="letterhead-header"><div class="header-logo"><img src="assets/bonds-logo-icon-only.png?v=2026b" alt="بوندز" class="logo-icon" /><div class="logo-text"><div class="logo-en">BONDS</div><div class="logo-ar">بوندز للاستشارات المالية والإدارية</div><div class="logo-tag">INVEST · ANALYZE · DECIDE · GROW</div></div></div><div class="header-contacts"><div class="contact-cols"><div class="contact-col"><div class="contact-row"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> السعودية - جدة</div><div class="contact-row"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> <span class="num">+966 567 566 616</span></div><div class="contact-row"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> info@bonds.sa</div></div><div class="contact-divider"></div><div class="contact-col"><div class="contact-row"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> مصر - الجيزة</div><div class="contact-row"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> <span class="num">+20 100 606 3557</span></div><div class="contact-row"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> info@bonds.sa</div></div></div></div></header><div class="header-line"></div><div class="letter-body"><div class="watermark-b"><img src="assets/bonds-logo-icon-only.png?v=2026b" alt="" /></div><div class="doc-content" id="doc-1" dir="rtl"></div></div><footer class="letterhead-footer"><div class="footer-legal"><div class="legal-item"><span class="label">الموقع</span><span class="value">www.bonds.sa</span></div><div class="legal-item"><span class="label">السجل التجاري</span><span class="value">39733</span></div><div class="legal-item"><span class="label">الرقم الضريبي</span><span class="value">310224728600003</span></div><div class="legal-item"><span class="label">رخصة النشاط</span><span class="value">357359</span></div></div><div class="footer-icons"><div class="f-icon"><svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"></polyline><polyline points="14 7 21 7 21 14"></polyline></svg><div><div>نستثمر ذكاء</div><div class="en">Invest</div></div></div><div class="f-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><div><div>نحلل بعمق</div><div class="en">Analyze</div></div></div><div class="f-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg><div><div>نقرر بثقة</div><div class="en">Decide</div></div></div><div class="f-icon"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg><div><div>نحقق النمو</div><div class="en">Grow</div></div></div></div><div class="page-number"></div><div class="footer-qr-corner"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://bonds.sa" alt="QR" /></div></footer>';
+        container.appendChild(sheet);
+        if (writingMode) { var d=sheet.querySelector('.doc-content'); if(d) d.contentEditable='true'; }
+        saveDoc(); updatePageNumbers(); updateDocTitle();
+        showToast('🧹 تم مسح الكل');
+      };
+      window.handleImageUpload = function(input) {
+        if (!input.files || !input.files[0]) return;
+        var file = input.files[0];
+        if (file.size > 2 * 1024 * 1024) { showToast('⚠️ الحد الأقصى 2 ميجابايت'); input.value=''; return; }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          if (!ensureDoc()) return;
+          insertAtCursor('<img src="' + e.target.result + '" style="max-width:100%;height:auto;display:block;margin:10px 0;" />');
+          showToast('✅ تم إدراج الصورة');
+        };
+        reader.readAsDataURL(file);
+        input.value = '';
+      };
+      window.exportPDF = function() {
+        if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') { showToast('⚠️ مكتبات PDF غير محملة'); return; }
+        showToast('⏳ جاري إنشاء PDF...');
+        var sheets = document.querySelectorAll('.sheet');
+        var pdf = new window.jspdf.jsPDF('p','mm','a4');
+        var count = 0;
+        sheets.forEach(function(sheet, idx){
+          html2canvas(sheet, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' }).then(function(canvas){
+            var img = canvas.toDataURL('image/png');
+            if (idx > 0) pdf.addPage();
+            pdf.addImage(img, 'PNG', 0, 0, 210, 297);
+            count++;
+            if (count === sheets.length) {
+              pdf.save('bonds-letterhead.pdf');
+              showToast('✅ تم تحميل PDF');
+            }
+          }).catch(function(){ showToast('⚠️ فشل إنشاء PDF'); });
+        });
+      };
+      window.updateDocTitle = function() {
+        var text = getText();
+        var match = text.match(/الموضوع[:\s]+(.+)/);
+        var title = match ? match[1].trim().slice(0, 50) : (text ? text.trim().split(/\s+/).slice(0,6).join(' ') : 'ورق مراسلات بوندز');
+        document.title = title + ' | Bonds Letterhead';
+      };
       window.toggleInbox = function() {
         var panel = document.getElementById('inbox-panel');
         panel.classList.toggle('open');
         if (panel.classList.contains('open')) refreshInbox();
       };
       function refreshInbox() {
-        var body = document.getElementById('inbox-body');
+        var draftsList = document.getElementById('drafts-list');
+        var sentList = document.getElementById('sent-list');
+        var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
         var sent = JSON.parse(localStorage.getItem(LS_PREFIX + 'sent') || '[]');
-        if (!sent.length) { body.innerHTML = '<div class="inbox-empty">لا توجد مراسلات محفوظة</div>'; return; }
-        body.innerHTML = '';
-        sent.forEach(function(item, idx){
-          var div = document.createElement('div'); div.className = 'inbox-item';
-          div.innerHTML = '<strong>#'+(idx+1)+'</strong><br/><span style="color:#64748b;">'+item.date+'</span><br/>'+ (item.preview || '');
-          body.appendChild(div);
-        });
+        if (!drafts.length) draftsList.innerHTML = '<div class="inbox-empty">لا توجد مسودات</div>';
+        else {
+          draftsList.innerHTML = '';
+          drafts.forEach(function(item, idx){
+            var div = document.createElement('div'); div.className = 'inbox-item';
+            div.innerHTML = '<span class="draft-delete" onclick="deleteDraft('+idx+')">حذف</span><span class="draft-load" onclick="loadDraft('+idx+')">' + (item.name || 'مسودة ' + (idx+1)) + '</span><br/><span style="color:#64748b;font-size:11px;">'+item.date+'</span>';
+            draftsList.appendChild(div);
+          });
+        }
+        if (!sent.length) sentList.innerHTML = '<div class="inbox-empty">لا توجد مراسلات مرسلة</div>';
+        else {
+          sentList.innerHTML = '';
+          sent.forEach(function(item, idx){
+            var div = document.createElement('div'); div.className = 'inbox-item';
+            div.innerHTML = '<strong>#'+(idx+1)+'</strong><br/><span style="color:#64748b;font-size:11px;">'+item.date+'</span><br/>'+ (item.preview || '');
+            sentList.appendChild(div);
+          });
+        }
       }
       window.switchLang = function(lang) {
         if (lang === 'en') window.location.href = 'en/letterhead.html';
@@ -778,8 +901,8 @@
         if (saved && doc) doc.innerHTML = saved;
         var savedFont = localStorage.getItem(LS_PREFIX+'font');
         if (savedFont) { var fs=document.getElementById('font-select'); if(fs) fs.value=savedFont; changeFont(savedFont); }
-        updatePageNumbers();
-        if(doc) { doc.addEventListener('input', pushUndo); setInterval(autoSave, 30000); }
+        updatePageNumbers(); updateDocTitle();
+        if(doc) { doc.addEventListener('input', function(){ pushUndo(); updateDocTitle(); }); setInterval(autoSave, 30000); }
       });
     })();
   </script>
