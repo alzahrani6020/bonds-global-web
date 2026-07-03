@@ -235,6 +235,14 @@
     }
     .letter-stamp svg { width: 100%; height: 100%; display: block; }
 
+    .signature-block { display: inline-block; width: 220px; margin-top: 20px; text-align: center; direction: rtl; }
+    .signature-block .sig-line { border-top: 1.5px solid var(--text); margin-bottom: 6px; }
+    .signature-block .sig-name { font-weight: 700; color: var(--text); }
+    .signature-block .sig-title { font-size: 10pt; color: var(--muted); }
+    .page-number { color: rgba(255,255,255,0.7); font-size: 7.5pt; white-space: nowrap; }
+    .toolbar-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+    .toolbar-mobile-toggle { display: none; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 18px; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
+
     .letterhead-footer {
       background: var(--navy);
       color: #fff;
@@ -349,7 +357,10 @@
     }
 
     @media (max-width: 480px) {
-      .toolbar { border-radius: 0; margin: 0; top: 0; padding: 8px; }
+      .toolbar { border-radius: 0; margin: 0; top: 0; padding: 10px; }
+      .toolbar-mobile-collapsible { display: none; }
+      .toolbar-mobile-collapsible.open { display: flex; }
+      .toolbar-mobile-toggle { display: inline-flex; }
       .toolbar-row { gap: 5px; }
       .toolbar button, .toolbar select { font-size: 11px; padding: 4px 7px; }
       .sheet { width: 100%; min-height: auto; }
@@ -369,8 +380,11 @@
 <body>
 
   <div class="toolbar" id="letterhead-toolbar">
-    <div class="toolbar-row">
+    <div class="toolbar-header">
       <span class="toolbar-title">🖨️ أدوات المستند</span>
+      <button class="toolbar-mobile-toggle" onclick="toggleMobileToolbar()">☰</button>
+    </div>
+    <div class="toolbar-row toolbar-mobile-collapsible">
       <button onclick="toggleWrite()" id="btn-write">✏️ كتابة</button>
       <button onclick="copyText()">📋 نسخ</button>
       <button onclick="insertDateTime()">📅 تاريخ</button>
@@ -385,7 +399,7 @@
       <button onclick="insertRuler()">📏 خطوط</button>
       <button onclick="toggleDarkMode()" id="btn-dark">🌙 داكن</button>
     </div>
-    <div class="toolbar-row">
+    <div class="toolbar-row toolbar-mobile-collapsible">
       <button onclick="shareDoc()">📤 مشاركة</button>
       <select id="font-select" onchange="changeFont(this.value)">
         <option value="Noto Naskh Arabic">Noto Naskh</option>
@@ -400,6 +414,7 @@
       <button onclick="undoDoc()">↩️ تراجع</button>
       <button onclick="redoDoc()">↪️ إعادة</button>
       <button onclick="insertStamp()">🔴 ختم</button>
+      <button onclick="insertSignature()">✍️ توقيع</button>
       <div class="dropdown-wrap" id="template-dropdown">
         <button onclick="toggleDropdown('template-dropdown')">📄 قالب ▾</button>
         <div class="dropdown-menu">
@@ -419,7 +434,7 @@
         </div>
       </div>
     </div>
-    <div class="toolbar-row">
+    <div class="toolbar-row toolbar-mobile-collapsible toolbar-actions">
       <button onclick="window.print()" class="btn-print primary">🖨️ طباعة</button>
       <button onclick="window.print()" class="btn-pdf">📄 PDF</button>
       <button onclick="toggleInbox()" class="btn-inbox">📥 وارد المراسلات</button>
@@ -512,6 +527,7 @@
             <div><div>نحقق النمو</div><div class="en">Grow</div></div>
           </div>
         </div>
+        <div class="page-number"></div>
         <div class="footer-qr-corner">
           <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://bonds.sa" alt="QR" />
         </div>
@@ -657,8 +673,26 @@
         clone.querySelector('.doc-content').innerHTML = '';
         clone.querySelector('.doc-content').contentEditable = writingMode ? 'true' : 'false';
         container.appendChild(clone);
+        updatePageNumbers();
         showToast('✅ صفحة ' + pageCounter);
         window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+      };
+      window.insertSignature = function() {
+        if (!ensureDoc()) return;
+        var name = prompt('اسم الموقّع:', ''), title = prompt('المنصب:', '');
+        var html = '<div class="signature-block" contenteditable="false"><div class="sig-line"></div><div class="sig-name">' + (name || 'الاسم') + '</div><div class="sig-title">' + (title || 'المنصب') + '</div></div><div><br></div>';
+        insertAtCursor(html); showToast('✅ تم إدراج التوقيع');
+      };
+      window.updatePageNumbers = function() {
+        var sheets = document.querySelectorAll('.sheet');
+        var total = sheets.length;
+        sheets.forEach(function(sheet, idx){
+          var pn = sheet.querySelector('.page-number');
+          if (pn) pn.textContent = 'الصفحة ' + (idx + 1) + ' من ' + total;
+        });
+      };
+      window.toggleMobileToolbar = function() {
+        document.querySelectorAll('.toolbar-mobile-collapsible').forEach(function(row){ row.classList.toggle('open'); });
       };
       window.setColor = function(color) {
         var sel = window.getSelection();
@@ -744,6 +778,7 @@
         if (saved && doc) doc.innerHTML = saved;
         var savedFont = localStorage.getItem(LS_PREFIX+'font');
         if (savedFont) { var fs=document.getElementById('font-select'); if(fs) fs.value=savedFont; changeFont(savedFont); }
+        updatePageNumbers();
         if(doc) { doc.addEventListener('input', pushUndo); setInterval(autoSave, 30000); }
       });
     })();
