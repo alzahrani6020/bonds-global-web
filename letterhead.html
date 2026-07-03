@@ -17,7 +17,7 @@
   <link rel="canonical" href="https://bonds-global.com/letterhead.html" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;600;700&family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;600;700&family=Vazirmatn:wght@300;400;500;600;700&family=Cairo:wght@400;600;700&family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&family=Almarai:wght@300;400;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --navy: #020f23;
@@ -38,42 +38,58 @@
       color: var(--text);
     }
 
+    body.dark-mode {
+      --paper: #0f172a;
+      --text: #e2e8f0;
+      background: #0b1120;
+    }
+    body.dark-mode .sheet { background: var(--paper); color: var(--text); box-shadow: 0 12px 40px rgba(0,0,0,0.35); }
+    body.dark-mode .letterhead-header { color: var(--text); }
+    body.dark-mode .header-line { filter: brightness(1.25); }
+
     .toolbar {
       max-width: 220mm;
       margin: 6mm auto 4mm;
-      padding: 10px 14px;
+      padding: 10px 12px;
       background: linear-gradient(135deg, #0a1428 0%, #122444 100%);
       color: #e8edf5;
       font-size: 12px;
       direction: rtl;
-      border-radius: 10px;
+      border-radius: 12px;
       line-height: 1.55;
       border: 1px solid rgba(197, 146, 55, 0.35);
       display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 8px;
       position: sticky;
       top: 10px;
       z-index: 1000;
     }
-    .toolbar-title { flex: 1; font-weight: 600; font-size: 13px; }
+    .toolbar-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; width: 100%; }
+    .toolbar-row:last-child { justify-content: flex-end; }
+    .toolbar-title { font-weight: 700; font-size: 13px; margin-left: 6px; display: flex; align-items: center; gap: 6px; }
     .toolbar button, .toolbar select {
       background: rgba(255,255,255,0.1);
       color: #fff;
       border: 1px solid rgba(255,255,255,0.15);
       padding: 5px 10px;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
       white-space: nowrap;
       font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
     .toolbar button:hover { background: rgba(255,255,255,0.2); border-color: var(--gold); }
-    .toolbar button.primary { background: linear-gradient(135deg, var(--gold), var(--navy)); border-color: transparent; }
-    .toolbar button.primary:hover { opacity: 0.9; }
+    .toolbar button.primary, .btn-print { background: linear-gradient(135deg, #22c55e, #15803d); border-color: transparent; }
+    .btn-print:hover { opacity: 0.9; }
+    .btn-pdf { background: linear-gradient(135deg, #c59237, #8f6a1f); border-color: transparent; }
+    .btn-inbox { background: linear-gradient(135deg, #7c3aed, #4c1d95); border-color: transparent; }
+    .btn-send { background: linear-gradient(135deg, #0ea5e9, #0369a1); border-color: transparent; }
     .toolbar select { appearance: auto; padding: 4px 8px; }
     .toolbar select option { color: #12243a; background: #fff; }
     .toolbar-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.15); margin: 0 2px; }
@@ -87,9 +103,12 @@
     .dropdown-wrap.open .dropdown-menu { display: block; }
     .dropdown-menu button {
       display: block; width: 100%; text-align: right; background: none; border: none; color: #12243a;
-      padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+      padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 0;
     }
     .dropdown-menu button:hover { background: #f2eadb; color: #0a1a33; }
+    .dropdown-menu .color-swatch {
+      display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-left: 8px; vertical-align: middle; border: 1px solid #ddd;
+    }
 
     .sheet {
       width: 210mm;
@@ -135,7 +154,6 @@
     .contact-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
     .contact-row .icon { width: 12px; height: 12px; color: var(--gold); flex-shrink: 0; }
     .contact-row .num { direction: ltr; unicode-bidi: embed; }
-
 
     .header-line {
       height: 3px;
@@ -191,6 +209,7 @@
       pointer-events: none;
     }
     .doc-content p { margin-bottom: 0.5em; }
+    .doc-content hr.doc-ruler { border: none; border-top: 1.5px solid var(--gold); margin: 14px 0; }
     .doc-content table {
       width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11.5pt; line-height: 1.6;
     }
@@ -288,25 +307,41 @@
     }
     .toast.show { opacity: 1; }
 
+    .inbox-panel {
+      position: fixed; top: 0; left: 0; width: 320px; max-width: 90vw; height: 100vh;
+      background: #fff; color: #12243a; box-shadow: 4px 0 24px rgba(0,0,0,0.2);
+      transform: translateX(-110%); transition: transform .3s; z-index: 2000; direction: rtl;
+      display: flex; flex-direction: column;
+    }
+    .inbox-panel.open { transform: translateX(0); }
+    .inbox-header {
+      background: var(--navy); color: #fff; padding: 14px; display: flex;
+      justify-content: space-between; align-items: center; font-weight: 700;
+    }
+    .inbox-header button { background: none; border: none; color: #fff; font-size: 16px; cursor: pointer; }
+    .inbox-body { padding: 14px; overflow-y: auto; flex: 1; font-size: 13px; }
+    .inbox-item { padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; background: #f8fafc; }
+    .inbox-item strong { color: var(--navy); }
+    .inbox-empty { color: #94a3b8; text-align: center; margin-top: 20px; }
+
     @media print {
       @page { size: A4; margin: 0; }
-      body { background: #fff; }
-      .toolbar, .toast, .sig-modal-overlay, #my-inbox-panel { display: none !important; }
-      .sheet {
-        margin: 0; box-shadow: none; width: 210mm; min-height: 297mm;
-        page-break-after: always; break-after: page;
-      }
+      body, body.dark-mode { background: #fff !important; }
+      .toolbar, .toast, .inbox-panel, #inbox-backdrop { display: none !important; }
+      .sheet, body.dark-mode .sheet { margin: 0; box-shadow: none; width: 210mm; min-height: 297mm; background: #fff !important; color: #000 !important; page-break-after: always; break-after: page; }
       .sheet:last-child { page-break-after: auto; break-after: auto; }
-      .letterhead-header { padding: 12mm 16mm 6mm; }
+      .letterhead-header { padding: 12mm 16mm 6mm; color: #000 !important; }
       .header-logo img { height: 120px; }
       .letter-body { padding: 10mm 16mm 0; }
-      .doc-content { min-height: auto; }
+      .doc-content { min-height: auto; color: #000 !important; }
       .letterhead-footer { padding: 5mm 14mm 5mm 10mm; }
       [contenteditable]:empty::before, .doc-content:empty::before { content: none !important; }
     }
 
     @media (max-width: 480px) {
-      .toolbar { border-radius: 0; margin: 0; top: 0; }
+      .toolbar { border-radius: 0; margin: 0; top: 0; padding: 8px; }
+      .toolbar-row { gap: 5px; }
+      .toolbar button, .toolbar select { font-size: 11px; padding: 4px 7px; }
       .sheet { width: 100%; min-height: auto; }
       .letterhead-header { flex-direction: column; align-items: center; text-align: center; padding: 10mm 8mm 6mm; }
       .header-contacts { align-items: center; }
@@ -324,33 +359,69 @@
 <body>
 
   <div class="toolbar" id="letterhead-toolbar">
-    <span class="toolbar-title">🖨️ ورق مراسلات بوندز</span>
-    <button onclick="toggleWrite()" id="btn-write">✏️ كتابة</button>
-    <button onclick="copyText()">📋 نسخ</button>
-    <button onclick="insertDateTime()">📅 تاريخ</button>
-    <button onclick="insertSubject()">📌 الموضوع</button>
-    <button onclick="generateRef()">🔢 رقم صادر</button>
-    <div class="dropdown-wrap" id="archive-dropdown">
-      <button onclick="toggleDropdown('archive-dropdown')">📁 أرشيف ▾</button>
-      <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ تحديث الأرشيف</button></div>
+    <div class="toolbar-row">
+      <span class="toolbar-title">🖨️ أدوات المستند</span>
+      <button onclick="toggleWrite()" id="btn-write">✏️ كتابة</button>
+      <button onclick="copyText()">📋 نسخ</button>
+      <button onclick="insertDateTime()">📅 تاريخ</button>
+      <button onclick="insertSubject()">📌 الموضوع</button>
+      <button onclick="generateRef()">🔢 رقم صادر</button>
+      <div class="dropdown-wrap" id="archive-dropdown">
+        <button onclick="toggleDropdown('archive-dropdown')">📁 أرشيف ▾</button>
+        <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ تحديث الأرشيف</button></div>
+      </div>
+      <button onclick="insertTable()">▦ جدول</button>
+      <button onclick="addNewPage()">➕ صفحة</button>
+      <button onclick="insertRuler()">📏 خطوط</button>
+      <button onclick="toggleDarkMode()" id="btn-dark">🌙 داكن</button>
     </div>
-    <button onclick="insertTable()">▦ جدول</button>
-    <button onclick="addNewPage()">➕ صفحة</button>
-    <button onclick="insertStamp()">🔴 ختم</button>
-    <button onclick="undoDoc()">↩️ تراجع</button>
-    <button onclick="redoDoc()">↪️ إعادة</button>
-    <button onclick="saveDoc()">💾 حفظ</button>
-    <div class="toolbar-divider"></div>
-    <select id="font-select" onchange="changeFont(this.value)">
-      <option value="Noto Naskh Arabic">Noto Naskh</option>
-      <option value="Vazirmatn">Vazirmatn</option>
-      <option value="Amiri">Amiri</option>
-      <option value="Cairo">Cairo</option>
-      <option value="Tajawal">Tajawal</option>
-      <option value="Almarai">Almarai</option>
-    </select>
-    <div class="toolbar-divider"></div>
-    <button onclick="window.print()" class="primary">🖨️ طباعة / PDF</button>
+    <div class="toolbar-row">
+      <button onclick="shareDoc()">📤 مشاركة</button>
+      <select id="font-select" onchange="changeFont(this.value)">
+        <option value="Noto Naskh Arabic">Noto Naskh</option>
+        <option value="Vazirmatn">Vazirmatn</option>
+        <option value="Amiri">Amiri</option>
+        <option value="Cairo">Cairo</option>
+        <option value="Tajawal">Tajawal</option>
+        <option value="Almarai">Almarai</option>
+      </select>
+      <button onclick="translateSelection()">🌐 ترجمة منفصلة</button>
+      <button onclick="saveDoc()">💾 حفظ</button>
+      <button onclick="undoDoc()">↩️ تراجع</button>
+      <button onclick="redoDoc()">↪️ إعادة</button>
+      <button onclick="insertStamp()">🔴 ختم</button>
+      <div class="dropdown-wrap" id="template-dropdown">
+        <button onclick="toggleDropdown('template-dropdown')">📄 قالب ▾</button>
+        <div class="dropdown-menu">
+          <button onclick="applyTemplate('formal')">خطاب رسمي</button>
+          <button onclick="applyTemplate('memo')">مذكرة داخلية</button>
+          <button onclick="applyTemplate('thank')">رسالة شكر</button>
+          <button onclick="applyTemplate('reminder')">تذكير</button>
+        </div>
+      </div>
+      <div class="dropdown-wrap" id="color-dropdown">
+        <button onclick="toggleDropdown('color-dropdown')">🎨 لون ▾</button>
+        <div class="dropdown-menu">
+          <button onclick="setColor('#1a1a1a')"><span class="color-swatch" style="background:#1a1a1a"></span>أسود</button>
+          <button onclick="setColor('#c0392b')"><span class="color-swatch" style="background:#c0392b"></span>أحمر</button>
+          <button onclick="setColor('#c59237')"><span class="color-swatch" style="background:#c59237"></span>ذهبي</button>
+          <button onclick="setColor('#020f23')"><span class="color-swatch" style="background:#020f23"></span>كحلي</button>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar-row">
+      <button onclick="window.print()" class="btn-print primary">🖨️ طباعة</button>
+      <button onclick="window.print()" class="btn-pdf">📄 PDF</button>
+      <button onclick="toggleInbox()" class="btn-inbox">📥 وارد المراسلات</button>
+      <button onclick="sendToManager()" class="btn-send">📨 إرسال للمدير</button>
+      <div class="dropdown-wrap" id="lang-dropdown">
+        <button onclick="toggleDropdown('lang-dropdown')">🌐 ترجمة ▾</button>
+        <div class="dropdown-menu">
+          <button onclick="switchLang('ar')">العربية</button>
+          <button onclick="switchLang('en')">English</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="pages-container">
@@ -436,9 +507,19 @@
 
   <div class="toast" id="toast"></div>
 
+  <div class="inbox-panel" id="inbox-panel">
+    <div class="inbox-header">
+      <span>📥 وارد المراسلات</span>
+      <button onclick="toggleInbox()">✕</button>
+    </div>
+    <div class="inbox-body" id="inbox-body">
+      <div class="inbox-empty">لا توجد مراسلات محفوظة</div>
+    </div>
+  </div>
+
   <script>
     (function() {
-      var writingMode = false, pageCounter = 1;
+      var writingMode = false, pageCounter = 1, darkMode = false;
       var LS_PREFIX = 'bonds_letterhead_';
 
       function showToast(msg) {
@@ -457,6 +538,14 @@
         var doc = getActiveDoc(), btn = document.getElementById('btn-write');
         if (!writingMode) { writingMode = true; btn.textContent = '✅ تم'; document.querySelectorAll('.doc-content').forEach(function(d){d.contentEditable='true';}); if(doc) doc.focus(); }
         else { writingMode = false; btn.textContent = '✏️ كتابة'; document.querySelectorAll('.doc-content').forEach(function(d){d.contentEditable='false';}); }
+      };
+
+      window.toggleDarkMode = function() {
+        darkMode = !darkMode;
+        document.body.classList.toggle('dark-mode', darkMode);
+        var btn = document.getElementById('btn-dark');
+        btn.textContent = darkMode ? '☀️ فاتح' : '🌙 داكن';
+        showToast(darkMode ? '🌙 الوضع الداكن' : '☀️ الوضع الفاتح');
       };
 
       window.copyText = function() {
@@ -522,6 +611,10 @@
         html += '</tbody></table><div><br></div>';
         insertAtCursor(html); showToast('✅ تم إدراج الجدول');
       };
+      window.insertRuler = function() {
+        if (!ensureDoc()) return;
+        insertAtCursor('<hr class="doc-ruler"><div><br></div>'); showToast('✅ تم إدراج الخط');
+      };
       window.insertStamp = function() {
         if (!ensureDoc()) return;
         var dateStr = new Date().toLocaleDateString('ar-SA', {year:'numeric', month:'long', day:'numeric'});
@@ -551,6 +644,72 @@
         container.appendChild(clone);
         showToast('✅ صفحة ' + pageCounter);
         window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+      };
+      window.setColor = function(color) {
+        var sel = window.getSelection();
+        if (!sel || sel.toString().trim() === '') { showToast('⚠️ حدد النص أولاً'); return; }
+        document.execCommand('foreColor', false, color);
+        toggleDropdown('color-dropdown');
+        showToast('✅ تم تغيير اللون');
+      };
+      window.applyTemplate = function(name) {
+        if (!ensureDoc()) return;
+        var html = '';
+        if (name === 'formal') {
+          html = '<div><strong>الموضوع:</strong> </div><div><br></div><div>تحية طيبة وبعد،</div><div><br></div><div>نأمل منكم التكرم بالاطلاع على ...</div><div><br></div><div>مع خالص التقدير والاحترام.</div><div><br></div>';
+        } else if (name === 'memo') {
+          html = '<div style="text-align:center;font-weight:700;">مذكرة داخلية</div><div><br></div><div><strong>إلى:</strong> </div><div><strong>من:</strong> </div><div><strong>الموضوع:</strong> </div><div><br></div><div>...</div><div><br></div>';
+        } else if (name === 'thank') {
+          html = '<div><strong>الموضوع:</strong> شكر وتقدير</div><div><br></div><div>تحية طيبة،</div><div>نتقدم بجزيل الشكر لكم على ...</div><div><br></div><div>مع خالص التقدير.</div><div><br></div>';
+        } else if (name === 'reminder') {
+          html = '<div><strong>الموضوع:</strong> تذكير</div><div><br></div><div>نود تذكيركم بـ ...</div><div><br></div><div>شاكرين تعاونكم.</div><div><br></div>';
+        }
+        insertAtCursor(html);
+        toggleDropdown('template-dropdown');
+        showToast('✅ تم تطبيق القالب');
+      };
+      window.translateSelection = function() {
+        var sel = window.getSelection();
+        var text = sel ? sel.toString().trim() : '';
+        if (!text) { showToast('⚠️ حدد النص للترجمة'); return; }
+        window.open('https://translate.google.com/?sl=ar&tl=en&text=' + encodeURIComponent(text), '_blank');
+      };
+      window.shareDoc = function() {
+        var url = window.location.href;
+        if (navigator.share) {
+          navigator.share({ title: 'ورق مراسلات بوندز', url: url }).catch(function(){});
+        } else {
+          var ta = document.createElement('textarea'); ta.value = url;
+          document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+          showToast('✅ تم نسخ الرابط');
+        }
+      };
+      window.sendToManager = function() {
+        saveDoc();
+        var sent = JSON.parse(localStorage.getItem(LS_PREFIX + 'sent') || '[]');
+        sent.unshift({ date: new Date().toLocaleString('ar-SA'), preview: getText().slice(0, 80) + '...' });
+        localStorage.setItem(LS_PREFIX + 'sent', JSON.stringify(sent.slice(0, 20)));
+        showToast('📨 تم إرسال المراسلة للمدير وحفظها');
+        refreshInbox();
+      };
+      window.toggleInbox = function() {
+        var panel = document.getElementById('inbox-panel');
+        panel.classList.toggle('open');
+        if (panel.classList.contains('open')) refreshInbox();
+      };
+      function refreshInbox() {
+        var body = document.getElementById('inbox-body');
+        var sent = JSON.parse(localStorage.getItem(LS_PREFIX + 'sent') || '[]');
+        if (!sent.length) { body.innerHTML = '<div class="inbox-empty">لا توجد مراسلات محفوظة</div>'; return; }
+        body.innerHTML = '';
+        sent.forEach(function(item, idx){
+          var div = document.createElement('div'); div.className = 'inbox-item';
+          div.innerHTML = '<strong>#'+(idx+1)+'</strong><br/><span style="color:#64748b;">'+item.date+'</span><br/>'+ (item.preview || '');
+          body.appendChild(div);
+        });
+      }
+      window.switchLang = function(lang) {
+        if (lang === 'en') window.location.href = 'en/letterhead.html';
       };
 
       var undoStack=[], redoStack=[], maxUndo=30, isUndoing=false;

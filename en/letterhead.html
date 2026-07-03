@@ -38,44 +38,77 @@
       color: var(--text);
     }
 
+    body.dark-mode {
+      --paper: #0f172a;
+      --text: #e2e8f0;
+      background: #0b1120;
+    }
+    body.dark-mode .sheet { background: var(--paper); color: var(--text); box-shadow: 0 12px 40px rgba(0,0,0,0.35); }
+    body.dark-mode .letterhead-header { color: var(--text); }
+    body.dark-mode .header-line { filter: brightness(1.25); }
+
     .toolbar {
       max-width: 220mm;
       margin: 6mm auto 4mm;
-      padding: 10px 14px;
+      padding: 10px 12px;
       background: linear-gradient(135deg, #0a1428 0%, #122444 100%);
       color: #e8edf5;
       font-size: 12px;
       direction: ltr;
-      border-radius: 10px;
+      border-radius: 12px;
       line-height: 1.55;
       border: 1px solid rgba(197, 146, 55, 0.35);
       display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 8px;
       position: sticky;
       top: 10px;
       z-index: 1000;
     }
-    .toolbar-title { flex: 1; font-weight: 600; font-size: 13px; }
+    .toolbar-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; width: 100%; }
+    .toolbar-row:last-child { justify-content: flex-end; }
+    .toolbar-title { font-weight: 700; font-size: 13px; margin-right: 6px; display: flex; align-items: center; gap: 6px; }
     .toolbar button, .toolbar select {
       background: rgba(255,255,255,0.1);
       color: #fff;
       border: 1px solid rgba(255,255,255,0.15);
       padding: 5px 10px;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
       white-space: nowrap;
       font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
     .toolbar button:hover { background: rgba(255,255,255,0.2); border-color: var(--gold); }
-    .toolbar button.primary { background: linear-gradient(135deg, var(--gold), var(--navy)); border-color: transparent; }
+    .toolbar button.primary, .btn-print { background: linear-gradient(135deg, #22c55e, #15803d); border-color: transparent; }
+    .btn-print:hover { opacity: 0.9; }
+    .btn-pdf { background: linear-gradient(135deg, #c59237, #8f6a1f); border-color: transparent; }
+    .btn-inbox { background: linear-gradient(135deg, #7c3aed, #4c1d95); border-color: transparent; }
+    .btn-send { background: linear-gradient(135deg, #0ea5e9, #0369a1); border-color: transparent; }
     .toolbar select { appearance: auto; padding: 4px 8px; }
     .toolbar select option { color: #12243a; background: #fff; }
     .toolbar-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.15); margin: 0 2px; }
+
+    .dropdown-wrap { position: relative; display: inline-block; }
+    .dropdown-menu {
+      display: none; position: absolute; top: calc(100% + 6px); left: 0; min-width: 170px;
+      background: #fff; color: #12243a; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      padding: 6px 0; z-index: 1100; direction: ltr; text-align: left; font-size: 12px;
+    }
+    .dropdown-wrap.open .dropdown-menu { display: block; }
+    .dropdown-menu button {
+      display: block; width: 100%; text-align: left; background: none; border: none; color: #12243a;
+      padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 0;
+    }
+    .dropdown-menu button:hover { background: #f2eadb; color: #0a1a33; }
+    .dropdown-menu .color-swatch {
+      display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 8px; vertical-align: middle; border: 1px solid #ddd;
+    }
 
     .sheet {
       width: 210mm;
@@ -114,7 +147,6 @@
     .contact-divider { width: 1px; background: var(--gold); opacity: 0.7; margin: 0 2px; }
     .contact-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
     .contact-row .icon { width: 12px; height: 12px; color: var(--gold); flex-shrink: 0; }
-
 
     .header-line {
       height: 3px;
@@ -165,6 +197,7 @@
     }
     .doc-content:empty::before { content: 'Start typing here...'; color: #aaa; pointer-events: none; }
     .doc-content p { margin-bottom: 0.5em; }
+    .doc-content hr.doc-ruler { border: none; border-top: 1.5px solid var(--gold); margin: 14px 0; }
     .doc-content table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11.5pt; line-height: 1.6; }
     .doc-content table th, .doc-content table td { border: 1.5px solid var(--navy); padding: 7px 12px; text-align: left; direction: ltr; }
     .doc-content table th { background: rgba(2,15,35,0.07); font-weight: 700; color: var(--navy); }
@@ -251,22 +284,41 @@
     }
     .toast.show { opacity: 1; }
 
+    .inbox-panel {
+      position: fixed; top: 0; right: 0; width: 320px; max-width: 90vw; height: 100vh;
+      background: #fff; color: #12243a; box-shadow: -4px 0 24px rgba(0,0,0,0.2);
+      transform: translateX(110%); transition: transform .3s; z-index: 2000; direction: ltr;
+      display: flex; flex-direction: column;
+    }
+    .inbox-panel.open { transform: translateX(0); }
+    .inbox-header {
+      background: var(--navy); color: #fff; padding: 14px; display: flex;
+      justify-content: space-between; align-items: center; font-weight: 700;
+    }
+    .inbox-header button { background: none; border: none; color: #fff; font-size: 16px; cursor: pointer; }
+    .inbox-body { padding: 14px; overflow-y: auto; flex: 1; font-size: 13px; }
+    .inbox-item { padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; background: #f8fafc; }
+    .inbox-item strong { color: var(--navy); }
+    .inbox-empty { color: #94a3b8; text-align: center; margin-top: 20px; }
+
     @media print {
       @page { size: A4; margin: 0; }
-      body { background: #fff; }
-      .toolbar, .toast { display: none !important; }
-      .sheet { margin: 0; box-shadow: none; width: 210mm; min-height: 297mm; page-break-after: always; break-after: page; }
+      body, body.dark-mode { background: #fff !important; }
+      .toolbar, .toast, .inbox-panel { display: none !important; }
+      .sheet, body.dark-mode .sheet { margin: 0; box-shadow: none; width: 210mm; min-height: 297mm; background: #fff !important; color: #000 !important; page-break-after: always; break-after: page; }
       .sheet:last-child { page-break-after: auto; break-after: auto; }
-      .letterhead-header { padding: 12mm 16mm 6mm; }
+      .letterhead-header { padding: 12mm 16mm 6mm; color: #000 !important; }
       .header-logo img { height: 120px; }
       .letter-body { padding: 10mm 16mm 0; }
-      .doc-content { min-height: auto; }
+      .doc-content { min-height: auto; color: #000 !important; }
       .letterhead-footer { padding: 5mm 10mm 5mm 14mm; }
       [contenteditable]:empty::before, .doc-content:empty::before { content: none !important; }
     }
 
     @media (max-width: 480px) {
-      .toolbar { border-radius: 0; margin: 0; top: 0; }
+      .toolbar { border-radius: 0; margin: 0; top: 0; padding: 8px; }
+      .toolbar-row { gap: 5px; }
+      .toolbar button, .toolbar select { font-size: 11px; padding: 4px 7px; }
       .sheet { width: 100%; min-height: auto; }
       .letterhead-header { flex-direction: column; align-items: center; text-align: center; padding: 10mm 8mm 6mm; }
       .header-contacts { align-items: center; }
@@ -284,26 +336,66 @@
 <body>
 
   <div class="toolbar" id="letterhead-toolbar">
-    <span class="toolbar-title">🖨️ Bonds Letterhead</span>
-    <button onclick="toggleWrite()" id="btn-write">✏️ Write</button>
-    <button onclick="copyText()">📋 Copy</button>
-    <button onclick="insertDateTime()">📅 Date</button>
-    <button onclick="insertSubject()">📌 Subject</button>
-    <button onclick="generateRef()">🔢 Ref No.</button>
-    <button onclick="insertTable()">▦ Table</button>
-    <button onclick="addNewPage()">➕ Page</button>
-    <button onclick="insertStamp()">🔴 Stamp</button>
-    <button onclick="undoDoc()">↩️ Undo</button>
-    <button onclick="redoDoc()">↪️ Redo</button>
-    <button onclick="saveDoc()">💾 Save</button>
-    <div class="toolbar-divider"></div>
-    <select id="font-select" onchange="changeFont(this.value)">
-      <option value="Inter">Inter</option>
-      <option value="system-ui">System UI</option>
-      <option value="Noto Naskh Arabic">Noto Naskh</option>
-    </select>
-    <div class="toolbar-divider"></div>
-    <button onclick="window.print()" class="primary">🖨️ Print / PDF</button>
+    <div class="toolbar-row">
+      <span class="toolbar-title">🖨️ Document Tools</span>
+      <button onclick="toggleWrite()" id="btn-write">✏️ Write</button>
+      <button onclick="copyText()">📋 Copy</button>
+      <button onclick="insertDateTime()">📅 Date</button>
+      <button onclick="insertSubject()">📌 Subject</button>
+      <button onclick="generateRef()">🔢 Ref No.</button>
+      <div class="dropdown-wrap" id="archive-dropdown">
+        <button onclick="toggleDropdown('archive-dropdown')">📁 Archive ▾</button>
+        <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ Refresh</button></div>
+      </div>
+      <button onclick="insertTable()">▦ Table</button>
+      <button onclick="addNewPage()">➕ Page</button>
+      <button onclick="insertRuler()">📏 Ruler</button>
+      <button onclick="toggleDarkMode()" id="btn-dark">🌙 Dark</button>
+    </div>
+    <div class="toolbar-row">
+      <button onclick="shareDoc()">📤 Share</button>
+      <select id="font-select" onchange="changeFont(this.value)">
+        <option value="Inter">Inter</option>
+        <option value="system-ui">System UI</option>
+        <option value="Noto Naskh Arabic">Noto Naskh</option>
+      </select>
+      <button onclick="translateSelection()">🌐 Translate</button>
+      <button onclick="saveDoc()">💾 Save</button>
+      <button onclick="undoDoc()">↩️ Undo</button>
+      <button onclick="redoDoc()">↪️ Redo</button>
+      <button onclick="insertStamp()">🔴 Stamp</button>
+      <div class="dropdown-wrap" id="template-dropdown">
+        <button onclick="toggleDropdown('template-dropdown')">📄 Template ▾</button>
+        <div class="dropdown-menu">
+          <button onclick="applyTemplate('formal')">Formal Letter</button>
+          <button onclick="applyTemplate('memo')">Internal Memo</button>
+          <button onclick="applyTemplate('thank')">Thank You</button>
+          <button onclick="applyTemplate('reminder')">Reminder</button>
+        </div>
+      </div>
+      <div class="dropdown-wrap" id="color-dropdown">
+        <button onclick="toggleDropdown('color-dropdown')">🎨 Color ▾</button>
+        <div class="dropdown-menu">
+          <button onclick="setColor('#1a1a1a')"><span class="color-swatch" style="background:#1a1a1a"></span>Black</button>
+          <button onclick="setColor('#c0392b')"><span class="color-swatch" style="background:#c0392b"></span>Red</button>
+          <button onclick="setColor('#c59237')"><span class="color-swatch" style="background:#c59237"></span>Gold</button>
+          <button onclick="setColor('#020f23')"><span class="color-swatch" style="background:#020f23"></span>Navy</button>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar-row">
+      <button onclick="window.print()" class="btn-print primary">🖨️ Print</button>
+      <button onclick="window.print()" class="btn-pdf">📄 PDF</button>
+      <button onclick="toggleInbox()" class="btn-inbox">📥 Inbox</button>
+      <button onclick="sendToManager()" class="btn-send">📨 Send to Manager</button>
+      <div class="dropdown-wrap" id="lang-dropdown">
+        <button onclick="toggleDropdown('lang-dropdown')">🌐 Language ▾</button>
+        <div class="dropdown-menu">
+          <button onclick="switchLang('en')">English</button>
+          <button onclick="switchLang('ar')">العربية</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="pages-container">
@@ -388,9 +480,19 @@
 
   <div class="toast" id="toast"></div>
 
+  <div class="inbox-panel" id="inbox-panel">
+    <div class="inbox-header">
+      <span>📥 Inbox</span>
+      <button onclick="toggleInbox()">✕</button>
+    </div>
+    <div class="inbox-body" id="inbox-body">
+      <div class="inbox-empty">No saved correspondence</div>
+    </div>
+  </div>
+
   <script>
     (function() {
-      var writingMode = false, pageCounter = 1;
+      var writingMode = false, pageCounter = 1, darkMode = false;
       var LS_PREFIX = 'bonds_letterhead_en_';
 
       function showToast(msg) {
@@ -409,6 +511,14 @@
         var doc = getActiveDoc(), btn = document.getElementById('btn-write');
         if (!writingMode) { writingMode = true; btn.textContent = '✅ Done'; document.querySelectorAll('.doc-content').forEach(function(d){d.contentEditable='true';}); if(doc) doc.focus(); }
         else { writingMode = false; btn.textContent = '✏️ Write'; document.querySelectorAll('.doc-content').forEach(function(d){d.contentEditable='false';}); }
+      };
+
+      window.toggleDarkMode = function() {
+        darkMode = !darkMode;
+        document.body.classList.toggle('dark-mode', darkMode);
+        var btn = document.getElementById('btn-dark');
+        btn.textContent = darkMode ? '☀️ Light' : '🌙 Dark';
+        showToast(darkMode ? '🌙 Dark mode' : '☀️ Light mode');
       };
 
       window.copyText = function() {
@@ -445,6 +555,18 @@
         insertAtCursor('<div><strong>Reference:</strong> ' + ref + '</div><div><br></div>');
         showToast('✅ Reference: ' + ref);
       };
+      window.loadArchive = function() {
+        var menu = document.getElementById('archive-menu');
+        var archive = JSON.parse(localStorage.getItem(LS_PREFIX + 'refs') || '[]');
+        menu.innerHTML = '<button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ Refresh</button>';
+        if (!archive.length) { menu.innerHTML += '<button disabled>⚠️ No archive</button>'; return; }
+        archive.forEach(function(item){
+          var btn = document.createElement('button');
+          btn.innerHTML = '<span style="color:#c0392b;font-weight:700;">' + item.ref + '</span> <span style="color:#888;font-size:11px;">— ' + item.date + '</span>';
+          btn.onclick = function(){ insertAtCursor('<div><strong>Reference:</strong> ' + item.ref + '</div><div><br></div>'); toggleDropdown('archive-dropdown'); showToast('📁 Loaded: ' + item.ref); };
+          menu.appendChild(btn);
+        });
+      };
       window.insertTable = function() {
         if (!ensureDoc()) return;
         var rows = prompt('Rows:', '3'), cols = prompt('Columns:', '3');
@@ -457,6 +579,10 @@
         for (var r=0;r<rows;r++){ html += '<tr>'; for(var c=0;c<cols;c++) html += '<td>Cell '+(r+1)+'-'+(c+1)+'</td>'; html += '</tr>'; }
         html += '</tbody></table><div><br></div>';
         insertAtCursor(html); showToast('✅ Table inserted');
+      };
+      window.insertRuler = function() {
+        if (!ensureDoc()) return;
+        insertAtCursor('<hr class="doc-ruler"><div><br></div>'); showToast('✅ Ruler inserted');
       };
       window.insertStamp = function() {
         if (!ensureDoc()) return;
@@ -488,6 +614,72 @@
         showToast('✅ Page ' + pageCounter);
         window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
       };
+      window.setColor = function(color) {
+        var sel = window.getSelection();
+        if (!sel || sel.toString().trim() === '') { showToast('⚠️ Select text first'); return; }
+        document.execCommand('foreColor', false, color);
+        toggleDropdown('color-dropdown');
+        showToast('✅ Color changed');
+      };
+      window.applyTemplate = function(name) {
+        if (!ensureDoc()) return;
+        var html = '';
+        if (name === 'formal') {
+          html = '<div><strong>Subject:</strong> </div><div><br></div><div>Dear Sir/Madam,</div><div><br></div><div>We kindly request your attention to ...</div><div><br></div><div>Sincerely.</div><div><br></div>';
+        } else if (name === 'memo') {
+          html = '<div style="text-align:center;font-weight:700;">Internal Memo</div><div><br></div><div><strong>To:</strong> </div><div><strong>From:</strong> </div><div><strong>Subject:</strong> </div><div><br></div><div>...</div><div><br></div>';
+        } else if (name === 'thank') {
+          html = '<div><strong>Subject:</strong> Letter of Appreciation</div><div><br></div><div>Dear,</div><div>We would like to express our sincere thanks for ...</div><div><br></div><div>Best regards.</div><div><br></div>';
+        } else if (name === 'reminder') {
+          html = '<div><strong>Subject:</strong> Reminder</div><div><br></div><div>This is a friendly reminder regarding ...</div><div><br></div><div>Thank you.</div><div><br></div>';
+        }
+        insertAtCursor(html);
+        toggleDropdown('template-dropdown');
+        showToast('✅ Template applied');
+      };
+      window.translateSelection = function() {
+        var sel = window.getSelection();
+        var text = sel ? sel.toString().trim() : '';
+        if (!text) { showToast('⚠️ Select text to translate'); return; }
+        window.open('https://translate.google.com/?sl=en&tl=ar&text=' + encodeURIComponent(text), '_blank');
+      };
+      window.shareDoc = function() {
+        var url = window.location.href;
+        if (navigator.share) {
+          navigator.share({ title: 'Bonds Letterhead', url: url }).catch(function(){});
+        } else {
+          var ta = document.createElement('textarea'); ta.value = url;
+          document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+          showToast('✅ Link copied');
+        }
+      };
+      window.sendToManager = function() {
+        saveDoc();
+        var sent = JSON.parse(localStorage.getItem(LS_PREFIX + 'sent') || '[]');
+        sent.unshift({ date: new Date().toLocaleString('en-US'), preview: getText().slice(0, 80) + '...' });
+        localStorage.setItem(LS_PREFIX + 'sent', JSON.stringify(sent.slice(0, 20)));
+        showToast('📨 Sent to manager and saved');
+        refreshInbox();
+      };
+      window.toggleInbox = function() {
+        var panel = document.getElementById('inbox-panel');
+        panel.classList.toggle('open');
+        if (panel.classList.contains('open')) refreshInbox();
+      };
+      function refreshInbox() {
+        var body = document.getElementById('inbox-body');
+        var sent = JSON.parse(localStorage.getItem(LS_PREFIX + 'sent') || '[]');
+        if (!sent.length) { body.innerHTML = '<div class="inbox-empty">No saved correspondence</div>'; return; }
+        body.innerHTML = '';
+        sent.forEach(function(item, idx){
+          var div = document.createElement('div'); div.className = 'inbox-item';
+          div.innerHTML = '<strong>#'+(idx+1)+'</strong><br/><span style="color:#64748b;">'+item.date+'</span><br/>'+ (item.preview || '');
+          body.appendChild(div);
+        });
+      }
+      window.switchLang = function(lang) {
+        if (lang === 'ar') window.location.href = '../letterhead.html';
+      };
 
       var undoStack=[], redoStack=[], maxUndo=30, isUndoing=false;
       function pushUndo(){ if(isUndoing) return; var doc=getActiveDoc(); if(!doc) return; undoStack.push(doc.innerHTML); if(undoStack.length>maxUndo) undoStack.shift(); redoStack=[]; }
@@ -495,6 +687,8 @@
       window.redoDoc = function(){ var doc=getActiveDoc(); if(!doc||redoStack.length===0){showToast('⚠️ Nothing to redo');return;} isUndoing=true; undoStack.push(doc.innerHTML); doc.innerHTML=redoStack.pop(); showToast('↪️ Redone'); setTimeout(function(){isUndoing=false;},100); };
       window.saveDoc = function(){ var html=getHtml(); if(html){ localStorage.setItem(LS_PREFIX+'doc_html', html); showToast('✅ Saved'); } else showToast('⚠️ No text to save'); };
       window.changeFont = function(font){ document.querySelectorAll('.doc-content').forEach(function(d){d.style.fontFamily="'"+font+"', Tahoma, serif";}); localStorage.setItem(LS_PREFIX+'font', font); showToast('✅ Font: '+font); };
+      window.toggleDropdown = function(id){ var wrap=document.getElementById(id); if(!wrap)return; var isOpen=wrap.classList.contains('open'); document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open');}); if(!isOpen) wrap.classList.add('open'); };
+      document.addEventListener('click', function(e){ if(!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open');}); });
       document.addEventListener('keydown', function(e){ if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undoDoc();} if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redoDoc();} if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveDoc();} });
 
       document.addEventListener('DOMContentLoaded', function(){
