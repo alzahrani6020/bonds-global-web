@@ -86,6 +86,7 @@ function writePng(png, filePath) {
               animation: none !important;
               transition: none !important;
             }
+            html { overflow-y: scroll !important; }
             body::before, .glow-orb, .hero__orb, .hero__bg,
             .cursor-trail, .spotlight, #particlesCanvas, #particles-canvas, .cookie-banner {
               display: none !important;

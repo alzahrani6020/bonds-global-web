@@ -603,8 +603,13 @@
     }
 
     .distressed-study-page h2 { page-break-before: always; page-break-after: avoid; font-size: 18pt; }
+    .distressed-study-page .cover h2 { page-break-before: auto !important; page-break-after: auto !important; }
+    .distressed-study-page .cover { page-break-inside: avoid; height: auto !important; min-height: auto !important; }
     .distressed-study-page h3 { page-break-after: avoid; font-size: 14pt; }
     .distressed-study-page h4 { font-size: 12pt; }
+    .distressed-study-page .toc ol { column-count: 1; }
+    .distressed-study-page .toc { page-break-after: avoid; padding: 15px 20px; }
+    .distressed-study-page .toc li { padding: 2px 0; }
 
     .distressed-study-page table,
     .distressed-study-page .scenario,

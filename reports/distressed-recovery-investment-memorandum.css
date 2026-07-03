@@ -1,0 +1,470 @@
+@import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap");
+
+.memorandum-page {
+  --bg: #f8f9fa;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --text-secondary: #4a5568;
+  --accent: #c5a030;
+  --accent-dark: #5c4514;
+  --accent-light: #f0e6c8;
+  --danger: #c0392b;
+  --danger-dark: #7b241c;
+  --success: #27ae60;
+  --success-dark: #145a32;
+  --warning: #f39c12;
+  --warning-dark: #7a4a08;
+  --border: #e2e8f0;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  font-family: "Tajawal", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  font-size: 15px;
+}
+
+.memorandum-page * { box-sizing: border-box; margin: 0; padding: 0; }
+
+.memorandum-page .page {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.memorandum-page .cover {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: white;
+  padding: 70px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.memorandum-page .cover::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(197,160,48,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.memorandum-page .cover-logo {
+  width: 180px;
+  max-width: 60%;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.memorandum-page .cover-label {
+  font-size: 0.85em;
+  color: var(--accent);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.memorandum-page .cover h1 {
+  font-size: 2.4em;
+  font-weight: 900;
+  margin-bottom: 15px;
+  color: var(--accent);
+  position: relative;
+}
+
+.memorandum-page .cover h2 {
+  font-size: 1.4em;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.memorandum-page .cover-tagline {
+  font-size: 1.1em;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.memorandum-page .cover-cities {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin: 25px 0;
+  position: relative;
+}
+
+.memorandum-page .city-badge {
+  background: rgba(197,160,48,0.2);
+  border: 1px solid rgba(197,160,48,0.4);
+  color: var(--accent);
+  padding: 8px 20px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.95em;
+}
+
+.memorandum-page .cover-divider {
+  width: 120px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  margin: 25px auto;
+  border-radius: 2px;
+  position: relative;
+}
+
+.memorandum-page .cover-meta {
+  margin-top: 30px;
+  font-size: 0.9em;
+  color: rgba(255,255,255,0.6);
+  position: relative;
+}
+
+.memorandum-page .cover-qr-wrap {
+  margin-top: 28px;
+  text-align: center;
+  position: relative;
+}
+
+.memorandum-page .cover-qr {
+  width: 120px;
+  height: 120px;
+  background: white;
+  padding: 8px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.memorandum-page .cover-website {
+  color: var(--accent);
+  font-size: 0.85em;
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+.memorandum-page .content {
+  padding: 50px 60px;
+}
+
+.memorandum-page h2 {
+  font-size: 1.6em;
+  font-weight: 800;
+  color: var(--text);
+  margin: 40px 0 20px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid var(--accent);
+  display: block;
+}
+
+.memorandum-page h3 {
+  font-size: 1.2em;
+  font-weight: 700;
+  color: var(--accent-dark);
+  margin: 28px 0 14px;
+}
+
+.memorandum-page h4 {
+  font-size: 1.05em;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin: 20px 0 10px;
+}
+
+.memorandum-page p {
+  margin-bottom: 14px;
+  color: var(--text-secondary);
+  text-align: justify;
+}
+
+.memorandum-page .highlight {
+  color: var(--accent-dark);
+  font-weight: 700;
+}
+
+.memorandum-page .positive { color: var(--success-dark); font-weight: 700; }
+.memorandum-page .negative { color: var(--danger-dark); font-weight: 700; }
+.memorandum-page .accent { color: var(--accent-dark); font-weight: 700; }
+
+.memorandum-page .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin: 25px 0;
+}
+
+.memorandum-page .kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 15px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+
+.memorandum-page .kpi-card .value {
+  font-size: 1.9em;
+  font-weight: 900;
+  color: var(--accent-dark);
+  margin-bottom: 8px;
+}
+
+.memorandum-page .kpi-card .label {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.memorandum-page .kpi-card.highlight-card {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, #fffdf7, #fff8e6);
+}
+
+.memorandum-page .kpi-card.highlight-card .value {
+  color: var(--success-dark);
+}
+
+.memorandum-page table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 0.92em;
+  background: var(--card);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+
+.memorandum-page thead {
+  background: var(--accent-dark);
+  color: white;
+}
+
+.memorandum-page th, .memorandum-page td {
+  padding: 14px 16px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+}
+
+.memorandum-page tbody tr:nth-child(even) {
+  background: #fafbfc;
+}
+
+.memorandum-page tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.memorandum-page .alert {
+  background: var(--accent-light);
+  border-right: 4px solid var(--accent);
+  padding: 18px 22px;
+  border-radius: 8px;
+  margin: 20px 0;
+  font-size: 0.95em;
+}
+
+.memorandum-page .alert.success {
+  background: #d4edda;
+  border-right-color: var(--success);
+}
+
+.memorandum-page .alert strong {
+  color: var(--text);
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1.05em;
+}
+
+.memorandum-page .alert-list {
+  margin: 10px 20px 0;
+  padding-right: 0;
+  list-style: disc;
+}
+
+.memorandum-page .alert-list li {
+  margin: 6px 0;
+}
+
+.memorandum-page .comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin: 25px 0;
+}
+
+.memorandum-page .comparison-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 25px;
+  text-align: center;
+}
+
+.memorandum-page .comparison-card h4 {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 1.15em;
+  color: var(--accent-dark);
+}
+
+.memorandum-page .comparison-card .big-number {
+  font-size: 2.4em;
+  font-weight: 900;
+  color: var(--success-dark);
+  margin: 10px 0;
+}
+
+.memorandum-page .comparison-card .note {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+}
+
+.memorandum-page .section-divider {
+  text-align: center;
+  margin: 40px 0;
+  color: var(--accent);
+  font-size: 1.4em;
+  letter-spacing: 8px;
+}
+
+.memorandum-page .cta-box {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  color: white;
+  padding: 40px;
+  border-radius: 16px;
+  text-align: center;
+  margin: 40px 0 20px;
+}
+
+.memorandum-page .cta-box h3 {
+  color: var(--accent);
+  font-size: 1.5em;
+  margin-bottom: 15px;
+}
+
+.memorandum-page .cta-box p {
+  color: rgba(255,255,255,0.85);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.memorandum-page .cta-button {
+  display: inline-block;
+  background: var(--accent);
+  color: #1a1a2e;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-weight: 800;
+  text-decoration: none;
+  margin-top: 10px;
+}
+
+.memorandum-page .footer-note {
+  text-align: center;
+  font-size: 0.8em;
+  color: var(--text-secondary);
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.memorandum-page .exit-note {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 8px;
+  display: block;
+}
+
+.memorandum-page .memorandum-footer {
+  margin-top: 40px;
+  padding: 22px 28px;
+  border-top: 2px solid var(--accent);
+  background: linear-gradient(135deg, #fffdf7, #fff8e6);
+  border-radius: 0 0 12px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.memorandum-page .memorandum-footer .footer-branding {
+  text-align: right;
+}
+
+.memorandum-page .memorandum-footer .footer-branding strong {
+  color: var(--text);
+  font-size: 1.05em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.memorandum-page .memorandum-footer .footer-branding span {
+  color: var(--text-secondary);
+  font-size: 0.85em;
+}
+
+.memorandum-page .memorandum-footer .footer-qr {
+  width: 90px;
+  height: 90px;
+  background: white;
+  padding: 6px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+@media print {
+  .memorandum-page .memorandum-footer {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-size: 9pt;
+  }
+  .memorandum-page .memorandum-footer .footer-qr {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  .memorandum-page .content { padding: 25px; }
+  .memorandum-page .cover { padding: 40px 25px; }
+  .memorandum-page .cover h1 { font-size: 1.7em; }
+  .memorandum-page .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .memorandum-page .comparison-grid { grid-template-columns: 1fr; }
+  .memorandum-page table { font-size: 0.85em; }
+  .memorandum-page th, .memorandum-page td { padding: 10px 8px; }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 1.8cm 1.4cm 2cm 1.4cm;
+  }
+  @page :first { margin-top: 0; }
+
+  .memorandum-page h2 { page-break-before: always; page-break-after: avoid; font-size: 18pt; }
+  .memorandum-page h3 { page-break-after: avoid; font-size: 14pt; }
+  .memorandum-page .cover { page-break-after: always; }
+  .memorandum-page .cover h2 { page-break-before: auto; page-break-after: auto; }
+
+  .memorandum-page .kpi-card,
+  .memorandum-page .comparison-card,
+  .memorandum-page .alert,
+  .memorandum-page table,
+  .memorandum-page .cta-box { page-break-inside: avoid; }
+
+  .memorandum-page { font-size: 10.5pt; line-height: 1.7; background: white; }
+  .memorandum-page .content { padding: 0; }
+  .memorandum-page .page { box-shadow: none; max-width: 100%; }
+  .memorandum-page table { font-size: 9.5pt; box-shadow: none; border: 1px solid #ddd; }
+  .memorandum-page th, .memorandum-page td { padding: 8px 10px; }
+  .memorandum-page .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; height: auto !important; min-height: auto !important; }
+  .memorandum-page .cta-box { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

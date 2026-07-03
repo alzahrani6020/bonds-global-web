@@ -105,6 +105,7 @@
     const langHref = langBase + '../index.html';
     const homeHref = langBase + 'index.html';
     const aboutHref = langBase + 'about.html';
+    const caseStudiesHref = langBase + 'case-studies.html';
     const servicesHref = langBase + 'services.html';
     const contactHref = langBase + 'contact.html';
     const blogHref = langBase + '../blog/index.html';
@@ -375,7 +376,7 @@
 <header class="main-header" id="header">
   <div class="main-header__inner">
     <a href="${homeHref}" class="header-brand">
-      <img src="/assets/bonds-logo-2026-header.webp?v=2026" alt="${isEn ? 'Bonds' : 'بوندز'}" style="height:60px;" />
+      <img src="/assets/bonds-logo-2026-v2.png?v=2026b" alt="${isEn ? 'Bonds' : 'بوندز'}" style="height:60px;" />
     </a>
     <nav class="main-nav" id="mainNav">
       <ul>
@@ -427,7 +428,7 @@
 <footer class="footer">
   <div class="footer-grid">
     <div class="footer-brand">
-      <img src="/assets/bonds-logo-2026.webp?v=2026" alt="${isEn ? 'Bonds' : 'بوندز'}" style="height:80px; width:auto; margin-bottom:1rem;" />
+      <img src="/assets/bonds-logo-2026-v2.png?v=2026b" alt="${isEn ? 'Bonds' : 'بوندز'}" style="height:80px; width:auto; margin-bottom:1rem;" />
       <p>${labels.brandDesc}</p>
     </div>
     <div>

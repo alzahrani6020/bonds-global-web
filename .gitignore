@@ -19,3 +19,4 @@ __pycache__/
 server.log
 
 .env*
+.logo_venv/

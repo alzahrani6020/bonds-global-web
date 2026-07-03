@@ -36,7 +36,7 @@ for (const file of files) {
     /site-layout\.js\?v=\d+/g,
     () => {
       siteLayoutRefs++;
-      return 'site-layout.js?v=7';
+      return 'site-layout.js?v=8';
     }
   );
 
