@@ -11,6 +11,7 @@
   let notificationsData = { notifications: [], unreadCount: 0 };
 
   const READ_KEY = 'bonds_ecc_notifications_read';
+  const WELCOME_KEY = 'bonds_portfolio_welcome_seen';
 
   function icon(name, size) {
     if (!window.EccIcons) return '';
@@ -235,7 +236,7 @@
           <div class="empty-state__icon">📁</div>
           <div class="empty-state__title">No projects yet</div>
           <p class="empty-state__text">Create your first project. In a few steps you'll get a feasibility study, risk assessment, and financing options.</p>
-          ${canCreate ? `<button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} Create New Project</button>` : ''}
+          ${canCreate ? `<div class="empty-state__actions"><button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} Create New Project</button><button type="button" class="ecc-btn ecc-btn--secondary" onclick="PortfolioDashboard.createDemoProject()">${icon('sparkles', 16)} Try a demo project</button></div>` : ''}
         </div>
       `;
     }
@@ -439,6 +440,80 @@
     `;
   }
 
+  function renderChecklist(hasProjects) {
+    if (hasProjects) return '';
+    const steps = [
+      { label: 'Create your first project', done: false },
+      { label: 'Fill in basic project details', done: false },
+      { label: 'Run feasibility & risk assessment', done: false },
+      { label: 'Review your investment memorandum', done: false }
+    ];
+    return `
+      <div class="getting-started">
+        <div class="getting-started__title">${icon('target', 18)} Get started in a few steps</div>
+        <ul class="getting-started__list">
+          ${steps.map(s => `
+            <li class="getting-started__item">
+              <span class="getting-started__check ${s.done ? 'is-done' : ''}">${s.done ? '✓' : ''}</span>
+              <span class="getting-started__label ${s.done ? 'is-done' : ''}">${s.label}</span>
+            </li>
+          `).join('')}
+        </ul>
+        <button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createDemoProject()">${icon('plus', 16)} Try a demo project</button>
+      </div>
+    `;
+  }
+
+  function renderWelcomeModal() {
+    const existing = document.getElementById('portfolioWelcomeModal');
+    if (existing) return;
+    const modal = document.createElement('div');
+    modal.id = 'portfolioWelcomeModal';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+        <div class="modal__header">
+          <h2 id="welcomeTitle">Welcome to your Action Center</h2>
+          <button type="button" class="modal__close" id="closeWelcome" aria-label="Close">×</button>
+        </div>
+        <div class="modal__body">
+          <p class="modal__intro">Get an investment-ready report in 3 steps:</p>
+          <div class="welcome-steps">
+            <div class="welcome-step">
+              <div class="welcome-step__num">1</div>
+              <div class="welcome-step__title">Create a project</div>
+              <div class="welcome-step__desc">Name, sector, and city only.</div>
+            </div>
+            <div class="welcome-step">
+              <div class="welcome-step__num">2</div>
+              <div class="welcome-step__title">Complete the data</div>
+              <div class="welcome-step__desc">Add costs, revenue, and financing.</div>
+            </div>
+            <div class="welcome-step">
+              <div class="welcome-step__num">3</div>
+              <div class="welcome-step__title">Receive your report</div>
+              <div class="welcome-step__desc">Feasibility study, risk assessment, and investment memorandum.</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.dismissWelcome(true)">Start now</button>
+          <button type="button" class="ecc-btn ecc-btn--secondary" onclick="PortfolioDashboard.dismissWelcome(false)">Later</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    document.getElementById('closeWelcome').addEventListener('click', () => PortfolioDashboard.dismissWelcome(false));
+    modal.addEventListener('click', (e) => { if (e.target === modal) PortfolioDashboard.dismissWelcome(false); });
+  }
+
+  function maybeShowWelcome() {
+    try {
+      if (localStorage.getItem(WELCOME_KEY)) return;
+    } catch (e) { return; }
+    renderWelcomeModal();
+  }
+
   function renderSearchBar() {
     return `
       <div class="search-bar">
@@ -488,9 +563,12 @@
     currentFilter = filter;
     currentTab = tab;
     const projects = filter === 'all' ? data.projects : data.projects.filter(p => p.health === filter);
+    const hasProjects = data.summary.totalProjects > 0;
 
     root.innerHTML = `
       ${renderHeader()}
+      ${renderActionCenter(data.summary, data.upcomingActions)}
+      ${renderChecklist(hasProjects)}
       ${renderTabs()}
 
       <div id="tab-panel-overview" class="ecc-tab-panel ${tab === 'overview' ? 'active' : ''}" role="tabpanel" aria-labelledby="tab-btn-overview">
@@ -519,6 +597,8 @@
     if (tab === 'overview') {
       buildCharts(data, filter);
     }
+
+    maybeShowWelcome();
   }
 
   function switchTab(tab) {
@@ -674,6 +754,36 @@
     });
   }
 
+  async function createDemoProject() {
+    try {
+      const headers = await getAuthHeaders();
+      const body = {
+        name: 'Demo Project — Riyadh Restaurant',
+        sector: 'Restaurants & Hospitality',
+        activity: 'Demo restaurant',
+        cityCode: 'Riyadh',
+        currency: 'SAR',
+        language: 'en'
+      };
+      const res = await fetch('/api/v3/projects', { method: 'POST', headers, body: JSON.stringify(body) });
+      const data = await res.json();
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) return redirectToLogin();
+        throw new Error(data.error || 'Failed to create demo project');
+      }
+      window.location.href = `/en/v3/project?id=${encodeURIComponent(data.project.id)}`;
+    } catch (err) {
+      alert('Failed to create demo project: ' + err.message);
+    }
+  }
+
+  function dismissWelcome(startNow) {
+    try { localStorage.setItem(WELCOME_KEY, '1'); } catch (e) {}
+    const modal = document.getElementById('portfolioWelcomeModal');
+    if (modal) modal.remove();
+    if (startNow) openCreateProjectModal();
+  }
+
   window.PortfolioDashboard = {
     refresh: load,
     login: redirectToLogin,
@@ -686,6 +796,8 @@
       window.location.href = `/en/v3/project?id=${encodeURIComponent(id)}`;
     },
     createProject: openCreateProjectModal,
+    createDemoProject,
+    dismissWelcome,
     doNextAction: (projectId) => {
       if (projectId) window.location.href = `/en/v3/project?id=${encodeURIComponent(projectId)}`;
     },
