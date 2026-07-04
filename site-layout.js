@@ -569,11 +569,26 @@
     if (topbar) topbar.style.display = 'none';
 
     function setPadding() {
-      const height = header.offsetHeight || 70;
+      // Measure after layout/CSS settle; cap to avoid inflated heights from
+      // temporarily visible dropdown markup before styles apply.
+      const height = Math.min(header.offsetHeight || 70, 120);
       document.body.style.paddingTop = height + 'px';
     }
-    setPadding();
+
+    // Initial measure may run before CSS hides large dropdown lists, so defer.
+    if (document.readyState === 'complete') {
+      setPadding();
+    } else {
+      window.addEventListener('load', setPadding, { once: true });
+      requestAnimationFrame(() => setTimeout(setPadding, 0));
+    }
+
     window.addEventListener('resize', debounce(setPadding, 150));
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(debounce(setPadding, 100));
+      ro.observe(header);
+    }
   }
 
   function debounce(fn, wait) {
