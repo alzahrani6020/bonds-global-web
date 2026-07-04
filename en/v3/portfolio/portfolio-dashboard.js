@@ -193,7 +193,7 @@
             ${nextHtml}
           </div>
         </div>
-        ${canWrite(currentData?.meta?.role || 'owner') && hasProjects ? `<div class="action-center__create"><button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} New Project</button></div>` : ''}
+        ${canWrite(currentData?.meta?.role || 'viewer') && hasProjects ? `<div class="action-center__create"><button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} New Project</button></div>` : ''}
       </div>
     `;
   }
@@ -229,7 +229,7 @@
   }
 
   function renderProjects(projects) {
-    const canCreate = canWrite(currentData?.meta?.role || 'owner');
+    const canCreate = canWrite(currentData?.meta?.role || 'viewer');
     if (!projects.length) {
       return `
         <div class="ecc-card projects-section empty-state">
@@ -400,11 +400,13 @@
 
   function renderHeader() {
     const unread = computeUnreadCount(notificationsData.notifications);
+    const role = currentData?.meta?.role || 'viewer';
+    const roleBadge = role === 'viewer' ? '<span class="role-badge role-badge--viewer">Read-only</span>' : role === 'advisor' ? '<span class="role-badge role-badge--advisor">Advisor</span>' : '';
     return `
       <div class="ecc-header">
         <div class="ecc-header__title">
           <h1>Action Center</h1>
-          <p>Where you stand, what's missing, and what to do next.</p>
+          <p>Where you stand, what's missing, and what to do next. ${roleBadge}</p>
         </div>
         <div class="ecc-header__actions" style="position:relative;">
           <div class="notification-bell" id="notification-bell" role="button" tabindex="0" aria-label="Notifications" aria-expanded="false" onclick="PortfolioDashboard.toggleNotifications(event)" onkeydown="if(event.key==='Enter'||event.key===' ')PortfolioDashboard.toggleNotifications(event)">

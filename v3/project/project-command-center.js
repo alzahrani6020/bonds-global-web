@@ -74,7 +74,8 @@
     root.innerHTML = `<div class="error"><h2 style="display:flex;align-items:center;justify-content:center;gap:0.5rem;">${icon('warning', 24)} <span>خطأ</span></h2><p>${message}</p></div>`;
   }
 
-  function renderHeader(project, lifecycle) {
+  function renderHeader(project, lifecycle, role) {
+    const roleBadge = role === 'viewer' ? '<span class="role-badge role-badge--viewer">قراءة فقط</span>' : role === 'advisor' ? '<span class="role-badge role-badge--advisor">مستشار</span>' : '';
     return `
       <div class="ecc-header">
         <div class="ecc-header__title">
@@ -82,7 +83,7 @@
             <a href="/v3/portfolio" style="font-size:0.8rem;color:var(--gold);text-decoration:none;display:inline-flex;align-items:center;gap:0.35rem;">${icon('arrowRight', 14)} العودة إلى لوحة المحفظة</a>
           </div>
           <h1>${project.name}</h1>
-          <p>${project.sector}${project.activity ? ' · ' + project.activity : ''} · ${project.city || ''}</p>
+          <p>${project.sector}${project.activity ? ' · ' + project.activity : ''} · ${project.city || ''} ${roleBadge}</p>
         </div>
         <div class="ecc-header__stage">${lifecycle?.currentStage || 'idea'}</div>
       </div>
@@ -362,10 +363,10 @@
   function render(data) {
     currentData = data;
     const { project, health, lifecycle, mission, documents, timeline, approvals } = data.status;
-    const role = data.status.meta?.role || 'owner';
+    const role = data.status.meta?.role || 'viewer';
 
     root.innerHTML = `
-      ${renderHeader(project, lifecycle)}
+      ${renderHeader(project, lifecycle, role)}
       ${renderJourney(lifecycle)}
       ${renderTabs()}
 

@@ -197,7 +197,7 @@
             ${nextHtml}
           </div>
         </div>
-        ${canWrite(currentData?.meta?.role || 'owner') && hasProjects ? `<div class="action-center__create"><button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} مشروع جديد</button></div>` : ''}
+        ${canWrite(currentData?.meta?.role || 'viewer') && hasProjects ? `<div class="action-center__create"><button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} مشروع جديد</button></div>` : ''}
       </div>
     `;
   }
@@ -233,7 +233,7 @@
   }
 
   function renderProjects(projects) {
-    const canCreate = canWrite(currentData?.meta?.role || 'owner');
+    const canCreate = canWrite(currentData?.meta?.role || 'viewer');
     if (!projects.length) {
       return `
         <div class="ecc-card projects-section empty-state">
@@ -405,11 +405,13 @@
 
   function renderHeader() {
     const unread = computeUnreadCount(notificationsData.notifications);
+    const role = currentData?.meta?.role || 'viewer';
+    const roleBadge = role === 'viewer' ? '<span class="role-badge role-badge--viewer">قراءة فقط</span>' : role === 'advisor' ? '<span class="role-badge role-badge--advisor">مستشار</span>' : '';
     return `
       <div class="ecc-header">
         <div class="ecc-header__title">
           <h1>مركز الإجراءات</h1>
-          <p>أين وصلت، ماذا ينقص، وماذا تفعل الآن.</p>
+          <p>أين وصلت، ماذا ينقص، وماذا تفعل الآن. ${roleBadge}</p>
         </div>
         <div class="ecc-header__actions" style="position:relative;">
           <div class="notification-bell" id="notification-bell" role="button" tabindex="0" aria-label="الإشعارات" aria-expanded="false" onclick="PortfolioDashboard.toggleNotifications(event)" onkeydown="if(event.key==='Enter'||event.key===' ')PortfolioDashboard.toggleNotifications(event)">

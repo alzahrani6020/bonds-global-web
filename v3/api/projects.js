@@ -1,5 +1,6 @@
 const { getSupabaseClient } = require('../lib/supabase');
 const { LifecycleEngine } = require('../../lib/enterprise-lifecycle');
+const { getUserRole, can } = require('../../lib/ecc/role-guard');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -51,6 +52,12 @@ async function resolveCityId(supabase, cityCode) {
 }
 
 async function createProject(req, res, user) {
+  const supabase = getSupabaseClient();
+  const role = await getUserRole(supabase, user.id);
+  if (!can(role, 'write')) {
+    return sendJson(res, 403, { error: 'Forbidden: insufficient role to create project' });
+  }
+
   const body = await parseBody(req);
   const {
     name,
@@ -67,8 +74,6 @@ async function createProject(req, res, user) {
   if (!name || !sector) {
     return sendJson(res, 400, { error: 'name and sector are required' });
   }
-
-  const supabase = getSupabaseClient();
 
   try {
     const cityId = await resolveCityId(supabase, cityCode);
@@ -140,6 +145,10 @@ async function getProject(req, res, user, projectId) {
 
 async function deleteProject(req, res, user, projectId) {
   const supabase = getSupabaseClient();
+  const role = await getUserRole(supabase, user.id);
+  if (!can(role, 'write')) {
+    return sendJson(res, 403, { error: 'Forbidden: insufficient role to delete project' });
+  }
 
   const { error } = await supabase
     .from('bonds_projects')

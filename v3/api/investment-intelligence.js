@@ -11,6 +11,7 @@ const {
   VersioningEngine,
   toHtml
 } = require('../../lib/investment-intelligence');
+const { getUserRole, can } = require('../../lib/ecc/role-guard');
 
 function parseBody(req) {
   return new Promise((resolve, reject) => {
@@ -68,6 +69,8 @@ async function investmentIntelligenceRouter(req, res, path, supabase, user) {
     }
 
     if (path === '/investment-intelligence/memorandum' && req.method === 'POST') {
+      const role = await getUserRole(supabase, user.id);
+      if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const body = await parseBody(req);
       const { projectId, language, currency, type, useAi } = body;
       if (!projectId) return sendJson(res, 400, { error: 'projectId is required' });
@@ -122,6 +125,8 @@ async function investmentIntelligenceRouter(req, res, path, supabase, user) {
 
     const reviewMatch = path.match(/^\/investment-intelligence\/memorandum\/([^/]+)\/review$/);
     if (reviewMatch && req.method === 'POST') {
+      const role = await getUserRole(supabase, user.id);
+      if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const id = reviewMatch[1];
       const { data: memo, error } = await supabase.from('investment_memoranda').select('*').eq('id', id).single();
       if (error || !memo) return sendJson(res, 404, { error: 'Memorandum not found' });
@@ -164,6 +169,8 @@ async function investmentIntelligenceRouter(req, res, path, supabase, user) {
 
     const versionCreateMatch = path.match(/^\/investment-intelligence\/memorandum\/([^/]+)\/version$/);
     if (versionCreateMatch && req.method === 'POST') {
+      const role = await getUserRole(supabase, user.id);
+      if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const id = versionCreateMatch[1];
       const body = await parseBody(req);
       const { data: memo, error } = await supabase.from('investment_memoranda').select('*').eq('id', id).single();

@@ -5,6 +5,7 @@
  */
 
 const { LifecycleEngine } = require('../../lib/enterprise-lifecycle');
+const { getUserRole, can } = require('../../lib/ecc/role-guard');
 
 function parseBody(req) {
   return new Promise((resolve, reject) => {
@@ -55,6 +56,8 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
     }
 
     if (path === '/enterprise-lifecycle/instances' && req.method === 'POST') {
+      const role = await getUserRole(supabase, user.id);
+      if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const body = await parseBody(req);
       const { entityType, entityId, workflowCode, context } = body;
       if (!entityType || !entityId) return sendJson(res, 400, { error: 'entityType and entityId are required' });
@@ -102,6 +105,8 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
 
     const taskCompleteMatch = path.match(/^\/enterprise-lifecycle\/instances\/([^/]+)\/tasks\/([^/]+)\/complete$/);
     if (taskCompleteMatch && req.method === 'POST') {
+      const role = await getUserRole(supabase, user.id);
+      if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const taskId = taskCompleteMatch[2];
       const body = await parseBody(req);
       const { evidence, context } = body;
@@ -116,6 +121,8 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
 
     const transitionMatch = path.match(/^\/enterprise-lifecycle\/instances\/([^/]+)\/transition$/);
     if (transitionMatch && req.method === 'POST') {
+      const role = await getUserRole(supabase, user.id);
+      if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const id = transitionMatch[1];
       const body = await parseBody(req);
       const { toStage, reason, context, approvalId } = body;
@@ -151,6 +158,8 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
     }
 
     if (approvalsMatch && req.method === 'POST') {
+      const role = await getUserRole(supabase, user.id);
+      if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const id = approvalsMatch[1];
       const body = await parseBody(req);
       const { transitionKey } = body;
@@ -161,16 +170,20 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
 
     const approvalDecisionMatch = path.match(/^\/enterprise-lifecycle\/instances\/([^/]+)\/approvals\/([^/]+)\/decision$/);
     if (approvalDecisionMatch && req.method === 'POST') {
+      const role = await getUserRole(supabase, user.id);
+      if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const approvalId = approvalDecisionMatch[2];
       const body = await parseBody(req);
-      const { decision, reason, role } = body;
+      const { decision, reason, role: voterRole } = body;
       if (!decision) return sendJson(res, 400, { error: 'decision is required' });
-      const result = await engine.submitApproval(approvalId, { userId: user.id, role, decision, reason });
+      const result = await engine.submitApproval(approvalId, { userId: user.id, role: voterRole, decision, reason });
       return sendJson(res, 200, { approval: result });
     }
 
     const eventsMatch = path.match(/^\/enterprise-lifecycle\/instances\/([^/]+)\/events$/);
     if (eventsMatch && req.method === 'POST') {
+      const role = await getUserRole(supabase, user.id);
+      if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const id = eventsMatch[1];
       const body = await parseBody(req);
       const { eventType, payload } = body;

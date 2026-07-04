@@ -71,6 +71,7 @@ class MockSupabase {
     switch (this.table) {
       case 'enterprise_lifecycle_instances': return this.store.getInstance(id);
       case 'enterprise_lifecycle_approvals': return this.store.getApproval(id);
+      case 'profiles': return { id, role: 'owner' };
       default: return null;
     }
   }

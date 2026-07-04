@@ -26,6 +26,7 @@ const mockSupabaseClient = {
     if (table === 'investment_memoranda_versions') return createChain(null);
     if (table === 'investment_readiness_scores') return createChain(null);
     if (table === 'ai_investment_reviews') return createChain({ id: 'rev-1' });
+    if (table === 'profiles') return createChain({ role: 'owner' });
     return createChain([]);
   })
 };
