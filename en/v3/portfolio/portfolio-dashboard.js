@@ -173,11 +173,14 @@
   }
 
   function renderProjects(projects) {
+    const canCreate = canWrite(currentData?.meta?.role || 'owner');
     if (!projects.length) {
       return `
-        <div class="ecc-card projects-section">
-          <div class="ecc-card__title">Projects</div>
-          <p style="color:var(--text-secondary);font-size:0.85rem;">No projects match the selected filter.</p>
+        <div class="ecc-card projects-section empty-state">
+          <div class="empty-state__icon">📁</div>
+          <div class="empty-state__title">No projects yet</div>
+          <p class="empty-state__text">Create your first project to get AI analysis and an executive report.</p>
+          ${canCreate ? `<button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} Create New Project</button>` : ''}
         </div>
       `;
     }
@@ -531,6 +534,111 @@
     }
   }
 
+  function openCreateProjectModal() {
+    const existing = document.getElementById('createProjectModal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'createProjectModal';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="createProjectTitle">
+        <div class="modal__header">
+          <h2 id="createProjectTitle">Create New Project</h2>
+          <button type="button" class="modal__close" id="closeCreateProject" aria-label="Close">×</button>
+        </div>
+        <form id="createProjectForm" class="modal__body">
+          <label class="form-field">
+            <span>Project Name <span class="required">*</span></span>
+            <input type="text" name="name" required placeholder="e.g. Riyadh Restaurant" />
+          </label>
+          <label class="form-field">
+            <span>Sector <span class="required">*</span></span>
+            <select name="sector" required>
+              <option value="">Select sector</option>
+              <option value="Restaurants & Hospitality">Restaurants & Hospitality</option>
+              <option value="Real Estate & Construction">Real Estate & Construction</option>
+              <option value="Manufacturing">Manufacturing</option>
+              <option value="Contracting">Contracting</option>
+              <option value="Medical Facility">Medical Facility</option>
+              <option value="Retail & Trade">Retail & Trade</option>
+              <option value="Services">Services</option>
+              <option value="Education & Training">Education & Training</option>
+              <option value="Logistics & Transport">Logistics & Transport</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+          <label class="form-field">
+            <span>Activity</span>
+            <input type="text" name="activity" placeholder="e.g. fast-food burger restaurant" />
+          </label>
+          <label class="form-field">
+            <span>City (city code)</span>
+            <input type="text" name="cityCode" placeholder="e.g. riyadh" />
+          </label>
+          <label class="form-field">
+            <span>Currency</span>
+            <select name="currency">
+              <option value="SAR">Saudi Riyal (SAR)</option>
+              <option value="USD">US Dollar (USD)</option>
+              <option value="AED">UAE Dirham (AED)</option>
+              <option value="EGP">Egyptian Pound (EGP)</option>
+              <option value="KWD">Kuwaiti Dinar (KWD)</option>
+              <option value="QAR">Qatari Riyal (QAR)</option>
+              <option value="OMR">Omani Riyal (OMR)</option>
+              <option value="BHD">Bahraini Dinar (BHD)</option>
+              <option value="JOD">Jordanian Dinar (JOD)</option>
+              <option value="MAD">Moroccan Dirham (MAD)</option>
+              <option value="TND">Tunisian Dinar (TND)</option>
+            </select>
+          </label>
+          <div class="modal__footer">
+            <button type="submit" class="ecc-btn ecc-btn--primary" id="submitCreateProject">Create Project</button>
+            <button type="button" class="ecc-btn ecc-btn--secondary" id="cancelCreateProject">Cancel</button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const close = () => modal.remove();
+    document.getElementById('closeCreateProject').addEventListener('click', close);
+    document.getElementById('cancelCreateProject').addEventListener('click', close);
+    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+
+    document.getElementById('createProjectForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const submitBtn = document.getElementById('submitCreateProject');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating...';
+
+      try {
+        const headers = await getAuthHeaders();
+        const body = {
+          name: form.name.value.trim(),
+          sector: form.sector.value,
+          activity: form.activity.value.trim() || form.sector.value,
+          cityCode: form.cityCode.value.trim() || undefined,
+          currency: form.currency.value,
+          language: 'en'
+        };
+        const res = await fetch('/api/v3/projects', { method: 'POST', headers, body: JSON.stringify(body) });
+        const data = await res.json();
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) return redirectToLogin();
+          throw new Error(data.error || 'Failed to create project');
+        }
+        window.location.href = `/en/v3/project?id=${encodeURIComponent(data.project.id)}`;
+      } catch (err) {
+        alert('Failed to create project: ' + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `${icon('plus', 16)} Create Project`;
+      }
+    });
+  }
+
   window.PortfolioDashboard = {
     refresh: load,
     login: redirectToLogin,
@@ -542,9 +650,7 @@
     openProject: (id) => {
       window.location.href = `/en/v3/project?id=${encodeURIComponent(id)}`;
     },
-    createProject: () => {
-      window.location.href = '/en/v3/portfolio';
-    },
+    createProject: openCreateProjectModal,
     toggleNotifications: (e) => {
       if (e) e.stopPropagation();
       const panel = document.getElementById('notification-panel');

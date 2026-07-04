@@ -177,11 +177,14 @@
   }
 
   function renderProjects(projects) {
+    const canCreate = canWrite(currentData?.meta?.role || 'owner');
     if (!projects.length) {
       return `
-        <div class="ecc-card projects-section">
-          <div class="ecc-card__title">المشاريع</div>
-          <p style="color:var(--text-secondary);font-size:0.85rem;">لا توجد مشاريع مطابقة للتصفية.</p>
+        <div class="ecc-card projects-section empty-state">
+          <div class="empty-state__icon">📁</div>
+          <div class="empty-state__title">لا توجد مشاريع بعد</div>
+          <p class="empty-state__text">ابدأ بإنشاء أول مشروع لتحصل على تحليل AI وتقرير تنفيذي.</p>
+          ${canCreate ? `<button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} إنشاء مشروع جديد</button>` : ''}
         </div>
       `;
     }
@@ -543,6 +546,111 @@
     }
   }
 
+  function openCreateProjectModal() {
+    const existing = document.getElementById('createProjectModal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'createProjectModal';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="createProjectTitle">
+        <div class="modal__header">
+          <h2 id="createProjectTitle">إنشاء مشروع جديد</h2>
+          <button type="button" class="modal__close" id="closeCreateProject" aria-label="إغلاق">×</button>
+        </div>
+        <form id="createProjectForm" class="modal__body">
+          <label class="form-field">
+            <span>اسم المشروع <span class="required">*</span></span>
+            <input type="text" name="name" required placeholder="مثال: مطعم الرياض" />
+          </label>
+          <label class="form-field">
+            <span>القطاع <span class="required">*</span></span>
+            <select name="sector" required>
+              <option value="">اختر القطاع</option>
+              <option value="مطاعم وضيافة">مطاعم وضيافة</option>
+              <option value="عقارات وإنشاءات">عقارات وإنشاءات</option>
+              <option value="صناعة">صناعة</option>
+              <option value="مقاولات">مقاولات</option>
+              <option value="منشأة طبية">منشأة طبية</option>
+              <option value="تجزئة وتجارة">تجزئة وتجارة</option>
+              <option value="خدمات">خدمات</option>
+              <option value="تعليم وتدريب">تعليم وتدريب</option>
+              <option value="لوجستيات ونقل">لوجستيات ونقل</option>
+              <option value="أخرى">أخرى</option>
+            </select>
+          </label>
+          <label class="form-field">
+            <span>النشاط</span>
+            <input type="text" name="activity" placeholder="مثال: مطعم برجر سريع" />
+          </label>
+          <label class="form-field">
+            <span>المدينة (رمز المدينة)</span>
+            <input type="text" name="cityCode" placeholder="مثال: riyadh" />
+          </label>
+          <label class="form-field">
+            <span>العملة</span>
+            <select name="currency">
+              <option value="SAR">ريال سعودي (SAR)</option>
+              <option value="USD">دولار أمريكي (USD)</option>
+              <option value="AED">درهم إماراتي (AED)</option>
+              <option value="EGP">جنيه مصري (EGP)</option>
+              <option value="KWD">دينار كويتي (KWD)</option>
+              <option value="QAR">ريال قطري (QAR)</option>
+              <option value="OMR">ريال عماني (OMR)</option>
+              <option value="BHD">دينار بحريني (BHD)</option>
+              <option value="JOD">دينار أردني (JOD)</option>
+              <option value="MAD">درهم مغربي (MAD)</option>
+              <option value="TND">دينار تونسي (TND)</option>
+            </select>
+          </label>
+          <div class="modal__footer">
+            <button type="submit" class="ecc-btn ecc-btn--primary" id="submitCreateProject">إنشاء المشروع</button>
+            <button type="button" class="ecc-btn ecc-btn--secondary" id="cancelCreateProject">إلغاء</button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const close = () => modal.remove();
+    document.getElementById('closeCreateProject').addEventListener('click', close);
+    document.getElementById('cancelCreateProject').addEventListener('click', close);
+    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+
+    document.getElementById('createProjectForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const submitBtn = document.getElementById('submitCreateProject');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'جارِ الإنشاء...';
+
+      try {
+        const headers = await getAuthHeaders();
+        const body = {
+          name: form.name.value.trim(),
+          sector: form.sector.value,
+          activity: form.activity.value.trim() || form.sector.value,
+          cityCode: form.cityCode.value.trim() || undefined,
+          currency: form.currency.value,
+          language: 'ar'
+        };
+        const res = await fetch('/api/v3/projects', { method: 'POST', headers, body: JSON.stringify(body) });
+        const data = await res.json();
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) return redirectToLogin();
+          throw new Error(data.error || 'فشل إنشاء المشروع');
+        }
+        window.location.href = `/v3/project?id=${encodeURIComponent(data.project.id)}`;
+      } catch (err) {
+        alert('فشل إنشاء المشروع: ' + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `${icon('plus', 16)} إنشاء المشروع`;
+      }
+    });
+  }
+
   window.PortfolioDashboard = {
     refresh: load,
     login: redirectToLogin,
@@ -554,10 +662,7 @@
     openProject: (id) => {
       window.location.href = `/v3/project?id=${encodeURIComponent(id)}`;
     },
-    createProject: () => {
-      const isEn = document.documentElement.lang && document.documentElement.lang.startsWith('en');
-      window.location.href = isEn ? '/en/v3/portfolio' : '/v3/portfolio';
-    },
+    createProject: openCreateProjectModal,
     toggleNotifications: (e) => {
       if (e) e.stopPropagation();
       const panel = document.getElementById('notification-panel');

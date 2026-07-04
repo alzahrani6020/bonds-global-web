@@ -248,34 +248,6 @@
         ],
       },
       {
-        heading: { ar: 'الاستثمار الطبي', en: 'Medical Investment' },
-        items: medicalInvestmentItems,
-      },
-      {
-        heading: { ar: 'الاستثمار العقاري', en: 'Real Estate Investment' },
-        items: realEstateItems,
-      },
-      {
-        heading: { ar: 'الصناعة والمقاولات', en: 'Industry & Construction' },
-        items: industryConstructionItems,
-      },
-      {
-        heading: { ar: 'المطاعم والضيافة', en: 'Restaurants & Hospitality' },
-        items: [
-          ...restaurantsHospitalityItems,
-          { label: labels.menuEngCalc, href: calcBase + 'menu-engineering.html' },
-          { label: labels.feasibilityCalc, href: calcBase + 'feasibility.html' },
-        ],
-      },
-      {
-        heading: { ar: 'التعليم والتقنية', en: 'Education & Technology' },
-        items: educationTechnologyItems,
-      },
-      {
-        heading: { ar: 'اللوجستيات والتجارة', en: 'Logistics & Commerce' },
-        items: logisticsCommerceItems,
-      },
-      {
         heading: { ar: labels.financialAnalysisGroup, en: 'Financial Analysis' },
         items: [
           { label: labels.cashFlowCalc, href: calcBase + 'cash-flow.html' },
@@ -290,10 +262,6 @@
           { label: labels.pricingCalc, href: calcBase + 'pricing.html' },
           { label: labels.templateCalc, href: calcBase + 'feasibility-template.html' },
         ],
-      },
-      {
-        heading: { ar: 'تكلفة المصنع حسب الدولة', en: 'Factory Cost by Country' },
-        items: factoryCostCountries,
       },
     ];
 
@@ -351,16 +319,9 @@
 
     const navItems = [
       { href: homeHref, label: labels.home },
-      { href: aboutHref, label: labels.about },
-      { href: caseStudiesHref, label: labels.caseStudies },
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
-      { type: 'dropdown', label: labels.guides, items: guideCountries.map(c => ({ href: sectorsBase + c.code + '.html', label: c.flag + ' ' + c.label })), isLarge: true },
-      { type: 'dropdown', label: labels.calculators, items: calcDropdown, isLarge: true },
-      { href: cityIntelligenceHref, label: labels.cityIntelligence },
-      { href: fundingReadinessHref, label: isEn ? 'Funding Readiness' : 'جاهزية التمويل' },
+      { type: 'dropdown', label: labels.calculators, items: calcDropdown, all: { href: calcBase + 'investment-center/index.html', label: isEn ? 'All Calculators →' : 'جميع الحاسبات →' } },
       { type: 'dropdown', label: labels.intelligence, items: intelligenceDropdown },
-      { href: valuationHref, label: labels.valuation },
-      { href: blogHref, label: labels.articles },
       { href: clientPortalHref, label: labels.clientPortal },
       { href: contactHref, label: labels.contact },
     ];
