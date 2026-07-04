@@ -314,3 +314,102 @@ body {
   outline: none;
   border-color: var(--gold);
 }
+
+/* Action Center */
+.action-center {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  backdrop-filter: blur(10px);
+}
+.action-center__main {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.action-center__create {
+  display: flex;
+  align-items: center;
+}
+.portfolio-health {
+  text-align: center;
+  min-width: 120px;
+  padding: 0.5rem 1rem;
+  border-right: 1px solid var(--border);
+}
+[dir="rtl"] .portfolio-health {
+  border-right: none;
+  border-left: 1px solid var(--border);
+}
+.portfolio-health__score {
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 0.35rem;
+}
+.portfolio-health__score.score--healthy { color: var(--success); }
+.portfolio-health__score.score--attention { color: var(--warning); }
+.portfolio-health__score.score--at-risk { color: var(--danger); }
+.portfolio-health__label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.portfolio-health__sublabel {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+}
+.next-action {
+  flex: 1;
+  min-width: 220px;
+}
+.next-action__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.35rem;
+}
+.next-action__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+.next-action__desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+/* Simplified modal helpers */
+.modal__intro {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+.form-help {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.35rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+  .action-center { flex-direction: column; }
+  .action-center__main { flex-direction: column; align-items: flex-start; }
+  .portfolio-health { border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 1rem; width: 100%; text-align: start; }
+  [dir="rtl"] .portfolio-health { border-left: none; }
+}

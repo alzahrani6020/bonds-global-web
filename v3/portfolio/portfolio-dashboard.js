@@ -146,6 +146,61 @@
     `;
   }
 
+  function scoreClass(score) {
+    if (score >= 80) return 'score--healthy';
+    if (score >= 50) return 'score--attention';
+    return 'score--at-risk';
+  }
+
+  function scoreLabel(score) {
+    if (score >= 80) return 'ممتازة';
+    if (score >= 50) return 'جيدة';
+    return 'تحتاج عمل';
+  }
+
+  function renderActionCenter(summary, actions) {
+    const hasProjects = summary.totalProjects > 0;
+    const score = hasProjects ? Math.round(summary.averageReadiness || 0) : null;
+    const next = actions && actions[0];
+    let nextHtml;
+    if (next) {
+      nextHtml = `
+        <div class="next-action__label">الخطوة التالية</div>
+        <div class="next-action__title">${next.action_ar || next.action || 'إجراء موصى به'}</div>
+        <div class="next-action__desc">${next.reason_ar || next.reason || ''}</div>
+        <button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.doNextAction('${next.projectId || next.project_id || ''}')">افتح المشروع</button>
+      `;
+    } else if (hasProjects) {
+      nextHtml = `
+        <div class="next-action__label">الخطوة التالية</div>
+        <div class="next-action__title">لا توجد إجراءات فورية</div>
+        <div class="next-action__desc">راجع الإشعارات أو استكمل بيانات المشاريع لتحسين الجاهزية.</div>
+      `;
+    } else {
+      nextHtml = `
+        <div class="next-action__label">ابدأ الآن</div>
+        <div class="next-action__title">أنشئ أول مشروع</div>
+        <div class="next-action__desc">في خطوات قليلة ستحصل على دراسة جدوى، تقييم مخاطر، وخيارات تمويل.</div>
+        <button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} مشروع جديد</button>
+      `;
+    }
+    return `
+      <div class="action-center">
+        <div class="action-center__main">
+          <div class="portfolio-health">
+            <div class="portfolio-health__score ${score !== null ? scoreClass(score) : ''}">${score !== null ? score : '—'}</div>
+            <div class="portfolio-health__label">صحة المحفظة</div>
+            <div class="portfolio-health__sublabel">${score !== null ? scoreLabel(score) : 'أضف مشروعاً لتظهر النتيجة'}</div>
+          </div>
+          <div class="next-action">
+            ${nextHtml}
+          </div>
+        </div>
+        ${canWrite(currentData?.meta?.role || 'owner') && hasProjects ? `<div class="action-center__create"><button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} مشروع جديد</button></div>` : ''}
+      </div>
+    `;
+  }
+
   function renderFilters() {
     return `
       <div class="filter-bar">
@@ -183,7 +238,7 @@
         <div class="ecc-card projects-section empty-state">
           <div class="empty-state__icon">📁</div>
           <div class="empty-state__title">لا توجد مشاريع بعد</div>
-          <p class="empty-state__text">ابدأ بإنشاء أول مشروع لتحصل على تحليل AI وتقرير تنفيذي.</p>
+          <p class="empty-state__text">ابدأ بإنشاء أول مشروع. في خطوات قليلة ستحصل على دراسة جدوى، تقييم مخاطر، وخيارات تمويل.</p>
           ${canCreate ? `<button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} إنشاء مشروع جديد</button>` : ''}
         </div>
       `;
@@ -349,16 +404,13 @@
 
   function renderHeader() {
     const unread = computeUnreadCount(notificationsData.notifications);
-    const role = currentData?.meta?.role || 'owner';
-    const showCreate = canWrite(role);
     return `
       <div class="ecc-header">
         <div class="ecc-header__title">
-          <h1>لوحة المحفظة الاستثمارية</h1>
-          <p>متابعة شاملة لجميع مشاريعك الاستثمارية في لوحة مدير تنفيذي واحدة.</p>
+          <h1>مركز الإجراءات</h1>
+          <p>أين وصلت، ماذا ينقص، وماذا تفعل الآن.</p>
         </div>
         <div class="ecc-header__actions" style="position:relative;">
-          ${showCreate ? `<button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} مشروع جديد</button>` : ''}
           <div class="notification-bell" id="notification-bell" role="button" tabindex="0" aria-label="الإشعارات" aria-expanded="false" onclick="PortfolioDashboard.toggleNotifications(event)" onkeydown="if(event.key==='Enter'||event.key===' ')PortfolioDashboard.toggleNotifications(event)">
             ${icon('bell', 20)}
             ${unread > 0 ? `<span class="notification-badge" aria-label="${unread} إشعارات غير مقروءة">${unread}</span>` : ''}
@@ -449,6 +501,7 @@
 
     root.innerHTML = `
       ${renderHeader()}
+      ${renderActionCenter(summary, data.upcomingActions)}
       ${renderTabs()}
 
       <div id="tab-panel-overview" class="ecc-tab-panel ${tab === 'overview' ? 'active' : ''}" role="tabpanel" aria-labelledby="tab-btn-overview">
@@ -536,7 +589,8 @@
         return redirectToLogin();
       }
       if (!res.ok) throw new Error(data.error || 'فشل في تحميل المحفظة');
-      render(data, 'all', 'overview');
+      const defaultTab = data.projects && data.projects.length ? 'actions' : 'overview';
+      render(data, 'all', defaultTab);
       loadNotifications();
     } catch (err) {
       console.error('[PortfolioDashboard]', err);
@@ -560,6 +614,7 @@
           <button type="button" class="modal__close" id="closeCreateProject" aria-label="إغلاق">×</button>
         </div>
         <form id="createProjectForm" class="modal__body">
+          <p class="modal__intro">أدخل بيانات أساسية فقط. بقية التفاصيل سيتم استكمالها داخل المشروع.</p>
           <label class="form-field">
             <span>اسم المشروع <span class="required">*</span></span>
             <input type="text" name="name" required placeholder="مثال: مطعم الرياض" />
@@ -581,28 +636,9 @@
             </select>
           </label>
           <label class="form-field">
-            <span>النشاط</span>
-            <input type="text" name="activity" placeholder="مثال: مطعم برجر سريع" />
-          </label>
-          <label class="form-field">
-            <span>المدينة (رمز المدينة)</span>
-            <input type="text" name="cityCode" placeholder="مثال: riyadh" />
-          </label>
-          <label class="form-field">
-            <span>العملة</span>
-            <select name="currency">
-              <option value="SAR">ريال سعودي (SAR)</option>
-              <option value="USD">دولار أمريكي (USD)</option>
-              <option value="AED">درهم إماراتي (AED)</option>
-              <option value="EGP">جنيه مصري (EGP)</option>
-              <option value="KWD">دينار كويتي (KWD)</option>
-              <option value="QAR">ريال قطري (QAR)</option>
-              <option value="OMR">ريال عماني (OMR)</option>
-              <option value="BHD">دينار بحريني (BHD)</option>
-              <option value="JOD">دينار أردني (JOD)</option>
-              <option value="MAD">درهم مغربي (MAD)</option>
-              <option value="TND">دينار تونسي (TND)</option>
-            </select>
+            <span>المدينة</span>
+            <input type="text" name="cityCode" placeholder="مثال: الرياض" />
+            <div class="form-help">اكتب اسم المدينة. سنضبط العملة والبيانات المحلية تلقائياً داخل المشروع.</div>
           </label>
           <div class="modal__footer">
             <button type="submit" class="ecc-btn ecc-btn--primary" id="submitCreateProject">إنشاء المشروع</button>
@@ -631,9 +667,9 @@
         const body = {
           name: form.name.value.trim(),
           sector: form.sector.value,
-          activity: form.activity.value.trim() || form.sector.value,
+          activity: form.sector.value,
           cityCode: form.cityCode.value.trim() || undefined,
-          currency: form.currency.value,
+          currency: 'SAR',
           language: 'ar'
         };
         const res = await fetch('/api/v3/projects', { method: 'POST', headers, body: JSON.stringify(body) });
@@ -663,6 +699,9 @@
       window.location.href = `/v3/project?id=${encodeURIComponent(id)}`;
     },
     createProject: openCreateProjectModal,
+    doNextAction: (projectId) => {
+      if (projectId) window.location.href = `/v3/project?id=${encodeURIComponent(projectId)}`;
+    },
     toggleNotifications: (e) => {
       if (e) e.stopPropagation();
       const panel = document.getElementById('notification-panel');
