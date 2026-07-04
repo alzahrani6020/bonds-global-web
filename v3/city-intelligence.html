@@ -5,20 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ذكاء المدن | Bonds V3</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/tokens.css">
   <style>
-    :root {
-      --bg: #0a0f1a;
-      --card: #10182d;
-      --border: rgba(197,160,40,0.2);
-      --gold: #d4a853;
-      --gold-bright: #f0c96a;
-      --text: #e8ecf4;
-      --text-secondary: #94a3b8;
-      --success: #22c55e;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --info: #3b82f6;
-    }
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -28,7 +16,7 @@
       line-height: 1.6;
     }
     header {
-      background: var(--card);
+      background: var(--bg-card);
       border-bottom: 1px solid var(--border);
       padding: 1.5rem 2rem;
       text-align: center;
@@ -54,7 +42,7 @@
       min-width: 200px;
     }
     select option, select optgroup {
-      background: var(--card);
+      background: var(--bg-card);
       color: var(--text);
     }
     select:focus {
@@ -63,7 +51,7 @@
     }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
     .card {
-      background: var(--card);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.5rem;
@@ -264,7 +252,7 @@
       width: 320px;
       max-height: 400px;
       overflow-y: auto;
-      background: var(--card);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1rem;
@@ -326,7 +314,7 @@
     }
     .modal-overlay.open { display: flex; }
     .modal {
-      background: var(--card);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 1.5rem;
@@ -640,13 +628,15 @@
       return recs;
     }
 
+    const MODERN_CITY_CODE = /^[A-Z]{2}-\d{2}-\d{3}$/;
+
     async function init() {
       try {
         const [citiesData, sectorsData] = await Promise.all([
-          fetchJson(API_URL + '/cities'),
+          fetchJson(API_URL + '/cities?limit=2000'),
           fetchJson(API_URL + '/sectors')
         ]);
-        cities = citiesData.cities || [];
+        cities = (citiesData.cities || []).filter(c => MODERN_CITY_CODE.test(c.code));
         activities = [];
         (sectorsData.sectors || []).forEach(sector => {
           (sector.economic_sub_sectors || []).forEach(sub => {
@@ -658,29 +648,36 @@
 
         const countrySelect = document.getElementById('countrySelect');
         // Show all 22 supported countries even if some have no cities in the DB yet
+        if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(countrySelect);
         const allCountryCodes = Object.keys(countryNames).sort((a, b) =>
           countryNames[a].localeCompare(countryNames[b], 'ar')
         );
+        countrySelect.innerHTML = '<option value="">اختر الدولة</option>';
         allCountryCodes.forEach(code => {
           countrySelect.innerHTML += `<option value="${code}">${countryNames[code]}</option>`;
         });
+        if (window.initUniversalDropdowns) window.initUniversalDropdowns(countrySelect);
 
         const citySelect = document.getElementById('citySelect');
         function populateCities() {
           const selectedCountry = countrySelect.value;
+          if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(citySelect);
           citySelect.innerHTML = '<option value="">اختر المدينة</option>';
           cities
-            .filter(c => !selectedCountry || c.country_code === selectedCountry)
+            .filter(c => (!selectedCountry || c.country_code === selectedCountry) && MODERN_CITY_CODE.test(c.code))
             .forEach(c => {
               citySelect.innerHTML += `<option value="${c.code}">${c.name_ar}</option>`;
             });
+          if (window.initUniversalDropdowns) window.initUniversalDropdowns(citySelect);
         }
         populateCities();
 
         const activitySelect = document.getElementById('activitySelect');
+        if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(activitySelect);
         activities.forEach(a => {
           activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar}</option>`;
         });
+        if (window.initUniversalDropdowns) window.initUniversalDropdowns(activitySelect);
 
         countrySelect.addEventListener('change', populateCities);
         citySelect.addEventListener('change', loadCityData);
@@ -696,6 +693,10 @@
       const activityCode = document.getElementById('activitySelect').value;
       const year = document.getElementById('yearSelect').value;
       const content = document.getElementById('content');
+
+      if (typeof BondsAIChat !== 'undefined' && BondsAIChat.updateContext) {
+        BondsAIChat.updateContext({ cityCode, activityCode });
+      }
 
       if (!cityCode) {
         content.innerHTML = '<div class="loading">اختر مدينة لعرض المؤشرات</div>';

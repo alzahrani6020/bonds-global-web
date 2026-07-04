@@ -111,7 +111,6 @@ ${context?.population != null ? `- عدد السكان: ${formatNumber(context.p
 }
 
 function generateDataDrivenReply(userMessage, context) {
-  console.log('[ai/chat] generateDataDrivenReply input:', JSON.stringify(userMessage));
   const msg = (userMessage || '').toLowerCase();
   const city = context?.cityName || context?.cityCode || 'المدينة المختارة';
   const activity = context?.activityName || context?.activityCode || 'النشاط المختار';
@@ -162,7 +161,7 @@ function generateDataDrivenReply(userMessage, context) {
         reply += `${i + 1}. ${c.cityName}: ${c.opportunity_score != null ? c.opportunity_score + '/100' : 'غير متوفر'}\n`;
       });
     } else {
-      reply += `\nنصيحتي: جرّب مدينة أخرى لها بيانات سوق (مثلاً الرياض أو جدة أو دبي أو القاهرة)، أو اختر نشاطاً مختلفاً من القائمة.`;
+      reply += `\nنصيحتي: جرّب مدينة أخرى لها بيانات سوق (مثلاً الرياض أو جدة أو دبي أو القاهرة)، أو اختر نشاطاً مختلفاً من القائمة. يمكنك أيضاً استعراض "بنك الفرص" لأفضل الفرص المتاحة حالياً.`;
     }
     reply += dataQualityNote(null);
     return reply;
@@ -305,15 +304,17 @@ async function aiChatHandler(req, res) {
   }
 
   // Enrich context with real data
+  const lastUser = [...messages].reverse().find(m => m.role === 'user');
+  const lastUserText = lastUser?.content || '';
+
   let enrichedContext = { ...context };
   try {
-    enrichedContext = await enrichContext(enrichedContext);
+    enrichedContext = await enrichContext(enrichedContext, lastUserText);
   } catch (err) {
     console.warn('[ai/chat] Context enrichment failed:', err.message);
   }
 
-  const lastUser = [...messages].reverse().find(m => m.role === 'user');
-  const reply = fallbackReply(lastUser?.content || '', enrichedContext);
+  const reply = fallbackReply(lastUserText, enrichedContext);
 
   // Debug: include enrichment summary in response during rollout
   const debugInfo = {
@@ -339,9 +340,41 @@ async function aiChatHandler(req, res) {
   });
 }
 
-async function enrichContext(context) {
+async function resolveActivityAndCityFromMessage(message, context, supabase) {
+  const msg = (message || '').toLowerCase().trim();
+  if (!msg) return context;
+
+  if (!context.activityCode) {
+    const { data: activities } = await supabase
+      .from('economic_activities')
+      .select('code, name_ar')
+      .eq('is_active', true);
+    if (activities) {
+      const matched = activities.find(a => msg.includes((a.name_ar || '').toLowerCase()));
+      if (matched) context.activityCode = matched.code;
+    }
+  }
+
+  if (!context.cityCode) {
+    const { data: cities } = await supabase
+      .from('cities')
+      .select('code, name_ar')
+      .eq('is_active', true)
+      .limit(2000);
+    if (cities) {
+      const matched = cities.find(c => msg.includes((c.name_ar || '').toLowerCase()));
+      if (matched) context.cityCode = matched.code;
+    }
+  }
+
+  return context;
+}
+
+async function enrichContext(context, userMessage) {
   const supabase = getSupabaseClient();
   const currentYear = new Date().getFullYear();
+
+  await resolveActivityAndCityFromMessage(userMessage, context, supabase);
 
   if (!context.cityCode) return context;
 

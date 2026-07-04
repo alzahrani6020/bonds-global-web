@@ -5,19 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>مقارنة المدن | Bonds V3</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/tokens.css">
   <style>
-    :root {
-      --bg: #0a0f1a;
-      --card: #10182d;
-      --border: rgba(197,160,40,0.2);
-      --gold: #d4a853;
-      --gold-bright: #f0c96a;
-      --text: #e8ecf4;
-      --text-secondary: #94a3b8;
-      --success: #22c55e;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-    }
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -27,7 +16,7 @@
       line-height: 1.6;
     }
     header {
-      background: var(--card);
+      background: var(--bg-card);
       border-bottom: 1px solid var(--border);
       padding: 1.5rem 2rem;
       text-align: center;
@@ -96,7 +85,7 @@
       margin-bottom: 2rem;
     }
     .summary-card {
-      background: var(--card);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1rem 1.25rem;
@@ -108,7 +97,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      background: var(--card);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
@@ -202,6 +191,10 @@
         </select>
       </div>
       <div>
+        <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">الدولة</label>
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" id="countrySelect"><option value="">كل الدول</option></select>
+      </div>
+      <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">نموذج المشروع (اختياري)</label>
         <select data-universal-dropdown="true" id="modelSelect"><option value="">بدون نموذج</option></select>
       </div>
@@ -209,7 +202,7 @@
     </div>
 
     <div>
-      <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">اختر المدن (1–10)</label>
+      <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">اختر المدن لهذا النشاط (1–10)</label>
       <div id="cityChips" class="city-selector">جاري تحميل المدن...</div>
     </div>
 
@@ -224,8 +217,14 @@
 
   <script>
     const API_URL = '/api/v3';
-    const countryNames = { SA: 'السعودية', AE: 'الإمارات', QA: 'قطر', EG: 'مصر', JO: 'الأردن' };
+    const countryNames = {
+      DZ: 'الجزائر', BH: 'البحرين', KM: 'جزر القمر', DJ: 'جيبوتي', EG: 'مصر', IQ: 'العراق',
+      JO: 'الأردن', KW: 'الكويت', LB: 'لبنان', LY: 'ليبيا', MR: 'موريتانيا', MA: 'المغرب',
+      OM: 'عُمان', PS: 'فلسطين', QA: 'قطر', SA: 'السعودية', SO: 'الصومال', SD: 'السودان',
+      SY: 'سوريا', TN: 'تونس', AE: 'الإمارات', YE: 'اليمن'
+    };
     let cities = [];
+    let filteredCities = [];
     let activities = [];
     let models = [];
     let selectedCities = new Set();
@@ -264,15 +263,17 @@
       return { high: 'مرتفع', medium: 'متوسط', low: 'منخفض' }[value] || value || '-';
     }
 
+    const MODERN_CITY_CODE = /^[A-Z]{2}-\d{2}-\d{3}$/;
+
     async function init() {
       try {
         const [citiesData, sectorsData, modelsData] = await Promise.all([
-          fetchJson(API_URL + '/cities?limit=500'),
+          fetchJson(API_URL + '/cities?limit=2000'),
           fetchJson(API_URL + '/sectors'),
           fetchJson(API_URL + '/models?limit=500')
         ]);
 
-        cities = citiesData.cities || [];
+        cities = (citiesData.cities || []).filter(c => MODERN_CITY_CODE.test(c.code));
         models = modelsData.models || [];
         activities = [];
         (sectorsData.sectors || []).forEach(sector => {
@@ -284,26 +285,75 @@
         });
 
         const activitySelect = document.getElementById('activitySelect');
+        if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(activitySelect);
         activities.forEach(a => {
           activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar} (${a.code})</option>`;
         });
 
         const modelSelect = document.getElementById('modelSelect');
+        if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(modelSelect);
         models.forEach(m => {
           modelSelect.innerHTML += `<option value="${m.code}">${m.name_ar}</option>`;
         });
 
-        renderCityChips();
+        populateCountrySelect();
+        await updateCityList();
+        if (window.initUniversalDropdowns) {
+          window.initUniversalDropdowns(activitySelect);
+          window.initUniversalDropdowns(modelSelect);
+        }
       } catch (err) {
         document.getElementById('content').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
       }
     }
 
+    function populateCountrySelect() {
+      const select = document.getElementById('countrySelect');
+      if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(select);
+      const codes = [...new Set(cities.map(c => c.country_code))].sort();
+      select.innerHTML = '<option value="">كل الدول</option>' +
+        codes.map(code => `<option value="${code}">${countryNames[code] || code}</option>`).join('');
+      if (window.initUniversalDropdowns) window.initUniversalDropdowns(select);
+    }
+
+    async function updateCityList() {
+      const activityCode = document.getElementById('activitySelect').value;
+      selectedCities.clear();
+      const chipsEl = document.getElementById('cityChips');
+
+      if (!activityCode) {
+        cities = [];
+        populateCountrySelect();
+        chipsEl.innerHTML = '<div style="color: var(--text-secondary); padding: 1rem 0;">اختر نشاطاً أولاً لعرض المدن ذات البيانات السوقية.</div>';
+        return;
+      }
+
+      chipsEl.innerHTML = '<div class="loading">جاري تحديث المدن...</div>';
+      try {
+        const data = await fetchJson(`${API_URL}/cities?include=opportunity&activity=${encodeURIComponent(activityCode)}&limit=2000`);
+        cities = (data.cities || []).filter(c => MODERN_CITY_CODE.test(c.code) && c.opportunity != null);
+        populateCountrySelect();
+        filterAndRenderCities();
+      } catch (err) {
+        chipsEl.innerHTML = `<div class="error">فشل تحميل المدن: ${err.message}</div>`;
+      }
+    }
+
+    function filterAndRenderCities() {
+      const countryCode = document.getElementById('countrySelect').value;
+      filteredCities = cities.filter(c => !countryCode || c.country_code === countryCode);
+      renderCityChips();
+    }
+
     function renderCityChips() {
       const el = document.getElementById('cityChips');
-      const uniqueCities = [...new Map(cities.map(c => [c.code, c])).values()];
+      if (filteredCities.length === 0) {
+        el.innerHTML = '<div style="color: var(--text-secondary); padding: 1rem 0;">لا توجد مدينات مطابقة للتصفية المحددة.</div>';
+        return;
+      }
+      const uniqueCities = [...new Map(filteredCities.map(c => [c.code, c])).values()];
       el.innerHTML = uniqueCities.map(c => `
-        <div class="city-chip ${selectedCities.has(c.code) ? 'selected' : ''}" data-code="${c.code}">
+        <div class="city-chip ${selectedCities.has(c.code) ? 'selected' : ''}" data-code="${c.code}" title="${countryNames[c.country_code] || c.country_code}">
           ${c.name_ar}
         </div>
       `).join('');
@@ -468,6 +518,8 @@
     }
 
     document.getElementById('compareBtn').addEventListener('click', runComparison);
+    document.getElementById('activitySelect').addEventListener('change', updateCityList);
+    document.getElementById('countrySelect').addEventListener('change', filterAndRenderCities);
 
     init();
   </script>

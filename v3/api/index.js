@@ -303,12 +303,13 @@ async function handleOpportunitiesTop(req, res) {
   const url = getQuery(req);
   const countryCode = url.searchParams.get('country');
   const activityCode = url.searchParams.get('activity');
+  const minScore = url.searchParams.get('min_score');
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '10', 10), 100);
   const year = parseInt(url.searchParams.get('year') || new Date().getFullYear(), 10);
 
   const supabase = getSupabaseClient();
 
-  function buildOpportunitiesQuery(yearCondition) {
+  function buildOpportunitiesQuery(yearCondition, filters = {}) {
     let q = supabase
       .from('city_market_data')
       .select('*, cities!inner(*), economic_activities!inner(code, name_ar, name_en)')
@@ -320,8 +321,9 @@ async function handleOpportunitiesTop(req, res) {
       q = q.lte('data_year', year);
     }
 
-    if (countryCode) q = q.eq('cities.country_code', countryCode);
-    if (activityCode) q = q.eq('economic_activities.code', activityCode);
+    if (filters.countryCode) q = q.eq('cities.country_code', filters.countryCode);
+    if (filters.activityCode) q = q.eq('economic_activities.code', filters.activityCode);
+    if (minScore) q = q.gte('opportunity_score', Number(minScore));
 
     return q
       .order('data_year', { ascending: false })
@@ -329,12 +331,16 @@ async function handleOpportunitiesTop(req, res) {
       .limit(limit);
   }
 
-  let { data, error } = await buildOpportunitiesQuery('exact');
-
-  // Fall back to the most recent year with data if the requested year is empty
-  if (!error && (!data || data.length === 0)) {
-    ({ data, error } = await buildOpportunitiesQuery('latest'));
+  async function tryQuery(filters) {
+    let { data, error } = await buildOpportunitiesQuery('exact', filters);
+    if (!error && (!data || data.length === 0)) {
+      ({ data, error } = await buildOpportunitiesQuery('latest', filters));
+    }
+    return { data, error };
   }
+
+  let { data, error } = await tryQuery({ countryCode, activityCode });
+
   if (error) {
     console.error('[opportunities/top]', error.message);
     return sendJson(res, 500, { error: 'Failed to load opportunities' });

@@ -5,19 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>بنك الفرص الاستثمارية | Bonds V3</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/tokens.css">
   <style>
-    :root {
-      --bg: #0a0f1a;
-      --card: #10182d;
-      --border: rgba(197,160,40,0.2);
-      --gold: #d4a853;
-      --gold-bright: #f0c96a;
-      --text: #e8ecf4;
-      --text-secondary: #94a3b8;
-      --success: #22c55e;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-    }
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -27,7 +16,7 @@
       line-height: 1.6;
     }
     header {
-      background: var(--card);
+      background: var(--bg-card);
       border-bottom: 1px solid var(--border);
       padding: 1.5rem 2rem;
       text-align: center;
@@ -65,7 +54,7 @@
     .filter-btn:hover { background: rgba(212,168,83,0.25); }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
     .card {
-      background: var(--card);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.5rem;
@@ -222,7 +211,13 @@
 
   <script>
     const API_URL = '/api/v3';
-    const countryNames = { SA: 'السعودية', AE: 'الإمارات', QA: 'قطر', EG: 'مصر', JO: 'الأردن' };
+    const countryNames = {
+      DZ: 'الجزائر', BH: 'البحرين', KM: 'جزر القمر', DJ: 'جيبوتي', EG: 'مصر', IQ: 'العراق',
+      JO: 'الأردن', KW: 'الكويت', LB: 'لبنان', LY: 'ليبيا', MR: 'موريتانيا', MA: 'المغرب',
+      OM: 'عُمان', PS: 'فلسطين', QA: 'قطر', SA: 'السعودية', SO: 'الصومال', SD: 'السودان',
+      SY: 'سوريا', TN: 'تونس', AE: 'الإمارات', YE: 'اليمن'
+    };
+    const MODERN_CITY_CODE = /^[A-Z]{2}-\d{2}-\d{3}$/;
     let activities = [];
 
     async function fetchJson(url, options = {}) {
@@ -254,12 +249,15 @@
     async function init() {
       try {
         const [citiesData, sectorsData] = await Promise.all([
-          fetchJson(API_URL + '/cities?limit=500'),
+          fetchJson(API_URL + '/cities?limit=2000'),
           fetchJson(API_URL + '/sectors')
         ]);
 
         const countrySelect = document.getElementById('countrySelect');
-        const countries = [...new Set((citiesData.cities || []).map(c => c.country_code || 'SA'))].sort();
+        if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(countrySelect);
+        const countries = [...new Set((citiesData.cities || [])
+          .filter(c => MODERN_CITY_CODE.test(c.code))
+          .map(c => c.country_code || 'SA'))].sort();
         countries.forEach(code => {
           countrySelect.innerHTML += `<option value="${code}">${countryNames[code] || code}</option>`;
         });
@@ -274,9 +272,15 @@
         });
 
         const activitySelect = document.getElementById('activitySelect');
+        if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(activitySelect);
         activities.forEach(a => {
           activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar} (${a.code})</option>`;
         });
+
+        if (window.initUniversalDropdowns) {
+          window.initUniversalDropdowns(countrySelect);
+          window.initUniversalDropdowns(activitySelect);
+        }
       } catch (err) {
         document.getElementById('content').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
       }
@@ -307,7 +311,20 @@
     function renderOpportunities(opportunities) {
       const content = document.getElementById('content');
       if (opportunities.length === 0) {
-        content.innerHTML = '<div class="loading">لا توجد فرص مطابقة للمعايير</div>';
+        const filters = [];
+        const country = document.getElementById('countrySelect').value;
+        const activity = document.getElementById('activitySelect');
+        const activityName = activity.value ? activity.options[activity.selectedIndex].text : '';
+        if (country) filters.push(countryNames[country] || country);
+        if (activityName) filters.push(activityName);
+        content.innerHTML = `
+          <div style="text-align:center; padding: 3rem 1rem; color: var(--text-secondary);">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">🔍</div>
+            <h3 style="color: var(--text); margin: 0 0 0.5rem;">لا توجد فرص مطابقة</h3>
+            <p>لا توجد بيانات سوق كافية للمعايير المحددة${filters.length ? ' (' + filters.join(' + ') + ')' : ''}.</p>
+            <p>جرّب تخفيف الحد الأدنى لمؤشر الفرصة، أو اختر دولة/نشاط آخر، أو تحقق من "ذكاء المدن".</p>
+          </div>
+        `;
         return;
       }
 

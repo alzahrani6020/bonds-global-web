@@ -6,19 +6,8 @@
   <title>محرك السيناريوهات المتقدمة | Bonds V3</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../styles/tokens.css">
   <style>
-    :root {
-      --bg: #0a0f1a;
-      --card: #10182d;
-      --border: rgba(197,160,40,0.2);
-      --gold: #d4a853;
-      --gold-bright: #f0c96a;
-      --text: #e8ecf4;
-      --text-secondary: #94a3b8;
-      --success: #22c55e;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-    }
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -28,7 +17,7 @@
       line-height: 1.6;
     }
     header {
-      background: var(--card);
+      background: var(--bg-card);
       border-bottom: 1px solid var(--border);
       padding: 1.5rem 2rem;
       text-align: center;
@@ -39,7 +28,7 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
     @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
     .card {
-      background: var(--card);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.5rem;

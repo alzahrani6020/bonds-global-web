@@ -4,18 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bonds V3 — CMS</title>
+  <link rel="stylesheet" href="../../styles/tokens.css">
   <style>
-    :root {
-      --bg: #0a0f1a;
-      --card: #10182d;
-      --border: rgba(197,160,40,0.2);
-      --gold: #d4a853;
-      --gold-bright: #f0c96a;
-      --text: #e8ecf4;
-      --text-secondary: #94a3b8;
-      --danger: #ef4444;
-      --success: #22c55e;
-    }
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -25,7 +15,7 @@
       line-height: 1.6;
     }
     header {
-      background: var(--card);
+      background: var(--bg-card);
       border-bottom: 1px solid var(--border);
       padding: 1rem 2rem;
       display: flex;
@@ -47,7 +37,7 @@
     .panel { display: none; }
     .panel.active { display: block; }
     .card {
-      background: var(--card);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.5rem;

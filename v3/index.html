@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bonds V3 Enterprise</title>
+  <link rel="stylesheet" href="../styles/tokens.css">
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: #0a0f1a;
-      color: #e8ecf4;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       text-align: center;
     }
@@ -21,25 +22,25 @@
       padding: 2rem 1rem;
     }
     .box {
-      background: #10182d;
-      border: 1px solid rgba(197,160,40,0.2);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
       border-radius: 16px;
       padding: 3rem;
       max-width: 500px;
     }
-    h1 { color: #f0c96a; margin-bottom: 0.5rem; }
-    p { color: #94a3b8; margin-bottom: 2rem; }
+    h1 { color: var(--gold-bright); margin-bottom: 0.5rem; }
+    p { color: var(--text-secondary); margin-bottom: 2rem; }
     .box .links a {
       display: inline-block;
-      background: #d4a853;
-      color: #0a0f1a;
+      background: var(--gold);
+      color: var(--bg);
       padding: 0.75rem 1.5rem;
       border-radius: 8px;
       text-decoration: none;
       font-weight: bold;
       margin: 0.25rem;
     }
-    .box .links a:hover { background: #f0c96a; }
+    .box .links a:hover { background: var(--gold-bright); }
     .links { margin-top: 1.5rem; }
   </style>
 <script src="../site-layout.js"></script>

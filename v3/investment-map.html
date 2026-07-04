@@ -6,19 +6,8 @@
   <title>الخريطة الاستثمارية | Bonds V3</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="../styles/tokens.css">
   <style>
-    :root {
-      --bg: #0a0f1a;
-      --card: #10182d;
-      --border: rgba(197,160,40,0.2);
-      --gold: #d4a853;
-      --gold-bright: #f0c96a;
-      --text: #e8ecf4;
-      --text-secondary: #94a3b8;
-      --success: #22c55e;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-    }
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -28,7 +17,7 @@
       line-height: 1.6;
     }
     header {
-      background: var(--card);
+      background: var(--bg-card);
       border-bottom: 1px solid var(--border);
       padding: 1rem 2rem;
       display: flex;
@@ -50,7 +39,7 @@
       height: calc(100vh - 80px);
     }
     .sidebar {
-      background: var(--card);
+      background: var(--bg-card);
       border-left: 1px solid var(--border);
       padding: 1.5rem;
       overflow-y: auto;
@@ -127,7 +116,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       padding: 1rem 2rem;
-      background: var(--card);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
       z-index: 1000;

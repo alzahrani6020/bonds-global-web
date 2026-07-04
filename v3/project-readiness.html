@@ -5,19 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>مؤشر جاهزية المشروع | Bonds V3</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/tokens.css">
   <style>
-    :root {
-      --bg: #0a0f1a;
-      --card: #10182d;
-      --border: rgba(197,160,40,0.2);
-      --gold: #d4a853;
-      --gold-bright: #f0c96a;
-      --text: #e8ecf4;
-      --text-secondary: #94a3b8;
-      --success: #22c55e;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-    }
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -27,7 +16,7 @@
       line-height: 1.6;
     }
     header {
-      background: var(--card);
+      background: var(--bg-card);
       border-bottom: 1px solid var(--border);
       padding: 1.5rem 2rem;
       text-align: center;
@@ -36,7 +25,7 @@
     header p { margin: 0.5rem 0 0; color: var(--text-secondary); }
     .container { padding: 2rem; max-width: 900px; margin: 0 auto; }
     .intro {
-      background: var(--card);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.5rem;
@@ -44,7 +33,7 @@
     }
     .intro p { margin: 0; color: var(--text-secondary); }
     .section {
-      background: var(--card);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.5rem;
@@ -96,7 +85,7 @@
     .primary-btn:hover { background: rgba(212,168,83,0.25); }
     .result {
       display: none;
-      background: var(--card);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 2rem;
