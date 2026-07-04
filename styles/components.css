@@ -166,10 +166,7 @@
 .stat-item__num {
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 900;
-  background: linear-gradient(135deg, var(--gold), var(--gold-bright));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--gold);
   line-height: 1;
 }
 .stat-item__label {
@@ -216,11 +213,7 @@
   width: 56px;
   height: 56px;
   border-radius: 14px;
-  background: linear-gradient(
-    135deg,
-    rgba(212, 168, 83, 0.15),
-    rgba(212, 168, 83, 0.05)
-  );
+  background: var(--gold-glow);
   border: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -230,7 +223,7 @@
   transition: all var(--transition);
 }
 .card:hover .card__icon {
-  background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+  background: var(--gold);
   color: var(--bg);
   transform: scale(1.05);
 }
@@ -313,10 +306,7 @@
 .stat-value {
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 900;
-  background: linear-gradient(135deg, var(--gold), var(--gold-bright));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--gold);
   line-height: 1;
 }
 .stat-label {
@@ -403,7 +393,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+  background: var(--gold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -626,3 +616,101 @@
 
 /* Hero calc dismissible card */
 .hero-calc.is-closed { display: none !important; }
+
+/* ===== Wave 3: canonical component variants ===== */
+
+/* Button variants */
+.btn-sm { padding: var(--space-2) var(--space-4); font-size: 0.8rem; }
+.btn-lg { padding: var(--space-4) var(--space-8); font-size: 1rem; }
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-secondary:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: var(--gold-glow);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+}
+.btn-ghost:hover {
+  color: var(--gold);
+  border-color: var(--border-hover);
+  background: var(--gold-glow);
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--danger);
+}
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.btn:disabled,
+.btn.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Tab component */
+.tabs {
+  display: flex;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-6);
+  overflow-x: auto;
+}
+.tab {
+  padding: var(--space-3) var(--space-5);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: color var(--transition), border-color var(--transition);
+}
+.tab:hover { color: var(--gold); }
+.tab.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Card variants */
+.card--plain {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-6);
+}
+.card--elevated {
+  box-shadow: var(--shadow-md);
+}
+.card--outline::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--gold), transparent, var(--accent));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.6;
+  pointer-events: none;
+}

@@ -606,3 +606,20 @@ html[dir="ltr"] .footer-links a:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== Scroll progress bar (injected by script.js) ===== */
+#scrollProgress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  z-index: 10001;
+  background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+  transition: width 0.1s linear;
+}
+
+/* ===== Header scrolled state ===== */
+.main-header.scrolled {
+  box-shadow: var(--shadow-md);
+}

@@ -472,7 +472,7 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=9';
+    const href = '/header-footer.css?v=10';
     if (document.querySelector('link[href*="header-footer.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -486,6 +486,7 @@
     const headerActions = document.querySelector('.header-actions');
     if (!headerActions) return;
 
+    const isEn = detectLang() === 'en';
     const html = document.documentElement;
     const savedTheme = localStorage.getItem('theme');
 
@@ -503,8 +504,8 @@
     btn.id = 'themeToggle';
     btn.className = 'theme-toggle';
     btn.setAttribute('aria-label', 'Toggle theme');
+    btn.title = isEn ? 'Toggle theme' : 'تبديل الوضع';
     btn.textContent = html.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
-    btn.style.cssText = 'background:transparent;border:1px solid var(--border);border-radius:8px;padding:0.4rem 0.6rem;cursor:pointer;font-size:1rem;color:var(--text-secondary);';
 
     btn.addEventListener('click', function () {
       const isDark = html.getAttribute('data-theme') === 'dark';

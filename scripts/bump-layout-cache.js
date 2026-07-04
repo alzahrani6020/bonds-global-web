@@ -44,7 +44,7 @@ for (const file of files) {
     /header-footer\.css\?v=\d+/g,
     () => {
       headerFooterRefs++;
-      return 'header-footer.css?v=7';
+      return 'header-footer.css?v=10';
     }
   );
 
@@ -86,7 +86,7 @@ for (const file of files) {
     (match, dir) => {
       if (match.includes('_vercel') || match.includes('insights')) return match;
       scriptRefs++;
-      return `src="${dir || ''}script.js?v=2"`;
+      return `src="${dir || ''}script.js?v=3"`;
     }
   );
 
