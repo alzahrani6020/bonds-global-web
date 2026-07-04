@@ -215,9 +215,11 @@ body[dir="ltr"] .dropdown-menu {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1rem;
+  position: fixed;
+  top: 72px;
   left: 50%;
   right: auto;
-  width: min(1100px, 95vw);
+  width: min(1100px, calc(100vw - 2rem));
   max-height: min(540px, 80vh);
   padding: 1rem;
   overflow-y: auto;

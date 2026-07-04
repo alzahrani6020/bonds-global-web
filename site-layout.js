@@ -472,7 +472,7 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=8';
+    const href = '/header-footer.css?v=9';
     if (document.querySelector('link[href*="header-footer.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
