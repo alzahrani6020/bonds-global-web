@@ -19,6 +19,7 @@
   width: 100%;
 }
 .hero__left { text-align: right; }
+[dir="ltr"] .hero__left { text-align: left; }
 .hero__eyebrow {
   display: inline-block;
   color: var(--gold);
@@ -721,7 +722,11 @@
 .ticker-track {
   display: inline-flex;
   align-items: center;
+  flex-wrap: nowrap;
   will-change: transform;
+}
+.ticker-item {
+  white-space: nowrap;
 }
 .ticker-row--rtl .ticker-track {
   animation: ticker-rtl 38s linear infinite;
@@ -784,6 +789,11 @@
 @media (max-width: 900px) {
   .hero__title { font-size: 2.2rem; }
   .hero__desc { font-size: 0.95rem; }
+  .hero__right { display: none; }
+  .hero__inner { grid-template-columns: 1fr; text-align: center; }
+  .hero__left { text-align: center !important; }
+  .hero__desc { margin-left: auto; margin-right: auto; }
+  .hero__actions { justify-content: center; }
 }
 @media (max-width: 480px) {
   .hero-ticker { padding: 1rem; max-width: 100%; }
