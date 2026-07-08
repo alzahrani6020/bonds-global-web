@@ -957,6 +957,10 @@ function getEffectiveFee(platformData, monthlyGMV) {
 
 function formatNumber(n) {
   if (n === undefined || n === null || isNaN(n)) return '—';
+  var lang = (typeof document !== 'undefined' && document.documentElement && document.documentElement.lang && document.documentElement.lang.startsWith('en')) ? 'en' : 'ar';
+  if (typeof BondsFormatting !== 'undefined' && BondsFormatting.formatNumber) {
+    return BondsFormatting.formatNumber(n, lang);
+  }
   return Math.round(n).toLocaleString('en-US');
 }
 

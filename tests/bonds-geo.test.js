@@ -89,6 +89,16 @@ describe('BondsPlatforms', () => {
     expect(meta.currency).toBe('SAR');
     expect(meta.vatRate).toBe(15);
   });
+
+  test('every country has currency, symbol, and VAT metadata', () => {
+    Object.entries(global.window.BondsPlatforms.getAllCountryMeta()).forEach(([code, meta]) => {
+      expect(meta.currency).toBeTruthy();
+      expect(meta.currency.length).toBe(3);
+      expect(meta.currencySymbol).toBeTruthy();
+      expect(typeof meta.vatRate).toBe('number');
+      expect(code).toBe(code.toUpperCase());
+    });
+  });
 });
 
 describe('No regression to old country-platforms-data.js in calculators', () => {

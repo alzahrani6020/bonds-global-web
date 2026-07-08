@@ -10,6 +10,8 @@
   const projectId = urlParams.get('id');
   let currentTab = 'overview';
   let currentData = null;
+  const lang = document.documentElement.lang && document.documentElement.lang.startsWith('en') ? 'en' : 'ar';
+  const fmt = window.BondsFormatting || { formatNumber: (n) => n };
 
   function icon(name, size) {
     if (!window.EccIcons) return '';
@@ -32,7 +34,7 @@
 
   function formatNumber(num) {
     if (num === null || num === undefined || isNaN(num)) return '—';
-    return Number(num).toLocaleString('ar-SA');
+    return fmt.formatNumber(num, lang);
   }
 
   function formatDate(iso) {

@@ -8,6 +8,9 @@
   <link rel="icon" href="/assets/bonds-mark.svg" type="image/png" />
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/styles/design-system.css" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=1"></script>
   <link rel="canonical" href="https://bonds-global.com/client/index.html" />
   <meta property="og:title" content="بوابة العميل | Bonds" />
   <meta property="og:description" content="بوابة العميل في بوندز — رحلة المشروع من الفكرة إلى النشر الاستثماري." />
@@ -107,7 +110,12 @@
 <body>
   <div id="site-header"></div>
 
-  <section class="client-welcome">
+  <div class="loading" id="client-loading" style="min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:1rem;display:flex;">
+    <div class="loading__spinner"></div>
+    <p>جارِ التحقق من جلستك...</p>
+  </div>
+
+  <section class="client-welcome" id="client-guest" hidden>
     <div class="client-welcome__card">
       <img src="/assets/bonds-logo-2026-header.webp" alt="بوندز" class="client-welcome__logo" />
       <div class="client-welcome__eyebrow">بوابة العميل</div>
@@ -140,6 +148,19 @@
     </div>
   </section>
 
-  <script src="/site-layout.js"></script>
+  <script src="/site-layout.js?v=15"></script>
+  <script>
+    (async function () {
+      try {
+        const { data: { user } } = await window.BondsAuth.getUser();
+        if (user) {
+          window.location.replace('/v3/portfolio');
+          return;
+        }
+      } catch (e) {}
+      document.getElementById('client-loading').hidden = true;
+      document.getElementById('client-guest').hidden = false;
+    })();
+  </script>
 </body>
 </html>

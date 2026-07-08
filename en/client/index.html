@@ -2,21 +2,169 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0; url=/en/v3/portfolio" />
-  <title>Redirect | Bonds</title>
-  <meta name="description" content="Bonds client portal — your project journey from idea to investment readiness." />
-  <link rel="canonical" href="https://bonds-global.com/en/v3/portfolio" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Client Portal | Bonds</title>
+  <meta name="description" content="The BONDS client portal — from idea to investment memorandum." />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/png" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles/design-system.css" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=1"></script>
+  <link rel="canonical" href="https://bonds-global.com/en/client/index.html" />
   <meta property="og:title" content="Client Portal | Bonds" />
-  <meta property="og:description" content="Bonds client portal — your project journey from idea to investment readiness." />
+  <meta property="og:description" content="The BONDS client portal — from idea to investment memorandum." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-  <meta property="og:url" content="https://bonds-global.com/en/v3/portfolio" />
+  <meta property="og:url" content="https://bonds-global.com/en/client/index.html" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Client Portal | Bonds" />
-  <meta name="twitter:description" content="Bonds client portal — your project journey from idea to investment readiness." />
+  <meta name="twitter:description" content="The BONDS client portal — from idea to investment memorandum." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <style>
+    .client-welcome {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 1.5rem 2rem;
+      background: radial-gradient(ellipse at top, rgba(212,168,83,0.08), transparent 60%), var(--bg);
+    }
+    .client-welcome__card {
+      max-width: 720px;
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-10) var(--space-8);
+      text-align: center;
+      backdrop-filter: blur(12px);
+    }
+    .client-welcome__logo { height: 48px; margin-bottom: var(--space-6); }
+    .client-welcome__eyebrow {
+      color: var(--gold);
+      font-size: var(--text-sm);
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: var(--space-4);
+    }
+    .client-welcome__title {
+      font-size: var(--text-3xl);
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: var(--space-4);
+      line-height: 1.3;
+    }
+    .client-welcome__subtitle {
+      color: var(--text-secondary);
+      font-size: var(--text-lg);
+      margin-bottom: var(--space-8);
+      line-height: 1.7;
+    }
+    .client-welcome__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      justify-content: center;
+      margin-bottom: var(--space-8);
+    }
+    .client-welcome__steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+      text-align: center;
+    }
+    .client-welcome__step {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-5) var(--space-3);
+    }
+    .client-welcome__step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: var(--bg-dark);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      margin-bottom: var(--space-3);
+    }
+    .client-welcome__step-title {
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: var(--space-2);
+      font-size: var(--text-sm);
+    }
+    .client-welcome__step-desc {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    @media (max-width: 640px) {
+      .client-welcome__steps { grid-template-columns: 1fr; }
+      .client-welcome__card { padding: var(--space-8) var(--space-5); }
+    }
+  </style>
 </head>
 <body>
-  <p>Redirecting to <a href="/en/v3/portfolio">Portfolio</a>...</p>
+  <div id="site-header"></div>
+
+  <div class="loading" id="client-loading" style="min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:1rem;display:flex;">
+    <div class="loading__spinner"></div>
+    <p>Checking your session...</p>
+  </div>
+
+  <section class="client-welcome" id="client-guest" hidden>
+    <div class="client-welcome__card">
+      <img src="/assets/bonds-logo-2026-header.webp" alt="Bonds" class="client-welcome__logo" />
+      <div class="client-welcome__eyebrow">Client Portal</div>
+      <h1 class="client-welcome__title">Turn your idea into a clear investment decision</h1>
+      <p class="client-welcome__subtitle">
+        Create your project, analyze feasibility, value assets, and request funding — all in one unified journey.
+      </p>
+      <div class="client-welcome__actions">
+        <a href="/calculators/auth/index.html?redirect=/en/v3/portfolio" class="btn-primary">Start your project</a>
+        <a href="/en/calculators/investment-center/index.html" class="btn-outline">Try a free calculator</a>
+        <a href="/en/contact.html" class="btn-ghost" style="color:var(--text-secondary);">Talk to an advisor</a>
+      </div>
+      <div class="client-welcome__steps">
+        <div class="client-welcome__step">
+          <div class="client-welcome__step-num">1</div>
+          <div class="client-welcome__step-title">Add project data</div>
+          <div class="client-welcome__step-desc">City, sector, and expected investment size.</div>
+        </div>
+        <div class="client-welcome__step">
+          <div class="client-welcome__step-num">2</div>
+          <div class="client-welcome__step-title">Analyze & compare</div>
+          <div class="client-welcome__step-desc">Feasibility, valuation, risk, and funding in one dashboard.</div>
+        </div>
+        <div class="client-welcome__step">
+          <div class="client-welcome__step-num">3</div>
+          <div class="client-welcome__step-title">Get the report</div>
+          <div class="client-welcome__step-desc">An investment memorandum ready for banks and investors.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="/site-layout.js?v=15"></script>
+  <script>
+    (async function () {
+      try {
+        const { data: { user } } = await window.BondsAuth.getUser();
+        if (user) {
+          window.location.replace('/en/v3/portfolio');
+          return;
+        }
+      } catch (e) {}
+      document.getElementById('client-loading').hidden = true;
+      document.getElementById('client-guest').hidden = false;
+    })();
+  </script>
 </body>
 </html>
