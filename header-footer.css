@@ -336,6 +336,29 @@ body[dir="ltr"] .dropdown-menu {
   background: var(--gold-glow);
 }
 
+.header-account {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+
+.header-account svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.header-account:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+  background: var(--gold-glow);
+}
+
 /* Mobile nav toggle */
 .nav-toggle {
   display: none;
@@ -542,7 +565,7 @@ html[dir="ltr"] .footer-links a:hover {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--space-4);
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 0.85rem;
 }
 

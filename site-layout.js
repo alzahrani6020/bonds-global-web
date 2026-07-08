@@ -71,8 +71,9 @@
       scenariosEngine: isEn ? 'Scenarios' : 'محرك السيناريوهات',
       fundingSources: isEn ? 'Funding' : 'التمويل',
       contact: isEn ? 'Contact' : 'تواصل معنا',
-      cta: isEn ? 'Book Consultation' : 'احجز استشارة',
+      cta: isEn ? 'Start Now' : 'ابدأ الآن',
       clientPortal: isEn ? 'Client Portal' : 'بوابة العميل',
+      accountLabel: isEn ? 'Account' : 'الحساب',
       caseStudies: isEn ? 'Case Studies' : 'دراسات الحالة',
       langSwitch: isEn ? 'العربية' : 'EN',
       allServices: isEn ? 'View All Services →' : 'استعراض جميع الخدمات →',
@@ -128,115 +129,8 @@
       { label: labels.projectRescue, href: projectRescueHref },
     ];
 
-    // Helper builders for bilingual investment-center / factory-cost links.
-    const ic = (slug, ar, en) => ({ slug, label: isEn ? en : ar });
-    const fc = (code, ar, en) => ({ code, label: isEn ? en : ar });
-
-    const medicalInvestmentItems = [
-      ic('medical', 'المنشآت الطبية', 'Medical'),
-      ic('hospital', 'مستشفى', 'Hospital'),
-      ic('dental-clinic', 'عيادة أسنان', 'Dental Clinic'),
-      ic('medical-complex', 'مجمع طبي', 'Medical Complex'),
-      ic('medical-lab', 'مختبر طبي', 'Medical Lab'),
-      ic('pharmacy', 'صيدلية', 'Pharmacy'),
-      ic('physiotherapy-center', 'مركز علاج طبيعي', 'Physiotherapy Center'),
-      ic('optical-center', 'مركز بصريات', 'Optical Center'),
-      ic('radiology-center', 'مركز أشعة', 'Radiology Center'),
-    ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
-
-    const realEstateItems = [
-      ic('real-estate', 'عقارات', 'Real Estate'),
-      ic('land-development', 'تطوير أراضٍ', 'Land Development'),
-      ic('villa-construction', 'بناء فيلل', 'Villa Construction'),
-      ic('residential-building', 'مبنى سكني', 'Residential Building'),
-      ic('commercial-complex', 'مجمع تجاري', 'Commercial Complex'),
-      ic('commercial-mall', 'مول تجاري', 'Commercial Mall'),
-      ic('hotel-apartments', 'شقق فندقية', 'Hotel Apartments'),
-      ic('warehouses', 'مستودعات', 'Warehouses'),
-      ic('property-rehabilitation', 'تأهيل عقارات', 'Property Rehabilitation'),
-      ic('buy-to-rent', 'شراء للإيجار', 'Buy-to-Rent'),
-      ic('quick-real-estate', 'تقييم عقاري سريع', 'Quick Real Estate'),
-    ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
-
-    const industryConstructionItems = [
-      ic('industrial', 'صناعي', 'Industrial'),
-      ic('food-factory', 'مصنع غذائي', 'Food Factory'),
-      ic('water-factory', 'مصنع مياه', 'Water Factory'),
-      ic('plastic-factory', 'مصنع بلاستيك', 'Plastic Factory'),
-      ic('building-materials-factory', 'مصنع مواد بناء', 'Building Materials Factory'),
-      ic('furniture-factory', 'مصنع أثاث', 'Furniture Factory'),
-      ic('textiles-factory', 'مصنع نسيج', 'Textiles Factory'),
-      ic('chemicals-factory', 'مصنع كيماويات', 'Chemicals Factory'),
-      ic('packaging-factory', 'مصنع تعبئة', 'Packaging Factory'),
-      ic('construction', 'مقاولات', 'Construction'),
-      ic('construction-profitability', 'ربحية المقاولات', 'Construction Profitability'),
-      ic('tender-pricing', 'تسعير المناقصات', 'Tender Pricing'),
-      ic('contractor-cashflow', 'التدفق النقدي للمقاول', 'Contractor Cashflow'),
-      ic('concrete-structure-cost', 'تكلفة الهيكل الخرساني', 'Concrete Structure Cost'),
-      ic('finishing-cost', 'تكلفة التشطيبات', 'Finishing Cost'),
-      ic('distressed-project-evaluation', 'تقييم المشروع المتعثر', 'Distressed Project Evaluation'),
-    ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
-
-    const restaurantsHospitalityItems = [
-      ic('restaurants', 'قطاع المطاعم والمقاهي', 'Restaurants & Cafés'),
-      ic('restaurant', 'مطعم', 'Restaurant'),
-      ic('coffee-shop', 'مقهى', 'Coffee Shop'),
-      ic('cloud-kitchen', 'مطبخ سحابي', 'Cloud Kitchen'),
-      ic('food-truck', 'عربة طعام', 'Food Truck'),
-      ic('fast-food-restaurant', 'مطعم وجبات سريعة', 'Fast Food Restaurant'),
-      ic('fine-dining-restaurant', 'مطعم فاخر', 'Fine Dining Restaurant'),
-      ic('hotel', 'فندق', 'Hotel'),
-      ic('tourist-resort', 'منتجع سياحي', 'Tourist Resort'),
-      ic('tourist-camp', 'مخيم سياحي', 'Tourist Camp'),
-      ic('tourism-company', 'شركة سياحة', 'Tourism Company'),
-      ic('tourism', 'القطاع السياحي', 'Tourism Sector'),
-    ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
-
-    const educationTechnologyItems = [
-      ic('education', 'تعليم', 'Education'),
-      ic('private-school', 'مدرسة خاصة', 'Private School'),
-      ic('nursery', 'حضانة', 'Nursery'),
-      ic('private-university', 'جامعة خاصة', 'Private University'),
-      ic('training-center', 'مركز تدريب', 'Training Center'),
-      ic('e-learning-platform', 'منصة تعليم إلكتروني', 'E-learning Platform'),
-      ic('technology', 'تقنية', 'Technology'),
-    ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
-
-    const logisticsCommerceItems = [
-      ic('logistics', 'لوجستيات', 'Logistics'),
-      ic('shipping-company', 'شركة شحن', 'Shipping Company'),
-      ic('transport-fleet', 'أسطول نقل', 'Transport Fleet'),
-      ic('distribution-center', 'مركز توزيع', 'Distribution Center'),
-      ic('last-mile-delivery', 'التوصيل الأخير', 'Last Mile Delivery'),
-      ic('commercial', 'تجاري', 'Commercial'),
-      ic('retail', 'تجزئة', 'Retail'),
-      ic('agriculture', 'زراعة', 'Agriculture'),
-    ].map(i => ({ label: i.label, href: calcBase + 'investment-center/' + i.slug + '.html' }));
-
-    const factoryCostCountries = [
-      fc('', 'السعودية', 'Saudi Arabia'),
-      fc('eg', 'مصر', 'Egypt'),
-      fc('ae', 'الإمارات', 'UAE'),
-      fc('jo', 'الأردن', 'Jordan'),
-      fc('om', 'عمان', 'Oman'),
-      fc('bh', 'البحرين', 'Bahrain'),
-      fc('kw', 'الكويت', 'Kuwait'),
-      fc('qa', 'قطر', 'Qatar'),
-      fc('ma', 'المغرب', 'Morocco'),
-      fc('tn', 'تونس', 'Tunisia'),
-      fc('iq', 'العراق', 'Iraq'),
-      fc('sd', 'السودان', 'Sudan'),
-      fc('ly', 'ليبيا', 'Libya'),
-      fc('dz', 'الجزائر', 'Algeria'),
-      fc('lb', 'لبنان', 'Lebanon'),
-      fc('ye', 'اليمن', 'Yemen'),
-      fc('sy', 'سوريا', 'Syria'),
-      fc('dj', 'جيبوتي', 'Djibouti'),
-      fc('km', 'جزر القمر', 'Comoros'),
-      fc('mr', 'موريتانيا', 'Mauritania'),
-      fc('ps', 'فلسطين', 'Palestine'),
-      fc('so', 'الصومال', 'Somalia'),
-    ].map(i => ({ label: i.label, href: calcBase + 'factory-cost' + (i.code ? '-' + i.code : '') + '.html' }));
+    // Navigation dropdown data is kept intentionally minimal; deep calculator lists
+    // live on the dedicated calculators landing pages to avoid cognitive overload.
 
     const calcDropdown = [
       {
@@ -274,26 +168,6 @@
       { label: labels.scenariosEngine, href: '/' + v3Base + 'scenarios' },
     ];
 
-    const guideCountries = [
-      { code: 'manufacturing', label: isEn ? 'Saudi Arabia' : 'السعودية', flag: '🏭' },
-      { code: 'manufacturing-eg', label: isEn ? 'Egypt' : 'مصر', flag: '🏭' },
-      { code: 'manufacturing-ae', label: isEn ? 'UAE' : 'الإمارات', flag: '🏭' },
-      { code: 'manufacturing-jo', label: isEn ? 'Jordan' : 'الأردن', flag: '🏭' },
-      { code: 'manufacturing-om', label: isEn ? 'Oman' : 'عمان', flag: '🏭' },
-      { code: 'manufacturing-bh', label: isEn ? 'Bahrain' : 'البحرين', flag: '🏭' },
-      { code: 'manufacturing-kw', label: isEn ? 'Kuwait' : 'الكويت', flag: '🏭' },
-      { code: 'manufacturing-qa', label: isEn ? 'Qatar' : 'قطر', flag: '🏭' },
-      { code: 'manufacturing-ma', label: isEn ? 'Morocco' : 'المغرب', flag: '🏭' },
-      { code: 'manufacturing-tn', label: isEn ? 'Tunisia' : 'تونس', flag: '🏭' },
-      { code: 'manufacturing-iq', label: isEn ? 'Iraq' : 'العراق', flag: '🏭' },
-      { code: 'manufacturing-sd', label: isEn ? 'Sudan' : 'السودان', flag: '🏭' },
-      { code: 'manufacturing-ly', label: isEn ? 'Libya' : 'ليبيا', flag: '🏭' },
-      { code: 'manufacturing-dz', label: isEn ? 'Algeria' : 'الجزائر', flag: '🏭' },
-      { code: 'manufacturing-lb', label: isEn ? 'Lebanon' : 'لبنان', flag: '🏭' },
-      { code: 'manufacturing-ye', label: isEn ? 'Yemen' : 'اليمن', flag: '🏭' },
-      { code: 'manufacturing-sy', label: isEn ? 'Syria' : 'سوريا', flag: '🏭' },
-    ];
-
     const caretSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>';
 
     function buildDropdown(items, extraAll, isLarge) {
@@ -322,7 +196,6 @@
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
       { type: 'dropdown', label: labels.calculators, items: calcDropdown, all: { href: calcBase + 'investment-center/index.html', label: isEn ? 'All Calculators →' : 'جميع الحاسبات →' } },
       { type: 'dropdown', label: labels.intelligence, items: intelligenceDropdown },
-      { href: clientPortalHref, label: labels.clientPortal },
       { href: contactHref, label: labels.contact },
     ];
 
@@ -345,9 +218,13 @@
       </ul>
     </nav>
     <div class="header-actions">
-      <a href="${langHref}" class="lang-switch">${labels.langSwitch}</a>
-      <div id="authContainer"></div>
-      <a href="${contactHref}" class="btn-header">${labels.cta}</a>
+      <a href="${langHref}" class="lang-switch" aria-label="${isEn ? 'Switch to Arabic' : 'Switch to English'}">${labels.langSwitch}</a>
+      <div id="authContainer" class="header-account-wrap">
+        <a href="${clientPortalHref}" class="header-account" aria-label="${labels.accountLabel}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+        </a>
+      </div>
+      <a href="${clientPortalHref}" class="btn-header">${labels.cta}</a>
       <button class="nav-toggle" id="navToggle" aria-label="${isEn ? 'Menu' : 'القائمة'}"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -472,7 +349,7 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=10';
+    const href = '/header-footer.css?v=11';
     if (document.querySelector('link[href*="header-footer.css"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';

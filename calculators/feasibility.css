@@ -11,3 +11,4 @@
 
 .bonds-card { background: var(--bg-card); color: var(--text); border-color: var(--border); }
 .bonds-card .calc-text-secondary { color: var(--text-secondary); }
+.bonds-form-group label { color: var(--text-secondary); }

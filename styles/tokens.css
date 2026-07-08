@@ -62,6 +62,22 @@
   --radius-sm: 8px;
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
+  /* Layout */
+  --container-max: 1280px;
+  --container-narrow: 960px;
+  --container-wide: 1440px;
+  --header-height: 72px;
+  --section-padding-y: 6rem;
+  --section-padding-y-sm: 4rem;
+
+  /* Elevation / z-index scale */
+  --z-base: 1;
+  --z-sticky: 100;
+  --z-dropdown: 1000;
+  --z-modal-backdrop: 2000;
+  --z-modal: 2100;
+  --z-toast: 3000;
+
   /* Extended palette */
   --gold-400: #e8c87a;
   --gold-500: var(--gold);
@@ -115,6 +131,11 @@
   --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
   --text-inverse: #fff;
   --white: #fff;
+
+  /* Layout inherits are theme-agnostic; only override if needed */
+  --container-max: 1280px;
+  --container-narrow: 960px;
+  --container-wide: 1440px;
 
   /* Extended palette light */
   --gold-400: #c6a45c;

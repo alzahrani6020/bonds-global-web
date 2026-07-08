@@ -53,12 +53,16 @@
 
   /* ---------- Stat counters ---------- */
   function animateCounter(el) {
-    if (prefersReducedMotion) {
-      el.textContent = el.getAttribute('data-target');
-      return;
-    }
     const target = parseInt(el.getAttribute('data-target'), 10);
     if (isNaN(target)) return;
+    const suffix = el.getAttribute('data-suffix') || '';
+    const prefix = el.getAttribute('data-prefix') || '';
+
+    if (prefersReducedMotion) {
+      el.textContent = prefix + target.toLocaleString('en') + suffix;
+      return;
+    }
+
     const start = performance.now();
     const duration = 1800;
 
@@ -66,21 +70,13 @@
       const t = Math.min(1, (now - start) / duration);
       const eased = 1 - Math.pow(1 - t, 4);
       const value = Math.round(target * eased);
-
-      if (target > 90 && el.getAttribute('data-target') === '95') {
-        el.textContent = value + '%';
-      } else if (target === 2 && el.getAttribute('data-target') === '2') {
-        el.textContent = value;
-      } else {
-        el.textContent = value + '+';
-      }
-
+      el.textContent = prefix + value.toLocaleString('en') + suffix;
       if (t < 1) requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
   }
 
-  const counters = document.querySelectorAll('[data-target]');
+  const counters = document.querySelectorAll('.stat-num[data-target]');
   if (counters.length && 'IntersectionObserver' in window) {
     const counterObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {

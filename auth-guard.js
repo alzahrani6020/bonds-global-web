@@ -154,10 +154,11 @@
       const currentPath = window.location.pathname;
       const isEn = currentPath.startsWith('/en/');
       const authUrl = isEn ? '/en/calculators/auth/' : '/calculators/auth/';
+      const accountLabel = isEn ? 'Sign in' : 'تسجيل الدخول';
       authContainer.innerHTML = `
-        <a href="${authUrl}" class="btn btn-secondary" style="font-size:0.85rem;padding:0.5rem 1rem;"
+        <a href="${authUrl}" class="header-account" aria-label="${accountLabel}"
            onclick="sessionStorage.setItem('auth_redirect', '${encodeURIComponent(currentPath)}')">
-          تسجيل الدخول
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
         </a>
       `;
     }

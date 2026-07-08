@@ -3,843 +3,266 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bonds | Check Your Project Funding Readiness</title>
-  <meta name="description" content="Get AI analysis and expert financial review for your project in minutes. Feasibility studies, risk assessment, and funding support." />
-  <meta property="og:title" content="Bonds | Check Your Project Funding Readiness" />
-  <meta property="og:description" content="Get AI analysis and expert financial review for your project in minutes. Feasibility studies, risk assessment, and funding support." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <title>BONDS | Feasibility, Valuation & Funding Platform</title>
+  <meta name="description" content="Get a feasibility study, risk assessment, funding options, and investment memorandum — all in one platform powered by AI and advisory review." />
+  <meta property="og:title" content="BONDS | Feasibility, Valuation & Funding Platform" />
+  <meta property="og:description" content="Get a feasibility study, risk assessment, funding options, and investment memorandum — all in one platform." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png?v=2026b" />
   <meta property="og:url" content="https://bonds-global.com/en/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="BONDS | Feasibility, Valuation & Funding Platform" />
+  <meta name="twitter:description" content="Get a feasibility study, risk assessment, funding options, and investment memorandum — all in one platform." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png?v=2026b" />
+  <link rel="canonical" href="https://bonds-global.com/en/" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../styles.css" />
-  <link rel="stylesheet" href="../styles/home.css?v=2" />
-  <link rel="stylesheet" href="../styles/design-system.css" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
-  <style>
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      background: var(--bg);
-      padding-top: 80px;
-      position: relative;
-      overflow: hidden;
-    }
-    .stats-section { background: var(--bg-white); border-radius: 40px 40px 0 0; margin-top: -40px; position: relative; z-index: 10; padding: 4rem 2rem; }
-    .stats-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
-    .stat-item { text-align: center; padding: 1.5rem; position: relative; }
-    .stat-item:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 20%; height: 60%; width: 1px; background: var(--border); }
-    .stat-icon { width: 48px; height: 48px; margin: 0 auto 0.75rem; color: var(--gold); }
-    .stat-num { font-size: 2.2rem; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 0.5rem; }
-    .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
-
-    .section { padding: 5rem 2rem; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .section-header { text-align: center; margin-bottom: 3rem; }
-    .section__eyebrow { display: inline-block; color: var(--gold-700); font-weight: 800; font-size: 0.75rem; margin-bottom: 0.75rem; letter-spacing: 2px; text-transform: uppercase; }
-    .section__title { font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: var(--text); }
-    .section__subtitle { color: var(--text-secondary); max-width: 600px; margin: 0 auto; font-size: 0.95rem; }
-
-    .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
-    .service-card { background: var(--bg-white); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; transition: all 0.4s ease; position: relative; overflow: hidden; }
-    .service-card:hover { transform: translateY(-5px); box-shadow: 0 20px 60px rgba(0,0,0,0.06); }
-    .service-card::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); transition: width 0.5s ease, left 0.5s ease; }
-    .service-card:hover::after { width: 60%; left: 20%; }
-    .service-card__icon { width: 56px; height: 56px; border-radius: 14px; border: 1.5px solid var(--gold); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: var(--gold); }
-    .service-card__title { font-size: 1rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text); }
-    .service-card__text { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.8; margin-bottom: 1rem; }
-    .service-card__link { color: var(--gold); font-weight: 700; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem; }
-    .service-card__link:hover { gap: 0.6rem; }
-
-    .partners-section { background: var(--bg-white); padding: 5rem 2rem; }
-    .partners-header { display: flex; align-items: center; justify-content: space-between; max-width: 1100px; margin: 0 auto 2rem; }
-    .partners-header h3 { font-size: 1.5rem; font-weight: 800; }
-    .partners-header a { color: var(--text); font-size: 0.85rem; text-decoration: none; font-weight: 600; }
-    .partners-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
-    .partner-card { border-radius: 16px; overflow: hidden; position: relative; aspect-ratio: 4/3; }
-    .partner-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
-    .partner-card:hover img { transform: scale(1.05); }
-    .partner-card__overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.7) 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 1.5rem; color: #fff; }
-    .partner-card__tag { display: inline-flex; align-items: center; gap: 0.3rem; background: var(--gold); color: #fff; padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; width: fit-content; margin-bottom: 0.75rem; }
-    .partner-card__title { font-size: 1rem; font-weight: 800; margin-bottom: 0.25rem; }
-    .partner-card__desc { font-size: 0.75rem; opacity: 0.9; }
-
-    .why-section { background: var(--bg-dark); color: #fff; padding: 5rem 2rem; text-align: center; }
-    .why-section .section__title { color: #fff; }
-    .why-section .section__subtitle { color: rgba(255,255,255,0.6); }
-    .why-section .section__eyebrow { color: var(--gold-bright); }
-    .why-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2rem; max-width: 1100px; margin: 3rem auto 0; }
-    .why-item { text-align: center; }
-    .why-item__icon { width: 56px; height: 56px; border-radius: 50%; border: 1.5px solid rgba(184,149,78,0.4); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: var(--gold); }
-    .why-item__title { font-size: 0.9rem; font-weight: 800; margin-bottom: 0.5rem; }
-    .why-item__text { font-size: 0.75rem; color: rgba(255,255,255,0.6); line-height: 1.7; }
-
-    .contact-section { background: var(--bg); padding: 5rem 2rem; }
-    .contact-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-    .contact-left img { width: 100%; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); }
-    .contact-right h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 1rem; color: var(--text); }
-    .contact-right p { color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.9rem; line-height: 1.8; }
-
-    .footer { background: var(--bg-dark); color: rgba(255,255,255,0.6); padding: 4rem 2rem 2rem; }
-    .footer-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr; gap: 2rem; }
-    .footer-brand img { height: 50px; margin-bottom: 1rem; }
-    .footer-brand p { font-size: 0.8rem; line-height: 1.8; color: rgba(255,255,255,0.5); }
-    .footer-title { font-size: 0.8rem; font-weight: 800; color: #fff; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
-    .footer-links { display: flex; flex-direction: column; gap: 0.5rem; }
-    .footer-links a, .footer-links span { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.78rem; transition: color 0.3s; }
-    .footer-links a:hover { color: var(--gold); }
-    .footer-bottom { max-width: 1100px; margin: 3rem auto 0; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: rgba(255,255,255,0.4); }
-    .footer-socials { display: flex; gap: 0.75rem; }
-    .footer-socials a { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.8rem; transition: all 0.3s; }
-    .footer-socials a:hover { border-color: var(--gold); color: var(--gold); }
-
-    @media (max-width: 900px) {
-      .main-nav { display: none; }
-      .nav-toggle { display: flex; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .services-grid { grid-template-columns: 1fr; }
-      .partners-grid { grid-template-columns: 1fr; }
-      .why-grid { grid-template-columns: repeat(2, 1fr); }
-      .contact-grid { grid-template-columns: 1fr; }
-      .footer-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 480px) {
-      .stats-grid { grid-template-columns: 1fr; }
-      .why-grid { grid-template-columns: 1fr; }
-      .footer-grid { grid-template-columns: 1fr; }
-    }
-
-    /* ===== Hero Calculator v2 ===== */
-    .hero__trust-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin: 1.5rem 0;
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      padding: 0;
-    }
-    .hero__trust-list li {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      list-style: none;
-    }
-    .hero__trust-list li::before {
-      content: '✓';
-      width: 20px; height: 20px;
-      border-radius: 50%;
-      background: var(--gold);
-      color: #0a0f1a;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.7rem; font-weight: 800;
-      flex-shrink: 0;
-    }
-    .hero-calc {
-      background: var(--bg-white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 2rem;
-      box-shadow: var(--shadow-lg);
-      width: 100%;
-      max-width: 420px;
-    }
-    .hero-calc__title {
-      font-size: 1.15rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-      color: var(--text);
-    }
-    .hero-calc__subtitle {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin-bottom: 1.25rem;
-    }
-    .hero-calc__group { margin-bottom: 1rem; }
-    .hero-calc__group label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-secondary);
-      margin-bottom: 0.35rem;
-    }
-    .hero-calc__group input {
-      width: 100%;
-      padding: 0.85rem 1rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--bg-secondary);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 0.95rem;
-    }
-    .hero-calc__group input:focus {
-      outline: none;
-      border-color: var(--gold);
-    }
-    .hero-calc__btn {
-      width: 100%;
-      background: linear-gradient(135deg, var(--gold), var(--gold-bright));
-      color: #0a0f1a;
-      font-weight: 800;
-      padding: 0.9rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      margin-top: 0.5rem;
-    }
-    .hero-calc__result {
-      margin-top: 1.25rem;
-      padding: 1.25rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      display: none;
-    }
-    .hero-calc__result.open { display: block; }
-    .hero-calc__score {
-      display: flex;
-      align-items: baseline;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-    .hero-calc__score-num {
-      font-size: 2.5rem;
-      font-weight: 900;
-      color: var(--gold);
-      line-height: 1;
-    }
-    .hero-calc__score-label {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-    .hero-calc__risk {
-      display: inline-block;
-      padding: 0.35rem 0.75rem;
-      border-radius: 50px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      margin-bottom: 0.75rem;
-    }
-    .hero-calc__risk--low { background: rgba(22,163,74,0.12); color: var(--success); }
-    .hero-calc__risk--medium { background: rgba(245,158,11,0.12); color: #b45309; }
-    .hero-calc__risk--high { background: rgba(220,38,38,0.12); color: var(--danger); }
-    .hero-calc__rec {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      line-height: 1.7;
-      margin-bottom: 1rem;
-    }
-    .hero-calc__cta {
-      display: block;
-      text-align: center;
-      background: var(--text);
-      color: #fff;
-      padding: 0.75rem;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
-
-    /* ===== Demo Section ===== */
-    .demo-section { padding: 5rem 2rem; background: var(--bg-card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .demo-section__inner { max-width: 1100px; margin: 0 auto; text-align: center; }
-    .demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin: 2rem 0; }
-    .demo-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.75rem 1.25rem; text-decoration: none; color: inherit; transition: all 0.2s; text-align: left; }
-    .demo-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
-    .demo-card__icon { width: 44px; height: 44px; margin-bottom: 1rem; color: var(--gold); }
-    .demo-card__title { font-weight: 800; margin-bottom: 0.5rem; color: var(--text); }
-    .demo-card__desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
-    .demo-section__cta { margin-top: 1rem; }
-    @media (max-width: 900px) { .demo-grid { grid-template-columns: 1fr; } }
-
-    /* ===== Journey Section ===== */
-    .journey-section {
-      background: var(--bg);
-      padding: 5rem 2rem;
-    }
-    .journey-section__inner {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .journey-section__header {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-    .journey-section__title {
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 0.75rem;
-    }
-    .journey-section__subtitle {
-      color: var(--text-secondary);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .journey-steps {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 1.25rem;
-      position: relative;
-    }
-    .journey-step {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem 1rem;
-      text-align: center;
-      position: relative;
-    }
-    .journey-step__num {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      background: var(--gold);
-      color: #0a0f1a;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 900;
-      margin: 0 auto 1rem;
-    }
-    .journey-step__title {
-      font-weight: 800;
-      font-size: 0.95rem;
-      margin-bottom: 0.5rem;
-    }
-    .journey-step__desc {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-    @media (max-width: 900px) {
-      .journey-steps { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 480px) {
-      .journey-steps { grid-template-columns: 1fr; }
-    }
-    .intent-section { padding: 4rem 1.5rem; background: var(--bg-card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .intent-section__inner { max-width: 1100px; margin: 0 auto; text-align: center; }
-    .intent-section__title { font-size: 1.75rem; font-weight: 800; color: var(--text); margin-bottom: 0.75rem; }
-    .intent-section .section__eyebrow { color: var(--text); }
-    .intent-section__subtitle { color: var(--text-secondary); margin-bottom: 2rem; }
-    .intent-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
-    .intent-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem 1rem; text-decoration: none; color: inherit; transition: all 0.2s; }
-    .intent-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
-    .intent-card__icon { width: 40px; height: 40px; margin: 0 auto 1rem; color: var(--gold); }
-    .intent-card__title { font-weight: 700; margin-bottom: 0.5rem; color: var(--text); }
-    .intent-card__desc { font-size: 0.85rem; color: var(--text-secondary); }
-    @media (max-width: 900px) { .intent-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 480px) { .intent-grid { grid-template-columns: 1fr; } }
-  </style>
-<link rel="canonical" href="https://bonds-global.com/en/" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Bonds | Check Your Project Funding Readiness" />
-  <meta name="twitter:description" content="Get AI analysis and expert financial review for your project in minutes." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../styles/design-system.css" />
+  <link rel="stylesheet" href="../styles/home.css?v=3" />
 </head>
 <body>
-
   <div id="site-header"></div>
 
+  <!-- Hero -->
   <section class="hero" id="hero">
-    <div class="gold-lines">
-      <div class="gold-line"></div>
-      <div class="gold-line"></div>
-      <div class="gold-line"></div>
-      <div class="gold-line"></div>
-      <div class="gold-line"></div>
-    </div>
-    <div class="hero__inner">
-      <div class="hero__left">
-        <span class="hero__eyebrow">Bonds Investment Platform</span>
-        <h1 class="hero__title">Start Your Project and Get an<br /><span>Investment-Ready Report</span></h1>
-        <div class="hero__divider"></div>
+    <div class="hero__bg" aria-hidden="true"></div>
+    <div class="container hero__inner">
+      <div class="hero__content">
+        <span class="hero__eyebrow">BONDS Investment Platform</span>
+        <h1 class="hero__title text-balance">
+          Turn your project idea into an <span class="text-gradient">investment-ready report</span>
+        </h1>
         <p class="hero__desc">
-          Feasibility study, risk assessment, financing options, and investment memorandum — all in one place instead of juggling tools and advisors.
+          Feasibility study, risk assessment, funding options, and investment memorandum — all in one platform instead of juggling tools and advisors.
         </p>
         <ul class="hero__trust-list">
-          <li>AI-powered feasibility study</li>
-          <li>Risk assessment & financing options</li>
-          <li>Investment memorandum ready for banks & investors</li>
+          <li>
+            <span class="hero__check" aria-hidden="true">✓</span>
+            AI-powered financial analysis
+          </li>
+          <li>
+            <span class="hero__check" aria-hidden="true">✓</span>
+            Advisory review of business models
+          </li>
+          <li>
+            <span class="hero__check" aria-hidden="true">✓</span>
+            Investment memo ready for banks and investors
+          </li>
         </ul>
         <div class="hero__actions">
-          <a href="/en/v3/portfolio" class="btn-primary">Start Your Project Now →</a>
-          <a href="../en/contact.html" class="hero__secondary-link">or speak to an advisor</a>
+          <a href="/v3/portfolio" class="btn btn-primary btn-lg">Start your project →</a>
+          <a href="contact.html" class="btn btn-outline">Talk to an advisor</a>
         </div>
       </div>
-      <div class="hero__right">
-        <div class="hero-ticker" id="heroTicker" aria-label="Arab markets and banks">
-          <div class="ticker-row ticker-row--ltr" aria-hidden="true">
-            <div class="ticker-track">
-              <span class="ticker-item"><span class="ticker-flag">🇸🇦</span> Tadawul Saudi</span>
-              <span class="ticker-item"><span class="ticker-flag">🇦🇪</span> Dubai Financial Market</span>
-              <span class="ticker-item"><span class="ticker-flag">🇪🇬</span> Egyptian Exchange</span>
-              <span class="ticker-item"><span class="ticker-flag">🇶🇦</span> Qatar Stock Exchange</span>
-              <span class="ticker-item"><span class="ticker-flag">🇰🇼</span> Kuwait Stock Exchange</span>
-              <span class="ticker-item"><span class="ticker-flag">🇴🇲</span> Muscat Securities Market</span>
-              <span class="ticker-item"><span class="ticker-flag">🇧🇭</span> Bahrain Bourse</span>
-              <span class="ticker-item"><span class="ticker-flag">🇯🇴</span> Amman Stock Exchange</span>
-              <span class="ticker-item"><span class="ticker-flag">🇲🇦</span> Casablanca Stock Exchange</span>
-              <span class="ticker-item"><span class="ticker-flag">🇹🇳</span> Tunis Stock Exchange</span>
-              <span class="ticker-item"><span class="ticker-flag">🇸🇦</span> Tadawul Saudi</span>
-              <span class="ticker-item"><span class="ticker-flag">🇦🇪</span> Dubai Financial Market</span>
-              <span class="ticker-item"><span class="ticker-flag">🇪🇬</span> Egyptian Exchange</span>
-              <span class="ticker-item"><span class="ticker-flag">🇶🇦</span> Qatar Stock Exchange</span>
-              <span class="ticker-item"><span class="ticker-flag">🇰🇼</span> Kuwait Stock Exchange</span>
-              <span class="ticker-item"><span class="ticker-flag">🇴🇲</span> Muscat Securities Market</span>
-              <span class="ticker-item"><span class="ticker-flag">🇧🇭</span> Bahrain Bourse</span>
-              <span class="ticker-item"><span class="ticker-flag">🇯🇴</span> Amman Stock Exchange</span>
-              <span class="ticker-item"><span class="ticker-flag">🇲🇦</span> Casablanca Stock Exchange</span>
-              <span class="ticker-item"><span class="ticker-flag">🇹🇳</span> Tunis Stock Exchange</span>
+      <div class="hero__visual" aria-hidden="true">
+        <div class="hero__orb hero__orb--1"></div>
+        <div class="hero__orb hero__orb--2"></div>
+        <div class="hero-dashboard-preview card">
+          <div class="hero-dashboard-preview__header">
+            <span class="hero-dashboard-preview__dot"></span>
+            <span class="hero-dashboard-preview__dot"></span>
+            <span class="hero-dashboard-preview__dot"></span>
+          </div>
+          <div class="hero-dashboard-preview__body">
+            <div class="hero-dashboard-preview__metric">
+              <span>Feasibility Score</span>
+              <strong>82%</strong>
+            </div>
+            <div class="hero-dashboard-preview__bar">
+              <div class="hero-dashboard-preview__fill" style="width: 82%"></div>
+            </div>
+            <div class="hero-dashboard-preview__row">
+              <span>Net Present Value</span>
+              <strong>SAR 2.4M</strong>
+            </div>
+            <div class="hero-dashboard-preview__row">
+              <span>Payback Period</span>
+              <strong>28 months</strong>
             </div>
           </div>
-          <div class="ticker-row ticker-row--rtl" aria-hidden="true">
-            <div class="ticker-track">
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> Saudi National Bank</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> Emirates NBD</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> Qatar National Bank</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> National Bank of Kuwait</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> Arab Bank</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> Al Rajhi Bank</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> FAB</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> CIB Egypt</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> Saudi National Bank</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> Emirates NBD</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> Qatar National Bank</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> National Bank of Kuwait</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> Arab Bank</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> Al Rajhi Bank</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> FAB</span>
-              <span class="ticker-item"><span class="ticker-icon">🏦</span> CIB Egypt</span>
-            </div>
-          </div>
-          <div class="hero-ticker__caption">Arab markets and banks we track to inform your decision</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Intent -->
-  <section class="intent-section" id="calculators">
-    <div class="intent-section__inner">
-      <span class="section__eyebrow">Choose Your Goal</span>
-      <h2 class="intent-section__title">What Do You Need to Build Today?</h2>
-      <p class="intent-section__subtitle">Start from your intent, not from a catalog. Bonds matches the right workflow to your objective.</p>
-      <div class="intent-grid">
-        <a href="/en/v3/portfolio" class="intent-card">
-          <div class="intent-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg></div>
-          <div class="intent-card__title">Analyze a New Project</div>
-          <div class="intent-card__desc">Feasibility, valuation, and funding readiness in one guided workflow.</div>
-        </a>
-        <a href="/en/v3/portfolio" class="intent-card">
-          <div class="intent-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
-          <div class="intent-card__title">Expand an Existing Business</div>
-          <div class="intent-card__desc">Compare locations, forecast growth, and size the investment.</div>
-        </a>
-        <a href="advisor/index.html" class="intent-card">
-          <div class="intent-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-          <div class="intent-card__title">Turnaround a Struggling Asset</div>
-          <div class="intent-card__desc">Get expert help with restructuring, recovery, and capital planning.</div>
-        </a>
-        <a href="calculators/investment-center/index.html" class="intent-card">
-          <div class="intent-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-          <div class="intent-card__title">Evaluate an Opportunity</div>
-          <div class="intent-card__desc">Quick calculators for break-even, pricing, cash flow, and margins.</div>
-        </a>
-      </div>
-      <a href="/en/v3/portfolio" class="btn-primary">Start Your Project Assessment ←</a>
-    </div>
-  </section>
-
-  <!-- Journey -->
-  <section class="journey-section">
-    <div class="journey-section__inner">
-      <div class="journey-section__header">
-        <h2 class="journey-section__title">Your Journey from Idea to Funding</h2>
-        <p class="journey-section__subtitle">Five clear steps that end with an investment decision backed by analysis and expert review.</p>
-      </div>
-      <div class="journey-steps">
-        <div class="journey-step">
-          <div class="journey-step__num">1</div>
-          <div class="journey-step__title">Add Project Details</div>
-          <div class="journey-step__desc">City, activity, investment size, and financial projections.</div>
-        </div>
-        <div class="journey-step">
-          <div class="journey-step__num">2</div>
-          <div class="journey-step__title">AI Analysis</div>
-          <div class="journey-step__desc">Initial financial model, feasibility, and risk/opportunity assessment.</div>
-        </div>
-        <div class="journey-step">
-          <div class="journey-step__num">3</div>
-          <div class="journey-step__title">Advisor Review</div>
-          <div class="journey-step__desc">A financial expert reviews the results and adds practical recommendations.</div>
-        </div>
-        <div class="journey-step">
-          <div class="journey-step__num">4</div>
-          <div class="journey-step__title">Certified Report</div>
-          <div class="journey-step__desc">A professional executive report ready for banks and investors.</div>
-        </div>
-        <div class="journey-step">
-          <div class="journey-step__num">5</div>
-          <div class="journey-step__title">Funding Support</div>
-          <div class="journey-step__desc">Follow the steps to secure the right financing for your project.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Outcome -->
-  <section class="section" style="background:var(--bg-white);">
+  <!-- Stats -->
+  <section class="stats-section" id="stats" aria-label="Platform statistics">
     <div class="container">
-      <div class="section-header">
-        <span class="section__eyebrow">The Outcome</span>
-        <h2 class="section__title">An Executive Report That Drives Your Decision</h2>
-        <p class="section__subtitle">Not just numbers. You get clear analysis, expert review, and a report ready to send to banks and investors.</p>
-      </div>
-      <div class="services-grid" style="grid-template-columns:repeat(3,1fr);">
-        <div class="service-card" style="text-align:center;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-          <h3 class="service-card__title">Clear Readiness Score</h3>
-          <p class="service-card__text">An initial funding-readiness assessment that highlights strengths and weaknesses.</p>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-icon" aria-hidden="true">🌍</div>
+          <div class="stat-num" data-target="22">22</div>
+          <div class="stat-label">Arab Countries</div>
         </div>
-        <div class="service-card" style="text-align:center;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-          <h3 class="service-card__title">Advisor Review</h3>
-          <p class="service-card__text">A financial expert reviews the results and adds practical recommendations for your market.</p>
+        <div class="stat-item">
+          <div class="stat-icon" aria-hidden="true">🏙️</div>
+          <div class="stat-num" data-target="818">818</div>
+          <div class="stat-label">Cities</div>
         </div>
-        <div class="service-card" style="text-align:center;">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-          <h3 class="service-card__title">Certified Report Ready to Send</h3>
-          <p class="service-card__text">A professional executive document you can submit to banks and investors.</p>
+        <div class="stat-item">
+          <div class="stat-icon" aria-hidden="true">🏭</div>
+          <div class="stat-num" data-target="280">280</div>
+          <div class="stat-label">Economic Activities</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon" aria-hidden="true">📊</div>
+          <div class="stat-num" data-target="50000" data-suffix="+">50,000+</div>
+          <div class="stat-label">Financial Analyses</div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="stats-section" id="publicStats" style="display:none;">
-    <div class="stats-grid">
-      <div class="stat-item">
-        <div class="stat-icon">👥</div>
-        <div class="stat-num" data-stat="clients" data-prefix="+" data-suffix="">0</div>
-        <div class="stat-label">Clients Trust Bonds</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon">📁</div>
-        <div class="stat-num" data-stat="projects" data-prefix="+" data-suffix="">0</div>
-        <div class="stat-label">Projects Under Management</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon">📊</div>
-        <div class="stat-num" data-stat="studies" data-prefix="+" data-suffix="">0</div>
-        <div class="stat-label">Feasibility Studies Completed</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon">📈</div>
-        <div class="stat-num" data-stat="assets" data-prefix="+" data-suffix="">0</div>
-        <div class="stat-label">Distressed Assets in Recovery</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
+  <!-- How it works -->
+  <section class="section how-it-works" id="how-it-works">
     <div class="container">
-      <div class="section-header">
-        <span class="section__eyebrow">Solutions</span>
-        <h2 class="section__title">The Right Workflow for Every Stage</h2>
-        <p class="section__subtitle">Four integrated paths that turn raw ideas into investor-ready documents.</p>
-      </div>
-      <div class="services-grid">
-        <a href="calculator-wizard.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
-          <h3 class="service-card__title">Smart Feasibility Study</h3>
-          <p class="service-card__text">NPV, IRR, DSCR and risk-adjusted scoring by city and sector.</p>
-        </a>
-        <a href="valuation/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
-          <h3 class="service-card__title">Asset Valuation</h3>
-          <p class="service-card__text">35 asset classes, depreciation, and BONDS Digital Valuation Certificate.</p>
-        </a>
-        <a href="/en/v3/portfolio" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
-          <h3 class="service-card__title">Funding Readiness</h3>
-          <p class="service-card__text">Credit scoring, funding matchmaking, and lender documents.</p>
-        </a>
-        <a href="v3/project/index.html" class="service-card" style="text-decoration:none; color:inherit; border:1px solid var(--gold);">
-          <div class="service-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
-          <h3 class="service-card__title">Investment Memorandum</h3>
-          <p class="service-card__text">Turn your project into a publishable, investor-ready memorandum.</p>
-        </a>
+      <header class="section-header text-center">
+        <span class="section__eyebrow">How it works</span>
+        <h2 class="section__title">From idea to funding in clear steps</h2>
+        <p class="section__subtitle">No deep finance background needed. BONDS guides you step by step.</p>
+      </header>
+      <div class="stepper" role="list">
+        <div class="stepper__item stepper__item--complete" role="listitem">
+          <div class="stepper__dot">1</div>
+          <span class="stepper__label">Enter your project data</span>
+        </div>
+        <div class="stepper__item stepper__item--active" role="listitem">
+          <div class="stepper__dot">2</div>
+          <span class="stepper__label">Get analysis & assessment</span>
+        </div>
+        <div class="stepper__item" role="listitem">
+          <div class="stepper__dot">3</div>
+          <span class="stepper__label">Review with an advisor</span>
+        </div>
+        <div class="stepper__item" role="listitem">
+          <div class="stepper__dot">4</div>
+          <span class="stepper__label">Export memo to investors</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="partners-section">
-    <div class="partners-header">
-      <h3>Sectors We Work With</h3>
-      <a href="case-studies.html">Read Case Studies →</a>
-    </div>
-    <div class="partners-grid">
-      <a href="case-studies.html" class="partner-card" style="text-decoration:none; color:inherit;">
-        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop" alt="Restaurant Sector" />
-        <div class="partner-card__overlay">
-          <span class="partner-card__tag">+</span>
-          <div class="partner-card__title">Restaurants</div>
-          <div class="partner-card__desc">Lower unit cost and improve margins</div>
-        </div>
-      </a>
-      <a href="case-studies.html" class="partner-card" style="text-decoration:none; color:inherit;">
-        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop" alt="Manufacturing Sector" />
-        <div class="partner-card__overlay">
-          <span class="partner-card__tag">+</span>
-          <div class="partner-card__title">Manufacturing</div>
-          <div class="partner-card__desc">Reduce setup cost and sharpen feasibility</div>
-        </div>
-      </a>
-      <a href="case-studies.html" class="partner-card" style="text-decoration:none; color:inherit;">
-        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop" alt="Distressed Assets Sector" />
-        <div class="partner-card__overlay">
-          <span class="partner-card__tag">+</span>
-          <div class="partner-card__title">Distressed Assets</div>
-          <div class="partner-card__desc">Reassess value and build a recovery plan</div>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <section class="why-section">
+  <!-- What you get -->
+  <section class="section section--alt solutions" id="solutions">
     <div class="container">
-      <div class="section-header">
-        <span class="section__eyebrow">Why Bonds?</span>
-        <h2 class="section__title">Why Bonds?</h2>
-        <p class="section__subtitle">We combine deep expertise, precise analysis, and strategic understanding to deliver real and sustainable plans.</p>
-      </div>
-      <div class="why-grid">
-        <div class="why-item">
-          <div class="why-item__icon">🔒</div>
-          <div class="why-item__title">Full Confidentiality</div>
-          <div class="why-item__text">Complete commitment to protecting client data</div>
-        </div>
-        <div class="why-item">
-          <div class="why-item__icon">⏱️</div>
-          <div class="why-item__title">Fast Execution</div>
-          <div class="why-item__text">We respect timelines and focus on results</div>
-        </div>
-        <div class="why-item">
-          <div class="why-item__icon">💎</div>
-          <div class="why-item__title">Professional Models</div>
-          <div class="why-item__text">High-quality documents and reports</div>
-        </div>
-        <div class="why-item">
-          <div class="why-item__icon">📊</div>
-          <div class="why-item__title">Data-Driven Decisions</div>
-          <div class="why-item__text">Professional analysis to support decision-making</div>
-        </div>
-        <div class="why-item">
-          <div class="why-item__icon">👤</div>
-          <div class="why-item__title">Practical Experience</div>
-          <div class="why-item__text">Specialized team with local and global expertise</div>
-        </div>
+      <header class="section-header text-center">
+        <span class="section__eyebrow">What you get</span>
+        <h2 class="section__title">Everything you need for a sound investment decision</h2>
+      </header>
+      <div class="solutions-grid">
+        <article class="card solution-card reveal">
+          <div class="solution-card__icon" aria-hidden="true">📋</div>
+          <h3 class="solution-card__title">Financial Feasibility Study</h3>
+          <p class="solution-card__desc">Complete financial model with cash flows, break-even point, and expected return.</p>
+          <a href="calculator-wizard.html" class="solution-card__link">Start the study →</a>
+        </article>
+        <article class="card solution-card reveal">
+          <div class="solution-card__icon" aria-hidden="true">⚖️</div>
+          <h3 class="solution-card__title">Asset & Risk Valuation</h3>
+          <p class="solution-card__desc">Fair asset valuation and assessment of market, operational, and financial risks.</p>
+          <a href="valuation/index.html" class="solution-card__link">Value your asset →</a>
+        </article>
+        <article class="card solution-card reveal">
+          <div class="solution-card__icon" aria-hidden="true">🏦</div>
+          <h3 class="solution-card__title">Funding Readiness</h3>
+          <p class="solution-card__desc">Discover available funding options and estimate your bank-approval likelihood.</p>
+          <a href="funding-readiness.html" class="solution-card__link">Check readiness →</a>
+        </article>
+        <article class="card solution-card reveal">
+          <div class="solution-card__icon" aria-hidden="true">📈</div>
+          <h3 class="solution-card__title">Investment Memorandum</h3>
+          <p class="solution-card__desc">Professional investment memo ready for banks, investors, and partners.</p>
+          <a href="/v3/portfolio" class="solution-card__link">Build your memo →</a>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- Testimonials -->
-  <section class="section" style="background:var(--bg-white);">
+  <!-- Case studies -->
+  <section class="section case-studies" id="case-studies">
     <div class="container">
-      <div class="section-header">
-        <span class="section__eyebrow">Success Stories</span>
-        <h2 class="section__title">What Clients Said After the Analysis</h2>
-        <p class="section__subtitle">Quotes from anonymized case studies we delivered with project owners.</p>
-      </div>
-      <div class="services-grid" style="grid-template-columns:repeat(3,1fr);">
-        <div class="service-card" style="text-align:left;">
-          <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
-          <p class="service-card__text" style="font-style:italic;">"We saw the real numbers for the first time. We changed the menu and stopped margin-killing discounts, and unit cost dropped 12%."</p>
-          <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
-            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:var(--bg-dark); display:flex; align-items:center; justify-content:center; font-weight:800;">O</div>
-            <div>
-              <div style="font-weight:800; font-size:0.85rem;">Omar Al-Rashid</div>
-              <div style="font-size:0.75rem; color:var(--text-secondary);">Burger Restaurant Owner — Riyadh</div>
-            </div>
+      <header class="section-header text-center">
+        <span class="section__eyebrow">Success stories</span>
+        <h2 class="section__title">Real results from the BONDS platform</h2>
+      </header>
+      <div class="case-studies-grid">
+        <article class="card case-card reveal">
+          <div class="case-card__meta">
+            <span class="badge badge--gold">Restaurants</span>
+            <span class="case-card__location">Riyadh</span>
           </div>
-        </div>
-        <div class="service-card" style="text-align:left;">
-          <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
-          <p class="service-card__text" style="font-style:italic;">"We saved a major investment with simple changes to the equipment list. Setup cost fell 18% and payback shortened by 8 months."</p>
-          <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
-            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:var(--bg-dark); display:flex; align-items:center; justify-content:center; font-weight:800;">F</div>
-            <div>
-              <div style="font-weight:800; font-size:0.85rem;">Fatima Al-Zahabi</div>
-              <div style="font-size:0.75rem; color:var(--text-secondary);">Operations Manager — Dubai Factory</div>
-            </div>
+          <h3 class="case-card__title">12% lower unit cost</h3>
+          <p class="case-card__desc">We helped a burger chain owner restructure the cost menu and improve profit margin.</p>
+        </article>
+        <article class="card case-card reveal">
+          <div class="case-card__meta">
+            <span class="badge badge--gold">Manufacturing</span>
+            <span class="case-card__location">Dammam</span>
           </div>
-        </div>
-        <div class="service-card" style="text-align:left;">
-          <div style="color:var(--gold); font-size:1.2rem; margin-bottom:1rem;">★★★★★</div>
-          <p class="service-card__text" style="font-style:italic;">"The analysis gave us hope for the asset again. We now know why it failed and how to rebuild it, and the projected return is clear."</p>
-          <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem;">
-            <div style="width:40px; height:40px; border-radius:50%; background:var(--gold); color:var(--bg-dark); display:flex; align-items:center; justify-content:center; font-weight:800;">K</div>
-            <div>
-              <div style="font-weight:800; font-size:0.85rem;">Karim Hafez</div>
-              <div style="font-size:0.75rem; color:var(--text-secondary);">Asset Manager — Cairo</div>
-            </div>
+          <h3 class="case-card__title">SAR 1.8M funding approval</h3>
+          <p class="case-card__desc">We prepared a full feasibility study for a packaging factory that secured bank financing.</p>
+        </article>
+        <article class="card case-card reveal">
+          <div class="case-card__meta">
+            <span class="badge badge--gold">Services</span>
+            <span class="case-card__location">Dubai</span>
           </div>
-        </div>
-      </div>
-      <div style="text-align:center; margin-top:2rem;">
-        <a href="case-studies.html" class="btn-outline">Read Full Case Studies</a>
+          <h3 class="case-card__title">Asset valuation for investment fund</h3>
+          <p class="case-card__desc">We valued an operational asset portfolio for an acquisition worth AED 4.5M.</p>
+        </article>
       </div>
     </div>
   </section>
 
   <!-- FAQ -->
-  <section class="section" style="background:var(--bg-white);">
-    <div class="container">
-      <div class="section-header">
+  <section class="section section--alt faq" id="faq">
+    <div class="container container--narrow">
+      <header class="section-header text-center">
         <span class="section__eyebrow">FAQ</span>
-        <h2 class="section__title">Everything You Need to Know</h2>
-      </div>
-      <div style="max-width:800px; margin:0 auto;">
-        <details style="border-bottom:1px solid var(--border); padding:1.5rem 0;">
-          <summary style="font-weight:800; cursor:pointer; font-size:1rem; color:var(--text);">How do I start and what happens after I submit a request?</summary>
-          <div style="padding-top:1rem; color:var(--text-secondary); font-size:0.9rem; line-height:1.8;">Reach out via the contact form or WhatsApp. We aim to reply within <strong>2–3 business days</strong> to confirm the service type or request more information.</div>
+        <h2 class="section__title">What would you like to know?</h2>
+      </header>
+      <div class="faq-list">
+        <details class="faq-item reveal">
+          <summary class="faq-item__question">Do I need financial experience to use BONDS?</summary>
+          <p class="faq-item__answer">No. The platform is designed for business owners. You enter your project data, and we turn it into a clear financial analysis.</p>
         </details>
-        <details style="border-bottom:1px solid var(--border); padding:1.5rem 0;">
-          <summary style="font-weight:800; cursor:pointer; font-size:1rem; color:var(--text);">How long does an advisory engagement take?</summary>
-          <div style="padding-top:1rem; color:var(--text-secondary); font-size:0.9rem; line-height:1.8;">It depends on scope: an exploratory session may be one or two meetings; financial analysis or budgeting can take from a few weeks to two months.</div>
+        <details class="faq-item reveal">
+          <summary class="faq-item__question">How long does a feasibility study take?</summary>
+          <p class="faq-item__answer">The initial analysis is ready instantly. Advisory review and the final report take between 24 and 72 business hours.</p>
         </details>
-        <details style="border-bottom:1px solid var(--border); padding:1.5rem 0;">
-          <summary style="font-weight:800; cursor:pointer; font-size:1rem; color:var(--text);">How are prices determined?</summary>
-          <div style="padding-top:1rem; color:var(--text-secondary); font-size:0.9rem; line-height:1.8;">Usually as a <strong>package or phased engagement</strong> based on scope, or as a written proposal after understanding your request. We prefer full transparency in every proposal.</div>
+        <details class="faq-item reveal">
+          <summary class="faq-item__question">Is the report accepted by banks?</summary>
+          <p class="faq-item__answer">BONDS reports follow standardized financial analysis principles. We always recommend reviewing with your specific bank before final submission.</p>
         </details>
-        <details style="border-bottom:1px solid var(--border); padding:1.5rem 0;">
-          <summary style="font-weight:800; cursor:pointer; font-size:1rem; color:var(--text);">Do you guarantee ROI or funding approval?</summary>
-          <div style="padding-top:1rem; color:var(--text-secondary); font-size:0.9rem; line-height:1.8;"><strong>No.</strong> We provide analysis and advisory based on your information; decisions and outcomes remain your responsibility.</div>
+        <details class="faq-item reveal">
+          <summary class="faq-item__question">What is the difference between free and paid plans?</summary>
+          <p class="faq-item__answer">The free plan gives you an initial analysis. Paid plans unlock investment memos, advanced valuation, and advisory support.</p>
         </details>
       </div>
     </div>
   </section>
 
-  <section class="contact-section">
-    <div class="contact-grid">
-      <div class="contact-left">
-        <img src="../assets/bonds-logo-2026.webp?v=2026" alt="Bonds" />
-      </div>
-      <div class="contact-right">
-        <h2>Let's Start a Conversation About Your Goals</h2>
-        <p>Our team is ready to help you build a strategy for sustainable growth and value.</p>
-        <a href="contact.html" class="btn-primary">Book Consultation ←</a>
+  <!-- CTA -->
+  <section class="section cta-section" id="cta">
+    <div class="container">
+      <div class="cta-card card">
+        <div class="cta-card__content">
+          <h2 class="cta-card__title">Ready to turn your idea into an investment decision?</h2>
+          <p class="cta-card__desc">Start your project now and get an initial analysis within minutes.</p>
+        </div>
+        <div class="cta-card__actions">
+          <a href="/v3/portfolio" class="btn btn-primary btn-lg">Start free →</a>
+          <a href="contact.html" class="btn btn-outline">Talk to an advisor</a>
+        </div>
       </div>
     </div>
   </section>
 
   <div id="site-footer"></div>
-
-  <script>
-    (function(){
-      var counters = document.querySelectorAll('[data-target]');
-      if(!counters.length || !('IntersectionObserver' in window)) return;
-      function animateCounter(el){
-        var target = parseFloat(el.getAttribute('data-target'));
-        if(isNaN(target)) return;
-        var suffix = el.getAttribute('data-suffix') || '';
-        var prefix = el.getAttribute('data-prefix') || '';
-        var duration = 2000;
-        var start = performance.now();
-        function step(now){
-          var p = Math.min(1, (now - start) / duration);
-          var eased = 1 - Math.pow(1 - p, 4);
-          var current = target * eased;
-          if(suffix === '%'){
-            el.textContent = prefix + Math.round(current) + suffix;
-          } else if(suffix.indexOf('B') !== -1){
-            el.textContent = prefix + current.toFixed(1) + suffix;
-          } else {
-            el.textContent = prefix + Math.round(current) + suffix;
-          }
-          if(p < 1) requestAnimationFrame(step);
-        }
-        requestAnimationFrame(step);
-      }
-      var observer = new IntersectionObserver(function(entries){
-        entries.forEach(function(entry){
-          if(entry.isIntersecting){
-            animateCounter(entry.target);
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.4 });
-      counters.forEach(function(c){ observer.observe(c); });
-    })();
-
-    // Hero Quick Calculator
-    (function(){
-      var btn = document.getElementById('calcBtn');
-      if(!btn) return;
-      function hashCode(str){
-        var h = 0;
-        for(var i = 0; i < str.length; i++) h = ((h << 5) - h) + str.charCodeAt(i) | 0;
-        return Math.abs(h);
-      }
-      btn.addEventListener('click', function(){
-        var city = (document.getElementById('calcCity').value || '').trim();
-        var sector = (document.getElementById('calcSector').value || '').trim();
-        var investment = parseFloat(document.getElementById('calcInvestment').value) || 0;
-        if(!city || !sector || investment <= 0){
-          alert('Please enter city, activity, and investment amount');
-          return;
-        }
-        var base = hashCode(city.toLowerCase() + '|' + sector.toLowerCase());
-        var score = 60 + (base % 25);
-        if(investment < 100000) score -= 5;
-        if(investment > 2000000) score -= 3;
-        score = Math.max(40, Math.min(95, score));
-        var risk, riskClass, rec;
-        if(score >= 80){ risk = 'Low Risk'; riskClass = 'hero-calc__risk--low'; rec = 'Promising project. Continue with full AI analysis and advisory review to prepare your funding file.'; }
-        else if(score >= 65){ risk = 'Medium Risk'; riskClass = 'hero-calc__risk--medium'; rec = 'Good feasibility with some notes. We recommend reviewing the financial model and reducing operating costs.'; }
-        else { risk = 'High Risk'; riskClass = 'hero-calc__risk--high'; rec = 'Clear risks identified. Review investment size and cash flow before approaching lenders.'; }
-        document.getElementById('calcScore').textContent = score;
-        var riskEl = document.getElementById('calcRisk');
-        riskEl.textContent = risk;
-        riskEl.className = 'hero-calc__risk ' + riskClass;
-        document.getElementById('calcRec').textContent = rec;
-        document.getElementById('calcResult').classList.add('open');
-        document.getElementById('calcResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      });
-    })();
-  </script>
-  <script src="/api/env"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/bonds-auth-2026.js?v=1"></script>
-  <script>window.BondsAuth && window.BondsAuth.initSiteAuth('authContainer');</script>
-  <script>
-    (function(){
-      async function loadPublicStats(){
-        const section = document.getElementById('publicStats');
-        if(!window.BondsAuth || !window.BondsAuth.getSupabase){ return; }
-        const sb = window.BondsAuth.getSupabase();
-        if(!sb){ return; }
-        try {
-          const { data, error } = await sb.rpc('get_public_stats');
-          if(error || !data){ return; }
-          const stats = typeof data === 'string' ? JSON.parse(data) : data;
-          const total = (stats.clients||0)+(stats.projects||0)+(stats.studies||0)+(stats.assets||0);
-          if(total === 0){ return; }
-          document.querySelectorAll('[data-stat]').forEach(function(el){
-            const key = el.dataset.stat;
-            const value = stats[key] || 0;
-            el.textContent = (el.dataset.prefix || '') + value.toLocaleString('en-US') + (el.dataset.suffix || '');
-          });
-          if(section) section.style.display = '';
-        } catch(e){ console.warn('Stats load failed', e); }
-      }
-      loadPublicStats();
-    })();
-  </script>
-  <script src="../page-tracker-v2.js"></script>
-<script src="../site-layout.js?v=13"></script>
+  <script src="../site-layout.js?v=15"></script>
+  <script src="../script.js?v=3"></script>
 </body>
 </html>
