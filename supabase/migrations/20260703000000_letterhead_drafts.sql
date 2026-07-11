@@ -10,7 +10,9 @@ CREATE TABLE IF NOT EXISTS public.letterhead_drafts (
 
 ALTER TABLE public.letterhead_drafts ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Users can manage own letterhead drafts"
+DROP POLICY IF EXISTS "Users can manage own letterhead drafts" ON public.letterhead_drafts;
+
+CREATE POLICY "Users can manage own letterhead drafts"
   ON public.letterhead_drafts
   FOR ALL
   USING (auth.uid() = user_id)
