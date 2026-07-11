@@ -88,6 +88,9 @@
     .modal input, .modal select, .modal textarea { width: 100%; padding: 0.75rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.9rem; }
     .modal textarea { min-height: 80px; resize: vertical; }
     .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap; }
+    .phone-row { display: flex; align-items: center; gap: 0.5rem; direction: ltr; }
+    .phone-prefix { flex: 0 0 auto; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; font-weight: 700; color: var(--text-secondary); }
+    .phone-row input { flex: 1; margin-bottom: 0; }
 
     .loading { color: var(--text-muted); font-style: italic; text-align: center; padding: 2rem; }
     .demo-badge { display: inline-block; background: rgba(234,179,8,0.2); color: var(--warning); font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; margin-right: 0.5rem; }
@@ -299,6 +302,23 @@
       <div class="modal-overlay" id="addModal" onclick="if(event.target===this)closeAddModal()">
         <div class="modal" style="max-width:520px;">
           <h3>➕ إضافة مستخدم جديد</h3>
+
+          <label>الدولة *</label>
+          <select id="addCountry" data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true" data-ud-placeholder="اختر الدولة">
+            <option value="">اختر الدولة</option>
+          </select>
+
+          <div id="addCityGroup">
+            <label>المدينة *</label>
+            <select id="addCity" data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true" data-ud-placeholder="اختر المدينة">
+              <option value="">اختر المدينة</option>
+            </select>
+          </div>
+          <div id="addCityFreeGroup" style="display:none;">
+            <label>المدينة</label>
+            <input type="text" id="addCityFree" placeholder="مثال: London">
+          </div>
+
           <label>الاسم / اسم المنشأة</label>
           <input type="text" id="addName" placeholder="مثال: مطعم الذوق">
 
@@ -309,13 +329,10 @@
           <input type="password" id="addPassword" placeholder="••••••">
 
           <label>رقم الهاتف</label>
-          <input type="text" id="addPhone" placeholder="05xxxxxxxx">
-
-          <label>الدولة</label>
-          <input type="text" id="addCountry" placeholder="مثال: SA">
-
-          <label>المدينة</label>
-          <input type="text" id="addCity" placeholder="مثال: الرياض">
+          <div class="phone-row">
+            <span class="phone-prefix" id="addPhonePrefix">+966</span>
+            <input type="tel" id="addPhone" placeholder="5xxxxxxxx">
+          </div>
 
           <label>النشاط التجاري</label>
           <input type="text" id="addBusinessType" placeholder="مثال: مطعم">
@@ -720,14 +737,89 @@
       } catch (e) { alert('خطأ في منح الوصول'); }
     }
 
+    // Country / city / phone helpers
+    function getFlagEmoji(code) {
+      const base = 127397;
+      return code.toUpperCase().replace(/./g, c => String.fromCodePoint(base + c.charCodeAt()));
+    }
+    function populateAddCountries(defaultCode) {
+      defaultCode = defaultCode || 'SA';
+      const select = document.getElementById('addCountry');
+      const items = (typeof COUNTRIES_DIAL !== 'undefined' ? COUNTRIES_DIAL : [])
+        .slice()
+        .sort((a, b) => (a.nameAr || a.nameEn).localeCompare((b.nameAr || b.nameEn), 'ar'))
+        .map(c => ({ value: c.code, label: getFlagEmoji(c.code) + ' ' + (c.nameAr || c.nameEn) + ' (' + c.dial + ')' }));
+      const dd = window.getUniversalDropdown && window.getUniversalDropdown(select);
+      if (dd && dd.setOptions) {
+        dd.setOptions(items);
+        dd.value = defaultCode;
+      } else {
+        select.innerHTML = '<option value="">اختر الدولة</option>';
+        items.forEach(i => { const opt = document.createElement('option'); opt.value = i.value; opt.textContent = i.label; select.appendChild(opt); });
+        select.value = defaultCode;
+      }
+      updateAddPhonePrefix();
+    }
+    function updateAddPhonePrefix() {
+      const code = document.getElementById('addCountry').value;
+      const country = (typeof COUNTRIES_DIAL !== 'undefined' ? COUNTRIES_DIAL : []).find(c => c.code === code);
+      document.getElementById('addPhonePrefix').textContent = country ? country.dial : '+966';
+    }
+    function getFullAddPhone() {
+      const local = document.getElementById('addPhone').value.trim().replace(/^0+/, '');
+      const prefix = document.getElementById('addPhonePrefix').textContent.trim();
+      return local ? prefix + local : '';
+    }
+    async function updateAddCity() {
+      const code = document.getElementById('addCountry').value;
+      updateAddPhonePrefix();
+      try { await window.BondsGeo.ensureMasterData(); } catch (e) {}
+      const data = window.BondsGeo.getData();
+      const isArab = !!data[code];
+      const selectGroup = document.getElementById('addCityGroup');
+      const freeGroup = document.getElementById('addCityFreeGroup');
+      const select = document.getElementById('addCity');
+      const free = document.getElementById('addCityFree');
+      if (isArab) {
+        selectGroup.style.display = '';
+        freeGroup.style.display = 'none';
+        free.removeAttribute('required');
+        select.setAttribute('required', 'required');
+        const items = [];
+        const country = data[code];
+        (country.governorates || []).forEach((gov, gi) => {
+          (gov.cities || []).forEach(city => {
+            const cityLabel = city.name || city.nameEn || '';
+            const cityValue = city.code || (code + '-' + String(gi).padStart(2, '0') + '-' + String(items.length + 1).padStart(3, '0'));
+            items.push({ value: cityValue, label: cityLabel });
+          });
+        });
+        items.sort((a, b) => a.label.localeCompare(b.label, 'ar'));
+        const dd = window.getUniversalDropdown && window.getUniversalDropdown(select);
+        if (dd && dd.setOptions) {
+          dd.setOptions(items);
+          dd.value = '';
+        } else {
+          select.innerHTML = '<option value="">اختر المدينة</option>';
+          items.forEach(i => { const opt = document.createElement('option'); opt.value = i.value; opt.textContent = i.label; select.appendChild(opt); });
+          select.value = '';
+        }
+      } else {
+        selectGroup.style.display = 'none';
+        freeGroup.style.display = '';
+        select.removeAttribute('required');
+        free.setAttribute('required', 'required');
+      }
+    }
+
     // Add User Modal
     function showAddModal() {
+      populateAddCountries('SA');
       document.getElementById('addName').value = '';
       document.getElementById('addEmail').value = '';
       document.getElementById('addPassword').value = '';
       document.getElementById('addPhone').value = '';
-      document.getElementById('addCountry').value = '';
-      document.getElementById('addCity').value = '';
+      document.getElementById('addCityFree').value = '';
       document.getElementById('addBusinessType').value = '';
       document.getElementById('addTier').value = 'free';
       document.getElementById('addStatus').value = 'active';
@@ -740,17 +832,22 @@
     async function confirmAddUser() {
       const email = document.getElementById('addEmail').value.trim();
       const password = document.getElementById('addPassword').value;
+      const country = document.getElementById('addCountry').value.trim();
+      const isArab = document.getElementById('addCityGroup').style.display !== 'none';
+      const city = isArab ? document.getElementById('addCity').value.trim() : document.getElementById('addCityFree').value.trim();
       if (!email || !password) return alert('البريد وكلمة المرور مطلوبان');
       if (password.length < 6) return alert('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      if (!country) return alert('اختر الدولة');
+      if (!city) return alert('اختر المدينة');
 
       const body = {
         action: 'create',
         email,
         password,
         restaurant_name: document.getElementById('addName').value.trim(),
-        phone: document.getElementById('addPhone').value.trim(),
-        country: document.getElementById('addCountry').value.trim(),
-        city: document.getElementById('addCity').value.trim(),
+        phone: getFullAddPhone(),
+        country,
+        city,
         business_type: document.getElementById('addBusinessType').value.trim(),
         tier: document.getElementById('addTier').value,
         status: document.getElementById('addStatus').value,
@@ -841,6 +938,8 @@
       document.querySelectorAll('.sidebar-nav .sidebar-link').forEach(l => l.style.display = '');
     }, 2000);
 
+    document.getElementById('addCountry').addEventListener('change', updateAddCity);
+
     window.addEventListener('load', async () => {
       lastFetchError = null;
       allUsers = await fetchUsers();
@@ -848,6 +947,8 @@
     });
   </script>
 
+  <script src="../assets/data/countries-dial.js"></script>
+  <script src="../calculators/shared-geo.js"></script>
   <script src="../page-tracker-v2.js"></script>
   <script src="/admin/admin-embed.js"></script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
