@@ -1,16 +1,12 @@
 name: Deploy to Vercel
 
 # Disabled: Vercel auto-deploys from GitHub integration
-if: false
-
 on:
-  push:
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
+  workflow_dispatch:
 
 jobs:
   deploy:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -1,16 +1,12 @@
 name: Lighthouse CI
 
 # Disabled: can be run locally with `npx lhci autorun`
-if: false
-
 on:
-  push:
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
+  workflow_dispatch:
 
 jobs:
   lighthouse:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
