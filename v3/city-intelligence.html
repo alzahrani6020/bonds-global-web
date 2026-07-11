@@ -394,9 +394,9 @@
 
   <div class="container">
     <div class="controls">
-      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="countrySelect"><option value="">كل الدول</option></select>
-      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="citySelect"><option value="">اختر المدينة</option></select>
-      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activitySelect"><option value="">اختر النشاط (اختياري)</option></select>
+      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر الدولة" id="countrySelect"><option value="">اختر الدولة</option></select>
+      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر المدينة" id="citySelect"><option value="">اختر المدينة</option></select>
+      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر النشاط (اختياري)" id="activitySelect"><option value="">اختر النشاط (اختياري)</option></select>
       <select data-universal-dropdown="true" id="yearSelect">
         <option value="2025" selected>2025</option>
         <option value="2024">2024</option>
@@ -648,36 +648,29 @@
 
         const countrySelect = document.getElementById('countrySelect');
         // Show all 22 supported countries even if some have no cities in the DB yet
-        if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(countrySelect);
         const allCountryCodes = Object.keys(countryNames).sort((a, b) =>
           countryNames[a].localeCompare(countryNames[b], 'ar')
         );
-        countrySelect.innerHTML = '<option value="">اختر الدولة</option>';
-        allCountryCodes.forEach(code => {
-          countrySelect.innerHTML += `<option value="${code}">${countryNames[code]}</option>`;
-        });
-        if (window.initUniversalDropdowns) window.initUniversalDropdowns(countrySelect);
+        const countryOptions = allCountryCodes.map(code => ({ value: code, label: countryNames[code] }));
+        countrySelect.innerHTML = '<option value="">اختر الدولة</option>' + allCountryCodes.map(code => `<option value="${code}">${countryNames[code]}</option>`).join('');
+        const countryDd = window.getUniversalDropdown && window.getUniversalDropdown(countrySelect);
+        if (countryDd && countryDd.setOptions) countryDd.setOptions(countryOptions);
 
         const citySelect = document.getElementById('citySelect');
         function populateCities() {
           const selectedCountry = countrySelect.value;
-          if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(citySelect);
-          citySelect.innerHTML = '<option value="">اختر المدينة</option>';
-          cities
-            .filter(c => (!selectedCountry || c.country_code === selectedCountry) && MODERN_CITY_CODE.test(c.code))
-            .forEach(c => {
-              citySelect.innerHTML += `<option value="${c.code}">${c.name_ar}</option>`;
-            });
-          if (window.initUniversalDropdowns) window.initUniversalDropdowns(citySelect);
+          const filteredCities = cities.filter(c => (!selectedCountry || c.country_code === selectedCountry) && MODERN_CITY_CODE.test(c.code));
+          citySelect.innerHTML = '<option value="">اختر المدينة</option>' + filteredCities.map(c => `<option value="${c.code}">${c.name_ar}</option>`).join('');
+          const cityDd = window.getUniversalDropdown && window.getUniversalDropdown(citySelect);
+          if (cityDd && cityDd.setOptions) cityDd.setOptions(filteredCities.map(c => ({ value: c.code, label: c.name_ar })));
         }
         populateCities();
 
         const activitySelect = document.getElementById('activitySelect');
-        if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(activitySelect);
-        activities.forEach(a => {
-          activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar}</option>`;
-        });
-        if (window.initUniversalDropdowns) window.initUniversalDropdowns(activitySelect);
+        const activityOptions = activities.map(a => ({ value: a.code, label: a.name_ar }));
+        activitySelect.innerHTML = '<option value="">اختر النشاط (اختياري)</option>' + activities.map(a => `<option value="${a.code}">${a.name_ar}</option>`).join('');
+        const activityDd = window.getUniversalDropdown && window.getUniversalDropdown(activitySelect);
+        if (activityDd && activityDd.setOptions) activityDd.setOptions(activityOptions);
 
         countrySelect.addEventListener('change', populateCities);
         citySelect.addEventListener('change', loadCityData);
@@ -1096,12 +1089,16 @@
         const citySelect = document.getElementById('citySelect');
         if ([...citySelect.options].some(o => o.value === preselectCity)) {
           citySelect.value = preselectCity;
+          const cityDd = window.getUniversalDropdown && window.getUniversalDropdown(citySelect);
+          if (cityDd) cityDd.value = preselectCity;
         }
       }
       if (preselectActivity) {
         const activitySelect = document.getElementById('activitySelect');
         if ([...activitySelect.options].some(o => o.value === preselectActivity)) {
           activitySelect.value = preselectActivity;
+          const activityDd = window.getUniversalDropdown && window.getUniversalDropdown(activitySelect);
+          if (activityDd) activityDd.value = preselectActivity;
         }
       }
       if (preselectCity || preselectActivity) {
