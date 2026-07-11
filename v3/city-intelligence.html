@@ -465,6 +465,13 @@
       LY: 'ليبيا', SD: 'السودان', YE: 'اليمن', SO: 'الصومال', DJ: 'جيبوتي',
       MR: 'موريتانيا', KM: 'جزر القمر'
     };
+    const countryFlags = {
+      SA: '🇸🇦', AE: '🇦🇪', EG: '🇪🇬', QA: '🇶🇦', JO: '🇯🇴',
+      KW: '🇰🇼', BH: '🇧🇭', OM: '🇴🇲', IQ: '🇮🇶', LB: '🇱🇧',
+      SY: '🇸🇾', PS: '🇵🇸', TN: '🇹🇳', DZ: '🇩🇿', MA: '🇲🇦',
+      LY: '🇱🇾', SD: '🇸🇩', YE: '🇾🇪', SO: '🇸🇴', DJ: '🇩🇯',
+      MR: '🇲🇷', KM: '🇰🇲'
+    };
     let cities = [];
     let activities = [];
 
@@ -651,8 +658,8 @@
         const allCountryCodes = Object.keys(countryNames).sort((a, b) =>
           countryNames[a].localeCompare(countryNames[b], 'ar')
         );
-        const countryOptions = allCountryCodes.map(code => ({ value: code, label: countryNames[code] }));
-        countrySelect.innerHTML = '<option value="">اختر الدولة</option>' + allCountryCodes.map(code => `<option value="${code}">${countryNames[code]}</option>`).join('');
+        const countryOptions = allCountryCodes.map(code => ({ value: code, label: countryNames[code], icon: countryFlags[code] }));
+        countrySelect.innerHTML = '<option value="">اختر الدولة</option>' + allCountryCodes.map(code => `<option value="${code}" data-icon="${countryFlags[code]}">${countryNames[code]}</option>`).join('');
         const countryDd = window.getUniversalDropdown && window.getUniversalDropdown(countrySelect);
         if (countryDd && countryDd.setOptions) countryDd.setOptions(countryOptions);
 
