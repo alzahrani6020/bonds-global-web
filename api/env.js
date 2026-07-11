@@ -19,6 +19,7 @@ function handler(req, res) {
     APP_URL: process.env.NEXT_PUBLIC_APP_URL || '',
     SENTRY_DSN: process.env.SENTRY_DSN || '',
     ADMIN_EMAIL: process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '',
+    ADMIN_ENFORCE_MFA: process.env.ADMIN_ENFORCE_MFA === 'true' ? 'true' : 'false',
   };
 
   res.status(200).end(`window.__ENV = ${JSON.stringify(env)};`);

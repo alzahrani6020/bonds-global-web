@@ -482,6 +482,10 @@
 
       tbody.innerHTML = page.map(u => {
         const name = u.restaurant_name || 'مستخدم جديد';
+        const isOwner = window.__ENV?.ADMIN_EMAIL && u.email === window.__ENV.ADMIN_EMAIL;
+        const isAdmin = !!u.admin_role;
+        const protectedTitle = isOwner ? 'حساب المالك' : isAdmin ? 'حساب إداري' : '';
+        const disabledBtn = (title) => `<button class="btn-action" style="opacity:0.35;cursor:not-allowed;" title="${title} محمي" disabled>—</button>`;
         return `
           <tr>
             <td>
@@ -489,7 +493,7 @@
                 <div class="user-cell__avatar">${name.charAt(0)}</div>
                 <div>
                   <div class="user-cell__name">${name}</div>
-                  <div class="user-cell__email">${u.email || '-'}</div>
+                  <div class="user-cell__email">${u.email || '-'}${isOwner ? ' <span style="color:var(--gold);font-size:0.7rem;">(مالك)</span>' : isAdmin ? ' <span style="color:var(--info);font-size:0.7rem;">(' + u.admin_role + ')</span>' : ''}</div>
                 </div>
               </div>
             </td>
@@ -504,10 +508,10 @@
             <td>${u.last_sign_in_at ? formatDate(u.last_sign_in_at) : '-'}</td>
             <td>
               <button class="btn-action btn-edit" onclick='showDetailsModal(${JSON.stringify(u).replace(/'/g, "&#39;")})' title="عرض التفاصيل">👁️</button>
-              <button class="btn-action btn-edit" onclick='showEditModal(${JSON.stringify(u).replace(/'/g, "&#39;")})' title="تعديل">✏️</button>
-              <button class="btn-action btn-edit" onclick='showGrantModal(${JSON.stringify(u).replace(/'/g, "&#39;")})' title="منح وصول مؤقت" style="background:rgba(212,168,83,0.15);">🎁</button>
-              <button class="btn-action btn-reset" onclick="showResetModal('${u.id}')" title="إعادة تعيين كلمة المرور">🔑</button>
-              <button class="btn-action btn-delete" onclick="deleteUser('${u.id}', '${name.replace(/'/g, "\\'")}')" title="حذف">🗑️</button>
+              ${isOwner || isAdmin ? disabledBtn(protectedTitle) : `<button class="btn-action btn-edit" onclick='showEditModal(${JSON.stringify(u).replace(/'/g, "&#39;")})' title="تعديل">✏️</button>`}
+              ${isOwner || isAdmin ? disabledBtn(protectedTitle) : `<button class="btn-action btn-edit" onclick='showGrantModal(${JSON.stringify(u).replace(/'/g, "&#39;")})' title="منح وصول مؤقت" style="background:rgba(212,168,83,0.15);">🎁</button>`}
+              ${isOwner || isAdmin ? disabledBtn(protectedTitle) : `<button class="btn-action btn-reset" onclick="showResetModal('${u.id}')" title="إعادة تعيين كلمة المرور">🔑</button>`}
+              ${isOwner || isAdmin ? disabledBtn(protectedTitle) : `<button class="btn-action btn-delete" onclick="deleteUser('${u.id}', '${name.replace(/'/g, "\\'")}')" title="حذف">🗑️</button>`}
             </td>
           </tr>
         `;

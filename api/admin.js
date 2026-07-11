@@ -8,6 +8,69 @@ const { withRateLimit } = require('../lib/api/rate-limit');
 
 const OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 
+function isOwner(email) {
+  return !!(OWNER_EMAIL && email && email.toLowerCase() === OWNER_EMAIL.toLowerCase());
+}
+
+function decodeJwtAal(token) {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+    const payload = JSON.parse(Buffer.from(padded, 'base64').toString('utf8'));
+    return payload.aal || 'aal1';
+  } catch (e) {
+    return 'aal1';
+  }
+}
+
+async function isAdminMfaEnforced(sb) {
+  try {
+    const { data } = await sb.from('site_settings').select('value').eq('key', 'admin_enforce_mfa').single();
+    if (data?.value === 'true') return true;
+  } catch (e) {}
+  return process.env.ADMIN_ENFORCE_MFA === 'true';
+}
+
+async function checkAdminMfa(req, sb) {
+  if (!await isAdminMfaEnforced(sb)) return true;
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return false;
+  return decodeJwtAal(authHeader.slice(7)) === 'aal2';
+}
+
+async function getAdminRoleForUser(sb, userId) {
+  try {
+    const { data } = await sb.from('admin_roles').select('role').eq('user_id', userId).single();
+    return data?.role || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function getTargetEmailAndRole(sb, userId) {
+  let email = '';
+  try {
+    const { data: profile } = await sb.from('profiles').select('email').eq('id', userId).single();
+    if (profile?.email) email = profile.email;
+  } catch (e) {}
+  if (!email) {
+    try {
+      const { data: authUser } = await sb.auth.admin.getUserById(userId);
+      email = authUser?.email || '';
+    } catch (e) {}
+  }
+  const role = await getAdminRoleForUser(sb, userId);
+  return { email, role };
+}
+
+function assertNotOwner(email, action) {
+  if (isOwner(email)) throw new Error(`Cannot ${action} owner account`);
+}
+
+function assertNotAdmin(role, action) {
+  if (role) throw new Error(`Cannot ${action} admin account`);
+}
+
 async function verifyAdmin(req, sb) {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) return null;
@@ -15,9 +78,13 @@ async function verifyAdmin(req, sb) {
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
   // Owner fallback
-  if (OWNER_EMAIL && user.email === OWNER_EMAIL) return user;
+  if (OWNER_EMAIL && user.email === OWNER_EMAIL) {
+    if (!(await checkAdminMfa(req, sb))) return null;
+    return user;
+  }
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role || !['super_admin', 'admin', 'support'].includes(role.role)) return null;
+  if (!(await checkAdminMfa(req, sb))) return null;
   return user;
 }
 
@@ -28,9 +95,13 @@ async function verifyAdminStrict(req, sb) {
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
   // Owner fallback — always super_admin
-  if (OWNER_EMAIL && user.email === OWNER_EMAIL) return user;
+  if (OWNER_EMAIL && user.email === OWNER_EMAIL) {
+    if (!(await checkAdminMfa(req, sb))) return null;
+    return user;
+  }
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role || !['super_admin', 'admin'].includes(role.role)) return null;
+  if (!(await checkAdminMfa(req, sb))) return null;
   return user;
 }
 
@@ -74,6 +145,76 @@ async function getAuditLog(sb, opts = {}) {
     .range(offset, offset + limit - 1);
   if (error) throw error;
   return { success: true, logs: data || [], count: count || 0 };
+}
+
+// ── Security Center ─────────────────────────────────────────
+async function getSecurityStatus(sb) {
+  const enforceMfa = await isAdminMfaEnforced(sb);
+  const ownerEmail = OWNER_EMAIL;
+
+  const { data: roles, error: rolesError } = await sb.from('admin_roles').select('*').order('created_at', { ascending: false });
+  if (rolesError) throw rolesError;
+
+  const userIds = (roles || []).map(r => r.user_id).filter(Boolean);
+  let profileMap = {};
+  if (userIds.length) {
+    const { data: profiles } = await sb.from('profiles').select('id, email, restaurant_name').in('id', userIds);
+    (profiles || []).forEach(p => profileMap[p.id] = p);
+  }
+
+  const adminUsers = [];
+  for (const r of roles || []) {
+    let email = profileMap[r.user_id]?.email || '';
+    if (!email) {
+      try {
+        const { data: authUser } = await sb.auth.admin.getUserById(r.user_id);
+        email = authUser?.email || '';
+      } catch (e) {}
+    }
+    let mfaEnabled = false;
+    try {
+      const { data: factorData } = await sb.auth.admin.mfa.listFactors({ userId: r.user_id });
+      const factors = factorData?.factors || [];
+      mfaEnabled = factors.some(f => f.status === 'verified');
+    } catch (e) {
+      mfaEnabled = false;
+    }
+    adminUsers.push({
+      user_id: r.user_id,
+      role: r.role,
+      email,
+      name: profileMap[r.user_id]?.restaurant_name || 'مستخدم',
+      mfa_enabled: mfaEnabled,
+      is_owner: isOwner(email),
+      created_at: r.created_at
+    });
+  }
+
+  const warnings = [];
+  if (!ownerEmail) warnings.push('ADMIN_EMAIL غير مُعرَّف في بيئة Vercel.');
+  const nonOwnerSuper = adminUsers.filter(u => u.role === 'super_admin' && !u.is_owner);
+  if (nonOwnerSuper.length) warnings.push(`يوجد ${nonOwnerSuper.length} حساب super_admin غير المالك.`);
+  const adminsWithoutMfa = adminUsers.filter(u => !u.mfa_enabled && u.role !== 'viewer');
+  if (adminsWithoutMfa.length) warnings.push(`${adminsWithoutMfa.length} إداري بدون MFA.`);
+
+  const { data: recentLogs } = await sb
+    .from('admin_audit_log')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  return { success: true, ownerEmail, enforceMfa, adminUsers, warnings, recentLogs: recentLogs || [] };
+}
+
+async function updateSecuritySettings(sb, body, admin, req) {
+  if (!admin) throw new Error('Admin required');
+  if (!isOwner(admin.email)) throw new Error('Only owner can change security settings');
+  const { enforce_mfa } = body;
+  const value = enforce_mfa === true || enforce_mfa === 'true' ? 'true' : 'false';
+  const { error } = await sb.from('site_settings').upsert({ key: 'admin_enforce_mfa', value, updated_at: new Date().toISOString() });
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'security_settings_update', 'settings', null, null, { admin_enforce_mfa: value }, req);
+  return { success: true, enforceMfa: value === 'true' };
 }
 
 // ── Bank Transfers ──────────────────────────────────────────
@@ -309,9 +450,13 @@ async function verifyAdminUser(req, sb) {
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
   // Owner fallback
-  if (OWNER_EMAIL && user.email === OWNER_EMAIL) return { user, role: 'super_admin' };
+  if (OWNER_EMAIL && user.email === OWNER_EMAIL) {
+    if (!(await checkAdminMfa(req, sb))) return null;
+    return { user, role: 'super_admin' };
+  }
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role) return null;
+  if (!(await checkAdminMfa(req, sb))) return null;
   return { user, role: role.role };
 }
 
@@ -382,6 +527,13 @@ async function addRole(sb, body, admin, req) {
     targetId = authUser.id;
   }
 
+  // Security: super_admin is reserved for the owner
+  if (role === 'super_admin') {
+    if (!isOwner(admin.email)) throw new Error('Only owner can assign super_admin');
+    if (!isOwner(email)) throw new Error('super_admin role is reserved for owner');
+  }
+  if (isOwner(email) && role !== 'super_admin') throw new Error('Owner must be super_admin');
+
   const { data, error } = await sb.from('admin_roles').insert({ user_id: targetId, role }).select().single();
   if (error) throw error;
   await logAdminAction(sb, admin, 'role_grant', 'admin_role', data?.id || targetId, email, { role, target_id: targetId }, req);
@@ -393,6 +545,7 @@ async function removeRole(sb, body, admin, req) {
   const { id } = body;
   if (!id) throw new Error('id required');
   const { data: roleRow } = await sb.from('admin_roles').select('user_id, role').eq('id', id).single();
+  if (roleRow?.role === 'super_admin') throw new Error('Cannot remove super_admin role');
   const { error } = await sb.from('admin_roles').delete().eq('id', id);
   if (error) throw error;
   await logAdminAction(sb, admin, 'role_remove', 'admin_role', id, null, { target_id: roleRow?.user_id, role: roleRow?.role }, req);
@@ -433,6 +586,11 @@ async function getUsers(sb) {
   const profileMap = {};
   (profileList || []).forEach(p => profileMap[p.id] = p);
 
+  // Map admin roles by user_id for UI guards
+  const { data: roleList } = await sb.from('admin_roles').select('user_id, role');
+  const roleMap = {};
+  (roleList || []).forEach(r => roleMap[r.user_id] = r.role);
+
   let merged = [];
   if (useAuth) {
     merged = authUsers.map(u => {
@@ -453,7 +611,8 @@ async function getUsers(sb) {
         tier_expires_at: p.tier_expires_at || null,
         status: p.status || 'active',
         created_at: u.created_at,
-        last_sign_in_at: u.last_sign_in_at || null
+        last_sign_in_at: u.last_sign_in_at || null,
+        admin_role: roleMap[u.id] || null
       };
     });
   } else {
@@ -473,7 +632,8 @@ async function getUsers(sb) {
       tier_expires_at: p.tier_expires_at || null,
       status: p.status || 'active',
       created_at: p.created_at,
-      last_sign_in_at: null
+      last_sign_in_at: null,
+      admin_role: roleMap[p.id] || null
     }));
   }
 
@@ -484,6 +644,11 @@ async function updateUser(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { id, tier, status, city, business_type, bio, needs, employee_count } = body;
   if (!id) throw new Error('id required');
+
+  const { email: targetEmail, role: targetRole } = await getTargetEmailAndRole(sb, id);
+  assertNotOwner(targetEmail, 'update');
+  if (targetRole && !isOwner(admin.email)) throw new Error('Only owner can modify admin accounts');
+
   const updates = {};
   if (tier !== undefined) updates.tier = tier;
   if (status !== undefined) updates.status = status;
@@ -495,7 +660,7 @@ async function updateUser(sb, body, admin, req) {
   updates.updated_at = new Date().toISOString();
   const { error } = await sb.from('profiles').update(updates).eq('id', id);
   if (error) throw error;
-  await logAdminAction(sb, admin, 'user_update', 'user', id, body.email || null, updates, req);
+  await logAdminAction(sb, admin, 'user_update', 'user', id, body.email || targetEmail || null, updates, req);
   return { success: true };
 }
 
@@ -504,6 +669,10 @@ async function grantAccess(sb, body, admin, req) {
   const { id, tier, expires_at, reason } = body;
   if (!id) throw new Error('id required');
   if (!tier || !['free', 'pro', 'enterprise'].includes(tier)) throw new Error('valid tier required');
+
+  const { email: targetEmail, role: targetRole } = await getTargetEmailAndRole(sb, id);
+  assertNotOwner(targetEmail, 'grant access to');
+  assertNotAdmin(targetRole, 'grant access to');
 
   const now = new Date().toISOString();
   const profileUpdates = { tier, updated_at: now };
@@ -534,7 +703,7 @@ async function grantAccess(sb, body, admin, req) {
     }]);
   }
 
-  await logAdminAction(sb, admin, 'grant_access', 'user', id, null, { tier, expires_at, reason }, req);
+  await logAdminAction(sb, admin, 'grant_access', 'user', id, targetEmail || null, { tier, expires_at, reason }, req);
   return { success: true };
 }
 
@@ -542,9 +711,12 @@ async function deleteUser(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { id } = body;
   if (!id) throw new Error('id required');
+  const { email: targetEmail, role: targetRole } = await getTargetEmailAndRole(sb, id);
+  assertNotOwner(targetEmail, 'delete');
+  assertNotAdmin(targetRole, 'delete');
   const { error } = await sb.from('profiles').delete().eq('id', id);
   if (error) throw error;
-  await logAdminAction(sb, admin, 'user_delete', 'user', id, body.email || null, {}, req);
+  await logAdminAction(sb, admin, 'user_delete', 'user', id, targetEmail || body.email || null, {}, req);
   return { success: true };
 }
 
@@ -552,9 +724,12 @@ async function resetPassword(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { id, password } = body;
   if (!id || !password || password.length < 6) throw new Error('id and password (min 6 chars) required');
+  const { email: targetEmail, role: targetRole } = await getTargetEmailAndRole(sb, id);
+  assertNotOwner(targetEmail, 'reset password for');
+  assertNotAdmin(targetRole, 'reset password for');
   const { error } = await sb.auth.admin.updateUserById(id, { password });
   if (error) throw error;
-  await logAdminAction(sb, admin, 'user_reset_password', 'user', id, body.email || null, {}, req);
+  await logAdminAction(sb, admin, 'user_reset_password', 'user', id, targetEmail || body.email || null, {}, req);
   return { success: true };
 }
 
@@ -786,6 +961,11 @@ async function handler(req, res) {
         const offset = parseInt(req.query?.offset) || 0;
         return res.status(200).json(await getAuditLog(sb, { limit, offset }));
       }
+      if (action === 'security-status') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getSecurityStatus(sb));
+      }
       return res.status(400).json({ error: 'Unknown action' });
     }
 
@@ -864,6 +1044,11 @@ async function handler(req, res) {
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await updateAiReview(sb, req.body, admin, req));
       }
+      if (action === 'security-settings') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await updateSecuritySettings(sb, req.body, admin, req));
+      }
       if (action === 'makeOwnerAdmin') {
         const authHeader = req.headers.authorization;
         if (!authHeader?.startsWith('Bearer ')) return res.status(403).json({ error: 'Token required' });
@@ -875,6 +1060,7 @@ async function handler(req, res) {
         const { error: upsertErr } = await sb.from('admin_roles')
           .upsert({ user_id: user.id, role: 'super_admin', granted_by: user.id }, { onConflict: 'user_id' });
         if (upsertErr) return res.status(500).json({ error: upsertErr.message });
+        await logAdminAction(sb, user, 'owner_claim_super_admin', 'admin_role', user.id, user.email, {}, req);
         return res.status(200).json({ success: true, role: 'super_admin' });
       }
       return res.status(400).json({ error: 'Unknown action' });

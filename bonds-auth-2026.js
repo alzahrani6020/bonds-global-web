@@ -36,6 +36,34 @@
     return sb.auth.getSession();
   }
 
+  function decodeJwtAal(token) {
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+      const payload = JSON.parse(atob(padded));
+      return payload.aal || 'aal1';
+    } catch (e) {
+      return 'aal1';
+    }
+  }
+
+  async function checkAdminMfa(token) {
+    try {
+      const aal = decodeJwtAal(token);
+      const res = await fetch('/api/admin?action=security-status', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!res.ok) return { ok: true };
+      const data = await res.json();
+      if (data.success && data.enforceMfa && aal !== 'aal2') {
+        return { ok: false, aal };
+      }
+      return { ok: true };
+    } catch (e) {
+      return { ok: true };
+    }
+  }
+
   async function getProfile(userId) {
     const sb = getSupabase();
     if (!sb || !userId) return { data: null, error: new Error('Not initialized') };
@@ -248,8 +276,10 @@
       </div>`;
     document.body.appendChild(div);
 
-    getUser().then(({ data: userData, error }) => {
-      const user = userData?.user;
+    getSession().then(async ({ data: sessionData, error }) => {
+      const session = sessionData?.session;
+      const user = session?.user;
+      const token = session?.access_token || '';
       const statusEl = document.getElementById(`${overlayId}-status`);
       const loginBtn = document.getElementById(`${overlayId}-login`);
 
@@ -259,26 +289,46 @@
         return;
       }
 
-      if (ADMIN_EMAIL && user.email === ADMIN_EMAIL) {
-        window.__ADMIN_ROLE = 'super_admin';
-        window.__ADMIN_PERMS = ROLE_PERMISSIONS.super_admin;
-        window.__ADMIN_TOKEN = '';
+      function finishAdminAccess(role) {
+        window.__ADMIN_ROLE = role;
+        window.__ADMIN_PERMS = ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.viewer;
+        window.__ADMIN_TOKEN = token;
         document.getElementById(overlayId)?.remove();
         window.dispatchEvent(new Event('admin-auth-ready'));
+      }
+
+      async function requireMfa() {
+        const box = document.getElementById(`${overlayId}-box`);
+        if (box) {
+          box.innerHTML = `
+            <div style="text-align:center;max-width:460px;padding:2rem;">
+              <div style="font-size:3rem;margin-bottom:1rem;">🔐</div>
+              <h2 style="color:#ffffff;margin-bottom:0.5rem;">مطلوب مصادقة ثنائية (MFA)</h2>
+              <p style="color:#bbbbbb;line-height:1.8;">
+                تم تفعيل إلزام MFA للوصول إلى لوحة التحكم.<br>
+                1. فعّل 2FA من إعدادات Supabase لحسابك.<br>
+                2. سجّل الخروج ثم أعد تسجيل الدخول باستخدام رمز MFA.
+              </p>
+              <button style="margin-top:1.5rem;padding:0.75rem 2rem;border-radius:10px;border:none;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#1a1a1a;font-weight:800;cursor:pointer;" onclick="location.href='/calculators/auth/index.html?redirect='+encodeURIComponent(location.href)">إعادة تسجيل الدخول</button>
+            </div>`;
+        }
+      }
+
+      if (ADMIN_EMAIL && user.email === ADMIN_EMAIL) {
+        const mfa = await checkAdminMfa(token);
+        if (!mfa.ok) return requireMfa();
+        finishAdminAccess('super_admin');
         return;
       }
 
-      getAdminRole(user.id).then(({ data: roleRow }) => {
+      getAdminRole(user.id).then(async ({ data: roleRow }) => {
         if (!roleRow || !['super_admin','admin','support'].includes(roleRow.role)) {
           if (statusEl) statusEl.textContent = 'ليس لديك صلاحية الوصول الإداري';
           return;
         }
-        const role = roleRow.role;
-        window.__ADMIN_ROLE = role;
-        window.__ADMIN_PERMS = ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.viewer;
-        window.__ADMIN_TOKEN = '';
-        document.getElementById(overlayId)?.remove();
-        window.dispatchEvent(new Event('admin-auth-ready'));
+        const mfa = await checkAdminMfa(token);
+        if (!mfa.ok) return requireMfa();
+        finishAdminAccess(roleRow.role);
       });
     });
   }

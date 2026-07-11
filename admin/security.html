@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-ud-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مركز الأمان | لوحة التحكم | بوندز</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <style>
+    :root {
+      --bg: #f5f0e8; --bg-secondary: #ffffff; --bg-card: rgba(255,255,255,0.85);
+      --gold: #b8954e; --gold-bright: #d4b87a; --gold-dim: #8a7340;
+      --text: #1a1a1a; --text-secondary: #555555; --text-muted: #888888;
+      --border: rgba(0,0,0,0.08); --border-hover: rgba(184,149,78,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6; --danger: #ef4444;
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.4); --radius: 16px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Vazirmatn', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; overflow-y: auto; }
+
+    .admin-layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 260px; background: var(--bg-secondary); border-left: 1px solid var(--border);
+      padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;
+      position: fixed; right: 0; top: 0; bottom: 0; z-index: 100;
+    }
+    .sidebar-brand { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .sidebar-brand img { height: 40px; width: auto; border-radius: 6px; }
+    .sidebar-brand span { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+    .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; border-radius: 12px; color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s; }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(212,168,83,0.1); color: var(--gold); }
+    .sidebar-link svg { width: 20px; height: 20px; opacity: 0.7; }
+
+    .main-content { flex: 1; margin-right: 260px; padding: 2rem; }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 800; }
+    .page-header p { color: var(--text-secondary); font-size: 0.9rem; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
+    .card h3 { font-size: 1rem; font-weight: 800; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .card-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+    .card-row:last-child { border-bottom: none; }
+    .card-label { color: var(--text-secondary); font-size: 0.85rem; }
+    .card-value { font-weight: 700; font-size: 0.9rem; }
+
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .toggle-switch { position: relative; width: 48px; height: 26px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 34px; transition: 0.3s; }
+    .toggle-slider:before { content: ""; position: absolute; height: 20px; width: 20px; right: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle-switch input:checked + .toggle-slider { background: var(--success); }
+    .toggle-switch input:checked + .toggle-slider:before { transform: translateX(-22px); }
+    .toggle-switch input:disabled + .toggle-slider { opacity: 0.5; cursor: not-allowed; }
+
+    .alert { padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 1rem; font-size: 0.85rem; font-weight: 600; }
+    .alert--danger { background: rgba(239,68,68,0.1); color: #b91c1c; border: 1px solid rgba(239,68,68,0.2); }
+    .alert--warning { background: rgba(234,179,8,0.1); color: #a16207; border: 1px solid rgba(234,179,8,0.2); }
+    .alert--success { background: rgba(34,197,94,0.1); color: #15803d; border: 1px solid rgba(34,197,94,0.2); }
+
+    .table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1.5rem; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { text-align: right; padding: 1rem 1.25rem; font-size: 0.75rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.9); }
+    .data-table td { padding: 0.85rem 1.25rem; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .data-table tr:hover td { background: rgba(212,168,83,0.05); }
+    .badge { display: inline-block; padding: 0.25rem 0.65rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
+    .badge--super { background: rgba(168,85,247,0.12); color: #a855f7; }
+    .badge--admin { background: rgba(59,130,246,0.12); color: #3b82f6; }
+    .badge--support { background: rgba(234,179,8,0.12); color: #b48800; }
+    .badge--viewer { background: rgba(100,116,139,0.12); color: #475569; }
+    .badge--owner { background: rgba(212,168,83,0.15); color: var(--gold); }
+    .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 0.4rem; }
+    .status-dot.on { background: var(--success); }
+    .status-dot.off { background: var(--danger); }
+
+    .empty { text-align: center; padding: 2rem; color: var(--text-muted); }
+    .quick-links { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+    .quick-links a { padding: 0.5rem 1rem; border-radius: 8px; background: rgba(212,168,83,0.1); color: var(--gold); text-decoration: none; font-weight: 700; font-size: 0.8rem; }
+
+    @media (max-width: 1024px) {
+      .sidebar { width: 80px; padding: 1rem; }
+      .sidebar-brand span, .sidebar-link span { display: none; }
+      .sidebar-link { justify-content: center; padding: 0.85rem; }
+      .main-content { margin-right: 80px; }
+    }
+  </style>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=1"></script>
+  <script>BondsAuth.initAdminGuard();</script>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="../assets/bonds-logo-2026.webp?v=2026" alt="بوندز" />
+        <span>بوندز</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>الرئيسية</span>
+        </a>
+        <a href="users.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>المستخدمين</span>
+        </a>
+        <a href="roles.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>الصلاحيات</span>
+        </a>
+        <a href="audit-log.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>سجل المراجعة</span>
+        </a>
+        <a href="security.html" class="sidebar-link active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>الأمان</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>مركز الأمان</h1>
+        <p>مراقبة الأدوار، MFA، وسجل الإجراءات الإدارية</p>
+      </div>
+
+      <div id="alerts"></div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>👤 حالة المالك</h3>
+          <div class="card-row">
+            <span class="card-label">OWNER_EMAIL</span>
+            <span class="card-value" id="ownerEmail">—</span>
+          </div>
+          <div class="card-row">
+            <span class="card-label">حساب المالك</span>
+            <span class="card-value" id="ownerStatus">—</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>🔐 فرض MFA على الإداريين</h3>
+          <div class="toggle-row" style="margin-bottom:1rem;">
+            <div>
+              <div class="card-value">إلزام الدخول بـ MFA</div>
+              <div class="card-label" style="margin-top:0.25rem;">يفرض AAL2 على كل API/page إدارية</div>
+            </div>
+            <label class="toggle-switch" id="mfaToggleWrap">
+              <input type="checkbox" id="mfaToggle" onchange="toggleMfa()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="alert alert--warning" style="margin-bottom:0;">
+            ⚠️ لا تُفعّل هذا قبل تفعيل 2FA في Supabase لحسابك، وإلا ستُقفل خارج لوحة التحكم.
+          </div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>المستخدم</th>
+              <th>الدور</th>
+              <th>MFA</th>
+              <th>ملاحظات</th>
+            </tr>
+          </thead>
+          <tbody id="adminsTable">
+            <tr><td colspan="4" class="empty">جارِ التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>📋 آخر 10 إجراءات في Audit Log</h3>
+        <div class="table-card" style="border:none;margin:0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>الوقت</th>
+                <th>الإداري</th>
+                <th>الإجراء</th>
+                <th>الهدف</th>
+              </tr>
+            </thead>
+            <tbody id="auditTable">
+              <tr><td colspan="4" class="empty">جارِ التحميل...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="quick-links">
+          <a href="roles.html">إدارة الأدوار</a>
+          <a href="audit-log.html">سجل المراجعة الكامل</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../page-tracker-v2.js"></script>
+  <script src="/admin/admin-embed.js"></script>
+  <script>
+    let currentStatus = null;
+
+    window.addEventListener('message', (e) => {
+      if (e.origin !== location.origin) return;
+      if (e.data?.type === 'admin-token' && e.data?.token) window.__ADMIN_TOKEN = e.data.token;
+    });
+
+    async function getToken() {
+      let token = window.__ADMIN_TOKEN || '';
+      if (!token && typeof supabase !== 'undefined' && window.__ENV?.SUPABASE_URL) {
+        const client = supabase.createClient(window.__ENV.SUPABASE_URL, window.__ENV.SUPABASE_ANON_KEY);
+        const { data: { session } } = await client.auth.getSession();
+        token = session?.access_token || '';
+      }
+      return token;
+    }
+
+    function roleBadge(u) {
+      const map = { super_admin: 'badge--super', admin: 'badge--admin', support: 'badge--support', viewer: 'badge--viewer' };
+      const label = u.role === 'super_admin' ? 'Super Admin' : u.role === 'admin' ? 'Admin' : u.role === 'support' ? 'Support' : u.role === 'viewer' ? 'Viewer' : u.role;
+      const ownerBadge = u.is_owner ? ' <span class="badge badge--owner">المالك</span>' : '';
+      return `<span class="badge ${map[u.role] || 'badge--viewer'}">${label}</span>${ownerBadge}`;
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderAlerts(warnings) {
+      const container = document.getElementById('alerts');
+      if (!warnings?.length) {
+        container.innerHTML = '<div class="alert alert--success">✅ لا توجد تنبيهات أمنية حرجة.</div>';
+        return;
+      }
+      container.innerHTML = warnings.map(w => `<div class="alert alert--danger">⚠️ ${w}</div>`).join('');
+    }
+
+    async function load() {
+      try {
+        const token = await getToken();
+        const res = await fetch('/api/admin?action=security-status', {
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+        currentStatus = data;
+
+        document.getElementById('ownerEmail').textContent = data.ownerEmail || 'غير مُعرَّف';
+        const ownerUser = (data.adminUsers || []).find(u => u.is_owner);
+        document.getElementById('ownerStatus').innerHTML = ownerUser
+          ? '<span class="status-dot on"></span> مسجل كـ Super Admin'
+          : '<span class="status-dot off"></span> لا يوجد دور مسجل (يعتمد على fallback)';
+
+        const toggle = document.getElementById('mfaToggle');
+        toggle.checked = !!data.enforceMfa;
+        toggle.disabled = window.__ADMIN_ROLE !== 'super_admin';
+
+        renderAlerts(data.warnings);
+
+        const tbody = document.getElementById('adminsTable');
+        if (!data.adminUsers?.length) {
+          tbody.innerHTML = '<tr><td colspan="4" class="empty">لا يوجد إداريين</td></tr>';
+        } else {
+          tbody.innerHTML = data.adminUsers.map(u => `
+            <tr>
+              <td>
+                <div style="font-weight:700;color:var(--text);">${u.name || 'مستخدم'}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);direction:ltr;text-align:right;">${u.email || u.user_id}</div>
+              </td>
+              <td>${roleBadge(u)}</td>
+              <td>
+                ${u.mfa_enabled
+                  ? '<span style="color:var(--success);font-weight:700;"><span class="status-dot on"></span> مفعّل</span>'
+                  : '<span style="color:var(--danger);font-weight:700;"><span class="status-dot off"></span> غير مفعّل</span>'}
+              </td>
+              <td style="font-size:0.78rem;color:var(--text-muted);">
+                ${u.is_owner ? 'المالك' : u.mfa_enabled ? '' : 'يُنصح بتفعيل MFA'}
+              </td>
+            </tr>
+          `).join('');
+        }
+
+        const auditTbody = document.getElementById('auditTable');
+        if (!data.recentLogs?.length) {
+          auditTbody.innerHTML = '<tr><td colspan="4" class="empty">لا يوجد سجلات</td></tr>';
+        } else {
+          auditTbody.innerHTML = data.recentLogs.map(log => `
+            <tr>
+              <td>${formatDate(log.created_at)}</td>
+              <td>${log.actor_email || '—'}</td>
+              <td><code style="font-size:0.78rem;background:rgba(0,0,0,0.04);padding:0.15rem 0.4rem;border-radius:4px;">${log.action || '—'}</code></td>
+              <td>${log.target_type || ''}${log.target_id ? ' — ' + log.target_id : ''}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (e) {
+        console.error('[SecurityCenter]', e);
+        document.getElementById('alerts').innerHTML = '<div class="alert alert--danger">فشل تحميل بيانات الأمان: ' + e.message + '</div>';
+      }
+    }
+
+    async function toggleMfa() {
+      const toggle = document.getElementById('mfaToggle');
+      if (window.__ADMIN_ROLE !== 'super_admin') {
+        alert('فقط المالك يمكنه تغيير هذا الإعداد');
+        toggle.checked = !toggle.checked;
+        return;
+      }
+      const enable = toggle.checked;
+      if (enable && !confirm('هل أنت متأكد؟ تأكد من تفعيل 2FA في Supabase لحسابك أولًا، وإلا ستُقفل خارج لوحة التحكم.')) {
+        toggle.checked = false;
+        return;
+      }
+      try {
+        const token = await getToken();
+        const res = await fetch('/api/admin?action=security-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ enforce_mfa: enable })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+        alert(enable ? 'تم تفعيل إلزام MFA. سجّل الخروج وأعد الدخول لتطبيقه.' : 'تم تعطيل إلزام MFA.');
+        load();
+      } catch (e) {
+        alert('فشل التحديث: ' + e.message);
+        toggle.checked = !toggle.checked;
+      }
+    }
+
+    window.addEventListener('load', load);
+  </script>
+</body>
+</html>
