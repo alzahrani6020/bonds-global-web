@@ -331,30 +331,36 @@
           advisoryProjects: 0,
           recoveryAssets: 0,
           cities: 0,
-          aiReviews: 0
+          aiReviews: 0,
+          _errors: []
         };
 
+        const queries = [
+          { key: 'users', q: sb?.from('profiles')?.select('*', { count: 'exact', head: true }) },
+          { key: 'subscriptions', q: sb?.from('subscriptions')?.select('*', { count: 'exact', head: true }) },
+          { key: 'messages', q: sb?.from('contact_messages')?.select('*', { count: 'exact', head: true }) },
+          { key: 'advisoryClients', q: sb?.from('advisory_clients')?.select('*', { count: 'exact', head: true }) },
+          { key: 'advisoryProjects', q: sb?.from('advisory_projects')?.select('*', { count: 'exact', head: true }) },
+          { key: 'recoveryAssets', q: sb?.from('recovery_assets')?.select('*', { count: 'exact', head: true }) },
+          { key: 'cities', q: sb?.from('cities')?.select('*', { count: 'exact', head: true }) },
+          { key: 'aiReviews', q: sb?.from('ai_review_requests')?.select('*', { count: 'exact', head: true }) }
+        ];
+
+        const results = await Promise.allSettled(
+          queries.map(item => withTimeout(item.q, 8000).then(value => ({ key: item.key, value })))
+        );
+
+        results.forEach(result => {
+          if (result.status === 'fulfilled') {
+            const { key, value } = result.value || {};
+            if (value && typeof value.count === 'number') counts[key] = value.count;
+          } else {
+            console.warn('[Dashboard] stat query failed:', result.reason);
+            counts._errors.push(String(result.reason || 'unknown'));
+          }
+        });
+
         try {
-          const [users, subs, msgs, advClients, advProjects, recAssets, cities, aiReviews] = await Promise.allSettled([
-            withTimeout(sb?.from('profiles')?.select('*', { count: 'exact', head: true })),
-            withTimeout(sb?.from('subscriptions')?.select('*', { count: 'exact', head: true })),
-            withTimeout(sb?.from('contact_messages')?.select('*', { count: 'exact', head: true })),
-            withTimeout(sb?.from('advisory_clients')?.select('*', { count: 'exact', head: true })),
-            withTimeout(sb?.from('advisory_projects')?.select('*', { count: 'exact', head: true })),
-            withTimeout(sb?.from('recovery_assets')?.select('*', { count: 'exact', head: true })),
-            withTimeout(sb?.from('cities')?.select('*', { count: 'exact', head: true })),
-            withTimeout(sb?.from('ai_review_requests')?.select('*', { count: 'exact', head: true }))
-          ]);
-
-          counts.users = users.value?.count || 0;
-          counts.subscriptions = subs.value?.count || 0;
-          counts.messages = msgs.value?.count || 0;
-          counts.advisoryClients = advClients.value?.count || 0;
-          counts.advisoryProjects = advProjects.value?.count || 0;
-          counts.recoveryAssets = recAssets.value?.count || 0;
-          counts.cities = cities.value?.count || 0;
-          counts.aiReviews = aiReviews.value?.count || 0;
-
           const rev = await withTimeout(sb?.from('subscriptions')?.select('tier')?.eq('status', 'active'), 8000);
           if (rev?.data) {
             counts.revenue = rev.data.reduce((a, r) => {
@@ -363,17 +369,26 @@
               return a;
             }, 0);
           }
-        } catch (e) { console.warn('stats load failed', e); }
+        } catch (e) {
+          console.warn('[Dashboard] revenue calc failed:', e);
+          counts._errors.push('revenue');
+        }
 
         return counts;
       }
 
       function renderOverview(counts) {
+        const statErrors = counts._errors && counts._errors.length ? `
+          <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:1rem;margin-bottom:1.5rem;color:var(--text-secondary);font-size:0.85rem;">
+            ⚠️ تعذر تحميل بعض الإحصائيات (${counts._errors.length}). تأكد من الاتصال بـ Supabase أو أعد التحميل.
+          </div>` : '';
+
         overviewEl.innerHTML = `
           <div class="page-header">
             <h1>لوحة التحكم الموحدة</h1>
             <p>إدارة جميع وحدات بوندز من مكان واحد</p>
           </div>
+          ${statErrors}
           <div class="stats-grid">
             <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">👥</div></div><div class="stat-card__num">${counts.users.toLocaleString('ar-SA')}</div><div class="stat-card__label">المستخدمين</div></div>
             <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">⭐</div></div><div class="stat-card__num">${counts.subscriptions.toLocaleString('ar-SA')}</div><div class="stat-card__label">الاشتراكات</div></div>
