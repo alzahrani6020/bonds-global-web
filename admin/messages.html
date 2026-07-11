@@ -53,22 +53,45 @@
 
     .btn-sm { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
     .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #1a1a1a; }
+    .btn-secondary { background: rgba(0,0,0,0.05); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--gold); }
     .btn-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .tab-btn { padding: 0.6rem 1.2rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); font-weight: 700; cursor: pointer; transition: all 0.3s; }
+    .tab-btn:hover { border-color: var(--border-hover); color: var(--gold); }
+    .tab-btn.active { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #1a1a1a; border-color: transparent; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .compose-form { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); }
+    .form-group input, .form-group textarea { padding: 0.85rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.6); color: var(--text); font-family: inherit; font-size: 0.95rem; }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--gold); background: #fff; }
+    .form-row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .checkbox-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; cursor: pointer; }
+    .compose-status { font-size: 0.85rem; min-height: 1.2rem; font-weight: 700; }
+    .compose-status.success { color: var(--success); }
+    .compose-status.error { color: var(--danger); }
 
     .message-list { display: flex; flex-direction: column; gap: 1rem; }
     .message-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; transition: all 0.3s; }
     .message-card:hover { border-color: var(--border-hover); }
     .message-card.unread { border-right: 3px solid var(--gold); }
-    .message-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .message-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; gap: 0.5rem; flex-wrap: wrap; }
     .message-sender { font-weight: 700; color: var(--text); }
     .message-time { font-size: 0.8rem; color: var(--text-muted); }
     .message-email { font-size: 0.8rem; color: var(--gold); margin-bottom: 0.5rem; }
-    .message-body { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; }
+    .message-subject { font-weight: 800; margin-bottom: 0.5rem; color: var(--text); }
+    .message-body { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; }
     .message-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
 
     .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
     .badge--new { background: rgba(212,168,83,0.15); color: var(--gold); }
     .badge--read { background: rgba(100,116,139,0.15); color: var(--text-secondary); }
+    .badge--email { background: rgba(59,130,246,0.15); color: var(--info); }
 
     .loading { color: var(--text-muted); font-style: italic; text-align: center; padding: 2rem; }
 
@@ -139,15 +162,18 @@
       <div class="page-header">
         <div>
           <h1>الرسائل</h1>
-          <p>رسائل التواصل من المستخدمين والزوار</p>
+          <p>رسائل التواصل من المستخدمين والزوار، وإرسال تنبيهات للمستخدمين</p>
         </div>
-        <button class="btn-sm btn-primary" onclick="refreshMessages()">↻ تحديث</button>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="btn-sm btn-primary" onclick="showTab('compose')">✉ رسالة جديدة</button>
+          <button class="btn-sm btn-secondary" onclick="refreshMessages()">↻ تحديث</button>
+        </div>
       </div>
 
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-card__num" id="totalMessages">—</div>
-          <div class="stat-card__label">إجمالي الرسائل</div>
+          <div class="stat-card__label">إجمالي الرسائل الواردة</div>
         </div>
         <div class="stat-card">
           <div class="stat-card__num" id="unreadMessages">—</div>
@@ -159,8 +185,50 @@
         </div>
       </div>
 
-      <div class="message-list" id="messageList">
-        <div class="loading">جارِ التحميل...</div>
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="inbox" onclick="showTab('inbox')">📥 الوارد</button>
+        <button class="tab-btn" data-tab="compose" onclick="showTab('compose')">✉ رسالة جديدة</button>
+        <button class="tab-btn" data-tab="sent" onclick="showTab('sent')">📤 الصادر</button>
+      </div>
+
+      <div id="panel-inbox" class="tab-panel active">
+        <div class="message-list" id="messageList">
+          <div class="loading">جارِ التحميل...</div>
+        </div>
+      </div>
+
+      <div id="panel-compose" class="tab-panel">
+        <form class="compose-form" id="composeForm" onsubmit="event.preventDefault(); sendUserMessage();">
+          <div class="form-group">
+            <label for="msgRecipient">المستلم (البريد الإلكتروني أو معرف المستخدم)</label>
+            <input type="text" id="msgRecipient" placeholder="user@example.com" required />
+          </div>
+          <div class="form-group">
+            <label for="msgSubject">الموضوع</label>
+            <input type="text" id="msgSubject" placeholder="عنوان الرسالة" required />
+          </div>
+          <div class="form-group">
+            <label for="msgBody">نص الرسالة</label>
+            <textarea id="msgBody" rows="6" placeholder="اكتب رسالتك هنا..." required></textarea>
+          </div>
+          <div class="form-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="msgSendEmail" checked />
+              <span>إرسال نسخة إلى بريد المستخدم</span>
+            </label>
+          </div>
+          <div style="display:flex;gap:0.75rem;align-items:center;">
+            <button type="submit" class="btn-sm btn-primary" id="sendBtn">إرسال</button>
+            <button type="button" class="btn-sm btn-secondary" onclick="showTab('inbox')">إلغاء</button>
+          </div>
+          <div class="compose-status" id="composeStatus"></div>
+        </form>
+      </div>
+
+      <div id="panel-sent" class="tab-panel">
+        <div class="message-list" id="sentList">
+          <div class="loading">جارِ التحميل...</div>
+        </div>
       </div>
     </main>
   </div>
@@ -176,6 +244,13 @@
       return token;
     }
 
+    function showTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
+      if (tab === 'sent') renderSentMessages();
+      if (tab === 'inbox') renderMessages();
+    }
+
     async function fetchMessages() {
       try {
         const token = await getAdminToken();
@@ -185,14 +260,27 @@
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         if (!data.success) throw new Error(data.error);
-        if (data.demo) document.getElementById('demoIndicator').style.display = 'inline-block';
         return data.messages || [];
       } catch (e) {
-        document.getElementById('demoIndicator').style.display = 'inline-block';
         return [
           { id: 'demo-1', name: 'أحمد محمد', email: 'ahmed@example.com', phone: '+966501234567', sector: 'صناعة', service: 'دراسة جدوى متكاملة', message: 'أود الاستفسار عن دراسة جدوى متكاملة لمصنع بلاستيك في الرياض.', read: false, created_at: new Date(Date.now() - 3600000).toISOString() },
           { id: 'demo-2', name: 'سارة عبدالله', email: 'sara@example.com', phone: '+971501234567', sector: 'تجارة', service: 'تحليل مالي', message: 'أحتاج تحليل مالي لسلسلة متاجرنا.', read: true, created_at: new Date(Date.now() - 86400000).toISOString() },
         ];
+      }
+    }
+
+    async function fetchSentMessages() {
+      try {
+        const token = await getAdminToken();
+        const res = await fetch('/api/admin?action=sent-messages', {
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+        return data.messages || [];
+      } catch (e) {
+        return [];
       }
     }
 
@@ -219,6 +307,42 @@
       refreshMessages();
     }
 
+    async function sendUserMessage() {
+      const status = document.getElementById('composeStatus');
+      const btn = document.getElementById('sendBtn');
+      const recipient = document.getElementById('msgRecipient').value.trim();
+      const subject = document.getElementById('msgSubject').value.trim();
+      const body = document.getElementById('msgBody').value.trim();
+      const sendEmail = document.getElementById('msgSendEmail').checked;
+      if (!recipient || !subject || !body) {
+        status.textContent = 'الرجاء تعبئة جميع الحقول';
+        status.className = 'compose-status error';
+        return;
+      }
+      status.textContent = 'جارِ الإرسال...';
+      status.className = 'compose-status';
+      btn.disabled = true;
+      try {
+        const token = await getAdminToken();
+        const res = await fetch('/api/admin?action=messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ action: 'send', recipient, subject, body, send_email: sendEmail })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'فشل الإرسال');
+        status.textContent = 'تم إرسال الرسالة بنجاح' + (data.email_sent ? ' وإرسال نسخة بالبريد' : '');
+        status.className = 'compose-status success';
+        document.getElementById('composeForm').reset();
+        setTimeout(() => showTab('sent'), 800);
+      } catch (e) {
+        status.textContent = 'خطأ: ' + (e.message || 'تعذر الإرسال');
+        status.className = 'compose-status error';
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
     function timeAgo(dateStr) {
       const d = new Date(dateStr);
       const now = new Date();
@@ -241,7 +365,7 @@
       document.getElementById('todayMessages').textContent = today;
       const container = document.getElementById('messageList');
       if (msgs.length === 0) {
-        container.innerHTML = '<div class="loading">لا توجد رسائل</div>';
+        container.innerHTML = '<div class="loading">لا توجد رسائل واردة</div>';
         return;
       }
       container.innerHTML = msgs.map(m => `
@@ -254,7 +378,7 @@
           <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.5rem;">${m.sector || ''} ${m.service ? '→ ' + m.service : ''}</div>
           <div class="message-body">${m.message}</div>
           <div class="message-actions">
-            <button class="btn-sm ${m.read ? 'btn-primary' : 'btn-secondary'}" onclick="toggleRead('${m.id}')">${m.read ? 'تعيين غير مقروء' : 'تعيين مقروء'}</button>
+            <button class="btn-sm ${m.read ? 'btn-secondary' : 'btn-primary'}" onclick="toggleRead('${m.id}')">${m.read ? 'تعيين غير مقروء' : 'تعيين مقروء'}</button>
             <button class="btn-sm btn-danger" onclick="deleteMessage('${m.id}')">حذف</button>
           </div>
         </div>
@@ -263,13 +387,39 @@
       if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'inline-block' : 'none'; }
     }
 
+    async function renderSentMessages() {
+      const container = document.getElementById('sentList');
+      container.innerHTML = '<div class="loading">جارِ التحميل...</div>';
+      const msgs = await fetchSentMessages();
+      if (msgs.length === 0) {
+        container.innerHTML = '<div class="loading">لا توجد رسائل مرسلة</div>';
+        return;
+      }
+      container.innerHTML = msgs.map(m => `
+        <div class="message-card">
+          <div class="message-header">
+            <span class="message-sender">إلى: ${m.recipient_name || m.recipient_email || m.user_id}</span>
+            <span class="message-time">${timeAgo(m.created_at)}</span>
+          </div>
+          <div class="message-email">${m.recipient_email || ''} ${m.email_sent ? '<span class="badge badge--email">تم الإرسال بالبريد</span>' : ''}</div>
+          <div class="message-subject">${m.subject}</div>
+          <div class="message-body">${m.body}</div>
+        </div>
+      `).join('');
+    }
+
     function refreshMessages() {
-      document.getElementById('messageList').innerHTML = '<div class="loading">جارِ التحديث...</div>';
-      setTimeout(renderMessages, 300);
+      const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab || 'inbox';
+      if (activeTab === 'inbox') {
+        document.getElementById('messageList').innerHTML = '<div class="loading">جارِ التحديث...</div>';
+        setTimeout(renderMessages, 300);
+      } else if (activeTab === 'sent') {
+        document.getElementById('sentList').innerHTML = '<div class="loading">جارِ التحديث...</div>';
+        setTimeout(renderSentMessages, 300);
+      }
     }
 
     window.addEventListener('load', renderMessages);
-
   </script>
   <script src="/admin/admin-embed.js"></script>
 </body>

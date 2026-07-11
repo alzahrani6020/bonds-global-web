@@ -5,6 +5,7 @@
 
 const getSupabase = require('../lib/api/supabase');
 const { withRateLimit } = require('../lib/api/rate-limit');
+const { sendEmail } = require('../lib/api/email');
 
 const OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 
@@ -485,6 +486,92 @@ async function updateMessage(sb, body, admin, req) {
   throw new Error('Invalid sub-action');
 }
 
+async function sendUserMessage(sb, body, admin, req) {
+  if (!admin) throw new Error('Admin required');
+  const { recipient, subject, body: messageBody, send_email } = body;
+  if (!recipient || !subject || !messageBody) throw new Error('recipient, subject and body required');
+
+  // Resolve recipient
+  let userId = null;
+  let userEmail = '';
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(recipient.trim());
+
+  if (isUuid) {
+    const { data: authUser, error: authErr } = await sb.auth.admin.getUserById(recipient.trim());
+    if (authErr || !authUser) throw new Error('User not found');
+    userId = authUser.id;
+    userEmail = authUser.email || '';
+  } else {
+    const email = recipient.trim().toLowerCase();
+    const { data: profile } = await sb.from('profiles').select('id, email').eq('email', email).single();
+    if (profile) {
+      userId = profile.id;
+      userEmail = profile.email;
+    } else {
+      const { data: listData, error: listErr } = await sb.auth.admin.listUsers({ perPage: 1000 });
+      if (listErr) throw listErr;
+      const authUser = (listData?.users || []).find(u => u.email?.toLowerCase() === email);
+      if (!authUser) throw new Error('User not found');
+      userId = authUser.id;
+      userEmail = authUser.email;
+    }
+  }
+
+  if (!userId) throw new Error('User not found');
+
+  // Insert notification
+  const { data: notification, error: insertErr } = await sb.from('user_notifications').insert({
+    user_id: userId,
+    admin_id: admin.id,
+    subject,
+    body: messageBody,
+    read: false,
+    email_sent: false
+  }).select().single();
+  if (insertErr) throw insertErr;
+
+  let emailSent = false;
+  let emailDemo = false;
+  if (send_email && userEmail) {
+    const result = await sendEmail({
+      to: userEmail,
+      subject,
+      text: messageBody,
+      html: `<div style="font-family:system-ui,sans-serif;line-height:1.6;direction:rtl;text-align:right;"><h2>${subject}</h2><p>${messageBody.replace(/\n/g, '<br>')}</p><hr><p style="color:#888;font-size:0.85rem;">تم الإرسال من لوحة تحكم بوندز</p></div>`
+    });
+    emailSent = result.success;
+    emailDemo = result.demo;
+    if (emailSent && !emailDemo) {
+      await sb.from('user_notifications').update({ email_sent: true }).eq('id', notification.id);
+    }
+  }
+
+  await logAdminAction(sb, admin, 'send_user_message', 'user_notification', notification.id, userEmail, { user_id: userId, send_email, email_sent: emailSent }, req);
+  return { success: true, notification_id: notification.id, email_sent: emailSent, email_demo: emailDemo };
+}
+
+async function getSentMessages(sb) {
+  const { data, error } = await sb
+    .from('user_notifications')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(100);
+  if (error) throw error;
+  const messages = data || [];
+  const userIds = messages.map(m => m.user_id).filter(Boolean);
+  let profileMap = {};
+  if (userIds.length) {
+    const { data: profiles } = await sb.from('profiles').select('id, email, restaurant_name').in('id', userIds);
+    (profiles || []).forEach(p => profileMap[p.id] = p);
+  }
+  const enriched = messages.map(m => ({
+    ...m,
+    recipient_email: profileMap[m.user_id]?.email || '',
+    recipient_name: profileMap[m.user_id]?.restaurant_name || ''
+  }));
+  return { success: true, messages: enriched };
+}
+
 // ── Roles ───────────────────────────────────────────────────
 async function getRoles(sb) {
   const { data: roles, error } = await sb.from('admin_roles').select('*').order('created_at', { ascending: false });
@@ -924,6 +1011,11 @@ async function handler(req, res) {
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await getMessages(sb));
       }
+      if (action === 'sent-messages') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getSentMessages(sb));
+      }
       if (action === 'roles') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
@@ -1027,6 +1119,12 @@ async function handler(req, res) {
         return res.status(400).json({ error: 'Invalid sub-action' });
       }
       if (action === 'messages') {
+        const subAction = req.body?.action;
+        if (subAction === 'send') {
+          const admin = await verifyAdminStrict(req, sb);
+          if (!admin) return res.status(403).json({ error: 'Admin required' });
+          return res.status(200).json(await sendUserMessage(sb, req.body, admin, req));
+        }
         const admin = await verifyAdmin(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await updateMessage(sb, req.body, admin, req));

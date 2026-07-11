@@ -30,6 +30,17 @@
 .actions{display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-6)}
 .empty-state{text-align:center;color:var(--text-secondary);padding:var(--space-8)}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-6)}
+.notification-list{display:flex;flex-direction:column;gap:var(--space-3)}
+.notification-item{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-4);transition:all 0.2s}
+.notification-item:hover{border-color:var(--border-hover)}
+.notification-item.unread{border-left:3px solid var(--gold)}
+.notification-header{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-3);margin-bottom:var(--space-2);flex-wrap:wrap}
+.notification-subject{font-weight:800;color:var(--gold);font-size:1rem}
+.notification-time{font-size:0.75rem;color:var(--text-secondary);white-space:nowrap}
+.notification-body{color:var(--text-secondary);font-size:0.9rem;line-height:1.6;white-space:pre-wrap;margin-bottom:var(--space-3)}
+.notification-actions{display:flex;gap:var(--space-3);flex-wrap:wrap}
+.notification-actions .btn{font-size:0.8rem;padding:0.4rem 0.8rem}
+.notification-badge{display:inline-flex;align-items:center;justify-content:center;min-width:1.4rem;height:1.4rem;border-radius:50%;background:var(--danger);color:#fff;font-size:0.7rem;font-weight:800;margin-left:var(--space-2)}
 @media(max-width:768px){.grid-2{grid-template-columns:1fr}</style>
   <link rel="canonical" href="https://bonds-global.com/en/calculators/auth/account" />
   <meta property="og:title" content="My Account — Bonds" />
@@ -82,6 +93,13 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Notifications Card -->
+    <div class="card">
+      <h2><span>🔔</span> Notifications <span id="notifBadge" class="notification-badge" style="display:none;">0</span></h2>
+      <div id="notificationsLoading" class="empty-state">Loading...</div>
+      <div id="notificationsList" style="display:none;"></div>
     </div>
 
     <!-- Scenarios Card -->
@@ -217,6 +235,53 @@
           `).join('');
         }
       }
+
+      // Load admin notifications
+      function escapeHtml(text) {
+        if (text == null) return '';
+        return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+      async function loadNotifications() {
+        const { data: notifications, error } = await sb.from('user_notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20);
+        const loading = document.getElementById('notificationsLoading');
+        const list = document.getElementById('notificationsList');
+        if (loading) loading.style.display = 'none';
+        if (list) list.style.display = 'block';
+        if (error || !notifications || notifications.length === 0) {
+          if (list) list.innerHTML = '<div class="empty-state">No notifications yet</div>';
+          return;
+        }
+        const unreadCount = notifications.filter(n => !n.read).length;
+        const badge = document.getElementById('notifBadge');
+        if (badge) { badge.textContent = unreadCount; badge.style.display = unreadCount > 0 ? 'inline-flex' : 'none'; }
+        if (list) {
+          list.innerHTML = notifications.map(n => `
+            <div class="notification-item ${n.read ? '' : 'unread'}">
+              <div class="notification-header">
+                <span class="notification-subject">${escapeHtml(n.subject)} ${n.read ? '' : '<span style="font-size:0.7rem;background:rgba(212,168,83,0.15);color:var(--gold);padding:0.1rem 0.4rem;border-radius:50px;margin-left:0.4rem;">New</span>'}</span>
+                <span class="notification-time">${new Date(n.created_at).toLocaleString('en-US')}</span>
+              </div>
+              <div class="notification-body">${escapeHtml(n.body)}</div>
+              <div class="notification-actions">
+                ${n.read ? '' : `<button class="btn btn-secondary" onclick="markNotificationRead('${n.id}')">Mark read</button>`}
+                <button class="btn btn-danger" onclick="deleteNotification('${n.id}')">Delete</button>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+      async function markNotificationRead(id) {
+        const { error } = await sb.from('user_notifications').update({ read: true }).eq('id', id).eq('user_id', user.id);
+        if (!error) loadNotifications();
+      }
+      async function deleteNotification(id) {
+        if (!confirm('Delete this notification?')) return;
+        const { error } = await sb.from('user_notifications').delete().eq('id', id).eq('user_id', user.id);
+        if (!error) loadNotifications();
+      }
+      window.markNotificationRead = markNotificationRead;
+      window.deleteNotification = deleteNotification;
+      loadNotifications();
     })();
   </script>
   <script src="../../../page-tracker-v2.js"></script>

@@ -105,6 +105,13 @@
       </div>
     </div>
 
+    <!-- Notifications Card -->
+    <div class="card">
+      <h2><span>🔔</span> التنبيهات <span id="notifBadge" class="notification-badge" style="display:none;">0</span></h2>
+      <div id="notificationsLoading" class="empty-state">جاري التحميل...</div>
+      <div id="notificationsList" style="display:none;"></div>
+    </div>
+
     <!-- Scenarios Card -->
     <div class="card">
       <h2><span>📁</span> سيناريوهاتي المحفوظة</h2>
@@ -286,6 +293,53 @@
           `).join('');
         }
       }
+
+      // Load admin notifications
+      function escapeHtml(text) {
+        if (text == null) return '';
+        return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+      async function loadNotifications() {
+        const { data: notifications, error } = await sb.from('user_notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20);
+        const loading = document.getElementById('notificationsLoading');
+        const list = document.getElementById('notificationsList');
+        if (loading) loading.style.display = 'none';
+        if (list) list.style.display = 'block';
+        if (error || !notifications || notifications.length === 0) {
+          if (list) list.innerHTML = '<div class="empty-state">لا توجد تنبيهات حالياً</div>';
+          return;
+        }
+        const unreadCount = notifications.filter(n => !n.read).length;
+        const badge = document.getElementById('notifBadge');
+        if (badge) { badge.textContent = unreadCount; badge.style.display = unreadCount > 0 ? 'inline-flex' : 'none'; }
+        if (list) {
+          list.innerHTML = notifications.map(n => `
+            <div class="notification-item ${n.read ? '' : 'unread'}">
+              <div class="notification-header">
+                <span class="notification-subject">${escapeHtml(n.subject)} ${n.read ? '' : '<span style="font-size:0.7rem;background:rgba(212,168,83,0.15);color:var(--gold);padding:0.1rem 0.4rem;border-radius:50px;margin-right:0.4rem;">جديد</span>'}</span>
+                <span class="notification-time">${new Date(n.created_at).toLocaleString('ar-SA')}</span>
+              </div>
+              <div class="notification-body">${escapeHtml(n.body)}</div>
+              <div class="notification-actions">
+                ${n.read ? '' : `<button class="btn btn-secondary" onclick="markNotificationRead('${n.id}')">تعيين مقروء</button>`}
+                <button class="btn btn-danger" onclick="deleteNotification('${n.id}')">حذف</button>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+      async function markNotificationRead(id) {
+        const { error } = await sb.from('user_notifications').update({ read: true }).eq('id', id).eq('user_id', user.id);
+        if (!error) loadNotifications();
+      }
+      async function deleteNotification(id) {
+        if (!confirm('هل تريد حذف هذا التنبيه؟')) return;
+        const { error } = await sb.from('user_notifications').delete().eq('id', id).eq('user_id', user.id);
+        if (!error) loadNotifications();
+      }
+      window.markNotificationRead = markNotificationRead;
+      window.deleteNotification = deleteNotification;
+      loadNotifications();
     })();
   </script>
 <script>
