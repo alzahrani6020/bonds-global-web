@@ -30,7 +30,7 @@ jobs:
 
       - name: Repair migration history
         run: |
-          VERSIONS=$(ls supabase/migrations/*.sql | grep -v '20260728000000_temp_access_grants.sql' | xargs -n1 basename -s .sql | tr '\n' ' ')
+          VERSIONS=$(ls supabase/migrations/*.sql | grep -v '20260728000000_temp_access_grants.sql' | xargs -n1 basename | sed 's/_.*//' | tr '\n' ' ')
           echo "Marking as applied: $VERSIONS"
           supabase migration repair --linked --status applied $VERSIONS
         env:
