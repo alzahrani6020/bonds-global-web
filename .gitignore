@@ -25,3 +25,9 @@ server.log
 abhur_images/
 monitor_kimi.ps1
 reports/existing-brochure-text.txt
+
+# Generated study PDFs/MDs — uploaded as GitHub Release assets instead
+feasibility-study-*.pdf
+feasibility-study-*.md
+دراسة-جدوى-*.pdf
+دراسة-جدوى-*.md
