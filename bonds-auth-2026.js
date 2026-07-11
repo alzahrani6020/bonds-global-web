@@ -154,10 +154,24 @@
     return sb.auth.updateUser(attributes || {});
   }
 
+  function normalizeUrl(url) {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    const origin = (typeof window !== 'undefined' && window.location ? window.location.origin : 'https://bonds-global.com');
+    return origin + (url.startsWith('/') ? url : '/' + url);
+  }
+
   async function signInWithOAuth(provider, options) {
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
-    return sb.auth.signInWithOAuth({ provider, options: { ...(options || {}), redirectTo: 'https://bonds-global.com/calculators/auth/confirmed.html' } });
+    const redirectTo = normalizeUrl(options?.redirectTo) || 'https://bonds-global.com/calculators/auth/confirmed.html';
+    return sb.auth.signInWithOAuth({ provider, options: { ...(options || {}), redirectTo } });
+  }
+
+  async function resendConfirmation(email) {
+    const sb = getSupabase();
+    if (!sb) return { error: new Error('Not initialized') };
+    return sb.auth.resend({ email, type: 'signup' });
   }
 
   async function signOut() {
@@ -345,7 +359,7 @@
   // ── Exports ───────────────────────────────────────────────
   window.BondsAuth = {
     getSupabase, getUser, getSession, getProfile, updateProfile, getSubscription, getAdminRole,
-    signUp, signIn, signInWithOTP, verifyOTP, updateUser, signInWithOAuth, signOut, checkFeatureAccess,
+    signUp, signIn, signInWithOTP, verifyOTP, updateUser, signInWithOAuth, resendConfirmation, signOut, checkFeatureAccess,
     getRedirectUrl, clearRedirectUrl,
     normalizePhone, isValidPhone,
     initSiteAuth, initAdminGuard

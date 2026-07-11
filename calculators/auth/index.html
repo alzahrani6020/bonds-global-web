@@ -41,6 +41,7 @@
       </div>
 
       <div id="errorMsg" class="error-msg"></div>
+      <div id="errorActions" class="error-actions" style="display:none;"></div>
       <div id="successMsg" class="success-msg"></div>
 
       <!-- Login Panel -->
@@ -130,13 +131,18 @@
         </form>
       </div>
 
+      <div class="help-box">
+        مشاكل في الدخول؟ تواصل معنا مباشرة عبر <a href="https://wa.me/966567566616" target="_blank" rel="noopener">واتساب</a><br>
+        أو جرّب <a href="./diagnose.html">أداة التشخيص</a>
+      </div>
+
       <a href="../../calculator.html" class="back-link">← العودة للحاسبة</a>
     </div>
   </div>
 
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/bonds-auth-2026.js?v=1"></script>
+  <script src="/bonds-auth-2026.js?v=2"></script>
 
   <script>
     (function() {
@@ -167,10 +173,13 @@
         });
       });
 
-      function showError(msg) {
+      function showError(msg, actionsHtml) {
         const el = document.getElementById('errorMsg');
         el.textContent = msg;
         el.style.display = 'block';
+        const actions = document.getElementById('errorActions');
+        if (actionsHtml) { actions.innerHTML = actionsHtml; actions.style.display = 'flex'; }
+        else { actions.innerHTML = ''; actions.style.display = 'none'; }
         document.getElementById('successMsg').style.display = 'none';
       }
       function showSuccess(msg) {
@@ -178,9 +187,13 @@
         el.textContent = msg;
         el.style.display = 'block';
         document.getElementById('errorMsg').style.display = 'none';
+        document.getElementById('errorActions').innerHTML = '';
+        document.getElementById('errorActions').style.display = 'none';
       }
       function hideMessages() {
         document.getElementById('errorMsg').style.display = 'none';
+        document.getElementById('errorActions').innerHTML = '';
+        document.getElementById('errorActions').style.display = 'none';
         document.getElementById('successMsg').style.display = 'none';
       }
 
@@ -314,9 +327,11 @@
         if (error) {
           const msg = error.message || '';
           if (msg.includes('Invalid login credentials')) {
-            showError('البريد أو كلمة المرور غير صحيحة');
+            showError('البريد أو كلمة المرور غير صحيحة', `<button type="button" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="sendMagicLink()">📧 أرسل رابط دخول</button><a href="./reset.html" class="link" style="font-size:0.85rem;">نسيت كلمة المرور؟</a>`);
           } else if (msg.includes('Email not confirmed')) {
-            showError('البريد الإلكتروني غير مُفعّل. تحقق من صندوق الوارد.');
+            showError('البريد الإلكتروني غير مُفعّل. تحقق من صندوق الوارد أو أعد إرسال رابط التفعيل.', `<button type="button" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="resendActivation('${email.replace(/'/g, "\\'")}')">إعادة إرسال رابط التفعيل</button>`);
+          } else if (msg.includes('Too many requests') || msg.includes('rate limit') || msg.includes('Request rate limit')) {
+            showError('تم تجاوز عدد المحاولات. انتظر قليلاً ثم حاول مرة أخرى.');
           } else {
             showError(msg);
           }
@@ -342,6 +357,29 @@
           setTimeout(() => window.location.href = redirectTo, 800);
         }
       });
+
+      window.sendMagicLink = async function() {
+        hideMessages();
+        const email = document.getElementById('loginEmail').value.trim();
+        if (!email) { showError('أدخل البريد الإلكتروني أولاً'); return; }
+        setLoading('otpBtn', true);
+        const { error } = await window.BondsAuth.signInWithOTP(email);
+        setLoading('otpBtn', false);
+        if (error) { showError(error.message); return; }
+        showSuccess('تم إرسال رابط دخول سحري إلى بريدك 📧 — اضغط الرابط في البريد للدخول مباشرة.');
+      };
+
+      window.resendActivation = async function(email) {
+        hideMessages();
+        if (!email) email = document.getElementById('loginEmail').value.trim();
+        if (!email) { showError('أدخل البريد الإلكتروني أولاً'); return; }
+        const btn = document.querySelector('#errorActions button');
+        if (btn) { btn.disabled = true; btn.textContent = 'جارِ الإرسال...'; }
+        const { error } = await window.BondsAuth.resendConfirmation(email);
+        if (btn) { btn.disabled = false; btn.textContent = 'إعادة إرسال رابط التفعيل'; }
+        if (error) { showError(error.message); return; }
+        showSuccess('تم إرسال رابط التفعيل 📧 — تحقق من صندوق الوارد والرسائل غير المرغوبة.');
+      };
 
       // OTP Login
       document.getElementById('otpBtn').addEventListener('click', async () => {
@@ -373,12 +411,7 @@
       // Google Sign-In
       document.getElementById('googleBtn').addEventListener('click', async () => {
         hideMessages();
-        const sb = window.BondsAuth.getSupabase();
-        if (!sb) { showError('النظام غير جاهز'); return; }
-        const { error } = await sb.auth.signInWithOAuth({
-          provider: 'google',
-          options: { redirectTo: 'https://bonds-global.com' + redirectTo }
-        });
+        const { error } = await window.BondsAuth.signInWithOAuth('google', { redirectTo: redirectTo });
         window.BondsAuth.clearRedirectUrl();
         if (error) showError(error.message);
       });

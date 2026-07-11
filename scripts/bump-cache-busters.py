@@ -8,7 +8,7 @@ PATTERNS = [
     # (regex pattern to find src without existing query string, replacement template)
     (
         re.compile(r'(src=["\'])(/bonds-auth-2026\.js)(["\'])'),
-        r'\1/bonds-auth-2026.js?v=1\3',
+        r'\1/bonds-auth-2026.js?v=2\3',
     ),
     (
         re.compile(r'(src=["\'])(/supabase-client\.js\?v=5)(["\'])'),

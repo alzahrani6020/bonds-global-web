@@ -32,7 +32,7 @@
 
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/bonds-auth-2026.js?v=1"></script>
+  <script src="/bonds-auth-2026.js?v=2"></script>
   <script>
     (async () => {
       const card = document.getElementById('card');
@@ -48,6 +48,29 @@
       spinner.style.display = 'none';
 
       if (user) {
+        // Complete signup if pending password exists (magic link / OAuth signup)
+        const pendingPassword = sessionStorage.getItem('otp_pending_password');
+        if (pendingPassword) {
+          status.textContent = 'جارِ إعداد حسابك...';
+          try {
+            const { error: pwError } = await window.BondsAuth.updateUser({ password: pendingPassword });
+            if (pwError) console.warn('[Confirmed] Password set warning:', pwError);
+          } catch (e) { console.warn('[Confirmed] Password set exception:', e); }
+          sessionStorage.removeItem('otp_pending_password');
+          try {
+            const metadata = {
+              id: user.id,
+              restaurant_name: sessionStorage.getItem('otp_pending_name') || user.user_metadata?.restaurant_name || '',
+              phone: sessionStorage.getItem('otp_pending_phone') || user.user_metadata?.phone || '',
+              language: 'ar'
+            };
+            await window.BondsAuth.updateProfile(user.id, metadata);
+          } catch (profileErr) { console.warn('[Confirmed] Profile update warning:', profileErr); }
+          sessionStorage.removeItem('otp_pending_name');
+          sessionStorage.removeItem('otp_pending_phone');
+          if (typeof gtag !== 'undefined') gtag('event', 'sign_up', { method: 'email_otp' });
+        }
+
         // Email confirmed and session active
         // Check if onboarding is needed
         window.BondsAuth.getProfile(user.id).then(({ data: profile }) => {

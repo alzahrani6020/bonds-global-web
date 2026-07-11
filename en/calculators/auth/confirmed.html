@@ -48,7 +48,7 @@
 
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/bonds-auth-2026.js?v=1"></script>
+  <script src="/bonds-auth-2026.js?v=2"></script>
   <script>
     (async () => {
       const card = document.getElementById('card');
@@ -63,17 +63,66 @@
       spinner.style.display = 'none';
 
       if (user) {
-        card.innerHTML = `
-          <span class="icon">🎉</span>
-          <h1>Account Confirmed!</h1>
-          <p>
-            Welcome <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
-            Your account at <span class="brand">Bonds Financial Consultancy</span> has been confirmed.<br>
-            You can now use all services.
-          </p>
-          <a href="/en/calculators/restaurant.html" class="btn">Go to Calculator</a>
-          <a href="/en/calculators/auth/subscription.html" class="btn btn-secondary">Manage Subscription</a>
-        `;
+        // Complete signup if pending password exists (magic link / OAuth signup)
+        const pendingPassword = sessionStorage.getItem('otp_pending_password');
+        if (pendingPassword) {
+          status.textContent = 'Setting up your account...';
+          try {
+            const { error: pwError } = await window.BondsAuth.updateUser({ password: pendingPassword });
+            if (pwError) console.warn('[Confirmed] Password set warning:', pwError);
+          } catch (e) { console.warn('[Confirmed] Password set exception:', e); }
+          sessionStorage.removeItem('otp_pending_password');
+          try {
+            const metadata = {
+              id: user.id,
+              restaurant_name: sessionStorage.getItem('otp_pending_name') || user.user_metadata?.restaurant_name || '',
+              country: sessionStorage.getItem('otp_pending_country') || user.user_metadata?.country || '',
+              language: 'en'
+            };
+            await window.BondsAuth.updateProfile(user.id, metadata);
+          } catch (profileErr) { console.warn('[Confirmed] Profile update warning:', profileErr); }
+          sessionStorage.removeItem('otp_pending_name');
+          sessionStorage.removeItem('otp_pending_country');
+          if (typeof gtag !== 'undefined') gtag('event', 'sign_up', { method: 'email_otp' });
+        }
+
+        window.BondsAuth.getProfile(user.id).then(({ data: profile }) => {
+          const needsOnboarding = !profile || !profile.city || !profile.business_type || !profile.bio || !profile.needs;
+          if (needsOnboarding) {
+            card.innerHTML = `
+              <span class="icon">🎉</span>
+              <h1>Account Confirmed!</h1>
+              <p>
+                Welcome <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
+                Your account has been confirmed. One last step to complete your profile.
+              </p>
+              <a href="/en/calculators/auth/onboarding.html" class="btn">Complete your profile</a>
+            `;
+          } else {
+            card.innerHTML = `
+              <span class="icon">🎉</span>
+              <h1>Account Confirmed!</h1>
+              <p>
+                Welcome <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
+                Your account at <span class="brand">Bonds Financial Consultancy</span> has been confirmed.<br>
+                You can now use all services.
+              </p>
+              <a href="/en/calculators/restaurant.html" class="btn">Go to Calculator</a>
+              <a href="/en/calculators/auth/subscription.html" class="btn btn-secondary">Manage Subscription</a>
+            `;
+          }
+        }).catch(() => {
+          card.innerHTML = `
+            <span class="icon">🎉</span>
+            <h1>Account Confirmed!</h1>
+            <p>
+              Welcome <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
+              Your account has been confirmed.
+            </p>
+            <a href="/en/calculators/auth/onboarding.html" class="btn">Complete your profile</a>
+          `;
+        });
+        return;
       } else {
         card.innerHTML = `
           <span class="icon">✅</span>
