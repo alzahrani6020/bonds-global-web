@@ -50,12 +50,8 @@
   async function checkAdminMfa(token) {
     try {
       const aal = decodeJwtAal(token);
-      const res = await fetch('/api/admin?action=security-status', {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (!res.ok) return { ok: true };
-      const data = await res.json();
-      if (data.success && data.enforceMfa && aal !== 'aal2') {
+      const enforceMfa = window.__ENV?.ADMIN_ENFORCE_MFA === 'true';
+      if (enforceMfa && aal !== 'aal2') {
         return { ok: false, aal };
       }
       return { ok: true };
