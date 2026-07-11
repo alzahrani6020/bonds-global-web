@@ -336,6 +336,27 @@ body[dir="ltr"] .dropdown-menu {
   background: var(--gold-glow);
 }
 
+.header-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.header-login:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+  background: var(--gold-glow);
+}
+
 .header-account {
   display: inline-flex;
   align-items: center;

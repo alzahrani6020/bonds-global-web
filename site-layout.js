@@ -72,6 +72,7 @@
       fundingSources: isEn ? 'Funding' : 'التمويل',
       contact: isEn ? 'Contact' : 'تواصل معنا',
       cta: isEn ? 'Start Now' : 'ابدأ الآن',
+      login: isEn ? 'Login' : 'تسجيل الدخول',
       clientPortal: isEn ? 'Client Portal' : 'بوابة العميل',
       accountLabel: isEn ? 'Account' : 'الحساب',
       caseStudies: isEn ? 'Case Studies' : 'دراسات الحالة',
@@ -97,6 +98,7 @@
       templateCalc: isEn ? 'Feasibility Template' : 'نموذج دراسة الجدوى',
       valuation: isEn ? 'Valuation' : 'التقييم',
       creditworthinessCalc: isEn ? 'Credit Rating' : 'تقييم الجدارة الائتمانية',
+      realProjectAnalysis: isEn ? 'Real Project Analysis' : 'تحليل المشروع الحقيقي',
       factorySa: isEn ? 'Factory Cost — Saudi' : 'تكلفة المصنع — السعودية',
       factoryEg: isEn ? 'Factory Cost — Egypt' : 'تكلفة المصنع — مصر',
       pricingFeasibilityGroup: isEn ? 'Pricing & Feasibility' : 'التسعير والجدوى',
@@ -112,6 +114,7 @@
     const blogHref = langBase + '../blog/index.html';
     const valuationHref = langBase + 'valuation/index.html';
     const clientPortalHref = isEn ? '/en/v3/portfolio' : '/v3/portfolio';
+    const loginHref = langBase + 'calculators/auth/login.html';
     const v3Base = 'v3/';
     const fundingReadinessHref = langBase + 'calculators/creditworthiness.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
@@ -147,6 +150,7 @@
           { label: labels.cashFlowCalc, href: calcBase + 'cash-flow.html' },
           { label: labels.loanCalc, href: calcBase + 'loan.html' },
           { label: labels.creditworthinessCalc, href: calcBase + 'creditworthiness.html' },
+          { label: labels.realProjectAnalysis, href: calcBase + 'real-project-analysis.html' },
           { label: labels.invoiceCalc, href: calcBase + 'invoice-analyzer.html' },
         ],
       },
@@ -224,6 +228,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
         </a>
       </div>
+      <a href="${loginHref}" class="header-login">${labels.login}</a>
       <a href="${clientPortalHref}" class="btn-header">${labels.cta}</a>
       <button class="nav-toggle" id="navToggle" aria-label="${isEn ? 'Menu' : 'القائمة'}"><span></span><span></span><span></span></button>
     </div>
