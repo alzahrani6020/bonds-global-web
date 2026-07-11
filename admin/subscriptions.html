@@ -155,6 +155,7 @@
           <p>إدارة خطط الاشتراك والمشتركين</p>
         </div>
         <button class="btn-sm btn-primary" onclick="openGrantSubModal()">⭐ منح اشتراك / فترة مجانية</button>
+        <button class="btn-sm btn-primary" id="activateMySubBtn" style="display:none;" onclick="activateMySubscription()">👑 تفعيل اشتراكي</button>
         <button class="btn-sm btn-primary" onclick="refreshData()">↻ تحديث</button>
         <button class="btn-sm btn-secondary" onclick="exportCSV()">⬇ تصدير CSV</button>
       </div>
@@ -325,13 +326,37 @@
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
-        window._usersData = data.users || [];
+        window._usersData = data.recentUsers || data.users || [];
       } catch (e) {
         console.warn('Failed to load users for grant modal:', e);
         window._usersData = [];
       }
     }
     window.addEventListener('load', fetchUsers);
+
+    let currentAdminId = null;
+    async function fetchCurrentAdmin() {
+      try {
+        const token = await getAdminToken();
+        const res = await fetch('/api/admin?action=me', {
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        currentAdminId = data.id || null;
+        if (data.role === 'super_admin') {
+          document.getElementById('activateMySubBtn').style.display = 'inline-block';
+        }
+      } catch (e) {
+        console.warn('Failed to fetch current admin:', e);
+      }
+    }
+    window.addEventListener('load', fetchCurrentAdmin);
+
+    function activateMySubscription() {
+      if (!currentAdminId) return alert('لم يتم التعرف على المستخدم الحالي');
+      openGrantSubModal(currentAdminId);
+    }
 
     function populateGrantSubUsers(selectedId) {
       const select = document.getElementById('grantSubUser');
