@@ -181,6 +181,8 @@
               id: user.id,
               restaurant_name: sessionStorage.getItem('otp_pending_name') || user.user_metadata?.restaurant_name || '',
               phone: sessionStorage.getItem('otp_pending_phone') || user.user_metadata?.phone || '',
+              country: sessionStorage.getItem('otp_pending_country') || user.user_metadata?.country || '',
+              city: sessionStorage.getItem('otp_pending_city') || user.user_metadata?.city || '',
               language: 'ar'
             };
             try {
@@ -190,6 +192,8 @@
             }
             sessionStorage.removeItem('otp_pending_name');
             sessionStorage.removeItem('otp_pending_phone');
+            sessionStorage.removeItem('otp_pending_country');
+            sessionStorage.removeItem('otp_pending_city');
           }
 
           sessionStorage.removeItem('otp_email');

@@ -182,12 +182,16 @@ h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gol
             const metadata = {
               id: user.id,
               restaurant_name: sessionStorage.getItem('otp_pending_name') || user.user_metadata?.restaurant_name || '',
+              phone: sessionStorage.getItem('otp_pending_phone') || user.user_metadata?.phone || '',
               country: sessionStorage.getItem('otp_pending_country') || user.user_metadata?.country || '',
+              city: sessionStorage.getItem('otp_pending_city') || user.user_metadata?.city || '',
               language: 'en'
             };
             try { await window.BondsAuth.updateProfile(user.id, metadata); } catch (profileErr) { console.warn('[OTP] Profile update warning:', profileErr); }
             sessionStorage.removeItem('otp_pending_name');
+            sessionStorage.removeItem('otp_pending_phone');
             sessionStorage.removeItem('otp_pending_country');
+            sessionStorage.removeItem('otp_pending_city');
           }
 
           sessionStorage.removeItem('otp_email');

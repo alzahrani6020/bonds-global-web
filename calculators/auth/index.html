@@ -13,6 +13,7 @@
   <script>if(!sessionStorage.getItem('auth_v2')){sessionStorage.setItem('auth_v2','1');location.replace(location.pathname+'?_='+Date.now());}</script>
   <link rel="stylesheet" href="./auth-shared.css" />
   <link rel="stylesheet" href="index.css" />
+  <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
   <link rel="canonical" href="https://bonds-global.com/calculators/auth/" />
   <meta property="og:title" content="تسجيل الدخول — Bonds" />
   <meta property="og:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
@@ -80,6 +81,22 @@
       <div id="signupPanel" class="tab-panel">
         <form id="signupForm">
           <div class="form-group">
+            <label for="signupCountry">الدولة *</label>
+            <select id="signupCountry" name="country" required data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true" data-ud-placeholder="اختر الدولة">
+              <option value="">اختر الدولة</option>
+            </select>
+          </div>
+          <div class="form-group" id="signupCityGroup">
+            <label for="signupCity">المدينة *</label>
+            <select id="signupCity" name="city" required data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true" data-ud-placeholder="اختر المدينة">
+              <option value="">اختر المدينة</option>
+            </select>
+          </div>
+          <div class="form-group" id="signupCityFreeGroup" style="display:none;">
+            <label for="signupCityFree">المدينة</label>
+            <input type="text" id="signupCityFree" placeholder="مثال: London" />
+          </div>
+          <div class="form-group">
             <label for="signupName">اسم المطعم / الشركة *</label>
             <input type="text" id="signupName" required autocomplete="organization" placeholder="مثال: مطعم الذواقة" />
           </div>
@@ -89,7 +106,10 @@
           </div>
           <div class="form-group">
             <label for="signupPhone">رقم الجوال *</label>
-            <input type="tel" id="signupPhone" required autocomplete="tel" placeholder="05xxxxxxxx أو +9665xxxxxxxx" dir="ltr" />
+            <div class="phone-row">
+              <span class="phone-prefix" id="signupPhonePrefix">+966</span>
+              <input type="tel" id="signupPhone" required autocomplete="tel" placeholder="5xxxxxxxx" dir="ltr" />
+            </div>
           </div>
           <div class="form-group">
             <label for="signupPassword">كلمة المرور *</label>
@@ -143,6 +163,10 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=2"></script>
+  <script src="../../components/universal-dropdown.js"></script>
+  <script src="../../components/universal-dropdown-init.js"></script>
+  <script src="../../assets/data/countries-dial.js"></script>
+  <script src="../shared-geo.js"></script>
 
   <script>
     (function() {
@@ -304,6 +328,89 @@
         showSuccess('تم توليد كلمة مرور قوية ونسخها في حقل التأكيد');
       });
 
+      // Country / city / phone helpers
+      function getFlagEmoji(code) {
+        const base = 127397;
+        return code.toUpperCase().replace(/./g, c => String.fromCodePoint(base + c.charCodeAt()));
+      }
+      function populateSignupCountries(defaultCode) {
+        defaultCode = defaultCode || 'SA';
+        const select = document.getElementById('signupCountry');
+        const items = (typeof COUNTRIES_DIAL !== 'undefined' ? COUNTRIES_DIAL : [])
+          .slice()
+          .sort((a, b) => (a.nameAr || a.nameEn).localeCompare((b.nameAr || b.nameEn), 'ar'))
+          .map(c => ({ value: c.code, label: getFlagEmoji(c.code) + ' ' + (c.nameAr || c.nameEn) + ' (' + c.dial + ')' }));
+        const dd = window.getUniversalDropdown && window.getUniversalDropdown(select);
+        if (dd && dd.setOptions) {
+          dd.setOptions(items);
+          dd.value = defaultCode;
+        } else {
+          select.innerHTML = '<option value="">اختر الدولة</option>';
+          items.forEach(i => { const opt = document.createElement('option'); opt.value = i.value; opt.textContent = i.label; select.appendChild(opt); });
+          select.value = defaultCode;
+        }
+        updatePhonePrefixFromCountry();
+      }
+      function updatePhonePrefixFromCountry() {
+        const code = document.getElementById('signupCountry').value;
+        const country = (typeof COUNTRIES_DIAL !== 'undefined' ? COUNTRIES_DIAL : []).find(c => c.code === code);
+        const prefix = country ? country.dial : '+966';
+        document.getElementById('signupPhonePrefix').textContent = prefix;
+        const input = document.getElementById('signupPhone');
+        input.placeholder = (code === 'SA' || code === 'AE') ? '5xxxxxxxx' : 'xxxxxxxxxx';
+      }
+      function getFullSignupPhone() {
+        const local = document.getElementById('signupPhone').value.trim().replace(/^0+/, '');
+        const prefix = document.getElementById('signupPhonePrefix').textContent.trim();
+        return local ? prefix + local : '';
+      }
+      async function updateSignupCity() {
+        const code = document.getElementById('signupCountry').value;
+        updatePhonePrefixFromCountry();
+        try { await window.BondsGeo.ensureMasterData(); } catch (e) {}
+        const data = window.BondsGeo.getData();
+        const isArab = !!data[code];
+        const selectGroup = document.getElementById('signupCityGroup');
+        const freeGroup = document.getElementById('signupCityFreeGroup');
+        const select = document.getElementById('signupCity');
+        const free = document.getElementById('signupCityFree');
+        if (isArab) {
+          selectGroup.style.display = '';
+          freeGroup.style.display = 'none';
+          free.removeAttribute('required');
+          select.setAttribute('required', 'required');
+          const items = [];
+          const country = data[code];
+          (country.governorates || []).forEach((gov, gi) => {
+            (gov.cities || []).forEach(city => {
+              const cityLabel = city.name || city.nameEn || '';
+              const cityValue = city.code || (code + '-' + String(gi).padStart(2, '0') + '-' + String(items.length + 1).padStart(3, '0'));
+              items.push({ value: cityValue, label: cityLabel });
+            });
+          });
+          items.sort((a, b) => a.label.localeCompare(b.label, 'ar'));
+          const dd = window.getUniversalDropdown && window.getUniversalDropdown(select);
+          if (dd && dd.setOptions) {
+            dd.setOptions(items);
+            dd.value = '';
+          } else {
+            select.innerHTML = '<option value="">اختر المدينة</option>';
+            items.forEach(i => { const opt = document.createElement('option'); opt.value = i.value; opt.textContent = i.label; select.appendChild(opt); });
+            select.value = '';
+          }
+        } else {
+          selectGroup.style.display = 'none';
+          freeGroup.style.display = '';
+          select.removeAttribute('required');
+          free.setAttribute('required', 'required');
+        }
+      }
+      function initSignupGeo() {
+        populateSignupCountries('SA');
+        document.getElementById('signupCountry').addEventListener('change', updateSignupCity);
+        updateSignupCity();
+      }
+
       // Button loading state helper
       function setLoading(btnId, loading) {
         const btn = document.getElementById(btnId);
@@ -425,11 +532,16 @@
         const password = document.getElementById('signupPassword').value;
         const confirm = document.getElementById('signupPasswordConfirm').value;
         const name = document.getElementById('signupName').value.trim();
-        const phone = document.getElementById('signupPhone').value.trim();
+        const country = document.getElementById('signupCountry').value.trim();
+        const isArab = document.getElementById('signupCityGroup').style.display !== 'none';
+        const city = isArab ? document.getElementById('signupCity').value.trim() : document.getElementById('signupCityFree').value.trim();
+        const phone = getFullSignupPhone();
         const termsAccepted = document.getElementById('termsAccept').checked;
 
+        if (!country) { showError('اختر الدولة'); setLoading('signupBtn', false); return; }
+        if (!city) { showError('اختر المدينة'); setLoading('signupBtn', false); return; }
         if (!termsAccepted) { showError('يجب الموافقة على شروط الاستخدام وسياسة الخصوصية'); setLoading('signupBtn', false); return; }
-        if (!window.BondsAuth.isValidPhone(phone)) { showError('رقم الجوال غير صالح — أدخل رقم محلي (مثلاً 05xxxxxxxx) أو دولي (مثلاً +9665xxxxxxxx)'); setLoading('signupBtn', false); return; }
+        if (!window.BondsAuth.isValidPhone(phone, country)) { showError('رقم الجوال غير صالح'); setLoading('signupBtn', false); return; }
         if (password.length < 8) { showError('كلمة المرور يجب أن تكون 8 أحرف على الأقل'); setLoading('signupBtn', false); return; }
         if (password !== confirm) { showError('كلمة المرور غير متطابقة'); setLoading('signupBtn', false); return; }
         if (checkStrength(password) < 3) { showError('كلمة المرور ضعيفة — أضف أرقام ورموز'); setLoading('signupBtn', false); return; }
@@ -438,11 +550,13 @@
         sessionStorage.setItem('otp_pending_password', password);
         sessionStorage.setItem('otp_pending_name', name);
         sessionStorage.setItem('otp_pending_phone', phone);
+        sessionStorage.setItem('otp_pending_country', country);
+        sessionStorage.setItem('otp_pending_city', city);
         sessionStorage.setItem('otp_email', email);
 
         const { error } = await window.BondsAuth.signInWithOTP(email, {
           shouldCreateUser: true,
-          data: { restaurant_name: name, phone: phone, language: 'ar' }
+          data: { restaurant_name: name, phone: phone, country: country, city: city, language: 'ar' }
         });
         setLoading('signupBtn', false);
 
@@ -461,6 +575,8 @@
           window.location.href = './verify-otp.html?email=' + encodeURIComponent(email);
         }, 800);
       });
+
+      initSignupGeo();
     })();
   </script>
 <script>
