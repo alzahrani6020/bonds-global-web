@@ -34,6 +34,48 @@ async function verifyAdminStrict(req, sb) {
   return user;
 }
 
+// ── Audit logging ───────────────────────────────────────────
+async function getActorRole(sb, admin) {
+  if (OWNER_EMAIL && admin.email === OWNER_EMAIL) return 'super_admin';
+  try {
+    const { data } = await sb.from('admin_roles').select('role').eq('user_id', admin.id).single();
+    return data?.role || 'unknown';
+  } catch (e) {
+    return 'unknown';
+  }
+}
+
+async function logAdminAction(sb, admin, action, targetType, targetId, targetEmail, details, req) {
+  try {
+    const role = await getActorRole(sb, admin);
+    const ip = req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim() || req?.socket?.remoteAddress || '';
+    await sb.from('admin_audit_log').insert({
+      actor_id: admin.id,
+      actor_email: admin.email,
+      actor_role: role,
+      action,
+      target_type: targetType || '',
+      target_id: String(targetId || ''),
+      target_email: targetEmail || '',
+      details: details || {},
+      ip_address: ip
+    });
+  } catch (e) {
+    console.warn('[AuditLog] failed:', e.message || e);
+  }
+}
+
+async function getAuditLog(sb, opts = {}) {
+  const { limit = 100, offset = 0 } = opts;
+  const { data, error, count } = await sb
+    .from('admin_audit_log')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+  if (error) throw error;
+  return { success: true, logs: data || [], count: count || 0 };
+}
+
 // ── Bank Transfers ──────────────────────────────────────────
 async function getBankTransfers(sb) {
   const { data, error } = await sb.from('bank_transfer_requests').select('*').order('created_at', { ascending: false });
@@ -41,12 +83,13 @@ async function getBankTransfers(sb) {
   return { data };
 }
 
-async function updateBankTransfer(sb, body) {
+async function updateBankTransfer(sb, body, admin, req) {
   const { id, action } = body;
   if (!id || !['verified', 'rejected'].includes(action)) throw new Error('Invalid request');
   const { data: request } = await sb.from('bank_transfer_requests').select('*').eq('id', id).single();
   if (!request) throw new Error('Request not found');
   await sb.from('bank_transfer_requests').update({ status: action, updated_at: new Date().toISOString() }).eq('id', id);
+  let affectedUserId = null;
   if (action === 'verified') {
     // Find user by email (profiles first, then auth fallback)
     let userId = null;
@@ -58,8 +101,12 @@ async function updateBankTransfer(sb, body) {
       const authUser = (authList?.users || []).find(u => u.email === request.email);
       if (authUser) userId = authUser.id;
     }
-    if (userId) await sb.from('profiles').update({ tier: request.tier, updated_at: new Date().toISOString() }).eq('id', userId);
+    if (userId) {
+      affectedUserId = userId;
+      await sb.from('profiles').update({ tier: request.tier, updated_at: new Date().toISOString() }).eq('id', userId);
+    }
   }
+  await logAdminAction(sb, admin, 'bank_transfer_' + action, 'bank_transfer', id, request.email, { amount_sar: request.amount_sar, tier: request.tier, affected_user_id: affectedUserId }, req);
   return { success: true };
 }
 
@@ -72,11 +119,12 @@ async function getSettings(sb) {
   return settings;
 }
 
-async function updateSettings(sb, body, admin) {
+async function updateSettings(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   for (const [key, value] of Object.entries(body)) {
     await sb.from('site_settings').upsert({ key, value, updated_at: new Date().toISOString() });
   }
+  await logAdminAction(sb, admin, 'settings_update', 'settings', null, null, { keys: Object.keys(body) }, req);
   return { success: true };
 }
 
@@ -88,7 +136,7 @@ async function getExceptions(sb, admin) {
   return { data };
 }
 
-async function createException(sb, body, admin) {
+async function createException(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { user_id, calculator, limit_override, reason, expires_at } = body;
   if (!user_id || !limit_override) throw new Error('user_id and limit_override required');
@@ -98,14 +146,16 @@ async function createException(sb, body, admin) {
   if (expires_at) insert.expires_at = expires_at;
   const { data, error } = await sb.from('usage_exceptions').insert([insert]).select().single();
   if (error) throw error;
+  await logAdminAction(sb, admin, 'exception_create', 'usage_exception', data?.id, null, { user_id, calculator, limit_override, reason, expires_at }, req);
   return { success: true, data };
 }
 
-async function deleteException(sb, id, admin) {
+async function deleteException(sb, id, admin, req) {
   if (!admin) throw new Error('Admin required');
   if (!id) throw new Error('id required');
   const { error } = await sb.from('usage_exceptions').delete().eq('id', id);
   if (error) throw error;
+  await logAdminAction(sb, admin, 'exception_delete', 'usage_exception', id, null, {}, req);
   return { success: true };
 }
 
@@ -213,7 +263,7 @@ async function getAiReviews(sb, admin) {
   return { data: data || [] };
 }
 
-async function updateAiReview(sb, body, admin) {
+async function updateAiReview(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { id, status, assigned_to, admin_notes } = body;
   if (!id) throw new Error('id required');
@@ -240,6 +290,7 @@ async function updateAiReview(sb, body, admin) {
   if (admin_notes !== undefined) update.admin_notes = admin_notes || null;
   const { error } = await sb.from('ai_review_requests').update(update).eq('id', id);
   if (error) throw error;
+  await logAdminAction(sb, admin, 'ai_review_update', 'ai_review_request', id, null, { status, assigned_to, admin_notes }, req);
   return { success: true };
 }
 
@@ -271,17 +322,19 @@ async function getMessages(sb) {
   return { success: true, messages: data || [] };
 }
 
-async function updateMessage(sb, body) {
+async function updateMessage(sb, body, admin, req) {
   const { action: subAction, id } = body;
   if (!id) throw new Error('id required');
   if (subAction === 'mark_read') {
     const { error } = await sb.from('contact_messages').update({ read: true }).eq('id', id);
     if (error) throw error;
+    if (admin) await logAdminAction(sb, admin, 'message_mark_read', 'contact_message', id, null, {}, req);
     return { success: true };
   }
   if (subAction === 'delete') {
     const { error } = await sb.from('contact_messages').delete().eq('id', id);
     if (error) throw error;
+    if (admin) await logAdminAction(sb, admin, 'message_delete', 'contact_message', id, null, {}, req);
     return { success: true };
   }
   throw new Error('Invalid sub-action');
@@ -311,7 +364,7 @@ async function getRoles(sb) {
   return { success: true, roles: merged };
 }
 
-async function addRole(sb, body, admin) {
+async function addRole(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { email, role } = body;
   if (!email || !role) throw new Error('email and role required');
@@ -329,17 +382,20 @@ async function addRole(sb, body, admin) {
     targetId = authUser.id;
   }
 
-  const { error } = await sb.from('admin_roles').insert({ user_id: targetId, role }).select().single();
+  const { data, error } = await sb.from('admin_roles').insert({ user_id: targetId, role }).select().single();
   if (error) throw error;
+  await logAdminAction(sb, admin, 'role_grant', 'admin_role', data?.id || targetId, email, { role, target_id: targetId }, req);
   return { success: true };
 }
 
-async function removeRole(sb, body, admin) {
+async function removeRole(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { id } = body;
   if (!id) throw new Error('id required');
+  const { data: roleRow } = await sb.from('admin_roles').select('user_id, role').eq('id', id).single();
   const { error } = await sb.from('admin_roles').delete().eq('id', id);
   if (error) throw error;
+  await logAdminAction(sb, admin, 'role_remove', 'admin_role', id, null, { target_id: roleRow?.user_id, role: roleRow?.role }, req);
   return { success: true };
 }
 
@@ -424,7 +480,7 @@ async function getUsers(sb) {
   return { success: true, recentUsers: merged };
 }
 
-async function updateUser(sb, body, admin) {
+async function updateUser(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { id, tier, status, city, business_type, bio, needs, employee_count } = body;
   if (!id) throw new Error('id required');
@@ -439,10 +495,11 @@ async function updateUser(sb, body, admin) {
   updates.updated_at = new Date().toISOString();
   const { error } = await sb.from('profiles').update(updates).eq('id', id);
   if (error) throw error;
+  await logAdminAction(sb, admin, 'user_update', 'user', id, body.email || null, updates, req);
   return { success: true };
 }
 
-async function grantAccess(sb, body, admin) {
+async function grantAccess(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { id, tier, expires_at, reason } = body;
   if (!id) throw new Error('id required');
@@ -477,28 +534,31 @@ async function grantAccess(sb, body, admin) {
     }]);
   }
 
+  await logAdminAction(sb, admin, 'grant_access', 'user', id, null, { tier, expires_at, reason }, req);
   return { success: true };
 }
 
-async function deleteUser(sb, body, admin) {
+async function deleteUser(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { id } = body;
   if (!id) throw new Error('id required');
   const { error } = await sb.from('profiles').delete().eq('id', id);
   if (error) throw error;
+  await logAdminAction(sb, admin, 'user_delete', 'user', id, body.email || null, {}, req);
   return { success: true };
 }
 
-async function resetPassword(sb, body, admin) {
+async function resetPassword(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { id, password } = body;
   if (!id || !password || password.length < 6) throw new Error('id and password (min 6 chars) required');
   const { error } = await sb.auth.admin.updateUserById(id, { password });
   if (error) throw error;
+  await logAdminAction(sb, admin, 'user_reset_password', 'user', id, body.email || null, {}, req);
   return { success: true };
 }
 
-async function createUserAdmin(sb, body, admin) {
+async function createUserAdmin(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { email, password, restaurant_name, phone, country, city, business_type, tier, status, employee_count, branch_count } = body;
   if (!email || !password) throw new Error('email and password required');
@@ -529,6 +589,7 @@ async function createUserAdmin(sb, body, admin) {
   }]);
   if (profileError) throw profileError;
 
+  await logAdminAction(sb, admin, 'user_create', 'user', authData.user.id, email, { restaurant_name, tier, status }, req);
   return { success: true, user: { id: authData.user.id, email: authData.user.email } };
 }
 
@@ -718,6 +779,13 @@ async function handler(req, res) {
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await getAiReviews(sb, admin));
       }
+      if (action === 'audit-log') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const limit = Math.min(parseInt(req.query?.limit) || 100, 500);
+        const offset = parseInt(req.query?.offset) || 0;
+        return res.status(200).json(await getAuditLog(sb, { limit, offset }));
+      }
       return res.status(400).json({ error: 'Unknown action' });
     }
 
@@ -755,46 +823,46 @@ async function handler(req, res) {
       if (action === 'bank-transfers') {
         const admin = await verifyAdmin(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await updateBankTransfer(sb, req.body));
+        return res.status(200).json(await updateBankTransfer(sb, req.body, admin, req));
       }
       if (action === 'settings') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await updateSettings(sb, req.body, admin));
+        return res.status(200).json(await updateSettings(sb, req.body, admin, req));
       }
       if (action === 'exceptions') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await createException(sb, req.body, admin));
+        return res.status(200).json(await createException(sb, req.body, admin, req));
       }
       if (action === 'users') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         const subAction = req.body?.action;
-        if (subAction === 'create') return res.status(200).json(await createUserAdmin(sb, req.body, admin));
-        if (subAction === 'update') return res.status(200).json(await updateUser(sb, req.body, admin));
-        if (subAction === 'grant-access') return res.status(200).json(await grantAccess(sb, req.body, admin));
-        if (subAction === 'delete') return res.status(200).json(await deleteUser(sb, req.body, admin));
-        if (subAction === 'reset-password') return res.status(200).json(await resetPassword(sb, req.body, admin));
+        if (subAction === 'create') return res.status(200).json(await createUserAdmin(sb, req.body, admin, req));
+        if (subAction === 'update') return res.status(200).json(await updateUser(sb, req.body, admin, req));
+        if (subAction === 'grant-access') return res.status(200).json(await grantAccess(sb, req.body, admin, req));
+        if (subAction === 'delete') return res.status(200).json(await deleteUser(sb, req.body, admin, req));
+        if (subAction === 'reset-password') return res.status(200).json(await resetPassword(sb, req.body, admin, req));
         return res.status(400).json({ error: 'Invalid sub-action' });
       }
       if (action === 'messages') {
         const admin = await verifyAdmin(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await updateMessage(sb, req.body));
+        return res.status(200).json(await updateMessage(sb, req.body, admin, req));
       }
       if (action === 'roles') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         const subAction = req.body?.action;
-        if (subAction === 'add') return res.status(200).json(await addRole(sb, req.body, admin));
-        if (subAction === 'remove') return res.status(200).json(await removeRole(sb, req.body, admin));
+        if (subAction === 'add') return res.status(200).json(await addRole(sb, req.body, admin, req));
+        if (subAction === 'remove') return res.status(200).json(await removeRole(sb, req.body, admin, req));
         return res.status(400).json({ error: 'Invalid sub-action' });
       }
       if (action === 'ai-reviews') {
         const admin = await verifyAdmin(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await updateAiReview(sb, req.body, admin));
+        return res.status(200).json(await updateAiReview(sb, req.body, admin, req));
       }
       if (action === 'makeOwnerAdmin') {
         const authHeader = req.headers.authorization;
@@ -816,7 +884,7 @@ async function handler(req, res) {
       if (action === 'exceptions') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await deleteException(sb, req.query.id, admin));
+        return res.status(200).json(await deleteException(sb, req.query.id, admin, req));
       }
       return res.status(400).json({ error: 'Unknown action' });
     }
