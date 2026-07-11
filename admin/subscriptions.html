@@ -84,7 +84,16 @@
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--bg-secondary); border-radius: var(--radius); padding: 1.5rem; width: 100%; max-width: 480px; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; }
+    .modal h3 { margin-bottom: 1rem; font-size: 1.1rem; }
+    .modal label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); }
+    .modal input, .modal select, .modal textarea { width: 100%; padding: 0.75rem 1rem; margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-card); font-family: inherit; font-size: 0.9rem; }
+    .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap; }
   </style>
+  <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=2"></script>
@@ -145,6 +154,7 @@
           <h1>الاشتراكات <span id="demoIndicator" class="demo-badge" style="display:none;">Demo</span></h1>
           <p>إدارة خطط الاشتراك والمشتركين</p>
         </div>
+        <button class="btn-sm btn-primary" onclick="openGrantSubModal()">⭐ منح اشتراك / فترة مجانية</button>
         <button class="btn-sm btn-primary" onclick="refreshData()">↻ تحديث</button>
         <button class="btn-sm btn-secondary" onclick="exportCSV()">⬇ تصدير CSV</button>
       </div>
@@ -192,6 +202,7 @@
               <th>الحالة</th>
               <th>تاريخ البدء</th>
               <th>تاريخ التجديد</th>
+              <th>إجراءات</th>
             </tr>
           </thead>
           <tbody id="subsTable">
@@ -200,6 +211,30 @@
         </table>
       </div>
     </main>
+  </div>
+
+  <!-- Grant Subscription Modal -->
+  <div class="modal-overlay" id="grantSubModal" onclick="if(event.target===this)closeGrantSubModal()">
+    <div class="modal">
+      <h3>⭐ منح اشتراك / فترة مجانية</h3>
+      <label for="grantSubUser">المستخدم *</label>
+      <select id="grantSubUser" data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true" data-ud-placeholder="اختر المستخدم">
+        <option value="">اختر المستخدم</option>
+      </select>
+      <label for="grantSubTier">الخطة *</label>
+      <select id="grantSubTier">
+        <option value="pro">Pro</option>
+        <option value="enterprise">Enterprise</option>
+      </select>
+      <label for="grantSubExpires">تاريخ الانتهاء</label>
+      <input type="datetime-local" id="grantSubExpires">
+      <label for="grantSubReason">السبب / ملاحظة</label>
+      <textarea id="grantSubReason" rows="3" placeholder="مثال: فترة تجريبية 14 يوم"></textarea>
+      <div class="modal-actions">
+        <button class="btn-sm btn-secondary" onclick="closeGrantSubModal()">إلغاء</button>
+        <button class="btn-sm btn-primary" onclick="submitGrantSub()">منح الاشتراك</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -275,11 +310,92 @@
           <td>${statusBadge(sub.status)}</td>
           <td>${formatDate(sub.created_at)}</td>
           <td>${formatDate(sub.current_period_end || sub.created_at)}</td>
+          <td><button class="btn-sm btn-primary" onclick="openGrantSubModal('${sub.user_id}')">مدد</button></td>
         </tr>
       `).join('');
     }
 
     window.addEventListener('load', refreshData);
+
+    async function fetchUsers() {
+      try {
+        const token = await getAdminToken();
+        const res = await fetch('/api/admin?action=users', {
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        window._usersData = data.users || [];
+      } catch (e) {
+        console.warn('Failed to load users for grant modal:', e);
+        window._usersData = [];
+      }
+    }
+    window.addEventListener('load', fetchUsers);
+
+    function populateGrantSubUsers(selectedId) {
+      const select = document.getElementById('grantSubUser');
+      const users = (window._usersData || []).map(u => ({ value: u.id, label: (u.restaurant_name || u.email || u.id) + ' — ' + (u.email || u.id) }));
+      const dd = window.getUniversalDropdown && window.getUniversalDropdown(select);
+      if (dd && dd.setOptions) {
+        dd.setOptions(users);
+        if (selectedId) dd.value = selectedId;
+      } else {
+        select.innerHTML = '<option value="">اختر المستخدم</option>';
+        users.forEach(u => { const opt = document.createElement('option'); opt.value = u.value; opt.textContent = u.label; select.appendChild(opt); });
+        if (selectedId) select.value = selectedId;
+      }
+    }
+
+    function defaultExpires() {
+      const d = new Date();
+      d.setDate(d.getDate() + 30);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      return d.toISOString().slice(0, 16);
+    }
+
+    function openGrantSubModal(userId) {
+      populateGrantSubUsers(userId || '');
+      document.getElementById('grantSubTier').value = 'pro';
+      document.getElementById('grantSubExpires').value = defaultExpires();
+      document.getElementById('grantSubReason').value = '';
+      document.getElementById('grantSubModal').classList.add('active');
+    }
+    function closeGrantSubModal() { document.getElementById('grantSubModal').classList.remove('active'); }
+
+    async function submitGrantSub() {
+      const userId = document.getElementById('grantSubUser').value;
+      const tier = document.getElementById('grantSubTier').value;
+      const expires = document.getElementById('grantSubExpires').value;
+      const reason = document.getElementById('grantSubReason').value.trim();
+      if (!userId) return alert('اختر المستخدم');
+      if (!tier) return alert('اختر الخطة');
+
+      const body = {
+        action: 'grant-access',
+        id: userId,
+        tier,
+        expires_at: expires ? new Date(expires).toISOString() : null,
+        reason
+      };
+
+      try {
+        const token = await getAdminToken();
+        const res = await fetch('/api/admin?action=users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✅ تم منح الاشتراك بنجاح');
+          closeGrantSubModal();
+          refreshData();
+        } else {
+          alert(data.error || 'فشل منح الاشتراك');
+        }
+      } catch (e) { alert('خطأ في الاتصال'); }
+    }
 
     function exportCSV() {
       const headers = ['User ID','Plan','Status','Start Date','Renewal Date'];
@@ -311,6 +427,8 @@
 
   </script>
 
+  <script src="../components/universal-dropdown.js?v=2.51.8"></script>
+  <script src="../components/universal-dropdown-init.js"></script>
   <script src="../page-tracker-v2.js"></script>
   <script src="/admin/admin-embed.js"></script>
 </body>
