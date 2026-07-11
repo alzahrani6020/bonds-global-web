@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Real Project Analysis | Bonds — Calculate Hidden Costs & Risks</title>
+  <meta name="description" content="Bonds Real Project Analysis calculator: automatically calculate hidden costs, risk reserve, break-even point, payback period, and investment rating based on your business activity type." />
+  <meta property="og:title" content="Real Project Analysis | Bonds" />
+  <meta property="og:description" content="Discover the hidden costs and real risks of your project before investing." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
+  <link rel="stylesheet" href="../../styles/design-system.css" />
+  <link rel="stylesheet" href="../../calculators/feasibility.css" />
+  <link rel="stylesheet" href="../../calculators/scenario-cards-shared.css" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/supabase-client.js"></script>
+  <script src="/auth-guard.js"></script>
+  <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.7" />
+  <script src="../../calculators/shared-ui.js"></script>
+  <script src="../../calculators/shared-utils.js"></script>
+  <script src="../../calculators/shared-export.js"></script>
+  <script src="../../calculators/shared-platforms.js"></script>
+  <script src="../../calculators/calc-functions.js"></script>
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../../header-footer.css?v=2.52.0" />
+  <style>
+    .bonds-checkbox-group { display: flex; flex-direction: column; gap: 0.75rem; }
+    .bonds-checkbox-label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text); font-weight: 500; }
+    .bonds-checkbox { width: 1.25rem; height: 1.25rem; accent-color: var(--gold); cursor: pointer; }
+  </style>
+  <link rel="canonical" href="https://bonds-global.com/en/calculators/real-project-analysis" />
+  <meta property="og:url" content="https://bonds-global.com/en/calculators/real-project-analysis" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Real Project Analysis | Bonds — Calculate Hidden Costs & Risks" />
+  <meta name="twitter:description" content="Bonds Real Project Analysis calculator: automatically calculate hidden costs, risk reserve, break-even, payback period, and investment rating." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+</head>
+<body>
+  <div id="site-header"></div>
+  <div class="feas-container">
+    <div class="feas-header">
+      <div class="feas-badge">🎯 Advanced Investment Analysis</div>
+      <h1>Real Project Analysis</h1>
+      <p>Calculate <strong>hidden costs</strong>, <strong>risk reserve</strong>, <strong>break-even revenue</strong>, and <strong>payback period</strong> automatically based on your business activity type.</p>
+    </div>
+
+    <div id="progressContainer"></div>
+
+    <div class="bonds-tabs">
+      <div class="bonds-tab active" onclick="showTab('project')">📋 Project Info</div>
+      <div class="bonds-tab" onclick="showTab('costs')">💸 Costs</div>
+      <div class="bonds-tab" onclick="showTab('risks')">⚠️ Risk Factors</div>
+      <div class="bonds-tab" onclick="showTab('result')">📊 Result</div>
+    </div>
+
+    <!-- Tab 1: Project Info -->
+    <div id="project" class="bonds-panel active">
+      <div class="bonds-card">
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 Select your activity type and enter revenue & investment</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group">
+            <label>Business Activity Type</label>
+            <select id="activityType" class="bonds-input" data-universal-dropdown="true" data-ud-search="true">
+              <option value="restaurant">Restaurant / Café</option>
+              <option value="retail">Retail Store</option>
+              <option value="manufacturing">Manufacturing</option>
+              <option value="services">Professional Services</option>
+              <option value="ecommerce">E-commerce</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="education">Education & Training</option>
+              <option value="general" selected>General Activity</option>
+            </select>
+          </div>
+          <div class="bonds-form-group">
+            <label for="country">Country / Market</label>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+              <option value="">Select country</option>
+            </select>
+          </div>
+          <div class="bonds-form-group"><label>Expected Monthly Revenue <abbr title="Total expected monthly revenue before any costs">ⓘ</abbr></label><input id="revenue" class="bonds-input" type="number" value="50000" placeholder="50000" min="0" /></div>
+          <div class="bonds-form-group"><label>Project Value (Invested Capital) <abbr title="Total initial investment required for the project">ⓘ</abbr></label><input id="projectValue" class="bonds-input" type="number" value="200000" placeholder="200000" min="0" /></div>
+        </div>
+        <div class="calc-text-center">
+          <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">Next: Costs →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Operating Costs -->
+    <div id="costs" class="bonds-panel">
+      <div class="bonds-card">
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 Enter your basic monthly operating costs</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>Direct Costs <abbr title="Costs directly tied to production or sales, e.g. raw materials or product cost">ⓘ</abbr></label><input id="directCosts" class="bonds-input" type="number" value="15000" placeholder="15000" min="0" /></div>
+          <div class="bonds-form-group"><label>Salaries & Wages</label><input id="salaries" class="bonds-input" type="number" value="12000" placeholder="12000" min="0" /></div>
+          <div class="bonds-form-group"><label>Rent</label><input id="rent" class="bonds-input" type="number" value="8000" placeholder="8000" min="0" /></div>
+          <div class="bonds-form-group"><label>Inventory Cost</label><input id="inventoryCost" class="bonds-input" type="number" value="5000" placeholder="5000" min="0" /></div>
+          <div class="bonds-form-group"><label>Equipment Cost (monthly / depreciation) <abbr title="You can enter the monthly depreciation value of equipment">ⓘ</abbr></label><input id="equipmentCost" class="bonds-input" type="number" value="2000" placeholder="2000" min="0" /></div>
+        </div>
+        <div class="calc-text-center">
+          <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← Previous</button>
+          <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">Next: Risk Factors →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Risk Factors -->
+    <div id="risks" class="bonds-panel">
+      <div class="bonds-card">
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">⚠️ These factors affect the hidden cost and reserve percentages</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group" style="min-width:100%;">
+            <label class="bonds-checkbox-label"><input id="deliveryEnabled" type="checkbox" class="bonds-checkbox" onchange="toggleDeliveryCost()" /> Delivery / shipping is enabled</label>
+            <label class="bonds-checkbox-label"><input id="perishableInventory" type="checkbox" class="bonds-checkbox" /> Inventory is perishable (food, medicine, flowers...)</label>
+            <label class="bonds-checkbox-label"><input id="seasonalStaff" type="checkbox" class="bonds-checkbox" /> Seasonal staff / operational fluctuations</label>
+          </div>
+          <div class="bonds-form-group" id="deliveryCostGroup" style="display:none;">
+            <label>Monthly Delivery Cost <abbr title="Total you pay monthly for delivery or shipping">ⓘ</abbr></label>
+            <input id="deliveryCost" class="bonds-input" type="number" value="0" placeholder="0" min="0" />
+          </div>
+          <div class="bonds-form-group">
+            <label>Regulatory / Licensing Requirements</label>
+            <select id="regulatoryRequirements" class="bonds-input" data-universal-dropdown="true">
+              <option value="low">Low (simple licenses)</option>
+              <option value="medium" selected>Medium (multiple licenses)</option>
+              <option value="high">High (health, environment, quality...)</option>
+            </select>
+          </div>
+          <div class="bonds-form-group">
+            <label>Waste &amp; Expected Incidentals (%) <abbr title="Reserve percentage for waste and unexpected incidentals: material waste, production loss, sudden repairs, minor spare parts">ⓘ</abbr></label>
+            <input id="wasteAndIncidentalsPct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" />
+          </div>
+        </div>
+        <div class="calc-text-center">
+          <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← Previous</button>
+          <button class="bonds-btn bonds-btn-primary" onclick="calculateAll();nextTab();">Calculate Result 🚀</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Result -->
+    <div id="result" class="bonds-panel">
+      <div id="resultContent">
+        <div class="calc-empty-state-box-lg">
+          <div class="calc-empty-icon-lg">📊</div>
+          <p class="calc-text-lg-semibold">Complete the previous steps to see the result</p>
+          <button class="bonds-btn bonds-btn-primary calc-mt-4" onclick="showTab('project')">Start Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ===== PROGRESS =====
+const progress = new BondsUI.ProgressTracker('progressContainer', ['Project Info', 'Costs', 'Risk Factors', 'Result']);
+
+// ===== TABS =====
+const tabIds = ['project','costs','risks','result'];
+let currentTab = 0;
+
+function showTab(id) {
+  document.querySelectorAll('.bonds-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bonds-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = tabIds.indexOf(id);
+  currentTab = idx;
+  progress.set(idx);
+  document.querySelectorAll('.bonds-tab')[idx].classList.add('active');
+}
+
+function nextTab() {
+  if (currentTab < tabIds.length - 1) showTab(tabIds[currentTab + 1]);
+}
+function prevTab() {
+  if (currentTab > 0) showTab(tabIds[currentTab - 1]);
+}
+
+function getVal(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+function getChecked(id) { return document.getElementById(id)?.checked || false; }
+function getText(id) { return document.getElementById(id)?.value || ''; }
+
+function getCurrencySymbol() {
+  const country = getText('country') || 'SA';
+  if (typeof BondsPlatforms !== 'undefined' && BondsPlatforms.getCountryMeta) {
+    const meta = BondsPlatforms.getCountryMeta(country);
+    if (meta && meta.currencySymbolEn) return meta.currencySymbolEn;
+    if (meta && meta.currencySymbol) return meta.currencySymbol;
+  }
+  return 'SAR';
+}
+
+function toggleDeliveryCost() {
+  const group = document.getElementById('deliveryCostGroup');
+  if (group) group.style.display = getChecked('deliveryEnabled') ? 'block' : 'none';
+}
+
+const ACTIVITY_LINKS_EN = {
+  restaurant: { label: 'For detailed restaurant analysis, use the Restaurant Calculator', href: 'restaurant.html' },
+  retail: { label: 'For product pricing, use the Pricing Calculator', href: 'pricing.html' },
+  ecommerce: { label: 'For product pricing, use the Pricing Calculator', href: 'pricing.html' },
+  manufacturing: { label: 'For factory cost analysis, use the Factory Cost Calculator', href: 'factory-cost.html' },
+  healthcare: { label: 'For healthcare facility analysis, use the Medical Viability Calculator', href: 'medical-viability.html' }
+};
+
+// ===== MAIN CALCULATION =====
+function calculateAll() {
+  const revenueRes = BondsUI.validateField('revenue', { required:true, type:'number', min:0, label:'Monthly Revenue' });
+  const projectValueRes = BondsUI.validateField('projectValue', { required:true, type:'number', min:0, label:'Project Value' });
+  if (!revenueRes.valid || !projectValueRes.valid) {
+    BondsUI.toast('⚠️ Please review project info', 'warning');
+    showTab('project');
+    return;
+  }
+
+  const input = {
+    activityType: getText('activityType') || 'general',
+    revenue: getVal('revenue'),
+    directCosts: getVal('directCosts'),
+    salaries: getVal('salaries'),
+    rent: getVal('rent'),
+    inventoryCost: getVal('inventoryCost'),
+    equipmentCost: getVal('equipmentCost'),
+    deliveryCost: getChecked('deliveryEnabled') ? getVal('deliveryCost') : 0,
+    projectValue: getVal('projectValue'),
+    deliveryEnabled: getChecked('deliveryEnabled'),
+    perishableInventory: getChecked('perishableInventory'),
+    seasonalStaff: getChecked('seasonalStaff'),
+    regulatoryRequirements: getText('regulatoryRequirements') || 'medium',
+    wasteAndIncidentalsPct: getVal('wasteAndIncidentalsPct')
+  };
+
+  const result = BondsCalc.calculateRealProjectAnalysis(input);
+  window._rpaResult = { ...result, input };
+
+  const currency = getCurrencySymbol();
+  const ratingColor = result.investmentRating === 'A' ? '#22c55e' : result.investmentRating === 'B' ? '#84cc16' : result.investmentRating === 'C' ? '#f59e0b' : '#ef4444';
+  const verdictHTML = `
+    <div class="verdict-box ${result.investmentRating === 'A' || result.investmentRating === 'B' ? 'profit' : result.investmentRating === 'C' ? 'warning' : 'loss'}">
+      <div class="verdict-icon" style="font-size:2.5rem;">${result.investmentRating === 'A' ? '🟢' : result.investmentRating === 'B' ? '🟢' : result.investmentRating === 'C' ? '🟡' : '🔴'}</div>
+      <div class="verdict-title" style="color:${ratingColor};">Investment Rating: ${result.investmentRating} — ${result.investmentRatingLabel.en}</div>
+      <div class="verdict-text">
+        Real monthly cost is <strong>${result.totalRealCost.toLocaleString('en-US')} ${currency}</strong> (including ${result.hiddenCostTotal.toLocaleString('en-US')} ${currency} hidden costs and ${result.riskReserve.toLocaleString('en-US')} ${currency} risk reserve).<br>
+        Expected real profit: <strong>${result.realProfit.toLocaleString('en-US')} ${currency}/month</strong> — margin <strong>${result.profitMargin.toFixed(1)}%</strong>.
+      </div>
+    </div>`;
+
+  const s = result.scenarios;
+  const link = ACTIVITY_LINKS_EN[input.activityType] || ACTIVITY_LINKS_EN[input.activityType.split('-')[0]];
+  const contextualLinkHTML = link ? `<div class="bonds-card" style="margin-top:var(--space-5);border:1px solid rgba(212,168,83,0.25);"><p style="margin:0;text-align:center;"><a href="${link.href}" style="color:var(--gold);font-weight:700;">${link.label}</a></p></div>` : '';
+
+  document.getElementById('resultContent').innerHTML = `
+    ${verdictHTML}
+
+    <div class="feas-section-title">📈 Key Results</div>
+    <div class="metric-row">
+      <div class="metric-box"><div class="label">Hidden Costs</div><div class="value" style="color:#f59e0b">${result.hiddenCostTotal.toLocaleString('en-US')} ${currency}</div></div>
+      <div class="metric-box"><div class="label">Risk Reserve</div><div class="value" style="color:#f59e0b">${result.riskReserve.toLocaleString('en-US')} ${currency}</div></div>
+      <div class="metric-box"><div class="label">Real Cost / Month</div><div class="value">${result.totalRealCost.toLocaleString('en-US')} ${currency}</div></div>
+      <div class="metric-box"><div class="label">Real Profit / Month</div><div class="value" style="color:${result.realProfit>=0?'#22c55e':'#ef4444'}">${result.realProfit.toLocaleString('en-US')} ${currency}</div></div>
+      <div class="metric-box"><div class="label">Break-Even Revenue</div><div class="value">${result.breakEvenRevenue > 0 ? result.breakEvenRevenue.toLocaleString('en-US') + ' ' + currency : '—'}</div></div>
+      <div class="metric-box"><div class="label">Payback Period</div><div class="value">${result.paybackPeriodMonths === Infinity ? '—' : Math.ceil(result.paybackPeriodMonths) + ' months'}</div></div>
+      <div class="metric-box"><div class="label">Investment Rating</div><div class="value" style="color:${ratingColor}">${result.investmentRating}</div></div>
+      <div class="metric-box"><div class="label">Hidden Cost Ratio</div><div class="value">${result.hiddenCostPct.toFixed(1)}%</div></div>
+    </div>
+
+    <div class="feas-section-title">🧩 Hidden-Cost Factor Breakdown</div>
+    <div class="bonds-card" style="text-align:left;">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr><th style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">Factor</th><th style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">%</th><th style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">Amount</th></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Base hidden cost</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${(result.hiddenFactorBreakdown.base * 100).toFixed(1)}%</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${(result.operatingCosts * result.hiddenFactorBreakdown.base).toLocaleString('en-US')} ${currency}</td></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Delivery</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${(result.hiddenFactorBreakdown.delivery * 100).toFixed(1)}%</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${(result.operatingCosts * result.hiddenFactorBreakdown.delivery).toLocaleString('en-US')} ${currency}</td></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Perishable inventory</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${(result.hiddenFactorBreakdown.perishable * 100).toFixed(1)}%</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${(result.operatingCosts * result.hiddenFactorBreakdown.perishable).toLocaleString('en-US')} ${currency}</td></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Seasonal staff</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${(result.hiddenFactorBreakdown.seasonal * 100).toFixed(1)}%</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${(result.operatingCosts * result.hiddenFactorBreakdown.seasonal).toLocaleString('en-US')} ${currency}</td></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Regulatory (${input.regulatoryRequirements})</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${(result.hiddenFactorBreakdown.regulatory * 100).toFixed(1)}%</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${(result.operatingCosts * result.hiddenFactorBreakdown.regulatory).toLocaleString('en-US')} ${currency}</td></tr>
+        ${result.wasteAndIncidentalsPct > 0 ? `<tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Waste &amp; Expected Incidentals</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${result.wasteAndIncidentalsPct.toFixed(1)}%</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${(result.operatingCosts * result.hiddenFactorBreakdown.wasteAndIncidentals).toLocaleString('en-US')} ${currency}</td></tr>` : ''}
+      </table>
+    </div>
+
+    <div class="feas-section-title">🎲 Scenarios</div>
+    <div class="scenario-grid">
+      <div class="scenario-card pessimistic">
+        <div class="scenario-label" style="color:#ef4444;">Pessimistic</div>
+        <div class="scenario-value" style="color:#ef4444;">${s.pessimistic.realProfit.toLocaleString('en-US')} ${currency}</div>
+        <div class="scenario-desc">Revenue: ${s.pessimistic.revenue.toLocaleString('en-US')} ${currency}<br>Margin: ${s.pessimistic.profitMargin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-card expected">
+        <div class="scenario-label" style="color:var(--gold);">Expected</div>
+        <div class="scenario-value" style="color:var(--gold);">${s.expected.realProfit.toLocaleString('en-US')} ${currency}</div>
+        <div class="scenario-desc">Revenue: ${s.expected.revenue.toLocaleString('en-US')} ${currency}<br>Margin: ${s.expected.profitMargin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-card optimistic">
+        <div class="scenario-label" style="color:#22c55e;">Optimistic</div>
+        <div class="scenario-value" style="color:#22c55e;">${s.optimistic.realProfit.toLocaleString('en-US')} ${currency}</div>
+        <div class="scenario-desc">Revenue: ${s.optimistic.revenue.toLocaleString('en-US')} ${currency}<br>Margin: ${s.optimistic.profitMargin.toFixed(1)}%</div>
+      </div>
+    </div>
+
+    <div class="feas-section-title">📋 Cost Breakdown</div>
+    <div class="bonds-card" style="text-align:left;">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr><th style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">Item</th><th style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">Amount</th></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Operating Costs</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${result.operatingCosts.toLocaleString('en-US')} ${currency}</td></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Hidden Costs (${result.hiddenCostPct.toFixed(1)}%)</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${result.hiddenCostTotal.toLocaleString('en-US')} ${currency}</td></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Risk Reserve (${result.riskReservePct.toFixed(1)}%)</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${result.riskReserve.toLocaleString('en-US')} ${currency}</td></tr>
+        ${input.deliveryEnabled ? `<tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Monthly Delivery Cost</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${input.deliveryCost.toLocaleString('en-US')} ${currency}</td></tr>` : ''}
+        <tr style="font-weight:700;"><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Total Real Cost</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${result.totalRealCost.toLocaleString('en-US')} ${currency}</td></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Monthly Revenue</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">${result.input.revenue.toLocaleString('en-US')} ${currency}</td></tr>
+        <tr style="font-weight:700;"><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Real Profit</td><td style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);color:${result.realProfit>=0?'#22c55e':'#ef4444'}">${result.realProfit.toLocaleString('en-US')} ${currency}</td></tr>
+      </table>
+    </div>
+
+    ${contextualLinkHTML}
+
+    <div style="text-align:center;margin-top:var(--space-6);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <button class="bonds-btn bonds-btn-secondary" onclick="showTab('project'); BondsUI.toast('🔄 Try new numbers', 'info');">🔄 Try New Numbers</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportExcelRPA()">📊 Excel</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportPDFRPA()">📄 PDF</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="saveAnalysis()">💾 Save Analysis</button>
+    </div>
+  `;
+}
+
+async function exportExcelRPA() {
+  if (!window._rpaResult) {
+    BondsUI.toast('⚠️ Calculate results first', 'warning');
+    return;
+  }
+  await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+  if (typeof XLSX === 'undefined') {
+    BondsUI.toast('❌ Failed to load Excel library', 'error');
+    return;
+  }
+  var d = window._rpaResult;
+  var wb = XLSX.utils.book_new();
+  wb.Props = { Title: 'Real Project Analysis', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+  var inputsSheet = [
+    ['Item', 'Value'],
+    ['Activity Type', d.input.activityType],
+    ['Monthly Revenue', d.input.revenue],
+    ['Project Value', d.input.projectValue],
+    ['Direct Costs', d.input.directCosts],
+    ['Salaries', d.input.salaries],
+    ['Rent', d.input.rent],
+    ['Inventory Cost', d.input.inventoryCost],
+    ['Equipment Cost', d.input.equipmentCost],
+    ['Delivery Enabled', d.input.deliveryEnabled ? 'Yes' : 'No'],
+    ['Monthly Delivery Cost', d.input.deliveryEnabled ? d.input.deliveryCost : 0],
+    ['Perishable Inventory', d.input.perishableInventory ? 'Yes' : 'No'],
+    ['Seasonal Staff', d.input.seasonalStaff ? 'Yes' : 'No'],
+    ['Regulatory Requirements', d.input.regulatoryRequirements]
+  ];
+  var ws1 = XLSX.utils.aoa_to_sheet(inputsSheet);
+  ws1['!cols'] = [{ wch: 32 }, { wch: 20 }];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Inputs');
+
+  var resultsSheet = [
+    ['Metric', 'Value'],
+    ['Hidden Costs', d.hiddenCostTotal],
+    ['Risk Reserve', d.riskReserve],
+    ['Real Cost / Month', d.totalRealCost],
+    ['Real Profit / Month', d.realProfit],
+    ['Profit Margin (%)', d.profitMargin.toFixed(2) + '%'],
+    ['Break-Even Revenue', d.breakEvenRevenue > 0 ? d.breakEvenRevenue : '—'],
+    ['Payback Period (months)', d.paybackPeriodMonths === Infinity ? '—' : Math.ceil(d.paybackPeriodMonths)],
+    ['Investment Rating', d.investmentRating]
+  ];
+  var ws2 = XLSX.utils.aoa_to_sheet(resultsSheet);
+  ws2['!cols'] = [{ wch: 32 }, { wch: 20 }];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Results');
+
+  var scenSheet = [
+    ['Scenario', 'Revenue', 'Real Cost', 'Profit', 'Margin'],
+    ['Pessimistic', d.scenarios.pessimistic.revenue, d.scenarios.pessimistic.totalCost, d.scenarios.pessimistic.realProfit, d.scenarios.pessimistic.profitMargin.toFixed(2) + '%'],
+    ['Expected', d.scenarios.expected.revenue, d.scenarios.expected.totalCost, d.scenarios.expected.realProfit, d.scenarios.expected.profitMargin.toFixed(2) + '%'],
+    ['Optimistic', d.scenarios.optimistic.revenue, d.scenarios.optimistic.totalCost, d.scenarios.optimistic.realProfit, d.scenarios.optimistic.profitMargin.toFixed(2) + '%']
+  ];
+  var ws3 = XLSX.utils.aoa_to_sheet(scenSheet);
+  ws3['!cols'] = [{ wch: 16 }, { wch: 16 }, { wch: 18 }, { wch: 16 }, { wch: 14 }];
+  XLSX.utils.book_append_sheet(wb, ws3, 'Scenarios');
+
+  XLSX.writeFile(wb, 'bonds-real-project-analysis.xlsx');
+}
+
+function exportPDFRPA() {
+  if (!window._rpaResult) {
+    BondsUI.toast('⚠️ Calculate results first', 'warning');
+    return;
+  }
+  var d = window._rpaResult;
+  var currency = getCurrencySymbol();
+  var ratingColor = d.investmentRating === 'A' ? '#22c55e' : d.investmentRating === 'B' ? '#84cc16' : d.investmentRating === 'C' ? '#f59e0b' : '#ef4444';
+
+  var content = `
+    <div class="verdict-box ${d.investmentRating === 'A' || d.investmentRating === 'B' ? 'profit' : d.investmentRating === 'C' ? 'warn' : 'loss'}">
+      <div style="font-size:20px;font-weight:800;color:${ratingColor};">Investment Rating: ${d.investmentRating} — ${d.investmentRatingLabel.en}</div>
+    </div>
+
+    <h2>📈 Key Results</h2>
+    <div class="metric-grid">
+      <div class="metric-item"><div class="label">Hidden Costs</div><div class="value">${d.hiddenCostTotal.toLocaleString('en-US')} ${currency}</div></div>
+      <div class="metric-item"><div class="label">Risk Reserve</div><div class="value">${d.riskReserve.toLocaleString('en-US')} ${currency}</div></div>
+      <div class="metric-item"><div class="label">Real Cost / Month</div><div class="value">${d.totalRealCost.toLocaleString('en-US')} ${currency}</div></div>
+      <div class="metric-item"><div class="label">Real Profit / Month</div><div class="value">${d.realProfit.toLocaleString('en-US')} ${currency}</div></div>
+      <div class="metric-item"><div class="label">Break-Even Revenue</div><div class="value">${d.breakEvenRevenue > 0 ? d.breakEvenRevenue.toLocaleString('en-US') + ' ' + currency : '—'}</div></div>
+      <div class="metric-item"><div class="label">Payback Period</div><div class="value">${d.paybackPeriodMonths === Infinity ? '—' : Math.ceil(d.paybackPeriodMonths) + ' months'}</div></div>
+    </div>
+
+    <h2>🧩 Hidden-Cost Factor Breakdown</h2>
+    <table>
+      <tr><th>Factor</th><th class="num">%</th><th class="num">Amount</th></tr>
+      <tr><td>Base hidden cost</td><td class="num">${(d.hiddenFactorBreakdown.base * 100).toFixed(1)}%</td><td class="num">${(d.operatingCosts * d.hiddenFactorBreakdown.base).toLocaleString('en-US')} ${currency}</td></tr>
+      <tr><td>Delivery</td><td class="num">${(d.hiddenFactorBreakdown.delivery * 100).toFixed(1)}%</td><td class="num">${(d.operatingCosts * d.hiddenFactorBreakdown.delivery).toLocaleString('en-US')} ${currency}</td></tr>
+      <tr><td>Perishable inventory</td><td class="num">${(d.hiddenFactorBreakdown.perishable * 100).toFixed(1)}%</td><td class="num">${(d.operatingCosts * d.hiddenFactorBreakdown.perishable).toLocaleString('en-US')} ${currency}</td></tr>
+      <tr><td>Seasonal staff</td><td class="num">${(d.hiddenFactorBreakdown.seasonal * 100).toFixed(1)}%</td><td class="num">${(d.operatingCosts * d.hiddenFactorBreakdown.seasonal).toLocaleString('en-US')} ${currency}</td></tr>
+      <tr><td>Regulatory</td><td class="num">${(d.hiddenFactorBreakdown.regulatory * 100).toFixed(1)}%</td><td class="num">${(d.operatingCosts * d.hiddenFactorBreakdown.regulatory).toLocaleString('en-US')} ${currency}</td></tr>
+    </table>
+
+    <h2>🎲 Scenarios</h2>
+    <div class="scenario-row">
+      <div class="scenario-item pess"><div class="label" style="color:#ef4444;">Pessimistic</div><div class="value" style="color:#ef4444;">${d.scenarios.pessimistic.realProfit.toLocaleString('en-US')} ${currency}</div><div class="desc">Margin: ${d.scenarios.pessimistic.profitMargin.toFixed(1)}%</div></div>
+      <div class="scenario-item exp"><div class="label" style="color:#b88a3a;">Expected</div><div class="value" style="color:#b88a3a;">${d.scenarios.expected.realProfit.toLocaleString('en-US')} ${currency}</div><div class="desc">Margin: ${d.scenarios.expected.profitMargin.toFixed(1)}%</div></div>
+      <div class="scenario-item opt"><div class="label" style="color:#22c55e;">Optimistic</div><div class="value" style="color:#22c55e;">${d.scenarios.optimistic.realProfit.toLocaleString('en-US')} ${currency}</div><div class="desc">Margin: ${d.scenarios.optimistic.profitMargin.toFixed(1)}%</div></div>
+    </div>
+
+    <h2>📋 Cost Breakdown</h2>
+    <table>
+      <tr><th>Item</th><th class="num">Amount</th></tr>
+      <tr><td>Operating Costs</td><td class="num">${d.operatingCosts.toLocaleString('en-US')} ${currency}</td></tr>
+      <tr><td>Hidden Costs (${d.hiddenCostPct.toFixed(1)}%)</td><td class="num">${d.hiddenCostTotal.toLocaleString('en-US')} ${currency}</td></tr>
+      <tr><td>Risk Reserve (${d.riskReservePct.toFixed(1)}%)</td><td class="num">${d.riskReserve.toLocaleString('en-US')} ${currency}</td></tr>
+      ${d.input.deliveryEnabled ? `<tr><td>Monthly Delivery Cost</td><td class="num">${d.input.deliveryCost.toLocaleString('en-US')} ${currency}</td></tr>` : ''}
+      <tr><td>Total Real Cost</td><td class="num">${d.totalRealCost.toLocaleString('en-US')} ${currency}</td></tr>
+      <tr><td>Monthly Revenue</td><td class="num">${d.input.revenue.toLocaleString('en-US')} ${currency}</td></tr>
+      <tr><td>Real Profit</td><td class="num">${d.realProfit.toLocaleString('en-US')} ${currency}</td></tr>
+    </table>
+  `;
+  openPrintWindow({ content: content, title: 'Real Project Analysis', headerTitle: 'Real Project Analysis' });
+}
+
+const ACTIVITY_LABELS_EN = {
+  restaurant: 'Restaurant / Café',
+  retail: 'Retail Store',
+  manufacturing: 'Manufacturing',
+  services: 'Professional Services',
+  ecommerce: 'E-commerce',
+  healthcare: 'Healthcare',
+  education: 'Education & Training',
+  general: 'General Activity'
+};
+
+async function saveAnalysis() {
+  if (!window._rpaResult) {
+    BondsUI.toast('⚠️ Calculate results first', 'warning');
+    return;
+  }
+
+  if (!window.BondsAuth || !window.BondsAuth.getUser) {
+    BondsUI.toast('❌ Auth service unavailable', 'error');
+    return;
+  }
+
+  const { data: userData, error: userError } = await window.BondsAuth.getUser();
+  if (userError || !userData?.user) {
+    window.location.href = '/calculators/auth/?redirect=' + encodeURIComponent(window.location.pathname);
+    return;
+  }
+
+  const sb = window.BondsAuth.getSupabase();
+  if (!sb) {
+    BondsUI.toast('❌ Database connection failed', 'error');
+    return;
+  }
+
+  const input = JSON.parse(JSON.stringify(window._rpaResult.input));
+  input.calculator = 'real-project-analysis';
+
+  const { error } = await sb.from('scenarios').insert({
+    user_id: userData.user.id,
+    name: (ACTIVITY_LABELS_EN[input.activityType] || 'Real Project Analysis') + ' — ' + new Date().toLocaleDateString('en-US'),
+    country: getText('country') || 'SA',
+    inputs: input,
+    results: window._rpaResult
+  });
+
+  if (error) {
+    BondsUI.toast('❌ Save failed: ' + error.message, 'error');
+  } else {
+    BondsUI.toast('✅ Analysis saved successfully', 'success');
+  }
+}
+
+// ===== INIT =====
+const deliveryCb = document.getElementById('deliveryEnabled');
+if (deliveryCb) {
+  deliveryCb.addEventListener('change', toggleDeliveryCost);
+  toggleDeliveryCost();
+}
+progress.set(0);
+</script>
+<script src="../../calculators/usage-guard.js"></script>
+<script src="../../page-tracker-v2.js"></script>
+<script src="../../calculators/shared-geo.js?v=4"></script>
+<script src="../../site-layout.js?v=2.52.0"></script>
+<div id="site-footer"></div>
+<script src="../../components/universal-dropdown.js?v=2.51.7"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
+</body>
+</html>

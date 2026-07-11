@@ -64,7 +64,7 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
 
   <meta name="description" content="Specialized financial calculators and economic consulting from Bonds." />
 
-<link rel="stylesheet" href="../../../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../../../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body>
   <div class="container">
@@ -141,8 +141,8 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
           </div>
           <div class="form-group">
             <label for="phone">Phone Number <span class="required">*</span></label>
-            <input type="tel" id="phone" required placeholder="05xxxxxxxx" disabled>
-            <div class="hint">Must start with 05 and be 10 digits</div>
+            <input type="tel" id="phone" required placeholder="05xxxxxxxx or +9665xxxxxxxx" disabled>
+            <div class="hint">Enter a local or international phone number</div>
           </div>
         </div>
 
@@ -601,9 +601,12 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
           }
 
           const phone = document.getElementById('phone').value.trim();
-          if (!/^05\d{8}$/.test(phone)) {
+          const country = document.getElementById('country').value;
+          if (!window.BondsAuth.isValidPhone(phone, country)) {
             setLoading(false);
-            showError('Phone number must start with 05 and be 10 digits');
+            showError(country === 'SA'
+              ? 'Phone number must start with 05 or +9665 and be 10 digits'
+              : 'Phone number is invalid — enter a local or international number');
             return;
           }
 
@@ -675,7 +678,7 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
     })();
   </script>
   <script src="../../../page-tracker-v2.js"></script>
-<script src="../../../components/universal-dropdown.js"></script>
+<script src="../../../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

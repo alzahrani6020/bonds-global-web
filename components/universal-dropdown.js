@@ -83,16 +83,40 @@
     return items.map(item => {
       if (item === null || item === undefined) return null;
       if (typeof item === 'string' || typeof item === 'number') {
-        return { value: String(item), label: String(item), disabled: false, type: 'option' };
+        return { value: String(item), label: String(item), disabled: false, type: 'option', icon: null };
       }
       return {
         value: item.value !== undefined ? String(item.value) : String(item.label || ''),
         label: item.label !== undefined ? String(item.label) : String(item.value || ''),
         disabled: !!item.disabled,
         type: item.type === 'group' ? 'group' : 'option',
-        group: item.group || null
+        group: item.group || null,
+        icon: item.icon || null
       };
     }).filter(Boolean);
+  }
+
+  function isIconUrl(icon) {
+    if (typeof icon !== 'string') return false;
+    return /^https?:\/\//.test(icon) || /^\/[^\s]/.test(icon) || /\.(png|jpg|jpeg|svg|webp|gif)(\?.*)?$/i.test(icon);
+  }
+
+  function createIconEl(icon, alt) {
+    if (!icon) return null;
+    alt = alt || '';
+    if (isIconUrl(icon)) {
+      const img = document.createElement('img');
+      img.src = icon;
+      img.alt = alt;
+      img.className = 'ud-icon';
+      img.setAttribute('aria-hidden', 'true');
+      return img;
+    }
+    const span = document.createElement('span');
+    span.className = 'ud-icon';
+    span.textContent = icon;
+    span.setAttribute('aria-hidden', 'true');
+    return span;
   }
 
   function cleanItems(items, opts) {
@@ -218,13 +242,12 @@
       this.listEl.className = 'ud-list';
       this.menu.appendChild(this.listEl);
 
-      this.wrapper.appendChild(select.cloneNode(true));
+      parent.insertBefore(this.wrapper, select);
+      this.wrapper.appendChild(select);
       this.wrapper.appendChild(this.trigger);
       this.wrapper.appendChild(this.menu);
-
-      parent.insertBefore(this.wrapper, select);
-      parent.removeChild(select);
-      this.select = this.wrapper.querySelector('select[data-ud-native]');
+      this.select = select;
+      this.wrapper._universalDropdown = this;
 
       this.trigger.addEventListener('click', () => this.toggle());
       this.trigger.addEventListener('keydown', (e) => {
@@ -259,11 +282,11 @@
           rawItems.push({ value: '__group__' + groupLabel, label: groupLabel, disabled: true, type: 'group' });
           Array.from(child.children).forEach(o => {
             if (o.tagName === 'OPTION') {
-              rawItems.push({ value: o.value, label: o.text, disabled: o.disabled, group: groupLabel, type: 'option' });
+              rawItems.push({ value: o.value, label: o.text, disabled: o.disabled, group: groupLabel, type: 'option', icon: o.dataset.icon });
             }
           });
         } else if (child.tagName === 'OPTION') {
-          rawItems.push({ value: child.value, label: child.text, disabled: child.disabled, type: 'option' });
+          rawItems.push({ value: child.value, label: child.text, disabled: child.disabled, type: 'option', icon: child.dataset.icon });
         }
       });
       this.items = cleanItems(rawItems, this.opts);
@@ -288,6 +311,7 @@
         opt.value = item.value;
         opt.textContent = item.label;
         opt.disabled = item.disabled;
+        if (item.icon) opt.dataset.icon = item.icon;
         this.select.appendChild(opt);
       });
 
@@ -427,7 +451,10 @@
       li.setAttribute('data-value', item.value);
       li.setAttribute('data-index', String(dataIndex));
       if (item.disabled) li.classList.add('ud-disabled');
-      li.textContent = item.label;
+      const iconEl = createIconEl(item.icon, item.label);
+      if (iconEl) li.appendChild(iconEl);
+      li.appendChild(document.createTextNode(item.label));
+      li.setAttribute('aria-label', item.label);
       li.addEventListener('click', () => {
         if (item.disabled) return;
         this._choose(item.value);
@@ -575,12 +602,21 @@
       const selectedItems = this._selectedItems();
 
       if (selectedItems.length) {
+        this.valueEl.innerHTML = '';
         if (this.isMultiple) {
-          this.valueEl.innerHTML = selectedItems.map(i =>
-            `<span class="ud-chip">${escapeHtml(i.label)}</span>`
-          ).join('');
+          selectedItems.forEach(i => {
+            const chip = document.createElement('span');
+            chip.className = 'ud-chip';
+            const iconEl = createIconEl(i.icon, i.label);
+            if (iconEl) chip.appendChild(iconEl);
+            chip.appendChild(document.createTextNode(i.label));
+            this.valueEl.appendChild(chip);
+          });
         } else {
-          this.valueEl.textContent = selectedItems[0].label;
+          const i = selectedItems[0];
+          const iconEl = createIconEl(i.icon, i.label);
+          if (iconEl) this.valueEl.appendChild(iconEl);
+          this.valueEl.appendChild(document.createTextNode(i.label));
         }
         this.valueEl.classList.remove('ud-placeholder');
       } else if (this.opts.placeholder) {
@@ -589,8 +625,12 @@
         this.valueEl.classList.add('ud-placeholder');
       } else if (this.items.length) {
         if (!this.isMultiple) {
-          this.valueEl.textContent = this.items[0].label;
-          this.select.value = this.items[0].value;
+          const i = this.items[0];
+          this.select.value = i.value;
+          this.valueEl.innerHTML = '';
+          const iconEl = createIconEl(i.icon, i.label);
+          if (iconEl) this.valueEl.appendChild(iconEl);
+          this.valueEl.appendChild(document.createTextNode(i.label));
         } else {
           this.valueEl.textContent = this.opts.emptyText;
         }

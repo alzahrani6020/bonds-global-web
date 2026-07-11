@@ -283,6 +283,10 @@
       "destination": "/calculators/investment-center/index.html"
     },
     {
+      "source": "/calculators/shared-platforms.js",
+      "destination": "/calculators/shared-platforms.js"
+    },
+    {
       "source": "/calculators/:sector",
       "destination": "/calculators/investment-center/:sector"
     },

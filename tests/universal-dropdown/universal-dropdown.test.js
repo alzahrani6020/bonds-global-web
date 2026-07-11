@@ -33,7 +33,7 @@ describe('UniversalDropdown', () => {
     await page.waitForTimeout(300);
 
     const wrapperCount = await page.locator('.ud-dropdown').count();
-    expect(wrapperCount).toBe(9);
+    expect(wrapperCount).toBe(10);
 
     const selected = await page.evaluate(() => document.getElementById('ratingSelect').value);
     expect(selected).toBe('3');
@@ -103,6 +103,27 @@ describe('UniversalDropdown', () => {
     const color = await item.evaluate(el => getComputedStyle(el).color);
     expect(bg).toBe('rgb(212, 169, 74)'); // #D4A94A
     expect(color).toBe('rgb(0, 0, 0)'); // #000000
+
+    expect(page._flushErrors()).toEqual([]);
+    await page.close();
+  });
+
+  test('renders icons from data-icon in items and trigger', async () => {
+    const page = await pageWithErrors();
+    await page.goto('file://' + TEST_PAGE);
+    await page.waitForTimeout(300);
+
+    const wrapper = wrapperBySelectId(page, 'iconSelect');
+    await wrapper.locator('.ud-trigger').click();
+
+    const firstItemIcon = await wrapper.locator('.ud-item').first().locator('.ud-icon').textContent();
+    expect(firstItemIcon).toBe('🇸🇦');
+
+    await wrapper.locator('.ud-item').filter({ hasText: 'الإمارات' }).click();
+    const triggerIcon = await wrapper.locator('.ud-trigger-value .ud-icon').textContent();
+    expect(triggerIcon).toBe('🇦🇪');
+    const triggerText = await wrapper.locator('.ud-trigger-value').textContent();
+    expect(triggerText).toContain('الإمارات');
 
     expect(page._flushErrors()).toEqual([]);
     await page.close();

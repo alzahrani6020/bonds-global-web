@@ -126,6 +126,7 @@
       maintenance: 'صيانة',
       propertyInsurance: 'تأمين ممتلكات',
       supervisionLicense: 'إشراف + رخصة',
+      wasteAndIncidentals: 'الهدر والنثريات',
       total: 'الإجمالي',
       planApproval: 'رسوم اعتماد مخططات',
       deposit: 'تأمين/وديعة (شهرين)',
@@ -171,6 +172,7 @@
       maintenance: 'Maintenance',
       propertyInsurance: 'Property Insurance',
       supervisionLicense: 'Supervision + License',
+      wasteAndIncidentals: 'Waste &amp; Incidentals',
       total: 'Total',
       planApproval: 'Plan Approval Fees',
       deposit: 'Security Deposit (2 months)',
@@ -272,7 +274,7 @@
       btn.addEventListener('click', calculate);
     }
 
-    const inputs = document.querySelectorAll('#area, #type, #localWorkers, #expatWorkers, #localSalary, #expatSalary, #electricity, #water, #monthlyProduction, #rawMaterialPct, #unitPrice, #maintenancePct, #insurancePct, #voltage, #city, #industry');
+    const inputs = document.querySelectorAll('#area, #type, #localWorkers, #expatWorkers, #localSalary, #expatSalary, #electricity, #water, #monthlyProduction, #rawMaterialPct, #unitPrice, #maintenancePct, #insurancePct, #wasteAndIncidentalsPct, #voltage, #city, #industry');
     inputs.forEach(input => {
       input.addEventListener('change', () => {
         if (_config.autoCalculate) calculate();
@@ -304,6 +306,7 @@
     const insurancePct = getNum('insurancePct');
     const rawMaterialPct = getNum('rawMaterialPct');
     const unitPrice = getNum('unitPrice');
+    const wasteAndIncidentalsPct = getNum('wasteAndIncidentalsPct');
 
     const city = getCityData(cityKey);
     if (!city) {
@@ -361,7 +364,9 @@
     const rawMaterialMonthly = monthlyRevenue * (effectiveRawMatPct / 100);
 
     // Totals
-    const totalMonthly = rentMonthly + electricityMonthly + waterMonthly + supervisionMonthly + licenseMonthly + totalLabor + maintenanceMonthly + insuranceMonthly + rawMaterialMonthly;
+    let totalMonthly = rentMonthly + electricityMonthly + waterMonthly + supervisionMonthly + licenseMonthly + totalLabor + maintenanceMonthly + insuranceMonthly + rawMaterialMonthly;
+    const wasteAndIncidentalsMonthly = totalMonthly * (wasteAndIncidentalsPct / 100);
+    totalMonthly += wasteAndIncidentalsMonthly;
     const totalYearly = totalMonthly * 12;
 
     // Setup costs
@@ -424,6 +429,7 @@
         <tr><td>${t('maintenance')} (${maintenancePct}%)</td><td>${fmt(maintenanceMonthly, locale)}</td><td>${fmt(maintenanceMonthly * 12, locale)}</td><td>${pct(maintenanceMonthly)}</td></tr>
         <tr><td>${t('propertyInsurance')} (${insurancePct}%)</td><td>${fmt(insuranceMonthly, locale)}</td><td>${fmt(insuranceMonthly * 12, locale)}</td><td>${pct(insuranceMonthly)}</td></tr>
         <tr><td>${t('supervisionLicense')}</td><td>${fmt(supervisionMonthly + licenseMonthly, locale)}</td><td>${fmt((supervisionMonthly + licenseMonthly) * 12, locale)}</td><td>${pct(supervisionMonthly + licenseMonthly)}</td></tr>
+        ${wasteAndIncidentalsMonthly > 0 ? `<tr><td>${t('wasteAndIncidentals')} (${wasteAndIncidentalsPct.toFixed(1)}%)</td><td>${fmt(wasteAndIncidentalsMonthly, locale)}</td><td>${fmt(wasteAndIncidentalsMonthly * 12, locale)}</td><td>${pct(wasteAndIncidentalsMonthly)}</td></tr>` : ''}
         <tr class="total-row"><td><strong>${t('total')}</strong></td><td><strong>${fmt(totalMonthly, locale)}</strong></td><td><strong>${fmt(totalYearly, locale)}</strong></td><td><strong>100%</strong></td></tr>
       `;
     }
@@ -449,7 +455,7 @@
         rentMonthly, electricityMonthly, waterMonthly,
         localPayroll, expatPayroll, gosiLocal, gosiExpat, expatFees,
         rawMaterialMonthly, maintenanceMonthly, insuranceMonthly,
-        supervisionMonthly, licenseMonthly,
+        supervisionMonthly, licenseMonthly, wasteAndIncidentalsMonthly,
         pessimistic, totalYearly, optimistic
       });
     }
@@ -477,15 +483,16 @@
       t('rent'), t('electricity'), t('water'),
       t('localSalaries'), t('expatSalaries'), t('socialInsurance'),
       t('expatFees'), t('rawMaterials'), t('maintenance'),
-      t('propertyInsurance'), t('supervisionLicense')
+      t('propertyInsurance'), t('supervisionLicense'), t('wasteAndIncidentals')
     ];
     const values = [
       data.rentMonthly, data.electricityMonthly, data.waterMonthly,
       data.localPayroll, data.expatPayroll, data.gosiLocal + data.gosiExpat,
       data.expatFees, data.rawMaterialMonthly, data.maintenanceMonthly,
-      data.insuranceMonthly, data.supervisionMonthly + data.licenseMonthly
+      data.insuranceMonthly, data.supervisionMonthly + data.licenseMonthly,
+      data.wasteAndIncidentalsMonthly || 0
     ];
-    const colors = ['#b8954e', '#d4b87a', '#555555', '#22c55e', '#16a34a', '#3b82f6', '#ef4444', '#eab308', '#a855f7', '#ec4899', '#888888'];
+    const colors = ['#b8954e', '#d4b87a', '#555555', '#22c55e', '#16a34a', '#3b82f6', '#ef4444', '#eab308', '#a855f7', '#ec4899', '#888888', '#f97316'];
 
     const pieCtx = getEl('costPieChart').getContext('2d');
     if (_costPieChart) _costPieChart.destroy();

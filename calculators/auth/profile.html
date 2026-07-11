@@ -23,7 +23,7 @@
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
-<link rel="stylesheet" href="../../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body>
   <div class="container">
@@ -101,8 +101,8 @@
           </div>
           <div class="form-group">
             <label for="phone">رقم الجوال <span class="required">*</span></label>
-            <input type="tel" id="phone" required placeholder="05xxxxxxxx" dir="ltr" disabled>
-            <div class="hint">يجب أن يبدأ بـ 05 ويتكون من 10 أرقام</div>
+            <input type="tel" id="phone" required placeholder="05xxxxxxxx أو +9665xxxxxxxx" dir="ltr" disabled>
+            <div class="hint">أدخل رقم محلي أو دولي</div>
           </div>
         </div>
 
@@ -110,7 +110,7 @@
         <div class="row">
           <div class="form-group">
             <label for="country">الدولة <span class="required">*</span></label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" required disabled>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" required disabled>
               <option value="">اختر الدولة</option>
             </select>
           </div>
@@ -233,7 +233,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=1"></script>
   <script src="../../v3/master-data/countries-governorates-cities.js"></script>
-  <script src="../../calculators/shared-geo.js"></script>
+  <script src="../../calculators/shared-geo.js?v=4"></script>
   <script>
     (async () => {
       const successMsg = document.getElementById('successMsg');
@@ -534,9 +534,12 @@
           }
 
           const phone = document.getElementById('phone').value.trim();
-          if (!/^05\d{8}$/.test(phone)) {
+          const country = document.getElementById('country').value;
+          if (!window.BondsAuth.isValidPhone(phone, country)) {
             setLoading(false);
-            showError('رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام');
+            showError(country === 'SA'
+              ? 'رقم الجوال يجب أن يبدأ بـ 05 أو +9665 ويتكون من 10 أرقام'
+              : 'رقم الجوال غير صالح — أدخل رقم محلي أو دولي');
             return;
           }
 
@@ -610,7 +613,7 @@
     })();
   </script>
   <script src="../../page-tracker-v2.js"></script>
-<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

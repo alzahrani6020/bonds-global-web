@@ -22,8 +22,8 @@ import re
 import sys
 from pathlib import Path
 
-CSS_LINK = '<link rel="stylesheet" href="{rel}components/universal-dropdown.css" />'
-JS_SCRIPTS = """<script src="{rel}components/universal-dropdown.js"></script>
+CSS_LINK = '<link rel="stylesheet" href="{rel}components/universal-dropdown.css?v=2.51.7" />'
+JS_SCRIPTS = """<script src="{rel}components/universal-dropdown.js?v=2.51.7"></script>
 <script src="{rel}components/universal-dropdown-init.js"></script>"""
 
 SORT_HINTS = {"country", "city", "governorate", "region", "industry", "sector", "activity", "advisor", "client", "project", "investor", "metric", "report", "asset", "distressed", "feasibility", "study"}

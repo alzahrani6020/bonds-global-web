@@ -7,6 +7,7 @@ const {
   calculateFeasibility,
   calculateMedicalViability,
   calculateInvestmentScore,
+  calculateRealProjectAnalysis,
   INGREDIENT_UNITS,
   getUnitMultiplier,
   getEffectiveFee,
@@ -305,6 +306,24 @@ describe('calculatePricing', () => {
     const r = calculatePricing(100, 50, 25, 0, 0, 100, 0, { platformFeePct: 20 });
     // net required per unit = 150, with 20% fee -> gross price = 150 / 0.8 = 187.5
     expect(r.breakEvenPrice).toBeCloseTo(187.5, 1);
+  });
+
+  test('payment gateway fee increases price and break-even', () => {
+    const without = calculatePricing(100, 50, 25, 0, 0, 100, 0, { platformFeePct: 10 });
+    const withGateway = calculatePricing(100, 50, 25, 0, 0, 100, 0, { platformFeePct: 10, paymentGatewayFeePct: 2.5 });
+    expect(withGateway.platformFeePct + withGateway.paymentGatewayFeePct).toBeCloseTo(12.5, 2);
+    expect(withGateway.priceBeforeTax).toBeGreaterThan(without.priceBeforeTax);
+    expect(withGateway.breakEvenPrice).toBeGreaterThan(without.breakEvenPrice);
+    expect(withGateway.paymentGatewayAmount).toBeGreaterThan(0);
+  });
+
+  test('waste and expected incidentals increase total cost and price', () => {
+    const without = calculatePricing(150, 50, 25, 0, 0, 100, 0);
+    const withIncidentals = calculatePricing(150, 50, 25, 0, 0, 100, 0, { wasteAndIncidentalsPct: 10 });
+    expect(withIncidentals.wasteAndIncidentalsAmount).toBeCloseTo(20, 2);
+    expect(withIncidentals.totalCostPerUnit).toBeCloseTo(220, 2);
+    expect(withIncidentals.priceBeforeTax).toBeGreaterThan(without.priceBeforeTax);
+    expect(withIncidentals.breakEvenPrice).toBeGreaterThan(without.breakEvenPrice);
   });
 });
 
@@ -1061,5 +1080,100 @@ describe('calculateSensitivity', () => {
     };
     const r = calculateSensitivity(badResult, 0, 0, 0, 0, 15);
     expect(r.breakEvenDaily).toBe(-1);
+  });
+});
+
+// ============================================================================
+// calculateRealProjectAnalysis
+// ============================================================================
+
+describe('calculateRealProjectAnalysis', () => {
+  const baseInput = {
+    activityType: 'general',
+    revenue: 70000,
+    directCosts: 15000,
+    salaries: 12000,
+    rent: 8000,
+    inventoryCost: 5000,
+    equipmentCost: 2000,
+    projectValue: 200000,
+    deliveryEnabled: false,
+    perishableInventory: false,
+    seasonalStaff: false,
+    regulatoryRequirements: 'low'
+  };
+
+  test('basic calculation with general activity', () => {
+    const r = calculateRealProjectAnalysis(baseInput);
+    expect(r.operatingCosts).toBe(42000);
+    expect(r.hiddenCostPct).toBeCloseTo(12, 1); // 10% base + 2% regulatory low
+    expect(r.hiddenCostTotal).toBeCloseTo(42000 * 0.12, 1);
+    expect(r.riskReserve).toBeCloseTo((42000 + r.hiddenCostTotal) * 0.07, 1);
+    expect(r.totalRealCost).toBeCloseTo(r.operatingCosts + r.hiddenCostTotal + r.riskReserve, 1);
+    expect(r.realProfit).toBeCloseTo(70000 - r.totalRealCost, 1);
+    expect(r.breakEvenRevenue).toBeGreaterThan(0);
+    expect(r.paybackPeriodMonths).toBeGreaterThan(0);
+    expect(r.paybackPeriodMonths).not.toBe(Infinity);
+    expect(['A', 'B', 'C', 'D']).toContain(r.investmentRating);
+    expect(r.investmentRatingLabel).toHaveProperty('ar');
+    expect(r.investmentRatingLabel).toHaveProperty('en');
+  });
+
+  test('deliveryCost is added only when delivery is enabled', () => {
+    const without = calculateRealProjectAnalysis(baseInput);
+    const withDelivery = calculateRealProjectAnalysis({ ...baseInput, deliveryEnabled: true, deliveryCost: 3000 });
+    expect(withDelivery.totalRealCost).toBeGreaterThan(without.totalRealCost);
+    expect(withDelivery.details.deliveryCost).toBe(3000);
+  });
+
+  test('delivery and perishable increase hidden costs', () => {
+    const without = calculateRealProjectAnalysis(baseInput);
+    const withFlags = calculateRealProjectAnalysis({ ...baseInput, deliveryEnabled: true, perishableInventory: true });
+    expect(withFlags.hiddenCostTotal).toBeGreaterThan(without.hiddenCostTotal);
+    expect(withFlags.hiddenCostPct).toBeGreaterThan(without.hiddenCostPct);
+  });
+
+  test('regulatory levels affect hidden costs', () => {
+    const low = calculateRealProjectAnalysis({ ...baseInput, regulatoryRequirements: 'low' });
+    const medium = calculateRealProjectAnalysis({ ...baseInput, regulatoryRequirements: 'medium' });
+    const high = calculateRealProjectAnalysis({ ...baseInput, regulatoryRequirements: 'high' });
+    expect(medium.hiddenCostTotal).toBeGreaterThan(low.hiddenCostTotal);
+    expect(high.hiddenCostTotal).toBeGreaterThan(medium.hiddenCostTotal);
+  });
+
+  test('break-even is -1 when contribution margin is not positive', () => {
+    const r = calculateRealProjectAnalysis({ ...baseInput, revenue: 1000, directCosts: 500, inventoryCost: 5000 });
+    expect(r.breakEvenRevenue).toBe(-1);
+  });
+
+  test('payback period is Infinity when not profitable', () => {
+    const r = calculateRealProjectAnalysis({ ...baseInput, revenue: 1000 });
+    expect(r.realProfit).toBeLessThan(0);
+    expect(r.paybackPeriodMonths).toBe(Infinity);
+  });
+
+  test('scenarios are consistent', () => {
+    const r = calculateRealProjectAnalysis(baseInput);
+    expect(r.scenarios.pessimistic.realProfit).toBeLessThan(r.scenarios.expected.realProfit);
+    expect(r.scenarios.expected.realProfit).toBeLessThan(r.scenarios.optimistic.realProfit);
+  });
+
+  test('handles missing/invalid inputs gracefully', () => {
+    const r = calculateRealProjectAnalysis({});
+    expect(r.operatingCosts).toBe(0);
+    expect(r.hiddenCostTotal).toBe(0);
+    expect(r.totalRealCost).toBe(0);
+    expect(r.realProfit).toBe(0);
+    expect(r.breakEvenRevenue).toBe(-1);
+    expect(r.paybackPeriodMonths).toBe(Infinity);
+    expect(r.investmentRating).toBe('D');
+  });
+
+  test('different activity types produce different hidden cost rates', () => {
+    const restaurant = calculateRealProjectAnalysis({ ...baseInput, activityType: 'restaurant' });
+    const manufacturing = calculateRealProjectAnalysis({ ...baseInput, activityType: 'manufacturing' });
+    const services = calculateRealProjectAnalysis({ ...baseInput, activityType: 'services' });
+    expect(restaurant.hiddenCostPct).not.toBe(manufacturing.hiddenCostPct);
+    expect(manufacturing.hiddenCostPct).toBeGreaterThan(services.hiddenCostPct);
   });
 });

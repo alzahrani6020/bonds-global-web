@@ -20,3 +20,8 @@ server.log
 
 .env*
 .logo_venv/
+
+# Local/temporary development artifacts
+abhur_images/
+monitor_kimi.ps1
+reports/existing-brochure-text.txt

@@ -424,6 +424,7 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - **ثيم فاتح**: أضف `data-ud-theme="light"` على `<html>` أو أي أصل، أو يُكتشف تلقائياً بواسطة `scripts/apply-universal-dropdown.py`.
   - **تراجع الجوال**: على أجهزة اللمس، القوائم القصيرة (≤6 خيارات افتراضياً) تبقى `<select>` أصلي؛ القوائم الطويلة تُحسّن.
   - **reduced-motion**: يحترم `prefers-reduced-motion` ويُلغي الحركات.
+  - **أيقونات الخيارات**: يدعم `<option data-icon="...">` (رابط صورة أو إيموجي) لعرض الأيقونة بجوار النص في عناصر القائمة وفي قيمة الـ trigger المختارة.
 
 ### 11.9 Enterprise Intelligence Layer (Wave 4.3)
 طبقة موحّدة لتشغيل المحركات الذكية معاً وإنتاج قرار موثوق.
@@ -481,7 +482,7 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - **الجداول**: `investment_memoranda`, `investment_memoranda_versions`, `investment_readiness_scores`, `ai_investment_reviews` (migration: `20260724000000_phase_d_investment_intelligence_core.sql`).
 - **التراجع الاحتياطي**: ملف `styles/select-reset.css` يُخزَّن في ذاكرة Service Worker (`sw.js`) ويُعطي `<select>` الأصلي مظهراً مقبولاً إذا لم يُحمّل المكون أو على أجهزة اللمس التي تُبقي القائمة الأصلية.
 - **النشر**: تم تطبيق المكون على الصفحات التي تحتوي `<select>` عبر `scripts/apply-universal-dropdown.py`.
-- **الاختبارات**: `tests/universal-dropdown/universal-dropdown.test.js` يغطي البحث، الفرز، الاختيار، الثيم الفاتح، multi-select، virtualization، optgroups، setLoading، reduced-motion، والتهيئة التلقائية.
+- **الاختبارات**: `tests/universal-dropdown/universal-dropdown.test.js` يغطي البحث، الفرز، الاختيار، الثيم الفاتح، multi-select، virtualization، optgroups، setLoading، reduced-motion، أيقونات الخيارات، والتهيئة التلقائية.
 - **صفحة العرض**: `components/universal-dropdown/showcase.html` (عربي) و `showcase-en.html` (إنجليزي) تُظهر جميع الخصائص تفاعلياً.
 
 ### 11.12 Enterprise Lifecycle Engine (Phase D.1.5)

@@ -273,6 +273,23 @@
   color: var(--ud-text);
 }
 
+.ud-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2em;
+  height: 0.85em;
+  margin-inline-end: 0.45em;
+  vertical-align: middle;
+  flex: 0 0 auto;
+}
+
+.ud-icon img {
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+}
+
 .ud-group-header {
   padding: 0.45rem 0.9rem;
   color: var(--ud-border);

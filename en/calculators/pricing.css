@@ -84,3 +84,11 @@ body { font-family: Inter, system-ui, sans-serif; }
 .calc-cta-text--primary { font-size: 0.9rem; color: var(--text); margin-bottom: var(--space-6); }
 
 .calc-hidden { display: none !important; }
+
+/* Phase 1 UX improvements */
+.calc-hint { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-top: var(--space-2); line-height: 1.5; }
+
+/* Phase 2 — margin/price mode toggle */
+.calc-mode-toggle { display: flex; gap: var(--space-2); }
+.calc-mode-btn { flex: 1; font-size: 0.85rem; padding: var(--space-2) var(--space-3); text-align: center; }
+.calc-mode-btn.active { background: var(--gold); color: #0a0f1a; border-color: var(--gold); font-weight: 700; }

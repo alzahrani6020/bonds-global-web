@@ -53,7 +53,8 @@
     const lang = getLang(options);
     return Object.keys(data).map(code => ({
       value: code,
-      label: `${data[code].flag || ''} ${label(data[code], lang)}`.trim(),
+      label: label(data[code], lang),
+      icon: `https://flagcdn.com/w20/${code.toLowerCase()}.png`,
       raw: data[code]
     }));
   }
@@ -155,9 +156,35 @@
       const opt = document.createElement('option');
       opt.value = item.value;
       opt.textContent = item.label;
+      if (item.icon) opt.dataset.icon = item.icon;
       selectEl.appendChild(opt);
     });
     if (options.selected) selectEl.value = options.selected;
+  }
+
+  function getActiveSelect(select) {
+    if (!select) return null;
+    if (select.id) {
+      const byId = document.getElementById(select.id);
+      if (byId) return byId;
+    }
+    return select;
+  }
+
+  function refreshDropdown(select) {
+    const active = getActiveSelect(select);
+    if (!active) return;
+    if (window.getUniversalDropdown) {
+      const dd = window.getUniversalDropdown(active);
+      if (dd && typeof dd.refresh === 'function') {
+        dd.refresh();
+        return;
+      }
+    }
+    const wrapper = active.closest && active.closest('.ud-dropdown');
+    if (wrapper && wrapper._universalDropdown && typeof wrapper._universalDropdown.refresh === 'function') {
+      wrapper._universalDropdown.refresh();
+    }
   }
 
   function bindCascading(config) {
@@ -166,11 +193,11 @@
     const cityId = config.cityId || 'city';
     const lang = getLang(config);
 
-    const countrySelect = typeof countryId === 'string' ? document.getElementById(countryId) : countryId;
-    const governorateSelect = typeof governorateId === 'string' ? document.getElementById(governorateId) : governorateId;
-    const citySelect = typeof cityId === 'string' ? document.getElementById(cityId) : cityId;
+    const _countrySelect = typeof countryId === 'string' ? document.getElementById(countryId) : countryId;
+    const _governorateSelect = typeof governorateId === 'string' ? document.getElementById(governorateId) : governorateId;
+    const _citySelect = typeof cityId === 'string' ? document.getElementById(cityId) : cityId;
 
-    if (!countrySelect || !governorateSelect || !citySelect) {
+    if (!_countrySelect || !_governorateSelect || !_citySelect) {
       console.warn('BondsGeo.bindCascading: one or more selects not found', { countryId, governorateId, cityId });
       return;
     }
@@ -181,66 +208,88 @@
     };
     const p = placeholders[lang] || placeholders.ar;
 
-    populateSelect(countrySelect, getCountries({ lang }), { placeholder: p.country, selected: config.selectedCountry });
+    const countrySelect = () => getActiveSelect(_countrySelect);
+    const governorateSelect = () => getActiveSelect(_governorateSelect);
+    const citySelect = () => getActiveSelect(_citySelect);
 
     function updateGovernorates() {
-      const countryCode = countrySelect.value;
-      populateSelect(governorateSelect, getGovernorates(countryCode, { lang }), { placeholder: p.governorate });
-      populateSelect(citySelect, [], { placeholder: p.city });
+      const cs = countrySelect();
+      const gs = governorateSelect();
+      const cits = citySelect();
+      const countryCode = cs ? cs.value : '';
+      populateSelect(gs, getGovernorates(countryCode, { lang }), { placeholder: p.governorate });
+      populateSelect(cits, [], { placeholder: p.city });
+      refreshDropdown(gs);
+      refreshDropdown(cits);
     }
 
     function updateCities() {
-      const countryCode = countrySelect.value;
-      const governorateIndex = governorateSelect.value;
-      populateSelect(citySelect, getCities(countryCode, governorateIndex, { lang }), { placeholder: p.city });
+      const cs = countrySelect();
+      const gs = governorateSelect();
+      const cits = citySelect();
+      const countryCode = cs ? cs.value : '';
+      const governorateIndex = gs ? gs.value : '';
+      populateSelect(cits, getCities(countryCode, governorateIndex, { lang }), { placeholder: p.city });
+      refreshDropdown(cits);
     }
 
-    countrySelect.addEventListener('change', updateGovernorates);
-    governorateSelect.addEventListener('change', updateCities);
-
-    // Restore selections if provided
-    if (config.selectedCountry) {
-      countrySelect.value = config.selectedCountry;
-      updateGovernorates();
-      if (config.selectedGovernorate !== undefined) {
-        governorateSelect.value = String(config.selectedGovernorate);
-        updateCities();
-        if (config.selectedCity) {
-          citySelect.value = config.selectedCity;
-        }
-      } else if (config.selectedCity) {
-        // Try to infer governorate from city code
-        const found = findCityByCode(config.selectedCity);
-        if (found) {
-          governorateSelect.value = String(found.governorateIndex);
+    function apply() {
+      const cs = countrySelect();
+      const gs = governorateSelect();
+      const cits = citySelect();
+      populateSelect(cs, getCountries({ lang }), { placeholder: p.country, selected: config.selectedCountry });
+      refreshDropdown(cs);
+      if (config.selectedCountry && cs) {
+        cs.value = config.selectedCountry;
+        updateGovernorates();
+        if (config.selectedGovernorate !== undefined) {
+          gs.value = String(config.selectedGovernorate);
           updateCities();
-          citySelect.value = config.selectedCity;
+          if (config.selectedCity) {
+            cits.value = config.selectedCity;
+          }
+        } else if (config.selectedCity) {
+          const found = findCityByCode(config.selectedCity);
+          if (found) {
+            gs.value = String(found.governorateIndex);
+            updateCities();
+            cits.value = config.selectedCity;
+          }
         }
       }
     }
 
+    _countrySelect.addEventListener('change', updateGovernorates);
+    _governorateSelect.addEventListener('change', updateCities);
+
+    const ready = ensureMasterData().then(apply).catch(err => console.warn('BondsGeo.bindCascading:', err));
+
     return {
-      countrySelect,
-      governorateSelect,
-      citySelect,
+      countrySelect: _countrySelect,
+      governorateSelect: _governorateSelect,
+      citySelect: _citySelect,
+      ready,
       refresh: () => {
-        populateSelect(countrySelect, getCountries({ lang }), { placeholder: p.country });
-        updateGovernorates();
+        apply();
+        return ready;
       },
       setValues: (selectedCountry, selectedGovernorate, selectedCity) => {
         if (selectedCountry) {
-          countrySelect.value = selectedCountry;
+          const cs = countrySelect();
+          const gs = governorateSelect();
+          const cits = citySelect();
+          if (cs) cs.value = selectedCountry;
           updateGovernorates();
           if (selectedGovernorate !== undefined && selectedGovernorate !== '') {
-            governorateSelect.value = String(selectedGovernorate);
+            if (gs) gs.value = String(selectedGovernorate);
             updateCities();
-            if (selectedCity) citySelect.value = selectedCity;
+            if (selectedCity && cits) cits.value = selectedCity;
           } else if (selectedCity) {
             const found = findCityByCode(selectedCity);
             if (found) {
-              governorateSelect.value = String(found.governorateIndex);
+              if (gs) gs.value = String(found.governorateIndex);
               updateCities();
-              citySelect.value = selectedCity;
+              if (cits) cits.value = selectedCity;
             }
           }
         }
@@ -251,14 +300,20 @@
   function bindCountryOnly(config) {
     const selectId = config.selectId || config.countryId || 'country';
     const lang = getLang(config);
-    const select = typeof selectId === 'string' ? document.getElementById(selectId) : selectId;
-    if (!select) {
+    const _select = typeof selectId === 'string' ? document.getElementById(selectId) : selectId;
+    if (!_select) {
       console.warn('BondsGeo.bindCountryOnly: select not found', selectId);
       return null;
     }
     const placeholder = config.placeholder || (lang === 'en' ? 'Select country' : 'اختر الدولة');
-    populateSelect(select, getCountries({ lang }), { placeholder: placeholder, selected: config.selectedCountry });
-    return { select, refresh: () => populateSelect(select, getCountries({ lang }), { placeholder: placeholder }) };
+    function apply() {
+      const select = getActiveSelect(_select);
+      if (!select) return;
+      populateSelect(select, getCountries({ lang }), { placeholder: placeholder, selected: config.selectedCountry });
+      refreshDropdown(select);
+    }
+    const ready = ensureMasterData().then(apply).catch(err => console.warn('BondsGeo.bindCountryOnly:', err));
+    return { select: _select, ready, refresh: () => { apply(); return ready; } };
   }
 
   window.BondsGeo = {
@@ -281,17 +336,28 @@
   // Auto-initialize country selects marked with data-bonds-geo-bind="country"
   function autoInit() {
     if (typeof document === 'undefined') return;
-    document.querySelectorAll('[data-bonds-geo-bind="country"]').forEach(function(select) {
-      const lang = select.dataset.bondsGeoLang || getLang();
-      bindCountryOnly({ selectId: select, lang: lang });
+    const selects = Array.from(document.querySelectorAll('[data-bonds-geo-bind="country"]'));
+    if (!selects.length) return;
+    ensureMasterData().then(function() {
+      selects.forEach(function(select) {
+        const lang = select.dataset.bondsGeoLang || getLang();
+        bindCountryOnly({ selectId: select, lang: lang });
+      });
+    }).catch(function(err) {
+      console.warn('BondsGeo.autoInit:', err);
     });
   }
 
-  if (typeof document !== 'undefined') {
+  function scheduleAutoInit() {
+    if (typeof document === 'undefined') return;
+    // Run after all DOMContentLoaded handlers (e.g. UniversalDropdown auto-init)
+    // so we target the enhanced select clone and its MutationObserver is active.
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', autoInit);
+      document.addEventListener('DOMContentLoaded', function() { setTimeout(autoInit, 0); });
     } else {
-      autoInit();
+      setTimeout(autoInit, 0);
     }
   }
+
+  scheduleAutoInit();
 })();

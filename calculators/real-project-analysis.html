@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تحليل المشروع الحقيقي | بوندز — احسب التكاليف الخفية والمخاطر</title>
+  <meta name="description" content="حاسبة تحليل المشروع الحقيقي من بوندز: احسب التكاليف الخفية، الاحتياطي، نقطة التعادل، فترة الاسترداد، والتصنيف الاستثماري تلقائياً حسب نوع النشاط التجاري." />
+  <meta property="og:title" content="تحليل المشروع الحقيقي | بوندز" />
+  <meta property="og:description" content="اكتشف التكاليف الخفية والمخاطر الحقيقية لمشروعك قبل الاستثمار." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="shared-calculators.css" />
+  <link rel="stylesheet" href="../styles/design-system.css" />
+  <link rel="stylesheet" href="feasibility.css" />
+  <link rel="stylesheet" href="scenario-cards-shared.css" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/supabase-client.js"></script>
+  <script src="/auth-guard.js"></script>
+  <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.7" />
+  <script src="shared-ui.js"></script>
+  <script src="shared-utils.js"></script>
+  <script src="shared-export.js"></script>
+  <script src="shared-platforms.js"></script>
+  <script src="calc-functions.js"></script>
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../header-footer.css?v=2.52.0" />
+  <style>
+    .bonds-checkbox-group { display: flex; flex-direction: column; gap: 0.75rem; }
+    .bonds-checkbox-label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text); font-weight: 500; }
+    .bonds-checkbox { width: 1.25rem; height: 1.25rem; accent-color: var(--gold); cursor: pointer; }
+  </style>
+  <link rel="canonical" href="https://bonds-global.com/calculators/real-project-analysis" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/real-project-analysis" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="تحليل المشروع الحقيقي | بوندز — احسب التكاليف الخفية والمخاطر" />
+  <meta name="twitter:description" content="حاسبة تحليل المشروع الحقيقي من بوندز: احسب التكاليف الخفية، الاحتياطي، نقطة التعادل، فترة الاسترداد، والتصنيف الاستثماري." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+</head>
+<body>
+  <div id="site-header"></div>
+  <div class="feas-container">
+    <div class="feas-header">
+      <div class="feas-badge">🎯 تحليل استثماري متقدم</div>
+      <h1>تحليل المشروع الحقيقي</h1>
+      <p>احسب <strong>التكاليف الخفية</strong>، <strong>الاحتياطي</strong>، <strong>نقطة التعادل</strong>، و<strong>فترة الاسترداد</strong> تلقائياً حسب نوع نشاطك التجاري.</p>
+    </div>
+
+    <div id="progressContainer"></div>
+
+    <div class="bonds-tabs">
+      <div class="bonds-tab active" onclick="showTab('project')">📋 بيانات المشروع</div>
+      <div class="bonds-tab" onclick="showTab('costs')">💸 التكاليف</div>
+      <div class="bonds-tab" onclick="showTab('risks')">⚠️ عوامل الخطر</div>
+      <div class="bonds-tab" onclick="showTab('result')">📊 النتيجة</div>
+    </div>
+
+    <!-- Tab 1: Project Info -->
+    <div id="project" class="bonds-panel active">
+      <div class="bonds-card">
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 اختر نوع النشاط وأدخل الإيرادات والاستثمار الأولي</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group">
+            <label>نوع النشاط التجاري</label>
+            <select id="activityType" class="bonds-input" data-universal-dropdown="true" data-ud-search="true">
+              <option value="restaurant">مطعم / مقهى</option>
+              <option value="retail">تجارة retail</option>
+              <option value="manufacturing">تصنيع</option>
+              <option value="services">خدمات مهنية</option>
+              <option value="ecommerce">متجر إلكتروني</option>
+              <option value="healthcare">رعاية صحية</option>
+              <option value="education">تعليم وتدريب</option>
+              <option value="general" selected>نشاط عام</option>
+            </select>
+          </div>
+          <div class="bonds-form-group">
+            <label for="country">الدولة / السوق</label>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
+              <option value="">اختر الدولة</option>
+            </select>
+          </div>
+          <div class="bonds-form-group"><label>الإيرادات الشهرية المتوقعة <abbr title="إجمالي الإيرادات الشهرية المتوقعة قبل أي تكاليف">ⓘ</abbr></label><input id="revenue" class="bonds-input" type="number" value="50000" placeholder="50000" min="0" /></div>
+          <div class="bonds-form-group"><label>قيمة المشروع (رأس المال المستثمر) <abbr title="إجمالي التكلفة الاستثمارية الأولية للمشروع">ⓘ</abbr></label><input id="projectValue" class="bonds-input" type="number" value="200000" placeholder="200000" min="0" /></div>
+        </div>
+        <div class="calc-text-center">
+          <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">التالي: التكاليف →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Operating Costs -->
+    <div id="costs" class="bonds-panel">
+      <div class="bonds-card">
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 أدخل التكاليف الشهرية التشغيلية الأساسية</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>التكاليف المباشرة <abbr title="تكاليف مرتبطة مباشرة بالإنتاج أو البيع، مثل المواد الخام أو تكلفة المنتج">ⓘ</abbr></label><input id="directCosts" class="bonds-input" type="number" value="15000" placeholder="15000" min="0" /></div>
+          <div class="bonds-form-group"><label>الرواتب والأجور</label><input id="salaries" class="bonds-input" type="number" value="12000" placeholder="12000" min="0" /></div>
+          <div class="bonds-form-group"><label>الإيجار</label><input id="rent" class="bonds-input" type="number" value="8000" placeholder="8000" min="0" /></div>
+          <div class="bonds-form-group"><label>تكلفة المخزون</label><input id="inventoryCost" class="bonds-input" type="number" value="5000" placeholder="5000" min="0" /></div>
+          <div class="bonds-form-group"><label>تكلفة المعدات (شهرية / إهلاك) <abbr title="يمكن إدخال قيمة الإهلاك الشهري للمعدات">ⓘ</abbr></label><input id="equipmentCost" class="bonds-input" type="number" value="2000" placeholder="2000" min="0" /></div>
+        </div>
+        <div class="calc-text-center">
+          <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← السابق</button>
+          <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">التالي: عوامل الخطر →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Risk Factors -->
+    <div id="risks" class="bonds-panel">
+      <div class="bonds-card">
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">⚠️ هذه العوامل تؤثر على نسبة التكاليف الخفية والاحتياطي</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group" style="min-width:100%;">
+            <label class="bonds-checkbox-label"><input id="deliveryEnabled" type="checkbox" class="bonds-checkbox" onchange="toggleDeliveryCost()" /> يوجد توصيل / شحن للمنتجات</label>
+            <label class="bonds-checkbox-label"><input id="perishableInventory" type="checkbox" class="bonds-checkbox" /> المخزون قابل للتلف (طعام، أدوية، زهور...)</label>
+            <label class="bonds-checkbox-label"><input id="seasonalStaff" type="checkbox" class="bonds-checkbox" /> موظفون موسميون / تقلبات تشغيلية</label>
+          </div>
+          <div class="bonds-form-group" id="deliveryCostGroup" style="display:none;">
+            <label>تكلفة التوصيل الشهرية <abbr title="إجمالي ما تدفعه شهرياً للتوصيل أو الشحن">ⓘ</abbr></label>
+            <input id="deliveryCost" class="bonds-input" type="number" value="0" placeholder="0" min="0" />
+          </div>
+          <div class="bonds-form-group">
+            <label>المتطلبات التنظيمية / التراخيص</label>
+            <select id="regulatoryRequirements" class="bonds-input" data-universal-dropdown="true">
+              <option value="low">منخفضة (تراخيص بسيطة)</option>
+              <option value="medium" selected>متوسطة (تراخيص متعددة)</option>
+              <option value="high">مرتفعة (صحة، بيئة، جودة...)</option>
+            </select>
+          </div>
+          <div class="bonds-form-group">
+            <label>الهدر والنثريات المتوقعة (%) <abbr title="نسبة احتياطية للهدر والمصاريف غير المتوقعة: هدر مواد، فاقد إنتاج، صيانة مفاجئة، قطع غيار صغيرة">ⓘ</abbr></label>
+            <input id="wasteAndIncidentalsPct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" />
+          </div>
+        </div>
+        <div class="calc-text-center">
+          <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← السابق</button>
+          <button class="bonds-btn bonds-btn-primary" onclick="calculateAll();nextTab();">احسب النتيجة 🚀</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Result -->
+    <div id="result" class="bonds-panel">
+      <div id="resultContent">
+        <div class="calc-empty-state-box-lg">
+          <div class="calc-empty-icon-lg">📊</div>
+          <p class="calc-text-lg-semibold">اكمل الخطوات السابقة لترى النتيجة</p>
+          <button class="bonds-btn bonds-btn-primary calc-mt-4" onclick="showTab('project')">ابدأ الآن</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ===== PROGRESS =====
+const progress = new BondsUI.ProgressTracker('progressContainer', ['بيانات المشروع', 'التكاليف', 'عوامل الخطر', 'النتيجة']);
+
+// ===== TABS =====
+const tabIds = ['project','costs','risks','result'];
+let currentTab = 0;
+
+function showTab(id) {
+  document.querySelectorAll('.bonds-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bonds-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = tabIds.indexOf(id);
+  currentTab = idx;
+  progress.set(idx);
+  document.querySelectorAll('.bonds-tab')[idx].classList.add('active');
+}
+
+function nextTab() {
+  if (currentTab < tabIds.length - 1) showTab(tabIds[currentTab + 1]);
+}
+function prevTab() {
+  if (currentTab > 0) showTab(tabIds[currentTab - 1]);
+}
+
+function getVal(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+function getChecked(id) { return document.getElementById(id)?.checked || false; }
+function getText(id) { return document.getElementById(id)?.value || ''; }
+
+function getCurrencySymbol() {
+  const country = getText('country') || 'SA';
+  if (typeof BondsPlatforms !== 'undefined' && BondsPlatforms.getCountryMeta) {
+    const meta = BondsPlatforms.getCountryMeta(country);
+    if (meta && meta.currencySymbol) return meta.currencySymbol;
+  }
+  return 'ر.س';
+}
+
+function toggleDeliveryCost() {
+  const group = document.getElementById('deliveryCostGroup');
+  if (group) group.style.display = getChecked('deliveryEnabled') ? 'block' : 'none';
+}
+
+const ACTIVITY_LINKS_AR = {
+  restaurant: { label: 'لتحليل مطعم متعمق جرّب حاسبة المطاعم', href: 'restaurant.html' },
+  retail: { label: 'لتسعير منتجك جرّب حاسبة التسعير', href: 'pricing.html' },
+  ecommerce: { label: 'لتسعير منتجك جرّب حاسبة التسعير', href: 'pricing.html' },
+  manufacturing: { label: 'لحساب تكلفة المصنع جرّب حاسبة المصانع', href: 'factory-cost.html' },
+  healthcare: { label: 'لتحليل منشأة صحية جرّب حاسبة الجدوى الطبية', href: 'medical-viability.html' }
+};
+
+// ===== MAIN CALCULATION =====
+function calculateAll() {
+  const revenueRes = BondsUI.validateField('revenue', { required:true, type:'number', min:0, label:'الإيرادات الشهرية' });
+  const projectValueRes = BondsUI.validateField('projectValue', { required:true, type:'number', min:0, label:'قيمة المشروع' });
+  if (!revenueRes.valid || !projectValueRes.valid) {
+    BondsUI.toast('⚠️ راجع بيانات المشروع', 'warning');
+    showTab('project');
+    return;
+  }
+
+  const input = {
+    activityType: getText('activityType') || 'general',
+    revenue: getVal('revenue'),
+    directCosts: getVal('directCosts'),
+    salaries: getVal('salaries'),
+    rent: getVal('rent'),
+    inventoryCost: getVal('inventoryCost'),
+    equipmentCost: getVal('equipmentCost'),
+    deliveryCost: getChecked('deliveryEnabled') ? getVal('deliveryCost') : 0,
+    projectValue: getVal('projectValue'),
+    deliveryEnabled: getChecked('deliveryEnabled'),
+    perishableInventory: getChecked('perishableInventory'),
+    seasonalStaff: getChecked('seasonalStaff'),
+    regulatoryRequirements: getText('regulatoryRequirements') || 'medium',
+    wasteAndIncidentalsPct: getVal('wasteAndIncidentalsPct')
+  };
+
+  const result = BondsCalc.calculateRealProjectAnalysis(input);
+  window._rpaResult = { ...result, input };
+  const currency = getCurrencySymbol();
+  const ctxLink = ACTIVITY_LINKS_AR[input.activityType];
+
+  const ratingColor = result.investmentRating === 'A' ? '#22c55e' : result.investmentRating === 'B' ? '#84cc16' : result.investmentRating === 'C' ? '#f59e0b' : '#ef4444';
+  const verdictHTML = `
+    <div class="verdict-box ${result.investmentRating === 'A' || result.investmentRating === 'B' ? 'profit' : result.investmentRating === 'C' ? 'warning' : 'loss'}">
+      <div class="verdict-icon" style="font-size:2.5rem;">${result.investmentRating === 'A' ? '🟢' : result.investmentRating === 'B' ? '🟢' : result.investmentRating === 'C' ? '🟡' : '🔴'}</div>
+      <div class="verdict-title" style="color:${ratingColor};">التصنيف الاستثماري: ${result.investmentRating} — ${result.investmentRatingLabel.ar}</div>
+      <div class="verdict-text">
+        التكلفة الحقيقية الشهرية <strong>${result.totalRealCost.toLocaleString('ar-SA')} ${currency}</strong> (بما فيها ${result.hiddenCostTotal.toLocaleString('ar-SA')} ${currency} تكاليف خفية و ${result.riskReserve.toLocaleString('ar-SA')} ${currency} احتياطي).<br>
+        الربح الحقيقي المتوقع: <strong>${result.realProfit.toLocaleString('ar-SA')} ${currency}/شهر</strong> — هامش <strong>${result.profitMargin.toFixed(1)}%</strong>.
+      </div>
+    </div>`;
+
+  const contextualHTML = ctxLink ? `
+    <div class="bonds-card" style="border:1px solid var(--gold);background:rgba(212,169,74,0.08);margin:1rem 0;text-align:center;">
+      <p style="margin:0;">💡 ${ctxLink.label} → <a href="${ctxLink.href}" style="color:var(--gold);font-weight:700;">اضغط هنا</a></p>
+    </div>
+  ` : '';
+
+  const s = result.scenarios;
+
+  document.getElementById('resultContent').innerHTML = `
+    ${verdictHTML}
+
+    <div class="feas-section-title">📈 النتائج الرئيسية</div>
+    <div class="metric-row">
+      <div class="metric-box"><div class="label">التكاليف الخفية</div><div class="value" style="color:#f59e0b">${result.hiddenCostTotal.toLocaleString('ar-SA')} ${currency}</div></div>
+      <div class="metric-box"><div class="label">احتياطي المخاطر</div><div class="value" style="color:#f59e0b">${result.riskReserve.toLocaleString('ar-SA')} ${currency}</div></div>
+      <div class="metric-box"><div class="label">التكلفة الحقيقية / شهر</div><div class="value">${result.totalRealCost.toLocaleString('ar-SA')} ${currency}</div></div>
+      <div class="metric-box"><div class="label">الربح الحقيقي / شهر</div><div class="value" style="color:${result.realProfit>=0?'#22c55e':'#ef4444'}">${result.realProfit.toLocaleString('ar-SA')} ${currency}</div></div>
+      <div class="metric-box"><div class="label">نقطة التعادل (إيراد)</div><div class="value">${result.breakEvenRevenue > 0 ? result.breakEvenRevenue.toLocaleString('ar-SA') + ' ' + currency : '—'}</div></div>
+      <div class="metric-box"><div class="label">فترة الاسترداد</div><div class="value">${result.paybackPeriodMonths === Infinity ? '—' : Math.ceil(result.paybackPeriodMonths) + ' شهر'}</div></div>
+      <div class="metric-box"><div class="label">التصنيف الاستثماري</div><div class="value" style="color:${ratingColor}">${result.investmentRating}</div></div>
+      <div class="metric-box"><div class="label">نسبة التكاليف الخفية</div><div class="value">${result.hiddenCostPct.toFixed(1)}%</div></div>
+    </div>
+
+    <div class="feas-section-title">🎲 السيناريوهات</div>
+    <div class="scenario-grid">
+      <div class="scenario-card pessimistic">
+        <div class="scenario-label" style="color:#ef4444;">المتشائم</div>
+        <div class="scenario-value" style="color:#ef4444;">${s.pessimistic.realProfit.toLocaleString('ar-SA')} ${currency}</div>
+        <div class="scenario-desc">إيراد: ${s.pessimistic.revenue.toLocaleString('ar-SA')} ${currency}<br>هامش: ${s.pessimistic.profitMargin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-card expected">
+        <div class="scenario-label" style="color:var(--gold);">المتوقع</div>
+        <div class="scenario-value" style="color:var(--gold);">${s.expected.realProfit.toLocaleString('ar-SA')} ${currency}</div>
+        <div class="scenario-desc">إيراد: ${s.expected.revenue.toLocaleString('ar-SA')} ${currency}<br>هامش: ${s.expected.profitMargin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-card optimistic">
+        <div class="scenario-label" style="color:#22c55e;">المتفائل</div>
+        <div class="scenario-value" style="color:#22c55e;">${s.optimistic.realProfit.toLocaleString('ar-SA')} ${currency}</div>
+        <div class="scenario-desc">إيراد: ${s.optimistic.revenue.toLocaleString('ar-SA')} ${currency}<br>هامش: ${s.optimistic.profitMargin.toFixed(1)}%</div>
+      </div>
+    </div>
+
+    <div class="feas-section-title">📋 تفصيل التكاليف</div>
+    <div class="bonds-card" style="text-align:right;">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr><th style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">البند</th><th style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">المبلغ</th></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">التكاليف التشغيلية</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">${result.operatingCosts.toLocaleString('ar-SA')} ${currency}</td></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">التكاليف الخفية (${result.hiddenCostPct.toFixed(1)}%)</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">${result.hiddenCostTotal.toLocaleString('ar-SA')} ${currency}</td></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">احتياطي المخاطر (${result.riskReservePct.toFixed(1)}%)</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">${result.riskReserve.toLocaleString('ar-SA')} ${currency}</td></tr>
+        ${input.deliveryEnabled ? `<tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">تكلفة التوصيل الشهرية</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">${input.deliveryCost.toLocaleString('ar-SA')} ${currency}</td></tr>` : ''}
+        <tr style="font-weight:700;"><td style="padding:0.5rem;border-bottom:1px solid var(--border);">التكلفة الحقيقية الإجمالية</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">${result.totalRealCost.toLocaleString('ar-SA')} ${currency}</td></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">الإيرادات الشهرية</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">${result.input.revenue.toLocaleString('ar-SA')} ${currency}</td></tr>
+        <tr style="font-weight:700;"><td style="padding:0.5rem;border-bottom:1px solid var(--border);">الربح الحقيقي</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);color:${result.realProfit>=0?'#22c55e':'#ef4444'}">${result.realProfit.toLocaleString('ar-SA')} ${currency}</td></tr>
+      </table>
+    </div>
+
+    ${contextualHTML}
+
+    <div class="feas-section-title">🔍 تفصيل نسبة التكاليف الخفية</div>
+    <div class="bonds-card" style="text-align:right;">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr><th style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">البند</th><th style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">النسبة</th></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">النسبة الأساسية للنشاط</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">${result.hiddenCostBreakdown.base.toFixed(1)}%</td></tr>
+        ${result.input.deliveryEnabled ? `<tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">عامل التوصيل</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">+${result.hiddenCostBreakdown.delivery.toFixed(1)}%</td></tr>` : ''}
+        ${result.input.perishableInventory ? `<tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">المخزون القابل للتلف</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">+${result.hiddenCostBreakdown.perishable.toFixed(1)}%</td></tr>` : ''}
+        ${result.input.seasonalStaff ? `<tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">الموظفون الموسميون</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">+${result.hiddenCostBreakdown.seasonal.toFixed(1)}%</td></tr>` : ''}
+        <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">المتطلبات التنظيمية (${result.input.regulatoryRequirements})</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">+${result.hiddenCostBreakdown.regulatory.toFixed(1)}%</td></tr>
+        ${result.wasteAndIncidentalsPct > 0 ? `<tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">الهدر والنثريات المتوقعة</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">+${result.hiddenCostBreakdown.wasteAndIncidentals.toFixed(1)}%</td></tr>` : ''}
+        <tr style="font-weight:700;"><td style="padding:0.5rem;border-bottom:1px solid var(--border);">إجمالي نسبة التكاليف الخفية</td><td style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);color:var(--gold)">${result.hiddenCostBreakdown.total.toFixed(1)}%</td></tr>
+      </table>
+    </div>
+
+    <div style="text-align:center;margin-top:var(--space-6);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <button class="bonds-btn bonds-btn-secondary" onclick="showTab('project'); BondsUI.toast('🔄 ابدأ من جديد وجرّب أرقام جديدة', 'info');">🔄 جرب أرقام جديدة</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportExcelRPA()">📊 Excel</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportPDFRPA()">📄 PDF</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="saveAnalysis()">💾 حفظ التحليل</button>
+    </div>
+  `;
+}
+
+async function exportExcelRPA() {
+  if (!window._rpaResult) {
+    BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning');
+    return;
+  }
+  await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+  if (typeof XLSX === 'undefined') {
+    BondsUI.toast('❌ فشل تحميل مكتبة Excel', 'error');
+    return;
+  }
+  var d = window._rpaResult;
+  var currency = getCurrencySymbol();
+  var wb = XLSX.utils.book_new();
+  wb.Props = { Title: 'تحليل المشروع الحقيقي', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+  var inputsSheet = [
+    ['البند', 'القيمة'],
+    ['الدولة', d.input.country || getText('country') || 'SA'],
+    ['نوع النشاط', d.input.activityType],
+    ['الإيرادات الشهرية', d.input.revenue],
+    ['قيمة المشروع', d.input.projectValue],
+    ['التكاليف المباشرة', d.input.directCosts],
+    ['الرواتب', d.input.salaries],
+    ['الإيجار', d.input.rent],
+    ['تكلفة المخزون', d.input.inventoryCost],
+    ['تكلفة المعدات', d.input.equipmentCost],
+    ['التوصيل مفعل', d.input.deliveryEnabled ? 'نعم' : 'لا'],
+    ['تكلفة التوصيل الشهرية', d.input.deliveryCost || 0],
+    ['مخزون قابل للتلف', d.input.perishableInventory ? 'نعم' : 'لا'],
+    ['موظفون موسميون', d.input.seasonalStaff ? 'نعم' : 'لا'],
+    ['المتطلبات التنظيمية', d.input.regulatoryRequirements]
+  ];
+  var ws1 = XLSX.utils.aoa_to_sheet(inputsSheet);
+  ws1['!cols'] = [{ wch: 32 }, { wch: 20 }];
+  XLSX.utils.book_append_sheet(wb, ws1, 'المدخلات');
+
+  var resultsSheet = [
+    ['المؤشر', 'القيمة'],
+    ['التكاليف الخفية', d.hiddenCostTotal],
+    ['احتياطي المخاطر', d.riskReserve],
+    ['التكلفة الحقيقية / شهر', d.totalRealCost],
+    ['الربح الحقيقي / شهر', d.realProfit],
+    ['هامش الربح (%)', d.profitMargin.toFixed(2) + '%'],
+    ['نقطة التعادل (إيراد)', d.breakEvenRevenue > 0 ? d.breakEvenRevenue : '—'],
+    ['فترة الاسترداد (شهر)', d.paybackPeriodMonths === Infinity ? '—' : Math.ceil(d.paybackPeriodMonths)],
+    ['التصنيف الاستثماري', d.investmentRating]
+  ];
+  var ws2 = XLSX.utils.aoa_to_sheet(resultsSheet);
+  ws2['!cols'] = [{ wch: 32 }, { wch: 20 }];
+  XLSX.utils.book_append_sheet(wb, ws2, 'النتائج');
+
+  var scenSheet = [
+    ['السيناريو', 'الإيراد', 'التكلفة الحقيقية', 'الربح', 'الهامش'],
+    ['المتشائم', d.scenarios.pessimistic.revenue, d.scenarios.pessimistic.totalCost, d.scenarios.pessimistic.realProfit, d.scenarios.pessimistic.profitMargin.toFixed(2) + '%'],
+    ['المتوقع', d.scenarios.expected.revenue, d.scenarios.expected.totalCost, d.scenarios.expected.realProfit, d.scenarios.expected.profitMargin.toFixed(2) + '%'],
+    ['المتفائل', d.scenarios.optimistic.revenue, d.scenarios.optimistic.totalCost, d.scenarios.optimistic.realProfit, d.scenarios.optimistic.profitMargin.toFixed(2) + '%']
+  ];
+  var ws3 = XLSX.utils.aoa_to_sheet(scenSheet);
+  ws3['!cols'] = [{ wch: 16 }, { wch: 16 }, { wch: 18 }, { wch: 16 }, { wch: 14 }];
+  XLSX.utils.book_append_sheet(wb, ws3, 'السيناريوهات');
+
+  XLSX.writeFile(wb, 'bonds-real-project-analysis.xlsx');
+}
+
+function exportPDFRPA() {
+  if (!window._rpaResult) {
+    BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning');
+    return;
+  }
+  var d = window._rpaResult;
+  var currency = getCurrencySymbol();
+  var ratingColor = d.investmentRating === 'A' ? '#22c55e' : d.investmentRating === 'B' ? '#84cc16' : d.investmentRating === 'C' ? '#f59e0b' : '#ef4444';
+
+  var content = `
+    <div class="verdict-box ${d.investmentRating === 'A' || d.investmentRating === 'B' ? 'profit' : d.investmentRating === 'C' ? 'warn' : 'loss'}">
+      <div style="font-size:20px;font-weight:800;color:${ratingColor};">التصنيف الاستثماري: ${d.investmentRating} — ${d.investmentRatingLabel.ar}</div>
+    </div>
+
+    <h2>📈 النتائج الرئيسية</h2>
+    <div class="metric-grid">
+      <div class="metric-item"><div class="label">التكاليف الخفية</div><div class="value">${d.hiddenCostTotal.toLocaleString('ar-SA')} ${currency}</div></div>
+      <div class="metric-item"><div class="label">احتياطي المخاطر</div><div class="value">${d.riskReserve.toLocaleString('ar-SA')} ${currency}</div></div>
+      <div class="metric-item"><div class="label">التكلفة الحقيقية / شهر</div><div class="value">${d.totalRealCost.toLocaleString('ar-SA')} ${currency}</div></div>
+      <div class="metric-item"><div class="label">الربح الحقيقي / شهر</div><div class="value">${d.realProfit.toLocaleString('ar-SA')} ${currency}</div></div>
+      <div class="metric-item"><div class="label">نقطة التعادل</div><div class="value">${d.breakEvenRevenue > 0 ? d.breakEvenRevenue.toLocaleString('ar-SA') + ' ' + currency : '—'}</div></div>
+      <div class="metric-item"><div class="label">فترة الاسترداد</div><div class="value">${d.paybackPeriodMonths === Infinity ? '—' : Math.ceil(d.paybackPeriodMonths) + ' شهر'}</div></div>
+    </div>
+
+    <h2>🎲 السيناريوهات</h2>
+    <div class="scenario-row">
+      <div class="scenario-item pess"><div class="label" style="color:#ef4444;">المتشائم</div><div class="value" style="color:#ef4444;">${d.scenarios.pessimistic.realProfit.toLocaleString('ar-SA')} ${currency}</div><div class="desc">هامش: ${d.scenarios.pessimistic.profitMargin.toFixed(1)}%</div></div>
+      <div class="scenario-item exp"><div class="label" style="color:#b88a3a;">المتوقع</div><div class="value" style="color:#b88a3a;">${d.scenarios.expected.realProfit.toLocaleString('ar-SA')} ${currency}</div><div class="desc">هامش: ${d.scenarios.expected.profitMargin.toFixed(1)}%</div></div>
+      <div class="scenario-item opt"><div class="label" style="color:#22c55e;">المتفائل</div><div class="value" style="color:#22c55e;">${d.scenarios.optimistic.realProfit.toLocaleString('ar-SA')} ${currency}</div><div class="desc">هامش: ${d.scenarios.optimistic.profitMargin.toFixed(1)}%</div></div>
+    </div>
+
+    <h2>📋 تفصيل التكاليف</h2>
+    <table>
+      <tr><th>البند</th><th class="num">القيمة</th></tr>
+      <tr><td>التكاليف التشغيلية</td><td class="num">${d.operatingCosts.toLocaleString('ar-SA')} ${currency}</td></tr>
+      <tr><td>التكاليف الخفية (${d.hiddenCostPct.toFixed(1)}%)</td><td class="num">${d.hiddenCostTotal.toLocaleString('ar-SA')} ${currency}</td></tr>
+      <tr><td>احتياطي المخاطر (${d.riskReservePct.toFixed(1)}%)</td><td class="num">${d.riskReserve.toLocaleString('ar-SA')} ${currency}</td></tr>
+      <tr><td>التكلفة الحقيقية الإجمالية</td><td class="num">${d.totalRealCost.toLocaleString('ar-SA')} ${currency}</td></tr>
+      <tr><td>الإيرادات الشهرية</td><td class="num">${d.input.revenue.toLocaleString('ar-SA')} ${currency}</td></tr>
+      <tr><td>الربح الحقيقي</td><td class="num">${d.realProfit.toLocaleString('ar-SA')} ${currency}</td></tr>
+    </table>
+  `;
+  openPrintWindow({ content: content, title: 'تحليل المشروع الحقيقي', headerTitle: 'تحليل المشروع الحقيقي' });
+}
+
+const ACTIVITY_LABELS_AR = {
+  restaurant: 'مطعم / مقهى',
+  retail: 'تجارة retail',
+  manufacturing: 'تصنيع',
+  services: 'خدمات مهنية',
+  ecommerce: 'متجر إلكتروني',
+  healthcare: 'رعاية صحية',
+  education: 'تعليم وتدريب',
+  general: 'نشاط عام'
+};
+
+async function saveAnalysis() {
+  if (!window._rpaResult) {
+    BondsUI.toast('⚠️ احسب النتيجة أولاً', 'warning');
+    return;
+  }
+
+  if (!window.BondsAuth || !window.BondsAuth.getUser) {
+    BondsUI.toast('❌ خدمة المصادقة غير متوفرة', 'error');
+    return;
+  }
+
+  const { data: userData, error: userError } = await window.BondsAuth.getUser();
+  if (userError || !userData?.user) {
+    window.location.href = '/calculators/auth/?redirect=' + encodeURIComponent(window.location.pathname);
+    return;
+  }
+
+  const sb = window.BondsAuth.getSupabase();
+  if (!sb) {
+    BondsUI.toast('❌ فشل الاتصال بقاعدة البيانات', 'error');
+    return;
+  }
+
+  const input = JSON.parse(JSON.stringify(window._rpaResult.input));
+  input.calculator = 'real-project-analysis';
+
+  const { error } = await sb.from('scenarios').insert({
+    user_id: userData.user.id,
+    name: (ACTIVITY_LABELS_AR[input.activityType] || 'تحليل المشروع الحقيقي') + ' — ' + new Date().toLocaleDateString('ar-SA'),
+    country: getText('country') || 'SA',
+    inputs: input,
+    results: window._rpaResult
+  });
+
+  if (error) {
+    BondsUI.toast('❌ فشل الحفظ: ' + error.message, 'error');
+  } else {
+    BondsUI.toast('✅ تم حفظ التحليل بنجاح', 'success');
+  }
+}
+
+// ===== INIT =====
+progress.set(0);
+toggleDeliveryCost();
+</script>
+<script src="usage-guard.js"></script>
+<script src="../page-tracker-v2.js"></script>
+<script src="shared-geo.js?v=4"></script>
+<script src="../site-layout.js?v=2.52.0"></script>
+<div id="site-footer"></div>
+<script src="../components/universal-dropdown.js?v=2.51.7"></script>
+<script src="../components/universal-dropdown-init.js"></script>
+</body>
+</html>

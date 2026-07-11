@@ -29,6 +29,7 @@
       self.calculateFeasibility = exports.calculateFeasibility;
       self.calculateMedicalViability = exports.calculateMedicalViability;
       self.calculateInvestmentScore = exports.calculateInvestmentScore;
+      self.calculateRealProjectAnalysis = exports.calculateRealProjectAnalysis;
     }
   }
 }(typeof self !== 'undefined' ? self : this, function () {
@@ -57,10 +58,14 @@ function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quant
 
   var platformFeePct = options.platformFeePct || 0;
   var campaignDiscountPct = options.campaignDiscountPct || 0;
+  var wasteAndIncidentalsPct = options.wasteAndIncidentalsPct || options.contingencyPct || 0;
   var totalDeductionPct = platformFeePct + campaignDiscountPct;
   var effectivePrice = sellingPrice * (1 - totalDeductionPct / 100);
 
-  var contribution = effectivePrice - variableCostPerUnit;
+  var adjustedVariableCostPerUnit = variableCostPerUnit * (1 + wasteAndIncidentalsPct / 100);
+  var wasteAndIncidentalsAmountPerUnit = adjustedVariableCostPerUnit - variableCostPerUnit;
+
+  var contribution = effectivePrice - adjustedVariableCostPerUnit;
   var breakEvenUnits, breakEvenAmount;
 
   if (contribution > 0) {
@@ -78,7 +83,7 @@ function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quant
   var grossRevenue = quantity * sellingPrice;
   var platformFeeAmount = quantity * sellingPrice * (platformFeePct / 100);
   var campaignDiscountAmount = quantity * sellingPrice * (campaignDiscountPct / 100);
-  var totalCost = fixedCosts + (variableCostPerUnit * quantity);
+  var totalCost = fixedCosts + (adjustedVariableCostPerUnit * quantity);
   var profit = revenue - totalCost;
 
   var taxAmount = profit > 0 ? profit * (taxRate / 100) : 0;
@@ -107,6 +112,9 @@ function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quant
     netProfit,
     profitMargin,
     roi,
+    wasteAndIncidentalsPct,
+    wasteAndIncidentalsAmountPerUnit,
+    adjustedVariableCostPerUnit,
     fixedCostBreakdown: options.fixedCostBreakdown || null,
     variableCostBreakdown: options.variableCostBreakdown || null
   };
@@ -226,25 +234,31 @@ function calculatePricing(directCost, overheadCost, desiredMargin, taxRate, zaka
   options = options || {};
 
   var platformFeePct = options.platformFeePct || 0;
+  var paymentGatewayFeePct = options.paymentGatewayFeePct || 0;
   var deliveryCostPerUnit = options.deliveryCostPerUnit || 0;
   var packagingCostPerUnit = options.packagingCostPerUnit || 0;
   var cacPerUnit = options.cacPerUnit || 0;
+  var wasteAndIncidentalsPct = options.wasteAndIncidentalsPct || options.contingencyPct || 0;
 
   var costPerUnit = directCost + overheadCost;
-  var totalCostPerUnit = costPerUnit + deliveryCostPerUnit + packagingCostPerUnit + cacPerUnit;
+  var baseTotalCostPerUnit = costPerUnit + deliveryCostPerUnit + packagingCostPerUnit + cacPerUnit;
+  var wasteAndIncidentalsAmount = baseTotalCostPerUnit * (wasteAndIncidentalsPct / 100);
+  var totalCostPerUnit = baseTotalCostPerUnit + wasteAndIncidentalsAmount;
 
   var priceBeforeFees = 0;
   if (desiredMargin < 100 && desiredMargin > -100) {
     priceBeforeFees = totalCostPerUnit / (1 - (desiredMargin / 100));
   }
 
+  var totalDeductionPct = platformFeePct + paymentGatewayFeePct;
   var priceBeforeTax = 0;
-  if (platformFeePct < 100) {
-    priceBeforeTax = priceBeforeFees / (1 - (platformFeePct / 100));
+  if (totalDeductionPct < 100) {
+    priceBeforeTax = priceBeforeFees / (1 - (totalDeductionPct / 100));
   }
 
   var platformFeeAmount = priceBeforeTax * (platformFeePct / 100);
-  var netRevenuePerUnit = priceBeforeTax - platformFeeAmount;
+  var paymentGatewayAmount = priceBeforeTax * (paymentGatewayFeePct / 100);
+  var netRevenuePerUnit = priceBeforeTax - platformFeeAmount - paymentGatewayAmount;
   var profitBeforeTax = netRevenuePerUnit - totalCostPerUnit;
   var taxAmount = profitBeforeTax > 0 ? profitBeforeTax * (taxRate / 100) : 0;
   var profitAfterTax = profitBeforeTax - taxAmount;
@@ -253,15 +267,23 @@ function calculatePricing(directCost, overheadCost, desiredMargin, taxRate, zaka
   var monthlyProfit = netProfitPerUnit * volume;
   var actualMargin = priceBeforeTax > 0 ? (netProfitPerUnit / priceBeforeTax) * 100 : 0;
   var netRequiredPerUnit = totalCostPerUnit + (volume > 0 ? monthlyFixed / volume : 0);
-  var breakEvenPrice = platformFeePct < 100 ? netRequiredPerUnit / (1 - platformFeePct / 100) : 0;
+  var breakEvenPrice = totalDeductionPct < 100 ? netRequiredPerUnit / (1 - totalDeductionPct / 100) : 0;
 
   return {
     costPerUnit,
+    baseTotalCostPerUnit,
+    wasteAndIncidentalsPct,
+    wasteAndIncidentalsAmount,
+    // backward compatibility aliases
+    contingencyPct: wasteAndIncidentalsPct,
+    contingencyAmount: wasteAndIncidentalsAmount,
     totalCostPerUnit,
     priceBeforeFees,
     priceBeforeTax,
     platformFeePct,
     platformFeeAmount,
+    paymentGatewayFeePct,
+    paymentGatewayAmount,
     deliveryCostPerUnit,
     packagingCostPerUnit,
     cacPerUnit,
@@ -285,10 +307,16 @@ function calculatePricing(directCost, overheadCost, desiredMargin, taxRate, zaka
  * @param {number} openingBalance
  * @param {Array<Object>} monthlyData – 12 items:
  *   [{ inflows: {sales, other, loans}, outflows: {rent, salaries, raw, marketing, taxes, loan_repay, other_exp} }, ...]
+ * @param {Object} [options] – { wasteAndIncidentalsPct }
  */
-function calculateCashFlow(openingBalance, monthlyData) {
+function calculateCashFlow(openingBalance, monthlyData, options) {
   openingBalance = openingBalance || 0;
   monthlyData = monthlyData || [];
+  options = options || {};
+  var wasteAndIncidentalsPct = options.wasteAndIncidentalsPct || options.contingencyPct || 0;
+  var wasteMultiplier = 1 + wasteAndIncidentalsPct / 100;
+  // keys that operational waste/incidentals reserve applies to
+  var WASTE_OUTFLOW_KEYS = ['rent', 'salaries', 'raw', 'marketing', 'other_exp'];
 
   var months = [];
   var INFLOW_KEYS = ['sales', 'other', 'loans'];
@@ -303,7 +331,8 @@ function calculateCashFlow(openingBalance, monthlyData) {
       totalOut: 0,
       netCashFlow: 0,
       openingBalance: 0,
-      closingBalance: 0
+      closingBalance: 0,
+      wasteAndIncidentals: 0
     };
 
     INFLOW_KEYS.forEach(function (key) {
@@ -313,7 +342,12 @@ function calculateCashFlow(openingBalance, monthlyData) {
     });
 
     OUTFLOW_KEYS.forEach(function (key) {
-      var val = (data.outflows && data.outflows[key]) || 0;
+      var rawVal = (data.outflows && data.outflows[key]) || 0;
+      var val = rawVal;
+      if (WASTE_OUTFLOW_KEYS.indexOf(key) >= 0) {
+        val = rawVal * wasteMultiplier;
+        month.wasteAndIncidentals += val - rawVal;
+      }
       month.outflows[key] = val;
       month.totalOut += val;
     });
@@ -327,6 +361,7 @@ function calculateCashFlow(openingBalance, monthlyData) {
   var totalIn = 0;
   var totalOut = 0;
   var netFlow = 0;
+  var totalWasteAndIncidentals = 0;
   var minBal = Infinity;
   var maxBal = -Infinity;
 
@@ -334,6 +369,7 @@ function calculateCashFlow(openingBalance, monthlyData) {
     totalIn += m.totalIn;
     totalOut += m.totalOut;
     netFlow += m.netCashFlow;
+    totalWasteAndIncidentals += m.wasteAndIncidentals;
     if (m.closingBalance < minBal) minBal = m.closingBalance;
     if (m.closingBalance > maxBal) maxBal = m.closingBalance;
   });
@@ -348,7 +384,9 @@ function calculateCashFlow(openingBalance, monthlyData) {
     netFlow,
     minBal,
     maxBal,
-    closingBalance: months.length > 0 ? months[months.length - 1].closingBalance : openingBalance
+    closingBalance: months.length > 0 ? months[months.length - 1].closingBalance : openingBalance,
+    wasteAndIncidentalsPct,
+    totalWasteAndIncidentals
   };
 }
 
@@ -552,6 +590,7 @@ function calculateMedicalViability(setupCosts, monthlyCosts, revenue, options) {
   const zakatRate = options.zakatRate || 0;
   const extraServiceRevenue = options.extraServiceRevenue || 0;
   const extraServiceCost = options.extraServiceCost || 0;
+  const wasteAndIncidentalsPct = options.wasteAndIncidentalsPct || options.contingencyPct || 0;
 
   const setupTotal = Object.keys(setupCosts).reduce(function(sum, k) {
     return sum + (setupCosts[k] || 0);
@@ -617,6 +656,9 @@ function calculateMedicalViability(setupCosts, monthlyCosts, revenue, options) {
     mDeduction += vatAmount;
     mVariable += extraServiceCost;
 
+    const wasteAndIncidentalsAmount = mVariable * (wasteAndIncidentalsPct / 100);
+    mVariable += wasteAndIncidentalsAmount;
+
     const mNet = mGross - mDeduction;
     let mProfit = mNet - monthlyFixed - mVariable;
     let zakatAmount = 0;
@@ -635,6 +677,7 @@ function calculateMedicalViability(setupCosts, monthlyCosts, revenue, options) {
       zakatAmount,
       netRevenue: mNet,
       variableCost: mVariable,
+      wasteAndIncidentalsAmount,
       fixedCost: monthlyFixed,
       profit: mProfit,
       variableDetail: mVariableDetail,
@@ -648,6 +691,7 @@ function calculateMedicalViability(setupCosts, monthlyCosts, revenue, options) {
     let totalDeduction = 0;
     let totalNet = 0;
     let totalVariable = 0;
+    let totalWaste = 0;
     let totalProfit = 0;
     let totalVat = 0;
     let totalZakat = 0;
@@ -658,6 +702,7 @@ function calculateMedicalViability(setupCosts, monthlyCosts, revenue, options) {
       totalDeduction += p.deduction;
       totalNet += p.netRevenue;
       totalVariable += p.variableCost;
+      totalWaste += p.wasteAndIncidentalsAmount || 0;
       totalProfit += p.profit;
       totalVat += p.vatAmount;
       totalZakat += p.zakatAmount;
@@ -668,12 +713,14 @@ function calculateMedicalViability(setupCosts, monthlyCosts, revenue, options) {
       deductionAmount: totalDeduction / 12,
       netRevenue: totalNet / 12,
       variableCost: totalVariable / 12,
+      wasteAndIncidentalsAmount: totalWaste / 12,
       profit: totalProfit / 12,
       vatAmount: totalVat / 12,
       zakatAmount: totalZakat / 12,
       yearlyGross: totalGross,
       yearlyNet: totalNet,
       yearlyProfit: totalProfit,
+      yearlyWaste: totalWaste,
       yearlyVat: totalVat,
       yearlyZakat: totalZakat
     };
@@ -686,9 +733,11 @@ function calculateMedicalViability(setupCosts, monthlyCosts, revenue, options) {
   const deductionAmount = base.deductionAmount;
   const netRevenue = base.netRevenue;
   const variableCost = base.variableCost;
+  const wasteAndIncidentalsAmount = base.wasteAndIncidentalsAmount;
   const monthlyProfit = base.profit;
   const yearlyRevenue = base.yearlyNet;
   const yearlyProfit = base.yearlyProfit;
+  const yearlyWaste = base.yearlyWaste;
   const profitMargin = yearlyRevenue > 0 ? (yearlyProfit / yearlyRevenue) * 100 : 0;
 
   const monthlyUnitCount = dailyUnits * workDays;
@@ -746,6 +795,9 @@ function calculateMedicalViability(setupCosts, monthlyCosts, revenue, options) {
     monthlyFixed,
     monthlyVariable: variableCost,
     monthlyTotal: monthlyFixed + variableCost,
+    wasteAndIncidentalsPct,
+    wasteAndIncidentalsAmount,
+    yearlyWaste,
     grossRevenue,
     deductionAmount,
     netRevenue,
@@ -1168,6 +1220,167 @@ function calculateSensitivity(baseResult, commissionDelta, ordersDelta, priceDel
 }
 
 // ============================================================================
+// 9. Real Project Analysis (hidden costs, risk reserve, investment rating)
+// ============================================================================
+
+var ACTIVITY_PROFILES = {
+  restaurant:   { hiddenCostPct: 0.12, riskReservePct: 0.08, deliveryFactor: 0.04, perishableFactor: 0.06, seasonalFactor: 0.03, regulatoryFactor: { low: 0.02, medium: 0.04, high: 0.07 } },
+  retail:       { hiddenCostPct: 0.08, riskReservePct: 0.06, deliveryFactor: 0.03, perishableFactor: 0.04, seasonalFactor: 0.02, regulatoryFactor: { low: 0.02, medium: 0.03, high: 0.05 } },
+  manufacturing:{ hiddenCostPct: 0.15, riskReservePct: 0.10, deliveryFactor: 0.02, perishableFactor: 0.02, seasonalFactor: 0.04, regulatoryFactor: { low: 0.03, medium: 0.06, high: 0.10 } },
+  services:     { hiddenCostPct: 0.10, riskReservePct: 0.07, deliveryFactor: 0.01, perishableFactor: 0.00, seasonalFactor: 0.02, regulatoryFactor: { low: 0.01, medium: 0.03, high: 0.06 } },
+  ecommerce:    { hiddenCostPct: 0.11, riskReservePct: 0.08, deliveryFactor: 0.06, perishableFactor: 0.03, seasonalFactor: 0.03, regulatoryFactor: { low: 0.02, medium: 0.04, high: 0.06 } },
+  healthcare:   { hiddenCostPct: 0.14, riskReservePct: 0.11, deliveryFactor: 0.02, perishableFactor: 0.05, seasonalFactor: 0.02, regulatoryFactor: { low: 0.04, medium: 0.08, high: 0.14 } },
+  education:    { hiddenCostPct: 0.09, riskReservePct: 0.06, deliveryFactor: 0.01, perishableFactor: 0.00, seasonalFactor: 0.05, regulatoryFactor: { low: 0.02, medium: 0.04, high: 0.07 } },
+  general:      { hiddenCostPct: 0.10, riskReservePct: 0.07, deliveryFactor: 0.03, perishableFactor: 0.03, seasonalFactor: 0.03, regulatoryFactor: { low: 0.02, medium: 0.04, high: 0.07 } }
+};
+
+function calculateRealProjectAnalysis(input) {
+  input = input || {};
+  var activityType = input.activityType || 'general';
+  var revenue = input.revenue || 0;
+  var directCosts = input.directCosts || 0;
+  var salaries = input.salaries || 0;
+  var rent = input.rent || 0;
+  var inventoryCost = input.inventoryCost || 0;
+  var equipmentCost = input.equipmentCost || 0;
+  var deliveryCost = input.deliveryCost || 0;
+  var projectValue = input.projectValue || 0;
+  var deliveryEnabled = !!input.deliveryEnabled;
+  var perishableInventory = !!input.perishableInventory;
+  var seasonalStaff = !!input.seasonalStaff;
+  var regulatoryRequirements = input.regulatoryRequirements || 'low';
+
+  var profile = ACTIVITY_PROFILES[activityType] || ACTIVITY_PROFILES.general;
+  var regLevel = ['low', 'medium', 'high'].indexOf(regulatoryRequirements) >= 0 ? regulatoryRequirements : 'low';
+  var wasteAndIncidentalsPct = input.wasteAndIncidentalsPct || input.contingencyPct || 0;
+
+  var operatingCosts = directCosts + salaries + rent + inventoryCost + equipmentCost;
+
+  var hiddenAdjustment = profile.hiddenCostPct;
+  if (deliveryEnabled) hiddenAdjustment += profile.deliveryFactor;
+  if (perishableInventory) hiddenAdjustment += profile.perishableFactor;
+  if (seasonalStaff) hiddenAdjustment += profile.seasonalFactor;
+  hiddenAdjustment += profile.regulatoryFactor[regLevel];
+  hiddenAdjustment += wasteAndIncidentalsPct / 100;
+
+  var hiddenCostTotal = operatingCosts * hiddenAdjustment;
+  var riskReserve = (operatingCosts + hiddenCostTotal) * profile.riskReservePct;
+  var totalRealCost = operatingCosts + hiddenCostTotal + riskReserve + (deliveryEnabled ? deliveryCost : 0);
+  var realProfit = revenue - totalRealCost;
+
+  var fixedCosts = salaries + rent + equipmentCost + hiddenCostTotal + riskReserve;
+  var variableCosts = directCosts + inventoryCost + (deliveryEnabled ? deliveryCost : 0);
+  var contributionMarginRatio = revenue > 0 ? (revenue - variableCosts) / revenue : 0;
+  var breakEvenRevenue = contributionMarginRatio > 0 ? fixedCosts / contributionMarginRatio : -1;
+
+  var paybackPeriodMonths = realProfit > 0 ? projectValue / realProfit : Infinity;
+
+  var profitMargin = revenue > 0 ? (realProfit / revenue) * 100 : 0;
+
+  // Investment rating: A/B/C/D
+  var investmentRating = 'D';
+  if (profitMargin >= 25 && paybackPeriodMonths <= 12) {
+    investmentRating = 'A';
+  } else if (profitMargin >= 15 && paybackPeriodMonths <= 24) {
+    investmentRating = 'B';
+  } else if (profitMargin >= 5 && paybackPeriodMonths <= 36) {
+    investmentRating = 'C';
+  }
+
+  var ratingLabels = {
+    A: { ar: 'ممتاز', en: 'Excellent' },
+    B: { ar: 'جيد', en: 'Good' },
+    C: { ar: 'مقبول', en: 'Fair' },
+    D: { ar: 'ضعيف', en: 'Weak' }
+  };
+
+  function calcScenario(revenueMult, costMult) {
+    var scenRevenue = revenue * revenueMult;
+    var scenOperating = operatingCosts * costMult;
+    var scenHidden = scenOperating * hiddenAdjustment;
+    var scenReserve = (scenOperating + scenHidden) * profile.riskReservePct;
+    var scenTotalCost = scenOperating + scenHidden + scenReserve;
+    var scenProfit = scenRevenue - scenTotalCost;
+    var scenMargin = scenRevenue > 0 ? (scenProfit / scenRevenue) * 100 : 0;
+    return {
+      revenue: scenRevenue,
+      totalCost: scenTotalCost,
+      realProfit: scenProfit,
+      profitMargin: scenMargin,
+      hiddenCostTotal: scenHidden,
+      riskReserve: scenReserve
+    };
+  }
+
+  var scenarios = {
+    pessimistic: calcScenario(0.7, 1.15),
+    expected: calcScenario(1.0, 1.0),
+    optimistic: calcScenario(1.3, 0.9)
+  };
+
+  var monthlyProjection = [];
+  for (var m = 0; m < 12; m++) {
+    monthlyProjection.push({
+      month: m + 1,
+      revenue: revenue,
+      operatingCosts: operatingCosts,
+      hiddenCostTotal: hiddenCostTotal,
+      riskReserve: riskReserve,
+      totalRealCost: totalRealCost,
+      realProfit: realProfit
+    });
+  }
+
+  var hiddenFactorBreakdown = {
+    base: profile.hiddenCostPct,
+    delivery: deliveryEnabled ? profile.deliveryFactor : 0,
+    perishable: perishableInventory ? profile.perishableFactor : 0,
+    seasonal: seasonalStaff ? profile.seasonalFactor : 0,
+    regulatory: profile.regulatoryFactor[regLevel],
+    wasteAndIncidentals: wasteAndIncidentalsPct / 100
+  };
+
+  var hiddenCostBreakdown = {
+    base: profile.hiddenCostPct * 100,
+    delivery: deliveryEnabled ? profile.deliveryFactor * 100 : 0,
+    perishable: perishableInventory ? profile.perishableFactor * 100 : 0,
+    seasonal: seasonalStaff ? profile.seasonalFactor * 100 : 0,
+    regulatory: profile.regulatoryFactor[regLevel] * 100,
+    wasteAndIncidentals: wasteAndIncidentalsPct,
+    total: hiddenAdjustment * 100
+  };
+
+  return {
+    activityType: activityType,
+    operatingCosts: operatingCosts,
+    wasteAndIncidentalsPct: wasteAndIncidentalsPct,
+    hiddenCostTotal: hiddenCostTotal,
+    hiddenCostPct: hiddenAdjustment * 100,
+    hiddenFactorBreakdown: hiddenFactorBreakdown,
+    hiddenCostBreakdown: hiddenCostBreakdown,
+    riskReserve: riskReserve,
+    riskReservePct: profile.riskReservePct * 100,
+    totalRealCost: totalRealCost,
+    realProfit: realProfit,
+    profitMargin: profitMargin,
+    breakEvenRevenue: breakEvenRevenue,
+    paybackPeriodMonths: paybackPeriodMonths,
+    investmentRating: investmentRating,
+    investmentRatingLabel: ratingLabels[investmentRating],
+    scenarios: scenarios,
+    monthlyProjection: monthlyProjection,
+    details: {
+      fixedCosts: fixedCosts,
+      variableCosts: variableCosts,
+      contributionMarginRatio: contributionMarginRatio * 100,
+      projectValue: projectValue,
+      equipmentCost: equipmentCost,
+      deliveryCost: deliveryCost
+    }
+  };
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
@@ -1180,6 +1393,8 @@ return {
   calculateFeasibility,
   calculateMedicalViability,
   calculateInvestmentScore,
+  calculateRealProjectAnalysis,
+  ACTIVITY_PROFILES,
   INGREDIENT_UNITS,
   getUnitMultiplier,
   getEffectiveFee,

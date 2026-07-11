@@ -23,7 +23,7 @@
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
-<link rel="stylesheet" href="../../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body>
   <div class="auth-container">
@@ -54,7 +54,7 @@
         <div class="row">
           <div class="form-group">
             <label for="country">الدولة *</label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" required>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" required>
               <option value="">اختر الدولة</option>
             </select>
           </div>
@@ -129,7 +129,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=1"></script>
   <script src="../../v3/master-data/countries-governorates-cities.js"></script>
-  <script src="../../calculators/shared-geo.js"></script>
+  <script src="../../calculators/shared-geo.js?v=4"></script>
 
   <script>
     (function() {
@@ -164,11 +164,9 @@
         saveBtn.classList.toggle('loading', loading);
       }
 
-      // Saudi phone validation (default); other countries validated loosely
+      // Country-aware phone validation (Saudi strict, international loose)
       function isValidPhone(phone, country) {
-        const digits = phone.replace(/\D/g, '');
-        if (country === 'SA') return /^05\d{8}$/.test(digits);
-        return digits.length >= 7;
+        return window.BondsAuth.isValidPhone(phone, country);
       }
 
       async function init() {
@@ -212,8 +210,8 @@
         if (!isValidPhone(phone, country)) {
           setLoading(false);
           return showError(country === 'SA'
-            ? 'رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام'
-            : 'رقم الجوال غير صالح');
+            ? 'رقم الجوال يجب أن يبدأ بـ 05 أو +9665 ويتكون من 10 أرقام'
+            : 'رقم الجوال غير صالح — أدخل رقم محلي أو دولي (مثلاً +20xxxxxxxx)');
         }
 
         const selectedCity = citySelect.options[citySelect.selectedIndex];
@@ -280,7 +278,7 @@
   </script>
 
   <script src="../../page-tracker-v2.js"></script>
-<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>
