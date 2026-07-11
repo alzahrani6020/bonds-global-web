@@ -414,9 +414,13 @@
     async function fetchUsers() {
       try {
         const token = await getToken();
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
         const res = await fetch('/api/admin?action=users', {
-          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         if (!data.success) throw new Error(data.error);

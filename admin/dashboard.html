@@ -86,7 +86,7 @@
     .user-name { font-weight: 700; font-size: 0.85rem; }
     .user-role { font-size: 0.75rem; color: var(--text-muted); }
 
-    .main-content { flex: 1; margin-right: var(--sidebar-width); display: flex; flex-direction: column; height: 100vh; }
+    .main-content { flex: 1; margin-right: var(--sidebar-width); display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
     .topbar {
       height: 64px; background: var(--bg-secondary); border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between;
@@ -98,7 +98,7 @@
     .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #1a1a1a; }
     .btn-secondary { background: rgba(0,0,0,0.04); color: var(--text-secondary); border: 1px solid var(--border); }
 
-    .iframe-wrap { flex: 1; overflow: hidden; background: var(--bg); position: relative; }
+    .iframe-wrap { flex: 1; overflow: visible; background: var(--bg); position: relative; }
     .module-frame { width: 100%; height: 100%; border: none; }
     .iframe-loader {
       position: absolute; inset: 0;
@@ -305,6 +305,22 @@
       const overviewEl = document.getElementById('overviewPanel');
       const iframeWrap = document.getElementById('iframeWrap');
 
+      // Resize iframe based on inner page height so the outer dashboard scrolls
+      window.addEventListener('message', (event) => {
+        if (event.data?.type === 'iframe-height' && event.data?.height) {
+          const iframe = iframeWrap?.querySelector('iframe.module-frame');
+          if (iframe) iframe.style.height = event.data.height + 'px';
+        }
+      });
+
+      function withTimeout(promise, ms = 8000) {
+        if (!promise) return Promise.resolve(null);
+        return Promise.race([
+          promise,
+          new Promise(resolve => setTimeout(() => resolve(null), ms))
+        ]);
+      }
+
       async function loadStats() {
         const counts = {
           users: 0,
@@ -320,14 +336,14 @@
 
         try {
           const [users, subs, msgs, advClients, advProjects, recAssets, cities, aiReviews] = await Promise.allSettled([
-            sb?.from('profiles')?.select('*', { count: 'exact', head: true }),
-            sb?.from('subscriptions')?.select('*', { count: 'exact', head: true }),
-            sb?.from('contact_messages')?.select('*', { count: 'exact', head: true }),
-            sb?.from('advisory_clients')?.select('*', { count: 'exact', head: true }),
-            sb?.from('advisory_projects')?.select('*', { count: 'exact', head: true }),
-            sb?.from('recovery_assets')?.select('*', { count: 'exact', head: true }),
-            sb?.from('cities')?.select('*', { count: 'exact', head: true }),
-            sb?.from('ai_review_requests')?.select('*', { count: 'exact', head: true })
+            withTimeout(sb?.from('profiles')?.select('*', { count: 'exact', head: true })),
+            withTimeout(sb?.from('subscriptions')?.select('*', { count: 'exact', head: true })),
+            withTimeout(sb?.from('contact_messages')?.select('*', { count: 'exact', head: true })),
+            withTimeout(sb?.from('advisory_clients')?.select('*', { count: 'exact', head: true })),
+            withTimeout(sb?.from('advisory_projects')?.select('*', { count: 'exact', head: true })),
+            withTimeout(sb?.from('recovery_assets')?.select('*', { count: 'exact', head: true })),
+            withTimeout(sb?.from('cities')?.select('*', { count: 'exact', head: true })),
+            withTimeout(sb?.from('ai_review_requests')?.select('*', { count: 'exact', head: true }))
           ]);
 
           counts.users = users.value?.count || 0;
@@ -339,7 +355,7 @@
           counts.cities = cities.value?.count || 0;
           counts.aiReviews = aiReviews.value?.count || 0;
 
-          const rev = await sb?.from('subscriptions')?.select('tier')?.eq('status', 'active');
+          const rev = await withTimeout(sb?.from('subscriptions')?.select('tier')?.eq('status', 'active'), 8000);
           if (rev?.data) {
             counts.revenue = rev.data.reduce((a, r) => {
               if (r.tier === 'enterprise') return a + 212;
@@ -469,6 +485,9 @@
         iframe.className = 'module-frame';
         iframe.src = url;
         iframe.title = title || '';
+        iframe.scrolling = 'yes';
+        iframe.setAttribute('scrolling', 'yes');
+        iframe.style.overflow = 'auto';
         iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-downloads');
         iframe.onload = async () => {
           try {
@@ -516,6 +535,7 @@
         } catch (e) {}
       }
 
+      overviewEl.innerHTML = '<div class="iframe-loader"><div class="spinner"></div><p>جارِ تحميل الإحصائيات...</p></div>';
       loadStats().then(renderOverview);
       initUser();
     })();
