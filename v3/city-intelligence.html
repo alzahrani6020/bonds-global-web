@@ -395,6 +395,13 @@
   <div class="container">
     <div class="controls">
       <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر الدولة" id="countrySelect"><option value="">اختر الدولة</option></select>
+      <select data-universal-dropdown="true" data-ud-placeholder="نوع المدينة" id="cityTypeSelect">
+        <option value="">كل المدن</option>
+        <option value="economic_city,industrial_city,port">مدن اقتصادية وصناعية</option>
+        <option value="health_city">مدن صحية</option>
+        <option value="media_city">مدن إعلامية</option>
+        <option value="free_zone">مناطق حرة</option>
+      </select>
       <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر المدينة" id="citySelect"><option value="">اختر المدينة</option></select>
       <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر النشاط (اختياري)" id="activitySelect"><option value="">اختر النشاط (اختياري)</option></select>
       <select data-universal-dropdown="true" id="yearSelect">
@@ -644,11 +651,7 @@
 
     async function init() {
       try {
-        const [citiesData, sectorsData] = await Promise.all([
-          fetchJson(API_URL + '/cities?limit=2000'),
-          fetchJson(API_URL + '/sectors')
-        ]);
-        cities = (citiesData.cities || []).filter(c => MODERN_CITY_CODE.test(c.code));
+        const sectorsData = await fetchJson(API_URL + '/sectors');
         activities = [];
         (sectorsData.sectors || []).forEach(sector => {
           (sector.economic_sub_sectors || []).forEach(sub => {
@@ -659,6 +662,10 @@
         });
 
         const countrySelect = document.getElementById('countrySelect');
+        const cityTypeSelect = document.getElementById('cityTypeSelect');
+        const citySelect = document.getElementById('citySelect');
+        const activitySelect = document.getElementById('activitySelect');
+
         // Show all 22 supported countries even if some have no cities in the DB yet
         const allCountryCodes = Object.keys(countryNames).sort((a, b) =>
           countryNames[a].localeCompare(countryNames[b], 'ar')
@@ -668,25 +675,34 @@
         const countryDd = window.getUniversalDropdown && window.getUniversalDropdown(countrySelect);
         if (countryDd && countryDd.setOptions) countryDd.setOptions(countryOptions);
 
-        const citySelect = document.getElementById('citySelect');
         function populateCities() {
-          const selectedCountry = countrySelect.value;
-          const filteredCities = cities.filter(c => (!selectedCountry || c.country_code === selectedCountry) && MODERN_CITY_CODE.test(c.code));
-          citySelect.innerHTML = '<option value="">اختر المدينة</option>' + filteredCities.map(c => `<option value="${c.code}" data-icon="${CITY_ICON}">${c.name_ar}</option>`).join('');
+          citySelect.innerHTML = '<option value="">اختر المدينة</option>' + cities.map(c => `<option value="${c.code}" data-icon="${CITY_ICON}">${c.name_ar}</option>`).join('');
           const cityDd = window.getUniversalDropdown && window.getUniversalDropdown(citySelect);
-          if (cityDd && cityDd.setOptions) cityDd.setOptions(filteredCities.map(c => ({ value: c.code, label: c.name_ar, icon: CITY_ICON })));
+          if (cityDd && cityDd.setOptions) cityDd.setOptions(cities.map(c => ({ value: c.code, label: c.name_ar, icon: CITY_ICON })));
         }
-        populateCities();
 
-        const activitySelect = document.getElementById('activitySelect');
+        async function loadCities() {
+          const selectedCountry = countrySelect.value;
+          const selectedType = cityTypeSelect.value;
+          let url = API_URL + '/cities?limit=2000';
+          if (selectedCountry) url += '&country=' + encodeURIComponent(selectedCountry);
+          if (selectedType) url += '&city_type=' + encodeURIComponent(selectedType);
+          const data = await fetchJson(url);
+          cities = (data.cities || []).filter(c => MODERN_CITY_CODE.test(c.code));
+          populateCities();
+        }
+
+        await loadCities();
+
         const activityOptions = activities.map(a => ({ value: a.code, label: a.name_ar, icon: ACTIVITY_ICON }));
         activitySelect.innerHTML = '<option value="">اختر النشاط (اختياري)</option>' + activities.map(a => `<option value="${a.code}" data-icon="${ACTIVITY_ICON}">${a.name_ar}</option>`).join('');
         const activityDd = window.getUniversalDropdown && window.getUniversalDropdown(activitySelect);
         if (activityDd && activityDd.setOptions) activityDd.setOptions(activityOptions);
 
-        countrySelect.addEventListener('change', populateCities);
+        countrySelect.addEventListener('change', loadCities);
+        cityTypeSelect.addEventListener('change', loadCities);
         citySelect.addEventListener('change', loadCityData);
-        document.getElementById('activitySelect').addEventListener('change', loadCityData);
+        activitySelect.addEventListener('change', loadCityData);
         document.getElementById('yearSelect').addEventListener('change', loadCityData);
       } catch (err) {
         document.getElementById('content').innerHTML = `<div class="error">فشل تحميل البيانات: ${err.message}</div>`;

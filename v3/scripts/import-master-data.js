@@ -320,9 +320,12 @@ async function importRegulatoryRequirements(client, rows) {
 async function importCities(client, rows) {
   for (const r of rows) {
     const derivedCountryCode = r.code ? String(r.code).split('-')[0].toUpperCase() : (r.country_code || 'SA');
+    const cityTypes = r.city_types
+      ? String(r.city_types).split(';').map(s => s.trim()).filter(Boolean)
+      : null;
     await client.query(
-      `INSERT INTO public.cities (code, name_ar, name_en, region, country_code, population, avg_household_income, purchasing_power_index)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO public.cities (code, name_ar, name_en, region, country_code, population, avg_household_income, purchasing_power_index, city_types)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        ON CONFLICT (code) DO UPDATE SET
          name_ar = EXCLUDED.name_ar,
          name_en = EXCLUDED.name_en,
@@ -330,8 +333,9 @@ async function importCities(client, rows) {
          country_code = EXCLUDED.country_code,
          population = EXCLUDED.population,
          avg_household_income = EXCLUDED.avg_household_income,
-         purchasing_power_index = EXCLUDED.purchasing_power_index`,
-      [r.code, r.name_ar, r.name_en, r.region, derivedCountryCode, r.population, r.avg_household_income, r.purchasing_power_index]
+         purchasing_power_index = EXCLUDED.purchasing_power_index,
+         city_types = COALESCE(EXCLUDED.city_types, public.cities.city_types)`,
+      [r.code, r.name_ar, r.name_en, r.region, derivedCountryCode, r.population, r.avg_household_income, r.purchasing_power_index, cityTypes]
     );
   }
   console.log(`Imported ${rows.length} cities`);
@@ -363,6 +367,7 @@ async function main() {
     await importProjectModelRisks(client, parseCsv(path.join(dataDir, 'project-model-risks.csv')));
     await importRegulatoryRequirements(client, parseCsv(path.join(dataDir, 'regulatory-requirements.csv')));
     await importCities(client, parseCsv(path.join(dataDir, 'cities.csv')));
+    await importCities(client, parseCsv(path.join(dataDir, 'special-city-types.csv')));
 
     console.log('\n✅ Master data import complete');
   } catch (err) {

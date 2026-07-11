@@ -235,10 +235,18 @@ async function handleCities(req, res) {
 
   const supabase = getSupabaseClient();
 
-  let selectFields = 'id, code, name_ar, name_en, region, country_code, population, purchasing_power_index, lat, lng';
+  const cityTypeParam = url.searchParams.get('city_type');
+
+  let selectFields = 'id, code, name_ar, name_en, region, country_code, population, purchasing_power_index, lat, lng, city_types';
   let query = supabase.from('cities').select(selectFields);
 
   if (countryCode) query = query.eq('country_code', countryCode);
+  if (cityTypeParam) {
+    const requestedTypes = cityTypeParam.split(',').map(t => t.trim()).filter(Boolean);
+    if (requestedTypes.length > 0) {
+      query = query.overlaps('city_types', requestedTypes);
+    }
+  }
   query = query.order('name_ar').limit(limit);
 
   const { data: cities, error } = await query;

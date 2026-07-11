@@ -1,0 +1,77 @@
+code,name_ar,name_en,region,country_code,city_types
+SA-97-001,مدينة الملك سلمان للطاقة,King Salman Energy Park,منطقة الرياض,SA,economic_city;industrial_city
+SA-97-002,مدينة المعرفة الاقتصادية,Knowledge Economic City,منطقة المدينة المنورة,SA,economic_city
+SA-97-003,مدينة الملك فهد الطبية,King Fahad Medical City,منطقة الرياض,SA,health_city
+SA-97-004,مدينة الإعلام السعودية,Saudi Media City,منطقة الرياض,SA,media_city
+SA-97-005,نيوم,NEOM,منطقة تبوك,SA,economic_city
+AE-97-001,مدينة مصدر,Masdar City,أبوظبي,AE,economic_city
+AE-97-002,مدينة دبي الطبية,Dubai Healthcare City,دبي,AE,health_city;free_zone
+AE-97-003,مدينة دبي للإعلام,Dubai Media City,دبي,AE,media_city;free_zone
+AE-97-004,تواصل أبوظبي,twofour54 Abu Dhabi,أبوظبي,AE,media_city;free_zone
+AE-97-005,المنطقة الحرة لإمارة الشارقة,Sharjah Free Zone,الشارقة,AE,free_zone
+AE-97-006,المنطقة الحرة بعجمان,Ajman Free Zone,عجمان,AE,free_zone
+AE-97-007,منطقة رأس الخيمة الاقتصادية,RAKEZ,رأس الخيمة,AE,free_zone
+EG-97-001,العاصمة الإدارية الجديدة,New Administrative Capital,القاهرة,EG,economic_city
+EG-97-002,مدينة العلمين الجديدة,New Alamein City,مطروح,EG,economic_city
+EG-97-003,مدينة الإنتاج الإعلامي,Egypt Media Production City,الجيزة,EG,media_city
+EG-97-004,المنطقة الحرة ببورسعيد,Port Said Free Zone,بورسعيد,EG,free_zone
+EG-97-005,المنطقة الحرة بالإسماعيلية,Ismailia Free Zone,الإسماعيلية,EG,free_zone
+QA-97-001,مدينة لوسيل,Lusail City,الدوحة,QA,economic_city
+QA-97-002,مدينة قطر للإعلام,Media City Qatar,الدوحة,QA,media_city;free_zone
+QA-97-003,المناطق الحرة القطرية,Qatar Free Zones,أم صلال,QA,free_zone
+KW-97-001,مدينة الحرير,Silk City,الأحمدي,KW,economic_city
+KW-97-002,مدينة جابر الأحمد الصحية,Jaber Al-Ahmad Health City,الأحمدي,KW,health_city
+KW-97-003,المنطقة الحرة الكويتية,Kuwait Free Trade Zone,الكويت,KW,free_zone
+OM-97-001,المنطقة الاقتصادية الخاصة بالدقم,Duqm Special Economic Zone,الدقم,OM,economic_city;free_zone
+OM-97-002,المدينة الطبية الجامعية,University Medical City,مسقط,OM,health_city
+OM-97-003,المنطقة الحرة بصلالة,Salalah Free Zone,صلالة,OM,free_zone
+BH-97-001,مدينة البحرين المالية,Bahrain Financial Harbour,المنامة,BH,economic_city;free_zone
+BH-97-002,مدينة البحرين للإعلام,Bahrain Media City,المحرق,BH,media_city;free_zone
+BH-97-003,المنطقة الحرة بمطار البحرين,Bahrain Airport Free Zone,المحرق,BH,free_zone
+JO-97-001,منطقة الملك حسين بن طلال التنموية,King Hussein Bin Talal Development Area,عمان,JO,economic_city
+JO-97-002,مدينة الحسين الطبية,King Hussein Medical City,عمان,JO,health_city
+JO-97-003,مدينة الأردن للإعلام,Jordan Media City,عمان,JO,media_city;free_zone
+JO-97-004,المنطقة الحرة الأردنية,Jordan Free Zone,الزرقاء,JO,free_zone
+IQ-97-001,مدينة بغداد الطبية,Baghdad Medical City,بغداد,IQ,health_city
+IQ-97-002,مدينة العراق للإعلام,Iraq Media City,بغداد,IQ,media_city
+IQ-97-003,المنطقة الحرة في البصرة,Basra Free Zone,البصرة,IQ,free_zone
+LB-97-001,مدينة بيروت للإعلام,Beirut Media City,بيروت,LB,media_city
+LB-97-002,المنطقة الحرة في طرابلس,Tripoli Free Zone,طرابلس,LB,free_zone
+SY-97-001,مدينة عدرا الصناعية,Adra Industrial City,ريف دمشق,SY,economic_city;industrial_city
+SY-97-002,مدينة دمشق الطبية,Damascus Medical City,دمشق,SY,health_city
+SY-97-003,مدينة الإعلام السوري,Syria Media City,دمشق,SY,media_city
+SY-97-004,المنطقة الحرة في دمشق,Damascus Free Zone,دمشق,SY,free_zone
+PS-97-001,مدينة روابي,Rawabi,رام الله,PS,economic_city
+PS-97-002,مدينة فلسطين الطبية,Palestine Medical City,رام الله,PS,health_city
+PS-97-003,مدينة فلسطين للإعلام,Palestine Media City,رام الله,PS,media_city
+PS-97-004,المنطقة الحرة الزراعية في أريحا,Jericho Agro-Industrial Park,أريحا,PS,free_zone
+TN-97-001,المدينة الاقتصادية التونسية,Tunisia Economic City,بنزرت,TN,economic_city
+TN-97-002,الحمامات الصحية,Hammamet Health Resort,الناظور,TN,health_city
+TN-97-003,مدينة الإعلام بالمدينة الاقتصادية التونسية,Media City Tunisia Economic City,بنزرت,TN,media_city
+TN-97-004,المنطقة الحرة ببنزرت,Bizerte Free Zone,بنزرت,TN,free_zone
+DZ-97-001,المنطقة الحرة بالجزائر,Algiers Free Zone,الجزائر,DZ,free_zone
+DZ-97-002,مدينة الجزائر للإعلام,Algiers Media City,الجزائر,DZ,media_city
+MA-97-001,مدينة الدار البيضاء المالية,Casablanca Finance City,الدار البيضاء,MA,economic_city;free_zone
+MA-97-002,كازا ميديا سيتي,Casa Media City,الدار البيضاء,MA,media_city
+MA-97-003,المنطقة الحرة بأكادير,Agadir Free Zone,أكادير,MA,free_zone
+MA-97-004,المنطقة الحرة بالقنيطرة,Kenitra Free Zone,القنيطرة,MA,free_zone
+LY-97-001,مدينة طرابلس الطبية,Tripoli Medical City,طرابلس,LY,health_city
+LY-97-002,المنطقة الحرة بمصراتة,Misrata Free Zone,مصراتة,LY,free_zone
+SD-97-001,مدينة سوبا الصناعية,Soba Industrial City,الخرطوم,SD,economic_city;industrial_city
+SD-97-002,مدينة الخرطوم الطبية,Khartoum Medical City,الخرطوم,SD,health_city
+SD-97-003,المنطقة الحرة ببورتسودان,Port Sudan Free Zone,بورتسودان,SD,free_zone
+YE-97-001,المنطقة الحرة بعدن,Aden Free Zone,عدن,YE,free_zone
+YE-97-002,مدينة صنعاء الطبية,Sana'a Medical City,صنعاء,YE,health_city
+YE-97-003,مدينة اليمن للإعلام,Yemen Media City,صنعاء,YE,media_city
+SO-97-001,مدينة بربرة الاقتصادية,Berbera Economic Zone,بربرة,SO,economic_city;free_zone
+SO-97-002,مدينة مقديشو الطبية,Mogadishu Medical City,مقديشو,SO,health_city
+SO-97-003,مدينة الصومال للإعلام,Somalia Media City,مقديشو,SO,media_city
+DJ-97-001,المنطقة الحرة الدولية بجيبوتي,Djibouti International Free Trade Zone,جيبوتي,DJ,free_zone
+DJ-97-002,مدينة جيبوتي الطبية,Djibouti Medical City,جيبوتي,DJ,health_city
+DJ-97-003,مدينة جيبوتي للإعلام,Djibouti Media City,جيبوتي,DJ,media_city
+MR-97-001,المنطقة الحرة بنواذيبو,Nouadhibou Free Zone,نواذيبو,MR,free_zone
+MR-97-002,مدينة نواكشوط الطبية,Nouakchott Medical City,نواكشوط,MR,health_city
+MR-97-003,مدينة موريتانيا للإعلام,Mauritania Media City,نواكشوط,MR,media_city
+KM-97-001,المنطقة الحرة بموروني,Moroni Free Zone,موروني,KM,free_zone
+KM-97-002,مدينة موروني الطبية,Moroni Medical City,موروني,KM,health_city
+KM-97-003,مدينة جزر القمر للإعلام,Comoros Media City,موروني,KM,media_city
