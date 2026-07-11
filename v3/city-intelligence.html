@@ -639,6 +639,8 @@
     }
 
     const MODERN_CITY_CODE = /^[A-Z]{2}-\d{2}-\d{3}$/;
+    const CITY_ICON = '/assets/icons/city.svg';
+    const ACTIVITY_ICON = '/assets/icons/activity.svg';
 
     async function init() {
       try {
@@ -670,15 +672,15 @@
         function populateCities() {
           const selectedCountry = countrySelect.value;
           const filteredCities = cities.filter(c => (!selectedCountry || c.country_code === selectedCountry) && MODERN_CITY_CODE.test(c.code));
-          citySelect.innerHTML = '<option value="">اختر المدينة</option>' + filteredCities.map(c => `<option value="${c.code}">${c.name_ar}</option>`).join('');
+          citySelect.innerHTML = '<option value="">اختر المدينة</option>' + filteredCities.map(c => `<option value="${c.code}" data-icon="${CITY_ICON}">${c.name_ar}</option>`).join('');
           const cityDd = window.getUniversalDropdown && window.getUniversalDropdown(citySelect);
-          if (cityDd && cityDd.setOptions) cityDd.setOptions(filteredCities.map(c => ({ value: c.code, label: c.name_ar })));
+          if (cityDd && cityDd.setOptions) cityDd.setOptions(filteredCities.map(c => ({ value: c.code, label: c.name_ar, icon: CITY_ICON })));
         }
         populateCities();
 
         const activitySelect = document.getElementById('activitySelect');
-        const activityOptions = activities.map(a => ({ value: a.code, label: a.name_ar }));
-        activitySelect.innerHTML = '<option value="">اختر النشاط (اختياري)</option>' + activities.map(a => `<option value="${a.code}">${a.name_ar}</option>`).join('');
+        const activityOptions = activities.map(a => ({ value: a.code, label: a.name_ar, icon: ACTIVITY_ICON }));
+        activitySelect.innerHTML = '<option value="">اختر النشاط (اختياري)</option>' + activities.map(a => `<option value="${a.code}" data-icon="${ACTIVITY_ICON}">${a.name_ar}</option>`).join('');
         const activityDd = window.getUniversalDropdown && window.getUniversalDropdown(activitySelect);
         if (activityDd && activityDd.setOptions) activityDd.setOptions(activityOptions);
 
