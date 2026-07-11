@@ -319,6 +319,7 @@ async function importRegulatoryRequirements(client, rows) {
 
 async function importCities(client, rows) {
   for (const r of rows) {
+    const derivedCountryCode = r.code ? String(r.code).split('-')[0].toUpperCase() : (r.country_code || 'SA');
     await client.query(
       `INSERT INTO public.cities (code, name_ar, name_en, region, country_code, population, avg_household_income, purchasing_power_index)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -330,7 +331,7 @@ async function importCities(client, rows) {
          population = EXCLUDED.population,
          avg_household_income = EXCLUDED.avg_household_income,
          purchasing_power_index = EXCLUDED.purchasing_power_index`,
-      [r.code, r.name_ar, r.name_en, r.region, r.country_code || 'SA', r.population, r.avg_household_income, r.purchasing_power_index]
+      [r.code, r.name_ar, r.name_en, r.region, derivedCountryCode, r.population, r.avg_household_income, r.purchasing_power_index]
     );
   }
   console.log(`Imported ${rows.length} cities`);
