@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investor Deck v2 — شركة إحياء الأصول العقارية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #d4a853;
+      --gold-bright: #f0c96a;
+      --bg: #0a0f1a;
+      --bg-card: rgba(16,24,45,0.85);
+      --text: #e8ecf4;
+      --text-secondary: #94a3b8;
+      --border: rgba(197,160,40,0.2);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background: #111;
+      color: var(--text);
+      margin: 0;
+    }
+    @page {
+      size: 297mm 210mm;
+      margin: 0;
+    }
+    .slide {
+      width: 297mm;
+      height: 210mm;
+      padding: 14mm 18mm;
+      page-break-after: always;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0a0f1a 0%, #111a2e 100%);
+    }
+    .slide:last-child { page-break-after: auto; }
+    .logo {
+      position: absolute;
+      top: 12mm;
+      left: 18mm;
+      height: 10mm;
+      opacity: 0.9;
+    }
+    .slide-number {
+      position: absolute;
+      bottom: 10mm;
+      left: 18mm;
+      font-size: 9pt;
+      color: var(--text-secondary);
+    }
+    .tag {
+      display: inline-block;
+      background: rgba(212,168,83,0.15);
+      color: var(--gold-bright);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 10pt;
+      font-weight: 700;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+    }
+    h1 {
+      font-size: 30pt;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 20pt;
+      font-weight: 700;
+      color: var(--gold-bright);
+      margin-bottom: 14px;
+    }
+    h3 {
+      font-size: 13pt;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    p, li {
+      font-size: 12pt;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+    ul { list-style: none; padding: 0; }
+    li { margin-bottom: 7px; position: relative; padding-right: 20px; }
+    li::before {
+      content: "•";
+      color: var(--gold);
+      position: absolute;
+      right: 0;
+      font-weight: 700;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .metric {
+      text-align: center;
+      padding: 18px 12px;
+    }
+    .metric-value {
+      font-size: 24pt;
+      font-weight: 800;
+      color: var(--gold);
+      display: block;
+    }
+    .metric-label {
+      font-size: 10pt;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+    .big-number {
+      font-size: 42pt;
+      font-weight: 800;
+      color: var(--gold);
+    }
+    .accent { color: var(--gold-bright); }
+    .center { text-align: center; }
+    .spacer { height: 20px; }
+    .footer-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4mm;
+      background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11pt;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: rgba(212,168,83,0.12);
+      color: var(--gold-bright);
+      font-weight: 700;
+    }
+    .highlight-box {
+      background: rgba(212,168,83,0.1);
+      border-right: 4px solid var(--gold);
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+    .cover-content {
+      position: absolute;
+      top: 50%;
+      right: 18mm;
+      left: 18mm;
+      transform: translateY(-50%);
+      text-align: center;
+    }
+    .cover-content h1 {
+      font-size: 40pt;
+      margin-bottom: 16px;
+    }
+    .cover-content p {
+      font-size: 15pt;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+    .cover-big {
+      font-size: 56pt;
+      font-weight: 800;
+      color: var(--gold);
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Slide 1: Cover + Key Number -->
+<div class="slide">
+  <img src="../assets/bonds-logo-2026-header.webp" class="logo" alt="Bonds Global">
+  <div class="cover-content">
+    <div class="tag">فرصة استثمارية مباشرة</div>
+    <h1>شركة إحياء الأصول العقارية</h1>
+    <p>نموذج الشراكة الذكية لإحياء المباني المتعثرة</p>
+    <div class="cover-big">25 مليون ريال فقط</div>
+    <p style="font-size: 16pt; color: var(--gold-bright);">لإثبات النموذج</p>
+    <div class="grid-3" style="margin-top: 24px;">
+      <div class="card metric">
+        <span class="metric-value">3–5</span>
+        <div class="metric-label">مشاريع تجريبية</div>
+      </div>
+      <div class="card metric">
+        <span class="metric-value">12–18</span>
+        <div class="metric-label">شهر تنفيذ</div>
+      </div>
+      <div class="card metric">
+        <span class="metric-value">6–10%</span>
+        <div class="metric-label">صافي ربح مرحلي</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bar"></div>
+</div>
+
+<!-- Slide 2: The Problem -->
+<div class="slide">
+  <img src="../assets/bonds-logo-2026-header.webp" class="logo" alt="Bonds Global">
+  <div class="tag">المشكلة</div>
+  <h1>آلاف المباني المتعثرة في السعودية</h1>
+  <div class="grid-3" style="margin-top: 26px;">
+    <div class="card metric">
+      <span class="metric-value">730B</span>
+      <div class="metric-label">حجم التمويل العقاري (ريال)</div>
+    </div>
+    <div class="card metric">
+      <span class="metric-value">14.2%+</span>
+      <div class="metric-label">نمو الصفقات العقارية 2025</div>
+    </div>
+    <div class="card metric">
+      <span class="metric-value">مئات</span>
+      <div class="metric-label">المباني المتعثرة في المدن الرئيسية</div>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top: 26px;">
+    <h3>الفجوة</h3>
+    <p>الطلب على الوحدات الجاهزة يفوق العرض، بينما آلاف المباني متعثرة في مراحل إنشاء متقدمة بسبب ضغوط سيولة المالك أو تراجع التمويل العقاري الجديد.</p>
+  </div>
+  <div class="slide-number">2 / 10</div>
+  <div class="footer-bar"></div>
+</div>
+
+<!-- Slide 3: The Opportunity -->
+<div class="slide">
+  <img src="../assets/bonds-logo-2026-header.webp" class="logo" alt="Bonds Global">
+  <div class="tag">الفرصة</div>
+  <h1>تحويل العبء المالي إلى فرصة نقدية</h1>
+  <div class="grid-2" style="margin-top: 20px;">
+    <div class="card">
+      <h3>الطلب قوي</h3>
+      <ul>
+        <li>برامج «سكني» تدعم الطبقة المتوسطة</li>
+        <li>الوحدات الجاهزة نادرة مقارنة بالطلب</li>
+        <li>دخول مطورين جدد بطيء بسبب التمويل</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>العرض متاح</h3>
+      <ul>
+        <li>مباني متعثرة في مراحل متقدمة</li>
+        <li>ملاك يحتاجون شريكاً مالياً وتشغيلياً</li>
+        <li>إحياء أسرع وأقل تكلفة من البناء من الصفر</li>
+      </ul>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top: 24px;">
+    <p><span class="accent">النتيجة:</span> سوق يحتاج نموذجاً يجمع بين رأس مال متوسط، دورة سريعة، ومخاطر منخفضة مقارنة بالتطوير التقليدي.</p>
+  </div>
+  <div class="slide-number">3 / 10</div>
+  <div class="footer-bar"></div>
+</div>
+
+<!-- Slide 4: The Solution -->
+<div class="slide">
+  <img src="../assets/bonds-logo-2026-header.webp" class="logo" alt="Bonds Global">
+  <div class="tag">الحل</div>
+  <h1>نموذج الشراكة الذكية لإحياء الأصول</h1>
+  <div class="grid-4" style="margin-top: 22px;">
+    <div class="card center">
+      <div class="big-number" style="font-size: 26pt;">1</div>
+      <h3>اختيار</h3>
+      <p style="font-size: 10pt;">فحص قانوني وهندسي وتقييم معتمد</p>
+    </div>
+    <div class="card center">
+      <div class="big-number" style="font-size: 26pt;">2</div>
+      <h3>شراكة</h3>
+      <p style="font-size: 10pt;">اتفاق محاصة: الأرض من المالك، الإكمال منا</p>
+    </div>
+    <div class="card center">
+      <div class="big-number" style="font-size: 26pt;">3</div>
+      <h3>إحياء</h3>
+      <p style="font-size: 10pt;">إكمال التشطيب خلال 6–12 شهر</p>
+    </div>
+    <div class="card center">
+      <div class="big-number" style="font-size: 26pt;">4</div>
+      <h3>توزيع</h3>
+      <p style="font-size: 10pt;">استرداد تكاليفنا أولاً ثم الأرباح</p>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top: 24px;">
+    <p><span class="accent">المبدأ:</span> لا نشتري الأرض. ندخل كشريك تشغيلي وممول للإكمال، مما يقلل رأس المال المطلوب ويسرع الدخول إلى السوق.</p>
+  </div>
+  <div class="slide-number">4 / 10</div>
+  <div class="footer-bar"></div>
+</div>
+
+<!-- Slide 5: Competitive Advantage -->
+<div class="slide">
+  <img src="../assets/bonds-logo-2026-header.webp" class="logo" alt="Bonds Global">
+  <div class="tag">الميزة التنافسية</div>
+  <h1>لماذا نتفوق على التطوير التقليدي؟</h1>
+  <table style="margin-top: 18px;">
+    <tr>
+      <th>المعيار</th>
+      <th>التطوير التقليدي</th>
+      <th>إحياء الأصول</th>
+    </tr>
+    <tr>
+      <td>شراء الأرض</td>
+      <td>مطلوب — تكلفة ضخمة</td>
+      <td><strong>لا يوجد</strong></td>
+    </tr>
+    <tr>
+      <td>رأس المال</td>
+      <td>مرتفع جداً</td>
+      <td><strong>متوسط</strong></td>
+    </tr>
+    <tr>
+      <td>مدة المشروع</td>
+      <td>36–48 شهر</td>
+      <td><strong>12–18 شهر</strong></td>
+    </tr>
+    <tr>
+      <td>مخاطر الأراضي</td>
+      <td>مخاطر ارتفاع الأسعار</td>
+      <td><strong>مخاطر منخفضة</strong></td>
+    </tr>
+    <tr>
+      <td>سرعة دوران السيولة</td>
+      <td>بطيئة</td>
+      <td><strong>سريعة</strong></td>
+    </tr>
+    <tr>
+      <td>قابلية التوسع</td>
+      <td>معقدة ومكلفة</td>
+      <td><strong>مرنة وسريعة</strong></td>
+    </tr>
+  </table>
+  <div class="slide-number">5 / 10</div>
+  <div class="footer-bar"></div>
+</div>
+
+<!-- Slide 6: Business Model -->
+<div class="slide">
+  <img src="../assets/bonds-logo-2026-header.webp" class="logo" alt="Bonds Global">
+  <div class="tag">نموذج العمل</div>
+  <h1>نماذج الشراكة المتاحة</h1>
+  <div class="grid-2" style="margin-top: 16px;">
+    <div class="card">
+      <h3>1. المحاصة الكلاسيكية 50/50</h3>
+      <p style="font-size: 11pt;">المالك: الأرض + المبنى<br>الشركة: التشطيب + التسويق<br>الربح: بالتساوي</p>
+    </div>
+    <div class="card">
+      <h3>2. التوزيع النسبي</h3>
+      <p style="font-size: 11pt;">نصيب كل طرف حسب مساهمته في القيمة النهائية + علاوة إدارة 5–10%</p>
+    </div>
+    <div class="card">
+      <h3>3. استرداد + 20–25%</h3>
+      <p style="font-size: 11pt;">الشركة تسترد تكاليفها من أول مبيعات، ثم تأخذ 20–25% من صافي الربح</p>
+    </div>
+    <div class="card">
+      <h3>4. SPV لكل مشروع</h3>
+      <p style="font-size: 11pt;">شركة فرعية لكل مشروع تحول القيمة إلى أسهم وتُصرف بعد البيع</p>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top: 16px;">
+    <p>النموذج يُختار حسب حالة المبنى وقدرة المالك. في كل الحالات: <span class="accent">الشركة تسترد تكاليفها أولاً</span>.</p>
+  </div>
+  <div class="slide-number">6 / 10</div>
+  <div class="footer-bar"></div>
+</div>
+
+<!-- Slide 7: Case Study -->
+<div class="slide">
+  <img src="../assets/bonds-logo-2026-header.webp" class="logo" alt="Bonds Global">
+  <div class="tag">دراسة حالة</div>
+  <h1>مبنى متعثر في الرياض</h1>
+  <div class="grid-2" style="margin-top: 14px;">
+    <div class="card">
+      <h3>بيانات المشروع</h3>
+      <table style="font-size: 10pt;">
+        <tr><td>القيمة الحالية</td><td>5,000,000 ر.س</td></tr>
+        <tr><td>نسبة الإنجاز</td><td>60%</td></tr>
+        <tr><td>تكلفة الإكمال</td><td>1,500,000 ر.س</td></tr>
+        <tr><td>التسويق والرسوم</td><td>300,000 ر.س</td></tr>
+        <tr><td>قيمة البيع المتوقعة</td><td>10,000,000 ر.س</td></tr>
+        <tr><td>صافي الربح</td><td>3,200,000 ر.س</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>التوزيع (محاصة 50/50)</h3>
+      <table style="font-size: 10pt;">
+        <tr><td>حصة الشركة</td><td>1,600,000 ر.س</td></tr>
+        <tr><td>عائد رأس المال</td><td>~2.1x</td></tr>
+        <tr><td>مدة التنفيذ</td><td>12–18 شهر</td></tr>
+        <tr><td>IRR متوقع</td><td>~18.5%</td></tr>
+      </table>
+      <div class="highlight-box" style="margin-top: 10px; font-size: 9pt; padding: 8px;">
+        حتى في السيناريو المتشائم (انخفاض 10% في الأسعار) يبقى المشروع مربحاً بعائد 1.4x.
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">7 / 10</div>
+  <div class="footer-bar"></div>
+</div>
+
+<!-- Slide 8: Use of Funds -->
+<div class="slide">
+  <img src="../assets/bonds-logo-2026-header.webp" class="logo" alt="Bonds Global">
+  <div class="tag">استخدام الأموال</div>
+  <h1>خطة استخدام 25 مليون ريال</h1>
+  <div class="grid-2" style="margin-top: 16px;">
+    <div class="card">
+      <h3>توزيع رأس المال</h3>
+      <table style="font-size: 10pt;">
+        <tr><td>دخول محاصة / مشاريع</td><td>45%</td><td>11.25M</td></tr>
+        <tr><td>تشطيب وتراخيص</td><td>30%</td><td>7.5M</td></tr>
+        <tr><td>تسويق ومبيعات</td><td>10%</td><td>2.5M</td></tr>
+        <tr><td>احتياطي تشغيلي</td><td>10%</td><td>2.5M</td></tr>
+        <tr><td>إدارة وتشغيل</td><td>5%</td><td>1.25M</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>الأهداف المرحلية</h3>
+      <ul style="font-size: 10pt;">
+        <li>3–5 مشاريع تجريبية</li>
+        <li>صافي ربح 1.5–2.5 مليون (6–10%)</li>
+        <li>سجل نجاح موثق</li>
+        <li>قاعدة بيانات +100 أصل</li>
+      </ul>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top: 16px;">
+    <p><span class="accent">226 مليون ريال</span> هي سقف التوسع المستقبلي (رأس مال مصرح). المطلوب الآن فقط <span class="accent">25 مليون ريال</span> لإثبات النموذج.</p>
+  </div>
+  <div class="slide-number">8 / 10</div>
+  <div class="footer-bar"></div>
+</div>
+
+<!-- Slide 9: Expansion & Returns -->
+<div class="slide">
+  <img src="../assets/bonds-logo-2026-header.webp" class="logo" alt="Bonds Global">
+  <div class="tag">التوسع والعوائد</div>
+  <h1>من 25 مليون إلى 226 مليون ريال</h1>
+  <div class="grid-4" style="margin-top: 20px;">
+    <div class="card center">
+      <div class="big-number" style="font-size: 20pt;">25M</div>
+      <h3>المرحلة 1</h3>
+      <p style="font-size: 10pt;">3–5 مشاريع<br>إثبات النموذج</p>
+    </div>
+    <div class="card center">
+      <div class="big-number" style="font-size: 20pt;">75M</div>
+      <h3>المرحلة 2</h3>
+      <p style="font-size: 10pt;">8–12 مشروع<br>توسع جغرافي</p>
+    </div>
+    <div class="card center">
+      <div class="big-number" style="font-size: 20pt;">150M</div>
+      <h3>المرحلة 3</h3>
+      <p style="font-size: 10pt;">15–25 مشروع<br>محفظة متنوعة</p>
+    </div>
+    <div class="card center">
+      <div class="big-number" style="font-size: 20pt;">226M</div>
+      <h3>السقف</h3>
+      <p style="font-size: 10pt;">رأس مال مصرح<br>توسع مستقبلي</p>
+    </div>
+  </div>
+  <div class="grid-3" style="margin-top: 18px;">
+    <div class="card metric">
+      <span class="metric-value">6–10%</span>
+      <div class="metric-label">صافي ربح المرحلة الأولى</div>
+    </div>
+    <div class="card metric">
+      <span class="metric-value">2.5x–4x</span>
+      <div class="metric-label">عائد رأس المال عند التخارج (5–7 سنوات)</div>
+    </div>
+    <div class="card metric">
+      <span class="metric-value">~18.5%</span>
+      <div class="metric-label">IRR متوقع للمشروع النموذجي</div>
+    </div>
+  </div>
+  <div class="slide-number">9 / 10</div>
+  <div class="footer-bar"></div>
+</div>
+
+<!-- Slide 10: Call to Action -->
+<div class="slide">
+  <img src="../assets/bonds-logo-2026-header.webp" class="logo" alt="Bonds Global">
+  <div class="tag">دعوة الاستثمار</div>
+  <h1>ادخل معنا في المرحلة الأولى</h1>
+  <div class="grid-3" style="margin-top: 30px;">
+    <div class="card metric">
+      <span class="metric-value">25M</span>
+      <div class="metric-label">ريال رأس المال المطلوب</div>
+    </div>
+    <div class="card metric">
+      <span class="metric-value">3–5</span>
+      <div class="metric-label">مشاريع تجريبية</div>
+    </div>
+    <div class="card metric">
+      <span class="metric-value">12–18</span>
+      <div class="metric-label">شهر لتوليد الإيرادات الأولى</div>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top: 30px; text-align: center;">
+    <h3 style="color: var(--gold);">الخطوة التالية</h3>
+    <p>جلسة تعريفية مع فريق بوندز لمراجعة الفرص المتاحة، النموذج المناسب، وخطة المساهمة.</p>
+  </div>
+  <div class="center" style="margin-top: 30px;">
+    <p style="font-size: 14pt;"><strong>Bonds Global</strong></p>
+    <p style="font-size: 11pt;">www.bonds-global.com | info@bonds-global.com</p>
+  </div>
+  <div class="slide-number">10 / 10</div>
+  <div class="footer-bar"></div>
+</div>
+
+</body>
+</html>

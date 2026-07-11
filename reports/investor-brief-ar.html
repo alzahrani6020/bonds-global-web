@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>النشرة الاستثمارية — شركة إحياء الأصول العقارية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #d4a853;
+      --gold-bright: #f0c96a;
+      --bg: #0a0f1a;
+      --text: #222;
+      --text-secondary: #555;
+      --border: rgba(197,160,40,0.25);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background: #fff;
+      color: var(--text);
+      line-height: 1.32;
+    }
+    @page {
+      size: A4;
+      margin: 12mm 12mm 16mm 12mm;
+    }
+    .page {
+      width: 210mm;
+      min-height: 250mm;
+      page-break-after: always;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .page:last-child { page-break-after: auto; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--gold);
+      padding-bottom: 10px;
+      margin-bottom: 18px;
+    }
+    .header img { height: 12mm; }
+    .header .doc-title {
+      font-size: 10pt;
+      color: #777;
+      font-weight: 600;
+    }
+    h1 {
+      font-size: 14pt;
+      color: var(--gold);
+      margin: 8px 0 6px;
+      font-weight: 800;
+    }
+    h2 {
+      font-size: 10pt;
+      color: #1a2744;
+      margin: 9px 0 5px;
+      font-weight: 700;
+      border-right: 3px solid var(--gold);
+      padding-right: 7px;
+    }
+    h3 {
+      font-size: 9pt;
+      color: #1a2744;
+      margin: 6px 0 3px;
+      font-weight: 700;
+    }
+    p {
+      font-size: 8pt;
+      margin-bottom: 4px;
+      text-align: justify;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 12px;
+    }
+    li {
+      font-size: 8pt;
+      margin-bottom: 3px;
+      padding-right: 12px;
+      position: relative;
+    }
+    li::before {
+      content: "•";
+      color: var(--gold);
+      position: absolute;
+      right: 0;
+      font-weight: 700;
+    }
+    .highlight {
+      background: #fff8e7;
+      border-right: 3px solid var(--gold);
+      padding: 5px 7px;
+      border-radius: 4px;
+      margin: 5px 0;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .metric-box {
+      background: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .metric-box .num {
+      font-size: 16pt;
+      font-weight: 800;
+      color: var(--gold);
+      display: block;
+    }
+    .metric-box .lbl {
+      font-size: 8.5pt;
+      color: #666;
+      margin-top: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 7.5pt;
+      margin: 4px 0;
+    }
+    th, td {
+      padding: 3px 5px;
+      text-align: right;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    th {
+      background: #f8f9fa;
+      font-weight: 700;
+      color: #1a2744;
+    }
+    .footer {
+      margin-top: auto;
+      border-top: 1px solid #e0e0e0;
+      padding-top: 4px;
+      font-size: 7pt;
+      color: #888;
+      display: flex;
+      justify-content: space-between;
+    }
+    .gold-text { color: var(--gold); font-weight: 700; }
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 220mm;
+      text-align: center;
+    }
+    .cover h1 {
+      font-size: 24pt;
+      margin-bottom: 12px;
+    }
+    .cover p {
+      font-size: 11pt;
+      color: #555;
+      max-width: 80%;
+    }
+    .cover .meta {
+      display: flex;
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .cover .meta div {
+      text-align: center;
+    }
+    .cover .meta .num {
+      font-size: 22pt;
+      font-weight: 800;
+      color: var(--gold);
+    }
+    .cover .meta .lbl {
+      font-size: 10pt;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Page 1: Cover -->
+<div class="page cover">
+  <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global" style="height: 18mm; margin-bottom: 30px;">
+  <div style="font-size: 11pt; color: var(--gold); font-weight: 700; margin-bottom: 16px;">النشرة الاستثمارية</div>
+  <h1>شركة إحياء الأصول العقارية</h1>
+  <p>نموذج الشراكة الذكية لإحياء المباني المتعثرة<br>المرحلة الأولى: 25 مليون ريال سعودي</p>
+  <div class="meta">
+    <div><div class="num">3–5</div><div class="lbl">مشاريع تجريبية</div></div>
+    <div><div class="num">12–18</div><div class="lbl">شهر تنفيذ</div></div>
+    <div><div class="num">1.5–2.5M</div><div class="lbl">ريال ربح متوقع</div></div>
+  </div>
+  <div style="margin-top: 50px; font-size: 10pt; color: #888;">
+    إعداد: Bonds Global | يوليو 2026
+  </div>
+</div>
+
+<!-- Page 2: Executive Summary -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>الملخص التنفيذي</h1>
+  <div class="highlight">
+    <p>شركة إحياء الأصول العقارية تقدم نموذجاً استثمارياً فريداً يعتمد على إحياء المباني المتعثرة في مراحل إنشاء متقدمة. ندخل كشريك ذكي مع المالك: نتحمل تكاليف الإكمال والتسويق والإدارة، ونقتسم الأرباح بعد استرداد تكاليفنا. المطلوب للمرحلة الأولى <span class="gold-text">25 مليون ريال سعودي</span> فقط، لتمويل 3–5 مشاريع تجريبية خلال 12–18 شهراً، بهدف تحقيق صافي ربح <span class="gold-text">1.5–2.5 مليون ريال</span>.</p>
+  </div>
+  <h2>الفرصة</h2>
+  <p>السوق العقاري السعودي يشهد تحولاً جذرياً مدفوعاً برؤية 2030. حجم التمويل العقاري يتجاوز 730 مليار ريال، ونمو الصفقات العقارية تجاوز 14.2% في 2025. في المقابل، يعاني السوق من نقص في الوحدات الجاهزة، بينما تتعثر مئات المباني في مراحل إنشاء متقدمة بسبب ضغوط سيولة المالك أو تراجع التمويل العقاري الجديد.</p>
+  <h2>الحل</h2>
+  <p>نموذج الشراكة الذكية يحول العبء المالي للمالك إلى فرصة نقدية مشتركة. بدلاً من شراء الأرض والبناء من الصفر، ندخل كشريك في أصل قائم، نكمل تشطيبه، ونبيع الوحدات، ونوزع الأرباح. هذا يعني دورة أسرع، رأس مال أقل، ومخاطر أقل من التطوير التقليدي.</p>
+  <h2>العرض الاستثماري</h2>
+  <div class="grid-3">
+    <div class="metric-box"><span class="num">25M</span><div class="lbl">ريال رأس المال المطلوب</div></div>
+    <div class="metric-box"><span class="num">3–5</span><div class="lbl">مشاريع تجريبية</div></div>
+    <div class="metric-box"><span class="num">12–18</span><div class="lbl">شهر مدة التنفيذ</div></div>
+    <div class="metric-box"><span class="num">1.5–2.5M</span><div class="lbl">ريال صافي ربح متوقع</div></div>
+    <div class="metric-box"><span class="num">6–10%</span><div class="lbl">صافي ربح المرحلة الأولى</div></div>
+    <div class="metric-box"><span class="num">226M</span><div class="lbl">سقف التوسع المستقبلي</div></div>
+  </div>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 2 من 20</span></div>
+</div>
+
+<!-- Page 3: Market Size -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>حجم السوق والفرصة</h1>
+  <h2>السياق العقاري السعودي</h2>
+  <p>قطاع الاستثمار والتطوير العقاري في المملكة العربية السعودية يشهد نمواً غير مسبوق. رؤية 2030 دفعت بمشاريع ضخمة مثل نيوم، الدرعية، روشن، والبحر الأحمر، مما خلق طلباً متزايداً على الوحدات السكنية والتجارية الجاهزة.</p>
+  <div class="grid-3" style="margin: 16px 0;">
+    <div class="metric-box"><span class="num">730B</span><div class="lbl">ريال حجم التمويل العقاري</div></div>
+    <div class="metric-box"><span class="num">14.2%+</span><div class="lbl">نمو الصفقات العقارية 2025</div></div>
+    <div class="metric-box"><span class="num">8.89%</span><div class="lbl">عائد إيجاري في الرياض</div></div>
+  </div>
+  <h2>الفجوة الاستثمارية</h2>
+  <p>رغم النمو، يواجه السوق تحديات واضحة:</p>
+  <ul>
+    <li>تراجع التمويل العقاري الجديد يقلل من دخول مطورين جدد.</li>
+    <li>آلاف المباني متعثرة في مراحل إنشاء متقدمة بسبب ضغوط سيولة.</li>
+    <li>الطلب على الوحدات الجاهزة يفوق العرض بفارق واضح.</li>
+    <li>المشاريع الجديدة تحتاج 3–4 سنوات للإنجاز، بينما المباني المتعثرة تُحيى خلال 12–18 شهر.</li>
+  </ul>
+  <h2>المدن المستهدفة</h2>
+  <table>
+    <tr><th>المدينة</th><th>العائد الإيجاري</th><th>عائد رأس المال عند البيع</th><th>الأولوية</th></tr>
+    <tr><td>الرياض</td><td>8.89%</td><td>3x–4x</td><td>عالية جداً</td></tr>
+    <tr><td>جدة</td><td>7.89%</td><td>2.5x–3.5x</td><td>عالية</td></tr>
+    <tr><td>مكة المكرمة</td><td>7.2%</td><td>2.5x–3.5x</td><td>عالية جداً</td></tr>
+    <tr><td>المدينة المنورة</td><td>7.0%</td><td>2.5x–3.5x</td><td>عالية</td></tr>
+  </table>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 3 من 20</span></div>
+</div>
+
+<!-- Page 4: Why Now -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>لماذا نستثمر الآن؟</h1>
+  <h2>الربط برؤية 2030</h2>
+  <p>رؤية 2030 تجعل العقار قلب النمو الاقتصادي في السعودية. المشاريع العملاقة ترفع قيم الأراضي والمباني القريبة، وتخلق طلباً مستمراً على الوحدات الجاهزة. نموذج إحياء الأصول يتوافق مع هذه الرؤية من خلال توفير وحدات سكنية وتجارية بسرعة وبأقل تكلفة من البناء الجديد.</p>
+  <h2>تراجع التمويل العقاري الجديد</h2>
+  <p>تباطؤ القروض العقارية الجديدة أصاب المطورين الصغار بالجمود، مما زاد من عدد المباني المتعثرة المتاحة للشراكة. هذا يعني:</p>
+  <ul>
+    <li>مزيد من الأصول المتعثرة بأسعار تفاوضية.</li>
+    <li>منافسة أقل من مطورين جدد.</li>
+    <li>فرصة لامتلاك حصة سوقية قبل عودة التمويل بقوة.</li>
+  </ul>
+  <h2>الطلب يفوق العرض</h2>
+  <p>الوحدات الجاهزة في المدن الكبرى نادرة. برامج «سكني» تدعم الطبقة المتوسعة، والوافدون والمقيمون يبحثون عن خيارات جاهزة. المباني شبه الجاهزة تُحيى خلال أشهر بدلاً من سنوات، مما يجعلها الإجابة الأسرع على الفجوة.</p>
+  <div class="highlight">
+    <p><strong>خلاصة:</strong> النافذة الزمنية مفتوحة الآن. الأصول متاحة، الأسعار معقولة، المنافسة محدودة، والطلب قوي ومستدام.</p>
+  </div>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 4 من 20</span></div>
+</div>
+
+<!-- Page 5: Competitive Advantage -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>الميزة التنافسية</h1>
+  <h2>لماذا يتفوق نموذج إحياء الأصول على التطوير التقليدي؟</h2>
+  <table>
+    <tr><th>المعيار</th><th>التطوير التقليدي</th><th>إحياء الأصول</th></tr>
+    <tr><td>شراء الأرض</td><td>مطلوب — تكلفة ضخمة</td><td><strong>لا يوجد</strong></td></tr>
+    <tr><td>حجم رأس المال</td><td>مرتفع جداً</td><td><strong>متوسط</strong></td></tr>
+    <tr><td>مدة المشروع</td><td>36–48 شهر</td><td><strong>12–18 شهر</strong></td></tr>
+    <tr><td>مخاطر الأراضي</td><td>مخاطر ارتفاع الأسعار</td><td><strong>مخاطر منخفضة</strong></td></tr>
+    <tr><td>الاعتماد على القروض</td><td>مرتفع</td><td><strong>أقل</strong></td></tr>
+    <tr><td>سرعة دوران السيولة</td><td>بطيئة</td><td><strong>سريعة</strong></td></tr>
+    <tr><td>قابلية التوسع</td><td>معقدة ومكلفة</td><td><strong>مرنة وسريعة</strong></td></tr>
+  </table>
+  <h2>ركائز تميزنا</h2>
+  <div class="grid-2">
+    <div>
+      <h3>نموذج الشراكة</h3>
+      <p>ندخل كشريك وليس كمشتري. هذا يقلل رأس المال ويسرع الدخول إلى السوق.</p>
+      <h3>البيانات والذكاء الاصطناعي</h3>
+      <p>محركات بوندز لتقييم المدن والمواقع والأسعار تساعد في اختيار الأصول الأكثر جدوى.</p>
+    </div>
+    <div>
+      <h3>سرعة الدورة</h3>
+      <p>دورة 12–18 شهر مقابل سنوات في التطوير التقليدي تعني سيولة أسرع ومخاطر أقل.</p>
+      <h3>صعوبة التقليد</h3>
+      <p>تقليد النموذج يتطلب علاقات مع مالكي الأصول، شراكات بنكية، وقاعدة بيانات متنامية.</p>
+    </div>
+  </div>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 5 من 20</span></div>
+</div>
+
+<!-- Page 6: Business Model -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>نموذج العمل</h1>
+  <h2>آلية العمل في 5 خطوات</h2>
+  <div class="grid-2">
+    <div>
+      <div class="highlight" style="margin-bottom: 10px;">
+        <h3>1. البحث والتقييم</h3>
+        <p>فحص قانوني وهندسي وتقييم معتمد للمبنى المتعثر من جهة مرخصة من REGA.</p>
+      </div>
+      <div class="highlight" style="margin-bottom: 10px;">
+        <h3>2. عقد الشراكة</h3>
+        <p>اتفاق محاصة واضح: الأرض + المبنى من المالك، التشطيب والتسويق من الشركة.</p>
+      </div>
+      <div class="highlight" style="margin-bottom: 10px;">
+        <h3>3. الإحياء والتشطيب</h3>
+        <p>إكمال التشطيب خلال 6–12 شهر بعقود ثابتة ومقاولين معتمدين.</p>
+      </div>
+    </div>
+    <div>
+      <div class="highlight" style="margin-bottom: 10px;">
+        <h3>4. التسويق والبيع</h3>
+        <p>عرض الوحدات للبيع خلال 3–6 أشهر مع تسويق مبكر وعقود مسبقة.</p>
+      </div>
+      <div class="highlight" style="margin-bottom: 10px;">
+        <h3>5. الخروج والتوزيع</h3>
+        <p>استرداد تكاليف الشركة أولاً، ثم توزيع الأرباح حسب نموذج الشراكة المتفق عليه.</p>
+      </div>
+    </div>
+  </div>
+  <h2>نماذج الشراكة المتاحة</h2>
+  <table>
+    <tr><th>النموذج</th><th>مساهمة المالك</th><th>مساهمة الشركة</th><th>حصة الشركة</th></tr>
+    <tr><td>المحاصة الكلاسيكية</td><td>الأرض + المبنى</td><td>التشطيب + التسويق</td><td>40–50% من الربح</td></tr>
+    <tr><td>التوزيع النسبي</td><td>قيمة الأرض والمبنى</td><td>تكاليف الإكمال</td><td>نسبة القيمة + علاوة إدارة</td></tr>
+    <tr><td>استرداد + 20–25%</td><td>الأرض + المبنى</td><td>تكاليف الإكمال كاملة</td><td>استرداد + 20–25% من الربح</td></tr>
+    <tr><td>SPV لكل مشروع</td><td>عينية/نقدية</td><td>تمويل + إدارة</td><td>حسب الأسهم</td></tr>
+  </table>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 6 من 20</span></div>
+</div>
+
+<!-- Page 7: SPV Model -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>نموذج الشركة الفرعية (SPV)</h1>
+  <p>نموذج SPV يمنح الشركة والمستثمرين مرونة قانونية ومالية أعلى. كل مشروع يتم تأسيس شركة فرعية مستقلة، مما يعزل المخاطر ويوفر شفافية كاملة في الملكية والتوزيع.</p>
+  <h2>هيكل SPV</h2>
+  <div class="grid-2">
+    <div>
+      <h3>1. تأسيس شركة فرعية لكل مشروع</h3>
+      <p>SPV منفصلة قانونياً عن الشركة الأم، مما يعزل المخاطر المالية والقانونية.</p>
+      <h3>2. تحويل القيمة إلى أسهم</h3>
+      <p>قيمة العقار + تكاليف الإكمال تحول إلى حصص ملكية واضحة لكل طرف.</p>
+      <h3>3. التصفية بعد التوزيع النهائي</h3>
+      <p>تُصرف SPV بعد البيع النهائي وتوزيع الأرباح، مما يضمن نهاية نظيفة للمشروع.</p>
+    </div>
+    <div>
+      <h3>4. توزيع الأرباح</h3>
+      <p>توزيع تناسبي حسب الأسهم، أو 20–25% من صافي الربح بعد استرداد التكاليف.</p>
+      <h3>5. استرداد الشركة أولاً</h3>
+      <p>تكاليف الإكمال والتسويق والإدارة تُسترد قبل أي توزيع للأرباح.</p>
+      <div class="highlight" style="margin-top: 12px;">
+        <p><strong>فائدة إضافية:</strong> يمكن جذب مستثمر ثالث بنسبة 10–20% لتخفيف المخاطر.</p>
+      </div>
+    </div>
+  </div>
+  <h2>مثال تطبيقي</h2>
+  <table>
+    <tr><th>البند</th><th>القيمة</th></tr>
+    <tr><td>رأس مال SPV</td><td>7,500,000 ر.س</td></tr>
+    <tr><td>حصة الشركة (تمويل + إدارة)</td><td>70%</td></tr>
+    <tr><td>حصة مالك الأصل (مساهمة عينية)</td><td>30%</td></tr>
+    <tr><td>مستثمر ثالث اختياري</td><td>10–20%</td></tr>
+    <tr><td>آلية التوزيع</td><td>حسب الحصص بعد استرداد التكاليف</td></tr>
+  </table>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 7 من 20</span></div>
+</div>
+
+<!-- Page 8: Phase 1 Plan -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>خطة المرحلة الأولى</h1>
+  <div class="highlight">
+    <p><strong>25 مليون ريال ليست المطلوب فوراً؟</strong> لا. 226 مليون ريال هي سقف التوسع المستقبلي (رأس مال مصرح). المطلوب الآن هو 25 مليون ريال فقط لإثبات النموذج عبر 3–5 مشاريع تجريبية.</p>
+  </div>
+  <h2>مواصفات المرحلة الأولى</h2>
+  <table>
+    <tr><th>البند</th><th>القيمة</th><th>ملاحظات</th></tr>
+    <tr><td>رأس المال</td><td>25,000,000 ر.س</td><td>كافٍ لتشغيل 3–5 مشاريع</td></tr>
+    <tr><td>عدد المشاريع</td><td>3–5 مشاريع</td><td>فئة صغيرة (ج) ومتوسطة (ب)</td></tr>
+    <tr><td>مدة التنفيذ</td><td>12–18 شهر</td><td>من التعاقد إلى بيع آخر وحدة</td></tr>
+    <tr><td>الفريق</td><td>8–10 موظفين</td><td>هيكل مرن بدون تضخم إداري</td></tr>
+    <tr><td>الربح الصافي المتوقع</td><td>1.5–2.5 مليون ر.س</td><td>6–10% صافي</td></tr>
+  </table>
+  <h2>استخدام رأس المال</h2>
+  <table>
+    <tr><th>البند</th><th>النسبة</th><th>المبلغ</th></tr>
+    <tr><td>دخول محاصة / مشاريع</td><td>45%</td><td>11,250,000 ر.س</td></tr>
+    <tr><td>تشطيب وتراخيص</td><td>30%</td><td>7,500,000 ر.س</td></tr>
+    <tr><td>تسويق ومبيعات</td><td>10%</td><td>2,500,000 ر.س</td></tr>
+    <tr><td>احتياطي تشغيلي</td><td>10%</td><td>2,500,000 ر.س</td></tr>
+    <tr><td>إدارة وتشغيل</td><td>5%</td><td>1,250,000 ر.س</td></tr>
+  </table>
+  <h2>الأهداف الاستراتيجية</h2>
+  <ul>
+    <li>بناء سجل نجاح موثق (عقود + صور + شهادات عملاء).</li>
+    <li>تأسيس قاعدة بيانات مصنفة لأكثر من 100 أصل متعثر.</li>
+    <li>تحقيق 6–10% صافي ربح مرحلي وبناء سجل نجاح.</li>
+    <li>الإعداد لجولة توسعية تصل إلى 75 مليون ريال.</li>
+  </ul>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 8 من 20</span></div>
+</div>
+
+<!-- Page 9: Riyadh Case Study -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>دراسة حالة: مبنى متعثر في الرياض</h1>
+  <p>المثال التالي يمثل مشروعاً متوسط الحجم في الرياض باستخدام نموذج المحاصة 50/50. الأرقام واقعية ومبنية على أسعار السوق وتكاليف التشطيب الفعلية.</p>
+  <h2>بيانات المشروع</h2>
+  <div class="grid-2">
+    <div>
+      <table>
+        <tr><th>البند</th><th>القيمة</th></tr>
+        <tr><td>القيمة الحالية للمبنى</td><td>5,000,000 ر.س</td></tr>
+        <tr><td>نسبة الإنجاز</td><td>60%</td></tr>
+        <tr><td>تكلفة الإكمال</td><td>1,500,000 ر.س</td></tr>
+        <tr><td>التسويق والرسوم</td><td>300,000 ر.س</td></tr>
+        <tr><td>الاحتياطي</td><td>10%</td></tr>
+        <tr><td>التكلفة الإجمالية</td><td>6,800,000 ر.س</td></tr>
+      </table>
+    </div>
+    <div>
+      <table>
+        <tr><th>البند</th><th>القيمة</th></tr>
+        <tr><td>قيمة البيع المتوقعة</td><td>10,000,000 ر.س</td></tr>
+        <tr><td>صافي الربح</td><td>3,200,000 ر.س</td></tr>
+        <tr><td>حصة الشركة (50/50)</td><td>1,600,000 ر.س</td></tr>
+        <tr><td>عائد رأس المال</td><td>~2.1x</td></tr>
+        <tr><td>مدة التنفيذ</td><td>12–18 شهر</td></tr>
+        <tr><td>IRR المتوقع</td><td>~18.5%</td></tr>
+      </table>
+    </div>
+  </div>
+  <h2>تحليل الحساسية</h2>
+  <table>
+    <tr><th>المتغير</th><th>السيناريو المتشائم</th><th>السيناريو المتوقع</th><th>السيناريو المتفائل</th></tr>
+    <tr><td>سعر البيع</td><td>-10%</td><td>الأساس</td><td>+10%</td></tr>
+    <tr><td>صافي الربح</td><td>2,100,000 ر.س</td><td>3,200,000 ر.س</td><td>4,300,000 ر.س</td></tr>
+    <tr><td>عائد رأس المال للشركة</td><td>~1.4x</td><td>~2.1x</td><td>~2.8x</td></tr>
+  </table>
+  <div class="highlight">
+    <p><strong>الخلاصة:</strong> حتى في السيناريو المتشائم (انخفاض 10% في أسعار البيع) يبقى المشروع مربحاً بعائد 1.4x، وهو ما يفوق عوائد العديد من الأدوات الاستثمارية التقليدية.</p>
+  </div>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 9 من 20</span></div>
+</div>
+
+<!-- Page 10: Financial Returns -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>العوائد المتوقعة</h1>
+  <h2>مؤشرات الأداء الرئيسية</h2>
+  <div class="grid-4" style="margin: 16px 0;">
+    <div class="metric-box"><span class="num">2.5x–4x</span><div class="lbl">عائد رأس المال عند الخروج</div></div>
+    <div class="metric-box"><span class="num">~18.5%</span><div class="lbl">IRR على أفق 10 سنوات</div></div>
+    <div class="metric-box"><span class="num">8.89%</span><div class="lbl">عائد إيجاري في الرياض</div></div>
+    <div class="metric-box"><span class="num">12–18</span><div class="lbl">شهر دورة المشروع</div></div>
+  </div>
+  <h2>خطة الخروج والعوائد الزمنية</h2>
+  <table>
+    <tr><th>المرحلة</th><th>الفترة</th><th>الأنشطة الرئيسية</th><th>التدفق النقدي المتوقع</th></tr>
+    <tr><td>جمع رأس المال</td><td>الربع 1–2</td><td>إغلاق جولة التمويل الأولى</td><td>استلام السيولة</td></tr>
+    <tr><td>بناء المحفظة</td><td>السنة 1</td><td>3–5 مشاريع نشطة، تشطيب وتسويق</td><td>أول إيرادات من المبيعات</td></tr>
+    <tr><td>تسارع المبيعات</td><td>السنة 2</td><td>تكرار النموذج، 6–8 مشاريع</td><td>تدفقات نقدية إيجابية</td></tr>
+    <tr><td>الربحية المستدامة</td><td>السنة 3–4</td><td>علامة تجارية ناضجة، 10–12 مشروع</td><td>أرباح تراكمية متزايدة</td></tr>
+    <tr><td>الخروج الاستراتيجي</td><td>السنة 5–7</td><td>إغلاق المشاريع وتوزيع الأرباح</td><td>عائد 2.5x–4x</td></tr>
+  </table>
+  <h2>ملخص الجدول الزمني</h2>
+  <div class="highlight">
+    <p>المساهم يبدأ برؤية أول إيرادات خلال <span class="gold-text">12 شهراً</span>، مع ذروة العائد عند خروج الشركة من المشروع خلال 5–7 سنوات.</p>
+  </div>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 10 من 20</span></div>
+</div>
+
+<!-- Page 11: Use of Funds -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>خطة استخدام مبلغ 25 مليون ريال</h1>
+  <p>يتم توزيع رأس المال بطريقة تضمن بدء التنفيذ فوراً مع الحفاظ على احتياطي كافٍ لمواجهة أي تقلبات.</p>
+  <table>
+    <tr><th>البند</th><th>المبلغ</th><th>النسبة</th><th>الهدف</th></tr>
+    <tr><td>دخول محاصة / مشاريع</td><td>11,250,000 ر.س</td><td>45%</td><td>الدخول في 3–5 مشاريع عبر عقود محاصة</td></tr>
+    <tr><td>تشطيب وتراخيص</td><td>7,500,000 ر.س</td><td>30%</td><td>تمويل الإكمال الهندسي والتراخيص</td></tr>
+    <tr><td>تسويق ومبيعات</td><td>2,500,000 ر.س</td><td>10%</td><td>حملات تسويقية موجهة وعمولات مبيعات</td></tr>
+    <tr><td>احتياطي تشغيلي</td><td>2,500,000 ر.س</td><td>10%</td><td>حماية ضد تأخر المبيعات أو ارتفاع التكاليف</td></tr>
+    <tr><td>إدارة وتشغيل</td><td>1,250,000 ر.س</td><td>5%</td><td>رواتب فريق صغير مرن وتكاليف تشغيل</td></tr>
+  </table>
+  <h2>مبدأ الاسترداد أولاً</h2>
+  <p>في كل مشروع، تسترد الشركة تكاليف الإكمال والتسويق والإدارة من أول مبيعات، قبل أي توزيع للأرباح. هذا يضمن تقليل مخاطر رأس المال ويوفر سيولة متجددة للمرحلة التالية.</p>
+  <div class="highlight">
+    <p><strong>مثال:</strong> إذا استثمرت الشركة 1.5 مليون ريال في مشروع، فإن أول 1.5 مليون ريال من المبيعات تعود للشركة، ثم يتم توزيع صافي الربح.</p>
+  </div>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 11 من 20</span></div>
+</div>
+
+<!-- Page 12: Expansion Plan -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>خطة التوسع</h1>
+  <p>226 مليون ريال هي سقف التوسع المستقبلي وليس المطلوب فوراً. يتم استدعاء رأس المال تدريجياً بعد نجاح كل مرحلة.</p>
+  <h2>خارطة المراحل</h2>
+  <table>
+    <tr><th>المرحلة</th><th>رأس المال</th><th>المشاريع</th><th>المدة</th><th>الهدف</th></tr>
+    <tr><td>الأولى</td><td>25M ر.س</td><td>3–5</td><td>12–18 شهر</td><td>إثبات النموذج وبناء سجل نجاح</td></tr>
+    <tr><td>الثانية</td><td>75M ر.س</td><td>8–12</td><td>24–36 شهر</td><td>التوسع الجغرافي وزيادة الفريق</td></tr>
+    <tr><td>الثالثة</td><td>150M ر.س</td><td>15–25</td><td>36–48 شهر</td><td>محفظة متنوعة وقواعد بيانات ضخمة</td></tr>
+    <tr><td>السقف</td><td>226M ر.س</td><td>25+</td><td>5–7 سنوات</td><td>سقف رأس المال المصروح</td></tr>
+  </table>
+  <h2>معايير التوسع</h2>
+  <ul>
+    <li>نجاح المرحلة الأولى بتحقيق عائد 1.5x على الأقل.</li>
+    <li>بناء قاعدة بيانات مصنفة لأكثر من 100 أصل متعثر.</li>
+    <li>تكوين فريق تشغيلي كامل (20–30 موظف).</li>
+    <li>شراكات مع بنوك محلية لتسهيل التمويل المستقبلي.</li>
+    <li>علامة تجارية معروفة في سوق إحياء الأصول.</li>
+  </ul>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 12 من 20</span></div>
+</div>
+
+<!-- Page 13: Risk Analysis -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>المخاطر والتحوطات</h1>
+  <p>كل استثمار يحمل مخاطر. نموذج إحياء الأصول يقلل المخاطر بشكل كبير مقارنة بالتطوير التقليدي، لكن لا يزال من الضروري فهمها وإدارتها.</p>
+  <table>
+    <tr><th>المخاطر</th><th>الاحتمال</th><th>التحوط</th></tr>
+    <tr><td>تأخر بيع الوحدات</td><td>متوسط</td><td>تسويق مبكر + عقود مسبقة + تسعير تنافسي + تنويع المشاريع</td></tr>
+    <tr><td>ارتفاع تكاليف التشطيب</td><td>متوسط–منخفض</td><td>عقود ثابتة مع مقاولين + احتياطي 10%</td></tr>
+    <tr><td>مشاكل قانونية في المبنى</td><td>منخفض</td><td>فحص قانوني شامل قبل التعاقد + تأمين الملكية</td></tr>
+    <tr><td>تقلبات أسعار العقار</td><td>متوسط</td><td>تنويع المدن والفئات السعرية + تحليل حساسية</td></tr>
+    <tr><td>تأخر التراخيص</td><td>منخفض–متوسط</td><td>العمل مع مكاتب استشارية مرخصة ومتابعة مبكرة</td></tr>
+    <tr><td>عدم وفاء المالك بالالتزامات</td><td>منخفض</td><td>عقود محاصة واضحة + ضمانات قانونية</td></tr>
+  </table>
+  <h2>كيف تقلل المرحلة الأولى المخاطر؟</h2>
+  <ul>
+    <li>حجم صغير (25 مليون ريال) يحد من الخسارة المحتملة.</li>
+    <li>3–5 مشاريع متنوعة تقلل الاعتماد على مشروع واحد.</li>
+    <li>استرداد تكاليف الشركة أولاً يحمي رأس المال.</li>
+    <li>الشراكة مع مالكي الأصول القائمين تقلل مخاطر الأراضي.</li>
+  </ul>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 13 من 20</span></div>
+</div>
+
+<!-- Page 14: Team & Governance -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>الفريق والحوكمة</h1>
+  <h2>هيكل الحوكمة</h2>
+  <div class="grid-2">
+    <div>
+      <h3>مجلس الإدارة</h3>
+      <p>يضع الاستراتيجية العامة ويشرف على الأداء المالي والتشغيلي.</p>
+      <h3>لجنة الاستثمار</h3>
+      <p>تقيم وتوافق على المشاريع بناءً على معايير العائد والمخاطر.</p>
+    </div>
+    <div>
+      <h3>لجنة المخاطر والامتثال</h3>
+      <p>تضمن الالتزام بالأنظمة وإدارة المخاطر بشكل استباقي.</p>
+      <h3>التقارير الدورية</h3>
+      <p>تقارير شهرية للمستثمرين تشمل التقدم المالي والتشغيلي.</p>
+    </div>
+  </div>
+  <h2>القدرات التنفيذية</h2>
+  <table>
+    <tr><th>المجال</th><th>القدرة</th></tr>
+    <tr><td>التقييم العقاري</td><td>تقييم معتمد من جهات مرخصة من REGA</td></tr>
+    <tr><td>الهندسة وإدارة المشاريع</td><td>متابعة تنفيذية لمراحل التشطيب والإكمال</td></tr>
+    <tr><td>التسويق العقاري</td><td>حملات موجهة وشبكة مبيعات محلية</td></tr>
+    <tr><td>الاستشارات القانونية والمالية</td><td>عقود واضحة وهياكل ضريبية محسّنة</td></tr>
+    <tr><td>البيانات والذكاء الاصطناعي</td><td>محركات بوندز لاختيار الأصول والمواقع</td></tr>
+  </table>
+  <h2>التراخيص</h2>
+  <p>الشركة مرخصة من وزارة التجارة والهيئة العامة للعقار (REGA)، وتعمل وفق نظام الشركات السعودي كشركة مساهمة مقفلة.</p>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 14 من 20</span></div>
+</div>
+
+<!-- Page 15: Why Bonds -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>لماذا بوندز؟</h1>
+  <p>بوندز ليست شركة ناشئة بدون خبرة. نحن منصة استشارية مالية وعقارية تعتمد على بيانات موثوقة ونماذج مالية مجربة.</p>
+  <h2>مصادر قوتنا</h2>
+  <div class="grid-2">
+    <div>
+      <h3>بيانات موثوقة</h3>
+      <p>نستند إلى بيانات البنك المركزي السعودي (ساما)، وزارة العدل، REGA، Knight Frank، وKAPSARC.</p>
+      <h3>نموذج مُختبر</h3>
+      <p>هيكل الشراكة واضح ويحمي المستثمر والمالك على حد سواء.</p>
+    </div>
+    <div>
+      <h3>تركيز على البيع</h3>
+      <p>جميع عملياتنا مصممة لتقليل مدة البيع وزيادة السيولة.</p>
+      <h3>تقنية ممكّنة</h3>
+      <p>نستخدم "البناء الذكي" كمسّرع للبيع وليس كتكلفة إضافية.</p>
+    </div>
+  </div>
+  <h2>ماذا نقدم للمستثمر؟</h2>
+  <ul>
+    <li>شفافية كاملة في استخدام رأس المال.</li>
+    <li>تقارير دورية عن التقدم المالي والتشغيلي.</li>
+    <li>استرداد تكاليف الشركة أولاً قبل توزيع الأرباح.</li>
+    <li>خطة مراحل واضحة تبدأ بـ25 مليون ريال.</li>
+    <li>إمكانية الخروج عبر بيع الوحدات أو إعادة التمويل.</li>
+  </ul>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 15 من 20</span></div>
+</div>
+
+<!-- Page 16: Investment Thesis -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>أقوى 5 نقاط إقناع</h1>
+  <div class="highlight">
+    <h3>1. سوق ضخم وفجوة واضحة</h3>
+    <p>الطلب على الوحدات الجاهزة يفوق العرض، والمباني المتعثرة متاحة بأسعار تفاوضية.</p>
+  </div>
+  <div class="highlight">
+    <h3>2. نموذج يقلل المخاطر</h3>
+    <p>لا شراء للأرض، واسترداد تكاليف الشركة أولاً، ودورة سريعة 12–18 شهر.</p>
+  </div>
+  <div class="highlight">
+    <h3>3. عوائد جذابة وواقعية</h3>
+    <p>عائد رأس مال 2.5x–4x عند الخروج، وIRR ~18.5% على أفق 10 سنوات.</p>
+  </div>
+  <div class="highlight">
+    <h3>4. مرحلة أولى محدودة المخاطر</h3>
+    <p>25 مليون ريال فقط لإثبات النموذج، مع إمكانية التوسع التدريجي.</p>
+  </div>
+  <div class="highlight">
+    <h3>5. فريق وهيكل حوكمة محترف</h3>
+    <p>تراخيص نظامية، لجان متخصصة، وتقارير دورية للمستثمرين.</p>
+  </div>
+  <h2>أضعف 5 نقاط وكيفية معالجتها</h2>
+  <table>
+    <tr><th>النقطة</th><th>المخاطر</th><th>الحل</th></tr>
+    <tr><td>عدم وجود سجل نجاح طويل</td><td>متوسط</td><td>المرحلة الأولى تبني سجلاً موثقاً</td></tr>
+    <tr><td>تأخر بيع الوحدات</td><td>متوسط</td><td>تسويق مبكر وتنويع المشاريع</td></tr>
+    <tr><td>الاعتماد على مالكي الأصول</td><td>متوسط</td><td>عقود واضحة وفحص قانوني</td></tr>
+    <tr><td>تقلبات أسعار العقار</td><td>متوسط</td><td>تحليل حساسية واحتياطي مالي</td></tr>
+    <tr><td>الحاجة لتوسع الفريق</td><td>منخفض</td><td>هيكل مرن ونمو تدريجي</td></tr>
+  </table>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 16 من 20</span></div>
+</div>
+
+<!-- Page 17: Expected Questions -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>الأسئلة المتوقعة في أول اجتماع</h1>
+  <div class="grid-2">
+    <div>
+      <h3>عن النموذج</h3>
+      <ul>
+        <li>كيف تختارون المباني المتعثرة؟</li>
+        <li>ما معايير قبول أو رفض المشروع؟</li>
+        <li>لماذا يوافق المالك على المحاصة بدلاً من البيع؟</li>
+        <li>كيف تضمنون عدم وجود مشاكل قانونية؟</li>
+      </ul>
+      <h3>عن الأرقام</h3>
+      <ul>
+        <li>من أين جاءت أرقام العوائد؟</li>
+        <li>ما هو الاحتياطي المالي؟</li>
+        <li>كيف تتم محاسبة التكاليف والأرباح؟</li>
+        <li>متى يسترد المستثمر رأس ماله؟</li>
+      </ul>
+    </div>
+    <div>
+      <h3>عن المخاطر</h3>
+      <ul>
+        <li>ماذا لو تأخرت المبيعات؟</li>
+        <li>ماذا لو انخفضت أسعار العقار؟</li>
+        <li>كيف تتم إدارة المقاولين؟</li>
+        <li>ما آلية الخروج؟</li>
+      </ul>
+      <h3>عن التوسع</h3>
+      <ul>
+        <li>لماذا 226 مليون ريال؟</li>
+        <li>متى تبدأ المرحلة الثانية؟</li>
+        <li>هل يمكن للمستثمر المشاركة في المراحل التالية؟</li>
+        <li>ما هي خطة التخارج النهائية؟</li>
+      </ul>
+    </div>
+  </div>
+  <div class="highlight">
+    <p><strong>نصيحة:</strong> جهّز إجابات موجزة لكل سؤال بدعم من الأرقام والدراسة القانونية. اعرض دراسة الحالة الرياضية كمثال واقعي.</p>
+  </div>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 17 من 20</span></div>
+</div>
+
+<!-- Page 18: Improvements to Increase Funding -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>التعديلات التي ترفع احتمال الحصول على التمويل</h1>
+  <p>بناءً على تحليل مستثمر محترف، هذه التحسينات تزيد من جاذبية العرض:</p>
+  <div class="highlight">
+    <h3>1. تقديم دراسة حالة حقيقية أو شبه حقيقية</h3>
+    <p>مثال الرياض يعطي مصداقية. الأفضل توقيع عقد محاصة أولي أو خطاب نوايا مع مالك أصل متعثر.</p>
+  </div>
+  <div class="highlight">
+    <h3>2. توضيح آلية استرداد رأس المال</h3>
+    <p>المستثمر يريد معرفة متى يسترد رأس ماله. جدول زمني واضح للتدفقات النقدية يزيد الثقة.</p>
+  </div>
+  <div class="highlight">
+    <h3>3. إضافة ضمانات أو آليات حماية</h3>
+    <p>مثل احتياطي 10%، عقود ثابتة، تأمين على المشاريع، أو حقوق تصويت للمستثمرين.</p>
+  </div>
+  <div class="highlight">
+    <h3>4. تبسيط النموذج القانوني</h3>
+    <p>تقديم هيكل SPV واضح مع مسودة عقد استثمار جاهزة للمراجعة.</p>
+  </div>
+  <div class="highlight">
+    <h3>5. تحديد معايير الاختيار الصارمة</h3>
+    <p>وضوح معايير اختيار المباني (الموقع، نسبة الإنجاز، القيمة، الطلب) يُظهر احترافية.</p>
+  </div>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 18 من 20</span></div>
+</div>
+
+<!-- Page 19: Appendices -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <h1>الملاحق والمصادر</h1>
+  <h2>المصادر الرئيسية</h2>
+  <ul>
+    <li>البنك المركزي السعودي (ساما) — بيانات التمويل العقاري.</li>
+    <li>وزارة العدل — بيانات الصفقات العقارية.</li>
+    <li>الهيئة العامة للعقار (REGA) — الإطار التنظيمي والتراخيص.</li>
+    <li>Knight Frank — تقارير السوق العقاري السعودي.</li>
+    <li>KAPSARC — الدراسات الاقتصادية والسكانية.</li>
+  </ul>
+  <h2>الافتراضات المالية</h2>
+  <table>
+    <tr><th>المؤشر</th><th>الافتراض</th><th>الأساس</th></tr>
+    <tr><td>عائد رأس المال عند البيع</td><td>2.5x–4x</td><td>أسعار السوق وتكاليف الإكمال</td></tr>
+    <tr><td>IRR</td><td>~18.5%</td><td>على أفق 10 سنوات</td></tr>
+    <tr><td>مدة المشروع</td><td>12–18 شهر</td><td>من التعاقد إلى بيع آخر وحدة</td></tr>
+    <tr><td>نسبة الإنجاز</td><td>50–70%</td><td>مباني متعثرة في مراحل متقدمة</td></tr>
+    <tr><td>تكلفة الإكمال</td><td>20–40% من القيمة</td><td>حسب حالة المبنى</td></tr>
+  </table>
+  <h2>الملاحق التفصيلية</h2>
+  <p>للحصول على الدراسة الكاملة (97 صفحة) التي تشمل التحليل المالي التفصيلي، الجداول، تحليل التعادل، والسيناريوهات، يرجى التواصل مع فريق بوندز.</p>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 19 من 20</span></div>
+</div>
+
+<!-- Page 20: Call to Action -->
+<div class="page">
+  <div class="header">
+    <img src="../assets/bonds-logo-2026-v2.png" alt="Bonds Global">
+    <div class="doc-title">النشرة الاستثمارية — شركة إحياء الأصول العقارية</div>
+  </div>
+  <div style="text-align: center; margin-top: 40px;">
+    <h1 style="font-size: 24pt;">ادخل معنا في المرحلة الأولى</h1>
+    <p style="font-size: 13pt; margin: 20px 0;">فرصة استثمارية مباشرة في إحياء الأصول العقارية المتعثرة</p>
+  </div>
+  <div class="grid-3" style="margin: 30px 0;">
+    <div class="metric-box"><span class="num">25M</span><div class="lbl">ريال رأس المال المطلوب</div></div>
+    <div class="metric-box"><span class="num">1.5–2.5M</span><div class="lbl">ريال ربح متوقع</div></div>
+    <div class="metric-box"><span class="num">12–18</span><div class="lbl">شهر لتوليد الإيرادات</div></div>
+  </div>
+  <div class="highlight" style="text-align: center; margin: 30px 0;">
+    <h3>الخطوة التالية</h3>
+    <p>جلسة تعريفية مع فريق بوندز لمراجعة الفرص المتاحة، النموذج المناسب، وخطة المساهمة.</p>
+  </div>
+  <div style="text-align: center; margin-top: 40px; font-size: 11pt; color: #555;">
+    <p><strong>Bonds Global</strong></p>
+    <p>www.bonds-global.com</p>
+    <p>info@bonds-global.com</p>
+  </div>
+  <div class="footer"><span>Bonds Global</span><span>صفحة 20 من 20</span></div>
+</div>
+
+</body>
+</html>

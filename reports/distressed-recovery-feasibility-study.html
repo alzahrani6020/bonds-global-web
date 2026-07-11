@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>دراسة جدوى اقتصادية موسَّعة — شركة إحياء الأصول العقارية | بوندز</title>
+  <meta name="description" content="دراسة جدوى اقتصادية موسعة وملقحة لشركة إحياء الأصول العقارية بنموذج الشراكة الذكية لإحياء المباني المتعثرة" />
+  <meta property="og:title" content="دراسة جدوى اقتصادية موسعة — شركة إحياء الأصول العقارية" />
+  <meta property="og:description" content="النسخة الملقحة المحدثة 3.0 — الهيكل القانوني SPV + دراسة حالة أبحر" />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png?v=2026b" />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../reports/distressed-recovery-investment-memorandum.css" />
+  <style>
+    .lang-switch {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      z-index: 1000;
+      background: rgba(26,26,46,0.95);
+      border: 1px solid rgba(197,160,48,0.4);
+      border-radius: 50px;
+      padding: 8px 18px;
+      font-family: "Tajawal", sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .lang-switch a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .toc {
+      background: #fffdf7;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin: 30px 0;
+    }
+    .toc h3 {
+      margin-top: 0;
+      color: var(--accent-dark);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+    .toc ol {
+      margin: 0;
+      padding-right: 20px;
+      columns: 2;
+      column-gap: 40px;
+    }
+    .toc li {
+      margin: 6px 0;
+      break-inside: avoid;
+    }
+    .toc a {
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+    .toc a:hover { color: var(--accent-dark); text-decoration: underline; }
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin: 25px 0;
+    }
+    .scenario-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 18px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+    .scenario-card.pessimistic { border-top: 4px solid var(--danger); }
+    .scenario-card.expected { border-top: 4px solid var(--accent); }
+    .scenario-card.optimistic { border-top: 4px solid var(--success); }
+    .scenario-card h4 { margin-top: 0; color: var(--text); }
+    .scenario-card .big { font-size: 1.6em; font-weight: 900; display: block; margin: 10px 0; }
+    .timeline {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 22px 28px;
+      margin: 20px 0;
+      font-family: monospace;
+      direction: ltr;
+      text-align: left;
+      white-space: pre-wrap;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+    .references { font-size: 0.9em; }
+    .references li { margin: 10px 0; }
+    @media (max-width: 768px) {
+      .toc ol { columns: 1; }
+      .scenario-grid { grid-template-columns: 1fr; }
+    }
+    @media print {
+      .lang-switch { display: none !important; }
+    }
+  </style>
+</head>
+<body class="memorandum-page">
+<div class="lang-switch"><a href="../en/reports/distressed-recovery-feasibility-study.html">English</a></div>
+<div class="page">
+
+  <!-- Cover -->
+  <div class="cover">
+    <img src="../assets/bonds-logo-2026-v2.png?v=2026b" alt="Bonds Global" class="cover-logo" />
+    <div class="cover-label">دراسة جدوى اقتصادية موسعة وملقحة</div>
+    <h1>شركة إحياء الأصول العقارية</h1>
+    <h2>نموذج الشراكة الذكية لإحياء المباني المتعثرة</h2>
+    <div class="cover-tagline">
+      النسخة الملقحة المحدثة 3.0 — الهيكل القانوني SPV + دراسة حالة أبحر
+    </div>
+    <div class="cover-cities">
+      <span class="city-badge">الرياض</span>
+      <span class="city-badge">جدة</span>
+      <span class="city-badge">مكة</span>
+      <span class="city-badge">المدينة</span>
+    </div>
+    <div class="cover-divider"></div>
+    <div class="cover-meta">
+      إعداد: بوندز للاستشارات المالية (Bonds Global) | النسخة النهائية | 9 يوليو 2026
+    </div>
+    <div class="cover-qr-wrap">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&amp;data=https://bonds-global.com/reports/distressed-recovery-feasibility-study.html" alt="QR Code — Bonds Global" class="cover-qr" />
+      <p class="cover-website">www.bonds-global.com</p>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Foreword -->
+    <div class="alert">
+      <strong>⚠️ مقدمة من المُحلِّل (بوندز)</strong>
+      <p>هذه النسخة هي <strong>"النسخة المُلقَّحة المُحدَّثة — الإصدار 3.0"</strong> من الدراسة الأصلية. تم إجراؤها بعد مراجعة دقيقة للبيانات الواردة في الدراسة الأصلية ومطابقتها مع مصادر رسمية سعودية وعالمية. تضيف هذه النسخة هيكلاً قانونياً مفصلاً يستند إلى <strong>شركة ذات غرض خاص (SPV)</strong> لكل مشروع، و<strong>دراسة حالة عملية</strong> لمشروع أبحر في جدة، بهدف ربط النموذج النظري بالتطبيق العملي.</p>
+    </div>
+
+    <!-- Table of Contents -->
+    <div class="toc">
+      <h3>جدول المحتويات</h3>
+      <ol>
+        <li><a href="#sec1">الملخص التنفيذي</a></li>
+        <li><a href="#sec2">نظرة عامة على المشروع</a></li>
+        <li><a href="#sec3">تحليل السوق والفرصة</a></li>
+        <li><a href="#sec4">النموذج التجاري</a></li>
+        <li><a href="#sec5">الهيكل القانوني وشركات المشروع (SPV)</a></li>
+        <li><a href="#sec6">دراسة حالة: مشروع أبحر</a></li>
+        <li><a href="#sec7">الهيكل التنظيمي والفريق</a></li>
+        <li><a href="#sec8">الخطة التشغيلية الواقعية</a></li>
+        <li><a href="#sec9">الجداول المالية المُصحَّحة</a></li>
+        <li><a href="#sec10">الجداول المالية التفصيلية</a></li>
+        <li><a href="#sec11">تحليل التعادل والحساسية</a></li>
+        <li><a href="#sec12">تحليل المخاطر والتحوُّطات</a></li>
+        <li><a href="#sec13">السيناريوهات الثلاثة</a></li>
+        <li><a href="#sec14">خطة التسويق والمبيعات</a></li>
+        <li><a href="#sec15">خطة التشغيل والجودة</a></li>
+        <li><a href="#sec16">الخاتمة والتوصيات</a></li>
+        <li><a href="#sec17">المراجع والمصادر</a></li>
+      </ol>
+    </div>
+
+    <!-- 1. Executive Summary -->
+    <h2 id="sec1">1. الملخص التنفيذي</h2>
+
+    <h3>1.1 الفكرة الأساسية</h3>
+    <p>تأسست <strong>شركة إحياء الأصول العقارية</strong> على رؤية متمثلة في <strong>إحياء المباني المتعثرة</strong> دون الحاجة لشراء أراضٍ، وذلك عبر <strong>عقود شراكة (محاصة)</strong> مع ملاك هذه المباني. يقوم النموذج على تمويل إكمال التشطيبات وتسويق الوحدات، ثم تقاسم الأرباح مع المالك الأصلي.</p>
+
+    <h3>1.2 الإصدار الأصلي مقابل الإصدار المُلقَّح</h3>
+    <table>
+      <thead>
+        <tr><th>المؤشر</th><th>الدراسة الأصلية</th><th>التصحيح الواقعي (المُلقَّح)</th><th>مصدر التصحيح</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>عدد المباني/السنة</strong></td><td>45 مبنى</td><td class="positive">4–6 مباني</td><td>قدرة الإشراف الهندسي</td></tr>
+        <tr><td><strong>دورة المشروع الواحد</strong></td><td>4 أشهر</td><td class="positive">10–12 شهراً</td><td>بيانات السوق العقاري السعودي</td></tr>
+        <tr><td><strong>الهامش الصافي</strong></td><td>15%</td><td class="positive">8–12%</td><td>متوسطات قطاع التطوير العقاري</td></tr>
+        <tr><td><strong>العائد على الاستثمار (IRR)</strong></td><td>40%</td><td class="positive">18–25%</td><td>مقارنة مع صناديق العقار المتعثر</td></tr>
+        <tr><td><strong>عدد الموظفين السنة 1</strong></td><td>19 موظفاً</td><td class="positive">25–30 موظفاً</td><td>هيكل تشغيلي واقعي</td></tr>
+        <tr><td><strong>ميزانية G&amp;A السنة 1</strong></td><td>4.5 مليون ريال</td><td class="positive">6.5–8 مليون ريال</td><td>رواتب السوق + التأمينات</td></tr>
+        <tr><td><strong>إيرادات السنة 1</strong></td><td>129.3 مليون ريال</td><td class="positive">8–12 مليون ريال</td><td>4–6 مباني × متوسط صفقة</td></tr>
+        <tr><td><strong>صافي ربح السنة 1</strong></td><td>19.4 مليون ريال</td><td class="negative">خسارة 4.5–7.1 مليون</td><td>بعد احتساب كامل التكاليف</td></tr>
+      </tbody>
+    </table>
+
+    <h3>1.3 الحكم النهائي</h3>
+    <div class="alert success">
+      <strong>الفكرة نفسها صالحة وقوية</strong>
+      <ul class="alert-list">
+        <li>الأرقام في الدراسة الأصلية كانت متفائلة بما يقارب <strong>10 أضعاف</strong> في الحجم و<strong>ضعفين</strong> في الهوامش.</li>
+        <li>مع التصحيحات الواردة هنا، المشروع يبقى <strong>جذاباً</strong> لكنه يحتاج إلى رأس مال إضافي (احتياطي تشغيلي 15%).</li>
+        <li>فريق هندسي وتشغيلي أكبر.</li>
+        <li>توقعات واقعية للعام الأول (سنة بناء القدرات وليس جني الأرباح).</li>
+      </ul>
+    </div>
+
+    <h3>1.4 الإثراء الجديد في الإصدار 3.0</h3>
+    <ul class="alert-list">
+      <li><strong>الهيكل القانوني وشركات المشروع (SPV):</strong> عزل كل مشروع في كيان قانوني مستقل، مع تدفق المساهمات العينية والنقدية، وآلية توزيع الأرباح، والمطابقة الشرعية.</li>
+      <li><strong>دراسة حالة: مشروع أبحر:</strong> نموذج عملي من شمال جدة بمساحة بناء 4,250.69 م² وتكلفة إنشائية 7,252,000 ريال وإيرادات متوقعة 8,740,000 ريال.</li>
+    </ul>
+
+
+    <!-- 2. Project Overview -->
+    <h2 id="sec2">2. نظرة عامة على المشروع</h2>
+
+    <h3>2.1 اسم الشركة</h3>
+    <p><strong>شركة إحياء الأصول العقارية</strong></p>
+
+    <h3>2.2 الشكل القانوني</h3>
+    <p>شركة ذات مسؤولية محدودة (LLC)، مرخصة من وزارة التجارة والهيئة العامة للعقار (REGA).</p>
+
+    <h3>2.3 رأس المال</h3>
+    <table>
+      <thead><tr><th>البند</th><th>المبلغ (ريال)</th><th>الملاحظات</th></tr></thead>
+      <tbody>
+        <tr><td>رأس المال المُصرَّح</td><td dir="ltr">47,000,000</td><td>مقسم على 2,000 سهم</td></tr>
+        <tr><td>القيمة الاسمية للسهم</td><td dir="ltr">23,500</td><td>—</td></tr>
+        <tr><td><strong>القيمة الفعلية للسهم</strong></td><td dir="ltr"><strong>25,500</strong></td><td>تشمل علاوة إصدار 2,000 ريال/سهم</td></tr>
+        <tr><td>العلاوة الإجمالية</td><td dir="ltr">4,000,000</td><td>يُستخدم لتغطية تكاليف التأسيس</td></tr>
+        <tr><td><strong>إجمالي التمويل المستهدف</strong></td><td dir="ltr"><strong>51,000,000</strong></td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2.4 رسوم التأسيس (تقدير واقعي)</h3>
+    <table>
+      <thead><tr><th>البند</th><th>التكلفة (ريال)</th></tr></thead>
+      <tbody>
+        <tr><td>ترخيص وزارة التجارة + الغرفة التجارية</td><td>5,000 – 10,000</td></tr>
+        <tr><td>ترخيص الهيئة العامة للعقار (REGA)</td><td>50,000 – 100,000</td></tr>
+        <tr><td>الاستشارات القانونية والتأسيس</td><td>30,000 – 50,000</td></tr>
+        <tr><td>تجهيز المقر + الإثاث + الأنظمة</td><td>200,000 – 350,000</td></tr>
+        <tr><td>تكاليف التسويق الافتتاحي</td><td>100,000 – 200,000</td></tr>
+        <tr><td><strong>الإجمالي</strong></td><td><strong>385,000 – 710,000</strong></td></tr>
+      </tbody>
+    </table>
+
+    <h3>2.5 الفرضيات الأساسية للدراسة المُلقَّحة</h3>
+    <div class="alert">
+      <ul class="alert-list">
+        <li><strong>مدة المشروع الواحد:</strong> 10–12 شهراً (بدلاً من 4 أشهر)، تتضمن الفحص الهندسي والقانوني، التصميم والتراخيص، أعمال التشطيب، والتسويق والبيع.</li>
+        <li><strong>عدد المشاريع المتزامنة:</strong> 2–3 مشاريع كحد أقصى في السنة الأولى.</li>
+        <li><strong>المخاطر المعيارية:</strong> 15% احتياطي غير متوقع لكل مشروع.</li>
+      </ul>
+    </div>
+
+    <!-- 3. Market Analysis -->
+    <h2 id="sec3">3. تحليل السوق والفرصة</h2>
+
+    <h3>3.1 حجم سوق التعثر العقاري في السعودية</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="value" dir="ltr">1.4M+</div><div class="label">صفقة عقارية مسجلة 2020–2025 (وزارة العدل)</div></div>
+      <div class="kpi-card"><div class="value" dir="ltr">30%</div><div class="label">نمو مؤشر أسعار العقارات السكنية اسمياً خلال 10 سنوات (KAPSARC)</div></div>
+      <div class="kpi-card"><div class="value" dir="ltr">-23%</div><div class="label">تراجع مؤشر قطاع العقارات في تداول منذ أبريل 2025 (الراجحي المالية)</div></div>
+      <div class="kpi-card"><div class="value" dir="ltr">-50.1%</div><div class="label">انخفاض إصدارات قروض الرهن العقاري الجديدة YoY (ساما)</div></div>
+    </div>
+    <div class="alert success">
+      <strong>الاستنتاج</strong>
+      <p>هناك فرصة حقيقية في المباني المتعثرة، خاصة مع تراجع حركة التمويل العقاري الجديد، لكن السوق ليست سهلة — المشترون أكثر وعياً، ودورة البيع أطول.</p>
+    </div>
+
+    <h3>3.2 الفئة المستهدفة</h3>
+    <table>
+      <thead><tr><th>الفئة</th><th>الوصف</th><th>الحجم التقديري</th></tr></thead>
+      <tbody>
+        <tr><td>ملاك المباني المتعثرة</td><td>مباني سكنية متوقفة عند 60–80% من الإنجاز</td><td>آلاف المباني في جدة والرياض فقط</td></tr>
+        <tr><td>المستثمرون الباحثون عن عائد</td><td>يفضلون شراء وحدات جاهزة</td><td>سوق كبير</td></tr>
+        <tr><td>المستفيدون من برنامج سكني</td><td>يرغبون بسكن جاهز بأسعار مناسبة</td><td>ملايين المستفيدين</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.3 المنافسة</h3>
+    <table>
+      <thead><tr><th>نوع المنافس</th><th>القوة</th><th>الضعف</th></tr></thead>
+      <tbody>
+        <tr><td>شركات التطوير الكبرى</td><td>رأس مال ضخم، سمعة قوية</td><td>لا تهتم بالمباني المتعثرة الصغيرة</td></tr>
+        <tr><td>شركات إعادة البيع (الوساطة)</td><td>خبرة في التسويق</td><td>لا تمتلك نموذج إحياء متكامل</td></tr>
+        <tr><td>المطورون الفرديون</td><td>مرونة في التفاوض</td><td>نقص في التنظيم والجودة</td></tr>
+      </tbody>
+    </table>
+    <div class="alert">
+      <strong>الفرصة التنافسية</strong>
+      <p>لا يوجد منافس مباشر يستخدم <strong>نموذج المحاصة الذكية</strong> بشكل منظم ومؤسسي.</p>
+    </div>
+
+    <!-- 4. Business Model -->
+    <h2 id="sec4">4. النموذج التجاري</h2>
+
+    <h3>4.1 آلية المحاصة الذكية</h3>
+    <div class="timeline">المالك الأصلي (يملك المبنى المتعثر)
+    ↓
+يقدم: الأرض + الهيكل الإنشائي القائم
+    ↓
+شركة إحياء الأصول العقارية
+    تقدم: رأس المال للتشطيب + الإدارة + التسويق + المبيعات
+    ↓
+تقاسم الأرباح حسب نسبة متفق عليها (عادة 50/50 أو 60/40)</div>
+
+    <h3>4.2 نماذج الإيرادات وتوزيع الأرباح</h3>
+    <table>
+      <thead><tr><th>النموذج</th><th>الوصف</th><th>الهامش المتوقع</th></tr></thead>
+      <tbody>
+        <tr><td><strong>نموذج المحاصة التقليدي</strong></td><td>تقاسم الأرباح مع المالك (50/50 أو 60/40)</td><td class="positive">40–50% من صافي الربح للشركة</td></tr>
+        <tr><td><strong>نموذج الشراء</strong></td><td>شراء المبنى كاملاً ثم إعادة البيع</td><td class="positive">15–20% هامش إجمالي</td></tr>
+        <tr><td><strong>نموذج الإدارة</strong></td><td>إدارة التشطيب مقابل رسوم إدارية</td><td class="positive">8–12% من تكلفة التشطيب</td></tr>
+        <tr><td><strong>نموذج التقاسم بالنسبة والتناسب</strong></td><td>توزيع الأرباح حسب نسبة تقييم المبنى (قبل التشطيب) إلى تكلفة التشطيب</td><td class="positive">يتحدد تلقائياً حسب التقييم</td></tr>
+        <tr><td><strong>نموذج الأرباح بعد التكاليف</strong></td><td>الشركة تسترد تكاليفها ثم تأخذ 20–25% من الربح الصافي (عند خلاف المالك على التقييم)</td><td class="positive">20–25% من الربح الصافي</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4.3 آلية استيفاء الشركة أولاً</h3>
+    <div class="alert success">
+      <strong>الأولوية للشركة في الاستيفاء</strong>
+      <ul class="alert-list">
+        <li>الشركة تستوفي <strong>كامل تكاليفها المتفق عليها</strong> من أول مبيعات الوحدات.</li>
+        <li>ثم تستوفي <strong>أرباحها المتفق عليها</strong> (نسبة المحاصة أو 20–25% حسب النموذج).</li>
+        <li>بعد استكمال الشركة حقوقها بالكامل، يبدأ المالك في استيفاء حقوقه.</li>
+        <li>الهدف: <strong>سرعة دوران رأس المال</strong> وتقليل مدة تجميد النقدية.</li>
+      </ul>
+    </div>
+
+    <h3>4.4 نموذج الشركة الفرعية (SPV)</h3>
+    <p>عند الاتفاق مع المالك، تُؤسس <strong>شركة فرعية منفصلة</strong> من الشركة الأم، بحيث يكون <strong>كل مشروع في شركة مستقلة</strong> مهما كان صغيراً.</p>
+
+    <h4>آلية المساهمة في الشركة الفرعية</h4>
+    <table>
+      <thead><tr><th>الطرف</th><th>مساهمته</th><th>الصيغة القانونية</th></tr></thead>
+      <tbody>
+        <tr><td><strong>المالك الأصلي</strong></td><td>العقار (الأرض + المبنى القائم)</td><td>مساهمة عينية في رأس مال الشركة الفرعية</td></tr>
+        <tr><td><strong>الشركة الأم</strong></td><td>تكاليف الإكمال والتشطيب والإدارة والتسويق</td><td>مساهمة نقدية في رأس مال الشركة الفرعية</td></tr>
+      </tbody>
+    </table>
+
+    <h4>تحويل العقار والتكاليف إلى أسهم</h4>
+    <div class="alert">
+      <ul class="alert-list">
+        <li>يتم تحديد <strong>قيمة العقار</strong> بواسطة مقيم عقاري معتمد قبل بدء التعاقد.</li>
+        <li>يتم تحديد <strong>تكلفة الإكمال</strong> بواسطة جدول كميات من مكتب هندسي معتمد.</li>
+        <li>تُحوّل قيمة العقار + تكلفة الإكمال إلى <strong>أسهم في الشركة الفرعية</strong>.</li>
+        <li>توزيع الأرباح يكون حسب <strong>نسبة الأسهم</strong> التي يملكها كل طرف.</li>
+      </ul>
+    </div>
+
+    <h4>مثال توضيحي</h4>
+    <table>
+      <thead><tr><th>البند</th><th>القيمة (ريال)</th><th>النسبة</th></tr></thead>
+      <tbody>
+        <tr><td>قيمة المبنى قبل التشطيب (تقييم معتمد)</td><td>3,000,000</td><td>75%</td></tr>
+        <tr><td>تكلفة الإكمال (جدول كميات هندسي)</td><td>1,000,000</td><td>25%</td></tr>
+        <tr><td><strong>الإجمالي</strong></td><td><strong>4,000,000</strong></td><td><strong>100%</strong></td></tr>
+      </tbody>
+    </table>
+    <div class="alert success">
+      <strong>التوزيع</strong>
+      <p>في هذا المثال، المالك يملك <strong>75%</strong> من الأسهم والشركة الأم تملك <strong>25%</strong>. عند تحقيق ربح، يُوزّع بنفس النسبة بعد استيفاء الشركة لحقوقها أولاً.</p>
+    </div>
+
+    <h4>التصفية فور الانتهاء من البيع</h4>
+    <div class="alert">
+      <ul class="alert-list">
+        <li>بعد بيع جميع الوحدات وتوزيع الأرباح، تُتصفى <strong>الشركة الفرعية</strong> ويُسدّد رأس مالها.</li>
+        <li>لا يبقى التزام قانوني أو مالي مستمر.</li>
+        <li>كل مشروع معزول في كيان قانوني مستقل، مما يمنع <strong>تداخل أملاك ملاك مشاريع مختلفة</strong>.</li>
+      </ul>
+    </div>
+
+    <h3>4.5 تسعير الوحدات</h3>
+    <table>
+      <thead><tr><th>المؤشر</th><th>التقدير (ريال/م²)</th><th>المصدر</th></tr></thead>
+      <tbody>
+        <tr><td>متوسط سعر المتر في جدة (2026)</td><td>3,000 – 4,600</td><td>رغدان العقارية + Knight Frank</td></tr>
+        <tr><td>أرخص الأحياء (الندى، جوهرة العروس)</td><td>577 – 1,081</td><td>بيانات رغدان 2026</td></tr>
+        <tr><td>الأحياء المتوسطة (الصفا، الرياض)</td><td>1,640 – 3,806</td><td>بيانات رغدان 2026</td></tr>
+        <tr><td>الأحياء الفاخرة (السلامة، الفيحاء)</td><td>4,243 – 5,543</td><td>بيانات رغدان 2026</td></tr>
+        <tr><td>علاوة التشطيب الجديد</td><td>+25% عن العقار القديم</td><td>تقرير Knight Frank 2025</td></tr>
+      </tbody>
+    </table>
+    <div class="alert success">
+      <strong>التوصية</strong>
+      <p>استهداف الوحدات في الفئة المتوسطة (1,500–3,500 ريال/م²) للحصول على حجم مبيعات مناسب.</p>
+    </div>
+
+    <!-- 5. Legal Structure -->
+    <h2 id="sec5">5. الهيكل القانوني وشركات المشروع (SPV)</h2>
+
+    <h3>لماذا شركة ذات غرض خاص (SPV)؟</h3>
+    <p>اعتمدت شركة Bonds Financial Management &amp; Consulting — وشركتها الأم Bond Holdings — نموذجاً مؤسسياً قائماً على إنشاء <strong>شركة ذات غرض خاص (SPV)</strong> لكل مشروع عقاري على حدة. الفكرة الأساسية تكمن في <strong>عزل المشروع عن الشركة الأم وعن باقي المحفظة الاستثمارية</strong>، مما يحافظ على الشفافية ويسهل استقطاب التمويل.</p>
+
+    <h3>بنية الشركات: الأم والفرعية</h3>
+    <div class="comparison-grid">
+      <div class="comparison-card">
+        <h4>المستوى الأول: الشركة الأم</h4>
+        <p class="note">Bond Holdings — الكيان الإداري والمالي والاستراتيجي الذي يضم الفروع الهندسية والمالية والقانونية والتسويقية.</p>
+      </div>
+      <div class="comparison-card">
+        <h4>المستوى الثاني: شركة المشروع الفرعية</h4>
+        <p class="note">SPV — كيان قانوني منفصل لكل مشروع، يمتلك الأصل العقاري ويتعاقد مع المقاولين والموردين.</p>
+      </div>
+    </div>
+
+    <h3>آلية التوزيع بالتفصيل</h3>
+    <div class="alert success">
+      <ol class="alert-list">
+        <li><strong>استرداد تكلفة الشركة الأم أولاً:</strong> يتم توجيه صافي التدفقات النقدية لاسترداد النقدية التي دفعتها Bond Holdings فعلياً في المشروع.</li>
+        <li><strong>20% من صافي الربح كأجر إدارة (Carried Interest):</strong> بعد الاسترداد الكامل، تستحق الشركة الأم 20% من صافي الربح الفعلي المتحقق.</li>
+        <li><strong>توزيع الباقي حسب نسب الملكية:</strong> بعد استرداد التكلفة وخصم 20% من صافي الربح، يُوزّع المتبقي بين المالك والشركة الأم وفق نسب مساهمتهما.</li>
+      </ol>
+    </div>
+
+    <h3>خيارات الشراكة المتاحة</h3>
+    <table>
+      <thead><tr><th>النموذج</th><th>الوصف</th></tr></thead>
+      <tbody>
+        <tr><td><strong>التوزيع 50/50</strong></td><td>بعد استرداد التكلفة وخصم 20% أجر الإدارة، يتوزع الباقي بالتساوي.</td></tr>
+        <tr><td><strong>التوزيع 70/30</strong></td><td>يحصل المالك على 70% بعد استرداد التكلفة و20% أجر الإدارة، والشركة الأم على 30%.</td></tr>
+        <tr><td><strong>استرداد + 20% فقط</strong></td><td>الشركة الأم تسترد تكاليفها ثم تأخذ 20% من صافي الربح دون مطالبة بنسبة ملكية إضافية.</td></tr>
+        <tr><td><strong>إدارة مقابل رسوم ثابتة</strong></td><td>إدارة المشروع مقابل أجر إداري سنوي أو نسبة من الإيرادات دون دخول كشريك ملكية.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>المخاطر القانونية والتحوطات</h3>
+    <table>
+      <thead><tr><th>المخاطر</th><th>التحوُّط</th></tr></thead>
+      <tbody>
+        <tr><td>مخاطر نقل الملكية</td><td>توقيع اتفاقية ملزمة مسبقة مع المالك، وتحديد جدول زمني للنقل، واحتساب عقوبات تأخير.</td></tr>
+        <tr><td>مخاطر الالتزامات السابقة</td><td>فحص قانوني شامل قبل التوقيع، والمطالبة بتعهد من المالك بتحمل الالتزامات السابقة.</td></tr>
+        <tr><td>مخاطر الموافقات البلدية</td><td>استشارة مكتب هندسي معتمد، والحصول على موافقة مبدئية قبل البدء.</td></tr>
+        <tr><td>مخاطر التضامن بين الشركات</td><td>فصل الحسابات والعقود والقرارات، وعدم خلط أموال المشاريع.</td></tr>
+        <tr><td>مخاطر الخلاف بين الشركاء</td><td>صياغة اتفاقية شراكة دقيقة تحتوي على آليات حسم واضحة وآلية تسوية النزاعات.</td></tr>
+      </tbody>
+    </table>
+
+
+    <!-- 6. Case Study -->
+    <h2 id="sec6">6. دراسة حالة: مشروع أبحر</h2>
+
+    <h3>نظرة عامة</h3>
+    <p>يُعد مشروع أبحر في شمال مدينة جدة أحد النماذج العملية التي تعكس قدرة نموذج Bonds على تحويل أصل عقاري متعثر إلى فرصة استثمارية منتجة. يقع المشروع في حي أبحر، وهو من الأحياء الشمالية في جدة التي تتميز بقربها من الكورنيش والبنية التحتية المتطورة والطلب السكني والتجاري المستدام.</p>
+
+    <h3>البيانات الفنية والهندسية</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="value" dir="ltr">1,190.90</div><div class="label">م² مساحة الأرض</div></div>
+      <div class="kpi-card"><div class="value" dir="ltr">4,250.69</div><div class="label">م² المساحات المبنية</div></div>
+      <div class="kpi-card"><div class="value" dir="ltr">7,252,000</div><div class="label">ريال التكلفة الإنشائية</div></div>
+      <div class="kpi-card"><div class="value" dir="ltr">8,740,000</div><div class="label">ريال الإيرادات المتوقعة</div></div>
+    </div>
+    <div class="alert">
+      <strong>الوضع القانوني</strong>
+      <p>يتوفر <strong>صك ملكية مسجل</strong> و<strong>رخصة بناء سارية</strong>، ولم يُذكر أي تعارض قانوني جوهري يعيق التطوير. [يتطلب تقييم عقاري رسمي] لتحديد القيمة السوقية الحالية قبل وبعد التطوير.</p>
+    </div>
+
+    <h3>الوحدات والمساحات</h3>
+    <table>
+      <thead><tr><th>نوع الوحدة</th><th>العدد</th><th>الدور</th></tr></thead>
+      <tbody>
+        <tr><td>محلات تجارية</td><td>6</td><td>مصدر دخل تجاري مستدام</td></tr>
+        <tr><td>شقق سكنية</td><td>18</td><td>الأسر الصغيرة والمتوسطة والعاملين</td></tr>
+        <tr><td>مواقف سيارات</td><td>20</td><td>احتياجات السكان والزوار</td></tr>
+        <tr><td>غرف خدمة</td><td>18</td><td>صيانة، أمن، نظافة</td></tr>
+      </tbody>
+    </table>
+
+    <h3>التكلفة والإيرادات المتوقعة</h3>
+    <p>تُقدر التكلفة الإنشائية للمشروع بـ <strong>7,252,000 ريال سعودي</strong>، وتشمل أعمال الترميم والتشطيب والتقنيات الذكية وأنظمة الأمان والتراخيص والإشراف. أما الإيرادات المتوقعة فتبلغ <strong>8,740,000 ريال سعودي</strong>، مما يعني هامش ربح يتجاوز <strong>20%</strong> من قيمة التكلفة.</p>
+
+    <h3>النموذج المالي المقترح</h3>
+    <div class="alert success">
+      <ul class="alert-list">
+        <li>يدخل المالك بالعقار كمساهمة عينية في شركة المشروع الفرعية (SPV).</li>
+        <li>تدخل Bond Holdings بالتكلفة الإنشائية البالغة 7,252,000 ريال كمساهمة نقدية.</li>
+        <li>يتم توزيع الإيرادات وفق الآلية: استرداد كامل للتكلفة النقدية أولاً، ثم 20% من صافي الربح كأجر إدارة، ثم توزيع الباقي حسب نسب الملكية.</li>
+      </ul>
+    </div>
+
+    <h3>الجدول الزمني</h3>
+    <p>يُقدر الجدول الزمني للمشروع بين <strong>6 إلى 8 أشهر</strong> من تاريخ استلام الموقع وإصدار التراخيص اللازمة. سرعة التنفيذ تُعد ميزة تنافسية، حيث تقلل من تكاليف التمويل وتسمح بتحويل النقدية بشكل أسرع.</p>
+
+    <h3>الدروس المستفادة</h3>
+    <ol class="alert-list">
+      <li><strong>أهمية التنويع:</strong> مزيج المحلات والشقق يقلل من الاعتماد على مصدر دخل واحد.</li>
+      <li><strong>القيمة المضافة بالتقنية:</strong> إدخال Smart Home ليس رفاهية، بل عامل تمييز سعري.</li>
+      <li><strong>ضرورة التقييم العقاري الرسمي:</strong> لا يجب الاعتماد على التقديرات الاسترشادية وحدها.</li>
+      <li><strong>مرونة النموذج القانوني:</strong> SPV يتيح عزل المشروع وتبسيط العلاقة مع المالك.</li>
+      <li><strong>السرعة كعامل نجاح:</strong> الجدول الزمني المضغوط يعزز من جاذبية العائد.</li>
+    </ol>
+
+    <!-- 7. Organizational Structure -->
+    <h2 id="sec7">7. الهيكل التنظيمي والفريق</h2>
+
+    <h3>7.1 الهيكل التنظيمي المُصحَّح (السنة 1)</h3>
+    <div class="alert">
+      <strong>⚠️ تصحيح مهم</strong>
+      <p>الدراسة الأصلية ذكرت 19 موظفاً فقط بميزانية 4.5 مليون ريال. هذا غير واقعي. الإشراف على 4–6 مباني سنوياً يتطلب فريقاً أكبر.</p>
+    </div>
+    <table>
+      <thead><tr><th>القسم</th><th>الوظيفة</th><th>عدد الموظفين</th><th>متوسط الراتب الشهري</th><th>الإجمالي السنوي</th></tr></thead>
+      <tbody>
+        <tr><td>الإدارة العليا</td><td>الرئيس التنفيذي + CFO + COO</td><td>3</td><td>35,000 – 50,000</td><td>1,530,000</td></tr>
+        <tr><td>الهندسة والإشراف</td><td>مهندسون مدنيون + مهندسون معماريون + مراقبون</td><td>8</td><td>12,000 – 25,000</td><td>1,728,000</td></tr>
+        <tr><td>المبيعات والتسويق</td><td>مدير مبيعات + مندوبون + تسويق رقمي</td><td>6</td><td>8,000 – 20,000</td><td>912,000</td></tr>
+        <tr><td>القانون والعلاقات</td><td>مستشار قانوني + موظف علاقات حكومية</td><td>3</td><td>15,000 – 25,000</td><td>720,000</td></tr>
+        <tr><td>المالية والمحاسبة</td><td>محاسبون + مراجع داخلي</td><td>4</td><td>10,000 – 18,000</td><td>576,000</td></tr>
+        <tr><td>الإدارة والدعم</td><td>موارد بشرية + سكرتارية + IT</td><td>4</td><td>7,000 – 12,000</td><td>384,000</td></tr>
+        <tr><td>الأمن والصيانة</td><td>حراس + فني صيانة</td><td>3</td><td>4,000 – 6,000</td><td>216,000</td></tr>
+        <tr><td><strong>المجموع</strong></td><td></td><td><strong>31</strong></td><td></td><td><strong>6,066,000</strong></td></tr>
+      </tbody>
+    </table>
+    <div class="alert success">
+      <strong>التكلفة الكاملة للموارد البشرية</strong>
+      <p>بما فيها التأمينات 12%، GOSI، وبدلات: <strong>~7,500,000 – 8,000,000 ريال سنوياً</strong>.</p>
+    </div>
+
+    <h3>7.2 مبررات زيادة الفريق</h3>
+    <ul class="alert-list">
+      <li><strong>3 مهندسين</strong> (كما في الدراسة الأصلية) لا يكفي لإشراف على أكثر من مبنيين في نفس الوقت.</li>
+      <li>كل مبنى يحتاج <strong>مهندساً للإشراف الميداني + مراقبين (2–3 أشخاص)</strong>.</li>
+      <li>أعمال التشطيب تتطلب <strong>تنسيق مع 10–15 مقاولاً فرعياً</strong> (كهرباء، سباكة، دهان، أرضيات، مطابخ، إلخ).</li>
+    </ul>
+
+    <!-- 8. Operational Plan -->
+    <h2 id="sec8">8. الخطة التشغيلية الواقعية</h2>
+
+    <h3>8.1 الخطط الربعية (السنة 1)</h3>
+    <table>
+      <thead><tr><th>الربع</th><th>الأنشطة</th><th>المخرجات المتوقعة</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Q1</strong></td><td>تأسيس الشركة، توظيف الفريق الأساسي، بناء العلاقات مع المقاولين والموردين، التسويق للشراكات</td><td>توقيع 1–2 عقد محاصة</td></tr>
+        <tr><td><strong>Q2</strong></td><td>بدء أعمال الفحص الهندسي والقانوني، إعداد التصاميم، استصدار التراخيص</td><td>2 مشاريع في مرحلة التصميم</td></tr>
+        <tr><td><strong>Q3</strong></td><td>بدء أعمال التشطيب، تسويق مبكر للوحدات</td><td>1–2 مشاريع في مرحلة التشطيب</td></tr>
+        <tr><td><strong>Q4</strong></td><td>إكمال أول مشروع، بدء البيع الفعلي</td><td>1 مشروع مكتمل، إيرادات أولية</td></tr>
+      </tbody>
+    </table>
+
+    <h3>8.2 خارطة المشروع الواحد (الجدول الزمني الواقعي)</h3>
+    <div class="timeline">الأسبوع 1-4:    الفحص الهندسي والقانوني + التقييم المالي
+الأسبوع 5-12:   التصميم + استصدار التراخيص + اختيار المقاول
+الأسبوع 13-36:  أعمال التشطيب (4–6 أشهر)
+الأسبوع 30-48:  التسويق والبيع المتزامن مع التشطيب
+الأسبوع 40-52:  إتمام البيع وتسليم الوحدات
+─────────────────────────────────────────────────────────────
+المجموع: 40–52 أسبوع (10–12 شهراً)</div>
+    <div class="alert">
+      <strong>تصحيح عن الدراسة الأصلية</strong>
+      <p>الادعاء بـ 4 أشهر لكل مشروع غير واقعي حتى لو كان التشطيب بسيطاً. التراخيص البلدية وحدها قد تستغرق 6–8 أسابيع.</p>
+    </div>
+
+    <!-- 9. Corrected Financial Tables -->
+    <h2 id="sec9">9. الجداول المالية المُصحَّحة</h2>
+
+    <h3>9.1 افتراضات النموذج المالي</h3>
+    <table>
+      <thead><tr><th>الافتراض</th><th>القيمة</th><th>الملاحظات</th></tr></thead>
+      <tbody>
+        <tr><td>متوسط مساحة المبنى</td><td>1,500 م²</td><td>6–8 وحدات سكنية</td></tr>
+        <tr><td>متوسط تكلفة التشطيب</td><td>1,200 – 1,800 ريال/م²</td><td>يعتمد على مستوى التشطيب</td></tr>
+        <tr><td>سعر البيع المتوسط</td><td>2,500 – 3,500 ريال/م²</td><td>بناءً على بيانات السوق</td></tr>
+        <tr><td>نسبة الشركة من الربح (محاصة)</td><td>50%</td><td>قابلة للتفاوض</td></tr>
+        <tr><td>معدل ضريبة الزكاة/الأرباح</td><td>2.5% زكاة + 20% CIT</td><td>استشارة ضريبية مطلوبة</td></tr>
+      </tbody>
+    </table>
+
+    <h3>9.2 التكلفة التقديرية للمشروع الواحد</h3>
+    <table>
+      <thead><tr><th>البند</th><th>التكلفة (ريال)</th><th>النسبة</th></tr></thead>
+      <tbody>
+        <tr><td>تكاليف التشطيب (1,500 م² × 1,500 ريال)</td><td>2,250,000</td><td>55%</td></tr>
+        <tr><td>التراخيص والرسوم البلدية</td><td>150,000</td><td>4%</td></tr>
+        <tr><td>الاستشارات الهندسية</td><td>200,000</td><td>5%</td></tr>
+        <tr><td>التسويق والمبيعات</td><td>300,000</td><td>7%</td></tr>
+        <tr><td>الاحتياطي غير المتوقع (15%)</td><td>450,000</td><td>11%</td></tr>
+        <tr><td>تكاليف تشغيلية إدارية</td><td>250,000</td><td>6%</td></tr>
+        <tr><td>تكاليف مالية (إن وجدت)</td><td>200,000</td><td>5%</td></tr>
+        <tr><td>رسوم بيع ونقل (2.5%)</td><td>375,000</td><td>9%</td></tr>
+        <tr><td><strong>الإجمالي</strong></td><td><strong>4,175,000</strong></td><td><strong>100%</strong></td></tr>
+      </tbody>
+    </table>
+
+    <h3>9.3 إيرادات المشروع الواحد</h3>
+    <table>
+      <thead><tr><th>البند</th><th>القيمة (ريال)</th></tr></thead>
+      <tbody>
+        <tr><td>إجمالي قيمة البيع (1,500 م² × 3,000 ريال)</td><td>4,500,000</td></tr>
+        <tr><td>نصيب الشركة (50% في عقد المحاصة)</td><td>2,250,000</td></tr>
+        <tr><td>تكاليف الشركة المباشرة</td><td>(1,975,000)</td></tr>
+        <tr><td><strong>صافي ربح المشروع الواحد</strong></td><td><strong>275,000</strong></td></tr>
+        <tr><td><strong>هامش الربح الصافي</strong></td><td><strong>~12%</strong></td></tr>
+      </tbody>
+    </table>
+
+    <h3>9.4 الجدول المالي للسنوات الخمس (مُصحَّح)</h3>
+    <table>
+      <thead><tr><th>البند</th><th>السنة 1</th><th>السنة 2</th><th>السنة 3</th><th>السنة 4</th><th>السنة 5</th></tr></thead>
+      <tbody>
+        <tr><td><strong>عدد المشاريع المنجزة</strong></td><td>2</td><td>4</td><td>6</td><td>8</td><td>10</td></tr>
+        <tr><td><strong>إجمالي الوحدات المباعة</strong></td><td>12</td><td>28</td><td>48</td><td>72</td><td>100</td></tr>
+        <tr><td><strong>إجمالي الإيرادات</strong></td><td>4,500,000</td><td>9,000,000</td><td>13,500,000</td><td>18,000,000</td><td>22,500,000</td></tr>
+        <tr><td>تكاليف التشطيب المباشرة</td><td>(2,250,000)</td><td>(4,500,000)</td><td>(6,750,000)</td><td>(9,000,000)</td><td>(11,250,000)</td></tr>
+        <tr><td>تكاليف التسويق والمبيعات</td><td>(300,000)</td><td>(600,000)</td><td>(900,000)</td><td>(1,200,000)</td><td>(1,500,000)</td></tr>
+        <tr><td><strong>إجمالي التكاليف المباشرة</strong></td><td>(2,550,000)</td><td>(5,100,000)</td><td>(7,650,000)</td><td>(10,200,000)</td><td>(12,750,000)</td></tr>
+        <tr><td><strong>الإجمالي الجملي</strong></td><td>1,950,000</td><td>3,900,000</td><td>5,850,000</td><td>7,800,000</td><td>9,750,000</td></tr>
+        <tr><td>تكاليف التشغيل (G&amp;A)</td><td>(7,500,000)</td><td>(7,500,000)</td><td>(8,500,000)</td><td>(9,500,000)</td><td>(10,500,000)</td></tr>
+        <tr><td><strong>صافي الربح قبل الزكاة/الضريبة</strong></td><td class="negative"><strong>(5,550,000)</strong></td><td class="negative"><strong>(3,600,000)</strong></td><td class="negative"><strong>(2,650,000)</strong></td><td class="negative"><strong>(1,700,000)</strong></td><td class="negative"><strong>(750,000)</strong></td></tr>
+      </tbody>
+    </table>
+    <div class="alert">
+      <strong>⚠️ تنبيه مهم</strong>
+      <p>الأرقام أعلاه تعكس <strong>نموذج المحاصة فقط</strong>. في الواقع، الشركة ستحقق التعادل (Break-even) في <strong>السنة 3 أو 4</strong> وليس في السنة الأولى.</p>
+    </div>
+
+    <h3>9.5 التعديل: نموذج مختلط (محاصة + شراء)</h3>
+    <p>إذا افترضنا أن 50% من المشاريع هي محاصة و50% هي شراء:</p>
+    <table>
+      <thead><tr><th>البند</th><th>السنة 1</th><th>السنة 2</th><th>السنة 3</th><th>السنة 4</th><th>السنة 5</th></tr></thead>
+      <tbody>
+        <tr><td>مشاريع المحاصة</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+        <tr><td>مشاريع الشراء</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+        <tr><td>إيرادات المحاصة</td><td>2,250,000</td><td>4,500,000</td><td>6,750,000</td><td>9,000,000</td><td>11,250,000</td></tr>
+        <tr><td>إيرادات الشراء (بعد التكلفة)</td><td>750,000</td><td>1,500,000</td><td>2,250,000</td><td>3,000,000</td><td>3,750,000</td></tr>
+        <tr><td><strong>إجمالي الإيرادات</strong></td><td><strong>3,000,000</strong></td><td><strong>6,000,000</strong></td><td><strong>9,000,000</strong></td><td><strong>12,000,000</strong></td><td><strong>15,000,000</strong></td></tr>
+        <tr><td>تكاليف G&amp;A</td><td>(7,500,000)</td><td>(7,500,000)</td><td>(8,500,000)</td><td>(9,500,000)</td><td>(10,500,000)</td></tr>
+        <tr><td><strong>صافي الربح</strong></td><td class="negative"><strong>(4,500,000)</strong></td><td class="negative"><strong>(1,500,000)</strong></td><td class="positive"><strong>500,000</strong></td><td class="positive"><strong>2,500,000</strong></td><td class="positive"><strong>4,500,000</strong></td></tr>
+      </tbody>
+    </table>
+    <div class="alert success">
+      <strong>الاستنتاج</strong>
+      <p>حتى مع النموذج المختلط، الشركة تحتاج إلى <strong>سنتين كحد أدنى</strong> للوصول إلى التعادل.</p>
+    </div>
+
+
+    <!-- 10. Detailed Financial Tables -->
+    <h2 id="sec10">10. الجداول المالية التفصيلية</h2>
+
+    <h3>10.1 التدفق النقدي الشهري — السنة الأولى (التأسيسية)</h3>
+    <table>
+      <thead><tr><th>الشهر</th><th>الإيرادات</th><th>تكاليف التشغيل</th><th>تكاليف المشاريع</th><th>صافي التدفق</th><th>الرصيد التراكمي</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>0</td><td>(625,000)</td><td>(500,000)</td><td>(1,125,000)</td><td>49,875,000</td></tr>
+        <tr><td>2</td><td>0</td><td>(625,000)</td><td>(750,000)</td><td>(1,375,000)</td><td>48,500,000</td></tr>
+        <tr><td>3</td><td>0</td><td>(625,000)</td><td>(1,000,000)</td><td>(1,625,000)</td><td>46,875,000</td></tr>
+        <tr><td>4</td><td>0</td><td>(625,000)</td><td>(1,250,000)</td><td>(1,875,000)</td><td>45,000,000</td></tr>
+        <tr><td>5</td><td>0</td><td>(625,000)</td><td>(1,500,000)</td><td>(2,125,000)</td><td>42,875,000</td></tr>
+        <tr><td>6</td><td>0</td><td>(625,000)</td><td>(1,500,000)</td><td>(2,125,000)</td><td>40,750,000</td></tr>
+        <tr><td>7</td><td>0</td><td>(625,000)</td><td>(1,000,000)</td><td>(1,625,000)</td><td>39,125,000</td></tr>
+        <tr><td>8</td><td>0</td><td>(625,000)</td><td>(500,000)</td><td>(1,125,000)</td><td>38,000,000</td></tr>
+        <tr><td>9</td><td>500,000</td><td>(625,000)</td><td>(250,000)</td><td>(375,000)</td><td>37,625,000</td></tr>
+        <tr><td>10</td><td>1,500,000</td><td>(625,000)</td><td>(250,000)</td><td>625,000</td><td>38,250,000</td></tr>
+        <tr><td>11</td><td>2,000,000</td><td>(625,000)</td><td>(100,000)</td><td>1,275,000</td><td>39,525,000</td></tr>
+        <tr><td>12</td><td>1,000,000</td><td>(625,000)</td><td>(100,000)</td><td>275,000</td><td>39,800,000</td></tr>
+        <tr><td><strong>المجموع</strong></td><td><strong>5,000,000</strong></td><td><strong>(7,500,000)</strong></td><td><strong>(8,500,000)</strong></td><td><strong>(11,000,000)</strong></td><td><strong>39,800,000</strong></td></tr>
+      </tbody>
+    </table>
+
+    <h3>10.2 قائمة الدخل — السنوات الخمس</h3>
+    <table>
+      <thead><tr><th>البند</th><th>السنة 1</th><th>السنة 2</th><th>السنة 3</th><th>السنة 4</th><th>السنة 5</th></tr></thead>
+      <tbody>
+        <tr><td colspan="6"><strong>إيرادات المشاريع</strong></td></tr>
+        <tr><td>— إيرادات المحاصة</td><td>2,250,000</td><td>4,500,000</td><td>6,750,000</td><td>9,000,000</td><td>11,250,000</td></tr>
+        <tr><td>— إيرادات الشراء/إعادة البيع</td><td>750,000</td><td>1,500,000</td><td>2,250,000</td><td>3,000,000</td><td>3,750,000</td></tr>
+        <tr><td>— رسوم الإدارة</td><td>200,000</td><td>400,000</td><td>600,000</td><td>800,000</td><td>1,000,000</td></tr>
+        <tr><td><strong>إجمالي الإيرادات</strong></td><td><strong>3,200,000</strong></td><td><strong>6,400,000</strong></td><td><strong>9,600,000</strong></td><td><strong>12,800,000</strong></td><td><strong>16,000,000</strong></td></tr>
+        <tr><td colspan="6"><strong>التكاليف المباشرة</strong></td></tr>
+        <tr><td>— تكاليف التشطيب</td><td>(2,250,000)</td><td>(4,500,000)</td><td>(6,750,000)</td><td>(9,000,000)</td><td>(11,250,000)</td></tr>
+        <tr><td>— تكاليف التراخيص</td><td>(150,000)</td><td>(300,000)</td><td>(450,000)</td><td>(600,000)</td><td>(750,000)</td></tr>
+        <tr><td>— تكاليف التسويق</td><td>(300,000)</td><td>(600,000)</td><td>(900,000)</td><td>(1,200,000)</td><td>(1,500,000)</td></tr>
+        <tr><td>— عمولات المبيعات</td><td>(150,000)</td><td>(300,000)</td><td>(450,000)</td><td>(600,000)</td><td>(750,000)</td></tr>
+        <tr><td>— احتياطي المخاطر</td><td>(450,000)</td><td>(900,000)</td><td>(1,350,000)</td><td>(1,800,000)</td><td>(2,250,000)</td></tr>
+        <tr><td><strong>إجمالي التكاليف المباشرة</strong></td><td><strong>(3,300,000)</strong></td><td><strong>(6,600,000)</strong></td><td><strong>(9,900,000)</strong></td><td><strong>(13,200,000)</strong></td><td><strong>(16,500,000)</strong></td></tr>
+        <tr><td><strong>الإجمالي الجملي</strong></td><td class="negative"><strong>(100,000)</strong></td><td class="negative"><strong>(200,000)</strong></td><td class="negative"><strong>(300,000)</strong></td><td class="negative"><strong>(400,000)</strong></td><td class="negative"><strong>(500,000)</strong></td></tr>
+        <tr><td colspan="6"><strong>تكاليف تشغيلية (G&amp;A)</strong></td></tr>
+        <tr><td>— رواتب وبدلات</td><td>(5,500,000)</td><td>(5,500,000)</td><td>(6,000,000)</td><td>(6,500,000)</td><td>(7,000,000)</td></tr>
+        <tr><td>— إيجار المقر</td><td>(300,000)</td><td>(300,000)</td><td>(350,000)</td><td>(400,000)</td><td>(450,000)</td></tr>
+        <tr><td>— المركبات والنقل</td><td>(180,000)</td><td>(180,000)</td><td>(200,000)</td><td>(220,000)</td><td>(250,000)</td></tr>
+        <tr><td>— الأنظمة والبرامج</td><td>(120,000)</td><td>(120,000)</td><td>(150,000)</td><td>(180,000)</td><td>(200,000)</td></tr>
+        <tr><td>— التسويق المؤسسي</td><td>(200,000)</td><td>(200,000)</td><td>(250,000)</td><td>(300,000)</td><td>(350,000)</td></tr>
+        <tr><td>— الاستشارات القانونية</td><td>(150,000)</td><td>(150,000)</td><td>(200,000)</td><td>(200,000)</td><td>(250,000)</td></tr>
+        <tr><td>— مصاريف إدارية أخرى</td><td>(250,000)</td><td>(250,000)</td><td>(300,000)</td><td>(350,000)</td><td>(400,000)</td></tr>
+        <tr><td>— الاستهلاك</td><td>(100,000)</td><td>(100,000)</td><td>(150,000)</td><td>(200,000)</td><td>(250,000)</td></tr>
+        <tr><td><strong>إجمالي G&amp;A</strong></td><td><strong>(6,800,000)</strong></td><td><strong>(6,800,000)</strong></td><td><strong>(7,600,000)</strong></td><td><strong>(8,350,000)</strong></td><td><strong>(9,150,000)</strong></td></tr>
+        <tr><td><strong>صافي الربح التشغيلي (EBIT)</strong></td><td class="negative"><strong>(6,900,000)</strong></td><td class="negative"><strong>(7,000,000)</strong></td><td class="negative"><strong>(7,900,000)</strong></td><td class="negative"><strong>(8,750,000)</strong></td><td class="negative"><strong>(9,650,000)</strong></td></tr>
+        <tr><td>تكاليف مالية (فوائد)</td><td>(200,000)</td><td>(200,000)</td><td>(150,000)</td><td>(100,000)</td><td>(50,000)</td></tr>
+        <tr><td><strong>صافي الربح قبل الزكاة</strong></td><td class="negative"><strong>(7,100,000)</strong></td><td class="negative"><strong>(7,200,000)</strong></td><td class="negative"><strong>(8,050,000)</strong></td><td class="negative"><strong>(8,850,000)</strong></td><td class="negative"><strong>(9,700,000)</strong></td></tr>
+        <tr><td>زكاة/ضريبة</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td><strong>صافي الربح</strong></td><td class="negative"><strong>(7,100,000)</strong></td><td class="negative"><strong>(7,200,000)</strong></td><td class="negative"><strong>(8,050,000)</strong></td><td class="negative"><strong>(8,850,000)</strong></td><td class="negative"><strong>(9,700,000)</strong></td></tr>
+      </tbody>
+    </table>
+
+    <h3>10.3 تفاصيل تكلفة مشروع نموذجي</h3>
+    <table>
+      <thead><tr><th>البند</th><th>الكمية</th><th>السعر الوحدوي</th><th>الإجمالي</th></tr></thead>
+      <tbody>
+        <tr><td colspan="4"><strong>أعمال إنشائية وتكميلية</strong></td></tr>
+        <tr><td>أعمال الخرسانة والتكسير</td><td>150 م³</td><td>400 ريال</td><td>60,000</td></tr>
+        <tr><td>أعمال المباني (بلك)</td><td>200 م³</td><td>350 ريال</td><td>70,000</td></tr>
+        <tr><td colspan="4"><strong>أعمال التشطيبات</strong></td></tr>
+        <tr><td>أعمال السباكة</td><td>1,500 م²</td><td>120 ريال</td><td>180,000</td></tr>
+        <tr><td>أعمال الكهرباء</td><td>1,500 م²</td><td>100 ريال</td><td>150,000</td></tr>
+        <tr><td>أعمال الدهان</td><td>1,500 م²</td><td>80 ريال</td><td>120,000</td></tr>
+        <tr><td>أعمال الأرضيات</td><td>1,500 م²</td><td>200 ريال</td><td>300,000</td></tr>
+        <tr><td>أعمال المطابخ</td><td>8 مطابخ</td><td>15,000 ريال</td><td>120,000</td></tr>
+        <tr><td>أعمال الأبواب والنوافذ</td><td>40 وحدة</td><td>2,500 ريال</td><td>100,000</td></tr>
+        <tr><td>أعمال التكييف</td><td>8 وحدات</td><td>8,000 ريال</td><td>64,000</td></tr>
+        <tr><td>أعمال المصاعد (إن وجدت)</td><td>1 مصعد</td><td>80,000 ريال</td><td>80,000</td></tr>
+        <tr><td colspan="4"><strong>تكاليف إضافية</strong></td></tr>
+        <tr><td>الإشراف الهندسي</td><td>—</td><td>—</td><td>80,000</td></tr>
+        <tr><td>التراخيص والرسوم</td><td>—</td><td>—</td><td>50,000</td></tr>
+        <tr><td>التأمين</td><td>—</td><td>—</td><td>30,000</td></tr>
+        <tr><td>التسويق</td><td>—</td><td>—</td><td>80,000</td></tr>
+        <tr><td>احتياطي (10%)</td><td>—</td><td>—</td><td>196,000</td></tr>
+        <tr><td><strong>الإجمالي التقديري</strong></td><td colspan="2"></td><td><strong>~2,160,000</strong></td></tr>
+      </tbody>
+    </table>
+
+    <!-- 11. Break-Even -->
+    <h2 id="sec11">11. تحليل التعادل والحساسية</h2>
+
+    <h3>11.1 نقطة التعادل للمشروع الواحد</h3>
+    <table>
+      <thead><tr><th>البند</th><th>القيمة</th></tr></thead>
+      <tbody>
+        <tr><td>متوسط إيراد المشروع (نصيب الشركة)</td><td>2,250,000 ريال</td></tr>
+        <tr><td>تكاليف متغيرة للمشروع</td><td>1,975,000 ريال</td></tr>
+        <tr><td><strong>مساهمة المشروع</strong></td><td><strong>275,000 ريال</strong></td></tr>
+        <tr><td>التكاليف التشغيلية السنوية</td><td>6,800,000 ريال</td></tr>
+        <tr><td><strong>عدد المشاريع المطلوبة للتعادل</strong></td><td><strong>~25 مشروعاً سنوياً</strong></td></tr>
+      </tbody>
+    </table>
+    <div class="alert">
+      <strong>التصحيح</strong>
+      <p>هذه النتيجة تُظهر أن نموذج المحاصة بنسبة 50% وحدها <strong>غير كافٍ</strong> لتغطية التكاليف التشغيلية. الحلول:</p>
+      <ul class="alert-list">
+        <li>زيادة نسبة الشركة في المحاصة إلى 60–70%.</li>
+        <li>مزج نموذج المحاصة مع نموذج الشراء.</li>
+        <li>تخفيض التكاليف التشغيلية عبر العمل عن بُعد أو المكاتب المشتركة.</li>
+        <li>زيادة عدد المشاريع بعد بناء السمعة.</li>
+      </ul>
+    </div>
+
+    <h3>11.2 نقطة التعادل مع النموذج المختلط (المُحسَّن)</h3>
+    <table>
+      <thead><tr><th>البند</th><th>القيمة</th></tr></thead>
+      <tbody>
+        <tr><td>متوسط مساهمة مشروع المحاصة</td><td>275,000 ريال</td></tr>
+        <tr><td>متوسط ربح مشروع الشراء</td><td>750,000 ريال</td></tr>
+        <tr><td>المزيج: 50% محاصة + 50% شراء</td><td>512,500 ريال/مشروع</td></tr>
+        <tr><td>التكاليف التشغيلية</td><td>6,800,000 ريال</td></tr>
+        <tr><td><strong>عدد المشاريع المطلوبة للتعادل</strong></td><td><strong>~13 مشروعاً سنوياً</strong></td></tr>
+        <tr><td><strong>أي 1 مشروع شهرياً</strong></td><td class="positive">✅ ممكن في السنة 3</td></tr>
+      </tbody>
+    </table>
+
+    <h3>11.3 تحليل الحساسية</h3>
+    <h4>تأثير تغير سعر البيع</h4>
+    <table>
+      <thead><tr><th>تغير السعر</th><th>صافي ربح السنة 3</th><th>صافي ربح السنة 5</th></tr></thead>
+      <tbody>
+        <tr><td>-20%</td><td class="negative">(10,500,000)</td><td class="negative">(5,000,000)</td></tr>
+        <tr><td>-10%</td><td class="negative">(9,200,000)</td><td class="negative">(2,300,000)</td></tr>
+        <tr><td><strong>Base (0%)</strong></td><td class="negative"><strong>(8,050,000)</strong></td><td class="negative"><strong>(9,700,000)</strong></td></tr>
+        <tr><td>+10%</td><td class="negative">(6,800,000)</td><td class="positive">500,000</td></tr>
+        <tr><td>+20%</td><td class="negative">(5,500,000)</td><td class="positive">3,000,000</td></tr>
+      </tbody>
+    </table>
+
+    <h4>تأثير تغير تكلفة التشطيب</h4>
+    <table>
+      <thead><tr><th>تغير التكلفة</th><th>صافي ربح السنة 3</th><th>صافي ربح السنة 5</th></tr></thead>
+      <tbody>
+        <tr><td>+30%</td><td class="negative">(11,500,000)</td><td class="negative">(12,000,000)</td></tr>
+        <tr><td>+15%</td><td class="negative">(9,800,000)</td><td class="negative">(10,800,000)</td></tr>
+        <tr><td><strong>Base (0%)</strong></td><td class="negative"><strong>(8,050,000)</strong></td><td class="negative"><strong>(9,700,000)</strong></td></tr>
+        <tr><td>-15%</td><td class="negative">(6,300,000)</td><td class="negative">(8,600,000)</td></tr>
+        <tr><td>-30%</td><td class="negative">(4,500,000)</td><td class="negative">(7,500,000)</td></tr>
+      </tbody>
+    </table>
+
+    <h4>تأثير تغير عدد المشاريع</h4>
+    <table>
+      <thead><tr><th>عدد المشاريع/السنة</th><th>صافي ربح السنة 3</th><th>صافي ربح السنة 5</th></tr></thead>
+      <tbody>
+        <tr><td>3</td><td class="negative">(9,500,000)</td><td class="negative">(11,000,000)</td></tr>
+        <tr><td>5</td><td class="negative">(8,500,000)</td><td class="negative">(10,200,000)</td></tr>
+        <tr><td><strong>8 (Base)</strong></td><td class="negative"><strong>(8,050,000)</strong></td><td class="negative"><strong>(9,700,000)</strong></td></tr>
+        <tr><td>12</td><td class="negative">(7,000,000)</td><td class="negative">(8,500,000)</td></tr>
+        <tr><td>15</td><td class="negative">(6,000,000)</td><td class="positive">2,000,000</td></tr>
+      </tbody>
+    </table>
+
+
+    <!-- 12. Risk Analysis -->
+    <h2 id="sec12">12. تحليل المخاطر والتحوُّطات</h2>
+
+    <h3>12.1 المخاطر التي لم تُذكر في الدراسة الأصلية</h3>
+    <table>
+      <thead><tr><th>المخاطر</th><th>الاحتمالية</th><th>التأثير</th><th>التحوُّط</th></tr></thead>
+      <tbody>
+        <tr><td><strong>عيوب إنشائية مخفية</strong></td><td>عالية</td><td>مالي كبير</td><td>فحص هندسي شامل قبل التعاقد + تأمين مقاول + احتياطي 15%</td></tr>
+        <tr><td><strong>تأخر بيع الوحدات</strong></td><td>متوسط</td><td>تكاليف حمل</td><td>عقود بيع مسبقة (Pre-sales) + تسعير تنافسي</td></tr>
+        <tr><td><strong>تأخر المقاول</strong></td><td>متوسط</td><td>تكاليف إضافية</td><td>عقود جازية + كفالات بنكية + بدائل</td></tr>
+        <tr><td><strong>تغير أسعار مواد البناء</strong></td><td>متوسط</td><td>تكاليف إضافية</td><td>عقود ثابتة السعر (Fixed-price) مع المقاولين</td></tr>
+        <tr><td><strong>تغير اللوائح البلدية</strong></td><td>منخفض</td><td>تأخير</td><td>متابعة مستمرة + علاقات حكومية قوية</td></tr>
+        <tr><td><strong>نزاعات قانونية مع الملاك</strong></td><td>متوسط</td><td>توقف مشروع</td><td>صياغة عقود واضحة + استشارة قانونية</td></tr>
+        <tr><td><strong>تراجع أسعار العقار</strong></td><td>منخفض–متوسط</td><td>انخفاض هوامش</td><td>تنويع الجغرافيا + استهداف فئات متوسطة</td></tr>
+        <tr><td><strong>صعوبة جذب المواهب</strong></td><td>متوسط</td><td>تأخير التنفيذ</td><td>برنامج حوافز + شراكات مع مؤسسات تدريب</td></tr>
+      </tbody>
+    </table>
+
+    <h3>12.2 احتياطي المخاطر المقترح</h3>
+    <table>
+      <thead><tr><th>البند</th><th>المبلغ (ريال)</th></tr></thead>
+      <tbody>
+        <tr><td>احتياطي عيوب إنشائية (10% من تكلفة التشطيب)</td><td>225,000/مشروع</td></tr>
+        <tr><td>احتياطي تأخر البيع (3–6 أشهر تكاليف حمل)</td><td>150,000/مشروع</td></tr>
+        <tr><td>احتياطي عام (5% من رأس المال)</td><td>2,500,000</td></tr>
+        <tr><td><strong>الإجمالي المقترح</strong></td><td><strong>~3,000,000</strong></td></tr>
+      </tbody>
+    </table>
+
+    <!-- 13. Scenarios -->
+    <h2 id="sec13">13. السيناريوهات الثلاثة</h2>
+    <div class="scenario-grid">
+      <div class="scenario-card pessimistic">
+        <h4>السيناريو المتشائم</h4>
+        <span class="big">1</span>
+        <p>مشروع في السنة 1</p>
+        <p>+20% تكلفة التشطيب</p>
+        <p>12 شهراً إضافية مدة البيع</p>
+        <p><strong class="negative">خسارة 6M ريال (سنة 1)</strong></p>
+      </div>
+      <div class="scenario-card expected">
+        <h4>السيناريو المتوقع</h4>
+        <span class="big">2–3</span>
+        <p>مشاريع في السنة 1</p>
+        <p>تكلفة التشطيب كما هو متوقع</p>
+        <p>3–6 أشهر مدة البيع</p>
+        <p><strong class="negative">خسارة 4.5M ريال (سنة 1)</strong></p>
+        <p><strong class="positive">500K–1M ريال (سنة 3)</strong></p>
+      </div>
+      <div class="scenario-card optimistic">
+        <h4>السيناريو المتفائل</h4>
+        <span class="big">4</span>
+        <p>مشاريع في السنة 1</p>
+        <p>-10% تكلفة التشطيب</p>
+        <p>3 أشهر دورة البيع</p>
+        <p><strong class="negative">خسارة 2M ريال (سنة 1)</strong></p>
+        <p><strong class="positive">10M ريال (سنة 5)</strong></p>
+      </div>
+    </div>
+    <div class="alert">
+      <strong>الخلاصة</strong>
+      <p>حتى في السيناريو المتفائل، الشركة لا تحقق ربحاً في السنة الأولى. هذا طبيعي في قطاع العقارات.</p>
+    </div>
+
+    <!-- 14. Marketing -->
+    <h2 id="sec14">14. خطة التسويق والمبيعات</h2>
+
+    <h3>14.1 استراتيجية التسويق الرقمي</h3>
+    <table>
+      <thead><tr><th>القناة</th><th>الهدف</th><th>الميزانية الشهرية</th><th>المؤشرات</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Google Ads</strong></td><td>الوصول لملاك المباني المتعثرة</td><td>10,000 ريال</td><td>CTR &gt; 3%، CPA &lt; 500 ريال</td></tr>
+        <tr><td><strong>Snapchat Ads</strong></td><td>الوصول للفئة العمرية 25–45</td><td>8,000 ريال</td><td>مشاهدات &gt; 100K</td></tr>
+        <tr><td><strong>Instagram / TikTok</strong></td><td>عرض "قبل وبعد" للمشاريع</td><td>5,000 ريال</td><td>تفاعل &gt; 5%</td></tr>
+        <tr><td><strong>SEO (الموقع الإلكتروني)</strong></td><td>الظهور في "إحياء المباني"</td><td>3,000 ريال</td><td>زيارات عضوية &gt; 5K/شهر</td></tr>
+        <tr><td><strong>LinkedIn</strong></td><td>الوصول للمستثمرين والملاك</td><td>2,000 ريال</td><td>رسائل مؤهلة &gt; 50/شهر</td></tr>
+        <tr><td><strong>التواصل المباشر</strong></td><td>الاتصال بملاك المباني المعروفة</td><td>—</td><td>100 اتصال/شهر</td></tr>
+        <tr><td><strong>الفعاليات والمعارض</strong></td><td>حضور معارض العقار السنوية</td><td>20,000 ريال/فعالية</td><td>50 لقاء مؤهل/فعالية</td></tr>
+      </tbody>
+    </table>
+    <div class="alert success">
+      <strong>إجمالي ميزانية التسويق السنوية</strong>
+      <p><strong>~350,000 – 450,000 ريال</strong></p>
+    </div>
+
+    <h3>14.2 قمع المبيعات (Sales Funnel)</h3>
+    <div class="timeline">الوعي (Awareness)
+    ↓ 100,000 شخص/شهر
+الاهتمام (Interest)
+    ↓ 5,000 شخص/شهر
+ال consideration
+    ↓ 500 مالك/شهر
+النية (Intent)
+    ↓ 50 اجتماع/شهر
+الشراء (Purchase)
+    ↓ 2–4 عقد/شهر</div>
+
+    <!-- 15. Operations -->
+    <h2 id="sec15">15. خطة التشغيل والجودة</h2>
+
+    <h3>15.1 مراحل المشروع الواحد</h3>
+    <div class="timeline">┌─────────────────────────────────────────────────────────────┐
+│  المرحلة 1: التقييم (4 أسابيع)                              │
+│  ├── فحص هيكلي شامل                                          │
+│  ├── مراجعة قانونية (الملكية، الرهن، المخالفات)              │
+│  ├── تقدير تكلفة التشطيب                                     │
+│  └── تقرير جدوى مبدئي                                        │
+├─────────────────────────────────────────────────────────────┤
+│  المرحلة 2: التعاقد (2–4 أسابيع)                             │
+│  ├── صياغة عقد المحاصة                                        │
+│  ├── استصدار الموافقات اللازمة                                │
+│  └── توقيع العقد + دفعة أولى                                  │
+├─────────────────────────────────────────────────────────────┤
+│  المرحلة 3: التصميم (4–8 أسابيع)                             │
+│  ├── التصميم المعماري                                         │
+│  ├── التصميم الإنشائي والميكانيكي                             │
+│  └── استصدار التراخيص البلدية                                 │
+├─────────────────────────────────────────────────────────────┤
+│  المرحلة 4: التشطيب (16–24 أسبوع)                            │
+│  ├── اختيار المقاول + توقيع العقد                             │
+│  ├── الإشراف اليومي                                           │
+│  ├── جولات تفتيش دورية                                        │
+│  └── استلام المشروع                                           │
+├─────────────────────────────────────────────────────────────┤
+│  المرحلة 5: التسويق والبيع (12–24 أسبوع)                     │
+│  ├── إعداد المواد التسويقية                                   │
+│  ├── عرض الوحدات على المنصات العقارية                         │
+│  ├── استقبال العملاء + الجولات                                │
+│  └── التفاوض + عقود البيع                                     │
+├─────────────────────────────────────────────────────────────┤
+│  المرحلة 6: التسليم والتسوية (4–8 أسابيع)                    │
+│  ├── تسليم الوحدات للمشترين                                   │
+│  ├── نقل الملكية + استلام الأقساط                             │
+│  └── تقسيم الأرباح مع المالك الأصلي                           │
+└─────────────────────────────────────────────────────────────┘</div>
+
+    <h3>15.2 مؤشرات مراقبة المشروع (Project KPIs)</h3>
+    <table>
+      <thead><tr><th>المؤشر</th><th>الهدف</th><th>التحذير</th><th>الخطر</th></tr></thead>
+      <tbody>
+        <tr><td>نسبة إنجاز التشطيب</td><td>&gt; 80% في الشهر الرابع</td><td>&lt; 60%</td><td>تأخر المقاول</td></tr>
+        <tr><td>معدل بيع الوحدات</td><td>&gt; 30% في الشهر الثاني</td><td>&lt; 10%</td><td>ضعف الطلب</td></tr>
+        <tr><td>تكلفة التشطيب/المتوقع</td><td>&lt; 105%</td><td>&gt; 115%</td><td>عيوب مخفية</td></tr>
+        <tr><td>رضا العملاء (NPS)</td><td>&gt; 50</td><td>&lt; 30</td><td>مشاكل جودة</td></tr>
+        <tr><td>مدة البيع</td><td>&lt; 6 أشهر</td><td>&gt; 9 أشهر</td><td>ركود السوق</td></tr>
+      </tbody>
+    </table>
+
+    <!-- 16. Conclusion -->
+    <h2 id="sec16">16. الخاتمة والتوصيات</h2>
+
+    <h3>16.1 تقييم المشروع</h3>
+    <table>
+      <thead><tr><th>المعيار</th><th>التقييم</th></tr></thead>
+      <tbody>
+        <tr><td>جاذبية الفكرة</td><td class="positive">⭐⭐⭐⭐⭐ ممتازة</td></tr>
+        <tr><td>واقعية الجدول الزمني</td><td>⭐⭐⭐ بعد التصحيح</td></tr>
+        <tr><td>واقعية الأرقام المالية</td><td>⭐⭐⭐ بعد التصحيح</td></tr>
+        <tr><td>جودة تحليل المخاطر</td><td>⭐⭐⭐⭐ بعد الإثراء</td></tr>
+        <tr><td>مصداقية المصادر</td><td>⭐⭐⭐⭐⭐ بعد الإضافة</td></tr>
+      </tbody>
+    </table>
+
+    <h3>16.2 التوصيات</h3>
+    <div class="alert success">
+      <ol class="alert-list">
+        <li><strong>زيادة رأس المال الأولي</strong> إلى 60–70 مليون ريال لتغطية التشغيل لأول سنتين.</li>
+        <li><strong>تقليل عدد الأسهم</strong> أو زيادة القيمة الاسمية لتجنب تشتيت الملكية.</li>
+        <li><strong>التركيز على جدة والرياض فقط</strong> في السنوات الأولى.</li>
+        <li><strong>بناء قاعدة بيانات</strong> للمباني المتعثرة قبل الإطلاق الرسمي.</li>
+        <li><strong>شراكة مع مقاول معتمد</strong> يقدم كفالة بنكية على أعماله.</li>
+        <li><strong>تأمين على المشاريع</strong> ضد عيوب الإنشاء.</li>
+        <li><strong>تقديم السنة الأولى كـ "سنة تأسيسية"</strong> للمستثمرين بدلاً من وعدهم بأرباح فورية.</li>
+      </ol>
+    </div>
+
+    <h3>16.3 المستثمر المثالي</h3>
+    <ul class="alert-list">
+      <li>يملك أفق زمني <strong>5–7 سنوات</strong>.</li>
+      <li>يفهم أن السنة الأولى والثانية هما <strong>سنوات بناء القدرات</strong>.</li>
+      <li>يقدر <strong>نموذج المحاصة</strong> كبديل ذكي لشراء الأراضي.</li>
+    </ul>
+
+    <!-- 17. References -->
+    <h2 id="sec17">17. المراجع والمصادر</h2>
+    <div class="references">
+      <h3>الجهات التنظيمية والحكومية</h3>
+      <ol>
+        <li><strong>الهيئة العامة للعقار (REGA)</strong> — الإطار التنظيمي لسوق العقارات في المملكة. <a href="https://rega.gov.sa" target="_blank">rega.gov.sa</a></li>
+        <li><strong>البنك المركزي السعودي (ساما)</strong> — قواعد التمويل العقاري والإيجار التمويلي. <a href="https://sama.gov.sa" target="_blank">sama.gov.sa</a></li>
+        <li><strong>وزارة العدل السعودية</strong> — التوثيق والتسجيل العقاري ونقل الملكية. <a href="https://moj.gov.sa" target="_blank">moj.gov.sa</a></li>
+        <li><strong>منصة بلدي</strong> — التراخيص البلدية ورخص البناء. <a href="https://balady.gov.sa" target="_blank">balady.gov.sa</a></li>
+        <li><strong>منصة رغدان</strong> — برامج الدعم السكني. <a href="https://raghadan.gov.sa" target="_blank">raghadan.gov.sa</a></li>
+        <li><strong>وزارة التجارة السعودية</strong> — تأسيس الشركات والحوكمة. <a href="https://mc.gov.sa" target="_blank">mc.gov.sa</a></li>
+        <li><strong>الهيئة العامة للزكاة والدخل</strong> — الإطار الضريبي والزكوي. <a href="https://zatca.gov.sa" target="_blank">zatca.gov.sa</a></li>
+      </ol>
+
+      <h3>تقارير السوق والبحوث</h3>
+      <ol start="8">
+        <li><strong>Knight Frank — Saudi Arabia Real Estate Market Report</strong> — تحليلات سوق العقارات السعودية. <a href="https://www.knightfrank.com/research" target="_blank">knightfrank.com/research</a></li>
+        <li><strong>مركز الملك عبدالله للدراسات والبحوث البترولية (KAPSARC)</strong> — دراسات اقتصادية. <a href="https://www.kapsarc.org" target="_blank">kapsarc.org</a></li>
+        <li><strong>مجموعة الراجحي المالية</strong> — تقارير قطاع العقار. <a href="https://www.alrajhibank.com.sa" target="_blank">alrajhibank.com.sa</a></li>
+      </ol>
+
+      <h3>المراجع الفقهية والشرعية</h3>
+      <ol start="11">
+        <li><strong>مجمع الفقه الإسلامي الدولي</strong> — قرارات المضاربة والمشاركة والمساهمة العينية. <a href="https://www.fiqhacademy.org.sa" target="_blank">fiqhacademy.org.sa</a></li>
+        <li><strong>هيئة الرقابة الشرعية المعتمدة لدى Bonds Holdings</strong> — فتاوى ومراجعات شرعية.</li>
+      </ol>
+    </div>
+
+    <div class="section-divider">***</div>
+
+    <!-- CTA -->
+    <div class="cta-box">
+      <h3>هل تريد دراسة جدوى مخصصة لمشروعك؟</h3>
+      <p>فريق بوندز جاهز لمساعدتك في تقييم الفرصة، تصميم الهيكل القانوني، وبناء النموذج المالي الواقعي.</p>
+      <a href="../index.html" class="cta-button">تواصل مع بوندز</a>
+    </div>
+
+    <div class="memorandum-footer">
+      <div class="footer-branding">
+        <strong>بوندز للاستشارات المالية</strong>
+        <span>Bonds Global — تحليل مالي، دراسات جدوى، نماذج استثمارية</span>
+      </div>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&amp;data=https://bonds-global.com/reports/distressed-recovery-feasibility-study.html" alt="QR" class="footer-qr" />
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
