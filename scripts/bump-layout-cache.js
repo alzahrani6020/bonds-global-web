@@ -33,18 +33,18 @@ for (const file of files) {
   const original = content;
 
   content = content.replace(
-    /site-layout\.js\?v=\d+/g,
+    /site-layout\.js\?v=[\d.]+/g,
     () => {
       siteLayoutRefs++;
-      return 'site-layout.js?v=8';
+      return 'site-layout.js?v=2.52.0';
     }
   );
 
   content = content.replace(
-    /header-footer\.css\?v=\d+/g,
+    /header-footer\.css\?v=[\d.]+/g,
     () => {
       headerFooterRefs++;
-      return 'header-footer.css?v=10';
+      return 'header-footer.css?v=2.52.0';
     }
   );
 
@@ -97,8 +97,8 @@ for (const file of files) {
 }
 
 console.log(`Files changed: ${changed}`);
-console.log(`site-layout.js refs bumped: ${siteLayoutRefs}`);
-console.log(`header-footer.css refs bumped: ${headerFooterRefs}`);
+console.log(`site-layout.js?v=2.52.0 refs bumped: ${siteLayoutRefs}`);
+console.log(`header-footer.css?v=2.52.0 refs bumped: ${headerFooterRefs}`);
 console.log(`investment-center.css refs bumped: ${investmentCenterCssRefs}`);
 console.log(`decision-intelligence.js refs bumped: ${decisionIntelligenceRefs}`);
 console.log(`investment-engine.js refs bumped: ${investmentEngineRefs}`);

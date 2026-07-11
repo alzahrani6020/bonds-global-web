@@ -77,6 +77,10 @@
             <label for="discountRate">معدل الخصم السنوي (%)</label>
             <input type="number" id="discountRate" value="10" />
           </div>
+          <div class="investment-input-group">
+            <label for="wasteAndIncidentalsPct">الهدر والنثريات المتوقعة (%)</label>
+            <input type="number" id="wasteAndIncidentalsPct" value="0" min="0" max="100" />
+          </div>
         </div>
       </div>
     </div>
@@ -158,6 +162,10 @@
                 <div class="investment-input-group">
                   <label for="expert_basic_discountRate">معدل الخصم السنوي (%)</label>
                   <input type="number" id="expert_basic_discountRate" value="10" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_wasteAndIncidentalsPct">الهدر والنثريات المتوقعة (%)</label>
+                  <input type="number" id="expert_basic_wasteAndIncidentalsPct" value="0" min="0" max="100" />
                 </div>
               </div>
               <div class="expert-stage-fields">
@@ -618,6 +626,11 @@
           <div class="metric-card__value" id="metricRisk">--</div>
           <div class="metric-card__unit">/ 100</div>
         </div>
+        <div class="metric-card">
+          <div class="metric-card__label">الهدر والنثريات</div>
+          <div class="metric-card__value" id="metricWaste">--</div>
+          <div class="metric-card__unit">ر.س/شهر</div>
+        </div>
       </div>
 
       <div class="recommendation-bar" id="recommendationBar">
@@ -691,7 +704,7 @@
 
   <div id="site-footer"></div>
 
-  <script src="../../site-layout.js?v=13"></script>
+  <script src="../../site-layout.js?v=2.52.0"></script>
   <script src="../../page-tracker-v2.js"></script>
   <script src="./investment-engine.js?v=2"></script>
   <script src="./investment-validator.js?v=2"></script>
@@ -744,6 +757,7 @@
       fields.forEach(f => syncField(f.name, 'expert_basic_' + f.name, direction));
       syncField('analysisDuration', 'expert_basic_analysisDuration', direction);
       syncField('discountRate', 'expert_basic_discountRate', direction);
+      syncField('wasteAndIncidentalsPct', 'expert_basic_wasteAndIncidentalsPct', direction);
 
       document.querySelectorAll('.mode-toggle__btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.mode === mode);
@@ -796,6 +810,7 @@
       fields.forEach(f => inputs[f.name] = getValue(basicPrefix + f.name));
       inputs.analysisDuration = getValue(basicPrefix + 'analysisDuration');
       inputs.discountRate = getValue(basicPrefix + 'discountRate') / 100;
+      inputs.wasteAndIncidentalsPct = getValue(basicPrefix + 'wasteAndIncidentalsPct');
 
       const expertFieldNames = ["projectName","projectOwner","projectLocation","legalStructure","startMonth","projectPhase","projectDurationYears","regulatoryApprovalsNeeded","projectManagerExperience","environmentalImpact","tam","sam","som","competitorCount","avgCompetitorPrice","marketEntryBarrier","customerAcquisitionCost","customerLifetimeValue","digitalAdBudget","brandAwareness","marketGrowthRate","seasonalFactor","churnRate","repeatPurchaseRate","onlineVsOfflineRatio","operatingDaysPerMonth","operatingHoursPerDay","shiftCount","capacityUtilizationTarget","employeeProductivityIndex","maintenanceCostRate","insuranceCostAnnual","licenseRenewalCost","softwareSubscriptions","marketingBudget","salesCommissionRate","energyCostMonthly","waterCostMonthly","wasteDisposalCost","securityCost","cleaningCost","outsourcingCost","trainingCost","landCost","buildingCost","renovationCost","machineryCost","furnitureCost","vehiclesCost","workingCapital","contingencyReserve","salvageValue","assetLifeYears","preOpeningCost","initialInventoryCost","permitsAndLicensesCost","feasibilityStudyCost","equityAmount","loanAmount","interestRate","loanTermYears","gracePeriodMonths","requiredRoi","minDscr","balloonPayment","earlyRepaymentPenalty","collateralValue","debtServiceStartMonth","marketRiskScore","operationalRiskScore","financialRiskScore","regulatoryRiskScore","technologyRiskScore","reputationRiskScore","mitigationBudget","supplyChainRiskScore","competitionRiskScore","currencyRiskScore","geopoliticalRiskScore","keyAssumptions","sensitivityCase","successFactors","exitStrategy"];
       expertFieldNames.forEach(name => {
@@ -1363,6 +1378,12 @@
         if (inputs.environmentalImpact >= 4) expertRiskWeight += 0.08;
       }
 
+      const wastePct = (inputs.wasteAndIncidentalsPct || 0);
+      const wasteMultiplier = 1 + wastePct / 100;
+      const monthlyVariableBeforeWaste = monthlyVariable;
+      monthlyVariable = monthlyVariable * wasteMultiplier;
+      unitVariableCost = unitVariableCost * wasteMultiplier;
+
       return {
         totalInvestment,
         monthlyFixedCosts: monthlyFixed,
@@ -1371,7 +1392,9 @@
         unitPrice,
         unitVariableCost,
         projectMonths: inputs.analysisDuration,
-        sectorRiskWeight: Math.max(0.5, expertRiskWeight)
+        sectorRiskWeight: Math.max(0.5, expertRiskWeight),
+        wasteAndIncidentalsPct: wastePct,
+        wasteAndIncidentalsAmount: monthlyVariable - monthlyVariableBeforeWaste
       };
     }
 
@@ -1421,6 +1444,7 @@
       document.getElementById('metricBreakEven').textContent = formatNumber(m.breakEvenUnits);
       document.getElementById('metricMargin').textContent = formatNumber(m.profitMargin);
       document.getElementById('metricRisk').textContent = formatNumber(m.riskScore);
+      document.getElementById('metricWaste').textContent = formatNumber(engineInputs.wasteAndIncidentalsAmount || 0);
 
       const rec = result.recommendation;
       const bar = document.getElementById('recommendationBar');

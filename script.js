@@ -112,6 +112,7 @@
   if (hero && !prefersReducedMotion) {
     const canvas = document.createElement('canvas');
     canvas.id = 'particlesCanvas';
+    canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;';
     hero.insertBefore(canvas, hero.firstChild);
     const ctx = canvas.getContext('2d');
     const particles = [];

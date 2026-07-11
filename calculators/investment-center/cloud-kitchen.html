@@ -20,6 +20,7 @@
 <link rel="stylesheet" href="./investment-center.css?v=2" />
   <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/calculators/shared-platforms.js"></script>
 </head>
 <body>
   <div id="site-header"></div>
@@ -58,6 +59,13 @@
             <input type="number" id="platformCommissionRate" value="25" />
           </div>
           <div class="investment-input-group">
+            <label for="deliveryPlatform">منصة التوصيل (اختياري)</label>
+            <select id="deliveryPlatform">
+              <option value="">إدخال يدوي</option>
+            </select>
+            <small>اختر منصة لملء عمولتها تلقائيًا، ثم عدّل النسبة يدويًا حسب اتفاقك</small>
+          </div>
+          <div class="investment-input-group">
             <label for="foodCostRate">نسبة تكلفة الطعام (%)</label>
             <input type="number" id="foodCostRate" value="35" />
           </div>
@@ -76,6 +84,80 @@
           <div class="investment-input-group">
             <label for="discountRate">معدل الخصم السنوي (%)</label>
             <input type="number" id="discountRate" value="10" />
+          </div>
+          <div class="investment-input-group">
+            <label for="wasteAndIncidentalsPct">الهدر والنثريات المتوقعة (%)</label>
+            <input type="number" id="wasteAndIncidentalsPct" value="0" min="0" max="100" />
+          </div>
+          <div class="investment-input-group">
+            <label for="targetProfitMargin">هامش الربح المستهدف (%)</label>
+            <input type="number" id="targetProfitMargin" value="15" min="0" max="100" />
+            <small>سنحسب متوسط قيمة الطلب المُوصى به لتحقيق هذا الهامش بعد كل التكاليف</small>
+          </div>
+        </div>
+        <div class="investment-panel">
+          <h2>تفاصيل تكلفة المنصات</h2>
+          <div class="investment-input-group">
+            <label for="platformSetupFee">رسوم تأسيس المنصة والجهاز (ر.س)</label>
+            <input type="number" id="platformSetupFee" value="1000" />
+          </div>
+          <div class="investment-input-group">
+            <label for="vatOnCommissionRate">ضريبة القيمة المضافة على العمولة (%)</label>
+            <input type="number" id="vatOnCommissionRate" value="15" />
+          </div>
+          <div class="investment-input-group">
+            <label for="paymentGatewayPct">رسوم بوابة الدفع الإلكتروني (%)</label>
+            <input type="number" id="paymentGatewayPct" value="1.75" />
+          </div>
+          <div class="investment-input-group">
+            <label for="paymentGatewayFixed">رسوم بوابة الدفع الثابتة/طلب (ر.س)</label>
+            <input type="number" id="paymentGatewayFixed" value="0" />
+          </div>
+          <div class="investment-input-group">
+            <label for="marketingFeeRate">نسبة التسويق والإعلان داخل التطبيق (%)</label>
+            <input type="number" id="marketingFeeRate" value="0" />
+          </div>
+          <div class="investment-input-group">
+            <label for="promoDiscountRate">نسبة تحمل خصومات العروض (%)</label>
+            <input type="number" id="promoDiscountRate" value="0" />
+          </div>
+          <div class="investment-input-group">
+            <label for="freeDeliveryThreshold">سعر حد التوصيل المجاني (ر.س) — يتحمله المطعم</label>
+            <input type="number" id="freeDeliveryThreshold" value="0" />
+            <small>إذا وصل متوسط قيمة الطلب لهذا الحد أو تجاوزه، تُضاف رسوم التوصيل أدناه إلى تكلفة كل طلب</small>
+          </div>
+          <div class="investment-input-group">
+            <label for="deliveryFeePerOrder">رسوم التوصيل التي يتحملها المطعم/طلب (ر.س)</label>
+            <input type="number" id="deliveryFeePerOrder" value="15" />
+          </div>
+        </div>
+        <div class="investment-panel">
+          <h2>تكاليف التوصيل الخفية</h2>
+          <div class="investment-input-group">
+            <label for="packagingCostPerOrder">تكلفة التغليف/طلب (ر.س)</label>
+            <input type="number" id="packagingCostPerOrder" value="3" />
+            <small>كرتون، أكياس حرارية، ستيكرات أمان، مناديل، صلصات إضافية</small>
+          </div>
+          <div class="investment-input-group">
+            <label for="refundDisputeRate">نسبة الطلبات المتنازع عليها/المستردة (%)</label>
+            <input type="number" id="refundDisputeRate" value="2" />
+          </div>
+          <div class="investment-input-group">
+            <label for="refundLossPerOrder">خسارة المطعم/طلب مسترد (ر.س)</label>
+            <input type="number" id="refundLossPerOrder" value="20" />
+          </div>
+          <div class="investment-input-group">
+            <label for="cancelledOrderRate">نسبة الطلبات الملغاة بعد التحضير (%)</label>
+            <input type="number" id="cancelledOrderRate" value="1" />
+          </div>
+          <div class="investment-input-group">
+            <label for="cancelledOrderLossPerOrder">خسارة الطلب الملغى (ر.س)</label>
+            <input type="number" id="cancelledOrderLossPerOrder" value="15" />
+          </div>
+          <div class="investment-input-group">
+            <label for="settlementDelayDays">أيام تأخير تحويل أموال التطبيق</label>
+            <input type="number" id="settlementDelayDays" value="14" />
+            <small>تُحسب احتياطية سيولة شهرية مؤقتة = الإيرادات اليومية × أيام التأخير</small>
           </div>
         </div>
       </div>
@@ -140,6 +222,13 @@
             <input type="number" id="expert_basic_platformCommissionRate" value="25" />
           </div>
           <div class="investment-input-group">
+            <label for="expert_basic_deliveryPlatform">منصة التوصيل (اختياري)</label>
+            <select id="expert_basic_deliveryPlatform">
+              <option value="">إدخال يدوي</option>
+            </select>
+            <small>اختر منصة لملء عمولتها تلقائيًا، ثم عدّل النسبة يدويًا حسب اتفاقك</small>
+          </div>
+          <div class="investment-input-group">
             <label for="expert_basic_foodCostRate">نسبة تكلفة الطعام (%)</label>
             <input type="number" id="expert_basic_foodCostRate" value="35" />
           </div>
@@ -158,6 +247,80 @@
                 <div class="investment-input-group">
                   <label for="expert_basic_discountRate">معدل الخصم السنوي (%)</label>
                   <input type="number" id="expert_basic_discountRate" value="10" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_wasteAndIncidentalsPct">الهدر والنثريات المتوقعة (%)</label>
+                  <input type="number" id="expert_basic_wasteAndIncidentalsPct" value="0" min="0" max="100" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_targetProfitMargin">هامش الربح المستهدف (%)</label>
+                  <input type="number" id="expert_basic_targetProfitMargin" value="15" min="0" max="100" />
+                  <small>سنحسب متوسط قيمة الطلب المُوصى به لتحقيق هذا الهامش بعد كل التكاليف</small>
+                </div>
+              </div>
+              <div class="expert-basic-fields">
+                <h3>تفاصيل تكلفة المنصات</h3>
+                <div class="investment-input-group">
+                  <label for="expert_basic_platformSetupFee">رسوم تأسيس المنصة والجهاز (ر.س)</label>
+                  <input type="number" id="expert_basic_platformSetupFee" value="1000" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_vatOnCommissionRate">ضريبة القيمة المضافة على العمولة (%)</label>
+                  <input type="number" id="expert_basic_vatOnCommissionRate" value="15" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_paymentGatewayPct">رسوم بوابة الدفع الإلكتروني (%)</label>
+                  <input type="number" id="expert_basic_paymentGatewayPct" value="1.75" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_paymentGatewayFixed">رسوم بوابة الدفع الثابتة/طلب (ر.س)</label>
+                  <input type="number" id="expert_basic_paymentGatewayFixed" value="0" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_marketingFeeRate">نسبة التسويق والإعلان داخل التطبيق (%)</label>
+                  <input type="number" id="expert_basic_marketingFeeRate" value="0" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_promoDiscountRate">نسبة تحمل خصومات العروض (%)</label>
+                  <input type="number" id="expert_basic_promoDiscountRate" value="0" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_freeDeliveryThreshold">سعر حد التوصيل المجاني (ر.س) — يتحمله المطعم</label>
+                  <input type="number" id="expert_basic_freeDeliveryThreshold" value="0" />
+                  <small>إذا وصل متوسط قيمة الطلب لهذا الحد أو تجاوزه، تُضاف رسوم التوصيل أدناه إلى تكلفة كل طلب</small>
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_deliveryFeePerOrder">رسوم التوصيل التي يتحملها المطعم/طلب (ر.س)</label>
+                  <input type="number" id="expert_basic_deliveryFeePerOrder" value="15" />
+                </div>
+              </div>
+              <div class="expert-basic-fields">
+                <h3>تكاليف التوصيل الخفية</h3>
+                <div class="investment-input-group">
+                  <label for="expert_basic_packagingCostPerOrder">تكلفة التغليف/طلب (ر.س)</label>
+                  <input type="number" id="expert_basic_packagingCostPerOrder" value="3" />
+                  <small>كرتون، أكياس حرارية، ستيكرات أمان، مناديل، صلصات إضافية</small>
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_refundDisputeRate">نسبة الطلبات المتنازع عليها/المستردة (%)</label>
+                  <input type="number" id="expert_basic_refundDisputeRate" value="2" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_refundLossPerOrder">خسارة المطعم/طلب مسترد (ر.س)</label>
+                  <input type="number" id="expert_basic_refundLossPerOrder" value="20" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_cancelledOrderRate">نسبة الطلبات الملغاة بعد التحضير (%)</label>
+                  <input type="number" id="expert_basic_cancelledOrderRate" value="1" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_cancelledOrderLossPerOrder">خسارة الطلب الملغى (ر.س)</label>
+                  <input type="number" id="expert_basic_cancelledOrderLossPerOrder" value="15" />
+                </div>
+                <div class="investment-input-group">
+                  <label for="expert_basic_settlementDelayDays">أيام تأخير تحويل أموال التطبيق</label>
+                  <input type="number" id="expert_basic_settlementDelayDays" value="14" />
+                  <small>تُحسب احتياطية سيولة شهرية مؤقتة = الإيرادات اليومية × أيام التأخير</small>
                 </div>
               </div>
               <div class="expert-stage-fields">
@@ -618,6 +781,36 @@
           <div class="metric-card__value" id="metricRisk">--</div>
           <div class="metric-card__unit">/ 100</div>
         </div>
+        <div class="metric-card">
+          <div class="metric-card__label">الهدر والنثريات</div>
+          <div class="metric-card__value" id="metricWaste">--</div>
+          <div class="metric-card__unit">ر.س/شهر</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__label">تكلفة المنصات</div>
+          <div class="metric-card__value" id="metricPlatformCost">--</div>
+          <div class="metric-card__unit">ر.س/شهر</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__label">تكلفة التوصيل المجاني</div>
+          <div class="metric-card__value" id="metricDeliveryCost">--</div>
+          <div class="metric-card__unit">ر.س/شهر</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__label">تكاليف التوصيل الخفية</div>
+          <div class="metric-card__value" id="metricHiddenTraps">--</div>
+          <div class="metric-card__unit">ر.س/شهر</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__label">السعر المُوصى به</div>
+          <div class="metric-card__value" id="metricRecommendedTicket">--</div>
+          <div class="metric-card__unit">ر.س</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card__label">صافي المطعم/طلب</div>
+          <div class="metric-card__value" id="metricNetPerOrder">--</div>
+          <div class="metric-card__unit">ر.س</div>
+        </div>
       </div>
 
       <div class="recommendation-bar" id="recommendationBar">
@@ -691,7 +884,7 @@
 
   <div id="site-footer"></div>
 
-  <script src="../../site-layout.js?v=13"></script>
+  <script src="../../site-layout.js?v=2.52.0"></script>
   <script src="../../page-tracker-v2.js"></script>
   <script src="./investment-engine.js?v=2"></script>
   <script src="./investment-validator.js?v=2"></script>
@@ -740,10 +933,21 @@
       currentMode = mode;
       const direction = mode === 'expert' ? 'toExpert' : 'toBasic';
 
-      const fields = [{"name":"dailyOrders","label":"عدد الطلبات اليومية","type":"number","default":120},{"name":"avgTicketValue","label":"متوسط قيمة الطلب (ر.س)","type":"number","default":55},{"name":"setupCost","label":"تكلفة التجهيز والتأسيس (ر.س)","type":"number","default":250000},{"name":"platformCommissionRate","label":"نسبة عمولة المنصات (%)","type":"number","default":25},{"name":"foodCostRate","label":"نسبة تكلفة الطعام (%)","type":"number","default":35},{"name":"monthlyRentSalaries","label":"الإيجار + الرواتب الشهرية (ر.س)","type":"number","default":32000}];
+      const fields = [{"name":"dailyOrders","label":"عدد الطلبات اليومية","type":"number","default":120},{"name":"avgTicketValue","label":"متوسط قيمة الطلب (ر.س)","type":"number","default":55},{"name":"setupCost","label":"تكلفة التجهيز والتأسيس (ر.س)","type":"number","default":250000},{"name":"platformCommissionRate","label":"نسبة عمولة المنصات (%)","type":"number","default":25},{"name":"foodCostRate","label":"نسبة تكلفة الطعام (%)","type":"number","default":35},{"name":"monthlyRentSalaries","label":"الإيجار + الرواتب الشهرية (ر.س)","type":"number","default":32000},{"name":"platformSetupFee","label":"رسوم تأسيس المنصة والجهاز (ر.س)","type":"number","default":1000},{"name":"vatOnCommissionRate","label":"ضريبة القيمة المضافة على العمولة (%)","type":"number","default":15},{"name":"paymentGatewayPct","label":"رسوم بوابة الدفع الإلكتروني (%)","type":"number","default":1.75},{"name":"paymentGatewayFixed","label":"رسوم بوابة الدفع الثابتة/طلب (ر.س)","type":"number","default":0},{"name":"marketingFeeRate","label":"نسبة التسويق والإعلان داخل التطبيق (%)","type":"number","default":0},{"name":"promoDiscountRate","label":"نسبة تحمل خصومات العروض (%)","type":"number","default":0},
+{"name":"freeDeliveryThreshold","label":"سعر حد التوصيل المجاني (ر.س)","type":"number","default":0},
+{"name":"deliveryFeePerOrder","label":"رسوم التوصيل التي يتحملها المطعم/طلب (ر.س)","type":"number","default":15},
+{"name":"packagingCostPerOrder","label":"تكلفة التغليف/طلب (ر.س)","type":"number","default":3},
+{"name":"refundDisputeRate","label":"نسبة الطلبات المتنازع عليها/المستردة (%)","type":"number","default":2},
+{"name":"refundLossPerOrder","label":"خسارة المطعم/طلب مسترد (ر.س)","type":"number","default":20},
+{"name":"cancelledOrderRate","label":"نسبة الطلبات الملغاة بعد التحضير (%)","type":"number","default":1},
+{"name":"cancelledOrderLossPerOrder","label":"خسارة الطلب الملغى (ر.س)","type":"number","default":15},
+{"name":"settlementDelayDays","label":"أيام تأخير تحويل أموال التطبيق","type":"number","default":14},
+{"name":"targetProfitMargin","label":"هامش الربح المستهدف (%)","type":"number","default":15}];
       fields.forEach(f => syncField(f.name, 'expert_basic_' + f.name, direction));
       syncField('analysisDuration', 'expert_basic_analysisDuration', direction);
       syncField('discountRate', 'expert_basic_discountRate', direction);
+      syncField('wasteAndIncidentalsPct', 'expert_basic_wasteAndIncidentalsPct', direction);
+      syncField('deliveryPlatform', 'expert_basic_deliveryPlatform', direction);
 
       document.querySelectorAll('.mode-toggle__btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.mode === mode);
@@ -791,11 +995,21 @@
 
     function mapInputs() {
       const inputs = {};
-      const fields = [{"name":"dailyOrders","label":"عدد الطلبات اليومية","type":"number","default":120},{"name":"avgTicketValue","label":"متوسط قيمة الطلب (ر.س)","type":"number","default":55},{"name":"setupCost","label":"تكلفة التجهيز والتأسيس (ر.س)","type":"number","default":250000},{"name":"platformCommissionRate","label":"نسبة عمولة المنصات (%)","type":"number","default":25},{"name":"foodCostRate","label":"نسبة تكلفة الطعام (%)","type":"number","default":35},{"name":"monthlyRentSalaries","label":"الإيجار + الرواتب الشهرية (ر.س)","type":"number","default":32000}];
+      const fields = [{"name":"dailyOrders","label":"عدد الطلبات اليومية","type":"number","default":120},{"name":"avgTicketValue","label":"متوسط قيمة الطلب (ر.س)","type":"number","default":55},{"name":"setupCost","label":"تكلفة التجهيز والتأسيس (ر.س)","type":"number","default":250000},{"name":"platformCommissionRate","label":"نسبة عمولة المنصات (%)","type":"number","default":25},{"name":"foodCostRate","label":"نسبة تكلفة الطعام (%)","type":"number","default":35},{"name":"monthlyRentSalaries","label":"الإيجار + الرواتب الشهرية (ر.س)","type":"number","default":32000},{"name":"platformSetupFee","label":"رسوم تأسيس المنصة والجهاز (ر.س)","type":"number","default":1000},{"name":"vatOnCommissionRate","label":"ضريبة القيمة المضافة على العمولة (%)","type":"number","default":15},{"name":"paymentGatewayPct","label":"رسوم بوابة الدفع الإلكتروني (%)","type":"number","default":1.75},{"name":"paymentGatewayFixed","label":"رسوم بوابة الدفع الثابتة/طلب (ر.س)","type":"number","default":0},{"name":"marketingFeeRate","label":"نسبة التسويق والإعلان داخل التطبيق (%)","type":"number","default":0},{"name":"promoDiscountRate","label":"نسبة تحمل خصومات العروض (%)","type":"number","default":0},
+{"name":"freeDeliveryThreshold","label":"سعر حد التوصيل المجاني (ر.س)","type":"number","default":0},
+{"name":"deliveryFeePerOrder","label":"رسوم التوصيل التي يتحملها المطعم/طلب (ر.س)","type":"number","default":15},
+{"name":"packagingCostPerOrder","label":"تكلفة التغليف/طلب (ر.س)","type":"number","default":3},
+{"name":"refundDisputeRate","label":"نسبة الطلبات المتنازع عليها/المستردة (%)","type":"number","default":2},
+{"name":"refundLossPerOrder","label":"خسارة المطعم/طلب مسترد (ر.س)","type":"number","default":20},
+{"name":"cancelledOrderRate","label":"نسبة الطلبات الملغاة بعد التحضير (%)","type":"number","default":1},
+{"name":"cancelledOrderLossPerOrder","label":"خسارة الطلب الملغى (ر.س)","type":"number","default":15},
+{"name":"settlementDelayDays","label":"أيام تأخير تحويل أموال التطبيق","type":"number","default":14},
+{"name":"targetProfitMargin","label":"هامش الربح المستهدف (%)","type":"number","default":15}];
       const basicPrefix = currentMode === 'expert' ? 'expert_basic_' : '';
       fields.forEach(f => inputs[f.name] = getValue(basicPrefix + f.name));
       inputs.analysisDuration = getValue(basicPrefix + 'analysisDuration');
       inputs.discountRate = getValue(basicPrefix + 'discountRate') / 100;
+      inputs.wasteAndIncidentalsPct = getValue(basicPrefix + 'wasteAndIncidentalsPct');
 
       const expertFieldNames = ["projectName","projectOwner","projectLocation","legalStructure","startMonth","projectPhase","projectDurationYears","regulatoryApprovalsNeeded","projectManagerExperience","environmentalImpact","tam","sam","som","competitorCount","avgCompetitorPrice","marketEntryBarrier","customerAcquisitionCost","customerLifetimeValue","digitalAdBudget","brandAwareness","marketGrowthRate","seasonalFactor","churnRate","repeatPurchaseRate","onlineVsOfflineRatio","operatingDaysPerMonth","operatingHoursPerDay","shiftCount","capacityUtilizationTarget","employeeProductivityIndex","maintenanceCostRate","insuranceCostAnnual","licenseRenewalCost","softwareSubscriptions","marketingBudget","salesCommissionRate","energyCostMonthly","waterCostMonthly","wasteDisposalCost","securityCost","cleaningCost","outsourcingCost","trainingCost","landCost","buildingCost","renovationCost","machineryCost","furnitureCost","vehiclesCost","workingCapital","contingencyReserve","salvageValue","assetLifeYears","preOpeningCost","initialInventoryCost","permitsAndLicensesCost","feasibilityStudyCost","equityAmount","loanAmount","interestRate","loanTermYears","gracePeriodMonths","requiredRoi","minDscr","balloonPayment","earlyRepaymentPenalty","collateralValue","debtServiceStartMonth","marketRiskScore","operationalRiskScore","financialRiskScore","regulatoryRiskScore","technologyRiskScore","reputationRiskScore","mitigationBudget","supplyChainRiskScore","competitionRiskScore","currencyRiskScore","geopoliticalRiskScore","keyAssumptions","sensitivityCase","successFactors","exitStrategy"];
       expertFieldNames.forEach(name => {
@@ -813,6 +1027,8 @@
     function calculateEngineInputs(inputs) {
       let totalInvestment = 0, monthlyFixed = 0, monthlyVariable = 0, monthlyRevenue = 0;
       let unitPrice = 0, unitVariableCost = 0;
+      let monthlyPlatformCost = 0, monthlyDeliveryFeeCost = 0, monthlyHiddenTrapCost = 0;
+      let recommendedTicketValue = 0;
       let expertRiskWeight = baseRiskWeight;
 
       switch (sectorId) {
@@ -1195,12 +1411,41 @@
           unitVariableCost = unitPrice * (inputs.foodCostRate / 100);
           break;
         case 'cloud-kitchen':
-          totalInvestment = inputs.setupCost;
           monthlyRevenue = inputs.dailyOrders * inputs.avgTicketValue * 30;
           monthlyFixed = inputs.monthlyRentSalaries;
-          monthlyVariable = monthlyRevenue * ((inputs.foodCostRate + inputs.platformCommissionRate) / 100);
+
+          const commissionPerOrder = inputs.avgTicketValue * (inputs.platformCommissionRate / 100);
+          const vatOnCommissionPerOrder = commissionPerOrder * (inputs.vatOnCommissionRate / 100);
+          const gatewayFeePerOrder = inputs.avgTicketValue * (inputs.paymentGatewayPct / 100) + inputs.paymentGatewayFixed;
+          const marketingCostPerOrder = inputs.avgTicketValue * (inputs.marketingFeeRate / 100);
+          const promoDiscountPerOrder = inputs.avgTicketValue * (inputs.promoDiscountRate / 100);
+          const platformCostPerOrder = commissionPerOrder + vatOnCommissionPerOrder + gatewayFeePerOrder + marketingCostPerOrder + promoDiscountPerOrder;
+          monthlyPlatformCost = platformCostPerOrder * inputs.dailyOrders * 30;
+          const monthlyFoodCost = monthlyRevenue * (inputs.foodCostRate / 100);
+          const foodCostPerOrder = inputs.avgTicketValue * (inputs.foodCostRate / 100);
+
+          const freeDeliveryThreshold = inputs.freeDeliveryThreshold || 0;
+          const deliveryFeePerOrder = (freeDeliveryThreshold > 0 && inputs.avgTicketValue >= freeDeliveryThreshold) ? (inputs.deliveryFeePerOrder || 0) : 0;
+          monthlyDeliveryFeeCost = deliveryFeePerOrder * inputs.dailyOrders * 30;
+
+          const packagingCostPerOrder = inputs.packagingCostPerOrder || 0;
+          const refundDisputeRate = inputs.refundDisputeRate || 0;
+          const refundLossPerOrder = inputs.refundLossPerOrder || 0;
+          const cancelledOrderRate = inputs.cancelledOrderRate || 0;
+          const cancelledOrderLossPerOrder = inputs.cancelledOrderLossPerOrder || 0;
+          const ordersPerMonth = inputs.dailyOrders * 30;
+          const packagingMonthly = packagingCostPerOrder * ordersPerMonth;
+          const refundMonthly = ordersPerMonth * (refundDisputeRate / 100) * refundLossPerOrder;
+          const cancelledMonthly = ordersPerMonth * (cancelledOrderRate / 100) * cancelledOrderLossPerOrder;
+          monthlyHiddenTrapCost = packagingMonthly + refundMonthly + cancelledMonthly;
+
+          const settlementDelayDays = inputs.settlementDelayDays || 0;
+          const settlementReserve = settlementDelayDays > 0 ? (monthlyRevenue * settlementDelayDays / 30) : 0;
+          totalInvestment = inputs.setupCost + inputs.platformSetupFee + settlementReserve;
+
+          monthlyVariable = monthlyFoodCost + monthlyPlatformCost + monthlyDeliveryFeeCost + monthlyHiddenTrapCost;
           unitPrice = inputs.avgTicketValue;
-          unitVariableCost = unitPrice * ((inputs.foodCostRate + inputs.platformCommissionRate) / 100);
+          unitVariableCost = foodCostPerOrder + platformCostPerOrder + deliveryFeePerOrder + packagingCostPerOrder + (refundDisputeRate / 100 * refundLossPerOrder) + (cancelledOrderRate / 100 * cancelledOrderLossPerOrder);
           break;
         case 'food-truck':
           totalInvestment = inputs.truckCost + inputs.permitsCost;
@@ -1363,6 +1608,40 @@
         if (inputs.environmentalImpact >= 4) expertRiskWeight += 0.08;
       }
 
+      const wastePct = (inputs.wasteAndIncidentalsPct || 0);
+      const wasteMultiplier = 1 + wastePct / 100;
+      const monthlyVariableBeforeWaste = monthlyVariable;
+      monthlyVariable = monthlyVariable * wasteMultiplier;
+      unitVariableCost = unitVariableCost * wasteMultiplier;
+
+      if (sectorId === 'cloud-kitchen') {
+        const ordersPerMonth = inputs.dailyOrders * 30;
+        const targetMargin = (inputs.targetProfitMargin || 0) / 100;
+        const platformCommissionRate = inputs.platformCommissionRate || 0;
+        const vatOnCommissionRate = inputs.vatOnCommissionRate || 0;
+        const foodCostRate = inputs.foodCostRate || 0;
+        const paymentGatewayPct = inputs.paymentGatewayPct || 0;
+        const marketingFeeRate = inputs.marketingFeeRate || 0;
+        const promoDiscountRate = inputs.promoDiscountRate || 0;
+        const variableRate = (foodCostRate + platformCommissionRate + paymentGatewayPct + marketingFeeRate + promoDiscountRate) / 100
+          + (platformCommissionRate / 100) * (vatOnCommissionRate / 100);
+        const effectiveVariableRate = variableRate * wasteMultiplier;
+        const fixedCostPerOrder = ((inputs.packagingCostPerOrder || 0)
+          + ((inputs.refundDisputeRate || 0) / 100) * (inputs.refundLossPerOrder || 0)
+          + ((inputs.cancelledOrderRate || 0) / 100) * (inputs.cancelledOrderLossPerOrder || 0)) * wasteMultiplier;
+        const denominator = 1 - effectiveVariableRate - targetMargin;
+        if (ordersPerMonth > 0 && denominator > 0) {
+          const numerator = monthlyFixed + (fixedCostPerOrder * ordersPerMonth);
+          let recommendedPrice = numerator / (ordersPerMonth * denominator);
+          const freeDeliveryThreshold = inputs.freeDeliveryThreshold || 0;
+          const deliveryFeePerOrder = inputs.deliveryFeePerOrder || 0;
+          if (freeDeliveryThreshold > 0 && recommendedPrice >= freeDeliveryThreshold) {
+            recommendedPrice = (numerator + (deliveryFeePerOrder * ordersPerMonth)) / (ordersPerMonth * denominator);
+          }
+          recommendedTicketValue = recommendedPrice;
+        }
+      }
+
       return {
         totalInvestment,
         monthlyFixedCosts: monthlyFixed,
@@ -1371,7 +1650,13 @@
         unitPrice,
         unitVariableCost,
         projectMonths: inputs.analysisDuration,
-        sectorRiskWeight: Math.max(0.5, expertRiskWeight)
+        sectorRiskWeight: Math.max(0.5, expertRiskWeight),
+        wasteAndIncidentalsPct: wastePct,
+        wasteAndIncidentalsAmount: monthlyVariable - monthlyVariableBeforeWaste,
+        monthlyPlatformCost,
+        monthlyDeliveryFeeCost,
+        monthlyHiddenTrapCost,
+        recommendedTicketValue
       };
     }
 
@@ -1414,6 +1699,10 @@
       }
 
       const m = result.metrics;
+      const ordersPerMonth = inputs.dailyOrders * 30;
+      const netPerOrder = ordersPerMonth > 0 ? (engineInputs.monthlyRevenue - engineInputs.monthlyFixedCosts - engineInputs.monthlyVariableCosts) / ordersPerMonth : 0;
+      document.getElementById('metricRecommendedTicket').textContent = formatNumber(engineInputs.recommendedTicketValue || 0);
+      document.getElementById('metricNetPerOrder').textContent = formatNumber(netPerOrder);
       document.getElementById('metricRoi').textContent = formatNumber(m.roi);
       document.getElementById('metricIrr').textContent = formatNumber(m.irr);
       document.getElementById('metricNpv').textContent = formatNumber(m.npv);
@@ -1421,6 +1710,10 @@
       document.getElementById('metricBreakEven').textContent = formatNumber(m.breakEvenUnits);
       document.getElementById('metricMargin').textContent = formatNumber(m.profitMargin);
       document.getElementById('metricRisk').textContent = formatNumber(m.riskScore);
+      document.getElementById('metricWaste').textContent = formatNumber(engineInputs.wasteAndIncidentalsAmount || 0);
+      document.getElementById('metricPlatformCost').textContent = formatNumber(engineInputs.monthlyPlatformCost || 0);
+      document.getElementById('metricDeliveryCost').textContent = formatNumber(engineInputs.monthlyDeliveryFeeCost || 0);
+      document.getElementById('metricHiddenTraps').textContent = formatNumber(engineInputs.monthlyHiddenTrapCost || 0);
 
       const rec = result.recommendation;
       const bar = document.getElementById('recommendationBar');
@@ -1551,6 +1844,35 @@
         setTimeout(function() { printWindow.print(); }, 600);
       };
     }
+
+    function populateDeliveryPlatforms() {
+      if (!window.BondsPlatforms || !window.BondsPlatforms.getPlatforms) return;
+      const platforms = window.BondsPlatforms.getPlatforms('SA') || [];
+      const selects = [document.getElementById('deliveryPlatform'), document.getElementById('expert_basic_deliveryPlatform')];
+      selects.forEach(function(select) {
+        if (!select) return;
+        while (select.options.length > 1) select.remove(1);
+        platforms.forEach(function(p) {
+          const option = document.createElement('option');
+          option.value = p.id;
+          option.textContent = (isAr ? p.name : p.nameEn) + ' — ' + p.fee + '%';
+          select.appendChild(option);
+        });
+        select.addEventListener('change', onDeliveryPlatformChange);
+      });
+    }
+
+    function onDeliveryPlatformChange(e) {
+      const platformId = e.target.value;
+      if (!platformId || !window.BondsPlatforms || !window.BondsPlatforms.getPlatform) return;
+      const platform = window.BondsPlatforms.getPlatform('SA', platformId);
+      if (!platform) return;
+      const prefix = e.target.id.startsWith('expert_basic_') ? 'expert_basic_' : '';
+      const rateInput = document.getElementById(prefix + 'platformCommissionRate');
+      if (rateInput) rateInput.value = platform.fee;
+    }
+
+    populateDeliveryPlatforms();
   </script>
 </body>
 </html>

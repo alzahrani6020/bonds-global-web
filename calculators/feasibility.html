@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>حاسبة الجدوى المالية للمطعم | بوندز — هل فكرتك مربحة؟</title>
-  <meta name="description" content="احسب الجدوى المالية لمطعمك قبل الافتتاح: التكاليف، الإيرادات، عمولة المنصة، هدر الطعام، تكلفة التغليف والتوصيل، النمو الشهري، نقطة التعادل، والسيناريوهات. أداة مجانية من بوندز." />
+  <meta name="description" content="احسب الجدوى المالية لمطعمك قبل الافتتاح: التكاليف، الإيرادات، عمولة المنصة، الهدر والنثريات المتوقعة، تكلفة التغليف والتوصيل، النمو الشهري، نقطة التعادل، والسيناريوهات. أداة مجانية من بوندز." />
   <meta property="og:title" content="حاسبة الجدوى المالية للمطعم | بوندز" />
   <meta property="og:description" content="هل فكرة مطعمك مربحة؟ احسب قبل ما تدفع ريال مع مراعاة المنصات والتكاليف الحقيقية." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
@@ -25,16 +25,16 @@
 
   <script src="db-client.js"></script>
   
-<link rel="stylesheet" href="../header-footer.css?v=10" />
+<link rel="stylesheet" href="../header-footer.css?v=2.52.0" />
   <link rel="canonical" href="https://bonds-global.com/calculators/feasibility" />
   <meta property="og:url" content="https://bonds-global.com/calculators/feasibility" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="حاسبة الجدوى المالية للمطعم | بوندز — هل فكرتك مربحة؟" />
-  <meta name="twitter:description" content="احسب الجدوى المالية لمطعمك قبل الافتتاح: التكاليف، الإيرادات، عمولة المنصة، هدر الطعام، تكلفة التغليف والتوصيل، النمو الشهري، نقطة التعادل، والسيناريوهات. أداة مجانية من بوندز." />
+  <meta name="twitter:description" content="احسب الجدوى المالية لمطعمك قبل الافتتاح: التكاليف، الإيرادات، عمولة المنصة، الهدر والنثريات المتوقعة، تكلفة التغليف والتوصيل، النمو الشهري، نقطة التعادل، والسيناريوهات. أداة مجانية من بوندز." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
-<link rel="stylesheet" href="../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -52,7 +52,7 @@
     <div class="bonds-card calc-mb-4">
       <div class="bonds-form-group">
         <label for="country">الدولة / السوق</label>
-        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
           <option value="">اختر الدولة</option>
         </select>
       </div>
@@ -124,7 +124,7 @@
         <div class="feas-section-title">🚚 تكاليف البيع والنمو (اختياري)</div>
         <div class="bonds-form-row">
           <div class="bonds-form-group"><label>عمولة المنصة (%) <abbr title="نسبة استقطاع منصة التوصيل/البيع من كل طلب">ⓘ</abbr></label><input id="platformFeePct" class="bonds-input" type="number" value="0" placeholder="20" min="0" max="100" /></div>
-          <div class="bonds-form-group"><label>هدر الطعام (%) <abbr title="نسبة المواد الخام المهدرة يومياً بسبب الفائض أو التلف">ⓘ</abbr></label><input id="wasteRatePct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" /></div>
+          <div class="bonds-form-group"><label>الهدر والنثريات المتوقعة (%) <abbr title="نسبة احتياطية للهدر والمصاريف غير المتوقعة: هدر مواد، فاقد إنتاج، صيانة مفاجئة، قطع غيار صغيرة">ⓘ</abbr></label><input id="wasteRatePct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" /></div>
           <div class="bonds-form-group"><label>تكلفة التغليف للطلب <abbr title="تكلفة العلبة/الكيس/الملصقات لكل طلب">ⓘ</abbr></label><input id="packagingCostPerOrder" class="bonds-input" type="number" value="0" placeholder="3" min="0" /></div>
           <div class="bonds-form-group"><label>تكلفة التوصيل للطلب <abbr title="ما تدفعه لشركة التوصيل لكل طلب">ⓘ</abbr></label><input id="deliveryCostPerOrder" class="bonds-input" type="number" value="0" placeholder="5" min="0" /></div>
           <div class="bonds-form-group"><label>نمو الطلبات شهرياً (%) <abbr title="معدل النمو الشهري المتوقع للطلبات (0 = ثبات)">ⓘ</abbr></label><input id="monthlyGrowthPct" class="bonds-input" type="number" value="0" placeholder="2" min="0" max="100" /></div>
@@ -317,7 +317,7 @@ function calculateAll() {
       <div class="metric-box"><div class="label">استرداد رأس المال</div><div class="value">${roiMonths === Infinity ? '—' : Math.ceil(roiMonths) + ' شهر'}</div></div>
       <div class="metric-box"><div class="label">تكلفة الافتتاح</div><div class="value">${setupTotal.toLocaleString('ar-SA')} ر.س</div></div>
       ${platformFeeAmount > 0 ? `<div class="metric-box"><div class="label">عمولة المنصة / شهر</div><div class="value" style="color:#ef4444">${platformFeeAmount.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
-      ${wasteCost > 0 ? `<div class="metric-box"><div class="label">تكلفة الهدر / شهر</div><div class="value" style="color:#ef4444">${wasteCost.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
+      ${wasteCost > 0 ? `<div class="metric-box"><div class="label">تكلفة الهدر والنثريات / شهر</div><div class="value" style="color:#ef4444">${wasteCost.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
       ${packagingCost > 0 ? `<div class="metric-box"><div class="label">تكلفة التغليف / شهر</div><div class="value" style="color:#ef4444">${packagingCost.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
       ${deliveryCost > 0 ? `<div class="metric-box"><div class="label">تكلفة التوصيل / شهر</div><div class="value" style="color:#ef4444">${deliveryCost.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
     </div>
@@ -348,7 +348,7 @@ function calculateAll() {
       <p>• متوسط الإيراد الصافي/شهر (بعد عمولة المنصة والنمو): ${monthlyRevenue.toLocaleString('ar-SA')} ر.س | سنوي: ${yearlyRevenue.toLocaleString('ar-SA')} ر.س</p>
       <p style="margin-top:0.5rem;"><strong>📉 التكاليف الشهرية:</strong></p>
       <p>• ثابتة: ${monthlyFixed.toLocaleString('ar-SA')} ر.س | متغيرة: ${monthlyVariable.toLocaleString('ar-SA')} ر.س | الإجمالي: ${monthlyTotal.toLocaleString('ar-SA')} ر.س</p>
-      ${platformFeeAmount > 0 ? `<p>• عمولة المنصة: ${platformFeeAmount.toLocaleString('ar-SA')} ر.س/شهر | هدر الطعام: ${wasteCost.toLocaleString('ar-SA')} ر.س/شهر | تغليف: ${packagingCost.toLocaleString('ar-SA')} ر.س/شهر | توصيل: ${deliveryCost.toLocaleString('ar-SA')} ر.س/شهر</p>` : ''}
+      ${platformFeeAmount > 0 ? `<p>• عمولة المنصة: ${platformFeeAmount.toLocaleString('ar-SA')} ر.س/شهر | الهدر والنثريات المتوقعة: ${wasteCost.toLocaleString('ar-SA')} ر.س/شهر | تغليف: ${packagingCost.toLocaleString('ar-SA')} ر.س/شهر | توصيل: ${deliveryCost.toLocaleString('ar-SA')} ر.س/شهر</p>` : ''}
       <p style="margin-top:0.5rem;"><strong>📊 الربحية:</strong></p>
       <p>• شهري: ${monthlyProfit.toLocaleString('ar-SA')} ر.س | سنوي: ${yearlyProfit.toLocaleString('ar-SA')} ر.س | هامش: ${profitMargin.toFixed(1)}%</p>
       <p style="margin-top:0.5rem;"><strong>🎯 نقطة التعادل:</strong></p>
@@ -437,7 +437,7 @@ async function exportExcelFeas() {
     ['عدد الطلبات المتوقع / يوم', d.dailyOrders],
     ['أيام العمل في الشهر', d.workDays],
     ['عمولة المنصة (%)', (d.options && d.options.platformFeePct) || 0],
-    ['هدر الطعام (%)', (d.options && d.options.wasteRatePct) || 0],
+    ['الهدر والنثريات المتوقعة (%)', (d.options && d.options.wasteRatePct) || 0],
     ['تكلفة التغليف للطلب', (d.options && d.options.packagingCostPerOrder) || 0],
     ['تكلفة التوصيل للطلب', (d.options && d.options.deliveryCostPerOrder) || 0],
     ['نمو الطلبات شهرياً (%)', (d.options && d.options.monthlyGrowthPct) || 0]
@@ -454,7 +454,7 @@ async function exportExcelFeas() {
     ['إجمالي التكاليف الشهرية', d.monthlyTotal],
     ['', ''],
     ['عمولة المنصة / شهر', d.platformFeeAmount || 0],
-    ['تكلفة الهدر / شهر', d.wasteCost || 0],
+    ['تكلفة الهدر والنثريات / شهر', d.wasteCost || 0],
     ['تكلفة التغليف / شهر', d.packagingCost || 0],
     ['تكلفة التوصيل / شهر', d.deliveryCost || 0],
     ['', ''],
@@ -543,7 +543,7 @@ function exportPDFFeas() {
       <tr><td>التكاليف الشهرية المتغيرة</td><td class="num">${d.monthlyVariable.toLocaleString('ar-SA')} ر.س</td></tr>
       <tr><td>إجمالي التكاليف الشهرية</td><td class="num">${d.monthlyTotal.toLocaleString('ar-SA')} ر.س</td></tr>
       ${(d.platformFeeAmount || 0) > 0 ? `<tr><td>عمولة المنصة / شهر</td><td class="num">${d.platformFeeAmount.toLocaleString('ar-SA')} ر.س</td></tr>` : ''}
-      ${(d.wasteCost || 0) > 0 ? `<tr><td>تكلفة الهدر / شهر</td><td class="num">${d.wasteCost.toLocaleString('ar-SA')} ر.س</td></tr>` : ''}
+      ${(d.wasteCost || 0) > 0 ? `<tr><td>تكلفة الهدر والنثريات / شهر</td><td class="num">${d.wasteCost.toLocaleString('ar-SA')} ر.س</td></tr>` : ''}
       ${(d.packagingCost || 0) > 0 ? `<tr><td>تكلفة التغليف / شهر</td><td class="num">${d.packagingCost.toLocaleString('ar-SA')} ر.س</td></tr>` : ''}
       ${(d.deliveryCost || 0) > 0 ? `<tr><td>تكلفة التوصيل / شهر</td><td class="num">${d.deliveryCost.toLocaleString('ar-SA')} ر.س</td></tr>` : ''}
       <tr><td>الربح الشهري</td><td class="num">${d.monthlyProfit.toLocaleString('ar-SA')} ر.س</td></tr>
@@ -577,11 +577,11 @@ setTimeout(() => onboard.start(), 600);
 </script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
-<script src="shared-geo.js"></script>
+<script src="shared-geo.js?v=4"></script>
 
-<script src="../site-layout.js?v=13"></script>
+<script src="../site-layout.js?v=2.52.0"></script>
   <div id="site-footer"></div>
-<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

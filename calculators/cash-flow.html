@@ -40,7 +40,7 @@
   <script src="db-client.js"></script>
 <link rel="canonical" href="https://bonds-global.com/calculators/cash-flow" />
 
-<link rel="stylesheet" href="../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body>
 
@@ -76,7 +76,7 @@
           
           <div class="calc-input-group">
             <label for="country">الدولة / السوق</label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
               <option value="">اختر الدولة</option>
             </select>
           </div>
@@ -84,6 +84,10 @@
           <div class="calc-input-group">
             <label for="openingBalance">الرصيد الافتتاحي (بداية الشهر الأول)</label>
             <input type="number" id="openingBalance" placeholder="مثلاً: 50000" min="0" />
+          </div>
+          <div class="calc-input-group">
+            <label for="wasteAndIncidentalsPct">الهدر والنثريات المتوقعة (%) <abbr title="نسبة احتياطية تُطبق على المصروفات التشغيلية: إيجار، رواتب، مواد خام، تسويق، مصروفات أخرى">ⓘ</abbr></label>
+            <input type="number" id="wasteAndIncidentalsPct" placeholder="مثلاً: 5" min="0" max="100" value="0" />
           </div>
 
           <h3 class="calc-subsection-title">الواردات الشهرية 💰</h3>
@@ -112,6 +116,10 @@
               <div class="summary-card red">
                 <div class="summary-label">إجمالي المصروفات السنوي</div>
                 <div class="summary-value" id="sumTotalOut">—</div>
+              </div>
+              <div class="summary-card orange">
+                <div class="summary-label">الهدر والنثريات السنوي</div>
+                <div class="summary-value" id="sumWaste">—</div>
               </div>
               <div class="summary-card blue">
                 <div class="summary-label">صافي التدفق السنوي</div>
@@ -264,7 +272,7 @@
 
   <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
 
-  <script src="../script.js?v=3" defer></script>
+  <script src="../script.js?v=4" defer></script>
   <script>
     var chart = null;
     var MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -322,15 +330,23 @@
     function getMonthData() {
       var months = [];
       var opening = parseFloat(document.getElementById('openingBalance').value) || 0;
+      var wastePct = parseFloat(document.getElementById('wasteAndIncidentalsPct').value) || 0;
+      var wasteMultiplier = 1 + wastePct / 100;
+      var WASTE_ROWS = ['rent', 'salaries', 'raw', 'marketing', 'other_exp'];
       for (var m = 0; m < 12; m++) {
-        var month = { inflows: {}, outflows: {}, totalIn: 0, totalOut: 0, netCashFlow: 0, openingBalance: 0, closingBalance: 0 };
+        var month = { inflows: {}, outflows: {}, totalIn: 0, totalOut: 0, netCashFlow: 0, openingBalance: 0, closingBalance: 0, wasteAndIncidentals: 0 };
         INFLOW_ROWS.forEach(function(row) {
           var val = parseFloat(document.getElementById('in_' + row.id + '_' + m).value) || 0;
           month.inflows[row.id] = val;
           month.totalIn += val;
         });
         OUTFLOW_ROWS.forEach(function(row) {
-          var val = parseFloat(document.getElementById('out_' + row.id + '_' + m).value) || 0;
+          var rawVal = parseFloat(document.getElementById('out_' + row.id + '_' + m).value) || 0;
+          var val = rawVal;
+          if (WASTE_ROWS.indexOf(row.id) >= 0) {
+            val = rawVal * wasteMultiplier;
+            month.wasteAndIncidentals += val - rawVal;
+          }
           month.outflows[row.id] = val;
           month.totalOut += val;
         });
@@ -386,6 +402,15 @@
         html += '<td style="font-weight:700;">' + formatNumber(total) + '</td></tr>';
       });
 
+      // Waste & incidentals
+      var totalWasteYear = 0;
+      html += '<tr><td style="color:#ef4444;">الهدر والنثريات</td>';
+      months.forEach(function(m) {
+        html += '<td>' + formatNumber(m.wasteAndIncidentals) + '</td>';
+        totalWasteYear += m.wasteAndIncidentals;
+      });
+      html += '<td style="font-weight:700;">' + formatNumber(totalWasteYear) + '</td></tr>';
+
       // Total outflows
       var totalOutYear = 0;
       html += '<tr class="highlight-row"><td>إجمالي المصروفات</td>';
@@ -418,12 +443,13 @@
     }
 
     function updateSummary(months) {
-      var totalIn = 0, totalOut = 0, netFlow = 0;
+      var totalIn = 0, totalOut = 0, netFlow = 0, totalWaste = 0;
       var minBal = Infinity, maxBal = -Infinity;
       var minMonth = '', maxMonth = '';
       months.forEach(function(m, i) {
         totalIn += m.totalIn;
         totalOut += m.totalOut;
+        totalWaste += m.wasteAndIncidentals;
         netFlow += m.netCashFlow;
         if (m.closingBalance < minBal) { minBal = m.closingBalance; minMonth = MONTHS_AR[i]; }
         if (m.closingBalance > maxBal) { maxBal = m.closingBalance; maxMonth = MONTHS_AR[i]; }
@@ -433,6 +459,7 @@
 
       document.getElementById('sumTotalIn').textContent = formatNumber(totalIn) + ' ر.س';
       document.getElementById('sumTotalOut').textContent = formatNumber(totalOut) + ' ر.س';
+      document.getElementById('sumWaste').textContent = formatNumber(totalWaste) + ' ر.س';
       document.getElementById('sumNetFlow').textContent = formatNumber(netFlow) + ' ر.س';
       document.getElementById('sumNetFlow').style.color = netFlow >= 0 ? '#16a34a' : '#dc2626';
       document.getElementById('sumClosing').textContent = formatNumber(months[11].closingBalance) + ' ر.س';
@@ -798,10 +825,10 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=1"></script>
-<script src="../site-layout.js?v=13"></script>
-<script src="shared-geo.js"></script>
+<script src="../site-layout.js?v=2.52.0"></script>
+<script src="shared-geo.js?v=4"></script>
 
-<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 <script>
 (function(){

@@ -37,12 +37,13 @@
   <script src="calc-functions.js"></script>
   <script src="shared-charts.js" defer></script>
   <script src="shared-export.js" defer></script>
+  <script src="shared-platforms.js"></script>
   
 
   <script src="db-client.js"></script>
 <link rel="canonical" href="https://bonds-global.com/calculators/pricing" />
 
-<link rel="stylesheet" href="../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body>
 
@@ -77,9 +78,30 @@
           <h2 class="calc-section-title">بيانات التسعير</h2>
           <div class="calc-input-group">
             <label for="country">الدولة / السوق</label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
               <option value="">اختر الدولة</option>
             </select>
+          </div>
+          <div class="calc-input-group">
+            <label for="platformSelect">المنصة / قناة البيع <abbr title="اختر المنصة لملء عمولتها تلقائيًا، أو اتركها على 'منصة مخصصة' وأدخل العمولة يدويًا">ⓘ</abbr></label>
+            <select id="platformSelect" class="bonds-input">
+              <option value="">منصة مخصصة</option>
+            </select>
+          </div>
+          <div class="calc-input-group">
+            <label for="sectorPreset">قالب القطاع (اختياري) <abbr title="اختر قطاعك لملء قيم أولية واقعية للهامش والعمولة والتغليف والتوصيل والتسويق">ⓘ</abbr></label>
+            <select id="sectorPreset" class="bonds-input" onchange="onSectorPresetChange()">
+              <option value="">تخصيص يدوي</option>
+              <option value="restaurant">مطعم / كوفي</option>
+              <option value="ecommerce">متجر إلكتروني</option>
+              <option value="grocery">بقالة / سوبرماركت</option>
+              <option value="fashion">ملابس / أزياء</option>
+              <option value="services">خدمات</option>
+              <option value="electronics">إلكترونيات</option>
+              <option value="beauty">منتجات تجميل</option>
+              <option value="furniture">أثاث / منزل</option>
+            </select>
+            <small class="calc-hint" id="sectorPresetHint">اختيار القالب يملأ الهامش والعمولة والتكاليف الإضافية بقيم افتراضية واقعية</small>
           </div>
           <div class="calc-input-group">
             <label for="directCost">التكلفة المباشرة للوحدة (مواد + عمالة) <abbr title="التكلفة التي تتغير مباشرة بكل وحدة تُنتج: مواد خام + أجرة العمالة المباشرة">ⓘ</abbr></label>
@@ -88,14 +110,32 @@
           <div class="calc-input-group">
             <label for="overheadCost">التكاليف غير المباشرة للوحدة <abbr title="تكاليف تشغيلية لا ترتبط مباشرة بوحدة واحدة، قسّم التكلفة الشهرية على حجم الإنتاج">ⓘ</abbr></label>
             <input type="number" id="overheadCost" placeholder="مثلاً: 50" min="0" />
+            <small class="calc-hint">مثال: إيجار + رواتب إدارية + فواتير + تسويق ثابت</small>
+          </div>
+          <div class="calc-input-group">
+            <label for="wasteAndIncidentalsPct">الهدر والنثريات المتوقعة (%) <abbr title="نسبة تكاليف إضافية متوقعة مثل: هدر المواد، الفاقد، الصيانة البسيطة، تغيير لمبات، قطع غيار صغيرة، أو أي مصروف طارئ يصعب تحديده بالضبط">ⓘ</abbr></label>
+            <input type="number" id="wasteAndIncidentalsPct" placeholder="مثلاً: 5" min="0" max="100" value="0" />
+            <small class="calc-hint">مثل: هدر مواد، فاقد إنتاج، صيانة مفاجئة، تغيير لمبات، قطع غيار صغيرة</small>
           </div>
           <div class="calc-input-group">
             <label for="monthlyFixed">التكاليف الثابتة الشهرية (إيجار + رواتب إدارية) <abbr title="تكاليف ثابتة كل شهر حتى وإن لم تُبع وحدات: إيجار، رواتب إدارية، فواتير">ⓘ</abbr></label>
             <input type="number" id="monthlyFixed" placeholder="مثلاً: 20000" min="0" />
           </div>
           <div class="calc-input-group">
+            <label>طريقة تحديد الربح</label>
+            <div class="calc-mode-toggle" role="group" aria-label="طريقة تحديد الربح">
+              <button type="button" id="modeMarginBtn" class="btn btn-outline calc-mode-btn active" onclick="setPricingMode('margin')">أعرف هامشي (%)</button>
+              <button type="button" id="modePriceBtn" class="btn btn-outline calc-mode-btn" onclick="setPricingMode('price')">أعرف سعر البيع</button>
+            </div>
+          </div>
+          <div class="calc-input-group" id="marginGroup">
             <label for="desiredMargin">هامش الربح المستهدف (%) <abbr title="الربح الذي تريده كنسبة من سعر البيع قبل العمولة (مثال: 25% يعني ربح = 25% من السعر)">ⓘ</abbr></label>
             <input type="number" id="desiredMargin" placeholder="مثلاً: 25" min="0" max="100" value="25" />
+          </div>
+          <div class="calc-input-group calc-hidden" id="priceGroup">
+            <label for="targetPrice">سعر البيع المستهدف على المنصة <abbr title="السعر النهائي الذي تريد عرضه للعميل، شامل عمولة المنصة ورسوم الدفع">ⓘ</abbr></label>
+            <input type="number" id="targetPrice" placeholder="مثلاً: 400" min="0" />
+            <small class="calc-hint" id="targetPriceHint">سيتم استخراج الهامش المكافئ تلقائياً</small>
           </div>
           <div class="calc-input-group">
             <label for="taxRate">نسبة الضريبة (%) <abbr title="نسبة الضريبة المضافة (VAT) — تُطبق فقط على الربح الموجب">ⓘ</abbr></label>
@@ -110,10 +150,24 @@
             <input type="number" id="monthlyVolume" placeholder="مثلاً: 500" min="0" />
           </div>
           <div class="calc-optional-box">
-            <p class="calc-optional-title-bright">🚚 تكاليف البيع والتوصيل (اختياري)</p>
+            <p class="calc-optional-title-bright">✨ تكاليف إضافية لكل وحدة (اختياري)</p>
             <div class="calc-input-group">
               <label for="platformFee" class="calc-label-small">عمولة المنصة (%) <abbr title="نسبة الاستقطاع من منصة البيع/التوصيل (مثل: هنقرستيشن، جاهز، أمازون)">ⓘ</abbr></label>
               <input type="number" id="platformFee" placeholder="مثلاً: 20" min="0" max="100" value="0" />
+            </div>
+            <div class="calc-input-group">
+              <label for="paymentGatewayPreset" class="calc-label-small">بوابة الدفع <abbr title="مثل: مدى، Visa/Mastercard، Apple Pay — تؤثر على السعر النهائي">ⓘ</abbr></label>
+              <select id="paymentGatewayPreset" class="bonds-input" onchange="onPaymentGatewayPresetChange()">
+                <option value="">يدوي / لا يوجد</option>
+                <option value="0.5">مدى (~0.5%)</option>
+                <option value="1.5">Apple Pay / Google Pay (~1.5%)</option>
+                <option value="1.75">Visa / Mastercard (~1.75%)</option>
+                <option value="2.5">بوابة دفع متكاملة (~2.5%)</option>
+              </select>
+            </div>
+            <div class="calc-input-group">
+              <label for="paymentGatewayFee" class="calc-label-small">رسوم بوابة الدفع (%) <abbr title="نسبة استقطاع بوابة الدفع من إجمالي السعر على المنصة">ⓘ</abbr></label>
+              <input type="number" id="paymentGatewayFee" placeholder="مثلاً: 1.5" min="0" max="100" value="0" />
             </div>
             <div class="calc-input-group">
               <label for="packagingCost" class="calc-label-small">تكلفة التغليف للوحدة <abbr title="تكلفة العلبة/الكيس/الملصقات لكل وحدة">ⓘ</abbr></label>
@@ -147,6 +201,10 @@
                 <span id="resTotalCostPerUnit" class="calc-result-row__value">—</span>
               </div>
               <div class="calc-result-row">
+                <span class="calc-result-row__label">الهدر والنثريات المتوقعة</span>
+                <span id="resWasteAndIncidentals" class="calc-result-row__value">—</span>
+              </div>
+              <div class="calc-result-row">
                 <span class="calc-result-row__label">سعر البيع قبل العمولة</span>
                 <span id="resPriceBeforeFees" class="calc-result-row__value">—</span>
               </div>
@@ -157,6 +215,10 @@
               <div class="calc-result-row">
                 <span class="calc-result-row__label">عمولة المنصة</span>
                 <span id="resPlatformFee" class="calc-result-row__value calc-result-row__value--danger">—</span>
+              </div>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">رسوم بوابة الدفع</span>
+                <span id="resPaymentGateway" class="calc-result-row__value calc-result-row__value--danger">—</span>
               </div>
               <div class="calc-result-row">
                 <span class="calc-result-row__label">الربح قبل الضريبة (للوحدة)</span>
@@ -292,13 +354,19 @@
           <p class="calc-example-intro">اضغط "جرب مثال توضيحي" وتحقق من الحساب يدوياً:</p>
           <div class="calc-example-list">
             <div class="calc-example-row">
-              <span>التكلفة المباشرة</span><strong>150 ر.س</strong>
+              <span>التكلفة المباشرة</span><strong>150 <span class="example-currency">ر.س</span></strong>
             </div>
             <div class="calc-example-row">
-              <span>التكاليف غير المباشرة</span><strong>50 ر.س</strong>
+              <span>التكاليف غير المباشرة</span><strong>50 <span class="example-currency">ر.س</span></strong>
             </div>
             <div class="calc-example-row">
-              <span>تكلفة التغليف + التوصيل + CAC</span><strong>23 ر.س</strong>
+              <span>تكلفة التغليف</span><strong>5 <span class="example-currency">ر.س</span></strong>
+            </div>
+            <div class="calc-example-row">
+              <span>تكلفة التوصيل</span><strong>10 <span class="example-currency">ر.س</span></strong>
+            </div>
+            <div class="calc-example-row">
+              <span>تكلفة اكتساب العميل (CAC)</span><strong>8 <span class="example-currency">ر.س</span></strong>
             </div>
             <div class="calc-example-row">
               <span>عمولة المنصة</span><strong>20%</strong>
@@ -310,7 +378,7 @@
               <span>حجم المبيعات</span><strong>500 وحدة</strong>
             </div>
             <div class="calc-example-row">
-              <span>النتيجة المتوقعة</span><strong class="calc-gold-heading">سعر بيع على المنصة ≈ 372 ر.س</strong>
+              <span>النتيجة المتوقعة</span><strong class="calc-gold-heading">سعر البيع على المنصة ≈ 372 <span class="example-currency">ر.س</span></strong>
             </div>
           </div>
         </div>
@@ -390,7 +458,7 @@
 
   <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
 
-  <script src="../script.js?v=3" defer></script>
+  <script src="../script.js?v=4" defer></script>
   <script>
     var pricingChart = null;
 
@@ -404,6 +472,198 @@
       return n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
     }
 
+    function getCountryCode() {
+      return (document.getElementById('country').value || 'SA').toUpperCase();
+    }
+
+    function getCurrencySymbol() {
+      var code = getCountryCode();
+      if (typeof BondsPlatforms !== 'undefined' && BondsPlatforms.getCurrencySymbol) {
+        return BondsPlatforms.getCurrencySymbol(code, 'ar');
+      }
+      return 'ر.س';
+    }
+
+    function formatCurrency(n) {
+      return formatNumberAR(n) + ' ' + getCurrencySymbol();
+    }
+
+    function updateExampleCurrency() {
+      var symbol = getCurrencySymbol();
+      document.querySelectorAll('.example-currency').forEach(function(el) { el.textContent = symbol; });
+    }
+
+    var currentPricingMode = 'margin';
+
+    function setPricingMode(mode, skipCalc) {
+      if (mode !== 'margin' && mode !== 'price') return;
+      if (mode === currentPricingMode) return;
+      var currentInputs = getInputs();
+      if (mode === 'price') {
+        var tpInput = document.getElementById('targetPrice');
+        if (!(parseFloat(tpInput.value) > 0)) {
+          if (currentInputs.direct > 0 && currentInputs.margin > 0 && currentInputs.margin < 100) {
+            var r = calculate(currentInputs);
+            tpInput.value = r.priceBeforeTax.toFixed(2);
+          }
+        }
+      } else {
+        var tp = parseFloat(document.getElementById('targetPrice').value) || 0;
+        if (tp > 0 && currentInputs.direct > 0) {
+          var derived = computeMarginFromTargetPrice(tp, currentInputs);
+          if (derived !== null) {
+            document.getElementById('desiredMargin').value = derived.toFixed(2);
+          }
+        }
+      }
+      currentPricingMode = mode;
+      updateModeUI();
+      if (!skipCalc && document.getElementById('directCost').value !== '') {
+        calculateAll();
+      }
+    }
+
+    function updateModeUI() {
+      var marginBtn = document.getElementById('modeMarginBtn');
+      var priceBtn = document.getElementById('modePriceBtn');
+      var marginGroup = document.getElementById('marginGroup');
+      var priceGroup = document.getElementById('priceGroup');
+      if (!marginBtn || !priceBtn || !marginGroup || !priceGroup) return;
+      if (currentPricingMode === 'margin') {
+        marginBtn.classList.add('active');
+        priceBtn.classList.remove('active');
+        marginGroup.classList.remove('calc-hidden');
+        priceGroup.classList.add('calc-hidden');
+      } else {
+        marginBtn.classList.remove('active');
+        priceBtn.classList.add('active');
+        marginGroup.classList.add('calc-hidden');
+        priceGroup.classList.remove('calc-hidden');
+      }
+    }
+
+    function computeMarginFromTargetPrice(targetPrice, inputs) {
+      var totalCost = inputs.direct + inputs.overhead + inputs.packagingCostPerUnit + inputs.deliveryCostPerUnit + inputs.cacPerUnit;
+      var totalDeductionPct = inputs.platformFeePct + inputs.paymentGatewayFeePct;
+      var priceBeforeFees = targetPrice * (1 - totalDeductionPct / 100);
+      if (priceBeforeFees <= totalCost || targetPrice <= 0) return null;
+      var margin = (1 - totalCost / priceBeforeFees) * 100;
+      if (margin >= 100) return null;
+      return margin;
+    }
+
+    function computeTargetPriceFromInputs(inputs) {
+      if (inputs.direct <= 0 || inputs.margin <= 0 || inputs.margin >= 100) return null;
+      var r = calculate(inputs);
+      return r ? r.priceBeforeTax : null;
+    }
+
+    var sectorPresets = {
+      restaurant: { margin: 35, platformFeePct: 25, paymentGatewayFeePct: 1.5, packagingCostPerUnit: 3, deliveryCostPerUnit: 12, cacPerUnit: 5 },
+      ecommerce: { margin: 40, platformFeePct: 15, paymentGatewayFeePct: 1.75, packagingCostPerUnit: 8, deliveryCostPerUnit: 15, cacPerUnit: 10 },
+      grocery: { margin: 20, platformFeePct: 10, paymentGatewayFeePct: 1.5, packagingCostPerUnit: 2, deliveryCostPerUnit: 10, cacPerUnit: 3 },
+      fashion: { margin: 50, platformFeePct: 12, paymentGatewayFeePct: 1.75, packagingCostPerUnit: 5, deliveryCostPerUnit: 12, cacPerUnit: 8 },
+      services: { margin: 45, platformFeePct: 5, paymentGatewayFeePct: 1.5, packagingCostPerUnit: 0, deliveryCostPerUnit: 0, cacPerUnit: 15 },
+      electronics: { margin: 25, platformFeePct: 8, paymentGatewayFeePct: 1.75, packagingCostPerUnit: 10, deliveryCostPerUnit: 15, cacPerUnit: 6 },
+      beauty: { margin: 55, platformFeePct: 10, paymentGatewayFeePct: 1.75, packagingCostPerUnit: 6, deliveryCostPerUnit: 12, cacPerUnit: 12 },
+      furniture: { margin: 40, platformFeePct: 8, paymentGatewayFeePct: 1.75, packagingCostPerUnit: 25, deliveryCostPerUnit: 50, cacPerUnit: 20 }
+    };
+    var sectorLabels = {
+      restaurant: 'مطعم / كوفي',
+      ecommerce: 'متجر إلكتروني',
+      grocery: 'بقالة / سوبرماركت',
+      fashion: 'ملابس / أزياء',
+      services: 'خدمات',
+      electronics: 'إلكترونيات',
+      beauty: 'منتجات تجميل',
+      furniture: 'أثاث / منزل'
+    };
+
+    function onSectorPresetChange() {
+      var select = document.getElementById('sectorPreset');
+      var key = select.value;
+      var hint = document.getElementById('sectorPresetHint');
+      if (!key) {
+        hint.textContent = 'اختيار القالب يملأ الهامش والعمولة والتكاليف الإضافية بقيم افتراضية واقعية';
+        return;
+      }
+      var p = sectorPresets[key];
+      if (!p) return;
+      setPricingMode('margin', true);
+      document.getElementById('desiredMargin').value = p.margin;
+      document.getElementById('platformFee').value = p.platformFeePct;
+      document.getElementById('paymentGatewayFee').value = p.paymentGatewayFeePct;
+      document.getElementById('packagingCost').value = p.packagingCostPerUnit;
+      document.getElementById('deliveryCost').value = p.deliveryCostPerUnit;
+      document.getElementById('cac').value = p.cacPerUnit;
+      document.getElementById('paymentGatewayPreset').value = '';
+      hint.textContent = 'تم تطبيق قالب ' + (sectorLabels[key] || key) + ': هامش ' + p.margin + '%، عمولة ' + p.platformFeePct + '%، تغليف ' + p.packagingCostPerUnit + '، توصيل ' + p.deliveryCostPerUnit + '، CAC ' + p.cacPerUnit;
+      if (document.getElementById('directCost').value !== '') {
+        calculateAll();
+      }
+    }
+
+    function isGcc(code) {
+      return ['SA', 'AE', 'QA', 'KW', 'BH', 'OM'].indexOf(code) >= 0;
+    }
+
+    function populatePlatforms() {
+      var code = getCountryCode();
+      var select = document.getElementById('platformSelect');
+      select.innerHTML = '<option value="">منصة مخصصة</option>';
+      if (typeof BondsPlatforms === 'undefined' || !BondsPlatforms.getPlatforms) return;
+      var platforms = BondsPlatforms.getPlatforms(code) || [];
+      platforms.forEach(function(p) {
+        var opt = document.createElement('option');
+        opt.value = p.id;
+        var fee = (p.fee || 0) + (p.serviceFee || 0) + (p.paymentGatewayFee || 0);
+        opt.textContent = p.name + ' (' + fee.toFixed(2) + '%)';
+        select.appendChild(opt);
+      });
+    }
+
+    function onPaymentGatewayPresetChange() {
+      var select = document.getElementById('paymentGatewayPreset');
+      var input = document.getElementById('paymentGatewayFee');
+      if (select && input && select.value !== '') {
+        input.value = select.value;
+      }
+      calculateAll();
+    }
+
+    function onPlatformChange() {
+      var code = getCountryCode();
+      var select = document.getElementById('platformSelect');
+      var platformFeeInput = document.getElementById('platformFee');
+      if (!select.value) {
+        platformFeeInput.value = '0';
+        calculateAll();
+        return;
+      }
+      if (typeof BondsPlatforms === 'undefined' || !BondsPlatforms.getPlatforms) return;
+      var platforms = BondsPlatforms.getPlatforms(code) || [];
+      var selected = platforms.find(function(p) { return p.id === select.value; });
+      if (selected) {
+        var totalFee = (selected.fee || 0) + (selected.serviceFee || 0) + (selected.paymentGatewayFee || 0);
+        platformFeeInput.value = totalFee.toFixed(2);
+      }
+      calculateAll();
+    }
+
+    function onCountryChange() {
+      var code = getCountryCode();
+      if (typeof BondsPlatforms !== 'undefined' && BondsPlatforms.getCountryMeta) {
+        var meta = BondsPlatforms.getCountryMeta(code);
+        if (meta) {
+          document.getElementById('taxRate').value = meta.vatRate || 0;
+          document.getElementById('zakatRate').value = isGcc(code) ? 2.5 : 0;
+        }
+      }
+      populatePlatforms();
+      onPlatformChange();
+      updateExampleCurrency();
+    }
+
     function getInputs() {
       return {
         direct: parseFloat(document.getElementById('directCost').value) || 0,
@@ -414,9 +674,11 @@
         volume: parseFloat(document.getElementById('monthlyVolume').value) || 0,
         monthlyFixed: parseFloat(document.getElementById('monthlyFixed').value) || 0,
         platformFeePct: parseFloat(document.getElementById('platformFee').value) || 0,
+        paymentGatewayFeePct: parseFloat(document.getElementById('paymentGatewayFee').value) || 0,
         packagingCostPerUnit: parseFloat(document.getElementById('packagingCost').value) || 0,
         deliveryCostPerUnit: parseFloat(document.getElementById('deliveryCost').value) || 0,
-        cacPerUnit: parseFloat(document.getElementById('cac').value) || 0
+        cacPerUnit: parseFloat(document.getElementById('cac').value) || 0,
+        wasteAndIncidentalsPct: parseFloat(document.getElementById('wasteAndIncidentalsPct').value) || 0
       };
     }
 
@@ -426,9 +688,11 @@
       if (_calcMemo.has(memoKey)) return _calcMemo.get(memoKey);
       var options = {
         platformFeePct: inputs.platformFeePct,
+        paymentGatewayFeePct: inputs.paymentGatewayFeePct,
         deliveryCostPerUnit: inputs.deliveryCostPerUnit,
         packagingCostPerUnit: inputs.packagingCostPerUnit,
-        cacPerUnit: inputs.cacPerUnit
+        cacPerUnit: inputs.cacPerUnit,
+        wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct
       };
       var result = calculatePricing(inputs.direct, inputs.overhead, inputs.margin, inputs.taxRate, inputs.zakatRate, inputs.volume, inputs.monthlyFixed, options);
       _calcMemo.set(memoKey, result);
@@ -436,55 +700,57 @@
     }
 
     function updateResults(r, inputs) {
-      document.getElementById('resCostPerUnit').textContent = formatNumberAR(r.costPerUnit) + ' ر.س';
-      document.getElementById('resTotalCostPerUnit').textContent = formatNumberAR(r.totalCostPerUnit) + ' ر.س';
-      document.getElementById('resPriceBeforeFees').textContent = formatNumberAR(r.priceBeforeFees) + ' ر.س';
-      document.getElementById('resPriceBeforeTax').textContent = formatNumberAR(r.priceBeforeTax) + ' ر.س';
-      document.getElementById('resPlatformFee').textContent = formatNumberAR(r.platformFeeAmount) + ' ر.س (' + inputs.platformFeePct.toFixed(1) + '%)';
+      document.getElementById('resCostPerUnit').textContent = formatCurrency(r.costPerUnit);
+      document.getElementById('resTotalCostPerUnit').textContent = formatCurrency(r.totalCostPerUnit);
+      document.getElementById('resWasteAndIncidentals').textContent = formatCurrency(r.wasteAndIncidentalsAmount) + ' (' + inputs.wasteAndIncidentalsPct.toFixed(1) + '%)';
+      document.getElementById('resPriceBeforeFees').textContent = formatCurrency(r.priceBeforeFees);
+      document.getElementById('resPriceBeforeTax').textContent = formatCurrency(r.priceBeforeTax);
+      document.getElementById('resPlatformFee').textContent = formatCurrency(r.platformFeeAmount) + ' (' + inputs.platformFeePct.toFixed(1) + '%)';
+      document.getElementById('resPaymentGateway').textContent = formatCurrency(r.paymentGatewayAmount) + ' (' + inputs.paymentGatewayFeePct.toFixed(1) + '%)';
 
       var profitBeforeTaxEl = document.getElementById('resProfitBeforeTax');
-      profitBeforeTaxEl.textContent = formatNumberAR(r.profitBeforeTax) + ' ر.س';
+      profitBeforeTaxEl.textContent = formatCurrency(r.profitBeforeTax);
       profitBeforeTaxEl.style.color = r.profitBeforeTax >= 0 ? '#16a34a' : '#dc2626';
 
       var taxEl = document.getElementById('resTax');
       if (r.profitBeforeTax > 0 && inputs.taxRate > 0) {
-        taxEl.textContent = formatNumberAR(r.taxAmount) + ' ر.س (' + inputs.taxRate.toFixed(1) + '%)';
+        taxEl.textContent = formatCurrency(r.taxAmount) + ' (' + inputs.taxRate.toFixed(1) + '%)';
         taxEl.style.color = '#dc2626';
       } else {
-        taxEl.textContent = '0 ر.س';
+        taxEl.textContent = formatCurrency(0);
         taxEl.style.color = 'var(--text)';
       }
 
       var zakatEl = document.getElementById('resZakat');
       if (r.profitAfterTax > 0 && inputs.zakatRate > 0) {
-        zakatEl.textContent = formatNumberAR(r.zakatAmount) + ' ر.س (' + inputs.zakatRate.toFixed(1) + '%)';
+        zakatEl.textContent = formatCurrency(r.zakatAmount) + ' (' + inputs.zakatRate.toFixed(1) + '%)';
         zakatEl.style.color = '#dc2626';
       } else {
-        zakatEl.textContent = '0 ر.س';
+        zakatEl.textContent = formatCurrency(0);
         zakatEl.style.color = 'var(--text)';
       }
 
       var profitPerUnitEl = document.getElementById('resProfitPerUnit');
       if (r.netProfitPerUnit > 0) {
-        profitPerUnitEl.textContent = formatNumberAR(r.netProfitPerUnit) + ' ر.س (ربح)';
+        profitPerUnitEl.textContent = formatCurrency(r.netProfitPerUnit) + ' (ربح)';
         profitPerUnitEl.style.color = '#16a34a';
       } else if (r.netProfitPerUnit < 0) {
-        profitPerUnitEl.textContent = formatNumberAR(Math.abs(r.netProfitPerUnit)) + ' ر.س (خسارة)';
+        profitPerUnitEl.textContent = formatCurrency(Math.abs(r.netProfitPerUnit)) + ' (خسارة)';
         profitPerUnitEl.style.color = '#dc2626';
       } else {
-        profitPerUnitEl.textContent = '0 ر.س (تعادل)';
+        profitPerUnitEl.textContent = formatCurrency(0) + ' (تعادل)';
         profitPerUnitEl.style.color = 'var(--text)';
       }
 
       var monthlyProfitEl = document.getElementById('resMonthlyProfit');
       if (r.monthlyProfit > 0) {
-        monthlyProfitEl.textContent = formatNumberAR(r.monthlyProfit) + ' ر.س (ربح)';
+        monthlyProfitEl.textContent = formatCurrency(r.monthlyProfit) + ' (ربح)';
         monthlyProfitEl.style.color = '#16a34a';
       } else if (r.monthlyProfit < 0) {
-        monthlyProfitEl.textContent = formatNumberAR(Math.abs(r.monthlyProfit)) + ' ر.س (خسارة)';
+        monthlyProfitEl.textContent = formatCurrency(Math.abs(r.monthlyProfit)) + ' (خسارة)';
         monthlyProfitEl.style.color = '#dc2626';
       } else {
-        monthlyProfitEl.textContent = '0 ر.س (تعادل)';
+        monthlyProfitEl.textContent = formatCurrency(0) + ' (تعادل)';
         monthlyProfitEl.style.color = 'var(--text)';
       }
 
@@ -492,7 +758,7 @@
       marginEl.textContent = r.actualMargin.toFixed(1) + '%';
       marginEl.style.color = r.actualMargin >= 0 ? '#16a34a' : '#dc2626';
 
-      document.getElementById('resBreakEvenPrice').textContent = formatNumberAR(r.breakEvenPrice) + ' ر.س';
+      document.getElementById('resBreakEvenPrice').textContent = formatCurrency(r.breakEvenPrice);
 
       // Analysis
       var analysisBox = document.getElementById('analysisBox');
@@ -501,15 +767,19 @@
       analysisBox.style.display = 'block';
 
       var stepsHTML = '';
-      stepsHTML += '<div class="calc-step-row"><strong>الخطوة 1:</strong> التكلفة الأساسية = ' + formatNumberAR(inputs.direct) + ' + ' + formatNumberAR(inputs.overhead) + ' = <strong>' + formatNumberAR(r.costPerUnit) + ' ر.س</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>الخطوة 2:</strong> إجمالي التكلفة الكاملة = ' + formatNumberAR(r.costPerUnit) + ' + ' + formatNumberAR(inputs.packagingCostPerUnit + inputs.deliveryCostPerUnit + inputs.cacPerUnit) + ' = <strong>' + formatNumberAR(r.totalCostPerUnit) + ' ر.س</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>الخطوة 3:</strong> سعر البيع قبل العمولة = ' + formatNumberAR(r.totalCostPerUnit) + ' ÷ (1 − ' + inputs.margin + '%) = <strong>' + formatNumberAR(r.priceBeforeFees) + ' ر.س</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>الخطوة 4:</strong> سعر البيع على المنصة = ' + formatNumberAR(r.priceBeforeFees) + ' ÷ (1 − ' + inputs.platformFeePct + '%) = <strong>' + formatNumberAR(r.priceBeforeTax) + ' ر.س</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>الخطوة 5:</strong> عمولة المنصة = ' + formatNumberAR(r.priceBeforeTax) + ' × ' + inputs.platformFeePct + '% = <strong>' + formatNumberAR(r.platformFeeAmount) + ' ر.س</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>الخطوة 6:</strong> الربح قبل الضريبة = ' + formatNumberAR(r.priceBeforeTax) + ' − ' + formatNumberAR(r.platformFeeAmount) + ' − ' + formatNumberAR(r.totalCostPerUnit) + ' = <strong>' + formatNumberAR(r.profitBeforeTax) + ' ر.س</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>الخطوة 7:</strong> الضريبة = ' + formatNumberAR(r.profitBeforeTax) + ' × ' + inputs.taxRate + '% = <strong>' + formatNumberAR(r.taxAmount) + ' ر.س</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>الخطوة 8:</strong> الزكاة = ' + formatNumberAR(r.profitAfterTax) + ' × ' + inputs.zakatRate + '% = <strong>' + formatNumberAR(r.zakatAmount) + ' ر.س</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>الخطوة 9:</strong> الربح الصافي = ' + formatNumberAR(r.profitAfterTax) + ' − ' + formatNumberAR(r.zakatAmount) + ' = <strong>' + formatNumberAR(r.netProfitPerUnit) + ' ر.س</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>الخطوة 1:</strong> التكلفة الأساسية = ' + formatNumberAR(inputs.direct) + ' + ' + formatNumberAR(inputs.overhead) + ' = <strong>' + formatCurrency(r.costPerUnit) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>الخطوة 2:</strong> التكلفة قبل الهدر والنثريات = ' + formatNumberAR(r.costPerUnit) + ' + ' + formatNumberAR(inputs.packagingCostPerUnit + inputs.deliveryCostPerUnit + inputs.cacPerUnit) + ' = <strong>' + formatCurrency(r.baseTotalCostPerUnit) + '</strong></div>';
+      if (inputs.wasteAndIncidentalsPct > 0) {
+        stepsHTML += '<div class="calc-step-row"><strong>الخطوة 3:</strong> الهدر والنثريات = ' + formatNumberAR(r.baseTotalCostPerUnit) + ' × ' + inputs.wasteAndIncidentalsPct + '% = <strong>' + formatCurrency(r.wasteAndIncidentalsAmount) + '</strong></div>';
+      }
+      stepsHTML += '<div class="calc-step-row"><strong>الخطوة ' + (inputs.wasteAndIncidentalsPct > 0 ? '4' : '3') + ':</strong> إجمالي التكلفة للوحدة = <strong>' + formatCurrency(r.totalCostPerUnit) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>الخطوة ' + (inputs.wasteAndIncidentalsPct > 0 ? '5' : '4') + ':</strong> سعر البيع قبل العمولة = ' + formatNumberAR(r.totalCostPerUnit) + ' ÷ (1 − ' + inputs.margin + '%) = <strong>' + formatCurrency(r.priceBeforeFees) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>الخطوة ' + (inputs.wasteAndIncidentalsPct > 0 ? '6' : '5') + ':</strong> سعر البيع على المنصة = ' + formatNumberAR(r.priceBeforeFees) + ' ÷ (1 − ' + inputs.platformFeePct + '%) = <strong>' + formatCurrency(r.priceBeforeTax) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>الخطوة ' + (inputs.wasteAndIncidentalsPct > 0 ? '7' : '6') + ':</strong> عمولة المنصة = ' + formatNumberAR(r.priceBeforeTax) + ' × ' + inputs.platformFeePct + '% = <strong>' + formatCurrency(r.platformFeeAmount) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>الخطوة ' + (inputs.wasteAndIncidentalsPct > 0 ? '8' : '7') + ':</strong> الربح قبل الضريبة = ' + formatNumberAR(r.priceBeforeTax) + ' − ' + formatNumberAR(r.platformFeeAmount) + ' − ' + formatNumberAR(r.totalCostPerUnit) + ' = <strong>' + formatCurrency(r.profitBeforeTax) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>الخطوة ' + (inputs.wasteAndIncidentalsPct > 0 ? '9' : '8') + ':</strong> الضريبة = ' + formatNumberAR(r.profitBeforeTax) + ' × ' + inputs.taxRate + '% = <strong>' + formatCurrency(r.taxAmount) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>الخطوة ' + (inputs.wasteAndIncidentalsPct > 0 ? '10' : '9') + ':</strong> الزكاة = ' + formatNumberAR(r.profitAfterTax) + ' × ' + inputs.zakatRate + '% = <strong>' + formatCurrency(r.zakatAmount) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>الخطوة ' + (inputs.wasteAndIncidentalsPct > 0 ? '11' : '10') + ':</strong> الربح الصافي = ' + formatNumberAR(r.profitAfterTax) + ' − ' + formatNumberAR(r.zakatAmount) + ' = <strong>' + formatCurrency(r.netProfitPerUnit) + '</strong></div>';
       stepsArea.innerHTML = stepsHTML;
 
       if (inputs.margin >= 100) {
@@ -517,7 +787,10 @@
       } else if (r.actualMargin < inputs.margin * 0.5) {
         analysisText.innerHTML = 'العمولة والضريبة والزكاة تلتهم جزءاً كبيراً من هامش الربح. الهامش الفعلي (' + r.actualMargin.toFixed(1) + '%) أقل بكثير من المستهدف (' + inputs.margin + '%). فكر في زيادة الهامش أو مراجعة هيكل التكاليف.';
       } else {
-        analysisText.innerHTML = 'كل وحدة تُباع بـ <strong>' + formatNumberAR(r.priceBeforeTax) + ' ر.س</strong> على المنصة تدرّب صافي ربح <strong>' + formatNumberAR(r.netProfitPerUnit) + ' ر.س</strong>. عند بيع <strong>' + formatNumberAR(inputs.volume) + '</strong> وحدة شهرياً، صافي الربح الشهري = <strong>' + formatNumberAR(r.monthlyProfit) + ' ر.س</strong>.';
+        analysisText.innerHTML = 'كل وحدة تُباع بـ <strong>' + formatCurrency(r.priceBeforeTax) + '</strong> على المنصة تدرّب صافي ربح <strong>' + formatCurrency(r.netProfitPerUnit) + '</strong>. عند بيع <strong>' + formatNumberAR(inputs.volume) + '</strong> وحدة شهرياً، صافي الربح الشهري = <strong>' + formatCurrency(r.monthlyProfit) + '</strong>.';
+      }
+      if (currentPricingMode === 'price') {
+        analysisText.innerHTML = '<span style="color:var(--gold-bright)">تم استخراج هامش الربح المستهدف (' + inputs.margin.toFixed(1) + '%) من سعر البيع المستهدف.</span><br><br>' + analysisText.innerHTML;
       }
 
       // Smart Alert CTA
@@ -531,7 +804,7 @@
         alertText.textContent = 'هامش الربح الفعلي (' + r.actualMargin.toFixed(1) + '%) أقل من 10% — هذا هامش ضيق وقد يتحول لخسارة بأي تقلب في التكاليف أو السوق. استشاري مالي يستطيع مراجعة هيكل التكاليف واقتراح تحسينات.';
       } else if (r.netProfitPerUnit < 0) {
         alertBox.style.display = 'block';
-        alertText.textContent = 'المنتج يحقق خسارة صافية بقيمة ' + formatNumberAR(Math.abs(r.netProfitPerUnit)) + ' ر.س لكل وحدة. يجب إما رفع السعر أو خفض التكاليف.';
+        alertText.textContent = 'المنتج يحقق خسارة صافية بقيمة ' + formatCurrency(Math.abs(r.netProfitPerUnit)) + ' لكل وحدة. يجب إما رفع السعر أو خفض التكاليف.';
       } else {
         alertBox.style.display = 'none';
       }
@@ -545,6 +818,7 @@
         taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, volume: inputs.volume,
         platformFeePct: inputs.platformFeePct, packagingCostPerUnit: inputs.packagingCostPerUnit,
         deliveryCostPerUnit: inputs.deliveryCostPerUnit, cacPerUnit: inputs.cacPerUnit,
+        wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct, wasteAndIncidentalsAmount: r.wasteAndIncidentalsAmount,
         costPerUnit: r.costPerUnit, totalCostPerUnit: r.totalCostPerUnit,
         priceBeforeFees: r.priceBeforeFees, priceBeforeTax: r.priceBeforeTax,
         platformFeeAmount: r.platformFeeAmount,
@@ -561,7 +835,7 @@
         data: {
           labels: ['التكلفة الكاملة', 'سعر البيع على المنصة', 'الربح الصافي'],
           datasets: [{
-            label: 'المبلغ (ر.س)',
+            label: 'المبلغ (' + getCurrencySymbol() + ')',
             data: [r.totalCostPerUnit, r.priceBeforeTax, r.netProfitPerUnit],
             backgroundColor: ['#dc2626', '#3b82f6', '#16a34a'],
             borderRadius: 8,
@@ -576,7 +850,7 @@
             tooltip: {
               callbacks: {
                 label: function(context) {
-                  return context.dataset.label + ': ' + formatNumberAR(context.raw) + ' ر.س';
+                  return context.dataset.label + ': ' + formatCurrency(context.raw);
                 }
               }
             }
@@ -597,44 +871,51 @@
       }
       var r = last.r;
       var inputs = last.inputs;
+      var currency = getCurrencySymbol();
       var content = `
         <h2>📊 نتائج التسعير</h2>
         <div class="metric-grid">
-          <div class="metric-item"><div class="label">إجمالي التكلفة الأساسية للوحدة</div><div class="value">${r.costPerUnit.toLocaleString('en-US')} ر.س</div></div>
-          <div class="metric-item"><div class="label">إجمالي التكلفة الكاملة للوحدة</div><div class="value">${r.totalCostPerUnit.toLocaleString('en-US')} ر.س</div></div>
-          <div class="metric-item"><div class="label">سعر البيع قبل العمولة</div><div class="value">${r.priceBeforeFees.toLocaleString('en-US')} ر.س</div></div>
-          <div class="metric-item"><div class="label">سعر البيع قبل الضريبة</div><div class="value">${r.priceBeforeTax.toLocaleString('en-US')} ر.س</div></div>
-          <div class="metric-item"><div class="label">عمولة المنصة (${inputs.platformFeePct.toFixed(1)}%)</div><div class="value">${r.platformFeeAmount.toLocaleString('en-US')} ر.س</div></div>
-          <div class="metric-item"><div class="label">الربح الصافي (للوحدة)</div><div class="value">${r.netProfitPerUnit.toLocaleString('en-US')} ر.س</div></div>
-          <div class="metric-item"><div class="label">الربح الشهري المستهدف</div><div class="value">${r.monthlyProfit.toLocaleString('en-US')} ر.س</div></div>
+          <div class="metric-item"><div class="label">إجمالي التكلفة الأساسية للوحدة</div><div class="value">${formatCurrency(r.costPerUnit)}</div></div>
+          <div class="metric-item"><div class="label">إجمالي التكلفة الكاملة للوحدة</div><div class="value">${formatCurrency(r.totalCostPerUnit)}</div></div>
+          <div class="metric-item"><div class="label">الهدر والنثريات المتوقعة (${inputs.wasteAndIncidentalsPct.toFixed(1)}%)</div><div class="value">${formatCurrency(r.wasteAndIncidentalsAmount)}</div></div>
+          <div class="metric-item"><div class="label">سعر البيع قبل العمولة</div><div class="value">${formatCurrency(r.priceBeforeFees)}</div></div>
+          <div class="metric-item"><div class="label">سعر البيع قبل الضريبة</div><div class="value">${formatCurrency(r.priceBeforeTax)}</div></div>
+          <div class="metric-item"><div class="label">عمولة المنصة (${inputs.platformFeePct.toFixed(1)}%)</div><div class="value">${formatCurrency(r.platformFeeAmount)}</div></div>
+          <div class="metric-item"><div class="label">رسوم بوابة الدفع (${inputs.paymentGatewayFeePct.toFixed(1)}%)</div><div class="value">${formatCurrency(r.paymentGatewayAmount)}</div></div>
+          <div class="metric-item"><div class="label">الربح الصافي (للوحدة)</div><div class="value">${formatCurrency(r.netProfitPerUnit)}</div></div>
+          <div class="metric-item"><div class="label">الربح الشهري المستهدف</div><div class="value">${formatCurrency(r.monthlyProfit)}</div></div>
           <div class="metric-item"><div class="label">هامش الربح الفعلي</div><div class="value">${r.actualMargin.toFixed(1)}%</div></div>
-          <div class="metric-item"><div class="label">سعر التعادل الأدنى</div><div class="value">${r.breakEvenPrice.toLocaleString('en-US')} ر.س</div></div>
+          <div class="metric-item"><div class="label">سعر التعادل الأدنى</div><div class="value">${formatCurrency(r.breakEvenPrice)}</div></div>
         </div>
 
         <h2>📋 تفاصيل الحساب</h2>
         <table>
           <tr><th>البند</th><th>القيمة</th></tr>
-          <tr><td>التكلفة المباشرة</td><td class="num">${inputs.direct.toLocaleString('en-US')} ر.س</td></tr>
-          <tr><td>التكاليف غير المباشرة</td><td class="num">${inputs.overhead.toLocaleString('en-US')} ر.س</td></tr>
-          <tr><td>تكلفة التغليف</td><td class="num">${inputs.packagingCostPerUnit.toLocaleString('en-US')} ر.س</td></tr>
-          <tr><td>تكلفة التوصيل</td><td class="num">${inputs.deliveryCostPerUnit.toLocaleString('en-US')} ر.س</td></tr>
-          <tr><td>تكلفة اكتساب العميل</td><td class="num">${inputs.cacPerUnit.toLocaleString('en-US')} ر.س</td></tr>
-          <tr><td>إجمالي التكلفة الأساسية للوحدة</td><td class="num">${r.costPerUnit.toLocaleString('en-US')} ر.س</td></tr>
-          <tr><td>إجمالي التكلفة الكاملة للوحدة</td><td class="num">${r.totalCostPerUnit.toLocaleString('en-US')} ر.س</td></tr>
+          <tr><td>التكلفة المباشرة</td><td class="num">${formatCurrency(inputs.direct)}</td></tr>
+          <tr><td>التكاليف غير المباشرة</td><td class="num">${formatCurrency(inputs.overhead)}</td></tr>
+          <tr><td>تكلفة التغليف</td><td class="num">${formatCurrency(inputs.packagingCostPerUnit)}</td></tr>
+          <tr><td>تكلفة التوصيل</td><td class="num">${formatCurrency(inputs.deliveryCostPerUnit)}</td></tr>
+          <tr><td>تكلفة اكتساب العميل</td><td class="num">${formatCurrency(inputs.cacPerUnit)}</td></tr>
+          <tr><td>إجمالي التكلفة الأساسية للوحدة</td><td class="num">${formatCurrency(r.costPerUnit)}</td></tr>
+          <tr><td>إجمالي التكلفة الكاملة للوحدة</td><td class="num">${formatCurrency(r.totalCostPerUnit)}</td></tr>
+          <tr><td>الهدر والنثريات المتوقعة (${inputs.wasteAndIncidentalsPct.toFixed(1)}%)</td><td class="num">${formatCurrency(r.wasteAndIncidentalsAmount)}</td></tr>
           <tr><td>عمولة المنصة</td><td class="num">${inputs.platformFeePct.toFixed(1)}%</td></tr>
+          <tr><td>رسوم بوابة الدفع</td><td class="num">${inputs.paymentGatewayFeePct.toFixed(1)}%</td></tr>
           <tr><td>هامش الربح المستهدف</td><td class="num">${inputs.margin}%</td></tr>
-          <tr><td>سعر البيع قبل العمولة</td><td class="num">${r.priceBeforeFees.toLocaleString('en-US')} ر.س</td></tr>
-          <tr><td>عمولة المنصة</td><td class="num">${r.platformFeeAmount.toLocaleString('en-US')} ر.س</td></tr>
-          <tr><td>سعر البيع قبل الضريبة</td><td class="num">${r.priceBeforeTax.toLocaleString('en-US')} ر.س</td></tr>
-          <tr><td>الربح قبل الضريبة</td><td class="num">${r.profitBeforeTax.toLocaleString('en-US')} ر.س</td></tr>
-          <tr><td>الضريبة (${inputs.taxRate}%)</td><td class="num">${r.taxAmount.toLocaleString('en-US')} ر.س</td></tr>
-          <tr><td>الربح بعد الضريبة</td><td class="num">${r.profitAfterTax.toLocaleString('en-US')} ر.س</td></tr>
-          <tr><td>الزكاة (${inputs.zakatRate}%)</td><td class="num">${r.zakatAmount.toLocaleString('en-US')} ر.س</td></tr>
-          <tr><td>الربح الصافي للوحدة</td><td class="num">${r.netProfitPerUnit.toLocaleString('en-US')} ر.س</td></tr>
+          ${window._lastPricingResult.mode === 'price' ? '<tr><td>سعر البيع المستهدف على المنصة</td><td class="num">' + formatCurrency(parseFloat(document.getElementById('targetPrice').value) || 0) + '</td></tr>' : ''}
+          <tr><td>سعر البيع قبل العمولة</td><td class="num">${formatCurrency(r.priceBeforeFees)}</td></tr>
+          <tr><td>عمولة المنصة</td><td class="num">${formatCurrency(r.platformFeeAmount)}</td></tr>
+          <tr><td>رسوم بوابة الدفع</td><td class="num">${formatCurrency(r.paymentGatewayAmount)}</td></tr>
+          <tr><td>سعر البيع قبل الضريبة</td><td class="num">${formatCurrency(r.priceBeforeTax)}</td></tr>
+          <tr><td>الربح قبل الضريبة</td><td class="num">${formatCurrency(r.profitBeforeTax)}</td></tr>
+          <tr><td>الضريبة (${inputs.taxRate}%)</td><td class="num">${formatCurrency(r.taxAmount)}</td></tr>
+          <tr><td>الربح بعد الضريبة</td><td class="num">${formatCurrency(r.profitAfterTax)}</td></tr>
+          <tr><td>الزكاة (${inputs.zakatRate}%)</td><td class="num">${formatCurrency(r.zakatAmount)}</td></tr>
+          <tr><td>الربح الصافي للوحدة</td><td class="num">${formatCurrency(r.netProfitPerUnit)}</td></tr>
           <tr><td>حجم المبيعات الشهري</td><td class="num">${inputs.volume.toLocaleString('en-US')} وحدة</td></tr>
-          <tr><td>الربح الشهري المستهدف</td><td class="num">${r.monthlyProfit.toLocaleString('en-US')} ر.س</td></tr>
+          <tr><td>الربح الشهري المستهدف</td><td class="num">${formatCurrency(r.monthlyProfit)}</td></tr>
           <tr><td>هامش الربح الفعلي</td><td class="num">${r.actualMargin.toFixed(2)}%</td></tr>
-          <tr><td>سعر التعادل الأدنى</td><td class="num">${r.breakEvenPrice.toLocaleString('en-US')} ر.س</td></tr>
+          <tr><td>سعر التعادل الأدنى</td><td class="num">${formatCurrency(r.breakEvenPrice)}</td></tr>
         </table>
       `;
       openPrintWindow({ content: content, title: 'تقرير تسعير المنتج', headerTitle: 'تقرير تسعير المنتج — بوندز', reportType: 'pricing' });
@@ -662,17 +943,22 @@
         ['تكلفة التغليف للوحدة', parseFloat(inputs.packagingCostPerUnit).toFixed(2)],
         ['تكلفة التوصيل للوحدة', parseFloat(inputs.deliveryCostPerUnit).toFixed(2)],
         ['تكلفة اكتساب العميل للوحدة', parseFloat(inputs.cacPerUnit).toFixed(2)],
+        ['الهدر والنثريات المتوقعة (%)', inputs.wasteAndIncidentalsPct.toFixed(1) + '%'],
         ['عمولة المنصة (%)', inputs.platformFeePct.toFixed(1) + '%'],
+        ['رسوم بوابة الدفع (%)', inputs.paymentGatewayFeePct.toFixed(1) + '%'],
         ['هامش الربح المستهدف (%)', inputs.margin + '%'],
+        ...(currentPricingMode === 'price' ? [['سعر البيع المستهدف على المنصة', parseFloat(document.getElementById('targetPrice').value) || 0]] : []),
         ['نسبة الضريبة (%)', inputs.taxRate + '%'],
         ['نسبة الزكاة (%)', inputs.zakatRate + '%'],
         ['حجم المبيعات المستهدف', inputs.volume],
         ['', ''],
         ['إجمالي التكلفة الأساسية للوحدة', r.costPerUnit.toFixed(2)],
         ['إجمالي التكلفة الكاملة للوحدة', r.totalCostPerUnit.toFixed(2)],
+        ['الهدر والنثريات المتوقعة', r.wasteAndIncidentalsAmount.toFixed(2)],
         ['سعر البيع قبل العمولة', r.priceBeforeFees.toFixed(2)],
         ['سعر البيع قبل الضريبة', r.priceBeforeTax.toFixed(2)],
         ['عمولة المنصة', r.platformFeeAmount.toFixed(2)],
+        ['رسوم بوابة الدفع', r.paymentGatewayAmount.toFixed(2)],
         ['الربح قبل الضريبة', r.profitBeforeTax.toFixed(2)],
         ['الضريبة', r.taxAmount.toFixed(2)],
         ['الربح بعد الضريبة', r.profitAfterTax.toFixed(2)],
@@ -696,6 +982,8 @@
           direct: inputs.direct, overhead: inputs.overhead, margin: inputs.margin,
           packagingCostPerUnit: inputs.packagingCostPerUnit, deliveryCostPerUnit: inputs.deliveryCostPerUnit,
           cacPerUnit: inputs.cacPerUnit, platformFeePct: inputs.platformFeePct,
+          paymentGatewayFeePct: inputs.paymentGatewayFeePct,
+          wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct,
           price: r.priceBeforeTax, netProfit: r.netProfitPerUnit
         });
         if (history.length > 50) history.pop();
@@ -715,7 +1003,7 @@
         history.forEach(function(item, i) {
           var div = document.createElement('div');
           div.className = 'history-item';
-          div.innerHTML = '<span>' + item.date + ' — سعر: ' + formatNumberAR(item.price) + ' ر.س</span><span style="font-weight: 800; color: ' + (item.netProfit >= 0 ? '#16a34a' : '#dc2626') + '">' + formatNumberAR(item.netProfit) + ' ر.س</span>';
+          div.innerHTML = '<span>' + item.date + ' — سعر: ' + formatCurrency(item.price) + '</span><span style="font-weight: 800; color: ' + (item.netProfit >= 0 ? '#16a34a' : '#dc2626') + '">' + formatCurrency(item.netProfit) + '</span>';
           div.onclick = function() {
             document.getElementById('directCost').value = item.direct;
             document.getElementById('overheadCost').value = item.overhead;
@@ -723,7 +1011,10 @@
             document.getElementById('packagingCost').value = item.packagingCostPerUnit || 0;
             document.getElementById('deliveryCost').value = item.deliveryCostPerUnit || 0;
             document.getElementById('cac').value = item.cacPerUnit || 0;
+            document.getElementById('wasteAndIncidentalsPct').value = item.wasteAndIncidentalsPct || 0;
             document.getElementById('platformFee').value = item.platformFeePct || 0;
+            document.getElementById('paymentGatewayFee').value = item.paymentGatewayFeePct || 0;
+            document.getElementById('paymentGatewayPreset').value = '';
             calculateAll();
           };
           list.appendChild(div);
@@ -740,28 +1031,64 @@
       url.searchParams.set('z', inputs.zakatRate);
       url.searchParams.set('v', inputs.volume);
       url.searchParams.set('p', inputs.platformFeePct);
+      url.searchParams.set('pg', inputs.paymentGatewayFeePct);
       url.searchParams.set('pack', inputs.packagingCostPerUnit);
       url.searchParams.set('del', inputs.deliveryCostPerUnit);
       url.searchParams.set('cac', inputs.cacPerUnit);
+      url.searchParams.set('cont', inputs.wasteAndIncidentalsPct);
+      url.searchParams.set('mode', currentPricingMode);
+      var sectorValue = document.getElementById('sectorPreset').value;
+      if (sectorValue) url.searchParams.set('sector', sectorValue);
+      else url.searchParams.delete('sector');
+      if (currentPricingMode === 'price') {
+        var tp = parseFloat(document.getElementById('targetPrice').value) || 0;
+        if (tp > 0) url.searchParams.set('tp', tp);
+        else url.searchParams.delete('tp');
+      } else {
+        url.searchParams.delete('tp');
+      }
       document.getElementById('shareLink').value = url.toString();
     }
 
     function calculateAll() {
       try {
         var directRes = BondsUI.validateField('directCost', { required:true, type:'number', min:0, label:'التكلفة المباشرة' });
-        var marginRes = BondsUI.validateField('desiredMargin', { required:true, type:'number', min:0, max:99, label:'هامش الربح المستهدف' });
-        if (!directRes.valid || !marginRes.valid) {
+        if (!directRes.valid) {
           BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
           return;
         }
-        BondsUI.clearValidation('directCost'); BondsUI.clearValidation('desiredMargin');
+        BondsUI.clearValidation('directCost');
+        if (currentPricingMode === 'margin') {
+          var marginRes = BondsUI.validateField('desiredMargin', { required:true, type:'number', min:0, max:99, label:'هامش الربح المستهدف' });
+          if (!marginRes.valid) {
+            BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
+            return;
+          }
+          BondsUI.clearValidation('desiredMargin');
+        } else {
+          var priceRes = BondsUI.validateField('targetPrice', { required:true, type:'number', min:0, label:'سعر البيع المستهدف' });
+          if (!priceRes.valid) {
+            BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
+            return;
+          }
+          BondsUI.clearValidation('targetPrice');
+          var preInputs = getInputs();
+          var tp = parseFloat(document.getElementById('targetPrice').value) || 0;
+          var derivedMargin = computeMarginFromTargetPrice(tp, preInputs);
+          if (derivedMargin === null) {
+            BondsUI.toast('⚠️ سعر البيع المستهدف يجب أن يغطي التكلفة الكاملة والعمولة', 'warning');
+            return;
+          }
+          document.getElementById('desiredMargin').value = derivedMargin.toFixed(2);
+          document.getElementById('targetPriceHint').textContent = 'الهامش المستخرج من السعر المستهدف: ' + derivedMargin.toFixed(1) + '%';
+        }
         var inputs = getInputs();
         if (inputs.margin >= 100) {
           BondsUI.toast('⚠️ هامش الربح يجب أن يكون أقل من 100%', 'warning');
           return;
         }
         var r = calculate(inputs);
-        window._lastPricingResult = { r: r, inputs: inputs };
+        window._lastPricingResult = { r: r, inputs: inputs, mode: currentPricingMode };
         updateResults(r, inputs);
         saveToHistory(inputs, r);
         updateShareLink(inputs);
@@ -777,12 +1104,20 @@
     }
 
     function loadExample() {
+      setPricingMode('margin', true);
+      document.getElementById('sectorPreset').value = '';
+      document.getElementById('sectorPresetHint').textContent = 'اختيار القالب يملأ الهامش والعمولة والتكاليف الإضافية بقيم افتراضية واقعية';
+      document.getElementById('targetPrice').value = '';
+      document.getElementById('targetPriceHint').textContent = 'سيتم استخراج الهامش المكافئ تلقائياً';
       document.getElementById('directCost').value = '150';
       document.getElementById('overheadCost').value = '50';
       document.getElementById('packagingCost').value = '5';
       document.getElementById('deliveryCost').value = '10';
       document.getElementById('cac').value = '8';
+      document.getElementById('wasteAndIncidentalsPct').value = '0';
       document.getElementById('platformFee').value = '20';
+      document.getElementById('paymentGatewayFee').value = '1.5';
+      document.getElementById('paymentGatewayPreset').value = '1.5';
       document.getElementById('desiredMargin').value = '25';
       document.getElementById('taxRate').value = '15';
       document.getElementById('zakatRate').value = '2.5';
@@ -792,6 +1127,11 @@
     }
 
     function resetCalc() {
+      setPricingMode('margin', true);
+      document.getElementById('sectorPreset').value = '';
+      document.getElementById('sectorPresetHint').textContent = 'اختيار القالب يملأ الهامش والعمولة والتكاليف الإضافية بقيم افتراضية واقعية';
+      document.getElementById('targetPrice').value = '';
+      document.getElementById('targetPriceHint').textContent = 'سيتم استخراج الهامش المكافئ تلقائياً';
       document.getElementById('directCost').value = '';
       document.getElementById('overheadCost').value = '';
       document.getElementById('desiredMargin').value = '25';
@@ -800,14 +1140,19 @@
       document.getElementById('monthlyVolume').value = '';
       document.getElementById('monthlyFixed').value = '0';
       document.getElementById('platformFee').value = '0';
+      document.getElementById('paymentGatewayFee').value = '0';
+      document.getElementById('paymentGatewayPreset').value = '';
       document.getElementById('packagingCost').value = '0';
       document.getElementById('deliveryCost').value = '0';
       document.getElementById('cac').value = '0';
+      document.getElementById('wasteAndIncidentalsPct').value = '0';
       document.getElementById('resCostPerUnit').textContent = '—';
       document.getElementById('resTotalCostPerUnit').textContent = '—';
+      document.getElementById('resWasteAndIncidentals').textContent = '—';
       document.getElementById('resPriceBeforeFees').textContent = '—';
       document.getElementById('resPriceBeforeTax').textContent = '—';
       document.getElementById('resPlatformFee').textContent = '—';
+      document.getElementById('resPaymentGateway').textContent = '—';
       document.getElementById('resProfitBeforeTax').textContent = '—';
       document.getElementById('resTax').textContent = '—';
       document.getElementById('resZakat').textContent = '—';
@@ -836,9 +1181,16 @@
       var z = url.searchParams.get('z');
       var v = url.searchParams.get('v');
       var p = url.searchParams.get('p');
+      var pg = url.searchParams.get('pg');
       var pack = url.searchParams.get('pack');
       var del = url.searchParams.get('del');
       var cac = url.searchParams.get('cac');
+      var cont = url.searchParams.get('cont');
+      var mode = url.searchParams.get('mode') || 'margin';
+      var tp = url.searchParams.get('tp');
+      var sector = url.searchParams.get('sector');
+      if (sector) document.getElementById('sectorPreset').value = sector;
+      if (cont) document.getElementById('wasteAndIncidentalsPct').value = cont;
       if (d) document.getElementById('directCost').value = d;
       if (o) document.getElementById('overheadCost').value = o;
       if (m) document.getElementById('desiredMargin').value = m;
@@ -846,16 +1198,25 @@
       if (z) document.getElementById('zakatRate').value = z;
       if (v) document.getElementById('monthlyVolume').value = v;
       if (p) document.getElementById('platformFee').value = p;
+      if (pg) document.getElementById('paymentGatewayFee').value = pg;
       if (pack) document.getElementById('packagingCost').value = pack;
       if (del) document.getElementById('deliveryCost').value = del;
       if (cac) document.getElementById('cac').value = cac;
-      if (d) calculateAll();
+      if (mode === 'price' && tp) {
+        document.getElementById('targetPrice').value = tp;
+        setPricingMode('price', false);
+      } else {
+        currentPricingMode = 'margin';
+        updateModeUI();
+        if (d) calculateAll();
+      }
     }
 
     // Auto-save inputs with debounce
     var debouncedCalc = debounce(calculateAll, 300);
-    ['directCost', 'overheadCost', 'desiredMargin', 'taxRate', 'zakatRate', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
+    ['directCost', 'overheadCost', 'wasteAndIncidentalsPct', 'desiredMargin', 'targetPrice', 'taxRate', 'zakatRate', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'paymentGatewayFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
       document.getElementById(id).addEventListener('input', function() {
+        if (currentPricingMode === 'price' && document.getElementById('targetPrice').value === '') return;
         var inputs = getInputs();
         if (inputs.direct > 0) {
           debouncedCalc();
@@ -903,6 +1264,12 @@
     } else {
       loadFromURL();
     }
+
+    document.getElementById('country').addEventListener('change', onCountryChange);
+    document.getElementById('platformSelect').addEventListener('change', onPlatformChange);
+    onCountryChange();
+    updateExampleCurrency();
+    updateModeUI();
     renderHistory();
   </script>
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}</script>
@@ -917,10 +1284,10 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=1"></script>
-<script src="../site-layout.js?v=13"></script>
-<script src="shared-geo.js"></script>
+<script src="../site-layout.js?v=2.52.0"></script>
+<script src="shared-geo.js?v=4"></script>
 
-<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 <script>
 (function(){

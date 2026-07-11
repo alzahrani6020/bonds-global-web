@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../bonds-auth-2026.js"></script>
   <script src="../auth-guard.js"></script>
-  <script src="shared-geo.js"></script>
+  <script src="shared-geo.js?v=4"></script>
   <script src="shared-platforms.js"></script>
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="shared-calculators.css" />
@@ -21,7 +21,7 @@
 
   <script src="db-client.js"></script>
   
-<link rel="stylesheet" href="../header-footer.css?v=10" />
+<link rel="stylesheet" href="../header-footer.css?v=2.52.0" />
   <link rel="canonical" href="https://bonds-global.com/calculators/menu-engineering" />
   <meta property="og:title" content="محرك هندسة المنيو | بوندز" />
   <meta property="og:description" content="مصنف ذكي للمنيو يصنف الوجبات إلى نجوم، حصان رابح، ألغاز، وكلاب بناءً على بيانات المبيعات الفعلية." />
@@ -33,7 +33,7 @@
   <meta name="twitter:description" content="مصنف ذكي للمنيو يصنف الوجبات إلى نجوم، حصان رابح، ألغاز، وكلاب بناءً على بيانات المبيعات الفعلية." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
-<link rel="stylesheet" href="../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.7" />
 <link rel="stylesheet" href="scenario-cards-shared.css" />
 </head>
 <body>
@@ -64,7 +64,7 @@
       <!-- Platforms Tab -->
       <div id="tab-platforms" class="tab-content active">
         <div class="form-row">
-          <div class="form-group"><label>الدولة</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="pCountry" onchange="loadCountryPlatforms()"><option value="">اختر الدولة...</option></select></div>
+          <div class="form-group"><label>الدولة</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="pCountry" onchange="loadCountryPlatforms()"><option value="">اختر الدولة...</option></select></div>
           <div class="form-group"><label>التطبيق</label><select data-universal-dropdown="true" id="pPlatformSelect" onchange="fillPlatformData()"><option value="">اختر التطبيق...</option></select></div>
           <div class="form-group"><label>رمز التطبيق</label><input id="pCode" placeholder="jahez" /></div>
           <div class="form-group"><label>اسم التطبيق</label><input id="pName" placeholder="جاهز" /></div>
@@ -806,9 +806,9 @@ init();
 </script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
-<script src="../site-layout.js?v=13"></script>
+<script src="../site-layout.js?v=2.52.0"></script>
   <div id="site-footer"></div>
-<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

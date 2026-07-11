@@ -25,7 +25,7 @@
 
   <script src="../../calculators/db-client.js"></script>
   
-<link rel="stylesheet" href="../../header-footer.css?v=10" />
+<link rel="stylesheet" href="../../header-footer.css?v=2.52.0" />
   <link rel="canonical" href="https://bonds-global.com/en/calculators/feasibility" />
   <meta property="og:url" content="https://bonds-global.com/en/calculators/feasibility" />
   <meta property="og:type" content="website" />
@@ -34,7 +34,7 @@
   <meta name="twitter:description" content="Calculate your restaurant" />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
-<link rel="stylesheet" href="../../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -52,7 +52,7 @@
     <div class="bonds-card calc-mb-4">
       <div class="bonds-form-group">
         <label for="country">Country / Market</label>
-        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
           <option value="">Select country</option>
         </select>
       </div>
@@ -124,7 +124,7 @@
         <div class="feas-section-title">🚚 Sales &amp; Growth Costs (Optional)</div>
         <div class="bonds-form-row">
           <div class="bonds-form-group"><label>Platform Fee (%) <abbr title="Delivery/sales platform commission deducted from each order">ⓘ</abbr></label><input id="platformFeePct" class="bonds-input" type="number" value="0" placeholder="20" min="0" max="100" /></div>
-          <div class="bonds-form-group"><label>Food Waste (%) <abbr title="Daily raw material waste from overproduction or spoilage">ⓘ</abbr></label><input id="wasteRatePct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" /></div>
+          <div class="bonds-form-group"><label>Waste &amp; Expected Incidentals (%) <abbr title="Reserve percentage for waste and unexpected incidentals: material waste, spoilage, small repairs, minor spare parts">ⓘ</abbr></label><input id="wasteRatePct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" /></div>
           <div class="bonds-form-group"><label>Packaging Cost per Order <abbr title="Box/bag/stickers cost per order">ⓘ</abbr></label><input id="packagingCostPerOrder" class="bonds-input" type="number" value="0" placeholder="3" min="0" /></div>
           <div class="bonds-form-group"><label>Delivery Cost per Order <abbr title="What you pay the delivery company per order">ⓘ</abbr></label><input id="deliveryCostPerOrder" class="bonds-input" type="number" value="0" placeholder="5" min="0" /></div>
           <div class="bonds-form-group"><label>Monthly Order Growth (%) <abbr title="Expected monthly order growth (0 = flat)">ⓘ</abbr></label><input id="monthlyGrowthPct" class="bonds-input" type="number" value="0" placeholder="2" min="0" max="100" /></div>
@@ -308,7 +308,7 @@ function calculateAll() {
       <div class="metric-box"><div class="label">Payback Period</div><div class="value">${roiMonths === Infinity ? '—' : Math.ceil(roiMonths) + ' months'}</div></div>
       <div class="metric-box"><div class="label">Setup Cost</div><div class="value">${setupTotal.toLocaleString('en-US')} SAR</div></div>
       ${platformFeeAmount > 0 ? `<div class="metric-box"><div class="label">Platform Fee / Month</div><div class="value" style="color:#ef4444">${platformFeeAmount.toLocaleString('en-US')} SAR</div></div>` : ''}
-      ${wasteCost > 0 ? `<div class="metric-box"><div class="label">Waste Cost / Month</div><div class="value" style="color:#ef4444">${wasteCost.toLocaleString('en-US')} SAR</div></div>` : ''}
+      ${wasteCost > 0 ? `<div class="metric-box"><div class="label">Waste &amp; Incidentals Cost / Month</div><div class="value" style="color:#ef4444">${wasteCost.toLocaleString('en-US')} SAR</div></div>` : ''}
       ${packagingCost > 0 ? `<div class="metric-box"><div class="label">Packaging Cost / Month</div><div class="value" style="color:#ef4444">${packagingCost.toLocaleString('en-US')} SAR</div></div>` : ''}
       ${deliveryCost > 0 ? `<div class="metric-box"><div class="label">Delivery Cost / Month</div><div class="value" style="color:#ef4444">${deliveryCost.toLocaleString('en-US')} SAR</div></div>` : ''}
     </div>
@@ -339,7 +339,7 @@ function calculateAll() {
       <p>• Average net revenue/month (after platform fee &amp; growth): ${monthlyRevenue.toLocaleString('en-US')} SAR | Yearly: ${yearlyRevenue.toLocaleString('en-US')} SAR</p>
       <p style="margin-top:0.5rem;"><strong>📉 Monthly Costs:</strong></p>
       <p>• Fixed: ${monthlyFixed.toLocaleString('en-US')} SAR | Variable: ${monthlyVariable.toLocaleString('en-US')} SAR | Total: ${monthlyTotal.toLocaleString('en-US')} SAR</p>
-      ${platformFeeAmount > 0 ? `<p>• Platform fee: ${platformFeeAmount.toLocaleString('en-US')} SAR/month | Waste: ${wasteCost.toLocaleString('en-US')} SAR/month | Packaging: ${packagingCost.toLocaleString('en-US')} SAR/month | Delivery: ${deliveryCost.toLocaleString('en-US')} SAR/month</p>` : ''}
+      ${platformFeeAmount > 0 ? `<p>• Platform fee: ${platformFeeAmount.toLocaleString('en-US')} SAR/month | Waste &amp; Incidentals: ${wasteCost.toLocaleString('en-US')} SAR/month | Packaging: ${packagingCost.toLocaleString('en-US')} SAR/month | Delivery: ${deliveryCost.toLocaleString('en-US')} SAR/month</p>` : ''}
       <p style="margin-top:0.5rem;"><strong>📊 Profitability:</strong></p>
       <p>• Monthly: ${monthlyProfit.toLocaleString('en-US')} SAR | Yearly: ${yearlyProfit.toLocaleString('en-US')} SAR | Margin: ${profitMargin.toFixed(1)}%</p>
       <p style="margin-top:0.5rem;"><strong>🎯 Break-even:</strong></p>
@@ -428,7 +428,7 @@ async function exportExcelFeas() {
     ['Expected Daily Orders', d.dailyOrders],
     ['Working Days per Month', d.workDays],
     ['Platform Fee (%)', (d.options && d.options.platformFeePct) || 0],
-    ['Food Waste (%)', (d.options && d.options.wasteRatePct) || 0],
+    ['Waste &amp; Expected Incidentals (%)', (d.options && d.options.wasteRatePct) || 0],
     ['Packaging Cost per Order', (d.options && d.options.packagingCostPerOrder) || 0],
     ['Delivery Cost per Order', (d.options && d.options.deliveryCostPerOrder) || 0],
     ['Monthly Order Growth (%)', (d.options && d.options.monthlyGrowthPct) || 0]
@@ -445,7 +445,7 @@ async function exportExcelFeas() {
     ['Total Monthly Costs', d.monthlyTotal],
     ['', ''],
     ['Platform Fee / Month', d.platformFeeAmount || 0],
-    ['Waste Cost / Month', d.wasteCost || 0],
+    ['Waste &amp; Incidentals Cost / Month', d.wasteCost || 0],
     ['Packaging Cost / Month', d.packagingCost || 0],
     ['Delivery Cost / Month', d.deliveryCost || 0],
     ['', ''],
@@ -534,7 +534,7 @@ function exportPDFFeas() {
       <tr><td>Monthly Variable Costs</td><td class="num">${d.monthlyVariable.toLocaleString('en-US')} SAR</td></tr>
       <tr><td>Total Monthly Costs</td><td class="num">${d.monthlyTotal.toLocaleString('en-US')} SAR</td></tr>
       ${(d.platformFeeAmount || 0) > 0 ? `<tr><td>Platform Fee / Month</td><td class="num">${d.platformFeeAmount.toLocaleString('en-US')} SAR</td></tr>` : ''}
-      ${(d.wasteCost || 0) > 0 ? `<tr><td>Waste Cost / Month</td><td class="num">${d.wasteCost.toLocaleString('en-US')} SAR</td></tr>` : ''}
+      ${(d.wasteCost || 0) > 0 ? `<tr><td>Waste &amp; Incidentals Cost / Month</td><td class="num">${d.wasteCost.toLocaleString('en-US')} SAR</td></tr>` : ''}
       ${(d.packagingCost || 0) > 0 ? `<tr><td>Packaging Cost / Month</td><td class="num">${d.packagingCost.toLocaleString('en-US')} SAR</td></tr>` : ''}
       ${(d.deliveryCost || 0) > 0 ? `<tr><td>Delivery Cost / Month</td><td class="num">${d.deliveryCost.toLocaleString('en-US')} SAR</td></tr>` : ''}
       <tr><td>Monthly Profit</td><td class="num">${d.monthlyProfit.toLocaleString('en-US')} SAR</td></tr>
@@ -564,11 +564,11 @@ setTimeout(() => onboard.start(), 600);
 </script>
 <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
-<script src="../../calculators/shared-geo.js"></script>
+<script src="../../calculators/shared-geo.js?v=4"></script>
 
-<script src="../../site-layout.js?v=13"></script>
+<script src="../../site-layout.js?v=2.52.0"></script>
   <div id="site-footer"></div>
-<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

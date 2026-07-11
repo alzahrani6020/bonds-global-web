@@ -24,11 +24,11 @@
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/shared-export.js"></script>
   <script src="../../calculators/creditworthiness-engine.js"></script>
-  <link rel="stylesheet" href="../../header-footer.css?v=10" />
+  <link rel="stylesheet" href="../../header-footer.css?v=2.52.0" />
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://bonds-global.com/en/calculators/creditworthiness" />
   
-<link rel="stylesheet" href="../../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.7" />
   <meta name="twitter:description" content="Evaluate any company, factory, or financial bond using 9 international credit criteria and get a rating from AAA to High Risk with a full analytical report." />
 
 </head>
@@ -56,7 +56,9 @@
           </div>
           <div class="bonds-form-group">
             <label for="country">Country</label>
-            <input id="country" class="bonds-input" type="text" placeholder="e.g. Saudi Arabia" />
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+              <option value="">Select country</option>
+            </select>
           </div>
           <div class="bonds-form-group">
             <label for="financingAmount">Requested Financing Amount</label>
@@ -234,7 +236,7 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=1"></script>
-  <script src="../../site-layout.js?v=13"></script>
+  <script src="../../site-layout.js?v=2.52.0"></script>
 
   <script>
     (function(){
@@ -627,7 +629,8 @@
       loadInputs();
     })();
   </script>
-<script src="../../components/universal-dropdown.js"></script>
+<script src="../../calculators/shared-geo.js?v=4"></script>
+<script src="../../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

@@ -27,7 +27,7 @@
 <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
   <link rel="canonical" href="https://bonds-global.com/en/contact" />
 
-<link rel="stylesheet" href="../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body style="font-family:'Inter',system-ui,sans-serif">
 
@@ -182,7 +182,7 @@
     function declineCookies(){localStorage.setItem('cookies','declined');document.getElementById('cookieBanner').classList.remove('is-visible');}
     if(!localStorage.getItem('cookies')){setTimeout(function(){document.getElementById('cookieBanner').classList.add('is-visible');},1500);}
   </script>
-  <script src="../script.js?v=3" defer></script>
+  <script src="../script.js?v=4" defer></script>
   <script>
     document.getElementById('contactForm').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -243,8 +243,8 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=1"></script>
-<script src="../site-layout.js?v=13"></script>
-<script src="../components/universal-dropdown.js"></script>
+<script src="../site-layout.js?v=2.52.0"></script>
+<script src="../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

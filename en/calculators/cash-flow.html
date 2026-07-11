@@ -38,7 +38,7 @@
   <script src="../../calculators/db-client.js"></script>
 <link rel="canonical" href="https://bonds-global.com/en/calculators/cash-flow" />
 
-<link rel="stylesheet" href="../../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body>
 
@@ -74,7 +74,7 @@
           
           <div class="calc-input-group">
             <label for="country">Country / Market</label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
               <option value="">Select country</option>
             </select>
           </div>
@@ -82,6 +82,10 @@
           <div class="calc-input-group">
             <label for="openingBalance">Opening Balance (بداية الشهر الأول)</label>
             <input type="number" id="openingBalance" placeholder="مثلاً: 50000" min="0" />
+          </div>
+          <div class="calc-input-group">
+            <label for="wasteAndIncidentalsPct">Waste &amp; Expected Incidentals (%) <abbr title="Reserve percentage applied to operating outflows: rent, salaries, raw materials, marketing, other expenses">ⓘ</abbr></label>
+            <input type="number" id="wasteAndIncidentalsPct" placeholder="e.g., 5" min="0" max="100" value="0" />
           </div>
 
           <h3 class="calc-subsection-title">Inflows الشهرية 💰</h3>
@@ -110,6 +114,10 @@
               <div class="summary-card red">
                 <div class="summary-label">Total Outflows السنوي</div>
                 <div class="summary-value" id="sumTotalOut">—</div>
+              </div>
+              <div class="summary-card orange">
+                <div class="summary-label">Waste &amp; Incidentals السنوي</div>
+                <div class="summary-value" id="sumWaste">—</div>
               </div>
               <div class="summary-card blue">
                 <div class="summary-label">Net Cash Flow السنوي</div>
@@ -262,7 +270,7 @@
 
   <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp">💬</a>
 
-  <script src="../../script.js?v=3" defer></script>
+  <script src="../../script.js?v=4" defer></script>
   <script>
     var chart = null;
     var chartJsPromise = null;
@@ -351,15 +359,23 @@
     function getMonthData() {
       var months = [];
       var opening = parseFloat(document.getElementById('openingBalance').value) || 0;
+      var wastePct = parseFloat(document.getElementById('wasteAndIncidentalsPct').value) || 0;
+      var wasteMultiplier = 1 + wastePct / 100;
+      var WASTE_ROWS = ['rent', 'salaries', 'raw', 'marketing', 'other_exp'];
       for (var m = 0; m < 12; m++) {
-        var month = { inflows: {}, outflows: {}, totalIn: 0, totalOut: 0, netCashFlow: 0, openingBalance: 0, closingBalance: 0 };
+        var month = { inflows: {}, outflows: {}, totalIn: 0, totalOut: 0, netCashFlow: 0, openingBalance: 0, closingBalance: 0, wasteAndIncidentals: 0 };
         INFLOW_ROWS.forEach(function(row) {
           var val = parseFloat(document.getElementById('in_' + row.id + '_' + m).value) || 0;
           month.inflows[row.id] = val;
           month.totalIn += val;
         });
         OUTFLOW_ROWS.forEach(function(row) {
-          var val = parseFloat(document.getElementById('out_' + row.id + '_' + m).value) || 0;
+          var rawVal = parseFloat(document.getElementById('out_' + row.id + '_' + m).value) || 0;
+          var val = rawVal;
+          if (WASTE_ROWS.indexOf(row.id) >= 0) {
+            val = rawVal * wasteMultiplier;
+            month.wasteAndIncidentals += val - rawVal;
+          }
           month.outflows[row.id] = val;
           month.totalOut += val;
         });
@@ -415,6 +431,15 @@
         html += '<td style="font-weight:700;">' + formatNumber(total) + '</td></tr>';
       });
 
+      // Waste & incidentals
+      var totalWasteYear = 0;
+      html += '<tr><td style="color:#ef4444;">Waste &amp; Expected Incidentals</td>';
+      months.forEach(function(m) {
+        html += '<td>' + formatNumber(m.wasteAndIncidentals) + '</td>';
+        totalWasteYear += m.wasteAndIncidentals;
+      });
+      html += '<td style="font-weight:700;">' + formatNumber(totalWasteYear) + '</td></tr>';
+
       // Total outflows
       var totalOutYear = 0;
       html += '<tr class="highlight-row"><td>Total Outflows</td>';
@@ -447,12 +472,13 @@
     }
 
     function updateSummary(months) {
-      var totalIn = 0, totalOut = 0, netFlow = 0;
+      var totalIn = 0, totalOut = 0, netFlow = 0, totalWaste = 0;
       var minBal = Infinity, maxBal = -Infinity;
       var minMonth = '', maxMonth = '';
       months.forEach(function(m, i) {
         totalIn += m.totalIn;
         totalOut += m.totalOut;
+        totalWaste += m.wasteAndIncidentals;
         netFlow += m.netCashFlow;
         if (m.closingBalance < minBal) { minBal = m.closingBalance; minMonth = MONTHS_AR[i]; }
         if (m.closingBalance > maxBal) { maxBal = m.closingBalance; maxMonth = MONTHS_AR[i]; }
@@ -462,6 +488,7 @@
 
       document.getElementById('sumTotalIn').textContent = formatNumber(totalIn) + ' SAR';
       document.getElementById('sumTotalOut').textContent = formatNumber(totalOut) + ' SAR';
+      document.getElementById('sumWaste').textContent = formatNumber(totalWaste) + ' SAR';
       document.getElementById('sumNetFlow').textContent = formatNumber(netFlow) + ' SAR';
       document.getElementById('sumNetFlow').style.color = netFlow >= 0 ? '#16a34a' : '#dc2626';
       document.getElementById('sumClosing').textContent = formatNumber(months[11].closingBalance) + ' SAR';
@@ -823,7 +850,7 @@
   \u003Cscript src="/api/env">\u003C/script>
   \u003Cscript src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">\u003C/script>
   \u003Cscript src="/bonds-auth-2026.js?v=1">\u003C/script>
-\u003Cscript src="../../site-layout.js?v=13">\u003C/script>
+\u003Cscript src="../../site-layout.js?v=2.52.0">\u003C/script>
 \u003C/body>
         \u003C/html>
       `);
@@ -898,9 +925,9 @@
 <!-- Tawk.to Live Chat -->
 <script type="text/javascript">var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a148d4836ad8d1c38c41085/1jpg4fpl6';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
   <script src="../../page-tracker-v2.js"></script>
-<script src="../../calculators/shared-geo.js"></script>
+<script src="../../calculators/shared-geo.js?v=4"></script>
 
-<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 <script>
 (function(){

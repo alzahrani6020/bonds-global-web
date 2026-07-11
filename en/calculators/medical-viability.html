@@ -29,11 +29,11 @@
   <script src="../../calculators/db-client.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   
-  <link rel="stylesheet" href="../../header-footer.css?v=10" />
+  <link rel="stylesheet" href="../../header-footer.css?v=2.52.0" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="canonical" href="https://bonds-global.com/en/calculators/medical-viability" />
 
-<link rel="stylesheet" href="../../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body class="calc-body-en">
   <div class="topbar">
@@ -59,7 +59,7 @@
     <div class="med-container">
       <div class="bonds-card calc-text-center calc-mb-6">
         <div class="med-badge">Country / Market</div>
-        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" class="activity-select" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" class="activity-select" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
           <option value="">Select country</option>
         </select>
       </div>
@@ -97,6 +97,14 @@
 
           <div class="med-section-title">🧬 Service Mix</div>
           <div class="bonds-form-row" id="serviceMixFields"></div>
+
+          <div class="med-section-title">⚠️ Waste &amp; Expected Incidentals</div>
+          <div class="bonds-form-row">
+            <div class="bonds-form-group">
+              <label>Waste &amp; Expected Incidentals (%) <abbr title="Reserve percentage for waste and unexpected incidentals: material waste, production loss, sudden repairs, minor spare parts">ⓘ</abbr></label>
+              <input id="wasteAndIncidentalsPct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" />
+            </div>
+          </div>
 
           <div class="calc-action-row calc-mt-6">
             <button onclick="calculateAll()" class="bonds-btn bonds-btn-primary calc-flex-1 calc-min-width-140">Calculate Results</button>
@@ -328,7 +336,8 @@
         vatRate: options.vatRate || 0,
         zakatRate: options.zakatRate || 0,
         extraServiceRevenue: options.extraServiceRevenue || 0,
-        extraServiceCost: options.extraServiceCost || 0
+        extraServiceCost: options.extraServiceCost || 0,
+        wasteAndIncidentalsPct: options.wasteAndIncidentalsPct || 0
       };
 
       const r = calculateMedicalViability(setupCosts, monthlyCosts, revenue, calcOptions);
@@ -413,6 +422,7 @@
           ${r.vatAmount > 0 ? `<div class="kpi-card"><div class="icon">🏛️</div><div class="value" style="color:#ef4444">${r.vatAmount.toLocaleString('en-US')} SAR</div><div class="label">Tax / Month</div></div>` : ''}
           ${r.zakatAmount > 0 ? `<div class="kpi-card"><div class="icon">🕌</div><div class="value" style="color:#ef4444">${r.zakatAmount.toLocaleString('en-US')} SAR</div><div class="label">Zakat / Month</div></div>` : ''}
           ${r.extraServiceRevenue > 0 ? `<div class="kpi-card"><div class="icon">🧬</div><div class="value">${r.extraServiceRevenue.toLocaleString('en-US')} SAR</div><div class="label">Additional Services / Month</div></div>` : ''}
+          ${r.wasteAndIncidentalsAmount > 0 ? `<div class="kpi-card"><div class="icon">⚠️</div><div class="value" style="color:#ef4444">${r.wasteAndIncidentalsAmount.toLocaleString('en-US')} SAR</div><div class="label">Waste &amp; Incidentals / Month</div><div class="sub">${r.wasteAndIncidentalsPct.toFixed(1)}%</div></div>` : ''}
         </div>
 
         <div class="med-section-title">🎲 Scenarios</div>
@@ -459,7 +469,7 @@
           ${r.vatAmount > 0 || r.zakatAmount > 0 ? `<p style="margin-top:0.5rem;"><strong>🏛️ Tax & Zakat:</strong></p><p>• Tax: ${r.vatAmount.toLocaleString('en-US')} SAR/month (${r.vatRate}%) | Zakat: ${r.zakatAmount.toLocaleString('en-US')} SAR/month (${r.zakatRate}%)</p>` : ''}
           ${r.extraServiceRevenue > 0 || r.extraServiceCost > 0 ? `<p style="margin-top:0.5rem;"><strong>🧬 Service Mix:</strong></p><p>• Additional revenue: ${r.extraServiceRevenue.toLocaleString('en-US')} SAR/month | Cost: ${r.extraServiceCost.toLocaleString('en-US')} SAR/month | Contribution: ${(r.extraServiceRevenue - r.extraServiceCost).toLocaleString('en-US')} SAR/month</p>` : ''}
           <p style="margin-top:0.5rem;"><strong>📉 Costs:</strong></p>
-          <p>• Fixed: ${r.monthlyFixed.toLocaleString('en-US')} SAR | Variable: ${r.monthlyVariable.toLocaleString('en-US')} SAR | Total: ${r.monthlyTotal.toLocaleString('en-US')} SAR</p>
+          <p>• Fixed: ${r.monthlyFixed.toLocaleString('en-US')} SAR | Variable: ${r.monthlyVariable.toLocaleString('en-US')} SAR | Waste &amp; Incidentals: ${r.wasteAndIncidentalsAmount.toLocaleString('en-US')} SAR | Total: ${r.monthlyTotal.toLocaleString('en-US')} SAR</p>
           <p style="margin-top:0.5rem;"><strong>📊 Profitability:</strong></p>
           <p>• Monthly profit: ${r.monthlyProfit.toLocaleString('en-US')} SAR | Yearly profit: ${r.yearlyProfit.toLocaleString('en-US')} SAR | Margin: ${r.profitMargin.toFixed(1)}%</p>
           <p style="margin-top:0.5rem;"><strong>🎯 Break-Even:</strong></p>
@@ -673,10 +683,10 @@
 
   <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
-  <script src="../../calculators/shared-geo.js"></script>
+  <script src="../../calculators/shared-geo.js?v=4"></script>
 
-  <script src="../../site-layout.js?v=13"></script>
-<script src="../../components/universal-dropdown.js"></script>
+  <script src="../../site-layout.js?v=2.52.0"></script>
+<script src="../../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

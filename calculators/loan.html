@@ -39,7 +39,7 @@
   <script src="db-client.js"></script>
 <link rel="canonical" href="https://bonds-global.com/calculators/loan" />
 
-<link rel="stylesheet" href="../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body>
 
@@ -74,7 +74,7 @@
           <h2 class="calc-section-title">بيانات القرض</h2>
           <div class="calc-input-group">
             <label for="country">الدولة / السوق</label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
               <option value="">اختر الدولة</option>
             </select>
           </div>
@@ -102,8 +102,42 @@
             </select>
           </div>
           <div class="calc-input-group">
-            <label for="extraFees">رسوم إضافية</label>
+            <label for="interestMethod">طريقة حساب الفائدة</label>
+            <select data-universal-dropdown="true" id="interestMethod">
+              <option value="declining">تنازلية (مخفضة)</option>
+              <option value="fixed">ثابتة (على المبلغ كاملاً)</option>
+            </select>
+          </div>
+          <div class="calc-input-group">
+            <label for="borrowerType">نوع المقترض</label>
+            <select data-universal-dropdown="true" id="borrowerType">
+              <option value="individual">فرد</option>
+              <option value="company">شركة</option>
+            </select>
+          </div>
+          <div class="calc-input-group">
+            <label for="extraFees">رسوم إضافية مُموّلة ضمن القرض</label>
             <input type="number" id="extraFees" placeholder="مثلاً: 2500" min="0" value="0" />
+          </div>
+          <div class="calc-input-group">
+            <label for="adminFeeRate">نسبة الرسوم الإدارية (%)</label>
+            <input type="number" id="adminFeeRate" placeholder="مثلاً: 1" min="0" step="0.01" value="0" />
+          </div>
+          <div class="calc-input-group">
+            <label for="adminFeeAmount">مبلغ الرسوم الإدارية (ر.س)</label>
+            <input type="number" id="adminFeeAmount" placeholder="مثلاً: 5000" min="0" value="0" />
+          </div>
+          <div class="calc-input-group">
+            <label for="adminFeeMethod">طريقة سداد الرسوم الإدارية</label>
+            <select data-universal-dropdown="true" id="adminFeeMethod">
+              <option value="deducted">مُحسَمة من القرض</option>
+              <option value="upfront">مُدفَعة مقدماً</option>
+            </select>
+          </div>
+          <div class="calc-input-group">
+            <label for="participationRate">نسبة مشاركة المقترض (%)</label>
+            <input type="number" id="participationRate" placeholder="مثلاً: 25" min="0" max="100" step="0.01" value="0" />
+            <small class="calc-help-text">نسبة مساهمة المقترض في تمويل المشروع (0% = البنك يمول كامل المبلغ)</small>
           </div>
           <div class="calc-input-group">
             <label for="monthlyIncome">الدخل الشهري (اختياري — لتحليل القدرة على السداد)</label>
@@ -138,6 +172,22 @@
               <div class="calc-result-row">
                 <span class="calc-result-row__label">معدل الفائدة الفعلي سنوياً (EAR)</span>
                 <span id="resEAR" class="calc-result-row__value">—</span>
+              </div>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">الرسوم الإدارية لمرة واحدة</span>
+                <span id="resAdminFees" class="calc-result-row__value">—</span>
+              </div>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">المبلغ المُستلم بعد الرسوم</span>
+                <span id="resNetReceived" class="calc-result-row__value">—</span>
+              </div>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">إجمالي تكلفة المشروع</span>
+                <span id="resTotalProjectCost" class="calc-result-row__value">—</span>
+              </div>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">مساهمة المقترض في المشروع</span>
+                <span id="resBorrowerContribution" class="calc-result-row__value">—</span>
               </div>
               <div class="calc-result-row">
                 <span class="calc-result-row__label">نسبة القسط من الدخل</span>
@@ -302,6 +352,7 @@
             <li>هذه الحاسبة تعطيك <strong>رؤية مالية أولية ذكية</strong> بناءً على بياناتك؛ تساعدك على تقييم قرضك قبل اتخاذ القرار. للتحوّل إلى خطة مالية دقيقة، استشر أحد مستشارينا المعتمدين.</li>
             <li>النتائج تعتمد على <strong>دقة البيانات المدخلة</strong>.</li>
             <li>قد تختلف نسب الفائدة الفعلية بين البنوك بسبب الرسوم والعمولات الإضافية.</li>
+            <li>الفائدة <strong>التنازلية</strong> تُحسب على الرصيد المتبقي من الدين؛ أما الفائدة <strong>الثابتة</strong> فتُحسب على المبلغ الأصلي طوال مدة القرض.</li>
             <li>تفترض أن نسبة الفائدة ثابتة طوال مدة القرض.</li>
             <li>القروض ذات الفائدة المتغيرة قد تؤدي لأقساط مختلفة مع الوقت.</li>
           </ul>
@@ -315,7 +366,7 @@
 
   <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
 
-  <script src="../script.js?v=3" defer></script>
+  <script src="../script.js?v=4" defer></script>
   <script src="shared-charts.js" defer></script>
   <script src="shared-export.js" defer></script>
   <script>
@@ -339,7 +390,13 @@
         interestRate: parseFloat(document.getElementById('interestRate').value) || 0,
         loanTerm: parseFloat(document.getElementById('loanTerm').value) || 0,
         frequency: document.getElementById('paymentFrequency').value,
+        interestMethod: document.getElementById('interestMethod').value || 'declining',
+        borrowerType: document.getElementById('borrowerType').value || 'individual',
         extraFees: parseFloat(document.getElementById('extraFees').value) || 0,
+        adminFeeRate: parseFloat(document.getElementById('adminFeeRate').value) || 0,
+        adminFeeAmount: parseFloat(document.getElementById('adminFeeAmount').value) || 0,
+        adminFeeMethod: document.getElementById('adminFeeMethod').value || 'deducted',
+        participationRate: parseFloat(document.getElementById('participationRate').value) || 0,
         monthlyIncome: parseFloat(document.getElementById('monthlyIncome').value) || 0
       };
     }
@@ -354,49 +411,97 @@
       return _loanWorker;
     }
 
+    function solvePeriodicRate(pv, pmt, n) {
+      if (pv <= 0 || pmt <= 0 || n <= 0 || pmt * n <= pv) return 0;
+      var low = 0, high = 5;
+      for (var i = 0; i < 60; i++) {
+        var mid = (low + high) / 2;
+        var fmid = pmt * (1 - Math.pow(1 + mid, -n)) / mid - pv;
+        if (fmid > 0) high = mid; else low = mid;
+      }
+      return (low + high) / 2;
+    }
+
     function calculateLoan(inputs) {
       var memoKey = _calcMemo.key(inputs);
       if (_calcMemo.has(memoKey)) return _calcMemo.get(memoKey);
 
-      var netLoan = inputs.loanAmount - inputs.downPayment + inputs.extraFees;
       var isMonthly = inputs.frequency === 'monthly';
       var periodsPerYear = isMonthly ? 12 : 4;
       var totalPayments = isMonthly ? inputs.loanTerm : Math.floor(inputs.loanTerm / 3);
       if (totalPayments < 1) totalPayments = 1;
       var periodicRate = (inputs.interestRate / 100) / periodsPerYear;
+      var interestMethod = inputs.interestMethod || 'declining';
 
-      var installment = 0;
-      if (periodicRate === 0) {
-        installment = netLoan / totalPayments;
-      } else {
-        installment = netLoan * (periodicRate * Math.pow(1 + periodicRate, totalPayments)) / (Math.pow(1 + periodicRate, totalPayments) - 1);
-      }
+      var adminFees = (inputs.loanAmount * (inputs.adminFeeRate || 0) / 100) + (inputs.adminFeeAmount || 0);
+      var principal = inputs.loanAmount - inputs.downPayment;
+      var netLoan = principal + inputs.extraFees;
+      var netReceived = principal - adminFees;
+      if (netReceived < 0) netReceived = 0;
 
-      var totalPaid = installment * totalPayments;
-      var totalInterest = totalPaid - netLoan;
-      var ear = Math.pow(1 + periodicRate, periodsPerYear) - 1;
+      var participationRate = Math.min(Math.max(inputs.participationRate || 0, 0), 99.99);
+      var totalProjectCost = participationRate >= 100 ? inputs.loanAmount : inputs.loanAmount / (1 - participationRate / 100);
+      var borrowerContribution = totalProjectCost - inputs.loanAmount;
 
+      var installment = 0, totalPaid = 0, totalInterest = 0, ear = 0;
       var schedule = [];
-      var balance = netLoan;
       var totalPrincipalPaid = 0, totalInterestPaid = 0;
-      for (var i = 1; i <= totalPayments; i++) {
-        var interestPayment = balance * periodicRate;
-        var principalPayment = installment - interestPayment;
-        balance -= principalPayment;
-        if (balance < 0) { principalPayment += balance; balance = 0; }
-        totalPrincipalPaid += principalPayment;
-        totalInterestPaid += interestPayment;
-        schedule.push({
-          period: i,
-          installment: installment,
-          principal: principalPayment,
-          interest: interestPayment,
-          balance: balance
-        });
+
+      if (interestMethod === 'fixed') {
+        var termYears = totalPayments / periodsPerYear;
+        totalInterest = netLoan * (inputs.interestRate / 100) * termYears;
+        totalPaid = netLoan + totalInterest;
+        installment = totalPaid / totalPayments;
+        var principalPayment = netLoan / totalPayments;
+        var interestPayment = totalInterest / totalPayments;
+        var balance = netLoan;
+        for (var i = 1; i <= totalPayments; i++) {
+          balance -= principalPayment;
+          if (balance < 0) { principalPayment += balance; balance = 0; }
+          totalPrincipalPaid += principalPayment;
+          totalInterestPaid += interestPayment;
+          schedule.push({
+            period: i,
+            installment: installment,
+            principal: principalPayment,
+            interest: interestPayment,
+            balance: balance
+          });
+        }
+        var effPeriodicRate = solvePeriodicRate(netReceived, installment, totalPayments);
+        ear = Math.pow(1 + effPeriodicRate, periodsPerYear) - 1;
+      } else {
+        if (periodicRate === 0) {
+          installment = netLoan / totalPayments;
+        } else {
+          installment = netLoan * (periodicRate * Math.pow(1 + periodicRate, totalPayments)) / (Math.pow(1 + periodicRate, totalPayments) - 1);
+        }
+        totalPaid = installment * totalPayments;
+        totalInterest = totalPaid - netLoan;
+        var effPeriodicRate = solvePeriodicRate(netReceived, installment, totalPayments);
+        ear = Math.pow(1 + effPeriodicRate, periodsPerYear) - 1;
+        var balance = netLoan;
+        for (var i = 1; i <= totalPayments; i++) {
+          var interestPayment = balance * periodicRate;
+          var principalPayment = installment - interestPayment;
+          balance -= principalPayment;
+          if (balance < 0) { principalPayment += balance; balance = 0; }
+          totalPrincipalPaid += principalPayment;
+          totalInterestPaid += interestPayment;
+          schedule.push({
+            period: i,
+            installment: installment,
+            principal: principalPayment,
+            interest: interestPayment,
+            balance: balance
+          });
+        }
       }
 
       var result = {
         netLoan: netLoan,
+        netReceived: netReceived,
+        adminFees: adminFees,
         installment: installment,
         totalPaid: totalPaid,
         totalInterest: totalInterest,
@@ -406,7 +511,10 @@
         totalPrincipalPaid: totalPrincipalPaid,
         totalInterestPaid: totalInterestPaid,
         periodicRate: periodicRate,
-        periodsPerYear: periodsPerYear
+        periodsPerYear: periodsPerYear,
+        interestMethod: interestMethod,
+        totalProjectCost: totalProjectCost,
+        borrowerContribution: borrowerContribution
       };
       _calcMemo.set(memoKey, result);
       return result;
@@ -433,12 +541,18 @@
       document.getElementById('resTotalInterest').textContent = formatNumber(r.totalInterest) + ' ر.س';
       document.getElementById('resTotalPaid').textContent = formatNumber(r.totalPaid) + ' ر.س';
       document.getElementById('resEAR').textContent = (r.ear * 100).toFixed(2) + '%';
+      document.getElementById('resAdminFees').textContent = formatNumber(r.adminFees || 0) + ' ر.س';
+      document.getElementById('resNetReceived').textContent = formatNumber(r.netReceived || 0) + ' ر.س';
+      document.getElementById('resTotalProjectCost').textContent = formatNumber(r.totalProjectCost || 0) + ' ر.س';
+      document.getElementById('resBorrowerContribution').textContent = formatNumber(r.borrowerContribution || 0) + ' ر.س';
 
       var dtiEl = document.getElementById('resDti');
+      var dtiHigh = inputs.borrowerType === 'company' ? 50 : 30;
+      var dtiWarn = inputs.borrowerType === 'company' ? 40 : 20;
       if (inputs.monthlyIncome > 0) {
         var dti = (r.installment / inputs.monthlyIncome) * 100;
         dtiEl.textContent = dti.toFixed(1) + '%';
-        dtiEl.style.color = dti > 30 ? '#dc2626' : (dti > 20 ? '#b8954e' : '#16a34a');
+        dtiEl.style.color = dti > dtiHigh ? '#dc2626' : (dti > dtiWarn ? '#b8954e' : '#16a34a');
       } else {
         dtiEl.textContent = '—';
         dtiEl.style.color = 'var(--text)';
@@ -453,8 +567,8 @@
       }
       if (inputs.monthlyIncome > 0) {
         var dti = (r.installment / inputs.monthlyIncome) * 100;
-        if (dti > 30) {
-          alerts.push('القسط يمثل ' + dti.toFixed(1) + '% من دخلك الشهري — هذا أعلى من الحد المُوصى به (30%). قد يؤثر على استقرارك المالي.');
+        if (dti > dtiHigh) {
+          alerts.push('القسط يمثل ' + dti.toFixed(1) + '% من دخلك الشهري — هذا أعلى من الحد المُوصى به (' + dtiHigh + '%). قد يؤثر على استقرارك المالي.');
         }
       }
       if (alerts.length > 0) {
@@ -474,7 +588,17 @@
         interestRate: inputs.interestRate,
         loanTerm: inputs.loanTerm,
         frequency: inputs.frequency,
+        interestMethod: inputs.interestMethod,
+        borrowerType: inputs.borrowerType,
         extraFees: inputs.extraFees,
+        adminFeeRate: inputs.adminFeeRate,
+        adminFeeAmount: inputs.adminFeeAmount,
+        adminFeeMethod: inputs.adminFeeMethod,
+        participationRate: inputs.participationRate,
+        adminFees: r.adminFees,
+        netReceived: r.netReceived,
+        totalProjectCost: r.totalProjectCost,
+        borrowerContribution: r.borrowerContribution,
         netLoan: r.netLoan,
         installment: r.installment,
         totalInterest: r.totalInterest,
@@ -637,8 +761,18 @@
         ['نسبة الفائدة السنوية (%)', inputs.interestRate + '%'],
         ['مدة القرض (شهر)', inputs.loanTerm],
         ['تكرار السداد', freqLabel],
-        ['رسوم إضافية', inputs.extraFees],
+        ['طريقة حساب الفائدة', inputs.interestMethod === 'fixed' ? 'ثابتة' : 'تنازلية'],
+        ['نوع المقترض', inputs.borrowerType === 'company' ? 'شركة' : 'فرد'],
+        ['رسوم إضافية مُموّلة', inputs.extraFees],
+        ['نسبة الرسوم الإدارية (%)', inputs.adminFeeRate + '%'],
+        ['مبلغ الرسوم الإدارية (ر.س)', inputs.adminFeeAmount],
+        ['طريقة سداد الرسوم الإدارية', inputs.adminFeeMethod === 'upfront' ? 'مُدفَعة مقدماً' : 'مُحسَمة من القرض'],
+        ['نسبة مشاركة المقترض (%)', inputs.participationRate + '%'],
+        ['إجمالي تكلفة المشروع', r.totalProjectCost],
+        ['مساهمة المقترض في المشروع', r.borrowerContribution],
+        ['إجمالي الرسوم الإدارية', r.adminFees],
         ['صافي مبلغ القرض', r.netLoan],
+        ['المبلغ المُستلم بعد الرسوم', r.netReceived],
         ['القسط ' + freqLabel, r.installment],
         ['إجمالي الفائدة', r.totalInterest],
         ['إجمالي المبلغ المدفوع', r.totalPaid],
@@ -729,7 +863,13 @@
           ['Annual Interest Rate', inputs.interestRate + '%'],
           ['Loan Term (months)', inputs.loanTerm],
           ['Payment Frequency', inputs.frequency === 'monthly' ? 'Monthly' : 'Quarterly'],
-          ['Extra Fees', formatNumber(inputs.extraFees) + ' SAR']
+          ['Interest Method', inputs.interestMethod === 'fixed' ? 'Fixed (flat)' : 'Declining balance'],
+          ['Borrower Type', inputs.borrowerType === 'company' ? 'Company' : 'Individual'],
+          ['Extra Fees (financed)', formatNumber(inputs.extraFees) + ' SAR'],
+          ['Admin Fee Rate (%)', inputs.adminFeeRate + '%'],
+          ['Admin Fee Amount', formatNumber(inputs.adminFeeAmount) + ' SAR'],
+          ['Admin Fee Payment', inputs.adminFeeMethod === 'upfront' ? 'Upfront' : 'Deducted from loan'],
+          ['Borrower Participation Rate (%)', inputs.participationRate + '%']
         ],
         theme: 'striped',
         headStyles: { fillColor: [212, 168, 83], textColor: [10, 15, 26], fontStyle: 'bold' },
@@ -750,6 +890,10 @@
           ['Installment', formatNumber(r.installment) + ' SAR'],
           ['Total Interest', formatNumber(r.totalInterest) + ' SAR'],
           ['Total Amount Paid', formatNumber(r.totalPaid) + ' SAR'],
+          ['Admin Fees', formatNumber(r.adminFees) + ' SAR'],
+          ['Amount Received After Fees', formatNumber(r.netReceived) + ' SAR'],
+          ['Total Project Cost', formatNumber(r.totalProjectCost) + ' SAR'],
+          ['Borrower Contribution', formatNumber(r.borrowerContribution) + ' SAR'],
           ['Effective Annual Rate', (r.ear * 100).toFixed(2) + '%']
         ],
         theme: 'striped',
@@ -872,9 +1016,19 @@
         '<tr style="background:#f5f5f5;"><td style="font-weight:bold;">نسبة الفائدة السنوية</td><td>' + inputs.interestRate + '%</td></tr>' +
         '<tr><td style="font-weight:bold;">مدة القرض (شهر)</td><td>' + inputs.loanTerm + '</td></tr>' +
         '<tr style="background:#f5f5f5;"><td style="font-weight:bold;">تكرار السداد</td><td>' + (inputs.frequency === 'monthly' ? 'شهري' : 'ربع سنوي') + '</td></tr>' +
-        '<tr><td style="font-weight:bold;">رسوم إضافية</td><td>' + formatNumber(inputs.extraFees) + ' ر.س</td></tr></table>' +
+        '<tr><td style="font-weight:bold;">طريقة حساب الفائدة</td><td>' + (inputs.interestMethod === 'fixed' ? 'ثابتة' : 'تنازلية') + '</td></tr>' +
+        '<tr style="background:#f5f5f5;"><td style="font-weight:bold;">نوع المقترض</td><td>' + (inputs.borrowerType === 'company' ? 'شركة' : 'فرد') + '</td></tr>' +
+        '<tr style="background:#f5f5f5;"><td style="font-weight:bold;">رسوم إضافية مُموّلة</td><td>' + formatNumber(inputs.extraFees) + ' ر.س</td></tr>' +
+        '<tr><td style="font-weight:bold;">نسبة الرسوم الإدارية</td><td>' + inputs.adminFeeRate + '%</td></tr>' +
+        '<tr style="background:#f5f5f5;"><td style="font-weight:bold;">مبلغ الرسوم الإدارية</td><td>' + formatNumber(inputs.adminFeeAmount) + ' ر.س</td></tr>' +
+        '<tr><td style="font-weight:bold;">طريقة سداد الرسوم الإدارية</td><td>' + (inputs.adminFeeMethod === 'upfront' ? 'مُدفَعة مقدماً' : 'مُحسَمة من القرض') + '</td></tr>' +
+        '<tr style="background:#f5f5f5;"><td style="font-weight:bold;">نسبة مشاركة المقترض</td><td>' + inputs.participationRate + '%</td></tr></table>' +
         '<h3>النتائج</h3>' +
         '<table><tr style="background:#f5f5f5;"><td style="font-weight:bold;">صافي مبلغ القرض</td><td>' + formatNumber(r.netLoan) + ' ر.س</td></tr>' +
+        '<tr><td style="font-weight:bold;">إجمالي الرسوم الإدارية</td><td>' + formatNumber(r.adminFees) + ' ر.س</td></tr>' +
+        '<tr style="background:#f5f5f5;"><td style="font-weight:bold;">المبلغ المُستلم بعد الرسوم</td><td>' + formatNumber(r.netReceived) + ' ر.س</td></tr>' +
+        '<tr><td style="font-weight:bold;">إجمالي تكلفة المشروع</td><td>' + formatNumber(r.totalProjectCost) + ' ر.س</td></tr>' +
+        '<tr style="background:#f5f5f5;"><td style="font-weight:bold;">مساهمة المقترض في المشروع</td><td>' + formatNumber(r.borrowerContribution) + ' ر.س</td></tr>' +
         '<tr><td style="font-weight:bold;">القسط ' + (inputs.frequency === 'monthly' ? 'الشهري' : 'الربع سنوي') + '</td><td>' + formatNumber(r.installment) + ' ر.س</td></tr>' +
         '<tr style="background:#f5f5f5;"><td style="font-weight:bold;">إجمالي الفائدة</td><td>' + formatNumber(r.totalInterest) + ' ر.س</td></tr>' +
         '<tr><td style="font-weight:bold;">إجمالي المبلغ المدفوع</td><td>' + formatNumber(r.totalPaid) + ' ر.س</td></tr>' +
@@ -923,7 +1077,13 @@
       document.getElementById('interestRate').value = '5';
       document.getElementById('loanTerm').value = '240';
       document.getElementById('paymentFrequency').value = 'monthly';
+      document.getElementById('interestMethod').value = 'declining';
+      document.getElementById('borrowerType').value = 'individual';
       document.getElementById('extraFees').value = '2500';
+      document.getElementById('adminFeeRate').value = '0';
+      document.getElementById('adminFeeAmount').value = '0';
+      document.getElementById('adminFeeMethod').value = 'deducted';
+      document.getElementById('participationRate').value = '25';
       document.getElementById('monthlyIncome').value = '15000';
       calculateAll();
     }
@@ -934,13 +1094,23 @@
       document.getElementById('interestRate').value = '';
       document.getElementById('loanTerm').value = '';
       document.getElementById('paymentFrequency').value = 'monthly';
+      document.getElementById('interestMethod').value = 'declining';
+      document.getElementById('borrowerType').value = 'individual';
       document.getElementById('extraFees').value = '0';
+      document.getElementById('adminFeeRate').value = '0';
+      document.getElementById('adminFeeAmount').value = '0';
+      document.getElementById('adminFeeMethod').value = 'deducted';
+      document.getElementById('participationRate').value = '0';
       document.getElementById('monthlyIncome').value = '';
       document.getElementById('resNetLoan').textContent = '—';
       document.getElementById('resInstallment').textContent = '—';
       document.getElementById('resTotalInterest').textContent = '—';
       document.getElementById('resTotalPaid').textContent = '—';
       document.getElementById('resEAR').textContent = '—';
+      document.getElementById('resAdminFees').textContent = '—';
+      document.getElementById('resNetReceived').textContent = '—';
+      document.getElementById('resTotalProjectCost').textContent = '—';
+      document.getElementById('resBorrowerContribution').textContent = '—';
       document.getElementById('resDti').textContent = '—';
       document.getElementById('resDti').style.color = 'var(--text)';
       document.getElementById('amortizationBody').innerHTML = '<tr><td colspan="5" class="calc-amort-empty"><div class="calc-amort-icon">📊</div><p class="calc-amort-text">احسب النتائج لعرض الجدول</p></td></tr>';
@@ -961,7 +1131,13 @@
       url.searchParams.set('r', inputs.interestRate);
       url.searchParams.set('t', inputs.loanTerm);
       url.searchParams.set('f', inputs.frequency);
+      url.searchParams.set('m', inputs.interestMethod);
+      url.searchParams.set('b', inputs.borrowerType);
       url.searchParams.set('e', inputs.extraFees);
+      url.searchParams.set('adminRate', inputs.adminFeeRate);
+      url.searchParams.set('adminAmount', inputs.adminFeeAmount);
+      url.searchParams.set('adminMethod', inputs.adminFeeMethod);
+      url.searchParams.set('p', inputs.participationRate);
       if (inputs.monthlyIncome > 0) url.searchParams.set('i', inputs.monthlyIncome);
       document.getElementById('shareLink').value = url.toString();
     }
@@ -974,21 +1150,33 @@
       var r = url.searchParams.get('r');
       var t = url.searchParams.get('t');
       var f = url.searchParams.get('f');
+      var m = url.searchParams.get('m');
+      var b = url.searchParams.get('b');
       var e = url.searchParams.get('e');
+      var adminRate = url.searchParams.get('adminRate');
+      var adminAmount = url.searchParams.get('adminAmount');
+      var adminMethod = url.searchParams.get('adminMethod');
+      var participation = url.searchParams.get('p');
       var i = url.searchParams.get('i');
       if (a) document.getElementById('loanAmount').value = a;
       if (d) document.getElementById('downPayment').value = d;
       if (r) document.getElementById('interestRate').value = r;
       if (t) document.getElementById('loanTerm').value = t;
       if (f) document.getElementById('paymentFrequency').value = f;
+      if (m) document.getElementById('interestMethod').value = m;
+      if (b) document.getElementById('borrowerType').value = b;
       if (e) document.getElementById('extraFees').value = e;
+      if (adminRate) document.getElementById('adminFeeRate').value = adminRate;
+      if (adminAmount) document.getElementById('adminFeeAmount').value = adminAmount;
+      if (adminMethod) document.getElementById('adminFeeMethod').value = adminMethod;
+      if (participation) document.getElementById('participationRate').value = participation;
       if (i) document.getElementById('monthlyIncome').value = i;
       if (a && r && t) calculateAll();
     }
 
     // Auto-calculate with debounce
     var debouncedCalc = debounce(calculateAll, 300);
-    ['loanAmount', 'downPayment', 'interestRate', 'loanTerm', 'extraFees', 'monthlyIncome'].forEach(function(id) {
+    ['loanAmount', 'downPayment', 'interestRate', 'loanTerm', 'extraFees', 'adminFeeRate', 'adminFeeAmount', 'participationRate', 'monthlyIncome'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) {
         el.addEventListener('input', function() {
@@ -1000,6 +1188,24 @@
       }
     });
     document.getElementById('paymentFrequency').addEventListener('change', function() {
+      var inputs = getInputs();
+      if (inputs.loanAmount > 0 && inputs.interestRate >= 0 && inputs.loanTerm > 0) {
+        debouncedCalc();
+      }
+    });
+    document.getElementById('interestMethod').addEventListener('change', function() {
+      var inputs = getInputs();
+      if (inputs.loanAmount > 0 && inputs.interestRate >= 0 && inputs.loanTerm > 0) {
+        debouncedCalc();
+      }
+    });
+    document.getElementById('borrowerType').addEventListener('change', function() {
+      var inputs = getInputs();
+      if (inputs.loanAmount > 0 && inputs.interestRate >= 0 && inputs.loanTerm > 0) {
+        debouncedCalc();
+      }
+    });
+    document.getElementById('adminFeeMethod').addEventListener('change', function() {
       var inputs = getInputs();
       if (inputs.loanAmount > 0 && inputs.interestRate >= 0 && inputs.loanTerm > 0) {
         debouncedCalc();
@@ -1059,10 +1265,10 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=1"></script>
-<script src="../site-layout.js?v=13"></script>
-<script src="shared-geo.js"></script>
+<script src="../site-layout.js?v=2.52.0"></script>
+<script src="shared-geo.js?v=4"></script>
 
-<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

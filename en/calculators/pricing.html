@@ -35,12 +35,12 @@
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/calc-functions.js"></script>
-  
+  <script src="../../calculators/shared-platforms.js"></script>
 
   <script src="../../calculators/db-client.js"></script>
 <link rel="canonical" href="https://bonds-global.com/en/calculators/pricing" />
 
-<link rel="stylesheet" href="../../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body>
 
@@ -75,9 +75,30 @@
           <h2 class="calc-section-title">Pricing Data</h2>
           <div class="calc-input-group">
             <label for="country">Country / Market</label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
               <option value="">Select country</option>
             </select>
+          </div>
+          <div class="calc-input-group">
+            <label for="platformSelect">Sales Channel / Platform <abbr title="Select a platform to auto-fill its fee, or leave 'Custom' and enter the fee manually">ⓘ</abbr></label>
+            <select id="platformSelect" class="bonds-input">
+              <option value="">Custom platform</option>
+            </select>
+          </div>
+          <div class="calc-input-group">
+            <label for="sectorPreset">Sector Preset (Optional) <abbr title="Choose your sector to pre-fill realistic starting values for margin, platform fee, packaging, delivery, and marketing">ⓘ</abbr></label>
+            <select id="sectorPreset" class="bonds-input" onchange="onSectorPresetChange()">
+              <option value="">Custom/manual</option>
+              <option value="restaurant">Restaurant / Café</option>
+              <option value="ecommerce">E-commerce Store</option>
+              <option value="grocery">Grocery / Supermarket</option>
+              <option value="fashion">Clothing / Fashion</option>
+              <option value="services">Services</option>
+              <option value="electronics">Electronics</option>
+              <option value="beauty">Beauty / Cosmetics</option>
+              <option value="furniture">Furniture / Home</option>
+            </select>
+            <small class="calc-hint" id="sectorPresetHint">Selecting a preset fills realistic default values for margin, fee, and per-unit costs</small>
           </div>
           <div class="calc-input-group">
             <label for="directCost">Direct Cost per Unit (materials + labor) <abbr title="Cost that changes directly with each unit produced: raw materials + direct labor">ⓘ</abbr></label>
@@ -86,14 +107,32 @@
           <div class="calc-input-group">
             <label for="overheadCost">Overhead Cost per Unit <abbr title="Operating costs not tied to a single unit; divide monthly overhead by production volume">ⓘ</abbr></label>
             <input type="number" id="overheadCost" placeholder="e.g. 50" min="0" />
+            <small class="calc-hint">e.g. rent + admin salaries + bills + fixed marketing</small>
+          </div>
+          <div class="calc-input-group">
+            <label for="wasteAndIncidentalsPct">Waste &amp; Expected Incidentals (%) <abbr title="Expected extra costs that are hard to pin down exactly: material waste, spoilage, small repairs, light bulbs, minor spare parts, or any incidental expense">ⓘ</abbr></label>
+            <input type="number" id="wasteAndIncidentalsPct" placeholder="e.g. 5" min="0" max="100" value="0" />
+            <small class="calc-hint">e.g. material waste, spoilage, sudden repairs, light bulbs, small spare parts</small>
           </div>
           <div class="calc-input-group">
             <label for="monthlyFixed">Monthly Fixed Costs (rent + admin salaries) <abbr title="Fixed monthly costs even if no units sell: rent, admin salaries, utilities">ⓘ</abbr></label>
             <input type="number" id="monthlyFixed" placeholder="e.g. 20000" min="0" />
           </div>
           <div class="calc-input-group">
+            <label>Pricing Mode</label>
+            <div class="calc-mode-toggle" role="group" aria-label="Pricing mode">
+              <button type="button" id="modeMarginBtn" class="btn btn-outline calc-mode-btn active" onclick="setPricingMode('margin')">I Know My Margin (%)</button>
+              <button type="button" id="modePriceBtn" class="btn btn-outline calc-mode-btn" onclick="setPricingMode('price')">I Know Target Price</button>
+            </div>
+          </div>
+          <div class="calc-input-group" id="marginGroup">
             <label for="desiredMargin">Desired Profit Margin (%) <abbr title="Desired profit as a percentage of selling price before platform fee (e.g., 25% means profit = 25% of price)">ⓘ</abbr></label>
             <input type="number" id="desiredMargin" placeholder="e.g. 25" min="0" max="100" value="25" />
+          </div>
+          <div class="calc-input-group calc-hidden" id="priceGroup">
+            <label for="targetPrice">Target Platform Selling Price <abbr title="The final price you want customers to see on the platform, including platform fee and payment gateway fee">ⓘ</abbr></label>
+            <input type="number" id="targetPrice" placeholder="e.g. 400" min="0" />
+            <small class="calc-hint" id="targetPriceHint">The equivalent margin will be calculated automatically</small>
           </div>
           <div class="calc-input-group">
             <label for="taxRate">Tax Rate (%) <abbr title="Value Added Tax (VAT) rate — applied only on positive profit">ⓘ</abbr></label>
@@ -108,10 +147,24 @@
             <input type="number" id="monthlyVolume" placeholder="e.g. 500" min="0" />
           </div>
           <div class="calc-optional-box">
-            <p class="calc-optional-title">🚚 Sales &amp; Delivery Costs (Optional)</p>
+            <p class="calc-optional-title">✨ Additional Per-Unit Costs (Optional)</p>
             <div class="calc-input-group">
               <label for="platformFee" class="calc-label-small">Platform Fee (%) <abbr title="Commission deducted by sales/delivery platform (e.g., HungerStation, Jahez, Amazon)">ⓘ</abbr></label>
               <input type="number" id="platformFee" placeholder="e.g. 20" min="0" max="100" value="0" />
+            </div>
+            <div class="calc-input-group">
+              <label for="paymentGatewayPreset" class="calc-label-small">Payment Gateway <abbr title="e.g. Mada, Visa/Mastercard, Apple Pay — affects final selling price">ⓘ</abbr></label>
+              <select id="paymentGatewayPreset" class="bonds-input" onchange="onPaymentGatewayPresetChange()">
+                <option value="">Manual / None</option>
+                <option value="0.5">Mada (~0.5%)</option>
+                <option value="1.5">Apple Pay / Google Pay (~1.5%)</option>
+                <option value="1.75">Visa / Mastercard (~1.75%)</option>
+                <option value="2.5">Integrated Gateway (~2.5%)</option>
+              </select>
+            </div>
+            <div class="calc-input-group">
+              <label for="paymentGatewayFee" class="calc-label-small">Payment Gateway Fee (%) <abbr title="Percentage deducted by the payment gateway from the platform selling price">ⓘ</abbr></label>
+              <input type="number" id="paymentGatewayFee" placeholder="e.g. 1.5" min="0" max="100" value="0" />
             </div>
             <div class="calc-input-group">
               <label for="packagingCost" class="calc-label-small">Packaging Cost per Unit <abbr title="Box/bag/stickers cost per unit">ⓘ</abbr></label>
@@ -145,6 +198,10 @@
                 <span id="resTotalCostPerUnit" class="calc-result-row__value">—</span>
               </div>
               <div class="calc-result-row">
+                <span class="calc-result-row__label">Waste &amp; Expected Incidentals</span>
+                <span id="resWasteAndIncidentals" class="calc-result-row__value">—</span>
+              </div>
+              <div class="calc-result-row">
                 <span class="calc-result-row__label">Selling Price before Fees</span>
                 <span id="resPriceBeforeFees" class="calc-result-row__value">—</span>
               </div>
@@ -155,6 +212,10 @@
               <div class="calc-result-row">
                 <span class="calc-result-row__label">Platform Fee</span>
                 <span id="resPlatformFee" class="calc-result-row__value calc-result-row__value--danger">—</span>
+              </div>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Payment Gateway Fee</span>
+                <span id="resPaymentGateway" class="calc-result-row__value calc-result-row__value--danger">—</span>
               </div>
               <div class="calc-result-row">
                 <span class="calc-result-row__label">Profit before Tax (per unit)</span>
@@ -290,13 +351,19 @@
           <p class="calc-example-intro">Click "Try an Example" and verify the calculation manually:</p>
           <div class="calc-example-list">
             <div class="calc-example-row">
-              <span>Direct Cost</span><strong>150 SAR</strong>
+              <span>Direct Cost</span><strong>150 <span class="example-currency">SAR</span></strong>
             </div>
             <div class="calc-example-row">
-              <span>Overhead Cost</span><strong>50 SAR</strong>
+              <span>Overhead Cost</span><strong>50 <span class="example-currency">SAR</span></strong>
             </div>
             <div class="calc-example-row">
-              <span>Packaging + Delivery + CAC</span><strong>23 SAR</strong>
+              <span>Packaging Cost</span><strong>5 <span class="example-currency">SAR</span></strong>
+            </div>
+            <div class="calc-example-row">
+              <span>Delivery Cost</span><strong>10 <span class="example-currency">SAR</span></strong>
+            </div>
+            <div class="calc-example-row">
+              <span>Customer Acquisition Cost (CAC)</span><strong>8 <span class="example-currency">SAR</span></strong>
             </div>
             <div class="calc-example-row">
               <span>Platform Fee</span><strong>20%</strong>
@@ -308,7 +375,7 @@
               <span>Sales Volume</span><strong>500 units</strong>
             </div>
             <div class="calc-example-row">
-              <span>Expected Result</span><strong class="calc-gold-heading">Platform Selling Price ≈ 372 SAR</strong>
+              <span>Expected Result</span><strong class="calc-gold-heading">Platform Selling Price ≈ 372 <span class="example-currency">SAR</span></strong>
             </div>
           </div>
         </div>
@@ -388,7 +455,7 @@
 
   <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp">💬</a>
 
-  <script src="../../script.js?v=3" defer></script>
+  <script src="../../script.js?v=4" defer></script>
   <script>
     var pricingChart = null;
     var chartJsPromise = null;
@@ -416,6 +483,199 @@
       return n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
     }
 
+    function getCountryCode() {
+      return (document.getElementById('country').value || 'SA').toUpperCase();
+    }
+
+    function getCurrencySymbol() {
+      var code = getCountryCode();
+      if (typeof BondsPlatforms !== 'undefined' && BondsPlatforms.getCurrencySymbol) {
+        return BondsPlatforms.getCurrencySymbol(code, 'en');
+      }
+      return 'SAR';
+    }
+
+    function formatCurrency(n) {
+      return formatNumberAR(n) + ' ' + getCurrencySymbol();
+    }
+
+    function updateExampleCurrency() {
+      var symbol = getCurrencySymbol();
+      document.querySelectorAll('.example-currency').forEach(function(el) { el.textContent = symbol; });
+    }
+
+    var currentPricingMode = 'margin';
+
+    function setPricingMode(mode, skipCalc) {
+      if (mode !== 'margin' && mode !== 'price') return;
+      if (mode === currentPricingMode) return;
+      var currentInputs = getInputs();
+      if (mode === 'price') {
+        var tpInput = document.getElementById('targetPrice');
+        if (!(parseFloat(tpInput.value) > 0)) {
+          if (currentInputs.direct > 0 && currentInputs.margin > 0 && currentInputs.margin < 100) {
+            var r = calculate(currentInputs);
+            tpInput.value = r.priceBeforeTax.toFixed(2);
+          }
+        }
+      } else {
+        var tp = parseFloat(document.getElementById('targetPrice').value) || 0;
+        if (tp > 0 && currentInputs.direct > 0) {
+          var derived = computeMarginFromTargetPrice(tp, currentInputs);
+          if (derived !== null) {
+            document.getElementById('desiredMargin').value = derived.toFixed(2);
+          }
+        }
+      }
+      currentPricingMode = mode;
+      updateModeUI();
+      if (!skipCalc && document.getElementById('directCost').value !== '') {
+        calculateAll();
+      }
+    }
+
+    function updateModeUI() {
+      var marginBtn = document.getElementById('modeMarginBtn');
+      var priceBtn = document.getElementById('modePriceBtn');
+      var marginGroup = document.getElementById('marginGroup');
+      var priceGroup = document.getElementById('priceGroup');
+      if (!marginBtn || !priceBtn || !marginGroup || !priceGroup) return;
+      if (currentPricingMode === 'margin') {
+        marginBtn.classList.add('active');
+        priceBtn.classList.remove('active');
+        marginGroup.classList.remove('calc-hidden');
+        priceGroup.classList.add('calc-hidden');
+      } else {
+        marginBtn.classList.remove('active');
+        priceBtn.classList.add('active');
+        marginGroup.classList.add('calc-hidden');
+        priceGroup.classList.remove('calc-hidden');
+      }
+    }
+
+    function computeMarginFromTargetPrice(targetPrice, inputs) {
+      var totalCost = inputs.direct + inputs.overhead + inputs.packagingCostPerUnit + inputs.deliveryCostPerUnit + inputs.cacPerUnit;
+      var totalDeductionPct = inputs.platformFeePct + inputs.paymentGatewayFeePct;
+      var priceBeforeFees = targetPrice * (1 - totalDeductionPct / 100);
+      if (priceBeforeFees <= totalCost || targetPrice <= 0) return null;
+      var margin = (1 - totalCost / priceBeforeFees) * 100;
+      if (margin >= 100) return null;
+      return margin;
+    }
+
+    function computeTargetPriceFromInputs(inputs) {
+      if (inputs.direct <= 0 || inputs.margin <= 0 || inputs.margin >= 100) return null;
+      var r = calculate(inputs);
+      return r ? r.priceBeforeTax : null;
+    }
+
+    var sectorPresets = {
+      restaurant: { margin: 35, platformFeePct: 25, paymentGatewayFeePct: 1.5, packagingCostPerUnit: 3, deliveryCostPerUnit: 12, cacPerUnit: 5 },
+      ecommerce: { margin: 40, platformFeePct: 15, paymentGatewayFeePct: 1.75, packagingCostPerUnit: 8, deliveryCostPerUnit: 15, cacPerUnit: 10 },
+      grocery: { margin: 20, platformFeePct: 10, paymentGatewayFeePct: 1.5, packagingCostPerUnit: 2, deliveryCostPerUnit: 10, cacPerUnit: 3 },
+      fashion: { margin: 50, platformFeePct: 12, paymentGatewayFeePct: 1.75, packagingCostPerUnit: 5, deliveryCostPerUnit: 12, cacPerUnit: 8 },
+      services: { margin: 45, platformFeePct: 5, paymentGatewayFeePct: 1.5, packagingCostPerUnit: 0, deliveryCostPerUnit: 0, cacPerUnit: 15 },
+      electronics: { margin: 25, platformFeePct: 8, paymentGatewayFeePct: 1.75, packagingCostPerUnit: 10, deliveryCostPerUnit: 15, cacPerUnit: 6 },
+      beauty: { margin: 55, platformFeePct: 10, paymentGatewayFeePct: 1.75, packagingCostPerUnit: 6, deliveryCostPerUnit: 12, cacPerUnit: 12 },
+      furniture: { margin: 40, platformFeePct: 8, paymentGatewayFeePct: 1.75, packagingCostPerUnit: 25, deliveryCostPerUnit: 50, cacPerUnit: 20 }
+    };
+    var sectorLabels = {
+      restaurant: 'Restaurant / Café',
+      ecommerce: 'E-commerce Store',
+      grocery: 'Grocery / Supermarket',
+      fashion: 'Clothing / Fashion',
+      services: 'Services',
+      electronics: 'Electronics',
+      beauty: 'Beauty / Cosmetics',
+      furniture: 'Furniture / Home'
+    };
+
+    function onSectorPresetChange() {
+      var select = document.getElementById('sectorPreset');
+      var key = select.value;
+      var hint = document.getElementById('sectorPresetHint');
+      if (!key) {
+        hint.textContent = 'Selecting a preset fills realistic default values for margin, fee, and per-unit costs';
+        return;
+      }
+      var p = sectorPresets[key];
+      if (!p) return;
+      setPricingMode('margin', true);
+      document.getElementById('desiredMargin').value = p.margin;
+      document.getElementById('platformFee').value = p.platformFeePct;
+      document.getElementById('paymentGatewayFee').value = p.paymentGatewayFeePct;
+      document.getElementById('packagingCost').value = p.packagingCostPerUnit;
+      document.getElementById('deliveryCost').value = p.deliveryCostPerUnit;
+      document.getElementById('cac').value = p.cacPerUnit;
+      document.getElementById('paymentGatewayPreset').value = '';
+      hint.textContent = 'Applied ' + (sectorLabels[key] || key) + ' preset: margin ' + p.margin + '%, fee ' + p.platformFeePct + '%, packaging ' + p.packagingCostPerUnit + ', delivery ' + p.deliveryCostPerUnit + ', CAC ' + p.cacPerUnit;
+      if (document.getElementById('directCost').value !== '') {
+        calculateAll();
+      }
+    }
+
+    function isGcc(code) {
+      return ['SA', 'AE', 'QA', 'KW', 'BH', 'OM'].indexOf(code) >= 0;
+    }
+
+    function populatePlatforms() {
+      var code = getCountryCode();
+      var select = document.getElementById('platformSelect');
+      select.innerHTML = '<option value="">Custom platform</option>';
+      if (typeof BondsPlatforms === 'undefined' || !BondsPlatforms.getPlatforms) return;
+      var platforms = BondsPlatforms.getPlatforms(code) || [];
+      platforms.forEach(function(p) {
+        var opt = document.createElement('option');
+        opt.value = p.id;
+        var name = p.nameEn || p.name;
+        var fee = (p.fee || 0) + (p.serviceFee || 0) + (p.paymentGatewayFee || 0);
+        opt.textContent = name + ' (' + fee.toFixed(2) + '%)';
+        select.appendChild(opt);
+      });
+    }
+
+    function onPaymentGatewayPresetChange() {
+      var select = document.getElementById('paymentGatewayPreset');
+      var input = document.getElementById('paymentGatewayFee');
+      if (select && input && select.value !== '') {
+        input.value = select.value;
+      }
+      calculateAll();
+    }
+
+    function onPlatformChange() {
+      var code = getCountryCode();
+      var select = document.getElementById('platformSelect');
+      var platformFeeInput = document.getElementById('platformFee');
+      if (!select.value) {
+        platformFeeInput.value = '0';
+        calculateAll();
+        return;
+      }
+      if (typeof BondsPlatforms === 'undefined' || !BondsPlatforms.getPlatforms) return;
+      var platforms = BondsPlatforms.getPlatforms(code) || [];
+      var selected = platforms.find(function(p) { return p.id === select.value; });
+      if (selected) {
+        var totalFee = (selected.fee || 0) + (selected.serviceFee || 0) + (selected.paymentGatewayFee || 0);
+        platformFeeInput.value = totalFee.toFixed(2);
+      }
+      calculateAll();
+    }
+
+    function onCountryChange() {
+      var code = getCountryCode();
+      if (typeof BondsPlatforms !== 'undefined' && BondsPlatforms.getCountryMeta) {
+        var meta = BondsPlatforms.getCountryMeta(code);
+        if (meta) {
+          document.getElementById('taxRate').value = meta.vatRate || 0;
+          document.getElementById('zakatRate').value = isGcc(code) ? 2.5 : 0;
+        }
+      }
+      populatePlatforms();
+      onPlatformChange();
+      updateExampleCurrency();
+    }
+
     function getInputs() {
       return {
         direct: parseFloat(document.getElementById('directCost').value) || 0,
@@ -426,9 +686,11 @@
         volume: parseFloat(document.getElementById('monthlyVolume').value) || 0,
         monthlyFixed: parseFloat(document.getElementById('monthlyFixed').value) || 0,
         platformFeePct: parseFloat(document.getElementById('platformFee').value) || 0,
+        paymentGatewayFeePct: parseFloat(document.getElementById('paymentGatewayFee').value) || 0,
         packagingCostPerUnit: parseFloat(document.getElementById('packagingCost').value) || 0,
         deliveryCostPerUnit: parseFloat(document.getElementById('deliveryCost').value) || 0,
-        cacPerUnit: parseFloat(document.getElementById('cac').value) || 0
+        cacPerUnit: parseFloat(document.getElementById('cac').value) || 0,
+        wasteAndIncidentalsPct: parseFloat(document.getElementById('wasteAndIncidentalsPct').value) || 0
       };
     }
 
@@ -438,9 +700,11 @@
       if (_calcMemo.has(memoKey)) return _calcMemo.get(memoKey);
       var options = {
         platformFeePct: inputs.platformFeePct,
+        paymentGatewayFeePct: inputs.paymentGatewayFeePct,
         deliveryCostPerUnit: inputs.deliveryCostPerUnit,
         packagingCostPerUnit: inputs.packagingCostPerUnit,
-        cacPerUnit: inputs.cacPerUnit
+        cacPerUnit: inputs.cacPerUnit,
+        wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct
       };
       var result = calculatePricing(inputs.direct, inputs.overhead, inputs.margin, inputs.taxRate, inputs.zakatRate, inputs.volume, inputs.monthlyFixed, options);
       _calcMemo.set(memoKey, result);
@@ -448,55 +712,57 @@
     }
 
     function updateResults(r, inputs) {
-      document.getElementById('resCostPerUnit').textContent = formatNumberAR(r.costPerUnit) + ' SAR';
-      document.getElementById('resTotalCostPerUnit').textContent = formatNumberAR(r.totalCostPerUnit) + ' SAR';
-      document.getElementById('resPriceBeforeFees').textContent = formatNumberAR(r.priceBeforeFees) + ' SAR';
-      document.getElementById('resPriceBeforeTax').textContent = formatNumberAR(r.priceBeforeTax) + ' SAR';
-      document.getElementById('resPlatformFee').textContent = formatNumberAR(r.platformFeeAmount) + ' SAR (' + inputs.platformFeePct.toFixed(1) + '%)';
+      document.getElementById('resCostPerUnit').textContent = formatCurrency(r.costPerUnit);
+      document.getElementById('resTotalCostPerUnit').textContent = formatCurrency(r.totalCostPerUnit);
+      document.getElementById('resWasteAndIncidentals').textContent = formatCurrency(r.wasteAndIncidentalsAmount) + ' (' + inputs.wasteAndIncidentalsPct.toFixed(1) + '%)';
+      document.getElementById('resPriceBeforeFees').textContent = formatCurrency(r.priceBeforeFees);
+      document.getElementById('resPriceBeforeTax').textContent = formatCurrency(r.priceBeforeTax);
+      document.getElementById('resPlatformFee').textContent = formatCurrency(r.platformFeeAmount) + ' (' + inputs.platformFeePct.toFixed(1) + '%)';
+      document.getElementById('resPaymentGateway').textContent = formatCurrency(r.paymentGatewayAmount) + ' (' + inputs.paymentGatewayFeePct.toFixed(1) + '%)';
 
       var profitBeforeTaxEl = document.getElementById('resProfitBeforeTax');
-      profitBeforeTaxEl.textContent = formatNumberAR(r.profitBeforeTax) + ' SAR';
+      profitBeforeTaxEl.textContent = formatCurrency(r.profitBeforeTax);
       profitBeforeTaxEl.style.color = r.profitBeforeTax >= 0 ? '#16a34a' : '#dc2626';
 
       var taxEl = document.getElementById('resTax');
       if (r.profitBeforeTax > 0 && inputs.taxRate > 0) {
-        taxEl.textContent = formatNumberAR(r.taxAmount) + ' SAR (' + inputs.taxRate.toFixed(1) + '%)';
+        taxEl.textContent = formatCurrency(r.taxAmount) + ' (' + inputs.taxRate.toFixed(1) + '%)';
         taxEl.style.color = '#dc2626';
       } else {
-        taxEl.textContent = '0 SAR';
+        taxEl.textContent = formatCurrency(0);
         taxEl.style.color = 'var(--text)';
       }
 
       var zakatEl = document.getElementById('resZakat');
       if (r.profitAfterTax > 0 && inputs.zakatRate > 0) {
-        zakatEl.textContent = formatNumberAR(r.zakatAmount) + ' SAR (' + inputs.zakatRate.toFixed(1) + '%)';
+        zakatEl.textContent = formatCurrency(r.zakatAmount) + ' (' + inputs.zakatRate.toFixed(1) + '%)';
         zakatEl.style.color = '#dc2626';
       } else {
-        zakatEl.textContent = '0 SAR';
+        zakatEl.textContent = formatCurrency(0);
         zakatEl.style.color = 'var(--text)';
       }
 
       var profitPerUnitEl = document.getElementById('resProfitPerUnit');
       if (r.netProfitPerUnit > 0) {
-        profitPerUnitEl.textContent = formatNumberAR(r.netProfitPerUnit) + ' SAR (profit)';
+        profitPerUnitEl.textContent = formatCurrency(r.netProfitPerUnit) + ' (profit)';
         profitPerUnitEl.style.color = '#16a34a';
       } else if (r.netProfitPerUnit < 0) {
-        profitPerUnitEl.textContent = formatNumberAR(Math.abs(r.netProfitPerUnit)) + ' SAR (loss)';
+        profitPerUnitEl.textContent = formatCurrency(Math.abs(r.netProfitPerUnit)) + ' (loss)';
         profitPerUnitEl.style.color = '#dc2626';
       } else {
-        profitPerUnitEl.textContent = '0 SAR (break-even)';
+        profitPerUnitEl.textContent = formatCurrency(0) + ' (break-even)';
         profitPerUnitEl.style.color = 'var(--text)';
       }
 
       var monthlyProfitEl = document.getElementById('resMonthlyProfit');
       if (r.monthlyProfit > 0) {
-        monthlyProfitEl.textContent = formatNumberAR(r.monthlyProfit) + ' SAR (profit)';
+        monthlyProfitEl.textContent = formatCurrency(r.monthlyProfit) + ' (profit)';
         monthlyProfitEl.style.color = '#16a34a';
       } else if (r.monthlyProfit < 0) {
-        monthlyProfitEl.textContent = formatNumberAR(Math.abs(r.monthlyProfit)) + ' SAR (loss)';
+        monthlyProfitEl.textContent = formatCurrency(Math.abs(r.monthlyProfit)) + ' (loss)';
         monthlyProfitEl.style.color = '#dc2626';
       } else {
-        monthlyProfitEl.textContent = '0 SAR (break-even)';
+        monthlyProfitEl.textContent = formatCurrency(0) + ' (break-even)';
         monthlyProfitEl.style.color = 'var(--text)';
       }
 
@@ -504,7 +770,7 @@
       marginEl.textContent = r.actualMargin.toFixed(1) + '%';
       marginEl.style.color = r.actualMargin >= 0 ? '#16a34a' : '#dc2626';
 
-      document.getElementById('resBreakEvenPrice').textContent = formatNumberAR(r.breakEvenPrice) + ' SAR';
+      document.getElementById('resBreakEvenPrice').textContent = formatCurrency(r.breakEvenPrice);
 
       // Analysis
       var analysisBox = document.getElementById('analysisBox');
@@ -513,15 +779,19 @@
       analysisBox.style.display = 'block';
 
       var stepsHTML = '';
-      stepsHTML += '<div class="calc-step-row"><strong>Step 1:</strong> Base Cost = ' + formatNumberAR(inputs.direct) + ' + ' + formatNumberAR(inputs.overhead) + ' = <strong>' + formatNumberAR(r.costPerUnit) + ' SAR</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step 2:</strong> Total Cost = ' + formatNumberAR(r.costPerUnit) + ' + ' + formatNumberAR(inputs.packagingCostPerUnit + inputs.deliveryCostPerUnit + inputs.cacPerUnit) + ' = <strong>' + formatNumberAR(r.totalCostPerUnit) + ' SAR</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step 3:</strong> Selling Price before Fees = ' + formatNumberAR(r.totalCostPerUnit) + ' ÷ (1 − ' + inputs.margin + '%) = <strong>' + formatNumberAR(r.priceBeforeFees) + ' SAR</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step 4:</strong> Platform Selling Price = ' + formatNumberAR(r.priceBeforeFees) + ' ÷ (1 − ' + inputs.platformFeePct + '%) = <strong>' + formatNumberAR(r.priceBeforeTax) + ' SAR</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step 5:</strong> Platform Fee = ' + formatNumberAR(r.priceBeforeTax) + ' × ' + inputs.platformFeePct + '% = <strong>' + formatNumberAR(r.platformFeeAmount) + ' SAR</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step 6:</strong> Profit before Tax = ' + formatNumberAR(r.priceBeforeTax) + ' − ' + formatNumberAR(r.platformFeeAmount) + ' − ' + formatNumberAR(r.totalCostPerUnit) + ' = <strong>' + formatNumberAR(r.profitBeforeTax) + ' SAR</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step 7:</strong> Tax = ' + formatNumberAR(r.profitBeforeTax) + ' × ' + inputs.taxRate + '% = <strong>' + formatNumberAR(r.taxAmount) + ' SAR</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step 8:</strong> Zakat = ' + formatNumberAR(r.profitAfterTax) + ' × ' + inputs.zakatRate + '% = <strong>' + formatNumberAR(r.zakatAmount) + ' SAR</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step 9:</strong> Net Profit = ' + formatNumberAR(r.profitAfterTax) + ' − ' + formatNumberAR(r.zakatAmount) + ' = <strong>' + formatNumberAR(r.netProfitPerUnit) + ' SAR</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step 1:</strong> Base Cost = ' + formatNumberAR(inputs.direct) + ' + ' + formatNumberAR(inputs.overhead) + ' = <strong>' + formatCurrency(r.costPerUnit) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step 2:</strong> Cost before Waste &amp; Incidentals = ' + formatNumberAR(r.costPerUnit) + ' + ' + formatNumberAR(inputs.packagingCostPerUnit + inputs.deliveryCostPerUnit + inputs.cacPerUnit) + ' = <strong>' + formatCurrency(r.baseTotalCostPerUnit) + '</strong></div>';
+      if (inputs.wasteAndIncidentalsPct > 0) {
+        stepsHTML += '<div class="calc-step-row"><strong>Step 3:</strong> Waste &amp; Expected Incidentals = ' + formatNumberAR(r.baseTotalCostPerUnit) + ' × ' + inputs.wasteAndIncidentalsPct + '% = <strong>' + formatCurrency(r.wasteAndIncidentalsAmount) + '</strong></div>';
+      }
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '4' : '3') + ':</strong> Total Cost per Unit = <strong>' + formatCurrency(r.totalCostPerUnit) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '5' : '4') + ':</strong> Selling Price before Fees = ' + formatNumberAR(r.totalCostPerUnit) + ' ÷ (1 − ' + inputs.margin + '%) = <strong>' + formatCurrency(r.priceBeforeFees) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '6' : '5') + ':</strong> Platform Selling Price = ' + formatNumberAR(r.priceBeforeFees) + ' ÷ (1 − ' + inputs.platformFeePct + '%) = <strong>' + formatCurrency(r.priceBeforeTax) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '7' : '6') + ':</strong> Platform Fee = ' + formatNumberAR(r.priceBeforeTax) + ' × ' + inputs.platformFeePct + '% = <strong>' + formatCurrency(r.platformFeeAmount) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '8' : '7') + ':</strong> Profit before Tax = ' + formatNumberAR(r.priceBeforeTax) + ' − ' + formatNumberAR(r.platformFeeAmount) + ' − ' + formatNumberAR(r.totalCostPerUnit) + ' = <strong>' + formatCurrency(r.profitBeforeTax) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '9' : '8') + ':</strong> Tax = ' + formatNumberAR(r.profitBeforeTax) + ' × ' + inputs.taxRate + '% = <strong>' + formatCurrency(r.taxAmount) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '10' : '9') + ':</strong> Zakat = ' + formatNumberAR(r.profitAfterTax) + ' × ' + inputs.zakatRate + '% = <strong>' + formatCurrency(r.zakatAmount) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '11' : '10') + ':</strong> Net Profit = ' + formatNumberAR(r.profitAfterTax) + ' − ' + formatNumberAR(r.zakatAmount) + ' = <strong>' + formatCurrency(r.netProfitPerUnit) + '</strong></div>';
       stepsArea.innerHTML = stepsHTML;
 
       if (inputs.margin >= 100) {
@@ -529,7 +799,10 @@
       } else if (r.actualMargin < inputs.margin * 0.5) {
         analysisText.innerHTML = 'Platform fee, tax, and zakat consume a large portion of your profit margin. The actual margin (' + r.actualMargin.toFixed(1) + '%) is much lower than the target (' + inputs.margin + '%). Consider increasing the margin or reviewing your cost structure.';
       } else {
-        analysisText.innerHTML = 'Each unit sold on the platform at <strong>' + formatNumberAR(r.priceBeforeTax) + ' SAR</strong> generates a net profit of <strong>' + formatNumberAR(r.netProfitPerUnit) + ' SAR</strong>. When selling <strong>' + formatNumberAR(inputs.volume) + '</strong> units per month, the net monthly profit = <strong>' + formatNumberAR(r.monthlyProfit) + ' SAR</strong>.';
+        analysisText.innerHTML = 'Each unit sold on the platform at <strong>' + formatCurrency(r.priceBeforeTax) + '</strong> generates a net profit of <strong>' + formatCurrency(r.netProfitPerUnit) + '</strong>. When selling <strong>' + formatNumberAR(inputs.volume) + '</strong> units per month, the net monthly profit = <strong>' + formatCurrency(r.monthlyProfit) + '</strong>.';
+      }
+      if (currentPricingMode === 'price') {
+        analysisText.innerHTML = '<span style="color:var(--gold-bright)">Target margin (' + inputs.margin.toFixed(1) + '%) was derived from the target selling price.</span><br><br>' + analysisText.innerHTML;
       }
 
       // Smart Alert CTA
@@ -543,7 +816,7 @@
         alertText.textContent = 'The actual profit margin (' + r.actualMargin.toFixed(1) + '%) is less than 10% — this is a narrow margin and could turn into a loss with any fluctuation in costs or market. A financial consultant can review your cost structure and suggest improvements.';
       } else if (r.netProfitPerUnit < 0) {
         alertBox.style.display = 'block';
-        alertText.textContent = 'The product incurs a net loss of ' + formatNumberAR(Math.abs(r.netProfitPerUnit)) + ' SAR per unit. You must either raise the price or reduce costs.';
+        alertText.textContent = 'The product incurs a net loss of ' + formatCurrency(Math.abs(r.netProfitPerUnit)) + ' per unit. You must either raise the price or reduce costs.';
       } else {
         alertBox.style.display = 'none';
       }
@@ -557,6 +830,7 @@
         taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, volume: inputs.volume,
         platformFeePct: inputs.platformFeePct, packagingCostPerUnit: inputs.packagingCostPerUnit,
         deliveryCostPerUnit: inputs.deliveryCostPerUnit, cacPerUnit: inputs.cacPerUnit,
+        wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct, wasteAndIncidentalsAmount: r.wasteAndIncidentalsAmount,
         costPerUnit: r.costPerUnit, totalCostPerUnit: r.totalCostPerUnit,
         priceBeforeFees: r.priceBeforeFees, priceBeforeTax: r.priceBeforeTax,
         platformFeeAmount: r.platformFeeAmount,
@@ -573,7 +847,7 @@
         data: {
           labels: ['Total Cost', 'Platform Selling Price', 'Net Profit'],
           datasets: [{
-            label: 'Amount (SAR)',
+            label: 'Amount (' + getCurrencySymbol() + ')',
             data: [r.totalCostPerUnit, r.priceBeforeTax, r.netProfitPerUnit],
             backgroundColor: ['#dc2626', '#3b82f6', '#16a34a'],
             borderRadius: 8,
@@ -588,7 +862,7 @@
             tooltip: {
               callbacks: {
                 label: function(context) {
-                  return context.dataset.label + ': ' + formatNumberAR(context.raw) + ' SAR';
+                  return context.dataset.label + ': ' + formatCurrency(context.raw);
                 }
               }
             }
@@ -609,44 +883,51 @@
       }
       var r = last.r;
       var inputs = last.inputs;
+      var currency = getCurrencySymbol();
       var content = `
         <h2>📊 Pricing Results</h2>
         <div class="metric-grid">
-          <div class="metric-item"><div class="label">Base Cost per Unit</div><div class="value">${r.costPerUnit.toLocaleString('en-US')} SAR</div></div>
-          <div class="metric-item"><div class="label">Total Cost per Unit</div><div class="value">${r.totalCostPerUnit.toLocaleString('en-US')} SAR</div></div>
-          <div class="metric-item"><div class="label">Selling Price before Fees</div><div class="value">${r.priceBeforeFees.toLocaleString('en-US')} SAR</div></div>
-          <div class="metric-item"><div class="label">Selling Price before Tax</div><div class="value">${r.priceBeforeTax.toLocaleString('en-US')} SAR</div></div>
-          <div class="metric-item"><div class="label">Platform Fee (${inputs.platformFeePct.toFixed(1)}%)</div><div class="value">${r.platformFeeAmount.toLocaleString('en-US')} SAR</div></div>
-          <div class="metric-item"><div class="label">Net Profit (per unit)</div><div class="value">${r.netProfitPerUnit.toLocaleString('en-US')} SAR</div></div>
-          <div class="metric-item"><div class="label">Target Monthly Profit</div><div class="value">${r.monthlyProfit.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-item"><div class="label">Base Cost per Unit</div><div class="value">${formatCurrency(r.costPerUnit)}</div></div>
+          <div class="metric-item"><div class="label">Total Cost per Unit</div><div class="value">${formatCurrency(r.totalCostPerUnit)}</div></div>
+          <div class="metric-item"><div class="label">Waste &amp; Expected Incidentals (${inputs.wasteAndIncidentalsPct.toFixed(1)}%)</div><div class="value">${formatCurrency(r.wasteAndIncidentalsAmount)}</div></div>
+          <div class="metric-item"><div class="label">Selling Price before Fees</div><div class="value">${formatCurrency(r.priceBeforeFees)}</div></div>
+          <div class="metric-item"><div class="label">Selling Price before Tax</div><div class="value">${formatCurrency(r.priceBeforeTax)}</div></div>
+          <div class="metric-item"><div class="label">Platform Fee (${inputs.platformFeePct.toFixed(1)}%)</div><div class="value">${formatCurrency(r.platformFeeAmount)}</div></div>
+          <div class="metric-item"><div class="label">Payment Gateway Fee (${inputs.paymentGatewayFeePct.toFixed(1)}%)</div><div class="value">${formatCurrency(r.paymentGatewayAmount)}</div></div>
+          <div class="metric-item"><div class="label">Net Profit (per unit)</div><div class="value">${formatCurrency(r.netProfitPerUnit)}</div></div>
+          <div class="metric-item"><div class="label">Target Monthly Profit</div><div class="value">${formatCurrency(r.monthlyProfit)}</div></div>
           <div class="metric-item"><div class="label">Actual Profit Margin</div><div class="value">${r.actualMargin.toFixed(1)}%</div></div>
-          <div class="metric-item"><div class="label">Minimum Break-Even Price</div><div class="value">${r.breakEvenPrice.toLocaleString('en-US')} SAR</div></div>
+          <div class="metric-item"><div class="label">Minimum Break-Even Price</div><div class="value">${formatCurrency(r.breakEvenPrice)}</div></div>
         </div>
 
         <h2>📋 Calculation Details</h2>
         <table>
           <tr><th>Item</th><th>Value</th></tr>
-          <tr><td>Direct Cost</td><td class="num">${inputs.direct.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Overhead Cost</td><td class="num">${inputs.overhead.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Packaging Cost</td><td class="num">${inputs.packagingCostPerUnit.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Delivery Cost</td><td class="num">${inputs.deliveryCostPerUnit.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Customer Acquisition Cost</td><td class="num">${inputs.cacPerUnit.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Base Cost per Unit</td><td class="num">${r.costPerUnit.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Total Cost per Unit</td><td class="num">${r.totalCostPerUnit.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Direct Cost</td><td class="num">${formatCurrency(inputs.direct)}</td></tr>
+          <tr><td>Overhead Cost</td><td class="num">${formatCurrency(inputs.overhead)}</td></tr>
+          <tr><td>Packaging Cost</td><td class="num">${formatCurrency(inputs.packagingCostPerUnit)}</td></tr>
+          <tr><td>Delivery Cost</td><td class="num">${formatCurrency(inputs.deliveryCostPerUnit)}</td></tr>
+          <tr><td>Customer Acquisition Cost</td><td class="num">${formatCurrency(inputs.cacPerUnit)}</td></tr>
+          <tr><td>Base Cost per Unit</td><td class="num">${formatCurrency(r.costPerUnit)}</td></tr>
+          <tr><td>Total Cost per Unit</td><td class="num">${formatCurrency(r.totalCostPerUnit)}</td></tr>
+          <tr><td>Waste &amp; Expected Incidentals (${inputs.wasteAndIncidentalsPct.toFixed(1)}%)</td><td class="num">${formatCurrency(r.wasteAndIncidentalsAmount)}</td></tr>
           <tr><td>Platform Fee</td><td class="num">${inputs.platformFeePct.toFixed(1)}%</td></tr>
+          <tr><td>Payment Gateway Fee</td><td class="num">${inputs.paymentGatewayFeePct.toFixed(1)}%</td></tr>
           <tr><td>Desired Profit Margin</td><td class="num">${inputs.margin}%</td></tr>
-          <tr><td>Selling Price before Fees</td><td class="num">${r.priceBeforeFees.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Platform Fee Amount</td><td class="num">${r.platformFeeAmount.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Selling Price before Tax</td><td class="num">${r.priceBeforeTax.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Profit before Tax</td><td class="num">${r.profitBeforeTax.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Tax (${inputs.taxRate}%)</td><td class="num">${r.taxAmount.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Profit after Tax</td><td class="num">${r.profitAfterTax.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Zakat (${inputs.zakatRate}%)</td><td class="num">${r.zakatAmount.toLocaleString('en-US')} SAR</td></tr>
-          <tr><td>Net Profit per Unit</td><td class="num">${r.netProfitPerUnit.toLocaleString('en-US')} SAR</td></tr>
+          ${window._lastPricingResult.mode === 'price' ? '<tr><td>Target Platform Selling Price</td><td class="num">' + formatCurrency(parseFloat(document.getElementById('targetPrice').value) || 0) + '</td></tr>' : ''}
+          <tr><td>Selling Price before Fees</td><td class="num">${formatCurrency(r.priceBeforeFees)}</td></tr>
+          <tr><td>Platform Fee Amount</td><td class="num">${formatCurrency(r.platformFeeAmount)}</td></tr>
+          <tr><td>Payment Gateway Fee Amount</td><td class="num">${formatCurrency(r.paymentGatewayAmount)}</td></tr>
+          <tr><td>Selling Price before Tax</td><td class="num">${formatCurrency(r.priceBeforeTax)}</td></tr>
+          <tr><td>Profit before Tax</td><td class="num">${formatCurrency(r.profitBeforeTax)}</td></tr>
+          <tr><td>Tax (${inputs.taxRate}%)</td><td class="num">${formatCurrency(r.taxAmount)}</td></tr>
+          <tr><td>Profit after Tax</td><td class="num">${formatCurrency(r.profitAfterTax)}</td></tr>
+          <tr><td>Zakat (${inputs.zakatRate}%)</td><td class="num">${formatCurrency(r.zakatAmount)}</td></tr>
+          <tr><td>Net Profit per Unit</td><td class="num">${formatCurrency(r.netProfitPerUnit)}</td></tr>
           <tr><td>Monthly Sales Volume</td><td class="num">${inputs.volume.toLocaleString('en-US')} units</td></tr>
-          <tr><td>Target Monthly Profit</td><td class="num">${r.monthlyProfit.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Target Monthly Profit</td><td class="num">${formatCurrency(r.monthlyProfit)}</td></tr>
           <tr><td>Actual Profit Margin</td><td class="num">${r.actualMargin.toFixed(2)}%</td></tr>
-          <tr><td>Minimum Break-Even Price</td><td class="num">${r.breakEvenPrice.toLocaleString('en-US')} SAR</td></tr>
+          <tr><td>Minimum Break-Even Price</td><td class="num">${formatCurrency(r.breakEvenPrice)}</td></tr>
         </table>
       `;
       openPrintWindow({ content: content, title: 'Product Pricing Report', headerTitle: 'Product Pricing Report — Bonds', lang: 'en' });
@@ -674,17 +955,22 @@
         ['Packaging Cost per Unit', parseFloat(inputs.packagingCostPerUnit).toFixed(2)],
         ['Delivery Cost per Unit', parseFloat(inputs.deliveryCostPerUnit).toFixed(2)],
         ['Customer Acquisition Cost per Unit', parseFloat(inputs.cacPerUnit).toFixed(2)],
+        ['Waste & Expected Incidentals (%)', inputs.wasteAndIncidentalsPct.toFixed(1) + '%'],
         ['Platform Fee (%)', inputs.platformFeePct.toFixed(1) + '%'],
+        ['Payment Gateway Fee (%)', inputs.paymentGatewayFeePct.toFixed(1) + '%'],
         ['Desired Profit Margin (%)', inputs.margin + '%'],
+        ...(currentPricingMode === 'price' ? [['Target Platform Selling Price', parseFloat(document.getElementById('targetPrice').value) || 0]] : []),
         ['Tax Rate (%)', inputs.taxRate + '%'],
         ['Zakat Rate (%)', inputs.zakatRate + '%'],
         ['Target Sales Volume', inputs.volume],
         ['', ''],
         ['Base Cost per Unit', r.costPerUnit.toFixed(2)],
         ['Total Cost per Unit', r.totalCostPerUnit.toFixed(2)],
+        ['Waste & Expected Incidentals', r.wasteAndIncidentalsAmount.toFixed(2)],
         ['Selling Price before Fees', r.priceBeforeFees.toFixed(2)],
         ['Selling Price before Tax', r.priceBeforeTax.toFixed(2)],
         ['Platform Fee', r.platformFeeAmount.toFixed(2)],
+        ['Payment Gateway Fee', r.paymentGatewayAmount.toFixed(2)],
         ['Profit before Tax', r.profitBeforeTax.toFixed(2)],
         ['Tax', r.taxAmount.toFixed(2)],
         ['Profit after Tax', r.profitAfterTax.toFixed(2)],
@@ -708,6 +994,8 @@
           direct: inputs.direct, overhead: inputs.overhead, margin: inputs.margin,
           packagingCostPerUnit: inputs.packagingCostPerUnit, deliveryCostPerUnit: inputs.deliveryCostPerUnit,
           cacPerUnit: inputs.cacPerUnit, platformFeePct: inputs.platformFeePct,
+          paymentGatewayFeePct: inputs.paymentGatewayFeePct,
+          wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct,
           price: r.priceBeforeTax, netProfit: r.netProfitPerUnit
         });
         if (history.length > 50) history.pop();
@@ -727,7 +1015,7 @@
         history.forEach(function(item, i) {
           var div = document.createElement('div');
           div.className = 'history-item';
-          div.innerHTML = '<span>' + item.date + ' — Price: ' + formatNumberAR(item.price) + ' SAR</span><span style="font-weight: 800; color: ' + (item.netProfit >= 0 ? '#16a34a' : '#dc2626') + '">' + formatNumberAR(item.netProfit) + ' SAR</span>';
+          div.innerHTML = '<span>' + item.date + ' — Price: ' + formatCurrency(item.price) + '</span><span style="font-weight: 800; color: ' + (item.netProfit >= 0 ? '#16a34a' : '#dc2626') + '">' + formatCurrency(item.netProfit) + '</span>';
           div.onclick = function() {
             document.getElementById('directCost').value = item.direct;
             document.getElementById('overheadCost').value = item.overhead;
@@ -735,7 +1023,10 @@
             document.getElementById('packagingCost').value = item.packagingCostPerUnit || 0;
             document.getElementById('deliveryCost').value = item.deliveryCostPerUnit || 0;
             document.getElementById('cac').value = item.cacPerUnit || 0;
+            document.getElementById('wasteAndIncidentalsPct').value = item.wasteAndIncidentalsPct || 0;
             document.getElementById('platformFee').value = item.platformFeePct || 0;
+            document.getElementById('paymentGatewayFee').value = item.paymentGatewayFeePct || 0;
+            document.getElementById('paymentGatewayPreset').value = '';
             calculateAll();
           };
           list.appendChild(div);
@@ -753,20 +1044,53 @@
       url.searchParams.set('v', inputs.volume);
       url.searchParams.set('mf', inputs.monthlyFixed);
       url.searchParams.set('p', inputs.platformFeePct);
+      url.searchParams.set('pg', inputs.paymentGatewayFeePct);
       url.searchParams.set('pack', inputs.packagingCostPerUnit);
       url.searchParams.set('del', inputs.deliveryCostPerUnit);
       url.searchParams.set('cac', inputs.cacPerUnit);
+      url.searchParams.set('cont', inputs.wasteAndIncidentalsPct);
+      url.searchParams.set('mode', currentPricingMode);
+      var sectorValue = document.getElementById('sectorPreset').value;
+      if (sectorValue) url.searchParams.set('sector', sectorValue);
+      else url.searchParams.delete('sector');
+      if (currentPricingMode === 'price') {
+        var tp = parseFloat(document.getElementById('targetPrice').value) || 0;
+        if (tp > 0) url.searchParams.set('tp', tp);
+        else url.searchParams.delete('tp');
+      } else {
+        url.searchParams.delete('tp');
+      }
       document.getElementById('shareLink').value = url.toString();
     }
 
     function calculateAll() {
       try {
         var vDirect = BondsUI.validateField('directCost', { type: 'number', required: true, min: 0.01, label: 'Direct Cost' });
-        var vMargin = BondsUI.validateField('desiredMargin', { type: 'number', required: true, min: 0, max: 99.99, label: 'Desired Margin' });
-        if (!vDirect.valid || !vMargin.valid) {
-          var errs = [].concat(vDirect.errors, vMargin.errors);
-          BondsUI.toast('❌ ' + errs.join(', '), 'error');
+        if (!vDirect.valid) {
+          BondsUI.toast('❌ ' + vDirect.errors.join(', '), 'error');
           return;
+        }
+        if (currentPricingMode === 'margin') {
+          var vMargin = BondsUI.validateField('desiredMargin', { type: 'number', required: true, min: 0, max: 99.99, label: 'Desired Margin' });
+          if (!vMargin.valid) {
+            BondsUI.toast('❌ ' + vMargin.errors.join(', '), 'error');
+            return;
+          }
+        } else {
+          var vPrice = BondsUI.validateField('targetPrice', { type: 'number', required: true, min: 0.01, label: 'Target Selling Price' });
+          if (!vPrice.valid) {
+            BondsUI.toast('❌ ' + vPrice.errors.join(', '), 'error');
+            return;
+          }
+          var preInputs = getInputs();
+          var tp = parseFloat(document.getElementById('targetPrice').value) || 0;
+          var derivedMargin = computeMarginFromTargetPrice(tp, preInputs);
+          if (derivedMargin === null) {
+            BondsUI.toast('⚠️ Target price must cover total cost and platform fees', 'warning');
+            return;
+          }
+          document.getElementById('desiredMargin').value = derivedMargin.toFixed(2);
+          document.getElementById('targetPriceHint').textContent = 'Equivalent margin from target price: ' + derivedMargin.toFixed(1) + '%';
         }
         var inputs = getInputs();
         if (inputs.direct <= 0) {
@@ -778,7 +1102,7 @@
           return;
         }
         var r = calculate(inputs);
-        window._lastPricingResult = { r: r, inputs: inputs };
+        window._lastPricingResult = { r: r, inputs: inputs, mode: currentPricingMode };
         updateResults(r, inputs);
         saveToHistory(inputs, r);
         updateShareLink(inputs);
@@ -794,12 +1118,20 @@
     }
 
     function loadExample() {
+      setPricingMode('margin', true);
+      document.getElementById('sectorPreset').value = '';
+      document.getElementById('sectorPresetHint').textContent = 'Selecting a preset fills realistic default values for margin, fee, and per-unit costs';
+      document.getElementById('targetPrice').value = '';
+      document.getElementById('targetPriceHint').textContent = 'The equivalent margin will be calculated automatically';
       document.getElementById('directCost').value = '150';
       document.getElementById('overheadCost').value = '50';
       document.getElementById('packagingCost').value = '5';
       document.getElementById('deliveryCost').value = '10';
       document.getElementById('cac').value = '8';
+      document.getElementById('wasteAndIncidentalsPct').value = '0';
       document.getElementById('platformFee').value = '20';
+      document.getElementById('paymentGatewayFee').value = '1.5';
+      document.getElementById('paymentGatewayPreset').value = '1.5';
       document.getElementById('desiredMargin').value = '25';
       document.getElementById('taxRate').value = '15';
       document.getElementById('zakatRate').value = '2.5';
@@ -809,6 +1141,11 @@
     }
 
     function resetCalc() {
+      setPricingMode('margin', true);
+      document.getElementById('sectorPreset').value = '';
+      document.getElementById('sectorPresetHint').textContent = 'Selecting a preset fills realistic default values for margin, fee, and per-unit costs';
+      document.getElementById('targetPrice').value = '';
+      document.getElementById('targetPriceHint').textContent = 'The equivalent margin will be calculated automatically';
       document.getElementById('directCost').value = '';
       document.getElementById('overheadCost').value = '';
       document.getElementById('desiredMargin').value = '25';
@@ -817,14 +1154,19 @@
       document.getElementById('monthlyVolume').value = '';
       document.getElementById('monthlyFixed').value = '0';
       document.getElementById('platformFee').value = '0';
+      document.getElementById('paymentGatewayFee').value = '0';
+      document.getElementById('paymentGatewayPreset').value = '';
       document.getElementById('packagingCost').value = '0';
       document.getElementById('deliveryCost').value = '0';
       document.getElementById('cac').value = '0';
+      document.getElementById('wasteAndIncidentalsPct').value = '0';
       document.getElementById('resCostPerUnit').textContent = '—';
       document.getElementById('resTotalCostPerUnit').textContent = '—';
+      document.getElementById('resWasteAndIncidentals').textContent = '—';
       document.getElementById('resPriceBeforeFees').textContent = '—';
       document.getElementById('resPriceBeforeTax').textContent = '—';
       document.getElementById('resPlatformFee').textContent = '—';
+      document.getElementById('resPaymentGateway').textContent = '—';
       document.getElementById('resProfitBeforeTax').textContent = '—';
       document.getElementById('resTax').textContent = '—';
       document.getElementById('resZakat').textContent = '—';
@@ -854,9 +1196,12 @@
       var v = url.searchParams.get('v');
       var mf = url.searchParams.get('mf');
       var p = url.searchParams.get('p');
+      var pg = url.searchParams.get('pg');
       var pack = url.searchParams.get('pack');
       var del = url.searchParams.get('del');
       var cac = url.searchParams.get('cac');
+      var cont = url.searchParams.get('cont');
+      if (cont) document.getElementById('wasteAndIncidentalsPct').value = cont;
       if (d) document.getElementById('directCost').value = d;
       if (o) document.getElementById('overheadCost').value = o;
       if (m) document.getElementById('desiredMargin').value = m;
@@ -865,16 +1210,29 @@
       if (v) document.getElementById('monthlyVolume').value = v;
       if (mf) document.getElementById('monthlyFixed').value = mf;
       if (p) document.getElementById('platformFee').value = p;
+      if (pg) document.getElementById('paymentGatewayFee').value = pg;
       if (pack) document.getElementById('packagingCost').value = pack;
       if (del) document.getElementById('deliveryCost').value = del;
       if (cac) document.getElementById('cac').value = cac;
-      if (d) calculateAll();
+      var mode = url.searchParams.get('mode') || 'margin';
+      var tp = url.searchParams.get('tp');
+      var sector = url.searchParams.get('sector');
+      if (sector) document.getElementById('sectorPreset').value = sector;
+      if (mode === 'price' && tp) {
+        document.getElementById('targetPrice').value = tp;
+        setPricingMode('price', false);
+      } else {
+        currentPricingMode = 'margin';
+        updateModeUI();
+        if (d) calculateAll();
+      }
     }
 
     // Auto-save inputs with debounce
     var debouncedCalc = debounce(calculateAll, 300);
-    ['directCost', 'overheadCost', 'desiredMargin', 'taxRate', 'zakatRate', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
+    ['directCost', 'overheadCost', 'wasteAndIncidentalsPct', 'desiredMargin', 'targetPrice', 'taxRate', 'zakatRate', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'paymentGatewayFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
       document.getElementById(id).addEventListener('input', function() {
+        if (currentPricingMode === 'price' && document.getElementById('targetPrice').value === '') return;
         var inputs = getInputs();
         if (inputs.direct > 0) {
           debouncedCalc();
@@ -922,6 +1280,12 @@
     } else {
       loadFromURL();
     }
+
+    document.getElementById('country').addEventListener('change', onCountryChange);
+    document.getElementById('platformSelect').addEventListener('change', onPlatformChange);
+    onCountryChange();
+    updateExampleCurrency();
+    updateModeUI();
     renderHistory();
   </script>
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}</script>
@@ -934,10 +1298,10 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=1"></script>
-<script src="../../site-layout.js?v=13"></script>
-<script src="../../calculators/shared-geo.js"></script>
+<script src="../../site-layout.js?v=2.52.0"></script>
+<script src="../../calculators/shared-geo.js?v=4"></script>
 
-<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 <script>
 (function(){

@@ -126,6 +126,10 @@
             <input type="number" id="campaignDiscount" placeholder="e.g., 10" min="0" max="100" value="0" />
           </div>
           <div class="calc-input-group">
+            <label>Waste &amp; Expected Incidentals (%) <abbr title="Reserve percentage for waste and unexpected incidentals: material waste, production loss, sudden repairs, minor spare parts">ⓘ</abbr></label>
+            <input type="number" id="wasteAndIncidentalsPct" placeholder="e.g., 5" min="0" max="100" value="0" />
+          </div>
+          <div class="calc-input-group">
             <label>Tax Rate (%) <abbr title="Value Added Tax (VAT) rate — applied only on positive profit">ⓘ</abbr></label>
             <input type="number" id="taxRate" placeholder="e.g., 15" min="0" max="100" value="15" />
           </div>
@@ -166,6 +170,10 @@
               <div class="result-row">
                 <span class="result-row__label">Total Fees &amp; Discounts</span>
                 <span id="resTotalDeductions" class="result-row__value result-row__value--danger">—</span>
+              </div>
+              <div class="result-row">
+                <span class="result-row__label">Waste &amp; Expected Incidentals</span>
+                <span id="resWasteAndIncidentals" class="result-row__value">—</span>
               </div>
               <div class="result-row">
                 <span class="result-row__label">Net Profit / Loss (before tax)</span>
@@ -412,7 +420,7 @@
 
   <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp">💬</a>
 
-  <script src="../script.js?v=3" defer></script>
+  <script src="../script.js?v=4" defer></script>
   <script>
     var chart = null;
     var pieChart = null;
@@ -471,6 +479,7 @@
       var zakatEl = document.getElementById('zakatRate');
       var platformFeeEl = document.getElementById('platformFee');
       var campaignDiscountEl = document.getElementById('campaignDiscount');
+      var wasteAndIncidentalsEl = document.getElementById('wasteAndIncidentalsPct');
       return {
         fixed: parseFloat(document.getElementById('fixedCost').value) || 0,
         price: parseFloat(document.getElementById('unitPrice').value) || 0,
@@ -480,6 +489,7 @@
         zakatRate: zakatEl ? (parseFloat(zakatEl.value) || 0) : 0,
         platformFeePct: platformFeeEl ? (parseFloat(platformFeeEl.value) || 0) : 0,
         campaignDiscountPct: campaignDiscountEl ? (parseFloat(campaignDiscountEl.value) || 0) : 0,
+        wasteAndIncidentalsPct: wasteAndIncidentalsEl ? (parseFloat(wasteAndIncidentalsEl.value) || 0) : 0,
         fixedCostBreakdown: getDetailBreakdown('.fixed-detail'),
         variableCostBreakdown: getDetailBreakdown('.var-detail')
       };
@@ -492,6 +502,7 @@
       var options = {
         platformFeePct: inputs.platformFeePct,
         campaignDiscountPct: inputs.campaignDiscountPct,
+        wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct,
         fixedCostBreakdown: inputs.fixedCostBreakdown,
         variableCostBreakdown: inputs.variableCostBreakdown
       };
@@ -507,6 +518,12 @@
       document.getElementById('resNetRevenue').textContent = formatNumberAR(r.revenue) + ' SAR';
       document.getElementById('resTotalCost').textContent = formatNumberAR(r.totalCost) + ' SAR';
       document.getElementById('resTotalDeductions').textContent = formatNumberAR((r.platformFeeAmount || 0) + (r.campaignDiscountAmount || 0)) + ' SAR';
+      var wasteEl = document.getElementById('resWasteAndIncidentals');
+      if (inputs.wasteAndIncidentalsPct > 0) {
+        wasteEl.textContent = formatNumberAR(r.wasteAndIncidentalsAmountPerUnit * inputs.qty) + ' SAR (' + inputs.wasteAndIncidentalsPct.toFixed(1) + '%)';
+      } else {
+        wasteEl.textContent = '0 SAR';
+      }
 
       var profitEl = document.getElementById('resProfit');
       if (r.profit > 0) {
@@ -1363,6 +1380,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=1"></script>
   <script>window.BondsAuth && window.BondsAuth.initSiteAuth('authContainer');</script>
-<script src="../site-layout.js?v=13"></script>
+<script src="../site-layout.js?v=2.52.0"></script>
 </body>
 </html>

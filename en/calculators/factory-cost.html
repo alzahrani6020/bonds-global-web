@@ -21,7 +21,7 @@
   <meta name="twitter:description" content="Calculate factory setup and operating costs across 22 Arab countries - salaries, insurance, raw materials, scenarios" />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
-<link rel="stylesheet" href="../../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -158,6 +158,10 @@
             <input type="number" id="unitPrice" value="10" min="0" step="0.5" />
           </div>
         </div>
+        <div class="input-group">
+          <label for="wasteAndIncidentalsPct">Waste &amp; Expected Incidentals (%) <abbr title="Reserve percentage for waste and unexpected incidentals: material waste, production loss, sudden repairs, minor spare parts">ⓘ</abbr></label>
+          <input type="number" id="wasteAndIncidentalsPct" placeholder="5" min="0" max="100" value="0" />
+        </div>
         <button class="btn-primary" onclick="calculate()" style="width:100%;">Calculate Detailed Cost 💰</button>
       </div>
 
@@ -252,8 +256,8 @@
   <script src="../../admin/analytics-tracker.js?v=1"></script>
 <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
-<script src="../../site-layout.js?v=13"></script>
-<script src="../../components/universal-dropdown.js"></script>
+<script src="../../site-layout.js?v=2.52.0"></script>
+<script src="../../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

@@ -37,7 +37,7 @@
   <script src="calculators/db-client.js"></script>
 <link rel="canonical" href="https://bonds-global.com/calculator" />
 
-<link rel="stylesheet" href="components/universal-dropdown.css" />
+<link rel="stylesheet" href="components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body class="body-ar">
 
@@ -60,8 +60,9 @@
       <span class="hero__eyebrow">أداة مجانية</span>
       <h1 class="hero__title">آلة حاسبة <span class="text-gradient">نقطة التعادل</span></h1>
       <p class="hero__desc">اعرف كم وحدة لازم تبيع، وكم ريال/جنيه تحتاجه، لتغطية تكاليفك وتبدأ الربح.</p>
-      <div class="mt-6">
+      <div class="mt-6" style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
         <a href="calculators/investment-center/index.html" class="hero-link">🚀 اكتشف مركز الحاسبات الاستثمارية</a>
+        <a href="calculators/real-project-analysis.html" class="hero-link">🎯 تحليل المشروع الحقيقي</a>
       </div>
     </div>
   </section>
@@ -127,6 +128,10 @@
             <input type="number" id="campaignDiscount" placeholder="مثلاً: 10" min="0" max="100" value="0" />
           </div>
           <div class="calc-input-group">
+            <label>الهدر والنثريات المتوقعة (%) <abbr title="نسبة احتياطية للهدر والمصاريف غير المتوقعة: هدر مواد، فاقد إنتاج، صيانة مفاجئة، تغيير لمبات، قطع غيار صغيرة">ⓘ</abbr></label>
+            <input type="number" id="wasteAndIncidentalsPct" placeholder="مثلاً: 5" min="0" max="100" value="0" />
+          </div>
+          <div class="calc-input-group">
             <label>نسبة الضريبة (%) <abbr title="نسبة الضريبة المضافة (VAT) — تُطبق فقط على الربح الموجب">ⓘ</abbr></label>
             <input type="number" id="taxRate" placeholder="مثلاً: 15" min="0" max="100" value="15" />
           </div>
@@ -167,6 +172,10 @@
               <div class="result-row">
                 <span class="result-row__label">إجمالي العمولات والخصومات</span>
                 <span id="resTotalDeductions" class="result-row__value result-row__value--danger">—</span>
+              </div>
+              <div class="result-row">
+                <span class="result-row__label">الهدر والنثريات المتوقعة</span>
+                <span id="resWasteAndIncidentals" class="result-row__value">—</span>
               </div>
               <div class="result-row">
                 <span class="result-row__label">صافي الربح/الخسارة (قبل الضريبة)</span>
@@ -418,7 +427,7 @@
 
   <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="واتساب">💬</a>
 
-  <script src="script.js?v=3" defer></script>
+  <script src="script.js?v=4" defer></script>
   <script>
     var chart = null;
     var pieChart = null;
@@ -502,6 +511,7 @@
       var zakatEl = document.getElementById('zakatRate');
       var platformFeeEl = document.getElementById('platformFee');
       var campaignDiscountEl = document.getElementById('campaignDiscount');
+      var wasteAndIncidentalsEl = document.getElementById('wasteAndIncidentalsPct');
       return {
         fixed: parseFloat(document.getElementById('fixedCost').value) || 0,
         price: parseFloat(document.getElementById('unitPrice').value) || 0,
@@ -511,6 +521,7 @@
         zakatRate: zakatEl ? (parseFloat(zakatEl.value) || 0) : 0,
         platformFeePct: platformFeeEl ? (parseFloat(platformFeeEl.value) || 0) : 0,
         campaignDiscountPct: campaignDiscountEl ? (parseFloat(campaignDiscountEl.value) || 0) : 0,
+        wasteAndIncidentalsPct: wasteAndIncidentalsEl ? (parseFloat(wasteAndIncidentalsEl.value) || 0) : 0,
         fixedCostBreakdown: getDetailBreakdown('.fixed-detail'),
         variableCostBreakdown: getDetailBreakdown('.var-detail')
       };
@@ -523,6 +534,7 @@
       var options = {
         platformFeePct: inputs.platformFeePct,
         campaignDiscountPct: inputs.campaignDiscountPct,
+        wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct,
         fixedCostBreakdown: inputs.fixedCostBreakdown,
         variableCostBreakdown: inputs.variableCostBreakdown
       };
@@ -538,6 +550,12 @@
       document.getElementById('resNetRevenue').textContent = formatNumberAR(r.revenue) + ' ر.س';
       document.getElementById('resTotalCost').textContent = formatNumberAR(r.totalCost) + ' ر.س';
       document.getElementById('resTotalDeductions').textContent = formatNumberAR((r.platformFeeAmount || 0) + (r.campaignDiscountAmount || 0)) + ' ر.س';
+      var wasteEl = document.getElementById('resWasteAndIncidentals');
+      if (inputs.wasteAndIncidentalsPct > 0) {
+        wasteEl.textContent = formatNumberAR(r.wasteAndIncidentalsAmountPerUnit * inputs.qty) + ' ر.س (' + inputs.wasteAndIncidentalsPct.toFixed(1) + '%)';
+      } else {
+        wasteEl.textContent = '0 ر.س';
+      }
 
       var profitEl = document.getElementById('resProfit');
       if (r.profit > 0) {
@@ -1439,7 +1457,7 @@
             <p style="margin-top:8px;font-size:11px;color:#666;">انضم لأكثر من 500 صاحب مشروع وشركة ناشئة استخدموا بوندز لبناء نماذجهم المالية.</p>
           </div>
           \u003Cscript>window.onload = function() { setTimeout(function() { window.print(); }, 500); };</scr${''}ipt>
-        \u003Cscript src="components/universal-dropdown.js">\u003C/script>
+        \u003Cscript src="components/universal-dropdown.js?v=2.51.7">\u003C/script>
 \u003Cscript src="components/universal-dropdown-init.js">\u003C/script>
 \u003C/body>
         \u003C/html>
@@ -1629,6 +1647,6 @@
   <script src="/bonds-auth-2026.js?v=1"></script>
   <script>window.BondsAuth && window.BondsAuth.initSiteAuth('authContainer');</script>
   <script src="page-tracker-v2.js"></script>
-  <script src="site-layout.js?v=13"></script>
+  <script src="site-layout.js?v=2.52.0"></script>
 </body>
 </html>

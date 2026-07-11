@@ -354,8 +354,8 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=11';
-    if (document.querySelector('link[href*="header-footer.css"]')) return;
+    const href = '/header-footer.css?v=2.52.0';
+    if (document.querySelector('link[href*="header-footer.css?v=2.52.0"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;

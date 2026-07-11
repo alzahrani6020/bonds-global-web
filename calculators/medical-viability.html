@@ -28,11 +28,11 @@
   <script src="calc-functions.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   
-  <link rel="stylesheet" href="../header-footer.css?v=10" />
+  <link rel="stylesheet" href="../header-footer.css?v=2.52.0" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="canonical" href="https://bonds-global.com/calculators/medical-viability" />
 
-<link rel="stylesheet" href="../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body class="calc-body-ar">
   <div class="topbar">
@@ -58,7 +58,7 @@
     <div class="med-container">
       <div class="bonds-card calc-text-center calc-mb-6">
         <div class="med-badge">الدولة / السوق</div>
-        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" class="activity-select" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" class="activity-select" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
           <option value="">اختر الدولة</option>
         </select>
       </div>
@@ -96,6 +96,14 @@
 
           <div class="med-section-title">🧬 مزيج الخدمات</div>
           <div class="bonds-form-row" id="serviceMixFields"></div>
+
+          <div class="med-section-title">⚠️ الهدر والنثريات المتوقعة</div>
+          <div class="bonds-form-row">
+            <div class="bonds-form-group">
+              <label>الهدر والنثريات المتوقعة (%) <abbr title="نسبة احتياطية للهدر والمصاريف غير المتوقعة: هدر مواد، فاقد إنتاج، صيانة مفاجئة، قطع غيار صغيرة">ⓘ</abbr></label>
+              <input id="wasteAndIncidentalsPct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" />
+            </div>
+          </div>
 
           <div class="calc-action-row calc-mt-6">
             <button onclick="calculateAll()" class="bonds-btn bonds-btn-primary calc-flex-1 calc-min-width-140">احسب النتائج</button>
@@ -304,6 +312,7 @@
       options.zakatRate = getVal('vZakatRate');
       options.extraServiceRevenue = getVal('vExtraServiceRevenue');
       options.extraServiceCost = getVal('vExtraServiceCost');
+      options.wasteAndIncidentalsPct = getVal('wasteAndIncidentalsPct');
 
       return { activity, config, setup, monthly, revenue, options };
     }
@@ -337,7 +346,8 @@
         vatRate: options.vatRate || 0,
         zakatRate: options.zakatRate || 0,
         extraServiceRevenue: options.extraServiceRevenue || 0,
-        extraServiceCost: options.extraServiceCost || 0
+        extraServiceCost: options.extraServiceCost || 0,
+        wasteAndIncidentalsPct: options.wasteAndIncidentalsPct || 0
       };
 
       const r = calculateMedicalViability(setupCosts, monthlyCosts, revenue, calcOptions);
@@ -422,6 +432,7 @@
           ${r.vatAmount > 0 ? `<div class="kpi-card"><div class="icon">🏛️</div><div class="value" style="color:#ef4444">${r.vatAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الضريبة/شهر</div></div>` : ''}
           ${r.zakatAmount > 0 ? `<div class="kpi-card"><div class="icon">🕌</div><div class="value" style="color:#ef4444">${r.zakatAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الزكاة/شهر</div></div>` : ''}
           ${r.extraServiceRevenue > 0 ? `<div class="kpi-card"><div class="icon">🧬</div><div class="value">${r.extraServiceRevenue.toLocaleString('ar-SA')} ر.س</div><div class="label">خدمات إضافية/شهر</div></div>` : ''}
+          ${r.wasteAndIncidentalsAmount > 0 ? `<div class="kpi-card"><div class="icon">⚠️</div><div class="value" style="color:#ef4444">${r.wasteAndIncidentalsAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الهدر والنثريات/شهر</div><div class="sub">${r.wasteAndIncidentalsPct.toFixed(1)}%</div></div>` : ''}
         </div>
 
         <div class="med-section-title">🎲 السيناريوهات</div>
@@ -468,7 +479,7 @@
           ${r.vatAmount > 0 || r.zakatAmount > 0 ? `<p style="margin-top:0.5rem;"><strong>🏛️ الضريبة والزكاة:</strong></p><p>• ضريبة: ${r.vatAmount.toLocaleString('ar-SA')} ر.س/شهر (${r.vatRate}%) | زكاة: ${r.zakatAmount.toLocaleString('ar-SA')} ر.س/شهر (${r.zakatRate}%)</p>` : ''}
           ${r.extraServiceRevenue > 0 || r.extraServiceCost > 0 ? `<p style="margin-top:0.5rem;"><strong>🧬 مزيج الخدمات:</strong></p><p>• إيرادات إضافية: ${r.extraServiceRevenue.toLocaleString('ar-SA')} ر.س/شهر | تكلفتها: ${r.extraServiceCost.toLocaleString('ar-SA')} ر.س/شهر | مساهمتها: ${(r.extraServiceRevenue - r.extraServiceCost).toLocaleString('ar-SA')} ر.س/شهر</p>` : ''}
           <p style="margin-top:0.5rem;"><strong>📉 التكاليف:</strong></p>
-          <p>• ثابتة: ${r.monthlyFixed.toLocaleString('ar-SA')} ر.س | متغيرة: ${r.monthlyVariable.toLocaleString('ar-SA')} ر.س | الإجمالي: ${r.monthlyTotal.toLocaleString('ar-SA')} ر.س</p>
+          <p>• ثابتة: ${r.monthlyFixed.toLocaleString('ar-SA')} ر.س | متغيرة: ${r.monthlyVariable.toLocaleString('ar-SA')} ر.س | الهدر والنثريات: ${r.wasteAndIncidentalsAmount.toLocaleString('ar-SA')} ر.س | الإجمالي: ${r.monthlyTotal.toLocaleString('ar-SA')} ر.س</p>
           <p style="margin-top:0.5rem;"><strong>📊 الربحية:</strong></p>
           <p>• ربح شهري: ${r.monthlyProfit.toLocaleString('ar-SA')} ر.س | ربح سنوي: ${r.yearlyProfit.toLocaleString('ar-SA')} ر.س | هامش: ${r.profitMargin.toFixed(1)}%</p>
           <p style="margin-top:0.5rem;"><strong>🎯 نقطة التعادل:</strong></p>
@@ -683,10 +694,10 @@
 
   <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
-  <script src="shared-geo.js"></script>
+  <script src="shared-geo.js?v=4"></script>
 
-  <script src="../site-layout.js?v=13"></script>
-<script src="../components/universal-dropdown.js"></script>
+  <script src="../site-layout.js?v=2.52.0"></script>
+<script src="../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

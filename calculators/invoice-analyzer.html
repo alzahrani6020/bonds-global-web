@@ -12,7 +12,7 @@
   <script src="shared-ui.js"></script>
   <script src="shared-utils.js"></script>
   <script src="shared-export.js"></script>
-  <script src="shared-geo.js"></script>
+  <script src="shared-geo.js?v=4"></script>
   <script src="shared-platforms.js"></script>
   <script src="db-client.js"></script>
   <script src="db-client-auto.js"></script>
@@ -29,7 +29,7 @@
   <meta name="twitter:description" content="حلل فاتورة كل طلب — ربح الفاتورة، ربح اليوم، الشهر، السنة. قارن بين منصات التوصيل." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
-<link rel="stylesheet" href="../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -50,7 +50,7 @@
   <div class="platform-selector-row">
     <div class="input-group">
       <label>🇦🇪 الدولة</label>
-      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="countrySelect" onchange="onCountryChange()">
+      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="countrySelect" onchange="onCountryChange()">
         <option value="">-- اختر الدولة --</option>
       </select>
     </div>
@@ -1002,9 +1002,9 @@ BondsDB.init().then(function() {
 </script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
-<script src="../site-layout.js?v=13"></script>
+<script src="../site-layout.js?v=2.52.0"></script>
   <div id="site-footer"></div>
-<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

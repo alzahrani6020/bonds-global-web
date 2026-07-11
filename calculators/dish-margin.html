@@ -23,18 +23,18 @@
   <script src="shared-ui.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <script src="shared-utils.js"></script>
-  <script src="shared-geo.js"></script>
+  <script src="shared-geo.js?v=4"></script>
   <script src="shared-platforms.js"></script>
 
   <script src="db-client.js"></script>
   
-<link rel="stylesheet" href="../header-footer.css?v=10" />
+<link rel="stylesheet" href="../header-footer.css?v=2.52.0" />
   <link rel="canonical" href="https://bonds-global.com/calculators/dish-margin" />
   <meta name="twitter:title" content="حاسبة ربحية الوجبة | بوندز — هامش الربح لكل صنف" />
   <meta name="twitter:description" content="احسب ربحية كل وجبة قبل إضافتها للمنيو. تكاليف المكونات، عمولات المنصات، هامش الربح، والتسعير العكسي. أداة مجانية من بوندز." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
-<link rel="stylesheet" href="../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.7" />
 <link rel="stylesheet" href="scenario-cards-shared.css" />
 </head>
 <body class="calc-body-ar">
@@ -70,7 +70,7 @@
         <div class="calc-grid calc-gap-4">
           <div class="calc-input-group calc-mb-0">
             <label for="countrySelect">🌍 الدولة</label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="countrySelect" onchange="changeCountry(this.value)">
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="countrySelect" onchange="changeCountry(this.value)">
               <option value="">اختر الدولة...</option>
             </select>
           </div>
@@ -1125,8 +1125,8 @@
 </script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
-<script src="../site-layout.js?v=13"></script>
-<script src="../components/universal-dropdown.js"></script>
+<script src="../site-layout.js?v=2.52.0"></script>
+<script src="../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>
