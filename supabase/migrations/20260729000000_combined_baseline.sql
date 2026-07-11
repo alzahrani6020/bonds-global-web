@@ -25,6 +25,7 @@ CREATE POLICY "Users can manage own letterhead drafts"
 
 DO $$
 BEGIN
+    SET statement_timeout = '10min';
     IF EXISTS (
         SELECT 1 FROM information_schema.tables
         WHERE table_schema = 'public' AND table_name = 'economic_activities'
@@ -227,109 +228,112 @@ BEGIN
       competitors_per_100k = EXCLUDED.competitors_per_100k,
       updated_at = NOW();
 
-    -- 3. Insert estimated market rows for every modern city × activity.
-    -- Only fills combinations that do not already have data for 2025.
-    INSERT INTO public.city_market_data (
-      city_id, activity_id, data_year, competitors_count, avg_market_share,
-      avg_rent_per_sqm, avg_land_price_per_sqm, avg_salary,
-      labor_availability_score, market_saturation_score,
-      source, market_size, annual_growth_rate, per_capita_spending,
-      expected_demand, profit_margin_min, profit_margin_avg, profit_margin_max,
-      risk_score, confidence, specialists_count, saudization_rate,
-      opportunity_score, opportunity_rank, opportunity_breakdown,
-      warehouse_rent_per_sqm, factory_rent_per_sqm, construction_cost_per_sqm,
-      equipment_cost_min, equipment_cost_avg, equipment_cost_max,
-      monthly_operation_cost_min, monthly_operation_cost_avg, monthly_operation_cost_max,
-      created_at, updated_at
-    )
-    SELECT
-      c.id,
-      a.id,
-      2025,
-      GREATEST(1, ROUND((COALESCE(c.population, 500000)::NUMERIC / 100000) * p.competitors_per_100k)),
-      5::NUMERIC(6,2),
-      p.avg_rent_per_sqm,
-      (p.avg_rent_per_sqm * 4)::NUMERIC(12,2),
-      p.avg_salary,
-      p.labor_availability_score,
-      LEAST(100, GREATEST(0, p.market_saturation_score + ROUND(LOG(GREATEST(100000, COALESCE(c.population, 500000)::NUMERIC) / 100000) * 3))),
-      'model_estimate',
-      ROUND((COALESCE(c.population, 500000)::NUMERIC * p.market_size_per_capita * (COALESCE(c.purchasing_power_index, 100)::NUMERIC / 100))),
-      p.annual_growth_rate,
-      (p.market_size_per_capita * (COALESCE(c.purchasing_power_index, 100)::NUMERIC / 100))::NUMERIC(12,2),
-      p.expected_demand,
-      GREATEST(5, p.profit_margin_avg - 5),
-      p.profit_margin_avg,
-      LEAST(60, p.profit_margin_avg + 5),
-      p.risk_score,
-      p.confidence,
-      GREATEST(1, ROUND(COALESCE(c.population, 500000)::NUMERIC / 8000)),
-      20::NUMERIC(6,3),
-      0,
-      NULL,
-      JSONB_BUILD_OBJECT('source', 'model_estimate', 'estimated', true),
-      (p.avg_rent_per_sqm * 0.8)::NUMERIC(12,2),
-      (p.avg_rent_per_sqm * 0.6)::NUMERIC(12,2),
-      (p.avg_rent_per_sqm * 8)::NUMERIC(12,2),
-      (p.avg_salary * 2)::NUMERIC(14,2),
-      (p.avg_salary * 4)::NUMERIC(14,2),
-      (p.avg_salary * 8)::NUMERIC(14,2),
-      (p.avg_salary * 1.5)::NUMERIC(14,2),
-      (p.avg_salary * 3)::NUMERIC(14,2),
-      (p.avg_salary * 6)::NUMERIC(14,2),
-      NOW(),
-      NOW()
-    FROM public.cities c
-    CROSS JOIN public.economic_activities a
-    JOIN public.activity_market_profiles p ON p.activity_id = a.id
-    WHERE c.code ~ '^[A-Z]{2}-\d{2}-\d{3}$'
-      AND NOT EXISTS (
-        SELECT 1
-        FROM public.city_market_data m
-        WHERE m.city_id = c.id
-          AND m.activity_id = a.id
-          AND m.data_year = 2025
-      );
+    -- Skip heavy seed if city_market_data already has 2025 rows
+    IF (SELECT COUNT(*) FROM public.city_market_data WHERE data_year = 2025) = 0 THEN
+        -- 3. Insert estimated market rows for every modern city × activity.
+        -- Only fills combinations that do not already have data for 2025.
+        INSERT INTO public.city_market_data (
+          city_id, activity_id, data_year, competitors_count, avg_market_share,
+          avg_rent_per_sqm, avg_land_price_per_sqm, avg_salary,
+          labor_availability_score, market_saturation_score,
+          source, market_size, annual_growth_rate, per_capita_spending,
+          expected_demand, profit_margin_min, profit_margin_avg, profit_margin_max,
+          risk_score, confidence, specialists_count, saudization_rate,
+          opportunity_score, opportunity_rank, opportunity_breakdown,
+          warehouse_rent_per_sqm, factory_rent_per_sqm, construction_cost_per_sqm,
+          equipment_cost_min, equipment_cost_avg, equipment_cost_max,
+          monthly_operation_cost_min, monthly_operation_cost_avg, monthly_operation_cost_max,
+          created_at, updated_at
+        )
+        SELECT
+          c.id,
+          a.id,
+          2025,
+          GREATEST(1, ROUND((COALESCE(c.population, 500000)::NUMERIC / 100000) * p.competitors_per_100k)),
+          5::NUMERIC(6,2),
+          p.avg_rent_per_sqm,
+          (p.avg_rent_per_sqm * 4)::NUMERIC(12,2),
+          p.avg_salary,
+          p.labor_availability_score,
+          LEAST(100, GREATEST(0, p.market_saturation_score + ROUND(LOG(GREATEST(100000, COALESCE(c.population, 500000)::NUMERIC) / 100000) * 3))),
+          'model_estimate',
+          ROUND((COALESCE(c.population, 500000)::NUMERIC * p.market_size_per_capita * (COALESCE(c.purchasing_power_index, 100)::NUMERIC / 100))),
+          p.annual_growth_rate,
+          (p.market_size_per_capita * (COALESCE(c.purchasing_power_index, 100)::NUMERIC / 100))::NUMERIC(12,2),
+          p.expected_demand,
+          GREATEST(5, p.profit_margin_avg - 5),
+          p.profit_margin_avg,
+          LEAST(60, p.profit_margin_avg + 5),
+          p.risk_score,
+          p.confidence,
+          GREATEST(1, ROUND(COALESCE(c.population, 500000)::NUMERIC / 8000)),
+          20::NUMERIC(6,3),
+          0,
+          NULL,
+          JSONB_BUILD_OBJECT('source', 'model_estimate', 'estimated', true),
+          (p.avg_rent_per_sqm * 0.8)::NUMERIC(12,2),
+          (p.avg_rent_per_sqm * 0.6)::NUMERIC(12,2),
+          (p.avg_rent_per_sqm * 8)::NUMERIC(12,2),
+          (p.avg_salary * 2)::NUMERIC(14,2),
+          (p.avg_salary * 4)::NUMERIC(14,2),
+          (p.avg_salary * 8)::NUMERIC(14,2),
+          (p.avg_salary * 1.5)::NUMERIC(14,2),
+          (p.avg_salary * 3)::NUMERIC(14,2),
+          (p.avg_salary * 6)::NUMERIC(14,2),
+          NOW(),
+          NOW()
+        FROM public.cities c
+        CROSS JOIN public.economic_activities a
+        JOIN public.activity_market_profiles p ON p.activity_id = a.id
+        WHERE c.code ~ '^[A-Z]{2}-\d{2}-\d{3}$'
+          AND NOT EXISTS (
+            SELECT 1
+            FROM public.city_market_data m
+            WHERE m.city_id = c.id
+              AND m.activity_id = a.id
+              AND m.data_year = 2025
+          );
 
-    -- 4. Compute opportunity_score for all newly inserted (and any other 2025) rows.
-    -- The formula mirrors the OpportunityScoringEngine logic using available metrics.
-    WITH scored AS (
-      SELECT
-        m.id,
-        ROUND(
-          LEAST(100, GREATEST(0,
-            (COALESCE(m.annual_growth_rate, 0)::NUMERIC / 30) * 20
-            + (100 - COALESCE(m.market_saturation_score, 50)) * 0.25
-            + COALESCE(m.labor_availability_score, 50) * 0.15
-            + (COALESCE(c.purchasing_power_index, 100)::NUMERIC / 150) * 15
-            + (100 - COALESCE(m.risk_score, 50)) * 0.05
-            + GREATEST(0, 100 - (COALESCE(m.avg_rent_per_sqm, 100) / 2)) * 0.10
-            + LEAST(20, COALESCE(m.per_capita_spending, 0)::NUMERIC / 100) * 0.10
-          )) * (0.5 + (COALESCE(m.confidence, 35)::NUMERIC / 200)),
-          2
-        ) AS score
-      FROM public.city_market_data m
-      JOIN public.cities c ON c.id = m.city_id
-      WHERE m.data_year = 2025
-        AND (m.source = 'model_estimate' OR m.opportunity_score IS NULL)
-    )
-    UPDATE public.city_market_data cmd
-    SET opportunity_score = scored.score
-    FROM scored
-    WHERE cmd.id = scored.id;
+        -- 4. Compute opportunity_score for all newly inserted (and any other 2025) rows.
+        -- The formula mirrors the OpportunityScoringEngine logic using available metrics.
+        WITH scored AS (
+          SELECT
+            m.id,
+            ROUND(
+              LEAST(100, GREATEST(0,
+                (COALESCE(m.annual_growth_rate, 0)::NUMERIC / 30) * 20
+                + (100 - COALESCE(m.market_saturation_score, 50)) * 0.25
+                + COALESCE(m.labor_availability_score, 50) * 0.15
+                + (COALESCE(c.purchasing_power_index, 100)::NUMERIC / 150) * 15
+                + (100 - COALESCE(m.risk_score, 50)) * 0.05
+                + GREATEST(0, 100 - (COALESCE(m.avg_rent_per_sqm, 100) / 2)) * 0.10
+                + LEAST(20, COALESCE(m.per_capita_spending, 0)::NUMERIC / 100) * 0.10
+              )) * (0.5 + (COALESCE(m.confidence, 35)::NUMERIC / 200)),
+              2
+            ) AS score
+          FROM public.city_market_data m
+          JOIN public.cities c ON c.id = m.city_id
+          WHERE m.data_year = 2025
+            AND (m.source = 'model_estimate' OR m.opportunity_score IS NULL)
+        )
+        UPDATE public.city_market_data cmd
+        SET opportunity_score = scored.score
+        FROM scored
+        WHERE cmd.id = scored.id;
 
-    -- 5. Recalculate opportunity_rank per activity for 2025.
-    WITH ranked AS (
-      SELECT
-        id,
-        ROW_NUMBER() OVER (PARTITION BY activity_id ORDER BY opportunity_score DESC NULLS LAST) AS r
-      FROM public.city_market_data
-      WHERE data_year = 2025
-    )
-    UPDATE public.city_market_data cmd
-    SET opportunity_rank = ranked.r
-    FROM ranked
-    WHERE cmd.id = ranked.id;
+        -- 5. Recalculate opportunity_rank per activity for 2025.
+        WITH ranked AS (
+          SELECT
+            id,
+            ROW_NUMBER() OVER (PARTITION BY activity_id ORDER BY opportunity_score DESC NULLS LAST) AS r
+          FROM public.city_market_data
+          WHERE data_year = 2025
+        )
+        UPDATE public.city_market_data cmd
+        SET opportunity_rank = ranked.r
+        FROM ranked
+        WHERE cmd.id = ranked.id;
+    END IF;
     END IF;
 END $$;
 
