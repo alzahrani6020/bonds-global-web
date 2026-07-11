@@ -1021,6 +1021,12 @@ async function handler(req, res) {
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await getRoles(sb));
       }
+      if (action === 'me') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const role = await getActorRole(sb, admin);
+        return res.status(200).json({ success: true, id: admin.id, email: admin.email, role });
+      }
       if (action === 'users') {
         const admin = await verifyAdmin(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });

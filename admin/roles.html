@@ -323,9 +323,25 @@
       }
     }
 
-    // Check super_admin on load
-    window.addEventListener('admin-auth-ready', () => {
-      if (window.__ADMIN_ROLE === 'super_admin') {
+    async function initRolesPage() {
+      let token = window.__ADMIN_TOKEN || '';
+      if (!token && typeof supabase !== 'undefined' && window.__ENV?.SUPABASE_URL) {
+        const client = supabase.createClient(window.__ENV.SUPABASE_URL, window.__ENV.SUPABASE_ANON_KEY);
+        const { data: { session } } = await client.auth.getSession();
+        token = session?.access_token || '';
+      }
+      try {
+        const res = await fetch('/api/admin?action=me', {
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        window.__ADMIN_ROLE = data.role;
+      } catch (e) {
+        console.warn('[Roles] Failed to fetch current admin role:', e);
+      }
+
+      if (window.__ADMIN_ROLE === 'super_admin' || window.__ADMIN_ROLE === 'admin') {
         document.getElementById('addRoleForm').style.display = 'block';
       } else {
         document.getElementById('roleAlert').style.display = 'block';
@@ -333,14 +349,17 @@
         return;
       }
       renderRoles();
-    });
+    }
+
+    // Check super_admin on load
+    window.addEventListener('admin-auth-ready', initRolesPage);
 
     // Fallback if auth event not fired
     setTimeout(() => {
       if (document.getElementById('rolesTable').textContent.includes('جارِ التحميل')) {
-        renderRoles();
+        initRolesPage();
       }
-    }, 2000);
+    }, 500);
   </script>
 
   <script src="../page-tracker-v2.js"></script>
