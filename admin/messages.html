@@ -56,6 +56,7 @@
     .btn-secondary { background: rgba(0,0,0,0.05); color: var(--text); border: 1px solid var(--border); }
     .btn-secondary:hover { border-color: var(--gold); }
     .btn-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .btn-whatsapp { background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; }
 
     .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
     .tab-btn { padding: 0.6rem 1.2rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); font-weight: 700; cursor: pointer; transition: all 0.3s; }
@@ -284,6 +285,13 @@
       }
     }
 
+    function openWhatsApp(phone, name) {
+      const digits = (phone || '').replace(/\D/g, '');
+      if (!digits) { alert('لا يوجد رقم واتساب'); return; }
+      const text = 'مرحباً ' + (name || '') + '، شكراً لتواصلك مع بوندز. نحن نراجع طلبك وسنرد عليك قريباً.';
+      window.open('https://wa.me/' + digits + '?text=' + encodeURIComponent(text), '_blank');
+    }
+
     async function toggleRead(id) {
       try {
         await fetch('/api/admin?action=messages', {
@@ -379,6 +387,7 @@
           <div class="message-body">${m.message}</div>
           <div class="message-actions">
             <button class="btn-sm ${m.read ? 'btn-secondary' : 'btn-primary'}" onclick="toggleRead('${m.id}')">${m.read ? 'تعيين غير مقروء' : 'تعيين مقروء'}</button>
+            ${m.phone ? `<button class="btn-sm btn-whatsapp" onclick="openWhatsApp('${m.phone}', '${(m.name || '').replace(/'/g, "\\'")}')">واتساب</button>` : ''}
             <button class="btn-sm btn-danger" onclick="deleteMessage('${m.id}')">حذف</button>
           </div>
         </div>
