@@ -454,22 +454,36 @@ async function siteUsageHandler(req, res) {
       const feasLimit = parseInt(settings.feas_limit || '1', 10);
 
       let tier = 'free';
+      let tierExpiresAt = null;
       if (userId) {
-        const { data: profile } = await sb.from('profiles').select('tier').eq('id', userId).single();
-        if (profile?.tier) tier = profile.tier;
+        const { data: profile } = await sb.from('profiles').select('tier, tier_expires_at').eq('id', userId).single();
+        if (profile?.tier) {
+          tier = profile.tier;
+          tierExpiresAt = profile.tier_expires_at;
+        }
         const { data: adminRole } = await sb.from('admin_roles').select('role').eq('user_id', userId).single();
         if (adminRole?.role) {
           return res.status(200).json({ allowed: true, remaining: Infinity, tier, admin: adminRole.role });
         }
       }
-      if (tier !== 'free') return res.status(200).json({ allowed: true, remaining: Infinity, tier });
+      if (tierExpiresAt && new Date(tierExpiresAt) < new Date()) {
+        tier = 'free';
+      }
+      if (tier !== 'free') return res.status(200).json({ allowed: true, remaining: Infinity, tier, tier_expires_at: tierExpiresAt });
 
       const isFeas = calculator.includes('feasibility');
       let limit = isFeas ? feasLimit : calcLimit;
       let exception = null;
 
       if (userId) {
-        const { data: exc } = await sb.from('usage_exceptions').select('*').eq('user_id', userId).or('calculator.eq.' + calculator + ',calculator.eq.all').limit(1).single();
+        const nowIso = new Date().toISOString();
+        const { data: exc } = await sb.from('usage_exceptions')
+          .select('*')
+          .eq('user_id', userId)
+          .or('calculator.eq.' + calculator + ',calculator.eq.all')
+          .or('expires_at.gt.' + nowIso + ',expires_at.is.null')
+          .limit(1)
+          .single();
         if (exc) { limit = exc.limit_override; exception = exc; }
       }
 

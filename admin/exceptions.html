@@ -70,7 +70,7 @@
 
   </style>
 
-<link rel="stylesheet" href="../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.7" />
 
 </head>
 
@@ -166,11 +166,23 @@
 
         </div>
 
-        <div class="form-group" style="margin-bottom: 1rem;">
+        <div class="form-row">
 
-          <label>السبب</label>
+          <div class="form-group">
 
-          <input type="text" id="excReason" placeholder="مثال: عميل VIP, عرض ترويجي..." style="width:100%;">
+            <label>تاريخ الانتهاء (اختياري)</label>
+
+            <input type="datetime-local" id="excExpires" style="width:100%;">
+
+          </div>
+
+          <div class="form-group" style="grid-column: span 2;">
+
+            <label>السبب</label>
+
+            <input type="text" id="excReason" placeholder="مثال: عميل VIP, عرض ترويجي..." style="width:100%;">
+
+          </div>
 
         </div>
 
@@ -192,7 +204,7 @@
 
             <thead>
 
-              <tr><th>المستخدم</th><th>الحاسبة</th><th>الحد</th><th>السبب</th><th>التاريخ</th><th>حذف</th></tr>
+              <tr><th>المستخدم</th><th>الحاسبة</th><th>الحد</th><th>السبب</th><th>الانتهاء</th><th>التاريخ</th><th>حذف</th></tr>
 
             </thead>
 
@@ -262,6 +274,18 @@
 
           const user = e.profiles?.restaurant_name || e.profiles?.email || e.user_id.substring(0,8);
 
+          let expiry = 'بدون انتهاء';
+
+          if (e.expires_at) {
+
+            const d = new Date(e.expires_at);
+
+            const isExpired = d < new Date();
+
+            expiry = `<span style="color:${isExpired ? '#ef4444' : 'var(--gold)'};">${d.toLocaleString('ar-SA')}${isExpired ? ' (منتهي)' : ''}</span>`;
+
+          }
+
           return `<tr>
 
             <td>${user}</td>
@@ -271,6 +295,8 @@
             <td style="color:var(--gold);font-weight:800;">${e.limit_override}</td>
 
             <td>${e.reason || '-'}</td>
+
+            <td>${expiry}</td>
 
             <td>${date}</td>
 
@@ -310,6 +336,8 @@
 
             reason: document.getElementById('excReason').value,
 
+            expires_at: document.getElementById('excExpires').value || null,
+
           }),
 
         });
@@ -340,7 +368,7 @@
 
       try {
 
-        const res = await fetch('/api/admin?action=exceptions?id=' + id, {
+        const res = await fetch('/api/admin?action=exceptions&id=' + id, {
 
           method: 'DELETE',
 
@@ -362,7 +390,7 @@
 
   <script src="/admin/admin-embed.js"></script>
 
-<script src="../components/universal-dropdown.js"></script>
+<script src="../components/universal-dropdown.js?v=2.51.7"></script>
 
 <script src="../components/universal-dropdown-init.js"></script>
 

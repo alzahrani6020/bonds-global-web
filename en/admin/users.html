@@ -114,7 +114,7 @@
 
   <meta name="description" content="Specialized financial calculators and economic consulting from Bonds." />
 
-<link rel="stylesheet" href="../../components/universal-dropdown.css" />
+<link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.7" />
 </head>
 <body>
 
@@ -238,6 +238,29 @@
           </div>
         </div>
       </div>
+
+      <!-- Grant Access Modal -->
+      <div class="modal-overlay" id="grantModal" onclick="if(event.target===this)closeGrantModal()">
+        <div class="modal">
+          <h3>Grant Temporary Access</h3>
+          <input type="hidden" id="grantUserId">
+          <p id="grantUserName" style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1rem;"></p>
+          <label style="display:block;margin-bottom:0.5rem;color:var(--text-secondary);font-size:0.85rem;">Plan</label>
+          <select data-universal-dropdown="true" id="grantTier">
+            <option value="pro">Pro</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+          <label style="display:block;margin-bottom:0.5rem;color:var(--text-secondary);font-size:0.85rem;">Expires (optional)</label>
+          <input type="datetime-local" id="grantExpires" style="width:100%;padding:0.75rem;margin-bottom:0.5rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);">
+          <p style="color:var(--text-muted);font-size:0.75rem;margin-bottom:1rem;">Leave blank for indefinite access until revoked.</p>
+          <label style="display:block;margin-bottom:0.5rem;color:var(--text-secondary);font-size:0.85rem;">Reason</label>
+          <input type="text" id="grantReason" placeholder="e.g. VIP client, trial..." style="width:100%;padding:0.75rem;margin-bottom:1rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);">
+          <div class="modal-actions">
+            <button class="btn-sm btn-secondary" onclick="closeGrantModal()">Cancel</button>
+            <button class="btn-sm btn-primary" onclick="confirmGrantAccess()">Grant</button>
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 
@@ -283,9 +306,15 @@
       }
     }
 
-    function tierBadge(tier) {
+    function tierBadge(tier, expiresAt) {
       const map = { free: 'badge--free', pro: 'badge--pro', enterprise: 'badge--enterprise' };
-      return `<span class="badge ${map[tier] || 'badge--free'}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>`;
+      let html = `<span class="badge ${map[tier] || 'badge--free'}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>`;
+      if (expiresAt) {
+        const d = new Date(expiresAt);
+        const isExpired = d < new Date();
+        html += ` <span style="font-size:0.7rem;color:${isExpired ? 'var(--danger)' : 'var(--gold)'}">(${isExpired ? 'expired' : 'until ' + d.toLocaleDateString('en-US')})</span>`;
+      }
+      return html;
     }
 
     function statusBadge(status) {
@@ -332,11 +361,12 @@
               <div style="font-size:0.75rem;color:var(--text-muted);">${u.phone || ''}</div>
             </td>
             <td>${countryLabel(u.country)}</td>
-            <td>${tierBadge(u.tier)}</td>
+            <td>${tierBadge(u.tier, u.tier_expires_at)}</td>
             <td>${statusBadge(u.status)}</td>
             <td>${formatDate(u.created_at)}</td>
             <td>
               <button class="btn-action btn-edit" onclick="showEditModal('${u.id}', '${u.tier}', '${u.status}')">✏️</button>
+              <button class="btn-action btn-edit" onclick='showGrantModal(${JSON.stringify(u).replace(/'/g, "&#39;")})' title="Grant temporary access" style="background:rgba(212,168,83,0.15);">🎁</button>
               <button class="btn-action btn-delete" onclick="deleteUser('${u.id}', '${name.replace(/'/g, "\\'")}')">🗑️</button>
             </td>
           </tr>
@@ -403,6 +433,35 @@
       } catch (e) { alert('Error: ' + e.message); }
     }
 
+    async function showGrantModal(user) {
+      document.getElementById('grantUserId').value = user.id;
+      document.getElementById('grantUserName').textContent = (user.restaurant_name || user.email || 'User') + ' — grant temporary plan';
+      document.getElementById('grantTier').value = 'pro';
+      document.getElementById('grantExpires').value = '';
+      document.getElementById('grantReason').value = '';
+      document.getElementById('grantModal').classList.add('active');
+    }
+    function closeGrantModal() { document.getElementById('grantModal').classList.remove('active'); }
+
+    async function confirmGrantAccess() {
+      const id = document.getElementById('grantUserId').value;
+      const tier = document.getElementById('grantTier').value;
+      const expiresAt = document.getElementById('grantExpires').value;
+      const reason = document.getElementById('grantReason').value;
+      if (expiresAt && new Date(expiresAt) < new Date()) return alert('Expiry must be in the future');
+      try {
+        const res = await fetch('/api/admin?action=users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (window.__ADMIN_TOKEN || '') },
+          body: JSON.stringify({ action: 'grant-access', id, tier, expires_at: expiresAt || null, reason })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+        closeGrantModal();
+        await refreshData();
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+
     async function deleteUser(id, name) {
       if (!confirm('Are you sure you want to delete user "' + name + '"?')) return;
       try {
@@ -458,7 +517,7 @@
     });
   </script>
 
-<script src="../../components/universal-dropdown.js"></script>
+<script src="../../components/universal-dropdown.js?v=2.51.7"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 </body>
 </html>

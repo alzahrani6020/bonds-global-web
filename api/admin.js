@@ -90,11 +90,13 @@ async function getExceptions(sb, admin) {
 
 async function createException(sb, body, admin) {
   if (!admin) throw new Error('Admin required');
-  const { user_id, calculator, limit_override, reason } = body;
+  const { user_id, calculator, limit_override, reason, expires_at } = body;
   if (!user_id || !limit_override) throw new Error('user_id and limit_override required');
-  const { data, error } = await sb.from('usage_exceptions').insert([{
+  const insert = {
     user_id, calculator: calculator || 'all', limit_override, reason, created_by: admin.id,
-  }]).select().single();
+  };
+  if (expires_at) insert.expires_at = expires_at;
+  const { data, error } = await sb.from('usage_exceptions').insert([insert]).select().single();
   if (error) throw error;
   return { success: true, data };
 }
@@ -361,9 +363,14 @@ async function getUsers(sb) {
   } catch (e) {
     useAuth = false;
   }
+  // If auth admin API is unavailable or returns no users (e.g. missing service-role key),
+  // fall back to the profiles table so the admin UI is never empty because of auth-only logic.
+  if (useAuth && authUsers.length === 0) {
+    useAuth = false;
+  }
 
   const { data: profileList, error: profileErr } = await sb.from('profiles')
-    .select('id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, branch_count, tier, status, created_at')
+    .select('id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, branch_count, tier, tier_expires_at, status, created_at')
     .order('created_at', { ascending: false });
   if (profileErr) throw profileErr;
 
@@ -387,6 +394,7 @@ async function getUsers(sb) {
         employee_count: p.employee_count || parseInt(u.user_metadata?.employee_count) || 0,
         branch_count: p.branch_count || parseInt(u.user_metadata?.branch_count) || 1,
         tier: p.tier || 'free',
+        tier_expires_at: p.tier_expires_at || null,
         status: p.status || 'active',
         created_at: u.created_at,
         last_sign_in_at: u.last_sign_in_at || null
@@ -406,6 +414,7 @@ async function getUsers(sb) {
       employee_count: p.employee_count || 0,
       branch_count: p.branch_count || 1,
       tier: p.tier || 'free',
+      tier_expires_at: p.tier_expires_at || null,
       status: p.status || 'active',
       created_at: p.created_at,
       last_sign_in_at: null
@@ -433,6 +442,44 @@ async function updateUser(sb, body, admin) {
   return { success: true };
 }
 
+async function grantAccess(sb, body, admin) {
+  if (!admin) throw new Error('Admin required');
+  const { id, tier, expires_at, reason } = body;
+  if (!id) throw new Error('id required');
+  if (!tier || !['free', 'pro', 'enterprise'].includes(tier)) throw new Error('valid tier required');
+
+  const now = new Date().toISOString();
+  const profileUpdates = { tier, updated_at: now };
+  if (expires_at) profileUpdates.tier_expires_at = expires_at;
+  else profileUpdates.tier_expires_at = null;
+  const { error: profileErr } = await sb.from('profiles').update(profileUpdates).eq('id', id);
+  if (profileErr) throw profileErr;
+
+  const sub = {
+    user_id: id,
+    tier,
+    status: tier === 'free' ? 'inactive' : 'active',
+    payment_method: 'manual',
+    current_period_end: expires_at || null,
+    updated_at: now,
+  };
+  const { error: subErr } = await sb.from('subscriptions').upsert(sub, { onConflict: 'user_id' });
+  if (subErr) throw subErr;
+
+  if (reason) {
+    await sb.from('usage_exceptions').insert([{
+      user_id: id,
+      calculator: 'all',
+      limit_override: 9999,
+      reason: reason || 'Temporary admin grant',
+      expires_at: expires_at || null,
+      created_by: admin.id,
+    }]);
+  }
+
+  return { success: true };
+}
+
 async function deleteUser(sb, body, admin) {
   if (!admin) throw new Error('Admin required');
   const { id } = body;
@@ -449,6 +496,40 @@ async function resetPassword(sb, body, admin) {
   const { error } = await sb.auth.admin.updateUserById(id, { password });
   if (error) throw error;
   return { success: true };
+}
+
+async function createUserAdmin(sb, body, admin) {
+  if (!admin) throw new Error('Admin required');
+  const { email, password, restaurant_name, phone, country, city, business_type, tier, status, employee_count, branch_count } = body;
+  if (!email || !password) throw new Error('email and password required');
+  if (password.length < 6) throw new Error('Password must be at least 6 characters');
+
+  const { data: authData, error: authError } = await sb.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { restaurant_name: restaurant_name || '', phone: phone || '', country: country || '', city: city || '', business_type: business_type || '' }
+  });
+  if (authError) throw authError;
+  if (!authData?.user) throw new Error('User creation failed');
+
+  const { error: profileError } = await sb.from('profiles').insert([{
+    id: authData.user.id,
+    email,
+    restaurant_name: restaurant_name || 'مستخدم جديد',
+    phone: phone || '',
+    country: country || '',
+    city: city || '',
+    business_type: business_type || '',
+    tier: tier || 'free',
+    status: status || 'active',
+    employee_count: parseInt(employee_count) || 0,
+    branch_count: parseInt(branch_count) || 1,
+    created_at: new Date().toISOString()
+  }]);
+  if (profileError) throw profileError;
+
+  return { success: true, user: { id: authData.user.id, email: authData.user.email } };
 }
 
 // ── Password reset endpoints (merged from api/password.js) ──
@@ -573,7 +654,7 @@ async function getStats(sb) {
 }
 
 // ── Main Handler ────────────────────────────────────────────
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -690,7 +771,9 @@ module.exports = async function handler(req, res) {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         const subAction = req.body?.action;
+        if (subAction === 'create') return res.status(200).json(await createUserAdmin(sb, req.body, admin));
         if (subAction === 'update') return res.status(200).json(await updateUser(sb, req.body, admin));
+        if (subAction === 'grant-access') return res.status(200).json(await grantAccess(sb, req.body, admin));
         if (subAction === 'delete') return res.status(200).json(await deleteUser(sb, req.body, admin));
         if (subAction === 'reset-password') return res.status(200).json(await resetPassword(sb, req.body, admin));
         return res.status(400).json({ error: 'Invalid sub-action' });

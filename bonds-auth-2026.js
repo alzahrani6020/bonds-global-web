@@ -85,6 +85,21 @@
     sessionStorage.removeItem('auth_redirect');
   }
 
+  // ── Phone validation helpers ──────────────────────────────
+  function normalizePhone(phone) {
+    return String(phone || '').replace(/[\s\-\(\)\.]*/g, '');
+  }
+
+  function isValidPhone(phone, country) {
+    const p = normalizePhone(phone);
+    if (!p) return false;
+    if (country === 'SA') {
+      return /^(05\d{8}|\+9665\d{8}|9665\d{8})$/.test(p);
+    }
+    // International / local: optional + or leading 0, 7-15 significant digits
+    return /^(\+|0{0,2})?[1-9]\d{6,14}$/.test(p);
+  }
+
   async function signUp(email, password, metadata) {
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
@@ -147,9 +162,19 @@
     const { data: adminRole } = await getAdminRole(user.id);
     if (adminRole?.role) return { allowed: true, tier: 'admin', admin: adminRole.role };
 
-    const { data: sub } = await getSubscription(user.id);
-    const tier = sub?.tier || 'free';
-    const status = sub?.status || 'inactive';
+    const [{ data: profile }, { data: sub }] = await Promise.all([
+      getProfile(user.id),
+      getSubscription(user.id)
+    ]);
+
+    let tier = profile?.tier || sub?.tier || 'free';
+    if (profile?.tier_expires_at && new Date(profile.tier_expires_at) < new Date()) {
+      tier = 'free';
+    }
+    let status = sub?.status || 'inactive';
+    if (status === 'active' && sub?.current_period_end && new Date(sub.current_period_end) < new Date()) {
+      status = 'inactive';
+    }
 
     const limits = tier === 'enterprise' ? { maxScenarios: Infinity, pdfExport: true, healthHistory: true, apiAccess: true, webhooks: true } :
                    tier === 'pro' ? { maxScenarios: Infinity, pdfExport: true, healthHistory: true, apiAccess: true } :
@@ -280,6 +305,7 @@
     getSupabase, getUser, getSession, getProfile, updateProfile, getSubscription, getAdminRole,
     signUp, signIn, signInWithOTP, verifyOTP, updateUser, signInWithOAuth, signOut, checkFeatureAccess,
     getRedirectUrl, clearRedirectUrl,
+    normalizePhone, isValidPhone,
     initSiteAuth, initAdminGuard
   };
 
