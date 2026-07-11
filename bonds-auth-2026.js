@@ -297,26 +297,19 @@
         window.dispatchEvent(new Event('admin-auth-ready'));
       }
 
-      async function requireMfa() {
-        const box = document.getElementById(`${overlayId}-box`);
-        if (box) {
-          box.innerHTML = `
-            <div style="text-align:center;max-width:460px;padding:2rem;">
-              <div style="font-size:3rem;margin-bottom:1rem;">🔐</div>
-              <h2 style="color:#ffffff;margin-bottom:0.5rem;">مطلوب مصادقة ثنائية (MFA)</h2>
-              <p style="color:#bbbbbb;line-height:1.8;">
-                تم تفعيل إلزام MFA للوصول إلى لوحة التحكم.<br>
-                1. فعّل 2FA من إعدادات Supabase لحسابك.<br>
-                2. سجّل الخروج ثم أعد تسجيل الدخول باستخدام رمز MFA.
-              </p>
-              <button style="margin-top:1.5rem;padding:0.75rem 2rem;border-radius:10px;border:none;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#1a1a1a;font-weight:800;cursor:pointer;" onclick="location.href='/calculators/auth/index.html?redirect='+encodeURIComponent(location.href)">إعادة تسجيل الدخول</button>
-            </div>`;
-        }
+      function redirectToMfaSetup() {
+        const redirect = encodeURIComponent(location.pathname + location.search);
+        location.href = '/admin/mfa-setup.html?redirect=' + redirect;
       }
+
+      const isMfaSetupPage = location.pathname.includes('/admin/mfa-setup.html');
 
       if (ADMIN_EMAIL && user.email === ADMIN_EMAIL) {
         const mfa = await checkAdminMfa(token);
-        if (!mfa.ok) return requireMfa();
+        if (!mfa.ok) {
+          if (isMfaSetupPage) return finishAdminAccess('super_admin');
+          return redirectToMfaSetup();
+        }
         finishAdminAccess('super_admin');
         return;
       }
@@ -327,7 +320,10 @@
           return;
         }
         const mfa = await checkAdminMfa(token);
-        if (!mfa.ok) return requireMfa();
+        if (!mfa.ok) {
+          if (isMfaSetupPage) return finishAdminAccess(roleRow.role);
+          return redirectToMfaSetup();
+        }
         finishAdminAccess(roleRow.role);
       });
     });
