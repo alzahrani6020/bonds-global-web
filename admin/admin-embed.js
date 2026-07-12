@@ -58,4 +58,12 @@
       window.dispatchEvent(new Event('admin-session-ready'));
     }
   });
+
+  // Track admin module views so the journey reflects actual admin sections/pages.
+  if (!window.__BONDS_TRACKING__) {
+    const trackScript = document.createElement('script');
+    trackScript.src = '/lib/tracking.js?v=2';
+    trackScript.async = true;
+    document.head.appendChild(trackScript);
+  }
 })();

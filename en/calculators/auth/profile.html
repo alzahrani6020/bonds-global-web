@@ -96,8 +96,14 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
             for (i=0; i<fields.length; i++) { id=fields[i]; el=document.getElementById(id); if(el) el.value=_orig[id]||''; }
             editBtn.style.display='inline-flex'; cancelBtn.style.display='none'; saveBtn.style.display='none';
           }
-          for (i=0; i<fields.length; i++) { id=fields[i]; el=document.getElementById(id); if(el) { if(enable) el.removeAttribute('disabled'); else el.setAttribute('disabled','disabled'); } }
-          for (i=0; i<timeIds.length; i++) { id=timeIds[i]; el=document.getElementById(id); if(el) { if(enable) el.removeAttribute('disabled'); else el.setAttribute('disabled','disabled'); } }
+          function refreshUd(id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            if (enable) el.removeAttribute('disabled'); else el.setAttribute('disabled','disabled');
+            try { var dd = window.getUniversalDropdown && window.getUniversalDropdown(el); if (dd && typeof dd.refresh === 'function') dd.refresh(); } catch(e){}
+          }
+          for (i=0; i<fields.length; i++) { refreshUd(fields[i]); }
+          for (i=0; i<timeIds.length; i++) { refreshUd(timeIds[i]); }
           var uploadBtn = document.getElementById('uploadBtn');
           var avatarFile = document.getElementById('avatarFile');
           if(uploadBtn) { if(enable) uploadBtn.removeAttribute('disabled'); else uploadBtn.setAttribute('disabled','disabled'); }
@@ -273,6 +279,7 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=2"></script>
   <script src="../../../v3/master-data/countries-governorates-cities.js"></script>
+  <script src="../../../calculators/shared-geo.js?v=4"></script>
   <script>
     (async () => {
       const successMsg = document.getElementById('successMsg');
@@ -337,54 +344,18 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
       const governorateSelect = document.getElementById('governorate');
       const citySelect = document.getElementById('city');
 
-      function populateCountries(selected) {
-        const data = window.ARAB_COUNTRIES_GEO || {};
-        countrySelect.innerHTML = '<option value="">Select country</option>';
-        Object.keys(data).forEach(code => {
-          const c = data[code];
-          const opt = document.createElement('option');
-          opt.value = code;
-          opt.textContent = `${c.flag || ''} ${c.nameEn}`;
-          countrySelect.appendChild(opt);
+      let geoBinding = null;
+      function initGeoSelectors(selectedCountry, selectedGovernorate, selectedCity) {
+        geoBinding = window.BondsGeo.bindCascading({
+          countryId: 'country',
+          governorateId: 'governorate',
+          cityId: 'city',
+          lang: 'en',
+          selectedCountry: selectedCountry || undefined,
+          selectedGovernorate: selectedGovernorate !== undefined && selectedGovernorate !== '' ? selectedGovernorate : undefined,
+          selectedCity: selectedCity || undefined
         });
-        if (selected) countrySelect.value = selected;
       }
-
-      function populateGovernorates(countryCode, selected) {
-        const data = window.ARAB_COUNTRIES_GEO || {};
-        const country = data[countryCode];
-        governorateSelect.innerHTML = '<option value="">Select governorate</option>';
-        citySelect.innerHTML = '<option value="">Select city</option>';
-        if (!country || !country.governorates) return;
-        country.governorates.forEach((gov, idx) => {
-          const opt = document.createElement('option');
-          opt.value = idx;
-          opt.textContent = gov.nameEn;
-          governorateSelect.appendChild(opt);
-        });
-        if (selected !== undefined && selected !== '') governorateSelect.value = selected;
-      }
-
-      function populateCities(countryCode, governorateIndex, selected) {
-        const data = window.ARAB_COUNTRIES_GEO || {};
-        const country = data[countryCode];
-        citySelect.innerHTML = '<option value="">Select city</option>';
-        if (!country || !country.governorates || !country.governorates[governorateIndex]) return;
-        country.governorates[governorateIndex].cities.forEach(city => {
-          const opt = document.createElement('option');
-          opt.value = city.code;
-          opt.textContent = city.nameEn;
-          citySelect.appendChild(opt);
-        });
-        if (selected) citySelect.value = selected;
-      }
-
-      countrySelect.addEventListener('change', () => {
-        populateGovernorates(countrySelect.value);
-      });
-      governorateSelect.addEventListener('change', () => {
-        populateCities(countrySelect.value, governorateSelect.value);
-      });
 
       let user = null;
       try {
@@ -428,9 +399,7 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
       if (profile) {
         document.getElementById('restaurantName').value = profile.restaurant_name || '';
         document.getElementById('phone').value = profile.phone || '';
-        populateCountries(profile.country || '');
-        populateGovernorates(profile.country || '', profile.governorate);
-        populateCities(profile.country || '', governorateSelect.value, profile.city_code || profile.city);
+        initGeoSelectors(profile.country || '', profile.governorate, profile.city_code || profile.city);
         document.getElementById('neighborhood').value = profile.neighborhood || '';
         document.getElementById('businessType').value = profile.business_type || '';
         document.getElementById('employeeCount').value = profile.employee_count ?? '';
@@ -445,6 +414,7 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
         updateAvatarPreview(profile.avatar_url, profile.restaurant_name);
       } else {
         document.getElementById('restaurantName').value = user.user_metadata?.restaurant_name || '';
+        initGeoSelectors();
         updateAvatarPreview(null, user.user_metadata?.restaurant_name);
       }
 
@@ -578,7 +548,17 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
           document.getElementById('avatarUrl').value = publicUrl;
           const name = document.getElementById('restaurantName').value;
           updateAvatarPreview(publicUrl, name);
-          showSuccess('✅ Image uploaded — click "Save Changes" to confirm');
+
+          // Auto-save avatar_url so the user does not lose it if they forget to press Save
+          try {
+            await sb.from('profiles').upsert({ id: user.id, avatar_url: publicUrl }, { onConflict: 'id' });
+            localStorage.setItem('bonds_avatar_url', publicUrl);
+            try { await sb.auth.updateUser({ data: { avatar_url: publicUrl } }); } catch(e){}
+            showSuccess('✅ Image uploaded and saved');
+          } catch (saveErr) {
+            console.warn('[Profile] Auto-save avatar failed:', saveErr);
+            showSuccess('✅ Image uploaded — click "Save Changes" to confirm');
+          }
         } catch (err) {
           showError('Unexpected upload error: ' + (err?.message || String(err)));
         } finally {
@@ -610,16 +590,18 @@ h2{font-size:1rem;font-weight:700;margin:var(--space-6) 0 var(--space-4);color:v
             return;
           }
 
-          const selectedCity = citySelect.options[citySelect.selectedIndex];
+          const cityValue = citySelect.value;
+          const cityOption = Array.from(citySelect.options).find(o => o.value === cityValue);
           const updates = {
             id: user.id,
             restaurant_name: document.getElementById('restaurantName').value.trim(),
             phone: phone,
             country: countrySelect.value,
             governorate: governorateSelect.value,
-            city: citySelect.value,
-            city_name: selectedCity && selectedCity.value ? selectedCity.textContent : '',
+            city: cityValue,
+            city_name: cityOption ? cityOption.textContent : '',
             neighborhood: document.getElementById('neighborhood').value.trim(),
+            district: document.getElementById('district').value.trim(),
             business_type: document.getElementById('businessType').value.trim(),
             employee_count: parseInt(document.getElementById('employeeCount').value) || null,
             branch_count: parseInt(document.getElementById('branchCount').value) || null,

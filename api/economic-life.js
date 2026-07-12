@@ -4,7 +4,8 @@
  * GET  /api/economic-life?assetClass=xxx — fetch one or all records
  * POST /api/economic-life — create/update a record (admin/editor only)
  */
-const { getSupabase } = require('../lib/api/supabase');
+const getSupabase = require('../lib/api/supabase');
+const { verifyAdminOrEditor } = require('../lib/api/admin-auth');
 
 const ALLOWED_ROLES = ['admin', 'editor'];
 
@@ -39,43 +40,25 @@ module.exports = async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    // Verify authenticated user with admin/editor role
-    const token = (req.headers.authorization || '').replace('Bearer ', '');
-    if (!token) {
-      return res.status(401).json({ success: false, error: 'Unauthorized' });
-    }
-
-    const { data: userData, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !userData.user) {
-      return res.status(401).json({ success: false, error: 'Invalid token' });
-    }
-
-    const userId = userData.user.id;
-    const { data: roles, error: roleError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .in('role', ALLOWED_ROLES);
-
-    if (roleError || !roles || roles.length === 0) {
-      return res.status(403).json({ success: false, error: 'Forbidden' });
+    const auth = await verifyAdminOrEditor(req, supabase);
+    if (!auth.authorized) {
+      const status = auth.reason === 'forbidden' ? 403 : 401;
+      return res.status(status).json({ success: false, error: auth.reason === 'forbidden' ? 'Forbidden' : 'Unauthorized' });
     }
 
     const body = req.body || {};
-    const {
-      assetClass,
-      nameAr,
-      nameEn,
-      economicLifeYears,
-      accountingLifeYears,
-      technicalLifeYears,
-      designLifeYears,
-      operationalLifeYears,
-      minLifeYears,
-      maxLifeYears,
-      source,
-      notes
-    } = body;
+    const assetClass = body.assetClass || body.asset_class;
+    const nameAr = body.nameAr || body.name_ar;
+    const nameEn = body.nameEn || body.name_en;
+    const economicLifeYears = body.economicLifeYears || body.economic_life_years;
+    const accountingLifeYears = body.accountingLifeYears || body.accounting_life_years;
+    const technicalLifeYears = body.technicalLifeYears || body.technical_life_years;
+    const designLifeYears = body.designLifeYears || body.design_life_years;
+    const operationalLifeYears = body.operationalLifeYears || body.operational_life_years;
+    const minLifeYears = body.minLifeYears || body.min_life_years;
+    const maxLifeYears = body.maxLifeYears || body.max_life_years;
+    const source = body.source;
+    const notes = body.notes;
 
     if (!assetClass) {
       return res.status(400).json({ success: false, error: 'assetClass is required' });
@@ -96,6 +79,7 @@ module.exports = async function handler(req, res) {
       notes: notes || '',
       updated_at: new Date().toISOString()
     };
+    if (body.updated_by) upsertData.updated_by = body.updated_by;
 
     const { data, error } = await supabase
       .from('economic_life_database')

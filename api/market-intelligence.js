@@ -7,9 +7,10 @@
  *      Body: upsert payload (admin/editor)
  *      Body: { action: 'refresh' } (admin/editor or CRON_SECRET)
  */
-const { getSupabase } = require('../lib/api/supabase');
+const getSupabase = require('../lib/api/supabase');
+const { verifyAdminOrEditor } = require('../lib/api/admin-auth');
 
-const ALLOWED_ROLES = ['admin', 'editor'];
+const ALLOWED_ROLES = ['admin', 'editor']; // kept for backward compatibility
 const OUTLOOKS = ['positive', 'neutral', 'negative'];
 
 function cors(res) {
@@ -45,21 +46,7 @@ function getPath(obj, path) {
 }
 
 async function checkAuth(req, supabase) {
-  const token = (req.headers.authorization || '').replace('Bearer ', '');
-  if (!token) return { authorized: false, reason: 'missing' };
-
-  const { data: userData, error: userError } = await supabase.auth.getUser(token);
-  if (userError || !userData.user) return { authorized: false, reason: 'invalid' };
-
-  const userId = userData.user.id;
-  const { data: roles, error: roleError } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', userId)
-    .in('role', ALLOWED_ROLES);
-
-  if (roleError || !roles || roles.length === 0) return { authorized: false, reason: 'forbidden' };
-  return { authorized: true, userId };
+  return verifyAdminOrEditor(req, supabase);
 }
 
 async function refreshSources(supabase) {
@@ -196,30 +183,28 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    const {
-      assetClass,
-      country,
-      region,
-      city,
-      sector,
-      averageSellingPrice,
-      averageBuyingPrice,
-      transactionCount,
-      supplyIndex,
-      demandIndex,
-      competitorCount,
-      averageSaleSpeedDays,
-      inflationRate,
-      interestRate,
-      economicGrowthRate,
-      riskScore,
-      outlook,
-      confidence,
-      dataQualityScore,
-      notes,
-      source,
-      recordedAt
-    } = body;
+    const assetClass = body.assetClass || body.asset_class;
+    const country = body.country;
+    const region = body.region;
+    const city = body.city;
+    const sector = body.sector;
+    const averageSellingPrice = body.averageSellingPrice || body.average_selling_price;
+    const averageBuyingPrice = body.averageBuyingPrice || body.average_buying_price;
+    const transactionCount = body.transactionCount || body.transaction_count;
+    const supplyIndex = body.supplyIndex || body.supply_index;
+    const demandIndex = body.demandIndex || body.demand_index;
+    const competitorCount = body.competitorCount || body.competitor_count;
+    const averageSaleSpeedDays = body.averageSaleSpeedDays || body.average_sale_speed_days;
+    const inflationRate = body.inflationRate || body.inflation_rate;
+    const interestRate = body.interestRate || body.interest_rate;
+    const economicGrowthRate = body.economicGrowthRate || body.economic_growth_rate;
+    const riskScore = body.riskScore || body.risk_score;
+    const outlook = body.outlook;
+    const confidence = body.confidence;
+    const dataQualityScore = body.dataQualityScore || body.data_quality_score;
+    const notes = body.notes;
+    const source = body.source;
+    const recordedAt = body.recordedAt || body.recorded_at;
 
     if (!assetClass) {
       return res.status(400).json({ success: false, error: 'assetClass is required' });

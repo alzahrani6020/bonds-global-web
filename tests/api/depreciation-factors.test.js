@@ -9,9 +9,12 @@ const mockSupabaseClient = {
   auth: { getUser: mockAuthGetUser }
 };
 
-jest.mock('../../lib/api/supabase', () => {
-  return { getSupabase: jest.fn(() => mockSupabaseClient) };
-});
+jest.mock('../../lib/api/supabase', () => jest.fn(() => mockSupabaseClient));
+
+const mockVerifyAdminOrEditor = jest.fn();
+jest.mock('../../lib/api/admin-auth', () => ({
+  verifyAdminOrEditor: (...args) => mockVerifyAdminOrEditor(...args)
+}));
 
 const handler = require('../../api/depreciation-factors');
 
@@ -42,6 +45,7 @@ describe('/api/depreciation-factors', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockAuthGetUser.mockResolvedValue({ error: null, data: { user: { id: 'user-123' } } });
+    mockVerifyAdminOrEditor.mockResolvedValue({ authorized: true, userId: 'user-123', role: 'admin' });
   });
 
   test('handles OPTIONS request', async () => {
@@ -55,22 +59,13 @@ describe('/api/depreciation-factors', () => {
     const data = [
       { asset_class: 'factory', factors: { economic: 1.2 }, methods: { accounting: 'straight-line' } }
     ];
-    mockFrom.mockReturnValue({
-      select: jest.fn().mockReturnThis(),
-      order: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis()
-    });
-    // Override the chain to return data on the final await
-    mockFrom.mockImplementation((table) => {
+    mockFrom.mockImplementation(() => {
       const chain = {
         select: jest.fn().mockReturnThis(),
         order: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
-        data,
-        error: null
+        then: (cb) => cb({ data, error: null })
       };
-      // The handler awaits the chain object, so make it thenable
-      chain.then = (cb) => cb({ data, error: null });
       return chain;
     });
 
@@ -103,6 +98,7 @@ describe('/api/depreciation-factors', () => {
   });
 
   test('POST rejects unauthenticated requests', async () => {
+    mockVerifyAdminOrEditor.mockResolvedValueOnce({ authorized: false, reason: 'missing' });
     const req = mockReq({ method: 'POST' });
     const res = mockRes();
     await handler(req, res);
@@ -112,7 +108,7 @@ describe('/api/depreciation-factors', () => {
   });
 
   test('POST rejects invalid token', async () => {
-    mockAuthGetUser.mockResolvedValueOnce({ error: new Error('invalid'), data: { user: null } });
+    mockVerifyAdminOrEditor.mockResolvedValueOnce({ authorized: false, reason: 'invalid' });
     const req = mockReq({ method: 'POST', headers: { authorization: 'Bearer bad-token' } });
     const res = mockRes();
     await handler(req, res);
@@ -122,18 +118,7 @@ describe('/api/depreciation-factors', () => {
   });
 
   test('POST rejects non-admin/editor users', async () => {
-    mockAuthGetUser.mockResolvedValue({ error: null, data: { user: { id: 'user-123' } } });
-    mockFrom.mockImplementation((table) => {
-      if (table === 'user_roles') {
-        return {
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          in: jest.fn().mockReturnThis(),
-          then: (cb) => cb({ data: [], error: null })
-        };
-      }
-      return {};
-    });
+    mockVerifyAdminOrEditor.mockResolvedValueOnce({ authorized: false, reason: 'forbidden' });
 
     const req = mockReq({
       method: 'POST',
@@ -148,16 +133,7 @@ describe('/api/depreciation-factors', () => {
   });
 
   test('POST upserts factor for admin/editor', async () => {
-    mockAuthGetUser.mockResolvedValue({ error: null, data: { user: { id: 'user-123' } } });
     mockFrom.mockImplementation((table) => {
-      if (table === 'user_roles') {
-        return {
-          select: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          in: jest.fn().mockReturnThis(),
-          then: (cb) => cb({ data: [{ role: 'admin' }], error: null })
-        };
-      }
       if (table === 'depreciation_factors') {
         return {
           upsert: jest.fn().mockReturnThis(),

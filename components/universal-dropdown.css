@@ -31,6 +31,23 @@
   --ud-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
 }
 
+/* Force readable items in light theme (no reliance on var fallbacks) */
+[data-ud-theme="light"] .ud-item,
+.ud-dropdown[data-ud-theme="light"] .ud-item {
+  color: #000000;
+  -webkit-text-fill-color: #000000;
+}
+[data-ud-theme="light"] .ud-item:hover,
+[data-ud-theme="light"] .ud-item.ud-highlighted,
+[data-ud-theme="light"] .ud-item.ud-selected,
+.ud-dropdown[data-ud-theme="light"] .ud-item:hover,
+.ud-dropdown[data-ud-theme="light"] .ud-item.ud-highlighted,
+.ud-dropdown[data-ud-theme="light"] .ud-item.ud-selected {
+  background: #d4a853;
+  color: #000000;
+  -webkit-text-fill-color: #000000;
+}
+
 /* ---------- Core wrapper ---------- */
 .ud-dropdown {
   position: relative;
@@ -38,76 +55,76 @@
   width: 100%;
   font-family: inherit;
   line-height: 1.4;
+  color-scheme: light;
+  forced-color-adjust: none;
 }
 
 .ud-dropdown * {
   box-sizing: border-box;
 }
 
-/* Keep the original <select> accessible but invisible */
-.ud-dropdown select[data-ud-native] {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  z-index: -1 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
+/* Native select styling when used as fallback (outside UD wrapper) */
+select.ud-native-fallback,
+select[data-ud-native] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  padding: 0.6rem 2.2rem 0.6rem 0.9rem;
+  background: var(--ud-bg);
+  color: var(--ud-text);
+  border: 1px solid var(--ud-border-subtle);
+  border-radius: var(--ud-radius);
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d4a94a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
 }
 
-/* ---------- Trigger (Select2 / Ant Design style) ---------- */
+/* Hide native select when UD wrapper is active */
+.ud-dropdown select.ud-native-fallback,
+.ud-dropdown select[data-ud-native] {
+  display: none;
+}
+
+/* ---------- Trigger ---------- */
 .ud-trigger {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.6rem;
   width: 100%;
-  min-height: 2.75rem;
   padding: 0.55rem 0.85rem;
   background: var(--ud-bg);
   color: var(--ud-text);
   border: 1px solid var(--ud-border-subtle);
   border-radius: var(--ud-radius);
+  font-family: inherit;
   font-size: 0.95rem;
-  font-weight: 500;
-  cursor: text;
-  user-select: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  line-height: 1.4;
+  text-align: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.ud-trigger:hover {
+.ud-trigger:hover,
+.ud-trigger:focus {
+  background: var(--ud-bg-hover);
   border-color: var(--ud-border);
-}
-
-.ud-trigger:focus-visible,
-.ud-trigger.ud-focus,
-.ud-trigger[aria-expanded="true"] {
   outline: none;
+}
+
+.ud-trigger.ud-focus {
+  box-shadow: 0 0 0 3px rgba(212, 169, 74, 0.25);
   border-color: var(--ud-border);
-  box-shadow: 0 0 0 3px rgba(212, 169, 74, 0.3);
-}
-
-.ud-trigger.ud-disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.ud-trigger.ud-disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
 }
 
 .ud-trigger-value {
+  flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  flex: 1 1 auto;
-  text-align: start;
-  pointer-events: none;
 }
 
 .ud-trigger-value.ud-placeholder {
@@ -116,18 +133,21 @@
 
 .ud-arrow {
   flex: 0 0 auto;
-  width: 1rem;
-  height: 1rem;
-  color: var(--ud-border);
+  margin-inline-start: 0.5rem;
   transition: transform 0.2s ease;
-  pointer-events: none;
+  color: var(--ud-border);
 }
 
 .ud-trigger[aria-expanded="true"] .ud-arrow {
   transform: rotate(180deg);
 }
 
-/* ---------- Menu (absolute or fixed) ---------- */
+.ud-trigger.ud-loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* ---------- Menu ---------- */
 .ud-menu {
   position: absolute;
   top: calc(100% + 6px);
@@ -146,31 +166,17 @@
   scrollbar-width: thin;
   scrollbar-color: var(--ud-border) transparent;
   opacity: 0;
-  transform: translateY(-6px) scale(0.98);
   visibility: hidden;
-  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+  transform: translateY(-6px);
+  transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
 }
 
 .ud-menu.ud-open {
   opacity: 1;
-  transform: translateY(0) scale(1);
   visibility: visible;
+  transform: translateY(0);
 }
 
-.ud-menu.ud-fixed {
-  position: fixed;
-}
-
-.ud-menu::-webkit-scrollbar {
-  width: 6px;
-}
-
-.ud-menu::-webkit-scrollbar-thumb {
-  background: var(--ud-border);
-  border-radius: 3px;
-}
-
-/* When dropdown is inside a modal/card with overflow:hidden */
 .ud-dropdown.ud-portal .ud-menu {
   position: fixed;
 }
@@ -189,22 +195,21 @@
 }
 
 .ud-search input {
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 1;
+  width: 100%;
   padding: 0.55rem 0.8rem;
   background: rgba(255, 255, 255, 0.05);
   color: var(--ud-text);
   border: 1px solid var(--ud-border-subtle);
   border-radius: 8px;
+  font-family: inherit;
   font-size: 0.92rem;
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .ud-search input:focus {
-  background: rgba(255, 255, 255, 0.08);
   border-color: var(--ud-border);
-  box-shadow: 0 0 0 2px rgba(212, 169, 74, 0.25);
+  box-shadow: 0 0 0 2px rgba(212, 169, 74, 0.2);
 }
 
 .ud-search input::placeholder {
@@ -213,18 +218,17 @@
 
 .ud-search-clear {
   flex: 0 0 auto;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.85rem;
-  height: 1.85rem;
+  width: 26px;
+  height: 26px;
   padding: 0;
   background: transparent;
   color: var(--ud-text-muted);
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease;
 }
 
 .ud-search-clear:hover {
@@ -232,7 +236,7 @@
   color: var(--ud-text);
 }
 
-/* ---------- Items ---------- */
+/* ---------- List & items ---------- */
 .ud-list {
   list-style: none;
   margin: 0;
@@ -277,29 +281,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.2em;
-  height: 0.85em;
-  margin-inline-end: 0.45em;
+  width: 1.1em;
+  height: 1.1em;
+  margin-inline-end: 0.5rem;
   vertical-align: middle;
-  flex: 0 0 auto;
 }
 
 .ud-icon img {
   width: 100%;
-  height: auto;
-  border-radius: 2px;
-}
-
-.ud-group-header {
-  padding: 0.45rem 0.9rem;
-  color: var(--ud-border);
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  cursor: default;
-  pointer-events: none;
-  border-bottom: 1px solid var(--ud-border-subtle);
+  height: 100%;
+  object-fit: contain;
 }
 
 .ud-empty {
@@ -309,59 +300,13 @@
   font-size: 0.92rem;
 }
 
-.ud-empty.ud-loading {
-  color: var(--ud-border);
-  font-style: italic;
-}
-
-.ud-trigger.ud-loading {
-  opacity: 0.7;
-  cursor: wait;
-}
-
-/* ---------- Multi-select actions ---------- */
-.ud-actions {
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem 0.6rem;
-  border-bottom: 1px solid var(--ud-border-subtle);
-  background: var(--ud-bg);
-}
-
-.ud-action-btn {
-  flex: 1 1 auto;
-  padding: 0.4rem 0.6rem;
-  background: transparent;
-  color: var(--ud-text);
-  border: 1px solid var(--ud-border-subtle);
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease;
-}
-
-.ud-action-btn:hover {
-  background: var(--ud-bg-hover);
-  border-color: var(--ud-border);
-}
-
-.ud-action-btn--primary {
-  background: var(--ud-border);
-  color: #000000;
-  border-color: var(--ud-border);
-}
-
-.ud-action-btn--primary:hover {
-  filter: brightness(1.05);
-}
-
-/* ---------- Multi-select ---------- */
-.ud-trigger-value {
+/* ---------- Multi-select chips & actions ---------- */
+.ud-multi-values {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  align-items: center;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .ud-chip {
@@ -373,62 +318,144 @@
   color: #000000;
   border-radius: 6px;
   font-size: 0.85rem;
-  font-weight: 600;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+.ud-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ud-multi-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  border-top: 1px solid var(--ud-border-subtle);
+}
+
+.ud-action-btn {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  background: transparent;
+  color: var(--ud-text);
+  border: 1px solid var(--ud-border-subtle);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.ud-action-btn:hover {
+  background: var(--ud-bg-hover);
+}
+
+.ud-action-btn--primary {
+  background: var(--ud-border);
+  color: #000000;
+  border-color: var(--ud-border);
+}
+
+.ud-item--multi {
+  position: relative;
+  padding-inline-start: 2rem;
 }
 
 .ud-item--multi::before {
   content: "";
-  display: inline-block;
-  width: 0.9rem;
-  height: 0.9rem;
-  margin-inline-end: 0.5rem;
+  position: absolute;
+  inset-inline-start: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
   border: 1px solid var(--ud-border);
   border-radius: 3px;
-  background: transparent;
-  vertical-align: middle;
-  transition: background 0.12s ease;
 }
 
 .ud-item--multi.ud-selected::before {
   background: var(--ud-border) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") no-repeat center;
 }
 
-/* ---------- RTL/LTR tweaks ---------- */
-.ud-dropdown[dir="rtl"] .ud-trigger,
-html[dir="rtl"] .ud-dropdown .ud-trigger {
-  text-align: right;
+.ud-group-header {
+  padding: 0.4rem 0.9rem;
+  color: var(--ud-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: default;
 }
 
-.ud-dropdown[dir="ltr"] .ud-trigger,
-html[dir="ltr"] .ud-dropdown .ud-trigger {
-  text-align: left;
+/* ---------- Virtual list helpers ---------- */
+.ud-list.ud-virtual {
+  overflow: hidden;
 }
 
-/* ---------- Native select fallback (if JS fails or unconverted) ---------- */
-select.ud-native-fallback,
-select[data-ud-native] {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 100%;
-  min-height: 2.75rem;
-  padding: 0.6rem 2.2rem 0.6rem 0.9rem;
-  background: #111827 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d4a94a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
-  color: #ffffff;
-  border: 1px solid #d4a94a;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  cursor: pointer;
+.ud-list.ud-virtual .ud-item {
+  position: absolute;
+  left: 0;
+  right: 0;
 }
 
-select.ud-native-fallback:focus,
-select[data-ud-native]:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(212, 169, 74, 0.35);
+/* ---------- Mobile native fallback ---------- */
+@media (hover: none) and (pointer: coarse) {
+  .ud-dropdown[data-ud-native="true"] .ud-trigger,
+  .ud-dropdown[data-ud-native="true"] .ud-menu {
+    display: none !important;
+  }
+}
+
+/* ---------- Focus visible outline ---------- */
+.ud-trigger:focus-visible,
+.ud-item:focus-visible,
+.ud-search input:focus-visible,
+.ud-action-btn:focus-visible,
+.ud-search-clear:focus-visible {
+  outline: 2px solid var(--ud-border);
+  outline-offset: 2px;
+}
+
+/* ---------- High contrast / forced colors support ---------- */
+@media (forced-colors: active) {
+  .ud-dropdown {
+    forced-color-adjust: none;
+  }
+  .ud-trigger,
+  .ud-menu,
+  .ud-search,
+  .ud-list,
+  .ud-item,
+  .ud-empty,
+  .ud-action-btn {
+    background-color: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+  }
+  .ud-item:hover,
+  .ud-item.ud-highlighted,
+  .ud-item.ud-selected {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+  .ud-search input {
+    background-color: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+  }
+  .ud-search input::placeholder {
+    color: GrayText;
+  }
+  .ud-arrow {
+    color: CanvasText;
+  }
 }
 
 html[dir="rtl"] select.ud-native-fallback,

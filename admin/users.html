@@ -80,19 +80,43 @@
     .btn-delete { background: rgba(239,68,68,0.15); color: #ef4444; }
     .btn-reset { background: rgba(234,179,8,0.15); color: var(--warning); }
 
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: none; align-items: center; justify-content: center; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: none; align-items: flex-start; justify-content: center; padding: 1rem 0; }
     .modal-overlay.active { display: flex; }
-    .modal { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-    .modal h3 { margin-bottom: 1rem; color: var(--gold); }
+    .modal { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; width: 90%; max-width: 520px; max-height: calc(100vh - 2rem); overflow-y: auto; margin: auto; }
+    .modal h3 { margin-bottom: 1rem; color: var(--gold); position: sticky; top: 0; background: var(--bg-secondary); padding: 0.5rem 0; z-index: 1; }
     .modal label { display: block; margin-bottom: 0.25rem; color: var(--text-secondary); font-size: 0.85rem; }
     .modal input, .modal select, .modal textarea { width: 100%; padding: 0.75rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.9rem; }
     .modal textarea { min-height: 80px; resize: vertical; }
-    .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap; }
+    .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 0.5rem; }
+    .modal-section { margin-bottom: 1.25rem; }
+    .modal-section__title { font-size: 0.8rem; font-weight: 700; color: var(--gold); margin-bottom: 0.75rem; padding-bottom: 0.35rem; border-bottom: 1px solid var(--border); }
+    .modal .readonly-field { background: rgba(0,0,0,0.03); color: var(--text-muted); cursor: not-allowed; }
+    @media (max-width: 640px) {
+      .modal { padding: 1.25rem; width: 95%; max-height: calc(100vh - 1rem); }
+      .modal h3 { font-size: 1.1rem; }
+    }
     .phone-row { display: flex; align-items: center; gap: 0.5rem; direction: ltr; }
     .phone-prefix { flex: 0 0 auto; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; font-weight: 700; color: var(--text-secondary); }
     .phone-row input { flex: 1; margin-bottom: 0; }
 
     .loading { color: var(--text-muted); font-style: italic; text-align: center; padding: 2rem; }
+
+    /* User activity modal */
+    .activity-section { margin-bottom: 1.5rem; }
+    .activity-section__title { font-size: 0.85rem; font-weight: 800; color: var(--gold); margin-bottom: 0.75rem; padding-bottom: 0.35rem; border-bottom: 1px solid var(--border); }
+    .session-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+    .session-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .session-title { font-weight: 800; color: var(--text); }
+    .session-meta { font-size: 0.78rem; color: var(--text-secondary); }
+    .online-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; background: rgba(34,197,94,0.15); color: var(--success); }
+    .offline-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; background: rgba(148,163,184,0.15); color: #64748b; }
+    .activity-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .activity-table th { text-align: right; padding: 0.6rem; font-weight: 700; color: var(--gold); border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.5); }
+    .activity-table td { padding: 0.6rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+    .activity-table tr:hover td { background: rgba(212,168,83,0.05); }
+    .country-flag { font-size: 1.1rem; margin-left: 0.25rem; }
+    .page-link { color: var(--gold); text-decoration: none; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; direction: ltr; }
+    .duration-badge { display: inline-block; background: rgba(184,149,78,0.12); color: var(--gold-dim); padding: 0.1rem 0.35rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; }
     .demo-badge { display: inline-block; background: rgba(234,179,8,0.2); color: var(--warning); font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; margin-right: 0.5rem; }
 
     @media (max-width: 1024px) {
@@ -179,7 +203,10 @@
       </div>
 
       <div class="search-bar">
-        <input type="text" class="search-input" id="searchInput" placeholder="البحث بالاسم أو البريد..." oninput="filterUsers()" />
+        <div style="position:relative;flex:1;max-width:400px;">
+          <input type="text" class="search-input" id="searchInput" placeholder="البحث بالاسم أو البريد..." oninput="filterUsers()" style="max-width:none;width:100%;padding-left:2.5rem;" autocomplete="off" />
+          <button type="button" id="clearSearchBtn" onclick="clearFilters()" title="مسح البحث والفلاتر" style="position:absolute;left:0.5rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1rem;display:none;padding:0.25rem;">❌</button>
+        </div>
         <select data-universal-dropdown="true" class="search-input" id="tierFilter" onchange="filterUsers()" style="max-width:160px;">
           <option value="">كل الخطط</option>
           <option value="free">Free</option>
@@ -230,37 +257,58 @@
           <h3>✏️ تعديل المستخدم</h3>
           <input type="hidden" id="editUserId">
 
-          <label>الخطة</label>
-          <select data-universal-dropdown="true" id="editTier">
-            <option value="free">Free</option>
-            <option value="pro">Pro</option>
-            <option value="enterprise">Enterprise</option>
-          </select>
+          <div class="modal-section">
+            <div class="modal-section__title">📋 بيانات الحساب (للعرض فقط)</div>
+            <label>البريد الإلكتروني</label>
+            <input type="text" id="editEmail" class="readonly-field" readonly>
 
-          <label>الحالة</label>
-          <select data-universal-dropdown="true" id="editStatus">
-            <option value="active">نشط</option>
-            <option value="inactive">غير نشط</option>
-            <option value="pending">معلق</option>
-          </select>
+            <label>الهاتف</label>
+            <input type="text" id="editPhone" class="readonly-field" readonly>
 
-          <label>المدينة</label>
-          <input type="text" id="editCity" placeholder="المدينة">
+            <label>الدولة / المدينة الحالية</label>
+            <input type="text" id="editCountryCity" class="readonly-field" readonly>
+          </div>
 
-          <label>النشاط التجاري</label>
-          <input type="text" id="editBusinessType" placeholder="مثال: مطعم، مقهى، مصنع...">
+          <div class="modal-section">
+            <div class="modal-section__title">⚙️ الإعدادات</div>
+            <label>الخطة</label>
+            <select data-universal-dropdown="true" id="editTier">
+              <option value="free">Free</option>
+              <option value="pro">Pro</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
 
-          <label>عدد الرواد / الموظفين</label>
-          <input type="number" id="editEmployeeCount" placeholder="0">
+            <label>الحالة</label>
+            <select data-universal-dropdown="true" id="editStatus">
+              <option value="active">نشط</option>
+              <option value="inactive">غير نشط</option>
+              <option value="pending">معلق</option>
+            </select>
+          </div>
 
-          <label>عدد الفروع</label>
-          <input type="number" id="editBranchCount" placeholder="1">
+          <div class="modal-section">
+            <div class="modal-section__title">🏢 بيانات النشاط</div>
+            <label>المدينة</label>
+            <input type="text" id="editCity" placeholder="المدينة">
 
-          <label>نبذة عن العمل</label>
-          <textarea id="editBio" placeholder="وصف مختصر للنشاط..."></textarea>
+            <label>النشاط التجاري</label>
+            <input type="text" id="editBusinessType" placeholder="مثال: مطعم، مقهى، مصنع...">
 
-          <label>احتياجات المستخدم</label>
-          <textarea id="editNeeds" placeholder="ما يحتاجه لتقييم الاستشارة..."></textarea>
+            <label>عدد الرواد / الموظفين</label>
+            <input type="number" id="editEmployeeCount" placeholder="0">
+
+            <label>عدد الفروع</label>
+            <input type="number" id="editBranchCount" placeholder="1">
+          </div>
+
+          <div class="modal-section">
+            <div class="modal-section__title">📝 ملاحظات</div>
+            <label>نبذة عن العمل</label>
+            <textarea id="editBio" placeholder="وصف مختصر للنشاط..."></textarea>
+
+            <label>احتياجات المستخدم</label>
+            <textarea id="editNeeds" placeholder="ما يحتاجه لتقييم الاستشارة..."></textarea>
+          </div>
 
           <div class="modal-actions">
             <button class="btn-sm btn-secondary" onclick="closeEditModal()">إلغاء</button>
@@ -276,6 +324,19 @@
           <div id="detailsContent" style="display:flex;flex-direction:column;gap:0.75rem;font-size:0.9rem;"></div>
           <div class="modal-actions">
             <button class="btn-sm btn-secondary" onclick="closeDetailsModal()">إغلاق</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Modal -->
+      <div class="modal-overlay" id="activityModal" onclick="if(event.target===this)closeActivityModal()">
+        <div class="modal" style="max-width:800px;">
+          <h3>🕒 سجل النشاط والتواجد</h3>
+          <div id="activityContent" style="font-size:0.9rem;">
+            <div class="loading">جاري التحميل...</div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-sm btn-secondary" onclick="closeActivityModal()">إغلاق</button>
           </div>
         </div>
       </div>
@@ -525,6 +586,7 @@
             <td>${u.last_sign_in_at ? formatDate(u.last_sign_in_at) : '-'}</td>
             <td>
               <button class="btn-action btn-edit" onclick='showDetailsModal(${JSON.stringify(u).replace(/'/g, "&#39;")})' title="عرض التفاصيل">👁️</button>
+              <button class="btn-action btn-edit" onclick="showActivityModal('${u.id}', '${name.replace(/'/g, "\\'")}')" title="سجل النشاط والتواجد" style="background:rgba(34,197,94,0.15);color:#16a34a;">🕒</button>
               ${isOwner || isAdmin ? disabledBtn(protectedTitle) : `<button class="btn-action btn-edit" onclick='showEditModal(${JSON.stringify(u).replace(/'/g, "&#39;")})' title="تعديل">✏️</button>`}
               ${isOwner || isAdmin ? disabledBtn(protectedTitle) : `<button class="btn-action btn-edit" onclick='showGrantModal(${JSON.stringify(u).replace(/'/g, "&#39;")})' title="منح وصول مؤقت" style="background:rgba(212,168,83,0.15);">🎁</button>`}
               ${isOwner || isAdmin ? disabledBtn(protectedTitle) : `<button class="btn-action btn-reset" onclick="showResetModal('${u.id}')" title="إعادة تعيين كلمة المرور">🔑</button>`}
@@ -578,6 +640,28 @@
 
       currentPage = 1;
       renderTable();
+      updateClearButton();
+    }
+
+    function updateClearButton() {
+      const hasSearch = !!document.getElementById('searchInput').value;
+      const hasTier = !!document.getElementById('tierFilter').value;
+      const hasStatus = !!document.getElementById('statusFilter').value;
+      document.getElementById('clearSearchBtn').style.display = (hasSearch || hasTier || hasStatus) ? 'block' : 'none';
+    }
+
+    function clearFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('tierFilter').value = '';
+      document.getElementById('statusFilter').value = '';
+      // Sync universal dropdown custom triggers if initialized
+      try {
+        const tierDd = window.getUniversalDropdown && window.getUniversalDropdown(document.getElementById('tierFilter'));
+        const statusDd = window.getUniversalDropdown && window.getUniversalDropdown(document.getElementById('statusFilter'));
+        if (tierDd) tierDd.value = '';
+        if (statusDd) statusDd.value = '';
+      } catch (e) {}
+      filterUsers();
     }
 
     async function refreshData() {
@@ -615,9 +699,109 @@
     }
     function closeDetailsModal() { document.getElementById('detailsModal').classList.remove('active'); }
 
+    // Activity Modal
+    function formatDateTime(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function formatDuration(sec) {
+      if (sec === null || sec === undefined) return '—';
+      if (sec < 60) return sec + ' ث';
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return m + ' د ' + (s ? s + ' ث' : '');
+    }
+
+    function countryFlag(code) {
+      if (!code || code.length !== 2) return '🌐';
+      const c = code.toUpperCase();
+      return String.fromCodePoint(...[...c].map(ch => 0x1F1A5 + ch.charCodeAt(0)));
+    }
+
+    async function showActivityModal(userId, userName) {
+      document.getElementById('activityModal').classList.add('active');
+      const content = document.getElementById('activityContent');
+      content.innerHTML = '<div class="loading">جاري تحميل سجل النشاط...</div>';
+      try {
+        const token = await getToken();
+        const res = await fetch('/api/admin?action=user-activity&user_id=' + encodeURIComponent(userId), {
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        const profile = data.profile || {};
+        let html = `
+          <div class="activity-section">
+            <div class="activity-section__title">معلومات المستخدم</div>
+            <div><strong>الاسم:</strong> ${profile.restaurant_name || userName || '—'}</div>
+            <div><strong>البريد:</strong> ${profile.email || '—'}</div>
+            <div><strong>الهاتف:</strong> ${profile.phone || '—'}</div>
+            <div><strong>تاريخ التسجيل:</strong> ${profile.created_at ? formatDateTime(profile.created_at) : '—'}</div>
+            <div><strong>آخر دخول مسجل:</strong> ${profile.last_sign_in_at ? formatDateTime(profile.last_sign_in_at) : '—'}</div>
+          </div>
+        `;
+
+        if (!data.sessions || data.sessions.length === 0) {
+          html += '<div class="activity-section"><div class="loading">لا يوجد سجل تواجد لهذا المستخدم بعد</div></div>';
+        } else {
+          html += `<div class="activity-section"><div class="activity-section__title">الجلسات (${data.sessions.length})</div>`;
+          data.sessions.forEach(s => {
+            const statusBadge = s.isOnline ? '<span class="online-badge">متصل الآن</span>' : '<span class="offline-badge">غير متصل</span>';
+            html += `
+              <div class="session-card">
+                <div class="session-header">
+                  <div>
+                    <div class="session-title">جلسة ${s.sessionId.slice(-8)} ${statusBadge}</div>
+                    <div class="session-meta">
+                      <span class="country-flag">${countryFlag(s.countryCode)}</span> ${s.country || 'غير معروف'} ${s.city ? '/ ' + s.city : ''} —
+                      الجهاز: ${s.device ? (s.device.includes('Mobile') ? '📱 موبايل' : s.device.includes('Tablet') ? '💻 تابلت' : '🖥️ كمبيوتر') : '—'} —
+                      الشاشة: ${s.screen || '—'}
+                    </div>
+                  </div>
+                  <div style="text-align:left;direction:ltr;font-size:0.75rem;color:var(--text-muted);">
+                    <div>دخول: ${formatDateTime(s.startedAt)}</div>
+                    <div>آخر نشاط: ${formatDateTime(s.lastSeenAt)}</div>
+                    <div>المدة: ${formatDuration(s.totalSeconds)}</div>
+                  </div>
+                </div>
+                ${s.journey.length ? `
+                  <table class="activity-table">
+                    <thead><tr><th>الوقت</th><th>القسم</th><th>الصفحة</th><th>المدة</th></tr></thead>
+                    <tbody>
+                      ${s.journey.map(j => `
+                        <tr>
+                          <td style="direction:ltr;text-align:right;">${formatDateTime(j.enteredAt)}</td>
+                          <td>${j.section || '-'}</td>
+                          <td><a class="page-link" href="${j.url || '#'}" target="_blank" title="${j.page || ''}">${j.page || '-'}</a></td>
+                          <td><span class="duration-badge">${formatDuration(j.durationSeconds)}</span></td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                ` : '<div style="color:var(--text-muted);font-size:0.8rem;">لا توجد صفحات مسجلة لهذه الجلسة</div>'}
+              </div>
+            `;
+          });
+          html += '</div>';
+        }
+
+        content.innerHTML = html;
+      } catch (err) {
+        content.innerHTML = '<div class="loading" style="color:var(--danger)">فشل التحميل: ' + err.message + '</div>';
+      }
+      notifyParentHeight();
+    }
+    function closeActivityModal() { document.getElementById('activityModal').classList.remove('active'); }
+
     // Edit Modal
     function showEditModal(user) {
       document.getElementById('editUserId').value = user.id;
+      document.getElementById('editEmail').value = user.email || '—';
+      document.getElementById('editPhone').value = user.phone || '—';
+      document.getElementById('editCountryCity').value = (countryLabel(user.country) || user.country || '—') + (user.city ? ' / ' + user.city : '');
       document.getElementById('editTier').value = user.tier || 'free';
       document.getElementById('editStatus').value = user.status || 'active';
       document.getElementById('editCity').value = user.city || '';
@@ -626,6 +810,13 @@
       document.getElementById('editBranchCount').value = user.branch_count || '';
       document.getElementById('editBio').value = user.bio || '';
       document.getElementById('editNeeds').value = user.needs || '';
+      // Sync universal dropdowns after setting values
+      try {
+        var tierDd = window.getUniversalDropdown && window.getUniversalDropdown(document.getElementById('editTier'));
+        var statusDd = window.getUniversalDropdown && window.getUniversalDropdown(document.getElementById('editStatus'));
+        if (tierDd) tierDd.value = user.tier || 'free';
+        if (statusDd) statusDd.value = user.status || 'active';
+      } catch (e) {}
       document.getElementById('editModal').classList.add('active');
     }
     function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }

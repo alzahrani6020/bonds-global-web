@@ -20,7 +20,9 @@ function getSupabase() {
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
+      storageKey: 'bonds-auth-token',
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined
     }
   });
   return _supabase;
@@ -102,6 +104,11 @@ async function signOut() {
 async function getUser() {
   const sb = getSupabase();
   if (!sb) return { data: { user: null }, error: new Error('Supabase not initialized') };
+  // Try to recover session first so a stale access token gets refreshed from localStorage
+  const { data: sessionData, error: sessionError } = await sb.auth.getSession();
+  if (sessionData?.session?.user) {
+    return { data: { user: sessionData.session.user }, error: null };
+  }
   const { data, error } = await sb.auth.getUser();
   return { data, error };
 }

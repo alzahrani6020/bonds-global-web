@@ -162,7 +162,7 @@
                 <span id="resInstallment" class="calc-result-row__value calc-result-row__value--gold">—</span>
               </div>
               <div class="calc-result-row">
-                <span class="calc-result-row__label">إجمالي الفائدة</span>
+                <span class="calc-result-row__label">إجمالي الفائدة <small style="font-weight:400;color:var(--text-muted)">(أرباح الجهة المقرضة)</small></span>
                 <span id="resTotalInterest" class="calc-result-row__value">—</span>
               </div>
               <div class="calc-result-row">
@@ -383,21 +383,36 @@
       return n.toFixed(d);
     }
 
+    function normalizeNumberInput(val) {
+      if (val === undefined || val === null) return '';
+      return String(val)
+        .replace(/[٠-٩]/g, function(c) { return String.fromCharCode(c.charCodeAt(0) - 1632 + 48); })
+        .replace(/[۰-۹]/g, function(c) { return String.fromCharCode(c.charCodeAt(0) - 1776 + 48); });
+    }
+
+    function parseNumberInput(id) {
+      var el = document.getElementById(id);
+      if (!el) return 0;
+      var raw = normalizeNumberInput(el.value);
+      var n = parseFloat(raw);
+      return isNaN(n) ? 0 : n;
+    }
+
     function getInputs() {
       return {
-        loanAmount: parseFloat(document.getElementById('loanAmount').value) || 0,
-        downPayment: parseFloat(document.getElementById('downPayment').value) || 0,
-        interestRate: parseFloat(document.getElementById('interestRate').value) || 0,
-        loanTerm: parseFloat(document.getElementById('loanTerm').value) || 0,
+        loanAmount: parseNumberInput('loanAmount'),
+        downPayment: parseNumberInput('downPayment'),
+        interestRate: parseNumberInput('interestRate'),
+        loanTerm: parseNumberInput('loanTerm'),
         frequency: document.getElementById('paymentFrequency').value,
         interestMethod: document.getElementById('interestMethod').value || 'declining',
         borrowerType: document.getElementById('borrowerType').value || 'individual',
-        extraFees: parseFloat(document.getElementById('extraFees').value) || 0,
-        adminFeeRate: parseFloat(document.getElementById('adminFeeRate').value) || 0,
-        adminFeeAmount: parseFloat(document.getElementById('adminFeeAmount').value) || 0,
+        extraFees: parseNumberInput('extraFees'),
+        adminFeeRate: parseNumberInput('adminFeeRate'),
+        adminFeeAmount: parseNumberInput('adminFeeAmount'),
         adminFeeMethod: document.getElementById('adminFeeMethod').value || 'deducted',
-        participationRate: parseFloat(document.getElementById('participationRate').value) || 0,
-        monthlyIncome: parseFloat(document.getElementById('monthlyIncome').value) || 0
+        participationRate: parseNumberInput('participationRate'),
+        monthlyIncome: parseNumberInput('monthlyIncome')
       };
     }
 
@@ -414,10 +429,12 @@
     function solvePeriodicRate(pv, pmt, n) {
       if (pv <= 0 || pmt <= 0 || n <= 0 || pmt * n <= pv) return 0;
       var low = 0, high = 5;
-      for (var i = 0; i < 60; i++) {
+      for (var i = 0; i < 80; i++) {
         var mid = (low + high) / 2;
+        if (mid === 0) break;
         var fmid = pmt * (1 - Math.pow(1 + mid, -n)) / mid - pv;
-        if (fmid > 0) high = mid; else low = mid;
+        // fmid > 0 means PV at mid is higher than target -> need higher rate
+        if (fmid > 0) low = mid; else high = mid;
       }
       return (low + high) / 2;
     }

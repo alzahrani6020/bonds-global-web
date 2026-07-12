@@ -259,8 +259,21 @@
       }
     }
 
+    function attachUniversalDropdownListener(selectEl, handler) {
+      if (typeof window === 'undefined' || !window.getUniversalDropdown) return;
+      const dd = window.getUniversalDropdown(selectEl);
+      if (!dd || !dd.opts) return;
+      const orig = dd.opts.onChange;
+      dd.opts.onChange = function(value, label, instance) {
+        if (typeof orig === 'function') orig(value, label, instance);
+        handler();
+      };
+    }
+
     _countrySelect.addEventListener('change', updateGovernorates);
     _governorateSelect.addEventListener('change', updateCities);
+    attachUniversalDropdownListener(_countrySelect, updateGovernorates);
+    attachUniversalDropdownListener(_governorateSelect, updateCities);
 
     const ready = ensureMasterData().then(apply).catch(err => console.warn('BondsGeo.bindCascading:', err));
 

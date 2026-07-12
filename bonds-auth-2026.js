@@ -18,7 +18,13 @@
       return null;
     }
     _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        storageKey: 'bonds-auth-token',
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined
+      }
     });
     return _supabase;
   }
@@ -27,7 +33,14 @@
   async function getUser() {
     const sb = getSupabase();
     if (!sb) return { data: { user: null }, error: new Error('Not initialized') };
-    return sb.auth.getUser();
+    // Try to recover session first so a stale access token gets refreshed from localStorage
+    const { data: sessionData, error: sessionError } = await sb.auth.getSession();
+    if (sessionData?.session?.user) {
+      return { data: { user: sessionData.session.user }, error: null };
+    }
+    // Fallback to direct getUser (validates token with server)
+    const result = await sb.auth.getUser();
+    return result;
   }
 
   async function getSession() {
@@ -337,6 +350,27 @@
         finishAdminAccess(roleRow.role);
       });
     });
+  }
+
+  // ── Session recovery when user returns to the tab/device ──
+  function recoverSession() {
+    const sb = getSupabase();
+    if (!sb) return Promise.resolve();
+    return sb.auth.getSession().then(({ data, error }) => {
+      if (error) console.warn('[BondsAuth] Session recovery error:', error);
+      if (data?.session) {
+        // Refresh the header UI if it exists
+        const container = document.getElementById('authContainer');
+        if (container) initSiteAuth('authContainer');
+      }
+    }).catch(err => console.warn('[BondsAuth] recoverSession exception:', err));
+  }
+
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') recoverSession();
+    });
+    window.addEventListener('focus', recoverSession);
   }
 
   // ── Auto-init site auth header ────────────────────────────

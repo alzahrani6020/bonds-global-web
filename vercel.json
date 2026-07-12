@@ -67,6 +67,15 @@
       "destination": "/api/platform"
     },
     {
+      "source": "/api/site",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/site/",
+      "destination": "/api/platform"
+    },
+
+    {
       "source": "/api/moyasar-checkout",
       "destination": "/api/payments"
     },

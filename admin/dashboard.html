@@ -12,6 +12,7 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=2"></script>
+  <script src="/lib/tracking.js?v=2"></script>
   <style>
     :root {
       --bg: #f5f0e8;
@@ -141,6 +142,42 @@
     }
     .module-card:hover { border-color: var(--border-hover); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
     .module-card__icon { width: 48px; height: 48px; border-radius: 12px; background: rgba(184,149,78,0.12); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+    /* Online Users inline styles */
+    .online-toolbar { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .online-toolbar .btn-sm { padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #1a1a1a; }
+    .online-toolbar .btn-secondary { background: rgba(0,0,0,0.04); color: var(--text-secondary); border: 1px solid var(--border); }
+    .live-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--success); animation: pulse 1.5s infinite; display: inline-block; margin-left: 0.5rem; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); } 70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
+    .online-table { width: 100%; border-collapse: collapse; }
+    .online-table th { text-align: right; padding: 0.9rem 1rem; font-size: 0.75rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.9); }
+    .online-table td { padding: 0.75rem 1rem; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .online-table tr:hover td { background: rgba(184,149,78,0.05); cursor: pointer; }
+    .country-cell { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: var(--text); }
+    .country-flag { font-size: 1.2rem; }
+    .user-type { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
+    .user-type--guest { background: rgba(148,163,184,0.15); color: #64748b; }
+    .user-type--user { background: rgba(34,197,94,0.15); color: #16a34a; }
+    .page-link { color: var(--gold); text-decoration: none; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; direction: ltr; }
+    .time-ago { font-size: 0.75rem; color: var(--text-muted); }
+    .timeline-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .timeline-modal.open { display: flex; }
+    .timeline-card { background: var(--bg-secondary); border-radius: var(--radius); width: 100%; max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); }
+    .timeline-header { padding: 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .timeline-header h3 { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
+    .timeline-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary); }
+    .timeline-body { padding: 1.25rem; overflow-y: auto; flex: 1; }
+    .journey-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .journey-item { background: var(--bg); padding: 0.75rem; border-radius: 10px; text-align: center; }
+    .journey-item .num { font-size: 1.2rem; font-weight: 800; color: var(--gold); }
+    .journey-item .lbl { font-size: 0.75rem; color: var(--text-secondary); }
+    .timeline { position: relative; padding-right: 1.25rem; }
+    .timeline::before { content: ''; position: absolute; right: 5px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+    .timeline-row { position: relative; margin-bottom: 1rem; }
+    .timeline-row::before { content: ''; position: absolute; right: -19px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--gold); border: 2px solid var(--bg-secondary); }
+    .timeline-time { font-size: 0.75rem; color: var(--text-muted); }
+    .timeline-page { font-weight: 700; color: var(--text); }
+    .timeline-duration { display: inline-block; background: rgba(184,149,78,0.12); color: var(--gold-dim); padding: 0.15rem 0.4rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; margin-top: 0.25rem; }
     .module-card__title { font-size: 1.05rem; font-weight: 800; }
     .module-card__desc { font-size: 0.85rem; color: var(--text-secondary); }
 
@@ -264,6 +301,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
           <span>التحليلات</span>
         </button>
+        <button class="sidebar-link" data-target="online-users" data-title="المتواجدون">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>المتواجدون</span>
+        </button>
       </div>
 
       <div class="nav-group">
@@ -312,23 +353,23 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           <span>الاستثناءات</span>
         </button>
-        <button class="sidebar-link" data-target="/admin/economic-life.html" data-title="العمر الاقتصادي للأصول">
+        <button class="sidebar-link" data-target="/admin/economic-life.html?embed=1" data-title="العمر الاقتصادي للأصول">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span>العمر الاقتصادي للأصول</span>
         </button>
-        <button class="sidebar-link" data-target="/admin/depreciation-factors.html" data-title="عوامل الاستهلاك">
+        <button class="sidebar-link" data-target="/admin/depreciation-factors.html?embed=1" data-title="عوامل الاستهلاك">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M2 12h20"/><path d="m4.93 4.93 14.14 14.14"/><path d="m19.07 4.93-14.14 14.14"/></svg>
           <span>عوامل الاستهلاك</span>
         </button>
-        <button class="sidebar-link" data-target="/admin/market-intelligence.html" data-title="الذكاء السوقي">
+        <button class="sidebar-link" data-target="/admin/market-intelligence.html?embed=1" data-title="الذكاء السوقي">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
           <span>الذكاء السوقي</span>
         </button>
-        <button class="sidebar-link" data-target="/admin/condition-assessment.html" data-title="تقييم الحالة">
+        <button class="sidebar-link" data-target="/admin/condition-assessment.html?embed=1" data-title="تقييم الحالة">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
           <span>تقييم الحالة</span>
         </button>
-        <button class="sidebar-link" data-target="/admin/risk-intelligence.html" data-title="ذكاء المخاطر">
+        <button class="sidebar-link" data-target="/admin/risk-intelligence.html?embed=1" data-title="ذكاء المخاطر">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <span>ذكاء المخاطر</span>
         </button>
@@ -387,6 +428,7 @@
           recoveryAssets: 0,
           cities: 0,
           aiReviews: 0,
+          onlineUsers: 0,
           _errors: []
         };
 
@@ -429,6 +471,15 @@
           counts._errors.push('revenue');
         }
 
+        try {
+          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+          const online = await withTimeout(sb?.from('user_presence')?.select('*', { count: 'exact', head: true })?.gte('last_seen_at', fiveMinutesAgo), 8000);
+          if (online && typeof online.count === 'number') counts.onlineUsers = online.count;
+        } catch (e) {
+          console.warn('[Dashboard] online users count failed:', e);
+          counts._errors.push('onlineUsers');
+        }
+
         return counts;
       }
 
@@ -454,6 +505,7 @@
             <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--red">🏗️</div></div><div class="stat-card__num">${counts.recoveryAssets.toLocaleString('ar-SA')}</div><div class="stat-card__label">أصول متعثرة</div></div>
             <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🏙️</div></div><div class="stat-card__num">${counts.cities.toLocaleString('ar-SA')}</div><div class="stat-card__label">مدن City Intelligence</div></div>
             <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">🧑‍⚕️</div></div><div class="stat-card__num">${counts.aiReviews.toLocaleString('ar-SA')}</div><div class="stat-card__label">طلبات مراجعة AI</div></div>
+            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🟢</div></div><div class="stat-card__num">${counts.onlineUsers.toLocaleString('ar-SA')}</div><div class="stat-card__label">متواجدون الآن</div></div>
           </div>
 
           <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:1rem;">الوحدات</h2>
@@ -513,26 +565,26 @@
               <div class="module-card__title">مراجعة المتخصص</div>
               <div class="module-card__desc">طلبات مراجعة تحليلات AI</div>
             </button>
-            <button class="module-card" data-target="/admin/economic-life.html" data-title="العمر الاقتصادي للأصول">
+            <button class="module-card" data-target="/admin/economic-life.html?embed=1" data-title="العمر الاقتصادي للأصول">
               <div class="module-card__icon">⏳</div>
               <div class="module-card__title">العمر الاقتصادي للأصول</div>
               <div class="module-card__desc">إدارة Economic Life Database</div>
             </button>
-            <button class="module-card" data-target="/admin/depreciation-factors.html" data-title="عوامل الاستهلاك">
+            <button class="module-card" data-target="/admin/depreciation-factors.html?embed=1" data-title="عوامل الاستهلاك">
               <div class="module-card__icon">⚙️</div>
               <div class="module-card__title">عوامل الاستهلاك</div>
               <div class="module-card__desc">إدارة BONDS Depreciation Standards</div>
             </button>
-            <button class="module-card" data-target="/admin/market-intelligence.html" data-title="الذكاء السوقي">
+            <button class="module-card" data-target="/admin/market-intelligence.html?embed=1" data-title="الذكاء السوقي">
               <div class="module-card__icon">📈</div>
               <div class="module-card__title">الذكاء السوقي</div>
               <div class="module-card__desc">إدارة Market Intelligence Database</div>
             </button>
-            <button class="module-card" data-target="/admin/condition-assessment.html" data-title="تقييم الحالة">
+            <button class="module-card" data-target="/admin/condition-assessment.html?embed=1" data-title="تقييم الحالة">
               <div class="module-card__icon">🔧</div>
               <div class="module-card__title">تقييم الحالة</div>
             </button>
-            <button class="module-card" data-target="/admin/risk-intelligence.html" data-title="ذكاء المخاطر">
+            <button class="module-card" data-target="/admin/risk-intelligence.html?embed=1" data-title="ذكاء المخاطر">
               <div class="module-card__icon">🛡️</div>
               <div class="module-card__title">ذكاء المخاطر</div>
               <div class="module-card__desc">تقييم المخاطر عبر 8 أبعاد وإنتاج Risk Index</div>
@@ -544,10 +596,184 @@
         });
       }
 
+      let onlineRefreshTimer = null;
+      let onlineAutoRefresh = true;
+
+      async function apiGet(action, params) {
+        const token = (await sb.auth.getSession())?.data?.session?.access_token || '';
+        const url = new URL('/api/admin', location.origin);
+        url.searchParams.set('action', action);
+        if (params) Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+        const res = await fetch(url.toString(), {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      }
+
+      function countryFlag(countryCode) {
+        if (!countryCode || countryCode.length !== 2) return '🌐';
+        const code = countryCode.toUpperCase();
+        return String.fromCodePoint(...[...code].map(c => 0x1F1A5 + c.charCodeAt(0)));
+      }
+
+      function timeAgo(iso) {
+        if (!iso) return '-';
+        const sec = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+        if (sec < 10) return 'الآن';
+        if (sec < 60) return `${sec} ث`;
+        const min = Math.floor(sec / 60);
+        if (min < 60) return `${min} د`;
+        const h = Math.floor(min / 60);
+        return `${h} س`;
+      }
+
+      function formatDuration(sec) {
+        if (sec === null || sec === undefined) return '-';
+        if (sec < 60) return `${sec} ث`;
+        const min = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${min} د ${s} ث`;
+      }
+
+      function formatTime(iso) {
+        if (!iso) return '-';
+        return new Date(iso).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+
+      function renderOnlineTable(data, container) {
+        if (!data || !data.online || data.online.length === 0) {
+          container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem">لا يوجد متواجدون حالياً</p>';
+          return;
+        }
+        container.innerHTML = `
+          <table class="online-table">
+            <thead><tr><th>الدولة</th><th>النوع</th><th>وقت الدخول</th><th>آخر نشاط</th><th>الصفحة الحالية</th><th>اللغة</th></tr></thead>
+            <tbody>
+              ${data.online.map(u => `
+                <tr data-session="${u.sessionId}">
+                  <td><div class="country-cell"><span class="country-flag">${countryFlag(u.countryCode || u.country)}</span><span>${u.country || 'غير معروف'}</span>${u.city ? `<span style="font-size:0.75rem;color:var(--text-muted)">(${u.city})</span>` : ''}</div></td>
+                  <td><span class="user-type ${u.userId ? 'user-type--user' : 'user-type--guest'}">${u.userId ? 'مستخدم' : 'زائر'}</span></td>
+                  <td>${formatTime(u.startedAt)}<br><span class="time-ago">منذ ${timeAgo(u.startedAt)}</span></td>
+                  <td>${formatTime(u.lastSeenAt)}<br><span class="time-ago">منذ ${timeAgo(u.lastSeenAt)}</span></td>
+                  <td><a class="page-link" href="${u.url || '#' }" target="_blank" title="${u.page || ''}">${u.section || u.page || '-'}</a></td>
+                  <td>${u.lang || '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        container.querySelectorAll('tr[data-session]').forEach(row => {
+          row.addEventListener('click', () => showJourney(row.dataset.session));
+        });
+      }
+
+      function renderOnlineStats(data) {
+        const online = data.online || [];
+        const guests = online.filter(u => !u.userId).length;
+        const users = online.filter(u => u.userId).length;
+        const countries = new Set(online.map(u => u.country).filter(Boolean));
+        document.getElementById('ouCount').textContent = online.length;
+        document.getElementById('ouGuests').textContent = guests;
+        document.getElementById('ouUsers').textContent = users;
+        document.getElementById('ouCountries').textContent = countries.size;
+      }
+
+      async function loadOnlineUsers() {
+        try {
+          const data = await apiGet('online-users');
+          renderOnlineStats(data);
+          renderOnlineTable(data, document.getElementById('ouTable'));
+          document.getElementById('ouUpdated').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-SA');
+        } catch (err) {
+          document.getElementById('ouTable').innerHTML = `<p style="text-align:center;color:var(--danger);padding:2rem">فشل التحميل: ${err.message}</p>`;
+        }
+      }
+
+      async function showJourney(sessionId) {
+        const modal = document.getElementById('ouModal');
+        const body = document.getElementById('ouModalBody');
+        modal.classList.add('open');
+        body.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem">جاري التحميل...</p>';
+        try {
+          const data = await apiGet('user-journey', { session_id: sessionId });
+          const p = data.presence || {};
+          body.innerHTML = `
+            <div class="journey-summary">
+              <div class="journey-item"><div class="num">${data.totalPages}</div><div class="lbl">صفحات</div></div>
+              <div class="journey-item"><div class="num">${formatDuration(data.totalSeconds)}</div><div class="lbl">المدة</div></div>
+              <div class="journey-item"><div class="num">${p.country || 'غير معروف'}</div><div class="lbl">الدولة</div></div>
+              <div class="journey-item"><div class="num">${p.city || '-'}</div><div class="lbl">المدينة</div></div>
+            </div>
+            <div class="timeline">
+              ${data.journey.map(j => `
+                <div class="timeline-row">
+                  <div class="timeline-time">${formatTime(j.enteredAt)}</div>
+                  <div class="timeline-page">${j.section || j.page || '-'}</div>
+                  <div class="timeline-duration">${formatDuration(j.durationSeconds)}</div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        } catch (err) {
+          body.innerHTML = `<p style="text-align:center;color:var(--danger);padding:2rem">فشل التحميل: ${err.message}</p>`;
+        }
+      }
+
+      function closeJourney() {
+        document.getElementById('ouModal').classList.remove('open');
+      }
+
+      function renderOnlineUsers() {
+        const panel = document.getElementById('onlineUsersPanel');
+        panel.innerHTML = `
+          <div class="page-header">
+            <h1><span class="live-dot"></span> المتواجدون الآن</h1>
+            <p>متابعة الزوار والمستخدمين المتصلين بالموقع لحظة بلحظة</p>
+          </div>
+          <div class="online-toolbar">
+            <button class="btn-sm" id="ouRefresh">تحديث</button>
+            <button class="btn-sm btn-secondary" id="ouToggleAuto">إيقاف التحديث التلقائي</button>
+            <span id="ouUpdated" style="font-size:0.8rem;color:var(--text-muted)"></span>
+          </div>
+          <div class="stats-grid" style="margin-bottom:1.25rem">
+            <div class="stat-card"><div class="stat-card__num" id="ouCount">0</div><div class="stat-card__label">متصل الآن</div></div>
+            <div class="stat-card"><div class="stat-card__num" id="ouGuests">0</div><div class="stat-card__label">زوار</div></div>
+            <div class="stat-card"><div class="stat-card__num" id="ouUsers">0</div><div class="stat-card__label">مستخدمون</div></div>
+            <div class="stat-card"><div class="stat-card__num" id="ouCountries">0</div><div class="stat-card__label">دول</div></div>
+          </div>
+          <div id="ouTable"></div>
+          <div class="timeline-modal" id="ouModal">
+            <div class="timeline-card">
+              <div class="timeline-header"><h3>سير الزائر</h3><button class="timeline-close" id="ouCloseModal">&times;</button></div>
+              <div class="timeline-body" id="ouModalBody"></div>
+            </div>
+          </div>
+        `;
+        document.getElementById('ouRefresh').addEventListener('click', loadOnlineUsers);
+        document.getElementById('ouToggleAuto').addEventListener('click', function () {
+          onlineAutoRefresh = !onlineAutoRefresh;
+          this.textContent = onlineAutoRefresh ? 'إيقاف التحديث التلقائي' : 'تشغيل التحديث التلقائي';
+          if (onlineRefreshTimer) clearInterval(onlineRefreshTimer);
+          if (onlineAutoRefresh) onlineRefreshTimer = setInterval(loadOnlineUsers, 30000);
+        });
+        document.getElementById('ouCloseModal').addEventListener('click', closeJourney);
+        document.getElementById('ouModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeJourney(); });
+        loadOnlineUsers();
+        if (onlineRefreshTimer) clearInterval(onlineRefreshTimer);
+        onlineRefreshTimer = setInterval(() => { if (onlineAutoRefresh) loadOnlineUsers(); }, 30000);
+      }
+
       function loadModule(url, title) {
+        if (onlineRefreshTimer) { clearInterval(onlineRefreshTimer); onlineRefreshTimer = null; }
         if (url === 'overview') {
           iframeWrap.innerHTML = '<div class="overview" id="overviewPanel"></div>';
           loadStats().then(renderOverview);
+          return;
+        }
+        if (url === 'online-users') {
+          iframeWrap.innerHTML = '<div class="overview" id="onlineUsersPanel"></div>';
+          renderOnlineUsers();
           return;
         }
         iframeWrap.innerHTML = '<div class="iframe-loader"><div class="spinner"></div><p>جارِ تحميل القسم...</p></div>';

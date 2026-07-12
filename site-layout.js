@@ -540,4 +540,12 @@
   } else {
     inject();
   }
+
+  // Load universal visitor tracking on public pages only
+  if (!location.pathname.startsWith('/admin')) {
+    const trackScript = document.createElement('script');
+    trackScript.src = getBase() + 'lib/tracking.js?v=2';
+    trackScript.async = true;
+    document.head.appendChild(trackScript);
+  }
 })();

@@ -405,7 +405,8 @@
       <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر المدينة" id="citySelect"><option value="">اختر المدينة</option></select>
       <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر النشاط (اختياري)" id="activitySelect"><option value="">اختر النشاط (اختياري)</option></select>
       <select data-universal-dropdown="true" id="yearSelect">
-        <option value="2025" selected>2025</option>
+        <option value="latest" selected>أحدث سنة متاحة</option>
+        <option value="2025">2025</option>
         <option value="2024">2024</option>
       </select>
       <a href="/v3/investment-map" class="map-link">🗺️ الخريطة الاستثمارية</a>
@@ -747,6 +748,7 @@
       const indicators = indicatorsData.indicators || {};
       const market = marketData.marketData || [];
       const marketItem = market[0] || {};
+      const dataYear = detail.year || indicatorsData.year || marketData.year || document.getElementById('yearSelect').value;
       const attractiveness = computeAttractiveness(city, indicators, marketItem);
       const recommendations = generateSectorRecommendations(city, indicators, marketData);
 
@@ -786,7 +788,7 @@
 
           <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <h3 style="margin: 0;">📊 المؤشرات الاقتصادية ${confidenceBadge(indicators.overall_confidence)}</h3>
+              <h3 style="margin: 0;">📊 المؤشرات الاقتصادية ${dataYear && dataYear !== 'latest' ? '(' + dataYear + ')' : ''} ${confidenceBadge(indicators.overall_confidence)}</h3>
               <button class="feedback-btn" onclick="openFeedbackForm('', '', 'population', ${city.population || 'null'})">✏️ صحّح البيانات</button>
             </div>
             <div class="metric"><span class="metric-label">الناتج المحلي للمدينة</span><span class="metric-value">${valueOrMissing(indicators.gdp_city, 'ر.س')}</span></div>

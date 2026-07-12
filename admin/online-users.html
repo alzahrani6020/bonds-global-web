@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-ud-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>المتواجدون الآن | لوحة التحكم | بوندز</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=2"></script>
+  <script>BondsAuth.initAdminGuard();</script>
+  <script src="/admin/admin-embed.js"></script>
+  <style>
+    :root {
+      --bg: #f5f0e8; --bg-secondary: #ffffff; --bg-card: rgba(255,255,255,0.9);
+      --gold: #b8954e; --gold-bright: #d4b87a; --gold-dim: #8a7340;
+      --text: #1a1a1a; --text-secondary: #555555; --text-muted: #888888;
+      --border: rgba(0,0,0,0.08); --border-hover: rgba(184,149,78,0.4);
+      --success: #22c55e; --warning: #eab308; --info: #3b82f6; --danger: #ef4444;
+      --shadow: 0 4px 20px rgba(0,0,0,0.06); --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+      --radius: 16px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Vazirmatn', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+    .admin-layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 260px; background: var(--bg-secondary); border-left: 1px solid var(--border);
+      padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;
+      position: fixed; right: 0; top: 0; bottom: 0; z-index: 100;
+    }
+    .sidebar-brand { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .sidebar-brand img { height: 40px; width: auto; border-radius: 6px; }
+    .sidebar-brand span { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+    .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; border-radius: 12px; color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s; }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(212,168,83,0.1); color: var(--gold); }
+    .sidebar-link svg { width: 20px; height: 20px; opacity: 0.7; }
+
+    .main-content { flex: 1; margin-right: 260px; padding: 2rem; }
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 800; color: var(--gold); }
+    .page-header p { color: var(--text-secondary); font-size: 0.9rem; }
+
+    .toolbar { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .btn-sm { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #1a1a1a; }
+    .btn-secondary { background: rgba(0,0,0,0.04); color: var(--text-secondary); border: 1px solid var(--border); }
+    .live-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--success); animation: pulse 1.5s infinite; display: inline-block; margin-left: 0.5rem; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); } 70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; text-align: center; }
+    .stat-card .value { font-size: 1.8rem; font-weight: 900; color: var(--gold); margin-bottom: 0.25rem; }
+    .stat-card .label { font-size: 0.8rem; color: var(--text-secondary); }
+
+    .table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { text-align: right; padding: 1rem 1.25rem; font-size: 0.75rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.9); }
+    .data-table td { padding: 0.85rem 1.25rem; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .data-table tr:hover td { background: rgba(212,168,83,0.05); cursor: pointer; }
+    .data-table tr.active td { background: rgba(212,168,83,0.1); }
+    .country-cell { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: var(--text); }
+    .country-flag { font-size: 1.2rem; }
+    .user-type { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
+    .user-type--guest { background: rgba(148,163,184,0.15); color: #64748b; }
+    .user-type--user { background: rgba(34,197,94,0.15); color: #16a34a; }
+    .page-link { color: var(--gold); text-decoration: none; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; direction: ltr; }
+    .time-ago { font-size: 0.75rem; color: var(--text-muted); }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--bg-secondary); border-radius: var(--radius); width: 100%; max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); }
+    .modal-header { padding: 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h2 { font-size: 1.2rem; font-weight: 800; color: var(--gold); }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary); }
+    .modal-body { padding: 1.25rem; overflow-y: auto; flex: 1; }
+    .journey-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .summary-item { background: var(--bg); padding: 0.75rem; border-radius: 10px; text-align: center; }
+    .summary-item .num { font-size: 1.3rem; font-weight: 800; color: var(--gold); }
+    .summary-item .lbl { font-size: 0.75rem; color: var(--text-secondary); }
+    .timeline { position: relative; padding-right: 1.5rem; }
+    .timeline::before { content: ''; position: absolute; right: 6px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+    .timeline-item { position: relative; margin-bottom: 1.25rem; }
+    .timeline-item::before { content: ''; position: absolute; right: -20px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--gold); border: 2px solid var(--bg-secondary); }
+    .timeline-time { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+    .timeline-page { font-weight: 700; color: var(--text); margin-bottom: 0.25rem; }
+    .timeline-meta { font-size: 0.8rem; color: var(--text-secondary); }
+    .timeline-duration { display: inline-block; background: rgba(212,168,83,0.12); color: var(--gold-dim); padding: 0.15rem 0.4rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; margin-top: 0.25rem; }
+    .journey-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .journey-table th { text-align: right; padding: 0.75rem; background: rgba(212,168,83,0.1); color: var(--gold); font-weight: 700; }
+    .journey-table td { padding: 0.75rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .journey-table tr:hover td { background: rgba(212,168,83,0.04); }
+    .section-badge { display: inline-block; background: rgba(212,168,83,0.12); color: var(--gold); padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+
+    .empty { text-align: center; padding: 3rem; color: var(--text-muted); }
+    .error { background: rgba(239,68,68,0.08); color: var(--danger); padding: 1rem; border-radius: 10px; margin-bottom: 1rem; }
+
+    @media (max-width: 1024px) {
+      .sidebar { width: 80px; padding: 1rem; }
+      .sidebar-brand span, .sidebar-link span { display: none; }
+      .sidebar-link { justify-content: center; padding: 0.85rem; }
+      .main-content { margin-right: 80px; }
+    }
+    @media (max-width: 640px) {
+      .main-content { padding: 1rem; }
+      .data-table th, .data-table td { padding: 0.65rem; font-size: 0.75rem; }
+      .page-link { max-width: 120px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="../assets/bonds-logo-2026.webp?v=2026" alt="بوندز" />
+        <span>بوندز</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg>
+          <span>الرئيسية</span>
+        </a>
+        <a href="users.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>المستخدمين</span>
+        </a>
+        <a href="analytics.html" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+          <span>التحليلات</span>
+        </a>
+        <a href="online-users.html" class="sidebar-link active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>المتواجدون</span>
+        </a>
+        <a href="../index.html" style="margin-top: 2rem; color: #ef4444;" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>خروج</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1><span class="live-dot"></span> المتواجدون الآن</h1>
+        <p>متابعة الزوار والمستخدمين المتصلين بالموقع لحظة بلحظة</p>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn-sm" id="refreshBtn">تحديث</button>
+        <button class="btn-sm btn-secondary" id="autoRefreshBtn">إيقاف التحديث التلقائي</button>
+        <span id="lastUpdated" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="value" id="onlineCount">0</div>
+          <div class="label">متصل الآن</div>
+        </div>
+        <div class="stat-card">
+          <div class="value" id="guestCount">0</div>
+          <div class="label">زوار مجهولون</div>
+        </div>
+        <div class="stat-card">
+          <div class="value" id="userCount">0</div>
+          <div class="label">مستخدمون مسجلون</div>
+        </div>
+        <div class="stat-card">
+          <div class="value" id="countryCount">0</div>
+          <div class="label">دول</div>
+        </div>
+      </div>
+
+      <div id="errorBox"></div>
+
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>الزائر</th>
+              <th>الدولة / المدينة</th>
+              <th>الجهاز</th>
+              <th>الصفحة الحالية</th>
+              <th>وقت الدخول</th>
+              <th>آخر نشاط</th>
+              <th>المدة</th>
+              <th>اللغة</th>
+            </tr>
+          </thead>
+          <tbody id="usersTable">
+            <tr><td colspan="8" class="empty">جاري التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="journeyModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>سير الزائر</h2>
+        <button class="modal-close" id="closeModal">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <div class="empty">اختر زائراً لعرض سيره</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const API_URL = '/api/admin';
+      let autoRefresh = true;
+      let refreshTimer = null;
+      const REFRESH_INTERVAL = 30000;
+
+      async function apiGet(action, params) {
+        let token = window.__ADMIN_TOKEN || '';
+        if (!token) {
+          const sb = window.BondsAuth?.getSupabase ? window.BondsAuth.getSupabase() : null;
+          token = (await sb?.auth?.getSession())?.data?.session?.access_token || '';
+        }
+        const url = new URL(API_URL, location.origin);
+        url.searchParams.set('action', action);
+        if (params) Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+        const res = await fetch(url.toString(), {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      }
+
+      function countryFlag(countryCode) {
+        if (!countryCode || countryCode.length !== 2) return '🌐';
+        const code = countryCode.toUpperCase();
+        return String.fromCodePoint(...[...code].map(c => 0x1F1A5 + c.charCodeAt(0)));
+      }
+
+      function sectionLabel(section) {
+        const labels = {
+          admin: 'لوحة التحكم',
+          calculator: 'الحاسبات',
+          home: 'الصفحة الرئيسية',
+          blog: 'المدونة',
+          app: 'التطبيق',
+          about: 'من نحن',
+          contact: 'تواصل معنا',
+          faq: 'الأسئلة الشائعة',
+          pricing: 'الأسعار',
+          auth: 'تسجيل الدخول',
+          v3: 'V3 / الذكاء الاصطناعي'
+        };
+        return labels[section] || section || '—';
+      }
+
+      function timeAgo(iso) {
+        if (!iso) return '-';
+        const sec = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+        if (sec < 10) return 'الآن';
+        if (sec < 60) return `${sec} ث`;
+        const min = Math.floor(sec / 60);
+        if (min < 60) return `${min} د`;
+        const h = Math.floor(min / 60);
+        return `${h} س`;
+      }
+
+      function formatDuration(sec) {
+        if (sec === null || sec === undefined) return '-';
+        if (sec < 60) return `${sec} ث`;
+        const min = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${min} د ${s} ث`;
+      }
+
+      function formatTime(iso) {
+        if (!iso) return '-';
+        const d = new Date(iso);
+        return d.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+
+      function formatDateTime(iso) {
+        if (!iso) return '-';
+        const d = new Date(iso);
+        return d.toLocaleString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+
+      function renderUsers(data) {
+        const tbody = document.getElementById('usersTable');
+        if (!data || !data.online || data.online.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" class="empty">لا يوجد متواجدون حالياً</td></tr>';
+          return;
+        }
+
+        function parseDevice(ua) {
+          if (!ua) return '—';
+          if (/tablet|ipad|android(?!.*mobi)/i.test(ua)) return 'تابلت';
+          if (/mobile|iphone|android.*mobi/i.test(ua)) return 'موبايل';
+          return 'كمبيوتر';
+        }
+
+        tbody.innerHTML = data.online.map(u => {
+          const identity = u.name || u.email || (u.userId ? 'مستخدم مسجل' : 'زائر مجهول');
+          const identityHint = u.email && u.name ? `<div style="font-size:0.7rem;color:var(--text-muted)">${u.email}</div>` : '';
+          return `
+          <tr data-session="${u.sessionId}">
+            <td>
+              <div style="font-weight:700">${identity}</div>
+              ${identityHint}
+              <span class="user-type ${u.userId ? 'user-type--user' : 'user-type--guest'}" style="margin-top:0.25rem">${u.userId ? 'مستخدم' : 'زائر'}</span>
+            </td>
+            <td>
+              <div class="country-cell">
+                <span class="country-flag">${countryFlag(u.countryCode)}</span>
+                <span>${u.country || 'غير معروف'}</span>
+              </div>
+              ${u.city ? `<div style="font-size:0.75rem;color:var(--text-muted)">${u.city}</div>` : ''}
+            </td>
+            <td>${parseDevice(u.userAgent)}<br><span style="font-size:0.7rem;color:var(--text-muted)">${u.screen || ''}</span></td>
+            <td><a class="page-link" href="${u.url || '#' }" target="_blank" title="${u.page || ''}">${u.section || u.page || '-'}</a></td>
+            <td>${formatTime(u.startedAt)}<br><span class="time-ago">منذ ${timeAgo(u.startedAt)}</span></td>
+            <td>${formatTime(u.lastSeenAt)}<br><span class="time-ago">منذ ${timeAgo(u.lastSeenAt)}</span></td>
+            <td>${formatDuration(Math.floor((new Date(u.lastSeenAt).getTime() - new Date(u.startedAt).getTime()) / 1000))}</td>
+            <td>${u.lang || '-'}</td>
+          </tr>
+        `;}).join('');
+
+        tbody.querySelectorAll('tr').forEach(row => {
+          row.addEventListener('click', () => openJourney(row.dataset.session));
+        });
+      }
+
+      function renderStats(data) {
+        const online = data.online || [];
+        const guests = online.filter(u => !u.userId).length;
+        const users = online.filter(u => u.userId).length;
+        const countries = new Set(online.map(u => u.country).filter(Boolean));
+        document.getElementById('onlineCount').textContent = online.length;
+        document.getElementById('guestCount').textContent = guests;
+        document.getElementById('userCount').textContent = users;
+        document.getElementById('countryCount').textContent = countries.size;
+      }
+
+      async function loadOnlineUsers() {
+        try {
+          document.getElementById('errorBox').innerHTML = '';
+          const data = await apiGet('online-users');
+          renderStats(data);
+          renderUsers(data);
+          document.getElementById('lastUpdated').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-SA');
+        } catch (err) {
+          document.getElementById('errorBox').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
+        }
+      }
+
+      async function openJourney(sessionId) {
+        const modal = document.getElementById('journeyModal');
+        const body = document.getElementById('modalBody');
+        modal.classList.add('open');
+        body.innerHTML = '<div class="empty">جاري تحميل السير...</div>';
+        try {
+          const data = await apiGet('user-journey', { session_id: sessionId });
+          const presence = data.presence || {};
+          const totalDuration = formatDuration(data.totalSeconds);
+          body.innerHTML = `
+            <div class="journey-summary">
+              <div class="summary-item"><div class="num">${data.totalPages}</div><div class="lbl">صفحات</div></div>
+              <div class="summary-item"><div class="num">${totalDuration}</div><div class="lbl">المدة الإجمالية</div></div>
+              <div class="summary-item"><div class="num">${presence.country || 'غير معروف'}</div><div class="lbl">الدولة</div></div>
+              <div class="summary-item"><div class="num">${presence.city || '-'}</div><div class="lbl">المدينة</div></div>
+            </div>
+            <table class="journey-table">
+              <thead>
+                <tr>
+                  <th>وقت الدخول</th>
+                  <th>الصفحة</th>
+                  <th>القسم</th>
+                  <th>وقت الخروج</th>
+                  <th>المدة</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.journey.map(j => `
+                  <tr>
+                    <td style="direction:ltr;text-align:right;">${formatDateTime(j.enteredAt)}</td>
+                    <td>${j.url ? `<a class="page-link" href="${j.url}" target="_blank">${j.page || j.section || '-'}</a>` : (j.page || j.section || '-')}</td>
+                    <td><span class="section-badge">${sectionLabel(j.section)}</span></td>
+                    <td style="direction:ltr;text-align:right;">${j.leftAt ? formatDateTime(j.leftAt) : '<span style="color:var(--success)">لا يزال هنا</span>'}</td>
+                    <td>${formatDuration(j.durationSeconds)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        } catch (err) {
+          body.innerHTML = `<div class="error">فشل تحميل السير: ${err.message}</div>`;
+        }
+      }
+
+      function closeJourney() {
+        document.getElementById('journeyModal').classList.remove('open');
+      }
+
+      function setupAutoRefresh() {
+        if (refreshTimer) clearInterval(refreshTimer);
+        if (autoRefresh) refreshTimer = setInterval(loadOnlineUsers, REFRESH_INTERVAL);
+      }
+
+      document.getElementById('refreshBtn').addEventListener('click', loadOnlineUsers);
+      document.getElementById('autoRefreshBtn').addEventListener('click', function () {
+        autoRefresh = !autoRefresh;
+        this.textContent = autoRefresh ? 'إيقاف التحديث التلقائي' : 'تشغيل التحديث التلقائي';
+        setupAutoRefresh();
+      });
+      document.getElementById('closeModal').addEventListener('click', closeJourney);
+      document.getElementById('journeyModal').addEventListener('click', function (e) {
+        if (e.target === this) closeJourney();
+      });
+
+      loadOnlineUsers();
+      setupAutoRefresh();
+    })();
+  </script>
+</body>
+</html>

@@ -4,7 +4,7 @@
  */
 
 const getSupabase = require('../lib/api/supabase');
-const { withRateLimit } = require('../lib/api/rate-limit');
+const { checkRateLimit } = require('../lib/api/rate-limit');
 const { sendEmail } = require('../lib/api/email');
 
 const OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
@@ -345,6 +345,165 @@ async function getAnalytics(sb, admin) {
   };
 }
 
+
+// ── Online Users & Journey ──────────────────────────────────
+async function getOnlineUsers(sb) {
+  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+  const { data, error } = await sb
+    .from('user_presence')
+    .select('session_id, user_id, country, country_code, city, region, page, section, url, user_agent, screen, lang, started_at, last_seen_at, is_online')
+    .gte('last_seen_at', fiveMinutesAgo)
+    .order('last_seen_at', { ascending: false });
+  if (error) throw error;
+
+  const userIds = (data || []).map(p => p.user_id).filter(Boolean);
+  let profileMap = {};
+  if (userIds.length > 0) {
+    try {
+      const { data: profiles } = await sb.from('profiles').select('id, email, restaurant_name').in('id', userIds);
+      (profiles || []).forEach(p => { profileMap[p.id] = p; });
+    } catch (e) {}
+  }
+
+  const online = (data || []).map(p => ({
+    sessionId: p.session_id,
+    userId: p.user_id,
+    name: profileMap[p.user_id]?.restaurant_name || profileMap[p.user_id]?.email || null,
+    email: profileMap[p.user_id]?.email || null,
+    country: p.country,
+    countryCode: p.country_code,
+    city: p.city,
+    region: p.region,
+    page: p.page,
+    section: p.section,
+    url: p.url,
+    userAgent: p.user_agent,
+    screen: p.screen,
+    lang: p.lang,
+    startedAt: p.started_at,
+    lastSeenAt: p.last_seen_at,
+    isOnline: p.is_online
+  }));
+
+  return { success: true, count: online.length, online };
+}
+
+async function getUserActivity(sb, userId) {
+  if (!userId) throw new Error('user_id required');
+
+  // Get user profile
+  const { data: profile, error: profileError } = await sb
+    .from('profiles')
+    .select('id, email, restaurant_name, phone, country, city, created_at')
+    .eq('id', userId)
+    .single();
+  if (profileError) throw profileError;
+
+  // Get all sessions for this user
+  const { data: sessions, error: sessionsError } = await sb
+    .from('user_presence')
+    .select('session_id, country, country_code, city, page, section, url, user_agent, screen, lang, started_at, last_seen_at, is_online')
+    .eq('user_id', userId)
+    .order('last_seen_at', { ascending: false })
+    .limit(100);
+  if (sessionsError) throw sessionsError;
+
+  // Get all page views for this user
+  const { data: views, error: viewsError } = await sb
+    .from('page_views')
+    .select('session_id, page, section, url, country, city, duration_seconds, created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: true })
+    .limit(500);
+  if (viewsError) throw viewsError;
+
+  // Group views by session
+  const viewsBySession = {};
+  (views || []).forEach(v => {
+    if (!viewsBySession[v.session_id]) viewsBySession[v.session_id] = [];
+    viewsBySession[v.session_id].push(v);
+  });
+
+  const sessionList = (sessions || []).map(s => {
+    const sessionViews = viewsBySession[s.session_id] || [];
+    const journey = sessionViews.map((v, i, arr) => {
+      const next = arr[i + 1];
+      const leftAt = next ? next.created_at : s.last_seen_at;
+      const duration = v.duration_seconds || (leftAt ? Math.round((new Date(leftAt).getTime() - new Date(v.created_at).getTime()) / 1000) : null);
+      return {
+        page: v.page,
+        section: v.section,
+        url: v.url,
+        country: v.country,
+        city: v.city,
+        enteredAt: v.created_at,
+        leftAt,
+        durationSeconds: duration
+      };
+    });
+    const totalSeconds = journey.reduce((sum, j) => sum + (j.durationSeconds || 0), 0);
+    return {
+      sessionId: s.session_id,
+      startedAt: s.started_at,
+      lastSeenAt: s.last_seen_at,
+      isOnline: s.is_online && new Date(s.last_seen_at).getTime() > Date.now() - 5 * 60 * 1000,
+      country: s.country,
+      countryCode: s.country_code,
+      city: s.city,
+      device: s.user_agent,
+      screen: s.screen,
+      lang: s.lang,
+      currentPage: s.page,
+      journey,
+      totalPages: journey.length,
+      totalSeconds
+    };
+  });
+
+  return {
+    success: true,
+    profile: profile || null,
+    sessions: sessionList,
+    totalSessions: sessionList.length
+  };
+}
+
+async function getUserJourney(sb, sessionId) {
+  if (!sessionId) throw new Error('session_id required');
+
+  const [{ data: presence }, { data: views }] = await Promise.all([
+    sb.from('user_presence').select('*').eq('session_id', sessionId).single(),
+    sb.from('page_views')
+      .select('page, section, url, referrer, country, city, duration_seconds, created_at')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: true })
+  ]);
+
+  const journey = (views || []).map((v, i, arr) => {
+    const next = arr[i + 1];
+    const leftAt = next ? next.created_at : presence?.last_seen_at;
+    const duration = v.duration_seconds || (leftAt ? Math.round((new Date(leftAt).getTime() - new Date(v.created_at).getTime()) / 1000) : null);
+    return {
+      page: v.page,
+      section: v.section,
+      url: v.url,
+      referrer: v.referrer,
+      country: v.country,
+      city: v.city,
+      enteredAt: v.created_at,
+      leftAt,
+      durationSeconds: duration
+    };
+  });
+
+  return {
+    success: true,
+    presence: presence || null,
+    journey,
+    totalPages: journey.length,
+    totalSeconds: journey.reduce((sum, j) => sum + (j.durationSeconds || 0), 0)
+  };
+}
 
 // ── Page Views & Sessions ───────────────────────────────────
 async function getPageViews(sb) {
@@ -987,6 +1146,11 @@ async function handler(req, res) {
   const action = req.query?.action || req.body?.action;
 
   try {
+    // Telemetry/read-heavy actions get a higher rate limit so dashboards can auto-refresh.
+    const LIVE_ACTIONS = new Set(['online-users', 'page-views', 'user-journey', 'user-activity']);
+    const rateCategory = LIVE_ACTIONS.has(action) ? 'live' : 'strict';
+    if (checkRateLimit(rateCategory, req, res)) return;
+
     if (req.method === 'GET') {
       if (action === 'bank-transfers') {
         const admin = await verifyAdmin(req, sb);
@@ -1046,6 +1210,21 @@ async function handler(req, res) {
         const admin = await verifyAdmin(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await getPageViews(sb));
+      }
+      if (action === 'online-users') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getOnlineUsers(sb));
+      }
+      if (action === 'user-journey') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getUserJourney(sb, req.query?.session_id));
+      }
+      if (action === 'user-activity') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getUserActivity(sb, req.query?.user_id));
       }
       if (action === 'ai-reviews') {
         const admin = await verifyAdmin(req, sb);
@@ -1186,4 +1365,4 @@ async function handler(req, res) {
   }
 }
 
-module.exports = withRateLimit('strict', handler);
+module.exports = handler;

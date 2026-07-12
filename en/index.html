@@ -21,7 +21,7 @@
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="../styles/design-system.css" />
-  <link rel="stylesheet" href="../styles/home.css?v=3" />
+  <link rel="stylesheet" href="../styles/home.css?v=4" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -160,6 +160,12 @@
           <a href="calculator-wizard.html" class="solution-card__link">Start the study →</a>
         </article>
         <article class="card solution-card reveal">
+          <div class="solution-card__icon" aria-hidden="true">🎯</div>
+          <h3 class="solution-card__title">Real Project Analysis</h3>
+          <p class="solution-card__desc">Calculate hidden costs, contingency, break-even, and payback period automatically.</p>
+          <a href="calculators/real-project-analysis.html" class="solution-card__link">Analyze your project →</a>
+        </article>
+        <article class="card solution-card reveal">
           <div class="solution-card__icon" aria-hidden="true">⚖️</div>
           <h3 class="solution-card__title">Asset & Risk Valuation</h3>
           <p class="solution-card__desc">Fair asset valuation and assessment of market, operational, and financial risks.</p>
@@ -264,5 +270,19 @@
   <div id="site-footer"></div>
   <script src="../site-layout.js?v=2.52.0"></script>
   <script src="../script.js?v=4"></script>
+  <script>
+    // Make solution cards clickable on the whole card surface
+    document.querySelectorAll('.solution-card').forEach(function(card) {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('a')) return;
+        const link = card.querySelector('.solution-card__link');
+        if (link) {
+          // Use link.click() so target/rel attributes are respected
+          link.click();
+        }
+      });
+    });
+  </script>
 </body>
 </html>

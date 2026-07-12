@@ -451,6 +451,9 @@
       li.setAttribute('data-value', item.value);
       li.setAttribute('data-index', String(dataIndex));
       if (item.disabled) li.classList.add('ud-disabled');
+      // Ensure readable text regardless of page theme or browser dark mode
+      li.style.color = '#000000';
+      li.style.webkitTextFillColor = '#000000';
       const iconEl = createIconEl(item.icon, item.label);
       if (iconEl) li.appendChild(iconEl);
       li.appendChild(document.createTextNode(item.label));

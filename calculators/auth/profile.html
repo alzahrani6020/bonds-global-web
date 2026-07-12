@@ -56,8 +56,14 @@
             for (i=0; i<fields.length; i++) { id=fields[i]; el=document.getElementById(id); if(el) el.value=_orig[id]||''; }
             editBtn.style.display='inline-flex'; cancelBtn.style.display='none'; saveBtn.style.display='none';
           }
-          for (i=0; i<fields.length; i++) { id=fields[i]; el=document.getElementById(id); if(el) { if(enable) el.removeAttribute('disabled'); else el.setAttribute('disabled','disabled'); } }
-          for (i=0; i<timeIds.length; i++) { id=timeIds[i]; el=document.getElementById(id); if(el) { if(enable) el.removeAttribute('disabled'); else el.setAttribute('disabled','disabled'); } }
+          function refreshUd(id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            if (enable) el.removeAttribute('disabled'); else el.setAttribute('disabled','disabled');
+            try { var dd = window.getUniversalDropdown && window.getUniversalDropdown(el); if (dd && typeof dd.refresh === 'function') dd.refresh(); } catch(e){}
+          }
+          for (i=0; i<fields.length; i++) { refreshUd(fields[i]); }
+          for (i=0; i<timeIds.length; i++) { refreshUd(timeIds[i]); }
           var uploadBtn = document.getElementById('uploadBtn');
           var avatarFile = document.getElementById('avatarFile');
           if(uploadBtn) { if(enable) uploadBtn.removeAttribute('disabled'); else uploadBtn.setAttribute('disabled','disabled'); }
@@ -245,6 +251,9 @@
       const uploadBtn = document.getElementById('uploadBtn');
       const uploadSpinner = document.getElementById('uploadSpinner');
       const uploadText = document.getElementById('uploadText');
+      const countrySelect = document.getElementById('country');
+      const governorateSelect = document.getElementById('governorate');
+      const citySelect = document.getElementById('city');
 
       function showSuccess(msg) { successMsg.textContent = msg; successMsg.style.display = 'block'; errorMsg.style.display = 'none'; infoMsg.style.display = 'none'; }
       function showError(msg) { errorMsg.textContent = msg; errorMsg.style.display = 'block'; successMsg.style.display = 'none'; infoMsg.style.display = 'none'; }
@@ -509,7 +518,17 @@
           document.getElementById('avatarUrl').value = publicUrl;
           const name = document.getElementById('restaurantName').value;
           updateAvatarPreview(publicUrl, name);
-          showSuccess('✅ تم رفع الصورة — اضغط "حفظ التغييرات" لتثبيتها');
+
+          // Auto-save avatar_url so the user does not lose it if they forget to press Save
+          try {
+            await sb.from('profiles').upsert({ id: user.id, avatar_url: publicUrl }, { onConflict: 'id' });
+            localStorage.setItem('bonds_avatar_url', publicUrl);
+            try { await sb.auth.updateUser({ data: { avatar_url: publicUrl } }); } catch(e){}
+            showSuccess('✅ تم رفع وحفظ الصورة');
+          } catch (saveErr) {
+            console.warn('[Profile] Auto-save avatar failed:', saveErr);
+            showSuccess('✅ تم رفع الصورة — اضغط "حفظ التغييرات" لتثبيتها');
+          }
         } catch (err) {
           showError('خطأ غير متوقع في الرفع: ' + (err?.message || String(err)));
         } finally {
@@ -543,16 +562,18 @@
             return;
           }
 
-          const selectedCity = citySelect.options[citySelect.selectedIndex];
+          const cityValue = citySelect.value;
+          const cityOption = Array.from(citySelect.options).find(o => o.value === cityValue);
           const updates = {
             id: user.id,
             restaurant_name: document.getElementById('restaurantName').value.trim(),
             phone: phone,
             country: countrySelect.value,
             governorate: governorateSelect.value,
-            city: citySelect.value,
-            city_name: selectedCity && selectedCity.value ? selectedCity.textContent : '',
+            city: cityValue,
+            city_name: cityOption ? cityOption.textContent : '',
             neighborhood: document.getElementById('neighborhood').value.trim(),
+            district: document.getElementById('district').value.trim(),
             business_type: document.getElementById('businessType').value.trim(),
             employee_count: parseInt(document.getElementById('employeeCount').value) || null,
             branch_count: parseInt(document.getElementById('branchCount').value) || null,

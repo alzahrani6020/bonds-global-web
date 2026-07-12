@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark light">
   <title>الخريطة الاستثمارية | Bonds V3</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <link rel="stylesheet" href="../styles/tokens.css">
   <style>
+    :root { color-scheme: dark; }
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -60,6 +62,29 @@
       border-radius: 8px;
       color: var(--text);
       font-size: 0.95rem;
+    }
+    .form-select {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: #ffffff;
+      border: 1px solid rgba(212,168,83,0.7);
+      border-radius: 12px;
+      color: #1a1a1a;
+      font-size: 0.95rem;
+      font-family: inherit;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d4a853' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: left 0.9rem center;
+      padding-left: 2.4rem;
+    }
+    .form-select:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212,168,83,0.2);
     }
     .range-value {
       color: var(--gold-bright);
@@ -150,7 +175,7 @@
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
-<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
+
 </head>
 <body>
 
@@ -167,12 +192,17 @@
     <aside class="sidebar">
       <div class="control-group">
         <label for="countrySelect">الدولة</label>
-        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="countrySelect"><option value="">كل الدول</option></select>
+        <select class="form-select" id="countrySelect"><option value="">كل الدول</option></select>
+      </div>
+
+      <div class="control-group">
+        <label for="citySelect">المدينة</label>
+        <select class="form-select" id="citySelect"><option value="">اختر مدينة (اختياري)</option></select>
       </div>
 
       <div class="control-group">
         <label for="activitySelect">النشاط الاقتصادي</label>
-        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activitySelect"><option value="">اختر نشاطاً</option></select>
+        <select class="form-select" id="activitySelect"><option value="">اختر نشاطاً</option></select>
       </div>
 
       <div class="control-group">
@@ -180,8 +210,8 @@
         <input type="range" id="scoreRange" min="0" max="100" value="0" step="5">
       </div>
 
-      <button class="btn" id="loadBtn">تحديث الخريطة</button>
-      <button class="btn btn-secondary" id="topBtn">أعلى 10 فرص</button>
+      <button type="button" class="btn" id="loadBtn">تحديث الخريطة</button>
+      <button type="button" class="btn btn-secondary" id="topBtn">أعلى 10 فرص</button>
 
       <div class="legend">
         <h4>مفتاح الألوان</h4>
@@ -201,9 +231,16 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script>
     const API_URL = '/api/v3';
-    const countryNames = { SA: 'السعودية', AE: 'الإمارات', QA: 'قطر', EG: 'مصر', JO: 'الأردن' };
+    const countryNames = {
+      SA: 'السعودية', AE: 'الإمارات العربية المتحدة', KW: 'الكويت', QA: 'قطر',
+      BH: 'البحرين', OM: 'عمان', EG: 'مصر', JO: 'الأردن', IQ: 'العراق',
+      LB: 'لبنان', SY: 'سوريا', PS: 'فلسطين', TN: 'تونس', DZ: 'الجزائر',
+      MA: 'المغرب', LY: 'ليبيا', SD: 'السودان', YE: 'اليمن', DJ: 'جيبوتي',
+      SO: 'الصومال', MR: 'موريتانيا', KM: 'جزر القمر'
+    };
     let map, markersLayer;
     let activities = [];
+    let allCities = [];
     let citiesData = [];
 
     async function fetchJson(url) {
@@ -245,13 +282,45 @@
       markersLayer = L.layerGroup().addTo(map);
     }
 
+    function populateSelect(select, options) {
+      if (window.getUniversalDropdown) {
+        const dd = window.getUniversalDropdown(select);
+        if (dd && typeof dd.setOptions === 'function') {
+          dd.setOptions(options);
+          return;
+        }
+      }
+      // Fallback DOM manipulation before UD is initialized
+      const placeholder = select.querySelector('option[value=""]');
+      select.innerHTML = '';
+      if (placeholder) select.appendChild(placeholder);
+      else {
+        const ph = document.createElement('option');
+        ph.value = '';
+        ph.textContent = select.dataset.udPlaceholder || '';
+        select.appendChild(ph);
+      }
+      options.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o.value;
+        opt.textContent = o.label;
+        select.appendChild(opt);
+      });
+    }
+
+    function refreshSelect(select) {
+      if (!window.getUniversalDropdown) return;
+      const dd = window.getUniversalDropdown(select);
+      if (dd && typeof dd.refresh === 'function') dd.refresh();
+    }
+
     async function initFilters() {
       const [citiesRes, sectorsRes] = await Promise.all([
         fetchJson(API_URL + '/cities'),
         fetchJson(API_URL + '/sectors')
       ]);
 
-      const cities = citiesRes.cities || [];
+      allCities = citiesRes.cities || [];
       activities = [];
       (sectorsRes.sectors || []).forEach(sector => {
         (sector.economic_sub_sectors || []).forEach(sub => {
@@ -262,36 +331,97 @@
       });
 
       const countrySelect = document.getElementById('countrySelect');
-      const countries = [...new Set(cities.map(c => c.country_code).filter(Boolean))].sort();
-      countries.forEach(code => {
-        countrySelect.innerHTML += `<option value="${code}">${countryNames[code] || code}</option>`;
-      });
-
+      const citySelect = document.getElementById('citySelect');
       const activitySelect = document.getElementById('activitySelect');
-      activities.forEach(a => {
-        activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar}</option>`;
-      });
+
+      const countries = [...new Set(allCities.map(c => c.country_code).filter(Boolean))].sort();
+      populateSelect(countrySelect, countries.map(code => ({ value: code, label: countryNames[code] || code })));
+
+      function updateCities() {
+        const countryCode = countrySelect.value;
+        const filtered = allCities
+          .filter(c => !countryCode || c.country_code === countryCode)
+          .sort((a, b) => (a.name_ar || '').localeCompare(b.name_ar || '', 'ar'))
+          .map(c => ({ value: c.code, label: c.name_ar || c.name_en || c.code }));
+        populateSelect(citySelect, filtered);
+        refreshSelect(citySelect);
+      }
+
+      const activityLabelMap = {
+        'retail': 'النشاط التجاري',
+        // add more friendly labels here if needed
+      };
+      populateSelect(activitySelect, activities.map(a => ({
+        value: a.code,
+        label: activityLabelMap[a.code] || a.name_ar || a.name_en || a.code
+      })));
+
+      countrySelect.addEventListener('change', updateCities);
+      updateCities();
+
+      // Ensure Universal Dropdowns are initialized with the populated options
+      if (window.initUniversalDropdowns) {
+        [countrySelect, citySelect, activitySelect].forEach(sel => {
+          if (!window.getUniversalDropdown || !window.getUniversalDropdown(sel)) {
+            window.initUniversalDropdowns(sel.parentElement || document);
+          }
+        });
+      }
+
+      // Refresh in case UD was already initialized
+      [countrySelect, citySelect, activitySelect].forEach(refreshSelect);
     }
 
-    function renderMarkers(cities) {
+    async function geocodeCity(city) {
+      try {
+        const q = `${city.name_ar || city.name_en || city.code}, ${countryNames[city.country_code] || city.country_code}`;
+        const res = await fetch(`${API_URL}/geocode?q=${encodeURIComponent(q)}`);
+        if (!res.ok) throw new Error(`Geocode API ${res.status}`);
+        const data = await res.json();
+        if (data && data.lat && data.lng) return { lat: data.lat, lng: data.lng };
+      } catch (e) {
+        console.warn('Geocoding failed for', city.code, e.message);
+      }
+      return null;
+    }
+
+    async function renderMarkers(cities) {
       markersLayer.clearLayers();
-      const valid = cities.filter(c => c.lat && c.lng && c.opportunity && c.opportunity.score !== null);
-      if (valid.length === 0) {
+      console.log('renderMarkers received', cities.length, 'cities');
+      if (!cities.length) {
         showStatus('لا توجد مدن تطابق الفلاتر.', true);
+        return;
+      }
+
+      // Geocode cities missing coordinates
+      const missing = cities.filter(c => !c.lat || !c.lng);
+      if (missing.length) showStatus(`جاري تحديد إحداثيات ${missing.length} مدينة...`);
+      const enriched = await Promise.all(cities.map(async city => {
+        if (city.lat && city.lng) return city;
+        const coords = await geocodeCity(city);
+        if (coords) return { ...city, lat: coords.lat, lng: coords.lng };
+        return city;
+      }));
+
+      const valid = enriched.filter(c => c.lat && c.lng);
+      console.log('valid cities with lat/lng:', valid.length);
+      if (valid.length === 0) {
+        showStatus('المدن المختارة لا تحتوي على إحداثيات جغرافية.', true);
         return;
       }
       hideStatus();
 
       const bounds = L.latLngBounds();
       valid.forEach(city => {
-        const score = city.opportunity.score;
-        const cls = classify(score);
-        const color = {
+        const hasOpportunity = city.opportunity && city.opportunity.score !== null;
+        const score = hasOpportunity ? city.opportunity.score : null;
+        const cls = hasOpportunity ? classify(score) : null;
+        const color = hasOpportunity ? {
           hot: '#f0c96a',
           good: '#22c55e',
           fair: '#f59e0b',
           weak: '#ef4444'
-        }[cls];
+        }[cls] : '#94a3b8';
 
         const icon = L.divIcon({
           className: 'custom-marker',
@@ -305,8 +435,8 @@
         });
 
         const marker = L.marker([city.lat, city.lng], { icon }).addTo(markersLayer);
-        marker.bindPopup(`
-          <div class="popup-title">${city.name_ar}</div>
+        const popupContent = hasOpportunity ? `
+          <div class="popup-title">${city.name_ar || city.name_en || city.code || 'مدينة'}</div>
           <div class="popup-metric"><span>الدرجة:</span><strong>${score.toFixed(1)} / 100</strong></div>
           <div class="popup-metric"><span>التصنيف:</span><strong>${classificationLabel(cls)}</strong></div>
           <div class="popup-metric"><span>الترتيب:</span><strong>${city.opportunity.rank || '-'}</strong></div>
@@ -314,7 +444,13 @@
           <div class="popup-metric"><span>المنافسين:</span><span>${formatNumber(city.opportunity.competitorsCount)}</span></div>
           <div class="popup-metric"><span>التشبع:</span><span>${city.opportunity.saturation}%</span></div>
           <a class="popup-link" href="/v3/city-intelligence?city=${city.code}&activity=${document.getElementById('activitySelect').value}" target="_blank">عرض ذكاء المدينة →</a>
-        `);
+        ` : `
+          <div class="popup-title">${city.name_ar || city.name_en || city.code || 'مدينة'}</div>
+          <div class="popup-metric"><span>الدولة:</span><strong>${countryNames[city.country_code] || city.country_code}</strong></div>
+          <div class="popup-metric"><span>السكان:</span><strong>${formatNumber(city.population)}</strong></div>
+          <a class="popup-link" href="/v3/city-intelligence?city=${city.code}" target="_blank">عرض ذكاء المدينة →</a>
+        `;
+        marker.bindPopup(popupContent);
         bounds.extend([city.lat, city.lng]);
       });
 
@@ -324,27 +460,24 @@
     async function loadMap() {
       updateChatContext();
       const country = document.getElementById('countrySelect').value;
+      const city = document.getElementById('citySelect').value;
       const activity = document.getElementById('activitySelect').value;
       const minScore = document.getElementById('scoreRange').value;
 
-      if (!activity) {
-        showStatus('يرجى اختيار نشاط اقتصادي أولاً.', true);
-        return;
-      }
-
-      showStatus('جاري تحميل الفرص...');
+      showStatus('جاري تحميل المدن...');
       try {
         const params = new URLSearchParams({
-          include: 'opportunity',
-          activity,
-          year: '2025'
+          include: activity ? 'opportunity' : 'cities',
+          year: 'latest'
         });
+        if (activity) params.set('activity', activity);
         if (country) params.set('country', country);
-        if (minScore > 0) params.set('min_score', minScore);
+        if (activity && minScore > 0) params.set('min_score', minScore);
 
         const res = await fetchJson(`${API_URL}/cities?${params.toString()}`);
         citiesData = res.cities || [];
-        renderMarkers(citiesData);
+        const filtered = city ? citiesData.filter(c => c.code === city) : citiesData;
+        await renderMarkers(filtered);
       } catch (err) {
         showStatus('فشل تحميل البيانات: ' + err.message, true);
       }
@@ -353,6 +486,7 @@
     async function showTop10() {
       updateChatContext();
       const country = document.getElementById('countrySelect').value;
+      const city = document.getElementById('citySelect').value;
       const activity = document.getElementById('activitySelect').value;
       if (!activity) {
         showStatus('يرجى اختيار نشاط اقتصادي أولاً.', true);
@@ -360,7 +494,7 @@
       }
       showStatus('جاري تحميل أعلى الفرص...');
       try {
-        const params = new URLSearchParams({ activity, limit: '10', year: '2025' });
+        const params = new URLSearchParams({ activity, limit: '10', year: 'latest' });
         if (country) params.set('country', country);
         const res = await fetchJson(`${API_URL}/opportunities/top?${params.toString()}`);
         const ops = res.opportunities || [];
@@ -373,8 +507,8 @@
             competitorsCount: o.competitorsCount,
             saturation: o.saturation
           }
-        }));
-        renderMarkers(mapped);
+        })).filter(c => !city || c.code === city);
+        await renderMarkers(mapped);
       } catch (err) {
         showStatus('فشل تحميل أعلى الفرص: ' + err.message, true);
       }
@@ -395,13 +529,18 @@
     });
     document.getElementById('loadBtn').addEventListener('click', loadMap);
     document.getElementById('topBtn').addEventListener('click', showTop10);
+    document.getElementById('citySelect').addEventListener('change', updateChatContext);
+    document.getElementById('activitySelect').addEventListener('change', updateChatContext);
+    document.getElementById('countrySelect').addEventListener('change', updateChatContext);
 
     function updateChatContext() {
       const country = document.getElementById('countrySelect').value;
+      const city = document.getElementById('citySelect').value;
       const activity = document.getElementById('activitySelect').value;
       if (window.BondsAIChat && window.BondsAIChat.updateContext) {
         window.BondsAIChat.updateContext({
           countryCode: country || null,
+          cityCode: city || null,
           activityCode: activity || null
         });
       }
@@ -411,7 +550,9 @@
       initMap();
       try {
         await initFilters();
-        BondsAIChat.mount();
+        if (typeof BondsAIChat !== 'undefined' && BondsAIChat.mount) {
+          BondsAIChat.mount();
+        }
         updateChatContext();
       } catch (err) {
         showStatus('فشل تحميل الفلاتر: ' + err.message, true);
@@ -420,7 +561,5 @@
   </script>
   <script src="/v3/components/ai-chat-widget.js"></script>
   <div id="site-footer"></div>
-<script src="../components/universal-dropdown.js?v=2.51.8"></script>
-<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

@@ -4,7 +4,8 @@
  * GET  /api/depreciation-factors?assetClass=xxx — fetch one or all records
  * POST /api/depreciation-factors — create/update a record (admin/editor only)
  */
-const { getSupabase } = require('../lib/api/supabase');
+const getSupabase = require('../lib/api/supabase');
+const { verifyAdminOrEditor } = require('../lib/api/admin-auth');
 
 const ALLOWED_ROLES = ['admin', 'editor'];
 
@@ -39,26 +40,10 @@ module.exports = async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    // Verify authenticated user with admin/editor role
-    const token = (req.headers.authorization || '').replace('Bearer ', '');
-    if (!token) {
-      return res.status(401).json({ success: false, error: 'Unauthorized' });
-    }
-
-    const { data: userData, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !userData.user) {
-      return res.status(401).json({ success: false, error: 'Invalid token' });
-    }
-
-    const userId = userData.user.id;
-    const { data: roles, error: roleError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .in('role', ALLOWED_ROLES);
-
-    if (roleError || !roles || roles.length === 0) {
-      return res.status(403).json({ success: false, error: 'Forbidden' });
+    const auth = await verifyAdminOrEditor(req, supabase);
+    if (!auth.authorized) {
+      const status = auth.reason === 'forbidden' ? 403 : 401;
+      return res.status(status).json({ success: false, error: auth.reason === 'forbidden' ? 'Forbidden' : 'Unauthorized' });
     }
 
     const body = req.body || {};

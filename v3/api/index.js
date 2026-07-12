@@ -225,6 +225,33 @@ async function handleModels(req, res) {
   sendJson(res, 200, { models, city, count: models?.length || 0 });
 }
 
+async function handleGeocode(req, res) {
+  const url = getQuery(req);
+  const q = url.searchParams.get('q');
+  if (!q) return sendJson(res, 400, { error: 'Missing q parameter' });
+  try {
+    const query = encodeURIComponent(q);
+    const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`;
+    const response = await fetch(nominatimUrl, {
+      headers: {
+        'User-Agent': 'BondsGlobal/1.0 (contact@bonds-global.com)',
+        'Accept-Language': 'ar,en'
+      }
+    });
+    if (!response.ok) throw new Error(`Nominatim responded ${response.status}`);
+    const data = await response.json();
+    if (!data || !data[0]) return sendJson(res, 404, { error: 'No results found' });
+    return sendJson(res, 200, {
+      lat: parseFloat(data[0].lat),
+      lng: parseFloat(data[0].lon),
+      display_name: data[0].display_name
+    });
+  } catch (err) {
+    console.error('[geocode] error:', err.message);
+    return sendJson(res, 500, { error: err.message });
+  }
+}
+
 async function handleCities(req, res) {
   const url = getQuery(req);
   const include = url.searchParams.get('include') || '';
@@ -266,7 +293,20 @@ async function handleCities(req, res) {
 
     if (!actError && activity) {
       const activityId = activity.id;
-      const year = parseInt(url.searchParams.get('year') || new Date().getFullYear(), 10);
+      let year = parseInt(url.searchParams.get('year') || new Date().getFullYear(), 10);
+
+      // If year=latest, resolve the most recent data_year for this activity
+      if (url.searchParams.get('year') === 'latest') {
+        const { data: latestRow } = await supabase
+          .from('city_market_data')
+          .select('data_year')
+          .eq('activity_id', activityId)
+          .order('data_year', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        year = latestRow?.data_year || new Date().getFullYear();
+      }
+
       const cityIds = enriched.map(c => c.id);
 
       const { data: marketRows, error: marketError } = await supabase
@@ -313,8 +353,9 @@ async function handleOpportunitiesTop(req, res) {
   const activityCode = url.searchParams.get('activity');
   const minScore = url.searchParams.get('min_score');
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '10', 10), 100);
-  const year = parseInt(url.searchParams.get('year') || new Date().getFullYear(), 10);
-
+  const requestedYear = url.searchParams.get('year');
+  const isLatest = requestedYear === 'latest';
+  const fallbackYear = parseInt(requestedYear || new Date().getFullYear(), 10);
   const supabase = getSupabaseClient();
 
   function buildOpportunitiesQuery(yearCondition, filters = {}) {
@@ -324,9 +365,9 @@ async function handleOpportunitiesTop(req, res) {
       .not('opportunity_score', 'is', null);
 
     if (yearCondition === 'exact') {
-      q = q.eq('data_year', year);
+      q = q.eq('data_year', fallbackYear);
     } else {
-      q = q.lte('data_year', year);
+      q = q.lte('data_year', fallbackYear);
     }
 
     if (filters.countryCode) q = q.eq('cities.country_code', filters.countryCode);
@@ -340,6 +381,10 @@ async function handleOpportunitiesTop(req, res) {
   }
 
   async function tryQuery(filters) {
+    if (isLatest) {
+      const { data, error } = await buildOpportunitiesQuery('latest', filters);
+      return { data, error };
+    }
     let { data, error } = await buildOpportunitiesQuery('exact', filters);
     if (!error && (!data || data.length === 0)) {
       ({ data, error } = await buildOpportunitiesQuery('latest', filters));
@@ -376,6 +421,8 @@ async function handleCityDetail(req, res, path) {
   const match = path.match(/^\/cities\/([^\/]+)$/);
   if (!match) return sendJson(res, 404, { error: 'Invalid path' });
   const cityCode = match[1];
+  const url = getQuery(req);
+  const requestedYear = url.searchParams.get('year');
 
   const supabase = getSupabaseClient();
 
@@ -389,27 +436,48 @@ async function handleCityDetail(req, res, path) {
     return sendJson(res, 404, { error: 'City not found' });
   }
 
-  const currentYear = new Date().getFullYear();
+  let targetYear = requestedYear && requestedYear !== 'latest' ? parseInt(requestedYear, 10) : null;
+
+  // If no specific year requested, resolve the latest year that has data
+  if (!targetYear) {
+    const { data: latestIndicator } = await supabase
+      .from('city_indicators')
+      .select('year')
+      .eq('city_id', city.id)
+      .order('year', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const { data: latestMarket } = await supabase
+      .from('city_market_data')
+      .select('data_year')
+      .eq('city_id', city.id)
+      .order('data_year', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const indicatorYear = latestIndicator?.year || 0;
+    const marketYear = latestMarket?.data_year || 0;
+    targetYear = Math.max(indicatorYear, marketYear) || new Date().getFullYear();
+  }
+
   const [{ data: indicators }, { data: marketData }] = await Promise.all([
     supabase
       .from('city_indicators')
       .select('*')
       .eq('city_id', city.id)
-      .lte('year', currentYear)
-      .order('year', { ascending: false })
-      .limit(1)
-      .single(),
+      .eq('year', targetYear)
+      .maybeSingle(),
     supabase
       .from('city_market_data')
       .select('*, economic_activities(code, name_ar, name_en)')
       .eq('city_id', city.id)
-      .eq('data_year', currentYear)
+      .eq('data_year', targetYear)
   ]);
 
   sendJson(res, 200, {
     city,
     indicators: indicators || null,
-    marketData: marketData || []
+    marketData: marketData || [],
+    year: targetYear
   });
 }
 
@@ -418,7 +486,7 @@ async function handleCityIndicators(req, res, path) {
   if (!match) return sendJson(res, 404, { error: 'Invalid path' });
   const cityCode = match[1];
   const url = getQuery(req);
-  const year = url.searchParams.get('year') || new Date().getFullYear();
+  const requestedYear = url.searchParams.get('year');
 
   const supabase = getSupabaseClient();
 
@@ -432,15 +500,28 @@ async function handleCityIndicators(req, res, path) {
     return sendJson(res, 404, { error: 'City not found' });
   }
 
+  let targetYear = requestedYear && requestedYear !== 'latest' ? parseInt(requestedYear, 10) : null;
+
+  if (!targetYear) {
+    const { data: latest } = await supabase
+      .from('city_indicators')
+      .select('year')
+      .eq('city_id', city.id)
+      .order('year', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    targetYear = latest?.year || new Date().getFullYear();
+  }
+
   const { data, error } = await supabase
     .from('city_indicators')
     .select('*')
     .eq('city_id', city.id)
-    .eq('year', parseInt(year))
-    .single();
+    .eq('year', targetYear)
+    .maybeSingle();
 
   if (error) return sendJson(res, 500, { error: error.message });
-  sendJson(res, 200, { indicators: data || null });
+  sendJson(res, 200, { indicators: data || null, year: targetYear });
 }
 
 async function handleCityMarket(req, res, path) {
@@ -449,7 +530,7 @@ async function handleCityMarket(req, res, path) {
   const cityCode = match[1];
   const url = getQuery(req);
   const activityCode = url.searchParams.get('activity');
-  const year = url.searchParams.get('year') || new Date().getFullYear();
+  const requestedYear = url.searchParams.get('year');
 
   const supabase = getSupabaseClient();
 
@@ -463,11 +544,32 @@ async function handleCityMarket(req, res, path) {
     return sendJson(res, 404, { error: 'City not found' });
   }
 
+  let targetYear = requestedYear && requestedYear !== 'latest' ? parseInt(requestedYear, 10) : null;
+
+  if (!targetYear) {
+    let q = supabase
+      .from('city_market_data')
+      .select('data_year')
+      .eq('city_id', city.id)
+      .order('data_year', { ascending: false })
+      .limit(1);
+    if (activityCode) {
+      const { data: activity } = await supabase
+        .from('economic_activities')
+        .select('id')
+        .eq('code', activityCode)
+        .single();
+      if (activity) q = q.eq('activity_id', activity.id);
+    }
+    const { data: latest } = await q.maybeSingle();
+    targetYear = latest?.data_year || new Date().getFullYear();
+  }
+
   let query = supabase
     .from('city_market_data')
     .select('*, economic_activities(code, name_ar, name_en)')
     .eq('city_id', city.id)
-    .eq('data_year', parseInt(year));
+    .eq('data_year', targetYear);
 
   if (activityCode) {
     const { data: activity } = await supabase
@@ -480,7 +582,7 @@ async function handleCityMarket(req, res, path) {
 
   const { data, error } = await query;
   if (error) return sendJson(res, 500, { error: error.message });
-  sendJson(res, 200, { marketData: data || [] });
+  sendJson(res, 200, { marketData: data || [], year: targetYear });
 }
 
 async function handleUcpCalculate(req, res) {
@@ -710,6 +812,7 @@ module.exports = async function handler(req, res) {
     if (path === '/models' && req.method === 'GET') return await handleModels(req, res);
     if (path.match(/^\/models\/[^\/]+$/) && req.method === 'GET') return await handleModelDetail(req, res, path);
     if (path === '/cities' && req.method === 'GET') return await handleCities(req, res);
+    if (path === '/geocode' && req.method === 'GET') return await handleGeocode(req, res);
     if (path === '/opportunities/top' && req.method === 'GET') return await handleOpportunitiesTop(req, res);
     if (path.match(/^\/cities\/[^\/]+\/indicators$/) && req.method === 'GET') return await handleCityIndicators(req, res, path);
     if (path.match(/^\/cities\/[^\/]+\/market$/) && req.method === 'GET') return await handleCityMarket(req, res, path);

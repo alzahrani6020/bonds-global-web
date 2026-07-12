@@ -12,6 +12,138 @@ const { checkRateLimit } = require('../lib/api/rate-limit');
 const { calculateProject, aiInsight, buildHTMLReport } = require('../pro/pro-engine');
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
+const crypto = require('crypto');
+
+function getClientIp(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string' && forwarded) return forwarded.split(',')[0].trim();
+  return req.socket?.remoteAddress || req.connection?.remoteAddress || 'unknown';
+}
+
+function anonymizeIp(ip) {
+  if (!ip || ip === 'unknown') return null;
+  return crypto.createHash('sha256').update(ip).digest('hex');
+}
+
+const geoCache = new Map();
+async function getGeo(req) {
+  const ip = getClientIp(req);
+
+  // Prefer edge-network geo headers when available (Cloudflare / Vercel)
+  const cfCountry = req.headers['cf-ipcountry'];
+  const vercelCountry = req.headers['x-vercel-ip-country'];
+  const countryCode = (vercelCountry || cfCountry || '').toString().toUpperCase();
+  if (countryCode && countryCode.length === 2) {
+    return {
+      country: countryCode,
+      countryCode,
+      city: req.headers['x-vercel-ip-city'] || req.headers['cf-ipcity'] || null,
+      region: req.headers['x-vercel-ip-country-region'] || req.headers['cf-region'] || null
+    };
+  }
+
+  if (!ip || ip === 'unknown') return { country: null, countryCode: null, city: null, region: null };
+  if (geoCache.has(ip)) return geoCache.get(ip);
+  try {
+    const res = await fetch(`https://ipapi.co/${ip}/json/`);
+    if (!res.ok) throw new Error(`ipapi ${res.status}`);
+    const data = await res.json();
+    const result = { country: data.country_name || data.country || null, countryCode: data.country_code || null, city: data.city || null, region: data.region || null };
+    geoCache.set(ip, result);
+    if (geoCache.size > 5000) geoCache.clear();
+    return result;
+  } catch (err) {
+    console.warn('[heartbeat] geo lookup failed:', err.message);
+    return { country: null, countryCode: null, city: null, region: null };
+  }
+}
+
+async function upsertPresence(sb, body, ip, geo) {
+  const now = new Date().toISOString();
+  const payload = {
+    session_id: String(body.session_id || '').slice(0, 64),
+    user_id: body.user_id || null,
+    ip_address: anonymizeIp(ip),
+    country: geo.country,
+    country_code: geo.countryCode,
+    city: geo.city,
+    region: geo.region,
+    page: String(body.page || '').slice(0, 255),
+    section: String(body.section || body.page || '').slice(0, 255),
+    url: String(body.url || '').slice(0, 512),
+    user_agent: String(body.user_agent || '').slice(0, 512),
+    screen: String(body.screen || '').slice(0, 20),
+    lang: String(body.lang || '').slice(0, 10),
+    last_seen_at: now,
+    is_online: true
+  };
+  const { data: existing } = await sb.from('user_presence').select('session_id, started_at').eq('session_id', payload.session_id).single();
+  if (existing) {
+    const { error } = await sb.from('user_presence').update(payload).eq('session_id', payload.session_id);
+    if (error) throw error;
+  } else {
+    payload.started_at = body.started_at || now;
+    const { error } = await sb.from('user_presence').insert([payload]);
+    if (error) throw error;
+  }
+}
+
+async function insertPageView(sb, body, ip, geo, durationSeconds) {
+  const payload = {
+    session_id: String(body.session_id || '').slice(0, 64),
+    user_id: body.user_id || null,
+    ip_address: anonymizeIp(ip),
+    country: geo.country,
+    country_code: geo.countryCode,
+    city: geo.city,
+    region: geo.region,
+    page: String(body.page || '').slice(0, 255),
+    section: String(body.section || body.page || '').slice(0, 255),
+    url: String(body.url || '').slice(0, 512),
+    referrer: String(body.referrer || '').slice(0, 512),
+    user_agent: String(body.user_agent || '').slice(0, 512),
+    lang: String(body.lang || '').slice(0, 10),
+    screen: String(body.screen || '').slice(0, 20),
+    source: 'web',
+    duration_seconds: typeof durationSeconds === 'number' ? durationSeconds : null
+  };
+  const { error } = await sb.from('page_views').insert([payload]);
+  if (error) throw error;
+}
+
+async function heartbeatHandler(req, res) {
+  try {
+    const body = req.body || {};
+    if (!body.session_id) return res.status(400).json({ error: 'session_id required' });
+    const sb = getSupabase();
+    const geo = await getGeo(req);
+    const ip = getClientIp(req);
+    await upsertPresence(sb, body, ip, geo);
+    if (body.event === 'view') await insertPageView(sb, body, ip, geo);
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('[heartbeat] error:', err);
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+async function heartbeatLeaveHandler(req, res) {
+  try {
+    const body = req.body || {};
+    if (!body.session_id) return res.status(400).json({ error: 'session_id required' });
+    const sb = getSupabase();
+    const geo = await getGeo(req);
+    const ip = getClientIp(req);
+    const duration = typeof body.duration_seconds === 'number' ? body.duration_seconds : null;
+    await upsertPresence(sb, body, ip, geo);
+    await insertPageView(sb, body, ip, geo, duration);
+    await sb.from('user_presence').update({ is_online: false }).eq('session_id', body.session_id);
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('[heartbeat leave] error:', err);
+    return res.status(500).json({ error: err.message });
+  }
+}
 
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -561,6 +693,8 @@ async function siteHandler(req, res) {
   const action = req.query?.action || req.body?.action || 'contact';
   if (action === 'contact') return siteContactHandler(req, res);
   if (action === 'usage') return siteUsageHandler(req, res);
+  if (action === 'heartbeat') return heartbeatHandler(req, res);
+  if (action === 'heartbeat-leave') return heartbeatLeaveHandler(req, res);
   if (action === 'send-letter') return sendLetterAction(req, res);
   return res.status(400).json({ error: 'Unknown action' });
 }

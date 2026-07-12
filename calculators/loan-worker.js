@@ -10,10 +10,12 @@ self.onmessage = function(e) {
 function solvePeriodicRate(pv, pmt, n) {
   if (pv <= 0 || pmt <= 0 || n <= 0 || pmt * n <= pv) return 0;
   var low = 0, high = 5;
-  for (var i = 0; i < 60; i++) {
+  for (var i = 0; i < 80; i++) {
     var mid = (low + high) / 2;
+    if (mid === 0) break;
     var fmid = pmt * (1 - Math.pow(1 + mid, -n)) / mid - pv;
-    if (fmid > 0) high = mid; else low = mid;
+    // fmid > 0 means PV at mid is higher than target -> need higher rate
+    if (fmid > 0) low = mid; else high = mid;
   }
   return (low + high) / 2;
 }

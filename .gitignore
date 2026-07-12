@@ -31,3 +31,9 @@ feasibility-study-*.pdf
 feasibility-study-*.md
 دراسة-جدوى-*.pdf
 دراسة-جدوى-*.md
+
+# Temporary dropdown test screenshots
+dropdown-test*.png
+dropdown-forced.png
+
+.env*
