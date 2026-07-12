@@ -21,6 +21,156 @@
   <link rel="icon" type="image/svg+xml" href="../../../assets/bonds-mark.svg" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="/calculators/shared-platforms.js"></script>
+  <style>
+    .hidden-costs-analysis {
+      margin: 2.5rem 0;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(197,160,40,0.15);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .hca-header {
+      background: linear-gradient(135deg, #2d1b4e 0%, #1a1033 100%);
+      padding: 2rem;
+      text-align: center;
+      color: #fff;
+    }
+    .hca-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 1rem;
+      background: rgba(212,168,83,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold);
+    }
+    .hca-header h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1.6rem;
+      color: #fff;
+    }
+    .hca-header p {
+      margin: 0;
+      color: rgba(255,255,255,0.85);
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    .hca-inputs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      padding: 1.5rem;
+    }
+    .hca-input-card {
+      background: rgba(10,15,26,0.6);
+      border: 1px solid rgba(197,160,40,0.1);
+      border-radius: 16px;
+      padding: 1.25rem;
+      text-align: center;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .hca-input-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(197,160,40,0.3);
+    }
+    .hca-input-icon {
+      font-size: 1.75rem;
+      margin-bottom: 0.75rem;
+      color: var(--gold);
+    }
+    .hca-input-card label {
+      display: block;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+    .hca-input-card input {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      text-align: center;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .hca-input-card input:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+    .hca-input-unit {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .hca-divider {
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      margin: 0.5rem 0 1rem;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+    .hca-divider::before {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      margin-left: 1rem;
+    }
+    [dir="ltr"] .hca-divider::before {
+      margin-left: 0;
+      margin-right: 1rem;
+    }
+    .hca-results-card {
+      background: rgba(10,15,26,0.8);
+      border-radius: 16px;
+      margin: 0 1.5rem 1.5rem;
+      padding: 1.5rem;
+    }
+    .hca-result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hca-result-row:last-child {
+      border-bottom: none;
+    }
+    .hca-result-label {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 1.1rem;
+    }
+    .hca-result-value {
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--text);
+    }
+    .hca-result-row--negative .hca-result-value {
+      color: #ef4444;
+    }
+    .hca-result-row--positive .hca-result-value {
+      color: #22c55e;
+    }
+    .hca-result-row--break-even .hca-result-value {
+      color: var(--gold);
+    }
+    @media (max-width: 900px) {
+      .hca-inputs-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 500px) {
+      .hca-inputs-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
   <div id="site-header"></div>
@@ -810,6 +960,70 @@
           <div class="metric-card__label">Net per order</div>
           <div class="metric-card__value" id="metricNetPerOrder">--</div>
           <div class="metric-card__unit">SAR</div>
+        </div>
+      </div>
+
+      <!-- Hidden Costs Analysis -->
+      <div class="hidden-costs-analysis">
+        <div class="hca-header">
+          <div class="hca-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </div>
+          <h2>Hidden Costs Analysis</h2>
+          <p>تحليل التكاليف الخفية</p>
+        </div>
+
+        <div class="hca-inputs-grid">
+          <div class="hca-input-card">
+            <div class="hca-input-icon">📢</div>
+            <label for="hcaMarketingMonthly">Monthly Marketing</label>
+            <input type="number" id="hcaMarketingMonthly" value="3000" min="0" oninput="updateHiddenCosts()" />
+            <span class="hca-input-unit">SAR / month</span>
+          </div>
+          <div class="hca-input-card">
+            <div class="hca-input-icon">🗑️</div>
+            <label for="hcaFoodWasteRate">Food Waste</label>
+            <input type="number" id="hcaFoodWasteRate" value="5" min="0" max="100" oninput="updateHiddenCosts()" />
+            <span class="hca-input-unit">% of materials</span>
+          </div>
+          <div class="hca-input-card">
+            <div class="hca-input-icon">📦</div>
+            <label for="hcaPackagingCost">Packaging</label>
+            <input type="number" id="hcaPackagingCost" value="3" min="0" oninput="updateHiddenCosts()" />
+            <span class="hca-input-unit">per order</span>
+          </div>
+          <div class="hca-input-card">
+            <div class="hca-input-icon">%</div>
+            <label for="hcaAppFeesRate">App Fees</label>
+            <input type="number" id="hcaAppFeesRate" value="25" min="0" max="100" oninput="updateHiddenCosts()" />
+            <span class="hca-input-unit">% of sales</span>
+          </div>
+        </div>
+
+        <div class="hca-divider">
+          <span>Results are displayed as follows:</span>
+        </div>
+
+        <div class="hca-results-card">
+          <div class="hca-result-row">
+            <span class="hca-result-label">Apparent Profit</span>
+            <span class="hca-result-value" id="hcaApparentProfit">--</span>
+          </div>
+          <div class="hca-result-row hca-result-row--negative">
+            <span class="hca-result-label">Hidden Costs</span>
+            <span class="hca-result-value" id="hcaHiddenCosts">--</span>
+          </div>
+          <div class="hca-result-row hca-result-row--positive">
+            <span class="hca-result-label">Real Profit</span>
+            <span class="hca-result-value" id="hcaRealProfit">--</span>
+          </div>
+          <div class="hca-result-row hca-result-row--break-even">
+            <span class="hca-result-label">Adjusted Break-even</span>
+            <span class="hca-result-value" id="hcaBreakEven">--</span>
+          </div>
         </div>
       </div>
 
@@ -1677,8 +1891,40 @@
         '<div class="validation-warnings__footer">' + fixMsg + '</div>';
     }
 
+    function updateHiddenCosts() {
+      if (!window._lastResult) return;
+      const inputs = window._lastInputs || mapInputs();
+      const monthlyOrders = inputs.dailyOrders * 30;
+      const monthlyRevenue = inputs.dailyOrders * inputs.avgTicketValue * 30;
+      const monthlyFoodCost = monthlyRevenue * (inputs.foodCostRate / 100);
+
+      const marketingMonthly = getValue('hcaMarketingMonthly');
+      const foodWasteRate = getValue('hcaFoodWasteRate') / 100;
+      const packagingCost = getValue('hcaPackagingCost');
+      const appFeesRate = getValue('hcaAppFeesRate') / 100;
+
+      const foodWasteCost = monthlyFoodCost * foodWasteRate;
+      const packagingTotal = packagingCost * monthlyOrders;
+      const appFeesTotal = monthlyRevenue * appFeesRate;
+
+      const hiddenCostsTotal = marketingMonthly + foodWasteCost + packagingTotal + appFeesTotal;
+      const apparentProfit = monthlyRevenue - inputs.monthlyRentSalaries - monthlyFoodCost;
+      const realProfit = apparentProfit - hiddenCostsTotal;
+
+      const variableCostPerOrder = (monthlyFoodCost + packagingTotal + appFeesTotal) / monthlyOrders;
+      const contributionMargin = inputs.avgTicketValue - variableCostPerOrder;
+      const totalFixedCosts = inputs.monthlyRentSalaries + marketingMonthly;
+      const breakEvenDaily = contributionMargin > 0 ? Math.ceil(totalFixedCosts / contributionMargin / 30) : 0;
+
+      document.getElementById('hcaApparentProfit').textContent = formatNumber(apparentProfit) + ' SAR';
+      document.getElementById('hcaHiddenCosts').textContent = formatNumber(hiddenCostsTotal) + ' SAR';
+      document.getElementById('hcaRealProfit').textContent = formatNumber(realProfit) + ' SAR';
+      document.getElementById('hcaBreakEven').textContent = breakEvenDaily + ' orders / day';
+    }
+
     function calculate() {
       const inputs = mapInputs();
+      window._lastInputs = inputs;
       const engineInputs = calculateEngineInputs(inputs);
 
       if (window.InvestmentValidator && window.InvestmentValidator.validate) {
@@ -1734,6 +1980,7 @@
         renderDecisionIntelligence(diResult);
       }
 
+      updateHiddenCosts();
       document.getElementById('resultsSection').classList.remove('hidden');
       window._lastResult = result;
     }
