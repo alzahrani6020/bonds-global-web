@@ -1128,7 +1128,7 @@
     reportEl.innerHTML = `
       <div class="report-paper">
         <div class="report-paper__header">
-          <img src="/assets/bonds-logo-2026.webp" />
+          <img src="/assets/bonds-logo-2026-sm.webp" />
           <h1>City Intelligence Report</h1>
           <h2>${escapeHtml(title || city.name)}</h2>
           <p>تاريخ التقرير: ${new Date().toLocaleDateString('ar-SA')}</p>

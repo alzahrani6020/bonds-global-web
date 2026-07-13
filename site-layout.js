@@ -216,7 +216,7 @@
 <header class="main-header" id="header">
   <div class="main-header__inner">
     <a href="${homeHref}" class="header-brand">
-      <img src="/assets/bonds-logo-2026-v2.png?v=2026b" alt="${isEn ? 'Bonds' : 'بوندز'}" style="height:60px;" />
+      <img src="/assets/bonds-logo-2026-v2-sm.webp?v=2026b" alt="${isEn ? 'Bonds' : 'بوندز'}" style="height:60px;" />
     </a>
     <nav class="main-nav" id="mainNav">
       <ul>
@@ -274,7 +274,7 @@
 <footer class="footer">
   <div class="footer-grid">
     <div class="footer-brand">
-      <img src="/assets/bonds-logo-2026-v2.png?v=2026b" alt="${isEn ? 'Bonds' : 'بوندز'}" style="height:80px; width:auto; margin-bottom:1rem;" />
+      <img src="/assets/bonds-logo-2026-v2-sm.webp?v=2026b" alt="${isEn ? 'Bonds' : 'بوندز'}" style="height:80px; width:auto; margin-bottom:1rem;" />
       <p>${labels.brandDesc}</p>
     </div>
     <div>
@@ -544,7 +544,7 @@
   // Load universal visitor tracking on public pages only
   if (!location.pathname.startsWith('/admin')) {
     const trackScript = document.createElement('script');
-    trackScript.src = getBase() + 'lib/tracking.js?v=2';
+    trackScript.src = '/lib/tracking.js?v=2';
     trackScript.async = true;
     document.head.appendChild(trackScript);
   }
