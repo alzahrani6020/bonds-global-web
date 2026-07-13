@@ -21,6 +21,10 @@
   <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="/calculators/shared-platforms.js"></script>
+  <link rel="stylesheet" href="../../components/universal-dropdown.css" />
+  <script src="/calculators/shared-geo.js"></script>
+  <script src="../../components/universal-dropdown.js"></script>
+  <script src="/calculators/shared-country-selector.js?v=1"></script>
   <style>
     .hidden-costs-analysis {
       margin: 2.5rem 0;
@@ -186,6 +190,15 @@
     <div id="basicMode" class="mode-panel" data-active="true">
       <div class="investment-form">
         <div class="investment-panel">
+          <h2>الدولة / العملة</h2>
+          <div class="investment-input-group">
+            <label for="country">اختر الدولة</label>
+            <select id="country" data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true"></select>
+            <small style="display:block;margin-top:0.5rem;color:var(--text-secondary);">ستتغير رموز العملة فقط؛ الأرقام تبقى كما أدخلتها.</small>
+          </div>
+        </div>
+
+        <div class="investment-panel">
           <h2>بيانات المشروع</h2>
           
           <div class="investment-input-group">
@@ -347,7 +360,6 @@
             <h2><span class="stage-number">1</span>المشروع</h2>
             <p class="subtitle">معلومات المشروع الأساسية والمخصصة.</p>
             <div class="investment-form">
-              
               <div class="expert-basic-fields">
                 <h3>البيانات الأساسية للقطاع</h3>
                 
@@ -1912,9 +1924,10 @@
       const totalFixedCosts = inputs.monthlyRentSalaries + marketingMonthly;
       const breakEvenDaily = contributionMargin > 0 ? Math.ceil(totalFixedCosts / contributionMargin / 30) : 0;
 
-      document.getElementById('hcaApparentProfit').textContent = formatNumber(apparentProfit) + ' ريال';
-      document.getElementById('hcaHiddenCosts').textContent = formatNumber(hiddenCostsTotal) + ' ريال';
-      document.getElementById('hcaRealProfit').textContent = formatNumber(realProfit) + ' ريال';
+      const currencySymbol = window.BondsCountrySelector ? window.BondsCountrySelector.getCurrencySymbol() : 'ريال';
+      document.getElementById('hcaApparentProfit').textContent = formatNumber(apparentProfit) + ' ' + currencySymbol;
+      document.getElementById('hcaHiddenCosts').textContent = formatNumber(hiddenCostsTotal) + ' ' + currencySymbol;
+      document.getElementById('hcaRealProfit').textContent = formatNumber(realProfit) + ' ' + currencySymbol;
       document.getElementById('hcaBreakEven').textContent = breakEvenDaily + ' طلب / اليوم';
     }
 
@@ -2090,7 +2103,8 @@
 
     function populateDeliveryPlatforms() {
       if (!window.BondsPlatforms || !window.BondsPlatforms.getPlatforms) return;
-      const platforms = window.BondsPlatforms.getPlatforms('SA') || [];
+      const countryCode = (window.BondsCountrySelector && window.BondsCountrySelector.getSelected) ? window.BondsCountrySelector.getSelected() : 'SA';
+      const platforms = window.BondsPlatforms.getPlatforms(countryCode) || [];
       const selects = [document.getElementById('deliveryPlatform'), document.getElementById('expert_basic_deliveryPlatform')];
       selects.forEach(function(select) {
         if (!select) return;
@@ -2108,7 +2122,8 @@
     function onDeliveryPlatformChange(e) {
       const platformId = e.target.value;
       if (!platformId || !window.BondsPlatforms || !window.BondsPlatforms.getPlatform) return;
-      const platform = window.BondsPlatforms.getPlatform('SA', platformId);
+      const selectedCountry = (window.BondsCountrySelector && window.BondsCountrySelector.getSelected) ? window.BondsCountrySelector.getSelected() : 'SA';
+      const platform = window.BondsPlatforms.getPlatform(selectedCountry, platformId);
       if (!platform) return;
       const prefix = e.target.id.startsWith('expert_basic_') ? 'expert_basic_' : '';
       const rateInput = document.getElementById(prefix + 'platformCommissionRate');
@@ -2116,6 +2131,15 @@
     }
 
     populateDeliveryPlatforms();
+
+    window.addEventListener('bonds:countrychange', function () {
+      populateDeliveryPlatforms();
+      updateHiddenCosts();
+    });
+
+    if (window.BondsCountrySelector) {
+      BondsCountrySelector.init({ select: '#country' });
+    }
   </script>
 </body>
 </html>
