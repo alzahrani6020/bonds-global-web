@@ -548,4 +548,42 @@
     trackScript.async = true;
     document.head.appendChild(trackScript);
   }
+
+  // ── Live Chat (Tawk.to) ───────────────────────────────────────
+  // To activate: create a free account at https://www.tawk.to, then paste
+  // your Property ID below (Dashboard → Administration → Channels →
+  // Chat Widget → Widget Code, the ID in embed.tawk.to/<PROPERTY_ID>/default).
+  // Widget color/language are set from the Tawk dashboard (use gold #d4a853).
+  const TAWK_PROPERTY_ID = ''; // e.g. '64f1a2b3c4d5e6f7a8b9c0d1'
+  const TAWK_WIDGET_ID = 'default';
+
+  function initLiveChat() {
+    if (!TAWK_PROPERTY_ID) return;
+    if (location.pathname.startsWith('/admin')) return;
+    if (document.getElementById('tawk-script')) return;
+
+    window.Tawk_API = window.Tawk_API || {};
+    window.Tawk_LoadStart = new Date();
+    window.Tawk_API.customStyle = {
+      visibility: {
+        desktop: { position: 'br', xOffset: 20, yOffset: 20 },
+        mobile: { position: 'br', xOffset: 12, yOffset: 12 }
+      }
+    };
+
+    const chatScript = document.createElement('script');
+    chatScript.id = 'tawk-script';
+    chatScript.async = true;
+    chatScript.charset = 'UTF-8';
+    chatScript.setAttribute('crossorigin', '*');
+    chatScript.src = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${TAWK_WIDGET_ID}`;
+    document.body.appendChild(chatScript);
+  }
+
+  // Delay the chat widget so it never blocks page rendering
+  if (document.readyState === 'complete') {
+    setTimeout(initLiveChat, 3000);
+  } else {
+    window.addEventListener('load', () => setTimeout(initLiveChat, 3000));
+  }
 })();
