@@ -97,6 +97,7 @@
           sort: true,
           sortLocale: lang,
           removeEmpty: true,
+          maxResults: 0,
           direction: document.documentElement.getAttribute('dir') === 'ltr' ? 'ltr' : 'rtl',
           emptyText: lang === 'en' ? 'No data available' : 'لا توجد بيانات متاحة',
           noResultsText: lang === 'en' ? 'No matching results' : 'لا توجد نتائج مطابقة',

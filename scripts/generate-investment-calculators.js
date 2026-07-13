@@ -1576,7 +1576,7 @@ function generatePage(sector, lang) {
   <script src="${isAr ? '../../' : '../../../'}components/universal-dropdown.js"></script>
   <script src="${isAr ? '../../calculators/' : '../../../calculators/'}shared-geo.js?v=5"></script>
   <script src="${isAr ? '../../calculators/' : '../../../calculators/'}shared-platforms.js?v=2"></script>
-  <script src="${isAr ? '../../calculators/' : '../../../calculators/'}shared-country-selector.js?v=2"></script>
+  <script src="${isAr ? '../../calculators/' : '../../../calculators/'}shared-country-selector.js?v=3"></script>
 </head>
 <body>
   <div id="site-header"></div>

@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v2.71.0';
+const CACHE_VERSION = 'v2.72.0';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -61,7 +61,7 @@ const CORE_ASSETS = [
   '/calculators/investment-center/decision-intelligence.js',
   '/calculators/shared-geo.js?v=5',
   '/calculators/shared-platforms.js',
-  '/calculators/shared-country-selector.js?v=2',
+  '/calculators/shared-country-selector.js?v=3',
   '/v3/master-data/countries-governorates-cities.js',
   '/v3/master-data/global-countries.js',
   '/v3/master-data/arab-extended-countries.js',
