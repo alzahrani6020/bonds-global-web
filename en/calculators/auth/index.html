@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../../../styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="../../../assets/bonds-mark.svg" />
-  <link rel="stylesheet" href="../../../calculators/auth/auth-shared.css" />
+  <link rel="stylesheet" href="../../../calculators/auth/auth-shared.css?v=2" />
   <style>.tabs{display:flex;gap:var(--space-3);margin-bottom:var(--space-6);border-bottom:1px solid var(--border);padding-bottom:var(--space-3)}
 .tab-btn{flex:1;background:transparent;border:none;color:var(--text-secondary);padding:var(--space-3);font-family:inherit;font-size:1rem;font-weight:600;cursor:pointer;border-radius:var(--radius-md);transition:all 0.2s}
 .tab-btn.active{background:var(--gold);color:#0c0c0c}
@@ -246,7 +246,6 @@
       if (initialTab === 'signup' || initialTab === 'login') {
         switchTab(initialTab);
       }
-      });
 
       function showError(msg, actionsHtml) {
         const el = document.getElementById('errorMsg');
