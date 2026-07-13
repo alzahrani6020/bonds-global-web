@@ -336,7 +336,8 @@ body[dir="ltr"] .dropdown-menu {
   background: var(--gold-glow);
 }
 
-.header-login {
+.header-login,
+.header-signup {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -351,10 +352,23 @@ body[dir="ltr"] .dropdown-menu {
   white-space: nowrap;
 }
 
-.header-login:hover {
+.header-login:hover,
+.header-signup:hover {
   color: var(--gold);
   border-color: var(--gold);
   background: var(--gold-glow);
+}
+
+.header-signup {
+  background: var(--gold);
+  color: #0c0c0c;
+  border-color: var(--gold);
+}
+
+.header-signup:hover {
+  background: var(--gold-bright);
+  color: #0c0c0c;
+  border-color: var(--gold-bright);
 }
 
 .header-account {

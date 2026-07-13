@@ -73,6 +73,7 @@
       contact: isEn ? 'Contact' : 'تواصل معنا',
       cta: isEn ? 'Start Now' : 'ابدأ الآن',
       login: isEn ? 'Login' : 'تسجيل الدخول',
+      signup: isEn ? 'Sign Up' : 'تسجيل جديد',
       clientPortal: isEn ? 'Client Portal' : 'بوابة العميل',
       accountLabel: isEn ? 'Account' : 'الحساب',
       caseStudies: isEn ? 'Case Studies' : 'دراسات الحالة',
@@ -115,6 +116,7 @@
     const valuationHref = langBase + 'valuation/index.html';
     const clientPortalHref = isEn ? '/en/v3/portfolio' : '/v3/portfolio';
     const loginHref = langBase + 'calculators/auth/login.html';
+    const signupHref = langBase + 'calculators/auth/index.html?tab=signup';
     const v3Base = 'v3/';
     const fundingReadinessHref = langBase + 'calculators/creditworthiness.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
@@ -228,7 +230,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
         </a>
       </div>
-      <a href="${loginHref}" class="header-login">${labels.login}</a>
+      <a href="${loginHref}" class="header-login" id="headerLoginBtn">${labels.login}</a>
+      <a href="${signupHref}" class="header-signup" id="headerSignupBtn">${labels.signup}</a>
       <a href="${clientPortalHref}" class="btn-header">${labels.cta}</a>
       <button class="nav-toggle" id="navToggle" aria-label="${isEn ? 'Menu' : 'القائمة'}"><span></span><span></span><span></span></button>
     </div>
@@ -354,8 +357,8 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=2.52.0';
-    if (document.querySelector('link[href*="header-footer.css?v=2.52.0"]')) return;
+    const href = '/header-footer.css?v=2.53.0';
+    if (document.querySelector('link[href*="header-footer.css?v=2.53.0"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;

@@ -1568,7 +1568,7 @@ function generatePage(sector, lang) {
   <link rel="canonical" href="https://bonds-global.com/${isAr ? '' : 'en/'}calculators/investment-center/${sector.id}.html" />
   <link href="https://fonts.googleapis.com/css2?family=${isAr ? 'Vazirmatn' : 'Inter'}:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="${isAr ? '../../' : '../../../'}styles.css" />
-  <link rel="stylesheet" href="${isAr ? '../../' : '../../../'}header-footer.css?v=2.52.0" />
+  <link rel="stylesheet" href="${isAr ? '../../' : '../../../'}header-footer.css?v=2.53.0" />
   <link rel="stylesheet" href="${isAr ? './investment-center.css?v=2' : '../../../calculators/investment-center/investment-center.css?v=2'}" />
   <link rel="icon" type="image/svg+xml" href="${isAr ? '../../' : '../../../'}assets/bonds-mark.svg" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -1757,7 +1757,7 @@ function generatePage(sector, lang) {
 
   <div id="site-footer"></div>
 
-  <script src="${isAr ? '../../' : '../../../'}site-layout.js?v=2.52.0"></script>
+  <script src="${isAr ? '../../' : '../../../'}site-layout.js?v=2.53.0"></script>
   <script src="${isAr ? '../../' : '../../../'}page-tracker-v2.js"></script>
   <script src="${isAr ? './investment-engine.js?v=2' : '../../../calculators/investment-center/investment-engine.js?v=2'}"></script>
   <script src="${isAr ? './investment-validator.js?v=2' : '../../../calculators/investment-center/investment-validator.js?v=2'}"></script>

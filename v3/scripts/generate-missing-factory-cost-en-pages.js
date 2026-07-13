@@ -92,7 +92,7 @@ const template = (code, country, citiesOptions) => `<!DOCTYPE html>
     .btn-primary:hover { opacity:0.9; }
     .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin-top:1rem; }
   </style>
-<link rel="stylesheet" href="../../header-footer.css?v=2.52.0" />
+<link rel="stylesheet" href="../../header-footer.css?v=2.53.0" />
 </head>
 <body>
   <div id="site-header"></div>

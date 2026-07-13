@@ -240,14 +240,22 @@
     const container = document.getElementById(containerId || 'authContainer');
     if (!container) return;
 
+    function toggleAuthButtons(showAuthButtons) {
+      ['headerLoginBtn', 'headerSignupBtn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = showAuthButtons ? '' : 'none';
+      });
+    }
+
     getUser().then(({ data: userData }) => {
       const user = userData?.user;
       if (!user) {
-        const isEn = location.pathname.startsWith('/en/');
-        const authUrl = isEn ? '/en/calculators/auth/index.html' : '/calculators/auth/index.html';
-        container.innerHTML = `<a href="${authUrl}" class="btn btn-secondary" style="font-size:0.85rem;padding:0.5rem 1rem;" onclick="sessionStorage.setItem('auth_redirect',location.pathname)">تسجيل الدخول</a>`;
+        container.innerHTML = '';
+        toggleAuthButtons(true);
         return;
       }
+
+      toggleAuthButtons(false);
 
       getProfile(user.id).then(({ data: profile }) => {
         const name = profile?.restaurant_name || user.user_metadata?.restaurant_name || user.email?.split('@')[0] || 'مستخدم';
