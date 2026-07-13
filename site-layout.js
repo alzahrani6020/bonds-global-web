@@ -376,11 +376,8 @@
     const savedTheme = localStorage.getItem('theme');
 
     function applyTheme(theme) {
-      if (theme === 'dark') {
-        html.setAttribute('data-theme', 'dark');
-      } else {
-        html.removeAttribute('data-theme');
-      }
+      // Design tokens: default :root is DARK; light is opt-in via data-theme="light".
+      html.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
     }
 
     if (savedTheme) applyTheme(savedTheme);
@@ -390,10 +387,10 @@
     btn.className = 'theme-toggle';
     btn.setAttribute('aria-label', 'Toggle theme');
     btn.title = isEn ? 'Toggle theme' : 'تبديل الوضع';
-    btn.textContent = html.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+    btn.textContent = html.getAttribute('data-theme') !== 'light' ? '☀️' : '🌙';
 
     btn.addEventListener('click', function () {
-      const isDark = html.getAttribute('data-theme') === 'dark';
+      const isDark = html.getAttribute('data-theme') !== 'light';
       const next = isDark ? 'light' : 'dark';
       applyTheme(next);
       btn.textContent = next === 'dark' ? '☀️' : '🌙';

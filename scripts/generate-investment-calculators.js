@@ -1757,7 +1757,7 @@ function generatePage(sector, lang) {
 
   <div id="site-footer"></div>
 
-  <script src="${isAr ? '../../' : '../../../'}site-layout.js?v=2.53.0"></script>
+  <script src="${isAr ? '../../' : '../../../'}site-layout.js?v=2.54.0"></script>
   <script src="${isAr ? '../../' : '../../../'}page-tracker-v2.js"></script>
   <script src="${isAr ? './investment-engine.js?v=2' : '../../../calculators/investment-center/investment-engine.js?v=2'}"></script>
   <script src="${isAr ? './investment-validator.js?v=2' : '../../../calculators/investment-center/investment-validator.js?v=2'}"></script>
