@@ -49,6 +49,30 @@
     location.href = `${authUrl}?redirect=${encodeURIComponent(current)}`;
   }
 
+  function renderVisitorLanding() {
+    root.innerHTML = `
+      <div class="ecc-header">
+        <div class="ecc-header__title">
+          <h1>مركز الإجراءات</h1>
+          <p>سجّل دخولك لمتابعة مشاريعك واستلام تقاريرك الاستثمارية.</p>
+        </div>
+      </div>
+      <div class="ecc-grid" style="margin-top:1.5rem;">
+        <div class="ecc-card" style="grid-column:1/-1;text-align:center;padding:3rem 1.5rem;">
+          <div style="font-size:3rem;margin-bottom:1rem;color:var(--gold);">${icon('lock', 40)}</div>
+          <h2 style="margin-bottom:0.75rem;">المحفظة متاحة بعد تسجيل الدخول</h2>
+          <p style="color:var(--text-secondary);max-width:600px;margin:0 auto 1.5rem;">
+            الزائرون يمكنهم استخدام الحاسبات والأدوات المجانية مباشرة. أنشئ حساباً مجاناً لحفظ المشاريع وإنشاء النشرات الاستثمارية.
+          </p>
+          <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+            <button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.login()">تسجيل الدخول / إنشاء حساب</button>
+            <a href="/calculator-wizard.html" class="ecc-btn ecc-btn--secondary" style="text-decoration:none;">استكشف الحاسبات المجانية</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   function fetchWithTimeout(url, options, ms = 20000) {
     return new Promise((resolve, reject) => {
       const controller = new AbortController();
@@ -661,7 +685,7 @@
     try {
       const headers = await getAuthHeaders();
       if (!headers.Authorization) {
-        return redirectToLogin();
+        return renderVisitorLanding();
       }
       const res = await fetchWithTimeout('/api/v3/ecc/portfolio', {
         method: 'POST',
@@ -670,7 +694,7 @@
       }, 20000);
       const data = await res.json();
       if (res.status === 401) {
-        return redirectToLogin();
+        return renderVisitorLanding();
       }
       if (!res.ok) throw new Error(data.error || 'فشل في تحميل المحفظة');
       const defaultTab = data.projects && data.projects.length ? 'actions' : 'overview';

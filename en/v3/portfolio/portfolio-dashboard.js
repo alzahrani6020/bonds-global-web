@@ -45,6 +45,30 @@
     location.href = `${authUrl}?redirect=${encodeURIComponent(current)}`;
   }
 
+  function renderVisitorLanding() {
+    root.innerHTML = `
+      <div class="ecc-header">
+        <div class="ecc-header__title">
+          <h1>Command Center</h1>
+          <p>Sign in to track your projects and access your investment reports.</p>
+        </div>
+      </div>
+      <div class="ecc-grid" style="margin-top:1.5rem;">
+        <div class="ecc-card" style="grid-column:1/-1;text-align:center;padding:3rem 1.5rem;">
+          <div style="font-size:3rem;margin-bottom:1rem;color:var(--gold);">${icon('lock', 40)}</div>
+          <h2 style="margin-bottom:0.75rem;">Portfolio is available after sign-in</h2>
+          <p style="color:var(--text-secondary);max-width:600px;margin:0 auto 1.5rem;">
+            Visitors can use the free calculators and tools right away. Create a free account to save projects and build investment memos.
+          </p>
+          <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+            <button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.login()">Sign in / Create account</button>
+            <a href="/en/calculator-wizard.html" class="ecc-btn ecc-btn--secondary" style="text-decoration:none;">Explore free calculators</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   function fetchWithTimeout(url, options, ms = 20000) {
     return new Promise((resolve, reject) => {
       const controller = new AbortController();
@@ -648,7 +672,7 @@
     try {
       const headers = await getAuthHeaders();
       if (!headers.Authorization) {
-        return redirectToLogin();
+        return renderVisitorLanding();
       }
       const res = await fetchWithTimeout('/api/v3/ecc/portfolio', {
         method: 'POST',
@@ -657,7 +681,7 @@
       }, 20000);
       const data = await res.json();
       if (res.status === 401) {
-        return redirectToLogin();
+        return renderVisitorLanding();
       }
       if (!res.ok) throw new Error(data.error || 'Failed to load portfolio');
       const defaultTab = data.projects && data.projects.length ? 'actions' : 'overview';
