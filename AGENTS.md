@@ -218,7 +218,7 @@ module.exports = async function handler(req, res) {
 | المستوى | السعر (شامل VAT 15%) | المميزات |
 |---------|----------------------|----------|
 | `free` | مجاني | 3 سيناريوهات، 5 دول، تصدير Excel |
-| `pro` | **82 ر.س/شهر** (71 + 11 ضريبة) | سيناريوهات غير محدودة، 22 دولة، تصدير PDF |
+| `pro` | **82 ر.س/شهر** (71 + 11 ضريبة) | سيناريوهات غير محدودة، 96 دولة، تصدير PDF |
 | `enterprise` | **212 ر.س/شهر** (184 + 28 ضريبة) | Pro + webhooks + دعم أولوي |
 
 ### 7.2 كيف تتحقق من الصلاحيات في الحاسبة
@@ -343,11 +343,13 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - API: `api/moyasar-checkout.js` + `api/moyasar-verify.js`
 
 ### 11.3 البلدان المدعومة
-22 دولة عربية وعالمية. البيانات الجغرافية في `v3/master-data/countries-governorates-cities.js` وبيانات المنصات/العملات في `calculators/shared-platforms.js`.
+96 دولة: 22 دولة عربية أساسية (أعضاء الجامعة العربية) + 10 أسواق عربية/مراقبة إضافية + 64 دولة عالمية. البيانات الجغرافية في `v3/master-data/countries-governorates-cities.js` (الأساسية)، `v3/master-data/global-countries.js` (العالمية)، و`v3/master-data/arab-extended-countries.js` (الإضافية). بيانات المنصات/العملات في `calculators/shared-platforms.js`.
 
 ### 11.4 تحديث بيانات المنصات
 - المصدر الأصلي: `calculators/country-platforms-data.js`
 - ملف المشروع المستخدم: `calculators/shared-platforms.js` (يُولّد تلقائياً)
+- ملفات البيانات الجغرافية: `v3/master-data/countries-governorates-cities.js`، `v3/master-data/global-countries.js`، `v3/master-data/arab-extended-countries.js`
+- `calculators/shared-geo.js` يدمج البيانات الجغرافية الثلاثة
 - لإعادة التوليد: `npm run regenerate:platforms`
 - أدوات `tools/apply_csv_data.py` و `tools/apply_csv_data_v2.py` و `tools/update_operating_models.py` تعيد التوليد تلقائياً بعد التعديل.
 - الاختبارات: `tests/bonds-geo.test.js` تتحقق من سلامة `BondsGeo` و `BondsPlatforms` وعدم رجوع `country-platforms-data.js` إلى ملفات الحاسبات.

@@ -1572,6 +1572,11 @@ function generatePage(sector, lang) {
   <link rel="stylesheet" href="${isAr ? './investment-center.css?v=2' : '../../../calculators/investment-center/investment-center.css?v=2'}" />
   <link rel="icon" type="image/svg+xml" href="${isAr ? '../../' : '../../../'}assets/bonds-mark.svg" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="${isAr ? '../../' : '../../../'}components/universal-dropdown.css" />
+  <script src="${isAr ? '../../' : '../../../'}components/universal-dropdown.js"></script>
+  <script src="${isAr ? '../../calculators/' : '../../../calculators/'}shared-geo.js?v=5"></script>
+  <script src="${isAr ? '../../calculators/' : '../../../calculators/'}shared-platforms.js"></script>
+  <script src="${isAr ? '../../calculators/' : '../../../calculators/'}shared-country-selector.js?v=2"></script>
 </head>
 <body>
   <div id="site-header"></div>
@@ -1581,6 +1586,15 @@ function generatePage(sector, lang) {
       <div style="font-size:3rem;margin-bottom:var(--space-3);">${sector.icon}</div>
       <h1>${title}</h1>
       <p>${desc}</p>
+    </div>
+
+    <div class="investment-panel country-selector-panel">
+      <h2>${isAr ? 'الدولة / العملة' : 'Country / Currency'}</h2>
+      <div class="investment-input-group">
+        <label for="country">${isAr ? 'اختر الدولة' : 'Select country'}</label>
+        <select id="country" data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true"></select>
+        <small style="display:block;margin-top:0.5rem;color:var(--text-secondary);">${isAr ? 'ستتغير رموز العملة فقط؛ الأرقام تبقى كما أدخلتها.' : 'Only currency symbols will change; numbers remain as you entered them.'}</small>
+      </div>
     </div>
 
     <div class="mode-toggle" role="group" aria-label="${isAr ? 'تبديل الوضع' : 'Mode toggle'}">
@@ -1754,6 +1768,10 @@ function generatePage(sector, lang) {
     const baseRiskWeight = ${sector.riskWeight};
     const isAr = ${isAr};
     const expertStageCount = ${expertStages.length};
+
+    if (window.BondsCountrySelector) {
+      BondsCountrySelector.init({ select: '#country' });
+    }
 
     let currentMode = 'basic';
     let currentStage = 1;
@@ -2615,15 +2633,19 @@ function main() {
   if (!fs.existsSync(arDir)) fs.mkdirSync(arDir, { recursive: true });
   if (!fs.existsSync(enDir)) fs.mkdirSync(enDir, { recursive: true });
 
+  const skipped = [];
+
   for (const sector of sectorsAr) {
+    if (sector.id === 'cloud-kitchen') { skipped.push(sector.id); continue; }
     fs.writeFileSync(path.join(arDir, `${sector.id}.html`), generatePage(sector, 'ar'), 'utf8');
   }
 
   for (const sector of sectorsEn) {
+    if (sector.id === 'cloud-kitchen') { skipped.push(sector.id); continue; }
     fs.writeFileSync(path.join(enDir, `${sector.id}.html`), generatePage(sector, 'en'), 'utf8');
   }
 
-  console.log(`Generated ${sectorsAr.length} Arabic and ${sectorsEn.length} English sector calculators.`);
+  console.log(`Generated ${sectorsAr.length - 1} Arabic and ${sectorsEn.length - 1} English sector calculators. Skipped custom page(s): ${[...new Set(skipped)].join(', ')}.`);
 }
 
 main();

@@ -19,28 +19,57 @@ function setupGlobals() {
     querySelectorAll: jest.fn(() => []),
     querySelector: jest.fn(() => null)
   };
-  global.ARAB_COUNTRIES_GEO = undefined;
 }
+
+let CORE_ARAB_COUNTRY_CODES = [];
+let EXTENDED_ARAB_COUNTRY_CODES = [];
+
+beforeAll(() => {
+  setupGlobals();
+  loadScript('v3/master-data/countries-governorates-cities.js');
+  global.ARAB_COUNTRIES_GEO = global.window.ARAB_COUNTRIES_GEO || ARAB_COUNTRIES_GEO;
+  CORE_ARAB_COUNTRY_CODES = Object.keys(global.ARAB_COUNTRIES_GEO || {});
+
+  loadScript('v3/master-data/arab-extended-countries.js');
+  global.ARAB_EXTENDED_COUNTRIES_GEO = global.window.ARAB_EXTENDED_COUNTRIES_GEO || ARAB_EXTENDED_COUNTRIES_GEO;
+  EXTENDED_ARAB_COUNTRY_CODES = Object.keys(global.ARAB_EXTENDED_COUNTRIES_GEO || {});
+});
 
 describe('BondsGeo', () => {
   beforeAll(() => {
-    setupGlobals();
-    loadScript('v3/master-data/countries-governorates-cities.js');
-    global.ARAB_COUNTRIES_GEO = global.window.ARAB_COUNTRIES_GEO || ARAB_COUNTRIES_GEO;
+    loadScript('v3/master-data/global-countries.js');
+    global.GLOBAL_COUNTRIES_GEO = global.window.GLOBAL_COUNTRIES_GEO || GLOBAL_COUNTRIES_GEO;
     loadScript('calculators/shared-geo.js');
   });
 
-  test('has 22 countries', () => {
+  test('has all 22 core Arab countries', () => {
     const countries = global.window.BondsGeo.getCountries({ lang: 'ar' });
-    expect(countries.length).toBe(22);
+    const codes = countries.map(c => c.value);
+    CORE_ARAB_COUNTRY_CODES.forEach(code => {
+      expect(codes).toContain(code);
+    });
+    expect(CORE_ARAB_COUNTRY_CODES.length).toBe(22);
   });
 
-  test('each country has governorates and cities', () => {
+  test('has all extended Arabic-speaking/observer countries', () => {
     const countries = global.window.BondsGeo.getCountries({ lang: 'ar' });
-    countries.forEach(c => {
-      const govs = global.window.BondsGeo.getGovernorates(c.value, { lang: 'ar' });
+    const codes = countries.map(c => c.value);
+    EXTENDED_ARAB_COUNTRY_CODES.forEach(code => {
+      expect(codes).toContain(code);
+    });
+    expect(EXTENDED_ARAB_COUNTRY_CODES.length).toBe(10);
+  });
+
+  test('total countries equals 96 (22 core Arab + 10 extended Arab + 64 global)', () => {
+    const countries = global.window.BondsGeo.getCountries({ lang: 'ar' });
+    expect(countries.length).toBe(96);
+  });
+
+  test('each core country has governorates and cities', () => {
+    CORE_ARAB_COUNTRY_CODES.forEach(code => {
+      const govs = global.window.BondsGeo.getGovernorates(code, { lang: 'ar' });
       expect(govs.length).toBeGreaterThan(0);
-      const cities = global.window.BondsGeo.getCities(c.value, 0, { lang: 'ar' });
+      const cities = global.window.BondsGeo.getCities(code, 0, { lang: 'ar' });
       expect(cities.length).toBeGreaterThan(0);
     });
   });
@@ -59,18 +88,29 @@ describe('BondsGeo', () => {
 
 describe('BondsPlatforms', () => {
   beforeAll(() => {
-    setupGlobals();
-    loadScript('v3/master-data/countries-governorates-cities.js');
-    global.ARAB_COUNTRIES_GEO = global.window.ARAB_COUNTRIES_GEO || ARAB_COUNTRIES_GEO;
     loadScript('calculators/shared-platforms.js');
   });
 
-  test('has metadata for 22 countries', () => {
+  test('has metadata for all 22 core Arab countries', () => {
     const meta = global.window.BondsPlatforms.getAllCountryMeta();
-    expect(Object.keys(meta).length).toBe(22);
+    CORE_ARAB_COUNTRY_CODES.forEach(code => {
+      expect(meta[code]).toBeTruthy();
+    });
   });
 
-  test('each country has platforms', () => {
+  test('has metadata for all 10 extended Arab countries', () => {
+    const meta = global.window.BondsPlatforms.getAllCountryMeta();
+    EXTENDED_ARAB_COUNTRY_CODES.forEach(code => {
+      expect(meta[code]).toBeTruthy();
+    });
+  });
+
+  test('total platform metadata equals 96 countries', () => {
+    const meta = global.window.BondsPlatforms.getAllCountryMeta();
+    expect(Object.keys(meta).length).toBe(96);
+  });
+
+  test('each country has at least a direct fallback platform', () => {
     Object.keys(global.window.BondsPlatforms.getAllCountryMeta()).forEach(code => {
       const platforms = global.window.BondsPlatforms.getPlatforms(code);
       expect(platforms.length).toBeGreaterThan(0);
@@ -84,7 +124,7 @@ describe('BondsPlatforms', () => {
     expect(ids).toContain('plat_jahez');
   });
 
-  test('currency and VAT are available', () => {
+  test('currency and VAT are available for core country', () => {
     const meta = global.window.BondsPlatforms.getCountryMeta('SA');
     expect(meta.currency).toBe('SAR');
     expect(meta.vatRate).toBe(15);

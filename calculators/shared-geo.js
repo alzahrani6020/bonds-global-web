@@ -7,32 +7,55 @@
 (function () {
   'use strict';
 
-  const MASTER_DATA_URL = 'v3/master-data/countries-governorates-cities.js';
+  const MASTER_DATA_URLS = [
+    'v3/master-data/countries-governorates-cities.js',
+    'v3/master-data/global-countries.js',
+    'v3/master-data/arab-extended-countries.js'
+  ];
 
-  function ensureMasterData() {
+  function getBasePath() {
+    const depth = window.location.pathname.replace(/^\/+/, '').split('/').filter(Boolean).length;
+    return depth === 0 ? '' : Array(depth).fill('../').join('');
+  }
+
+  function loadScript(url) {
     return new Promise((resolve, reject) => {
-      if (typeof window !== 'undefined' && window.ARAB_COUNTRIES_GEO) {
-        return resolve(window.ARAB_COUNTRIES_GEO);
-      }
-
-      // Try to compute relative path from current page
-      const depth = window.location.pathname.replace(/^\/+/, '').split('/').filter(Boolean).length;
-      const base = depth === 0 ? '' : Array(depth).fill('../').join('');
-      const url = base + MASTER_DATA_URL;
-
       const script = document.createElement('script');
       script.src = url;
-      script.onload = () => {
-        if (window.ARAB_COUNTRIES_GEO) resolve(window.ARAB_COUNTRIES_GEO);
-        else reject(new Error('ARAB_COUNTRIES_GEO not found after loading master data'));
-      };
+      script.onload = () => resolve();
       script.onerror = () => reject(new Error('Failed to load ' + url));
       document.head.appendChild(script);
     });
   }
 
+  function isDataReady() {
+    return typeof window.ARAB_COUNTRIES_GEO !== 'undefined' &&
+           typeof window.GLOBAL_COUNTRIES_GEO !== 'undefined' &&
+           typeof window.ARAB_EXTENDED_COUNTRIES_GEO !== 'undefined';
+  }
+
+  function ensureMasterData() {
+    return new Promise((resolve, reject) => {
+      if (isDataReady()) {
+        return resolve(getData());
+      }
+
+      const base = getBasePath();
+      const promises = MASTER_DATA_URLS.map(url => loadScript(base + url));
+      Promise.all(promises).then(() => {
+        if (isDataReady()) return resolve(getData());
+        reject(new Error('Country master data not found after loading scripts'));
+      }).catch(reject);
+    });
+  }
+
   function getData() {
-    return window.ARAB_COUNTRIES_GEO || {};
+    return Object.assign(
+      {},
+      window.ARAB_COUNTRIES_GEO || {},
+      window.GLOBAL_COUNTRIES_GEO || {},
+      window.ARAB_EXTENDED_COUNTRIES_GEO || {}
+    );
   }
 
   function getLang(options) {

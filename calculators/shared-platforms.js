@@ -556,6 +556,1116 @@
       "paymentMethod": "كاش عند الاستلام 95% | البطاقة 5%",
       "specialNotes": "سوق التوصيل ناشئ جداً. ساهيلكوم وفودكوم كي أم محليان. لا توجد تطبيقات دولية. متوسط الطلب ~3,500 ف.ق."
     }
+  },
+  "US": {
+    "code": "US",
+    "name": "الولايات المتحدة",
+    "nameEn": "United States",
+    "flag": "🇺🇸",
+    "currency": "USD",
+    "currencySymbol": "$",
+    "currencySymbolEn": "USD",
+    "vatRate": 0,
+    "marketInsights": {
+      "avgOrderValue": 35,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Card 70% | Cash 20% | Digital wallets 10%"
+    }
+  },
+  "CA": {
+    "code": "CA",
+    "name": "كندا",
+    "nameEn": "Canada",
+    "flag": "🇨🇦",
+    "currency": "CAD",
+    "currencySymbol": "C$",
+    "currencySymbolEn": "CAD",
+    "vatRate": 5,
+    "marketInsights": {
+      "avgOrderValue": 45,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Card 80% | Cash 15% | Digital wallets 5%"
+    }
+  },
+  "GB": {
+    "code": "GB",
+    "name": "المملكة المتحدة",
+    "nameEn": "United Kingdom",
+    "flag": "🇬🇧",
+    "currency": "GBP",
+    "currencySymbol": "£",
+    "currencySymbolEn": "GBP",
+    "vatRate": 20,
+    "marketInsights": {
+      "avgOrderValue": 28,
+      "peakHours": "12:00–14:00 و 18:30–21:30",
+      "paymentMethod": "Card 75% | Cash 15% | Digital wallets 10%"
+    }
+  },
+  "DE": {
+    "code": "DE",
+    "name": "ألمانيا",
+    "nameEn": "Germany",
+    "flag": "🇩🇪",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 19,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:30–21:00",
+      "paymentMethod": "Card 80% | Cash 10% | Digital wallets 10%"
+    }
+  },
+  "FR": {
+    "code": "FR",
+    "name": "فرنسا",
+    "nameEn": "France",
+    "flag": "🇫🇷",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 20,
+    "marketInsights": {
+      "avgOrderValue": 32,
+      "peakHours": "12:00–14:00 و 19:30–22:00",
+      "paymentMethod": "Card 75% | Cash 15% | Digital wallets 10%"
+    }
+  },
+  "IT": {
+    "code": "IT",
+    "name": "إيطاليا",
+    "nameEn": "Italy",
+    "flag": "🇮🇹",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 22,
+    "marketInsights": {
+      "avgOrderValue": 28,
+      "peakHours": "12:30–14:30 و 19:30–22:30",
+      "paymentMethod": "Card 70% | Cash 25% | Digital wallets 5%"
+    }
+  },
+  "ES": {
+    "code": "ES",
+    "name": "إسبانيا",
+    "nameEn": "Spain",
+    "flag": "🇪🇸",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 21,
+    "marketInsights": {
+      "avgOrderValue": 26,
+      "peakHours": "13:00–15:30 و 20:30–23:00",
+      "paymentMethod": "Card 75% | Cash 20% | Digital wallets 5%"
+    }
+  },
+  "NL": {
+    "code": "NL",
+    "name": "هولندا",
+    "nameEn": "Netherlands",
+    "flag": "🇳🇱",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 21,
+    "marketInsights": {
+      "avgOrderValue": 29,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 85% | Cash 10% | Digital wallets 5%"
+    }
+  },
+  "BE": {
+    "code": "BE",
+    "name": "بلجيكا",
+    "nameEn": "Belgium",
+    "flag": "🇧🇪",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 21,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:30–21:30",
+      "paymentMethod": "Card 80% | Cash 15% | Digital wallets 5%"
+    }
+  },
+  "CH": {
+    "code": "CH",
+    "name": "سويسرا",
+    "nameEn": "Switzerland",
+    "flag": "🇨🇭",
+    "currency": "CHF",
+    "currencySymbol": "CHF",
+    "currencySymbolEn": "CHF",
+    "vatRate": 8.1,
+    "marketInsights": {
+      "avgOrderValue": 40,
+      "peakHours": "12:00–14:00 و 18:30–21:30",
+      "paymentMethod": "Card 75% | Cash 20% | Digital wallets 5%"
+    }
+  },
+  "AT": {
+    "code": "AT",
+    "name": "النمسا",
+    "nameEn": "Austria",
+    "flag": "🇦🇹",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 20,
+    "marketInsights": {
+      "avgOrderValue": 28,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Card 80% | Cash 15% | Digital wallets 5%"
+    }
+  },
+  "TR": {
+    "code": "TR",
+    "name": "تركيا",
+    "nameEn": "Turkey",
+    "flag": "🇹🇷",
+    "currency": "TRY",
+    "currencySymbol": "₺",
+    "currencySymbolEn": "TRY",
+    "vatRate": 20,
+    "marketInsights": {
+      "avgOrderValue": 450,
+      "peakHours": "12:00–14:00 و 19:00–22:00",
+      "paymentMethod": "Card 60% | Cash 35% | Digital wallets 5%"
+    }
+  },
+  "IN": {
+    "code": "IN",
+    "name": "الهند",
+    "nameEn": "India",
+    "flag": "🇮🇳",
+    "currency": "INR",
+    "currencySymbol": "₹",
+    "currencySymbolEn": "INR",
+    "vatRate": 18,
+    "marketInsights": {
+      "avgOrderValue": 600,
+      "peakHours": "12:30–14:30 و 19:00–22:00",
+      "paymentMethod": "Digital wallets 50% | Card 30% | Cash 20%"
+    }
+  },
+  "PK": {
+    "code": "PK",
+    "name": "باكستان",
+    "nameEn": "Pakistan",
+    "flag": "🇵🇰",
+    "currency": "PKR",
+    "currencySymbol": "PKR",
+    "currencySymbolEn": "PKR",
+    "vatRate": 17,
+    "marketInsights": {
+      "avgOrderValue": 2500,
+      "peakHours": "12:30–14:30 و 19:30–22:30",
+      "paymentMethod": "Cash 70% | Card 25% | Digital wallets 5%"
+    }
+  },
+  "BD": {
+    "code": "BD",
+    "name": "بنغلاديش",
+    "nameEn": "Bangladesh",
+    "flag": "🇧🇩",
+    "currency": "BDT",
+    "currencySymbol": "৳",
+    "currencySymbolEn": "BDT",
+    "vatRate": 15,
+    "marketInsights": {
+      "avgOrderValue": 1200,
+      "peakHours": "12:30–14:30 و 19:00–22:00",
+      "paymentMethod": "Cash 75% | Card 20% | Digital wallets 5%"
+    }
+  },
+  "ID": {
+    "code": "ID",
+    "name": "إندونيسيا",
+    "nameEn": "Indonesia",
+    "flag": "🇮🇩",
+    "currency": "IDR",
+    "currencySymbol": "IDR",
+    "currencySymbolEn": "IDR",
+    "vatRate": 11,
+    "marketInsights": {
+      "avgOrderValue": 90000,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 60% | Cash 30% | Card 10%"
+    }
+  },
+  "MY": {
+    "code": "MY",
+    "name": "ماليزيا",
+    "nameEn": "Malaysia",
+    "flag": "🇲🇾",
+    "currency": "MYR",
+    "currencySymbol": "MYR",
+    "currencySymbolEn": "MYR",
+    "vatRate": 10,
+    "marketInsights": {
+      "avgOrderValue": 35,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 55% | Card 30% | Cash 15%"
+    }
+  },
+  "PH": {
+    "code": "PH",
+    "name": "الفلبين",
+    "nameEn": "Philippines",
+    "flag": "🇵🇭",
+    "currency": "PHP",
+    "currencySymbol": "₱",
+    "currencySymbolEn": "PHP",
+    "vatRate": 12,
+    "marketInsights": {
+      "avgOrderValue": 600,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 50% | Cash 35% | Card 15%"
+    }
+  },
+  "SG": {
+    "code": "SG",
+    "name": "سنغافورة",
+    "nameEn": "Singapore",
+    "flag": "🇸🇬",
+    "currency": "SGD",
+    "currencySymbol": "S$",
+    "currencySymbolEn": "SGD",
+    "vatRate": 9,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 60% | Card 35% | Cash 5%"
+    }
+  },
+  "CN": {
+    "code": "CN",
+    "name": "الصين",
+    "nameEn": "China",
+    "flag": "🇨🇳",
+    "currency": "CNY",
+    "currencySymbol": "¥",
+    "currencySymbolEn": "CNY",
+    "vatRate": 13,
+    "marketInsights": {
+      "avgOrderValue": 70,
+      "peakHours": "11:30–13:30 و 17:30–20:30",
+      "paymentMethod": "Digital wallets 85% | Card 10% | Cash 5%"
+    }
+  },
+  "JP": {
+    "code": "JP",
+    "name": "اليابان",
+    "nameEn": "Japan",
+    "flag": "🇯🇵",
+    "currency": "JPY",
+    "currencySymbol": "¥",
+    "currencySymbolEn": "JPY",
+    "vatRate": 10,
+    "marketInsights": {
+      "avgOrderValue": 2500,
+      "peakHours": "11:30–13:30 و 17:30–20:30",
+      "paymentMethod": "Digital wallets 50% | Card 35% | Cash 15%"
+    }
+  },
+  "KR": {
+    "code": "KR",
+    "name": "كوريا الجنوبية",
+    "nameEn": "South Korea",
+    "flag": "🇰🇷",
+    "currency": "KRW",
+    "currencySymbol": "₩",
+    "currencySymbolEn": "KRW",
+    "vatRate": 10,
+    "marketInsights": {
+      "avgOrderValue": 25000,
+      "peakHours": "11:30–13:30 و 17:30–20:30",
+      "paymentMethod": "Digital wallets 70% | Card 25% | Cash 5%"
+    }
+  },
+  "AU": {
+    "code": "AU",
+    "name": "أستراليا",
+    "nameEn": "Australia",
+    "flag": "🇦🇺",
+    "currency": "AUD",
+    "currencySymbol": "A$",
+    "currencySymbolEn": "AUD",
+    "vatRate": 10,
+    "marketInsights": {
+      "avgOrderValue": 45,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Card 70% | Digital wallets 20% | Cash 10%"
+    }
+  },
+  "NZ": {
+    "code": "NZ",
+    "name": "نيوزيلندا",
+    "nameEn": "New Zealand",
+    "flag": "🇳🇿",
+    "currency": "NZD",
+    "currencySymbol": "NZ$",
+    "currencySymbolEn": "NZD",
+    "vatRate": 15,
+    "marketInsights": {
+      "avgOrderValue": 45,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Card 75% | Digital wallets 15% | Cash 10%"
+    }
+  },
+  "ZA": {
+    "code": "ZA",
+    "name": "جنوب أفريقيا",
+    "nameEn": "South Africa",
+    "flag": "🇿🇦",
+    "currency": "ZAR",
+    "currencySymbol": "ZAR",
+    "currencySymbolEn": "ZAR",
+    "vatRate": 15,
+    "marketInsights": {
+      "avgOrderValue": 250,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 40% | Card 35% | Cash 25%"
+    }
+  },
+  "NG": {
+    "code": "NG",
+    "name": "نيجيريا",
+    "nameEn": "Nigeria",
+    "flag": "🇳🇬",
+    "currency": "NGN",
+    "currencySymbol": "₦",
+    "currencySymbolEn": "NGN",
+    "vatRate": 7.5,
+    "marketInsights": {
+      "avgOrderValue": 8000,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 45% | Cash 40% | Card 15%"
+    }
+  },
+  "KE": {
+    "code": "KE",
+    "name": "كينيا",
+    "nameEn": "Kenya",
+    "flag": "🇰🇪",
+    "currency": "KES",
+    "currencySymbol": "KSh",
+    "currencySymbolEn": "KES",
+    "vatRate": 16,
+    "marketInsights": {
+      "avgOrderValue": 1500,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 50% | Cash 40% | Card 10%"
+    }
+  },
+  "BR": {
+    "code": "BR",
+    "name": "البرازيل",
+    "nameEn": "Brazil",
+    "flag": "🇧🇷",
+    "currency": "BRL",
+    "currencySymbol": "R$",
+    "currencySymbolEn": "BRL",
+    "vatRate": 17,
+    "marketInsights": {
+      "avgOrderValue": 80,
+      "peakHours": "11:30–13:30 و 18:30–21:30",
+      "paymentMethod": "Digital wallets 50% | Card 30% | Cash 20%"
+    }
+  },
+  "MX": {
+    "code": "MX",
+    "name": "المكسيك",
+    "nameEn": "Mexico",
+    "flag": "🇲🇽",
+    "currency": "MXN",
+    "currencySymbol": "MX$",
+    "currencySymbolEn": "MXN",
+    "vatRate": 16,
+    "marketInsights": {
+      "avgOrderValue": 350,
+      "peakHours": "13:00–15:30 و 19:30–22:30",
+      "paymentMethod": "Digital wallets 40% | Card 35% | Cash 25%"
+    }
+  },
+  "AR": {
+    "code": "AR",
+    "name": "الأرجنتين",
+    "nameEn": "Argentina",
+    "flag": "🇦🇷",
+    "currency": "ARS",
+    "currencySymbol": "$",
+    "currencySymbolEn": "ARS",
+    "vatRate": 21,
+    "marketInsights": {
+      "avgOrderValue": 8000,
+      "peakHours": "12:00–14:30 و 20:00–23:00",
+      "paymentMethod": "Digital wallets 40% | Cash 40% | Card 20%"
+    }
+  },
+  "RU": {
+    "code": "RU",
+    "name": "روسيا",
+    "nameEn": "Russia",
+    "flag": "🇷🇺",
+    "currency": "RUB",
+    "currencySymbol": "₽",
+    "currencySymbolEn": "RUB",
+    "vatRate": 20,
+    "marketInsights": {
+      "avgOrderValue": 1500,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 50% | Cash 35% | Digital wallets 15%"
+    }
+  },
+  "TD": {
+    "code": "TD",
+    "name": "تشاد",
+    "nameEn": "Chad",
+    "flag": "🇹🇩",
+    "currency": "XAF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XAF",
+    "vatRate": 18,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "ER": {
+    "code": "ER",
+    "name": "إريتريا",
+    "nameEn": "Eritrea",
+    "flag": "🇪🇷",
+    "currency": "ERN",
+    "currencySymbol": "Nfk",
+    "currencySymbolEn": "ERN",
+    "vatRate": 5,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "SS": {
+    "code": "SS",
+    "name": "جنوب السودان",
+    "nameEn": "South Sudan",
+    "flag": "🇸🇸",
+    "currency": "SSP",
+    "currencySymbol": "£",
+    "currencySymbolEn": "SSP",
+    "vatRate": 18,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "NE": {
+    "code": "NE",
+    "name": "النيجر",
+    "nameEn": "Niger",
+    "flag": "🇳🇪",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 19,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "ML": {
+    "code": "ML",
+    "name": "مالي",
+    "nameEn": "Mali",
+    "flag": "🇲🇱",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 18,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "SN": {
+    "code": "SN",
+    "name": "السنغال",
+    "nameEn": "Senegal",
+    "flag": "🇸🇳",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 18,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "GM": {
+    "code": "GM",
+    "name": "غامبيا",
+    "nameEn": "Gambia",
+    "flag": "🇬🇲",
+    "currency": "GMD",
+    "currencySymbol": "D",
+    "currencySymbolEn": "GMD",
+    "vatRate": 15,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "BF": {
+    "code": "BF",
+    "name": "بوركينا فاسو",
+    "nameEn": "Burkina Faso",
+    "flag": "🇧🇫",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 18,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "SL": {
+    "code": "SL",
+    "name": "سيراليون",
+    "nameEn": "Sierra Leone",
+    "flag": "🇸🇱",
+    "currency": "SLL",
+    "currencySymbol": "Le",
+    "currencySymbolEn": "SLL",
+    "vatRate": 15,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "BJ": {
+    "code": "BJ",
+    "name": "بنين",
+    "nameEn": "Benin",
+    "flag": "🇧🇯",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 18,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "SE": {
+    "code": "SE",
+    "name": "السويد",
+    "nameEn": "Sweden",
+    "flag": "🇸🇪",
+    "currency": "SEK",
+    "currencySymbol": "kr",
+    "currencySymbolEn": "SEK",
+    "vatRate": 25,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "NO": {
+    "code": "NO",
+    "name": "النرويج",
+    "nameEn": "Norway",
+    "flag": "🇳🇴",
+    "currency": "NOK",
+    "currencySymbol": "kr",
+    "currencySymbolEn": "NOK",
+    "vatRate": 25,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "DK": {
+    "code": "DK",
+    "name": "الدنمارك",
+    "nameEn": "Denmark",
+    "flag": "🇩🇰",
+    "currency": "DKK",
+    "currencySymbol": "kr",
+    "currencySymbolEn": "DKK",
+    "vatRate": 25,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "FI": {
+    "code": "FI",
+    "name": "فنلندا",
+    "nameEn": "Finland",
+    "flag": "🇫🇮",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 25.5,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "PL": {
+    "code": "PL",
+    "name": "بولندا",
+    "nameEn": "Poland",
+    "flag": "🇵🇱",
+    "currency": "PLN",
+    "currencySymbol": "zł",
+    "currencySymbolEn": "PLN",
+    "vatRate": 23,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "CZ": {
+    "code": "CZ",
+    "name": "التشيك",
+    "nameEn": "Czechia",
+    "flag": "🇨🇿",
+    "currency": "CZK",
+    "currencySymbol": "Kč",
+    "currencySymbolEn": "CZK",
+    "vatRate": 21,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "HU": {
+    "code": "HU",
+    "name": "المجر",
+    "nameEn": "Hungary",
+    "flag": "🇭🇺",
+    "currency": "HUF",
+    "currencySymbol": "Ft",
+    "currencySymbolEn": "HUF",
+    "vatRate": 27,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "RO": {
+    "code": "RO",
+    "name": "رومانيا",
+    "nameEn": "Romania",
+    "flag": "🇷🇴",
+    "currency": "RON",
+    "currencySymbol": "lei",
+    "currencySymbolEn": "RON",
+    "vatRate": 19,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "GR": {
+    "code": "GR",
+    "name": "اليونان",
+    "nameEn": "Greece",
+    "flag": "🇬🇷",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 24,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "PT": {
+    "code": "PT",
+    "name": "البرتغال",
+    "nameEn": "Portugal",
+    "flag": "🇵🇹",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 23,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "IE": {
+    "code": "IE",
+    "name": "أيرلندا",
+    "nameEn": "Ireland",
+    "flag": "🇮🇪",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 23,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "UA": {
+    "code": "UA",
+    "name": "أوكرانيا",
+    "nameEn": "Ukraine",
+    "flag": "🇺🇦",
+    "currency": "UAH",
+    "currencySymbol": "₴",
+    "currencySymbolEn": "UAH",
+    "vatRate": 20,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "KZ": {
+    "code": "KZ",
+    "name": "كازاخستان",
+    "nameEn": "Kazakhstan",
+    "flag": "🇰🇿",
+    "currency": "KZT",
+    "currencySymbol": "₸",
+    "currencySymbolEn": "KZT",
+    "vatRate": 12,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "UZ": {
+    "code": "UZ",
+    "name": "أوزباكستان",
+    "nameEn": "Uzbekistan",
+    "flag": "🇺🇿",
+    "currency": "UZS",
+    "currencySymbol": "so'm",
+    "currencySymbolEn": "UZS",
+    "vatRate": 12,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "TH": {
+    "code": "TH",
+    "name": "تايلند",
+    "nameEn": "Thailand",
+    "flag": "🇹🇭",
+    "currency": "THB",
+    "currencySymbol": "฿",
+    "currencySymbolEn": "THB",
+    "vatRate": 7,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "VN": {
+    "code": "VN",
+    "name": "فيتنام",
+    "nameEn": "Vietnam",
+    "flag": "🇻🇳",
+    "currency": "VND",
+    "currencySymbol": "₫",
+    "currencySymbolEn": "VND",
+    "vatRate": 10,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "IL": {
+    "code": "IL",
+    "name": "إسرائيل",
+    "nameEn": "Israel",
+    "flag": "🇮🇱",
+    "currency": "ILS",
+    "currencySymbol": "₪",
+    "currencySymbolEn": "ILS",
+    "vatRate": 17,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "HK": {
+    "code": "HK",
+    "name": "هونغ كونغ",
+    "nameEn": "Hong Kong",
+    "flag": "🇭🇰",
+    "currency": "HKD",
+    "currencySymbol": "$",
+    "currencySymbolEn": "HKD",
+    "vatRate": 0,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "TW": {
+    "code": "TW",
+    "name": "تايوان",
+    "nameEn": "Taiwan",
+    "flag": "🇹🇼",
+    "currency": "TWD",
+    "currencySymbol": "$",
+    "currencySymbolEn": "TWD",
+    "vatRate": 5,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "LK": {
+    "code": "LK",
+    "name": "سريلانكا",
+    "nameEn": "Sri Lanka",
+    "flag": "🇱🇰",
+    "currency": "LKR",
+    "currencySymbol": "Rs  රු",
+    "currencySymbolEn": "LKR",
+    "vatRate": 18,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "CL": {
+    "code": "CL",
+    "name": "تشيلي",
+    "nameEn": "Chile",
+    "flag": "🇨🇱",
+    "currency": "CLP",
+    "currencySymbol": "$",
+    "currencySymbolEn": "CLP",
+    "vatRate": 19,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "CO": {
+    "code": "CO",
+    "name": "كولومبيا",
+    "nameEn": "Colombia",
+    "flag": "🇨🇴",
+    "currency": "COP",
+    "currencySymbol": "$",
+    "currencySymbolEn": "COP",
+    "vatRate": 19,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "PE": {
+    "code": "PE",
+    "name": "بيرو",
+    "nameEn": "Peru",
+    "flag": "🇵🇪",
+    "currency": "PEN",
+    "currencySymbol": "S/.",
+    "currencySymbolEn": "PEN",
+    "vatRate": 18,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "VE": {
+    "code": "VE",
+    "name": "فنزويلا",
+    "nameEn": "Venezuela",
+    "flag": "🇻🇪",
+    "currency": "VES",
+    "currencySymbol": "Bs.S.",
+    "currencySymbolEn": "VES",
+    "vatRate": 16,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "EC": {
+    "code": "EC",
+    "name": "الإكوادور",
+    "nameEn": "Ecuador",
+    "flag": "🇪🇨",
+    "currency": "USD",
+    "currencySymbol": "$",
+    "currencySymbolEn": "USD",
+    "vatRate": 12,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "CR": {
+    "code": "CR",
+    "name": "كوستاريكا",
+    "nameEn": "Costa Rica",
+    "flag": "🇨🇷",
+    "currency": "CRC",
+    "currencySymbol": "₡",
+    "currencySymbolEn": "CRC",
+    "vatRate": 13,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "PA": {
+    "code": "PA",
+    "name": "بنما",
+    "nameEn": "Panama",
+    "flag": "🇵🇦",
+    "currency": "PAB",
+    "currencySymbol": "B/.",
+    "currencySymbolEn": "PAB",
+    "vatRate": 7,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "DO": {
+    "code": "DO",
+    "name": "جمهورية الدومينيكان",
+    "nameEn": "Dominican Republic",
+    "flag": "🇩🇴",
+    "currency": "DOP",
+    "currencySymbol": "$",
+    "currencySymbolEn": "DOP",
+    "vatRate": 18,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "ET": {
+    "code": "ET",
+    "name": "إثيوبيا",
+    "nameEn": "Ethiopia",
+    "flag": "🇪🇹",
+    "currency": "ETB",
+    "currencySymbol": "Br",
+    "currencySymbolEn": "ETB",
+    "vatRate": 15,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "GH": {
+    "code": "GH",
+    "name": "غانا",
+    "nameEn": "Ghana",
+    "flag": "🇬🇭",
+    "currency": "GHS",
+    "currencySymbol": "₵",
+    "currencySymbolEn": "GHS",
+    "vatRate": 15,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "TZ": {
+    "code": "TZ",
+    "name": "تنزانيا",
+    "nameEn": "Tanzania",
+    "flag": "🇹🇿",
+    "currency": "TZS",
+    "currencySymbol": "Sh",
+    "currencySymbolEn": "TZS",
+    "vatRate": 18,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "UG": {
+    "code": "UG",
+    "name": "أوغندا",
+    "nameEn": "Uganda",
+    "flag": "🇺🇬",
+    "currency": "UGX",
+    "currencySymbol": "Sh",
+    "currencySymbolEn": "UGX",
+    "vatRate": 18,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "ZM": {
+    "code": "ZM",
+    "name": "زامبيا",
+    "nameEn": "Zambia",
+    "flag": "🇿🇲",
+    "currency": "ZMW",
+    "currencySymbol": "ZK",
+    "currencySymbolEn": "ZMW",
+    "vatRate": 16,
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
   }
 };
 
@@ -2928,6 +4038,1856 @@
       ],
       "paymentMethod": "كاش عند الاستلام 95% | البطاقة 5%",
       "specialNotes": "سوق التوصيل ناشئ جداً. ساهيلكوم وفودكوم كي أم محليان. لا توجد تطبيقات دولية. متوسط الطلب ~3,500 ف.ق."
+    }
+  },
+  "US": {
+    "code": "US",
+    "name": "الولايات المتحدة",
+    "nameEn": "United States",
+    "flag": "🇺🇸",
+    "currency": "USD",
+    "currencySymbol": "$",
+    "currencySymbolEn": "USD",
+    "vatRate": 0,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 35,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Card 70% | Cash 20% | Digital wallets 10%"
+    }
+  },
+  "CA": {
+    "code": "CA",
+    "name": "كندا",
+    "nameEn": "Canada",
+    "flag": "🇨🇦",
+    "currency": "CAD",
+    "currencySymbol": "C$",
+    "currencySymbolEn": "CAD",
+    "vatRate": 5,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 45,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Card 80% | Cash 15% | Digital wallets 5%"
+    }
+  },
+  "GB": {
+    "code": "GB",
+    "name": "المملكة المتحدة",
+    "nameEn": "United Kingdom",
+    "flag": "🇬🇧",
+    "currency": "GBP",
+    "currencySymbol": "£",
+    "currencySymbolEn": "GBP",
+    "vatRate": 20,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 28,
+      "peakHours": "12:00–14:00 و 18:30–21:30",
+      "paymentMethod": "Card 75% | Cash 15% | Digital wallets 10%"
+    }
+  },
+  "DE": {
+    "code": "DE",
+    "name": "ألمانيا",
+    "nameEn": "Germany",
+    "flag": "🇩🇪",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 19,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:30–21:00",
+      "paymentMethod": "Card 80% | Cash 10% | Digital wallets 10%"
+    }
+  },
+  "FR": {
+    "code": "FR",
+    "name": "فرنسا",
+    "nameEn": "France",
+    "flag": "🇫🇷",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 20,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 32,
+      "peakHours": "12:00–14:00 و 19:30–22:00",
+      "paymentMethod": "Card 75% | Cash 15% | Digital wallets 10%"
+    }
+  },
+  "IT": {
+    "code": "IT",
+    "name": "إيطاليا",
+    "nameEn": "Italy",
+    "flag": "🇮🇹",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 22,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 28,
+      "peakHours": "12:30–14:30 و 19:30–22:30",
+      "paymentMethod": "Card 70% | Cash 25% | Digital wallets 5%"
+    }
+  },
+  "ES": {
+    "code": "ES",
+    "name": "إسبانيا",
+    "nameEn": "Spain",
+    "flag": "🇪🇸",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 21,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 26,
+      "peakHours": "13:00–15:30 و 20:30–23:00",
+      "paymentMethod": "Card 75% | Cash 20% | Digital wallets 5%"
+    }
+  },
+  "NL": {
+    "code": "NL",
+    "name": "هولندا",
+    "nameEn": "Netherlands",
+    "flag": "🇳🇱",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 21,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 29,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 85% | Cash 10% | Digital wallets 5%"
+    }
+  },
+  "BE": {
+    "code": "BE",
+    "name": "بلجيكا",
+    "nameEn": "Belgium",
+    "flag": "🇧🇪",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 21,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:30–21:30",
+      "paymentMethod": "Card 80% | Cash 15% | Digital wallets 5%"
+    }
+  },
+  "CH": {
+    "code": "CH",
+    "name": "سويسرا",
+    "nameEn": "Switzerland",
+    "flag": "🇨🇭",
+    "currency": "CHF",
+    "currencySymbol": "CHF",
+    "currencySymbolEn": "CHF",
+    "vatRate": 8.1,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 40,
+      "peakHours": "12:00–14:00 و 18:30–21:30",
+      "paymentMethod": "Card 75% | Cash 20% | Digital wallets 5%"
+    }
+  },
+  "AT": {
+    "code": "AT",
+    "name": "النمسا",
+    "nameEn": "Austria",
+    "flag": "🇦🇹",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 20,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 28,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Card 80% | Cash 15% | Digital wallets 5%"
+    }
+  },
+  "TR": {
+    "code": "TR",
+    "name": "تركيا",
+    "nameEn": "Turkey",
+    "flag": "🇹🇷",
+    "currency": "TRY",
+    "currencySymbol": "₺",
+    "currencySymbolEn": "TRY",
+    "vatRate": 20,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 450,
+      "peakHours": "12:00–14:00 و 19:00–22:00",
+      "paymentMethod": "Card 60% | Cash 35% | Digital wallets 5%"
+    }
+  },
+  "IN": {
+    "code": "IN",
+    "name": "الهند",
+    "nameEn": "India",
+    "flag": "🇮🇳",
+    "currency": "INR",
+    "currencySymbol": "₹",
+    "currencySymbolEn": "INR",
+    "vatRate": 18,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 600,
+      "peakHours": "12:30–14:30 و 19:00–22:00",
+      "paymentMethod": "Digital wallets 50% | Card 30% | Cash 20%"
+    }
+  },
+  "PK": {
+    "code": "PK",
+    "name": "باكستان",
+    "nameEn": "Pakistan",
+    "flag": "🇵🇰",
+    "currency": "PKR",
+    "currencySymbol": "PKR",
+    "currencySymbolEn": "PKR",
+    "vatRate": 17,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 2500,
+      "peakHours": "12:30–14:30 و 19:30–22:30",
+      "paymentMethod": "Cash 70% | Card 25% | Digital wallets 5%"
+    }
+  },
+  "BD": {
+    "code": "BD",
+    "name": "بنغلاديش",
+    "nameEn": "Bangladesh",
+    "flag": "🇧🇩",
+    "currency": "BDT",
+    "currencySymbol": "৳",
+    "currencySymbolEn": "BDT",
+    "vatRate": 15,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 1200,
+      "peakHours": "12:30–14:30 و 19:00–22:00",
+      "paymentMethod": "Cash 75% | Card 20% | Digital wallets 5%"
+    }
+  },
+  "ID": {
+    "code": "ID",
+    "name": "إندونيسيا",
+    "nameEn": "Indonesia",
+    "flag": "🇮🇩",
+    "currency": "IDR",
+    "currencySymbol": "IDR",
+    "currencySymbolEn": "IDR",
+    "vatRate": 11,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 90000,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 60% | Cash 30% | Card 10%"
+    }
+  },
+  "MY": {
+    "code": "MY",
+    "name": "ماليزيا",
+    "nameEn": "Malaysia",
+    "flag": "🇲🇾",
+    "currency": "MYR",
+    "currencySymbol": "MYR",
+    "currencySymbolEn": "MYR",
+    "vatRate": 10,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 35,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 55% | Card 30% | Cash 15%"
+    }
+  },
+  "PH": {
+    "code": "PH",
+    "name": "الفلبين",
+    "nameEn": "Philippines",
+    "flag": "🇵🇭",
+    "currency": "PHP",
+    "currencySymbol": "₱",
+    "currencySymbolEn": "PHP",
+    "vatRate": 12,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 600,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 50% | Cash 35% | Card 15%"
+    }
+  },
+  "SG": {
+    "code": "SG",
+    "name": "سنغافورة",
+    "nameEn": "Singapore",
+    "flag": "🇸🇬",
+    "currency": "SGD",
+    "currencySymbol": "S$",
+    "currencySymbolEn": "SGD",
+    "vatRate": 9,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 60% | Card 35% | Cash 5%"
+    }
+  },
+  "CN": {
+    "code": "CN",
+    "name": "الصين",
+    "nameEn": "China",
+    "flag": "🇨🇳",
+    "currency": "CNY",
+    "currencySymbol": "¥",
+    "currencySymbolEn": "CNY",
+    "vatRate": 13,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 70,
+      "peakHours": "11:30–13:30 و 17:30–20:30",
+      "paymentMethod": "Digital wallets 85% | Card 10% | Cash 5%"
+    }
+  },
+  "JP": {
+    "code": "JP",
+    "name": "اليابان",
+    "nameEn": "Japan",
+    "flag": "🇯🇵",
+    "currency": "JPY",
+    "currencySymbol": "¥",
+    "currencySymbolEn": "JPY",
+    "vatRate": 10,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 2500,
+      "peakHours": "11:30–13:30 و 17:30–20:30",
+      "paymentMethod": "Digital wallets 50% | Card 35% | Cash 15%"
+    }
+  },
+  "KR": {
+    "code": "KR",
+    "name": "كوريا الجنوبية",
+    "nameEn": "South Korea",
+    "flag": "🇰🇷",
+    "currency": "KRW",
+    "currencySymbol": "₩",
+    "currencySymbolEn": "KRW",
+    "vatRate": 10,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 25000,
+      "peakHours": "11:30–13:30 و 17:30–20:30",
+      "paymentMethod": "Digital wallets 70% | Card 25% | Cash 5%"
+    }
+  },
+  "AU": {
+    "code": "AU",
+    "name": "أستراليا",
+    "nameEn": "Australia",
+    "flag": "🇦🇺",
+    "currency": "AUD",
+    "currencySymbol": "A$",
+    "currencySymbolEn": "AUD",
+    "vatRate": 10,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 45,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Card 70% | Digital wallets 20% | Cash 10%"
+    }
+  },
+  "NZ": {
+    "code": "NZ",
+    "name": "نيوزيلندا",
+    "nameEn": "New Zealand",
+    "flag": "🇳🇿",
+    "currency": "NZD",
+    "currencySymbol": "NZ$",
+    "currencySymbolEn": "NZD",
+    "vatRate": 15,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 45,
+      "peakHours": "11:30–13:30 و 18:00–21:00",
+      "paymentMethod": "Card 75% | Digital wallets 15% | Cash 10%"
+    }
+  },
+  "ZA": {
+    "code": "ZA",
+    "name": "جنوب أفريقيا",
+    "nameEn": "South Africa",
+    "flag": "🇿🇦",
+    "currency": "ZAR",
+    "currencySymbol": "ZAR",
+    "currencySymbolEn": "ZAR",
+    "vatRate": 15,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 250,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 40% | Card 35% | Cash 25%"
+    }
+  },
+  "NG": {
+    "code": "NG",
+    "name": "نيجيريا",
+    "nameEn": "Nigeria",
+    "flag": "🇳🇬",
+    "currency": "NGN",
+    "currencySymbol": "₦",
+    "currencySymbolEn": "NGN",
+    "vatRate": 7.5,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 8000,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 45% | Cash 40% | Card 15%"
+    }
+  },
+  "KE": {
+    "code": "KE",
+    "name": "كينيا",
+    "nameEn": "Kenya",
+    "flag": "🇰🇪",
+    "currency": "KES",
+    "currencySymbol": "KSh",
+    "currencySymbolEn": "KES",
+    "vatRate": 16,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 1500,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Digital wallets 50% | Cash 40% | Card 10%"
+    }
+  },
+  "BR": {
+    "code": "BR",
+    "name": "البرازيل",
+    "nameEn": "Brazil",
+    "flag": "🇧🇷",
+    "currency": "BRL",
+    "currencySymbol": "R$",
+    "currencySymbolEn": "BRL",
+    "vatRate": 17,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 80,
+      "peakHours": "11:30–13:30 و 18:30–21:30",
+      "paymentMethod": "Digital wallets 50% | Card 30% | Cash 20%"
+    }
+  },
+  "MX": {
+    "code": "MX",
+    "name": "المكسيك",
+    "nameEn": "Mexico",
+    "flag": "🇲🇽",
+    "currency": "MXN",
+    "currencySymbol": "MX$",
+    "currencySymbolEn": "MXN",
+    "vatRate": 16,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 350,
+      "peakHours": "13:00–15:30 و 19:30–22:30",
+      "paymentMethod": "Digital wallets 40% | Card 35% | Cash 25%"
+    }
+  },
+  "AR": {
+    "code": "AR",
+    "name": "الأرجنتين",
+    "nameEn": "Argentina",
+    "flag": "🇦🇷",
+    "currency": "ARS",
+    "currencySymbol": "$",
+    "currencySymbolEn": "ARS",
+    "vatRate": 21,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 8000,
+      "peakHours": "12:00–14:30 و 20:00–23:00",
+      "paymentMethod": "Digital wallets 40% | Cash 40% | Card 20%"
+    }
+  },
+  "RU": {
+    "code": "RU",
+    "name": "روسيا",
+    "nameEn": "Russia",
+    "flag": "🇷🇺",
+    "currency": "RUB",
+    "currencySymbol": "₽",
+    "currencySymbolEn": "RUB",
+    "vatRate": 20,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 1500,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 50% | Cash 35% | Digital wallets 15%"
+    }
+  },
+  "TD": {
+    "code": "TD",
+    "name": "تشاد",
+    "nameEn": "Chad",
+    "flag": "🇹🇩",
+    "currency": "XAF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XAF",
+    "vatRate": 18,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "ER": {
+    "code": "ER",
+    "name": "إريتريا",
+    "nameEn": "Eritrea",
+    "flag": "🇪🇷",
+    "currency": "ERN",
+    "currencySymbol": "Nfk",
+    "currencySymbolEn": "ERN",
+    "vatRate": 5,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "SS": {
+    "code": "SS",
+    "name": "جنوب السودان",
+    "nameEn": "South Sudan",
+    "flag": "🇸🇸",
+    "currency": "SSP",
+    "currencySymbol": "£",
+    "currencySymbolEn": "SSP",
+    "vatRate": 18,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "NE": {
+    "code": "NE",
+    "name": "النيجر",
+    "nameEn": "Niger",
+    "flag": "🇳🇪",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 19,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "ML": {
+    "code": "ML",
+    "name": "مالي",
+    "nameEn": "Mali",
+    "flag": "🇲🇱",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 18,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "SN": {
+    "code": "SN",
+    "name": "السنغال",
+    "nameEn": "Senegal",
+    "flag": "🇸🇳",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 18,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "GM": {
+    "code": "GM",
+    "name": "غامبيا",
+    "nameEn": "Gambia",
+    "flag": "🇬🇲",
+    "currency": "GMD",
+    "currencySymbol": "D",
+    "currencySymbolEn": "GMD",
+    "vatRate": 15,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "BF": {
+    "code": "BF",
+    "name": "بوركينا فاسو",
+    "nameEn": "Burkina Faso",
+    "flag": "🇧🇫",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 18,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "SL": {
+    "code": "SL",
+    "name": "سيراليون",
+    "nameEn": "Sierra Leone",
+    "flag": "🇸🇱",
+    "currency": "SLL",
+    "currencySymbol": "Le",
+    "currencySymbolEn": "SLL",
+    "vatRate": 15,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "BJ": {
+    "code": "BJ",
+    "name": "بنين",
+    "nameEn": "Benin",
+    "flag": "🇧🇯",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 18,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "SE": {
+    "code": "SE",
+    "name": "السويد",
+    "nameEn": "Sweden",
+    "flag": "🇸🇪",
+    "currency": "SEK",
+    "currencySymbol": "kr",
+    "currencySymbolEn": "SEK",
+    "vatRate": 25,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "NO": {
+    "code": "NO",
+    "name": "النرويج",
+    "nameEn": "Norway",
+    "flag": "🇳🇴",
+    "currency": "NOK",
+    "currencySymbol": "kr",
+    "currencySymbolEn": "NOK",
+    "vatRate": 25,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "DK": {
+    "code": "DK",
+    "name": "الدنمارك",
+    "nameEn": "Denmark",
+    "flag": "🇩🇰",
+    "currency": "DKK",
+    "currencySymbol": "kr",
+    "currencySymbolEn": "DKK",
+    "vatRate": 25,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "FI": {
+    "code": "FI",
+    "name": "فنلندا",
+    "nameEn": "Finland",
+    "flag": "🇫🇮",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 25.5,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "PL": {
+    "code": "PL",
+    "name": "بولندا",
+    "nameEn": "Poland",
+    "flag": "🇵🇱",
+    "currency": "PLN",
+    "currencySymbol": "zł",
+    "currencySymbolEn": "PLN",
+    "vatRate": 23,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "CZ": {
+    "code": "CZ",
+    "name": "التشيك",
+    "nameEn": "Czechia",
+    "flag": "🇨🇿",
+    "currency": "CZK",
+    "currencySymbol": "Kč",
+    "currencySymbolEn": "CZK",
+    "vatRate": 21,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "HU": {
+    "code": "HU",
+    "name": "المجر",
+    "nameEn": "Hungary",
+    "flag": "🇭🇺",
+    "currency": "HUF",
+    "currencySymbol": "Ft",
+    "currencySymbolEn": "HUF",
+    "vatRate": 27,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "RO": {
+    "code": "RO",
+    "name": "رومانيا",
+    "nameEn": "Romania",
+    "flag": "🇷🇴",
+    "currency": "RON",
+    "currencySymbol": "lei",
+    "currencySymbolEn": "RON",
+    "vatRate": 19,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "GR": {
+    "code": "GR",
+    "name": "اليونان",
+    "nameEn": "Greece",
+    "flag": "🇬🇷",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 24,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "PT": {
+    "code": "PT",
+    "name": "البرتغال",
+    "nameEn": "Portugal",
+    "flag": "🇵🇹",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 23,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "IE": {
+    "code": "IE",
+    "name": "أيرلندا",
+    "nameEn": "Ireland",
+    "flag": "🇮🇪",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 23,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "UA": {
+    "code": "UA",
+    "name": "أوكرانيا",
+    "nameEn": "Ukraine",
+    "flag": "🇺🇦",
+    "currency": "UAH",
+    "currencySymbol": "₴",
+    "currencySymbolEn": "UAH",
+    "vatRate": 20,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "KZ": {
+    "code": "KZ",
+    "name": "كازاخستان",
+    "nameEn": "Kazakhstan",
+    "flag": "🇰🇿",
+    "currency": "KZT",
+    "currencySymbol": "₸",
+    "currencySymbolEn": "KZT",
+    "vatRate": 12,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "UZ": {
+    "code": "UZ",
+    "name": "أوزباكستان",
+    "nameEn": "Uzbekistan",
+    "flag": "🇺🇿",
+    "currency": "UZS",
+    "currencySymbol": "so'm",
+    "currencySymbolEn": "UZS",
+    "vatRate": 12,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "TH": {
+    "code": "TH",
+    "name": "تايلند",
+    "nameEn": "Thailand",
+    "flag": "🇹🇭",
+    "currency": "THB",
+    "currencySymbol": "฿",
+    "currencySymbolEn": "THB",
+    "vatRate": 7,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "VN": {
+    "code": "VN",
+    "name": "فيتنام",
+    "nameEn": "Vietnam",
+    "flag": "🇻🇳",
+    "currency": "VND",
+    "currencySymbol": "₫",
+    "currencySymbolEn": "VND",
+    "vatRate": 10,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "IL": {
+    "code": "IL",
+    "name": "إسرائيل",
+    "nameEn": "Israel",
+    "flag": "🇮🇱",
+    "currency": "ILS",
+    "currencySymbol": "₪",
+    "currencySymbolEn": "ILS",
+    "vatRate": 17,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "HK": {
+    "code": "HK",
+    "name": "هونغ كونغ",
+    "nameEn": "Hong Kong",
+    "flag": "🇭🇰",
+    "currency": "HKD",
+    "currencySymbol": "$",
+    "currencySymbolEn": "HKD",
+    "vatRate": 0,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "TW": {
+    "code": "TW",
+    "name": "تايوان",
+    "nameEn": "Taiwan",
+    "flag": "🇹🇼",
+    "currency": "TWD",
+    "currencySymbol": "$",
+    "currencySymbolEn": "TWD",
+    "vatRate": 5,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "LK": {
+    "code": "LK",
+    "name": "سريلانكا",
+    "nameEn": "Sri Lanka",
+    "flag": "🇱🇰",
+    "currency": "LKR",
+    "currencySymbol": "Rs  රු",
+    "currencySymbolEn": "LKR",
+    "vatRate": 18,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "CL": {
+    "code": "CL",
+    "name": "تشيلي",
+    "nameEn": "Chile",
+    "flag": "🇨🇱",
+    "currency": "CLP",
+    "currencySymbol": "$",
+    "currencySymbolEn": "CLP",
+    "vatRate": 19,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "CO": {
+    "code": "CO",
+    "name": "كولومبيا",
+    "nameEn": "Colombia",
+    "flag": "🇨🇴",
+    "currency": "COP",
+    "currencySymbol": "$",
+    "currencySymbolEn": "COP",
+    "vatRate": 19,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "PE": {
+    "code": "PE",
+    "name": "بيرو",
+    "nameEn": "Peru",
+    "flag": "🇵🇪",
+    "currency": "PEN",
+    "currencySymbol": "S/.",
+    "currencySymbolEn": "PEN",
+    "vatRate": 18,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "VE": {
+    "code": "VE",
+    "name": "فنزويلا",
+    "nameEn": "Venezuela",
+    "flag": "🇻🇪",
+    "currency": "VES",
+    "currencySymbol": "Bs.S.",
+    "currencySymbolEn": "VES",
+    "vatRate": 16,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "EC": {
+    "code": "EC",
+    "name": "الإكوادور",
+    "nameEn": "Ecuador",
+    "flag": "🇪🇨",
+    "currency": "USD",
+    "currencySymbol": "$",
+    "currencySymbolEn": "USD",
+    "vatRate": 12,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "CR": {
+    "code": "CR",
+    "name": "كوستاريكا",
+    "nameEn": "Costa Rica",
+    "flag": "🇨🇷",
+    "currency": "CRC",
+    "currencySymbol": "₡",
+    "currencySymbolEn": "CRC",
+    "vatRate": 13,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "PA": {
+    "code": "PA",
+    "name": "بنما",
+    "nameEn": "Panama",
+    "flag": "🇵🇦",
+    "currency": "PAB",
+    "currencySymbol": "B/.",
+    "currencySymbolEn": "PAB",
+    "vatRate": 7,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "DO": {
+    "code": "DO",
+    "name": "جمهورية الدومينيكان",
+    "nameEn": "Dominican Republic",
+    "flag": "🇩🇴",
+    "currency": "DOP",
+    "currencySymbol": "$",
+    "currencySymbolEn": "DOP",
+    "vatRate": 18,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "ET": {
+    "code": "ET",
+    "name": "إثيوبيا",
+    "nameEn": "Ethiopia",
+    "flag": "🇪🇹",
+    "currency": "ETB",
+    "currencySymbol": "Br",
+    "currencySymbolEn": "ETB",
+    "vatRate": 15,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "GH": {
+    "code": "GH",
+    "name": "غانا",
+    "nameEn": "Ghana",
+    "flag": "🇬🇭",
+    "currency": "GHS",
+    "currencySymbol": "₵",
+    "currencySymbolEn": "GHS",
+    "vatRate": 15,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "TZ": {
+    "code": "TZ",
+    "name": "تنزانيا",
+    "nameEn": "Tanzania",
+    "flag": "🇹🇿",
+    "currency": "TZS",
+    "currencySymbol": "Sh",
+    "currencySymbolEn": "TZS",
+    "vatRate": 18,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "UG": {
+    "code": "UG",
+    "name": "أوغندا",
+    "nameEn": "Uganda",
+    "flag": "🇺🇬",
+    "currency": "UGX",
+    "currencySymbol": "Sh",
+    "currencySymbolEn": "UGX",
+    "vatRate": 18,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    }
+  },
+  "ZM": {
+    "code": "ZM",
+    "name": "زامبيا",
+    "nameEn": "Zambia",
+    "flag": "🇿🇲",
+    "currency": "ZMW",
+    "currencySymbol": "ZK",
+    "currencySymbolEn": "ZMW",
+    "vatRate": 16,
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
     }
   }
 };

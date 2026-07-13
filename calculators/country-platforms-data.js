@@ -2204,8 +2204,2195 @@ var COUNTRIES_DATA = {
     ],
     note: 'سوق التوصيل ناشئ جداً. ساهيلكوم وفودكوم كي أم محليان. لا توجد تطبيقات دولية. متوسط الطلب ~3,500 ف.ق.',
     noteEn: 'Delivery market is very nascent. Sahilkom and Foodcom KM are local. No international apps. Avg order ~KMF 3,500.'
+  },
+
+  US: {
+    name: 'الولايات المتحدة',
+    nameEn: 'United States',
+    flag: '🇺🇸',
+    currency: 'USD',
+    currencySymbol: '$',
+    currencySymbolEn: 'USD',
+    vatRate: 0,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 35, peakHours: '11:30–13:30 و 18:00–21:00', paymentMethod: 'Card 70% | Cash 20% | Digital wallets 10%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'New York', nameEn: 'New York', code: 'US-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الأمريكي. لا توجد منصات توصيل محلية مدرجة.',
+    noteEn: 'General US market data. No local delivery platforms listed.'
+  },
+  CA: {
+    name: 'كندا',
+    nameEn: 'Canada',
+    flag: '🇨🇦',
+    currency: 'CAD',
+    currencySymbol: 'C$',
+    currencySymbolEn: 'CAD',
+    vatRate: 5,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 45, peakHours: '11:30–13:30 و 18:00–21:00', paymentMethod: 'Card 80% | Cash 15% | Digital wallets 5%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Toronto', nameEn: 'Toronto', code: 'CA-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الكندي.',
+    noteEn: 'General Canada market data.'
+  },
+  GB: {
+    name: 'المملكة المتحدة',
+    nameEn: 'United Kingdom',
+    flag: '🇬🇧',
+    currency: 'GBP',
+    currencySymbol: '£',
+    currencySymbolEn: 'GBP',
+    vatRate: 20,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 28, peakHours: '12:00–14:00 و 18:30–21:30', paymentMethod: 'Card 75% | Cash 15% | Digital wallets 10%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'London', nameEn: 'London', code: 'GB-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق البريطاني.',
+    noteEn: 'General UK market data.'
+  },
+  DE: {
+    name: 'ألمانيا',
+    nameEn: 'Germany',
+    flag: '🇩🇪',
+    currency: 'EUR',
+    currencySymbol: '€',
+    currencySymbolEn: 'EUR',
+    vatRate: 19,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 30, peakHours: '12:00–14:00 و 18:30–21:00', paymentMethod: 'Card 80% | Cash 10% | Digital wallets 10%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Berlin', nameEn: 'Berlin', code: 'DE-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الألماني.',
+    noteEn: 'General Germany market data.'
+  },
+  FR: {
+    name: 'فرنسا',
+    nameEn: 'France',
+    flag: '🇫🇷',
+    currency: 'EUR',
+    currencySymbol: '€',
+    currencySymbolEn: 'EUR',
+    vatRate: 20,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 32, peakHours: '12:00–14:00 و 19:30–22:00', paymentMethod: 'Card 75% | Cash 15% | Digital wallets 10%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Paris', nameEn: 'Paris', code: 'FR-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الفرنسي.',
+    noteEn: 'General France market data.'
+  },
+  IT: {
+    name: 'إيطاليا',
+    nameEn: 'Italy',
+    flag: '🇮🇹',
+    currency: 'EUR',
+    currencySymbol: '€',
+    currencySymbolEn: 'EUR',
+    vatRate: 22,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 28, peakHours: '12:30–14:30 و 19:30–22:30', paymentMethod: 'Card 70% | Cash 25% | Digital wallets 5%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Rome', nameEn: 'Rome', code: 'IT-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الإيطالي.',
+    noteEn: 'General Italy market data.'
+  },
+  ES: {
+    name: 'إسبانيا',
+    nameEn: 'Spain',
+    flag: '🇪🇸',
+    currency: 'EUR',
+    currencySymbol: '€',
+    currencySymbolEn: 'EUR',
+    vatRate: 21,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 26, peakHours: '13:00–15:30 و 20:30–23:00', paymentMethod: 'Card 75% | Cash 20% | Digital wallets 5%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Madrid', nameEn: 'Madrid', code: 'ES-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الإسباني.',
+    noteEn: 'General Spain market data.'
+  },
+  NL: {
+    name: 'هولندا',
+    nameEn: 'Netherlands',
+    flag: '🇳🇱',
+    currency: 'EUR',
+    currencySymbol: '€',
+    currencySymbolEn: 'EUR',
+    vatRate: 21,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 29, peakHours: '12:00–14:00 و 18:00–21:00', paymentMethod: 'Card 85% | Cash 10% | Digital wallets 5%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Amsterdam', nameEn: 'Amsterdam', code: 'NL-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الهولندي.',
+    noteEn: 'General Netherlands market data.'
+  },
+  BE: {
+    name: 'بلجيكا',
+    nameEn: 'Belgium',
+    flag: '🇧🇪',
+    currency: 'EUR',
+    currencySymbol: '€',
+    currencySymbolEn: 'EUR',
+    vatRate: 21,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 30, peakHours: '12:00–14:00 و 18:30–21:30', paymentMethod: 'Card 80% | Cash 15% | Digital wallets 5%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Brussels', nameEn: 'Brussels', code: 'BE-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق البلجيكي.',
+    noteEn: 'General Belgium market data.'
+  },
+  CH: {
+    name: 'سويسرا',
+    nameEn: 'Switzerland',
+    flag: '🇨🇭',
+    currency: 'CHF',
+    currencySymbol: 'CHF',
+    currencySymbolEn: 'CHF',
+    vatRate: 8.1,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 40, peakHours: '12:00–14:00 و 18:30–21:30', paymentMethod: 'Card 75% | Cash 20% | Digital wallets 5%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Zurich', nameEn: 'Zurich', code: 'CH-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق السويسري.',
+    noteEn: 'General Switzerland market data.'
+  },
+  AT: {
+    name: 'النمسا',
+    nameEn: 'Austria',
+    flag: '🇦🇹',
+    currency: 'EUR',
+    currencySymbol: '€',
+    currencySymbolEn: 'EUR',
+    vatRate: 20,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 28, peakHours: '11:30–13:30 و 18:00–21:00', paymentMethod: 'Card 80% | Cash 15% | Digital wallets 5%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Vienna', nameEn: 'Vienna', code: 'AT-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق النمساوي.',
+    noteEn: 'General Austria market data.'
+  },
+  TR: {
+    name: 'تركيا',
+    nameEn: 'Turkey',
+    flag: '🇹🇷',
+    currency: 'TRY',
+    currencySymbol: '₺',
+    currencySymbolEn: 'TRY',
+    vatRate: 20,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 450, peakHours: '12:00–14:00 و 19:00–22:00', paymentMethod: 'Card 60% | Cash 35% | Digital wallets 5%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Istanbul', nameEn: 'Istanbul', code: 'TR-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق التركي.',
+    noteEn: 'General Turkey market data.'
+  },
+  IN: {
+    name: 'الهند',
+    nameEn: 'India',
+    flag: '🇮🇳',
+    currency: 'INR',
+    currencySymbol: '₹',
+    currencySymbolEn: 'INR',
+    vatRate: 18,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 600, peakHours: '12:30–14:30 و 19:00–22:00', paymentMethod: 'Digital wallets 50% | Card 30% | Cash 20%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Mumbai', nameEn: 'Mumbai', code: 'IN-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الهندي.',
+    noteEn: 'General India market data.'
+  },
+  PK: {
+    name: 'باكستان',
+    nameEn: 'Pakistan',
+    flag: '🇵🇰',
+    currency: 'PKR',
+    currencySymbol: 'PKR',
+    currencySymbolEn: 'PKR',
+    vatRate: 17,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 2500, peakHours: '12:30–14:30 و 19:30–22:30', paymentMethod: 'Cash 70% | Card 25% | Digital wallets 5%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Karachi', nameEn: 'Karachi', code: 'PK-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الباكستاني.',
+    noteEn: 'General Pakistan market data.'
+  },
+  BD: {
+    name: 'بنغلاديش',
+    nameEn: 'Bangladesh',
+    flag: '🇧🇩',
+    currency: 'BDT',
+    currencySymbol: '৳',
+    currencySymbolEn: 'BDT',
+    vatRate: 15,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 1200, peakHours: '12:30–14:30 و 19:00–22:00', paymentMethod: 'Cash 75% | Card 20% | Digital wallets 5%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Dhaka', nameEn: 'Dhaka', code: 'BD-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق البنغلاديشي.',
+    noteEn: 'General Bangladesh market data.'
+  },
+  ID: {
+    name: 'إندونيسيا',
+    nameEn: 'Indonesia',
+    flag: '🇮🇩',
+    currency: 'IDR',
+    currencySymbol: 'IDR',
+    currencySymbolEn: 'IDR',
+    vatRate: 11,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 90000, peakHours: '11:30–13:30 و 18:00–21:00', paymentMethod: 'Digital wallets 60% | Cash 30% | Card 10%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Jakarta', nameEn: 'Jakarta', code: 'ID-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الإندونيسي.',
+    noteEn: 'General Indonesia market data.'
+  },
+  MY: {
+    name: 'ماليزيا',
+    nameEn: 'Malaysia',
+    flag: '🇲🇾',
+    currency: 'MYR',
+    currencySymbol: 'MYR',
+    currencySymbolEn: 'MYR',
+    vatRate: 10,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 35, peakHours: '11:30–13:30 و 18:00–21:00', paymentMethod: 'Digital wallets 55% | Card 30% | Cash 15%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Kuala Lumpur', nameEn: 'Kuala Lumpur', code: 'MY-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الماليزي.',
+    noteEn: 'General Malaysia market data.'
+  },
+  PH: {
+    name: 'الفلبين',
+    nameEn: 'Philippines',
+    flag: '🇵🇭',
+    currency: 'PHP',
+    currencySymbol: '₱',
+    currencySymbolEn: 'PHP',
+    vatRate: 12,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 600, peakHours: '11:30–13:30 و 18:00–21:00', paymentMethod: 'Digital wallets 50% | Cash 35% | Card 15%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Manila', nameEn: 'Manila', code: 'PH-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الفلبيني.',
+    noteEn: 'General Philippines market data.'
+  },
+  SG: {
+    name: 'سنغافورة',
+    nameEn: 'Singapore',
+    flag: '🇸🇬',
+    currency: 'SGD',
+    currencySymbol: 'S$',
+    currencySymbolEn: 'SGD',
+    vatRate: 9,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 30, peakHours: '11:30–13:30 و 18:00–21:00', paymentMethod: 'Digital wallets 60% | Card 35% | Cash 5%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Singapore', nameEn: 'Singapore', code: 'SG-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق السنغافوري.',
+    noteEn: 'General Singapore market data.'
+  },
+  CN: {
+    name: 'الصين',
+    nameEn: 'China',
+    flag: '🇨🇳',
+    currency: 'CNY',
+    currencySymbol: '¥',
+    currencySymbolEn: 'CNY',
+    vatRate: 13,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 70, peakHours: '11:30–13:30 و 17:30–20:30', paymentMethod: 'Digital wallets 85% | Card 10% | Cash 5%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Beijing', nameEn: 'Beijing', code: 'CN-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الصيني.',
+    noteEn: 'General China market data.'
+  },
+  JP: {
+    name: 'اليابان',
+    nameEn: 'Japan',
+    flag: '🇯🇵',
+    currency: 'JPY',
+    currencySymbol: '¥',
+    currencySymbolEn: 'JPY',
+    vatRate: 10,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 2500, peakHours: '11:30–13:30 و 17:30–20:30', paymentMethod: 'Digital wallets 50% | Card 35% | Cash 15%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Tokyo', nameEn: 'Tokyo', code: 'JP-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الياباني.',
+    noteEn: 'General Japan market data.'
+  },
+  KR: {
+    name: 'كوريا الجنوبية',
+    nameEn: 'South Korea',
+    flag: '🇰🇷',
+    currency: 'KRW',
+    currencySymbol: '₩',
+    currencySymbolEn: 'KRW',
+    vatRate: 10,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 25000, peakHours: '11:30–13:30 و 17:30–20:30', paymentMethod: 'Digital wallets 70% | Card 25% | Cash 5%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Seoul', nameEn: 'Seoul', code: 'KR-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الكوري.',
+    noteEn: 'General South Korea market data.'
+  },
+  AU: {
+    name: 'أستراليا',
+    nameEn: 'Australia',
+    flag: '🇦🇺',
+    currency: 'AUD',
+    currencySymbol: 'A$',
+    currencySymbolEn: 'AUD',
+    vatRate: 10,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 45, peakHours: '11:30–13:30 و 18:00–21:00', paymentMethod: 'Card 70% | Digital wallets 20% | Cash 10%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Sydney', nameEn: 'Sydney', code: 'AU-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الأسترالي.',
+    noteEn: 'General Australia market data.'
+  },
+  NZ: {
+    name: 'نيوزيلندا',
+    nameEn: 'New Zealand',
+    flag: '🇳🇿',
+    currency: 'NZD',
+    currencySymbol: 'NZ$',
+    currencySymbolEn: 'NZD',
+    vatRate: 15,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 45, peakHours: '11:30–13:30 و 18:00–21:00', paymentMethod: 'Card 75% | Digital wallets 15% | Cash 10%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Auckland', nameEn: 'Auckland', code: 'NZ-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق النيوزيلندي.',
+    noteEn: 'General New Zealand market data.'
+  },
+  ZA: {
+    name: 'جنوب أفريقيا',
+    nameEn: 'South Africa',
+    flag: '🇿🇦',
+    currency: 'ZAR',
+    currencySymbol: 'ZAR',
+    currencySymbolEn: 'ZAR',
+    vatRate: 15,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 250, peakHours: '12:00–14:00 و 18:00–21:00', paymentMethod: 'Digital wallets 40% | Card 35% | Cash 25%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Johannesburg', nameEn: 'Johannesburg', code: 'ZA-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الجنوب أفريقي.',
+    noteEn: 'General South Africa market data.'
+  },
+  NG: {
+    name: 'نيجيريا',
+    nameEn: 'Nigeria',
+    flag: '🇳🇬',
+    currency: 'NGN',
+    currencySymbol: '₦',
+    currencySymbolEn: 'NGN',
+    vatRate: 7.5,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 8000, peakHours: '12:00–14:00 و 18:00–21:00', paymentMethod: 'Digital wallets 45% | Cash 40% | Card 15%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Lagos', nameEn: 'Lagos', code: 'NG-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق النيجيري.',
+    noteEn: 'General Nigeria market data.'
+  },
+  KE: {
+    name: 'كينيا',
+    nameEn: 'Kenya',
+    flag: '🇰🇪',
+    currency: 'KES',
+    currencySymbol: 'KSh',
+    currencySymbolEn: 'KES',
+    vatRate: 16,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 1500, peakHours: '12:00–14:00 و 18:00–21:00', paymentMethod: 'Digital wallets 50% | Cash 40% | Card 10%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Nairobi', nameEn: 'Nairobi', code: 'KE-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الكيني.',
+    noteEn: 'General Kenya market data.'
+  },
+  BR: {
+    name: 'البرازيل',
+    nameEn: 'Brazil',
+    flag: '🇧🇷',
+    currency: 'BRL',
+    currencySymbol: 'R$',
+    currencySymbolEn: 'BRL',
+    vatRate: 17,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 80, peakHours: '11:30–13:30 و 18:30–21:30', paymentMethod: 'Digital wallets 50% | Card 30% | Cash 20%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'São Paulo', nameEn: 'São Paulo', code: 'BR-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق البرازيلي.',
+    noteEn: 'General Brazil market data.'
+  },
+  MX: {
+    name: 'المكسيك',
+    nameEn: 'Mexico',
+    flag: '🇲🇽',
+    currency: 'MXN',
+    currencySymbol: 'MX$',
+    currencySymbolEn: 'MXN',
+    vatRate: 16,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 350, peakHours: '13:00–15:30 و 19:30–22:30', paymentMethod: 'Digital wallets 40% | Card 35% | Cash 25%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Mexico City', nameEn: 'Mexico City', code: 'MX-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق المكسيكي.',
+    noteEn: 'General Mexico market data.'
+  },
+  AR: {
+    name: 'الأرجنتين',
+    nameEn: 'Argentina',
+    flag: '🇦🇷',
+    currency: 'ARS',
+    currencySymbol: '$',
+    currencySymbolEn: 'ARS',
+    vatRate: 21,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 8000, peakHours: '12:00–14:30 و 20:00–23:00', paymentMethod: 'Digital wallets 40% | Cash 40% | Card 20%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Buenos Aires', nameEn: 'Buenos Aires', code: 'AR-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الأرجنتيني.',
+    noteEn: 'General Argentina market data.'
+  },
+  RU: {
+    name: 'روسيا',
+    nameEn: 'Russia',
+    flag: '🇷🇺',
+    currency: 'RUB',
+    currencySymbol: '₽',
+    currencySymbolEn: 'RUB',
+    vatRate: 20,
+    lastUpdated: "2026-07-13",
+    marketInsights: { avgOrderValue: 1500, peakHours: '12:00–14:00 و 18:00–21:00', paymentMethod: 'Card 50% | Cash 35% | Digital wallets 15%' },
+    governorates: [{ name: 'General', nameEn: 'General', cities: [{ name: 'Moscow', nameEn: 'Moscow', code: 'RU-01-001' }] }],
+    platforms: [{ id: 'plat_direct', operatingModel: 'direct', name: 'مباشر (بدون منصة)', nameEn: 'Direct', fee: 0, confidence: 'verified' }],
+    note: 'بيانات عامة للسوق الروسي.',
+    noteEn: 'General Russia market data.'
+  },
+/* AUTO-INSERTED: EXPANDED-COUNTRIES-43 */
+  TD: {
+    "name": "تشاد",
+    "nameEn": "Chad",
+    "flag": "🇹🇩",
+    "currency": "XAF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XAF",
+    "vatRate": 18,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "N'Djamena",
+            "nameEn": "N'Djamena",
+            "code": "TD-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق تشاد.",
+    "noteEn": "General Chad market data."
+  },
+  ER: {
+    "name": "إريتريا",
+    "nameEn": "Eritrea",
+    "flag": "🇪🇷",
+    "currency": "ERN",
+    "currencySymbol": "Nfk",
+    "currencySymbolEn": "ERN",
+    "vatRate": 5,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Asmara",
+            "nameEn": "Asmara",
+            "code": "ER-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق إريتريا.",
+    "noteEn": "General Eritrea market data."
+  },
+  SS: {
+    "name": "جنوب السودان",
+    "nameEn": "South Sudan",
+    "flag": "🇸🇸",
+    "currency": "SSP",
+    "currencySymbol": "£",
+    "currencySymbolEn": "SSP",
+    "vatRate": 18,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Juba",
+            "nameEn": "Juba",
+            "code": "SS-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق جنوب السودان.",
+    "noteEn": "General South Sudan market data."
+  },
+  NE: {
+    "name": "النيجر",
+    "nameEn": "Niger",
+    "flag": "🇳🇪",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 19,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Niamey",
+            "nameEn": "Niamey",
+            "code": "NE-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق النيجر.",
+    "noteEn": "General Niger market data."
+  },
+  ML: {
+    "name": "مالي",
+    "nameEn": "Mali",
+    "flag": "🇲🇱",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 18,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Bamako",
+            "nameEn": "Bamako",
+            "code": "ML-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق مالي.",
+    "noteEn": "General Mali market data."
+  },
+  SN: {
+    "name": "السنغال",
+    "nameEn": "Senegal",
+    "flag": "🇸🇳",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 18,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Dakar",
+            "nameEn": "Dakar",
+            "code": "SN-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق السنغال.",
+    "noteEn": "General Senegal market data."
+  },
+  GM: {
+    "name": "غامبيا",
+    "nameEn": "Gambia",
+    "flag": "🇬🇲",
+    "currency": "GMD",
+    "currencySymbol": "D",
+    "currencySymbolEn": "GMD",
+    "vatRate": 15,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Banjul",
+            "nameEn": "Banjul",
+            "code": "GM-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق غامبيا.",
+    "noteEn": "General Gambia market data."
+  },
+  BF: {
+    "name": "بوركينا فاسو",
+    "nameEn": "Burkina Faso",
+    "flag": "🇧🇫",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 18,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Ouagadougou",
+            "nameEn": "Ouagadougou",
+            "code": "BF-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق بوركينا فاسو.",
+    "noteEn": "General Burkina Faso market data."
+  },
+  SL: {
+    "name": "سيراليون",
+    "nameEn": "Sierra Leone",
+    "flag": "🇸🇱",
+    "currency": "SLL",
+    "currencySymbol": "Le",
+    "currencySymbolEn": "SLL",
+    "vatRate": 15,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Freetown",
+            "nameEn": "Freetown",
+            "code": "SL-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق سيراليون.",
+    "noteEn": "General Sierra Leone market data."
+  },
+  BJ: {
+    "name": "بنين",
+    "nameEn": "Benin",
+    "flag": "🇧🇯",
+    "currency": "XOF",
+    "currencySymbol": "Fr",
+    "currencySymbolEn": "XOF",
+    "vatRate": 18,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Porto-Novo",
+            "nameEn": "Porto-Novo",
+            "code": "BJ-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق بنين.",
+    "noteEn": "General Benin market data."
+  },
+  SE: {
+    "name": "السويد",
+    "nameEn": "Sweden",
+    "flag": "🇸🇪",
+    "currency": "SEK",
+    "currencySymbol": "kr",
+    "currencySymbolEn": "SEK",
+    "vatRate": 25,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Stockholm",
+            "nameEn": "Stockholm",
+            "code": "SE-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق السويد.",
+    "noteEn": "General Sweden market data."
+  },
+  NO: {
+    "name": "النرويج",
+    "nameEn": "Norway",
+    "flag": "🇳🇴",
+    "currency": "NOK",
+    "currencySymbol": "kr",
+    "currencySymbolEn": "NOK",
+    "vatRate": 25,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Oslo",
+            "nameEn": "Oslo",
+            "code": "NO-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق النرويج.",
+    "noteEn": "General Norway market data."
+  },
+  DK: {
+    "name": "الدنمارك",
+    "nameEn": "Denmark",
+    "flag": "🇩🇰",
+    "currency": "DKK",
+    "currencySymbol": "kr",
+    "currencySymbolEn": "DKK",
+    "vatRate": 25,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Copenhagen",
+            "nameEn": "Copenhagen",
+            "code": "DK-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق الدنمارك.",
+    "noteEn": "General Denmark market data."
+  },
+  FI: {
+    "name": "فنلندا",
+    "nameEn": "Finland",
+    "flag": "🇫🇮",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 25.5,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Helsinki",
+            "nameEn": "Helsinki",
+            "code": "FI-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق فنلندا.",
+    "noteEn": "General Finland market data."
+  },
+  PL: {
+    "name": "بولندا",
+    "nameEn": "Poland",
+    "flag": "🇵🇱",
+    "currency": "PLN",
+    "currencySymbol": "zł",
+    "currencySymbolEn": "PLN",
+    "vatRate": 23,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Warsaw",
+            "nameEn": "Warsaw",
+            "code": "PL-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق بولندا.",
+    "noteEn": "General Poland market data."
+  },
+  CZ: {
+    "name": "التشيك",
+    "nameEn": "Czechia",
+    "flag": "🇨🇿",
+    "currency": "CZK",
+    "currencySymbol": "Kč",
+    "currencySymbolEn": "CZK",
+    "vatRate": 21,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Prague",
+            "nameEn": "Prague",
+            "code": "CZ-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق التشيك.",
+    "noteEn": "General Czechia market data."
+  },
+  HU: {
+    "name": "المجر",
+    "nameEn": "Hungary",
+    "flag": "🇭🇺",
+    "currency": "HUF",
+    "currencySymbol": "Ft",
+    "currencySymbolEn": "HUF",
+    "vatRate": 27,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Budapest",
+            "nameEn": "Budapest",
+            "code": "HU-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق المجر.",
+    "noteEn": "General Hungary market data."
+  },
+  RO: {
+    "name": "رومانيا",
+    "nameEn": "Romania",
+    "flag": "🇷🇴",
+    "currency": "RON",
+    "currencySymbol": "lei",
+    "currencySymbolEn": "RON",
+    "vatRate": 19,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Bucharest",
+            "nameEn": "Bucharest",
+            "code": "RO-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق رومانيا.",
+    "noteEn": "General Romania market data."
+  },
+  GR: {
+    "name": "اليونان",
+    "nameEn": "Greece",
+    "flag": "🇬🇷",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 24,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Athens",
+            "nameEn": "Athens",
+            "code": "GR-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق اليونان.",
+    "noteEn": "General Greece market data."
+  },
+  PT: {
+    "name": "البرتغال",
+    "nameEn": "Portugal",
+    "flag": "🇵🇹",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 23,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Lisbon",
+            "nameEn": "Lisbon",
+            "code": "PT-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق البرتغال.",
+    "noteEn": "General Portugal market data."
+  },
+  IE: {
+    "name": "أيرلندا",
+    "nameEn": "Ireland",
+    "flag": "🇮🇪",
+    "currency": "EUR",
+    "currencySymbol": "€",
+    "currencySymbolEn": "EUR",
+    "vatRate": 23,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Dublin",
+            "nameEn": "Dublin",
+            "code": "IE-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق أيرلندا.",
+    "noteEn": "General Ireland market data."
+  },
+  UA: {
+    "name": "أوكرانيا",
+    "nameEn": "Ukraine",
+    "flag": "🇺🇦",
+    "currency": "UAH",
+    "currencySymbol": "₴",
+    "currencySymbolEn": "UAH",
+    "vatRate": 20,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Kyiv",
+            "nameEn": "Kyiv",
+            "code": "UA-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق أوكرانيا.",
+    "noteEn": "General Ukraine market data."
+  },
+  KZ: {
+    "name": "كازاخستان",
+    "nameEn": "Kazakhstan",
+    "flag": "🇰🇿",
+    "currency": "KZT",
+    "currencySymbol": "₸",
+    "currencySymbolEn": "KZT",
+    "vatRate": 12,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Astana",
+            "nameEn": "Astana",
+            "code": "KZ-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق كازاخستان.",
+    "noteEn": "General Kazakhstan market data."
+  },
+  UZ: {
+    "name": "أوزباكستان",
+    "nameEn": "Uzbekistan",
+    "flag": "🇺🇿",
+    "currency": "UZS",
+    "currencySymbol": "so'm",
+    "currencySymbolEn": "UZS",
+    "vatRate": 12,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Tashkent",
+            "nameEn": "Tashkent",
+            "code": "UZ-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق أوزباكستان.",
+    "noteEn": "General Uzbekistan market data."
+  },
+  TH: {
+    "name": "تايلند",
+    "nameEn": "Thailand",
+    "flag": "🇹🇭",
+    "currency": "THB",
+    "currencySymbol": "฿",
+    "currencySymbolEn": "THB",
+    "vatRate": 7,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Bangkok",
+            "nameEn": "Bangkok",
+            "code": "TH-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق تايلند.",
+    "noteEn": "General Thailand market data."
+  },
+  VN: {
+    "name": "فيتنام",
+    "nameEn": "Vietnam",
+    "flag": "🇻🇳",
+    "currency": "VND",
+    "currencySymbol": "₫",
+    "currencySymbolEn": "VND",
+    "vatRate": 10,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Hanoi",
+            "nameEn": "Hanoi",
+            "code": "VN-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق فيتنام.",
+    "noteEn": "General Vietnam market data."
+  },
+  IL: {
+    "name": "إسرائيل",
+    "nameEn": "Israel",
+    "flag": "🇮🇱",
+    "currency": "ILS",
+    "currencySymbol": "₪",
+    "currencySymbolEn": "ILS",
+    "vatRate": 17,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Jerusalem",
+            "nameEn": "Jerusalem",
+            "code": "IL-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق إسرائيل.",
+    "noteEn": "General Israel market data."
+  },
+  HK: {
+    "name": "هونغ كونغ",
+    "nameEn": "Hong Kong",
+    "flag": "🇭🇰",
+    "currency": "HKD",
+    "currencySymbol": "$",
+    "currencySymbolEn": "HKD",
+    "vatRate": 0,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "City of Victoria",
+            "nameEn": "City of Victoria",
+            "code": "HK-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق هونغ كونغ.",
+    "noteEn": "General Hong Kong market data."
+  },
+  TW: {
+    "name": "تايوان",
+    "nameEn": "Taiwan",
+    "flag": "🇹🇼",
+    "currency": "TWD",
+    "currencySymbol": "$",
+    "currencySymbolEn": "TWD",
+    "vatRate": 5,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Taipei",
+            "nameEn": "Taipei",
+            "code": "TW-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق تايوان.",
+    "noteEn": "General Taiwan market data."
+  },
+  LK: {
+    "name": "سريلانكا",
+    "nameEn": "Sri Lanka",
+    "flag": "🇱🇰",
+    "currency": "LKR",
+    "currencySymbol": "Rs  රු",
+    "currencySymbolEn": "LKR",
+    "vatRate": 18,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Colombo",
+            "nameEn": "Colombo",
+            "code": "LK-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق سريلانكا.",
+    "noteEn": "General Sri Lanka market data."
+  },
+  CL: {
+    "name": "تشيلي",
+    "nameEn": "Chile",
+    "flag": "🇨🇱",
+    "currency": "CLP",
+    "currencySymbol": "$",
+    "currencySymbolEn": "CLP",
+    "vatRate": 19,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Santiago",
+            "nameEn": "Santiago",
+            "code": "CL-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق تشيلي.",
+    "noteEn": "General Chile market data."
+  },
+  CO: {
+    "name": "كولومبيا",
+    "nameEn": "Colombia",
+    "flag": "🇨🇴",
+    "currency": "COP",
+    "currencySymbol": "$",
+    "currencySymbolEn": "COP",
+    "vatRate": 19,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Bogotá",
+            "nameEn": "Bogotá",
+            "code": "CO-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق كولومبيا.",
+    "noteEn": "General Colombia market data."
+  },
+  PE: {
+    "name": "بيرو",
+    "nameEn": "Peru",
+    "flag": "🇵🇪",
+    "currency": "PEN",
+    "currencySymbol": "S/.",
+    "currencySymbolEn": "PEN",
+    "vatRate": 18,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Lima",
+            "nameEn": "Lima",
+            "code": "PE-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق بيرو.",
+    "noteEn": "General Peru market data."
+  },
+  VE: {
+    "name": "فنزويلا",
+    "nameEn": "Venezuela",
+    "flag": "🇻🇪",
+    "currency": "VES",
+    "currencySymbol": "Bs.S.",
+    "currencySymbolEn": "VES",
+    "vatRate": 16,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Caracas",
+            "nameEn": "Caracas",
+            "code": "VE-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق فنزويلا.",
+    "noteEn": "General Venezuela market data."
+  },
+  EC: {
+    "name": "الإكوادور",
+    "nameEn": "Ecuador",
+    "flag": "🇪🇨",
+    "currency": "USD",
+    "currencySymbol": "$",
+    "currencySymbolEn": "USD",
+    "vatRate": 12,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Quito",
+            "nameEn": "Quito",
+            "code": "EC-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق الإكوادور.",
+    "noteEn": "General Ecuador market data."
+  },
+  CR: {
+    "name": "كوستاريكا",
+    "nameEn": "Costa Rica",
+    "flag": "🇨🇷",
+    "currency": "CRC",
+    "currencySymbol": "₡",
+    "currencySymbolEn": "CRC",
+    "vatRate": 13,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "San José",
+            "nameEn": "San José",
+            "code": "CR-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق كوستاريكا.",
+    "noteEn": "General Costa Rica market data."
+  },
+  PA: {
+    "name": "بنما",
+    "nameEn": "Panama",
+    "flag": "🇵🇦",
+    "currency": "PAB",
+    "currencySymbol": "B/.",
+    "currencySymbolEn": "PAB",
+    "vatRate": 7,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Panama City",
+            "nameEn": "Panama City",
+            "code": "PA-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق بنما.",
+    "noteEn": "General Panama market data."
+  },
+  DO: {
+    "name": "جمهورية الدومينيكان",
+    "nameEn": "Dominican Republic",
+    "flag": "🇩🇴",
+    "currency": "DOP",
+    "currencySymbol": "$",
+    "currencySymbolEn": "DOP",
+    "vatRate": 18,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Santo Domingo",
+            "nameEn": "Santo Domingo",
+            "code": "DO-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق جمهورية الدومينيكان.",
+    "noteEn": "General Dominican Republic market data."
+  },
+  ET: {
+    "name": "إثيوبيا",
+    "nameEn": "Ethiopia",
+    "flag": "🇪🇹",
+    "currency": "ETB",
+    "currencySymbol": "Br",
+    "currencySymbolEn": "ETB",
+    "vatRate": 15,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Addis Ababa",
+            "nameEn": "Addis Ababa",
+            "code": "ET-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق إثيوبيا.",
+    "noteEn": "General Ethiopia market data."
+  },
+  GH: {
+    "name": "غانا",
+    "nameEn": "Ghana",
+    "flag": "🇬🇭",
+    "currency": "GHS",
+    "currencySymbol": "₵",
+    "currencySymbolEn": "GHS",
+    "vatRate": 15,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Accra",
+            "nameEn": "Accra",
+            "code": "GH-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق غانا.",
+    "noteEn": "General Ghana market data."
+  },
+  TZ: {
+    "name": "تنزانيا",
+    "nameEn": "Tanzania",
+    "flag": "🇹🇿",
+    "currency": "TZS",
+    "currencySymbol": "Sh",
+    "currencySymbolEn": "TZS",
+    "vatRate": 18,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Dodoma",
+            "nameEn": "Dodoma",
+            "code": "TZ-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق تنزانيا.",
+    "noteEn": "General Tanzania market data."
+  },
+  UG: {
+    "name": "أوغندا",
+    "nameEn": "Uganda",
+    "flag": "🇺🇬",
+    "currency": "UGX",
+    "currencySymbol": "Sh",
+    "currencySymbolEn": "UGX",
+    "vatRate": 18,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Kampala",
+            "nameEn": "Kampala",
+            "code": "UG-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق أوغندا.",
+    "noteEn": "General Uganda market data."
+  },
+  ZM: {
+    "name": "زامبيا",
+    "nameEn": "Zambia",
+    "flag": "🇿🇲",
+    "currency": "ZMW",
+    "currencySymbol": "ZK",
+    "currencySymbolEn": "ZMW",
+    "vatRate": 16,
+    "lastUpdated": "2026-07-13",
+    "marketInsights": {
+      "avgOrderValue": 30,
+      "peakHours": "12:00–14:00 و 18:00–21:00",
+      "paymentMethod": "Card 60% | Cash 25% | Digital wallets 15%"
+    },
+    "governorates": [
+      {
+        "name": "General",
+        "nameEn": "General",
+        "cities": [
+          {
+            "name": "Lusaka",
+            "nameEn": "Lusaka",
+            "code": "ZM-01-001"
+          }
+        ]
+      }
+    ],
+    "platforms": [
+      {
+        "id": "plat_direct",
+        "operatingModel": "direct",
+        "name": "مباشر (بدون منصة)",
+        "nameEn": "Direct",
+        "fee": 0,
+        "confidence": "verified"
+      }
+    ],
+    "note": "بيانات عامة للسوق زامبيا.",
+    "noteEn": "General Zambia market data."
   }
 };
 
-// Default country
+
 var DEFAULT_COUNTRY = 'SA';
