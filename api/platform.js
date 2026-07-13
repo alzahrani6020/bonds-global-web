@@ -462,20 +462,37 @@ async function siteContactHandler(req, res) {
     };
 
     let savedId = null;
+    let saveError = null;
     try {
       const supabase = getSupabase();
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('contact_messages')
         .insert([payload])
         .select()
         .single();
 
+      // Retry without `city` if the column doesn't exist yet in this environment
+      if (error && /column.*city|city.*column|schema cache/i.test(error.message || '')) {
+        console.error('[contact] city column missing, retrying without it:', error.message);
+        const payloadNoCity = { ...payload };
+        delete payloadNoCity.city;
+        const retry = await supabase
+          .from('contact_messages')
+          .insert([payloadNoCity])
+          .select()
+          .single();
+        data = retry.data;
+        error = retry.error;
+      }
+
       if (error) {
+        saveError = error.message;
         console.error('[contact] Supabase error:', error.message);
       } else {
         savedId = data?.id;
       }
     } catch (dbErr) {
+      saveError = dbErr.message;
       console.error('[contact] DB error:', dbErr.message);
     }
 
@@ -527,8 +544,12 @@ ${message ? 'الرسالة:\n' + message : ''}
     return res.status(200).json({
       success: true,
       id: savedId,
+      saved: !!savedId,
       demo: !savedId,
-      message: 'Lead received successfully'
+      saveError: savedId ? undefined : saveError,
+      message: savedId
+        ? 'Lead received successfully'
+        : 'Lead received but NOT saved to database — check server logs'
     });
 
   } catch (err) {
