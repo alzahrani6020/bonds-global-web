@@ -43,7 +43,7 @@ h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gol
       </div>
       <h1>Verify Your Email</h1>
       <p class="subtitle" id="subtitle">Enter the 6-digit code we sent to your email address.</p>
-      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-4);line-height:1.6;">
+      <p id="emailHint" style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-4);line-height:1.6;">
         💡 If you don't see a 6-digit code, the email may contain a <strong style="color:var(--gold)">sign-in link</strong> — click it directly to sign in.
       </p>
 
@@ -85,9 +85,16 @@ h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gol
       const params = new URLSearchParams(window.location.search);
       const email = params.get('email') || sessionStorage.getItem('otp_email') || '';
       sessionStorage.setItem('otp_email', email);
+      const phone = params.get('phone') || sessionStorage.getItem('otp_phone') || '';
+      if (phone) sessionStorage.setItem('otp_phone', phone);
 
       const subtitle = document.getElementById('subtitle');
-      if (email) {
+      if (phone) {
+        document.querySelector('h1').textContent = 'Verify Your Phone';
+        subtitle.innerHTML = 'Enter the 6-digit code we sent to <strong style="color:var(--gold)">' + escapeHtml(phone) + '</strong>';
+        var emailHint = document.getElementById('emailHint');
+        if (emailHint) emailHint.style.display = 'none';
+      } else if (email) {
         subtitle.innerHTML = 'Enter the 6-digit code we sent to <strong style="color:var(--gold)">' + escapeHtml(email) + '</strong>';
       }
 
@@ -148,12 +155,31 @@ h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gol
         e.preventDefault();
         const token = getToken();
         if (token.length !== 6) { showError('Please enter the full 6-digit code'); return; }
-        if (!email) { showError('Email is missing. Go back to sign up.'); return; }
+        if (!email && !phone) { showError('Email or phone number is missing. Go back to sign in.'); return; }
 
         setLoading('verifyBtn', true);
         hideMessages();
 
         try {
+          if (phone) {
+            // Phone OTP (SMS) verification — login flow
+            const sbPhone = window.BondsAuth.getSupabase();
+            const { error: vErr } = await sbPhone.auth.verifyOtp({ phone: phone, token: token, type: 'sms' });
+            setLoading('verifyBtn', false);
+            if (vErr) {
+              const vmsg = vErr.message || '';
+              if (vmsg.includes('expired')) { showError('Code has expired. Click "Resend Code".'); }
+              else if (vmsg.includes('Invalid') || vmsg.includes('token')) { showError('Invalid code. Please check and try again.'); }
+              else { showError(vmsg); }
+              return;
+            }
+            sessionStorage.removeItem('otp_phone');
+            if (typeof gtag !== 'undefined') gtag('event', 'login', { method: 'phone_otp' });
+            showSuccess('Signed in successfully! Redirecting...');
+            setTimeout(() => { window.location.href = window.BondsAuth.getRedirectUrl(); }, 800);
+            return;
+          }
+
           const { data, error } = await window.BondsAuth.verifyOTP(email, token, 'email');
           if (error) {
             setLoading('verifyBtn', false);
@@ -209,9 +235,17 @@ h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gol
       });
 
       document.getElementById('resendBtn').addEventListener('click', async () => {
-        if (!email) { showError('Email is missing. Go back to sign up.'); return; }
+        if (!email && !phone) { showError('Email or phone number is missing. Go back to sign in.'); return; }
         setLoading('resendBtn', true);
         hideMessages();
+        if (phone) {
+          const sbResend = window.BondsAuth.getSupabase();
+          const { error: rErr } = await sbResend.auth.signInWithOtp({ phone: phone });
+          setLoading('resendBtn', false);
+          if (rErr) { showError(rErr.message); return; }
+          showInfo('Code resent to your phone 📱');
+          return;
+        }
         const { error } = await window.BondsAuth.signInWithOTP(email, { shouldCreateUser: false });
         setLoading('resendBtn', false);
         if (error) { showError(error.message); return; }

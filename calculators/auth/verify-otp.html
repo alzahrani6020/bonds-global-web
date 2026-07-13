@@ -34,7 +34,7 @@
       </div>
       <h1>تأكيد البريد الإلكتروني</h1>
       <p class="subtitle" id="subtitle">أدخل الرمز المؤلف من 6 أرقام الذي أرسلناه إلى بريدك الإلكتروني.</p>
-      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-4);line-height:1.6;">
+      <p id="emailHint" style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-4);line-height:1.6;">
         💡 إذا لم تجد رمزاً من 6 أرقام، فقد يكون البريد يحتوي على <strong style="color:var(--gold)">رابط دخول</strong> — اضغطه مباشرة وسيتم تسجيل دخولك.
       </p>
 
@@ -76,9 +76,16 @@
       const params = new URLSearchParams(window.location.search);
       const email = params.get('email') || sessionStorage.getItem('otp_email') || '';
       sessionStorage.setItem('otp_email', email);
+      const phone = params.get('phone') || sessionStorage.getItem('otp_phone') || '';
+      if (phone) sessionStorage.setItem('otp_phone', phone);
 
       const subtitle = document.getElementById('subtitle');
-      if (email) {
+      if (phone) {
+        document.querySelector('h1').textContent = 'تأكيد رقم الجوال';
+        subtitle.innerHTML = 'أدخل الرمز المؤلف من 6 أرقام الذي أرسلناه إلى <strong style="color:var(--gold)">' + escapeHtml(phone) + '</strong>';
+        var emailHint = document.getElementById('emailHint');
+        if (emailHint) emailHint.style.display = 'none';
+      } else if (email) {
         subtitle.innerHTML = 'أدخل الرمز المؤلف من 6 أرقام الذي أرسلناه إلى <strong style="color:var(--gold)">' + escapeHtml(email) + '</strong>';
       }
 
@@ -141,12 +148,31 @@
         e.preventDefault();
         const token = getToken();
         if (token.length !== 6) { showError('الرجاء إدخال الرمز كاملاً (6 أرقام)'); return; }
-        if (!email) { showError('البريد الإلكتروني مفقود. عد إلى صفحة التسجيل.'); return; }
+        if (!email && !phone) { showError('البريد الإلكتروني أو رقم الجوال مفقود. عد إلى صفحة تسجيل الدخول.'); return; }
 
         setLoading('verifyBtn', true);
         hideMessages();
 
         try {
+          if (phone) {
+            // Phone OTP (SMS) verification — login flow
+            const sbPhone = window.BondsAuth.getSupabase();
+            const { error: vErr } = await sbPhone.auth.verifyOtp({ phone: phone, token: token, type: 'sms' });
+            setLoading('verifyBtn', false);
+            if (vErr) {
+              const vmsg = vErr.message || '';
+              if (vmsg.includes('expired')) { showError('الرمز منتهي الصلاحية. اضغط "إعادة إرسال الرمز".'); }
+              else if (vmsg.includes('Invalid') || vmsg.includes('token')) { showError('الرمز غير صحيح. تأكد من إدخاله بشكل صحيح.'); }
+              else { showError(vmsg); }
+              return;
+            }
+            sessionStorage.removeItem('otp_phone');
+            if (typeof gtag !== 'undefined') gtag('event', 'login', { method: 'phone_otp' });
+            showSuccess('تم تسجيل الدخول بنجاح! جاري التوجيه...');
+            setTimeout(() => { window.location.href = window.BondsAuth.getRedirectUrl(); }, 800);
+            return;
+          }
+
           const { data, error } = await window.BondsAuth.verifyOTP(email, token, 'email');
           if (error) {
             setLoading('verifyBtn', false);
@@ -213,9 +239,17 @@
 
       // Resend
       document.getElementById('resendBtn').addEventListener('click', async () => {
-        if (!email) { showError('البريد الإلكتروني مفقود. عد إلى صفحة التسجيل.'); return; }
+        if (!email && !phone) { showError('البريد الإلكتروني أو رقم الجوال مفقود. عد إلى صفحة تسجيل الدخول.'); return; }
         setLoading('resendBtn', true);
         hideMessages();
+        if (phone) {
+          const sbResend = window.BondsAuth.getSupabase();
+          const { error: rErr } = await sbResend.auth.signInWithOtp({ phone: phone });
+          setLoading('resendBtn', false);
+          if (rErr) { showError(rErr.message); return; }
+          showInfo('تم إعادة إرسال الرمز إلى جوالك 📱');
+          return;
+        }
         const { error } = await window.BondsAuth.signInWithOTP(email, { shouldCreateUser: false });
         setLoading('resendBtn', false);
         if (error) { showError(error.message); return; }
