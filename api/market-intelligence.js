@@ -13,6 +13,26 @@ const { verifyAdminOrEditor } = require('../lib/api/admin-auth');
 const ALLOWED_ROLES = ['admin', 'editor']; // kept for backward compatibility
 const OUTLOOKS = ['positive', 'neutral', 'negative'];
 
+// Refresh must finish before Cloudflare's ~100s proxy timeout (HTTP 524).
+const SOURCE_FETCH_TIMEOUT_MS = 8000;
+const SOURCE_CONCURRENCY = 5;
+const UPSERT_CONCURRENCY = 10;
+const SOURCE_START_BUDGET_MS = 60000;
+const TOTAL_TIME_BUDGET_MS = 80000;
+
+async function mapLimit(items, limit, fn) {
+  const results = new Array(items.length);
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (cursor < items.length) {
+      const idx = cursor++;
+      results[idx] = await fn(items[idx]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
 function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -58,23 +78,31 @@ async function refreshSources(supabase) {
   if (error) throw error;
 
   const now = new Date().toISOString();
+  const startedAt = Date.now();
   let updated = 0;
   let failed = 0;
+  let skipped = 0;
   const errors = [];
 
-  for (const src of sources || []) {
+  await mapLimit(sources || [], SOURCE_CONCURRENCY, async (src) => {
+    if (Date.now() - startedAt > SOURCE_START_BUDGET_MS) {
+      skipped++;
+      return;
+    }
     try {
       const res = await fetch(src.url, {
         method: src.method || 'GET',
-        headers: src.headers || {}
+        headers: src.headers || {},
+        signal: AbortSignal.timeout(SOURCE_FETCH_TIMEOUT_MS)
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      let json = await res.json();
+      const json = await res.json();
       let records = getPath(json, src.record_path);
       if (!Array.isArray(records)) records = records ? [records] : [];
 
       const mapping = src.field_mapping || {};
-      for (const rec of records) {
+      const outcomes = await mapLimit(records, UPSERT_CONCURRENCY, async (rec) => {
+        if (Date.now() - startedAt > TOTAL_TIME_BUDGET_MS) return false;
         const payload = {
           asset_class: src.asset_class,
           country: src.country || '',
@@ -97,8 +125,9 @@ async function refreshSources(supabase) {
           .from('market_data')
           .upsert(payload, { onConflict: 'asset_class, country, region, city, sector' });
         if (upsertError) throw upsertError;
-        updated++;
-      }
+        return true;
+      });
+      updated += outcomes.filter(Boolean).length;
 
       await supabase
         .from('market_data_sources')
@@ -106,15 +135,16 @@ async function refreshSources(supabase) {
         .eq('id', src.id);
     } catch (err) {
       failed++;
-      errors.push(`${src.name}: ${err.message}`);
+      const msg = err.name === 'TimeoutError' ? `timeout after ${SOURCE_FETCH_TIMEOUT_MS}ms` : err.message;
+      errors.push(`${src.name}: ${msg}`);
       await supabase
         .from('market_data_sources')
-        .update({ last_fetched_at: now, last_status: 'error', last_error: err.message })
+        .update({ last_fetched_at: now, last_status: 'error', last_error: msg })
         .eq('id', src.id);
     }
-  }
+  });
 
-  return { updated, failed, errors, total: (sources || []).length };
+  return { updated, failed, skipped, errors, total: (sources || []).length, elapsedMs: Date.now() - startedAt };
 }
 
 module.exports = async function handler(req, res) {
