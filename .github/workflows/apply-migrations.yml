@@ -28,7 +28,10 @@ jobs:
           SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
 
       - name: Push pending migrations
-        run: supabase db push
+        # --include-all: also apply local migrations missing from remote history
+        # even if older than the last remote migration (needed because some
+        # migrations were applied manually via the SQL editor in the past).
+        run: supabase db push --include-all
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
