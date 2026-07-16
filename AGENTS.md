@@ -372,7 +372,7 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - `npm run test:visual` — اختبارات انحدار الواجهة البصرية عبر `pixelmatch`.
 - `npm run test:visual:update` — تحديث صور baseline للاختبارات البصرية.
 - CI: `.github/workflows/ci.yml` يشغّل كل ما سبق عند كل push/PR.
-- تطبيق migrations تلقائياً: `.github/workflows/apply-migrations.yml` يشغّل `supabase db push` عند أي تعديل في `supabase/migrations/` على فرع `main`. يتطلب إضافة `SUPABASE_ACCESS_TOKEN` و `SUPABASE_PROJECT_REF` في GitHub Secrets.
+- تطبيق migrations تلقائياً: `.github/workflows/apply-migrations.yml` يشغّل `supabase db push --include-all` عند أي تعديل في `supabase/migrations/` على فرع `main`. يتطلب إضافة `SUPABASE_ACCESS_TOKEN` و `SUPABASE_PROJECT_REF` في GitHub Secrets. ملاحظة: `--include-all` ضروري لأن بعض الـ migrations القديمة طُبّقت يدوياً عبر SQL Editor وهي غير مسجلة في remote history. قاعدة: كل ملف migration يجب أن يكون idempotent ويحمل رقم إصدار فريداً (تكرار الإصدار بين ملفين يُسقط `db push` بخطأ `schema_migrations_pkey`).
 - لإعادة توليد أيقونات PWA بعد تغيير الشعار: `node scripts/generate-icons.js`.
 - لتحديث/إضافة Open Graph tags لصفحة جديدة: `node scripts/apply-og-tags.js`.
 
