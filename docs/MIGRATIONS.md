@@ -134,7 +134,7 @@ curl -X POST "https://bonds-global.com/api/market-intelligence?cronSecret=$CRON_
   -d '{"action":"refresh"}'
 ```
 
-جدولة التحديث التلقائي موجودة في `.github/workflows/market-intelligence-refresh.yml` وتعمل يومياً الساعة 6 صباحاً (تحتاج `CRON_SECRET` و `SITE_URL` في GitHub Secrets/Variables).
+جدولة التحديث التلقائي موجودة في `.github/workflows/market-intelligence-refresh.yml` وتعمل **كل 3 ساعات** (cron: `0 */3 * * *` UTC). تحتاج `CRON_SECRET` و `SITE_URL` في GitHub Secrets/Variables. بعد كل تحديث مجدول يُرسل تقرير بريدي (عربي/إنجليزي) بالنتائج إلى العناوين في متغير البيئة `REPORT_EMAILS` (افتراضياً `gm@bonds-global.com,info@bonds-global.com`، والبديل `MANAGER_EMAIL` ثم `ADMIN_EMAIL`) عبر Resend/SMTP حسب إعداد `lib/api/email.js`.
 
 ### المصادر الخارجية المُفعّلة
 

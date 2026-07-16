@@ -9,6 +9,7 @@
  */
 const getSupabase = require('../lib/api/supabase');
 const { verifyAdminOrEditor } = require('../lib/api/admin-auth');
+const { sendEmail } = require('../lib/api/email');
 
 const ALLOWED_ROLES = ['admin', 'editor']; // kept for backward compatibility
 const OUTLOOKS = ['positive', 'neutral', 'negative'];
@@ -19,6 +20,134 @@ const SOURCE_CONCURRENCY = 5;
 const UPSERT_CONCURRENCY = 10;
 const SOURCE_START_BUDGET_MS = 60000;
 const TOTAL_TIME_BUDGET_MS = 80000;
+const REPORT_TIMEZONE = 'Asia/Riyadh';
+// Keep in sync with the cron schedule in .github/workflows/market-intelligence-refresh.yml
+const REFRESH_CRON_INTERVAL_HOURS = 3;
+
+function getReportRecipients() {
+  const raw = process.env.REPORT_EMAILS || process.env.MANAGER_EMAIL || process.env.ADMIN_EMAIL || '';
+  return raw.split(',').map(e => e.trim()).filter(Boolean);
+}
+
+function formatRiyadhTime(date) {
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: REPORT_TIMEZONE,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false
+  }).format(date);
+}
+
+function nextRunRiyadh(now) {
+  const next = new Date(now.getTime());
+  next.setUTCMinutes(0, 0, 0);
+  do {
+    next.setUTCHours(next.getUTCHours() + 1);
+  } while (next.getUTCHours() % REFRESH_CRON_INTERVAL_HOURS !== 0);
+  return next;
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+function buildRefreshReport(result, fatalError) {
+  const now = new Date();
+  const timeStr = formatRiyadhTime(now);
+  const nextStr = formatRiyadhTime(nextRunRiyadh(now));
+
+  let status; // { key, ar, en, icon, color }
+  if (fatalError) {
+    status = { key: 'failure', ar: 'فشل', en: 'FAILURE', icon: '\u274c', color: '#dc2626' };
+  } else if (result.failed === 0 && result.skipped === 0) {
+    status = { key: 'success', ar: 'نجاح', en: 'SUCCESS', icon: '\u2705', color: '#16a34a' };
+  } else if (result.updated > 0) {
+    status = { key: 'partial', ar: 'نجاح جزئي', en: 'PARTIAL', icon: '\u26a0\ufe0f', color: '#d97706' };
+  } else {
+    status = { key: 'failure', ar: 'فشل', en: 'FAILURE', icon: '\u274c', color: '#dc2626' };
+  }
+
+  const updated = result ? result.updated : 0;
+  const failed = result ? result.failed : 0;
+  const skipped = result ? result.skipped : 0;
+  const total = result ? result.total : 0;
+  const elapsedSec = result && result.elapsedMs ? (result.elapsedMs / 1000).toFixed(1) : '0';
+  const errors = result && Array.isArray(result.errors) ? result.errors : (fatalError ? [fatalError] : []);
+
+  const subject = `${status.icon} Bonds Market Intelligence \u2014 ${status.en}: ${updated}/${total} (${timeStr} KSA)`;
+
+  const text = [
+    `Bonds Market Intelligence Refresh \u2014 ${status.en}`,
+    `\u0627\u0644\u062d\u0627\u0644\u0629: ${status.ar} | Status: ${status.en}`,
+    `Updated: ${updated} | Failed: ${failed} | Skipped: ${skipped} | Total: ${total}`,
+    `Duration: ${elapsedSec}s | Time: ${timeStr} KSA | Next run: ${nextStr} KSA`,
+    errors.length ? `Errors:\n- ${errors.join('\n- ')}` : ''
+  ].filter(Boolean).join('\n');
+
+  const statCell = (labelAr, labelEn, value, color) => `
+    <td style="padding:12px 8px;text-align:center;background:#0f172a;border-radius:8px;">
+      <div style="font-size:22px;font-weight:800;color:${color || '#f0c96a'};">${value}</div>
+      <div style="font-size:11px;color:#94a3b8;margin-top:4px;">${labelAr}<br/>${labelEn}</div>
+    </td>`;
+
+  const errorsHtml = errors.length ? `
+    <div style="margin-top:16px;padding:12px;background:#1e293b;border-radius:8px;border-right:3px solid #dc2626;">
+      <div style="font-weight:700;color:#fca5a5;margin-bottom:8px;">\u0627\u0644\u0623\u062e\u0637\u0627\u0621 / Errors (${errors.length})</div>
+      <ul style="margin:0;padding:0 0 0 18px;color:#cbd5e1;font-size:12px;line-height:1.7;">
+        ${errors.slice(0, 10).map(e => `<li>${escapeHtml(e)}</li>`).join('')}
+      </ul>
+      ${errors.length > 10 ? `<div style="color:#94a3b8;font-size:11px;margin-top:6px;">+ ${errors.length - 10} more</div>` : ''}
+    </div>` : '';
+
+  const html = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<body style="margin:0;padding:0;background:#0a0f1a;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
+    <div style="background:linear-gradient(135deg,#10182d,#0a0f1a);border:1px solid rgba(212,168,83,0.3);border-radius:14px;overflow:hidden;">
+      <div style="padding:20px 24px;border-bottom:1px solid rgba(212,168,83,0.2);">
+        <div style="font-size:18px;font-weight:800;color:#f0c96a;">Bonds Global \u2014 Market Intelligence</div>
+        <div style="font-size:12px;color:#94a3b8;margin-top:4px;">\u062a\u0642\u0631\u064a\u0631 \u0627\u0644\u062a\u062d\u062f\u064a\u062b \u0627\u0644\u062a\u0644\u0642\u0627\u0626\u064a \u2022 Automated Refresh Report</div>
+      </div>
+      <div style="padding:20px 24px;">
+        <div style="display:inline-block;padding:6px 16px;border-radius:999px;background:${status.color}22;color:${status.color};font-weight:800;font-size:14px;border:1px solid ${status.color}55;">
+          ${status.icon} ${status.ar} \u2014 ${status.en}
+        </div>
+        <table role="presentation" width="100%" cellspacing="6" style="margin-top:18px;border-collapse:separate;">
+          <tr>
+            ${statCell('\u062a\u0645 \u0627\u0644\u062a\u062d\u062f\u064a\u062b', 'Updated', updated, '#16a34a')}
+            ${statCell('\u0641\u0634\u0644', 'Failed', failed, failed ? '#dc2626' : '#94a3b8')}
+            ${statCell('\u062a\u0645 \u062a\u062e\u0637\u064a\u0647', 'Skipped', skipped, skipped ? '#d97706' : '#94a3b8')}
+            ${statCell('\u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a', 'Total', total)}
+          </tr>
+        </table>
+        ${errorsHtml}
+        <div style="margin-top:18px;padding-top:14px;border-top:1px solid rgba(212,168,83,0.15);font-size:12px;color:#94a3b8;line-height:2;">
+          <div>\u23f1\ufe0f \u0627\u0644\u0645\u062f\u0629: <b style="color:#e8ecf4;">${elapsedSec} \u062b\u0627\u0646\u064a\u0629</b> \u200f(Duration: ${elapsedSec}s)</div>
+          <div>\ud83d\uddd3 \u0648\u0642\u062a \u0627\u0644\u062a\u0646\u0641\u064a\u0630: <b style="color:#e8ecf4;">${timeStr}</b> \u0628\u062a\u0648\u0642\u064a\u062a \u0627\u0644\u0631\u064a\u0627\u0636</div>
+          <div>\u23ed\ufe0f \u0627\u0644\u062a\u062d\u062f\u064a\u062b \u0627\u0644\u0642\u0627\u062f\u0645: <b style="color:#e8ecf4;">${nextStr}</b> \u0628\u062a\u0648\u0642\u064a\u062a \u0627\u0644\u0631\u064a\u0627\u0636 \u200f(Next run)</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:#475569;margin-top:14px;">
+      Bonds Global \u00b7 Automated report \u2014 do not reply \u00b7 \u062a\u0642\u0631\u064a\u0631 \u0622\u0644\u064a \u2014 \u0644\u0627 \u062a\u0631\u062f \u0639\u0644\u0649 \u0647\u0630\u0627 \u0627\u0644\u0628\u0631\u064a\u062f
+    </div>
+  </div>
+</body>
+</html>`;
+
+  return { subject, text, html };
+}
+
+async function sendRefreshReport(result, fatalError) {
+  const to = getReportRecipients();
+  if (!to.length) return { sent: false, reason: 'no_recipients_configured' };
+  const { subject, text, html } = buildRefreshReport(result, fatalError);
+  try {
+    await sendEmail({ to, subject, text, html });
+    return { sent: true, to: to.length };
+  } catch (err) {
+    return { sent: false, reason: err.message };
+  }
+}
 
 async function mapLimit(items, limit, fn) {
   const results = new Array(items.length);
@@ -207,8 +336,11 @@ module.exports = async function handler(req, res) {
     if (isRefresh) {
       try {
         const result = await refreshSources(supabase);
-        return res.status(200).json({ success: true, ...result });
+        // Email the report only for cron-triggered refreshes (not manual admin runs)
+        const email = cronOk ? await sendRefreshReport(result) : { sent: false, reason: 'manual_trigger' };
+        return res.status(200).json({ success: true, ...result, email });
       } catch (err) {
+        if (cronOk) await sendRefreshReport(null, err.message);
         return res.status(500).json({ success: false, error: err.message });
       }
     }

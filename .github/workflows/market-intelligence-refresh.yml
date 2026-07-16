@@ -2,7 +2,9 @@ name: Market Intelligence Refresh
 
 on:
   schedule:
-    - cron: '0 6 * * *'
+    # Every 3 hours (00:00, 03:00, 06:00 ... UTC = 03:00, 06:00, 09:00 ... Riyadh)
+    # Keep in sync with REFRESH_CRON_INTERVAL_HOURS in api/market-intelligence.js
+    - cron: '0 */3 * * *'
   workflow_dispatch:
 
 jobs:
