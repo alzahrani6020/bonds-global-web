@@ -14,7 +14,7 @@ const ALLOWED_ROLES = ['admin', 'editor']; // kept for backward compatibility
 const OUTLOOKS = ['positive', 'neutral', 'negative'];
 
 // Refresh must finish before Cloudflare's ~100s proxy timeout (HTTP 524).
-const SOURCE_FETCH_TIMEOUT_MS = 8000;
+const SOURCE_FETCH_TIMEOUT_MS = 15000;
 const SOURCE_CONCURRENCY = 5;
 const UPSERT_CONCURRENCY = 10;
 const SOURCE_START_BUDGET_MS = 60000;
