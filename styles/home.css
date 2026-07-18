@@ -398,6 +398,90 @@
   flex-shrink: 0;
 }
 
+/* Testimonials */
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+.testimonial-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(8px);
+}
+.testimonial-card__quote {
+  font-size: var(--text-lg);
+  line-height: 1.7;
+  color: var(--text);
+  font-style: italic;
+}
+.testimonial-card__quote::before {
+  content: '"';
+  color: var(--gold);
+  font-size: 2rem;
+  line-height: 1;
+  margin-left: 0.25rem;
+}
+.testimonial-card__author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: auto;
+}
+.testimonial-card__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #0a0f1a;
+  flex-shrink: 0;
+}
+.testimonial-card__name {
+  font-weight: 700;
+  color: var(--text);
+}
+.testimonial-card__role {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* Trust badges */
+.trust-section {
+  padding: var(--space-8) 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.trust-section__title {
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.trust-logos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-8);
+  opacity: 0.7;
+}
+.trust-logo {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
   .solutions-grid { grid-template-columns: repeat(3, 1fr); }
@@ -415,6 +499,7 @@
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-item:not(:last-child)::after { display: none; }
   .case-studies-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
   .cta-card { flex-direction: column; text-align: center; }
   .cta-card__actions { justify-content: center; }
 }

@@ -24,7 +24,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script defer src="/_vercel/insights/script.js"></script>
   <link rel="stylesheet" href="styles.css" />
-<link rel="icon" href="assets/bonds-mark.svg" type="image/png" />
+<link rel="icon" href="assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://bonds-global.com/contact" />
 
 <link rel="stylesheet" href="components/universal-dropdown.css?v=2.51.8" />
@@ -103,6 +103,8 @@
               <textarea name="message" rows="5" required placeholder="اشرح باختصار وضعك والخدمة التي تحتاجها..." style="width: 100%; padding: var(--space-3) var(--space-4); border-radius: var(--radius); border: 1px solid var(--border-medium); background: var(--cream-50); font-family: inherit; font-size: var(--text-sm); outline: none; resize: vertical; transition: border-color var(--transition-fast), box-shadow var(--transition-fast);" onfocus="this.style.borderColor='var(--gold-400)';this.style.boxShadow='0 0 0 3px rgba(197,160,40,0.15)'" onblur="this.style.borderColor='var(--border-medium)';this.style.boxShadow='none'"></textarea>
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%; font-size: var(--text-base);">إرسال الطلب</button>
+            <div id="formSuccess" style="display:none; margin-top: var(--space-4); padding: var(--space-4); background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); border-radius: var(--radius); color: #4ade80; text-align: center; font-weight: 700;">✅ تم إرسال طلبك بنجاح. سنتواصل معك خلال 2–3 أيام عمل.</div>
+            <div id="formError" style="display:none; margin-top: var(--space-4); padding: var(--space-4); background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: var(--radius); color: #f87171; text-align: center; font-weight: 700;">❌ حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.</div>
             <p style="font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-4); text-align: center;">نرسل الطلب لبريدك ونسخة واتساب — نرد خلال 2–3 أيام عمل.</p>
             <div style="margin-top: var(--space-4); text-align: center;">
               <span style="color: var(--text-muted); font-size: var(--text-xs);">— أو —</span>
@@ -258,5 +260,39 @@ updateDateTime();
 <script src="site-layout.js?v=2.57.0"></script>
 <script src="components/universal-dropdown.js?v=2.51.8"></script>
 <script src="components/universal-dropdown-init.js"></script>
+<script>
+  document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+    const successEl = document.getElementById('formSuccess');
+    const errorEl = document.getElementById('formError');
+    const btn = form.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+
+    successEl.style.display = 'none';
+    errorEl.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'جاري الإرسال...';
+
+    fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { Accept: 'application/json' }
+    }).then(function(response) {
+      if (response.ok) {
+        form.reset();
+        successEl.style.display = 'block';
+        successEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        errorEl.style.display = 'block';
+      }
+    }).catch(function() {
+      errorEl.style.display = 'block';
+    }).finally(function() {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    });
+  });
+</script>
 </body>
 </html>

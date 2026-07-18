@@ -19,10 +19,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="../styles/design-system.css" />
   <link rel="stylesheet" href="../styles/home.css?v=4" />
+  <!-- Google Analytics 4 — Replace G-XXXXXXXXXX with your GA4 tracking ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
 </head>
 <body>
   <div id="site-header"></div>
@@ -220,6 +228,61 @@
           <h3 class="case-card__title">Asset valuation for investment fund</h3>
           <p class="case-card__desc">We valued an operational asset portfolio for an acquisition worth AED 4.5M.</p>
         </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section testimonials" id="testimonials" aria-label="Customer testimonials">
+    <div class="container">
+      <header class="section-header text-center">
+        <span class="section__eyebrow">Testimonials</span>
+        <h2 class="section__title">Trusted by entrepreneurs and investors</h2>
+      </header>
+      <div class="testimonials-grid">
+        <article class="testimonial-card reveal">
+          <p class="testimonial-card__quote">BONDS saved me hours of project analysis. The investment memo was bank-ready within hours.</p>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar">A</div>
+            <div>
+              <div class="testimonial-card__name">Abdullah Al-Subaie</div>
+              <div class="testimonial-card__role">Founder, Restaurant Chain</div>
+            </div>
+          </div>
+        </article>
+        <article class="testimonial-card reveal">
+          <p class="testimonial-card__quote">The financial analysis was accurate and clear. It helped us secure financing of SAR 1.8M.</p>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar">F</div>
+            <div>
+              <div class="testimonial-card__name">Fahad Al-Dossari</div>
+              <div class="testimonial-card__role">GM, Packaging Factory</div>
+            </div>
+          </div>
+        </article>
+        <article class="testimonial-card reveal">
+          <p class="testimonial-card__quote">The asset valuation was professional and market-standard. Excellent handling of investor needs.</p>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar">S</div>
+            <div>
+              <div class="testimonial-card__name">Sarah Al-Qahtani</div>
+              <div class="testimonial-card__role">Partner, Investment Fund</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust badges -->
+  <section class="trust-section" aria-label="Trusted tools">
+    <div class="container">
+      <p class="trust-section__title">Built on trusted tools and standards</p>
+      <div class="trust-logos">
+        <span class="trust-logo">Zoho</span>
+        <span class="trust-logo">Supabase</span>
+        <span class="trust-logo">Vercel</span>
+        <span class="trust-logo">Stripe</span>
       </div>
     </div>
   </section>

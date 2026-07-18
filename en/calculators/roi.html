@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ROI Calculator | Bonds</title>
+  <meta name="description" content="Calculate return on investment ROI, payback period, and net present value NPV with simple steps." />
+  <meta property="og:title" content="ROI Calculator | Bonds" />
+  <meta property="og:description" content="Calculate ROI, payback period, and net present value NPV." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/en/calculators/roi" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ROI Calculator | Bonds" />
+  <meta name="twitter:description" content="Calculate ROI, payback period, and net present value NPV." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
+  <link rel="stylesheet" href="../../styles/design-system.css" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <script src="../../calculators/shared-utils.js"></script>
+  <link rel="canonical" href="https://bonds-global.com/en/calculators/roi" />
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <section class="hero calc-hero--tall">
+    <div class="hero__orb hero__orb--1"></div>
+    <div class="hero__orb hero__orb--2"></div>
+    <div class="container hero__content reveal">
+      <span class="hero__eyebrow">Free Tool</span>
+      <h1 class="hero__title">Return on <span class="text-gradient">Investment</span> Calculator</h1>
+      <p class="hero__desc">Calculate ROI, payback period, and net present value NPV in simple steps.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="calc-grid">
+        <div class="reveal calc-panel">
+          <h2 class="calc-section-title">Investment Data</h2>
+          <div class="calc-input-group">
+            <label for="initialInvestment">Initial Investment</label>
+            <input type="number" id="initialInvestment" placeholder="e.g. 100000" min="0" />
+          </div>
+          <div class="calc-input-group">
+            <label for="annualRevenue">Annual Revenue</label>
+            <input type="number" id="annualRevenue" placeholder="e.g. 50000" min="0" />
+          </div>
+          <div class="calc-input-group">
+            <label for="annualCosts">Annual Operating Costs</label>
+            <input type="number" id="annualCosts" placeholder="e.g. 20000" min="0" />
+          </div>
+          <div class="calc-input-group">
+            <label for="projectYears">Project Duration (Years)</label>
+            <input type="number" id="projectYears" placeholder="e.g. 5" min="1" max="50" value="5" />
+          </div>
+          <div class="calc-input-group">
+            <label for="discountRate">Annual Discount Rate (%)</label>
+            <input type="number" id="discountRate" placeholder="e.g. 10" min="0" max="100" step="0.01" value="10" />
+          </div>
+          <button class="btn btn-primary btn-lg" onclick="calculateROI()">Calculate</button>
+        </div>
+
+        <div class="reveal calc-panel results-panel" id="resultsPanel" style="display:none;">
+          <h2 class="calc-section-title">Results</h2>
+          <div class="metric-card">
+            <span class="metric-label">Net Profit</span>
+            <span class="metric-value" id="netProfit">—</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">ROI</span>
+            <span class="metric-value" id="roiResult">—</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Payback Period</span>
+            <span class="metric-value" id="paybackPeriod">—</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">NPV</span>
+            <span class="metric-value" id="npvResult">—</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Annual Cash Flow</span>
+            <span class="metric-value" id="annualCashFlow">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="site-footer"></div>
+  <script src="../../site-layout.js"></script>
+  <script>
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
+    }
+
+    function calculateROI() {
+      const investment = parseFloat(document.getElementById('initialInvestment').value) || 0;
+      const revenue = parseFloat(document.getElementById('annualRevenue').value) || 0;
+      const costs = parseFloat(document.getElementById('annualCosts').value) || 0;
+      const years = parseFloat(document.getElementById('projectYears').value) || 5;
+      const discountRate = (parseFloat(document.getElementById('discountRate').value) || 0) / 100;
+
+      if (investment <= 0) {
+        alert('Please enter an initial investment greater than zero.');
+        return;
+      }
+
+      const annualNet = revenue - costs;
+      const totalNet = annualNet * years;
+      const netProfit = totalNet - investment;
+      const roi = (netProfit / investment) * 100;
+      const payback = annualNet > 0 ? (investment / annualNet) : Infinity;
+
+      let npv = -investment;
+      for (let i = 1; i <= years; i++) {
+        npv += annualNet / Math.pow(1 + discountRate, i);
+      }
+
+      document.getElementById('netProfit').textContent = formatCurrency(netProfit);
+      document.getElementById('roiResult').textContent = roi.toFixed(2) + '%';
+      document.getElementById('paybackPeriod').textContent = isFinite(payback) ? payback.toFixed(2) + ' years' : 'Unlimited';
+      document.getElementById('npvResult').textContent = formatCurrency(npv);
+      document.getElementById('annualCashFlow').textContent = formatCurrency(annualNet);
+      document.getElementById('resultsPanel').style.display = 'block';
+      document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  </script>
+</body>
+</html>
