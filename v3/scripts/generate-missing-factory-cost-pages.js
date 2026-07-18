@@ -112,7 +112,7 @@ const template = (code, country, citiesOptions) => `<!DOCTYPE html>
     .chart-box canvas { max-height:300px; }
     footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
   </style>
-<link rel="stylesheet" href="../header-footer.css?v=2.53.0" />
+<link rel="stylesheet" href="../header-footer.css?v=2.54.0" />
 </head>
 <body>
   <div id="site-header"></div>
