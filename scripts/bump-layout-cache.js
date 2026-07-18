@@ -36,7 +36,7 @@ for (const file of files) {
     /site-layout\.js\?v=[\d.]+/g,
     () => {
       siteLayoutRefs++;
-      return 'site-layout.js?v=2.58.0';
+      return 'site-layout.js?v=2.59.0';
     }
   );
 
@@ -97,7 +97,7 @@ for (const file of files) {
 }
 
 console.log(`Files changed: ${changed}`);
-console.log(`site-layout.js?v=2.58.0 refs bumped: ${siteLayoutRefs}`);
+console.log(`site-layout.js?v=2.59.0 refs bumped: ${siteLayoutRefs}`);
 console.log(`header-footer.css?v=2.54.0 refs bumped: ${headerFooterRefs}`);
 console.log(`investment-center.css refs bumped: ${investmentCenterCssRefs}`);
 console.log(`decision-intelligence.js refs bumped: ${decisionIntelligenceRefs}`);

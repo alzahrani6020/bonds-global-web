@@ -570,8 +570,8 @@
   // your Property ID below (Dashboard → Administration → Channels →
   // Chat Widget → Widget Code, the ID in embed.tawk.to/<PROPERTY_ID>/default).
   // Widget color/language are set from the Tawk dashboard (use gold #d4a853).
-  const TAWK_PROPERTY_ID = '6a54e17adbb9f41d4608d955';
-  const TAWK_WIDGET_ID = 'default';
+  const TAWK_PROPERTY_ID = '6a148d4836ad8d1c38c41085';
+  const TAWK_WIDGET_ID = '1jpg4fpl6';
 
   function initLiveChat() {
     if (!TAWK_PROPERTY_ID) return;
