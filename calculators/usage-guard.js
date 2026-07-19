@@ -7,6 +7,10 @@
 
   let GLOBAL_LIMITS = { calc: 3, feas: 1 };
 
+  function getAuthToken() {
+    try { return localStorage.getItem('bonds-auth-token') || ''; } catch(e) { return ''; }
+  }
+
   async function getUserId() {
     try {
       if (window.BondsAuth && window.BondsAuth.getSession) {
@@ -30,7 +34,10 @@
 
   async function checkUserTier(userId) {
     try {
-      const res = await fetch('/api/usage?action=check&calculator=restaurant' + (userId ? '&userId=' + userId : ''));
+      const token = getAuthToken();
+      const res = await fetch('/api/usage?action=check&calculator=restaurant' + (userId ? '&userId=' + userId : ''), {
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+      });
       if (!res.ok) return null;
       return await res.json();
     } catch(e) { return null; }

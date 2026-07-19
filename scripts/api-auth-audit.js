@@ -34,7 +34,6 @@ const PUBLIC_ENDPOINT_OVERRIDES = [
   '/api/send-nps',
   '/api/track',
   '/api/usage',
-  '/api/log-usage',
   '/api/pro',
   '/api/funding-sources',
   '/api/funding-readiness',
@@ -42,10 +41,7 @@ const PUBLIC_ENDPOINT_OVERRIDES = [
   '/api/bank-transfer',
   '/api/analyze-feasibility',
   '/api/analyze-feasibility-v2',
-  '/api/send-letter',
-  // Admin password reset uses admin-email check, not Bearer
-  '/api/reset-password',
-  '/api/force-reset'
+  '/api/send-letter'
 ];
 
 const AUTH_HELPER_PATTERNS = [

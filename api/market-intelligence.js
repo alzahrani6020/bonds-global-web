@@ -198,6 +198,27 @@ async function checkAuth(req, supabase) {
   return verifyAdminOrEditor(req, supabase);
 }
 
+function isAllowedSourceUrl(urlStr) {
+  try {
+    const url = new URL(String(urlStr));
+    if (url.protocol !== 'https:') return false;
+    const host = url.hostname.toLowerCase();
+    if (host === 'localhost' || host.endsWith('.localhost') || host === '127.0.0.1' || host === '::1') return false;
+    const parts = host.split('.').map(h => Number(h));
+    if (parts.length === 4 && parts.every(n => Number.isFinite(n) && n >= 0 && n <= 255)) {
+      const [a, b, c] = parts;
+      if (a === 127 || a === 0 || a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 169 && b === 254) || a >= 224) return false;
+    }
+    if (host.startsWith('fc00:') || host.startsWith('fe80:')) return false;
+    const allowed = String(process.env.MARKET_SOURCE_HOSTS || '')
+      .split(',').map(h => h.trim().toLowerCase()).filter(Boolean);
+    if (allowed.length && !allowed.some(rule => host === rule || host.endsWith('.' + rule))) return false;
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 async function refreshSources(supabase) {
   const { data: sources, error } = await supabase
     .from('market_data_sources')
@@ -219,6 +240,9 @@ async function refreshSources(supabase) {
       return;
     }
     try {
+      if (!isAllowedSourceUrl(src.url)) {
+        throw new Error('Source URL is not on the allow-list or is private');
+      }
       const res = await fetch(src.url, {
         method: src.method || 'GET',
         headers: src.headers || {},

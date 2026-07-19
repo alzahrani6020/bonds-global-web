@@ -1047,16 +1047,6 @@ async function handleForceReset(sb, body) {
   const { error: updateError } = await sb.auth.admin.updateUserById(profile.id, { password });
   if (updateError) throw updateError;
 
-  const { data: existingRole } = await sb
-    .from('admin_roles')
-    .select('role')
-    .eq('user_id', profile.id)
-    .single();
-
-  if (!existingRole) {
-    await sb.from('admin_roles').insert({ user_id: profile.id, role: 'super_admin' });
-  }
-
   return {
     success: true,
     message: 'تم تغيير كلمة المرور بنجاح! يمكنك تسجيل الدخول الآن.'
@@ -1257,6 +1247,8 @@ async function handler(req, res) {
 
     if (req.method === 'POST') {
       if (action === 'force-reset') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
         try {
           return res.status(200).json(await handleForceReset(sb, req.body));
         } catch (err) {
@@ -1267,6 +1259,8 @@ async function handler(req, res) {
         }
       }
       if (action === 'reset-password') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
         try {
           return res.status(200).json(await handleResetLink(sb, req.body));
         } catch (err) {

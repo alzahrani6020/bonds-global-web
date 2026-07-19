@@ -502,6 +502,11 @@
     }, 60000);
   }
 
+  window.addEventListener('beforeunload', () => {
+    if (state.refreshTimer) clearInterval(state.refreshTimer);
+    if (debounceTimer) clearTimeout(debounceTimer);
+  });
+
   function init() {
     loadSettings();
     $$('.ex-nav a').forEach(a => {

@@ -22,27 +22,8 @@ function parseBody(req) {
 }
 
 async function handleRegister(req, res) {
-  const { email, password } = await parseBody(req);
-
-  if (!email || !password || password.length < 6) {
-    return sendJson(res, 400, { error: 'Email and password (min 6 chars) required' });
-  }
-
-  const supabase = getSupabaseClient();
-
-  const { data, error } = await supabase.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true
-  });
-
-  if (error) {
-    return sendJson(res, 400, { error: error.message });
-  }
-
-  sendJson(res, 201, {
-    user: { id: data.user.id, email: data.user.email }
-  });
+  // Public admin user creation is disabled to prevent account takeover.
+  return sendJson(res, 403, { error: 'Public registration is disabled.' });
 }
 
 async function handleLogin(req, res) {

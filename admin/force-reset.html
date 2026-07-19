@@ -40,13 +40,26 @@
       }
     })();
 
+    function getToken() {
+      try { return localStorage.getItem('bonds-auth-token') || ''; } catch (e) { return ''; }
+    }
+
+    (function checkAuth() {
+      if (!getToken()) {
+        document.getElementById('result').innerHTML = '<div class="msg error">يجب تسجيل الدخول كمسؤول أولاً</div>';
+        document.getElementById('btn').disabled = true;
+      }
+    })();
+
     async function changePassword() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const secret = document.getElementById('secret').value.trim();
       const btn = document.getElementById('btn');
       const result = document.getElementById('result');
+      const token = getToken();
 
+      if (!token) { result.innerHTML = '<div class="msg error">يجب تسجيل الدخول كمسؤول أولاً</div>'; return; }
       if (!email) { result.innerHTML = '<div class="msg error">أدخل البريد الإلكتروني</div>'; return; }
       if (password.length < 6) { result.innerHTML = '<div class="msg error">كلمة المرور يجب أن تكون 6 أحرف على الأقل</div>'; return; }
       if (!secret) { result.innerHTML = '<div class="msg error">أدخل رمز الطوارئ</div>'; return; }
@@ -58,7 +71,7 @@
       try {
         const res = await fetch('/api/force-reset', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ email, password, secret })
         });
         const data = await res.json();

@@ -25,6 +25,35 @@ function anonymizeIp(ip) {
   return crypto.createHash('sha256').update(ip).digest('hex');
 }
 
+function isValidPublicIp(ip) {
+  if (!ip || typeof ip !== 'string') return false;
+  // IPv4
+  const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+  if (ipv4.test(ip)) {
+    const parts = ip.split('.').map(Number);
+    if (parts.some(p => p > 255)) return false;
+    const [a, b, c] = parts;
+    // loopback, link-local, private, reserved
+    if (a === 127 || a === 0 || a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 169 && b === 254) || a >= 224) return false;
+    return true;
+  }
+  // IPv6: block loopback and unique local
+  if (/^::1$/i.test(ip) || /^fc00:/i.test(ip) || /^fe80:/i.test(ip)) return false;
+  if (/^[0-9a-fA-F:]+$/.test(ip) && ip.includes(':')) return true;
+  return false;
+}
+
+async function resolveAuthUser(req, body = {}) {
+  const auth = req.headers?.authorization || '';
+  let token = auth.startsWith('Bearer ') ? auth.slice(7).trim() : null;
+  if (!token && body?.auth_token) token = String(body.auth_token);
+  if (!token) return null;
+  const sb = getSupabase();
+  const { data, error } = await sb.auth.getUser(token);
+  if (error || !data?.user) return null;
+  return data.user;
+}
+
 const geoCache = new Map();
 async function getGeo(req) {
   const ip = getClientIp(req);
@@ -42,10 +71,10 @@ async function getGeo(req) {
     };
   }
 
-  if (!ip || ip === 'unknown') return { country: null, countryCode: null, city: null, region: null };
+  if (!isValidPublicIp(ip)) return { country: null, countryCode: null, city: null, region: null };
   if (geoCache.has(ip)) return geoCache.get(ip);
   try {
-    const res = await fetch(`https://ipapi.co/${ip}/json/`);
+    const res = await fetch(`https://ipapi.co/${encodeURIComponent(ip)}/json/`);
     if (!res.ok) throw new Error(`ipapi ${res.status}`);
     const data = await res.json();
     const result = { country: data.country_name || data.country || null, countryCode: data.country_code || null, city: data.city || null, region: data.region || null };
@@ -116,6 +145,8 @@ async function heartbeatHandler(req, res) {
     const body = req.body || {};
     if (!body.session_id) return res.status(400).json({ error: 'session_id required' });
     const sb = getSupabase();
+    const user = await resolveAuthUser(req, body);
+    body.user_id = user ? user.id : null;
     const geo = await getGeo(req);
     const ip = getClientIp(req);
     await upsertPresence(sb, body, ip, geo);
@@ -132,6 +163,8 @@ async function heartbeatLeaveHandler(req, res) {
     const body = req.body || {};
     if (!body.session_id) return res.status(400).json({ error: 'session_id required' });
     const sb = getSupabase();
+    const user = await resolveAuthUser(req, body);
+    body.user_id = user ? user.id : null;
     const geo = await getGeo(req);
     const ip = getClientIp(req);
     const duration = typeof body.duration_seconds === 'number' ? body.duration_seconds : null;
@@ -388,10 +421,7 @@ async function proAuth(req, res) {
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
   if (action === 'signup') {
-    const supabase = getSupabase();
-    const { data, error } = await supabase.auth.admin.createUser({ email, password, email_confirm: true });
-    if (error) throw error;
-    return res.status(200).json({ success: true, user: { id: data.user.id, email: data.user.email } });
+    return res.status(403).json({ error: 'Public signup is disabled. Use Supabase client sign-up.' });
   }
 
   const authClient = getProAuthClient();
@@ -692,8 +722,12 @@ async function siteUsageHandler(req, res) {
     }
 
     if (req.method === 'GET' && action === 'check') {
-      const { userId, calculator } = req.query;
+      const { calculator } = req.query;
       if (!calculator) return res.status(400).json({ error: 'calculator required' });
+
+      const user = await resolveAuthUser(req);
+      if (!user) return res.status(401).json({ error: 'Authentication required' });
+      const userId = user.id;
 
       const { data: settingsRows } = await sb.from('site_settings').select('*');
       const settings = {};
@@ -703,17 +737,16 @@ async function siteUsageHandler(req, res) {
 
       let tier = 'free';
       let tierExpiresAt = null;
-      if (userId) {
-        const { data: profile } = await sb.from('profiles').select('tier, tier_expires_at').eq('id', userId).single();
-        if (profile?.tier) {
-          tier = profile.tier;
-          tierExpiresAt = profile.tier_expires_at;
-        }
-        const { data: adminRole } = await sb.from('admin_roles').select('role').eq('user_id', userId).single();
-        if (adminRole?.role) {
-          return res.status(200).json({ allowed: true, remaining: Infinity, tier, admin: adminRole.role });
-        }
+      const { data: profile } = await sb.from('profiles').select('tier, tier_expires_at').eq('id', userId).single();
+      if (profile?.tier) {
+        tier = profile.tier;
+        tierExpiresAt = profile.tier_expires_at;
       }
+      const { data: adminRole } = await sb.from('admin_roles').select('role').eq('user_id', userId).single();
+      if (adminRole?.role) {
+        return res.status(200).json({ allowed: true, remaining: Infinity, tier, admin: adminRole.role });
+      }
+
       if (tierExpiresAt && new Date(tierExpiresAt) < new Date()) {
         tier = 'free';
       }
@@ -723,24 +756,19 @@ async function siteUsageHandler(req, res) {
       let limit = isFeas ? feasLimit : calcLimit;
       let exception = null;
 
-      if (userId) {
-        const nowIso = new Date().toISOString();
-        const { data: exc } = await sb.from('usage_exceptions')
-          .select('*')
-          .eq('user_id', userId)
-          .or('calculator.eq.' + calculator + ',calculator.eq.all')
-          .or('expires_at.gt.' + nowIso + ',expires_at.is.null')
-          .limit(1)
-          .single();
-        if (exc) { limit = exc.limit_override; exception = exc; }
-      }
+      const nowIso = new Date().toISOString();
+      const { data: exc } = await sb.from('usage_exceptions')
+        .select('*')
+        .eq('user_id', userId)
+        .or('calculator.eq.' + calculator + ',calculator.eq.all')
+        .or('expires_at.gt.' + nowIso + ',expires_at.is.null')
+        .limit(1)
+        .single();
+      if (exc) { limit = exc.limit_override; exception = exc; }
 
-      let dbCount = 0;
-      if (userId) {
-        const { data } = await sb.from('usage_logs').select('id').eq('user_id', userId).eq('calculator', calculator)
-          .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
-        dbCount = data?.length || 0;
-      }
+      const { data } = await sb.from('usage_logs').select('id').eq('user_id', userId).eq('calculator', calculator)
+        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+      const dbCount = data?.length || 0;
 
       return res.status(200).json({
         allowed: dbCount < limit, used: dbCount, remaining: Math.max(0, limit - dbCount),
@@ -749,10 +777,14 @@ async function siteUsageHandler(req, res) {
     }
 
     if (req.method === 'POST' && action === 'log') {
-      const { userId, calculator, country, inputs, results } = req.body || {};
+      const { calculator, country, inputs, results } = req.body || {};
       if (!calculator) return res.status(400).json({ error: 'calculator required' });
+
+      const user = await resolveAuthUser(req);
+      if (!user) return res.status(401).json({ error: 'Authentication required' });
+
       await sb.from('usage_logs').insert([{
-        user_id: userId || null, calculator, country: country || null,
+        user_id: user.id, calculator, country: country || null,
         inputs: inputs || null, results: results || null,
       }]);
       return res.status(200).json({ success: true });
@@ -819,22 +851,26 @@ async function siteHandler(req, res) {
 async function logUsageHandler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { user_id, calculator, country, inputs, results } = req.body || {};
+    const { calculator, country, inputs, results, scenario_type } = req.body || {};
     if (!calculator) return res.status(400).json({ error: 'calculator required' });
+
+    const user = await resolveAuthUser(req);
+    if (!user) return res.status(401).json({ error: 'Authentication required' });
 
     const supabase = getSupabase();
     const { error } = await supabase.from('usage_logs').insert([{
-      user_id: user_id || null,
+      user_id: user.id,
       calculator,
       country: country || null,
       inputs: inputs || null,
       results: results || null,
+      scenario_type: scenario_type || null
     }]);
 
     if (error) throw error;

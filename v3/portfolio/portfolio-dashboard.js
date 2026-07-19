@@ -898,7 +898,7 @@
 
   load();
 
-  setInterval(() => {
+  const refreshInterval = setInterval(() => {
     const searchInput = document.getElementById('search-input');
     if (document.hidden || (searchInput && searchInput === document.activeElement)) return;
     load();
@@ -906,5 +906,9 @@
 
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) load();
+  });
+
+  window.addEventListener('beforeunload', () => {
+    clearInterval(refreshInterval);
   });
 })();
