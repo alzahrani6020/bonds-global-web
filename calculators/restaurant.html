@@ -106,7 +106,8 @@
   </script>
 
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
-</head>
+<script src="/calculators/auth-gate.js"></script>
+  </head>
 <body class="calc-page-body calc-page-body--ar">
 
   <!-- Top Bar -->
@@ -694,23 +695,42 @@
     function updateTierUI() {
       var banner = document.getElementById('tierBanner');
       if (!banner) return;
-      // Marketing period: all calculator features are free.
       if (_currentUser) {
-        banner.innerHTML = '<span>جميع الميزات متاحة مجانًا 🎉</span>';
+        var tierLabel = _currentTier === 'enterprise' ? 'Enterprise' : (_currentTier === 'pro' ? 'Pro' : 'Free');
+        var maxScenarios = _currentTier === 'free' ? 3 : '∞';
+        banner.innerHTML = '<span>باقتك: <strong>' + tierLabel + '</strong></span>' + (_currentTier === 'free' ? '<a href="../pricing.html" class="upgrade-btn-inline">الترقية →</a>' : '');
+        banner.style.display = 'flex';
+        // Show quota bar for free tier
+        if (_currentTier === 'free') {
+          countScenarios().then(function(count) {
+            var pct = Math.min((count / 3) * 100, 100);
+            var barClass = pct < 60 ? 'safe' : (pct < 90 ? 'warn' : 'danger');
+            var quotaHtml = '<div class="tier-quota-wrap">' +
+              '<div class="tier-quota-header">' +
+              '<span>السيناريوهات المحفوظة: <strong>' + count + ' / 3</strong></span>' +
+              (count >= 3 ? '<a class="tier-quota-link" href="../pricing.html">وصلت للحد — رقِّ الآن</a>' : '') +
+              '</div>' +
+              '<div class="quota-bar ' + barClass + '"><div style="width:' + pct + '%;"></div></div>' +
+              '</div>';
+            banner.insertAdjacentHTML('beforeend', quotaHtml);
+          });
+        }
       } else {
-        banner.innerHTML = '<span>جميع الميزات متاحة مجانًا. <a class="tier-banner__link" href="auth/">سجّل دخولك</a> لحفظ السيناريوهات في السحابة.</span>';
+        banner.innerHTML = '<span>أنت تستخدم النسخة المجانية. <a class="tier-banner__link" href="auth/">سجّل دخولك</a> لحفظ السيناريوهات في السحابة.</span>' +
+          '<a href="../pricing.html" class="upgrade-btn-inline">عرض الباقات</a>';
+        banner.style.display = 'flex';
       }
-      banner.style.display = 'flex';
     }
 
     function isLoggedIn() { return !!_currentUser; }
-    // Marketing period: all calculator features are free.
-    function isPro() { return true; }
-    function isEnterprise() { return true; }
+    function isPro() { return _currentTier === 'pro' || _currentTier === 'enterprise'; }
+    function isEnterprise() { return _currentTier === 'enterprise'; }
 
     function requirePro(callback) {
-      if (callback) callback();
-      return true;
+      if (isPro()) { if (callback) callback(); return true; }
+      if (window.showUpgradeModal) window.showUpgradeModal({ tier: _currentTier, reason: 'not_logged_in' });
+      else BondsUI.toast('❌ الميزة متوفرة في باقة Pro — اضغط على "عرض الباقات"', 'error');
+      return false;
     }
 
     // ===== Country Management =====
