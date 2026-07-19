@@ -26,7 +26,7 @@
     "@sentry/node": "^10.57.0",
     "@supabase/supabase-js": "^2.108.2",
     "mammoth": "^1.12.0",
-    "nodemailer": "^6.10.1",
+    "nodemailer": "^9.0.3",
     "pdf-parse": "^2.4.5",
     "playwright-core": "^1.61.1",
     "resend": "^6.17.1",
@@ -40,9 +40,19 @@
     "pixelmatch": "^5.3.0",
     "playwright": "^1.61.0",
     "pngjs": "^7.0.0",
-    "vercel": "^54.18.1"
+    "vercel": "^56.3.2"
+  },
+  "overrides": {
+    "@tootallnate/once": "^2.0.1",
+    "ajv": "^8.17.2",
+    "js-yaml": "^4.1.2",
+    "minimatch": "^10.2.5",
+    "path-to-regexp": "^6.3.0",
+    "smol-toml": "^1.6.1",
+    "tar": "^7.5.20",
+    "undici": "^6.27.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": "24.x"
   }
 }

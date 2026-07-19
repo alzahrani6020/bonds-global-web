@@ -123,6 +123,8 @@ function auditHTML(file, content) {
       if (fileExists(rootTarget)) continue;
       // Also check as directory
       if (fileExists(path.join(rootTarget, 'index.html'))) continue;
+      // Vercel serves extensionless clean URLs from .html files
+      if (!path.extname(cleanUrl) && fileExists(rootTarget + '.html')) continue;
       addIssue('CRITICAL', file, lineNum, `Missing absolute path: ${rawUrl}`);
       continue;
     }

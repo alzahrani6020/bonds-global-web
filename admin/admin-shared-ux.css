@@ -1,0 +1,59 @@
+/* Admin shared UX improvements — sidebar icons + mobile tables */
+
+/* Sidebar links should lay out icons consistently */
+.ai-nav a,
+.ex-nav a,
+.fa-nav a,
+.ii-nav a,
+.sidebar-link,
+.ai-sidebar-footer a,
+.ex-sidebar-footer a,
+.fa-user a,
+.owner-perms-submenu .sidebar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+/* SVG icons inside admin nav items */
+.ai-nav a svg,
+.ex-nav a svg,
+.fa-nav a svg,
+.ii-nav a svg,
+.sidebar-link svg,
+.ai-sidebar-footer a svg,
+.ex-sidebar-footer a svg,
+.fa-user a svg,
+.owner-perms-submenu .sidebar-link svg {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* Mobile table fallback: horizontal scroll instead of overflow/crush */
+@media (max-width: 768px) {
+  .ai-layout table,
+  .ex-layout table,
+  .fa-layout table,
+  .ii-layout table,
+  .admin-layout table,
+  .table-responsive,
+  .fa-table-wrap,
+  .online-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ai-layout table,
+  .ex-layout table,
+  .fa-layout table,
+  .ii-layout table,
+  .admin-layout table,
+  .online-table {
+    white-space: nowrap;
+  }
+}

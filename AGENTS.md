@@ -364,6 +364,8 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - `calculators/scenario-cards-shared.css`: أنماط بطاقات السيناريو/الحكم/المقاييس المشتركة لـ `feasibility.html` و `medical-viability.html` (عربي وإنجليزي).
 
 ### 11.6 الاختبارات و GitHub Actions
+- `package.json` يحدد `"node": "24.x"` لتثبيت إصدار Node على Vercel وتجنب التحذيرات.
+- `npm audit` يُظهر ثغرة واحدة فقط في `xlsx` (لا يوجد إصلاح upstream). باقي الاعتماديات المعرّضة تمّ رفعها عبر `overrides` في `package.json`.
 - `npm test` — Jest: `tests/bonds-geo.test.js` + `tests/calc-functions.test.js`.
 - `npm run audit` — تدقيق الموقع: أسرار، روابط مكسورة، ملفات ضائعة (`scripts/site-audit.js`).
 - `npm run audit:og` — تدقيق Open Graph / Twitter Card / canonical (`scripts/og-audit.js`).
@@ -378,6 +380,11 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 
 ### 11.7 وحدات لوحة التحكم الإدارية
 اللوحة الموحدة في `admin/dashboard.html` تُحمّل الوحدات داخل iframe عبر `?embed=1`. كل وحدة هي SPA مستقلة (HTML/CSS/JS) وتستخدم `admin-embed.js` لإخفاء قائمتها الجانبية داخل اللوحة.
+
+- **تحسينات UX الموحدة**:
+  - `admin/admin-shared-ux.css` — تنسيقات مشتركة لأيقونات الشريط الجانبي وجداول الجوال.
+  - `admin/admin-sidebar-icons.js` — يستبدل الإيموجي في روابط الشريط الجانبي بأيقونات SVG، ويحول `href="#"` إلى روابط `javascript:void(0)` مع `role="button"`.
+  - تُضمّن هاتان الملفان في `admin/dashboard.html` وفي جميع صفحات `admin/*/index.html`.
 
 | الوحدة | المسار | الوصف |
 |--------|--------|-------|
@@ -593,6 +600,12 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - توليد خطة صيانة مقترحة من الإخفاقات الحرجة والفئات الضعيفة.
   - تذكير بتاريخ إعادة التقييم (next_assessment_due).
 - **القيود**: لا يوجد API جديد على Vercel؛ يتم تجنب الحد الأقصى 12/12 دالة باستخدام Supabase client مباشرة من المتصفح مع RLS.
+
+### 11.15 معالجة الروابط والمعلومات الخارجية
+
+- **Calendly**: صفحات `/book` (عربي) و `/en/book` (إنجليزي) تقرأ `CALENDLY_URL` من `window.__ENV` وتُعيد التوجيه إليه. صفحات التسويق تربط بـ `/book` بدلاً من رابط Calendly المباشر، مما يسهل تغيير الرابط لاحقاً عبر متغير بيئة واحد.
+- **Google Analytics 4**: كود GA4 لا يُحمّل إلا عندما يكون `GA_MEASUREMENT_ID` مضبوطاً في متغيرات البيئة (`GA_MEASUREMENT_ID` أو `NEXT_PUBLIC_GA_MEASUREMENT_ID`). لا يوجد معرّف placeholder في الكود.
+- **WhatsApp**: رقم التواصل عبر WhatsApp ثابت في footer التقارير (`966567566616`).
 
 ---
 

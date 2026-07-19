@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting to calendar | Bonds</title>
+  <meta name="description" content="Book a consultation with the Bonds team.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://bonds-global.com/en/book">
+  <meta property="og:title" content="Book a meeting | Bonds">
+  <meta property="og:description" content="Book a consultation with the Bonds team.">
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-v2.webp">
+  <meta property="og:url" content="https://bonds-global.com/en/book">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Book a meeting | Bonds">
+  <meta name="twitter:description" content="Book a consultation with the Bonds team.">
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-v2.webp">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="/api/env"></script>
+  <script>
+    (function () {
+      const url = (window.__ENV && window.__ENV.CALENDLY_URL) || '';
+      if (url && url.indexOf('calendly.com') !== -1) {
+        location.replace(url);
+      }
+    })();
+  </script>
+  <style>
+    :root { --bg:#0a0f1a; --text:#e8ecf4; --gold:#d4a853; }
+    body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; text-align:center; padding:2rem; }
+    .box { max-width:480px; }
+    h1 { font-size:1.5rem; margin-bottom:1rem; color:var(--gold); }
+    p { line-height:1.7; opacity:.9; }
+    a { color:var(--gold); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Redirecting to the calendar...</h1>
+    <p>If you are not redirected automatically, please <a id="cal-link" href="/en/contact.html">contact us directly</a>.</p>
+  </div>
+  <script>
+    (function () {
+      const url = (window.__ENV && window.__ENV.CALENDLY_URL) || '';
+      if (url) document.getElementById('cal-link').href = url;
+    })();
+  </script>
+</body>
+</html>

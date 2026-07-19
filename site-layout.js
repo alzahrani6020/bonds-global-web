@@ -454,7 +454,7 @@
       const env = window.__ENV || {};
       const url = env.CALENDLY_URL || '';
       if (!url || url.indexOf('calendly.com') === -1) return;
-      document.querySelectorAll('a[href*="calendly.com/iiffund-dev/30min"]').forEach(a => {
+      document.querySelectorAll('a[href="/book"], a[href="/en/book"], a[href*="calendly.com/iiffund-dev/30min"]').forEach(a => {
         a.href = url;
       });
     } catch (e) {}
