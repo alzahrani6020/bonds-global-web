@@ -1,6 +1,6 @@
 // ===== Bonds Unified Auth System =====
 // Replaces: supabase-client.js + auth-guard.js + admin-auth-v2.js
-// Usage: <script src="/bonds-auth.js"></script> (after /api/env and supabase library)
+// Usage: <script src="/bonds-auth-2026.js"></script> (after /api/env and supabase library)
 
 (function() {
   'use strict';
@@ -361,24 +361,72 @@
   }
 
   // ── Session recovery when user returns to the tab/device ──
-  function recoverSession() {
+  let _recovering = false;
+  function recoverSession({ force = false } = {}) {
     const sb = getSupabase();
     if (!sb) return Promise.resolve();
-    return sb.auth.getSession().then(({ data, error }) => {
-      if (error) console.warn('[BondsAuth] Session recovery error:', error);
-      if (data?.session) {
-        // Refresh the header UI if it exists
-        const container = document.getElementById('authContainer');
-        if (container) initSiteAuth('authContainer');
+    if (_recovering) return Promise.resolve();
+    _recovering = true;
+
+    async function attempt() {
+      // 1. getSession refreshes an expired access token from localStorage
+      let { data: sessionData, error: sessionError } = await sb.auth.getSession();
+      // 2. If still missing or forced, validate with server
+      if ((!sessionData?.session && !sessionError) || force) {
+        const userResult = await sb.auth.getUser();
+        if (userResult.data?.user && !userResult.error) {
+          sessionData = { session: { user: userResult.data.user } };
+          sessionError = null;
+        } else if (userResult.error) {
+          sessionError = userResult.error;
+        }
       }
-    }).catch(err => console.warn('[BondsAuth] recoverSession exception:', err));
+      return { data: sessionData, error: sessionError };
+    }
+
+    return attempt()
+      .catch(err => ({ data: null, error: err }))
+      .then(({ data, error }) => {
+        if (error) {
+          // Network/down errors: retry once after a short delay
+          const isNetworkError = !error.status || error.status >= 500 || error.message?.toLowerCase().includes('network');
+          if (isNetworkError) {
+            return new Promise(resolve => setTimeout(resolve, 800)).then(() => attempt().catch(err => ({ data: null, error: err })));
+          }
+        }
+        return { data, error };
+      })
+      .then(({ data, error }) => {
+        _recovering = false;
+        if (error) console.warn('[BondsAuth] Session recovery error:', error);
+        if (data?.session) {
+          // Refresh the header UI if it exists
+          const container = document.getElementById('authContainer');
+          if (container) initSiteAuth('authContainer');
+        }
+        // Notify guarded pages so they re-check auth state
+        window.dispatchEvent(new CustomEvent('bonds:session-recovered', {
+          detail: { session: data?.session || null, error: error || null }
+        }));
+      })
+      .catch(err => {
+        _recovering = false;
+        console.warn('[BondsAuth] recoverSession exception:', err);
+        window.dispatchEvent(new CustomEvent('bonds:session-recovered', {
+          detail: { session: null, error: err }
+        }));
+      });
   }
 
   if (typeof document !== 'undefined') {
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') recoverSession();
     });
-    window.addEventListener('focus', recoverSession);
+    window.addEventListener('focus', () => recoverSession());
+    // bfcache restore: fires when user navigates back to this page
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted) recoverSession({ force: true });
+    });
   }
 
   // ── Auto-init site auth header ────────────────────────────

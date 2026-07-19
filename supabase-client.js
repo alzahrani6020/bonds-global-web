@@ -7,6 +7,12 @@ const SUPABASE_KEY = window.__ENV?.SUPABASE_ANON_KEY || '';
 let _supabase = null;
 
 function getSupabase() {
+  // Prefer the unified auth client so only one Supabase instance manages
+  // the shared localStorage session and token refresh timer.
+  if (typeof window !== 'undefined' && window.BondsAuth?.getSupabase) {
+    const unified = window.BondsAuth.getSupabase();
+    if (unified) return unified;
+  }
   if (_supabase) return _supabase;
   if (typeof supabase === 'undefined') {
     console.error('[BondsAuth] Supabase library not loaded');
