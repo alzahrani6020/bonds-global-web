@@ -29,6 +29,8 @@ async function handler(req, res) {
     STRIPE_PRICE_ENTERPRISE: process.env.STRIPE_PRICE_ENTERPRISE || '',
     APP_URL: process.env.NEXT_PUBLIC_APP_URL || '',
     SENTRY_DSN: process.env.SENTRY_DSN || '',
+    GA_MEASUREMENT_ID: process.env.GA_MEASUREMENT_ID || process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '',
+    CALENDLY_URL: process.env.CALENDLY_URL || 'https://calendly.com/iiffund-dev/30min',
     ADMIN_EMAIL: process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '',
     ADMIN_ENFORCE_MFA: adminEnforceMfa ? 'true' : 'false',
   };

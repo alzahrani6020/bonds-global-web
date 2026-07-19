@@ -449,6 +449,17 @@
     };
   }
 
+  function applyCalendlyUrl() {
+    try {
+      const env = window.__ENV || {};
+      const url = env.CALENDLY_URL || '';
+      if (!url || url.indexOf('calendly.com') === -1) return;
+      document.querySelectorAll('a[href*="calendly.com/iiffund-dev/30min"]').forEach(a => {
+        a.href = url;
+      });
+    } catch (e) {}
+  }
+
   function inject() {
     const lang = detectLang();
     const base = getBase();
@@ -547,6 +558,7 @@
     }
 
     setActiveLinks();
+    applyCalendlyUrl();
 
     if (window.BondsAuth && window.BondsAuth.initSiteAuth) {
       window.BondsAuth.initSiteAuth('authContainer');
