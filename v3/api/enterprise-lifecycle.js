@@ -27,6 +27,23 @@ function sendJson(res, status, data) {
   res.end(JSON.stringify(data));
 }
 
+async function loadInstance(engine, instanceId) {
+  return engine.store.getInstance(instanceId);
+}
+
+function isInstanceOwner(instance, user) {
+  return instance && instance.created_by === user.id;
+}
+
+async function requireInstanceOwner(engine, user, instanceId, res) {
+  const instance = await loadInstance(engine, instanceId);
+  if (!isInstanceOwner(instance, user)) {
+    sendJson(res, 404, { error: 'Instance not found' });
+    return null;
+  }
+  return instance;
+}
+
 async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
   const engine = (await new LifecycleEngine({ supabase }).initialize());
 
@@ -68,6 +85,7 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
     const instanceMatch = path.match(/^\/enterprise-lifecycle\/instances\/([^/]+)$/);
     if (instanceMatch && req.method === 'GET') {
       const id = instanceMatch[1];
+      if (!(await requireInstanceOwner(engine, user, id, res))) return;
       const state = await engine.getState(id);
       return sendJson(res, 200, state);
     }
@@ -75,6 +93,7 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
     const stateMatch = path.match(/^\/enterprise-lifecycle\/instances\/([^/]+)\/state$/);
     if (stateMatch && req.method === 'GET') {
       const id = stateMatch[1];
+      if (!(await requireInstanceOwner(engine, user, id, res))) return;
       const state = await engine.getState(id);
       return sendJson(res, 200, state);
     }
@@ -82,6 +101,7 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
     const historyMatch = path.match(/^\/enterprise-lifecycle\/instances\/([^/]+)\/history$/);
     if (historyMatch && req.method === 'GET') {
       const id = historyMatch[1];
+      if (!(await requireInstanceOwner(engine, user, id, res))) return;
       const history = await engine.getHistory(id);
       return sendJson(res, 200, { history });
     }
@@ -89,6 +109,7 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
     const timelineMatch = path.match(/^\/enterprise-lifecycle\/instances\/([^/]+)\/timeline$/);
     if (timelineMatch && req.method === 'GET') {
       const id = timelineMatch[1];
+      if (!(await requireInstanceOwner(engine, user, id, res))) return;
       const timeline = await engine.getTimeline(id);
       return sendJson(res, 200, { timeline });
     }
@@ -96,6 +117,7 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
     const tasksMatch = path.match(/^\/enterprise-lifecycle\/instances\/([^/]+)\/tasks$/);
     if (tasksMatch && req.method === 'GET') {
       const id = tasksMatch[1];
+      if (!(await requireInstanceOwner(engine, user, id, res))) return;
       const url = new URL(req.url, `http://${req.headers.host}`);
       const status = url.searchParams.get('status');
       const stageId = url.searchParams.get('stageId');
@@ -108,6 +130,9 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
       const role = await getUserRole(supabase, user.id);
       if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const taskId = taskCompleteMatch[2];
+      const task = await engine.store.getTask(taskId);
+      if (!task) return sendJson(res, 404, { error: 'Task not found' });
+      if (!(await requireInstanceOwner(engine, user, task.instance_id, res))) return;
       const body = await parseBody(req);
       const { evidence, context } = body;
       const result = await engine.completeTask({
@@ -124,6 +149,7 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
       const role = await getUserRole(supabase, user.id);
       if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const id = transitionMatch[1];
+      if (!(await requireInstanceOwner(engine, user, id, res))) return;
       const body = await parseBody(req);
       const { toStage, reason, context, approvalId } = body;
       if (!toStage) return sendJson(res, 400, { error: 'toStage is required' });
@@ -134,6 +160,7 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
     const validateMatch = path.match(/^\/enterprise-lifecycle\/instances\/([^/]+)\/validate$/);
     if (validateMatch && req.method === 'POST') {
       const id = validateMatch[1];
+      if (!(await requireInstanceOwner(engine, user, id, res))) return;
       const body = await parseBody(req);
       const { toStage, reason, context } = body;
       if (!toStage) return sendJson(res, 400, { error: 'toStage is required' });
@@ -145,6 +172,7 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
     if (gateMatch && req.method === 'POST') {
       const id = gateMatch[1];
       const gateId = gateMatch[2];
+      if (!(await requireInstanceOwner(engine, user, id, res))) return;
       const body = await parseBody(req);
       const result = await engine.evaluateGate(id, gateId, { context: body.context || {} });
       return sendJson(res, 200, { result });
@@ -153,6 +181,7 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
     const approvalsMatch = path.match(/^\/enterprise-lifecycle\/instances\/([^/]+)\/approvals$/);
     if (approvalsMatch && req.method === 'GET') {
       const id = approvalsMatch[1];
+      if (!(await requireInstanceOwner(engine, user, id, res))) return;
       const approvals = await engine.store.listApprovals(id);
       return sendJson(res, 200, { approvals });
     }
@@ -161,6 +190,7 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
       const role = await getUserRole(supabase, user.id);
       if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const id = approvalsMatch[1];
+      if (!(await requireInstanceOwner(engine, user, id, res))) return;
       const body = await parseBody(req);
       const { transitionKey } = body;
       if (!transitionKey) return sendJson(res, 400, { error: 'transitionKey is required' });
@@ -173,6 +203,9 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
       const role = await getUserRole(supabase, user.id);
       if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const approvalId = approvalDecisionMatch[2];
+      const approval = await engine.store.getApproval(approvalId);
+      if (!approval) return sendJson(res, 404, { error: 'Approval not found' });
+      if (!(await requireInstanceOwner(engine, user, approval.instance_id, res))) return;
       const body = await parseBody(req);
       const { decision, reason, role: voterRole } = body;
       if (!decision) return sendJson(res, 400, { error: 'decision is required' });
@@ -185,6 +218,7 @@ async function enterpriseLifecycleRouter(req, res, path, supabase, user) {
       const role = await getUserRole(supabase, user.id);
       if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const id = eventsMatch[1];
+      if (!(await requireInstanceOwner(engine, user, id, res))) return;
       const body = await parseBody(req);
       const { eventType, payload } = body;
       if (!eventType) return sendJson(res, 400, { error: 'eventType is required' });

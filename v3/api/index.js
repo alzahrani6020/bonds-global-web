@@ -842,7 +842,8 @@ module.exports = async function handler(req, res) {
     if (path === '/compare/cities') return await compareRouter(req, res, path);
     if (path.startsWith('/fabric')) {
       const supabase = getSupabaseClient();
-      return await fabricRouter(req, res, path, supabase);
+      const user = await getUserFromToken(req);
+      return await fabricRouter(req, res, path, supabase, user);
     }
     if (path.startsWith('/intelligence')) {
       const supabase = getSupabaseClient();

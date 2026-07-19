@@ -4,6 +4,7 @@
  * Handles /fabric/* endpoints for the Trusted Data Fabric.
  */
 
+const { getUserFromToken } = require('../lib/auth');
 const {
   TrustedDataFabric,
   ConnectorRegistry,
@@ -47,7 +48,7 @@ function createFabric(supabase) {
   return new TrustedDataFabric({ supabase, connectorRegistry: registry, sourceRegistry });
 }
 
-async function fabricRouter(req, res, path, supabase) {
+async function fabricRouter(req, res, path, supabase, user) {
   const fabric = createFabric(supabase);
   const observability = new Observability(supabase);
   const monitoring = new Monitoring({ supabase, observability });
@@ -118,8 +119,10 @@ async function fabricRouter(req, res, path, supabase) {
 
     if (path === '/fabric/override' && req.method === 'POST') {
       if (!supabase) return sendJson(res, 503, { error: 'Supabase not available' });
+      const authedUser = user || (await getUserFromToken(req));
+      if (!authedUser) return sendJson(res, 401, { error: 'Unauthorized' });
       const body = await parseBody(req);
-      const result = await smartOverride.apply(body);
+      const result = await smartOverride.apply({ ...body, overriddenBy: authedUser.id });
       return sendJson(res, 200, result);
     }
 

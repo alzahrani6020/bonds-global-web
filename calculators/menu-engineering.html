@@ -693,8 +693,9 @@ async function runPromoSim() {
 
   box.innerHTML = '<div class="loading">جاري الحساب...</div>';
   try {
+    const session = (await window.BondsAuth.getSession())?.session;
     const res = await fetch('/api/promo-simulator', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token || '') },
       body: JSON.stringify({ user_id: currentUser.id, menu_item_id: itemId, platform_id: platId, discount_pct: discount, current_daily_sales: sales })
     });
     const json = await res.json();
@@ -718,8 +719,9 @@ async function runOmnichannel() {
 
   box.innerHTML = '<div class="loading">جاري الحساب...</div>';
   try {
+    const session = (await window.BondsAuth.getSession())?.session;
     const res = await fetch('/api/omnichannel-calculator', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token || '') },
       body: JSON.stringify({ user_id: currentUser.id, menu_item_id: itemId, platform_id: platId, direct_cac: cac, direct_delivery_fee: delivery, monthly_ad_budget: adBudget })
     });
     const json = await res.json();

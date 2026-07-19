@@ -6,6 +6,7 @@
 const getSupabase = require('../lib/api/supabase');
 const { checkRateLimit } = require('../lib/api/rate-limit');
 const { setAllowedOrigin } = require('../lib/api/cors');
+const { verifyBearer } = require('../lib/api/auth-helper');
 
 function setCors(res, req) {
   setAllowedOrigin(res, req);
@@ -239,6 +240,7 @@ async function promoSimulatorHandler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
+    const user = await verifyBearer(req);
     const body = req.body || {};
     const { menu_item_id, platform_id, discount_pct, current_daily_sales } = body;
 
@@ -252,6 +254,7 @@ async function promoSimulatorHandler(req, res) {
       .from('menu_items')
       .select('*')
       .eq('id', menu_item_id)
+      .eq('user_id', user.id)
       .single();
     if (itemError || !item) return res.status(404).json({ success: false, error: 'Menu item not found' });
 
@@ -274,6 +277,7 @@ async function promoSimulatorHandler(req, res) {
         const { data: prices } = await supabase
           .from('menu_ingredients')
           .select('id, current_price')
+          .eq('user_id', user.id)
           .in('id', ingredientIds);
 
         const priceMap = new Map((prices || []).map(p => [p.id, p.current_price]));
@@ -351,6 +355,7 @@ async function omnichannelCalculatorHandler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
+    const user = await verifyBearer(req);
     const body = req.body || {};
     const { menu_item_id, platform_id, direct_cac, direct_delivery_fee, monthly_ad_budget } = body;
 
@@ -364,6 +369,7 @@ async function omnichannelCalculatorHandler(req, res) {
       .from('menu_items')
       .select('*')
       .eq('id', menu_item_id)
+      .eq('user_id', user.id)
       .single();
     if (itemError || !item) return res.status(404).json({ success: false, error: 'Menu item not found' });
 
@@ -386,6 +392,7 @@ async function omnichannelCalculatorHandler(req, res) {
         const { data: prices } = await supabase
           .from('menu_ingredients')
           .select('id, current_price')
+          .eq('user_id', user.id)
           .in('id', ingredientIds);
 
         const priceMap = new Map((prices || []).map(p => [p.id, p.current_price]));

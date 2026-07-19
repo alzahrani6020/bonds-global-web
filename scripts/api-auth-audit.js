@@ -41,7 +41,9 @@ const PUBLIC_ENDPOINT_OVERRIDES = [
   '/api/bank-transfer',
   '/api/analyze-feasibility',
   '/api/analyze-feasibility-v2',
-  '/api/send-letter'
+  '/api/send-letter',
+  '/api/image-search',
+  '/api/market-research'
 ];
 
 const AUTH_HELPER_PATTERNS = [

@@ -13,7 +13,8 @@ const mockSupabaseClient = {
         revenue: 2_000_000,
         annual_profit: 400_000,
         language: 'ar',
-        currency: 'SAR'
+        currency: 'SAR',
+        user_id: 'user-1'
       });
     }
     if (table === 'bonds_assets') return createChain(null);

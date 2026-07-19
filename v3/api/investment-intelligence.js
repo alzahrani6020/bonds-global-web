@@ -33,6 +33,22 @@ function sendJson(res, status, data) {
   res.end(JSON.stringify(data));
 }
 
+async function loadProject(supabase, projectId) {
+  const { data, error } = await supabase.from('bonds_projects').select('id, user_id').eq('id', projectId).single();
+  if (error || !data) return null;
+  return data;
+}
+
+async function loadMemo(supabase, memoId) {
+  const { data, error } = await supabase.from('investment_memoranda').select('*').eq('id', memoId).single();
+  if (error || !data) return null;
+  return data;
+}
+
+function isOwner(record, user) {
+  return record && record.user_id === user.id;
+}
+
 async function investmentIntelligenceRouter(req, res, path, supabase, user) {
   try {
     if (path === '/investment-intelligence/engines' && req.method === 'GET') {
@@ -51,6 +67,8 @@ async function investmentIntelligenceRouter(req, res, path, supabase, user) {
     const readinessMatch = path.match(/^\/investment-intelligence\/readiness\/([^/]+)$/);
     if (readinessMatch && req.method === 'GET') {
       const projectId = readinessMatch[1];
+      const project = await loadProject(supabase, projectId);
+      if (!isOwner(project, user)) return sendJson(res, 404, { error: 'Project not found' });
       const result = await evaluateReadiness({ projectId, supabase });
       const url = new URL(req.url, `http://${req.headers.host}`);
       if (url.searchParams.get('persist') !== 'false') {
@@ -74,6 +92,8 @@ async function investmentIntelligenceRouter(req, res, path, supabase, user) {
       const body = await parseBody(req);
       const { projectId, language, currency, type, useAi } = body;
       if (!projectId) return sendJson(res, 400, { error: 'projectId is required' });
+      const project = await loadProject(supabase, projectId);
+      if (!isOwner(project, user)) return sendJson(res, 404, { error: 'Project not found' });
 
       const generated = await generateMemorandum({
         projectId,
@@ -107,17 +127,17 @@ async function investmentIntelligenceRouter(req, res, path, supabase, user) {
     const memorandumIdMatch = path.match(/^\/investment-intelligence\/memorandum\/([^/]+)$/);
     if (memorandumIdMatch && req.method === 'GET') {
       const id = memorandumIdMatch[1];
-      const { data, error } = await supabase.from('investment_memoranda').select('*').eq('id', id).single();
-      if (error || !data) return sendJson(res, 404, { error: 'Memorandum not found' });
-      return sendJson(res, 200, { memorandum: data });
+      const memo = await loadMemo(supabase, id);
+      if (!isOwner(memo, user)) return sendJson(res, 404, { error: 'Memorandum not found' });
+      return sendJson(res, 200, { memorandum: memo });
     }
 
     const htmlMatch = path.match(/^\/investment-intelligence\/memorandum\/([^/]+)\/html$/);
     if (htmlMatch && req.method === 'GET') {
       const id = htmlMatch[1];
-      const { data, error } = await supabase.from('investment_memoranda').select('*').eq('id', id).single();
-      if (error || !data) return sendJson(res, 404, { error: 'Memorandum not found' });
-      const html = toHtml(data);
+      const memo = await loadMemo(supabase, id);
+      if (!isOwner(memo, user)) return sendJson(res, 404, { error: 'Memorandum not found' });
+      const html = toHtml(memo);
       res.statusCode = 200;
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       return res.end(html);
@@ -128,8 +148,8 @@ async function investmentIntelligenceRouter(req, res, path, supabase, user) {
       const role = await getUserRole(supabase, user.id);
       if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const id = reviewMatch[1];
-      const { data: memo, error } = await supabase.from('investment_memoranda').select('*').eq('id', id).single();
-      if (error || !memo) return sendJson(res, 404, { error: 'Memorandum not found' });
+      const memo = await loadMemo(supabase, id);
+      if (!isOwner(memo, user)) return sendJson(res, 404, { error: 'Memorandum not found' });
 
       const review = await reviewMemorandum(memo, { userId: user.id });
 
@@ -162,6 +182,8 @@ async function investmentIntelligenceRouter(req, res, path, supabase, user) {
     const versionsMatch = path.match(/^\/investment-intelligence\/memorandum\/([^/]+)\/versions$/);
     if (versionsMatch && req.method === 'GET') {
       const id = versionsMatch[1];
+      const memo = await loadMemo(supabase, id);
+      if (!isOwner(memo, user)) return sendJson(res, 404, { error: 'Memorandum not found' });
       const versioning = new VersioningEngine(supabase);
       const versions = await versioning.listVersions(id);
       return sendJson(res, 200, { versions });
@@ -173,8 +195,8 @@ async function investmentIntelligenceRouter(req, res, path, supabase, user) {
       if (!can(role, 'write')) return sendJson(res, 403, { error: 'Forbidden: insufficient role' });
       const id = versionCreateMatch[1];
       const body = await parseBody(req);
-      const { data: memo, error } = await supabase.from('investment_memoranda').select('*').eq('id', id).single();
-      if (error || !memo) return sendJson(res, 404, { error: 'Memorandum not found' });
+      const memo = await loadMemo(supabase, id);
+      if (!isOwner(memo, user)) return sendJson(res, 404, { error: 'Memorandum not found' });
 
       const versioning = new VersioningEngine(supabase);
       const result = await versioning.createVersion(id, memo.content, memo.evidence_bundle, memo.confidence_score, user.id, body.changeSummary || 'Manual version');
