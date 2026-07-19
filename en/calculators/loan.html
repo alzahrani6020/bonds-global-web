@@ -37,6 +37,22 @@
 
   <script src="../../calculators/db-client.js"></script>
 <link rel="canonical" href="https://bonds-global.com/en/calculators/loan" />
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Loan & Financing Calculator",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  },
+  "url": "https://bonds-global.com/en/calculators/loan",
+  "description": "Calculate your loan installments, total interest, and amortization schedule. A free tool from Bonds Financial Consulting."
+}
+  </script>
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
 </head>
@@ -143,7 +159,7 @@
             <input type="number" id="monthlyIncome" placeholder="مثلاً: 15000" min="0" />
           </div>
           <button onclick="calculateAll()" class="btn btn-primary calc-width-full">Calculate Results</button>
-          <button onclick="loadExample()" class="btn btn-outline calc-width-full calc-mt-3">🧮 جرب Example توضيحي</button>
+          <button onclick="loadExample()" class="btn btn-outline calc-width-full calc-mt-3"><span class="calc-example-icon" aria-hidden="true">#</span> Try Example</button>
           <button onclick="resetCalc()" class="btn btn-outline calc-width-full calc-mt-3">مسح البيانات</button>
         </div>
 
@@ -309,7 +325,7 @@
           </div>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 class="calc-card-title">🧮 اختبر بنفسك</h3>
+          <h3 class="calc-card-title"><span class="calc-example-icon" aria-hidden="true">#</span> Try It Yourself</h3>
           <p class="calc-example-intro">اضغط "جرب Example توضيحي" وتحقق من الحساب يدوياً:</p>
           <div class="calc-example-list">
             <div class="calc-example-row">

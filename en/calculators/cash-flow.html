@@ -36,6 +36,22 @@
 
   <script src="../../calculators/db-client.js"></script>
 <link rel="canonical" href="https://bonds-global.com/en/calculators/cash-flow" />
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Cash Flow Calculator",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  },
+  "url": "https://bonds-global.com/en/calculators/cash-flow",
+  "description": "Calculate cash flow forecasts for 12 months: inflows, outflows, and closing balance. A free tool from Bonds."
+}
+  </script>
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
 </head>
@@ -95,7 +111,7 @@
 
           <div class="section-actions">
             <button onclick="calculateAll()" class="btn btn-primary">Calculate النتائج</button>
-            <button onclick="loadExample()" class="btn btn-outline">🧮 جرب Example توضيحي</button>
+            <button onclick="loadExample()" class="btn btn-outline"><span class="calc-example-icon" aria-hidden="true">#</span> Try Example</button>
             <button onclick="resetCalc()" class="btn btn-outline">مسح البيانات</button>
           </div>
         </div>

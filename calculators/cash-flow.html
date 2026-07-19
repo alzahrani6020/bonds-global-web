@@ -38,6 +38,22 @@
 
   <script src="db-client.js"></script>
 <link rel="canonical" href="https://bonds-global.com/calculators/cash-flow" />
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "حاسبة تدفق النقد",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  },
+  "url": "https://bonds-global.com/calculators/cash-flow",
+  "description": "احسب توقعات التدفق النقدي لـ 12 شهراً: الواردات، المصروفات، والرصيد الختامي. أداة مجانية من بوندز."
+}
+  </script>
 
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
 </head>
@@ -97,7 +113,7 @@
 
           <div class="section-actions">
             <button onclick="calculateAll()" class="btn btn-primary">احسب النتائج</button>
-            <button onclick="loadExample()" class="btn btn-outline">🧮 جرب مثال توضيحي</button>
+            <button onclick="loadExample()" class="btn btn-outline"><span class="calc-example-icon" aria-hidden="true">#</span> جرب مثال توضيحي</button>
             <button onclick="resetCalc()" class="btn btn-outline">مسح البيانات</button>
           </div>
         </div>

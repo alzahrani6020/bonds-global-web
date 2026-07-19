@@ -38,6 +38,22 @@
 
   <script src="../../calculators/db-client.js"></script>
 <link rel="canonical" href="https://bonds-global.com/en/calculators/pricing" />
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Product Pricing Calculator",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  },
+  "url": "https://bonds-global.com/en/calculators/pricing",
+  "description": "Calculate your product price professionally: direct costs, overhead, packaging, delivery, customer acquisition cost, platform fee, profit margin, tax, and zakat. A free tool from Bonds."
+}
+  </script>
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
 </head>
@@ -179,7 +195,7 @@
             </div>
           </div>
           <button onclick="calculateAll()" class="btn btn-primary calc-width-full">Calculate Results</button>
-          <button onclick="loadExample()" class="btn btn-outline calc-width-full calc-mt-3">🧮 Try an Example</button>
+          <button onclick="loadExample()" class="btn btn-outline calc-width-full calc-mt-3"><span class="calc-example-icon" aria-hidden="true">#</span> Try an Example</button>
           <button onclick="resetCalc()" class="btn btn-outline calc-width-full calc-mt-3">Clear Data</button>
         </div>
 
@@ -346,7 +362,7 @@
           </div>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 class="calc-card-title">🧮 Try It Yourself</h3>
+          <h3 class="calc-card-title"><span class="calc-example-icon" aria-hidden="true">#</span> Try It Yourself</h3>
           <p class="calc-example-intro">Click "Try an Example" and verify the calculation manually:</p>
           <div class="calc-example-list">
             <div class="calc-example-row">

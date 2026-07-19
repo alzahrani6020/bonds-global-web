@@ -41,6 +41,22 @@
 
   <script src="db-client.js"></script>
 <link rel="canonical" href="https://bonds-global.com/calculators/pricing" />
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "حاسبة تسعير المنتج",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  },
+  "url": "https://bonds-global.com/calculators/pricing",
+  "description": "احسب سعر منتجك على المنصات باحترافية: التكلفة المباشرة، التكاليف غير المباشرة، التغليف، التوصيل، تكلفة اكتساب العميل، عمولة المنصة، الضريبة، والزكاة. أداة مجانية من بوندز."
+}
+  </script>
 
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
 </head>
@@ -182,7 +198,7 @@
             </div>
           </div>
           <button onclick="calculateAll()" class="btn btn-primary calc-width-full">احسب النتائج</button>
-          <button onclick="loadExample()" class="btn btn-outline calc-width-full calc-mt-3">🧮 جرب مثال توضيحي</button>
+          <button onclick="loadExample()" class="btn btn-outline calc-width-full calc-mt-3"><span class="calc-example-icon" aria-hidden="true">#</span> جرب مثال توضيحي</button>
           <button onclick="resetCalc()" class="btn btn-outline calc-width-full calc-mt-3">مسح البيانات</button>
         </div>
 
@@ -349,7 +365,7 @@
           </div>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 class="calc-card-title">🧮 اختبر بنفسك</h3>
+          <h3 class="calc-card-title"><span class="calc-example-icon" aria-hidden="true">#</span> اختبر بنفسك</h3>
           <p class="calc-example-intro">اضغط "جرب مثال توضيحي" وتحقق من الحساب يدوياً:</p>
           <div class="calc-example-list">
             <div class="calc-example-row">

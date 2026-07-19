@@ -535,3 +535,101 @@ textarea::-webkit-scrollbar-thumb:hover {
   canvas { max-height: 280px !important; }
   a { text-decoration: none; color: #000; }
 }
+
+/* ===== RESPONSIVE UTILITIES ===== */
+@media (max-width: 768px) {
+  .calc-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--bonds-space-6);
+  }
+  .calc-panel,
+  .calc-card {
+    padding: var(--bonds-space-4);
+  }
+  .section-actions {
+    flex-direction: column;
+  }
+  .section-actions .btn,
+  .section-actions .bonds-btn {
+    width: 100%;
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .topbar,
+  #site-header,
+  #site-footer,
+  .float-whatsapp,
+  #cookieBanner,
+  #backToTop,
+  .section-actions {
+    display: none !important;
+  }
+  .calc-panel,
+  .calc-card,
+  .result-list,
+  .summary-card {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+}
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  .bonds-input,
+  .bonds-select,
+  .bonds-btn,
+  .btn {
+    transition: none !important;
+  }
+  .bonds-btn:hover,
+  .btn:hover {
+    transform: none !important;
+  }
+}
+
+/* ===== FOCUS VISIBLE ===== */
+.bonds-input:focus-visible,
+.bonds-select:focus-visible,
+.bonds-btn:focus-visible,
+.btn:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--bonds-gold);
+  outline-offset: 2px;
+}
+
+/* ===== LOADING SPINNER ===== */
+.bonds-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: bonds-spin 0.8s linear infinite;
+  display: inline-block;
+}
+@keyframes bonds-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== EXAMPLE BUTTON ICON ===== */
+.calc-example-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2em;
+  height: 1.2em;
+  font-weight: 800;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+  font-size: 0.85em;
+  line-height: 1;
+}
