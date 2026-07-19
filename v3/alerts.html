@@ -237,6 +237,22 @@
   </style>
 <script src="../site-layout.js?v=2.59.0"></script>
   <link rel="canonical" href="https://bonds-global.com/v3/alerts" />
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "الإنذارات | Bonds V3",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  },
+  "url": "https://bonds-global.com/v3/alerts",
+  "description": "تنبيهات ذكية للتغيرات السوقية والفرص الجديدة."
+}
+  </script>
   <meta property="og:title" content="الإنذارات الاستثمارية | Bonds V3" />
   <meta property="og:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
@@ -255,7 +271,7 @@
 
   <div id="site-header"></div>
   <header>
-    <h1>🔔 الإنذارات الاستثمارية</h1>
+    <h1>⚑ الإنذارات الاستثمارية</h1>
     <p>تتبع أهم التغيرات الاقتصادية والعقارية والسوقية التي قد تؤثر على قراراتك الاستثمارية</p>
   </header>
 
@@ -459,7 +475,7 @@
 
       document.getElementById('summary').innerHTML = `
         <div class="summary-card">
-          <div class="summary-icon blue">🔔</div>
+          <div class="summary-icon blue">⚑</div>
           <div><div class="summary-value">${unread.length}</div><div class="summary-label">إنذارات جديدة</div></div>
         </div>
         <div class="summary-card">
@@ -471,7 +487,7 @@
           <div><div class="summary-value">${warning}</div><div class="summary-label">إنذارات مرتفعة</div></div>
         </div>
         <div class="summary-card">
-          <div class="summary-icon gray">💡</div>
+          <div class="summary-icon gray">✦</div>
           <div><div class="summary-value">${opportunities}</div><div class="summary-label">فرص استثمارية</div></div>
         </div>
         <div class="summary-card">
@@ -544,15 +560,15 @@
             <span class="severity-badge ${sev.class}">${sev.icon} ${sev.label}</span>
           </div>
           <div class="alert-meta">
-            <span>📍 ${cityName}</span>
-            ${activityName ? `<span>🏭 ${activityName}</span>` : ''}
-            <span>📊 القيمة السابقة: ${formatNumber(alert.old_value)} → الجديدة: ${formatNumber(alert.new_value)}</span>
+            <span>⌖ ${cityName}</span>
+            ${activityName ? `<span>▩ ${activityName}</span>` : ''}
+            <span>▤ القيمة السابقة: ${formatNumber(alert.old_value)} → الجديدة: ${formatNumber(alert.new_value)}</span>
           </div>
           <div class="alert-change ${directionClass}">
             ${direction === 'up' ? 'ارتفع' : 'انخفض'} ${metric} ${changePercent ? 'بنسبة ' + changePercent : changeValue ? 'بمقدار ' + changeValue : ''}
           </div>
           <div class="alert-insight">
-            <strong>💡 التفسير الذكي:</strong> ${alert.insight || generateInsight(alert)}
+            <strong>✦ التفسير الذكي:</strong> ${alert.insight || generateInsight(alert)}
           </div>
           <div class="alert-footer">
             <span class="alert-date">${formatDate(alert.created_at, 'تم الاكتشاف')}</span>
@@ -578,5 +594,6 @@
   <div id="site-footer"></div>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+  <script src="shared-v3-ui.js" defer></script>
 </body>
 </html>

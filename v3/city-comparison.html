@@ -152,6 +152,22 @@
   </style>
 <script src="../site-layout.js?v=2.59.0"></script>
   <link rel="canonical" href="https://bonds-global.com/v3/city-comparison" />
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "مقارنة المدن | Bonds V3",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  },
+  "url": "https://bonds-global.com/v3/city-comparison",
+  "description": "مقارنة جانبية بين المدن لاختيار الأفضل لمشروعك."
+}
+  </script>
   <meta property="og:title" content="مقارنة المدن | Bonds V3" />
   <meta property="og:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
@@ -457,7 +473,7 @@
         const biggest = items[best.market_size.best];
         summaryHtml += `
           <div class="summary-card">
-            <h4>📈 أكبر سوق</h4>
+            <h4><span class="v3-icon" aria-hidden="true">▤</span> أكبر سوق</h4>
             <div class="value">${biggest.city.name_ar}</div>
             <div class="city">${formatMoney(biggest.market?.market_size)}</div>
           </div>`;
@@ -526,5 +542,6 @@
   <div id="site-footer"></div>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+  <script src="shared-v3-ui.js" defer></script>
 </body>
 </html>

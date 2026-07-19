@@ -147,6 +147,22 @@
   </style>
 <script src="../site-layout.js?v=2.59.0"></script>
   <link rel="canonical" href="https://bonds-global.com/v3/project-readiness" />
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "جاهزية المشروع | Bonds V3",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  },
+  "url": "https://bonds-global.com/v3/project-readiness",
+  "description": "تقييم جاهزية المشروع للاستثمار والتمويل."
+}
+  </script>
   <meta property="og:title" content="مؤشر جاهزية المشروع | Bonds V3" />
   <meta property="og:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
@@ -164,7 +180,7 @@
 
   <div id="site-header"></div>
   <header>
-    <h1>✅ مؤشر جاهزية المشروع</h1>
+    <h1>✓ مؤشر جاهزية المشروع</h1>
     <p>قيّم مدى استعداد مشروعك للإطلاق قبل اتخاذ قرار الاستثمار</p>
   </header>
 
@@ -203,7 +219,7 @@
 
     const sections = [
       {
-        title: '📊 دراسة السوق',
+        title: '▤ دراسة السوق',
         items: [
           { id: 'market_study', label: 'تم إعداد دراسة السوق والطلب', weight: 8 },
           { id: 'target_segment', label: 'تحديد الشريحة المستهدفة بدقة', weight: 6 },
@@ -211,7 +227,7 @@
         ]
       },
       {
-        title: '💰 التمويل',
+        title: '$ التمويل',
         items: [
           { id: 'capital_available', label: 'رأس المال المطلوب متوفر أو محدد', weight: 10 },
           { id: 'funding_secured', label: 'التمويل مضمون (ذاتي/قرض/شركاء)', weight: 9 },
@@ -235,7 +251,7 @@
         ]
       },
       {
-        title: '🏭 العمليات والموقع',
+        title: '▩ العمليات والموقع',
         items: [
           { id: 'location_secured', label: 'الموقع secured أو محدد', weight: 8 },
           { id: 'suppliers_contracts', label: 'عقود الموردين/الخدمات جاهزة', weight: 6 },
@@ -355,5 +371,6 @@
     document.getElementById('saveBtn').addEventListener('click', saveCurrent);
   </script>
   <div id="site-footer"></div>
+  <script src="shared-v3-ui.js" defer></script>
 </body>
 </html>

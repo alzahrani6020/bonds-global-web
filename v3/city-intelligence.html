@@ -359,6 +359,22 @@
   </style>
 <script src="../site-layout.js?v=2.59.0"></script>
   <link rel="canonical" href="https://bonds-global.com/v3/city-intelligence" />
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "ذكاء المدن | Bonds V3",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  },
+  "url": "https://bonds-global.com/v3/city-intelligence",
+  "description": "تحليل المدن والأحياء والمؤشرات الاقتصادية والسكانية لاتخاذ قرارات استثمارية أفضل."
+}
+  </script>
   <meta property="og:title" content="ذكاء المدن | Bonds V3" />
   <meta property="og:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
@@ -377,10 +393,10 @@
 
   <div id="site-header"></div>
   <header>
-    <h1>🌆 ذكاء المدن</h1>
+    <h1>◎ ذكاء المدن</h1>
     <p>مؤشرات اقتصادية وعقارية وسوقية لـ أكثر من 1200 مدينة في 22 دولة عربية — مدعومة بـ Bonds V3 Data Engine</p>
     <div id="alertBell" class="alert-bell" title="الإنذارات">
-      🔔
+      ⚑
       <span id="alertCount" class="alert-count hidden">0</span>
     </div>
     <div id="alertDropdown" class="alert-dropdown hidden">
@@ -409,11 +425,11 @@
         <option value="2025">2025</option>
         <option value="2024">2024</option>
       </select>
-      <a href="/v3/investment-map" class="map-link">🗺️ الخريطة الاستثمارية</a>
+      <a href="/v3/investment-map" class="map-link">▣ الخريطة الاستثمارية</a>
       <a href="/v3/city-comparison" class="map-link">⚖️ مقارنة المدن</a>
-      <a href="/v3/project-readiness" class="map-link">✅ جاهزية المشروع</a>
+      <a href="/v3/project-readiness" class="map-link">✓ جاهزية المشروع</a>
       <a href="/v3/opportunity-bank" class="map-link">🏦 بنك الفرص</a>
-      <button id="autoUpdateBtn" class="auto-update-btn hidden">⚡ تحديث تلقائي</button>
+      <button id="autoUpdateBtn" class="auto-update-btn hidden">✦ تحديث تلقائي</button>
     </div>
 
     <div id="content">
@@ -758,7 +774,7 @@
           <div class="card attractiveness-card">
             <div class="attractiveness-header">
               <div>
-                <h3 style="margin-bottom: 0.25rem;">🎯 مؤشر جاذبية الاستثمار — ${city.name_ar}</h3>
+                <h3 style="margin-bottom: 0.25rem;">◎ مؤشر جاذبية الاستثمار — ${city.name_ar}</h3>
                 <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">
                   درجة موحدة تعكس جاهزية المدينة للاستثمار بناءً على 5 محاور رئيسية.
                 </p>
@@ -778,7 +794,7 @@
           </div>
 
           <div class="card">
-            <h3>📍 معلومات المدينة</h3>
+            <h3>⌖ معلومات المدينة</h3>
             <div class="metric"><span class="metric-label">المدينة</span><span class="metric-value">${city.name_ar}</span></div>
             <div class="metric"><span class="metric-label">السكان</span><span class="metric-value">${valueOrMissing(city.population, 'نسمة')}</span></div>
             <div class="metric"><span class="metric-label">الدولة</span><span class="metric-value">${countryNames[city.country_code] || city.country_code || '-'}</span></div>
@@ -788,7 +804,7 @@
 
           <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <h3 style="margin: 0;">📊 المؤشرات الاقتصادية ${dataYear && dataYear !== 'latest' ? '(' + dataYear + ')' : ''} ${confidenceBadge(indicators.overall_confidence)}</h3>
+              <h3 style="margin: 0;">▤ المؤشرات الاقتصادية ${dataYear && dataYear !== 'latest' ? '(' + dataYear + ')' : ''} ${confidenceBadge(indicators.overall_confidence)}</h3>
               <button class="feedback-btn" onclick="openFeedbackForm('', '', 'population', ${city.population || 'null'})">✏️ صحّح البيانات</button>
             </div>
             <div class="metric"><span class="metric-label">الناتج المحلي للمدينة</span><span class="metric-value">${valueOrMissing(indicators.gdp_city, 'ر.س')}</span></div>
@@ -799,7 +815,7 @@
           </div>
 
           <div class="card">
-            <h3>🏢 المؤشرات العقارية</h3>
+            <h3>▥ المؤشرات العقارية</h3>
             <div class="metric"><span class="metric-label">متوسط الإيجار / م²</span><span class="metric-value">${valueOrMissing(indicators.avg_rent_per_sqm, 'ر.س')}</span></div>
             <div class="metric"><span class="metric-label">متوسط سعر الأرض / م²</span><span class="metric-value">${valueOrMissing(indicators.avg_land_price_per_sqm, 'ر.س')}</span></div>
             <div class="metric"><span class="metric-label">إيجار المستودعات / م²</span><span class="metric-value">${valueOrMissing(indicators.warehouse_rent_per_sqm, 'ر.س')}</span></div>
@@ -808,7 +824,7 @@
 
           <!-- Sector Recommendations -->
           <div class="card">
-            <h3>💡 توصيات قطاعية في ${city.name_ar}</h3>
+            <h3>✦ توصيات قطاعية في ${city.name_ar}</h3>
             <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: -0.5rem;">
               أفضل القطاعات الاستثمارية بناءً على البيانات المتاحة.
             </p>
@@ -828,7 +844,7 @@
           ${marketItem.activity_id ? `
           <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <h3 style="margin: 0;">🎯 بيانات السوق — ${marketItem.economic_activities?.name_ar || ''} ${confidenceBadge(marketItem.confidence)}</h3>
+              <h3 style="margin: 0;">◎ بيانات السوق — ${marketItem.economic_activities?.name_ar || ''} ${confidenceBadge(marketItem.confidence)}</h3>
               <button class="feedback-btn" onclick="openFeedbackForm('${marketItem.economic_activities?.code || ''}', '${marketItem.economic_activities?.name_ar || ''}', 'market_size', ${marketItem.market_size || 'null'})">✏️ صحّح البيانات</button>
             </div>
             <div class="metric"><span class="metric-label">حجم السوق</span><span class="metric-value">${valueOrMissing(marketItem.market_size, 'ر.س')}</span></div>
@@ -898,7 +914,7 @@
         modelNameEl.textContent = model.name_ar;
         presetsEl.innerHTML = '';
         const presets = [
-          { key: 'recession', label: '📉 ركود' },
+          { key: 'recession', label: '▽ ركود' },
           { key: 'high_inflation', label: '🔥 تضخم' },
           { key: 'labor_shortage', label: '👷 نقص عمالة' },
           { key: 'sales_drop', label: '📦 انخفاض مبيعات' }
@@ -982,9 +998,9 @@
     }
 
     function severityIcon(severity) {
-      if (severity === 'critical') return '🚨';
-      if (severity === 'warning') return '⚠️';
-      return 'ℹ️';
+      if (severity === 'critical') return '!!';
+      if (severity === 'warning') return '!';
+      return 'i';
     }
 
     function formatDate(iso) {
@@ -1033,16 +1049,16 @@
           body: JSON.stringify(payload)
         });
 
-        btn.textContent = '✅ تم التحديث';
+        btn.textContent = '✓ تم التحديث';
         setTimeout(() => {
           btn.disabled = false;
-          btn.textContent = '⚡ تحديث تلقائي';
+          btn.textContent = '✦ تحديث تلقائي';
         }, 2000);
 
         await loadCityData();
       } catch (err) {
         btn.disabled = false;
-        btn.textContent = '⚡ تحديث تلقائي';
+        btn.textContent = '✦ تحديث تلقائي';
         alert('فشل التحديث: ' + err.message);
       }
     }
@@ -1151,5 +1167,6 @@
   <div id="site-footer"></div>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+  <script src="shared-v3-ui.js" defer></script>
 </body>
 </html>

@@ -150,6 +150,22 @@
   </style>
 <script src="../site-layout.js?v=2.59.0"></script>
   <link rel="canonical" href="https://bonds-global.com/v3/opportunity-bank" />
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "بنك الفرص | Bonds V3",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  },
+  "url": "https://bonds-global.com/v3/opportunity-bank",
+  "description": "قاعدة فرص استثمارية مرتبة حسب القطاع والجدوى والمدينة."
+}
+  </script>
   <meta property="og:title" content="بنك الفرص الاستثمارية | Bonds V3" />
   <meta property="og:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
@@ -319,7 +335,7 @@
         if (activityName) filters.push(activityName);
         content.innerHTML = `
           <div style="text-align:center; padding: 3rem 1rem; color: var(--text-secondary);">
-            <div style="font-size: 2rem; margin-bottom: 1rem;">🔍</div>
+            <div style="font-size: 2rem; margin-bottom: 1rem;" aria-hidden="true">⌕</div>
             <h3 style="color: var(--text); margin: 0 0 0.5rem;">لا توجد فرص مطابقة</h3>
             <p>لا توجد بيانات سوق كافية للمعايير المحددة${filters.length ? ' (' + filters.join(' + ') + ')' : ''}.</p>
             <p>جرّب تخفيف الحد الأدنى لمؤشر الفرصة، أو اختر دولة/نشاط آخر، أو تحقق من "ذكاء المدن".</p>
@@ -374,5 +390,6 @@
   <div id="site-footer"></div>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+  <script src="shared-v3-ui.js" defer></script>
 </body>
 </html>

@@ -4,78 +4,135 @@
   <base href="/v3/" />
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bonds V3 Enterprise</title>
-  <link rel="stylesheet" href="../styles/tokens.css">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      text-align: center;
-    }
-    main {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: calc(100vh - 200px);
-      padding: 2rem 1rem;
-    }
-    .box {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 3rem;
-      max-width: 500px;
-    }
-    h1 { color: var(--gold-bright); margin-bottom: 0.5rem; }
-    p { color: var(--text-secondary); margin-bottom: 2rem; }
-    .box .links a {
-      display: inline-block;
-      background: var(--gold);
-      color: var(--bg);
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-      margin: 0.25rem;
-    }
-    .box .links a:hover { background: var(--gold-bright); }
-    .links { margin-top: 1.5rem; }
-  </style>
-<script src="../site-layout.js?v=2.59.0"></script>
-  <link rel="canonical" href="https://bonds-global.com/v3/" />
-  <meta property="og:title" content="Bonds V3 Enterprise" />
-  <meta property="og:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
+  <title>الذكاء الاقتصادي | Bonds V3</title>
+  <meta name="description" content="منصة الذكاء الاقتصادي من بوندز: تحليل المدن، الخريطة الاستثمارية، فرص الاستثمار، ومحرك السيناريوهات." />
+  <meta property="og:title" content="الذكاء الاقتصادي | Bonds V3" />
+  <meta property="og:description" content="منصة الذكاء الاقتصادي من بوندز: تحليل المدن، الخريطة الاستثمارية، فرص الاستثمار، ومحرك السيناريوهات." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
   <meta property="og:url" content="https://bonds-global.com/v3/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Bonds V3 Enterprise" />
-  <meta name="twitter:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
+  <meta name="twitter:title" content="الذكاء الاقتصادي | Bonds V3" />
+  <meta name="twitter:description" content="منصة الذكاء الاقتصادي من بوندز: تحليل المدن، الخريطة الاستثمارية، فرص الاستثمار، ومحرك السيناريوهات." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-
-  <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
-
+  <link rel="canonical" href="https://bonds-global.com/v3/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/tokens.css">
+  <link rel="stylesheet" href="shared-v3.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Bonds V3 — الذكاء الاقتصادي",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "SAR" },
+    "url": "https://bonds-global.com/v3/",
+    "description": "منصة الذكاء الاقتصادي من بوندز: تحليل المدن، الخريطة الاستثمارية، فرص الاستثمار، ومحرك السيناريوهات."
+  }
+  </script>
+  <style>
+    .v3-hero { text-align: center; padding: 3rem 1rem 2rem; }
+    .v3-hero__title { font-size: 2.2rem; margin: 0 0 0.75rem; color: var(--gold-bright); }
+    .v3-hero__desc { font-size: 1.1rem; color: var(--text-secondary); max-width: 640px; margin: 0 auto 2rem; }
+    .v3-modules { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-top: 1rem; }
+    .v3-module {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text);
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .v3-module:hover {
+      transform: translateY(-4px);
+      border-color: var(--gold);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+    }
+    .v3-module__icon {
+      width: 56px; height: 56px; margin: 0 auto 1rem;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(212,168,83,0.15), rgba(212,168,83,0.05));
+      color: var(--gold-bright);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; font-weight: 800;
+    }
+    .v3-module__title { margin: 0 0 0.5rem; color: var(--gold-bright); font-size: 1.15rem; }
+    .v3-module__desc { margin: 0; color: var(--text-secondary); font-size: 0.9rem; }
+    .v3-actions { text-align: center; margin-top: 2.5rem; }
+    @media (max-width: 576px) {
+      .v3-hero__title { font-size: 1.6rem; }
+      .v3-hero__desc { font-size: 1rem; }
+    }
+  </style>
+  <script src="../site-layout.js?v=2.59.0"></script>
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
 </head>
-<body>
+<body class="v3-page">
 
   <div id="site-header"></div>
+
   <main>
-  <div class="box">
-    <h1>⚡ Bonds V3 Enterprise</h1>
-    <p>منصة الذكاء الاقتصادي لدراسة جدوى المشاريع الاستثمارية</p>
-    <div class="links">
-      <a href="/v3/admin">لوحة التحكم</a>
-      <a href="/v3/city-intelligence">ذكاء المدن</a>
-      <a href="/v3/investment-map">الخريطة الاستثمارية</a>
-      <a href="/v3/scenarios">محرك السيناريوهات</a>
-      <a href="/v3/alerts.html">الإنذارات</a>
-      <a href="/api/v3/health">فحص API</a>
+    <section class="v3-hero reveal">
+      <h1 class="v3-hero__title"><span class="v3-icon" aria-hidden="true">◈</span> الذكاء الاقتصادي</h1>
+      <p class="v3-hero__desc">منصة متكاملة لتحليل الفرص الاستثمارية، وتقييم المدن، وبناء السيناريوهات المالية بدقة وثقة.</p>
+    </section>
+
+    <section class="v3-modules reveal" aria-label="وحدات الذكاء الاقتصادي">
+      <a href="/v3/admin" class="v3-module">
+        <div class="v3-module__icon" aria-hidden="true">▤</div>
+        <h2 class="v3-module__title">لوحة التحكم</h2>
+        <p class="v3-module__desc">مؤشرات تنفيذية ونظرة شاملة على المشاريع والفرص.</p>
+      </a>
+      <a href="/v3/city-intelligence" class="v3-module">
+        <div class="v3-module__icon" aria-hidden="true">◎</div>
+        <h2 class="v3-module__title">ذكاء المدن</h2>
+        <p class="v3-module__desc">تحليل المدن والأحياء والمؤشرات الاقتصادية والسكانية.</p>
+      </a>
+      <a href="/v3/investment-map" class="v3-module">
+        <div class="v3-module__icon" aria-hidden="true">▣</div>
+        <h2 class="v3-module__title">الخريطة الاستثمارية</h2>
+        <p class="v3-module__desc">استكشاف الفرص الاستثمارية على الخريطة التفاعلية.</p>
+      </a>
+      <a href="/v3/opportunity-bank" class="v3-module">
+        <div class="v3-module__icon" aria-hidden="true">✦</div>
+        <h2 class="v3-module__title">بنك الفرص</h2>
+        <p class="v3-module__desc">قاعدة فرص استثمارية مرتبة حسب القطاع والجدوى.</p>
+      </a>
+      <a href="/v3/scenarios" class="v3-module">
+        <div class="v3-module__icon" aria-hidden="true">✧</div>
+        <h2 class="v3-module__title">محرك السيناريوهات</h2>
+        <p class="v3-module__desc">بناء وتقييم سيناريوهات متعددة للمشاريع الاستثمارية.</p>
+      </a>
+      <a href="/v3/alerts.html" class="v3-module">
+        <div class="v3-module__icon" aria-hidden="true">⚑</div>
+        <h2 class="v3-module__title">الإنذارات</h2>
+        <p class="v3-module__desc">تنبيهات ذكية للتغيرات السوقية والفرص الجديدة.</p>
+      </a>
+      <a href="/v3/project-readiness" class="v3-module">
+        <div class="v3-module__icon" aria-hidden="true">✓</div>
+        <h2 class="v3-module__title">جاهزية المشروع</h2>
+        <p class="v3-module__desc">تقييم جاهزية المشروع للاستثمار والتمويل.</p>
+      </a>
+      <a href="/v3/city-comparison" class="v3-module">
+        <div class="v3-module__icon" aria-hidden="true">⇄</div>
+        <h2 class="v3-module__title">مقارنة المدن</h2>
+        <p class="v3-module__desc">مقارنة جانبية بين المدن لاختيار الأفضل لمشروعك.</p>
+      </a>
+    </section>
+
+    <div class="v3-actions reveal">
+      <a href="/api/v3/health" class="v3-btn v3-btn--outline">فحص حالة API</a>
     </div>
-  </div>
   </main>
+
   <div id="site-footer"></div>
+
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);" aria-label="العودة للأعلى">↑</button>
+  <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
 </body>
 </html>

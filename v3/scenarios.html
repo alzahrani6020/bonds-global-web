@@ -130,6 +130,22 @@
   </style>
 <script src="../site-layout.js?v=2.59.0"></script>
   <link rel="canonical" href="https://bonds-global.com/v3/scenarios" />
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "محرك السيناريوهات | Bonds V3",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  },
+  "url": "https://bonds-global.com/v3/scenarios",
+  "description": "بناء وتقييم سيناريوهات متعددة للمشاريع الاستثمارية."
+}
+  </script>
   <meta property="og:title" content="محرك السيناريوهات المتقدمة | Bonds V3" />
   <meta property="og:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
@@ -159,7 +175,7 @@
 
     <div class="grid-2">
       <div class="card">
-        <h3>⚙️ اختيار النموذج والمدينة</h3>
+        <h3>⚙ اختيار النموذج والمدينة</h3>
         <div class="control-group">
           <label for="modelSelect">النموذج الاستثماري</label>
           <select data-universal-dropdown="true" id="modelSelect"><option value="">اختر نموذجاً</option></select>
@@ -183,16 +199,16 @@
       </div>
 
       <div class="card">
-        <h3>🎯 سيناريوهات جاهزة</h3>
+        <h3>◎ سيناريوهات جاهزة</h3>
         <div class="preset-group">
-          <button class="btn btn-secondary" data-preset="recession">📉 ركود</button>
+          <button class="btn btn-secondary" data-preset="recession">▽ ركود</button>
           <button class="btn btn-secondary" data-preset="high_inflation">🔥 تضخم مرتفع</button>
           <button class="btn btn-secondary" data-preset="labor_shortage">👷 نقص عمالة</button>
-          <button class="btn btn-secondary" data-preset="rent_boom">🏢 ارتفاع إيجارات</button>
+          <button class="btn btn-secondary" data-preset="rent_boom">▥ ارتفاع إيجارات</button>
           <button class="btn btn-secondary" data-preset="sales_drop">📦 انخفاض مبيعات</button>
         </div>
 
-        <h3>⚡ سيناريو مخصص</h3>
+        <h3>✦ سيناريو مخصص</h3>
         <div class="control-group">
           <label for="scenarioName">اسم السيناريو</label>
           <input type="text" id="scenarioName" placeholder="مثال: ارتفاع الفائدة 2%">
@@ -204,7 +220,7 @@
     </div>
 
     <div class="card" id="scenariosCard">
-      <h3>📋 السيناريوهات المختارة</h3>
+      <h3>▦ السيناريوهات المختارة</h3>
       <div id="scenariosList"></div>
       <button class="btn" id="runBtn" style="margin-top: 1rem;">تشغيل التحليل</button>
       <button class="btn btn-secondary" id="clearBtn">مسح الكل</button>
@@ -212,7 +228,7 @@
 
     <div id="resultsArea" class="hidden">
       <div class="card">
-        <h3>📊 مقارنة المؤشرات المالية</h3>
+        <h3>▤ مقارنة المؤشرات المالية</h3>
         <div style="overflow-x: auto;">
           <table class="metrics-table" id="metricsTable">
             <thead></thead>
@@ -495,5 +511,6 @@
   <div id="site-footer"></div>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+  <script src="shared-v3-ui.js" defer></script>
 </body>
 </html>

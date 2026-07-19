@@ -97,7 +97,7 @@
 
   <div id="site-header"></div>
   <header>
-    <h1>⚡ Bonds V3 CMS</h1>
+    <h1>✦ Bonds V3 CMS</h1>
   </header>
 
   <div class="container">
@@ -178,7 +178,7 @@
           <form id="fetchCityForm" class="form-grid" onsubmit="fetchCityIndicators(event)">
             <div><label>المدينة</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="city_code" id="fetchCitySelect" required></select></div>
             <div><label>السنة</label><input name="year" type="number" value="2025"></div>
-            <div style="grid-column: 1 / -1;"><button type="submit">🌆 جلب مؤشرات المدينة</button></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">◎ جلب مؤشرات المدينة</button></div>
           </form>
           <div id="fetchCityResult"></div>
         </div>
@@ -194,12 +194,12 @@
 
       <div id="marketPanel" class="panel">
         <div class="card">
-          <h3>⚡ تحليل السوق تلقائياً</h3>
+          <h3>✦ تحليل السوق تلقائياً</h3>
           <form id="autoFillMarketForm" class="form-grid" onsubmit="runAutoFillMarket(event)">
             <div><label>المدينة</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="city_code" id="autoFillMarketCitySelect" required></select></div>
             <div><label>النشاط</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="activity_code" id="autoFillMarketActivitySelect" required></select></div>
             <div><label>السنة</label><input name="year" type="number" value="2025"></div>
-            <div style="grid-column: 1 / -1;"><button type="submit">⚡ تحليل السوق تلقائياً</button></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">✦ تحليل السوق تلقائياً</button></div>
           </form>
           <div id="autoFillMarketResult"></div>
         </div>
@@ -232,13 +232,13 @@
 
       <div id="dataSourcesPanel" class="panel">
         <div class="card">
-          <h3>⚡ تحديث تلقائي</h3>
+          <h3>✦ تحديث تلقائي</h3>
           <p>اختر المدينة والنشاط لجلب البيانات تلقائياً من جميع المحركات.</p>
           <form id="autoFillForm" class="form-grid" onsubmit="runAutoFill(event)">
             <div><label>المدينة</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="city_code" id="autoFillCitySelect" required></select></div>
             <div><label>النشاط</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="activity_code" id="autoFillActivitySelect" required></select></div>
             <div><label>السنة</label><input name="year" type="number" value="2025"></div>
-            <div style="grid-column: 1 / -1;"><button type="submit">⚡ تحديث تلقائي للكل</button></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">✦ تحديث تلقائي للكل</button></div>
           </form>
           <div id="autoFillResult"></div>
         </div>
@@ -258,7 +258,7 @@
           </table>
         </div>
         <div class="card">
-          <h3>📊 ملاحظات التحسين (Feedback Loop)</h3>
+          <h3>▤ ملاحظات التحسين (Feedback Loop)</h3>
           <form id="feedbackForm" class="form-grid" onsubmit="submitFeedback(event)">
             <div><label>المؤشر</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="metric_code" id="feedbackMetricSelect"></select></div>
             <div><label>المدينة</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="city_code" id="feedbackCitySelect"></select></div>
@@ -283,7 +283,7 @@
 
       <div id="competitorCalibrationPanel" class="panel">
         <div class="card">
-          <h3>⚡ معايرة عدد المنافسين</h3>
+          <h3>✦ معايرة عدد المنافسين</h3>
           <form id="calibrationForm" class="form-grid" onsubmit="runCalibration(event)">
             <div><label>النشاط</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="activity_code" id="calibrationActivitySelect" required></select></div>
             <div><label>السنة</label><input name="year" type="number" value="2025"></div>
@@ -303,7 +303,7 @@
 
       <div id="qualityAlertsPanel" class="panel">
         <div class="card">
-          <h3>🚨 تنبيهات جودة مصادر البيانات</h3>
+          <h3>!! تنبيهات جودة مصادر البيانات</h3>
           <button onclick="loadQualityAlerts()" style="margin-bottom: 1rem;">تحديث</button>
           <div id="qualityAlertsMessage"></div>
           <div id="qualityAlertsList"></div>
@@ -312,7 +312,7 @@
 
       <div id="alertsPanel" class="panel">
         <div class="card">
-          <h3>🔔 قواعد الإنذارات</h3>
+          <h3>⚑ قواعد الإنذارات</h3>
           <form id="alertRuleForm" class="form-grid" onsubmit="createAlertRule(event)">
             <div><label>اسم القاعدة</label><input name="name" required></div>
             <div><label>المؤشر</label>
@@ -362,7 +362,7 @@
         </div>
 
         <div class="card">
-          <h3>🚀 تشغيل التقييم</h3>
+          <h3>▶ تشغيل التقييم</h3>
           <button onclick="runAlertsEvaluation()">تقييم القواعد الآن</button>
           <button class="secondary" onclick="loadAlertsHistory()">تحديث التاريخ</button>
           <div id="alertEvaluationResult" style="margin-top: 1rem;"></div>
@@ -407,7 +407,7 @@
                 <option value="KM">🇰🇲 جزر القمر</option>
               </select>
             </div>
-            <div style="grid-column: 1 / -1;"><button type="submit">🚀 تدريب النماذج</button></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">▶ تدريب النماذج</button></div>
           </form>
           <div id="mlTrainResult"></div>
         </div>
@@ -923,10 +923,10 @@
             year: parseInt(body.year)
           })
         });
-        resultDiv.innerHTML = '<p class="message success">✅ تم التحديث التلقائي بنجاح</p>';
+        resultDiv.innerHTML = '<p class="message success">✓ تم التحديث التلقائي بنجاح</p>';
         loadDataSources();
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error">❌ ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
       }
     }
 
@@ -947,9 +947,9 @@
             year: parseInt(body.year)
           })
         });
-        resultDiv.innerHTML = '<p class="message success">✅ تم تحليل السوق بنجاح</p>';
+        resultDiv.innerHTML = '<p class="message success">✓ تم تحليل السوق بنجاح</p>';
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error">❌ ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
       }
     }
 
@@ -969,10 +969,10 @@
             year: parseInt(body.year)
           })
         });
-        resultDiv.innerHTML = '<p class="message success">✅ تم جلب مؤشرات المدينة بنجاح</p>';
+        resultDiv.innerHTML = '<p class="message success">✓ تم جلب مؤشرات المدينة بنجاح</p>';
         loadCities();
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error">❌ ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
       }
     }
 
@@ -998,11 +998,11 @@
             notes: body.notes
           })
         });
-        resultDiv.innerHTML = '<p class="message success">✅ تم إرسال الملاحظة بنجاح</p>';
+        resultDiv.innerHTML = '<p class="message success">✓ تم إرسال الملاحظة بنجاح</p>';
         form.reset();
         loadFeedbackAccuracy();
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error">❌ ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
       }
     }
 
@@ -1037,10 +1037,10 @@
           headers: getHeaders(),
           body: JSON.stringify({ country_code: body.country_code || null })
         });
-        resultDiv.innerHTML = '<p class="message success">✅ تم تدريب ' + (data.trained?.length || 0) + ' نموذجاً</p>';
+        resultDiv.innerHTML = '<p class="message success">✓ تم تدريب ' + (data.trained?.length || 0) + ' نموذجاً</p>';
         loadMLModels();
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error">❌ ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
       }
     }
 
@@ -1126,10 +1126,10 @@
           headers: getHeaders(),
           body: JSON.stringify({ activity_code: body.activity_code, year: parseInt(body.year, 10) })
         });
-        resultDiv.innerHTML = `<p class="message success">✅ تمت المعايرة: ${data.result.upserted.length} مدن</p>`;
+        resultDiv.innerHTML = `<p class="message success">✓ تمت المعايرة: ${data.result.upserted.length} مدن</p>`;
         loadCalibration();
       } catch (err) {
-        resultDiv.innerHTML = `<p class="message error">❌ ${err.message}</p>`;
+        resultDiv.innerHTML = `<p class="message error">✕ ${err.message}</p>`;
       }
     }
 
@@ -1147,7 +1147,7 @@
         }
         container.innerHTML = alerts.map(a => `
           <div class="card" style="border-right: 4px solid ${a.severity === 'critical' ? 'var(--danger)' : 'var(--gold)'};">
-            <strong>${a.severity === 'critical' ? '🚨' : '⚠️'} ${a.sourceId} — ${a.metricCode}</strong>
+            <strong>${a.severity === 'critical' ? '!!' : '!'} ${a.sourceId} — ${a.metricCode}</strong>
             <p>${a.message}</p>
             <p>النجاح: ${a.successes}/${a.attempts} (${a.successRate}%)</p>
             ${a.failures.length ? '<details><summary>تفاصيل الفشل</summary><ul>' + a.failures.map(f => `<li>${f.cityName || f.cityCode} (${f.activityName || f.activityCode}): ${f.failureReason || 'فشل'}</li>`).join('') + '</ul></details>' : ''}
@@ -1247,10 +1247,10 @@
           method: 'POST',
           headers: getHeaders()
         });
-        resultDiv.innerHTML = `<p class="message success">✅ تم تقييم القواعد: ${data.evaluated} إنذار جديد</p>`;
+        resultDiv.innerHTML = `<p class="message success">✓ تم تقييم القواعد: ${data.evaluated} إنذار جديد</p>`;
         loadAlertsHistory();
       } catch (err) {
-        resultDiv.innerHTML = `<p class="message error">❌ ${err.message}</p>`;
+        resultDiv.innerHTML = `<p class="message error">✕ ${err.message}</p>`;
       }
     }
 
@@ -1266,9 +1266,9 @@
         }
         container.innerHTML = alerts.map(a => `
           <div class="card" style="border-right: 4px solid ${a.severity === 'critical' ? 'var(--danger)' : a.severity === 'warning' ? 'var(--gold)' : 'var(--success)'};">
-            <strong>${a.severity === 'critical' ? '🚨' : a.severity === 'warning' ? '⚠️' : 'ℹ️'} ${metricLabel(a.metric_code)}</strong>
+            <strong>${a.severity === 'critical' ? '!!' : a.severity === 'warning' ? '!' : 'i'} ${metricLabel(a.metric_code)}</strong>
             <p>${a.message}</p>
-            ${a.insight ? `<p style="font-size: 0.85rem; color: var(--gold-bright); margin: 0.5rem 0;">💡 ${a.insight}</p>` : ''}
+            ${a.insight ? `<p style="font-size: 0.85rem; color: var(--gold-bright); margin: 0.5rem 0;">✦ ${a.insight}</p>` : ''}
             <p style="font-size: 0.8rem; color: var(--text-secondary);">تم الاكتشاف: ${new Date(a.created_at).toLocaleString('ar-SA')} — ${a.city?.name_ar || ''} ${a.activity?.name_ar ? ' / ' + a.activity.name_ar : ''}</p>
             ${!a.is_read ? `<button class="secondary" onclick="markAlertRead('${a.id}')">تعليم كمقروء</button>` : ''}
           </div>
