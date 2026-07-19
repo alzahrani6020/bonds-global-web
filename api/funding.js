@@ -153,7 +153,7 @@ async function deleteSource(req, res) {
 
 async function handleSources(req, res) {
   if (req.method === 'GET') {
-    if (checkRateLimit('public', req, res)) return;
+    if (await checkRateLimit('public', req, res)) return;
     return listSources(req, res);
   }
 
@@ -167,7 +167,7 @@ async function handleSources(req, res) {
   const admin = await isAdmin(user.id);
   if (!admin) return res.status(403).json({ error: 'Admin required' });
 
-  if (checkRateLimit('public', req, res)) return;
+  if (await checkRateLimit('public', req, res)) return;
 
   if (req.method === 'POST') return createSource(req, res);
   if (req.method === 'PUT') return updateSource(req, res);
@@ -178,7 +178,7 @@ async function handleSources(req, res) {
 // ── Funding Readiness ──────────────────────────────────────
 async function fundingReadinessAction(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  if (checkRateLimit('auth', req, res)) return;
+  if (await checkRateLimit('auth', req, res)) return;
 
   try {
     const body = req.body || {};
@@ -288,7 +288,7 @@ async function fundingReadinessAction(req, res) {
 // ── Bank Partner Request ───────────────────────────────────
 async function bankPartnerRequestAction(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  if (checkRateLimit('auth', req, res)) return;
+  if (await checkRateLimit('auth', req, res)) return;
 
   try {
     const body = req.body || {};
@@ -362,7 +362,7 @@ async function handler(req, res) {
 
   switch (action) {
     case 'bank-transfer':
-      if (checkRateLimit('public', req, res)) return;
+      if (await checkRateLimit('public', req, res)) return;
       return handleBankTransfer(req, res);
     case 'sources':
       return handleSources(req, res);

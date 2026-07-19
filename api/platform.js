@@ -1073,75 +1073,75 @@ module.exports = async function handler(req, res) {
     // Advisors
     if (pathname === '/api/advisors' || pathname === '/api/advisors/') {
       req.query = req.query || {}; req.query.action = req.query.action || 'list';
-      if (checkRateLimit('public', req, res)) return;
+      if (await checkRateLimit('public', req, res)) return;
       return advisorsHandler(req, res);
     }
     if (pathname === '/api/advisor-dashboard' || pathname === '/api/advisor-dashboard/') {
       req.query = req.query || {}; req.query.action = 'dashboard';
-      if (checkRateLimit('auth', req, res)) return;
+      if (await checkRateLimit('auth', req, res)) return;
       return advisorsHandler(req, res);
     }
     if (pathname === '/api/advisor-update-review' || pathname === '/api/advisor-update-review/') {
       req.query = req.query || {}; req.query.action = 'update-review';
-      if (checkRateLimit('auth', req, res)) return;
+      if (await checkRateLimit('auth', req, res)) return;
       return advisorsHandler(req, res);
     }
 
     // Pro
     if (pathname === '/api/pro' || pathname === '/api/pro/') {
-      if (checkRateLimit('compute', req, res)) return;
+      if (await checkRateLimit('compute', req, res)) return;
       return proHandler(req, res);
     }
 
     // Letterhead email
     if (pathname === '/api/send-letter' || pathname === '/api/send-letter/') {
       req.query = req.query || {}; req.query.action = 'send-letter';
-      if (checkRateLimit('public', req, res)) return;
+      if (await checkRateLimit('public', req, res)) return;
       return siteHandler(req, res);
     }
 
     // Site
     if (pathname === '/api/contact' || pathname === '/api/contact/') {
       req.query = req.query || {}; req.query.action = 'contact';
-      if (checkRateLimit('public', req, res)) return;
+      if (await checkRateLimit('public', req, res)) return;
       return siteHandler(req, res);
     }
     if (pathname === '/api/usage' || pathname === '/api/usage/' || pathname === '/api/track' || pathname === '/api/track/') {
       req.query = req.query || {}; req.query.action = 'usage';
-      if (checkRateLimit('public', req, res)) return;
+      if (await checkRateLimit('public', req, res)) return;
       return siteHandler(req, res);
     }
     if (pathname === '/api/site' || pathname === '/api/site/') {
-      if (checkRateLimit('public', req, res)) return;
+      if (await checkRateLimit('public', req, res)) return;
       return siteHandler(req, res);
     }
 
     // Log usage
     if (pathname === '/api/log-usage' || pathname === '/api/log-usage/') {
-      if (checkRateLimit('public', req, res)) return;
+      if (await checkRateLimit('public', req, res)) return;
       return logUsageHandler(req, res);
     }
 
     // NPS
     if (pathname === '/api/nps-check' || pathname === '/api/nps-check/') {
       req.query = req.query || {}; req.query.action = 'check';
-      if (checkRateLimit('public', req, res)) return;
+      if (await checkRateLimit('public', req, res)) return;
       return npsHandler(req, res);
     }
     if (pathname === '/api/nps-submit' || pathname === '/api/nps-submit/') {
       req.query = req.query || {}; req.query.action = 'submit';
-      if (checkRateLimit('public', req, res)) return;
+      if (await checkRateLimit('public', req, res)) return;
       return npsHandler(req, res);
     }
     if (pathname === '/api/send-nps' || pathname === '/api/send-nps/') {
       req.query = req.query || {}; req.query.action = 'send';
-      if (checkRateLimit('auth', req, res)) return;
+      if (await checkRateLimit('auth', req, res)) return;
       return npsHandler(req, res);
     }
     if (pathname === '/api/nps' || pathname === '/api/nps/') {
       const action = req.query?.action || req.body?.action;
       const category = action === 'send' ? 'auth' : 'public';
-      if (checkRateLimit(category, req, res)) return;
+      if (await checkRateLimit(category, req, res)) return;
       return npsHandler(req, res);
     }
 

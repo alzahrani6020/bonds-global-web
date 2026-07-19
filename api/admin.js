@@ -1149,7 +1149,7 @@ async function handler(req, res) {
     // Telemetry/read-heavy actions get a higher rate limit so dashboards can auto-refresh.
     const LIVE_ACTIONS = new Set(['online-users', 'page-views', 'user-journey', 'user-activity']);
     const rateCategory = LIVE_ACTIONS.has(action) ? 'live' : 'strict';
-    if (checkRateLimit(rateCategory, req, res)) return;
+    if (await checkRateLimit(rateCategory, req, res)) return;
 
     if (req.method === 'GET') {
       if (action === 'bank-transfers') {

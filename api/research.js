@@ -471,19 +471,19 @@ module.exports = async function handler(req, res) {
 
   try {
     if (pathname === '/api/image-search' || pathname === '/api/image-search/') {
-      if (checkRateLimit('compute', req, res)) return;
+      if (await checkRateLimit('compute', req, res)) return;
       return imageSearchHandler(req, res);
     }
     if (pathname === '/api/market-research' || pathname === '/api/market-research/') {
-      if (checkRateLimit('ai', req, res)) return;
+      if (await checkRateLimit('ai', req, res)) return;
       return marketResearchHandler(req, res);
     }
     if (pathname === '/api/promo-simulator' || pathname === '/api/promo-simulator/') {
-      if (checkRateLimit('auth', req, res)) return;
+      if (await checkRateLimit('auth', req, res)) return;
       return promoSimulatorHandler(req, res);
     }
     if (pathname === '/api/omnichannel-calculator' || pathname === '/api/omnichannel-calculator/') {
-      if (checkRateLimit('auth', req, res)) return;
+      if (await checkRateLimit('auth', req, res)) return;
       return omnichannelCalculatorHandler(req, res);
     }
 

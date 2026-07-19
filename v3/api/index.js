@@ -800,7 +800,7 @@ module.exports = async function handler(req, res) {
   }
 
   const category = getCategory(path);
-  if (checkRateLimit(category, req, res)) {
+  if (await checkRateLimit(category, req, res)) {
     return;
   }
 

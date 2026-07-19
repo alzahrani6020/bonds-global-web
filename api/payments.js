@@ -355,7 +355,7 @@ async function billingHandleLegacyWebhook(req, res) {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        // Unhandled event type — intentionally silent
     }
 
     await supabase.from('webhook_events').update({ processed: true }).eq('stripe_event_id', event.id);
@@ -680,21 +680,21 @@ async function handler(req, res) {
     if (pathname === '/api/checkout' || pathname === '/api/checkout/') {
       const body = await parseJsonBody(req);
       req.body = body;
-      if (checkRateLimit('auth', req, res)) return;
+      if (await checkRateLimit('auth', req, res)) return;
       return checkoutHandler(req, res);
     }
     if (pathname === '/api/create-checkout' || pathname === '/api/create-checkout/') {
       const body = await parseJsonBody(req);
       req.body = body;
       req.query = req.query || {}; req.query.action = 'create';
-      if (checkRateLimit('auth', req, res)) return;
+      if (await checkRateLimit('auth', req, res)) return;
       return checkoutHandler(req, res);
     }
     if (pathname === '/api/create-oneoff-checkout' || pathname === '/api/create-oneoff-checkout/') {
       const body = await parseJsonBody(req);
       req.body = body;
       req.query = req.query || {}; req.query.action = 'oneoff';
-      if (checkRateLimit('auth', req, res)) return;
+      if (await checkRateLimit('auth', req, res)) return;
       return checkoutHandler(req, res);
     }
 
@@ -702,34 +702,34 @@ async function handler(req, res) {
     if (pathname === '/api/billing' || pathname === '/api/billing/') {
       const action = req.query?.action || req.body?.action;
       const category = (action === 'stripe-webhook' || action === 'v3-stripe-webhook') ? 'webhook' : 'auth';
-      if (checkRateLimit(category, req, res)) return;
+      if (await checkRateLimit(category, req, res)) return;
       return billingHandler(req, res);
     }
     if (pathname === '/api/webhook' || pathname === '/api/webhook/') {
       req.query = req.query || {}; req.query.action = 'stripe-webhook';
-      if (checkRateLimit('webhook', req, res)) return;
+      if (await checkRateLimit('webhook', req, res)) return;
       return billingHandler(req, res);
     }
     if (pathname === '/api/v3/billing/webhook' || pathname === '/api/v3/billing/webhook/') {
       req.query = req.query || {}; req.query.action = 'v3-stripe-webhook';
-      if (checkRateLimit('webhook', req, res)) return;
+      if (await checkRateLimit('webhook', req, res)) return;
       return billingHandler(req, res);
     }
 
     // Moyasar
     if (pathname === '/api/moyasar-checkout' || pathname === '/api/moyasar-checkout/') {
       req.query = req.query || {}; req.query.action = 'checkout';
-      if (checkRateLimit('auth', req, res)) return;
+      if (await checkRateLimit('auth', req, res)) return;
       return moyasarHandler(req, res);
     }
     if (pathname === '/api/moyasar-verify' || pathname === '/api/moyasar-verify/') {
       req.query = req.query || {}; req.query.action = 'verify';
-      if (checkRateLimit('auth', req, res)) return;
+      if (await checkRateLimit('auth', req, res)) return;
       return moyasarHandler(req, res);
     }
     if (pathname === '/api/moyasar-webhook' || pathname === '/api/moyasar-webhook/') {
       req.query = req.query || {}; req.query.action = 'webhook';
-      if (checkRateLimit('webhook', req, res)) return;
+      if (await checkRateLimit('webhook', req, res)) return;
       return moyasarHandler(req, res);
     }
 
