@@ -48,7 +48,7 @@
     <div class="loading" id="loading">جارِ التحقق من الجلسة...</div>
 
     <div class="step" id="step-verify">
-      <h1>🔐 أدخل رمز المصادقة</h1>
+      <h1><svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg> أدخل رمز المصادقة</h1>
       <p>تم تفعيل MFA مسبقًا. أدخل الرمز من تطبيق Microsoft Authenticator.</p>
       <div id="verifyAlert"></div>
       <label>رمز 6 أرقام</label>
@@ -58,7 +58,7 @@
     </div>
 
     <div class="step" id="step-enroll">
-      <h1>🔐 فعّل MFA</h1>
+      <h1><svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg> فعّل MFA</h1>
       <p>امسح QR code بتطبيق Microsoft Authenticator، ثم أدخل الرمز.</p>
       <div id="enrollAlert"></div>
       <div class="qr-wrap" id="qrWrap"></div>
@@ -71,7 +71,7 @@
     </div>
 
     <div class="step" id="step-done">
-      <div class="alert alert--success">✅ تم تفعيل MFA بنجاح.</div>
+      <div class="alert alert--success"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم تفعيل MFA بنجاح.</div>
       <p>الآن يمكنك تفعيل "إلزام MFA" من مركز الأمان.</p>
       <button class="btn" onclick="location.href='/admin/security.html'">الذهاب إلى مركز الأمان</button>
     </div>

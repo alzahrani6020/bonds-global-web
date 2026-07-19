@@ -30,15 +30,15 @@
 
   <!-- Toolbar -->
   <div class="template-toolbar no-print">
-    <div class="auto-save-indicator" id="auto-save-indicator">💾 تم الحفظ تلقائياً</div>
-    <button onclick="window.print()">🖨️ طباعة / PDF</button>
-    <button class="btn-ghost" onclick="clearAll()">🗑️ مسح الكل</button>
-    <button class="btn-ghost" onclick="saveDraft()">💾 حفظ مسودة</button>
-    <button class="btn-ghost" onclick="loadDraft()">📂 استرجاع مسودة</button>
-    <button class="btn-ghost" onclick="scrollToDashboard()">🎯 لوحة التحكم</button>
-    <button class="hidden" id="btn-import-supabase" onclick="fillFromSupabase()">📥 استيراد من بياناتي</button>
-    <button class="btn-sky-solid" onclick="openResearchModal()">🔍 بحث ذكي</button>
-    <button class="btn-ghost" onclick="exportToExcel()">📊 تصدير Excel</button>
+    <div class="auto-save-indicator" id="auto-save-indicator"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> تم الحفظ تلقائياً</div>
+    <button onclick="window.print()"><svg class="bonds-icon bonds-icon--printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg> طباعة / PDF</button>
+    <button class="btn-ghost" onclick="clearAll()"><svg class="bonds-icon bonds-icon--trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> مسح الكل</button>
+    <button class="btn-ghost" onclick="saveDraft()"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> حفظ مسودة</button>
+    <button class="btn-ghost" onclick="loadDraft()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> استرجاع مسودة</button>
+    <button class="btn-ghost" onclick="scrollToDashboard()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لوحة التحكم</button>
+    <button class="hidden" id="btn-import-supabase" onclick="fillFromSupabase()"><svg class="bonds-icon bonds-icon--inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg> استيراد من بياناتي</button>
+    <button class="btn-sky-solid" onclick="openResearchModal()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بحث ذكي</button>
+    <button class="btn-ghost" onclick="exportToExcel()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تصدير Excel</button>
   </div>
 
   <div class="template-wrapper">
@@ -63,7 +63,7 @@
           </select>
         </div>
         <div class="field-group-end">
-          <button class="btn-fill-gold" type="button" onclick="fillFromCountry()">🔄 ملء البيانات</button>
+          <button class="btn-fill-gold" type="button" onclick="fillFromCountry()"><svg class="bonds-icon bonds-icon--refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> ملء البيانات</button>
         </div>
       </div>
       <div class="cover-form-row">
@@ -89,7 +89,7 @@
     <div class="template-page" id="page-summary">
       <div class="template-header-print"><img src="../assets/bonds-logo-2026-sm.webp?v=2026" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الملخص</div></div>
       <div class="page-header"><div class="section-number">2</div><div><h2>الملخص التنفيذي</h2><p>نظرة عامة على كامل الدراسة (يُفضل كتابته آخراً)</p></div></div>
-      <div class="field-group"><label>ملخص المشروع (3-5 أسطر)</label><textarea id="exec-summary" rows="5" placeholder="نظرة شاملة: الفكرة، السوق، الفرصة، والنتائج المتوقعة..."></textarea><button class="btn-sm no-print" onclick="autoGenerateSummary()">✨ توليد ملخص تلقائي</button></div>
+      <div class="field-group"><label>ملخص المشروع (3-5 أسطر)</label><textarea id="exec-summary" rows="5" placeholder="نظرة شاملة: الفكرة، السوق، الفرصة، والنتائج المتوقعة..."></textarea><button class="btn-sm no-print" onclick="autoGenerateSummary()"><svg class="bonds-icon bonds-icon--sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L14.5 9.5 21 12 14.5 14.5 12 21 9.5 14.5 3 12 9.5 9.5 12 3z"></path><path d="M5 3l1 1"></path><path d="M19 3l-1 1"></path><path d="M5 21l1-1"></path><path d="M19 21l-1-1"></path></svg> توليد ملخص تلقائي</button></div>
       <div class="field-group inline-3">
         <div class="field-group"><label>رأس المال المطلوب (ريال)</label><input type="number" id="summary-capital" placeholder="0" /></div>
         <div class="field-group"><label>فترة الاسترداد (شهر)</label><input type="number" id="summary-payback" readonly tabindex="-1" placeholder="سيُحسب تلقائياً" /></div>
@@ -129,8 +129,8 @@
       <div class="page-header"><div class="section-number">4</div><div><h2>الأثر التكنولوجي</h2><p>كيف تؤثر التكنولوجيا على مشروعك</p></div></div>
       <div class="field-group"><label>هل ستستخدم تكنولوجيا في عملك؟</label><textarea id="tech-usage" rows="3" placeholder="POS، تطبيق توصيل، إدارة مخزون، سوشال ميديا، AI..."></textarea></div>
       <div class="field-group inline">
-        <div class="field-group"><label>التأثيرات الإيجابية 🟢</label><textarea id="tech-positive" rows="3" placeholder="زيادة الكفاءة، تقليل التكاليف، وصول أوسع..."></textarea></div>
-        <div class="field-group"><label>التأثيرات السلبية 🔴</label><textarea id="tech-negative" rows="3" placeholder="تكاليف صيانة، مخاطر اختراق، اعتمادية على المنصات..."></textarea></div>
+        <div class="field-group"><label>التأثيرات الإيجابية <svg class="bonds-icon bonds-icon--circle bonds-icon--success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg></label><textarea id="tech-positive" rows="3" placeholder="زيادة الكفاءة، تقليل التكاليف، وصول أوسع..."></textarea></div>
+        <div class="field-group"><label>التأثيرات السلبية <svg class="bonds-icon bonds-icon--circle bonds-icon--danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg></label><textarea id="tech-negative" rows="3" placeholder="تكاليف صيانة، مخاطر اختراق، اعتمادية على المنصات..."></textarea></div>
       </div>
       <div class="field-group"><label>كيف ستستفيد من التكنولوجيا لصالحك؟</label><textarea id="tech-benefit" rows="3" placeholder="أتمتة الطلبات، تحليل البيانات، تسويق رقمي..."></textarea></div>
       <div class="field-group"><label>هل منتجاتك/خدماتك ستتأثر بتطور التكنولوجيا في المستقبل القريب؟</label><textarea id="tech-future" rows="2" placeholder="مخاطر الاستبدال، فرص ابتكار..."></textarea></div>
@@ -171,10 +171,10 @@
 
       <h3 class="section-title">ب. تحليل SWOT</h3>
       <div class="swot-grid">
-        <div class="swot-box s"><h4>✅ نقاط القوة (Strengths)</h4><textarea id="swot-s" rows="4" placeholder="ما تمتلكه من ميزات داخلية..."></textarea></div>
-        <div class="swot-box w"><h4>⚠️ نقاط الضعف (Weaknesses)</h4><textarea id="swot-w" rows="4" placeholder="ما تحتاج لتحسينه داخلياً..."></textarea></div>
-        <div class="swot-box o"><h4>🌟 الفرص (Opportunities)</h4><textarea id="swot-o" rows="4" placeholder="عوامل خارجية يمكن الاستفادة منها..."></textarea></div>
-        <div class="swot-box t"><h4>⛔ التهديدات (Threats)</h4><textarea id="swot-t" rows="4" placeholder="عوامل خارجية قد تؤثر سلباً..."></textarea></div>
+        <div class="swot-box s"><h4><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> نقاط القوة (Strengths)</h4><textarea id="swot-s" rows="4" placeholder="ما تمتلكه من ميزات داخلية..."></textarea></div>
+        <div class="swot-box w"><h4><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> نقاط الضعف (Weaknesses)</h4><textarea id="swot-w" rows="4" placeholder="ما تحتاج لتحسينه داخلياً..."></textarea></div>
+        <div class="swot-box o"><h4><svg class="bonds-icon bonds-icon--star bonds-icon--glow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> الفرص (Opportunities)</h4><textarea id="swot-o" rows="4" placeholder="عوامل خارجية يمكن الاستفادة منها..."></textarea></div>
+        <div class="swot-box t"><h4><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> التهديدات (Threats)</h4><textarea id="swot-t" rows="4" placeholder="عوامل خارجية قد تؤثر سلباً..."></textarea></div>
       </div>
 
       <h3 class="section-title">ج. تحليل قوى بورتر التنافسية</h3>
@@ -365,8 +365,8 @@
           <tr><td>الشهر 12</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <p class="center-note">💡 املأ أول 3 أشهر يدوياً، ثم اضغط "ملء تلقائي" لتوزيع بقية السنة</p>
-      <div class="table-actions no-print"><button onclick="autoFillCashFlow()">✨ ملء تلقائي من الإيرادات</button></div>
+      <p class="center-note"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> املأ أول 3 أشهر يدوياً، ثم اضغط "ملء تلقائي" لتوزيع بقية السنة</p>
+      <div class="table-actions no-print"><button onclick="autoFillCashFlow()"><svg class="bonds-icon bonds-icon--sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L14.5 9.5 21 12 14.5 14.5 12 21 9.5 14.5 3 12 9.5 9.5 12 3z"></path><path d="M5 3l1 1"></path><path d="M19 3l-1 1"></path><path d="M5 21l1-1"></path><path d="M19 21l-1-1"></path></svg> ملء تلقائي من الإيرادات</button></div>
     </div>
 
     <!-- ========== PAGE 16: FINANCIAL ANALYSIS ========== -->
@@ -457,7 +457,7 @@
 
       <div class="disclaimer" id="smart-loading">
         <p class="text-secondary">املأ بيانات التكاليف والإيرادات في الصفحات السابقة لتحليلها تلقائياً...</p>
-        <button class="mt-1" onclick="runSmartAnalysis()">🔍 تحليل الآن</button>
+        <button class="mt-1" onclick="runSmartAnalysis()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تحليل الآن</button>
       </div>
 
       <div class="hidden" id="smart-results">
@@ -488,13 +488,13 @@
 
         <!-- Recommendations -->
         <div class="card-gold">
-          <div class="panel-title">📋 توصيات بوندز</div>
+          <div class="panel-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> توصيات بوندز</div>
           <ol class="list-reset" id="smart-recommendations"></ol>
         </div>
 
         <!-- Benchmark Comparison -->
         <div class="mt-1-5">
-          <div class="panel-title">📊 مقارنة مع معايير الصناعة</div>
+          <div class="panel-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مقارنة مع معايير الصناعة</div>
           <table class="template-table" id="benchmark-table">
             <thead><tr><th>المؤشر</th><th>مشروعك</th><th>المعيار الأمثل</th><th>التقييم</th></tr></thead>
             <tbody>
@@ -509,7 +509,7 @@
 
         <!-- Charts -->
         <div class="mt-1-5">
-          <div class="panel-title">📈 الرسوم البيانية</div>
+          <div class="panel-title"><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> الرسوم البيانية</div>
           <div class="grid-2">
             <div class="card-muted"><canvas id="chart-scenarios" height="180"></canvas></div>
             <div class="card-muted"><canvas id="chart-costs" height="180"></canvas></div>
@@ -597,7 +597,7 @@
       <h3 class="section-title-mb">هيكل مجلس الإدارة والإدارة التنفيذية</h3>
       <div class="field-group"><label>تشكيل مجلس الإدارة</label><textarea rows="3" placeholder="عدد الأعضاء، خبراتهم، دورهم الرقابي والتشريعي..."></textarea></div>
       <div class="field-group inline">
-        <div class="field-group"><label>فصل الإدارة التنفيذية عن مجلس الإدارة</label><select data-universal-dropdown="true"><option value="">اختر...</option><option value="yes">✅ نعم، منفصلان</option><option value="no">❌ لا، متداخلان</option><option value="partial">⚠️ جزئي</option></select></div>
+        <div class="field-group"><label>فصل الإدارة التنفيذية عن مجلس الإدارة</label><select data-universal-dropdown="true"><option value="">اختر...</option><option value="yes"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> نعم، منفصلان</option><option value="no"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا، متداخلان</option><option value="partial"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> جزئي</option></select></div>
         <div class="field-group"><label>مدة عضوية المجلس (سنوات)</label><input type="number" placeholder="3" /></div>
       </div>
       <div class="field-group"><label>صلاحيات مجلس الإدارة الرئيسية</label><textarea rows="3" placeholder="اعتماد الميزانيات، تعيين/إقالة المدراء التنفيذيين، الموافقة على المشاريع الكبرى..."></textarea></div>
@@ -669,7 +669,7 @@
       <div class="field-group"><label>استراتيجية التمويل</label><textarea rows="3" placeholder="كيف ستؤمن التمويل؟ بأي شروط؟ متى؟"></textarea></div>
       <div class="field-group"><label>النتائج الرئيسية</label><textarea rows="3" placeholder="أهم ما توصلت إليه من الدراسة..."></textarea></div>
       <div class="field-group"><label>التوصيات والخطوات التالية</label><textarea rows="3" placeholder="ما الخطوة الأولى؟ من يبدأها؟ متى؟"></textarea></div>
-      <div class="field-group"><label>هل المشروع مجدي؟</label><select data-universal-dropdown="true"><option value="">اختر...</option><option value="yes">✅ نعم، مجدي</option><option value="no">❌ لا، غير مجدي</option><option value="conditional">⚠️ مجدي بشروط</option></select></div>
+      <div class="field-group"><label>هل المشروع مجدي؟</label><select data-universal-dropdown="true"><option value="">اختر...</option><option value="yes"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> نعم، مجدي</option><option value="no"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا، غير مجدي</option><option value="conditional"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مجدي بشروط</option></select></div>
       <div class="signature-grid">
         <div class="signature-box"><label>إعداد وتوقيع</label><input type="text" placeholder="الاسم والتوقيع" /></div>
         <div class="signature-box"><label>التاريخ</label><input type="date" /></div>
@@ -740,7 +740,7 @@
       <!-- SWOT Mini + Recommendations -->
       <div class="dash-bottom-grid">
         <div class="dash-rec-panel">
-          <div class="dash-rec-title">📋 أهم التوصيات</div>
+          <div class="dash-rec-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> أهم التوصيات</div>
           <ol class="dash-rec-list" id="dash-recommendations"></ol>
         </div>
         <div class="dash-swot-grid">
@@ -864,15 +864,15 @@
 
       // Benchmarks
       document.getElementById('bm-margin').textContent = margin.toFixed(1) + '%';
-      document.getElementById('bm-margin-status').innerHTML = margin >= 25 ? '<span class="text-green">✅ ممتاز</span>' : margin >= 15 ? '<span class="text-gold">⚠️ مقبول</span>' : '<span class="text-red">❌ يحتاج تحسين</span>';
+      document.getElementById('bm-margin-status').innerHTML = margin >= 25 ? '<span class="text-green"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ممتاز</span>' : margin >= 15 ? '<span class="text-gold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مقبول</span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> يحتاج تحسين</span>';
       document.getElementById('bm-salary').textContent = hrTotal > 0 && revenue > 0 ? ((hrTotal / revenue) * 100).toFixed(1) + '%' : '-';
-      document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span class="text-green">✅</span>' : '<span class="text-red">❌</span>';
+      document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span class="text-green"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>';
       document.getElementById('bm-payback').textContent = payback > 0 ? payback.toFixed(1) + ' شهر' : '-';
-      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= class="text-green" 18 ? '<span>✅</span>' : payback > 0 && payback <= class="text-gold" 36 ? '<span>⚠️</span>' : '<span class="text-red">❌</span>';
+      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= class="text-green" 18 ? '<span><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : payback > 0 && payback <= class="text-gold" 36 ? '<span><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>';
       document.getElementById('bm-roi').textContent = roi.toFixed(1) + '%';
-      document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span class="text-green">✅</span>' : roi >= 10 ? '<span class="text-gold">⚠️</span>' : '<span class="text-red">❌</span>';
+      document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span class="text-green"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : roi >= 10 ? '<span class="text-gold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>';
       document.getElementById('bm-be').textContent = totalQty > 0 ? ((beUnits / totalQty) * 100).toFixed(0) + '%' : '-';
-      document.getElementById('bm-be-status').innerHTML = totalQty > 0 && beUnits / totalQty < 0.6 ? '<span class="text-green">✅</span>' : totalQty > 0 && beUnits / totalQty < 0.9 ? '<span class="text-gold">⚠️</span>' : '<span class="text-red">❌</span>';
+      document.getElementById('bm-be-status').innerHTML = totalQty > 0 && beUnits / totalQty < 0.6 ? '<span class="text-green"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : totalQty > 0 && beUnits / totalQty < 0.9 ? '<span class="text-gold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>';
 
       renderCharts(revenue, fixed, variable, net);
       updateDashboard(revenue, fixed, variable, net, marginPct, roi, paybackMonths, beUnits);
@@ -897,7 +897,7 @@
       const score = Math.min(100, Math.max(0, (marginPct * 30) + (roi * 0.3) + (paybackScore * 0.25) + (salaryRatioScore * 0.15)));
       document.getElementById('dash-score').textContent = Math.round(score);
       document.getElementById('dash-score').style.color = score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626';
-      document.getElementById('dash-score-label').textContent = score >= 75 ? 'مشروع ممتاز ✅' : score >= 50 ? 'يحتاج تحسين ⚠️' : 'مخاطر عالية ❌';
+      document.getElementById('dash-score-label').textContent = score >= 75 ? 'مشروع ممتاز <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>' : score >= 50 ? 'يحتاج تحسين <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>' : 'مخاطر عالية <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>';
       document.getElementById('dash-score-label').style.color = score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626';
       const deg = Math.round(score / 100 * 360);
       const scoreRing = document.getElementById('dash-score-ring');
@@ -1479,7 +1479,7 @@
         }
       }
 
-      alert('تم ملء ' + (data.name || code) + ' ✅\nالتراخيص: ' + (defaults[code]?.length || 0) + ' | VAT: ' + (data.vatRate || '-') + '% | العملة: ' + currencySymbol + '\nرواتب: ' + (bm?.salaries ? Object.keys(bm.salaries).length : 0) + ' وظائف | مرافق: ' + (bm?.utilities ? Object.keys(bm.utilities).length : 0));
+      alert('تم ملء ' + (data.name || code) + ' <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>\nالتراخيص: ' + (defaults[code]?.length || 0) + ' | VAT: ' + (data.vatRate || '-') + '% | العملة: ' + currencySymbol + '\nرواتب: ' + (bm?.salaries ? Object.keys(bm.salaries).length : 0) + ' وظائف | مرافق: ' + (bm?.utilities ? Object.keys(bm.utilities).length : 0));
     }
 
     // ===== Supabase Smart Import =====
@@ -1502,7 +1502,7 @@
 
     async function fillFromSupabase() {
       if (!currentUser || !sb) {
-        alert('يرجى تسجيل الدخول أولاً 🔐');
+        alert('يرجى تسجيل الدخول أولاً <svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg>');
         return;
       }
       const userId = currentUser.id;
@@ -1601,18 +1601,18 @@
           const swotS = document.querySelector('.swot-box.s textarea');
           const swotW = document.querySelector('.swot-box.w textarea');
           if (swotS && !swotS.value && strengths.length) {
-            swotS.value = strengths.map(s => '⭐ ' + s.recommendation).join('\n');
+            swotS.value = strengths.map(s => '<svg class="bonds-icon bonds-icon--star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> ' + s.recommendation).join('\n');
             filledCount++;
           }
           if (swotW && !swotW.value && weaknesses.length) {
-            swotW.value = weaknesses.map(s => '⚠️ ' + s.recommendation).join('\n');
+            swotW.value = weaknesses.map(s => '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + s.recommendation).join('\n');
             filledCount++;
           }
         }
       } catch (e) {  }
 
       calcFinancials();
-      alert('تم الاستيراد من بياناتك ✅\nتم ملء ' + filledCount + ' خانة/بيان');
+      alert('تم الاستيراد من بياناتك <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>\nتم ملء ' + filledCount + ' خانة/بيان');
     }
 
     // ===== ROI & Payback =====
@@ -1679,7 +1679,7 @@
         data['f' + i] = el.type === 'checkbox' ? el.checked : el.value;
       });
       localStorage.setItem('bonds_feasibility_v2', JSON.stringify(data));
-      alert('تم حفظ المسودة بنجاح ✅');
+      alert('تم حفظ المسودة بنجاح <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
     }
     function loadDraft() {
       const raw = localStorage.getItem('bonds_feasibility_v2');
@@ -1697,7 +1697,7 @@
       calcCapital();
       calcHRGrandTotal();
       calcToolsGrandTotal();
-      alert('تم استرجاع المسودة ✅');
+      alert('تم استرجاع المسودة <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
     }
     function clearAll() {
       if (!confirm('هل أنت متأكد من مسح جميع البيانات؟')) return;
@@ -1820,13 +1820,13 @@
         const hasResearch = SECTION_RESEARCH_MAP[pageId];
         mount.innerHTML = `
           <div class="section-gallery">
-            <div class="section-gallery-title">📎 صور ومرفقات القسم</div>
+            <div class="section-gallery-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> صور ومرفقات القسم</div>
             <div class="gallery-grid"></div>
             <div class="btn-row-sm">
               <input class="hidden" type="file" accept="image/*" multiple onchange="handleGalleryFiles('${pageId}', this.files); this.value='';" />
               <button class="flex-btn" onclick="this.previousElementSibling.click()">+ رفع صور</button>
-              <button class="flex-btn-sky" onclick="openImageSearch('${pageId}')">🔍 بحث عن صور</button>
-              ${hasResearch ? `<button class="flex-btn-gold" onclick="openSectionResearch('${pageId}')">🧠 بحث ذكي للقسم</button>` : ''}
+              <button class="flex-btn-sky" onclick="openImageSearch('${pageId}')"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بحث عن صور</button>
+              ${hasResearch ? `<button class="flex-btn-gold" onclick="openSectionResearch('${pageId}')"><svg class="bonds-icon bonds-icon--brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg> بحث ذكي للقسم</button>` : ''}
             </div>
             <div class="gallery-compress-info"></div>
           </div>`;
@@ -1917,7 +1917,7 @@
           <div class="imgsearch-overlay" onclick="if(event.target===this)closeImageSearch()"></div>
           <div class="imgsearch-panel">
             <div class="imgsearch-header">
-              <h3>🔍 بحث عن صور</h3>
+              <h3><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بحث عن صور</h3>
               <button class="imgsearch-close" onclick="closeImageSearch()">&times;</button>
             </div>
             <div class="imgsearch-body">
@@ -2053,7 +2053,7 @@
     const SECTION_RESEARCH_MAP = {
       'page-vision': {
         title: 'بحث ذكي — الرؤية والفكرة',
-        icon: '🎯',
+        icon: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>',
         dataPath: 'market_trends',
         fields: {
           'cover-idea': (data) => Array.isArray(data) ? data.join('\n• ') : data
@@ -2061,7 +2061,7 @@
       },
       'page-tech-impact': {
         title: 'بحث ذكي — التأثير التقني',
-        icon: '💻',
+        icon: '<svg class="bonds-icon bonds-icon--laptop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><line x1="2" y1="20" x2="22" y2="20"></line></svg>',
         dataPath: 'technological_impact',
         fields: {
           'tech-positive': 'positive',
@@ -2071,7 +2071,7 @@
       },
       'page-country-economy': {
         title: 'بحث ذكي — الاقتصاد الوطني',
-        icon: '📊',
+        icon: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>',
         dataPath: 'country_economy',
         fields: {
           'econ-gdp': 'gdp_growth',
@@ -2084,13 +2084,13 @@
       },
       'page-market-analysis': {
         title: 'بحث ذكي — تحليل السوق والمنافسين',
-        icon: '📈',
+        icon: '<svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>',
         dataPath: 'competitors',
         special: 'competitors'
       },
       'page-marketing': {
         title: 'بحث ذكي — التسويق',
-        icon: '📢',
+        icon: '<svg class="bonds-icon bonds-icon--megaphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg>',
         dataPath: 'marketing_4ps',
         fields: {
           'marketing-product': 'product_strategy',
@@ -2101,7 +2101,7 @@
       },
       'page-legal': {
         title: 'بحث ذكي — المتطلبات القانونية',
-        icon: '⚖️',
+        icon: '<svg class="bonds-icon bonds-icon--scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-8"></path><path d="M12 14l6-3v4a6 6 0 0 1-6 3 6 6 0 0 1-6-3v-4l6 3z"></path><path d="M12 14V7"></path><path d="M9 7h6"></path><circle cx="12" cy="4" r="2"></circle></svg>',
         dataPath: 'legal_requirements',
         fields: {
           'legal-insurance': 'insurance',
@@ -2111,7 +2111,7 @@
       },
       'page-smart': {
         title: 'بحث ذكي — SWOT',
-        icon: '🧩',
+        icon: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>',
         dataPath: 'swot',
         fields: {
           'swot-s': (data) => Array.isArray(data?.strengths) ? data.strengths.join('\n') : data?.strengths,
@@ -2326,7 +2326,7 @@
       runSmartAnalysis();
       updateProgress();
       closeSectionResearch();
-      alert('تم ملء ' + filledCount + ' خانة في هذا القسم ✅');
+      alert('تم ملء ' + filledCount + ' خانة في هذا القسم <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
     }
 
     // ===== Smart Research Agent =====
@@ -2597,7 +2597,7 @@
       runSmartAnalysis();
       updateProgress();
       closeResearchModal();
-      alert('تم ملء ' + filledCount + ' خانة بنجاح ✅');
+      alert('تم ملء ' + filledCount + ' خانة بنجاح <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
     }
 
     // Sync research country with cover country

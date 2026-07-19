@@ -27,12 +27,12 @@
         <span>المؤشرات التنفيذية</span>
       </div>
       <ul class="ex-nav">
-        <li><a href="#" data-view="overview" class="active">📊 نظرة عامة</a></li>
-        <li><a href="#" data-view="revenue">💰 الإيرادات والأرباح</a></li>
-        <li><a href="#" data-view="projects">📁 المشاريع والفرص</a></li>
+        <li><a href="#" data-view="overview" class="active"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> نظرة عامة</a></li>
+        <li><a href="#" data-view="revenue"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الإيرادات والأرباح</a></li>
+        <li><a href="#" data-view="projects"><svg class="bonds-icon bonds-icon--folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> المشاريع والفرص</a></li>
       </ul>
       <div class="ex-sidebar-footer">
-        <a href="/admin/dashboard.html">⬅️ لوحة الإدارة الرئيسية</a>
+        <a href="/admin/dashboard.html"><svg class="bonds-icon bonds-icon--arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> لوحة الإدارة الرئيسية</a>
         <div id="ex-user">جارِ التحقق...</div>
       </div>
     </aside>
@@ -44,9 +44,9 @@
           <p class="ex-subtitle">مؤشرات فورية للملاك والإدارة العليا</p>
         </div>
         <div class="ex-topbar-actions">
-          <span class="ex-live" id="ex-live" title="تحديث لحظي">● Live</span>
+          <span class="ex-live" id="ex-live" title="تحديث لحظي"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Live</span>
           <span class="ex-last-update" id="ex-last-update">—</span>
-          <button class="ecc-btn ecc-btn--ghost" onclick="ExecutiveApp.openSettings()">⚙️ الإعدادات</button>
+          <button class="ecc-btn ecc-btn--ghost" onclick="ExecutiveApp.openSettings()"><svg class="bonds-icon bonds-icon--settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> الإعدادات</button>
           <button class="ecc-btn ecc-btn--primary" onclick="ExecutiveApp.refresh()">↻ تحديث</button>
         </div>
       </header>
@@ -61,8 +61,8 @@
     (function () {
       const el = document.getElementById('ex-content');
       function status(msg) { if (el) el.innerHTML = '<div class="ecc-empty"><p>' + msg + '</p></div>'; }
-      window.addEventListener('error', function (e) { status('❌ خطأ JavaScript: ' + e.message); });
-      window.addEventListener('unhandledrejection', function (e) { status('❌ خطأ غير متوقع: ' + (e.reason?.message || e.reason)); });
+      window.addEventListener('error', function (e) { status('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ JavaScript: ' + e.message); });
+      window.addEventListener('unhandledrejection', function (e) { status('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ غير متوقع: ' + (e.reason?.message || e.reason)); });
     })();
   </script>
   <script src="/admin/admin-embed.js"></script>

@@ -34,7 +34,7 @@
       </div>
       <h1>الملف الشخصي</h1>
 
-      <div class="success-msg" id="successMsg">✅ تم حفظ التغييرات بنجاح</div>
+      <div class="success-msg" id="successMsg"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم حفظ التغييرات بنجاح</div>
       <div class="error-msg" id="errorMsg"></div>
       <div class="info-msg" id="infoMsg"></div>
 
@@ -72,18 +72,18 @@
       })();
       </script>
       <div class="edit-bar">
-        <button type="button" class="btn btn-secondary" id="btnEdit" onclick="toggleEdit(true)">✏️ تعديل الملف</button>
-        <button type="button" class="btn btn-primary" id="btnCancel" style="display:none;background:var(--text-secondary);color:#fff" onclick="toggleEdit(false)">❌ إلغاء</button>
+        <button type="button" class="btn btn-secondary" id="btnEdit" onclick="toggleEdit(true)"><svg class="bonds-icon bonds-icon--pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg> تعديل الملف</button>
+        <button type="button" class="btn btn-primary" id="btnCancel" style="display:none;background:var(--text-secondary);color:#fff" onclick="toggleEdit(false)"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> إلغاء</button>
       </div>
 
       <form id="profileForm">
-        <h2>🖼️ الشعار والصورة</h2>
+        <h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الشعار والصورة</h2>
         <div id="avatarContainer"></div>
         <div class="avatar-actions">
           <input type="file" id="avatarFile" accept="image/*" style="display:none" disabled>
           <button type="button" class="btn btn-secondary" id="uploadBtn" onclick="document.getElementById('avatarFile').click()" disabled>
             <span class="upload-spinner" id="uploadSpinner"></span>
-            <span id="uploadText">📤 رفع صورة من الجهاز</span>
+            <span id="uploadText"><svg class="bonds-icon bonds-icon--send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> رفع صورة من الجهاز</span>
           </button>
           <span class="or-text">— أو —</span>
         </div>
@@ -91,11 +91,11 @@
           <label for="avatarUrl">رابط الشعار (رابط مباشر)</label>
           <input type="url" id="avatarUrl" placeholder="https://example.com/logo.png" dir="ltr" disabled>
           <div style="margin-top:8px;text-align:center">
-            <a href="#" id="reportLink" style="color:var(--danger);font-size:0.8rem;text-decoration:none;display:none" onclick="reportImage(event)">🚨 بلّغ عن صورة مخالفة</a>
+            <a href="#" id="reportLink" style="color:var(--danger);font-size:0.8rem;text-decoration:none;display:none" onclick="reportImage(event)"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بلّغ عن صورة مخالفة</a>
           </div>
         </div>
 
-        <h2>🏢 معلومات التواصل</h2>
+        <h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> معلومات التواصل</h2>
         <div class="form-group">
           <label for="restaurantName">اسم المطعم / الشركة <span class="required">*</span></label>
           <input type="text" id="restaurantName" required placeholder="مثال: مطعم الذواقة" disabled>
@@ -112,7 +112,7 @@
           </div>
         </div>
 
-        <h2>📍 الموقع والنشاط</h2>
+        <h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الموقع والنشاط</h2>
         <div class="row">
           <div class="form-group">
             <label for="country">الدولة <span class="required">*</span></label>
@@ -160,7 +160,7 @@
           </div>
         </div>
 
-        <h2>👥 الفريق والنبذة</h2>
+        <h2><svg class="bonds-icon bonds-icon--users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> الفريق والنبذة</h2>
         <div class="row">
           <div class="form-group">
             <label for="employeeCount">عدد الموظفين <span class="required">*</span></label>
@@ -225,10 +225,10 @@
       </form>
 
       <div class="link-row">
-        <a href="./subscription.html">💎 إدارة الاشتراك</a>
-        <a href="./reset.html">🔑 تغيير كلمة المرور</a>
-        <a href="../../terms.html" target="_blank">📋 شروط الاستخدام</a>
-        <a href="../../privacy.html" target="_blank">🛡️ سياسة الخصوصية</a>
+        <a href="./subscription.html"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> إدارة الاشتراك</a>
+        <a href="./reset.html"><svg class="bonds-icon bonds-icon--key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3-1.5 1.5"></path></svg> تغيير كلمة المرور</a>
+        <a href="../../terms.html" target="_blank"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> شروط الاستخدام</a>
+        <a href="../../privacy.html" target="_blank"><svg class="bonds-icon bonds-icon--shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> سياسة الخصوصية</a>
       </div>
 
       <a href="../../calculator.html" class="back-link">← العودة للحاسبة</a>
@@ -259,7 +259,7 @@
       function showError(msg) { errorMsg.textContent = msg; errorMsg.style.display = 'block'; successMsg.style.display = 'none'; infoMsg.style.display = 'none'; }
       function showInfo(msg) { infoMsg.textContent = msg; infoMsg.style.display = 'block'; successMsg.style.display = 'none'; errorMsg.style.display = 'none'; }
       function setLoading(v) { saveBtn.disabled = v; saveSpinner.style.display = v ? 'inline-block' : 'none'; saveText.textContent = v ? 'جاري الحفظ...' : 'حفظ التغييرات'; }
-      function setUploading(v) { uploadBtn.disabled = v; uploadSpinner.style.display = v ? 'inline-block' : 'none'; uploadText.textContent = v ? 'جاري الرفع...' : '📤 رفع صورة من الجهاز'; }
+      function setUploading(v) { uploadBtn.disabled = v; uploadSpinner.style.display = v ? 'inline-block' : 'none'; uploadText.textContent = v ? 'جاري الرفع...' : '<svg class="bonds-icon bonds-icon--send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> رفع صورة من الجهاز'; }
 
       // Build time dropdown options
       const hours = Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0'));
@@ -524,10 +524,10 @@
             await sb.from('profiles').upsert({ id: user.id, avatar_url: publicUrl }, { onConflict: 'id' });
             localStorage.setItem('bonds_avatar_url', publicUrl);
             try { await sb.auth.updateUser({ data: { avatar_url: publicUrl } }); } catch(e){}
-            showSuccess('✅ تم رفع وحفظ الصورة');
+            showSuccess('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم رفع وحفظ الصورة');
           } catch (saveErr) {
             console.warn('[Profile] Auto-save avatar failed:', saveErr);
-            showSuccess('✅ تم رفع الصورة — اضغط "حفظ التغييرات" لتثبيتها');
+            showSuccess('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم رفع الصورة — اضغط "حفظ التغييرات" لتثبيتها');
           }
         } catch (err) {
           showError('خطأ غير متوقع في الرفع: ' + (err?.message || String(err)));
@@ -621,7 +621,7 @@
             localStorage.setItem('bonds_restaurant_name', updates.restaurant_name || '');
           } catch (e) {}
 
-          showSuccess('✅ تم حفظ التغييرات بنجاح — جاري التحديث...');
+          showSuccess('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم حفظ التغييرات بنجاح — جاري التحديث...');
           setTimeout(() => window.location.reload(true), 1200);
         } catch (err) {
           console.error('[Profile] Save exception:', err);

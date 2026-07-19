@@ -32,7 +32,7 @@
 
   <main class="investment-calculator">
     <div class="investment-calculator__header">
-      <div style="font-size:3rem;margin-bottom:var(--space-3);">🍔</div>
+      <div style="font-size:3rem;margin-bottom:var(--space-3);"><svg class="bonds-icon bonds-icon--burger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16a2 2 0 0 1 2 2v2H2v-2a2 2 0 0 1 2-2z"></path><path d="M2 14h20v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-2z"></path><line x1="6" y1="18" x2="6" y2="18"></line><line x1="10" y1="18" x2="10" y2="18"></line><line x1="14" y1="18" x2="14" y2="18"></line><line x1="18" y1="18" x2="18" y2="18"></line></svg></div>
       <h1>Fast Food Restaurant Calculator</h1>
       <p>Analyze the feasibility of a fast food restaurant.</p>
     </div>
@@ -1406,7 +1406,7 @@
       container.classList.remove('hidden');
       const title = isAr ? 'تحذيرات التحقق من البيانات' : 'Data Validation Warnings';
       const fixMsg = isAr ? 'يرجى تصحيح التحذيرات أعلاه قبل إصدار التقرير.' : 'Please fix the warnings above before generating the report.';
-      container.innerHTML = '<div class="validation-warnings__title">⚠️ ' + title + '</div>' +
+      container.innerHTML = '<div class="validation-warnings__title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + title + '</div>' +
         '<ul>' + validation.warnings.map(w => '<li>' + w + '</li>').join('') + '</ul>' +
         '<div class="validation-warnings__footer">' + fixMsg + '</div>';
     }
@@ -1536,7 +1536,7 @@
           })
         });
         const json = await res.json();
-        alert(json.success ? (isAr ? '✅ تم الحفظ' : '✅ Saved') : (json.error || 'Error'));
+        alert(json.success ? (isAr ? '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم الحفظ' : '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Saved') : (json.error || 'Error'));
       } catch (e) {
         alert(isAr ? 'تعذر الحفظ' : 'Save failed');
       }

@@ -166,7 +166,7 @@
           <p>رسائل التواصل من المستخدمين والزوار، وإرسال تنبيهات للمستخدمين</p>
         </div>
         <div style="display:flex;gap:0.5rem;">
-          <button class="btn-sm btn-primary" onclick="showTab('compose')">✉ رسالة جديدة</button>
+          <button class="btn-sm btn-primary" onclick="showTab('compose')"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> رسالة جديدة</button>
           <button class="btn-sm btn-secondary" onclick="refreshMessages()">↻ تحديث</button>
         </div>
       </div>
@@ -187,9 +187,9 @@
       </div>
 
       <div class="tabs">
-        <button class="tab-btn active" data-tab="inbox" onclick="showTab('inbox')">📥 الوارد</button>
-        <button class="tab-btn" data-tab="compose" onclick="showTab('compose')">✉ رسالة جديدة</button>
-        <button class="tab-btn" data-tab="sent" onclick="showTab('sent')">📤 الصادر</button>
+        <button class="tab-btn active" data-tab="inbox" onclick="showTab('inbox')"><svg class="bonds-icon bonds-icon--inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg> الوارد</button>
+        <button class="tab-btn" data-tab="compose" onclick="showTab('compose')"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> رسالة جديدة</button>
+        <button class="tab-btn" data-tab="sent" onclick="showTab('sent')"><svg class="bonds-icon bonds-icon--send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> الصادر</button>
       </div>
 
       <div id="panel-inbox" class="tab-panel active">

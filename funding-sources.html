@@ -133,7 +133,7 @@
 
   <section style="padding: 0 2rem;">
     <div class="project-match">
-      <h3>🔍 اعثر على تمويل يناسب مشروعك</h3>
+      <h3><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> اعثر على تمويل يناسب مشروعك</h3>
       <div class="grid">
         <div>
           <label for="matchCountry">الدولة</label>
@@ -201,7 +201,7 @@
     </div>
 
     <div class="filter-actions">
-      <button class="btn-primary" id="searchBtn">🔍 بحث</button>
+      <button class="btn-primary" id="searchBtn"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بحث</button>
       <button class="btn-outline" id="resetBtn">إعادة ضبط</button>
     </div>
 
@@ -289,7 +289,7 @@
         resultsEl.innerHTML = filtered.map(s => `
           <div class="source-card">
             ${s.is_featured ? '<span class="featured-tag">مميز</span>' : ''}
-            <button class="save-btn ${savedIds.has(s.id) ? 'saved' : ''}" onclick="toggleSave('${s.id}')" title="حفظ للمفاضلة">${savedIds.has(s.id) ? '★' : '☆'}</button>
+            <button class="save-btn ${savedIds.has(s.id) ? 'saved' : ''}" onclick="toggleSave('${s.id}')" title="حفظ للمفاضلة">${savedIds.has(s.id) ? '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>' : '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>'}</button>
             <span class="badge badge-${s.type}">${typeLabels[s.type] || s.type}</span>
             <h3>${s.name_ar || s.name_en}</h3>
             <div class="meta">${s.country_code || ''} ${s.sector ? '· ' + s.sector : ''}</div>

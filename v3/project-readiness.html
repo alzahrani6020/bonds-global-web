@@ -180,7 +180,7 @@
 
   <div id="site-header"></div>
   <header>
-    <h1>✓ مؤشر جاهزية المشروع</h1>
+    <h1><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> مؤشر جاهزية المشروع</h1>
     <p>قيّم مدى استعداد مشروعك للإطلاق قبل اتخاذ قرار الاستثمار</p>
   </header>
 
@@ -219,7 +219,7 @@
 
     const sections = [
       {
-        title: '▤ دراسة السوق',
+        title: '<svg class="bonds-icon bonds-icon--grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg> دراسة السوق',
         items: [
           { id: 'market_study', label: 'تم إعداد دراسة السوق والطلب', weight: 8 },
           { id: 'target_segment', label: 'تحديد الشريحة المستهدفة بدقة', weight: 6 },
@@ -235,7 +235,7 @@
         ]
       },
       {
-        title: '📜 التراخيص والأنظمة',
+        title: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> التراخيص والأنظمة',
         items: [
           { id: 'licenses_identified', label: 'تحديد التراخيص والموافقات المطلوبة', weight: 7 },
           { id: 'licenses_obtained', label: 'الحصول على التراخيص الرئيسية', weight: 8 },
@@ -243,7 +243,7 @@
         ]
       },
       {
-        title: '👥 الفريق والإدارة',
+        title: '<svg class="bonds-icon bonds-icon--users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> الفريق والإدارة',
         items: [
           { id: 'management_team', label: 'فريق الإدارة الأساسي محدد/متوظف', weight: 9 },
           { id: 'team_experience', label: 'خبرة سابقة في القطاع', weight: 7 },
@@ -251,7 +251,7 @@
         ]
       },
       {
-        title: '▩ العمليات والموقع',
+        title: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> العمليات والموقع',
         items: [
           { id: 'location_secured', label: 'الموقع secured أو محدد', weight: 8 },
           { id: 'suppliers_contracts', label: 'عقود الموردين/الخدمات جاهزة', weight: 6 },
@@ -259,7 +259,7 @@
         ]
       },
       {
-        title: '📣 التسويق والمبيعات',
+        title: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> التسويق والمبيعات',
         items: [
           { id: 'marketing_plan', label: 'خطة التسويق والمبيعات جاهزة', weight: 7 },
           { id: 'branding_ready', label: 'الهوية التجارية والتسمية جاهزة', weight: 5 },
@@ -325,7 +325,7 @@
       const score = totalWeight > 0 ? Math.round((earned / totalWeight) * 100) : 0;
 
       let level = { text: 'غير جاهز', cls: 'not-ready' };
-      if (score >= 90) level = { text: 'جاهز بالكامل ⭐', cls: 'fully' };
+      if (score >= 90) level = { text: 'جاهز بالكامل <svg class="bonds-icon bonds-icon--star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>', cls: 'fully' };
       else if (score >= 70) level = { text: 'جاهز للإطلاق', cls: 'ready' };
       else if (score >= 40) level = { text: 'جاهزية جزئية', cls: 'partial' };
 
@@ -346,7 +346,7 @@
 
       const list = document.getElementById('recommendationsList');
       if (missing.length === 0) {
-        list.innerHTML = '<li>🎉 كل العناصر مكتملة. المشروع جاهز للانطلاق.</li>';
+        list.innerHTML = '<li><svg class="bonds-icon bonds-icon--party-popper" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M4.93 4.93l2.83 2.83"></path><path d="M16.24 16.24l2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="M4.93 19.07l2.83-2.83"></path><path d="M16.24 7.76l2.83-2.83"></path></svg> كل العناصر مكتملة. المشروع جاهز للانطلاق.</li>';
       } else {
         list.innerHTML = missing.slice(0, 8).map(item => `<li>أكمل أو راجع: ${item}</li>`).join('');
         if (missing.length > 8) {

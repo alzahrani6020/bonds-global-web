@@ -52,26 +52,26 @@
 
 <div class="container">
   <h1 class="page-title">
-    🧾 حاسبة تحليل الفواتير
+    <svg class="bonds-icon bonds-icon--receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2V2"></path><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg> حاسبة تحليل الفواتير
   </h1>
   <p class="page-subtitle">
     اختر الدولة والمنصة — أو أدخل البيانات يدوياً. شوف ربح كل طلب، اليوم، الشهر، والسنة
   </p>
   <div class="warning-box">
-    ⚠️ <strong>تنبيه:</strong> البيانات تقديرية بناءً على معلومات عامة. العمولة والرسوم <strong>تختلف من مطعم لمطعم</strong> حسب الاتفاق المباشر مع المنصة. تأكد من أرقام عقدك الفعلي وأعدل القيم يدوياً.
+    <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> <strong>تنبيه:</strong> البيانات تقديرية بناءً على معلومات عامة. العمولة والرسوم <strong>تختلف من مطعم لمطعم</strong> حسب الاتفاق المباشر مع المنصة. تأكد من أرقام عقدك الفعلي وأعدل القيم يدوياً.
   </div>
 
   <!-- Platform Selector -->
-  <div class="section-title">🌍 الدولة والمنصة</div>
+  <div class="section-title"><svg class="bonds-icon bonds-icon--globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> الدولة والمنصة</div>
   <div class="platform-selector-row">
     <div class="input-group">
-      <label>🇦🇪 الدولة</label>
+      <label><span class="bonds-flag bonds-flag--AE">AE</span> الدولة</label>
       <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="countrySelect" onchange="onCountryChange()">
         <option value="">-- اختر الدولة --</option>
       </select>
     </div>
     <div class="input-group">
-      <label>📱 المنصة</label>
+      <label><svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> المنصة</label>
       <select data-universal-dropdown="true" id="platformSelect" onchange="onPlatformChange()">
         <option value="">-- اختر المنصة --</option>
       </select>
@@ -80,47 +80,47 @@
   <div class="auto-fill-note" id="autoFillNote">اختر الدولة والمنصة لتعبئة البيانات تلقائياً</div>
 
   <!-- Invoice Inputs -->
-  <div class="section-title">📋 بيانات الفاتورة</div>
+  <div class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بيانات الفاتورة</div>
   <div class="inputs-grid">
     <div class="input-group">
-      <label>💰 سعر الطلب (قبل الخصم)</label>
+      <label><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> سعر الطلب (قبل الخصم)</label>
       <input type="number" id="orderPrice" placeholder="34.99" step="0.01" min="0" />
     </div>
     <div class="input-group">
-      <label>🏷️ خصم التاجر (اللي تدفعه أنت)</label>
+      <label><svg class="bonds-icon bonds-icon--tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> خصم التاجر (اللي تدفعه أنت)</label>
       <input type="number" id="merchantDiscount" placeholder="18.25" step="0.01" min="0" />
     </div>
     <div class="input-group">
-      <label>📱 عمولة المنصة (%) ← أو مبلغ ثابت</label>
+      <label><svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> عمولة المنصة (%) ← أو مبلغ ثابت</label>
       <input type="number" id="platformCommissionPct" placeholder="25" step="0.01" min="0" />
     </div>
     <div class="input-group">
-      <label>💳 رسوم الدفع / بوابة (%) ← أو مبلغ ثابت</label>
+      <label><svg class="bonds-icon bonds-icon--credit-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg> رسوم الدفع / بوابة (%) ← أو مبلغ ثابت</label>
       <input type="number" id="paymentFeePct" placeholder="1.75" step="0.01" min="0" />
     </div>
     <div class="input-group">
-      <label>📦 تكلفة المنتج (مكونات + تعبئة)</label>
+      <label><svg class="bonds-icon bonds-icon--package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> تكلفة المنتج (مكونات + تعبئة)</label>
       <input type="number" id="productCost" placeholder="8.00" step="0.01" min="0" />
     </div>
     <div class="input-group">
-      <label>🚚 رسوم التوصيل (إذا تتحملها)</label>
+      <label><svg class="bonds-icon bonds-icon--truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> رسوم التوصيل (إذا تتحملها)</label>
       <input type="number" id="deliveryFee" placeholder="0.00" step="0.01" min="0" />
     </div>
     <div class="input-group">
-      <label>📊 نسبة الضريبة (VAT %)</label>
+      <label><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> نسبة الضريبة (VAT %)</label>
       <input type="number" id="vatRate" placeholder="15" step="0.01" min="0" max="100" value="15" />
     </div>
     <div class="input-group">
-      <label>🔧 رسوم خدمة إضافية (%)</label>
+      <label><svg class="bonds-icon bonds-icon--tool" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg> رسوم خدمة إضافية (%)</label>
       <input type="number" id="serviceFeePct" placeholder="2" step="0.01" min="0" value="0" />
     </div>
   </div>
 
   <!-- Volume Inputs -->
-  <div class="section-title">📊 حجم المبيعات</div>
+  <div class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> حجم المبيعات</div>
   <div class="volume-grid">
     <div class="input-group">
-      <label>📈 عدد الطلبات / اليوم</label>
+      <label><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> عدد الطلبات / اليوم</label>
       <input type="number" id="dailyOrders" placeholder="50" min="0" />
     </div>
     <div class="input-group">
@@ -128,14 +128,14 @@
       <input type="number" id="workingDays" placeholder="30" min="1" max="31" />
     </div>
     <div class="input-group">
-      <label>🏷️ اسم الوجبة / العرض (اختياري)</label>
+      <label><svg class="bonds-icon bonds-icon--tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> اسم الوجبة / العرض (اختياري)</label>
       <input type="text" id="itemName" placeholder="Value Offer" />
     </div>
   </div>
 
-  <button class="btn-calc" onclick="calculateInvoice()">🔍 احسب وتحلل</button>
-  <button class="btn-calc secondary" onclick="compareAllPlatforms()">⚖️ قارن كل المنصات في الدولة</button>
-  <button class="btn-calc secondary" onclick="loadDemoData()">🧪 جرب ببيانات تجريبية</button>
+  <button class="btn-calc" onclick="calculateInvoice()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> احسب وتحلل</button>
+  <button class="btn-calc secondary" onclick="compareAllPlatforms()"><svg class="bonds-icon bonds-icon--scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-8"></path><path d="M12 14l6-3v4a6 6 0 0 1-6 3 6 6 0 0 1-6-3v-4l6 3z"></path><path d="M12 14V7"></path><path d="M9 7h6"></path><circle cx="12" cy="4" r="2"></circle></svg> قارن كل المنصات في الدولة</button>
+  <button class="btn-calc secondary" onclick="loadDemoData()"><svg class="bonds-icon bonds-icon--flask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4"></path><path d="M12 2v8"></path><path d="M17 21H7a2 2 0 0 1-1.73-3l7-12a2 2 0 0 1 3.46 0l7 12A2 2 0 0 1 17 21z"></path></svg> جرب ببيانات تجريبية</button>
 
   <!-- Results -->
   <div id="resultsSection" style="display:none;">
@@ -143,11 +143,11 @@
     <!-- Invoice Breakdown -->
     <div class="invoice-card" id="invoiceCard">
       <div class="invoice-header">
-        <h2>🧾 <span id="invoiceItemName">فاتورة الطلب</span></h2>
-        <span class="badge" id="invoiceBadge">ربح ✓</span>
+        <h2><svg class="bonds-icon bonds-icon--receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2V2"></path><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg> <span id="invoiceItemName">فاتورة الطلب</span></h2>
+        <span class="badge" id="invoiceBadge">ربح <svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
       </div>
       <div class="invoice-line">
-        <span class="label">💰 إجمالي دخل المطعم</span>
+        <span class="label"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> إجمالي دخل المطعم</span>
         <span class="value" id="valSubtotal">0.00 ر.س</span>
       </div>
       <div class="invoice-line negative">
@@ -156,7 +156,7 @@
       </div>
       <div class="receipt-dots">• • • • • • • • • •</div>
       <div class="invoice-line" style="border-top:1px dashed rgba(255,255,255,0.1); padding-top:0.6rem;">
-        <span class="label" style="color:#555555; font-weight:600;">💰 إجمالي الدخل بعد خصم التاجر</span>
+        <span class="label" style="color:#555555; font-weight:600;"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> إجمالي الدخل بعد خصم التاجر</span>
         <span class="value" style="color:#555555; font-weight:700;" id="valAfterDiscount">0.00 ر.س</span>
       </div>
       <div class="invoice-line negative">
@@ -193,22 +193,22 @@
       </div>
       <div class="receipt-dots">• • • • • • • • • •</div>
       <div class="invoice-line negative" style="border-top:1px dashed rgba(255,255,255,0.15); padding-top:0.75rem;">
-        <span class="label" style="color:#f59e0b; font-weight:700;">📉 إجمالي الخصومات</span>
+        <span class="label" style="color:#f59e0b; font-weight:700;"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> إجمالي الخصومات</span>
         <span class="value" style="color:#f59e0b; font-weight:800;" id="valTotalDeductions">−0.00 ر.س</span>
       </div>
       <div class="receipt-dots">• • • • • • • • • •</div>
       <div class="invoice-line total">
-        <span class="label">📊 صافي الدخل (المبلغ الداخل بعد الخصومات)</span>
+        <span class="label"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> صافي الدخل (المبلغ الداخل بعد الخصومات)</span>
         <span class="value" id="valNetIncome">0.00 ر.س</span>
       </div>
       <div class="receipt-dots">• • • • • • • • • •</div>
       <div class="invoice-line negative" style="opacity:0.8;">
-        <span class="label">📦 تكلفة المنتج (مكونات + تعبئة)</span>
+        <span class="label"><svg class="bonds-icon bonds-icon--package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> تكلفة المنتج (مكونات + تعبئة)</span>
         <span class="value" id="valProductCost2">−0.00 ر.س</span>
       </div>
       <div class="receipt-dots">• • • • • • • • • •</div>
       <div class="invoice-line total">
-        <span class="label">💵 صافي الربح = صافي الدخل − تكلفة المنتج</span>
+        <span class="label"><svg class="bonds-icon bonds-icon--banknote" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01"></path><path d="M18 12h.01"></path></svg> صافي الربح = صافي الدخل − تكلفة المنتج</span>
         <span class="value" id="valNetProfit">0.00 ر.س</span>
       </div>
       <div class="invoice-line" style="padding-top:0.3rem;">
@@ -218,28 +218,28 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="section-title">📊 الأرباح التراكمية</div>
+    <div class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الأرباح التراكمية</div>
     <div class="summary-grid">
       <div class="summary-card">
-        <div class="icon">🧾</div>
+        <div class="icon"><svg class="bonds-icon bonds-icon--receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2V2"></path><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg></div>
         <div class="num" id="sumInvoice">0.00</div>
         <div class="label">ربح الفاتورة</div>
         <div class="sub" id="sumInvoiceSub">بدون خصم: 0.00</div>
       </div>
       <div class="summary-card">
-        <div class="icon">📅</div>
+        <div class="icon"><svg class="bonds-icon bonds-icon--calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
         <div class="num" id="sumDaily">0.00</div>
         <div class="label">ربح اليوم</div>
         <div class="sub" id="sumDailySub">0 طلب × 0.00</div>
       </div>
       <div class="summary-card">
-        <div class="icon">📆</div>
+        <div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="num" id="sumMonthly">0.00</div>
         <div class="label">ربح الشهر</div>
         <div class="sub" id="sumMonthlySub">0 يوم × 0.00</div>
       </div>
       <div class="summary-card">
-        <div class="icon">🗓️</div>
+        <div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="num" id="sumYearly">0.00</div>
         <div class="label">ربح السنة</div>
         <div class="sub" id="sumYearlySub">12 شهر × 0.00</div>
@@ -248,7 +248,7 @@
 
     <!-- Promo Analysis -->
     <div class="promo-box" id="promoBox">
-      <h3>⚠️ هل العرض يستحق؟</h3>
+      <h3><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> هل العرض يستحق؟</h3>
       <div class="promo-row">
         <span class="label">الخصم اللي تدفعه:</span>
         <span class="value" id="promoDiscount" style="color:var(--red);">0.00 ر.س</span>
@@ -266,29 +266,29 @@
         <span class="value" id="promoProfitWithDiscount">0.00 ر.س</span>
       </div>
       <div class="promo-row highlight">
-        <span class="label">📉 الخسارة / فاتورة بسبب الخصم:</span>
+        <span class="label"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الخسارة / فاتورة بسبب الخصم:</span>
         <span class="value" id="promoLossPerInvoice">0.00 ر.س</span>
       </div>
       <div class="promo-row highlight">
-        <span class="label">📈 طلبات إضافية مطلوبة / يوم:</span>
+        <span class="label"><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> طلبات إضافية مطلوبة / يوم:</span>
         <span class="value" id="promoExtraOrders">0</span>
       </div>
       <div class="promo-row highlight">
-        <span class="label">🎯 الزيادة المطلوبة في المبيعات:</span>
+        <span class="label"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الزيادة المطلوبة في المبيعات:</span>
         <span class="value" id="promoRequiredIncrease">0%</span>
       </div>
     </div>
 
     <!-- With vs Without -->
-    <div class="section-title">⚖️ مقارنة: مع العرض vs بدون</div>
+    <div class="section-title"><svg class="bonds-icon bonds-icon--scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-8"></path><path d="M12 14l6-3v4a6 6 0 0 1-6 3 6 6 0 0 1-6-3v-4l6 3z"></path><path d="M12 14V7"></path><path d="M9 7h6"></path><circle cx="12" cy="4" r="2"></circle></svg> مقارنة: مع العرض vs بدون</div>
     <div class="compare-grid">
       <div class="compare-card" id="cardWithPromo">
-        <h4>🎁 مع العرض (الوضع الحالي)</h4>
+        <h4><svg class="bonds-icon bonds-icon--gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 12 20 22 4 22 4 12"></polyline><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg> مع العرض (الوضع الحالي)</h4>
         <div class="big" id="compareWith" style="color:var(--red);">0.00</div>
         <div class="desc">ربح الشهر مع الخصم</div>
       </div>
       <div class="compare-card winner" id="cardWithoutPromo">
-        <h4>✅ بدون العرض</h4>
+        <h4><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بدون العرض</h4>
         <div class="big" id="compareWithout" style="color:var(--green);">0.00</div>
         <div class="desc">ربح الشهر بدون خصم</div>
       </div>
@@ -298,15 +298,15 @@
     <div id="verdictBox" style="text-align:center; padding:1.5rem; border-radius:12px; margin:1rem 0; font-weight:700;"></div>
 
     <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; margin:1rem 0;">
-      <button class="btn-calc secondary" onclick="exportInvoiceExcel()">📊 Excel</button>
-      <button class="btn-calc secondary" onclick="exportInvoicePDF()">📄 PDF</button>
+      <button class="btn-calc secondary" onclick="exportInvoiceExcel()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Excel</button>
+      <button class="btn-calc secondary" onclick="exportInvoicePDF()"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> PDF</button>
     </div>
 
   </div>
 
   <!-- Compare All Platforms Section -->
   <div id="compareAllSection">
-    <div class="section-title">⚖️ مقارنة كل المنصات في الدولة</div>
+    <div class="section-title"><svg class="bonds-icon bonds-icon--scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-8"></path><path d="M12 14l6-3v4a6 6 0 0 1-6 3 6 6 0 0 1-6-3v-4l6 3z"></path><path d="M12 14V7"></path><path d="M9 7h6"></path><circle cx="12" cy="4" r="2"></circle></svg> مقارنة كل المنصات في الدولة</div>
     <p style="color:#555555; font-size:0.85rem; margin:-0.5rem 0 1rem;">
       نفس الطلب (نفس السعر + نفس التكلفة) على كل منصة في الدولة
     </p>
@@ -329,29 +329,29 @@
       </table>
     </div>
     <p style="text-align:center; color:#888888; font-size:0.75rem; margin-top:0.5rem;">
-      ⚠️ الأرقام تقديرية. العمولات والرسوم الفعلية تختلف حسب الاتفاق المباشر بين كل مطعم والمنصة.
+      <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الأرقام تقديرية. العمولات والرسوم الفعلية تختلف حسب الاتفاق المباشر بين كل مطعم والمنصة.
     </p>
   </div>
 
   <!-- Saved Invoices -->
-  <div class="section-title">💾 الفواتير المحفوظة</div>
+  <div class="section-title"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> الفواتير المحفوظة</div>
   <div id="savedInvoicesSection" style="display:none; margin-bottom:1.5rem;">
     <div id="savedInvoicesList" style="display:flex; flex-wrap:wrap; gap:0.5rem;"></div>
   </div>
 
   <!-- Backup / Restore -->
   <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin:1.5rem 0;">
-    <button class="btn-calc secondary" onclick="saveCurrentInvoice()" style="flex:1; min-width:140px;">💾 احفظ الفاتورة</button>
-    <button class="btn-calc secondary" onclick="exportAllData()" style="flex:1; min-width:140px;">📥 تصدير كل البيانات</button>
+    <button class="btn-calc secondary" onclick="saveCurrentInvoice()" style="flex:1; min-width:140px;"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> احفظ الفاتورة</button>
+    <button class="btn-calc secondary" onclick="exportAllData()" style="flex:1; min-width:140px;"><svg class="bonds-icon bonds-icon--inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg> تصدير كل البيانات</button>
     <label style="flex:1; min-width:140px; cursor:pointer;">
       <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importAllData(this)" />
-      <span class="btn-calc secondary" style="display:block; text-align:center;">📤 استيراد البيانات</span>
+      <span class="btn-calc secondary" style="display:block; text-align:center;"><svg class="bonds-icon bonds-icon--send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> استيراد البيانات</span>
     </label>
   </div>
 
   <!-- Empty State -->
   <div id="emptyState" class="empty-state">
-    <div class="icon">🧾</div>
+    <div class="icon"><svg class="bonds-icon bonds-icon--receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2V2"></path><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg></div>
     <p>اختر الدولة والمنصة — أو أدخل البيانات يدوياً<br>واضغط "احسب وتحلل"</p>
   </div>
 
@@ -382,7 +382,7 @@ function loadDemoData() {
     // Re-trigger platform fill with the new price
     onPlatformChange();
     calculateInvoice();
-    BondsUI.toast('✅ تم تحميل بيانات تجريبية — هنقرستيشن، شاورما 65 ر.س', 'success');
+    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم تحميل بيانات تجريبية — هنقرستيشن، شاورما 65 ر.س', 'success');
   }, 100);
 }
 
@@ -568,9 +568,9 @@ function calculateInvoice() {
 
   document.getElementById('invoiceItemName').textContent = itemName;
   var badge = document.getElementById('invoiceBadge');
-  if (netProfit > 0) { badge.textContent = 'ربح ✓'; badge.style.background = 'rgba(34,197,94,0.15)'; badge.style.color = '#22c55e'; badge.style.borderColor = 'rgba(34,197,94,0.3)'; }
+  if (netProfit > 0) { badge.textContent = 'ربح <svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>'; badge.style.background = 'rgba(34,197,94,0.15)'; badge.style.color = '#22c55e'; badge.style.borderColor = 'rgba(34,197,94,0.3)'; }
   else if (netProfit === 0) { badge.textContent = 'تعادل'; badge.style.background = 'rgba(245,158,11,0.15)'; badge.style.color = '#f59e0b'; badge.style.borderColor = 'rgba(245,158,11,0.3)'; }
-  else { badge.textContent = 'خسارة ✗'; badge.style.background = 'rgba(239,68,68,0.15)'; badge.style.color = '#ef4444'; badge.style.borderColor = 'rgba(239,68,68,0.3)'; }
+  else { badge.textContent = 'خسارة <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>'; badge.style.background = 'rgba(239,68,68,0.15)'; badge.style.color = '#ef4444'; badge.style.borderColor = 'rgba(239,68,68,0.3)'; }
 
   document.getElementById('valSubtotal').textContent = formatMoney(price);
   document.getElementById('valDiscount').textContent = '−' + formatMoney(discount);
@@ -645,21 +645,21 @@ function calculateInvoice() {
   var verdict = document.getElementById('verdictBox');
   if (discount === 0) {
     verdict.style.cssText = 'background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.3);text-align:center;padding:1.5rem;border-radius:12px;margin:1rem 0;font-weight:700;';
-    verdict.textContent = '✅ ما فيه خصم — ربحك الشهري ' + monthlyProfit.toFixed(0) + ' ' + currentSymbol;
+    verdict.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ما فيه خصم — ربحك الشهري ' + monthlyProfit.toFixed(0) + ' ' + currentSymbol;
   } else if (netProfit < 0) {
     verdict.style.cssText = 'background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);text-align:center;padding:1.5rem;border-radius:12px;margin:1rem 0;font-weight:700;';
     verdict.textContent = '❌ العرض يُسبب خسارة! كل طلب يخسر ' + Math.abs(netProfit).toFixed(2) + ' ' + currentSymbol;
   } else if (extraOrdersNeeded > 0 && extraOrdersNeeded !== Infinity) {
     verdict.style.cssText = 'background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);text-align:center;padding:1.5rem;border-radius:12px;margin:1rem 0;font-weight:700;';
-    verdict.textContent = '⚠️ تحتاج ' + extraOrdersNeeded + ' طلب إضافي/يوم (' + requiredIncreasePct.toFixed(0) + '%) عشان تعويض الخصم';
+    verdict.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تحتاج ' + extraOrdersNeeded + ' طلب إضافي/يوم (' + requiredIncreasePct.toFixed(0) + '%) عشان تعويض الخصم';
   } else {
     verdict.style.cssText = 'background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.3);text-align:center;padding:1.5rem;border-radius:12px;margin:1rem 0;font-weight:700;';
-    verdict.textContent = '✅ العرض مربح حتى مع الخصم!';
+    verdict.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> العرض مربح حتى مع الخصم!';
   }
 
   window._lastInvoice = { price, discount, commissionPct, paymentFeePct, serviceFeePct, productCost, deliveryFee, vatRate, dailyOrders, workingDays, itemName, commissionAmount, serviceFeeAmount, paymentFeeAmount, vatCommission, vatServiceFee, vatPayment, vatDelivery, afterDiscount, totalDeductions, netIncome, netProfit, marginPct, profitNoDiscount, lossFromDiscount, dailyProfit, monthlyProfit, yearlyProfit, dailyProfitNoDiscount, monthlyProfitNoDiscount, extraOrdersNeeded, requiredIncreasePct };
 
-  BondsUI.toast('✅ تم التحليل بنجاح', 'success');
+  BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم التحليل بنجاح', 'success');
 }
 
 function compareAllPlatforms() {
@@ -732,7 +732,7 @@ function compareAllPlatforms() {
     var tr = document.createElement('tr');
 
     var nameHtml = '<div class="name-cell">' + p.name;
-    if (p.confidence === 'verified') nameHtml += '<span class="info-tag verified">✓ مؤكد</span>';
+    if (p.confidence === 'verified') nameHtml += '<span class="info-tag verified"><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> مؤكد</span>';
     else nameHtml += '<span class="info-tag estimated">تقدير</span>';
     if (p.feeTiers && p.feeTiers.length > 0) nameHtml += '<span class="info-tag tiered">شرائح</span>';
     nameHtml += '</div>';
@@ -757,17 +757,17 @@ function compareAllPlatforms() {
 
   document.getElementById('compareAllSection').style.display = 'block';
   document.getElementById('compareAllSection').scrollIntoView({ behavior: 'smooth' });
-  BondsUI.toast('✅ تمت المقارنة بين ' + results.length + ' منصة', 'success');
+  BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تمت المقارنة بين ' + results.length + ' منصة', 'success');
 }
 
 async function exportInvoiceExcel() {
   if (!window._lastInvoice) {
-    BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning');
+    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> احسب النتائج أولاً', 'warning');
     return;
   }
   await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
   if (typeof XLSX === 'undefined') {
-    BondsUI.toast('❌ فشل تحميل مكتبة Excel', 'error');
+    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> فشل تحميل مكتبة Excel', 'error');
     return;
   }
   var d = window._lastInvoice;
@@ -808,12 +808,12 @@ async function exportInvoiceExcel() {
 
 function exportInvoicePDF() {
   if (!window._lastInvoice) {
-    BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning');
+    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> احسب النتائج أولاً', 'warning');
     return;
   }
   var d = window._lastInvoice;
   var content = `
-    <h2>🧾 تفاصيل الفاتورة</h2>
+    <h2><svg class="bonds-icon bonds-icon--receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2V2"></path><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg> تفاصيل الفاتورة</h2>
     <table>
       <tr><th>البند</th><th>القيمة</th></tr>
       <tr><td>اسم المنتج</td><td class="num">${d.itemName}</td></tr>
@@ -830,7 +830,7 @@ function exportInvoicePDF() {
       <tr><td>هامش الربح</td><td class="num">${d.marginPct.toFixed(1)}%</td></tr>
     </table>
 
-    <h2>📊 الإسقاطات المالية</h2>
+    <h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الإسقاطات المالية</h2>
     <div class="metric-grid">
       <div class="metric-item"><div class="label">ربح اليوم</div><div class="value">${d.dailyProfit.toFixed(0)} ${currentSymbol}</div></div>
       <div class="metric-item"><div class="label">ربح الشهر</div><div class="value">${d.monthlyProfit.toFixed(0)} ${currentSymbol}</div></div>
@@ -885,10 +885,10 @@ function saveCurrentInvoice() {
   if (!data.orderPrice) { BondsUI.toast('أدخل سعر الطلب أولاً', 'warning'); return; }
   var name = data.itemName || ('فاتورة ' + new Date().toLocaleDateString('ar-SA'));
   BondsDB.save('invoices', { name: name, formData: data }).then(function() {
-    BondsUI.toast('✅ تم حفظ الفاتورة', 'success');
+    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم حفظ الفاتورة', 'success');
     loadSavedInvoices();
   }).catch(function(e) {
-    BondsUI.toast('❌ فشل الحفظ', 'error');
+    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> فشل الحفظ', 'error');
   });
 }
 
@@ -905,7 +905,7 @@ function loadSavedInvoices() {
       btn.style.cssText = 'background:rgba(212,168,83,0.1);color:var(--gold);border:1px solid rgba(212,168,83,0.3);padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.85rem;transition:all 0.2s;';
       btn.onmouseenter = function() { btn.style.background = 'rgba(212,168,83,0.2)'; };
       btn.onmouseleave = function() { btn.style.background = 'rgba(212,168,83,0.1)'; };
-      btn.onclick = function() { setFormData(inv.formData); BondsUI.toast('✅ تم تحميل الفاتورة', 'success'); };
+      btn.onclick = function() { setFormData(inv.formData); BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم تحميل الفاتورة', 'success'); };
       box.appendChild(btn);
     });
   });
@@ -915,9 +915,9 @@ function exportAllData() {
   BondsDB.exportAll().then(function(data) {
     var filename = 'bonds-backup-' + new Date().toISOString().slice(0,10) + '.json';
     BondsDB.downloadJSON(filename, data);
-    BondsUI.toast('✅ تم تصدير البيانات', 'success');
+    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم تصدير البيانات', 'success');
   }).catch(function() {
-    BondsUI.toast('❌ فشل التصدير', 'error');
+    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> فشل التصدير', 'error');
   });
 }
 
@@ -927,11 +927,11 @@ function importAllData(input) {
   BondsDB.readFile(file).then(function(data) {
     return BondsDB.importAll(data);
   }).then(function() {
-    BondsUI.toast('✅ تم استيراد البيانات', 'success');
+    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم استيراد البيانات', 'success');
     loadSavedInvoices();
     input.value = '';
   }).catch(function(e) {
-    BondsUI.toast('❌ ملف غير صالح', 'error');
+    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ملف غير صالح', 'error');
     input.value = '';
   });
 }

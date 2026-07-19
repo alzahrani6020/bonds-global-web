@@ -27,7 +27,7 @@
 <body>
   <div class="container">
     <div class="card">
-      <h1>🔧 تشخيص تسجيل الدخول</h1>
+      <h1><svg class="bonds-icon bonds-icon--tool" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg> تشخيص تسجيل الدخول</h1>
       <p>هذه الصفحة تساعدني على معرفة المشكلة بدقة. لا تقلق — كل شيء يظهر هنا فقط.</p>
     </div>
 
@@ -112,16 +112,16 @@
       
       if (!env.SUPABASE_URL) {
         status.className = 'status fail';
-        status.textContent = '❌ لم يُحمّل api/env.js — فشل فادح';
+        status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لم يُحمّل api/env.js — فشل فادح';
         msg += 'خطأ: window.__ENV.SUPABASE_URL غير موجود\n';
         msg += 'window.__ENV = ' + JSON.stringify(env, null, 2) + '\n';
       } else if (!env.SUPABASE_ANON_KEY) {
         status.className = 'status fail';
-        status.textContent = '❌ SUPABASE_ANON_KEY مفقود';
+        status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> SUPABASE_ANON_KEY مفقود';
         msg += 'URL موجود لكن المفتاح مفقود\n';
       } else {
         status.className = 'status ok';
-        status.textContent = '✅ إعدادات Supabase محملة';
+        status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> إعدادات Supabase محملة';
         msg += 'Supabase URL: ' + env.SUPABASE_URL + '\n';
         msg += 'Anon Key length: ' + env.SUPABASE_ANON_KEY.length + ' حرف\n';
         urlEl.value = env.SUPABASE_URL;
@@ -152,7 +152,7 @@
         
         if (data.session) {
           status.className = 'status ok';
-          status.textContent = '✅ أنت مسجل دخول!';
+          status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> أنت مسجل دخول!';
           msg += 'User ID: ' + data.session.user.id + '\n';
           msg += 'Email: ' + data.session.user.email + '\n';
           msg += 'Email confirmed: ' + (data.session.user.email_confirmed_at ? 'نعم' : 'لا') + '\n';
@@ -160,7 +160,7 @@
           msg += '\nRaw user:\n' + JSON.stringify(data.session.user, null, 2);
         } else {
           status.className = 'status fail';
-          status.textContent = '❌ لا يوجد جلسة حالية';
+          status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا يوجد جلسة حالية';
           msg += 'لم يتم العثور على جلسة.\n\n';
           msg += 'localStorage ذات صلة:\n';
           for (let i=0; i<localStorage.length; i++) {

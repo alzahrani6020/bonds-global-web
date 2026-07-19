@@ -271,7 +271,7 @@
 
   <div id="site-header"></div>
   <header>
-    <h1>⚑ الإنذارات الاستثمارية</h1>
+    <h1><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الإنذارات الاستثمارية</h1>
     <p>تتبع أهم التغيرات الاقتصادية والعقارية والسوقية التي قد تؤثر على قراراتك الاستثمارية</p>
   </header>
 
@@ -285,16 +285,16 @@
     <div class="filters">
       <select data-universal-dropdown="true" id="severityFilter">
         <option value="">كل مستويات الخطورة</option>
-        <option value="critical">🔴 حرج</option>
-        <option value="warning">🟠 مرتفع</option>
-        <option value="info">🔵 منخفض</option>
+        <option value="critical"><svg class="bonds-icon bonds-icon--circle bonds-icon--danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg> حرج</option>
+        <option value="warning"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مرتفع</option>
+        <option value="info"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> منخفض</option>
       </select>
       <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="cityFilter"><option value="">كل المدن</option></select>
       <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activityFilter"><option value="">كل الأنشطة</option></select>
       <label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-secondary); font-size: 0.9rem;">
         <input type="checkbox" id="unreadOnly" checked> غير المقروءة فقط
       </label>
-      <button id="refreshBtn">🔄 تحديث</button>
+      <button id="refreshBtn"><svg class="bonds-icon bonds-icon--refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> تحديث</button>
     </div>
 
     <div id="alertsContainer">
@@ -342,9 +342,9 @@
     };
 
     const SEVERITY_LABELS = {
-      critical: { label: 'حرج', icon: '🔴', class: 'severity-critical' },
-      warning: { label: 'مرتفع', icon: '🟠', class: 'severity-warning' },
-      info: { label: 'منخفض', icon: '🔵', class: 'severity-info' }
+      critical: { label: 'حرج', icon: '<svg class="bonds-icon bonds-icon--circle bonds-icon--danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg>', class: 'severity-critical' },
+      warning: { label: 'مرتفع', icon: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>', class: 'severity-warning' },
+      info: { label: 'منخفض', icon: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>', class: 'severity-info' }
     };
 
     function metricLabel(code) {
@@ -475,23 +475,23 @@
 
       document.getElementById('summary').innerHTML = `
         <div class="summary-card">
-          <div class="summary-icon blue">⚑</div>
+          <div class="summary-icon blue"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
           <div><div class="summary-value">${unread.length}</div><div class="summary-label">إنذارات جديدة</div></div>
         </div>
         <div class="summary-card">
-          <div class="summary-icon red">🔴</div>
+          <div class="summary-icon red"><svg class="bonds-icon bonds-icon--circle bonds-icon--danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg></div>
           <div><div class="summary-value">${critical}</div><div class="summary-label">إنذارات حرجة</div></div>
         </div>
         <div class="summary-card">
-          <div class="summary-icon gold">🟠</div>
+          <div class="summary-icon gold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
           <div><div class="summary-value">${warning}</div><div class="summary-label">إنذارات مرتفعة</div></div>
         </div>
         <div class="summary-card">
-          <div class="summary-icon gray">✦</div>
+          <div class="summary-icon gray"><svg class="bonds-icon bonds-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5 12 2"></polygon></svg></div>
           <div><div class="summary-value">${opportunities}</div><div class="summary-label">فرص استثمارية</div></div>
         </div>
         <div class="summary-card">
-          <div class="summary-icon gray">👁️</div>
+          <div class="summary-icon gray"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
           <div><div class="summary-value">${review}</div><div class="summary-label">يحتاج مراجعة</div></div>
         </div>
       `;
@@ -543,7 +543,7 @@
       const changePercent = alert.change_percent ? Math.abs(alert.change_percent).toFixed(1) + '%' : '';
       const changeValue = alert.change_value ? Math.abs(alert.change_value).toLocaleString('ar-SA') : '';
       const direction = (alert.change_value || 0) >= 0 ? 'up' : 'down';
-      const directionIcon = direction === 'up' ? '↗️' : '↘️';
+      const directionIcon = direction === 'up' ? '↗' : '↘';
       const directionClass = direction === 'up' ? 'change-up' : 'change-down';
       const cityName = alert.city?.name_ar || 'كل المدن';
       const activityName = alert.activity?.name_ar;
@@ -561,18 +561,18 @@
           </div>
           <div class="alert-meta">
             <span>⌖ ${cityName}</span>
-            ${activityName ? `<span>▩ ${activityName}</span>` : ''}
-            <span>▤ القيمة السابقة: ${formatNumber(alert.old_value)} → الجديدة: ${formatNumber(alert.new_value)}</span>
+            ${activityName ? `<span><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ${activityName}</span>` : ''}
+            <span><svg class="bonds-icon bonds-icon--grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg> القيمة السابقة: ${formatNumber(alert.old_value)} → الجديدة: ${formatNumber(alert.new_value)}</span>
           </div>
           <div class="alert-change ${directionClass}">
             ${direction === 'up' ? 'ارتفع' : 'انخفض'} ${metric} ${changePercent ? 'بنسبة ' + changePercent : changeValue ? 'بمقدار ' + changeValue : ''}
           </div>
           <div class="alert-insight">
-            <strong>✦ التفسير الذكي:</strong> ${alert.insight || generateInsight(alert)}
+            <strong><svg class="bonds-icon bonds-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5 12 2"></polygon></svg> التفسير الذكي:</strong> ${alert.insight || generateInsight(alert)}
           </div>
           <div class="alert-footer">
             <span class="alert-date">${formatDate(alert.created_at, 'تم الاكتشاف')}</span>
-            ${!alert.is_read ? `<button class="mark-read-btn" data-id="${alert.id}">✓ تم القراءة</button>` : '<span style="color: var(--text-secondary); font-size: 0.8rem;">مقروء</span>'}
+            ${!alert.is_read ? `<button class="mark-read-btn" data-id="${alert.id}"><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> تم القراءة</button>` : '<span style="color: var(--text-secondary); font-size: 0.8rem;">مقروء</span>'}
           </div>
         </div>
       `;

@@ -325,15 +325,15 @@
               <div>
                 <div class="review-title">${TYPE_LABELS[req.type] || req.type || 'تحليل AI'}</div>
                 <div class="review-meta">
-                  <span>👤 ${profile.full_name || '—'} (${profile.email || '—'})</span>
-                  <span>🎯 النتيجة: ${result?.risk_level || result?.risk_score ?? '—'}</span>
-                  <span>💰 ${formatCurrency(payload.monthly_revenue || payload.annual_revenue)} إيراد</span>
+                  <span><svg class="bonds-icon bonds-icon--user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> ${profile.full_name || '—'} (${profile.email || '—'})</span>
+                  <span><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> النتيجة: ${result?.risk_level || result?.risk_score ?? '—'}</span>
+                  <span><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ${formatCurrency(payload.monthly_revenue || payload.annual_revenue)} إيراد</span>
                   <span>⏰ ${timeAgo(r.created_at)}</span>
                 </div>
               </div>
               <span class="badge ${statusCfg.class}">${statusCfg.label}</span>
             </div>
-            ${r.note ? `<div class="review-note">📝 ${r.note}</div>` : ''}
+            ${r.note ? `<div class="review-note"><svg class="bonds-icon bonds-icon--edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> ${r.note}</div>` : ''}
             <div class="review-actions">
               <button class="btn-sm btn-primary" onclick="openReview('${r.id}')">عرض التفاصيل</button>
               ${r.status !== 'under_review' ? `<button class="btn-sm btn-secondary" onclick="quickUpdate('${r.id}', 'under_review')">تعيين قيد المراجعة</button>` : ''}

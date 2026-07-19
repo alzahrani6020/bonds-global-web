@@ -53,7 +53,7 @@
     .stage__title { font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--gold); }
     .stage__list { list-style:none; }
     .stage__list li { padding:0.5rem 0; color:var(--text-secondary); font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
-    .stage__list li::before { content:'✓'; color:var(--success); font-weight:700; }
+    .stage__list li::before { content:'<svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>'; color:var(--success); font-weight:700; }
     .note { background:rgba(234,179,8,0.08); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.85rem; color:var(--text-secondary); margin:1rem 0; }
     .note strong { color:var(--warning); }
     footer { text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border); margin-top:3rem; }
@@ -82,41 +82,41 @@
 
   <div class="container">
 
-    <h2 class="section-title">🏛️ الهيئات الحكومية الرئيسية</h2>
+    <h2 class="section-title"><svg class="bonds-icon bonds-icon--landmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M4 21V10l8-6 8 6v11"></path><path d="M9 21v-6h6v6"></path><path d="M12 2v4"></path></svg> الهيئات الحكومية الرئيسية</h2>
     <div class="cards">
       <div class="card">
-        <div class="card__icon">🏭</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">الهيئة العامة للاستثمار (KDIPA)</div>
         <div class="card__text">ترويج الاستثمار الأجنبي المباشر. تمنح التراخيص الاستثمارية. تقدم الحوافز والإعفاءات للمستثمرين.</div>
       </div>
       <div class="card">
-        <div class="card__icon">🏗️</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--construction" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 22h20"></path><path d="M6 22V11l6-4 6 4v11"></path><path d="M10 22v-5h4v5"></path><path d="M12 2v5"></path></svg></div>
         <div class="card__title">الهيئة العامة للصناعة (PAI)</div>
         <div class="card__text">تنظيم وتطوير القطاع الصناعي. إصدار التراخيص الصناعية. تطوير المناطق الصناعية. دعم الصناعات الوطنية.</div>
       </div>
       <div class="card">
-        <div class="card__icon">⚡</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">وزارة الكهرباء والماء (MEW)</div>
         <div class="card__text">الجهة الوحيدة لتوليد وتوزيع الكهرباء والماء. تقدم خدمات الشباك الواحد. تسعير مدعوم بشكل كبير.</div>
       </div>
       <div class="card">
-        <div class="card__icon">🏙️</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--city" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M5 21V7l6-3v17"></path><path d="M13 21V10l6 3v8"></path><path d="M8 10h2"></path><path d="M8 14h2"></path><path d="M15 13h2"></path><path d="M15 17h2"></path></svg></div>
         <div class="card__title">الهيئة العامة للبيئة</div>
         <div class="card__text">حماية البيئة والتنمية المستدامة. إصدار التصاريح البيئية. مراقبة الانبعاثات الصناعية.</div>
       </div>
       <div class="card">
-        <div class="card__icon">📋</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">وزارة التجارة والصناعة</div>
         <div class="card__text">تسجيل الشركات التجارية. إصدار الرخص التجارية. حماية المستهلك. رقابة السوق.</div>
       </div>
       <div class="card">
-        <div class="card__icon">🌊</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--waves" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path></svg></div>
         <div class="card__title">الهيئة العامة للزراعة والثروة السمكية</div>
         <div class="card__text">تنظيم استخدام الموارد الطبيعية. تراخيص الصناعات الغذائية والزراعية.</div>
       </div>
     </div>
 
-    <h2 class="section-title">⚡ تعريفة الكهرباء الصناعية</h2>
+    <h2 class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تعريفة الكهرباء الصناعية</h2>
     <div class="table-wrap">
       <table>
         <thead>
@@ -135,51 +135,51 @@
       <strong>ملاحظة:</strong> الكويت تتميز بأقل تعريفة كهرباء في العالم (بفضل الدعم الحكومي الضخم). الأسعار الفعلية قد تختلف حسب السياسات الحكومية. يتم مراجعة الدعم بشكل دوري.
     </div>
 
-    <h2 class="section-title">🏙️ المناطق الصناعية الرئيسية</h2>
+    <h2 class="section-title"><svg class="bonds-icon bonds-icon--city" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M5 21V7l6-3v17"></path><path d="M13 21V10l6 3v8"></path><path d="M8 10h2"></path><path d="M8 14h2"></path><path d="M15 13h2"></path><path d="M15 17h2"></path></svg> المناطق الصناعية الرئيسية</h2>
     <div class="cards">
       <div class="card">
-        <div class="card__icon">🏭</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">منطقة الشعيبة الصناعية</div>
         <div class="card__text">أكبر منطقة صناعية في الكويت. 500+ مصنع. تخصصات: البتروكيماويات، الصناعات الثقيلة، المعادن. قرب ميناء الشعيبة.</div>
       </div>
       <div class="card">
-        <div class="card__icon">🏭</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">منطقة أمغرة الصناعية</div>
         <div class="card__text">شمال الكويت. 300+ مصنع. تخصصات: الصناعات الهندسية، البلاستيك، الكيماويات. أراضي واسعة متاحة.</div>
       </div>
       <div class="card">
-        <div class="card__icon">🏭</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">منطقة الصليبية الصناعية</div>
         <div class="card__text">تخصصات: الصناعات الخفيفة، التعبئة والتغليف، المنتجات الاستهلاكية. مناسبة للمشاريع الصغيرة.</div>
       </div>
       <div class="card">
-        <div class="card__icon">🏭</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">منطقة سلوى الصناعية</div>
         <div class="card__text">جنوب الكويت. تخصصات: الصناعات الغذائية، منتجات الألبان، التخزين البارد.</div>
       </div>
       <div class="card">
-        <div class="card__icon">🏭</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">منطقة الوفرة الصناعية</div>
         <div class="card__text">جنوب الكويت. تخصصات: الصناعات الثقيلة، مصانع الأسمنت، المواد الكيميائية. قرب الحدود السعودية.</div>
       </div>
       <div class="card">
-        <div class="card__icon">🏭</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">منطقة المقاوم الصناعية</div>
         <div class="card__text">وسط الكويت. تخصصات: الصناعات الهندسية، ورش السيارات، الخدمات الصناعية.</div>
       </div>
       <div class="card">
-        <div class="card__icon">🏭</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">منطقة الجهراء الصناعية</div>
         <div class="card__text">غرب الكويت. تخصصات: الصناعات التقليدية، المنتجات الزراعية، التخزين واللوجستيات.</div>
       </div>
       <div class="card">
-        <div class="card__icon">🏭</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">منطقة العبدلي الصناعية</div>
         <div class="card__text">شمال غرب الكويت. تخصصات: الصناعات الحدودية، التخزين، التجارة العابرة.</div>
       </div>
     </div>
 
-    <h2 class="section-title">🗺️ رحلة المستثمر الصناعي</h2>
+    <h2 class="section-title"><svg class="bonds-icon bonds-icon--map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 9 2 15 6 23 2 23 18 15 22 9 18 1 22"></polygon><line x1="9" y1="2" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="22"></line></svg> رحلة المستثمر الصناعي</h2>
     <div class="timeline">
       <div class="stage">
         <div class="stage__num">1</div>
@@ -235,7 +235,7 @@
       </div>
     </div>
 
-    <h2 class="section-title">💰 التكاليف والرسوم الصناعية</h2>
+    <h2 class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> التكاليف والرسوم الصناعية</h2>
     <div class="table-wrap">
       <table>
         <thead>
@@ -252,7 +252,7 @@
       </table>
     </div>
 
-    <h2 class="section-title">📋 متطلبات إنشاء مصنع في الكويت</h2>
+    <h2 class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> متطلبات إنشاء مصنع في الكويت</h2>
     <div class="table-wrap">
       <table>
         <thead>
@@ -271,75 +271,75 @@
       </table>
     </div>
 
-    <h2 class="section-title">🏗️ اشتراطات البناء الصناعي</h2>
+    <h2 class="section-title"><svg class="bonds-icon bonds-icon--construction" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 22h20"></path><path d="M6 22V11l6-4 6 4v11"></path><path d="M10 22v-5h4v5"></path><path d="M12 2v5"></path></svg> اشتراطات البناء الصناعي</h2>
     <div class="cards">
       <div class="card">
-        <div class="card__icon">📐</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--ruler" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L2 22h20V2z"></path><path d="M6 22l16-16"></path><path d="M10 22l12-12"></path><path d="M14 22l8-8"></path><path d="M18 22l4-4"></path></svg></div>
         <div class="card__title">النسب البنائية</div>
         <div class="card__text">نسبة البناء: 50-70%. مساحات خضراء: 10%. ارتفاع المصانع: حتى 15 متر.</div>
       </div>
       <div class="card">
-        <div class="card__icon">🚒</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--fire-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H4v10z"></path><path d="M18 17h2a2 2 0 0 0 2-2v-2h-4v4z"></path><circle cx="7" cy="19" r="2"></circle><circle cx="17" cy="19" r="2"></circle><path d="M6 13h6"></path><path d="M9 13V9"></path><path d="M12 11l3-3"></path></svg></div>
         <div class="card__title">اشتراطات السلامة</div>
         <div class="card__text">مخرجين طوارئ. مسافة 6 أمتار بين المباني. خزان مياه إطفاء. نظام إنذار حريق.</div>
       </div>
       <div class="card">
-        <div class="card__icon">🌿</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg></div>
         <div class="card__title">الاشتراطات البيئية</div>
         <div class="card__text">دراسة تقييم الأثر البيئي. معالجة المخلفات. مراقبة الانبعاثات. التزام بمعايير الهيئة العامة للبيئة.</div>
       </div>
       <div class="card">
-        <div class="card__icon">👷</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--worker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path><path d="M12 4a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path></svg></div>
         <div class="card__title">اشتراطات العمالة</div>
         <div class="card__text">مساحة 3.5 م²/عامل. مرافق صحية. امتثال لقانون العمل الكويتي. برنامج تعمين للعمالة الوطنية.</div>
       </div>
     </div>
 
-    <h2 class="section-title">📞 معلومات التواصل الرئيسية</h2>
+    <h2 class="section-title"><svg class="bonds-icon bonds-icon--phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> معلومات التواصل الرئيسية</h2>
     <div class="cards">
       <div class="card">
-        <div class="card__icon">🏭</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">الهيئة العامة للاستثمار</div>
         <div class="card__text">الموقع: kdipa.gov.kw<br>الهاتف: +965 18 440 000<br>البريد: info@kdipa.gov.kw</div>
       </div>
       <div class="card">
-        <div class="card__icon">🏗️</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--construction" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 22h20"></path><path d="M6 22V11l6-4 6 4v11"></path><path d="M10 22v-5h4v5"></path><path d="M12 2v5"></path></svg></div>
         <div class="card__title">الهيئة العامة للصناعة</div>
         <div class="card__text">الموقع: pai.gov.kw<br>الهاتف: +965 24 810 000<br>البريد: info@pai.gov.kw</div>
       </div>
       <div class="card">
-        <div class="card__icon">⚡</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">وزارة الكهرباء والماء</div>
         <div class="card__text">الموقع: mew.gov.kw<br>الهاتف: 152<br>البريد: info@mew.gov.kw</div>
       </div>
       <div class="card">
-        <div class="card__icon">🌿</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg></div>
         <div class="card__title">الهيئة العامة للبيئة</div>
         <div class="card__text">الموقع: epa.org.kw<br>الهاتف: +965 22 380 000<br>البريد: info@epa.org.kw</div>
       </div>
       <div class="card">
-        <div class="card__icon">📋</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
         <div class="card__title">وزارة التجارة والصناعة</div>
         <div class="card__text">الموقع: moi.gov.kw<br>الهاتف: +965 18 440 000<br>البريد: info@moci.gov.kw</div>
       </div>
       <div class="card">
-        <div class="card__icon">🏙️</div>
+        <div class="card__icon"><svg class="bonds-icon bonds-icon--city" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M5 21V7l6-3v17"></path><path d="M13 21V10l6 3v8"></path><path d="M8 10h2"></path><path d="M8 14h2"></path><path d="M15 13h2"></path><path d="M15 17h2"></path></svg></div>
         <div class="card__title">الهيئة العامة للمعلومات المدنية</div>
         <div class="card__text">الموقع: pacigov.kw<br>الهاتف: 1889 888<br>البريد: info@pacigov.kw</div>
       </div>
     </div>
 
-    <h2 class="section-title">🔗 أدلة استثمارية أخرى</h2>
+    <h2 class="section-title"><svg class="bonds-icon bonds-icon--link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg> أدلة استثمارية أخرى</h2>
     <div class="cards">
-      <div class="card"><div class="card__icon">🇸🇦</div><div class="card__title"><a href="manufacturing.html">الاستثمار الصناعي في السعودية</a></div><div class="card__text">دليل مدن الصناعية السعودية - 35 مدينة صناعية</div></div>
-      <div class="card"><div class="card__icon">🇪🇬</div><div class="card__title"><a href="manufacturing-eg.html">الاستثمار الصناعي في مصر</a></div><div class="card__text">دليل الهيئة العامة للتنمية الصناعية - 147 منطقة</div></div>
-      <div class="card"><div class="card__icon">🇦🇪</div><div class="card__title"><a href="manufacturing-ae.html">الاستثمار الصناعي في الإمارات</a></div><div class="card__text">دليل المناطق الحرة والصناعية الإماراتية</div></div>
-      <div class="card"><div class="card__icon">🇱🇾</div><div class="card__title"><a href="manufacturing-ly.html">الاستثمار الصناعي في ليبيا</a></div><div class="card__text">دليل المناطق الصناعية الليبية</div></div>
-      <div class="card"><div class="card__icon">🇩🇿</div><div class="card__title"><a href="manufacturing-dz.html">الاستثمار الصناعي في الجزائر</a></div><div class="card__text">دليل المناطق الصناعية الجزائرية</div></div>
-      <div class="card"><div class="card__icon">🇱🇧</div><div class="card__title"><a href="manufacturing-lb.html">الاستثمار الصناعي في لبنان</a></div><div class="card__text">دليل المناطق الصناعية اللبنانية</div></div>
-      <div class="card"><div class="card__icon">🇾🇪</div><div class="card__title"><a href="manufacturing-ye.html">الاستثمار الصناعي في اليمن</a></div><div class="card__text">دليل المناطق الصناعية اليمنية</div></div>
-      <div class="card"><div class="card__icon">🇸🇾</div><div class="card__title"><a href="manufacturing-sy.html">الاستثمار الصناعي في سوريا</a></div><div class="card__text">دليل المناطق الصناعية السورية</div></div>
-      <div class="card"><div class="card__icon">🏭</div><div class="card__title"><a href="../calculators/factory-cost-kw.html">حاسبة تكلفة المصنع - الكويت</a></div><div class="card__text">احسب تكلفة إنشاء مصنعك في الكويت</div></div>
+      <div class="card"><div class="card__icon"><span class="bonds-flag bonds-flag--SA">SA</span></div><div class="card__title"><a href="manufacturing.html">الاستثمار الصناعي في السعودية</a></div><div class="card__text">دليل مدن الصناعية السعودية - 35 مدينة صناعية</div></div>
+      <div class="card"><div class="card__icon"><span class="bonds-flag bonds-flag--EG">EG</span></div><div class="card__title"><a href="manufacturing-eg.html">الاستثمار الصناعي في مصر</a></div><div class="card__text">دليل الهيئة العامة للتنمية الصناعية - 147 منطقة</div></div>
+      <div class="card"><div class="card__icon"><span class="bonds-flag bonds-flag--AE">AE</span></div><div class="card__title"><a href="manufacturing-ae.html">الاستثمار الصناعي في الإمارات</a></div><div class="card__text">دليل المناطق الحرة والصناعية الإماراتية</div></div>
+      <div class="card"><div class="card__icon"><span class="bonds-flag bonds-flag--LY">LY</span></div><div class="card__title"><a href="manufacturing-ly.html">الاستثمار الصناعي في ليبيا</a></div><div class="card__text">دليل المناطق الصناعية الليبية</div></div>
+      <div class="card"><div class="card__icon"><span class="bonds-flag bonds-flag--DZ">DZ</span></div><div class="card__title"><a href="manufacturing-dz.html">الاستثمار الصناعي في الجزائر</a></div><div class="card__text">دليل المناطق الصناعية الجزائرية</div></div>
+      <div class="card"><div class="card__icon"><span class="bonds-flag bonds-flag--LB">LB</span></div><div class="card__title"><a href="manufacturing-lb.html">الاستثمار الصناعي في لبنان</a></div><div class="card__text">دليل المناطق الصناعية اللبنانية</div></div>
+      <div class="card"><div class="card__icon"><span class="bonds-flag bonds-flag--YE">YE</span></div><div class="card__title"><a href="manufacturing-ye.html">الاستثمار الصناعي في اليمن</a></div><div class="card__text">دليل المناطق الصناعية اليمنية</div></div>
+      <div class="card"><div class="card__icon"><span class="bonds-flag bonds-flag--SY">SY</span></div><div class="card__title"><a href="manufacturing-sy.html">الاستثمار الصناعي في سوريا</a></div><div class="card__text">دليل المناطق الصناعية السورية</div></div>
+      <div class="card"><div class="card__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="card__title"><a href="../calculators/factory-cost-kw.html">حاسبة تكلفة المصنع - الكويت</a></div><div class="card__text">احسب تكلفة إنشاء مصنعك في الكويت</div></div>
     </div>
 
   </div>
@@ -349,7 +349,7 @@
   <script src="../page-tracker-v2.js"></script>
 <script>
 (function(){
-  var map={'🇸🇦':'sa','🇪🇬':'eg','🇦🇪':'ae','🇱🇾':'ly','🇩🇿':'dz','🇱🇧':'lb','🇾🇪':'ye','🇸🇾':'sy','🇧🇭':'bh','🇹🇳':'tn','🇲🇦':'ma','🇯🇴':'jo','🇮🇶':'iq','🇴🇲':'om','🇶🇦':'qa','🇰🇼':'kw','🇸🇩':'sd'};
+  var map={'<span class="bonds-flag bonds-flag--SA">SA</span>':'sa','<span class="bonds-flag bonds-flag--EG">EG</span>':'eg','<span class="bonds-flag bonds-flag--AE">AE</span>':'ae','<span class="bonds-flag bonds-flag--LY">LY</span>':'ly','<span class="bonds-flag bonds-flag--DZ">DZ</span>':'dz','<span class="bonds-flag bonds-flag--LB">LB</span>':'lb','<span class="bonds-flag bonds-flag--YE">YE</span>':'ye','<span class="bonds-flag bonds-flag--SY">SY</span>':'sy','<span class="bonds-flag bonds-flag--BH">BH</span>':'bh','<span class="bonds-flag bonds-flag--TN">TN</span>':'tn','<span class="bonds-flag bonds-flag--MA">MA</span>':'ma','<span class="bonds-flag bonds-flag--JO">JO</span>':'jo','<span class="bonds-flag bonds-flag--IQ">IQ</span>':'iq','<span class="bonds-flag bonds-flag--OM">OM</span>':'om','<span class="bonds-flag bonds-flag--QA">QA</span>':'qa','<span class="bonds-flag bonds-flag--KW">KW</span>':'kw','<span class="bonds-flag bonds-flag--SD">SD</span>':'sd'};
   function fix(){document.querySelectorAll('.card__icon').forEach(function(el){var t=el.textContent.trim();if(map[t]){el.innerHTML='<img src="https://flagcdn.com/48x36/'+map[t]+'.png" width="32" height="24" alt="" style="border-radius:4px;box-shadow:0 2px 4px rgba(0,0,0,0.2);display:block;">';}});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();
 })();

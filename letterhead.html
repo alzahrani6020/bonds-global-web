@@ -422,50 +422,50 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-  <button class="preview-exit" onclick="togglePreview()">❌ إنهاء المعاينة</button>
+  <button class="preview-exit" onclick="togglePreview()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> إنهاء المعاينة</button>
   <input type="file" id="image-upload" accept="image/*" style="display:none" onchange="handleImageUpload(this)" />
   <div id="sig-modal" class="sig-modal">
     <div class="sig-modal-content">
       <h3>ارسم توقيعك</h3>
       <canvas id="sig-canvas" width="600" height="180"></canvas>
       <div class="sig-actions">
-        <button onclick="saveSignature()">💾 حفظ</button>
-        <button onclick="clearSignature()">🧹 مسح</button>
-        <button onclick="closeSignatureModal()">❌ إلغاء</button>
+        <button onclick="saveSignature()"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> حفظ</button>
+        <button onclick="clearSignature()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مسح</button>
+        <button onclick="closeSignatureModal()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> إلغاء</button>
       </div>
     </div>
   </div>
 
     <div class="toolbar" id="letterhead-toolbar" role="toolbar" aria-label="أدوات المستند">
     <div class="toolbar-header">
-      <span class="toolbar-title">🖨️ أدوات المستند</span><span id="save-status" class="save-status"></span><button onclick="showShortcuts()" class="btn-help" aria-label="اختصارات الكيبورد" title="اختصارات الكيبورد (?)">?</button>
-      <button class="toolbar-mobile-toggle" onclick="toggleMobileToolbar()" title="☰">☰</button>
+      <span class="toolbar-title"><svg class="bonds-icon bonds-icon--printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg> أدوات المستند</span><span id="save-status" class="save-status"></span><button onclick="showShortcuts()" class="btn-help" aria-label="اختصارات الكيبورد" title="اختصارات الكيبورد (?)">?</button>
+      <button class="toolbar-mobile-toggle" onclick="toggleMobileToolbar()" title="☰"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
       <div class="toolbar-group">
         <span class="toolbar-group-label">مستند</span>
-        <button onclick="toggleWrite()" id="btn-write" title="✏️ كتابة">✏️ كتابة</button>
-        <button onclick="saveDoc()" title="💾 حفظ">💾 حفظ</button>
-        <button onclick="undoDoc()" title="↩️ تراجع">↩️ تراجع</button>
-        <button onclick="redoDoc()" title="↪️ إعادة">↪️ إعادة</button>
-        <button onclick="copyText()" title="📋 نسخ">📋 نسخ</button>
+        <button onclick="toggleWrite()" id="btn-write" title="✏️ كتابة"><svg class="bonds-icon bonds-icon--pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg> كتابة</button>
+        <button onclick="saveDoc()" title="💾 حفظ"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> حفظ</button>
+        <button onclick="undoDoc()" title="↩️ تراجع">↩ تراجع</button>
+        <button onclick="redoDoc()" title="↪️ إعادة">↪ إعادة</button>
+        <button onclick="copyText()" title="📋 نسخ"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> نسخ</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">إدراج</span>
         <button onclick="insertDateTime()" title="📅 تاريخ"> تاريخ</button>
-        <button onclick="insertSubject()" title="📌 الموضوع">📌 الموضوع</button>
-        <button onclick="generateRef()" title="🔢 رقم صادر">🔢 رقم صادر</button>
+        <button onclick="insertSubject()" title="📌 الموضوع"><svg class="bonds-icon bonds-icon--pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg> الموضوع</button>
+        <button onclick="generateRef()" title="🔢 رقم صادر"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> رقم صادر</button>
         <div class="dropdown-wrap" id="archive-dropdown">
-          <button onclick="toggleDropdown('archive-dropdown')" title="📁 أرشيف">📁 أرشيف ▾</button>
+          <button onclick="toggleDropdown('archive-dropdown')" title="📁 أرشيف"><svg class="bonds-icon bonds-icon--folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> أرشيف <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
           <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);" title="↻ تحديث الأرشيف">↻ تحديث الأرشيف</button></div>
         </div>
-        <button onclick="insertTable()" title="▦ جدول">▦ جدول</button>
-        <button onclick="insertRuler()" title="📏 خط">📏 خط</button>
-        <button onclick="openSignatureModal()" title="✍️ توقيع">✍️ توقيع</button>
-        <button onclick="insertStamp()" title="🔴 ختم">🔴 ختم</button>
-        <button onclick="document.getElementById('image-upload').click()" title="🖼️ صورة">🖼️ صورة</button>
+        <button onclick="insertTable()" title="▦ جدول"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> جدول</button>
+        <button onclick="insertRuler()" title="📏 خط"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خط</button>
+        <button onclick="openSignatureModal()" title="✍️ توقيع"><svg class="bonds-icon bonds-icon--edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> توقيع</button>
+        <button onclick="insertStamp()" title="🔴 ختم"><svg class="bonds-icon bonds-icon--circle bonds-icon--danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg> ختم</button>
+        <button onclick="document.getElementById('image-upload').click()" title="🖼️ صورة"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> صورة</button>
         <div class="dropdown-wrap" id="template-dropdown">
-          <button onclick="toggleDropdown('template-dropdown')" title="📄 قالب">📄 قالب ▾</button>
+          <button onclick="toggleDropdown('template-dropdown')" title="📄 قالب"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> قالب <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
           <div class="dropdown-menu">
             <button onclick="applyTemplate('formal')" title="خطاب رسمي">خطاب رسمي</button>
             <button onclick="applyTemplate('memo')" title="مذكرة داخلية">مذكرة داخلية</button>
@@ -480,11 +480,11 @@
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">صفحات</span>
-        <button onclick="addNewPage()" title="➕ صفحة">➕ صفحة</button>
-        <button onclick="deletePage()" title="🗑️ حذف">🗑️ حذف</button>
-        <button onclick="clearAll()" title="🧹 مسح">🧹 مسح</button>
-        <button onclick="movePageUp()" title="نقل للأعلى">⬆️</button>
-        <button onclick="movePageDown()" title="نقل للأسفل">⬇️</button>
+        <button onclick="addNewPage()" title="➕ صفحة"><svg class="bonds-icon bonds-icon--plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> صفحة</button>
+        <button onclick="deletePage()" title="🗑️ حذف"><svg class="bonds-icon bonds-icon--trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> حذف</button>
+        <button onclick="clearAll()" title="🧹 مسح"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مسح</button>
+        <button onclick="movePageUp()" title="نقل للأعلى"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
+        <button onclick="movePageDown()" title="نقل للأسفل"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
       </div>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
@@ -501,10 +501,10 @@
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">محاذاة</span>
-        <button onclick="alignText('right')" title="⬅️ يمين">⬅️ يمين</button>
-        <button onclick="alignText('center')" title="↔️ وسط">↔️ وسط</button>
-        <button onclick="alignText('left')" title="➡️ يسار">➡️ يسار</button>
-        <button onclick="alignText('justify')" title="☰ تبرير">☰ تبرير</button>
+        <button onclick="alignText('right')" title="⬅️ يمين"><svg class="bonds-icon bonds-icon--arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> يمين</button>
+        <button onclick="alignText('center')" title="↔️ وسط">↔ وسط</button>
+        <button onclick="alignText('left')" title="➡️ يسار"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> يسار</button>
+        <button onclick="alignText('justify')" title="☰ تبرير"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تبرير</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">قائمة</span>
@@ -519,7 +519,7 @@
         <button onclick="toggleItalic()" title="مائل">مائل</button>
         <button onclick="toggleUnderline()" title="تسطير">تسطير</button>
         <div class="dropdown-wrap" id="color-dropdown">
-          <button onclick="toggleDropdown('color-dropdown')" title="🎨 لون">🎨 لون ▾</button>
+          <button onclick="toggleDropdown('color-dropdown')" title="🎨 لون"><svg class="bonds-icon bonds-icon--palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><circle cx="9" cy="10" r="1"></circle><circle cx="15" cy="10" r="1"></circle><circle cx="12" cy="15" r="1"></circle></svg> لون <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
           <div class="dropdown-menu">
             <button onclick="setColor('#1a1a1a')"><span class="color-swatch" style="background:#1a1a1a"></span>أسود</button>
             <button onclick="setColor('#c0392b')"><span class="color-swatch" style="background:#c0392b"></span>أحمر</button>
@@ -527,31 +527,31 @@
             <button onclick="setColor('#020f23')"><span class="color-swatch" style="background:#020f23"></span>كحلي</button>
           </div>
         </div>
-        <button onclick="findReplaceText()" title="🔍 بحث واستبدال">🔍 بحث واستبدال</button>
+        <button onclick="findReplaceText()" title="🔍 بحث واستبدال"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بحث واستبدال</button>
       </div>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible toolbar-actions">
       <div class="toolbar-group">
         <span class="toolbar-group-label">ملف</span>
-        <button onclick="exportPDF()" class="btn-pdf" title="📄 PDF">📄 PDF</button>
-        <button onclick="exportWord()" title="📘 Word">📘 Word</button>
-        <button onclick="window.print()" class="btn-print primary" title="🖨️ طباعة">🖨️ طباعة</button>
-        <button onclick="toggleInbox()" class="btn-inbox" title="📥 وارد المراسلات">📥 وارد المراسلات</button>
-        <button onclick="syncDraftsToCloud()" title="☁️ مزامنة">☁️ مزامنة</button>
-        <button onclick="loadDraftsFromCloud()" title="☁️ تحميل">☁️ تحميل</button>
-        <button onclick="sendToManager()" class="btn-send" title="📨 إرسال للمدير">📨 إرسال للمدير</button>
+        <button onclick="exportPDF()" class="btn-pdf" title="📄 PDF"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> PDF</button>
+        <button onclick="exportWord()" title="📘 Word"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Word</button>
+        <button onclick="window.print()" class="btn-print primary" title="🖨️ طباعة"><svg class="bonds-icon bonds-icon--printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg> طباعة</button>
+        <button onclick="toggleInbox()" class="btn-inbox" title="📥 وارد المراسلات"><svg class="bonds-icon bonds-icon--inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg> وارد المراسلات</button>
+        <button onclick="syncDraftsToCloud()" title="☁️ مزامنة"><svg class="bonds-icon bonds-icon--cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg> مزامنة</button>
+        <button onclick="loadDraftsFromCloud()" title="☁️ تحميل"><svg class="bonds-icon bonds-icon--cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg> تحميل</button>
+        <button onclick="sendToManager()" class="btn-send" title="📨 إرسال للمدير"><svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> إرسال للمدير</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">عرض</span>
-        <button onclick="changeZoom(-0.1)" title="تصغير">🔍-</button>
+        <button onclick="changeZoom(-0.1)" title="تصغير"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>-</button>
         <span id="zoom-level" class="zoom-level">100%</span>
-        <button onclick="changeZoom(0.1)" title="تكبير">🔍+</button>
-        <button onclick="togglePreview()" id="btn-preview" title="👁 معاينة">👁 معاينة</button>
-        <button onclick="toggleDarkMode()" id="btn-dark" title="🌙 داكن">🌙 داكن</button>
-        <button onclick="translateSelection()" title="🌐 ترجمة">🌐 ترجمة</button>
-        <button onclick="shareDoc()" title="📤 مشاركة">📤 مشاركة</button>
+        <button onclick="changeZoom(0.1)" title="تكبير"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>+</button>
+        <button onclick="togglePreview()" id="btn-preview" title="👁 معاينة"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> معاينة</button>
+        <button onclick="toggleDarkMode()" id="btn-dark" title="🌙 داكن"><svg class="bonds-icon bonds-icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> داكن</button>
+        <button onclick="translateSelection()" title="🌐 ترجمة"><svg class="bonds-icon bonds-icon--globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> ترجمة</button>
+        <button onclick="shareDoc()" title="📤 مشاركة"><svg class="bonds-icon bonds-icon--send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> مشاركة</button>
         <div class="dropdown-wrap" id="lang-dropdown">
-          <button onclick="toggleDropdown('lang-dropdown')" title="🌐 لغة">🌐 لغة ▾</button>
+          <button onclick="toggleDropdown('lang-dropdown')" title="🌐 لغة"><svg class="bonds-icon bonds-icon--globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> لغة <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
           <div class="dropdown-menu">
             <button onclick="switchLang('ar')" title="العربية">العربية</button>
             <button onclick="switchLang('en')" title="English">English</button>
@@ -652,13 +652,13 @@
 
   <div class="inbox-panel" id="inbox-panel">
     <div class="inbox-header">
-      <span>📥 وارد المراسلات</span>
-      <button onclick="toggleInbox()">✕</button>
+      <span><svg class="bonds-icon bonds-icon--inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg> وارد المراسلات</span>
+      <button onclick="toggleInbox()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
     </div>
     <div class="inbox-body" id="inbox-body">
       <div class="draft-section-title">حفظ مسودة جديدة</div>
       <input type="text" id="draft-name" class="draft-input" placeholder="اسم المسودة" />
-      <button class="draft-btn" onclick="saveDraft()">💾 حفظ مسودة</button>
+      <button class="draft-btn" onclick="saveDraft()"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> حفظ مسودة</button>
       <div class="draft-section-title">المسودات المحفوظة</div>
       <div id="drafts-list"><div class="inbox-empty">لا توجد مسودات</div></div>
       <div class="draft-section-title">المراسلات المرسلة</div>
@@ -765,11 +765,11 @@
       window.insertDateTime = function() {
         if (!ensureDoc()) return;
         var d = new Date(), dateStr = d.toLocaleDateString('ar-SA', {year:'numeric', month:'long', day:'numeric'});
-        insertAtCursor('<div>' + dateStr + '</div><div><br></div>'); showToast('✅ تم إدراج التاريخ');
+        insertAtCursor('<div>' + dateStr + '</div><div><br></div>'); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم إدراج التاريخ');
       };
       window.insertSubject = function() {
         if (!ensureDoc()) return;
-        insertAtCursor('<div><strong>الموضوع:</strong> </div><div><br></div>'); showToast('✅ تم إدراج الموضوع');
+        insertAtCursor('<div><strong>الموضوع:</strong> </div><div><br></div>'); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم إدراج الموضوع');
       };
       window.generateRef = function() {
         var year = new Date().getFullYear();
@@ -784,17 +784,17 @@
         archive.unshift({ ref: ref, date: new Date().toLocaleDateString('ar-SA'), ts: Date.now() });
         localStorage.setItem(LS_PREFIX + 'refs', JSON.stringify(archive.slice(0, 50)));
         insertAtCursor('<div><strong>رقم الصادر:</strong> <span style="color:#c0392b;">' + ref + '</span></div><div><br></div>');
-        showToast('✅ رقم الصادر: ' + ref);
+        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> رقم الصادر: ' + ref);
       };
       window.loadArchive = function() {
         var menu = document.getElementById('archive-menu');
         var archive = JSON.parse(localStorage.getItem(LS_PREFIX + 'refs') || '[]');
         menu.innerHTML = '<button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ تحديث الأرشيف</button>';
-        if (!archive.length) { menu.innerHTML += '<button disabled>⚠️ لا يوجد أرشيف</button>'; return; }
+        if (!archive.length) { menu.innerHTML += '<button disabled><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا يوجد أرشيف</button>'; return; }
         archive.forEach(function(item){
           var btn = document.createElement('button');
           btn.innerHTML = '<span style="color:#c0392b;font-weight:700;">' + item.ref + '</span> <span style="color:#888;font-size:11px;">— ' + item.date + '</span>';
-          btn.onclick = function(){ insertAtCursor('<div><strong>رقم الصادر:</strong> <span style="color:#c0392b;">' + item.ref + '</span></div><div><br></div>'); toggleDropdown('archive-dropdown'); showToast('📁 تم استدعاء: ' + item.ref); };
+          btn.onclick = function(){ insertAtCursor('<div><strong>رقم الصادر:</strong> <span style="color:#c0392b;">' + item.ref + '</span></div><div><br></div>'); toggleDropdown('archive-dropdown'); showToast('<svg class="bonds-icon bonds-icon--folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> تم استدعاء: ' + item.ref); };
           menu.appendChild(btn);
         });
       };
@@ -809,11 +809,11 @@
         html += '</tr></thead><tbody>';
         for (var r=0;r<rows;r++){ html += '<tr>'; for(var c=0;c<cols;c++) html += '<td>بيان '+(r+1)+'-'+(c+1)+'</td>'; html += '</tr>'; }
         html += '</tbody></table><div><br></div>';
-        insertAtCursor(html); showToast('✅ تم إدراج الجدول');
+        insertAtCursor(html); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم إدراج الجدول');
       };
       window.insertRuler = function() {
         if (!ensureDoc()) return;
-        insertAtCursor('<hr class="doc-ruler"><div><br></div>'); showToast('✅ تم إدراج الخط');
+        insertAtCursor('<hr class="doc-ruler"><div><br></div>'); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم إدراج الخط');
       };
       window.insertStamp = function() {
         if (!ensureDoc()) return;
@@ -830,7 +830,7 @@
           '<text x="100" y="118" text-anchor="middle" fill="#c0392b" font-size="9" font-weight="700" font-family="Noto Naskh Arabic, Tahoma, serif">'+dateStr+'</text>' +
           '</svg>';
         insertAtCursor('<div class="letter-stamp" id="'+id+'" contenteditable="false">' + svg + '</div><span>&nbsp;</span>');
-        showToast('🔴 تم إدراج الختم');
+        showToast('<svg class="bonds-icon bonds-icon--circle bonds-icon--danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg> تم إدراج الختم');
       };
       window.addNewPage = function() {
         pageCounter++;
@@ -844,14 +844,14 @@
         bindDoc(clone.querySelector('.doc-content'));
         container.appendChild(clone);
         updatePageNumbers();
-        showToast('✅ صفحة ' + pageCounter);
+        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> صفحة ' + pageCounter);
         window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
       };
       window.insertSignature = function() {
         if (!ensureDoc()) return;
         var name = prompt('اسم الموقّع:', ''), title = prompt('المنصب:', '');
         var html = '<div class="signature-block" contenteditable="false"><div class="sig-line"></div><div class="sig-name">' + (name || 'الاسم') + '</div><div class="sig-title">' + (title || 'المنصب') + '</div></div><div><br></div>';
-        insertAtCursor(html); showToast('✅ تم إدراج التوقيع');
+        insertAtCursor(html); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم إدراج التوقيع');
       };
       window.updatePageNumbers = function() {
         var sheets = document.querySelectorAll('.sheet');
@@ -909,7 +909,7 @@
         var blob = new Blob([html], {type: 'application/msword'});
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a'); a.href = url; a.download = 'bonds-letterhead.doc'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-        showToast('✅ تم تصدير Word');
+        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم تصدير Word');
       };
       var sigCanvas, sigCtx, sigDrawing=false, sigLast={'x':0,'y':0};
       window.openSignatureModal = function() {
@@ -934,7 +934,7 @@
         insertAtCursor('<img src="' + data + '" alt="توقيع" style="max-width:200px;height:auto;display:block;margin:10px 0;" />');
         closeSignatureModal();
         clearSignature();
-        showToast('✅ تم حفظ التوقيع');
+        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم حفظ التوقيع');
       };
       window.showShortcuts = function(){ document.getElementById('shortcuts-modal').classList.add('open'); };
       window.closeShortcuts = function(){ document.getElementById('shortcuts-modal').classList.remove('open'); };
@@ -961,44 +961,44 @@
       };
       window.syncDraftsToCloud = async function(){
         var sb = (typeof getSupabase === 'function') ? getSupabase() : null;
-        if (!sb) { showToast('⚠️ خدمة التخزين السحابي غير متوفرة'); return; }
+        if (!sb) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خدمة التخزين السحابي غير متوفرة'); return; }
         var userRes = await sb.auth.getUser();
         var user = userRes.data ? userRes.data.user : null;
-        if (!user) { showToast('⚠️ يرجى تسجيل الدخول أولاً'); return; }
+        if (!user) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> يرجى تسجيل الدخول أولاً'); return; }
         var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
-        if (!drafts.length) { showToast('⚠️ لا توجد مسودات محلية'); return; }
+        if (!drafts.length) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا توجد مسودات محلية'); return; }
         showToast('⏳ جاري المزامنة...');
         try {
           var rows = drafts.map(function(d){ return { user_id: user.id, name: d.name, html: d.html, updated_at: new Date().toISOString() }; });
           var res = await sb.from('letterhead_drafts').upsert(rows, { onConflict: 'user_id,name' });
           if (res.error) throw res.error;
-          showToast('✅ تمت مزامنة المسودات');
-        } catch(e) { showToast('⚠️ فشل المزامنة: ' + (e.message || e)); }
+          showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تمت مزامنة المسودات');
+        } catch(e) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> فشل المزامنة: ' + (e.message || e)); }
       };
       window.loadDraftsFromCloud = async function(){
         var sb = (typeof getSupabase === 'function') ? getSupabase() : null;
-        if (!sb) { showToast('⚠️ خدمة التخزين السحابي غير متوفرة'); return; }
+        if (!sb) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خدمة التخزين السحابي غير متوفرة'); return; }
         var userRes = await sb.auth.getUser();
         var user = userRes.data ? userRes.data.user : null;
-        if (!user) { showToast('⚠️ يرجى تسجيل الدخول أولاً'); return; }
+        if (!user) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> يرجى تسجيل الدخول أولاً'); return; }
         showToast('⏳ جاري التحميل...');
         try {
           var res = await sb.from('letterhead_drafts').select('*').eq('user_id', user.id).order('updated_at', { ascending: false });
           if (res.error) throw res.error;
           var rows = res.data || [];
-          if (!rows.length) { showToast('⚠️ لا توجد مسودات في السحابة'); return; }
+          if (!rows.length) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا توجد مسودات في السحابة'); return; }
           var drafts = rows.map(function(r){ return { name: r.name, html: r.html, date: new Date(r.updated_at).toLocaleString('ar-SA') }; });
           localStorage.setItem(LS_PREFIX + 'drafts', JSON.stringify(drafts));
           refreshInbox();
-          showToast('✅ تم تحميل المسودات');
-        } catch(e) { showToast('⚠️ فشل التحميل: ' + (e.message || e)); }
+          showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم تحميل المسودات');
+        } catch(e) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> فشل التحميل: ' + (e.message || e)); }
       };
       window.setColor = function(color) {
         var sel = window.getSelection();
-        if (!sel || sel.toString().trim() === '') { showToast('⚠️ حدد النص أولاً'); return; }
+        if (!sel || sel.toString().trim() === '') { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> حدد النص أولاً'); return; }
         document.execCommand('foreColor', false, color);
         toggleDropdown('color-dropdown');
-        showToast('✅ تم تغيير اللون');
+        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم تغيير اللون');
       };
       window.applyTemplate = function(name) {
         if (!ensureDoc()) return;
@@ -1022,12 +1022,12 @@
         }
         insertAtCursor(html);
         toggleDropdown('template-dropdown');
-        showToast('✅ تم تطبيق القالب');
+        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم تطبيق القالب');
       };
       window.translateSelection = function() {
         var sel = window.getSelection();
         var text = sel ? sel.toString().trim() : '';
-        if (!text) { showToast('⚠️ حدد النص للترجمة'); return; }
+        if (!text) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> حدد النص للترجمة'); return; }
         window.open('https://translate.google.com/?sl=ar&tl=en&text=' + encodeURIComponent(text), '_blank');
       };
       window.shareDoc = function() {
@@ -1037,7 +1037,7 @@
         } else {
           var ta = document.createElement('textarea'); ta.value = url;
           document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-          showToast('✅ تم نسخ الرابط');
+          showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم نسخ الرابط');
         }
       };
       window.sendToManager = async function() {
@@ -1052,24 +1052,24 @@
         try {
           var r = await fetch('/api/send-letter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to: to, subject: title, html: html, text: allText.slice(0, 1200) }) });
           var data = await r.json();
-          if (!r.ok) { showToast('⚠️ ' + (data.error || 'فشل الإرسال')); return; }
+          if (!r.ok) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + (data.error || 'فشل الإرسال')); return; }
           var sent = JSON.parse(localStorage.getItem(LS_PREFIX + 'sent') || '[]');
           sent.unshift({ date: new Date().toLocaleString('ar-SA'), preview: allText.slice(0, 80) + '...' });
           localStorage.setItem(LS_PREFIX + 'sent', JSON.stringify(sent.slice(0, 20)));
-          showToast('📨 تم الإرسال للمدير');
+          showToast('<svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> تم الإرسال للمدير');
           refreshInbox();
-        } catch(e) { showToast('⚠️ فشل الإرسال: ' + e.message); }
+        } catch(e) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> فشل الإرسال: ' + e.message); }
       };
       window.saveDraft = function() {
         var nameInput = document.getElementById('draft-name');
         var name = nameInput.value.trim();
-        if (!name) { showToast('⚠️ أدخل اسم المسودة'); return; }
+        if (!name) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> أدخل اسم المسودة'); return; }
         var html = getAllHtml();
         var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
         drafts.unshift({ name: name, html: html, date: new Date().toLocaleString('ar-SA') });
         localStorage.setItem(LS_PREFIX + 'drafts', JSON.stringify(drafts.slice(0, 30)));
         nameInput.value = '';
-        showToast('💾 تم حفظ المسودة: ' + name);
+        showToast('<svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> تم حفظ المسودة: ' + name);
         refreshInbox();
       };
       window.loadDraft = function(index) {
@@ -1080,7 +1080,7 @@
         setAllHtml(drafts[index].html);
         saveDoc();
         updateDocTitle();
-        showToast('✅ تم تحميل المسودة');
+        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم تحميل المسودة');
       };
       window.deleteDraft = function(index) {
         var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
@@ -1092,11 +1092,11 @@
         var sheets = document.querySelectorAll('.sheet');
         if (sheets.length > 1) {
           var last = document.querySelector('.sheet:last-child');
-          if (last) { last.remove(); pageCounter--; updatePageNumbers(); showToast('🗑️ تم حذف الصفحة'); }
+          if (last) { last.remove(); pageCounter--; updatePageNumbers(); showToast('<svg class="bonds-icon bonds-icon--trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> تم حذف الصفحة'); }
         } else {
           if (confirm('هي الصفحة الوحيدة. هل تريد مسح محتواها؟')) {
             var doc = getActiveDoc(); if (doc) doc.innerHTML = '';
-            saveDoc(); showToast('🧹 تم مسح المحتوى');
+            saveDoc(); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم مسح المحتوى');
           }
         }
       };
@@ -1105,23 +1105,23 @@
         setAllHtml(['']);
         saveDoc();
         updateDocTitle();
-        showToast('🧹 تم مسح الكل');
+        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم مسح الكل');
       };
       window.handleImageUpload = function(input) {
         if (!input.files || !input.files[0]) return;
         var file = input.files[0];
-        if (file.size > 2 * 1024 * 1024) { showToast('⚠️ الحد الأقصى 2 ميجابايت'); input.value=''; return; }
+        if (file.size > 2 * 1024 * 1024) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الحد الأقصى 2 ميجابايت'); input.value=''; return; }
         var reader = new FileReader();
         reader.onload = function(e) {
           if (!ensureDoc()) return;
           insertAtCursor('<img src="' + e.target.result + '" style="max-width:100%;height:auto;display:block;margin:10px 0;" />');
-          showToast('✅ تم إدراج الصورة');
+          showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم إدراج الصورة');
         };
         reader.readAsDataURL(file);
         input.value = '';
       };
       window.exportPDF = function() {
-        if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') { showToast('⚠️ مكتبات PDF غير محملة'); return; }
+        if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مكتبات PDF غير محملة'); return; }
         showToast('⏳ جاري إنشاء PDF...');
         var sheets = document.querySelectorAll('.sheet');
         var pdf = new window.jspdf.jsPDF('p','mm','a4');
@@ -1131,13 +1131,13 @@
           var originalQR = qr ? qr.src : null;
           if (qr && originalQR && /^https?:/.test(originalQR)) { qr.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; }
           html2canvas(sheet, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' }).then(function(canvas){
-            try { var img = canvas.toDataURL('image/png'); } catch(e) { showToast('⚠️ فشل إنشاء PDF'); if(qr && originalQR) qr.src = originalQR; return; }
+            try { var img = canvas.toDataURL('image/png'); } catch(e) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> فشل إنشاء PDF'); if(qr && originalQR) qr.src = originalQR; return; }
             if (idx > 0) pdf.addPage();
             pdf.addImage(img, 'PNG', 0, 0, 210, 297);
             count++;
             if (qr && originalQR) qr.src = originalQR;
-            if (count === sheets.length) { pdf.save('bonds-letterhead.pdf'); showToast('✅ تم تحميل PDF'); }
-          }).catch(function(){ showToast('⚠️ فشل إنشاء PDF'); if(qr && originalQR) qr.src = originalQR; });
+            if (count === sheets.length) { pdf.save('bonds-letterhead.pdf'); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم تحميل PDF'); }
+          }).catch(function(){ showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> فشل إنشاء PDF'); if(qr && originalQR) qr.src = originalQR; });
         });
       };
       window.updateDocTitle = function() {
@@ -1181,11 +1181,11 @@
 
       var undoStack=[], redoStack=[], maxUndo=30, isUndoing=false;
       function pushUndo(){ if(isUndoing) return; var doc=getActiveDoc(); if(!doc) return; undoStack.push(doc.innerHTML); if(undoStack.length>maxUndo) undoStack.shift(); redoStack=[]; }
-      window.undoDoc = function(){ var doc=getActiveDoc(); if(!doc||undoStack.length===0){showToast('⚠️ لا يوجد تراجع');return;} isUndoing=true; redoStack.push(doc.innerHTML); doc.innerHTML=undoStack.pop(); showToast('↩️ تم التراجع'); setTimeout(function(){isUndoing=false;},100); };
-      window.redoDoc = function(){ var doc=getActiveDoc(); if(!doc||redoStack.length===0){showToast('⚠️ لا يوجد إعادة');return;} isUndoing=true; undoStack.push(doc.innerHTML); doc.innerHTML=redoStack.pop(); showToast('↪️ تم الإعادة'); setTimeout(function(){isUndoing=false;},100); };
-      window.saveDoc = function(){ var html=getAllHtml(); localStorage.setItem(LS_PREFIX+'doc_html', JSON.stringify(html)); updateSaveStatus(); showToast('✅ تم الحفظ'); };
+      window.undoDoc = function(){ var doc=getActiveDoc(); if(!doc||undoStack.length===0){showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا يوجد تراجع');return;} isUndoing=true; redoStack.push(doc.innerHTML); doc.innerHTML=undoStack.pop(); showToast('↩ تم التراجع'); setTimeout(function(){isUndoing=false;},100); };
+      window.redoDoc = function(){ var doc=getActiveDoc(); if(!doc||redoStack.length===0){showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا يوجد إعادة');return;} isUndoing=true; undoStack.push(doc.innerHTML); doc.innerHTML=redoStack.pop(); showToast('↪ تم الإعادة'); setTimeout(function(){isUndoing=false;},100); };
+      window.saveDoc = function(){ var html=getAllHtml(); localStorage.setItem(LS_PREFIX+'doc_html', JSON.stringify(html)); updateSaveStatus(); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم الحفظ'); };
       window.autoSave = function(){ var html=getAllHtml(); localStorage.setItem(LS_PREFIX+'doc_html', JSON.stringify(html)); updateSaveStatus(); };
-      window.changeFont = function(font){ document.querySelectorAll('.doc-content').forEach(function(d){d.style.fontFamily="'"+font+"', Tahoma, serif";}); localStorage.setItem(LS_PREFIX+'font', font); showToast('✅ الخط: '+font); };
+      window.changeFont = function(font){ document.querySelectorAll('.doc-content').forEach(function(d){d.style.fontFamily="'"+font+"', Tahoma, serif";}); localStorage.setItem(LS_PREFIX+'font', font); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الخط: '+font); };
       window.toggleDropdown = function(id){ var wrap=document.getElementById(id); if(!wrap)return; var btn=wrap.querySelector(':scope > button'); var isOpen=wrap.classList.contains('open'); document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open'); var b=el.querySelector(':scope > button'); if(b) b.setAttribute('aria-expanded','false');}); if(!isOpen){ wrap.classList.add('open'); if(btn) btn.setAttribute('aria-expanded','true'); } else { if(btn) btn.setAttribute('aria-expanded','false'); } };
       document.addEventListener('click', function(e){ if(!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open'); var b=el.querySelector(':scope > button'); if(b) b.setAttribute('aria-expanded','false');}); });
       document.addEventListener('keydown', function(e){ if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undoDoc();} if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redoDoc();} if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveDoc();} if(e.key==='?'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();showShortcuts();} });

@@ -83,8 +83,8 @@
         <div class="med-badge">اختر النشاط التجاري</div>
         <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activity" class="activity-select" onchange="onActivityChange()">
           <option value="pharmacy">🩺 صيدلية</option>
-          <option value="clinic">🏥 عيادة / مركز طبي</option>
-          <option value="lab">🧪 مختبر تحاليل طبية</option>
+          <option value="clinic"><svg class="bonds-icon bonds-icon--hospital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 8v8"></path><path d="M8 12h8"></path></svg> عيادة / مركز طبي</option>
+          <option value="lab"><svg class="bonds-icon bonds-icon--flask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4"></path><path d="M12 2v8"></path><path d="M17 21H7a2 2 0 0 1-1.73-3l7-12a2 2 0 0 1 3.46 0l7 12A2 2 0 0 1 17 21z"></path></svg> مختبر تحاليل طبية</option>
         </select>
       </div>
 
@@ -92,31 +92,31 @@
         <div class="reveal calc-panel-default calc-panel-default--compact calc-panel-default--blur">
           <h2 class="calc-title-xl">بيانات المشروع</h2>
 
-          <div class="med-section-title">📋 تكاليف الافتتاح</div>
+          <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تكاليف الافتتاح</div>
           <div class="bonds-form-row" id="setupFields"></div>
 
           <div class="med-section-title"> التكاليف الشهرية</div>
           <div class="bonds-form-row" id="monthlyFields"></div>
 
-          <div class="med-section-title">💰 الإيرادات المتوقعة</div>
+          <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الإيرادات المتوقعة</div>
           <div class="bonds-form-row" id="revenueFields"></div>
 
-          <div class="med-section-title" id="variableSectionTitle">⚕️ خصائص النشاط</div>
+          <div class="med-section-title" id="variableSectionTitle"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خصائص النشاط</div>
           <div class="bonds-form-row" id="variableFields"></div>
 
-          <div class="med-section-title">⚙️ افتراضات النمو</div>
+          <div class="med-section-title"><svg class="bonds-icon bonds-icon--settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> افتراضات النمو</div>
           <div class="bonds-form-row" id="growthFields"></div>
 
-          <div class="med-section-title">🏛️ الضريبة والزكاة</div>
+          <div class="med-section-title"><svg class="bonds-icon bonds-icon--landmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M4 21V10l8-6 8 6v11"></path><path d="M9 21v-6h6v6"></path><path d="M12 2v4"></path></svg> الضريبة والزكاة</div>
           <div class="bonds-form-row" id="taxFields"></div>
 
-          <div class="med-section-title">🧬 مزيج الخدمات</div>
+          <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مزيج الخدمات</div>
           <div class="bonds-form-row" id="serviceMixFields"></div>
 
-          <div class="med-section-title">⚠️ الهدر والنثريات المتوقعة</div>
+          <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الهدر والنثريات المتوقعة</div>
           <div class="bonds-form-row">
             <div class="bonds-form-group">
-              <label>الهدر والنثريات المتوقعة (%) <abbr title="نسبة احتياطية للهدر والمصاريف غير المتوقعة: هدر مواد، فاقد إنتاج، صيانة مفاجئة، قطع غيار صغيرة">ⓘ</abbr></label>
+              <label>الهدر والنثريات المتوقعة (%) <abbr title="نسبة احتياطية للهدر والمصاريف غير المتوقعة: هدر مواد، فاقد إنتاج، صيانة مفاجئة، قطع غيار صغيرة"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
               <input id="wasteAndIncidentalsPct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" />
             </div>
           </div>
@@ -138,7 +138,7 @@
             <h2 class="calc-title-xl">النتائج</h2>
             <div id="resultContent">
               <div class="calc-empty-state-box">
-                <div class="calc-empty-icon-lg">🏥</div>
+                <div class="calc-empty-icon-lg"><svg class="bonds-icon bonds-icon--hospital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></div>
                 <p>اختر النشاط، أدخل بياناتك، ثم اضغط "احسب النتائج".</p>
               </div>
             </div>
@@ -264,7 +264,7 @@
       const container = document.getElementById(containerId);
       container.innerHTML = '';
       fields.forEach(function(field) {
-        const abbr = field.abbr ? ` <abbr title="${field.abbr}">ⓘ</abbr>` : '';
+        const abbr = field.abbr ? ` <abbr title="${field.abbr}"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr>` : '';
         const min = field.min !== undefined ? `min="${field.min}"` : 'min="0"';
         const max = field.max !== undefined ? `max="${field.max}"` : '';
         const value = field.value !== undefined ? `value="${field.value}"` : '';
@@ -280,7 +280,7 @@
     function onActivityChange() {
       const activity = document.getElementById('activity').value;
       const config = ACTIVITIES[activity];
-      document.getElementById('variableSectionTitle').textContent = `⚕️ خصائص ${config.name}`;
+      document.getElementById('variableSectionTitle').textContent = `<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خصائص ${config.name}`;
       renderFields('setupFields', config.setupFields);
       renderFields('monthlyFields', config.monthlyFields);
       renderFields('revenueFields', config.revenueFields);
@@ -291,7 +291,7 @@
       if (window._medChart) { window._medChart.destroy(); window._medChart = null; }
       document.getElementById('resultContent').innerHTML = `
         <div style="text-align:center; color:var(--text-secondary); padding: var(--space-8) 0;">
-          <div style="font-size:3rem; margin-bottom:var(--space-4);">🏥</div>
+          <div style="font-size:3rem; margin-bottom:var(--space-4);"><svg class="bonds-icon bonds-icon--hospital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></div>
           <p>أدخل بيانات ${config.name}، ثم اضغط "احسب النتائج".</p>
         </div>`;
       updateShareLink();
@@ -377,7 +377,7 @@
       const circumference = 339.292;
       const offset = circumference * (1 - inv.score / 100);
       const verdictClass = inv.verdict === 'excellent' || inv.verdict === 'good' ? 'profit' : (inv.verdict === 'fair' ? 'warning' : 'loss');
-      const verdictIcon = inv.verdict === 'excellent' ? '🚀' : (inv.verdict === 'good' ? '✅' : (inv.verdict === 'fair' ? '⚠️' : '🛑'));
+      const verdictIcon = inv.verdict === 'excellent' ? '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>' : (inv.verdict === 'good' ? '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>' : (inv.verdict === 'fair' ? '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>' : '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>'));
 
       const recommendationsHTML = inv.recommendations.map(function(rec) {
         return `<li>${rec}</li>`;
@@ -387,19 +387,19 @@
       let extraSummary = '';
       if (activity === 'pharmacy') {
         extraMetrics = `
-          ${r.lossDetail.insuranceAmount > 0 ? `<div class="kpi-card"><div class="icon">🏥</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">تأثير التأمين/شهر</div></div>` : ''}
-          ${r.lossDetail.discountAmount > 0 ? `<div class="kpi-card"><div class="icon">🏷️</div><div class="value" style="color:#ef4444">${r.lossDetail.discountAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">تأثير الخصم/شهر</div></div>` : ''}
-          ${r.variableDetail.expiryLoss > 0 ? `<div class="kpi-card"><div class="icon">📅</div><div class="value" style="color:#ef4444">${r.variableDetail.expiryLoss.toLocaleString('ar-SA')} ر.س</div><div class="label">خسارة انتهاء الصلاحية/شهر</div></div>` : ''}`;
+          ${r.lossDetail.insuranceAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--hospital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">تأثير التأمين/شهر</div></div>` : ''}
+          ${r.lossDetail.discountAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg></div><div class="value" style="color:#ef4444">${r.lossDetail.discountAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">تأثير الخصم/شهر</div></div>` : ''}
+          ${r.variableDetail.expiryLoss > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div><div class="value" style="color:#ef4444">${r.variableDetail.expiryLoss.toLocaleString('ar-SA')} ر.س</div><div class="label">خسارة انتهاء الصلاحية/شهر</div></div>` : ''}`;
         extraSummary = `<p>• تأمين: ${r.lossDetail.insuranceAmount.toLocaleString('ar-SA')} ر.س | خصم: ${r.lossDetail.discountAmount.toLocaleString('ar-SA')} ر.س | تلف/انتهاء صلاحية: ${r.variableDetail.expiryLoss.toLocaleString('ar-SA')} ر.س</p>`;
       } else if (activity === 'clinic') {
         extraMetrics = `
-          ${r.lossDetail.noShowLoss > 0 ? `<div class="kpi-card"><div class="icon">🚫</div><div class="value" style="color:#ef4444">${r.lossDetail.noShowLoss.toLocaleString('ar-SA')} ر.س</div><div class="label">خسارة الغياب/شهر</div></div>` : ''}
-          ${r.lossDetail.insuranceRejectionAmount > 0 ? `<div class="kpi-card"><div class="icon">📝</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceRejectionAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">رفض التأمين/شهر</div></div>` : ''}`;
+          ${r.lossDetail.noShowLoss > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value" style="color:#ef4444">${r.lossDetail.noShowLoss.toLocaleString('ar-SA')} ر.س</div><div class="label">خسارة الغياب/شهر</div></div>` : ''}
+          ${r.lossDetail.insuranceRejectionAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceRejectionAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">رفض التأمين/شهر</div></div>` : ''}`;
         extraSummary = `<p>• كشوفات حضور: ${Math.round(r.lossDetail.attendedUnits).toLocaleString('ar-SA')} | غياب: ${r.lossDetail.noShowLoss.toLocaleString('ar-SA')} ر.س | رفض تأمين: ${r.lossDetail.insuranceRejectionAmount.toLocaleString('ar-SA')} ر.س</p>`;
       } else if (activity === 'lab') {
         extraMetrics = `
-          ${r.lossDetail.insuranceAmount > 0 ? `<div class="kpi-card"><div class="icon">🏥</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">تأثير التأمين/شهر</div></div>` : ''}
-          ${r.variableDetail.failedTestsCost > 0 ? `<div class="kpi-card"><div class="icon">🧪</div><div class="value" style="color:#ef4444">${r.variableDetail.failedTestsCost.toLocaleString('ar-SA')} ر.س</div><div class="label">تكلفة التحاليل المعادة/شهر</div></div>` : ''}`;
+          ${r.lossDetail.insuranceAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--hospital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">تأثير التأمين/شهر</div></div>` : ''}
+          ${r.variableDetail.failedTestsCost > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--flask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4"></path><path d="M12 2v8"></path><path d="M17 21H7a2 2 0 0 1-1.73-3l7-12a2 2 0 0 1 3.46 0l7 12A2 2 0 0 1 17 21z"></path></svg></div><div class="value" style="color:#ef4444">${r.variableDetail.failedTestsCost.toLocaleString('ar-SA')} ر.س</div><div class="label">تكلفة التحاليل المعادة/شهر</div></div>` : ''}`;
         extraSummary = `<p>• تأمين: ${r.lossDetail.insuranceAmount.toLocaleString('ar-SA')} ر.س | تحاليل معادة: ${r.variableDetail.failedTestsCost.toLocaleString('ar-SA')} ر.س</p>`;
       }
 
@@ -431,27 +431,27 @@
           </div>
         </div>
 
-        <div class="med-section-title">🎯 التوصيات الذكية</div>
+        <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> التوصيات الذكية</div>
         <ul class="recommendation-list">
           ${recommendationsHTML}
         </ul>
 
-        <div class="med-section-title">📊 المؤشرات الرئيسية</div>
+        <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> المؤشرات الرئيسية</div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="icon">💰</div><div class="value">${r.monthlyProfit.toLocaleString('ar-SA')} ر.س</div><div class="label">الربح الشهري المتوقع</div><div class="sub">هامش ${r.profitMargin.toFixed(1)}%</div></div>
-          <div class="kpi-card"><div class="icon">⏱️</div><div class="value">${r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths) + ' شهر'}</div><div class="label">استرداد رأس المال</div><div class="sub">${r.setupTotal.toLocaleString('ar-SA')} ر.س استثمار</div></div>
-          <div class="kpi-card"><div class="icon">🎯</div><div class="value">${Math.ceil(r.beUnitsPerDay)} ${config.unitLabel}</div><div class="label">نقطة التعادل اليومية</div><div class="sub">أنت تخطط ${r.dailyUnits} ${config.unitLabel}/يوم</div></div>
-          <div class="kpi-card"><div class="icon">📈</div><div class="value">${r.grossRevenue.toLocaleString('ar-SA')} ر.س</div><div class="label">الإيراد الإجمالي/شهر</div><div class="sub">${r.dailyUnits * r.workDays} ${config.unitLabel}/شهر</div></div>
-          <div class="kpi-card"><div class="icon">🏗️</div><div class="value">${r.setupTotal.toLocaleString('ar-SA')} ر.س</div><div class="label">تكلفة الافتتاح</div><div class="sub">رأس مال مطلوب</div></div>
-          <div class="kpi-card"><div class="icon">📉</div><div class="value">${r.deductionAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الاستقطاعات/شهر</div><div class="sub">تأمين، خصم، ضريبة</div></div>
+          <div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value">${r.monthlyProfit.toLocaleString('ar-SA')} ر.س</div><div class="label">الربح الشهري المتوقع</div><div class="sub">هامش ${r.profitMargin.toFixed(1)}%</div></div>
+          <div class="kpi-card"><div class="icon">⏱</div><div class="value">${r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths) + ' شهر'}</div><div class="label">استرداد رأس المال</div><div class="sub">${r.setupTotal.toLocaleString('ar-SA')} ر.س استثمار</div></div>
+          <div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value">${Math.ceil(r.beUnitsPerDay)} ${config.unitLabel}</div><div class="label">نقطة التعادل اليومية</div><div class="sub">أنت تخطط ${r.dailyUnits} ${config.unitLabel}/يوم</div></div>
+          <div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></div><div class="value">${r.grossRevenue.toLocaleString('ar-SA')} ر.س</div><div class="label">الإيراد الإجمالي/شهر</div><div class="sub">${r.dailyUnits * r.workDays} ${config.unitLabel}/شهر</div></div>
+          <div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--construction" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 22h20"></path><path d="M6 22V11l6-4 6 4v11"></path><path d="M10 22v-5h4v5"></path><path d="M12 2v5"></path></svg></div><div class="value">${r.setupTotal.toLocaleString('ar-SA')} ر.س</div><div class="label">تكلفة الافتتاح</div><div class="sub">رأس مال مطلوب</div></div>
+          <div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value">${r.deductionAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الاستقطاعات/شهر</div><div class="sub">تأمين، خصم، ضريبة</div></div>
           ${extraMetrics}
-          ${r.vatAmount > 0 ? `<div class="kpi-card"><div class="icon">🏛️</div><div class="value" style="color:#ef4444">${r.vatAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الضريبة/شهر</div></div>` : ''}
-          ${r.zakatAmount > 0 ? `<div class="kpi-card"><div class="icon">🕌</div><div class="value" style="color:#ef4444">${r.zakatAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الزكاة/شهر</div></div>` : ''}
-          ${r.extraServiceRevenue > 0 ? `<div class="kpi-card"><div class="icon">🧬</div><div class="value">${r.extraServiceRevenue.toLocaleString('ar-SA')} ر.س</div><div class="label">خدمات إضافية/شهر</div></div>` : ''}
-          ${r.wasteAndIncidentalsAmount > 0 ? `<div class="kpi-card"><div class="icon">⚠️</div><div class="value" style="color:#ef4444">${r.wasteAndIncidentalsAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الهدر والنثريات/شهر</div><div class="sub">${r.wasteAndIncidentalsPct.toFixed(1)}%</div></div>` : ''}
+          ${r.vatAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--landmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M4 21V10l8-6 8 6v11"></path><path d="M9 21v-6h6v6"></path><path d="M12 2v4"></path></svg></div><div class="value" style="color:#ef4444">${r.vatAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الضريبة/شهر</div></div>` : ''}
+          ${r.zakatAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value" style="color:#ef4444">${r.zakatAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الزكاة/شهر</div></div>` : ''}
+          ${r.extraServiceRevenue > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value">${r.extraServiceRevenue.toLocaleString('ar-SA')} ر.س</div><div class="label">خدمات إضافية/شهر</div></div>` : ''}
+          ${r.wasteAndIncidentalsAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value" style="color:#ef4444">${r.wasteAndIncidentalsAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الهدر والنثريات/شهر</div><div class="sub">${r.wasteAndIncidentalsPct.toFixed(1)}%</div></div>` : ''}
         </div>
 
-        <div class="med-section-title">🎲 السيناريوهات</div>
+        <div class="med-section-title"><svg class="bonds-icon bonds-icon--dice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><circle cx="15.5" cy="15.5" r="1.5"></circle></svg> السيناريوهات</div>
         <div class="scenario-grid">
           <div class="scenario-card pessimistic">
             <div class="scenario-label" style="color:#ef4444;">المتشائم</div>
@@ -470,7 +470,7 @@
           </div>
         </div>
 
-        <div class="med-section-title">📉 تحليل الحساسية</div>
+        <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تحليل الحساسية</div>
         <table class="sensitivity-table">
           <thead><tr><th>التغير في عدد الوحدات</th><th>${config.unitLabel}/يوم</th><th>الربح الشهري</th><th>الربح السنوي</th></tr></thead>
           <tbody>
@@ -482,28 +482,28 @@
           </tbody>
         </table>
 
-        <div class="med-section-title">📊 توقع الأداء (12 شهر)</div>
+        <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> توقع الأداء (12 شهر)</div>
         <div class="chart-wrap"><canvas id="medChart"></canvas></div>
 
-        <div class="med-section-title">📋 ملخص تفصيلي</div>
+        <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ملخص تفصيلي</div>
         <div class="bonds-card" style="text-align:right;">
-          <p><strong>💰 الإيرادات:</strong></p>
+          <p><strong><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الإيرادات:</strong></p>
           <p>• إيراد يومي: ${(r.unitPrice * r.dailyUnits).toLocaleString('ar-SA')} ر.س | شهري: ${r.grossRevenue.toLocaleString('ar-SA')} ر.س | سنوي: ${(r.grossRevenue * 12).toLocaleString('ar-SA')} ر.س</p>
           <p>• الصافي بعد الاستقطاعات: ${r.netRevenue.toLocaleString('ar-SA')} ر.س/شهر</p>
           ${extraSummary}
           <p>• نمو شهري افتراضي: ${r.monthlyGrowthPct || 0}%</p>
-          ${r.vatAmount > 0 || r.zakatAmount > 0 ? `<p style="margin-top:0.5rem;"><strong>🏛️ الضريبة والزكاة:</strong></p><p>• ضريبة: ${r.vatAmount.toLocaleString('ar-SA')} ر.س/شهر (${r.vatRate}%) | زكاة: ${r.zakatAmount.toLocaleString('ar-SA')} ر.س/شهر (${r.zakatRate}%)</p>` : ''}
-          ${r.extraServiceRevenue > 0 || r.extraServiceCost > 0 ? `<p style="margin-top:0.5rem;"><strong>🧬 مزيج الخدمات:</strong></p><p>• إيرادات إضافية: ${r.extraServiceRevenue.toLocaleString('ar-SA')} ر.س/شهر | تكلفتها: ${r.extraServiceCost.toLocaleString('ar-SA')} ر.س/شهر | مساهمتها: ${(r.extraServiceRevenue - r.extraServiceCost).toLocaleString('ar-SA')} ر.س/شهر</p>` : ''}
-          <p style="margin-top:0.5rem;"><strong>📉 التكاليف:</strong></p>
+          ${r.vatAmount > 0 || r.zakatAmount > 0 ? `<p style="margin-top:0.5rem;"><strong><svg class="bonds-icon bonds-icon--landmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M4 21V10l8-6 8 6v11"></path><path d="M9 21v-6h6v6"></path><path d="M12 2v4"></path></svg> الضريبة والزكاة:</strong></p><p>• ضريبة: ${r.vatAmount.toLocaleString('ar-SA')} ر.س/شهر (${r.vatRate}%) | زكاة: ${r.zakatAmount.toLocaleString('ar-SA')} ر.س/شهر (${r.zakatRate}%)</p>` : ''}
+          ${r.extraServiceRevenue > 0 || r.extraServiceCost > 0 ? `<p style="margin-top:0.5rem;"><strong><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مزيج الخدمات:</strong></p><p>• إيرادات إضافية: ${r.extraServiceRevenue.toLocaleString('ar-SA')} ر.س/شهر | تكلفتها: ${r.extraServiceCost.toLocaleString('ar-SA')} ر.س/شهر | مساهمتها: ${(r.extraServiceRevenue - r.extraServiceCost).toLocaleString('ar-SA')} ر.س/شهر</p>` : ''}
+          <p style="margin-top:0.5rem;"><strong><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> التكاليف:</strong></p>
           <p>• ثابتة: ${r.monthlyFixed.toLocaleString('ar-SA')} ر.س | متغيرة: ${r.monthlyVariable.toLocaleString('ar-SA')} ر.س | الهدر والنثريات: ${r.wasteAndIncidentalsAmount.toLocaleString('ar-SA')} ر.س | الإجمالي: ${r.monthlyTotal.toLocaleString('ar-SA')} ر.س</p>
-          <p style="margin-top:0.5rem;"><strong>📊 الربحية:</strong></p>
+          <p style="margin-top:0.5rem;"><strong><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الربحية:</strong></p>
           <p>• ربح شهري: ${r.monthlyProfit.toLocaleString('ar-SA')} ر.س | ربح سنوي: ${r.yearlyProfit.toLocaleString('ar-SA')} ر.س | هامش: ${r.profitMargin.toFixed(1)}%</p>
-          <p style="margin-top:0.5rem;"><strong>🎯 نقطة التعادل:</strong></p>
+          <p style="margin-top:0.5rem;"><strong><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> نقطة التعادل:</strong></p>
           <p>• يومياً: ${Math.ceil(r.beUnitsPerDay)} ${config.unitLabel} | شهرياً: ${Math.ceil(r.beUnitsPerMonth)} ${config.unitLabel} | إيراد: ${r.beRevenuePerMonth.toLocaleString('ar-SA')} ر.س</p>
         </div>
 
         <div class="cta-section reveal">
-          <h3>🚀 هل تريد دراسة جدوى احترافية؟</h3>
+          <h3><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> هل تريد دراسة جدوى احترافية؟</h3>
           <p>احصل على تقرير مالي مفصل + خطة تشغيلية + تحليل مخاطر من خبراء بوندز. نتواصل معك خلال 24 ساعة.</p>
           <form class="cta-form" onsubmit="return submitLeadForm(event)">
             <input type="text" id="leadName" placeholder="الاسم الكامل" required />
@@ -512,12 +512,12 @@
             <input type="text" id="leadCity" placeholder="المدينة" />
             <button type="submit" class="bonds-btn bonds-btn-primary" style="grid-column: 1 / -1; max-width: 320px; margin: 0 auto;">اطلب دراستك المجانية</button>
           </form>
-          <div id="ctaSuccess" class="cta-success">✅ تم إرسال طلبك. سيتواصل معك فريق بوندز قريباً.</div>
+          <div id="ctaSuccess" class="cta-success"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم إرسال طلبك. سيتواصل معك فريق بوندز قريباً.</div>
         </div>
 
         <div style="text-align:center; margin-top: var(--space-6); display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
-          <button class="bonds-btn bonds-btn-primary" onclick="exportExcelMed()">📊 Excel</button>
-          <button class="bonds-btn bonds-btn-secondary" onclick="exportPDFMed()">🖨️ PDF</button>
+          <button class="bonds-btn bonds-btn-primary" onclick="exportExcelMed()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Excel</button>
+          <button class="bonds-btn bonds-btn-secondary" onclick="exportPDFMed()"><svg class="bonds-icon bonds-icon--printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg> PDF</button>
         </div>
       `;
       updateShareLink();
@@ -554,7 +554,7 @@
         if (el && f.value !== undefined) el.value = f.value;
       });
       calculateAll();
-      BondsUI.toast('✅ تم تحميل مثال توضيحي', 'success');
+      BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم تحميل مثال توضيحي', 'success');
     }
 
     function resetCalc() {
@@ -567,7 +567,7 @@
       if (window._medChart) { window._medChart.destroy(); window._medChart = null; }
       document.getElementById('resultContent').innerHTML = `
         <div style="text-align:center; color:var(--text-secondary); padding: var(--space-8) 0;">
-          <div style="font-size:3rem; margin-bottom:var(--space-4);">🏥</div>
+          <div style="font-size:3rem; margin-bottom:var(--space-4);"><svg class="bonds-icon bonds-icon--hospital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></div>
           <p>أدخل بياناتك ثم اضغط "احسب النتائج".</p>
         </div>`;
       updateShareLink();
@@ -588,7 +588,7 @@
       const input = document.getElementById('shareLink');
       input.select();
       document.execCommand('copy');
-      BondsUI.toast('✅ تم نسخ الرابط', 'success');
+      BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم نسخ الرابط', 'success');
     }
 
     function loadFromURL() {
@@ -615,7 +615,7 @@
     }
 
     async function exportExcelMed() {
-      if (!window._medResult) { BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning'); return; }
+      if (!window._medResult) { BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> احسب النتائج أولاً', 'warning'); return; }
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
       const r = window._medResult;
       const rows = [
@@ -660,7 +660,7 @@
     }
 
     function exportPDFMed() {
-      if (!window._medResult) { BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning'); return; }
+      if (!window._medResult) { BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> احسب النتائج أولاً', 'warning'); return; }
       const r = window._medResult;
       const content = document.getElementById('resultContent').innerHTML;
       openPrintWindow({ content: content, title: 'تقرير الجدوى الطبية', headerTitle: `تقرير الجدوى الطبية — ${ACTIVITIES[r.activity].name}` });

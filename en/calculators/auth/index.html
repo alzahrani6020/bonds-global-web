@@ -48,8 +48,8 @@
 .req-list{margin-top:var(--space-3);display:flex;flex-direction:column;gap:0.25rem}
 .req-item{font-size:0.78rem;color:var(--text-secondary);display:flex;align-items:center;gap:0.4rem;transition:color 0.2s}
 .req-item.met{color:#16a34a}
-.req-item::before{content:'○';font-size:0.7rem}
-.req-item.met::before{content:'✓'}
+.req-item::before{content:'<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>';font-size:0.7rem}
+.req-item.met::before{content:'<svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>'}
 .forgot-row{display:flex;justify-content:flex-end;margin-top:-0.5rem;margin-bottom:var(--space-4)}
 .phone-row{display:flex;align-items:center;gap:var(--space-3);direction:ltr}
 .phone-prefix{flex:0 0 auto;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);color:var(--text-secondary);font-weight:700}
@@ -131,7 +131,7 @@ body{padding:0}
         </div>
         <div class="method-tabs">
           <button type="button" class="method-tab active" data-method="email">Email</button>
-          <button type="button" class="method-tab" data-method="phone">📱 Phone</button>
+          <button type="button" class="method-tab" data-method="phone"><svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Phone</button>
         </div>
         <div id="loginEmailSection" class="method-panel active">
         <form id="loginForm">
@@ -143,7 +143,7 @@ body{padding:0}
             <label for="loginPassword">Password</label>
             <div class="pw-wrap">
               <input type="password" id="loginPassword" required placeholder="••••••••" />
-              <button type="button" class="pw-toggle" data-target="loginPassword" title="Show/Hide">👁️</button>
+              <button type="button" class="pw-toggle" data-target="loginPassword" title="Show/Hide"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
             </div>
           </div>
           <div class="forgot-row" style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-3)">
@@ -157,13 +157,13 @@ body{padding:0}
         <div class="divider">or</div>
         <button id="otpBtn" class="btn btn-secondary">
           <span class="spinner"></span>
-          <span class="btn-text">Send Sign-in Link 📧</span>
+          <span class="btn-text">Send Sign-in Link <svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span>
         </button>
         <button id="passkeyBtn" class="btn btn-secondary" style="margin-top:var(--space-3);border-style:dashed">
-          <span class="btn-text">🔐 Sign in with Passkey</span>
+          <span class="btn-text"><svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg> Sign in with Passkey</span>
         </button>
         <button id="googleBtn" class="btn btn-google" style="margin-top:var(--space-3)">
-          <span class="btn-text">🔍 Sign in with Google</span>
+          <span class="btn-text"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Sign in with Google</span>
         </button>
         <div class="auth-trust"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Fully encrypted &amp; secure sign-in</div>
         </div>
@@ -230,9 +230,9 @@ body{padding:0}
             <div class="password-row">
               <div class="pw-wrap" style="flex:1">
                 <input type="password" id="signupPassword" required minlength="8" placeholder="Min 8 characters" />
-                <button type="button" class="pw-toggle" data-target="signupPassword" title="Show/Hide">👁️</button>
+                <button type="button" class="pw-toggle" data-target="signupPassword" title="Show/Hide"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
               </div>
-              <button type="button" class="btn-small" id="genPwBtn" title="Generate strong password">🔐 Generate</button>
+              <button type="button" class="btn-small" id="genPwBtn" title="Generate strong password"><svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg> Generate</button>
             </div>
             <div class="strength-bar" id="strengthBar"><div></div></div>
             <div class="strength-label" id="strengthLabel">Enter a password</div>
@@ -247,7 +247,7 @@ body{padding:0}
             <label for="signupPasswordConfirm">Confirm Password</label>
             <div class="pw-wrap">
               <input type="password" id="signupPasswordConfirm" required placeholder="Re-enter password" />
-              <button type="button" class="pw-toggle" data-target="signupPasswordConfirm" title="Show/Hide">👁️</button>
+              <button type="button" class="pw-toggle" data-target="signupPasswordConfirm" title="Show/Hide"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
             </div>
             <div class="match-label" id="matchLabel"></div>
           </div>
@@ -307,7 +307,7 @@ body{padding:0}
         if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
           var banner = document.createElement('div');
           banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#5a1a1a;color:#ff8a8a;padding:12px;text-align:center;z-index:99999;font-size:0.9rem;font-family:Inter,sans-serif;';
-          banner.innerHTML = '⚠️ Environment variables not configured. Please check deployment guide.';
+          banner.innerHTML = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Environment variables not configured. Please check deployment guide.';
           document.body.prepend(banner);
         }
       }, 500);
@@ -382,10 +382,10 @@ body{padding:0}
           const input = document.getElementById(btn.dataset.target);
           if (input.type === 'password') {
             input.type = 'text';
-            btn.textContent = '🙈';
+            btn.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>';
           } else {
             input.type = 'password';
-            btn.textContent = '👁️';
+            btn.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>';
           }
         });
       });
@@ -584,7 +584,7 @@ body{padding:0}
         if (error) {
           const msg = error.message || '';
           if (msg.includes('Invalid login credentials')) {
-            showError('Invalid email or password', `<button type="button" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="sendMagicLink()">📧 Send sign-in link</button><a href="./reset.html" class="link" style="font-size:0.85rem;">Forgot password?</a>`);
+            showError('Invalid email or password', `<button type="button" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="sendMagicLink()"><svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> Send sign-in link</button><a href="./reset.html" class="link" style="font-size:0.85rem;">Forgot password?</a>`);
           } else if (msg.includes('Email not confirmed')) {
             showError('Email not confirmed. Check your inbox or resend the confirmation link.', `<button type="button" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="resendActivation('${email.replace(/'/g, "\\'")}')">Resend confirmation link</button>`);
           } else if (msg.includes('Too many requests') || msg.includes('rate limit') || msg.includes('Request rate limit')) {
@@ -607,7 +607,7 @@ body{padding:0}
         const { error } = await window.BondsAuth.signInWithOTP(email);
         setLoading('otpBtn', false);
         if (error) { showError(error.message); return; }
-        showSuccess('Sign-in link sent! Click the link in your email to sign in 📧');
+        showSuccess('Sign-in link sent! Click the link in your email to sign in <svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>');
       };
 
       window.resendActivation = async function(email) {
@@ -619,7 +619,7 @@ body{padding:0}
         const { error } = await window.BondsAuth.resendConfirmation(email);
         if (btn) { btn.disabled = false; btn.textContent = 'Resend confirmation link'; }
         if (error) { showError(error.message); return; }
-        showSuccess('Confirmation link sent 📧 — check your inbox and spam folder.');
+        showSuccess('Confirmation link sent <svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> — check your inbox and spam folder.');
       };
 
       document.getElementById('otpBtn').addEventListener('click', async () => {
@@ -630,7 +630,7 @@ body{padding:0}
         const { error } = await window.BondsAuth.signInWithOTP(email);
         setLoading('otpBtn', false);
         if (error) { showError(error.message); return; }
-        showSuccess('Magic link sent! Click the link in your email to sign in 📧');
+        showSuccess('Magic link sent! Click the link in your email to sign in <svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>');
       });
 
       // Phone OTP Login
@@ -656,7 +656,7 @@ body{padding:0}
           return;
         }
         sessionStorage.setItem('otp_phone', phone);
-        showSuccess('Verification code sent to your phone 📱');
+        showSuccess('Verification code sent to your phone <svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>');
         setTimeout(() => {
           window.location.href = './verify-otp.html?phone=' + encodeURIComponent(phone);
         }, 800);
@@ -673,7 +673,7 @@ body{padding:0}
           redirectTo: window.location.origin + '/en/calculators/auth/reset.html'
         });
         if (error) { showError(error.message); return; }
-        showSuccess('Password reset link sent to your email 📧');
+        showSuccess('Password reset link sent to your email <svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>');
       });
 
       document.getElementById('googleBtn').addEventListener('click', async () => {
