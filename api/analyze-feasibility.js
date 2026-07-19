@@ -2,12 +2,23 @@ export const config = { runtime: 'edge' };
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json; charset=utf-8',
-};
+const ALLOWED_ORIGINS = [
+  'https://bonds-global.com',
+  'https://www.bonds-global.com',
+  'http://localhost:3005',
+  'http://localhost:3000'
+];
+
+function corsHeaders(request) {
+  const origin = request?.headers?.get('origin') || '';
+  return {
+    'Access-Control-Allow-Origin': ALLOWED_ORIGINS.includes(origin) ? origin : 'https://bonds-global.com',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json; charset=utf-8',
+    'Vary': 'Origin'
+  };
+}
 
 const ARABIC_PROMPT = `أنت محلل مالي متخصص في دراسات الجدوى. قم بتحليل النص التالي المستخرج من دراسة جدوى، واستخرج البيانات التالية بتنسيق JSON صالح فقط (valid JSON) بدون أي شرح إضافي أو رموز markdown.
 
@@ -135,26 +146,26 @@ The extracted study text:`;
 
 export default async function handler(request) {
   if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return new Response(null, { status: 204, headers: corsHeaders(request) });
   }
   if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers: CORS_HEADERS });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers: corsHeaders(request) });
   }
 
   let body = {};
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers: CORS_HEADERS });
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers: corsHeaders(request) });
   }
 
   const { text, lang = 'ar' } = body;
   if (!text || text.trim().length < 100) {
-    return new Response(JSON.stringify({ error: 'Text too short (minimum 100 characters)' }), { status: 400, headers: CORS_HEADERS });
+    return new Response(JSON.stringify({ error: 'Text too short (minimum 100 characters)' }), { status: 400, headers: corsHeaders(request) });
   }
 
   if (!GEMINI_API_KEY) {
-    return new Response(JSON.stringify({ error: 'GEMINI_API_KEY not configured' }), { status: 500, headers: CORS_HEADERS });
+    return new Response(JSON.stringify({ error: 'GEMINI_API_KEY not configured' }), { status: 500, headers: corsHeaders(request) });
   }
 
   const prompt = lang === 'ar' ? ARABIC_PROMPT : ENGLISH_PROMPT;
@@ -181,7 +192,7 @@ export default async function handler(request) {
     }
 
     if (data.error) {
-      return new Response(JSON.stringify({ error: data.error.message || 'Gemini API error' }), { status: 500, headers: CORS_HEADERS });
+      return new Response(JSON.stringify({ error: data.error.message || 'Gemini API error' }), { status: 500, headers: corsHeaders(request) });
     }
 
     let responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
@@ -204,17 +215,17 @@ export default async function handler(request) {
         try {
           analysis = JSON.parse(cleaned);
         } catch (e2) {
-          return new Response(JSON.stringify({ error: 'Failed to parse AI response as JSON', raw: responseText }), { status: 200, headers: CORS_HEADERS });
+          return new Response(JSON.stringify({ error: 'Failed to parse AI response as JSON', raw: responseText }), { status: 200, headers: corsHeaders(request) });
         }
       }
     }
 
     if (!analysis) {
-      return new Response(JSON.stringify({ error: 'No valid JSON found in AI response', raw: responseText }), { status: 200, headers: CORS_HEADERS });
+      return new Response(JSON.stringify({ error: 'No valid JSON found in AI response', raw: responseText }), { status: 200, headers: corsHeaders(request) });
     }
 
-    return new Response(JSON.stringify({ success: true, analysis }), { status: 200, headers: CORS_HEADERS });
+    return new Response(JSON.stringify({ success: true, analysis }), { status: 200, headers: corsHeaders(request) });
   } catch (e) {
-    return new Response(JSON.stringify({ error: e.message || 'Internal error' }), { status: 500, headers: CORS_HEADERS });
+    return new Response(JSON.stringify({ error: e.message || 'Internal error' }), { status: 500, headers: corsHeaders(request) });
   }
 }

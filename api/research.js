@@ -5,9 +5,10 @@
 
 const getSupabase = require('../lib/api/supabase');
 const { checkRateLimit } = require('../lib/api/rate-limit');
+const { setAllowedOrigin } = require('../lib/api/cors');
 
-function setCors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+function setCors(res, req) {
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
@@ -455,7 +456,7 @@ async function omnichannelCalculatorHandler(req, res) {
 
 // ── Main Router ────────────────────────────────────────────
 module.exports = async function handler(req, res) {
-  setCors(res);
+  setCors(res, req);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);

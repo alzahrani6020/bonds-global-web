@@ -7,6 +7,7 @@ const getSupabase = require('../lib/api/supabase');
 const { sendEmail } = require('../lib/api/email');
 const { checkRateLimit } = require('../lib/api/rate-limit');
 const { verifyBearer } = require('../lib/api/auth-helper');
+const { setAllowedOrigin } = require('../lib/api/cors');
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 
@@ -351,7 +352,7 @@ ${escapeHtml(payload.use_case || '-')}
 
 // ── Main dispatcher ────────────────────────────────────────
 async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 

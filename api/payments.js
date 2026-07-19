@@ -10,11 +10,12 @@ const { verifyBearerAndUser } = require('../lib/api/auth-helper');
 const { checkRateLimit } = require('../lib/api/rate-limit');
 const { processStripeWebhook } = require('../v3/api/billing');
 const { createInvoice, getInvoice, getTierLabel } = require('../lib/api/moyasar-helper');
+const { setAllowedOrigin } = require('../lib/api/cors');
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
 
-function setCors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+function setCors(res, req) {
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Stripe-Signature');
 }
@@ -162,7 +163,7 @@ async function checkoutHandleOneoff(req, res, user) {
 }
 
 async function checkoutHandler(req, res) {
-  setCors(res);
+  setCors(res, req);
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -383,7 +384,7 @@ async function billingHandleV3Webhook(req, res) {
 }
 
 async function billingHandler(req, res) {
-  setCors(res);
+  setCors(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -477,7 +478,7 @@ async function moyasarActivateSubscription(supabase, userId, tier) {
 }
 
 async function moyasarCheckoutAction(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
@@ -541,7 +542,7 @@ async function moyasarCheckoutAction(req, res) {
 }
 
 async function moyasarVerifyAction(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
@@ -593,7 +594,7 @@ async function moyasarVerifyAction(req, res) {
 }
 
 async function moyasarWebhookAction(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -658,7 +659,7 @@ async function moyasarHandler(req, res) {
     case 'verify': return moyasarVerifyAction(req, res);
     case 'webhook': return moyasarWebhookAction(req, res);
     default:
-      res.setHeader('Access-Control-Allow-Origin', '*');
+      setAllowedOrigin(res, req);
       res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
       if (req.method === 'OPTIONS') return res.status(200).end();
@@ -668,7 +669,7 @@ async function moyasarHandler(req, res) {
 
 // ── Main Router ────────────────────────────────────────────
 async function handler(req, res) {
-  setCors(res);
+  setCors(res, req);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);

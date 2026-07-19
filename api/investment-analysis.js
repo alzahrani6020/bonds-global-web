@@ -6,9 +6,10 @@
 const getSupabase = require('../lib/api/supabase');
 const { verifyBearerAndUser } = require('../lib/api/auth-helper');
 const { withRateLimit } = require('../lib/api/rate-limit');
+const { setAllowedOrigin } = require('../lib/api/cors');
 
 async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 

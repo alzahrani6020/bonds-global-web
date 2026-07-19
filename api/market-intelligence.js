@@ -10,6 +10,7 @@
 const getSupabase = require('../lib/api/supabase');
 const { verifyAdminOrEditor } = require('../lib/api/admin-auth');
 const { sendEmail } = require('../lib/api/email');
+const { setAllowedOrigin } = require('../lib/api/cors');
 
 const ALLOWED_ROLES = ['admin', 'editor']; // kept for backward compatibility
 const OUTLOOKS = ['positive', 'neutral', 'negative'];
@@ -162,8 +163,8 @@ async function mapLimit(items, limit, fn) {
   return results;
 }
 
-function cors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+function cors(res, req) {
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
@@ -301,7 +302,7 @@ async function refreshSources(supabase) {
 }
 
 module.exports = async function handler(req, res) {
-  cors(res);
+  cors(res, req);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const supabase = getSupabase();

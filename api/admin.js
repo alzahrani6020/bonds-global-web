@@ -6,6 +6,7 @@
 const getSupabase = require('../lib/api/supabase');
 const { checkRateLimit } = require('../lib/api/rate-limit');
 const { sendEmail } = require('../lib/api/email');
+const { setAllowedOrigin } = require('../lib/api/cors');
 
 const OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 
@@ -1136,7 +1137,7 @@ async function getStats(sb) {
 
 // ── Main Handler ────────────────────────────────────────────
 async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();

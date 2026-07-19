@@ -1,5 +1,6 @@
 const v3Handler = require('../../v3/api/index.js');
 const { checkRateLimit } = require('../../lib/api/rate-limit');
+const { setAllowedOrigin } = require('../../lib/api/cors');
 
 function getCategory(path) {
   if (path === '/billing/webhook' || path.startsWith('/billing/webhook/')) return 'webhook';
@@ -11,14 +12,14 @@ function getCategory(path) {
   return 'public';
 }
 
-function setCors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+function setCors(res, req) {
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,x-admin-token');
 }
 
 module.exports = async function handler(req, res) {
-  setCors(res);
+  setCors(res, req);
 
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const path = url.pathname.replace(/^\/api\/v3/, '').replace(/^\/api/, '') || '/';

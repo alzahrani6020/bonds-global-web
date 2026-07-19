@@ -9,6 +9,7 @@ const Stripe = require('stripe');
 const { sendEmail } = require('../lib/api/email');
 const { verifyBearer, verifyBearerAndUser } = require('../lib/api/auth-helper');
 const { checkRateLimit } = require('../lib/api/rate-limit');
+const { setAllowedOrigin } = require('../lib/api/cors');
 const { calculateProject, aiInsight, buildHTMLReport } = require('../pro/pro-engine');
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
@@ -178,8 +179,8 @@ async function heartbeatLeaveHandler(req, res) {
   }
 }
 
-function setCors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+function setCors(res, req) {
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
@@ -188,7 +189,7 @@ function setCors(res) {
 const ADVISOR_ALLOWED_STATUSES = ['under_review', 'approved', 'returned'];
 
 async function advisorsListAction(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -212,7 +213,7 @@ async function advisorsListAction(req, res) {
 }
 
 async function advisorsDashboardAction(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -268,7 +269,7 @@ async function advisorsDashboardAction(req, res) {
 }
 
 async function advisorsUpdateReviewAction(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -327,7 +328,7 @@ async function advisorsHandler(req, res) {
     case 'dashboard': return advisorsDashboardAction(req, res);
     case 'update-review': return advisorsUpdateReviewAction(req, res);
     default:
-      res.setHeader('Access-Control-Allow-Origin', '*');
+      setAllowedOrigin(res, req);
       res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
       if (req.method === 'OPTIONS') return res.status(200).end();
@@ -344,7 +345,7 @@ function getProAuthClient() {
 }
 
 function setProCors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
@@ -431,7 +432,7 @@ async function proAuth(req, res) {
 }
 
 async function proHandler(req, res) {
-  setProCors(res);
+  setProCors(res, req);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   let action = getProAction(req);
@@ -849,7 +850,7 @@ async function siteHandler(req, res) {
 
 // ── Log Usage ──────────────────────────────────────────────
 async function logUsageHandler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
@@ -892,7 +893,7 @@ function npsEscapeHtml(str) {
 }
 
 async function npsCheckAction(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -921,7 +922,7 @@ async function npsCheckAction(req, res) {
 }
 
 async function npsSubmitAction(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -952,7 +953,7 @@ async function npsSubmitAction(req, res) {
 }
 
 async function npsSendAction(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -1052,7 +1053,7 @@ async function npsHandler(req, res) {
     case 'submit': return npsSubmitAction(req, res);
     case 'send': return npsSendAction(req, res);
     default:
-      res.setHeader('Access-Control-Allow-Origin', '*');
+      setAllowedOrigin(res, req);
       res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
       if (req.method === 'OPTIONS') return res.status(200).end();
@@ -1062,7 +1063,7 @@ async function npsHandler(req, res) {
 
 // ── Main Router ────────────────────────────────────────────
 module.exports = async function handler(req, res) {
-  setCors(res);
+  setCors(res, req);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);

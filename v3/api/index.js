@@ -66,9 +66,10 @@ const { UniversalCalculationPlatform } = require('../../lib/ucp');
 const { adaptToUcp, adaptFromUcp } = require('../../lib/ucp/adapters');
 const { run: orchestratorRun, buildIntentForm } = require('../../lib/orchestrator/intelligence-orchestrator');
 const { listIntents } = require('../../lib/intent/intent-engine');
+const { setAllowedOrigin } = require('../../lib/api/cors');
 
-function setCors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+function setCors(res, req) {
+  setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,x-admin-token');
 }
@@ -775,7 +776,7 @@ async function handleCronCheckQuality(req, res) {
 }
 
 module.exports = async function handler(req, res) {
-  setCors(res);
+  setCors(res, req);
 
   if (req.method === 'OPTIONS') {
     res.statusCode = 204;
