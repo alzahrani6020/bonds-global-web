@@ -12,6 +12,15 @@
   let scores = {};
   let lastValidationValid = false;
 
+  function escapeHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   const translations = {
     ar: {
       stepLabels: ['المشروع', 'السوق', 'التشغيل', 'الاستثمار', 'التمويل', 'المخاطر', 'المراجعة'],
@@ -336,7 +345,7 @@
         container.innerHTML = '';
       } else {
         container.classList.remove('wizard-hidden');
-        container.innerHTML = '<div class="validation-warnings__title">⚠️ ' + t.validationTitle + '</div><ul>' + warnings.map(w => '<li>' + w + '</li>').join('') + '</ul><div class="validation-warnings__footer">' + t.fixBeforeReport + '</div>';
+        container.innerHTML = '<div class="validation-warnings__title">⚠️ ' + escapeHtml(t.validationTitle) + '</div><ul>' + warnings.map(w => '<li>' + escapeHtml(w) + '</li>').join('') + '</ul><div class="validation-warnings__footer">' + escapeHtml(t.fixBeforeReport) + '</div>';
       }
     }
 
@@ -630,14 +639,14 @@
         <div class="di-metric"><span class="di-metric__label">${i.collateralCoverage}</span><span class="di-metric__value">${di.financingAnalysis.collateralCoverage.toFixed(2)}</span></div>
         <div class="di-metric"><span class="di-metric__label">${i.dscrEstimate}</span><span class="di-metric__value">${di.financingAnalysis.dscr.toFixed(2)}</span></div>
         <div class="di-metric"><span class="di-metric__label">${i.selfFinanceRatio}</span><span class="di-metric__value">${di.financingAnalysis.selfFinanceRatio.toFixed(1)}%</span></div>
-        <p class="di-summary-text">${di.financingAnalysis.summary}</p>
+        <p class="di-summary-text">${escapeHtml(di.financingAnalysis.summary)}</p>
       `;
     }
 
     const marketSummary = document.getElementById('diMarketSummary');
     if (marketSummary) {
       marketSummary.innerHTML = `
-        <p class="di-summary-text">${di.marketAnalysis.summary}</p>
+        <p class="di-summary-text">${escapeHtml(di.marketAnalysis.summary)}</p>
         <div class="di-metric"><span class="di-metric__label">${lang === 'en' ? 'Market Share' : 'حصة السوق'}</span><span class="di-metric__value">${di.marketAnalysis.marketShare.toFixed(2)}%</span></div>
       `;
     }
@@ -647,8 +656,8 @@
       const i = window.DecisionIntelligence.i18n[lang];
       const liquidityLabel = i[di.cashFlowAnalysis.liquidity] || di.cashFlowAnalysis.liquidity;
       cfSummary.innerHTML = `
-        <p class="di-summary-text">${di.cashFlowAnalysis.summary}</p>
-        <div class="di-metric"><span class="di-metric__label">${lang === 'en' ? 'Liquidity' : 'السيولة'}</span><span class="di-metric__value">${liquidityLabel}</span></div>
+        <p class="di-summary-text">${escapeHtml(di.cashFlowAnalysis.summary)}</p>
+        <div class="di-metric"><span class="di-metric__label">${lang === 'en' ? 'Liquidity' : 'السيولة'}</span><span class="di-metric__value">${escapeHtml(liquidityLabel)}</span></div>
       `;
     }
   }

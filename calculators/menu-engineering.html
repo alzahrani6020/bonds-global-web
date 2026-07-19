@@ -20,6 +20,19 @@
   
 
   <script src="db-client.js"></script>
+<script>
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+function html(strings, ...values) {
+  return strings.reduce((acc, s, i) => acc + s + (i < values.length ? escapeHtml(values[i]) : ''), '');
+}
+</script>
   
 <link rel="stylesheet" href="../header-footer.css?v=2.54.0" />
   <link rel="canonical" href="https://bonds-global.com/calculators/menu-engineering" />
@@ -198,6 +211,15 @@ let menuItemIngredients = [];
 let sales = [];
 let _lastMatrixData = null;
 
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 async function init() {
   try {
     const { data: userData } = await window.BondsAuth.getUser();
@@ -213,7 +235,7 @@ async function init() {
     await loadMatrix();
     setTimeout(populateCountries, 500);
   } catch (e) {
-    document.getElementById('matrixContainer').innerHTML = '<div class="error">' + e.message + '</div>';
+    document.getElementById('matrixContainer').innerHTML = '<div class="error">' + escapeHtml(e.message) + '</div>';
   }
 }
 
@@ -226,7 +248,7 @@ function populateCountries() {
       countries = window.BondsGeo.getCountries({ lang: 'ar' });
     }
     sel.innerHTML = '<option value="">اختر الدولة...</option>' +
-      countries.map(item => `<option value="${item.value}">${item.label}</option>`).join('');
+      countries.map(item => `<option value="${escapeHtml(item.value)}">${escapeHtml(item.label)}</option>`).join('');
   } catch (e) {
     console.error('populateCountries error', e);
   }
@@ -241,7 +263,7 @@ function loadCountryPlatforms() {
     return;
   }
   sel.innerHTML = '<option value="">اختر التطبيق...</option>' +
-    platforms.map((p, idx) => `<option value="${idx}">${p.name} (${p.fee}%)</option>`).join('');
+    platforms.map((p, idx) => `<option value="${idx}">${escapeHtml(p.name)} (${escapeHtml(p.fee)}%)</option>`).join('');
 }
 
 function fillPlatformData() {
@@ -399,7 +421,7 @@ function renderPlatforms() {
   if (platforms.length === 0) {
     el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">📱 لا توجد منصات — أضف تطبيق توصيل</div>';
   } else {
-    el.innerHTML = platforms.map(p => `<div class="row"><span>${p.name} (${p.code}) — ${p.commission_rate}%</span></div>`).join('');
+    el.innerHTML = platforms.map(p => `<div class="row"><span>${escapeHtml(p.name)} (${escapeHtml(p.code)}) — ${escapeHtml(p.commission_rate)}%</span></div>`).join('');
   }
 }
 
@@ -433,7 +455,7 @@ function renderIngredients() {
   if (ingredients.length === 0) {
     el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">🥩 لا توجد مكونات — أضف موادك الخام</div>';
   } else {
-    el.innerHTML = ingredients.map(i => `<div class="row"><span>${i.name} — ${i.current_price || 0} ر.س / ${i.unit}</span></div>`).join('');
+    el.innerHTML = ingredients.map(i => `<div class="row"><span>${escapeHtml(i.name)} — ${escapeHtml(i.current_price || 0)} ر.س / ${escapeHtml(i.unit)}</span></div>`).join('');
   }
 }
 
@@ -466,7 +488,7 @@ function renderMenuItems() {
   if (menuItems.length === 0) {
     el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">🍔 لا توجد وجبات — أضف قائمة الطعام</div>';
   } else {
-    el.innerHTML = menuItems.map(m => `<div class="row"><span>${m.name} — ${m.base_price} ر.س</span></div>`).join('');
+    el.innerHTML = menuItems.map(m => `<div class="row"><span>${escapeHtml(m.name)} — ${escapeHtml(m.base_price)} ر.س</span></div>`).join('');
   }
 }
 
@@ -506,7 +528,7 @@ async function renderMenuItemIngredients() {
   } else {
     el.innerHTML = (data || []).map(r => {
       const cost = (r.quantity_needed * (r.ingredient?.current_price || 0)).toFixed(2);
-      return `<div class="row"><span>${r.menu_item?.name || '—'} ← ${r.ingredient?.name || '—'} × ${r.quantity_needed} ${r.unit} = ${cost} ر.س</span></div>`;
+      return `<div class="row"><span>${escapeHtml(r.menu_item?.name || '—')} ← ${escapeHtml(r.ingredient?.name || '—')} × ${escapeHtml(r.quantity_needed)} ${escapeHtml(r.unit)} = ${escapeHtml(cost)} ر.س</span></div>`;
     }).join('');
   }
   } catch (e) {
@@ -548,7 +570,7 @@ async function renderSales() {
   if (!data || data.length === 0) {
     el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">🛒 لا توجد مبيعات — سجل أول مبيعة</div>';
   } else {
-    el.innerHTML = (data || []).map(s => `<div class="row"><span>${s.menu_item?.name || '—'} × ${s.quantity} = ${s.unit_price * s.quantity} ر.س</span></div>`).join('');
+    el.innerHTML = (data || []).map(s => `<div class="row"><span>${escapeHtml(s.menu_item?.name || '—')} × ${escapeHtml(s.quantity)} = ${escapeHtml(s.unit_price * s.quantity)} ر.س</span></div>`).join('');
   }
 }
 
@@ -557,21 +579,21 @@ function updateDropdowns() {
   const simItem = document.getElementById('simItem');
   const cMenuItem = document.getElementById('cMenuItem');
   [itemSel, simItem, cMenuItem].forEach(sel => {
-    if (sel) sel.innerHTML = '<option value="">اختر...</option>' + menuItems.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+    if (sel) sel.innerHTML = '<option value="">اختر...</option>' + menuItems.map(m => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)}</option>`).join('');
   });
 
   const platSel = document.getElementById('sPlatform');
   const simPlat = document.getElementById('simPlatform');
   const omniPlat = document.getElementById('omniPlatform');
   [platSel, simPlat, omniPlat].forEach(sel => {
-    if (sel) sel.innerHTML = '<option value="">اختر...</option>' + platforms.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    if (sel) sel.innerHTML = '<option value="">اختر...</option>' + platforms.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)}</option>`).join('');
   });
 
   const omniItem = document.getElementById('omniItem');
-  if (omniItem) omniItem.innerHTML = '<option value="">اختر...</option>' + menuItems.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  if (omniItem) omniItem.innerHTML = '<option value="">اختر...</option>' + menuItems.map(m => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)}</option>`).join('');
 
   const cIngredient = document.getElementById('cIngredient');
-  if (cIngredient) cIngredient.innerHTML = '<option value="">اختر...</option>' + ingredients.map(i => `<option value="${i.id}">${i.name} (${i.current_price} ر.س/${i.unit})</option>`).join('');
+  if (cIngredient) cIngredient.innerHTML = '<option value="">اختر...</option>' + ingredients.map(i => `<option value="${escapeHtml(i.id)}">${escapeHtml(i.name)} (${escapeHtml(i.current_price)} ر.س/${escapeHtml(i.unit)})</option>`).join('');
 }
 
 // Matrix
@@ -599,7 +621,7 @@ async function loadMatrix() {
   const res = await fetch(`/api/menu-engineering?user_id=${currentUser.id}`);
   const json = await res.json();
   if (!json.success) {
-    document.getElementById('matrixContainer').innerHTML = '<div class="error">' + json.error + '</div>';
+    document.getElementById('matrixContainer').innerHTML = '<div class="error">' + escapeHtml(json.error) + '</div>';
     return;
   }
   let data = json.data;
@@ -634,13 +656,13 @@ async function loadMatrix() {
       const marginClass = margin >= 40 ? 'high' : margin >= 20 ? 'mid' : margin >= 0 ? 'low' : 'loss';
       const borderColor = key === 'stars' ? '#22c55e' : key === 'engines' ? '#f59e0b' : key === 'treasures' ? '#3b82f6' : '#ef4444';
       html += `<div class="me-item" style="border-left:4px solid ${borderColor};padding-left:var(--space-3);">`;
-      html += `<div class="name" style="font-weight:700;font-size:1rem;margin-bottom:var(--space-1);">${item.menu_item?.name || '—'}</div>`;
+      html += `<div class="name" style="font-weight:700;font-size:1rem;margin-bottom:var(--space-1);">${escapeHtml(item.menu_item?.name || '—')}</div>`;
       html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-1);font-size:0.8rem;color:var(--text-secondary);margin-bottom:var(--space-2);">`;
       html += `<span>💰 إيراد: ${revenue.toFixed(0)} ر.س</span><span>📉 تكلفة: ${cost.toFixed(0)} ر.س</span>`;
       html += `<span>🛒 مبيعات: ${sales}</span><span>📈 هامش: <strong style="color:${margin >= 40 ? '#22c55e' : margin >= 20 ? '#f59e0b' : '#ef4444'};">${margin.toFixed(1)}%</strong></span>`;
       html += `</div>`;
       html += `<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:var(--space-1);">ربح صافي: <strong style="color:${profit >= 0 ? '#22c55e' : '#ef4444'};">${profit.toFixed(2)} ر.س</strong></div>`;
-      html += `${item.recommendation ? `<div class="badge badge-${marginClass}">${item.recommendation}</div>` : ''}</div>`;
+      html += `${item.recommendation ? `<div class="badge badge-${marginClass}">${escapeHtml(item.recommendation)}</div>` : ''}</div>`;
     });
     html += '</div></div>';
   }
@@ -649,12 +671,12 @@ async function loadMatrix() {
   const s = data.summary || {};
   // Summary dashboard
   html += `<div class="me-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--space-4);margin:var(--space-8) 0;">`;
-  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📦 منتجات</div><div style="font-size:1.4rem;font-weight:700;color:var(--gold);">${s.total_items || 0}</div></div>`;
-  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">💰 إيرادات</div><div style="font-size:1.4rem;font-weight:700;color:#22c55e;">${Number(s.total_revenue || 0).toFixed(0)} ر.س</div></div>`;
-  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📉 تكاليف</div><div style="font-size:1.4rem;font-weight:700;color:#ef4444;">${Number(s.total_cost || 0).toFixed(0)} ر.س</div></div>`;
-  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">🏦 عمولات</div><div style="font-size:1.4rem;font-weight:700;color:#f59e0b;">${Number(s.platform_fees || 0).toFixed(0)} ر.س</div></div>`;
-  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📈 ربح صافي</div><div style="font-size:1.4rem;font-weight:700;color:var(--gold);">${Number(s.total_profit || 0).toFixed(0)} ر.س</div></div>`;
-  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📊 متوسط الهامش</div><div style="font-size:1.4rem;font-weight:700;color:var(--primary);">${s.avg_margin || 0}%</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📦 منتجات</div><div style="font-size:1.4rem;font-weight:700;color:var(--gold);">${escapeHtml(s.total_items || 0)}</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">💰 إيرادات</div><div style="font-size:1.4rem;font-weight:700;color:#22c55e;">${escapeHtml(Number(s.total_revenue || 0).toFixed(0))} ر.س</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📉 تكاليف</div><div style="font-size:1.4rem;font-weight:700;color:#ef4444;">${escapeHtml(Number(s.total_cost || 0).toFixed(0))} ر.س</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">🏦 عمولات</div><div style="font-size:1.4rem;font-weight:700;color:#f59e0b;">${escapeHtml(Number(s.platform_fees || 0).toFixed(0))} ر.س</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📈 ربح صافي</div><div style="font-size:1.4rem;font-weight:700;color:var(--gold);">${escapeHtml(Number(s.total_profit || 0).toFixed(0))} ر.س</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📊 متوسط الهامش</div><div style="font-size:1.4rem;font-weight:700;color:var(--primary);">${escapeHtml(s.avg_margin || 0)}%</div></div>`;
   html += `</div>`;
   if (isDemo) html += '<div style="text-align:center;color:var(--primary);font-size:0.85rem;margin-bottom:var(--space-6);">🎮 بيانات تجريبية — أدخل مبيعاتك الحقيقية لترى نتائجك</div>';
   document.getElementById('matrixContainer').innerHTML = html;
@@ -678,9 +700,9 @@ async function runPromoSim() {
     const json = await res.json();
     if (!json.success) throw new Error(json.error);
     const d = json.data;
-    box.innerHTML = `<div class="result-box"><h4>🎯 نتيجة المحاكاة: ${d.item_name}</h4><p><strong>السعر:</strong> ${d.original_price} → <strong>${d.discounted_price}</strong> ر.س</p><p><strong>الهامش:</strong> ${d.original_margin_pct}% → <strong>${d.new_margin_pct}%</strong></p><hr style="border-color:var(--border);margin:var(--space-3) 0;"><p style="color:${d.is_profitable ? '#22c55e' : '#ef4444'};font-weight:700;">${d.verdict}</p></div>`;
+    box.innerHTML = html`<div class="result-box"><h4>🎯 نتيجة المحاكاة: ${d.item_name}</h4><p><strong>السعر:</strong> ${d.original_price} → <strong>${d.discounted_price}</strong> ر.س</p><p><strong>الهامش:</strong> ${d.original_margin_pct}% → <strong>${d.new_margin_pct}%</strong></p><hr style="border-color:var(--border);margin:var(--space-3) 0;"><p style="color:${d.is_profitable ? '#22c55e' : '#ef4444'};font-weight:700;">${d.verdict}</p></div>`;
   } catch (e) {
-    box.innerHTML = '<div class="error">' + e.message + '</div>';
+    box.innerHTML = '<div class="error">' + escapeHtml(e.message) + '</div>';
   }
 }
 
@@ -706,7 +728,7 @@ async function runOmnichannel() {
     const plat = d.platform;
     const dir = d.direct;
     const comp = d.comparison;
-    box.innerHTML = `<div class="result-box"><h4>🌐 مقارنة: ${d.item_name} (${d.item_price} ر.س)</h4>
+    box.innerHTML = html`<div class="result-box"><h4>🌐 مقارنة: ${d.item_name} (${d.item_price} ر.س)</h4>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin:var(--space-4) 0;">
         <div style="background:var(--bg-card);padding:var(--space-4);border-radius:var(--radius);border:1px solid var(--border);">
           <h5 style="color:#ef4444;margin-bottom:var(--space-2);">📱 ${plat.name}</h5>
@@ -736,7 +758,7 @@ async function runOmnichannel() {
       <p>⚠️ أقصى CAC مربح: <strong>${comp.max_profitable_cac} ر.س</strong></p>
     </div>`;
   } catch (e) {
-    box.innerHTML = '<div class="error">' + e.message + '</div>';
+    box.innerHTML = '<div class="error">' + escapeHtml(e.message) + '</div>';
   }
 }
 
