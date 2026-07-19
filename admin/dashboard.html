@@ -733,6 +733,11 @@
         return String.fromCodePoint(...[...code].map(c => 0x1F1A5 + c.charCodeAt(0)));
       }
 
+      function decodeCity(city) {
+        if (!city) return '';
+        try { return decodeURIComponent(city); } catch { return city; }
+      }
+
       function timeAgo(iso) {
         if (!iso) return '-';
         const sec = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
@@ -769,7 +774,7 @@
               <tbody>
                 ${data.online.map(u => `
                   <tr data-session="${u.sessionId}">
-                    <td data-label="الدولة"><div class="country-cell"><span class="country-flag">${countryFlag(u.countryCode || u.country)}</span><span>${u.country || 'غير معروف'}</span>${u.city ? `<span style="font-size:0.75rem;color:var(--text-muted)">(${u.city})</span>` : ''}</div></td>
+                    <td data-label="الدولة"><div class="country-cell"><span class="country-flag">${countryFlag(u.countryCode || u.country)}</span><span>${u.countryName || u.countryCode || u.country || 'غير معروف'}</span>${u.city ? `<span style="font-size:0.75rem;color:var(--text-muted)">(${decodeCity(u.city)})</span>` : ''}</div></td>
                     <td data-label="النوع"><span class="user-type ${u.userId ? 'user-type--user' : 'user-type--guest'}">${u.userId ? 'مستخدم' : 'زائر'}</span></td>
                     <td data-label="وقت الدخول">${formatTime(u.startedAt)}<br><span class="time-ago">منذ ${timeAgo(u.startedAt)}</span></td>
                     <td data-label="آخر نشاط">${formatTime(u.lastSeenAt)}<br><span class="time-ago">منذ ${timeAgo(u.lastSeenAt)}</span></td>
