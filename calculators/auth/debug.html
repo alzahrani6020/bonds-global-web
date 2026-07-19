@@ -21,7 +21,7 @@
 </head>
 <body>
   <div class="box">
-    <h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تشخيص نظام Bonds</h2>
+    <h2>🔍 تشخيص نظام Bonds</h2>
     <p>اضغط الزر وانتظر النتائج:</p>
     <button id="runBtn" onclick="runDiag()">بدء التشخيص</button>
     <span class="spinner" id="spin" style="display:none"></span>
@@ -50,22 +50,22 @@
         const { data: sData } = await BondsAuth.getSession();
         const user = sData?.session?.user;
         if (!user) {
-          add('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الجلسة', 'ما فيه مستمسك دخول! سجل دخولك أولاً.', true);
+          add('❌ الجلسة', 'ما فيه مستمسك دخول! سجل دخولك أولاً.', true);
           return;
         }
-        add('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> المستخدم', `ID: ${user.id}\nEmail: ${user.email}\nMetadata.avatar_url: ${user.user_metadata?.avatar_url || '(فاضي)'}\nMetadata.restaurant_name: ${user.user_metadata?.restaurant_name || '(فاضي)'}`);
+        add('✅ المستخدم', `ID: ${user.id}\nEmail: ${user.email}\nMetadata.avatar_url: ${user.user_metadata?.avatar_url || '(فاضي)'}\nMetadata.restaurant_name: ${user.user_metadata?.restaurant_name || '(فاضي)'}`);
 
         // 2. localStorage
-        add('<svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> localStorage', `bonds_avatar_url: ${localStorage.getItem('bonds_avatar_url') || '(فاضي)'}\nbonds_restaurant_name: ${localStorage.getItem('bonds_restaurant_name') || '(فاضي)'}`);
+        add('💾 localStorage', `bonds_avatar_url: ${localStorage.getItem('bonds_avatar_url') || '(فاضي)'}\nbonds_restaurant_name: ${localStorage.getItem('bonds_restaurant_name') || '(فاضي)'}`);
 
         // 3. Profile from DB
         const { data: profile, error: pErr } = await BondsAuth.getProfile(user.id);
         if (pErr) {
-          add('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> جلب البروفايل', `خطأ: ${pErr.message}\nCode: ${pErr.code}`, true);
+          add('❌ جلب البروفايل', `خطأ: ${pErr.message}\nCode: ${pErr.code}`, true);
         } else if (!profile) {
-          add('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> البروفايل', 'ما فيه بروفايل في الداتابيس!', true);
+          add('⚠️ البروفايل', 'ما فيه بروفايل في الداتابيس!', true);
         } else {
-          add('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> البروفايل من الداتابيس', `avatar_url: ${profile.avatar_url || '(فاضي)'}\nrestaurant_name: ${profile.restaurant_name || '(فاضي)'}\nphone: ${profile.phone || '(فاضي)'}\ncity: ${profile.city || '(فاضي)'}`);
+          add('✅ البروفايل من الداتابيس', `avatar_url: ${profile.avatar_url || '(فاضي)'}\nrestaurant_name: ${profile.restaurant_name || '(فاضي)'}\nphone: ${profile.phone || '(فاضي)'}\ncity: ${profile.city || '(فاضي)'}`);
         }
 
         // 4. Try loading avatar image
@@ -73,7 +73,7 @@
         if (avatarUrl) {
           const imgDiv = document.createElement('div');
           imgDiv.className = 'box';
-          imgDiv.innerHTML = `<h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> اختبار تحميل الصورة</h2><p>URL: ${avatarUrl}</p><img src="${avatarUrl}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" style="display:block"><p style="display:none;color:#ff8a8a"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الصورة ما تحملت (خطأ في الرابط أو الـ Bucket)</p>`;
+          imgDiv.innerHTML = `<h2>🖼️ اختبار تحميل الصورة</h2><p>URL: ${avatarUrl}</p><img src="${avatarUrl}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" style="display:block"><p style="display:none;color:#ff8a8a">❌ الصورة ما تحملت (خطأ في الرابط أو الـ Bucket)</p>`;
           out.appendChild(imgDiv);
 
           // 5. Try authenticated download
@@ -83,24 +83,24 @@
               const sb = BondsAuth.getSupabase();
               const { data: blob, error: dErr } = await sb.storage.from('avatars').download(pathMatch[1]);
               if (dErr) {
-                add('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تحميل من Storage', `خطأ: ${dErr.message}`, true);
+                add('❌ تحميل من Storage', `خطأ: ${dErr.message}`, true);
               } else if (blob) {
                 const blobUrl = URL.createObjectURL(blob);
                 const div = document.createElement('div');
                 div.className = 'box';
-                div.innerHTML = `<h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تحميل مباشر (Authenticated)</h2><p>التحميل ناجح! Blob URL:</p><img src="${blobUrl}">`;
+                div.innerHTML = `<h2>✅ تحميل مباشر (Authenticated)</h2><p>التحميل ناجح! Blob URL:</p><img src="${blobUrl}">`;
                 out.appendChild(div);
               }
             } catch (e) {
-              add('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تحميل من Storage', `استثناء: ${e.message}`, true);
+              add('❌ تحميل من Storage', `استثناء: ${e.message}`, true);
             }
           }
         } else {
-          add('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الصورة', 'ما فيه رابط صورة في أي مصدر (DB, metadata, localStorage)', true);
+          add('⚠️ الصورة', 'ما فيه رابط صورة في أي مصدر (DB, metadata, localStorage)', true);
         }
 
       } catch (err) {
-        add('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ عام', err.message || String(err), true);
+        add('❌ خطأ عام', err.message || String(err), true);
       } finally {
         document.getElementById('runBtn').disabled = false;
         document.getElementById('spin').style.display = 'none';

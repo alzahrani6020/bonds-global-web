@@ -56,19 +56,19 @@
   <div id="site-header"></div>
   <div class="me-container">
     <div class="me-header">
-      <h1><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> محرك هندسة المنيو</h1>
+      <h1>🎯 محرك هندسة المنيو</h1>
       <p>صنّف وجباتك بناءً على بيانات المبيعات الفعلية. اعرف النجوم التي تحافظ عليها، والمحرك الذي يدفع مبيعاتك، والمكنوز الذي تروج له.</p>
     </div>
 
     <div id="authAlert"></div>
     <div class="calc-flex-center-wrap calc-flex-center-wrap--mb">
-      <button class="btn-secondary" onclick="seedDemoData()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تحميل بيانات تجريبية</button>
-      <button class="btn-secondary calc-tag-danger" onclick="clearAllData()"><svg class="bonds-icon bonds-icon--trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> مسح كل البيانات</button>
+      <button class="btn-secondary" onclick="seedDemoData()">🚀 تحميل بيانات تجريبية</button>
+      <button class="btn-secondary calc-tag-danger" onclick="clearAllData()">🗑️ مسح كل البيانات</button>
     </div>
 
     <!-- Data Entry Tabs -->
     <div class="me-actions">
-      <h2><svg class="bonds-icon bonds-icon--inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg> إدخال البيانات</h2>
+      <h2>📥 إدخال البيانات</h2>
       <div class="tabs">
         <div class="tab active" onclick="switchTab('platforms', event)">المنصات</div>
         <div class="tab" onclick="switchTab('ingredients', event)">المكونات</div>
@@ -89,7 +89,7 @@
           <div class="form-group"><label for="pGateway">بوابة الدفع (%)</label><input id="pGateway" type="number" value="1.75" /></div>
           <div class="form-group"><label for="pDelivery">رسوم التوصيل (ر.س)</label><input id="pDelivery" type="number" value="0" /></div>
         </div>
-        <button class="btn-primary" onclick="addPlatform()"><svg class="bonds-icon bonds-icon--plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> إضافة تطبيق</button>
+        <button class="btn-primary" onclick="addPlatform()">➕ إضافة تطبيق</button>
         <div id="pList" class="list-box"></div>
       </div>
 
@@ -101,7 +101,7 @@
           <div class="form-group"><label>التكلفة للوحدة (ر.س)</label><input id="iCost" type="number" step="0.01" placeholder="12.50" /></div>
           <div class="form-group"><label>التصنيف</label><input id="iCategory" placeholder="لحوم" value="other" /></div>
         </div>
-        <button class="btn-primary" onclick="addIngredient()"><svg class="bonds-icon bonds-icon--plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> إضافة مكون</button>
+        <button class="btn-primary" onclick="addIngredient()">➕ إضافة مكون</button>
         <div id="iList" class="list-box"></div>
       </div>
 
@@ -119,7 +119,7 @@
           </div>
           <div class="form-group"><label>السعر الأساسي (ر.س)</label><input id="mPrice" type="number" step="0.01" placeholder="35" /></div>
         </div>
-        <button class="btn-primary" onclick="addMenuItem()"><svg class="bonds-icon bonds-icon--plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> إضافة وجبة</button>
+        <button class="btn-primary" onclick="addMenuItem()">➕ إضافة وجبة</button>
         <div id="mList" class="list-box"></div>
       </div>
 
@@ -131,7 +131,7 @@
           <div class="form-group"><label>الكمية المطلوبة</label><input id="cQty" type="number" step="0.01" placeholder="0.15" /></div>
           <div class="form-group"><label>الوحدة</label><input id="cUnit" type="text" placeholder="kg أو g أو piece" /></div>
         </div>
-        <button class="btn-primary" onclick="addMenuItemIngredient()"><svg class="bonds-icon bonds-icon--plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> ربط مكون بالوجبة</button>
+        <button class="btn-primary" onclick="addMenuItemIngredient()">➕ ربط مكون بالوجبة</button>
         <div id="cList" class="list-box"></div>
       </div>
 
@@ -143,7 +143,7 @@
           <div class="form-group"><label>الكمية</label><input id="sQty" type="number" value="1" /></div>
           <div class="form-group"><label>سعر البيع (ر.س)</label><input id="sPrice" type="number" step="0.01" /></div>
         </div>
-        <button class="btn-primary" onclick="addSale()"><svg class="bonds-icon bonds-icon--plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> تسجيل مبيعة</button>
+        <button class="btn-primary" onclick="addSale()">➕ تسجيل مبيعة</button>
         <div id="sList" class="list-box"></div>
       </div>
     </div>
@@ -154,8 +154,8 @@
     </div>
 
     <div class="calc-flex-center-wrap calc-flex-center-wrap--my">
-      <button class="btn-secondary" onclick="exportExcel()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تصدير Excel</button>
-      <button class="btn-secondary" onclick="exportPDF()"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> تصدير PDF</button>
+      <button class="btn-secondary" onclick="exportExcel()">📊 تصدير Excel</button>
+      <button class="btn-secondary" onclick="exportPDF()">📄 تصدير PDF</button>
     </div>
 
     <!-- Promo Simulator -->
@@ -173,7 +173,7 @@
 
     <!-- Omnichannel Margin Calculator -->
     <div class="me-actions">
-      <h2><svg class="bonds-icon bonds-icon--globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> حاسبة القنوات المتعددة (Omnichannel)</h2>
+      <h2>🌐 حاسبة القنوات المتعددة (Omnichannel)</h2>
       <p class="calc-text-secondary calc-mb-6 calc-text-center">قارن بين البيع عبر التطبيقات والبيع المباشر من موقعك</p>
       <div class="form-row">
         <div class="form-group"><label>الوجبة</label><select data-universal-dropdown="true" id="omniItem"><option value="">اختر...</option></select></div>
@@ -204,7 +204,7 @@ async function init() {
     if (!currentUser) {
       document.getElementById('authAlert').innerHTML =
         '<div class="error">يجب تسجيل الدخول. <a href="/calculators/auth/?redirect=' + encodeURIComponent(location.pathname) + '">تسجيل الدخول</a></div>';
-      if (window.BondsUI) BondsUI.toast('<svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg> يجب تسجيل الدخول لاستخدام هذه الحاسبة', 'warning', 5000);
+      if (window.BondsUI) BondsUI.toast('🔐 يجب تسجيل الدخول لاستخدام هذه الحاسبة', 'warning', 5000);
       return;
     }
     sb = window.BondsAuth.getSupabase();
@@ -265,7 +265,7 @@ function switchTab(id, evt) {
 }
 
 async function clearAllData() {
-  if (!sb || !currentUser) return BondsUI && BondsUI.toast('<svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg> سجل دخول أولاً', 'warning');
+  if (!sb || !currentUser) return BondsUI && BondsUI.toast('🔐 سجل دخول أولاً', 'warning');
   if (!confirm('هل أنت متأكد من مسح كل بياناتك؟')) return;
     BondsUI.toast('⏳ جاري المسح...', 'info');
   try {
@@ -278,20 +278,20 @@ async function clearAllData() {
     });
     const json = await res.json();
     if (!json.success) throw new Error(json.error);
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم مسح كل البيانات', 'success');
+    BondsUI.toast('✅ تم مسح كل البيانات', 'success');
     location.reload();
   } catch (e) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ: ' + e.message, 'error', 5000);
+    BondsUI.toast('❌ خطأ: ' + e.message, 'error', 5000);
   }
 }
 
 async function seedDemoData() {
-  if (!sb || !currentUser) return BondsUI.toast('<svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg> سجل دخول أولاً', 'warning');
+  if (!sb || !currentUser) return BondsUI.toast('🔐 سجل دخول أولاً', 'warning');
   const uid = currentUser.id;
   try {
     // 1. Platform
     const plat = await sb.from('platforms').insert({ user_id: uid, code: 'jahez', name: 'جاهز', commission_rate: 25, service_fee_rate: 2, payment_gateway_fee: 1.75 }).select().single();
-    if (!plat.data) { BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تعذر قراءة بيانات المنصة — تحقق من صلاحيات Supabase', 'warning'); return; }
+    if (!plat.data) { BondsUI.toast('⚠️ تعذر قراءة بيانات المنصة — تحقق من صلاحيات Supabase', 'warning'); return; }
     
     // 2. Ingredients
     const i1 = await sb.from('menu_ingredients').insert({ user_id: uid, name: 'لحم بقر مفروم', unit: 'kg', current_price: 45, category: 'لحوم' }).select().single();
@@ -305,7 +305,7 @@ async function seedDemoData() {
     
     // Verify inserts succeeded
     const ingredients = [i1, i2, i3, i4, i5, i6, i7, i8];
-    if (ingredients.some(i => !i.data)) { BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تعذر قراءة بعض المكونات — تحقق من صلاحيات Supabase', 'warning'); return; }
+    if (ingredients.some(i => !i.data)) { BondsUI.toast('⚠️ تعذر قراءة بعض المكونات — تحقق من صلاحيات Supabase', 'warning'); return; }
     
     // 3. Menu Items
     const m1 = await sb.from('menu_items').insert({ user_id: uid, name: 'برجر كلاسيك', category: 'main', base_price: 35 }).select().single();
@@ -314,7 +314,7 @@ async function seedDemoData() {
     const m4 = await sb.from('menu_items').insert({ user_id: uid, name: 'سلطة سيزر', category: 'appetizer', base_price: 22 }).select().single();
     
     const menuItems = [m1, m2, m3, m4];
-    if (menuItems.some(m => !m.data)) { BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تعذر قراءة بعض الوجبات — تحقق من صلاحيات Supabase', 'warning'); return; }
+    if (menuItems.some(m => !m.data)) { BondsUI.toast('⚠️ تعذر قراءة بعض الوجبات — تحقق من صلاحيات Supabase', 'warning'); return; }
     
     // 4. Link ingredients to menu items
     await sb.from('menu_item_ingredients').insert([
@@ -335,8 +335,8 @@ async function seedDemoData() {
       { user_id: uid, menu_item_id: m3.data.id, platform_id: plat.data.id, quantity: 15, unit_price: 42 },
       { user_id: uid, menu_item_id: m4.data.id, platform_id: plat.data.id, quantity: 10, unit_price: 22 }
     ]);
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم تحميل البيانات التجريبية! اضغط F5', 'success');
-  } catch (e) { BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ: ' + e.message, 'error'); }
+    BondsUI.toast('✅ تم تحميل البيانات التجريبية! اضغط F5', 'success');
+  } catch (e) { BondsUI.toast('❌ خطأ: ' + e.message, 'error'); }
 }
 
 async function loadAllData() {
@@ -361,13 +361,13 @@ async function loadAllData() {
     await renderSales();
   } catch (e) {
     
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ في تحميل البيانات: ' + e.message, 'error', 5000);
+    BondsUI.toast('❌ خطأ في تحميل البيانات: ' + e.message, 'error', 5000);
   }
 }
 
 // Platforms
 async function addPlatform() {
-  if (!currentUser) return BondsUI.toast('<svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg> سجل دخول أولاً لإضافة منصة', 'warning');
+  if (!currentUser) return BondsUI.toast('🔐 سجل دخول أولاً لإضافة منصة', 'warning');
   try {
     const code = document.getElementById('pCode').value.trim();
     const name = document.getElementById('pName').value.trim();
@@ -375,28 +375,28 @@ async function addPlatform() {
     const service = parseFloat(document.getElementById('pService').value) || 0;
     const gateway = parseFloat(document.getElementById('pGateway').value) || 0;
     const delivery = parseFloat(document.getElementById('pDelivery').value) || 0;
-    if (!code || !name) return BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> أدخل الرمز والاسم', 'warning');
+    if (!code || !name) return BondsUI.toast('⚠️ أدخل الرمز والاسم', 'warning');
 
     // Check duplicate
     const { data: existing } = await sb.from('platforms').select('id').eq('user_id', currentUser.id).eq('code', code).single();
-    if (existing) return BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> هذا التطبيق موجود مسبقاً: ' + name, 'warning');
+    if (existing) return BondsUI.toast('⚠️ هذا التطبيق موجود مسبقاً: ' + name, 'warning');
 
     const { error } = await sb.from('platforms').insert({
       user_id: currentUser.id, code, name, commission_rate: commission,
       service_fee_rate: service, payment_gateway_fee: gateway, delivery_fee: delivery
     });
-    if (error) {  return BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
+    if (error) {  return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await loadAllData();
   } catch (e) {
     
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ غير متوقع: ' + e.message, 'error');
+    BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }
 
 function renderPlatforms() {
   const el = document.getElementById('pList');
   if (platforms.length === 0) {
-    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;"><svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> لا توجد منصات — أضف تطبيق توصيل</div>';
+    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">📱 لا توجد منصات — أضف تطبيق توصيل</div>';
   } else {
     el.innerHTML = platforms.map(p => `<div class="row"><span>${p.name} (${p.code}) — ${p.commission_rate}%</span></div>`).join('');
   }
@@ -404,33 +404,33 @@ function renderPlatforms() {
 
 // Ingredients
 async function addIngredient() {
-  if (!currentUser) return BondsUI.toast('<svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg> سجل دخول أولاً لإضافة مكون', 'warning');
+  if (!currentUser) return BondsUI.toast('🔐 سجل دخول أولاً لإضافة مكون', 'warning');
   try {
     const name = document.getElementById('iName').value.trim();
     const unit = document.getElementById('iUnit').value.trim() || 'kg';
     const cost = parseFloat(document.getElementById('iCost').value) || 0;
     const category = document.getElementById('iCategory').value.trim() || 'other';
-    if (!name) return BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> أدخل اسم المكون', 'warning');
+    if (!name) return BondsUI.toast('⚠️ أدخل اسم المكون', 'warning');
 
     // Check duplicate
     const { data: existing } = await sb.from('menu_ingredients').select('id').eq('user_id', currentUser.id).eq('name', name).single();
-    if (existing) return BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> هذا المكون موجود مسبقاً: ' + name, 'warning');
+    if (existing) return BondsUI.toast('⚠️ هذا المكون موجود مسبقاً: ' + name, 'warning');
 
     const { error } = await sb.from('menu_ingredients').insert({
       user_id: currentUser.id, name, unit, current_price: cost, category
     });
-    if (error) {  return BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
+    if (error) {  return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await loadAllData();
   } catch (e) {
     
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ غير متوقع: ' + e.message, 'error');
+    BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }
 
 function renderIngredients() {
   const el = document.getElementById('iList');
   if (ingredients.length === 0) {
-    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا توجد مكونات — أضف موادك الخام</div>';
+    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">🥩 لا توجد مكونات — أضف موادك الخام</div>';
   } else {
     el.innerHTML = ingredients.map(i => `<div class="row"><span>${i.name} — ${i.current_price || 0} ر.س / ${i.unit}</span></div>`).join('');
   }
@@ -438,32 +438,32 @@ function renderIngredients() {
 
 // Menu Items
 async function addMenuItem() {
-  if (!currentUser) return BondsUI.toast('<svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg> سجل دخول أولاً لإضافة وجبة', 'warning');
+  if (!currentUser) return BondsUI.toast('🔐 سجل دخول أولاً لإضافة وجبة', 'warning');
   try {
     const name = document.getElementById('mName').value.trim();
     const category = document.getElementById('mCategory').value;
     const price = parseFloat(document.getElementById('mPrice').value) || 0;
-    if (!name) return BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> أدخل اسم الوجبة', 'warning');
+    if (!name) return BondsUI.toast('⚠️ أدخل اسم الوجبة', 'warning');
 
     // Check duplicate
     const { data: existing } = await sb.from('menu_items').select('id').eq('user_id', currentUser.id).eq('name', name).single();
-    if (existing) return BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> هذه الوجبة موجودة مسبقاً: ' + name, 'warning');
+    if (existing) return BondsUI.toast('⚠️ هذه الوجبة موجودة مسبقاً: ' + name, 'warning');
 
     const { error } = await sb.from('menu_items').insert({
       user_id: currentUser.id, name, category, base_price: price
     });
-    if (error) {  return BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
+    if (error) {  return BondsUI.toast('❌ خطأ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await loadAllData();
   } catch (e) {
     
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ غير متوقع: ' + e.message, 'error');
+    BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }
 
 function renderMenuItems() {
   const el = document.getElementById('mList');
   if (menuItems.length === 0) {
-    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;"><svg class="bonds-icon bonds-icon--burger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16a2 2 0 0 1 2 2v2H2v-2a2 2 0 0 1 2-2z"></path><path d="M2 14h20v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-2z"></path><line x1="6" y1="18" x2="6" y2="18"></line><line x1="10" y1="18" x2="10" y2="18"></line><line x1="14" y1="18" x2="14" y2="18"></line><line x1="18" y1="18" x2="18" y2="18"></line></svg> لا توجد وجبات — أضف قائمة الطعام</div>';
+    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">🍔 لا توجد وجبات — أضف قائمة الطعام</div>';
   } else {
     el.innerHTML = menuItems.map(m => `<div class="row"><span>${m.name} — ${m.base_price} ر.س</span></div>`).join('');
   }
@@ -476,7 +476,7 @@ async function addMenuItemIngredient() {
     const ingredientId = document.getElementById('cIngredient').value;
     const qty = parseFloat(document.getElementById('cQty').value) || 0;
     const unit = document.getElementById('cUnit').value.trim() || 'g';
-    if (!menuItemId || !ingredientId) return BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> اختر الوجبة والمكون', 'warning');
+    if (!menuItemId || !ingredientId) return BondsUI.toast('⚠️ اختر الوجبة والمكون', 'warning');
     if (qty <= 0) return BondsUI.toast('⚠️ أدخل كمية أكبر من صفر', 'warning');
 
     const { error } = await sb.from('menu_item_ingredients').insert({
@@ -501,7 +501,7 @@ async function renderMenuItemIngredients() {
     menuItemIngredients = data || [];
     const el = document.getElementById('cList');
     if (!data || data.length === 0) {
-    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;"><svg class="bonds-icon bonds-icon--link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg> لا توجد مكونات مربوطة — اربط كل وجبة بمكوناتها</div>';
+    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">🔗 لا توجد مكونات مربوطة — اربط كل وجبة بمكوناتها</div>';
   } else {
     el.innerHTML = (data || []).map(r => {
       const cost = (r.quantity_needed * (r.ingredient?.current_price || 0)).toFixed(2);
@@ -515,24 +515,24 @@ async function renderMenuItemIngredients() {
 
 // Sales
 async function addSale() {
-  if (!currentUser) return BondsUI.toast('<svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg> سجل دخول أولاً لإضافة مبيعات', 'warning');
+  if (!currentUser) return BondsUI.toast('🔐 سجل دخول أولاً لإضافة مبيعات', 'warning');
   try {
     const menuItemId = document.getElementById('sMenuItem').value;
     const platformId = document.getElementById('sPlatform').value || null;
     const qty = parseInt(document.getElementById('sQty').value) || 1;
     const price = parseFloat(document.getElementById('sPrice').value) || 0;
-    if (!menuItemId) return BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> اختر الوجبة', 'warning');
+    if (!menuItemId) return BondsUI.toast('⚠️ اختر الوجبة', 'warning');
 
     const { error } = await sb.from('sales_transactions').insert({
       user_id: currentUser.id, menu_item_id: menuItemId,
       platform_id: platformId, quantity: qty, unit_price: price
     });
-    if (error) {  return BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ في الحفظ: ' + (error.message || JSON.stringify(error)), 'error'); }
+    if (error) {  return BondsUI.toast('❌ خطأ في الحفظ: ' + (error.message || JSON.stringify(error)), 'error'); }
     await renderSales();
     await loadMatrix();
   } catch (e) {
     
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ غير متوقع: ' + e.message, 'error');
+    BondsUI.toast('❌ خطأ غير متوقع: ' + e.message, 'error');
   }
 }
 
@@ -545,7 +545,7 @@ async function renderSales() {
   sales = data || [];
   const el = document.getElementById('sList');
   if (!data || data.length === 0) {
-    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;"><svg class="bonds-icon bonds-icon--shopping-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> لا توجد مبيعات — سجل أول مبيعة</div>';
+    el.innerHTML = '<div class="row" style="color:var(--text-muted);text-align:center;padding:1rem 0;">🛒 لا توجد مبيعات — سجل أول مبيعة</div>';
   } else {
     el.innerHTML = (data || []).map(s => `<div class="row"><span>${s.menu_item?.name || '—'} × ${s.quantity} = ${s.unit_price * s.quantity} ر.س</span></div>`).join('');
   }
@@ -613,10 +613,10 @@ async function loadMatrix() {
     };
   }
   const cats = {
-    stars: { icon: '<svg class="bonds-icon bonds-icon--star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>', title: 'النجوم', desc: 'ربح عالٍ + مبيعات عالية' },
-    engines: { icon: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>', title: 'المحرك', desc: 'مبيعات عالية + ربح محدود' },
-    treasures: { icon: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>', title: 'المكنوز', desc: 'ربح عالٍ + مبيعات منخفضة' },
-    stalled: { icon: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>', title: 'المتعثرة', desc: 'ربح منخفض + مبيعات منخفضة' }
+    stars: { icon: '⭐', title: 'النجوم', desc: 'ربح عالٍ + مبيعات عالية' },
+    engines: { icon: '🚀', title: 'المحرك', desc: 'مبيعات عالية + ربح محدود' },
+    treasures: { icon: '💎', title: 'المكنوز', desc: 'ربح عالٍ + مبيعات منخفضة' },
+    stalled: { icon: '⚠️', title: 'المتعثرة', desc: 'ربح منخفض + مبيعات منخفضة' }
   };
   let html = '<div class="me-grid">';
   for (const key of ['stars', 'engines', 'treasures', 'stalled']) {
@@ -635,8 +635,8 @@ async function loadMatrix() {
       html += `<div class="me-item" style="border-left:4px solid ${borderColor};padding-left:var(--space-3);">`;
       html += `<div class="name" style="font-weight:700;font-size:1rem;margin-bottom:var(--space-1);">${item.menu_item?.name || '—'}</div>`;
       html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-1);font-size:0.8rem;color:var(--text-secondary);margin-bottom:var(--space-2);">`;
-      html += `<span><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> إيراد: ${revenue.toFixed(0)} ر.س</span><span><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تكلفة: ${cost.toFixed(0)} ر.س</span>`;
-      html += `<span><svg class="bonds-icon bonds-icon--shopping-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> مبيعات: ${sales}</span><span><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> هامش: <strong style="color:${margin >= 40 ? '#22c55e' : margin >= 20 ? '#f59e0b' : '#ef4444'};">${margin.toFixed(1)}%</strong></span>`;
+      html += `<span>💰 إيراد: ${revenue.toFixed(0)} ر.س</span><span>📉 تكلفة: ${cost.toFixed(0)} ر.س</span>`;
+      html += `<span>🛒 مبيعات: ${sales}</span><span>📈 هامش: <strong style="color:${margin >= 40 ? '#22c55e' : margin >= 20 ? '#f59e0b' : '#ef4444'};">${margin.toFixed(1)}%</strong></span>`;
       html += `</div>`;
       html += `<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:var(--space-1);">ربح صافي: <strong style="color:${profit >= 0 ? '#22c55e' : '#ef4444'};">${profit.toFixed(2)} ر.س</strong></div>`;
       html += `${item.recommendation ? `<div class="badge badge-${marginClass}">${item.recommendation}</div>` : ''}</div>`;
@@ -648,14 +648,14 @@ async function loadMatrix() {
   const s = data.summary || {};
   // Summary dashboard
   html += `<div class="me-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--space-4);margin:var(--space-8) 0;">`;
-  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);"><svg class="bonds-icon bonds-icon--package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> منتجات</div><div style="font-size:1.4rem;font-weight:700;color:var(--gold);">${s.total_items || 0}</div></div>`;
-  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> إيرادات</div><div style="font-size:1.4rem;font-weight:700;color:#22c55e;">${Number(s.total_revenue || 0).toFixed(0)} ر.س</div></div>`;
-  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تكاليف</div><div style="font-size:1.4rem;font-weight:700;color:#ef4444;">${Number(s.total_cost || 0).toFixed(0)} ر.س</div></div>`;
-  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);"><svg class="bonds-icon bonds-icon--bank" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 11h20L12 2z"></path><rect x="3" y="11" width="18" height="10" rx="2"></rect><line x1="12" y1="11" x2="12" y2="21"></line></svg> عمولات</div><div style="font-size:1.4rem;font-weight:700;color:#f59e0b;">${Number(s.platform_fees || 0).toFixed(0)} ر.س</div></div>`;
-  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);"><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> ربح صافي</div><div style="font-size:1.4rem;font-weight:700;color:var(--gold);">${Number(s.total_profit || 0).toFixed(0)} ر.س</div></div>`;
-  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> متوسط الهامش</div><div style="font-size:1.4rem;font-weight:700;color:var(--primary);">${s.avg_margin || 0}%</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📦 منتجات</div><div style="font-size:1.4rem;font-weight:700;color:var(--gold);">${s.total_items || 0}</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">💰 إيرادات</div><div style="font-size:1.4rem;font-weight:700;color:#22c55e;">${Number(s.total_revenue || 0).toFixed(0)} ر.س</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📉 تكاليف</div><div style="font-size:1.4rem;font-weight:700;color:#ef4444;">${Number(s.total_cost || 0).toFixed(0)} ر.س</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">🏦 عمولات</div><div style="font-size:1.4rem;font-weight:700;color:#f59e0b;">${Number(s.platform_fees || 0).toFixed(0)} ر.س</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📈 ربح صافي</div><div style="font-size:1.4rem;font-weight:700;color:var(--gold);">${Number(s.total_profit || 0).toFixed(0)} ر.س</div></div>`;
+  html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;"><div style="font-size:0.8rem;color:var(--text-muted);">📊 متوسط الهامش</div><div style="font-size:1.4rem;font-weight:700;color:var(--primary);">${s.avg_margin || 0}%</div></div>`;
   html += `</div>`;
-  if (isDemo) html += '<div style="text-align:center;color:var(--primary);font-size:0.85rem;margin-bottom:var(--space-6);"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بيانات تجريبية — أدخل مبيعاتك الحقيقية لترى نتائجك</div>';
+  if (isDemo) html += '<div style="text-align:center;color:var(--primary);font-size:0.85rem;margin-bottom:var(--space-6);">🎮 بيانات تجريبية — أدخل مبيعاتك الحقيقية لترى نتائجك</div>';
   document.getElementById('matrixContainer').innerHTML = html;
 }
 
@@ -677,7 +677,7 @@ async function runPromoSim() {
     const json = await res.json();
     if (!json.success) throw new Error(json.error);
     const d = json.data;
-    box.innerHTML = `<div class="result-box"><h4><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> نتيجة المحاكاة: ${d.item_name}</h4><p><strong>السعر:</strong> ${d.original_price} → <strong>${d.discounted_price}</strong> ر.س</p><p><strong>الهامش:</strong> ${d.original_margin_pct}% → <strong>${d.new_margin_pct}%</strong></p><hr style="border-color:var(--border);margin:var(--space-3) 0;"><p style="color:${d.is_profitable ? '#22c55e' : '#ef4444'};font-weight:700;">${d.verdict}</p></div>`;
+    box.innerHTML = `<div class="result-box"><h4>🎯 نتيجة المحاكاة: ${d.item_name}</h4><p><strong>السعر:</strong> ${d.original_price} → <strong>${d.discounted_price}</strong> ر.س</p><p><strong>الهامش:</strong> ${d.original_margin_pct}% → <strong>${d.new_margin_pct}%</strong></p><hr style="border-color:var(--border);margin:var(--space-3) 0;"><p style="color:${d.is_profitable ? '#22c55e' : '#ef4444'};font-weight:700;">${d.verdict}</p></div>`;
   } catch (e) {
     box.innerHTML = '<div class="error">' + e.message + '</div>';
   }
@@ -705,10 +705,10 @@ async function runOmnichannel() {
     const plat = d.platform;
     const dir = d.direct;
     const comp = d.comparison;
-    box.innerHTML = `<div class="result-box"><h4><svg class="bonds-icon bonds-icon--globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> مقارنة: ${d.item_name} (${d.item_price} ر.س)</h4>
+    box.innerHTML = `<div class="result-box"><h4>🌐 مقارنة: ${d.item_name} (${d.item_price} ر.س)</h4>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin:var(--space-4) 0;">
         <div style="background:var(--bg-card);padding:var(--space-4);border-radius:var(--radius);border:1px solid var(--border);">
-          <h5 style="color:#ef4444;margin-bottom:var(--space-2);"><svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> ${plat.name}</h5>
+          <h5 style="color:#ef4444;margin-bottom:var(--space-2);">📱 ${plat.name}</h5>
           <p>عمولة: ${plat.commission} ر.س</p>
           <p>رسوم: ${plat.service_fee} ر.س</p>
           <p>بوابة: ${plat.gateway_fee} ر.س</p>
@@ -718,7 +718,7 @@ async function runOmnichannel() {
           <p><strong>هامش: ${plat.margin_pct}%</strong></p>
         </div>
         <div style="background:var(--bg-card);padding:var(--space-4);border-radius:var(--radius);border:1px solid var(--border);">
-          <h5 style="color:#22c55e;margin-bottom:var(--space-2);"><svg class="bonds-icon bonds-icon--globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> البيع المباشر</h5>
+          <h5 style="color:#22c55e;margin-bottom:var(--space-2);">🌐 البيع المباشر</h5>
           <p>استحواذ: ${dir.cac} ر.س</p>
           <p>توصيل: ${dir.delivery_fee} ر.س</p>
           <p>بوابة: ${dir.gateway_fee} ر.س</p>
@@ -729,10 +729,10 @@ async function runOmnichannel() {
       </div>
       <hr style="border-color:var(--border);margin:var(--space-3) 0;">
       <p style="color:var(--gold);font-weight:800;font-size:1.1rem;">${comp.verdict}</p>
-      <p><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> توفير لكل طلبة: <strong>${comp.savings_per_order} ر.س</strong></p>
-      <p><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> تحسن الهامش: <strong>${comp.margin_lift_pct}%</strong></p>
-      <p><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> طلبات لاسترجاع الإعلانات: <strong>${comp.break_even_orders_for_ad_budget} طلب/شهر</strong></p>
-      <p><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> أقصى CAC مربح: <strong>${comp.max_profitable_cac} ر.س</strong></p>
+      <p>💡 توفير لكل طلبة: <strong>${comp.savings_per_order} ر.س</strong></p>
+      <p>📈 تحسن الهامش: <strong>${comp.margin_lift_pct}%</strong></p>
+      <p>🎯 طلبات لاسترجاع الإعلانات: <strong>${comp.break_even_orders_for_ad_budget} طلب/شهر</strong></p>
+      <p>⚠️ أقصى CAC مربح: <strong>${comp.max_profitable_cac} ر.س</strong></p>
     </div>`;
   } catch (e) {
     box.innerHTML = '<div class="error">' + e.message + '</div>';
@@ -741,7 +741,7 @@ async function runOmnichannel() {
 
 async function exportExcel() {
   await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
-  if (typeof XLSX === 'undefined') { BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> فشل تحميل Excel', 'error'); return; }
+  if (typeof XLSX === 'undefined') { BondsUI.toast('❌ فشل تحميل Excel', 'error'); return; }
   var wb = XLSX.utils.book_new();
   wb.Props = { Title: 'تقرير هندسة المنيو', Subject: 'بوندز', Author: 'bonds-global.com' };
 
@@ -800,7 +800,7 @@ async function exportPDF() {
   wrapper.style.padding = '2rem';
   wrapper.style.color = '#1a1a1a';
   wrapper.style.fontFamily = 'Vazirmatn, system-ui, sans-serif';
-  wrapper.innerHTML = '<h2 style="color:#1a1a1a;text-align:center;margin-bottom:1.5rem;"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تقرير هندسة المنيو — بوندز</h2>';
+  wrapper.innerHTML = '<h2 style="color:#1a1a1a;text-align:center;margin-bottom:1.5rem;">📊 تقرير هندسة المنيو — بوندز</h2>';
   wrapper.appendChild(section.cloneNode(true));
   document.body.appendChild(wrapper);
   var canvas = await html2canvas(wrapper, { scale: 2, backgroundColor: '#ffffff', useCORS: true });

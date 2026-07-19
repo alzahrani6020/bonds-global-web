@@ -95,13 +95,13 @@
             </select>
           </div>
           <div class="calc-input-group">
-            <label for="platformSelect">Sales Channel / Platform <abbr title="Select a platform to auto-fill its fee, or leave 'Custom' and enter the fee manually"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="platformSelect">Sales Channel / Platform <abbr title="Select a platform to auto-fill its fee, or leave 'Custom' and enter the fee manually">ⓘ</abbr></label>
             <select id="platformSelect" class="bonds-input">
               <option value="">Custom platform</option>
             </select>
           </div>
           <div class="calc-input-group">
-            <label for="sectorPreset">Sector Preset (Optional) <abbr title="Choose your sector to pre-fill realistic starting values for margin, platform fee, packaging, delivery, and marketing"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="sectorPreset">Sector Preset (Optional) <abbr title="Choose your sector to pre-fill realistic starting values for margin, platform fee, packaging, delivery, and marketing">ⓘ</abbr></label>
             <select id="sectorPreset" class="bonds-input" onchange="onSectorPresetChange()">
               <option value="">Custom/manual</option>
               <option value="restaurant">Restaurant / Café</option>
@@ -116,21 +116,21 @@
             <small class="calc-hint" id="sectorPresetHint">Selecting a preset fills realistic default values for margin, fee, and per-unit costs</small>
           </div>
           <div class="calc-input-group">
-            <label for="directCost">Direct Cost per Unit (materials + labor) <abbr title="Cost that changes directly with each unit produced: raw materials + direct labor"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="directCost">Direct Cost per Unit (materials + labor) <abbr title="Cost that changes directly with each unit produced: raw materials + direct labor">ⓘ</abbr></label>
             <input type="number" id="directCost" placeholder="e.g. 150" min="0" />
           </div>
           <div class="calc-input-group">
-            <label for="overheadCost">Overhead Cost per Unit <abbr title="Operating costs not tied to a single unit; divide monthly overhead by production volume"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="overheadCost">Overhead Cost per Unit <abbr title="Operating costs not tied to a single unit; divide monthly overhead by production volume">ⓘ</abbr></label>
             <input type="number" id="overheadCost" placeholder="e.g. 50" min="0" />
             <small class="calc-hint">e.g. rent + admin salaries + bills + fixed marketing</small>
           </div>
           <div class="calc-input-group">
-            <label for="wasteAndIncidentalsPct">Waste &amp; Expected Incidentals (%) <abbr title="Expected extra costs that are hard to pin down exactly: material waste, spoilage, small repairs, light bulbs, minor spare parts, or any incidental expense"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="wasteAndIncidentalsPct">Waste &amp; Expected Incidentals (%) <abbr title="Expected extra costs that are hard to pin down exactly: material waste, spoilage, small repairs, light bulbs, minor spare parts, or any incidental expense">ⓘ</abbr></label>
             <input type="number" id="wasteAndIncidentalsPct" placeholder="e.g. 5" min="0" max="100" value="0" />
             <small class="calc-hint">e.g. material waste, spoilage, sudden repairs, light bulbs, small spare parts</small>
           </div>
           <div class="calc-input-group">
-            <label for="monthlyFixed">Monthly Fixed Costs (rent + admin salaries) <abbr title="Fixed monthly costs even if no units sell: rent, admin salaries, utilities"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="monthlyFixed">Monthly Fixed Costs (rent + admin salaries) <abbr title="Fixed monthly costs even if no units sell: rent, admin salaries, utilities">ⓘ</abbr></label>
             <input type="number" id="monthlyFixed" placeholder="e.g. 20000" min="0" />
           </div>
           <div class="calc-input-group">
@@ -141,34 +141,34 @@
             </div>
           </div>
           <div class="calc-input-group" id="marginGroup">
-            <label for="desiredMargin">Desired Profit Margin (%) <abbr title="Desired profit as a percentage of selling price before platform fee (e.g., 25% means profit = 25% of price)"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="desiredMargin">Desired Profit Margin (%) <abbr title="Desired profit as a percentage of selling price before platform fee (e.g., 25% means profit = 25% of price)">ⓘ</abbr></label>
             <input type="number" id="desiredMargin" placeholder="e.g. 25" min="0" max="100" value="25" />
           </div>
           <div class="calc-input-group calc-hidden" id="priceGroup">
-            <label for="targetPrice">Target Platform Selling Price <abbr title="The final price you want customers to see on the platform, including platform fee and payment gateway fee"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="targetPrice">Target Platform Selling Price <abbr title="The final price you want customers to see on the platform, including platform fee and payment gateway fee">ⓘ</abbr></label>
             <input type="number" id="targetPrice" placeholder="e.g. 400" min="0" />
             <small class="calc-hint" id="targetPriceHint">The equivalent margin will be calculated automatically</small>
           </div>
           <div class="calc-input-group">
-            <label for="taxRate">Tax Rate (%) <abbr title="Value Added Tax (VAT) rate — applied only on positive profit"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="taxRate">Tax Rate (%) <abbr title="Value Added Tax (VAT) rate — applied only on positive profit">ⓘ</abbr></label>
             <input type="number" id="taxRate" placeholder="e.g. 15" min="0" max="100" value="15" />
           </div>
           <div class="calc-input-group">
-            <label for="zakatRate">Zakat Rate (%) <abbr title="Annual Zakat rate due — applied only on positive profit"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="zakatRate">Zakat Rate (%) <abbr title="Annual Zakat rate due — applied only on positive profit">ⓘ</abbr></label>
             <input type="number" id="zakatRate" placeholder="e.g. 2.5" min="0" max="100" value="2.5" />
           </div>
           <div class="calc-input-group">
-            <label for="monthlyVolume">Target Monthly Sales Volume <abbr title="Number of units you expect to sell monthly; used to calculate monthly profit and minimum break-even price"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="monthlyVolume">Target Monthly Sales Volume <abbr title="Number of units you expect to sell monthly; used to calculate monthly profit and minimum break-even price">ⓘ</abbr></label>
             <input type="number" id="monthlyVolume" placeholder="e.g. 500" min="0" />
           </div>
           <div class="calc-optional-box">
-            <p class="calc-optional-title"><svg class="bonds-icon bonds-icon--sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L14.5 9.5 21 12 14.5 14.5 12 21 9.5 14.5 3 12 9.5 9.5 12 3z"></path><path d="M5 3l1 1"></path><path d="M19 3l-1 1"></path><path d="M5 21l1-1"></path><path d="M19 21l-1-1"></path></svg> Additional Per-Unit Costs (Optional)</p>
+            <p class="calc-optional-title">✨ Additional Per-Unit Costs (Optional)</p>
             <div class="calc-input-group">
-              <label for="platformFee" class="calc-label-small">Platform Fee (%) <abbr title="Commission deducted by sales/delivery platform (e.g., HungerStation, Jahez, Amazon)"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+              <label for="platformFee" class="calc-label-small">Platform Fee (%) <abbr title="Commission deducted by sales/delivery platform (e.g., HungerStation, Jahez, Amazon)">ⓘ</abbr></label>
               <input type="number" id="platformFee" placeholder="e.g. 20" min="0" max="100" value="0" />
             </div>
             <div class="calc-input-group">
-              <label for="paymentGatewayPreset" class="calc-label-small">Payment Gateway <abbr title="e.g. Mada, Visa/Mastercard, Apple Pay — affects final selling price"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+              <label for="paymentGatewayPreset" class="calc-label-small">Payment Gateway <abbr title="e.g. Mada, Visa/Mastercard, Apple Pay — affects final selling price">ⓘ</abbr></label>
               <select id="paymentGatewayPreset" class="bonds-input" onchange="onPaymentGatewayPresetChange()">
                 <option value="">Manual / None</option>
                 <option value="0.5">Mada (~0.5%)</option>
@@ -178,19 +178,19 @@
               </select>
             </div>
             <div class="calc-input-group">
-              <label for="paymentGatewayFee" class="calc-label-small">Payment Gateway Fee (%) <abbr title="Percentage deducted by the payment gateway from the platform selling price"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+              <label for="paymentGatewayFee" class="calc-label-small">Payment Gateway Fee (%) <abbr title="Percentage deducted by the payment gateway from the platform selling price">ⓘ</abbr></label>
               <input type="number" id="paymentGatewayFee" placeholder="e.g. 1.5" min="0" max="100" value="0" />
             </div>
             <div class="calc-input-group">
-              <label for="packagingCost" class="calc-label-small">Packaging Cost per Unit <abbr title="Box/bag/stickers cost per unit"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+              <label for="packagingCost" class="calc-label-small">Packaging Cost per Unit <abbr title="Box/bag/stickers cost per unit">ⓘ</abbr></label>
               <input type="number" id="packagingCost" placeholder="e.g. 3" min="0" value="0" />
             </div>
             <div class="calc-input-group">
-              <label for="deliveryCost" class="calc-label-small">Delivery Cost per Unit <abbr title="What you pay the delivery company per order (if not included in platform fee)"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+              <label for="deliveryCost" class="calc-label-small">Delivery Cost per Unit <abbr title="What you pay the delivery company per order (if not included in platform fee)">ⓘ</abbr></label>
               <input type="number" id="deliveryCost" placeholder="e.g. 5" min="0" value="0" />
             </div>
             <div class="calc-input-group">
-              <label for="cac" class="calc-label-small">Customer Acquisition Cost (CAC) per Unit <abbr title="Total marketing & advertising spend ÷ number of units sold"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+              <label for="cac" class="calc-label-small">Customer Acquisition Cost (CAC) per Unit <abbr title="Total marketing & advertising spend ÷ number of units sold">ⓘ</abbr></label>
               <input type="number" id="cac" placeholder="e.g. 2" min="0" value="0" />
             </div>
           </div>
@@ -262,16 +262,16 @@
               </div>
             </div>
             <div id="analysisBox" class="calc-analysis-box">
-              <h4 class="calc-card-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Step-by-Step Explanation</h4>
+              <h4 class="calc-card-title">🔍 Step-by-Step Explanation</h4>
               <div id="stepsArea" class="calc-steps"></div>
               <p id="analysisText" class="calc-lead-box__text"></p>
             </div>
             <div class="share-bar">
               <input type="text" id="shareLink" readonly placeholder="Share link..." />
               <button onclick="copyShareLink(\'shareLink\')" class="btn btn-outline calc-btn-sm">Copy Link</button>
-              <button onclick="window.print()" class="btn btn-outline hidden-print calc-btn-sm"><svg class="bonds-icon bonds-icon--printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg> Print</button>
-              <button onclick="exportExcel()" class="btn btn-outline hidden-print calc-btn-sm"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Excel</button>
-              <button onclick="exportPDF()" class="btn btn-outline hidden-print calc-btn-sm"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> PDF</button>
+              <button onclick="window.print()" class="btn btn-outline hidden-print calc-btn-sm">🖨️ Print</button>
+              <button onclick="exportExcel()" class="btn btn-outline hidden-print calc-btn-sm">📊 Excel</button>
+              <button onclick="exportPDF()" class="btn btn-outline hidden-print calc-btn-sm">📄 PDF</button>
             </div>
           </div>
 
@@ -284,18 +284,18 @@
           <!-- Smart Alert CTA -->
           <div id="smartAlertBox" class="calc-alert">
             <div class="calc-alert__flex">
-              <div class="calc-alert__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
+              <div class="calc-alert__icon">⚠️</div>
               <div>
                 <h4 class="calc-alert__title calc-alert__title--light">Profit Margin Needs Review</h4>
                 <p id="smartAlertText" class="calc-alert__text"></p>
-                <a href="../../contact.html" class="btn btn-primary calc-btn-danger"><svg class="bonds-icon bonds-icon--phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> Free Consultation (30 min)</a>
+                <a href="../../contact.html" class="btn btn-primary calc-btn-danger">📞 Free Consultation (30 min)</a>
               </div>
             </div>
           </div>
 
           <!-- Lead Capture -->
           <div id="leadCaptureBox" class="calc-lead-box">
-            <h4 class="calc-lead-box__title"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Your Results &amp; Get a Gift</h4>
+            <h4 class="calc-lead-box__title">💾 Save Your Results &amp; Get a Gift</h4>
             <p class="calc-lead-box__text">Send these results to your email + a free Cash Flow Forecast template.</p>
             <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" class="calc-lead-form">
               <input type="text" name="name" required placeholder="Name" class="calc-input-flex" />
@@ -305,7 +305,7 @@
               <input type="hidden" name="calc_data" id="leadCalcData" />
               <button type="submit" class="btn btn-primary calc-no-shrink">Send Me the Results</button>
             </form>
-            <p id="leadCaptureSuccess" class="calc-success-msg calc-hidden" ><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> Sent! We will contact you within 24 hours.</p>
+            <p id="leadCaptureSuccess" class="calc-success-msg calc-hidden" >✓ Sent! We will contact you within 24 hours.</p>
           </div>
         </div>
       </div>
@@ -345,7 +345,7 @@
       </div>
       <div class="grid-2">
         <div class="card reveal">
-          <h3 class="calc-card-title"><svg class="bonds-icon bonds-icon--ruler" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L2 22h20V2z"></path><path d="M6 22l16-16"></path><path d="M10 22l12-12"></path><path d="M14 22l8-8"></path><path d="M18 22l4-4"></path></svg> Mathematical Formulas</h3>
+          <h3 class="calc-card-title">📐 Mathematical Formulas</h3>
           <div class="calc-equations">
             <div class="calc-code-block">
               Total Cost = Direct + Overhead + Packaging + Delivery + CAC
@@ -397,7 +397,7 @@
       </div>
       <div class="grid-2 calc-mt-8">
         <div class="card reveal">
-          <h3 class="calc-card-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Warnings &amp; Clarifications</h3>
+          <h3 class="calc-card-title">⚠️ Warnings &amp; Clarifications</h3>
           <ul class="calc-info-list">
             <li>This is an <strong>estimation tool</strong> and not a substitute for a licensed accountant.</li>
             <li>Results depend on the <strong>accuracy of your inputs</strong>.</li>
@@ -408,7 +408,7 @@
           </ul>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 class="calc-card-title"><svg class="bonds-icon bonds-icon--link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg> Useful Links</h3>
+          <h3 class="calc-card-title">🔗 Useful Links</h3>
           <div class="calc-links-list">
             <a href="../../calculator.html" class="calc-link-item">
               <span class="calc-link-arrow">→</span> Break-Even Calculator
@@ -433,7 +433,7 @@
   <section class="calc-white-section">
     <div class="container">
       <div class="calc-disclaimer">
-        <h4 class="calc-disclaimer-title"><svg class="bonds-icon bonds-icon--pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg> A note from Bonds</h4>
+        <h4 class="calc-disclaimer-title">📌 A note from Bonds</h4>
         <p class="calc-disclaimer-text">
           Bonds calculators give you a <strong>smart initial financial view</strong> based on the data you enter — helping you evaluate your project's opportunity and costs before making a decision.
         </p>
@@ -451,12 +451,12 @@
             <p class="calc-qr-caption">Scan to chat on WhatsApp</p>
           </div>
         </div>
-        <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="calc-whatsapp-btn"><svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Talk to an advisor</a>
+        <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="calc-whatsapp-btn">📱 Talk to an advisor</a>
         <div class="calc-note-box">
           <p class="calc-testimonial">"The pricing calculator helped me understand the true profit margin after commissions and tax; I no longer guess prices."</p>
           <p class="calc-testimonial-author">— E-commerce store owner, Jeddah</p>
         </div>
-        <p class="calc-offer-text"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Your first consultation is free — offer valid until <span class="offer-date-en"></span>.</p>
+        <p class="calc-offer-text">⚡ Your first consultation is free — offer valid until <span class="offer-date-en"></span>.</p>
         <p class="calc-footer-text">Join 500+ entrepreneurs and SMEs who built their financial models with Bonds.</p>
         <p class="calc-copyright">
           <strong>Bonds Global</strong> — Feasibility Studies | Financial Models | Licensed Financial Advisory<br>
@@ -900,7 +900,7 @@
       var inputs = last.inputs;
       var currency = getCurrencySymbol();
       var content = `
-        <h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Pricing Results</h2>
+        <h2>📊 Pricing Results</h2>
         <div class="metric-grid">
           <div class="metric-item"><div class="label">Base Cost per Unit</div><div class="value">${formatCurrency(r.costPerUnit)}</div></div>
           <div class="metric-item"><div class="label">Total Cost per Unit</div><div class="value">${formatCurrency(r.totalCostPerUnit)}</div></div>
@@ -915,7 +915,7 @@
           <div class="metric-item"><div class="label">Minimum Break-Even Price</div><div class="value">${formatCurrency(r.breakEvenPrice)}</div></div>
         </div>
 
-        <h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Calculation Details</h2>
+        <h2>📋 Calculation Details</h2>
         <table>
           <tr><th>Item</th><th>Value</th></tr>
           <tr><td>Direct Cost</td><td class="num">${formatCurrency(inputs.direct)}</td></tr>
@@ -1023,7 +1023,7 @@
         history = history || [];
         var list = document.getElementById('historyList');
         if (history.length === 0) {
-          BondsUI.emptyState('historyList', { icon: '<svg class="bonds-icon bonds-icon--mailbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 17a2 2 0 0 1-2 2H6l-4-4V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12z"></path><path d="M16 13V5"></path><path d="M16 9h6"></path></svg>', title: 'No previous calculations', desc: 'Calculate a result to see it here' });
+          BondsUI.emptyState('historyList', { icon: '📭', title: 'No previous calculations', desc: 'Calculate a result to see it here' });
           return;
         }
         list.innerHTML = '';
@@ -1082,26 +1082,26 @@
       try {
         var vDirect = BondsUI.validateField('directCost', { type: 'number', required: true, min: 0.01, label: 'Direct Cost' });
         if (!vDirect.valid) {
-          BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + vDirect.errors.join(', '), 'error');
+          BondsUI.toast('❌ ' + vDirect.errors.join(', '), 'error');
           return;
         }
         if (currentPricingMode === 'margin') {
           var vMargin = BondsUI.validateField('desiredMargin', { type: 'number', required: true, min: 0, max: 99.99, label: 'Desired Margin' });
           if (!vMargin.valid) {
-            BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + vMargin.errors.join(', '), 'error');
+            BondsUI.toast('❌ ' + vMargin.errors.join(', '), 'error');
             return;
           }
         } else {
           var vPrice = BondsUI.validateField('targetPrice', { type: 'number', required: true, min: 0.01, label: 'Target Selling Price' });
           if (!vPrice.valid) {
-            BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + vPrice.errors.join(', '), 'error');
+            BondsUI.toast('❌ ' + vPrice.errors.join(', '), 'error');
             return;
           }
           var preInputs = getInputs();
           var tp = parseFloat(document.getElementById('targetPrice').value) || 0;
           var derivedMargin = computeMarginFromTargetPrice(tp, preInputs);
           if (derivedMargin === null) {
-            BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Target price must cover total cost and platform fees', 'warning');
+            BondsUI.toast('⚠️ Target price must cover total cost and platform fees', 'warning');
             return;
           }
           document.getElementById('desiredMargin').value = derivedMargin.toFixed(2);
@@ -1113,7 +1113,7 @@
           return;
         }
         if (inputs.margin >= 100) {
-          BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Profit margin must be less than 100%', 'warning');
+          BondsUI.toast('⚠️ Profit margin must be less than 100%', 'warning');
           return;
         }
         var r = calculate(inputs);
@@ -1128,7 +1128,7 @@
         });
       } catch (err) {
         
-        BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Calculation error: ' + err.message, 'error');
+        BondsUI.toast('❌ Calculation error: ' + err.message, 'error');
       }
     }
 
@@ -1269,13 +1269,13 @@
             form.style.display = 'none';
             document.getElementById('leadCaptureSuccess').style.display = 'block';
           } else {
-            BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> An error occurred, please try again.', 'error');
+            BondsUI.toast('❌ An error occurred, please try again.', 'error');
             btn.textContent = originalText;
             btn.disabled = false;
           }
         })
         .catch(function() {
-          BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> An error occurred, please try again.', 'error');
+          BondsUI.toast('❌ An error occurred, please try again.', 'error');
           btn.textContent = originalText;
           btn.disabled = false;
         });

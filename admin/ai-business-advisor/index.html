@@ -32,17 +32,17 @@
         <span>مستشار الأعمال الذكي</span>
       </div>
       <ul class="ai-nav">
-        <li><a href="#" data-view="overview" class="active"><svg class="bonds-icon bonds-icon--brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg> لوحة التحليل</a></li>
-        <li><a href="#" data-view="financial"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> التحليل المالي</a></li>
-        <li><a href="#" data-view="opportunities"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الفرص الاستثمارية</a></li>
-        <li><a href="#" data-view="risks"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تقييم المخاطر</a></li>
-        <li><a href="#" data-view="financing"><svg class="bonds-icon bonds-icon--bank" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 11h20L12 2z"></path><rect x="3" y="11" width="18" height="10" rx="2"></rect><line x1="12" y1="11" x2="12" y2="21"></line></svg> الحلول التمويلية</a></li>
-        <li><a href="#" data-view="distressed"><svg class="bonds-icon bonds-icon--refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> المشاريع المتعثرة</a></li>
-        <li><a href="#" data-view="reports"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> تقارير الإدارة العليا</a></li>
-        <li><a href="#" data-view="ai"><svg class="bonds-icon bonds-icon--bot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8.01" y2="16"></line><line x1="16" y1="16" x2="16.01" y2="16"></line></svg> تحليل AI</a></li>
+        <li><a href="#" data-view="overview" class="active">🧠 لوحة التحليل</a></li>
+        <li><a href="#" data-view="financial">💰 التحليل المالي</a></li>
+        <li><a href="#" data-view="opportunities">🎯 الفرص الاستثمارية</a></li>
+        <li><a href="#" data-view="risks">⚠️ تقييم المخاطر</a></li>
+        <li><a href="#" data-view="financing">🏦 الحلول التمويلية</a></li>
+        <li><a href="#" data-view="distressed">🔄 المشاريع المتعثرة</a></li>
+        <li><a href="#" data-view="reports">📄 تقارير الإدارة العليا</a></li>
+        <li><a href="#" data-view="ai">🤖 تحليل AI</a></li>
       </ul>
       <div class="ai-sidebar-footer">
-        <a href="/admin/dashboard.html"><svg class="bonds-icon bonds-icon--arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> لوحة الإدارة الرئيسية</a>
+        <a href="/admin/dashboard.html">⬅️ لوحة الإدارة الرئيسية</a>
         <div id="ai-user">جارِ التحقق...</div>
       </div>
     </aside>
@@ -54,7 +54,7 @@
           <p class="ai-subtitle">تحليلات مالية واستثمارية مدعومة بالذكاء الاصطناعي</p>
         </div>
         <div class="ai-topbar-actions">
-          <button class="ecc-btn ecc-btn--primary" onclick="AiAdvisorApp.generateFullReport()"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> تقرير شامل</button>
+          <button class="ecc-btn ecc-btn--primary" onclick="AiAdvisorApp.generateFullReport()">📄 تقرير شامل</button>
           <button class="ecc-btn ecc-btn--ghost" onclick="AiAdvisorApp.refresh()">↻ تحديث</button>
         </div>
       </header>
@@ -69,8 +69,8 @@
     (function () {
       const el = document.getElementById('ai-content');
       function status(msg) { if (el) el.innerHTML = '<div class="ai-empty"><p>' + msg + '</p></div>'; }
-      window.addEventListener('error', function (e) { status('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ JavaScript: ' + e.message); });
-      window.addEventListener('unhandledrejection', function (e) { status('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ غير متوقع: ' + (e.reason?.message || e.reason)); });
+      window.addEventListener('error', function (e) { status('❌ خطأ JavaScript: ' + e.message); });
+      window.addEventListener('unhandledrejection', function (e) { status('❌ خطأ غير متوقع: ' + (e.reason?.message || e.reason)); });
     })();
   </script>
   <script src="/admin/admin-embed.js"></script>

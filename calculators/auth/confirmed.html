@@ -77,7 +77,7 @@
           const needsOnboarding = !profile || !profile.city || !profile.business_type || !profile.bio || !profile.needs;
           if (needsOnboarding) {
             card.innerHTML = `
-              <span class="icon"><svg class="bonds-icon bonds-icon--party-popper" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M4.93 4.93l2.83 2.83"></path><path d="M16.24 16.24l2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="M4.93 19.07l2.83-2.83"></path><path d="M16.24 7.76l2.83-2.83"></path></svg></span>
+              <span class="icon">🎉</span>
               <h1>تم تأكيد حسابك!</h1>
               <p>
                 مرحباً <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
@@ -87,7 +87,7 @@
             `;
           } else {
             card.innerHTML = `
-              <span class="icon"><svg class="bonds-icon bonds-icon--party-popper" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M4.93 4.93l2.83 2.83"></path><path d="M16.24 16.24l2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="M4.93 19.07l2.83-2.83"></path><path d="M16.24 7.76l2.83-2.83"></path></svg></span>
+              <span class="icon">🎉</span>
               <h1>تم تأكيد حسابك!</h1>
               <p>
                 مرحباً <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
@@ -99,7 +99,7 @@
           }
         }).catch(() => {
           card.innerHTML = `
-            <span class="icon"><svg class="bonds-icon bonds-icon--party-popper" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M4.93 4.93l2.83 2.83"></path><path d="M16.24 16.24l2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="M4.93 19.07l2.83-2.83"></path><path d="M16.24 7.76l2.83-2.83"></path></svg></span>
+            <span class="icon">🎉</span>
             <h1>تم تأكيد حسابك!</h1>
             <p>
               مرحباً <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
@@ -112,7 +112,7 @@
       } else {
         // No session — maybe already confirmed or token expired
         card.innerHTML = `
-          <span class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>
+          <span class="icon">✅</span>
           <h1>تم تأكيد الحساب!</h1>
           <p>
             تم تأكيد بريدك الإلكتروني في <span class="brand">Bonds للاستشارات المالية</span>.<br><br>

@@ -98,13 +98,13 @@
             </select>
           </div>
           <div class="calc-input-group">
-            <label for="platformSelect">المنصة / قناة البيع <abbr title="اختر المنصة لملء عمولتها تلقائيًا، أو اتركها على 'منصة مخصصة' وأدخل العمولة يدويًا"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="platformSelect">المنصة / قناة البيع <abbr title="اختر المنصة لملء عمولتها تلقائيًا، أو اتركها على 'منصة مخصصة' وأدخل العمولة يدويًا">ⓘ</abbr></label>
             <select id="platformSelect" class="bonds-input">
               <option value="">منصة مخصصة</option>
             </select>
           </div>
           <div class="calc-input-group">
-            <label for="sectorPreset">قالب القطاع (اختياري) <abbr title="اختر قطاعك لملء قيم أولية واقعية للهامش والعمولة والتغليف والتوصيل والتسويق"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="sectorPreset">قالب القطاع (اختياري) <abbr title="اختر قطاعك لملء قيم أولية واقعية للهامش والعمولة والتغليف والتوصيل والتسويق">ⓘ</abbr></label>
             <select id="sectorPreset" class="bonds-input" onchange="onSectorPresetChange()">
               <option value="">تخصيص يدوي</option>
               <option value="restaurant">مطعم / كوفي</option>
@@ -119,21 +119,21 @@
             <small class="calc-hint" id="sectorPresetHint">اختيار القالب يملأ الهامش والعمولة والتكاليف الإضافية بقيم افتراضية واقعية</small>
           </div>
           <div class="calc-input-group">
-            <label for="directCost">التكلفة المباشرة للوحدة (مواد + عمالة) <abbr title="التكلفة التي تتغير مباشرة بكل وحدة تُنتج: مواد خام + أجرة العمالة المباشرة"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="directCost">التكلفة المباشرة للوحدة (مواد + عمالة) <abbr title="التكلفة التي تتغير مباشرة بكل وحدة تُنتج: مواد خام + أجرة العمالة المباشرة">ⓘ</abbr></label>
             <input type="number" id="directCost" placeholder="مثلاً: 150" min="0" />
           </div>
           <div class="calc-input-group">
-            <label for="overheadCost">التكاليف غير المباشرة للوحدة <abbr title="تكاليف تشغيلية لا ترتبط مباشرة بوحدة واحدة، قسّم التكلفة الشهرية على حجم الإنتاج"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="overheadCost">التكاليف غير المباشرة للوحدة <abbr title="تكاليف تشغيلية لا ترتبط مباشرة بوحدة واحدة، قسّم التكلفة الشهرية على حجم الإنتاج">ⓘ</abbr></label>
             <input type="number" id="overheadCost" placeholder="مثلاً: 50" min="0" />
             <small class="calc-hint">مثال: إيجار + رواتب إدارية + فواتير + تسويق ثابت</small>
           </div>
           <div class="calc-input-group">
-            <label for="wasteAndIncidentalsPct">الهدر والنثريات المتوقعة (%) <abbr title="نسبة تكاليف إضافية متوقعة مثل: هدر المواد، الفاقد، الصيانة البسيطة، تغيير لمبات، قطع غيار صغيرة، أو أي مصروف طارئ يصعب تحديده بالضبط"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="wasteAndIncidentalsPct">الهدر والنثريات المتوقعة (%) <abbr title="نسبة تكاليف إضافية متوقعة مثل: هدر المواد، الفاقد، الصيانة البسيطة، تغيير لمبات، قطع غيار صغيرة، أو أي مصروف طارئ يصعب تحديده بالضبط">ⓘ</abbr></label>
             <input type="number" id="wasteAndIncidentalsPct" placeholder="مثلاً: 5" min="0" max="100" value="0" />
             <small class="calc-hint">مثل: هدر مواد، فاقد إنتاج، صيانة مفاجئة، تغيير لمبات، قطع غيار صغيرة</small>
           </div>
           <div class="calc-input-group">
-            <label for="monthlyFixed">التكاليف الثابتة الشهرية (إيجار + رواتب إدارية) <abbr title="تكاليف ثابتة كل شهر حتى وإن لم تُبع وحدات: إيجار، رواتب إدارية، فواتير"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="monthlyFixed">التكاليف الثابتة الشهرية (إيجار + رواتب إدارية) <abbr title="تكاليف ثابتة كل شهر حتى وإن لم تُبع وحدات: إيجار، رواتب إدارية، فواتير">ⓘ</abbr></label>
             <input type="number" id="monthlyFixed" placeholder="مثلاً: 20000" min="0" />
           </div>
           <div class="calc-input-group">
@@ -144,34 +144,34 @@
             </div>
           </div>
           <div class="calc-input-group" id="marginGroup">
-            <label for="desiredMargin">هامش الربح المستهدف (%) <abbr title="الربح الذي تريده كنسبة من سعر البيع قبل العمولة (مثال: 25% يعني ربح = 25% من السعر)"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="desiredMargin">هامش الربح المستهدف (%) <abbr title="الربح الذي تريده كنسبة من سعر البيع قبل العمولة (مثال: 25% يعني ربح = 25% من السعر)">ⓘ</abbr></label>
             <input type="number" id="desiredMargin" placeholder="مثلاً: 25" min="0" max="100" value="25" />
           </div>
           <div class="calc-input-group calc-hidden" id="priceGroup">
-            <label for="targetPrice">سعر البيع المستهدف على المنصة <abbr title="السعر النهائي الذي تريد عرضه للعميل، شامل عمولة المنصة ورسوم الدفع"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="targetPrice">سعر البيع المستهدف على المنصة <abbr title="السعر النهائي الذي تريد عرضه للعميل، شامل عمولة المنصة ورسوم الدفع">ⓘ</abbr></label>
             <input type="number" id="targetPrice" placeholder="مثلاً: 400" min="0" />
             <small class="calc-hint" id="targetPriceHint">سيتم استخراج الهامش المكافئ تلقائياً</small>
           </div>
           <div class="calc-input-group">
-            <label for="taxRate">نسبة الضريبة (%) <abbr title="نسبة الضريبة المضافة (VAT) — تُطبق فقط على الربح الموجب"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="taxRate">نسبة الضريبة (%) <abbr title="نسبة الضريبة المضافة (VAT) — تُطبق فقط على الربح الموجب">ⓘ</abbr></label>
             <input type="number" id="taxRate" placeholder="مثلاً: 15" min="0" max="100" value="15" />
           </div>
           <div class="calc-input-group">
-            <label for="zakatRate">نسبة الزكاة (%) <abbr title="نسبة الزكاة السنوية المستحقة — تُطبق فقط على الربح الموجب"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="zakatRate">نسبة الزكاة (%) <abbr title="نسبة الزكاة السنوية المستحقة — تُطبق فقط على الربح الموجب">ⓘ</abbr></label>
             <input type="number" id="zakatRate" placeholder="مثلاً: 2.5" min="0" max="100" value="2.5" />
           </div>
           <div class="calc-input-group">
-            <label for="monthlyVolume">حجم المبيعات المستهدف شهرياً <abbr title="عدد الوحدات التي تتوقع بيعها شهرياً، يُستخدم لحساب الربح الشهري وسعر التعادل الأدنى"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label for="monthlyVolume">حجم المبيعات المستهدف شهرياً <abbr title="عدد الوحدات التي تتوقع بيعها شهرياً، يُستخدم لحساب الربح الشهري وسعر التعادل الأدنى">ⓘ</abbr></label>
             <input type="number" id="monthlyVolume" placeholder="مثلاً: 500" min="0" />
           </div>
           <div class="calc-optional-box">
-            <p class="calc-optional-title-bright"><svg class="bonds-icon bonds-icon--sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L14.5 9.5 21 12 14.5 14.5 12 21 9.5 14.5 3 12 9.5 9.5 12 3z"></path><path d="M5 3l1 1"></path><path d="M19 3l-1 1"></path><path d="M5 21l1-1"></path><path d="M19 21l-1-1"></path></svg> تكاليف إضافية لكل وحدة (اختياري)</p>
+            <p class="calc-optional-title-bright">✨ تكاليف إضافية لكل وحدة (اختياري)</p>
             <div class="calc-input-group">
-              <label for="platformFee" class="calc-label-small">عمولة المنصة (%) <abbr title="نسبة الاستقطاع من منصة البيع/التوصيل (مثل: هنقرستيشن، جاهز، أمازون)"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+              <label for="platformFee" class="calc-label-small">عمولة المنصة (%) <abbr title="نسبة الاستقطاع من منصة البيع/التوصيل (مثل: هنقرستيشن، جاهز، أمازون)">ⓘ</abbr></label>
               <input type="number" id="platformFee" placeholder="مثلاً: 20" min="0" max="100" value="0" />
             </div>
             <div class="calc-input-group">
-              <label for="paymentGatewayPreset" class="calc-label-small">بوابة الدفع <abbr title="مثل: مدى، Visa/Mastercard، Apple Pay — تؤثر على السعر النهائي"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+              <label for="paymentGatewayPreset" class="calc-label-small">بوابة الدفع <abbr title="مثل: مدى، Visa/Mastercard، Apple Pay — تؤثر على السعر النهائي">ⓘ</abbr></label>
               <select id="paymentGatewayPreset" class="bonds-input" onchange="onPaymentGatewayPresetChange()">
                 <option value="">يدوي / لا يوجد</option>
                 <option value="0.5">مدى (~0.5%)</option>
@@ -181,19 +181,19 @@
               </select>
             </div>
             <div class="calc-input-group">
-              <label for="paymentGatewayFee" class="calc-label-small">رسوم بوابة الدفع (%) <abbr title="نسبة استقطاع بوابة الدفع من إجمالي السعر على المنصة"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+              <label for="paymentGatewayFee" class="calc-label-small">رسوم بوابة الدفع (%) <abbr title="نسبة استقطاع بوابة الدفع من إجمالي السعر على المنصة">ⓘ</abbr></label>
               <input type="number" id="paymentGatewayFee" placeholder="مثلاً: 1.5" min="0" max="100" value="0" />
             </div>
             <div class="calc-input-group">
-              <label for="packagingCost" class="calc-label-small">تكلفة التغليف للوحدة <abbr title="تكلفة العلبة/الكيس/الملصقات لكل وحدة"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+              <label for="packagingCost" class="calc-label-small">تكلفة التغليف للوحدة <abbr title="تكلفة العلبة/الكيس/الملصقات لكل وحدة">ⓘ</abbr></label>
               <input type="number" id="packagingCost" placeholder="مثلاً: 3" min="0" value="0" />
             </div>
             <div class="calc-input-group">
-              <label for="deliveryCost" class="calc-label-small">تكلفة التوصيل للوحدة <abbr title="ما تدفعه لشركة التوصيل لكل طلب (إذا لم تكن مشمولة في عمولة المنصة)"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+              <label for="deliveryCost" class="calc-label-small">تكلفة التوصيل للوحدة <abbr title="ما تدفعه لشركة التوصيل لكل طلب (إذا لم تكن مشمولة في عمولة المنصة)">ⓘ</abbr></label>
               <input type="number" id="deliveryCost" placeholder="مثلاً: 5" min="0" value="0" />
             </div>
             <div class="calc-input-group">
-              <label for="cac" class="calc-label-small">تكلفة اكتساب العميل (CAC) للوحدة <abbr title="إجمالي مصاريف التسويق والإعلان ÷ عدد الوحدات المباعة"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+              <label for="cac" class="calc-label-small">تكلفة اكتساب العميل (CAC) للوحدة <abbr title="إجمالي مصاريف التسويق والإعلان ÷ عدد الوحدات المباعة">ⓘ</abbr></label>
               <input type="number" id="cac" placeholder="مثلاً: 2" min="0" value="0" />
             </div>
           </div>
@@ -265,16 +265,16 @@
               </div>
             </div>
             <div id="analysisBox" class="calc-analysis-box">
-              <h4 class="calc-card-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> شرح الحساب خطوة بخطوة</h4>
+              <h4 class="calc-card-title">🔍 شرح الحساب خطوة بخطوة</h4>
               <div id="stepsArea" class="calc-steps"></div>
               <p id="analysisText" class="calc-lead-box__text"></p>
             </div>
             <div class="share-bar">
               <input type="text" id="shareLink" readonly placeholder="رابط المشاركة..." />
               <button onclick="copyShareLink(\'shareLink\')" class="btn btn-outline calc-btn-sm">نسخ الرابط</button>
-              <button onclick="window.print()" class="btn btn-outline hidden-print calc-btn-sm"><svg class="bonds-icon bonds-icon--printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg> طباعة</button>
-              <button onclick="exportExcel()" class="btn btn-outline hidden-print calc-btn-sm"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Excel</button>
-              <button onclick="exportPDF()" class="btn btn-outline hidden-print calc-btn-sm"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> PDF</button>
+              <button onclick="window.print()" class="btn btn-outline hidden-print calc-btn-sm">🖨️ طباعة</button>
+              <button onclick="exportExcel()" class="btn btn-outline hidden-print calc-btn-sm">📊 Excel</button>
+              <button onclick="exportPDF()" class="btn btn-outline hidden-print calc-btn-sm">📄 PDF</button>
             </div>
           </div>
 
@@ -287,18 +287,18 @@
           <!-- Smart Alert CTA -->
           <div id="smartAlertBox" class="calc-alert">
             <div class="calc-alert__flex">
-              <div class="calc-alert__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
+              <div class="calc-alert__icon">⚠️</div>
               <div>
                 <h4 class="calc-alert__title calc-alert__title--light">هامش الربح يحتاج مراجعة</h4>
                 <p id="smartAlertText" class="calc-alert__text"></p>
-                <a href="../contact.html" class="btn btn-primary calc-btn-danger"><svg class="bonds-icon bonds-icon--phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> استشارة مجانية (30 دقيقة)</a>
+                <a href="../contact.html" class="btn btn-primary calc-btn-danger">📞 استشارة مجانية (30 دقيقة)</a>
               </div>
             </div>
           </div>
 
           <!-- Lead Capture -->
           <div id="leadCaptureBox" class="calc-lead-box">
-            <h4 class="calc-lead-box__title"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> احفظ نتائجك واحصل على هدية</h4>
+            <h4 class="calc-lead-box__title">💾 احفظ نتائجك واحصل على هدية</h4>
             <p class="calc-lead-box__text">أرسل هذه النتائج لبريدك + نموذج Cash Flow Forecast مجاني.</p>
             <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" class="calc-lead-form">
               <input type="text" name="name" required placeholder="الاسم" class="calc-input-flex" />
@@ -308,7 +308,7 @@
               <input type="hidden" name="calc_data" id="leadCalcData" />
               <button type="submit" class="btn btn-primary calc-no-shrink">أرسل لي النتائج</button>
             </form>
-            <p id="leadCaptureSuccess" class="calc-success-msg calc-hidden" ><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> تم الإرسال! سنتواصل معك خلال 24 ساعة.</p>
+            <p id="leadCaptureSuccess" class="calc-success-msg calc-hidden" >✓ تم الإرسال! سنتواصل معك خلال 24 ساعة.</p>
           </div>
         </div>
       </div>
@@ -348,7 +348,7 @@
       </div>
       <div class="grid-2">
         <div class="card reveal">
-          <h3 class="calc-card-title"><svg class="bonds-icon bonds-icon--ruler" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L2 22h20V2z"></path><path d="M6 22l16-16"></path><path d="M10 22l12-12"></path><path d="M14 22l8-8"></path><path d="M18 22l4-4"></path></svg> المعادلات الرياضية</h3>
+          <h3 class="calc-card-title">📐 المعادلات الرياضية</h3>
           <div class="calc-equations">
             <div class="calc-code-block">
               التكلفة الكاملة = المباشرة + غير المباشرة + تغليف + توصيل + CAC
@@ -400,7 +400,7 @@
       </div>
       <div class="grid-2 calc-mt-8">
         <div class="card reveal">
-          <h3 class="calc-card-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> أساس التحليل</h3>
+          <h3 class="calc-card-title">📊 أساس التحليل</h3>
           <ul class="calc-info-list">
             <li>هذه الحاسبة تعطيك <strong>رؤية مالية أولية ذكية</strong> بناءً على بياناتك؛ للقرارات الاستثمارية المهمة، استشر أحد مستشارينا المعتمدين.</li>
             <li>النتائج تعتمد على <strong>دقة البيانات المدخلة</strong>.</li>
@@ -411,7 +411,7 @@
           </ul>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 class="calc-card-title"><svg class="bonds-icon bonds-icon--link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg> روابط مفيدة</h3>
+          <h3 class="calc-card-title">🔗 روابط مفيدة</h3>
           <div class="calc-links-list">
             <a href="../calculator.html" class="calc-link-item">
               <span class="calc-link-arrow">→</span> آلة حاسبة نقطة التعادل
@@ -436,7 +436,7 @@
   <section class="calc-white-section">
     <div class="container">
       <div class="calc-disclaimer">
-        <h4 class="calc-disclaimer-title"><svg class="bonds-icon bonds-icon--pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg> ملاحظة من بوندز</h4>
+        <h4 class="calc-disclaimer-title">📌 ملاحظة من بوندز</h4>
         <p class="calc-disclaimer-text">
           حاسبات بوندز تمنحك <strong>رؤية مالية أولية ذكية</strong> بناءً على البيانات التي تدخلها؛ تساعدك على تقييم فرص مشروعك وتكاليفه قبل اتخاذ القرار.
         </p>
@@ -454,12 +454,12 @@
             <p class="calc-qr-caption">امسح للتواصل عبر واتساب</p>
           </div>
         </div>
-        <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="calc-whatsapp-btn"><svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> تحدث إلى مستشار</a>
+        <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="calc-whatsapp-btn">📱 تحدث إلى مستشار</a>
         <div class="calc-note-box">
           <p class="calc-testimonial">"ساعدتني حاسبة التسعير في فهم هامش الربح الحقيقي بعد العمولات والضريبة، لم أعد أخمن في الأسعار."</p>
           <p class="calc-testimonial-author">— صاحب متجر إلكتروني، جدة</p>
         </div>
-        <p class="calc-offer-text"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> استشارتك الأولى مجانية — العرض ساري حتى <span class="offer-date-ar"></span>.</p>
+        <p class="calc-offer-text">⚡ استشارتك الأولى مجانية — العرض ساري حتى <span class="offer-date-ar"></span>.</p>
         <p class="calc-footer-text">انضم لأكثر من 500 صاحب مشروع وشركة ناشئة استخدموا بوندز لبناء نماذجهم المالية.</p>
         <p class="calc-copyright">
           <strong>Bonds Global</strong> — دراسات جدوى | نماذج مالية | استشارات مالية معتمدة<br>
@@ -888,7 +888,7 @@
       var inputs = last.inputs;
       var currency = getCurrencySymbol();
       var content = `
-        <h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> نتائج التسعير</h2>
+        <h2>📊 نتائج التسعير</h2>
         <div class="metric-grid">
           <div class="metric-item"><div class="label">إجمالي التكلفة الأساسية للوحدة</div><div class="value">${formatCurrency(r.costPerUnit)}</div></div>
           <div class="metric-item"><div class="label">إجمالي التكلفة الكاملة للوحدة</div><div class="value">${formatCurrency(r.totalCostPerUnit)}</div></div>
@@ -903,7 +903,7 @@
           <div class="metric-item"><div class="label">سعر التعادل الأدنى</div><div class="value">${formatCurrency(r.breakEvenPrice)}</div></div>
         </div>
 
-        <h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تفاصيل الحساب</h2>
+        <h2>📋 تفاصيل الحساب</h2>
         <table>
           <tr><th>البند</th><th>القيمة</th></tr>
           <tr><td>التكلفة المباشرة</td><td class="num">${formatCurrency(inputs.direct)}</td></tr>
@@ -1011,7 +1011,7 @@
         history = history || [];
         var list = document.getElementById('historyList');
         if (history.length === 0) {
-          BondsUI.emptyState('historyList', { icon: '<svg class="bonds-icon bonds-icon--mailbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 17a2 2 0 0 1-2 2H6l-4-4V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12z"></path><path d="M16 13V5"></path><path d="M16 9h6"></path></svg>', title: 'لا توجد حسابات سابقة', desc: 'احسب نتيجة جديدة لترى السجل هنا' });
+          BondsUI.emptyState('historyList', { icon: '📭', title: 'لا توجد حسابات سابقة', desc: 'احسب نتيجة جديدة لترى السجل هنا' });
           return;
         }
         list.innerHTML = '';
@@ -1069,21 +1069,21 @@
       try {
         var directRes = BondsUI.validateField('directCost', { required:true, type:'number', min:0, label:'التكلفة المباشرة' });
         if (!directRes.valid) {
-          BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> راجع الحقول المطلوبة', 'warning');
+          BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
           return;
         }
         BondsUI.clearValidation('directCost');
         if (currentPricingMode === 'margin') {
           var marginRes = BondsUI.validateField('desiredMargin', { required:true, type:'number', min:0, max:99, label:'هامش الربح المستهدف' });
           if (!marginRes.valid) {
-            BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> راجع الحقول المطلوبة', 'warning');
+            BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
             return;
           }
           BondsUI.clearValidation('desiredMargin');
         } else {
           var priceRes = BondsUI.validateField('targetPrice', { required:true, type:'number', min:0, label:'سعر البيع المستهدف' });
           if (!priceRes.valid) {
-            BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> راجع الحقول المطلوبة', 'warning');
+            BondsUI.toast('⚠️ راجع الحقول المطلوبة', 'warning');
             return;
           }
           BondsUI.clearValidation('targetPrice');
@@ -1091,7 +1091,7 @@
           var tp = parseFloat(document.getElementById('targetPrice').value) || 0;
           var derivedMargin = computeMarginFromTargetPrice(tp, preInputs);
           if (derivedMargin === null) {
-            BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> سعر البيع المستهدف يجب أن يغطي التكلفة الكاملة والعمولة', 'warning');
+            BondsUI.toast('⚠️ سعر البيع المستهدف يجب أن يغطي التكلفة الكاملة والعمولة', 'warning');
             return;
           }
           document.getElementById('desiredMargin').value = derivedMargin.toFixed(2);
@@ -1099,7 +1099,7 @@
         }
         var inputs = getInputs();
         if (inputs.margin >= 100) {
-          BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> هامش الربح يجب أن يكون أقل من 100%', 'warning');
+          BondsUI.toast('⚠️ هامش الربح يجب أن يكون أقل من 100%', 'warning');
           return;
         }
         var r = calculate(inputs);
@@ -1114,7 +1114,7 @@
         });
       } catch (err) {
         
-        BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> حدث خطأ في الحساب: ' + err.message, 'error');
+        BondsUI.toast('❌ حدث خطأ في الحساب: ' + err.message, 'error');
       }
     }
 
@@ -1253,13 +1253,13 @@
             form.style.display = 'none';
             document.getElementById('leadCaptureSuccess').style.display = 'block';
           } else {
-            BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> حدث خطأ، حاول مرة أخرى.', 'error');
+            BondsUI.toast('❌ حدث خطأ، حاول مرة أخرى.', 'error');
             btn.textContent = originalText;
             btn.disabled = false;
           }
         })
         .catch(function() {
-          BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> حدث خطأ، حاول مرة أخرى.', 'error');
+          BondsUI.toast('❌ حدث خطأ، حاول مرة أخرى.', 'error');
           btn.textContent = originalText;
           btn.disabled = false;
         });

@@ -128,9 +128,9 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
 
         <button type="submit" class="btn btn-primary" id="saveBtn">
           <span class="spinner"></span>
-          <span class="btn-text"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save &amp; Continue</span>
+          <span class="btn-text">💾 Save &amp; Continue</span>
         </button>
-        <button type="button" class="btn btn-secondary" id="skipBtn" style="margin-top:0.75rem;width:100%;">⏭ Skip for now (complete later)</button>
+        <button type="button" class="btn btn-secondary" id="skipBtn" style="margin-top:0.75rem;width:100%;">⏭️ Skip for now (complete later)</button>
       </form>
     </div>
   </div>
@@ -293,7 +293,7 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
           return;
         }
 
-        showSuccess('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Saved! Redirecting...');
+        showSuccess('✅ Saved! Redirecting...');
         const redirect = sessionStorage.getItem('auth_redirect') || '/en/v3/portfolio';
         sessionStorage.removeItem('auth_redirect');
         setTimeout(() => location.href = redirect, 1000);

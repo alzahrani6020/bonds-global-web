@@ -154,37 +154,37 @@
           <h1>الاشتراكات <span id="demoIndicator" class="demo-badge" style="display:none;">Demo</span></h1>
           <p>إدارة خطط الاشتراك والمشتركين</p>
         </div>
-        <button class="btn-sm btn-primary" onclick="openGrantSubModal()"><svg class="bonds-icon bonds-icon--star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> منح اشتراك / فترة مجانية</button>
-        <button class="btn-sm btn-primary" id="activateMySubBtn" style="display:none;" onclick="activateMySubscription()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تفعيل اشتراكي</button>
+        <button class="btn-sm btn-primary" onclick="openGrantSubModal()">⭐ منح اشتراك / فترة مجانية</button>
+        <button class="btn-sm btn-primary" id="activateMySubBtn" style="display:none;" onclick="activateMySubscription()">👑 تفعيل اشتراكي</button>
         <button class="btn-sm btn-primary" onclick="refreshData()">↻ تحديث</button>
-        <button class="btn-sm btn-secondary" onclick="exportCSV()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تصدير CSV</button>
+        <button class="btn-sm btn-secondary" onclick="exportCSV()">⬇ تصدير CSV</button>
       </div>
 
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-card__header">
-            <div class="stat-card__icon stat-card__icon--pro"><svg class="bonds-icon bonds-icon--star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div>
+            <div class="stat-card__icon stat-card__icon--pro">⭐</div>
           </div>
           <div class="stat-card__num" id="proCount">—</div>
           <div class="stat-card__label">مشتركين Pro</div>
         </div>
         <div class="stat-card">
           <div class="stat-card__header">
-            <div class="stat-card__icon stat-card__icon--ent"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
+            <div class="stat-card__icon stat-card__icon--ent">🚀</div>
           </div>
           <div class="stat-card__num" id="entCount">—</div>
           <div class="stat-card__label">مشتركين Enterprise</div>
         </div>
         <div class="stat-card">
           <div class="stat-card__header">
-            <div class="stat-card__icon stat-card__icon--rev"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
+            <div class="stat-card__icon stat-card__icon--rev">💰</div>
           </div>
           <div class="stat-card__num" id="mrr">—</div>
           <div class="stat-card__label">الإيرادات الشهرية (MRR)</div>
         </div>
         <div class="stat-card">
           <div class="stat-card__header">
-            <div class="stat-card__icon stat-card__icon--churn"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
+            <div class="stat-card__icon stat-card__icon--churn">📉</div>
           </div>
           <div class="stat-card__num" id="churn">—</div>
           <div class="stat-card__label">معدل الاستبعاد</div>
@@ -193,7 +193,7 @@
 
       <div class="table-card">
         <div class="table-header">
-          <h3><svg class="bonds-icon bonds-icon--credit-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg> الاشتراكات النشطة</h3>
+          <h3>💳 الاشتراكات النشطة</h3>
         </div>
         <table class="data-table">
           <thead>
@@ -217,7 +217,7 @@
   <!-- Grant Subscription Modal -->
   <div class="modal-overlay" id="grantSubModal" onclick="if(event.target===this)closeGrantSubModal()">
     <div class="modal">
-      <h3><svg class="bonds-icon bonds-icon--star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> منح اشتراك / فترة مجانية</h3>
+      <h3>⭐ منح اشتراك / فترة مجانية</h3>
       <label for="grantSubUser">المستخدم *</label>
       <select id="grantSubUser" data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true" data-ud-placeholder="اختر المستخدم">
         <option value="">اختر المستخدم</option>
@@ -413,7 +413,7 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم منح الاشتراك بنجاح');
+          alert('✅ تم منح الاشتراك بنجاح');
           closeGrantSubModal();
           refreshData();
         } else {

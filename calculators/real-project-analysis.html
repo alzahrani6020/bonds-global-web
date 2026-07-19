@@ -61,7 +61,7 @@
   <div id="site-header"></div>
   <div class="feas-container">
     <div class="feas-header">
-      <div class="feas-badge"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تحليل استثماري متقدم</div>
+      <div class="feas-badge">🎯 تحليل استثماري متقدم</div>
       <h1>تحليل المشروع الحقيقي</h1>
       <p>احسب <strong>التكاليف الخفية</strong>، <strong>الاحتياطي</strong>، <strong>نقطة التعادل</strong>، و<strong>فترة الاسترداد</strong> تلقائياً حسب نوع نشاطك التجاري.</p>
     </div>
@@ -69,16 +69,16 @@
     <div id="progressContainer"></div>
 
     <div class="bonds-tabs">
-      <div class="bonds-tab active" onclick="showTab('project')"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بيانات المشروع</div>
-      <div class="bonds-tab" onclick="showTab('costs')"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> التكاليف</div>
-      <div class="bonds-tab" onclick="showTab('risks')"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> عوامل الخطر</div>
-      <div class="bonds-tab" onclick="showTab('result')"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> النتيجة</div>
+      <div class="bonds-tab active" onclick="showTab('project')">📋 بيانات المشروع</div>
+      <div class="bonds-tab" onclick="showTab('costs')">💸 التكاليف</div>
+      <div class="bonds-tab" onclick="showTab('risks')">⚠️ عوامل الخطر</div>
+      <div class="bonds-tab" onclick="showTab('result')">📊 النتيجة</div>
     </div>
 
     <!-- Tab 1: Project Info -->
     <div id="project" class="bonds-panel active">
       <div class="bonds-card">
-        <p class="calc-text-secondary calc-mb-4 calc-text-center"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> اختر نوع النشاط وأدخل الإيرادات والاستثمار الأولي</p>
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 اختر نوع النشاط وأدخل الإيرادات والاستثمار الأولي</p>
         <div class="bonds-form-row">
           <div class="bonds-form-group">
             <label>نوع النشاط التجاري</label>
@@ -99,8 +99,8 @@
               <option value="">اختر الدولة</option>
             </select>
           </div>
-          <div class="bonds-form-group"><label>الإيرادات الشهرية المتوقعة <abbr title="إجمالي الإيرادات الشهرية المتوقعة قبل أي تكاليف"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label><input id="revenue" class="bonds-input" type="number" value="50000" placeholder="50000" min="0" /></div>
-          <div class="bonds-form-group"><label>قيمة المشروع (رأس المال المستثمر) <abbr title="إجمالي التكلفة الاستثمارية الأولية للمشروع"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label><input id="projectValue" class="bonds-input" type="number" value="200000" placeholder="200000" min="0" /></div>
+          <div class="bonds-form-group"><label>الإيرادات الشهرية المتوقعة <abbr title="إجمالي الإيرادات الشهرية المتوقعة قبل أي تكاليف">ⓘ</abbr></label><input id="revenue" class="bonds-input" type="number" value="50000" placeholder="50000" min="0" /></div>
+          <div class="bonds-form-group"><label>قيمة المشروع (رأس المال المستثمر) <abbr title="إجمالي التكلفة الاستثمارية الأولية للمشروع">ⓘ</abbr></label><input id="projectValue" class="bonds-input" type="number" value="200000" placeholder="200000" min="0" /></div>
         </div>
         <div class="calc-text-center">
           <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">التالي: التكاليف →</button>
@@ -111,13 +111,13 @@
     <!-- Tab 2: Operating Costs -->
     <div id="costs" class="bonds-panel">
       <div class="bonds-card">
-        <p class="calc-text-secondary calc-mb-4 calc-text-center"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> أدخل التكاليف الشهرية التشغيلية الأساسية</p>
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 أدخل التكاليف الشهرية التشغيلية الأساسية</p>
         <div class="bonds-form-row">
-          <div class="bonds-form-group"><label>التكاليف المباشرة <abbr title="تكاليف مرتبطة مباشرة بالإنتاج أو البيع، مثل المواد الخام أو تكلفة المنتج"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label><input id="directCosts" class="bonds-input" type="number" value="15000" placeholder="15000" min="0" /></div>
+          <div class="bonds-form-group"><label>التكاليف المباشرة <abbr title="تكاليف مرتبطة مباشرة بالإنتاج أو البيع، مثل المواد الخام أو تكلفة المنتج">ⓘ</abbr></label><input id="directCosts" class="bonds-input" type="number" value="15000" placeholder="15000" min="0" /></div>
           <div class="bonds-form-group"><label>الرواتب والأجور</label><input id="salaries" class="bonds-input" type="number" value="12000" placeholder="12000" min="0" /></div>
           <div class="bonds-form-group"><label>الإيجار</label><input id="rent" class="bonds-input" type="number" value="8000" placeholder="8000" min="0" /></div>
           <div class="bonds-form-group"><label>تكلفة المخزون</label><input id="inventoryCost" class="bonds-input" type="number" value="5000" placeholder="5000" min="0" /></div>
-          <div class="bonds-form-group"><label>تكلفة المعدات (شهرية / إهلاك) <abbr title="يمكن إدخال قيمة الإهلاك الشهري للمعدات"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label><input id="equipmentCost" class="bonds-input" type="number" value="2000" placeholder="2000" min="0" /></div>
+          <div class="bonds-form-group"><label>تكلفة المعدات (شهرية / إهلاك) <abbr title="يمكن إدخال قيمة الإهلاك الشهري للمعدات">ⓘ</abbr></label><input id="equipmentCost" class="bonds-input" type="number" value="2000" placeholder="2000" min="0" /></div>
         </div>
         <div class="calc-text-center">
           <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← السابق</button>
@@ -129,7 +129,7 @@
     <!-- Tab 3: Risk Factors -->
     <div id="risks" class="bonds-panel">
       <div class="bonds-card">
-        <p class="calc-text-secondary calc-mb-4 calc-text-center"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> هذه العوامل تؤثر على نسبة التكاليف الخفية والاحتياطي</p>
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">⚠️ هذه العوامل تؤثر على نسبة التكاليف الخفية والاحتياطي</p>
         <div class="bonds-form-row">
           <div class="bonds-form-group" style="min-width:100%;">
             <label class="bonds-checkbox-label"><input id="deliveryEnabled" type="checkbox" class="bonds-checkbox" onchange="toggleDeliveryCost()" /> يوجد توصيل / شحن للمنتجات</label>
@@ -137,7 +137,7 @@
             <label class="bonds-checkbox-label"><input id="seasonalStaff" type="checkbox" class="bonds-checkbox" /> موظفون موسميون / تقلبات تشغيلية</label>
           </div>
           <div class="bonds-form-group" id="deliveryCostGroup" style="display:none;">
-            <label>تكلفة التوصيل الشهرية <abbr title="إجمالي ما تدفعه شهرياً للتوصيل أو الشحن"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label>تكلفة التوصيل الشهرية <abbr title="إجمالي ما تدفعه شهرياً للتوصيل أو الشحن">ⓘ</abbr></label>
             <input id="deliveryCost" class="bonds-input" type="number" value="0" placeholder="0" min="0" />
           </div>
           <div class="bonds-form-group">
@@ -149,13 +149,13 @@
             </select>
           </div>
           <div class="bonds-form-group">
-            <label>الهدر والنثريات المتوقعة (%) <abbr title="نسبة احتياطية للهدر والمصاريف غير المتوقعة: هدر مواد، فاقد إنتاج، صيانة مفاجئة، قطع غيار صغيرة"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label>الهدر والنثريات المتوقعة (%) <abbr title="نسبة احتياطية للهدر والمصاريف غير المتوقعة: هدر مواد، فاقد إنتاج، صيانة مفاجئة، قطع غيار صغيرة">ⓘ</abbr></label>
             <input id="wasteAndIncidentalsPct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" />
           </div>
         </div>
         <div class="calc-text-center">
           <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← السابق</button>
-          <button class="bonds-btn bonds-btn-primary" onclick="calculateAll();nextTab();">احسب النتيجة <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
+          <button class="bonds-btn bonds-btn-primary" onclick="calculateAll();nextTab();">احسب النتيجة 🚀</button>
         </div>
       </div>
     </div>
@@ -164,7 +164,7 @@
     <div id="result" class="bonds-panel">
       <div id="resultContent">
         <div class="calc-empty-state-box-lg">
-          <div class="calc-empty-icon-lg"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
+          <div class="calc-empty-icon-lg">📊</div>
           <p class="calc-text-lg-semibold">اكمل الخطوات السابقة لترى النتيجة</p>
           <button class="bonds-btn bonds-btn-primary calc-mt-4" onclick="showTab('project')">ابدأ الآن</button>
         </div>
@@ -228,7 +228,7 @@ function calculateAll() {
   const revenueRes = BondsUI.validateField('revenue', { required:true, type:'number', min:0, label:'الإيرادات الشهرية' });
   const projectValueRes = BondsUI.validateField('projectValue', { required:true, type:'number', min:0, label:'قيمة المشروع' });
   if (!revenueRes.valid || !projectValueRes.valid) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> راجع بيانات المشروع', 'warning');
+    BondsUI.toast('⚠️ راجع بيانات المشروع', 'warning');
     showTab('project');
     return;
   }
@@ -258,7 +258,7 @@ function calculateAll() {
   const ratingColor = result.investmentRating === 'A' ? '#22c55e' : result.investmentRating === 'B' ? '#84cc16' : result.investmentRating === 'C' ? '#f59e0b' : '#ef4444';
   const verdictHTML = `
     <div class="verdict-box ${result.investmentRating === 'A' || result.investmentRating === 'B' ? 'profit' : result.investmentRating === 'C' ? 'warning' : 'loss'}">
-      <div class="verdict-icon" style="font-size:2.5rem;">${result.investmentRating === 'A' ? '<svg class="bonds-icon bonds-icon--circle bonds-icon--success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg>' : result.investmentRating === 'B' ? '<svg class="bonds-icon bonds-icon--circle bonds-icon--success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg>' : result.investmentRating === 'C' ? '<svg class="bonds-icon bonds-icon--circle bonds-icon--warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg>' : '<svg class="bonds-icon bonds-icon--circle bonds-icon--danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg>'}</div>
+      <div class="verdict-icon" style="font-size:2.5rem;">${result.investmentRating === 'A' ? '🟢' : result.investmentRating === 'B' ? '🟢' : result.investmentRating === 'C' ? '🟡' : '🔴'}</div>
       <div class="verdict-title" style="color:${ratingColor};">التصنيف الاستثماري: ${result.investmentRating} — ${result.investmentRatingLabel.ar}</div>
       <div class="verdict-text">
         التكلفة الحقيقية الشهرية <strong>${result.totalRealCost.toLocaleString('ar-SA')} ${currency}</strong> (بما فيها ${result.hiddenCostTotal.toLocaleString('ar-SA')} ${currency} تكاليف خفية و ${result.riskReserve.toLocaleString('ar-SA')} ${currency} احتياطي).<br>
@@ -268,7 +268,7 @@ function calculateAll() {
 
   const contextualHTML = ctxLink ? `
     <div class="bonds-card" style="border:1px solid var(--gold);background:rgba(212,169,74,0.08);margin:1rem 0;text-align:center;">
-      <p style="margin:0;"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ${ctxLink.label} → <a href="${ctxLink.href}" style="color:var(--gold);font-weight:700;">اضغط هنا</a></p>
+      <p style="margin:0;">💡 ${ctxLink.label} → <a href="${ctxLink.href}" style="color:var(--gold);font-weight:700;">اضغط هنا</a></p>
     </div>
   ` : '';
 
@@ -277,7 +277,7 @@ function calculateAll() {
   document.getElementById('resultContent').innerHTML = `
     ${verdictHTML}
 
-    <div class="feas-section-title"><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> النتائج الرئيسية</div>
+    <div class="feas-section-title">📈 النتائج الرئيسية</div>
     <div class="metric-row">
       <div class="metric-box"><div class="label">التكاليف الخفية</div><div class="value" style="color:#f59e0b">${result.hiddenCostTotal.toLocaleString('ar-SA')} ${currency}</div></div>
       <div class="metric-box"><div class="label">احتياطي المخاطر</div><div class="value" style="color:#f59e0b">${result.riskReserve.toLocaleString('ar-SA')} ${currency}</div></div>
@@ -289,7 +289,7 @@ function calculateAll() {
       <div class="metric-box"><div class="label">نسبة التكاليف الخفية</div><div class="value">${result.hiddenCostPct.toFixed(1)}%</div></div>
     </div>
 
-    <div class="feas-section-title"><svg class="bonds-icon bonds-icon--dice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><circle cx="15.5" cy="15.5" r="1.5"></circle></svg> السيناريوهات</div>
+    <div class="feas-section-title">🎲 السيناريوهات</div>
     <div class="scenario-grid">
       <div class="scenario-card pessimistic">
         <div class="scenario-label" style="color:#ef4444;">المتشائم</div>
@@ -308,7 +308,7 @@ function calculateAll() {
       </div>
     </div>
 
-    <div class="feas-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تفصيل التكاليف</div>
+    <div class="feas-section-title">📋 تفصيل التكاليف</div>
     <div class="bonds-card" style="text-align:right;">
       <table style="width:100%;border-collapse:collapse;">
         <tr><th style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">البند</th><th style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">المبلغ</th></tr>
@@ -324,7 +324,7 @@ function calculateAll() {
 
     ${contextualHTML}
 
-    <div class="feas-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تفصيل نسبة التكاليف الخفية</div>
+    <div class="feas-section-title">🔍 تفصيل نسبة التكاليف الخفية</div>
     <div class="bonds-card" style="text-align:right;">
       <table style="width:100%;border-collapse:collapse;">
         <tr><th style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">البند</th><th style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">النسبة</th></tr>
@@ -339,22 +339,22 @@ function calculateAll() {
     </div>
 
     <div style="text-align:center;margin-top:var(--space-6);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-      <button class="bonds-btn bonds-btn-secondary" onclick="showTab('project'); BondsUI.toast('🔄 ابدأ من جديد وجرّب أرقام جديدة', 'info');"><svg class="bonds-icon bonds-icon--refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> جرب أرقام جديدة</button>
-      <button class="bonds-btn bonds-btn-primary" onclick="exportExcelRPA()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Excel</button>
-      <button class="bonds-btn bonds-btn-primary" onclick="exportPDFRPA()"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> PDF</button>
-      <button class="bonds-btn bonds-btn-primary" onclick="saveAnalysis()"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> حفظ التحليل</button>
+      <button class="bonds-btn bonds-btn-secondary" onclick="showTab('project'); BondsUI.toast('🔄 ابدأ من جديد وجرّب أرقام جديدة', 'info');">🔄 جرب أرقام جديدة</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportExcelRPA()">📊 Excel</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportPDFRPA()">📄 PDF</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="saveAnalysis()">💾 حفظ التحليل</button>
     </div>
   `;
 }
 
 async function exportExcelRPA() {
   if (!window._rpaResult) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> احسب النتائج أولاً', 'warning');
+    BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning');
     return;
   }
   await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
   if (typeof XLSX === 'undefined') {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> فشل تحميل مكتبة Excel', 'error');
+    BondsUI.toast('❌ فشل تحميل مكتبة Excel', 'error');
     return;
   }
   var d = window._rpaResult;
@@ -413,7 +413,7 @@ async function exportExcelRPA() {
 
 function exportPDFRPA() {
   if (!window._rpaResult) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> احسب النتائج أولاً', 'warning');
+    BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning');
     return;
   }
   var d = window._rpaResult;
@@ -425,7 +425,7 @@ function exportPDFRPA() {
       <div style="font-size:20px;font-weight:800;color:${ratingColor};">التصنيف الاستثماري: ${d.investmentRating} — ${d.investmentRatingLabel.ar}</div>
     </div>
 
-    <h2><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> النتائج الرئيسية</h2>
+    <h2>📈 النتائج الرئيسية</h2>
     <div class="metric-grid">
       <div class="metric-item"><div class="label">التكاليف الخفية</div><div class="value">${d.hiddenCostTotal.toLocaleString('ar-SA')} ${currency}</div></div>
       <div class="metric-item"><div class="label">احتياطي المخاطر</div><div class="value">${d.riskReserve.toLocaleString('ar-SA')} ${currency}</div></div>
@@ -435,14 +435,14 @@ function exportPDFRPA() {
       <div class="metric-item"><div class="label">فترة الاسترداد</div><div class="value">${d.paybackPeriodMonths === Infinity ? '—' : Math.ceil(d.paybackPeriodMonths) + ' شهر'}</div></div>
     </div>
 
-    <h2><svg class="bonds-icon bonds-icon--dice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><circle cx="15.5" cy="15.5" r="1.5"></circle></svg> السيناريوهات</h2>
+    <h2>🎲 السيناريوهات</h2>
     <div class="scenario-row">
       <div class="scenario-item pess"><div class="label" style="color:#ef4444;">المتشائم</div><div class="value" style="color:#ef4444;">${d.scenarios.pessimistic.realProfit.toLocaleString('ar-SA')} ${currency}</div><div class="desc">هامش: ${d.scenarios.pessimistic.profitMargin.toFixed(1)}%</div></div>
       <div class="scenario-item exp"><div class="label" style="color:#b88a3a;">المتوقع</div><div class="value" style="color:#b88a3a;">${d.scenarios.expected.realProfit.toLocaleString('ar-SA')} ${currency}</div><div class="desc">هامش: ${d.scenarios.expected.profitMargin.toFixed(1)}%</div></div>
       <div class="scenario-item opt"><div class="label" style="color:#22c55e;">المتفائل</div><div class="value" style="color:#22c55e;">${d.scenarios.optimistic.realProfit.toLocaleString('ar-SA')} ${currency}</div><div class="desc">هامش: ${d.scenarios.optimistic.profitMargin.toFixed(1)}%</div></div>
     </div>
 
-    <h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تفصيل التكاليف</h2>
+    <h2>📋 تفصيل التكاليف</h2>
     <table>
       <tr><th>البند</th><th class="num">القيمة</th></tr>
       <tr><td>التكاليف التشغيلية</td><td class="num">${d.operatingCosts.toLocaleString('ar-SA')} ${currency}</td></tr>
@@ -469,12 +469,12 @@ const ACTIVITY_LABELS_AR = {
 
 async function saveAnalysis() {
   if (!window._rpaResult) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> احسب النتيجة أولاً', 'warning');
+    BondsUI.toast('⚠️ احسب النتيجة أولاً', 'warning');
     return;
   }
 
   if (!window.BondsAuth || !window.BondsAuth.getUser) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خدمة المصادقة غير متوفرة', 'error');
+    BondsUI.toast('❌ خدمة المصادقة غير متوفرة', 'error');
     return;
   }
 
@@ -486,7 +486,7 @@ async function saveAnalysis() {
 
   const sb = window.BondsAuth.getSupabase();
   if (!sb) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> فشل الاتصال بقاعدة البيانات', 'error');
+    BondsUI.toast('❌ فشل الاتصال بقاعدة البيانات', 'error');
     return;
   }
 
@@ -502,9 +502,9 @@ async function saveAnalysis() {
   });
 
   if (error) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> فشل الحفظ: ' + error.message, 'error');
+    BondsUI.toast('❌ فشل الحفظ: ' + error.message, 'error');
   } else {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم حفظ التحليل بنجاح', 'success');
+    BondsUI.toast('✅ تم حفظ التحليل بنجاح', 'success');
   }
 }
 

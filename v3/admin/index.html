@@ -97,7 +97,7 @@
 
   <div id="site-header"></div>
   <header>
-    <h1><svg class="bonds-icon bonds-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5 12 2"></polygon></svg> Bonds V3 CMS</h1>
+    <h1>✦ Bonds V3 CMS</h1>
   </header>
 
   <div class="container">
@@ -178,7 +178,7 @@
           <form id="fetchCityForm" class="form-grid" onsubmit="fetchCityIndicators(event)">
             <div><label>المدينة</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="city_code" id="fetchCitySelect" required></select></div>
             <div><label>السنة</label><input name="year" type="number" value="2025"></div>
-            <div style="grid-column: 1 / -1;"><button type="submit"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> جلب مؤشرات المدينة</button></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">◎ جلب مؤشرات المدينة</button></div>
           </form>
           <div id="fetchCityResult"></div>
         </div>
@@ -194,12 +194,12 @@
 
       <div id="marketPanel" class="panel">
         <div class="card">
-          <h3><svg class="bonds-icon bonds-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5 12 2"></polygon></svg> تحليل السوق تلقائياً</h3>
+          <h3>✦ تحليل السوق تلقائياً</h3>
           <form id="autoFillMarketForm" class="form-grid" onsubmit="runAutoFillMarket(event)">
             <div><label>المدينة</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="city_code" id="autoFillMarketCitySelect" required></select></div>
             <div><label>النشاط</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="activity_code" id="autoFillMarketActivitySelect" required></select></div>
             <div><label>السنة</label><input name="year" type="number" value="2025"></div>
-            <div style="grid-column: 1 / -1;"><button type="submit"><svg class="bonds-icon bonds-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5 12 2"></polygon></svg> تحليل السوق تلقائياً</button></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">✦ تحليل السوق تلقائياً</button></div>
           </form>
           <div id="autoFillMarketResult"></div>
         </div>
@@ -232,13 +232,13 @@
 
       <div id="dataSourcesPanel" class="panel">
         <div class="card">
-          <h3><svg class="bonds-icon bonds-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5 12 2"></polygon></svg> تحديث تلقائي</h3>
+          <h3>✦ تحديث تلقائي</h3>
           <p>اختر المدينة والنشاط لجلب البيانات تلقائياً من جميع المحركات.</p>
           <form id="autoFillForm" class="form-grid" onsubmit="runAutoFill(event)">
             <div><label>المدينة</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="city_code" id="autoFillCitySelect" required></select></div>
             <div><label>النشاط</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="activity_code" id="autoFillActivitySelect" required></select></div>
             <div><label>السنة</label><input name="year" type="number" value="2025"></div>
-            <div style="grid-column: 1 / -1;"><button type="submit"><svg class="bonds-icon bonds-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5 12 2"></polygon></svg> تحديث تلقائي للكل</button></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">✦ تحديث تلقائي للكل</button></div>
           </form>
           <div id="autoFillResult"></div>
         </div>
@@ -258,7 +258,7 @@
           </table>
         </div>
         <div class="card">
-          <h3><svg class="bonds-icon bonds-icon--grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg> ملاحظات التحسين (Feedback Loop)</h3>
+          <h3>▤ ملاحظات التحسين (Feedback Loop)</h3>
           <form id="feedbackForm" class="form-grid" onsubmit="submitFeedback(event)">
             <div><label>المؤشر</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="metric_code" id="feedbackMetricSelect"></select></div>
             <div><label>المدينة</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="city_code" id="feedbackCitySelect"></select></div>
@@ -283,7 +283,7 @@
 
       <div id="competitorCalibrationPanel" class="panel">
         <div class="card">
-          <h3><svg class="bonds-icon bonds-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5 12 2"></polygon></svg> معايرة عدد المنافسين</h3>
+          <h3>✦ معايرة عدد المنافسين</h3>
           <form id="calibrationForm" class="form-grid" onsubmit="runCalibration(event)">
             <div><label>النشاط</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="activity_code" id="calibrationActivitySelect" required></select></div>
             <div><label>السنة</label><input name="year" type="number" value="2025"></div>
@@ -312,7 +312,7 @@
 
       <div id="alertsPanel" class="panel">
         <div class="card">
-          <h3><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> قواعد الإنذارات</h3>
+          <h3>⚑ قواعد الإنذارات</h3>
           <form id="alertRuleForm" class="form-grid" onsubmit="createAlertRule(event)">
             <div><label>اسم القاعدة</label><input name="name" required></div>
             <div><label>المؤشر</label>
@@ -352,7 +352,7 @@
                 <option value="critical">حرج</option>
               </select>
             </div>
-            <div style="grid-column: 1 / -1;"><button type="submit"><svg class="bonds-icon bonds-icon--plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> إضافة قاعدة</button></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">➕ إضافة قاعدة</button></div>
           </form>
           <div id="alertRulesMessage"></div>
           <table>
@@ -362,14 +362,14 @@
         </div>
 
         <div class="card">
-          <h3><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تشغيل التقييم</h3>
+          <h3>▶ تشغيل التقييم</h3>
           <button onclick="runAlertsEvaluation()">تقييم القواعد الآن</button>
           <button class="secondary" onclick="loadAlertsHistory()">تحديث التاريخ</button>
           <div id="alertEvaluationResult" style="margin-top: 1rem;"></div>
         </div>
 
         <div class="card">
-          <h3><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تاريخ الإنذارات</h3>
+          <h3>📜 تاريخ الإنذارات</h3>
           <div id="alertsHistoryMessage"></div>
           <div id="alertsHistoryList"></div>
         </div>
@@ -377,37 +377,37 @@
 
       <div id="mlPanel" class="panel">
         <div class="card">
-          <h3><svg class="bonds-icon bonds-icon--bot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8.01" y2="16"></line><line x1="16" y1="16" x2="16.01" y2="16"></line></svg> نماذج التقدير (ML Regression)</h3>
+          <h3>🤖 نماذج التقدير (ML Regression)</h3>
           <p>تدريب نماذج انحدار بسيطة من البيانات الموجودة في قاعدة البيانات.</p>
           <form id="mlTrainForm" class="form-grid" onsubmit="trainML(event)">
             <div><label>الدولة</label>
               <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="country_code" id="mlCountrySelect">
                 <option value="">كل الدول</option>
-                <option value="SA"><span class="bonds-flag bonds-flag--SA">SA</span> السعودية</option>
-                <option value="AE"><span class="bonds-flag bonds-flag--AE">AE</span> الإمارات</option>
-                <option value="KW"><span class="bonds-flag bonds-flag--KW">KW</span> الكويت</option>
-                <option value="QA"><span class="bonds-flag bonds-flag--QA">QA</span> قطر</option>
-                <option value="BH"><span class="bonds-flag bonds-flag--BH">BH</span> البحرين</option>
-                <option value="OM"><span class="bonds-flag bonds-flag--OM">OM</span> عمان</option>
-                <option value="EG"><span class="bonds-flag bonds-flag--EG">EG</span> مصر</option>
-                <option value="JO"><span class="bonds-flag bonds-flag--JO">JO</span> الأردن</option>
-                <option value="IQ"><span class="bonds-flag bonds-flag--IQ">IQ</span> العراق</option>
-                <option value="LB"><span class="bonds-flag bonds-flag--LB">LB</span> لبنان</option>
-                <option value="SY"><span class="bonds-flag bonds-flag--SY">SY</span> سوريا</option>
-                <option value="PS"><span class="bonds-flag bonds-flag--PS">PS</span> فلسطين</option>
-                <option value="TN"><span class="bonds-flag bonds-flag--TN">TN</span> تونس</option>
-                <option value="DZ"><span class="bonds-flag bonds-flag--DZ">DZ</span> الجزائر</option>
-                <option value="MA"><span class="bonds-flag bonds-flag--MA">MA</span> المغرب</option>
-                <option value="LY"><span class="bonds-flag bonds-flag--LY">LY</span> ليبيا</option>
-                <option value="SD"><span class="bonds-flag bonds-flag--SD">SD</span> السودان</option>
-                <option value="YE"><span class="bonds-flag bonds-flag--YE">YE</span> اليمن</option>
-                <option value="DJ"><span class="bonds-flag bonds-flag--DJ">DJ</span> جيبوتي</option>
-                <option value="SO"><span class="bonds-flag bonds-flag--SO">SO</span> الصومال</option>
-                <option value="MR"><span class="bonds-flag bonds-flag--MR">MR</span> موريتانيا</option>
-                <option value="KM"><span class="bonds-flag bonds-flag--KM">KM</span> جزر القمر</option>
+                <option value="SA">🇸🇦 السعودية</option>
+                <option value="AE">🇦🇪 الإمارات</option>
+                <option value="KW">🇰🇼 الكويت</option>
+                <option value="QA">🇶🇦 قطر</option>
+                <option value="BH">🇧🇭 البحرين</option>
+                <option value="OM">🇴🇲 عمان</option>
+                <option value="EG">🇪🇬 مصر</option>
+                <option value="JO">🇯🇴 الأردن</option>
+                <option value="IQ">🇮🇶 العراق</option>
+                <option value="LB">🇱🇧 لبنان</option>
+                <option value="SY">🇸🇾 سوريا</option>
+                <option value="PS">🇵🇸 فلسطين</option>
+                <option value="TN">🇹🇳 تونس</option>
+                <option value="DZ">🇩🇿 الجزائر</option>
+                <option value="MA">🇲🇦 المغرب</option>
+                <option value="LY">🇱🇾 ليبيا</option>
+                <option value="SD">🇸🇩 السودان</option>
+                <option value="YE">🇾🇪 اليمن</option>
+                <option value="DJ">🇩🇯 جيبوتي</option>
+                <option value="SO">🇸🇴 الصومال</option>
+                <option value="MR">🇲🇷 موريتانيا</option>
+                <option value="KM">🇰🇲 جزر القمر</option>
               </select>
             </div>
-            <div style="grid-column: 1 / -1;"><button type="submit"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تدريب النماذج</button></div>
+            <div style="grid-column: 1 / -1;"><button type="submit">▶ تدريب النماذج</button></div>
           </form>
           <div id="mlTrainResult"></div>
         </div>
@@ -923,10 +923,10 @@
             year: parseInt(body.year)
           })
         });
-        resultDiv.innerHTML = '<p class="message success"><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> تم التحديث التلقائي بنجاح</p>';
+        resultDiv.innerHTML = '<p class="message success">✓ تم التحديث التلقائي بنجاح</p>';
         loadDataSources();
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
       }
     }
 
@@ -947,9 +947,9 @@
             year: parseInt(body.year)
           })
         });
-        resultDiv.innerHTML = '<p class="message success"><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> تم تحليل السوق بنجاح</p>';
+        resultDiv.innerHTML = '<p class="message success">✓ تم تحليل السوق بنجاح</p>';
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
       }
     }
 
@@ -969,10 +969,10 @@
             year: parseInt(body.year)
           })
         });
-        resultDiv.innerHTML = '<p class="message success"><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> تم جلب مؤشرات المدينة بنجاح</p>';
+        resultDiv.innerHTML = '<p class="message success">✓ تم جلب مؤشرات المدينة بنجاح</p>';
         loadCities();
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
       }
     }
 
@@ -998,11 +998,11 @@
             notes: body.notes
           })
         });
-        resultDiv.innerHTML = '<p class="message success"><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> تم إرسال الملاحظة بنجاح</p>';
+        resultDiv.innerHTML = '<p class="message success">✓ تم إرسال الملاحظة بنجاح</p>';
         form.reset();
         loadFeedbackAccuracy();
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
       }
     }
 
@@ -1037,10 +1037,10 @@
           headers: getHeaders(),
           body: JSON.stringify({ country_code: body.country_code || null })
         });
-        resultDiv.innerHTML = '<p class="message success"><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> تم تدريب ' + (data.trained?.length || 0) + ' نموذجاً</p>';
+        resultDiv.innerHTML = '<p class="message success">✓ تم تدريب ' + (data.trained?.length || 0) + ' نموذجاً</p>';
         loadMLModels();
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
       }
     }
 
@@ -1126,10 +1126,10 @@
           headers: getHeaders(),
           body: JSON.stringify({ activity_code: body.activity_code, year: parseInt(body.year, 10) })
         });
-        resultDiv.innerHTML = `<p class="message success"><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> تمت المعايرة: ${data.result.upserted.length} مدن</p>`;
+        resultDiv.innerHTML = `<p class="message success">✓ تمت المعايرة: ${data.result.upserted.length} مدن</p>`;
         loadCalibration();
       } catch (err) {
-        resultDiv.innerHTML = `<p class="message error"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ${err.message}</p>`;
+        resultDiv.innerHTML = `<p class="message error">✕ ${err.message}</p>`;
       }
     }
 
@@ -1247,10 +1247,10 @@
           method: 'POST',
           headers: getHeaders()
         });
-        resultDiv.innerHTML = `<p class="message success"><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> تم تقييم القواعد: ${data.evaluated} إنذار جديد</p>`;
+        resultDiv.innerHTML = `<p class="message success">✓ تم تقييم القواعد: ${data.evaluated} إنذار جديد</p>`;
         loadAlertsHistory();
       } catch (err) {
-        resultDiv.innerHTML = `<p class="message error"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ${err.message}</p>`;
+        resultDiv.innerHTML = `<p class="message error">✕ ${err.message}</p>`;
       }
     }
 
@@ -1268,7 +1268,7 @@
           <div class="card" style="border-right: 4px solid ${a.severity === 'critical' ? 'var(--danger)' : a.severity === 'warning' ? 'var(--gold)' : 'var(--success)'};">
             <strong>${a.severity === 'critical' ? '!!' : a.severity === 'warning' ? '!' : 'i'} ${metricLabel(a.metric_code)}</strong>
             <p>${a.message}</p>
-            ${a.insight ? `<p style="font-size: 0.85rem; color: var(--gold-bright); margin: 0.5rem 0;"><svg class="bonds-icon bonds-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5 12 2"></polygon></svg> ${a.insight}</p>` : ''}
+            ${a.insight ? `<p style="font-size: 0.85rem; color: var(--gold-bright); margin: 0.5rem 0;">✦ ${a.insight}</p>` : ''}
             <p style="font-size: 0.8rem; color: var(--text-secondary);">تم الاكتشاف: ${new Date(a.created_at).toLocaleString('ar-SA')} — ${a.city?.name_ar || ''} ${a.activity?.name_ar ? ' / ' + a.activity.name_ar : ''}</p>
             ${!a.is_read ? `<button class="secondary" onclick="markAlertRead('${a.id}')">تعليم كمقروء</button>` : ''}
           </div>

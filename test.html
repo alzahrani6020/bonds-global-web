@@ -30,7 +30,7 @@
 
 </head>
 <body>
-  <h1><svg class="bonds-icon bonds-icon--tool" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg> اختبار النظام</h1>
+  <h1>🔧 اختبار النظام</h1>
   <p>هذه الصفحة تُثبت ما إذا كان كل شيء يعمل أم لا.</p>
 
   <div class="test">
@@ -72,9 +72,9 @@
       // Test 1: Supabase library
       const t1 = document.getElementById('t1');
       if (typeof supabase !== 'undefined' && supabase.createClient) {
-        t1.innerHTML = '<span class="pass"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> PASS</span> — مكتبة Supabase محملة ومتاحة';
+        t1.innerHTML = '<span class="pass">✅ PASS</span> — مكتبة Supabase محملة ومتاحة';
       } else {
-        t1.innerHTML = '<span class="fail"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> FAIL</span> — مكتبة Supabase غير محملة!';
+        t1.innerHTML = '<span class="fail">❌ FAIL</span> — مكتبة Supabase غير محملة!';
       }
 
       // Test 2: ENV
@@ -82,21 +82,21 @@
       const t2d = document.getElementById('t2d');
       const env = window.__ENV || {};
       if (env.SUPABASE_URL && env.SUPABASE_ANON_KEY) {
-        t2.innerHTML = '<span class="pass"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> PASS</span> — إعدادات Supabase محملة';
+        t2.innerHTML = '<span class="pass">✅ PASS</span> — إعدادات Supabase محملة';
         t2d.textContent = 'URL: ' + env.SUPABASE_URL + '\nKey (آخر 20): ...' + env.SUPABASE_ANON_KEY.slice(-20);
       } else {
-        t2.innerHTML = '<span class="fail"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> FAIL</span> — إعدادات Supabase فارغة!';
+        t2.innerHTML = '<span class="fail">❌ FAIL</span> — إعدادات Supabase فارغة!';
         t2d.textContent = JSON.stringify(env, null, 2);
       }
 
       // Test 3: BondsAuth
       const t3 = document.getElementById('t3');
       if (window.BondsAuth && window.BondsAuth.getSupabase && window.BondsAuth.getSupabase()) {
-        t3.innerHTML = '<span class="pass"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> PASS</span> — bonds-auth-2026.js يعمل وSupabase Client جاهز';
+        t3.innerHTML = '<span class="pass">✅ PASS</span> — bonds-auth-2026.js يعمل وSupabase Client جاهز';
       } else if (window.BondsAuth) {
-        t3.innerHTML = '<span class="warn"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> WARN</span> — bonds-auth-2026.js محمل لكن Supabase Client غير جاهز';
+        t3.innerHTML = '<span class="warn">⚠️ WARN</span> — bonds-auth-2026.js محمل لكن Supabase Client غير جاهز';
       } else {
-        t3.innerHTML = '<span class="fail"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> FAIL</span> — bonds-auth-2026.js غير محمل!';
+        t3.innerHTML = '<span class="fail">❌ FAIL</span> — bonds-auth-2026.js غير محمل!';
       }
 
       // Test 4: Session
@@ -107,10 +107,10 @@
         if (sb) {
           const { data, error } = await sb.auth.getSession();
           if (data.session) {
-            t4.innerHTML = '<span class="pass"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> PASS</span> — أنت مسجل دخول!';
+            t4.innerHTML = '<span class="pass">✅ PASS</span> — أنت مسجل دخول!';
             t4d.textContent = 'User ID: ' + data.session.user.id + '\nEmail: ' + data.session.user.email + '\nCreated: ' + data.session.user.created_at;
           } else {
-            t4.innerHTML = '<span class="warn"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا توجد جلسة</span> — لم تسجل دخول بعد';
+            t4.innerHTML = '<span class="warn">⚠️ لا توجد جلسة</span> — لم تسجل دخول بعد';
             t4d.textContent = 'localStorage مفاتيح ذات صلة:\n';
             for (let i = 0; i < localStorage.length; i++) {
               const k = localStorage.key(i);
@@ -118,10 +118,10 @@
             }
           }
         } else {
-          t4.innerHTML = '<span class="fail"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> FAIL</span> — لا يمكن فحص الجلسة (Supabase غير جاهز)';
+          t4.innerHTML = '<span class="fail">❌ FAIL</span> — لا يمكن فحص الجلسة (Supabase غير جاهز)';
         }
       } catch (e) {
-        t4.innerHTML = '<span class="fail"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ERROR</span> — ' + e.message;
+        t4.innerHTML = '<span class="fail">❌ ERROR</span> — ' + e.message;
       }
 
       // Test 5: User
@@ -130,13 +130,13 @@
       try {
         const { data, error } = await window.BondsAuth.getUser();
         if (data.user) {
-          t5.innerHTML = '<span class="pass"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> PASS</span> — مستخدم موجود';
+          t5.innerHTML = '<span class="pass">✅ PASS</span> — مستخدم موجود';
           t5d.textContent = JSON.stringify({ id: data.user.id, email: data.user.email, confirmed: !!data.user.email_confirmed_at, metadata: data.user.user_metadata }, null, 2);
         } else {
-          t5.innerHTML = '<span class="warn"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا يوجد مستخدم</span>';
+          t5.innerHTML = '<span class="warn">⚠️ لا يوجد مستخدم</span>';
         }
       } catch (e) {
-        t5.innerHTML = '<span class="fail"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ERROR</span> — ' + e.message;
+        t5.innerHTML = '<span class="fail">❌ ERROR</span> — ' + e.message;
       }
     }
 

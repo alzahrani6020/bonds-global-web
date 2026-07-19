@@ -32,15 +32,15 @@
 
   <!-- Toolbar -->
   <div class="template-toolbar no-print">
-    <div class="auto-save-indicator" id="auto-save-indicator"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Auto-saved</div>
-    <button class="btn-ghost" onclick="clearAll()"><svg class="bonds-icon bonds-icon--trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Clear All</button>
-    <button class="btn-ghost" onclick="saveDraft()"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Draft</button>
-    <button class="btn-ghost" onclick="loadDraft()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Load Draft</button>
-    <button class="btn-ghost" onclick="scrollToDashboard()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Dashboard</button>
-    <button class="hidden" id="btn-import-supabase" onclick="fillFromSupabase()"><svg class="bonds-icon bonds-icon--inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg> Import My Data</button>
+    <div class="auto-save-indicator" id="auto-save-indicator">💾 Auto-saved</div>
+    <button class="btn-ghost" onclick="clearAll()">🗑️ Clear All</button>
+    <button class="btn-ghost" onclick="saveDraft()">💾 Save Draft</button>
+    <button class="btn-ghost" onclick="loadDraft()">📂 Load Draft</button>
+    <button class="btn-ghost" onclick="scrollToDashboard()">🎯 Dashboard</button>
+    <button class="hidden" id="btn-import-supabase" onclick="fillFromSupabase()">📥 Import My Data</button>
     <button class="btn-sky-outline" onclick="openResearchModal()">Smart Research</button>
-    <button class="btn-ghost" onclick="exportToExcel()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Export Excel</button>
-    <button class="btn-gold-outline" onclick="generateProfessionalPDF()"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> Professional PDF</button>
+    <button class="btn-ghost" onclick="exportToExcel()">📊 Export Excel</button>
+    <button class="btn-gold-outline" onclick="generateProfessionalPDF()">📄 Professional PDF</button>
   </div>
 
   <div class="template-wrapper">
@@ -65,7 +65,7 @@
           </select>
         </div>
         <div class="mb-0">
-          <button class="btn-fill-gold" type="button" onclick="fillFromCountry()"><svg class="bonds-icon bonds-icon--refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> Fill Data</button>
+          <button class="btn-fill-gold" type="button" onclick="fillFromCountry()">🔄 Fill Data</button>
         </div>
       </div>
       <div class="cover-form-row">
@@ -78,15 +78,15 @@
 
     <!-- ========== PAGE IMPORT: AI FEASIBILITY IMPORTER ========== -->
     <div class="import-page no-print" id="page-import">
-      <div class="page-header"><div class="btn-gold-solid"><svg class="bonds-icon bonds-icon--bot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8.01" y2="16"></line><line x1="16" y1="16" x2="16.01" y2="16"></line></svg></div><div><h2 class="text-gold-bright">AI Feasibility Study Importer</h2><p>Upload a Word file or paste your study text and we will auto-fill the template</p></div></div>
+      <div class="page-header"><div class="btn-gold-solid">🤖</div><div><h2 class="text-gold-bright">AI Feasibility Study Importer</h2><p>Upload a Word file or paste your study text and we will auto-fill the template</p></div></div>
 
       <div class="mb-1">
-        <label><svg class="bonds-icon bonds-icon--folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Upload File (Word .docx, PDF .pdf, or Text .txt)</label>
+        <label>📁 Upload File (Word .docx, PDF .pdf, or Text .txt)</label>
         <input class="input-file" type="file" id="feasibility-file" accept=".docx,.pdf,.txt" onchange="handleFeasibilityFile(this)" />
       </div>
 
       <div class="field-group">
-        <label><svg class="bonds-icon bonds-icon--edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Or paste study text directly here</label>
+        <label>📝 Or paste study text directly here</label>
         <textarea id="feasibility-text" rows="6" placeholder="Copy the full text from your study and paste it here... Can be Arabic, English, or mixed.
 
 The text should include: project description, costs, revenue, competitors, SWOT, marketing, timeline..."></textarea>
@@ -94,7 +94,7 @@ The text should include: project description, costs, revenue, competitors, SWOT,
 
       <div class="btn-row">
         <button class="btn-primary-gradient" onclick="analyzeFeasibilityText()" id="analyze-btn">
-          <svg class="bonds-icon bonds-icon--sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L14.5 9.5 21 12 14.5 14.5 12 21 9.5 14.5 3 12 9.5 9.5 12 3z"></path><path d="M5 3l1 1"></path><path d="M19 3l-1 1"></path><path d="M5 21l1-1"></path><path d="M19 21l-1-1"></path></svg> Analyze & Fill Template
+          ✨ Analyze & Fill Template
         </button>
         <button class="btn-ghost-sm" onclick="document.getElementById('feasibility-text').value='';document.getElementById('feasibility-file').value='';">
           Clear
@@ -105,7 +105,7 @@ The text should include: project description, costs, revenue, competitors, SWOT,
 
       <div class="tips-box">
         <p class="tips-text">
-          <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> <strong>Tips for best results:</strong><br>
+          💡 <strong>Tips for best results:</strong><br>
           • Make sure the text contains clear numbers (costs, revenue, investment).<br>
           • Mention country, city, and sector clearly.<br>
           • The longer and more detailed the text, the better the result.<br>
@@ -118,7 +118,7 @@ The text should include: project description, costs, revenue, competitors, SWOT,
     <div class="modal-overlay" id="ai-preview-modal">
       <div class="modal-panel-lg">
         <div class="modal-header">
-          <h3 class="modal-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Preview Extracted Data</h3>
+          <h3 class="modal-title">📋 Preview Extracted Data</h3>
           <button class="modal-close" onclick="closePreview()">×</button>
         </div>
         <div class="modal-body" id="ai-preview-content">
@@ -126,7 +126,7 @@ The text should include: project description, costs, revenue, competitors, SWOT,
         </div>
         <div class="modal-footer">
           <button class="px-1-5-py-0-7 rounded-lg bg-transparent text-secondary border" onclick="closePreview()">Cancel</button>
-          <button class="btn-confirm-sm" onclick="confirmFillFromPreview()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Fill Template with Selected</button>
+          <button class="btn-confirm-sm" onclick="confirmFillFromPreview()">✅ Fill Template with Selected</button>
         </div>
       </div>
     </div>
@@ -166,7 +166,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
     <div class="template-page" id="page-summary">
       <div class="template-header-print"><img src="../../assets/bonds-logo-2026-sm.webp?v=2026" alt="Bonds" /><div class="doc-title">Feasibility Study — Summary</div></div>
       <div class="page-header"><div class="section-number">2</div><div><h2>Executive Summary</h2><p>Overview of the entire study (best written last)</p></div></div>
-      <div class="field-group"><label>Project Summary (3-5 lines)</label><textarea id="exec-summary" rows="5" placeholder="Comprehensive overview: idea, market, opportunity, expected results..."></textarea><button class="btn-sm no-print" onclick="autoGenerateSummary()"><svg class="bonds-icon bonds-icon--sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L14.5 9.5 21 12 14.5 14.5 12 21 9.5 14.5 3 12 9.5 9.5 12 3z"></path><path d="M5 3l1 1"></path><path d="M19 3l-1 1"></path><path d="M5 21l1-1"></path><path d="M19 21l-1-1"></path></svg> Auto-generate summary</button></div>
+      <div class="field-group"><label>Project Summary (3-5 lines)</label><textarea id="exec-summary" rows="5" placeholder="Comprehensive overview: idea, market, opportunity, expected results..."></textarea><button class="btn-sm no-print" onclick="autoGenerateSummary()">✨ Auto-generate summary</button></div>
       <div class="field-group inline-3">
         <div class="field-group"><label>Required Capital (SAR)</label><input type="number" id="summary-capital" placeholder="0" /></div>
         <div class="field-group"><label>Payback Period (months)</label><input type="number" id="summary-payback" readonly tabindex="-1" placeholder="Will be calculated automatically" /></div>
@@ -235,7 +235,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </div>
 
       <!-- 2. Current Status Assessment -->
-      <h3 class="section-title-sm"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Initial Assessment of Current Building Status</h3>
+      <h3 class="section-title-sm">📊 Initial Assessment of Current Building Status</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>Actual Completion %</label><input type="number" id="ba-completion-now" min="0" max="100" placeholder="0-100" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>Current Market Value (SAR)</label><input type="number" id="ba-current-value" placeholder="0" oninput="calcBuildingAssessment()" /></div>
@@ -247,7 +247,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </div>
 
       <!-- 3. Violations & Licenses -->
-      <h3 class="section-title-sm"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Violations &amp; Licenses</h3>
+      <h3 class="section-title-sm">⚠️ Violations &amp; Licenses</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>Any Municipal Violations?</label><select data-universal-dropdown="true" id="ba-violations"><option value="no">No</option><option value="yes">Yes</option></select></div>
         <div class="field-group"><label>Building Permit Status</label><select data-universal-dropdown="true" id="ba-license-status"><option value="valid">Valid</option><option value="expired">Expired</option><option value="no-license">None</option></select></div>
@@ -266,7 +266,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="field-group"><label>Violation &amp; Obligation Details</label><textarea id="ba-violation-details" rows="2" placeholder="Accumulated fines, stop-work orders, liens..."></textarea></div>
 
       <!-- 4. BOQ Table -->
-      <h3 class="section-title-sm"><svg class="bonds-icon bonds-icon--ruler" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L2 22h20V2z"></path><path d="M6 22l16-16"></path><path d="M10 22l12-12"></path><path d="M14 22l8-8"></path><path d="M18 22l4-4"></path></svg> Bill of Quantities (BOQ)</h3>
+      <h3 class="section-title-sm">📐 Bill of Quantities (BOQ)</h3>
       <table class="template-table" id="boq-table">
         <thead><tr><th>No.</th><th>Work Item</th><th>Unit</th><th>Quantity</th><th>Unit Price</th><th>Total</th></tr></thead>
         <tbody>
@@ -280,7 +280,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="mt-0-5"><label>Total Completion Cost: <span class="text-gold fw-extrabold" id="boq-grand-total">0</span> SAR</label></div>
 
       <!-- 5. Profit Sharing Calculator -->
-      <h3 class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Profit Sharing Calculator (Real Estate Partnership)</h3>
+      <h3 class="section-title">💰 Profit Sharing Calculator (Real Estate Partnership)</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>Land + Skeleton Value (Owner's Share)</label><input type="number" id="ba-owner-value" placeholder="0" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>Completion Cost (Company's Share)</label><input type="number" id="ba-company-cost" placeholder="0" oninput="calcBuildingAssessment()" /></div>
@@ -297,7 +297,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <div class="field-group"><label>Other Expenses (SAR)</label><input type="number" id="ba-other-expenses" placeholder="0" oninput="calcBuildingAssessment()" /></div>
       </div>
       <div class="alert-red">
-        <p class="alert-red-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Additional expenses deducted exclusively for the company (completion risks)</p>
+        <p class="alert-red-title">⚠️ Additional expenses deducted exclusively for the company (completion risks)</p>
         <div class="m-0">
           <div class="mb-0"><label class="fs-0-8 text-secondary">Hidden Defects Treatment (SAR)</label><input class="p-0-6" type="number" id="ba-hidden-defects" placeholder="0" oninput="calcBuildingAssessment()" /></div>
           <div class="mb-0"><label class="fs-0-8 text-secondary">Interim Construction Emergencies (SAR)</label><input class="p-0-6" type="number" id="ba-emergency" placeholder="0" oninput="calcBuildingAssessment()" /></div>
@@ -338,7 +338,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </div>
 
       <!-- 6. Sale Period Scenarios -->
-      <h3 class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Sale &amp; Liquidation Period Scenarios</h3>
+      <h3 class="section-title">📊 Sale &amp; Liquidation Period Scenarios</h3>
       <table class="template-table" id="sale-scenarios-table">
         <thead><tr><th>Metric</th><th>Pessimistic</th><th>Expected</th><th>Optimistic</th></tr></thead>
         <tbody>
@@ -352,7 +352,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </table>
 
       <!-- 7. Timeline -->
-      <h3 class="section-title">⏱ Expected Timeline</h3>
+      <h3 class="section-title">⏱️ Expected Timeline</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>Construction Period (months)</label><input type="number" id="ba-construction-months" placeholder="e.g. 2" /></div>
         <div class="field-group"><label>Sale &amp; Transfer Period (months)</label><input type="number" id="ba-sale-months" placeholder="e.g. 1.5" /></div>
@@ -361,7 +361,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="field-group"><label>Engineering Office Notes on Timeline</label><textarea id="ba-engineer-notes" rows="2" placeholder="Recommendations, warnings, essential conditions..."></textarea></div>
 
       <!-- 8. Document Attachments -->
-      <h3 class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Attached Documents</h3>
+      <h3 class="section-title">📎 Attached Documents</h3>
       <table class="template-table" id="docs-table">
         <thead><tr><th>Document</th><th>Attached</th><th>Reference No.</th><th>Expiry Date</th></tr></thead>
         <tbody>
@@ -376,7 +376,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </table>
 
       <!-- 9. Funding Readiness Score -->
-      <h3 class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Funding Readiness Score</h3>
+      <h3 class="section-title">🎯 Funding Readiness Score</h3>
       <div class="health-panel-sm">
         <div class="score-ring-lg" id="funding-score-ring">
           <div class="score-inner-lg">
@@ -401,7 +401,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         </tbody>
       </table>
       <div class="info-box">
-        <div class="fs-0-85 text-secondary mb-0-5"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Bonds Recommendation:</div>
+        <div class="fs-0-85 text-secondary mb-0-5">📋 Bonds Recommendation:</div>
         <div class="text-sm-primary" id="funding-recommendation">Complete the data first...</div>
       </div>
     </div>
@@ -412,7 +412,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="page-header"><div class="section-number">5B</div><div><h2>Professional Real Estate Valuation Standards</h2><p>Saudi &amp; international standards for stalled and completed buildings</p></div></div>
 
       <!-- A. Unfinished Building Assessment -->
-      <h3 class="section-title-sm"><svg class="bonds-icon bonds-icon--construction" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 22h20"></path><path d="M6 22V11l6-4 6 4v11"></path><path d="M10 22v-5h4v5"></path><path d="M12 2v5"></path></svg> A. Unfinished Building Assessment (Under Construction)</h3>
+      <h3 class="section-title-sm">🏗️ A. Unfinished Building Assessment (Under Construction)</h3>
       <p class="hint-text">Based on: Saudi Authority for Accredited Valuers (Taqeem) + International Valuation Standards (IVS) + Saudi Building Code (SBC)</p>
 
       <div class="field-group inline-3">
@@ -463,7 +463,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </div>
 
       <!-- B. Post-Completion Assessment -->
-      <h3 class="section-title"><svg class="bonds-icon bonds-icon--home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> B. Post-Completion Building Assessment</h3>
+      <h3 class="section-title">🏠 B. Post-Completion Building Assessment</h3>
       <p class="hint-text">Comprehensive assessment of the completed building per quality, efficiency, and compliance standards</p>
 
       <h4 class="subsection-title">B1. Mechanical &amp; Electrical Systems (M&amp;E)</h4>
@@ -514,7 +514,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       </div>
 
       <!-- C. Comparison Table -->
-      <h3 class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> C. Comparison Table — Value Before &amp; After Completion</h3>
+      <h3 class="section-title">📊 C. Comparison Table — Value Before &amp; After Completion</h3>
       <table class="template-table" id="val-comparison-table">
         <thead><tr><th>Metric</th><th>Current (Unfinished)</th><th>Expected (Completed)</th><th>Difference</th></tr></thead>
         <tbody>
@@ -554,8 +554,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="page-header"><div class="section-number">6</div><div><h2>Technological Impact</h2><p>How technology affects your business</p></div></div>
       <div class="field-group"><label>Will you use technology in your business?</label><textarea id="tech-usage" rows="3" placeholder="POS, delivery apps, inventory management, social media, AI..."></textarea></div>
       <div class="field-group inline">
-        <div class="field-group"><label>Positive Effects <svg class="bonds-icon bonds-icon--circle bonds-icon--success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg></label><textarea id="tech-positive" rows="3" placeholder="Efficiency gains, cost reduction, wider reach..."></textarea></div>
-        <div class="field-group"><label>Negative Effects <svg class="bonds-icon bonds-icon--circle bonds-icon--danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg></label><textarea id="tech-negative" rows="3" placeholder="Maintenance costs, security risks, platform dependency..."></textarea></div>
+        <div class="field-group"><label>Positive Effects 🟢</label><textarea id="tech-positive" rows="3" placeholder="Efficiency gains, cost reduction, wider reach..."></textarea></div>
+        <div class="field-group"><label>Negative Effects 🔴</label><textarea id="tech-negative" rows="3" placeholder="Maintenance costs, security risks, platform dependency..."></textarea></div>
       </div>
       <div class="field-group"><label>How will you leverage technology to your advantage?</label><textarea id="tech-benefit" rows="3" placeholder="Order automation, data analytics, digital marketing..."></textarea></div>
       <div class="field-group"><label>Will your products/services be affected by technology changes in the near future?</label><textarea id="tech-future" rows="2" placeholder="Replacement risks, innovation opportunities..."></textarea></div>
@@ -596,10 +596,10 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
       <h3 class="section-title">B. SWOT Analysis</h3>
       <div class="swot-grid">
-        <div class="swot-box s"><h4><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Strengths</h4><textarea id="swot-s" rows="4" placeholder="Internal advantages you possess..."></textarea></div>
-        <div class="swot-box w"><h4><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Weaknesses</h4><textarea id="swot-w" rows="4" placeholder="What needs internal improvement..."></textarea></div>
-        <div class="swot-box o"><h4><svg class="bonds-icon bonds-icon--star bonds-icon--glow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Opportunities</h4><textarea id="swot-o" rows="4" placeholder="External factors to capitalize on..."></textarea></div>
-        <div class="swot-box t"><h4><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Threats</h4><textarea id="swot-t" rows="4" placeholder="External factors that may negatively impact..."></textarea></div>
+        <div class="swot-box s"><h4>✅ Strengths</h4><textarea id="swot-s" rows="4" placeholder="Internal advantages you possess..."></textarea></div>
+        <div class="swot-box w"><h4>⚠️ Weaknesses</h4><textarea id="swot-w" rows="4" placeholder="What needs internal improvement..."></textarea></div>
+        <div class="swot-box o"><h4>🌟 Opportunities</h4><textarea id="swot-o" rows="4" placeholder="External factors to capitalize on..."></textarea></div>
+        <div class="swot-box t"><h4>⛔ Threats</h4><textarea id="swot-t" rows="4" placeholder="External factors that may negatively impact..."></textarea></div>
       </div>
 
       <h3 class="section-title">C. Porter's Five Forces</h3>
@@ -814,8 +814,8 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <tr><td>Month 12</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <p class="center-note"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Fill first 3 months manually, then click "Auto Fill" for the rest of the year</p>
-      <div class="table-actions no-print"><button onclick="autoFillCashFlow()"><svg class="bonds-icon bonds-icon--sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L14.5 9.5 21 12 14.5 14.5 12 21 9.5 14.5 3 12 9.5 9.5 12 3z"></path><path d="M5 3l1 1"></path><path d="M19 3l-1 1"></path><path d="M5 21l1-1"></path><path d="M19 21l-1-1"></path></svg> Auto Fill from Revenue</button></div>
+      <p class="center-note">💡 Fill first 3 months manually, then click "Auto Fill" for the rest of the year</p>
+      <div class="table-actions no-print"><button onclick="autoFillCashFlow()">✨ Auto Fill from Revenue</button></div>
     </div>
 
     <!-- ========== PAGE 16: FINANCIAL ANALYSIS ========== -->
@@ -909,7 +909,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <tr class="bg-gold-10"><td class="fw-bold text-gold">Total Assets</td><td><input type="number" class="pf-assets-total" readonly tabindex="-1" /></td><td class="fw-bold text-gold">Total Equity + Liabilities</td><td><input type="number" class="pf-equity-total" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <div class="table-actions no-print"><button onclick="calcProForma()"><svg class="bonds-icon bonds-icon--refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> Calculate Statements</button></div>
+      <div class="table-actions no-print"><button onclick="calcProForma()">🔄 Calculate Statements</button></div>
     </div>
 
     <!-- ========== PAGE 18: SMART ANALYSIS ========== -->
@@ -919,7 +919,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
       <div class="disclaimer" id="smart-loading">
         <p class="text-secondary">Fill in the costs and revenue data in previous pages to analyze automatically...</p>
-        <button class="mt-1" onclick="runSmartAnalysis()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Analyze Now</button>
+        <button class="mt-1" onclick="runSmartAnalysis()">🔍 Analyze Now</button>
       </div>
 
       <div class="hidden" id="smart-results">
@@ -950,13 +950,13 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
         <!-- Recommendations -->
         <div class="card-gold">
-          <div class="panel-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Bonds Recommendations</div>
+          <div class="panel-title">📋 Bonds Recommendations</div>
           <ol class="list-reset" id="smart-recommendations"></ol>
         </div>
 
         <!-- Benchmark Comparison -->
         <div class="mt-1-5">
-          <div class="panel-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Industry Benchmark Comparison</div>
+          <div class="panel-title">📊 Industry Benchmark Comparison</div>
           <table class="template-table" id="benchmark-table">
             <thead><tr><th>Indicator</th><th>Your Project</th><th>Optimal Benchmark</th><th>Rating</th></tr></thead>
             <tbody>
@@ -971,7 +971,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
         <!-- Charts -->
         <div class="mt-1-5">
-          <div class="panel-title"><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> Charts</div>
+          <div class="panel-title">📈 Charts</div>
           <div class="grid-2">
             <div class="card-muted"><canvas id="chart-scenarios" height="180"></canvas></div>
             <div class="card-muted"><canvas id="chart-costs" height="180"></canvas></div>
@@ -1075,7 +1075,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <div class="field-group"><label>Financing Strategy</label><textarea rows="3" placeholder="How will you secure funding? Under what terms? When?"></textarea></div>
       <div class="field-group"><label>Key Results</label><textarea rows="3" placeholder="Key findings from the study..."></textarea></div>
       <div class="field-group"><label>Recommendations & Next Steps</label><textarea rows="3" placeholder="What is the first step? Who starts it? When?"></textarea></div>
-      <div class="field-group"><label>Is the project viable?</label><select data-universal-dropdown="true"><option value="">Select...</option><option value="yes"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Yes, Viable</option><option value="no"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> No, Not Viable</option><option value="conditional"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Viable Under Conditions</option></select></div>
+      <div class="field-group"><label>Is the project viable?</label><select data-universal-dropdown="true"><option value="">Select...</option><option value="yes">✅ Yes, Viable</option><option value="no">❌ No, Not Viable</option><option value="conditional">⚠️ Viable Under Conditions</option></select></div>
       <div class="signature-grid">
         <div class="signature-box"><label>Prepared & Signed</label><input type="text" placeholder="Name & Signature" /></div>
         <div class="signature-box"><label>Date</label><input type="date" /></div>
@@ -1146,7 +1146,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       <!-- SWOT Mini + Recommendations -->
       <div class="dash-bottom-grid">
         <div class="dash-rec-panel">
-          <div class="dash-rec-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Top Recommendations</div>
+          <div class="dash-rec-title">📋 Top Recommendations</div>
           <ol class="dash-rec-list" id="dash-recommendations"></ol>
         </div>
         <div class="dash-swot-grid">
@@ -1272,15 +1272,15 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
       // Benchmarks
       document.getElementById('bm-margin').textContent = margin.toFixed(1) + '%';
-      document.getElementById('bm-margin-status').innerHTML = margin >= 25 ? '<span class="text-green"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Excellent</span>' : margin >= 15 ? '<span class="text-gold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Acceptable</span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Needs Improvement</span>';
+      document.getElementById('bm-margin-status').innerHTML = margin >= 25 ? '<span class="text-green">✅ Excellent</span>' : margin >= 15 ? '<span class="text-gold">⚠️ Acceptable</span>' : '<span class="text-red">❌ Needs Improvement</span>';
       document.getElementById('bm-salary').textContent = hrTotal > 0 && revenue > 0 ? ((hrTotal / revenue) * 100).toFixed(1) + '%' : '-';
-      document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span class="text-green"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>';
+      document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span class="text-green">✅</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-payback').textContent = payback > 0 ? payback.toFixed(1) + ' month' : '-';
-      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= class="text-green" 18 ? '<span><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : payback > 0 && payback <= class="text-gold" 36 ? '<span><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>';
+      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= class="text-green" 18 ? '<span>✅</span>' : payback > 0 && payback <= class="text-gold" 36 ? '<span>⚠️</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-roi').textContent = roi.toFixed(1) + '%';
-      document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span class="text-green"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : roi >= 10 ? '<span class="text-gold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>';
+      document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span class="text-green">✅</span>' : roi >= 10 ? '<span class="text-gold">⚠️</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-be').textContent = totalQty > 0 ? ((beUnits / totalQty) * 100).toFixed(0) + '%' : '-';
-      document.getElementById('bm-be-status').innerHTML = totalQty > 0 && beUnits / totalQty < 0.6 ? '<span class="text-green"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : totalQty > 0 && beUnits / totalQty < 0.9 ? '<span class="text-gold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>';
+      document.getElementById('bm-be-status').innerHTML = totalQty > 0 && beUnits / totalQty < 0.6 ? '<span class="text-green">✅</span>' : totalQty > 0 && beUnits / totalQty < 0.9 ? '<span class="text-gold">⚠️</span>' : '<span class="text-red">❌</span>';
 
       renderCharts(revenue, fixed, variable, net);
       updateDashboard(revenue, fixed, variable, net, margin / 100, roi, payback, beUnits);
@@ -1304,7 +1304,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       const score = Math.min(100, Math.max(0, (marginPct * 30) + (roi * 0.3) + (paybackScore * 0.25) + (salaryRatioScore * 0.15)));
       document.getElementById('dash-score').textContent = Math.round(score);
       document.getElementById('dash-score').style.color = score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626';
-      document.getElementById('dash-score-label').textContent = score >= 75 ? 'Excellent Project <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>' : score >= 50 ? 'Needs Improvement <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>' : 'High Risk <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>';
+      document.getElementById('dash-score-label').textContent = score >= 75 ? 'Excellent Project ✅' : score >= 50 ? 'Needs Improvement ⚠️' : 'High Risk ❌';
       document.getElementById('dash-score-label').style.color = score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626';
       const deg = Math.round(score / 100 * 360);
       const scoreRing = document.getElementById('dash-score-ring');
@@ -1669,14 +1669,14 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         scoreText.style.color = totalScore >= 70 ? '#16a34a' : totalScore >= 40 ? 'var(--gold)' : '#dc2626';
       }
       if (label) {
-        label.textContent = totalScore >= 70 ? '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Ready for Funding' : totalScore >= 40 ? '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Needs Improvement' : '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Not Ready';
+        label.textContent = totalScore >= 70 ? '✅ Ready for Funding' : totalScore >= 40 ? '⚠️ Needs Improvement' : '❌ Not Ready';
         label.style.color = totalScore >= 70 ? '#16a34a' : totalScore >= 40 ? 'var(--gold-bright)' : '#dc2626';
       }
       if (desc) desc.textContent = totalScore >= 70 ? 'Study can be presented to banks and financing entities' : totalScore >= 40 ? 'Complete the missing items to raise readiness' : 'Data and documents are insufficient for financing';
       if (rec) {
-        if (totalScore >= 70) rec.innerHTML = '<span class="text-green-bold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Study is ready for submission.</span> Attach it with your funding application.';
-        else if (totalScore >= 40) rec.innerHTML = '<span class="text-gold-bold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Complete the following:</span><br/>' + criteria.filter(c => !document.getElementById(c.id)?.checked).map(c => '• ' + document.querySelector('label[for="' + c.id + '"]').textContent).join('<br/>');
-        else rec.innerHTML = '<span class="text-red-bold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Study is incomplete.</span> Start by filling the essential data and documents.';
+        if (totalScore >= 70) rec.innerHTML = '<span class="text-green-bold">✅ Study is ready for submission.</span> Attach it with your funding application.';
+        else if (totalScore >= 40) rec.innerHTML = '<span class="text-gold-bold">⚠️ Complete the following:</span><br/>' + criteria.filter(c => !document.getElementById(c.id)?.checked).map(c => '• ' + document.querySelector('label[for="' + c.id + '"]').textContent).join('<br/>');
+        else rec.innerHTML = '<span class="text-red-bold">❌ Study is incomplete.</span> Start by filling the essential data and documents.';
       }
     }
 
@@ -2066,7 +2066,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         }
       }
 
-      alert('Filled ' + (data.nameEn || data.name || code) + ' <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>\nLicenses: ' + (defaults[code]?.length || 0) + ' | VAT: ' + (data.vatRate || '-') + '% | Currency: ' + currencySymbol + '\nSalaries: ' + (bm?.salaries ? Object.keys(bm.salaries).length : 0) + ' roles | Utilities: ' + (bm?.utilities ? Object.keys(bm.utilities).length : 0));
+      alert('Filled ' + (data.nameEn || data.name || code) + ' ✅\nLicenses: ' + (defaults[code]?.length || 0) + ' | VAT: ' + (data.vatRate || '-') + '% | Currency: ' + currencySymbol + '\nSalaries: ' + (bm?.salaries ? Object.keys(bm.salaries).length : 0) + ' roles | Utilities: ' + (bm?.utilities ? Object.keys(bm.utilities).length : 0));
     }
 
     // ===== Supabase Smart Import =====
@@ -2089,7 +2089,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
     async function fillFromSupabase() {
       if (!currentUser || !sb) {
-        alert('Please sign in first <svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg>');
+        alert('Please sign in first 🔐');
         return;
       }
       const userId = currentUser.id;
@@ -2185,18 +2185,18 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           const swotS = document.querySelector('.swot-box.s textarea');
           const swotW = document.querySelector('.swot-box.w textarea');
           if (swotS && !swotS.value && strengths.length) {
-            swotS.value = strengths.map(s => '<svg class="bonds-icon bonds-icon--star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> ' + s.recommendation).join('\n');
+            swotS.value = strengths.map(s => '⭐ ' + s.recommendation).join('\n');
             filledCount++;
           }
           if (swotW && !swotW.value && weaknesses.length) {
-            swotW.value = weaknesses.map(s => '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + s.recommendation).join('\n');
+            swotW.value = weaknesses.map(s => '⚠️ ' + s.recommendation).join('\n');
             filledCount++;
           }
         }
       } catch (e) {  }
 
       calcFinancials();
-      alert('Import complete <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>\n' + filledCount + ' fields filled from your data');
+      alert('Import complete ✅\n' + filledCount + ' fields filled from your data');
     }
 
     // ===== ROI & Payback =====
@@ -2263,7 +2263,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         data['f' + i] = el.type === 'checkbox' ? el.checked : el.value;
       });
       localStorage.setItem('bonds_feasibility_v2', JSON.stringify(data));
-      alert('Draft saved successfully <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
+      alert('Draft saved successfully ✅');
     }
     function loadDraft() {
       const raw = localStorage.getItem('bonds_feasibility_v2');
@@ -2281,7 +2281,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       calcCapital();
       calcHRGrandTotal();
       calcToolsGrandTotal();
-      alert('Draft loaded successfully <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
+      alert('Draft loaded successfully ✅');
     }
     function clearAll() {
       if (!confirm('Are you sure you want to clear all data?')) return;
@@ -2328,7 +2328,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         });
         calcFinancials(); calcCashFlow(); calcCapital(); calcHRGrandTotal(); calcToolsGrandTotal();
         const indicator = document.getElementById('auto-save-indicator');
-        if (indicator) { indicator.textContent = '<svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Restored auto-saved draft'; indicator.style.opacity = '1'; setTimeout(() => { indicator.style.opacity = '0'; indicator.textContent = '<svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Auto-saved'; }, 3000); }
+        if (indicator) { indicator.textContent = '💾 Restored auto-saved draft'; indicator.style.opacity = '1'; setTimeout(() => { indicator.style.opacity = '0'; indicator.textContent = '💾 Auto-saved'; }, 3000); }
       } catch(e) {  }
     }
     // Start auto-save listeners
@@ -2383,7 +2383,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         doc.setTextColor(22, 163, 74);
         doc.setLineWidth(1.5);
         doc.roundedRect(55, 200, 100, 25, 5, 5, 'D');
-        addText('<svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> Ready for Funding Submission', 105, 215, { align: 'center' });
+        addText('✓ Ready for Funding Submission', 105, 215, { align: 'center' });
       }
       doc.setTextColor(150, 150, 150);
       doc.setFontSize(9);
@@ -2504,13 +2504,13 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       doc.setFontSize(14);
       if (score >= 70) {
         doc.setTextColor(22, 163, 74);
-        addText('<svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> Ready for Funding', 105, 110, { align: 'center' });
+        addText('✓ Ready for Funding', 105, 110, { align: 'center' });
       } else if (score >= 40) {
         doc.setTextColor(212, 168, 83);
-        addText('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Needs Improvement', 105, 110, { align: 'center' });
+        addText('⚠ Needs Improvement', 105, 110, { align: 'center' });
       } else {
         doc.setTextColor(220, 38, 38);
-        addText('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Not Ready', 105, 110, { align: 'center' });
+        addText('❌ Not Ready', 105, 110, { align: 'center' });
       }
       y = 130;
       doc.setFillColor(212, 168, 83);
@@ -2536,7 +2536,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         addText(label, 25, y);
         addText(weight + '', 100, y, { align: 'center' });
         doc.setTextColor(checked ? 22 : 220, checked ? 163 : 38, checked ? 74 : 38);
-        addText(checked ? '<svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>', 160, y, { align: 'center' });
+        addText(checked ? '✓' : '✗', 160, y, { align: 'center' });
         doc.setDrawColor(220, 220, 220);
         doc.line(20, y + 2, 190, y + 2);
         y += 10;
@@ -2755,13 +2755,13 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         const hasResearch = SECTION_RESEARCH_MAP[pageId];
         mount.innerHTML = `
           <div class="section-gallery">
-            <div class="section-gallery-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Section Images & Attachments</div>
+            <div class="section-gallery-title">📎 Section Images & Attachments</div>
             <div class="gallery-grid"></div>
             <div class="btn-row-sm">
               <input class="hidden" type="file" accept="image/*" multiple onchange="handleGalleryFiles('${pageId}', this.files); this.value='';" />
               <button class="flex-btn" onclick="this.previousElementSibling.click()">+ Upload Images</button>
-              <button class="flex-btn-sky" onclick="openImageSearch('${pageId}')"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Search Images</button>
-              ${hasResearch ? `<button class="flex-btn-gold" onclick="openSectionResearch('${pageId}')"><svg class="bonds-icon bonds-icon--brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg> Smart Research</button>` : ''}
+              <button class="flex-btn-sky" onclick="openImageSearch('${pageId}')">🔍 Search Images</button>
+              ${hasResearch ? `<button class="flex-btn-gold" onclick="openSectionResearch('${pageId}')">🧠 Smart Research</button>` : ''}
             </div>
             <div class="gallery-compress-info"></div>
           </div>`;
@@ -2781,7 +2781,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           <div class="imgsearch-overlay" onclick="if(event.target===this)closeImageSearch()"></div>
           <div class="imgsearch-panel">
             <div class="imgsearch-header">
-              <h3><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Search Images</h3>
+              <h3>🔍 Search Images</h3>
               <button class="imgsearch-close" onclick="closeImageSearch()">&times;</button>
             </div>
             <div class="imgsearch-body">
@@ -2914,7 +2914,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       },
       'page-tech-impact': {
         title: 'Smart Research — Tech Impact',
-        icon: '<svg class="bonds-icon bonds-icon--laptop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><line x1="2" y1="20" x2="22" y2="20"></line></svg>',
+        icon: '💻',
         dataPath: 'technological_impact',
         fields: {
           'tech-positive': 'positive',
@@ -2924,7 +2924,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       },
       'page-country-economy': {
         title: 'Smart Research — National Economy',
-        icon: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>',
+        icon: '📊',
         dataPath: 'country_economy',
         fields: {
           'econ-gdp': 'gdp_growth',
@@ -2937,13 +2937,13 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       },
       'page-market-analysis': {
         title: 'Smart Research — Market Analysis',
-        icon: '<svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>',
+        icon: '📈',
         dataPath: 'competitors',
         special: 'competitors'
       },
       'page-marketing': {
         title: 'Smart Research — Marketing',
-        icon: '<svg class="bonds-icon bonds-icon--megaphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg>',
+        icon: '📢',
         dataPath: 'marketing_4ps',
         fields: {
           'marketing-product': 'product_strategy',
@@ -2954,7 +2954,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       },
       'page-legal': {
         title: 'Smart Research — Legal Requirements',
-        icon: '<svg class="bonds-icon bonds-icon--scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-8"></path><path d="M12 14l6-3v4a6 6 0 0 1-6 3 6 6 0 0 1-6-3v-4l6 3z"></path><path d="M12 14V7"></path><path d="M9 7h6"></path><circle cx="12" cy="4" r="2"></circle></svg>',
+        icon: '⚖️',
         dataPath: 'legal_requirements',
         fields: {
           'legal-insurance': 'insurance',
@@ -2964,7 +2964,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       },
       'page-smart': {
         title: 'Smart Research — SWOT',
-        icon: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>',
+        icon: '🧩',
         dataPath: 'swot',
         fields: {
           'swot-s': (data) => Array.isArray(data?.strengths) ? data.strengths.join('\n') : data?.strengths,
@@ -3168,7 +3168,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       calcFinancials(); calcCashFlow(); calcCapital();
       runSmartAnalysis(); updateProgress();
       closeSectionResearch();
-      alert(filledCount + ' fields filled in this section <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
+      alert(filledCount + ' fields filled in this section ✅');
     }
 
     // ===== Smart Research Agent =====
@@ -3383,7 +3383,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
       calcFinancials(); calcCashFlow(); calcCapital();
       runSmartAnalysis(); updateProgress(); closeResearchModal();
-      alert(filledCount + ' fields filled successfully <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
+      alert(filledCount + ' fields filled successfully ✅');
     }
 
     document.addEventListener('change', function(e) {
@@ -3406,10 +3406,10 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
           const arrayBuffer = await file.arrayBuffer();
           const result = await mammoth.extractRawText({ arrayBuffer });
           document.getElementById('feasibility-text').value = result.value;
-          status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Text extracted from Word file. Click "Analyze & Fill Template".';
+          status.textContent = '✅ Text extracted from Word file. Click "Analyze & Fill Template".';
         } else if (file.name.toLowerCase().endsWith('.pdf')) {
           if (!window.pdfjsLib) {
-            status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> PDF library not loaded. Try refreshing or use .docx/.txt';
+            status.textContent = '⚠️ PDF library not loaded. Try refreshing or use .docx/.txt';
             status.style.color = '#f87171';
             return;
           }
@@ -3422,17 +3422,17 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
             extractedText += content.items.map(item => item.str).join(' ') + '\n';
           }
           document.getElementById('feasibility-text').value = extractedText;
-          status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Text extracted from PDF (' + pdf.numPages + ' pages). Click "Analyze & Fill Template".';
+          status.textContent = '✅ Text extracted from PDF (' + pdf.numPages + ' pages). Click "Analyze & Fill Template".';
         } else if (file.name.toLowerCase().endsWith('.txt')) {
           const text = await file.text();
           document.getElementById('feasibility-text').value = text;
-          status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Text file read. Click "Analyze & Fill Template".';
+          status.textContent = '✅ Text file read. Click "Analyze & Fill Template".';
         } else {
-          status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Only .docx, .pdf, and .txt supported — use https://convertio.co to convert.';
+          status.textContent = '⚠️ Only .docx, .pdf, and .txt supported — use https://convertio.co to convert.';
           status.style.color = '#f87171';
         }
       } catch (e) {
-        status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Error reading file: ' + e.message;
+        status.textContent = '❌ Error reading file: ' + e.message;
         status.style.color = '#f87171';
       }
     }
@@ -3580,7 +3580,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       fillTemplateFromAnalysis(d, checkedKeys);
       closePreview();
       const status = document.getElementById('import-status');
-      status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Template filled with selected data! Review and complete missing fields.';
+      status.textContent = '✅ Template filled with selected data! Review and complete missing fields.';
       status.style.color = '#4ade80';
       document.getElementById('page-vision').scrollIntoView({ behavior: 'smooth' });
     }
@@ -3746,7 +3746,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       runSmartAnalysis();
       updateProgress();
 
-      alert('Filled ' + filledCount + ' fields from imported study <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
+      alert('Filled ' + filledCount + ' fields from imported study ✅');
     }
 
     function setVal(id, value) {

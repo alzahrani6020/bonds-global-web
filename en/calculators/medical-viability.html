@@ -84,8 +84,8 @@
         <div class="med-badge">Select Your Business Activity</div>
         <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activity" class="activity-select" onchange="onActivityChange()">
           <option value="pharmacy">🩺 Pharmacy</option>
-          <option value="clinic"><svg class="bonds-icon bonds-icon--hospital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 8v8"></path><path d="M8 12h8"></path></svg> Clinic / Medical Center</option>
-          <option value="lab"><svg class="bonds-icon bonds-icon--flask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4"></path><path d="M12 2v8"></path><path d="M17 21H7a2 2 0 0 1-1.73-3l7-12a2 2 0 0 1 3.46 0l7 12A2 2 0 0 1 17 21z"></path></svg> Medical Lab</option>
+          <option value="clinic">🏥 Clinic / Medical Center</option>
+          <option value="lab">🧪 Medical Lab</option>
         </select>
       </div>
 
@@ -93,31 +93,31 @@
         <div class="reveal calc-panel-default calc-panel-default--compact calc-panel-default--blur">
           <h2 class="calc-title-xl">Project Data</h2>
 
-          <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Setup Costs</div>
+          <div class="med-section-title">📋 Setup Costs</div>
           <div class="bonds-form-row" id="setupFields"></div>
 
           <div class="med-section-title"> Monthly Costs</div>
           <div class="bonds-form-row" id="monthlyFields"></div>
 
-          <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Expected Revenue</div>
+          <div class="med-section-title">💰 Expected Revenue</div>
           <div class="bonds-form-row" id="revenueFields"></div>
 
-          <div class="med-section-title" id="variableSectionTitle"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Activity Settings</div>
+          <div class="med-section-title" id="variableSectionTitle">⚕️ Activity Settings</div>
           <div class="bonds-form-row" id="variableFields"></div>
 
-          <div class="med-section-title"><svg class="bonds-icon bonds-icon--settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Growth Assumptions</div>
+          <div class="med-section-title">⚙️ Growth Assumptions</div>
           <div class="bonds-form-row" id="growthFields"></div>
 
-          <div class="med-section-title"><svg class="bonds-icon bonds-icon--landmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M4 21V10l8-6 8 6v11"></path><path d="M9 21v-6h6v6"></path><path d="M12 2v4"></path></svg> Tax & Zakat</div>
+          <div class="med-section-title">🏛️ Tax & Zakat</div>
           <div class="bonds-form-row" id="taxFields"></div>
 
-          <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Service Mix</div>
+          <div class="med-section-title">🧬 Service Mix</div>
           <div class="bonds-form-row" id="serviceMixFields"></div>
 
-          <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Waste &amp; Expected Incidentals</div>
+          <div class="med-section-title">⚠️ Waste &amp; Expected Incidentals</div>
           <div class="bonds-form-row">
             <div class="bonds-form-group">
-              <label>Waste &amp; Expected Incidentals (%) <abbr title="Reserve percentage for waste and unexpected incidentals: material waste, production loss, sudden repairs, minor spare parts"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+              <label>Waste &amp; Expected Incidentals (%) <abbr title="Reserve percentage for waste and unexpected incidentals: material waste, production loss, sudden repairs, minor spare parts">ⓘ</abbr></label>
               <input id="wasteAndIncidentalsPct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" />
             </div>
           </div>
@@ -139,7 +139,7 @@
             <h2 class="calc-title-xl">Results</h2>
             <div id="resultContent">
               <div class="calc-empty-state-box">
-                <div class="calc-empty-icon-lg"><svg class="bonds-icon bonds-icon--hospital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></div>
+                <div class="calc-empty-icon-lg">🏥</div>
                 <p>Select an activity, enter your data, then click "Calculate Results".</p>
               </div>
             </div>
@@ -263,7 +263,7 @@
       const container = document.getElementById(containerId);
       container.innerHTML = '';
       fields.forEach(function(field) {
-        const abbr = field.abbr ? ` <abbr title="${field.abbr}"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr>` : '';
+        const abbr = field.abbr ? ` <abbr title="${field.abbr}">ⓘ</abbr>` : '';
         const min = field.min !== undefined ? `min="${field.min}"` : 'min="0"';
         const max = field.max !== undefined ? `max="${field.max}"` : '';
         const value = field.value !== undefined ? `value="${field.value}"` : '';
@@ -279,7 +279,7 @@
     function onActivityChange() {
       const activity = document.getElementById('activity').value;
       const config = ACTIVITIES[activity];
-      document.getElementById('variableSectionTitle').textContent = `<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ${config.name} Settings`;
+      document.getElementById('variableSectionTitle').textContent = `⚕️ ${config.name} Settings`;
       renderFields('setupFields', config.setupFields);
       renderFields('monthlyFields', config.monthlyFields);
       renderFields('revenueFields', config.revenueFields);
@@ -290,7 +290,7 @@
       if (window._medChart) { window._medChart.destroy(); window._medChart = null; }
       document.getElementById('resultContent').innerHTML = `
         <div style="text-align:center; color:var(--text-secondary); padding: var(--space-8) 0;">
-          <div style="font-size:3rem; margin-bottom:var(--space-4);"><svg class="bonds-icon bonds-icon--hospital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></div>
+          <div style="font-size:3rem; margin-bottom:var(--space-4);">🏥</div>
           <p>Enter your ${config.name.toLowerCase()} data, then click "Calculate Results".</p>
         </div>`;
       updateShareLink();
@@ -367,7 +367,7 @@
       const circumference = 339.292;
       const offset = circumference * (1 - inv.score / 100);
       const verdictClass = inv.verdict === 'excellent' || inv.verdict === 'good' ? 'profit' : (inv.verdict === 'fair' ? 'warning' : 'loss');
-      const verdictIcon = inv.verdict === 'excellent' ? '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>' : (inv.verdict === 'good' ? '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>' : (inv.verdict === 'fair' ? '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>' : '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>'));
+      const verdictIcon = inv.verdict === 'excellent' ? '🚀' : (inv.verdict === 'good' ? '✅' : (inv.verdict === 'fair' ? '⚠️' : '🛑'));
 
       const recommendationsHTML = (inv.recommendationsEn || inv.recommendations).map(function(rec) {
         return `<li>${rec}</li>`;
@@ -377,19 +377,19 @@
       let extraSummary = '';
       if (activity === 'pharmacy') {
         extraMetrics = `
-          ${r.lossDetail.insuranceAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--hospital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('en-US')} SAR</div><div class="label">Insurance Impact / Month</div></div>` : ''}
-          ${r.lossDetail.discountAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg></div><div class="value" style="color:#ef4444">${r.lossDetail.discountAmount.toLocaleString('en-US')} SAR</div><div class="label">Discount Impact / Month</div></div>` : ''}
-          ${r.variableDetail.expiryLoss > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div><div class="value" style="color:#ef4444">${r.variableDetail.expiryLoss.toLocaleString('en-US')} SAR</div><div class="label">Expiry Loss / Month</div></div>` : ''}`;
+          ${r.lossDetail.insuranceAmount > 0 ? `<div class="kpi-card"><div class="icon">🏥</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('en-US')} SAR</div><div class="label">Insurance Impact / Month</div></div>` : ''}
+          ${r.lossDetail.discountAmount > 0 ? `<div class="kpi-card"><div class="icon">🏷️</div><div class="value" style="color:#ef4444">${r.lossDetail.discountAmount.toLocaleString('en-US')} SAR</div><div class="label">Discount Impact / Month</div></div>` : ''}
+          ${r.variableDetail.expiryLoss > 0 ? `<div class="kpi-card"><div class="icon">📅</div><div class="value" style="color:#ef4444">${r.variableDetail.expiryLoss.toLocaleString('en-US')} SAR</div><div class="label">Expiry Loss / Month</div></div>` : ''}`;
         extraSummary = `<p>• Insurance: ${r.lossDetail.insuranceAmount.toLocaleString('en-US')} SAR | Discounts: ${r.lossDetail.discountAmount.toLocaleString('en-US')} SAR | Expiry/spoilage: ${r.variableDetail.expiryLoss.toLocaleString('en-US')} SAR</p>`;
       } else if (activity === 'clinic') {
         extraMetrics = `
-          ${r.lossDetail.noShowLoss > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value" style="color:#ef4444">${r.lossDetail.noShowLoss.toLocaleString('en-US')} SAR</div><div class="label">No-Show Loss / Month</div></div>` : ''}
-          ${r.lossDetail.insuranceRejectionAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceRejectionAmount.toLocaleString('en-US')} SAR</div><div class="label">Insurance Rejection / Month</div></div>` : ''}`;
+          ${r.lossDetail.noShowLoss > 0 ? `<div class="kpi-card"><div class="icon">🚫</div><div class="value" style="color:#ef4444">${r.lossDetail.noShowLoss.toLocaleString('en-US')} SAR</div><div class="label">No-Show Loss / Month</div></div>` : ''}
+          ${r.lossDetail.insuranceRejectionAmount > 0 ? `<div class="kpi-card"><div class="icon">📝</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceRejectionAmount.toLocaleString('en-US')} SAR</div><div class="label">Insurance Rejection / Month</div></div>` : ''}`;
         extraSummary = `<p>• Attended visits: ${Math.round(r.lossDetail.attendedUnits).toLocaleString('en-US')} | No-shows: ${r.lossDetail.noShowLoss.toLocaleString('en-US')} SAR | Insurance rejection: ${r.lossDetail.insuranceRejectionAmount.toLocaleString('en-US')} SAR</p>`;
       } else if (activity === 'lab') {
         extraMetrics = `
-          ${r.lossDetail.insuranceAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--hospital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('en-US')} SAR</div><div class="label">Insurance Impact / Month</div></div>` : ''}
-          ${r.variableDetail.failedTestsCost > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--flask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4"></path><path d="M12 2v8"></path><path d="M17 21H7a2 2 0 0 1-1.73-3l7-12a2 2 0 0 1 3.46 0l7 12A2 2 0 0 1 17 21z"></path></svg></div><div class="value" style="color:#ef4444">${r.variableDetail.failedTestsCost.toLocaleString('en-US')} SAR</div><div class="label">Repeat Tests Cost / Month</div></div>` : ''}`;
+          ${r.lossDetail.insuranceAmount > 0 ? `<div class="kpi-card"><div class="icon">🏥</div><div class="value" style="color:#ef4444">${r.lossDetail.insuranceAmount.toLocaleString('en-US')} SAR</div><div class="label">Insurance Impact / Month</div></div>` : ''}
+          ${r.variableDetail.failedTestsCost > 0 ? `<div class="kpi-card"><div class="icon">🧪</div><div class="value" style="color:#ef4444">${r.variableDetail.failedTestsCost.toLocaleString('en-US')} SAR</div><div class="label">Repeat Tests Cost / Month</div></div>` : ''}`;
         extraSummary = `<p>• Insurance: ${r.lossDetail.insuranceAmount.toLocaleString('en-US')} SAR | Repeat tests: ${r.variableDetail.failedTestsCost.toLocaleString('en-US')} SAR</p>`;
       }
 
@@ -421,27 +421,27 @@
           </div>
         </div>
 
-        <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Smart Recommendations</div>
+        <div class="med-section-title">🎯 Smart Recommendations</div>
         <ul class="recommendation-list" style="text-align:left;">
           ${recommendationsHTML}
         </ul>
 
-        <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Key Performance Indicators</div>
+        <div class="med-section-title">📊 Key Performance Indicators</div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value">${r.monthlyProfit.toLocaleString('en-US')} SAR</div><div class="label">Expected Monthly Profit</div><div class="sub">Margin ${r.profitMargin.toFixed(1)}%</div></div>
-          <div class="kpi-card"><div class="icon">⏱</div><div class="value">${r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths) + ' months'}</div><div class="label">Payback Period</div><div class="sub">${r.setupTotal.toLocaleString('en-US')} SAR investment</div></div>
-          <div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value">${Math.ceil(r.beUnitsPerDay)} ${config.unitLabel}s</div><div class="label">Daily Break-Even</div><div class="sub">You plan ${r.dailyUnits} ${config.unitLabel}s/day</div></div>
-          <div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></div><div class="value">${r.grossRevenue.toLocaleString('en-US')} SAR</div><div class="label">Gross Revenue / Month</div><div class="sub">${r.dailyUnits * r.workDays} ${config.unitLabel}s/month</div></div>
-          <div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--construction" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 22h20"></path><path d="M6 22V11l6-4 6 4v11"></path><path d="M10 22v-5h4v5"></path><path d="M12 2v5"></path></svg></div><div class="value">${r.setupTotal.toLocaleString('en-US')} SAR</div><div class="label">Setup Cost</div><div class="sub">Required capital</div></div>
-          <div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value">${r.deductionAmount.toLocaleString('en-US')} SAR</div><div class="label">Deductions / Month</div><div class="sub">Insurance, discounts, tax</div></div>
+          <div class="kpi-card"><div class="icon">💰</div><div class="value">${r.monthlyProfit.toLocaleString('en-US')} SAR</div><div class="label">Expected Monthly Profit</div><div class="sub">Margin ${r.profitMargin.toFixed(1)}%</div></div>
+          <div class="kpi-card"><div class="icon">⏱️</div><div class="value">${r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths) + ' months'}</div><div class="label">Payback Period</div><div class="sub">${r.setupTotal.toLocaleString('en-US')} SAR investment</div></div>
+          <div class="kpi-card"><div class="icon">🎯</div><div class="value">${Math.ceil(r.beUnitsPerDay)} ${config.unitLabel}s</div><div class="label">Daily Break-Even</div><div class="sub">You plan ${r.dailyUnits} ${config.unitLabel}s/day</div></div>
+          <div class="kpi-card"><div class="icon">📈</div><div class="value">${r.grossRevenue.toLocaleString('en-US')} SAR</div><div class="label">Gross Revenue / Month</div><div class="sub">${r.dailyUnits * r.workDays} ${config.unitLabel}s/month</div></div>
+          <div class="kpi-card"><div class="icon">🏗️</div><div class="value">${r.setupTotal.toLocaleString('en-US')} SAR</div><div class="label">Setup Cost</div><div class="sub">Required capital</div></div>
+          <div class="kpi-card"><div class="icon">📉</div><div class="value">${r.deductionAmount.toLocaleString('en-US')} SAR</div><div class="label">Deductions / Month</div><div class="sub">Insurance, discounts, tax</div></div>
           ${extraMetrics}
-          ${r.vatAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--landmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M4 21V10l8-6 8 6v11"></path><path d="M9 21v-6h6v6"></path><path d="M12 2v4"></path></svg></div><div class="value" style="color:#ef4444">${r.vatAmount.toLocaleString('en-US')} SAR</div><div class="label">Tax / Month</div></div>` : ''}
-          ${r.zakatAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value" style="color:#ef4444">${r.zakatAmount.toLocaleString('en-US')} SAR</div><div class="label">Zakat / Month</div></div>` : ''}
-          ${r.extraServiceRevenue > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value">${r.extraServiceRevenue.toLocaleString('en-US')} SAR</div><div class="label">Additional Services / Month</div></div>` : ''}
-          ${r.wasteAndIncidentalsAmount > 0 ? `<div class="kpi-card"><div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div><div class="value" style="color:#ef4444">${r.wasteAndIncidentalsAmount.toLocaleString('en-US')} SAR</div><div class="label">Waste &amp; Incidentals / Month</div><div class="sub">${r.wasteAndIncidentalsPct.toFixed(1)}%</div></div>` : ''}
+          ${r.vatAmount > 0 ? `<div class="kpi-card"><div class="icon">🏛️</div><div class="value" style="color:#ef4444">${r.vatAmount.toLocaleString('en-US')} SAR</div><div class="label">Tax / Month</div></div>` : ''}
+          ${r.zakatAmount > 0 ? `<div class="kpi-card"><div class="icon">🕌</div><div class="value" style="color:#ef4444">${r.zakatAmount.toLocaleString('en-US')} SAR</div><div class="label">Zakat / Month</div></div>` : ''}
+          ${r.extraServiceRevenue > 0 ? `<div class="kpi-card"><div class="icon">🧬</div><div class="value">${r.extraServiceRevenue.toLocaleString('en-US')} SAR</div><div class="label">Additional Services / Month</div></div>` : ''}
+          ${r.wasteAndIncidentalsAmount > 0 ? `<div class="kpi-card"><div class="icon">⚠️</div><div class="value" style="color:#ef4444">${r.wasteAndIncidentalsAmount.toLocaleString('en-US')} SAR</div><div class="label">Waste &amp; Incidentals / Month</div><div class="sub">${r.wasteAndIncidentalsPct.toFixed(1)}%</div></div>` : ''}
         </div>
 
-        <div class="med-section-title"><svg class="bonds-icon bonds-icon--dice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><circle cx="15.5" cy="15.5" r="1.5"></circle></svg> Scenarios</div>
+        <div class="med-section-title">🎲 Scenarios</div>
         <div class="scenario-grid">
           <div class="scenario-card pessimistic">
             <div class="scenario-label" style="color:#ef4444;">Pessimistic</div>
@@ -460,7 +460,7 @@
           </div>
         </div>
 
-        <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Sensitivity Analysis</div>
+        <div class="med-section-title">📉 Sensitivity Analysis</div>
         <table class="sensitivity-table">
           <thead><tr><th>Change in Daily Units</th><th>${config.unitLabel}s / Day</th><th>Monthly Profit</th><th>Yearly Profit</th></tr></thead>
           <tbody>
@@ -472,28 +472,28 @@
           </tbody>
         </table>
 
-        <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> 12-Month Performance Forecast</div>
+        <div class="med-section-title">📊 12-Month Performance Forecast</div>
         <div class="chart-wrap"><canvas id="medChart"></canvas></div>
 
-        <div class="med-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Detailed Summary</div>
+        <div class="med-section-title">📋 Detailed Summary</div>
         <div class="bonds-card" style="text-align:left;">
-          <p><strong><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Revenue:</strong></p>
+          <p><strong>💰 Revenue:</strong></p>
           <p>• Daily: ${(r.unitPrice * r.dailyUnits).toLocaleString('en-US')} SAR | Monthly: ${r.grossRevenue.toLocaleString('en-US')} SAR | Yearly: ${(r.grossRevenue * 12).toLocaleString('en-US')} SAR</p>
           <p>• Net after deductions: ${r.netRevenue.toLocaleString('en-US')} SAR/month</p>
           ${extraSummary}
           <p>• Assumed monthly growth: ${r.monthlyGrowthPct || 0}%</p>
-          ${r.vatAmount > 0 || r.zakatAmount > 0 ? `<p style="margin-top:0.5rem;"><strong><svg class="bonds-icon bonds-icon--landmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M4 21V10l8-6 8 6v11"></path><path d="M9 21v-6h6v6"></path><path d="M12 2v4"></path></svg> Tax & Zakat:</strong></p><p>• Tax: ${r.vatAmount.toLocaleString('en-US')} SAR/month (${r.vatRate}%) | Zakat: ${r.zakatAmount.toLocaleString('en-US')} SAR/month (${r.zakatRate}%)</p>` : ''}
-          ${r.extraServiceRevenue > 0 || r.extraServiceCost > 0 ? `<p style="margin-top:0.5rem;"><strong><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Service Mix:</strong></p><p>• Additional revenue: ${r.extraServiceRevenue.toLocaleString('en-US')} SAR/month | Cost: ${r.extraServiceCost.toLocaleString('en-US')} SAR/month | Contribution: ${(r.extraServiceRevenue - r.extraServiceCost).toLocaleString('en-US')} SAR/month</p>` : ''}
-          <p style="margin-top:0.5rem;"><strong><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Costs:</strong></p>
+          ${r.vatAmount > 0 || r.zakatAmount > 0 ? `<p style="margin-top:0.5rem;"><strong>🏛️ Tax & Zakat:</strong></p><p>• Tax: ${r.vatAmount.toLocaleString('en-US')} SAR/month (${r.vatRate}%) | Zakat: ${r.zakatAmount.toLocaleString('en-US')} SAR/month (${r.zakatRate}%)</p>` : ''}
+          ${r.extraServiceRevenue > 0 || r.extraServiceCost > 0 ? `<p style="margin-top:0.5rem;"><strong>🧬 Service Mix:</strong></p><p>• Additional revenue: ${r.extraServiceRevenue.toLocaleString('en-US')} SAR/month | Cost: ${r.extraServiceCost.toLocaleString('en-US')} SAR/month | Contribution: ${(r.extraServiceRevenue - r.extraServiceCost).toLocaleString('en-US')} SAR/month</p>` : ''}
+          <p style="margin-top:0.5rem;"><strong>📉 Costs:</strong></p>
           <p>• Fixed: ${r.monthlyFixed.toLocaleString('en-US')} SAR | Variable: ${r.monthlyVariable.toLocaleString('en-US')} SAR | Waste &amp; Incidentals: ${r.wasteAndIncidentalsAmount.toLocaleString('en-US')} SAR | Total: ${r.monthlyTotal.toLocaleString('en-US')} SAR</p>
-          <p style="margin-top:0.5rem;"><strong><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Profitability:</strong></p>
+          <p style="margin-top:0.5rem;"><strong>📊 Profitability:</strong></p>
           <p>• Monthly profit: ${r.monthlyProfit.toLocaleString('en-US')} SAR | Yearly profit: ${r.yearlyProfit.toLocaleString('en-US')} SAR | Margin: ${r.profitMargin.toFixed(1)}%</p>
-          <p style="margin-top:0.5rem;"><strong><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Break-Even:</strong></p>
+          <p style="margin-top:0.5rem;"><strong>🎯 Break-Even:</strong></p>
           <p>• Daily: ${Math.ceil(r.beUnitsPerDay)} ${config.unitLabel}s | Monthly: ${Math.ceil(r.beUnitsPerMonth)} ${config.unitLabel}s | Revenue: ${r.beRevenuePerMonth.toLocaleString('en-US')} SAR</p>
         </div>
 
         <div class="cta-section reveal">
-          <h3><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Want a Professional Feasibility Study?</h3>
+          <h3>🚀 Want a Professional Feasibility Study?</h3>
           <p>Get a detailed financial report + operational plan + risk analysis from Bonds experts. We'll contact you within 24 hours.</p>
           <form class="cta-form" onsubmit="return submitLeadForm(event)">
             <input type="text" id="leadName" placeholder="Full Name" required />
@@ -502,12 +502,12 @@
             <input type="text" id="leadCity" placeholder="City" />
             <button type="submit" class="bonds-btn bonds-btn-primary" style="grid-column: 1 / -1; max-width: 320px; margin: 0 auto;">Request Your Free Study</button>
           </form>
-          <div id="ctaSuccess" class="cta-success"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Your request has been sent. The Bonds team will contact you soon.</div>
+          <div id="ctaSuccess" class="cta-success">✅ Your request has been sent. The Bonds team will contact you soon.</div>
         </div>
 
         <div style="text-align:center; margin-top: var(--space-6); display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
-          <button class="bonds-btn bonds-btn-primary" onclick="exportExcelMed()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Excel</button>
-          <button class="bonds-btn bonds-btn-secondary" onclick="exportPDFMed()"><svg class="bonds-icon bonds-icon--printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg> PDF</button>
+          <button class="bonds-btn bonds-btn-primary" onclick="exportExcelMed()">📊 Excel</button>
+          <button class="bonds-btn bonds-btn-secondary" onclick="exportPDFMed()">🖨️ PDF</button>
         </div>
       `;
       updateShareLink();
@@ -544,7 +544,7 @@
         if (el && f.value !== undefined) el.value = f.value;
       });
       calculateAll();
-      BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Example loaded', 'success');
+      BondsUI.toast('✅ Example loaded', 'success');
     }
 
     function resetCalc() {
@@ -557,7 +557,7 @@
       if (window._medChart) { window._medChart.destroy(); window._medChart = null; }
       document.getElementById('resultContent').innerHTML = `
         <div style="text-align:center; color:var(--text-secondary); padding: var(--space-8) 0;">
-          <div style="font-size:3rem; margin-bottom:var(--space-4);"><svg class="bonds-icon bonds-icon--hospital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></div>
+          <div style="font-size:3rem; margin-bottom:var(--space-4);">🏥</div>
           <p>Enter your data, then click "Calculate Results".</p>
         </div>`;
       updateShareLink();
@@ -578,7 +578,7 @@
       const input = document.getElementById('shareLink');
       input.select();
       document.execCommand('copy');
-      BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Link copied', 'success');
+      BondsUI.toast('✅ Link copied', 'success');
     }
 
     function loadFromURL() {
@@ -605,7 +605,7 @@
     }
 
     async function exportExcelMed() {
-      if (!window._medResult) { BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Calculate results first', 'warning'); return; }
+      if (!window._medResult) { BondsUI.toast('⚠️ Calculate results first', 'warning'); return; }
       await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
       const r = window._medResult;
       const rows = [
@@ -650,7 +650,7 @@
     }
 
     function exportPDFMed() {
-      if (!window._medResult) { BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Calculate results first', 'warning'); return; }
+      if (!window._medResult) { BondsUI.toast('⚠️ Calculate results first', 'warning'); return; }
       const r = window._medResult;
       const content = document.getElementById('resultContent').innerHTML;
       openPrintWindow({ content: content, title: 'Medical Viability Report', headerTitle: `Medical Viability Report — ${ACTIVITIES[r.activity].name}`, lang: 'en' });

@@ -56,7 +56,7 @@
         </div>
         <div class="method-tabs">
           <button type="button" class="method-tab active" data-method="email">البريد الإلكتروني</button>
-          <button type="button" class="method-tab" data-method="phone"><svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> الجوال</button>
+          <button type="button" class="method-tab" data-method="phone">📱 الجوال</button>
         </div>
         <div id="loginEmailSection" class="method-panel active">
         <form id="loginForm">
@@ -68,7 +68,7 @@
             <label for="loginPassword">كلمة المرور</label>
             <div class="pw-wrap">
               <input type="password" id="loginPassword" required placeholder="••••••••" dir="ltr" />
-              <button type="button" class="pw-toggle" data-target="loginPassword" title="إظهار/إخفاء"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
+              <button type="button" class="pw-toggle" data-target="loginPassword" title="إظهار/إخفاء">👁️</button>
             </div>
           </div>
           <div class="forgot-row" style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-3)">
@@ -82,10 +82,10 @@
         <div class="divider">أو</div>
         <button id="otpBtn" class="btn btn-secondary">
           <span class="spinner"></span>
-          <span class="btn-text">إرسال رابط دخول <svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span>
+          <span class="btn-text">إرسال رابط دخول 📧</span>
         </button>
         <button id="googleBtn" class="btn btn-google" style="margin-top:var(--space-3)">
-          <span class="btn-text"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تسجيل الدخول عبر Google</span>
+          <span class="btn-text">🔍 تسجيل الدخول عبر Google</span>
         </button>
         <div class="auth-trust"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> تسجيل آمن ومشفر بالكامل</div>
         </div>
@@ -152,9 +152,9 @@
             <div class="password-row">
               <div class="pw-wrap" style="flex:1">
                 <input type="password" id="signupPassword" required minlength="8" autocomplete="new-password" placeholder="8 أحرف على الأقل" dir="ltr" />
-                <button type="button" class="pw-toggle" data-target="signupPassword" title="إظهار/إخفاء"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
+                <button type="button" class="pw-toggle" data-target="signupPassword" title="إظهار/إخفاء">👁️</button>
               </div>
-              <button type="button" class="btn-small" id="genPwBtn" title="توليد كلمة مرور قوية"><svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg> توليد</button>
+              <button type="button" class="btn-small" id="genPwBtn" title="توليد كلمة مرور قوية">🔐 توليد</button>
             </div>
             <div class="strength-bar" id="strengthBar"><div></div></div>
             <div class="strength-label" id="strengthLabel">أدخل كلمة مرور</div>
@@ -169,7 +169,7 @@
             <label for="signupPasswordConfirm">تأكيد كلمة المرور *</label>
             <div class="pw-wrap">
               <input type="password" id="signupPasswordConfirm" required autocomplete="new-password" placeholder="أعد كتابة كلمة المرور" dir="ltr" />
-              <button type="button" class="pw-toggle" data-target="signupPasswordConfirm" title="إظهار/إخفاء"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
+              <button type="button" class="pw-toggle" data-target="signupPasswordConfirm" title="إظهار/إخفاء">👁️</button>
             </div>
             <div class="match-label" id="matchLabel"></div>
           </div>
@@ -230,7 +230,7 @@
         if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
           var banner = document.createElement('div');
           banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#5a1a1a;color:#ff8a8a;padding:12px;text-align:center;z-index:99999;font-size:0.9rem;font-family:Tajawal,sans-serif;';
-          banner.innerHTML = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لم يتم إعداد متغيرات البيئة. يرجى مراجعة دليل النشر.';
+          banner.innerHTML = '⚠️ لم يتم إعداد متغيرات البيئة. يرجى مراجعة دليل النشر.';
           document.body.prepend(banner);
         }
       }, 500);
@@ -307,10 +307,10 @@
           const input = document.getElementById(btn.dataset.target);
           if (input.type === 'password') {
             input.type = 'text';
-            btn.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>';
+            btn.textContent = '🙈';
           } else {
             input.type = 'password';
-            btn.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>';
+            btn.textContent = '👁️';
           }
         });
       });
@@ -514,7 +514,7 @@
         if (error) {
           const msg = error.message || '';
           if (msg.includes('Invalid login credentials')) {
-            showError('البريد أو كلمة المرور غير صحيحة', `<button type="button" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="sendMagicLink()"><svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> أرسل رابط دخول</button><a href="./reset.html" class="link" style="font-size:0.85rem;">نسيت كلمة المرور؟</a>`);
+            showError('البريد أو كلمة المرور غير صحيحة', `<button type="button" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="sendMagicLink()">📧 أرسل رابط دخول</button><a href="./reset.html" class="link" style="font-size:0.85rem;">نسيت كلمة المرور؟</a>`);
           } else if (msg.includes('Email not confirmed')) {
             showError('البريد الإلكتروني غير مُفعّل. تحقق من صندوق الوارد أو أعد إرسال رابط التفعيل.', `<button type="button" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="resendActivation('${email.replace(/'/g, "\\'")}')">إعادة إرسال رابط التفعيل</button>`);
           } else if (msg.includes('Too many requests') || msg.includes('rate limit') || msg.includes('Request rate limit')) {
@@ -553,7 +553,7 @@
         const { error } = await window.BondsAuth.signInWithOTP(email);
         setLoading('otpBtn', false);
         if (error) { showError(error.message); return; }
-        showSuccess('تم إرسال رابط دخول إلى بريدك <svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> — اضغط الرابط في البريد للدخول مباشرة.');
+        showSuccess('تم إرسال رابط دخول إلى بريدك 📧 — اضغط الرابط في البريد للدخول مباشرة.');
       };
 
       window.resendActivation = async function(email) {
@@ -565,7 +565,7 @@
         const { error } = await window.BondsAuth.resendConfirmation(email);
         if (btn) { btn.disabled = false; btn.textContent = 'إعادة إرسال رابط التفعيل'; }
         if (error) { showError(error.message); return; }
-        showSuccess('تم إرسال رابط التفعيل <svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> — تحقق من صندوق الوارد والرسائل غير المرغوبة.');
+        showSuccess('تم إرسال رابط التفعيل 📧 — تحقق من صندوق الوارد والرسائل غير المرغوبة.');
       };
 
       // OTP Login
@@ -577,7 +577,7 @@
         const { error } = await window.BondsAuth.signInWithOTP(email);
         setLoading('otpBtn', false);
         if (error) { showError(error.message); return; }
-        showSuccess('تم إرسال رابط تسجيل الدخول إلى بريدك! تحقق من صندوق الوارد <svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>');
+        showSuccess('تم إرسال رابط تسجيل الدخول إلى بريدك! تحقق من صندوق الوارد 📧');
       });
 
       // Phone OTP Login
@@ -603,7 +603,7 @@
           return;
         }
         sessionStorage.setItem('otp_phone', phone);
-        showSuccess('تم إرسال رمز التحقق إلى جوالك <svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>');
+        showSuccess('تم إرسال رمز التحقق إلى جوالك 📱');
         setTimeout(() => {
           window.location.href = './verify-otp.html?phone=' + encodeURIComponent(phone);
         }, 800);
@@ -621,7 +621,7 @@
           redirectTo: 'https://bonds-global.com/calculators/auth/reset.html'
         });
         if (error) { showError(error.message); return; }
-        showSuccess('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك <svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>');
+        showSuccess('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك 📧');
       });
 
       // Google Sign-In

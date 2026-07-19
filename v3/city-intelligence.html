@@ -393,10 +393,10 @@
 
   <div id="site-header"></div>
   <header>
-    <h1><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ذكاء المدن</h1>
+    <h1>◎ ذكاء المدن</h1>
     <p>مؤشرات اقتصادية وعقارية وسوقية لـ أكثر من 1200 مدينة في 22 دولة عربية — مدعومة بـ Bonds V3 Data Engine</p>
     <div id="alertBell" class="alert-bell" title="الإنذارات">
-      <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>
+      ⚑
       <span id="alertCount" class="alert-count hidden">0</span>
     </div>
     <div id="alertDropdown" class="alert-dropdown hidden">
@@ -425,11 +425,11 @@
         <option value="2025">2025</option>
         <option value="2024">2024</option>
       </select>
-      <a href="/v3/investment-map" class="map-link"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الخريطة الاستثمارية</a>
-      <a href="/v3/city-comparison" class="map-link"><svg class="bonds-icon bonds-icon--scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-8"></path><path d="M12 14l6-3v4a6 6 0 0 1-6 3 6 6 0 0 1-6-3v-4l6 3z"></path><path d="M12 14V7"></path><path d="M9 7h6"></path><circle cx="12" cy="4" r="2"></circle></svg> مقارنة المدن</a>
-      <a href="/v3/project-readiness" class="map-link"><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> جاهزية المشروع</a>
-      <a href="/v3/opportunity-bank" class="map-link"><svg class="bonds-icon bonds-icon--bank" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 11h20L12 2z"></path><rect x="3" y="11" width="18" height="10" rx="2"></rect><line x1="12" y1="11" x2="12" y2="21"></line></svg> بنك الفرص</a>
-      <button id="autoUpdateBtn" class="auto-update-btn hidden"><svg class="bonds-icon bonds-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5 12 2"></polygon></svg> تحديث تلقائي</button>
+      <a href="/v3/investment-map" class="map-link">▣ الخريطة الاستثمارية</a>
+      <a href="/v3/city-comparison" class="map-link">⚖️ مقارنة المدن</a>
+      <a href="/v3/project-readiness" class="map-link">✓ جاهزية المشروع</a>
+      <a href="/v3/opportunity-bank" class="map-link">🏦 بنك الفرص</a>
+      <button id="autoUpdateBtn" class="auto-update-btn hidden">✦ تحديث تلقائي</button>
     </div>
 
     <div id="content">
@@ -437,7 +437,7 @@
     </div>
 
     <div id="scenarioCard" class="card hidden" style="margin-top: 1.5rem;">
-      <h3><svg class="bonds-icon bonds-icon--flask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4"></path><path d="M12 2v8"></path><path d="M17 21H7a2 2 0 0 1-1.73-3l7-12a2 2 0 0 1 3.46 0l7 12A2 2 0 0 1 17 21z"></path></svg> محرك السيناريوهات السريع</h3>
+      <h3>🧪 محرك السيناريوهات السريع</h3>
       <p style="color: var(--text-secondary); font-size: 0.9rem;">اختبر تأثير الصدمات الاقتصادية على نموذج <strong id="scenarioModelName">-</strong></p>
       <div class="preset-group" id="scenarioPresets" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0;"></div>
       <div id="scenarioResults" style="overflow-x: auto;"></div>
@@ -452,7 +452,7 @@
   <!-- Feedback Modal -->
   <div id="feedbackModal" class="modal-overlay">
     <div class="modal">
-      <h3><svg class="bonds-icon bonds-icon--pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg> تصحيح البيانات</h3>
+      <h3>✏️ تصحيح البيانات</h3>
       <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: -0.5rem;">
         ساعدنا في تحسين دقة البيانات للمدينة والنشاط المختارين.
       </p>
@@ -774,7 +774,7 @@
           <div class="card attractiveness-card">
             <div class="attractiveness-header">
               <div>
-                <h3 style="margin-bottom: 0.25rem;"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مؤشر جاذبية الاستثمار — ${city.name_ar}</h3>
+                <h3 style="margin-bottom: 0.25rem;">◎ مؤشر جاذبية الاستثمار — ${city.name_ar}</h3>
                 <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">
                   درجة موحدة تعكس جاهزية المدينة للاستثمار بناءً على 5 محاور رئيسية.
                 </p>
@@ -804,8 +804,8 @@
 
           <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <h3 style="margin: 0;"><svg class="bonds-icon bonds-icon--grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg> المؤشرات الاقتصادية ${dataYear && dataYear !== 'latest' ? '(' + dataYear + ')' : ''} ${confidenceBadge(indicators.overall_confidence)}</h3>
-              <button class="feedback-btn" onclick="openFeedbackForm('', '', 'population', ${city.population || 'null'})"><svg class="bonds-icon bonds-icon--pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg> صحّح البيانات</button>
+              <h3 style="margin: 0;">▤ المؤشرات الاقتصادية ${dataYear && dataYear !== 'latest' ? '(' + dataYear + ')' : ''} ${confidenceBadge(indicators.overall_confidence)}</h3>
+              <button class="feedback-btn" onclick="openFeedbackForm('', '', 'population', ${city.population || 'null'})">✏️ صحّح البيانات</button>
             </div>
             <div class="metric"><span class="metric-label">الناتج المحلي للمدينة</span><span class="metric-value">${valueOrMissing(indicators.gdp_city, 'ر.س')}</span></div>
             <div class="metric"><span class="metric-label">معدل النمو الاقتصادي</span><span class="metric-value">${valueOrMissing(indicators.growth_rate, '%')}</span></div>
@@ -815,7 +815,7 @@
           </div>
 
           <div class="card">
-            <h3><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> المؤشرات العقارية</h3>
+            <h3>▥ المؤشرات العقارية</h3>
             <div class="metric"><span class="metric-label">متوسط الإيجار / م²</span><span class="metric-value">${valueOrMissing(indicators.avg_rent_per_sqm, 'ر.س')}</span></div>
             <div class="metric"><span class="metric-label">متوسط سعر الأرض / م²</span><span class="metric-value">${valueOrMissing(indicators.avg_land_price_per_sqm, 'ر.س')}</span></div>
             <div class="metric"><span class="metric-label">إيجار المستودعات / م²</span><span class="metric-value">${valueOrMissing(indicators.warehouse_rent_per_sqm, 'ر.س')}</span></div>
@@ -824,7 +824,7 @@
 
           <!-- Sector Recommendations -->
           <div class="card">
-            <h3><svg class="bonds-icon bonds-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5 12 2"></polygon></svg> توصيات قطاعية في ${city.name_ar}</h3>
+            <h3>✦ توصيات قطاعية في ${city.name_ar}</h3>
             <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: -0.5rem;">
               أفضل القطاعات الاستثمارية بناءً على البيانات المتاحة.
             </p>
@@ -844,8 +844,8 @@
           ${marketItem.activity_id ? `
           <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <h3 style="margin: 0;"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بيانات السوق — ${marketItem.economic_activities?.name_ar || ''} ${confidenceBadge(marketItem.confidence)}</h3>
-              <button class="feedback-btn" onclick="openFeedbackForm('${marketItem.economic_activities?.code || ''}', '${marketItem.economic_activities?.name_ar || ''}', 'market_size', ${marketItem.market_size || 'null'})"><svg class="bonds-icon bonds-icon--pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg> صحّح البيانات</button>
+              <h3 style="margin: 0;">◎ بيانات السوق — ${marketItem.economic_activities?.name_ar || ''} ${confidenceBadge(marketItem.confidence)}</h3>
+              <button class="feedback-btn" onclick="openFeedbackForm('${marketItem.economic_activities?.code || ''}', '${marketItem.economic_activities?.name_ar || ''}', 'market_size', ${marketItem.market_size || 'null'})">✏️ صحّح البيانات</button>
             </div>
             <div class="metric"><span class="metric-label">حجم السوق</span><span class="metric-value">${valueOrMissing(marketItem.market_size, 'ر.س')}</span></div>
             <div class="metric"><span class="metric-label">عدد المنافسين</span><span class="metric-value">${valueOrMissing(marketItem.competitors_count)}</span></div>
@@ -856,7 +856,7 @@
           </div>
 
           <div class="card">
-            <h3><svg class="bonds-icon bonds-icon--star bonds-icon--glow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> مؤشر الفرصة الذهبية</h3>
+            <h3>🌟 مؤشر الفرصة الذهبية</h3>
             <div class="metric">
               <span class="metric-label">الدرجة</span>
               <span class="metric-value">
@@ -914,10 +914,10 @@
         modelNameEl.textContent = model.name_ar;
         presetsEl.innerHTML = '';
         const presets = [
-          { key: 'recession', label: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ركود' },
-          { key: 'high_inflation', label: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تضخم' },
-          { key: 'labor_shortage', label: '<svg class="bonds-icon bonds-icon--worker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path><path d="M12 4a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path></svg> نقص عمالة' },
-          { key: 'sales_drop', label: '<svg class="bonds-icon bonds-icon--package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> انخفاض مبيعات' }
+          { key: 'recession', label: '▽ ركود' },
+          { key: 'high_inflation', label: '🔥 تضخم' },
+          { key: 'labor_shortage', label: '👷 نقص عمالة' },
+          { key: 'sales_drop', label: '📦 انخفاض مبيعات' }
         ];
         presets.forEach(p => {
           const btn = document.createElement('button');
@@ -1049,16 +1049,16 @@
           body: JSON.stringify(payload)
         });
 
-        btn.textContent = '<svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> تم التحديث';
+        btn.textContent = '✓ تم التحديث';
         setTimeout(() => {
           btn.disabled = false;
-          btn.textContent = '<svg class="bonds-icon bonds-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5 12 2"></polygon></svg> تحديث تلقائي';
+          btn.textContent = '✦ تحديث تلقائي';
         }, 2000);
 
         await loadCityData();
       } catch (err) {
         btn.disabled = false;
-        btn.textContent = '<svg class="bonds-icon bonds-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 14.5 9.5 22 12 14.5 14.5 12 22 9.5 14.5 2 12 9.5 9.5 12 2"></polygon></svg> تحديث تلقائي';
+        btn.textContent = '✦ تحديث تلقائي';
         alert('فشل التحديث: ' + err.message);
       }
     }

@@ -52,7 +52,7 @@
   <div id="site-header"></div>
   <div class="cw-container">
     <div class="cw-header">
-      <div class="cw-badge"><svg class="bonds-icon bonds-icon--shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Credit Rating Tool</div>
+      <div class="cw-badge">🛡️ Credit Rating Tool</div>
       <h1>Creditworthiness Assessment</h1>
       <p>Evaluate any <strong>company, factory, or financial bond</strong> using <strong>9 international credit criteria</strong> and get a rating from <strong>AAA</strong> to <strong>High Risk</strong> with a full analytical report.</p>
     </div>
@@ -60,7 +60,7 @@
     <form id="cwForm" onsubmit="event.preventDefault(); calculateCredit();">
       <!-- General -->
       <div class="bonds-card cw-card">
-        <div class="cw-section-title"><svg class="bonds-icon bonds-icon--edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Basic Information</div>
+        <div class="cw-section-title">📝 Basic Information</div>
         <div class="bonds-form-row">
           <div class="bonds-form-group">
             <label for="companyName">Company / Project Name</label>
@@ -85,7 +85,7 @@
 
       <!-- Financial statements -->
       <div class="bonds-card cw-card">
-        <div class="cw-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Annual Financial Statements</div>
+        <div class="cw-section-title">📊 Annual Financial Statements</div>
         <p class="calc-cw-subtitle">Enter figures in local currency. Use zero if an item is not available.</p>
 
         <div class="cw-section-subtitle">Balance Sheet</div>
@@ -129,7 +129,7 @@
 
       <!-- Credit history -->
       <div class="bonds-card cw-card">
-        <div class="cw-section-title"><svg class="bonds-icon bonds-icon--credit-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg> Credit History</div>
+        <div class="cw-section-title">💳 Credit History</div>
         <div class="bonds-form-row">
           <div class="bonds-form-group">
             <label for="defaults">Previous Defaults</label>
@@ -153,7 +153,7 @@
 
       <!-- Governance -->
       <div class="bonds-card cw-card">
-        <div class="cw-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Management & Governance</div>
+        <div class="cw-section-title">👔 Management & Governance</div>
         <div class="bonds-form-row">
           <div class="bonds-form-group"><label for="mgmtExperience">Management Experience (years)</label><input id="mgmtExperience" class="bonds-input" type="number" min="0" value="5" /></div>
           <div class="bonds-form-group">
@@ -173,7 +173,7 @@
 
       <!-- Sector/market -->
       <div class="bonds-card cw-card">
-        <div class="cw-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Sector & Market</div>
+        <div class="cw-section-title">🏭 Sector & Market</div>
         <div class="bonds-form-row">
           <div class="bonds-form-group">
             <label for="marketGrowth">Market Growth (1 weak — 5 strong)</label>
@@ -198,7 +198,7 @@
 
       <!-- Collateral -->
       <div class="bonds-card cw-card">
-        <div class="cw-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Collateral</div>
+        <div class="cw-section-title">🔒 Collateral</div>
         <div class="bonds-form-row">
           <div class="bonds-form-group"><label for="realEstateValue">Real Estate Value</label><input id="realEstateValue" class="bonds-input" type="number" min="0" value="0" /></div>
           <div class="bonds-form-group"><label for="equipmentValue">Equipment & Machinery Value</label><input id="equipmentValue" class="bonds-input" type="number" min="0" value="0" /></div>
@@ -208,9 +208,9 @@
 
       <div class="calc-cw-action-row">
         <button class="bonds-btn bonds-btn-primary" type="submit"><span class="calc-example-icon" aria-hidden="true">#</span> Calculate Credit Rating</button>
-        <button class="bonds-btn bonds-btn-secondary" type="button" onclick="loadSampleData()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Sample Data</button>
-        <button class="bonds-btn bonds-btn-secondary" type="button" onclick="window.print()"><svg class="bonds-icon bonds-icon--printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg> Print</button>
-        <button class="bonds-btn bonds-btn-secondary" type="button" onclick="exportPDF()"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> Download PDF</button>
+        <button class="bonds-btn bonds-btn-secondary" type="button" onclick="loadSampleData()">📋 Sample Data</button>
+        <button class="bonds-btn bonds-btn-secondary" type="button" onclick="window.print()">🖨️ Print</button>
+        <button class="bonds-btn bonds-btn-secondary" type="button" onclick="exportPDF()">📄 Download PDF</button>
       </div>
     </form>
 
@@ -221,7 +221,7 @@
   <!-- Lead capture modal -->
   <div id="leadModal" class="lead-modal">
     <div class="lead-modal__card">
-      <div class="lead-modal__title"><svg class="bonds-icon bonds-icon--inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg> Get Your Assessment Result</div>
+      <div class="lead-modal__title">📥 Get Your Assessment Result</div>
       <div class="lead-modal__subtitle">Enter your details to receive the result, a detailed report, and a free 15-minute consultation.</div>
       <form id="leadForm" class="lead-modal__form" onsubmit="event.preventDefault(); submitLead();">
         <div class="bonds-form-group">
@@ -245,7 +245,7 @@
           <button type="submit" class="bonds-btn bonds-btn-primary" id="leadSubmitBtn">Show Result</button>
         </div>
       </form>
-      <div class="lead-modal__note"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Your data is protected and never shared with third parties. By confirming, you agree to our <a class="calc-text-gold" href="../../terms.html" target="_blank">Terms of Use</a> and <a class="calc-text-gold" href="../../privacy.html" target="_blank">Privacy Policy</a>.</div>
+      <div class="lead-modal__note">🔒 Your data is protected and never shared with third parties. By confirming, you agree to our <a class="calc-text-gold" href="../../terms.html" target="_blank">Terms of Use</a> and <a class="calc-text-gold" href="../../privacy.html" target="_blank">Privacy Policy</a>.</div>
     </div>
   </div>
 
@@ -333,13 +333,13 @@
         }).join('');
 
         const strengths = report.strengths.length
-          ? `<ul class="cw-list">${report.strengths.map(s => `<li><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ${s}</li>`).join('')}</ul>`
+          ? `<ul class="cw-list">${report.strengths.map(s => `<li>✅ ${s}</li>`).join('')}</ul>`
           : '<p style="color:var(--text-secondary);">No clear strengths in the current assessment.</p>';
         const weaknesses = report.weaknesses.length
-          ? `<ul class="cw-list">${report.weaknesses.map(s => `<li><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ${s}</li>`).join('')}</ul>`
+          ? `<ul class="cw-list">${report.weaknesses.map(s => `<li>⚠️ ${s}</li>`).join('')}</ul>`
           : '<p style="color:var(--text-secondary);">No critical weaknesses.</p>';
         const recommendations = report.recommendations.length
-          ? report.recommendations.map(rec => `<div class="cw-recommend"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ${rec}</div>`).join('')
+          ? report.recommendations.map(rec => `<div class="cw-recommend">💡 ${rec}</div>`).join('')
           : '';
 
         const risks = [];
@@ -351,11 +351,11 @@
         if(result.inputs.collateralTotal < result.inputs.financingAmount * 0.8) risks.push('Collateral is insufficient to cover the requested financing amount.');
         if(risks.length === 0) risks.push('Visible risks are limited based on the provided data.');
 
-        const riskHtml = risks.map(risk => `<div class="cw-risk"><svg class="bonds-icon bonds-icon--circle bonds-icon--danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg> ${risk}</div>`).join('');
+        const riskHtml = risks.map(risk => `<div class="cw-risk">🔴 ${risk}</div>`).join('');
 
         get('result').innerHTML = `
           <div class="bonds-card cw-card">
-            <div class="cw-section-title"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> Executive Summary</div>
+            <div class="cw-section-title">📄 Executive Summary</div>
             <p style="color:var(--text-secondary);margin-bottom:1rem;">Creditworthiness report for <strong>${company}</strong> — ${result.inputs.sector || '—'} — ${result.inputs.country || '—'} — ${now}.</p>
             <div class="cw-score-box">
               <div style="color:var(--text-secondary);font-weight:700;">Total Score / 100</div>
@@ -366,28 +366,28 @@
           </div>
 
           <div class="bonds-card cw-card">
-            <div class="cw-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Detailed Analysis of the 9 Criteria</div>
+            <div class="cw-section-title">📊 Detailed Analysis of the 9 Criteria</div>
             ${axesRows}
           </div>
 
           <div class="cw-grid-2">
             <div class="bonds-card cw-card cw-strength">
-              <div class="cw-section-title" style="margin:0 0 .75rem;"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Strengths</div>
+              <div class="cw-section-title" style="margin:0 0 .75rem;">💪 Strengths</div>
               ${strengths}
             </div>
             <div class="bonds-card cw-card cw-weak">
-              <div class="cw-section-title" style="margin:0 0 .75rem;"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Weaknesses</div>
+              <div class="cw-section-title" style="margin:0 0 .75rem;">⚠️ Weaknesses</div>
               ${weaknesses}
             </div>
           </div>
 
           <div class="bonds-card cw-card">
-            <div class="cw-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Key Risks</div>
+            <div class="cw-section-title">🚨 Key Risks</div>
             ${riskHtml}
           </div>
 
           <div class="bonds-card cw-card">
-            <div class="cw-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Final Credit Rating</div>
+            <div class="cw-section-title">🎯 Final Credit Rating</div>
             <p>The derived credit rating for the company/project is <strong style="color:${rating.color};">${rating.enLabel}</strong> with a total score of <strong>${result.totalScore}</strong> out of 100.</p>
             <div class="ratings-legend">
               <span style="background:#22c55e20;color:#22c55e;">AAA ≥90</span>
@@ -401,12 +401,12 @@
           </div>
 
           <div class="bonds-card cw-card">
-            <div class="cw-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Recommendations to Improve Creditworthiness Within 12 Months</div>
+            <div class="cw-section-title">🛠️ Recommendations to Improve Creditworthiness Within 12 Months</div>
             ${recommendations}
           </div>
 
           <div class="bonds-card cw-card">
-            <div class="cw-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Financial Ratios Used</div>
+            <div class="cw-section-title">🔢 Financial Ratios Used</div>
             <div class="bonds-form-row" style="font-size:.9rem;">
               <div><strong>Equity Ratio:</strong> ${fmtPct(r.equityRatio)}</div>
               <div><strong>Current Ratio:</strong> ${r.currentRatio.toFixed(2)}</div>
@@ -422,7 +422,7 @@
           </div>
 
           <div class="bonds-card cw-card lead-cta">
-            <p style="font-size:1.05rem;font-weight:700;color:var(--gold);"><svg class="bonds-icon bonds-icon--gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 12 20 22 4 22 4 12"></polyline><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg> Want a PDF copy of the report + a free 15-minute consultation?</p>
+            <p style="font-size:1.05rem;font-weight:700;color:var(--gold);">🎁 Want a PDF copy of the report + a free 15-minute consultation?</p>
             <p>Sign in to the client portal to track your request and receive the full report.</p>
             <a href="/en/calculators/auth/index.html?redirect=/en/v3/portfolio" class="bonds-btn bonds-btn-primary">Client Portal Sign In</a>
             <a href="/en/contact.html" class="bonds-btn bonds-btn-secondary" style="margin-left:0.75rem;">Request Consultation</a>
@@ -504,7 +504,7 @@
           showResult();
 
           if(window.BondsUI && BondsUI.toast){
-            BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> We received your details. Check your email for the client portal link.', 'success');
+            BondsUI.toast('✅ We received your details. Check your email for the client portal link.', 'success');
           }
         } catch(err) {
           console.error(err);
@@ -578,7 +578,7 @@
           const label = input && document.querySelector('label[for="' + id + '"]');
           if(!label) return;
           const abbr = document.createElement('abbr');
-          abbr.textContent = ' <svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+          abbr.textContent = ' ⓘ';
           abbr.title = TOOLTIPS[id];
           abbr.style.cursor = 'help';
           abbr.style.color = 'var(--gold)';
@@ -628,7 +628,7 @@
           if(el) el.value = sample[key];
         }
         get('prVal').textContent = sample.paymentRegularity + '%';
-        if(window.BondsUI && BondsUI.toast) BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Sample data loaded', 'success');
+        if(window.BondsUI && BondsUI.toast) BondsUI.toast('✅ Sample data loaded', 'success');
       };
 
       window.exportPDF = function(){

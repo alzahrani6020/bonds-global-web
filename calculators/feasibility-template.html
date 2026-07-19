@@ -33,15 +33,15 @@
 
   <!-- Toolbar -->
   <div class="template-toolbar no-print">
-    <div class="auto-save-indicator" id="auto-save-indicator"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> تم الحفظ تلقائياً</div>
-    <button class="btn-ghost" onclick="clearAll()"><svg class="bonds-icon bonds-icon--trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> مسح الكل</button>
-    <button class="btn-ghost" onclick="saveDraft()"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> حفظ مسودة</button>
-    <button class="btn-ghost" onclick="loadDraft()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> استرجاع مسودة</button>
-    <button class="btn-ghost" onclick="scrollToDashboard()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لوحة التحكم</button>
-    <button class="hidden" id="btn-import-supabase" onclick="fillFromSupabase()"><svg class="bonds-icon bonds-icon--inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg> استيراد من بياناتي</button>
-    <button class="btn-sky-outline" onclick="openResearchModal()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بحث ذكي</button>
-    <button class="btn-ghost" onclick="exportToExcel()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تصدير Excel</button>
-    <button class="btn-gold-outline" onclick="generateProfessionalPDF()"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> تصدير PDF احترافي</button>
+    <div class="auto-save-indicator" id="auto-save-indicator">💾 تم الحفظ تلقائياً</div>
+    <button class="btn-ghost" onclick="clearAll()">🗑️ مسح الكل</button>
+    <button class="btn-ghost" onclick="saveDraft()">💾 حفظ مسودة</button>
+    <button class="btn-ghost" onclick="loadDraft()">📂 استرجاع مسودة</button>
+    <button class="btn-ghost" onclick="scrollToDashboard()">🎯 لوحة التحكم</button>
+    <button class="hidden" id="btn-import-supabase" onclick="fillFromSupabase()">📥 استيراد من بياناتي</button>
+    <button class="btn-sky-outline" onclick="openResearchModal()">🔍 بحث ذكي</button>
+    <button class="btn-ghost" onclick="exportToExcel()">📊 تصدير Excel</button>
+    <button class="btn-gold-outline" onclick="generateProfessionalPDF()">📄 تصدير PDF احترافي</button>
   </div>
 
   <div class="template-wrapper">
@@ -66,7 +66,7 @@
           </select>
         </div>
         <div class="field-group-end">
-          <button class="btn-fill-gold" type="button" onclick="fillFromCountry()"><svg class="bonds-icon bonds-icon--refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> ملء البيانات</button>
+          <button class="btn-fill-gold" type="button" onclick="fillFromCountry()">🔄 ملء البيانات</button>
         </div>
       </div>
       <div class="cover-form-row">
@@ -79,15 +79,15 @@
 
     <!-- ========== PAGE IMPORT: AI FEASIBILITY IMPORTER ========== -->
     <div class="import-page no-print" id="page-import">
-      <div class="page-header"><div class="btn-gold-solid"><svg class="bonds-icon bonds-icon--bot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8.01" y2="16"></line><line x1="16" y1="16" x2="16.01" y2="16"></line></svg></div><div><h2 class="text-gold-bright">استيراد دراسة جدوى بالذكاء الاصطناعي</h2><p>ارفع ملف Word أو الصق نص الدراسة وسنملأ القالب تلقائياً</p></div></div>
+      <div class="page-header"><div class="btn-gold-solid">🤖</div><div><h2 class="text-gold-bright">استيراد دراسة جدوى بالذكاء الاصطناعي</h2><p>ارفع ملف Word أو الصق نص الدراسة وسنملأ القالب تلقائياً</p></div></div>
 
       <div class="mb-1">
-        <label><svg class="bonds-icon bonds-icon--folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> رفع ملف (Word .docx أو PDF .pdf أو نص .txt)</label>
+        <label>📁 رفع ملف (Word .docx أو PDF .pdf أو نص .txt)</label>
         <input class="input-file" type="file" id="feasibility-file" accept=".docx,.pdf,.txt" onchange="handleFeasibilityFile(this)" />
       </div>
 
       <div class="field-group">
-        <label><svg class="bonds-icon bonds-icon--edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> أو الصق نص الدراسة هنا مباشرة</label>
+        <label>📝 أو الصق نص الدراسة هنا مباشرة</label>
         <textarea id="feasibility-text" rows="6" placeholder="انسخ النص الكامل من دراستك والصقه هنا... يمكن أن يكون عربياً أو إنجليزياً أو مزيجاً.
 
 النص يجب أن يتضمن: وصف المشروع، التكاليف، الإيرادات، المنافسين، SWOT، التسويق، الجدول الزمني..."></textarea>
@@ -95,7 +95,7 @@
 
       <div class="btn-row">
         <button class="btn-primary-gradient" onclick="analyzeFeasibilityText()" id="analyze-btn">
-          <svg class="bonds-icon bonds-icon--sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L14.5 9.5 21 12 14.5 14.5 12 21 9.5 14.5 3 12 9.5 9.5 12 3z"></path><path d="M5 3l1 1"></path><path d="M19 3l-1 1"></path><path d="M5 21l1-1"></path><path d="M19 21l-1-1"></path></svg> تحليل وملء القالب
+          ✨ تحليل وملء القالب
         </button>
         <button class="btn-ghost-sm" onclick="document.getElementById('feasibility-text').value='';document.getElementById('feasibility-file').value='';">
           مسح
@@ -106,7 +106,7 @@
 
       <div class="tips-box">
         <p class="tips-text">
-          <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> <strong>نصائح للحصول على أفضل نتيجة:</strong><br>
+          💡 <strong>نصائح للحصول على أفضل نتيجة:</strong><br>
           • تأكد أن النص يحتوي على أرقام واضحة (التكاليف، الإيرادات، الاستثمار).<br>
           • اذكر الدولة والمدينة والقطاع بوضوح.<br>
           • كلما كان النص أطول وأكثر تفصيلاً، كانت النتيجة أفضل.<br>
@@ -119,7 +119,7 @@
     <div class="modal-overlay" id="ai-preview-modal">
       <div class="modal-panel-lg">
         <div class="modal-header">
-          <h3 class="modal-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> معاينة البيانات المستخرجة</h3>
+          <h3 class="modal-title">📋 معاينة البيانات المستخرجة</h3>
           <button class="modal-close" onclick="closePreview()">×</button>
         </div>
         <div class="modal-body" id="ai-preview-content">
@@ -127,7 +127,7 @@
         </div>
         <div class="modal-footer">
           <button class="px-1-5-py-0-7 rounded-lg bg-transparent text-secondary border" onclick="closePreview()">إلغاء</button>
-          <button class="btn-confirm-sm" onclick="confirmFillFromPreview()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ملء القالب بالمحدد</button>
+          <button class="btn-confirm-sm" onclick="confirmFillFromPreview()">✅ ملء القالب بالمحدد</button>
         </div>
       </div>
     </div>
@@ -198,7 +198,7 @@
     <div class="template-page" id="page-summary">
       <div class="template-header-print"><img src="../assets/bonds-logo-2026-sm.webp?v=2026" alt="بوندز" /><div class="doc-title">نموذج دراسة الجدوى — الملخص</div></div>
       <div class="page-header"><div class="section-number">2</div><div><h2>الملخص التنفيذي</h2><p>نظرة عامة على كامل الدراسة (يُفضل كتابته آخراً)</p></div></div>
-      <div class="field-group"><label>ملخص المشروع (3-5 أسطر)</label><textarea id="exec-summary" rows="5">شركة إحياء الأصول العقارية هي كيان استثماري متخصص في إعادة تأهيل وإكمال المباني المتعثرة بنسبة إنجاز 40-70% عبر نموذج الشراكة والمحاصة الذكية. نستهدف 45 مبنى سنوياً في جدة والرياض بسيولة تشغيلية 45 مليون ريال. نحقق دورة استثمارية خاطفة (3-4 أشهر) بأرباح صافية 15-25% لكل مشروع، وصافي ربح سنوي 27.8 مليون ريال. نعتمد على تقنيات البناء الذكي والعمل 24 ساعة لإنجاز المشاريع بسرعة قياسية.</textarea><button class="btn-sm no-print" onclick="autoGenerateSummary()"><svg class="bonds-icon bonds-icon--sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L14.5 9.5 21 12 14.5 14.5 12 21 9.5 14.5 3 12 9.5 9.5 12 3z"></path><path d="M5 3l1 1"></path><path d="M19 3l-1 1"></path><path d="M5 21l1-1"></path><path d="M19 21l-1-1"></path></svg> توليد ملخص تلقائي</button></div>
+      <div class="field-group"><label>ملخص المشروع (3-5 أسطر)</label><textarea id="exec-summary" rows="5">شركة إحياء الأصول العقارية هي كيان استثماري متخصص في إعادة تأهيل وإكمال المباني المتعثرة بنسبة إنجاز 40-70% عبر نموذج الشراكة والمحاصة الذكية. نستهدف 45 مبنى سنوياً في جدة والرياض بسيولة تشغيلية 45 مليون ريال. نحقق دورة استثمارية خاطفة (3-4 أشهر) بأرباح صافية 15-25% لكل مشروع، وصافي ربح سنوي 27.8 مليون ريال. نعتمد على تقنيات البناء الذكي والعمل 24 ساعة لإنجاز المشاريع بسرعة قياسية.</textarea><button class="btn-sm no-print" onclick="autoGenerateSummary()">✨ توليد ملخص تلقائي</button></div>
       <div class="field-group inline-3">
         <div class="field-group"><label>رأس المال المطلوب (ريال)</label><input type="number" id="summary-capital" value="45265000" /></div>
         <div class="field-group"><label>فترة الاسترداد (شهر)</label><input type="number" id="summary-payback" readonly tabindex="-1" placeholder="سيُحسب تلقائياً" /></div>
@@ -287,7 +287,7 @@
       </div>
 
       <!-- 2. Current Status Assessment -->
-      <h3 class="section-title-sm"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> التقييم الأولي لوضع المبنى الراهن</h3>
+      <h3 class="section-title-sm">📊 التقييم الأولي لوضع المبنى الراهن</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>نسبة الإنجاز الفعلي (%)</label><input type="number" id="ba-completion-now" min="0" max="100" value="65" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>القيمة السوقية الراهنة (ريال)</label><input type="number" id="ba-current-value" value="1800000" oninput="calcBuildingAssessment()" /></div>
@@ -299,7 +299,7 @@
       </div>
 
       <!-- 3. Violations & Licenses -->
-      <h3 class="section-title-sm"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> المخالفات والتراخيص</h3>
+      <h3 class="section-title-sm">⚠️ المخالفات والتراخيص</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>هل يوجد مخالفات بلدية؟</label><select data-universal-dropdown="true" id="ba-violations"><option value="no" selected>لا</option><option value="yes">نعم</option></select></div>
         <div class="field-group"><label>حالة رخصة البناء</label><select data-universal-dropdown="true" id="ba-license-status"><option value="valid" selected>سارية</option><option value="expired">منتهية</option><option value="no-license">لا يوجد</option></select></div>
@@ -318,7 +318,7 @@
       <div class="field-group"><label>تفاصيل المخالفات والالتزامات</label><textarea id="ba-violation-details" rows="2">لا توجد مخالفات بلدية. رخصة البناء سارية. شهادة الامتثال قيد الإجراء.</textarea></div>
 
       <!-- 4. BOQ Table -->
-      <h3 class="section-title-sm"><svg class="bonds-icon bonds-icon--ruler" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L2 22h20V2z"></path><path d="M6 22l16-16"></path><path d="M10 22l12-12"></path><path d="M14 22l8-8"></path><path d="M18 22l4-4"></path></svg> جدول الكميات (Bill of Quantities)</h3>
+      <h3 class="section-title-sm">📐 جدول الكميات (Bill of Quantities)</h3>
       <table class="template-table" id="boq-table">
         <thead><tr><th>م</th><th>بند الأعمال</th><th>الوحدة</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr></thead>
         <tbody>
@@ -335,7 +335,7 @@
       <div class="mt-0-5"><label>إجمالي تكلفة الإكمال: <span class="text-gold fw-extrabold" id="boq-grand-total">0</span> ريال</label></div>
 
       <!-- 5. Profit Sharing Calculator -->
-      <h3 class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> حاسبة توزيع الأرباح (المحاصة العقارية)</h3>
+      <h3 class="section-title">💰 حاسبة توزيع الأرباح (المحاصة العقارية)</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>قيمة الأرض + العظم (حصة المالك)</label><input type="number" id="ba-owner-value" value="1800000" oninput="calcBuildingAssessment()" /></div>
         <div class="field-group"><label>تكلفة الإكمال (حصة الشركة)</label><input type="number" id="ba-company-cost" value="1200000" oninput="calcBuildingAssessment()" /></div>
@@ -352,7 +352,7 @@
         <div class="field-group"><label>مصاريف أخرى (ريال)</label><input type="number" id="ba-other-expenses" value="50000" oninput="calcBuildingAssessment()" /></div>
       </div>
       <div class="alert-red">
-        <p class="alert-red-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مصاريف إضافية تُحسم حصرياً لصالح الشركة (مخاطر الإكمال)</p>
+        <p class="alert-red-title">⚠️ مصاريف إضافية تُحسم حصرياً لصالح الشركة (مخاطر الإكمال)</p>
         <div class="m-0">
           <div class="mb-0"><label class="fs-0-8 text-secondary">معالجة عيوب خفية (ريال)</label><input class="p-0-6" type="number" id="ba-hidden-defects" value="50000" oninput="calcBuildingAssessment()" /></div>
           <div class="mb-0"><label class="fs-0-8 text-secondary">طوارئ إنشائية بينية (ريال)</label><input class="p-0-6" type="number" id="ba-emergency" value="75000" oninput="calcBuildingAssessment()" /></div>
@@ -393,7 +393,7 @@
       </div>
 
       <!-- 6. Sale Period Scenarios -->
-      <h3 class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> سيناريوهات فترة البيع والتسييل</h3>
+      <h3 class="section-title">📊 سيناريوهات فترة البيع والتسييل</h3>
       <table class="template-table" id="sale-scenarios-table">
         <thead><tr><th>المعيار</th><th>متشائم</th><th>متوقع</th><th>متفائل</th></tr></thead>
         <tbody>
@@ -407,7 +407,7 @@
       </table>
 
       <!-- 7. Timeline -->
-      <h3 class="section-title">⏱ الجدول الزمني المتوقع</h3>
+      <h3 class="section-title">⏱️ الجدول الزمني المتوقع</h3>
       <div class="field-group inline-3">
         <div class="field-group"><label>فترة الإنجاز (شهر)</label><input type="number" id="ba-construction-months" value="3" /></div>
         <div class="field-group"><label>فترة البيع والإفراغ (شهر)</label><input type="number" id="ba-sale-months" value="2" /></div>
@@ -418,7 +418,7 @@
 • ضرورة استلام شهادة الإتمام قبل بدء عمليات البيع الرسمي</textarea></div>
 
       <!-- 8. Document Attachments -->
-      <h3 class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> المستندات المُرفقة</h3>
+      <h3 class="section-title">📎 المستندات المُرفقة</h3>
       <table class="template-table" id="docs-table">
         <thead><tr><th>المستند</th><th>مُرفق</th><th>رقم المرجع</th><th>تاريخ الصلاحية</th></tr></thead>
         <tbody>
@@ -433,7 +433,7 @@
       </table>
 
       <!-- 9. Funding Readiness Score -->
-      <h3 class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مؤشر الجاهزية للتمويل</h3>
+      <h3 class="section-title">🎯 مؤشر الجاهزية للتمويل</h3>
       <div class="health-panel-sm">
         <div class="score-ring-lg" id="funding-score-ring">
           <div class="score-inner-lg">
@@ -458,7 +458,7 @@
         </tbody>
       </table>
       <div class="info-box">
-        <div class="fs-0-85 text-secondary mb-0-5"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> توصية بوندز:</div>
+        <div class="fs-0-85 text-secondary mb-0-5">📋 توصية بوندز:</div>
         <div class="text-sm-primary" id="funding-recommendation">المشروع جاهز للتمويل بنسبة 100%. جميع المستندات والتحليلات مكتملة. يُنصح بالتقدم للبنوك التجارية أو صناديق الاستثمار العقاري.</div>
       </div>
     </div>
@@ -469,7 +469,7 @@
       <div class="page-header"><div class="section-number">5B</div><div><h2>معايير التقييم العقاري الاحترافي</h2><p>معايير سعودية ودولية لتقييم المباني المتعثرة والمكتملة</p></div></div>
 
       <!-- A. Unfinished Building Assessment -->
-      <h3 class="section-title-sm"><svg class="bonds-icon bonds-icon--construction" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 22h20"></path><path d="M6 22V11l6-4 6 4v11"></path><path d="M10 22v-5h4v5"></path><path d="M12 2v5"></path></svg> أ. تقييم المبنى غير المكتمل (Under Construction)</h3>
+      <h3 class="section-title-sm">🏗️ أ. تقييم المبنى غير المكتمل (Under Construction)</h3>
       <p class="hint-text">مبني على: معايير الهيئة السعودية للمقيمين المعتمدين (تقييم) + معايير التقييم الدولية IVS + كود البناء السعودي SBC</p>
 
       <div class="field-group inline-3">
@@ -520,7 +520,7 @@
       </div>
 
       <!-- B. Post-Completion Assessment -->
-      <h3 class="section-title"><svg class="bonds-icon bonds-icon--home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> ب. تقييم المبنى بعد الإكمال (Post-Completion)</h3>
+      <h3 class="section-title">🏠 ب. تقييم المبنى بعد الإكمال (Post-Completion)</h3>
       <p class="hint-text">تقييم شامل للمبنى المكتمل وفقاً لمعايير الجودة والكفاءة والامتثال</p>
 
       <h4 class="subsection-title">ب1. أنظمة الميكانيكا والكهرباء (M&amp;E Systems)</h4>
@@ -571,7 +571,7 @@
       </div>
 
       <!-- C. Comparison Table -->
-      <h3 class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ج. جدول المقارنة — القيمة قبل وبعد الإكمال</h3>
+      <h3 class="section-title">📊 ج. جدول المقارنة — القيمة قبل وبعد الإكمال</h3>
       <table class="template-table" id="val-comparison-table">
         <thead><tr><th>المعيار</th><th>الوضع الحالي (غير مكتمل)</th><th>الوضع المتوقع (مكتمل)</th><th>الفرق</th></tr></thead>
         <tbody>
@@ -615,12 +615,12 @@
 • الذكاء الاصطناعي لتقييم المباني المتعثرة
 • تطبيق جوال للعملاء لمتابعة مشاريعهم</textarea></div>
       <div class="field-group inline">
-        <div class="field-group"><label>التأثيرات الإيجابية <svg class="bonds-icon bonds-icon--circle bonds-icon--success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg></label><textarea id="tech-positive" rows="3">• تقليل وقت التقييم الهندسي بنسبة 40%
+        <div class="field-group"><label>التأثيرات الإيجابية 🟢</label><textarea id="tech-positive" rows="3">• تقليل وقت التقييم الهندسي بنسبة 40%
 • مراقبة لحظية لمعدلات الإنجاز
 • تحليل بيانات السوق لتحديد أفضل المشاريع
 • تقليل الأخطاء الإنشائية بنسبة 30%
 • وصول أوسع للعملاء عبر المنصة الرقمية</textarea></div>
-        <div class="field-group"><label>التأثيرات السلبية <svg class="bonds-icon bonds-icon--circle bonds-icon--danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg></label><textarea id="tech-negative" rows="3">• تكاليف صيانة البنية التحتية التقنية
+        <div class="field-group"><label>التأثيرات السلبية 🔴</label><textarea id="tech-negative" rows="3">• تكاليف صيانة البنية التحتية التقنية
 • الحاجة لتحديث مستمر للأنظمة
 • مخاطر الأمن السيبراني
 • اعتمادية على جودة الإنترنت في مواقع المشاريع</textarea></div>
@@ -683,23 +683,23 @@
 
       <h3 class="section-title">ب. تحليل SWOT</h3>
       <div class="swot-grid">
-        <div class="swot-box s"><h4><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> نقاط القوة (Strengths)</h4><textarea id="swot-s" rows="4">1. نموذج المحاصة العقارية الذكية (تقاسم الأرباح)
+        <div class="swot-box s"><h4>✅ نقاط القوة (Strengths)</h4><textarea id="swot-s" rows="4">1. نموذج المحاصة العقارية الذكية (تقاسم الأرباح)
 2. فريق هندسي متخصص في المباني المتعثرة
 3. علاقات حكومية قوية مع البلديات والهيئة العقارية
 4. سرعة التنفيذ (3-4 أشهر لكل مشروع)
 5. رأس مال كافٍ (45 مليون ريال)
 6. قاعدة بيانات شاملة للمباني المتعثرة</textarea></div>
-        <div class="swot-box w"><h4><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> نقاط الضعف (Weaknesses)</h4><textarea id="swot-w" rows="4">1. شركة جديدة نسبياً في السوق
+        <div class="swot-box w"><h4>⚠️ نقاط الضعف (Weaknesses)</h4><textarea id="swot-w" rows="4">1. شركة جديدة نسبياً في السوق
 2. الاعتماد على شركاء ممولين خارجيين
 3. تعقيد الإجراءات الحكومية لبعض المشاريع
 4. الحاجة لتوظيف مهندسين ذوي خبرة خاصة
 5. المخاطر الإنشائية غير المتوقعة في المباني المتعثرة</textarea></div>
-        <div class="swot-box o"><h4><svg class="bonds-icon bonds-icon--star bonds-icon--glow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> الفرص (Opportunities)</h4><textarea id="swot-o" rows="4">1. أكثر من 3000 مبنى متعثر في السعودية بحاجة لإعادة تأهيل
+        <div class="swot-box o"><h4>🌟 الفرص (Opportunities)</h4><textarea id="swot-o" rows="4">1. أكثر من 3000 مبنى متعثر في السعودية بحاجة لإعادة تأهيل
 2. دعم حكومي متزايد للقطاع العقاري (رؤية 2030)
 3. نمو الطلب على الإسكان (1.5 مليون أسرة بحاجة لمسكن)
 4. تطوير منصات التمويل الجماعي العقاري
 5. شراكات مع البنوك لتمويل المشاريع</textarea></div>
-        <div class="swot-box t"><h4><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> التهديدات (Threats)</h4><textarea id="swot-t" rows="4">1. تقلبات أسعار مواد البناء
+        <div class="swot-box t"><h4>⛔ التهديدات (Threats)</h4><textarea id="swot-t" rows="4">1. تقلبات أسعار مواد البناء
 2. تغييرات في اللوائح والأنظمة البلدية
 3. منافسة شركات تطوير عقاري كبرى
 4. تأخر إصدار التراخيص الحكومية
@@ -787,7 +787,7 @@
       </table>
       <div class="table-actions no-print"><button onclick="addRow('timeline-table')">+ إضافة</button><button onclick="removeRow('timeline-table')">- حذف</button></div>
 
-      <h3 class="section-title"><svg class="bonds-icon bonds-icon--map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 9 2 15 6 23 2 23 18 15 22 9 18 1 22"></polygon><line x1="9" y1="2" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="22"></line></svg> خريطة المشاريع المستهدفة</h3>
+      <h3 class="section-title">🗺️ خريطة المشاريع المستهدفة</h3>
       <div class="card-muted-xl-mt">
         <table class="template-table" id="projects-map-table">
           <thead><tr><th>المدينة</th><th>الحي</th><th>عدد المباني المتعثرة</th><th>متوسط التكلفة</th><th>الأولوية</th></tr></thead>
@@ -801,7 +801,7 @@
           </tbody>
         </table>
         <div class="table-actions no-print"><button onclick="addRow('projects-map-table')">+ إضافة موقع</button><button onclick="removeRow('projects-map-table')">- حذف</button></div>
-        <p class="note-text-mt"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> إجمالي المباني المتعثرة المستهدفة: 186 مبنى | المتوسط: 2,533,333 ريال</p>
+        <p class="note-text-mt">📊 إجمالي المباني المتعثرة المستهدفة: 186 مبنى | المتوسط: 2,533,333 ريال</p>
       </div>
     </div>
 
@@ -1003,8 +1003,8 @@
           <tr><td>الشهر 12</td><td><input type="number" class="cf-rev" oninput="calcCashFlow()" value="10781250" /></td><td><input type="number" class="cf-cost" oninput="calcCashFlow()" value="10296875" /></td><td><input type="number" class="cf-net" readonly tabindex="-1" /></td><td><input type="number" class="cf-balance" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <p class="center-note"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> املأ أول 3 أشهر يدوياً، ثم اضغط "ملء تلقائي" لتوزيع بقية السنة</p>
-      <div class="table-actions no-print"><button onclick="autoFillCashFlow()"><svg class="bonds-icon bonds-icon--sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L14.5 9.5 21 12 14.5 14.5 12 21 9.5 14.5 3 12 9.5 9.5 12 3z"></path><path d="M5 3l1 1"></path><path d="M19 3l-1 1"></path><path d="M5 21l1-1"></path><path d="M19 21l-1-1"></path></svg> ملء تلقائي من الإيرادات</button></div>
+      <p class="center-note">💡 املأ أول 3 أشهر يدوياً، ثم اضغط "ملء تلقائي" لتوزيع بقية السنة</p>
+      <div class="table-actions no-print"><button onclick="autoFillCashFlow()">✨ ملء تلقائي من الإيرادات</button></div>
     </div>
 
     <!-- ========== PAGE 16: FINANCIAL ANALYSIS ========== -->
@@ -1098,7 +1098,7 @@
           <tr class="bg-gold-10"><td class="fw-bold text-gold">إجمالي الأصول</td><td><input type="number" class="pf-assets-total" readonly tabindex="-1" /></td><td class="fw-bold text-gold">إجمالي حقوق الملكية + الالتزامات</td><td><input type="number" class="pf-equity-total" readonly tabindex="-1" /></td></tr>
         </tbody>
       </table>
-      <div class="table-actions no-print"><button onclick="calcProForma()"><svg class="bonds-icon bonds-icon--refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> حساب القوائم</button></div>
+      <div class="table-actions no-print"><button onclick="calcProForma()">🔄 حساب القوائم</button></div>
     </div>
 
     <!-- ========== PAGE 18: SMART ANALYSIS ========== -->
@@ -1108,7 +1108,7 @@
 
       <div class="disclaimer" id="smart-loading">
         <p class="text-secondary">املأ بيانات التكاليف والإيرادات في الصفحات السابقة لتحليلها تلقائياً...</p>
-        <button class="mt-1" onclick="runSmartAnalysis()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تحليل الآن</button>
+        <button class="mt-1" onclick="runSmartAnalysis()">🔍 تحليل الآن</button>
       </div>
 
       <div class="hidden" id="smart-results">
@@ -1139,13 +1139,13 @@
 
         <!-- Recommendations -->
         <div class="card-gold">
-          <div class="panel-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> توصيات بوندز</div>
+          <div class="panel-title">📋 توصيات بوندز</div>
           <ol class="list-reset" id="smart-recommendations"></ol>
         </div>
 
         <!-- Benchmark Comparison -->
         <div class="mt-1-5">
-          <div class="panel-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مقارنة مع معايير الصناعة</div>
+          <div class="panel-title">📊 مقارنة مع معايير الصناعة</div>
           <table class="template-table" id="benchmark-table">
             <thead><tr><th>المؤشر</th><th>مشروعك</th><th>المعيار الأمثل</th><th>التقييم</th></tr></thead>
             <tbody>
@@ -1160,7 +1160,7 @@
 
         <!-- Charts -->
         <div class="mt-1-5">
-          <div class="panel-title"><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> الرسوم البيانية</div>
+          <div class="panel-title">📈 الرسوم البيانية</div>
           <div class="grid-2">
             <div class="card-muted"><canvas id="chart-scenarios" height="180"></canvas></div>
             <div class="card-muted"><canvas id="chart-costs" height="180"></canvas></div>
@@ -1301,7 +1301,7 @@
 2. إبرام عقود شراكة مع 3-5 ملاك مباني متعثرة
 3. توقيع عقود مع مقاولين معتمدين
 4. إطلاق حملة تسويقية للوحدات الأولى</textarea></div>
-      <div class="field-group"><label>هل المشروع مجدي؟</label><select data-universal-dropdown="true"><option value="">اختر...</option><option value="yes" selected><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> نعم، مجدي</option><option value="no"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا، غير مجدي</option><option value="conditional"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مجدي بشروط</option></select></div>
+      <div class="field-group"><label>هل المشروع مجدي؟</label><select data-universal-dropdown="true"><option value="">اختر...</option><option value="yes" selected>✅ نعم، مجدي</option><option value="no">❌ لا، غير مجدي</option><option value="conditional">⚠️ مجدي بشروط</option></select></div>
       <div class="signature-grid">
         <div class="signature-box"><label>إعداد وتوقيع</label><input type="text" value="المؤسس والرئيس التنفيذي" /></div>
         <div class="signature-box"><label>التاريخ</label><input type="date" value="2026-06-03" /></div>
@@ -1372,7 +1372,7 @@
       <!-- SWOT Mini + Recommendations -->
       <div class="dash-bottom-grid">
         <div class="dash-rec-panel">
-          <div class="dash-rec-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> أهم التوصيات</div>
+          <div class="dash-rec-title">📋 أهم التوصيات</div>
           <ol class="dash-rec-list" id="dash-recommendations"></ol>
         </div>
         <div class="dash-swot-grid">
@@ -1498,15 +1498,15 @@
 
       // Benchmarks
       document.getElementById('bm-margin').textContent = margin.toFixed(1) + '%';
-      document.getElementById('bm-margin-status').innerHTML = margin >= 25 ? '<span class="text-green"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ممتاز</span>' : margin >= 15 ? '<span class="text-gold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مقبول</span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> يحتاج تحسين</span>';
+      document.getElementById('bm-margin-status').innerHTML = margin >= 25 ? '<span class="text-green">✅ ممتاز</span>' : margin >= 15 ? '<span class="text-gold">⚠️ مقبول</span>' : '<span class="text-red">❌ يحتاج تحسين</span>';
       document.getElementById('bm-salary').textContent = hrTotal > 0 && revenue > 0 ? ((hrTotal / revenue) * 100).toFixed(1) + '%' : '-';
-      document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span class="text-green"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>';
+      document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span class="text-green">✅</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-payback').textContent = payback > 0 ? payback.toFixed(1) + ' شهر' : '-';
-      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= class="text-green" 18 ? '<span><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : payback > 0 && payback <= class="text-gold" 36 ? '<span><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>';
+      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= class="text-green" 18 ? '<span>✅</span>' : payback > 0 && payback <= class="text-gold" 36 ? '<span>⚠️</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-roi').textContent = roi.toFixed(1) + '%';
-      document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span class="text-green"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : roi >= 10 ? '<span class="text-gold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>';
+      document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span class="text-green">✅</span>' : roi >= 10 ? '<span class="text-gold">⚠️</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-be').textContent = totalQty > 0 ? ((beUnits / totalQty) * 100).toFixed(0) + '%' : '-';
-      document.getElementById('bm-be-status').innerHTML = totalQty > 0 && beUnits / totalQty < 0.6 ? '<span class="text-green"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : totalQty > 0 && beUnits / totalQty < 0.9 ? '<span class="text-gold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>' : '<span class="text-red"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>';
+      document.getElementById('bm-be-status').innerHTML = totalQty > 0 && beUnits / totalQty < 0.6 ? '<span class="text-green">✅</span>' : totalQty > 0 && beUnits / totalQty < 0.9 ? '<span class="text-gold">⚠️</span>' : '<span class="text-red">❌</span>';
 
       renderCharts(revenue, fixed, variable, net);
       updateDashboard(revenue, fixed, variable, net, margin / 100, roi, payback, beUnits);
@@ -1531,7 +1531,7 @@
       const score = Math.min(100, Math.max(0, (marginPct * 30) + (roi * 0.3) + (paybackScore * 0.25) + (salaryRatioScore * 0.15)));
       document.getElementById('dash-score').textContent = Math.round(score);
       document.getElementById('dash-score').style.color = score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626';
-      document.getElementById('dash-score-label').textContent = score >= 75 ? 'مشروع ممتاز <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>' : score >= 50 ? 'يحتاج تحسين <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>' : 'مخاطر عالية <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>';
+      document.getElementById('dash-score-label').textContent = score >= 75 ? 'مشروع ممتاز ✅' : score >= 50 ? 'يحتاج تحسين ⚠️' : 'مخاطر عالية ❌';
       document.getElementById('dash-score-label').style.color = score >= 75 ? '#16a34a' : score >= 50 ? 'var(--gold)' : '#dc2626';
       const deg = Math.round(score / 100 * 360);
       const scoreRing = document.getElementById('dash-score-ring');
@@ -1917,14 +1917,14 @@
         scoreText.style.color = totalScore >= 70 ? '#16a34a' : totalScore >= 40 ? 'var(--gold)' : '#dc2626';
       }
       if (label) {
-        label.textContent = totalScore >= 70 ? '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> جاهز للتمويل' : totalScore >= 40 ? '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> يحتاج تحسين' : '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> غير جاهز';
+        label.textContent = totalScore >= 70 ? '✅ جاهز للتمويل' : totalScore >= 40 ? '⚠️ يحتاج تحسين' : '❌ غير جاهز';
         label.style.color = totalScore >= 70 ? '#16a34a' : totalScore >= 40 ? 'var(--gold-bright)' : '#dc2626';
       }
       if (desc) desc.textContent = totalScore >= 70 ? 'يمكن عرض الدراسة على البنوك والجهات التمويلية' : totalScore >= 40 ? 'أكمل النقص لرفع درجة الجاهزية' : 'البيانات والمستندات غير كافية للتمويل';
       if (rec) {
-        if (totalScore >= 70) rec.innerHTML = '<span class="text-green-bold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الدراسة جاهزة للعرض.</span> أرفقها مع طلب التمويل.';
-        else if (totalScore >= 40) rec.innerHTML = '<span class="text-gold-bold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> أكمل ما يلي:</span><br/>' + criteria.filter(c => !document.getElementById(c.id)?.checked).map(c => '• ' + document.querySelector('label[for="' + c.id + '"]').textContent).join('<br/>');
-        else rec.innerHTML = '<span class="text-red-bold"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> الدراسة غير مكتملة.</span> ابدأ بملء البيانات الأساسية والمستندات.';
+        if (totalScore >= 70) rec.innerHTML = '<span class="text-green-bold">✅ الدراسة جاهزة للعرض.</span> أرفقها مع طلب التمويل.';
+        else if (totalScore >= 40) rec.innerHTML = '<span class="text-gold-bold">⚠️ أكمل ما يلي:</span><br/>' + criteria.filter(c => !document.getElementById(c.id)?.checked).map(c => '• ' + document.querySelector('label[for="' + c.id + '"]').textContent).join('<br/>');
+        else rec.innerHTML = '<span class="text-red-bold">❌ الدراسة غير مكتملة.</span> ابدأ بملء البيانات الأساسية والمستندات.';
       }
     }
 
@@ -2327,7 +2327,7 @@
         }
       }
 
-      alert('تم ملء ' + (data.name || code) + ' <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>\nالتراخيص: ' + (defaults[code]?.length || 0) + ' | VAT: ' + (data.vatRate || '-') + '% | العملة: ' + currencySymbol + '\nرواتب: ' + (bm?.salaries ? Object.keys(bm.salaries).length : 0) + ' وظائف | مرافق: ' + (bm?.utilities ? Object.keys(bm.utilities).length : 0));
+      alert('تم ملء ' + (data.name || code) + ' ✅\nالتراخيص: ' + (defaults[code]?.length || 0) + ' | VAT: ' + (data.vatRate || '-') + '% | العملة: ' + currencySymbol + '\nرواتب: ' + (bm?.salaries ? Object.keys(bm.salaries).length : 0) + ' وظائف | مرافق: ' + (bm?.utilities ? Object.keys(bm.utilities).length : 0));
     }
 
     // ===== Supabase Smart Import =====
@@ -2350,7 +2350,7 @@
 
     async function fillFromSupabase() {
       if (!currentUser || !sb) {
-        alert('يرجى تسجيل الدخول أولاً <svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg>');
+        alert('يرجى تسجيل الدخول أولاً 🔐');
         return;
       }
       const userId = currentUser.id;
@@ -2449,18 +2449,18 @@
           const swotS = document.querySelector('.swot-box.s textarea');
           const swotW = document.querySelector('.swot-box.w textarea');
           if (swotS && !swotS.value && strengths.length) {
-            swotS.value = strengths.map(s => '<svg class="bonds-icon bonds-icon--star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> ' + s.recommendation).join('\n');
+            swotS.value = strengths.map(s => '⭐ ' + s.recommendation).join('\n');
             filledCount++;
           }
           if (swotW && !swotW.value && weaknesses.length) {
-            swotW.value = weaknesses.map(s => '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + s.recommendation).join('\n');
+            swotW.value = weaknesses.map(s => '⚠️ ' + s.recommendation).join('\n');
             filledCount++;
           }
         }
       } catch (e) {  }
 
       calcFinancials();
-      alert('تم الاستيراد من بياناتك <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>\nتم ملء ' + filledCount + ' خانة/بيان');
+      alert('تم الاستيراد من بياناتك ✅\nتم ملء ' + filledCount + ' خانة/بيان');
     }
 
     // ===== ROI & Payback =====
@@ -2527,7 +2527,7 @@
         data['f' + i] = el.type === 'checkbox' ? el.checked : el.value;
       });
       localStorage.setItem('bonds_feasibility_v2', JSON.stringify(data));
-      alert('تم حفظ المسودة بنجاح <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
+      alert('تم حفظ المسودة بنجاح ✅');
     }
     function loadDraft() {
       const raw = localStorage.getItem('bonds_feasibility_v2');
@@ -2545,7 +2545,7 @@
       calcCapital();
       calcHRGrandTotal();
       calcToolsGrandTotal();
-      alert('تم استرجاع المسودة <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
+      alert('تم استرجاع المسودة ✅');
     }
     function clearAll() {
       if (!confirm('هل أنت متأكد من مسح جميع البيانات؟')) return;
@@ -2582,7 +2582,7 @@
         const saved = JSON.parse(raw);
         if (!saved || !saved.data) return;
         const ageHours = (Date.now() - saved.time) / 3600000;
-        if (ageHours > 168) { localStorage.removeItem('bonds_feasibility_auto'); return; } //<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>7<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>
+        if (ageHours > 168) { localStorage.removeItem('bonds_feasibility_auto'); return; } //超过7天清除
         document.querySelectorAll('input, textarea, select').forEach((el, i) => {
           const key = 'f' + i;
           if (saved.data[key] !== undefined) {
@@ -2592,7 +2592,7 @@
         });
         calcFinancials(); calcCashFlow(); calcCapital(); calcHRGrandTotal(); calcToolsGrandTotal();
         const indicator = document.getElementById('auto-save-indicator');
-        if (indicator) { indicator.textContent = '<svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> تم استرجاع المسودة المحفوظة تلقائياً'; indicator.style.opacity = '1'; setTimeout(() => { indicator.style.opacity = '0'; indicator.textContent = '<svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> تم الحفظ تلقائياً'; }, 3000); }
+        if (indicator) { indicator.textContent = '💾 تم استرجاع المسودة المحفوظة تلقائياً'; indicator.style.opacity = '1'; setTimeout(() => { indicator.style.opacity = '0'; indicator.textContent = '💾 تم الحفظ تلقائياً'; }, 3000); }
       } catch(e) {  }
     }
     // Start auto-save listeners
@@ -2653,7 +2653,7 @@
         doc.setTextColor(22, 163, 74);
         doc.setLineWidth(1.5);
         doc.roundedRect(65, 200, 80, 25, 5, 5, 'D');
-        addText('<svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> صالح للعرض على الجهات التمويلية', 105, 215, { align: 'center' });
+        addText('✓ صالح للعرض على الجهات التمويلية', 105, 215, { align: 'center' });
       }
       // Footer
       doc.setTextColor(150, 150, 150);
@@ -2779,13 +2779,13 @@
       doc.setFontSize(14);
       if (score >= 70) {
         doc.setTextColor(22, 163, 74);
-        addText('<svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> جاهز للتمويل', 105, 110, { align: 'center' });
+        addText('✓ جاهز للتمويل', 105, 110, { align: 'center' });
       } else if (score >= 40) {
         doc.setTextColor(212, 168, 83);
-        addText('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> يحتاج تحسين', 105, 110, { align: 'center' });
+        addText('⚠ يحتاج تحسين', 105, 110, { align: 'center' });
       } else {
         doc.setTextColor(220, 38, 38);
-        addText('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> غير جاهز', 105, 110, { align: 'center' });
+        addText('❌ غير جاهز', 105, 110, { align: 'center' });
       }
       // Criteria table
       y = 130;
@@ -2812,7 +2812,7 @@
         addText(label, 180, y, { align: 'right' });
         addText(weight + '', 100, y, { align: 'center' });
         doc.setTextColor(checked ? 22 : 220, checked ? 163 : 38, checked ? 74 : 38);
-        addText(checked ? '<svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>', 40, y, { align: 'center' });
+        addText(checked ? '✓' : '✗', 40, y, { align: 'center' });
         doc.setDrawColor(220, 220, 220);
         doc.line(20, y + 2, 190, y + 2);
         y += 10;
@@ -2962,13 +2962,13 @@
         const hasResearch = SECTION_RESEARCH_MAP[pageId];
         mount.innerHTML = `
           <div class="section-gallery">
-            <div class="section-gallery-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> صور ومرفقات القسم</div>
+            <div class="section-gallery-title">📎 صور ومرفقات القسم</div>
             <div class="gallery-grid"></div>
             <div class="btn-row-sm">
               <input class="hidden" type="file" accept="image/*" multiple onchange="handleGalleryFiles('${pageId}', this.files); this.value='';" />
               <button class="flex-btn" onclick="this.previousElementSibling.click()">+ رفع صور</button>
-              <button class="flex-btn-sky" onclick="openImageSearch('${pageId}')"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بحث عن صور</button>
-              ${hasResearch ? `<button class="flex-btn-gold" onclick="openSectionResearch('${pageId}')"><svg class="bonds-icon bonds-icon--brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg> بحث ذكي للقسم</button>` : ''}
+              <button class="flex-btn-sky" onclick="openImageSearch('${pageId}')">🔍 بحث عن صور</button>
+              ${hasResearch ? `<button class="flex-btn-gold" onclick="openSectionResearch('${pageId}')">🧠 بحث ذكي للقسم</button>` : ''}
             </div>
             <div class="gallery-compress-info"></div>
           </div>`;
@@ -3059,7 +3059,7 @@
           <div class="imgsearch-overlay" onclick="if(event.target===this)closeImageSearch()"></div>
           <div class="imgsearch-panel">
             <div class="imgsearch-header">
-              <h3><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> بحث عن صور</h3>
+              <h3>🔍 بحث عن صور</h3>
               <button class="imgsearch-close" onclick="closeImageSearch()">&times;</button>
             </div>
             <div class="imgsearch-body">
@@ -3195,7 +3195,7 @@
     const SECTION_RESEARCH_MAP = {
       'page-vision': {
         title: 'بحث ذكي — الرؤية والفكرة',
-        icon: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>',
+        icon: '🎯',
         dataPath: 'market_trends',
         fields: {
           'cover-idea': (data) => Array.isArray(data) ? data.join('\n• ') : data
@@ -3203,7 +3203,7 @@
       },
       'page-tech-impact': {
         title: 'بحث ذكي — التأثير التقني',
-        icon: '<svg class="bonds-icon bonds-icon--laptop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><line x1="2" y1="20" x2="22" y2="20"></line></svg>',
+        icon: '💻',
         dataPath: 'technological_impact',
         fields: {
           'tech-positive': 'positive',
@@ -3213,7 +3213,7 @@
       },
       'page-country-economy': {
         title: 'بحث ذكي — الاقتصاد الوطني',
-        icon: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>',
+        icon: '📊',
         dataPath: 'country_economy',
         fields: {
           'econ-gdp': 'gdp_growth',
@@ -3226,13 +3226,13 @@
       },
       'page-market-analysis': {
         title: 'بحث ذكي — تحليل السوق والمنافسين',
-        icon: '<svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>',
+        icon: '📈',
         dataPath: 'competitors',
         special: 'competitors'
       },
       'page-marketing': {
         title: 'بحث ذكي — التسويق',
-        icon: '<svg class="bonds-icon bonds-icon--megaphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg>',
+        icon: '📢',
         dataPath: 'marketing_4ps',
         fields: {
           'marketing-product': 'product_strategy',
@@ -3243,7 +3243,7 @@
       },
       'page-legal': {
         title: 'بحث ذكي — المتطلبات القانونية',
-        icon: '<svg class="bonds-icon bonds-icon--scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-8"></path><path d="M12 14l6-3v4a6 6 0 0 1-6 3 6 6 0 0 1-6-3v-4l6 3z"></path><path d="M12 14V7"></path><path d="M9 7h6"></path><circle cx="12" cy="4" r="2"></circle></svg>',
+        icon: '⚖️',
         dataPath: 'legal_requirements',
         fields: {
           'legal-insurance': 'insurance',
@@ -3253,7 +3253,7 @@
       },
       'page-smart': {
         title: 'بحث ذكي — SWOT',
-        icon: '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>',
+        icon: '🧩',
         dataPath: 'swot',
         fields: {
           'swot-s': (data) => Array.isArray(data?.strengths) ? data.strengths.join('\n') : data?.strengths,
@@ -3467,7 +3467,7 @@
       runSmartAnalysis();
       updateProgress();
       closeSectionResearch();
-      alert('تم ملء ' + filledCount + ' خانة في هذا القسم <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
+      alert('تم ملء ' + filledCount + ' خانة في هذا القسم ✅');
     }
 
     // ===== Smart Research Agent =====
@@ -3738,7 +3738,7 @@
       runSmartAnalysis();
       updateProgress();
       closeResearchModal();
-      alert('تم ملء ' + filledCount + ' خانة بنجاح <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
+      alert('تم ملء ' + filledCount + ' خانة بنجاح ✅');
     }
 
     // Sync research country with cover country
@@ -3760,7 +3760,7 @@
       try {
         if (file.name.toLowerCase().endsWith('.docx')) {
           if (!window.mammoth) {
-            status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> مكتبة Word لم تحمل بعد. جرب تحديث الصفحة (Ctrl+F5).';
+            status.textContent = '⚠️ مكتبة Word لم تحمل بعد. جرب تحديث الصفحة (Ctrl+F5).';
             status.style.color = '#f87171';
             return;
           }
@@ -3788,17 +3788,17 @@
             extractedText += content.items.map(item => item.str).join(' ') + '\n';
           }
           document.getElementById('feasibility-text').value = extractedText;
-          status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم استخراج النص من ملف PDF (' + pdf.numPages + ' صفحات). اضغط "تحليل وملء القالب".';
+          status.textContent = '✅ تم استخراج النص من ملف PDF (' + pdf.numPages + ' صفحات). اضغط "تحليل وملء القالب".';
         } else if (file.name.toLowerCase().endsWith('.txt')) {
           const text = await file.text();
           document.getElementById('feasibility-text').value = text;
-          status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم قراءة ملف النص. اضغط "تحليل وملء القالب".';
+          status.textContent = '✅ تم قراءة ملف النص. اضغط "تحليل وملء القالب".';
         } else {
-          status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> يدعم فقط ملفات .docx و .pdf و .txt — اذهب لـ https://convertio.co لتحويل الملف.';
+          status.textContent = '⚠️ يدعم فقط ملفات .docx و .pdf و .txt — اذهب لـ https://convertio.co لتحويل الملف.';
           status.style.color = '#f87171';
         }
       } catch (e) {
-        status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> خطأ في قراءة الملف: ' + e.message;
+        status.textContent = '❌ خطأ في قراءة الملف: ' + e.message;
         status.style.color = '#f87171';
       }
     }
@@ -3946,7 +3946,7 @@
       fillTemplateFromAnalysis(d, checkedKeys);
       closePreview();
       const status = document.getElementById('import-status');
-      status.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم ملء القالب بالبيانات المختارة! راجع وأكمل ما ينقص.';
+      status.textContent = '✅ تم ملء القالب بالبيانات المختارة! راجع وأكمل ما ينقص.';
       status.style.color = '#4ade80';
       document.getElementById('page-vision').scrollIntoView({ behavior: 'smooth' });
     }
@@ -4112,7 +4112,7 @@
       runSmartAnalysis();
       updateProgress();
 
-      alert('تم ملء ' + filledCount + ' خانة من الدراسة المستوردة <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
+      alert('تم ملء ' + filledCount + ' خانة من الدراسة المستوردة ✅');
     }
 
     function setVal(id, value) {

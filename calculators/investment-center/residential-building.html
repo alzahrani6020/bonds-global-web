@@ -32,7 +32,7 @@
 
   <main class="investment-calculator">
     <div class="investment-calculator__header">
-      <div style="font-size:3rem;margin-bottom:var(--space-3);"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
+      <div style="font-size:3rem;margin-bottom:var(--space-3);">🏢</div>
       <h1>حاسبة بناء عمائر سكنية</h1>
       <p>حلل جدوى بناء عماره سكنية للبيع.</p>
     </div>
@@ -1406,7 +1406,7 @@
       container.classList.remove('hidden');
       const title = isAr ? 'تحذيرات التحقق من البيانات' : 'Data Validation Warnings';
       const fixMsg = isAr ? 'يرجى تصحيح التحذيرات أعلاه قبل إصدار التقرير.' : 'Please fix the warnings above before generating the report.';
-      container.innerHTML = '<div class="validation-warnings__title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + title + '</div>' +
+      container.innerHTML = '<div class="validation-warnings__title">⚠️ ' + title + '</div>' +
         '<ul>' + validation.warnings.map(w => '<li>' + w + '</li>').join('') + '</ul>' +
         '<div class="validation-warnings__footer">' + fixMsg + '</div>';
     }
@@ -1536,7 +1536,7 @@
           })
         });
         const json = await res.json();
-        alert(json.success ? (isAr ? '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم الحفظ' : '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Saved') : (json.error || 'Error'));
+        alert(json.success ? (isAr ? '✅ تم الحفظ' : '✅ Saved') : (json.error || 'Error'));
       } catch (e) {
         alert(isAr ? 'تعذر الحفظ' : 'Save failed');
       }

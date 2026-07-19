@@ -35,7 +35,7 @@
       <h1>تأكيد البريد الإلكتروني</h1>
       <p class="subtitle" id="subtitle">أدخل الرمز المؤلف من 6 أرقام الذي أرسلناه إلى بريدك الإلكتروني.</p>
       <p id="emailHint" style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-4);line-height:1.6;">
-        <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> إذا لم تجد رمزاً من 6 أرقام، فقد يكون البريد يحتوي على <strong style="color:var(--gold)">رابط دخول</strong> — اضغطه مباشرة وسيتم تسجيل دخولك.
+        💡 إذا لم تجد رمزاً من 6 أرقام، فقد يكون البريد يحتوي على <strong style="color:var(--gold)">رابط دخول</strong> — اضغطه مباشرة وسيتم تسجيل دخولك.
       </p>
 
       <div id="errorMsg" class="error-msg"></div>
@@ -187,7 +187,7 @@
             return;
           }
 
-          showSuccess('تم التحقق من البريد الإلكتروني <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
+          showSuccess('تم التحقق من البريد الإلكتروني ✅');
 
           // Set password if stored from signup
           const pendingPassword = sessionStorage.getItem('otp_pending_password');
@@ -247,13 +247,13 @@
           const { error: rErr } = await sbResend.auth.signInWithOtp({ phone: phone });
           setLoading('resendBtn', false);
           if (rErr) { showError(rErr.message); return; }
-          showInfo('تم إعادة إرسال الرمز إلى جوالك <svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>');
+          showInfo('تم إعادة إرسال الرمز إلى جوالك 📱');
           return;
         }
         const { error } = await window.BondsAuth.signInWithOTP(email, { shouldCreateUser: false });
         setLoading('resendBtn', false);
         if (error) { showError(error.message); return; }
-        showInfo('تم إعادة الإرسال <svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> تحقق من بريدك وجرب الرابط إذا لم يكن هناك رمز.');
+        showInfo('تم إعادة الإرسال 📧 تحقق من بريدك وجرب الرابط إذا لم يكن هناك رمز.');
       });
 
       function hideMessages() { errorMsg.style.display = 'none'; successMsg.style.display = 'none'; infoMsg.style.display = 'none'; }

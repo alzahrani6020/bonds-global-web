@@ -208,26 +208,26 @@
 
 <div class="container">
   <h1 style="text-align:center; font-size:clamp(1.5rem,4vw,2.2rem); font-weight:900; color:var(--gold); margin-bottom:0.5rem;">
-    <svg class="bonds-icon bonds-icon--receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2V2"></path><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg> Invoice Analyzer
+    🧾 Invoice Analyzer
   </h1>
   <p style="text-align:center; color:#555555; margin-bottom:1rem; font-size:0.95rem;">
     Select country &amp; platform — or enter manually. See profit per order, daily, monthly, and yearly
   </p>
   <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:0.75rem 1rem; margin-bottom:1.5rem; text-align:center; font-size:0.85rem; color:#f59e0b; line-height:1.6;">
-    <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> <strong>Note:</strong> These are estimates based on public data. Commissions and fees <strong>vary by restaurant</strong> based on individual platform agreements. Please verify with your actual contract and adjust values manually.
+    ⚠️ <strong>Note:</strong> These are estimates based on public data. Commissions and fees <strong>vary by restaurant</strong> based on individual platform agreements. Please verify with your actual contract and adjust values manually.
   </div>
 
   <!-- Platform Selector -->
-  <div class="section-title"><svg class="bonds-icon bonds-icon--globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> Country &amp; Platform</div>
+  <div class="section-title">🌍 Country &amp; Platform</div>
   <div class="platform-selector-row">
     <div class="input-group">
-      <label><span class="bonds-flag bonds-flag--AE">AE</span> Country</label>
+      <label>🇦🇪 Country</label>
       <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="countrySelect" onchange="onCountryChange()" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
         <option value="">-- Select Country --</option>
       </select>
     </div>
     <div class="input-group">
-      <label><svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Platform</label>
+      <label>📱 Platform</label>
       <select data-universal-dropdown="true" id="platformSelect" onchange="onPlatformChange()">
         <option value="">-- Select Platform --</option>
       </select>
@@ -235,46 +235,46 @@
   </div>
   <div class="auto-fill-note" id="autoFillNote">Select country and platform to auto-fill data</div>
 
-  <div class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Invoice Details</div>
+  <div class="section-title">📋 Invoice Details</div>
   <div class="inputs-grid">
     <div class="input-group">
-      <label><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Order Price (before discount)</label>
+      <label>💰 Order Price (before discount)</label>
       <input type="number" id="orderPrice" placeholder="34.99" step="0.01" min="0" />
     </div>
     <div class="input-group">
-      <label><svg class="bonds-icon bonds-icon--tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> Merchant-Funded Discount (what YOU pay)</label>
+      <label>🏷️ Merchant-Funded Discount (what YOU pay)</label>
       <input type="number" id="merchantDiscount" placeholder="18.25" step="0.01" min="0" />
     </div>
     <div class="input-group">
-      <label><svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Platform Commission (%) ← or fixed amount</label>
+      <label>📱 Platform Commission (%) ← or fixed amount</label>
       <input type="number" id="platformCommissionPct" placeholder="25" step="0.01" min="0" />
     </div>
     <div class="input-group">
-      <label><svg class="bonds-icon bonds-icon--credit-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg> Payment / Gateway Fee (%) ← or fixed amount</label>
+      <label>💳 Payment / Gateway Fee (%) ← or fixed amount</label>
       <input type="number" id="paymentFeePct" placeholder="1.75" step="0.01" min="0" />
     </div>
     <div class="input-group">
-      <label><svg class="bonds-icon bonds-icon--package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> Product Cost (ingredients + packaging)</label>
+      <label>📦 Product Cost (ingredients + packaging)</label>
       <input type="number" id="productCost" placeholder="8.00" step="0.01" min="0" />
     </div>
     <div class="input-group">
-      <label><svg class="bonds-icon bonds-icon--truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> Delivery Fee (if you cover it)</label>
+      <label>🚚 Delivery Fee (if you cover it)</label>
       <input type="number" id="deliveryFee" placeholder="0.00" step="0.01" min="0" />
     </div>
     <div class="input-group">
-      <label><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> VAT Rate (%)</label>
+      <label>📊 VAT Rate (%)</label>
       <input type="number" id="vatRate" placeholder="15" step="0.01" min="0" max="100" value="15" />
     </div>
     <div class="input-group">
-      <label><svg class="bonds-icon bonds-icon--tool" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg> Additional Service Fee (%)</label>
+      <label>🔧 Additional Service Fee (%)</label>
       <input type="number" id="serviceFeePct" placeholder="2" step="0.01" min="0" value="0" />
     </div>
   </div>
 
-  <div class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Sales Volume</div>
+  <div class="section-title">📊 Sales Volume</div>
   <div class="volume-grid">
     <div class="input-group">
-      <label><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> Orders / Day</label>
+      <label>📈 Orders / Day</label>
       <input type="number" id="dailyOrders" placeholder="50" min="0" />
     </div>
     <div class="input-group">
@@ -282,23 +282,23 @@
       <input type="number" id="workingDays" placeholder="30" min="1" max="31" />
     </div>
     <div class="input-group">
-      <label><svg class="bonds-icon bonds-icon--tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> Item / Promo Name (optional)</label>
+      <label>🏷️ Item / Promo Name (optional)</label>
       <input type="text" id="itemName" placeholder="Value Offer" />
     </div>
   </div>
 
-  <button class="btn-calc" onclick="calculateInvoice()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Calculate &amp; Analyze</button>
-  <button class="btn-calc secondary" onclick="compareAllPlatforms()"><svg class="bonds-icon bonds-icon--scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-8"></path><path d="M12 14l6-3v4a6 6 0 0 1-6 3 6 6 0 0 1-6-3v-4l6 3z"></path><path d="M12 14V7"></path><path d="M9 7h6"></path><circle cx="12" cy="4" r="2"></circle></svg> Compare All Platforms in Country</button>
-  <button class="btn-calc secondary" onclick="loadDemoData()"><svg class="bonds-icon bonds-icon--flask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4"></path><path d="M12 2v8"></path><path d="M17 21H7a2 2 0 0 1-1.73-3l7-12a2 2 0 0 1 3.46 0l7 12A2 2 0 0 1 17 21z"></path></svg> Try Demo Data</button>
+  <button class="btn-calc" onclick="calculateInvoice()">🔍 Calculate &amp; Analyze</button>
+  <button class="btn-calc secondary" onclick="compareAllPlatforms()">⚖️ Compare All Platforms in Country</button>
+  <button class="btn-calc secondary" onclick="loadDemoData()">🧪 Try Demo Data</button>
 
   <div id="resultsSection" style="display:none;">
     <div class="invoice-card" id="invoiceCard">
       <div class="invoice-header">
-        <h2><svg class="bonds-icon bonds-icon--receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2V2"></path><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg> <span id="invoiceItemName">Order Invoice</span></h2>
-        <span class="badge" id="invoiceBadge">Profit <svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+        <h2>🧾 <span id="invoiceItemName">Order Invoice</span></h2>
+        <span class="badge" id="invoiceBadge">Profit ✓</span>
       </div>
       <div class="invoice-line">
-        <span class="label"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Gross Revenue</span>
+        <span class="label">💰 Gross Revenue</span>
         <span class="value" id="valSubtotal">0.00</span>
       </div>
       <div class="invoice-line negative">
@@ -307,7 +307,7 @@
       </div>
       <div class="receipt-dots">• • • • • • • • • •</div>
       <div class="invoice-line" style="border-top:1px dashed rgba(255,255,255,0.1); padding-top:0.6rem;">
-        <span class="label" style="color:#555555; font-weight:600;"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Revenue After Discount</span>
+        <span class="label" style="color:#555555; font-weight:600;">💰 Revenue After Discount</span>
         <span class="value" style="color:#555555; font-weight:700;" id="valAfterDiscount">0.00</span>
       </div>
       <div class="invoice-line negative">
@@ -344,22 +344,22 @@
       </div>
       <div class="receipt-dots">• • • • • • • • • •</div>
       <div class="invoice-line negative" style="border-top:1px dashed rgba(255,255,255,0.15); padding-top:0.75rem;">
-        <span class="label" style="color:#f59e0b; font-weight:700;"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Total Deductions</span>
+        <span class="label" style="color:#f59e0b; font-weight:700;">📉 Total Deductions</span>
         <span class="value" style="color:#f59e0b; font-weight:800;" id="valTotalDeductions">−0.00</span>
       </div>
       <div class="receipt-dots">• • • • • • • • • •</div>
       <div class="invoice-line total">
-        <span class="label"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Net Income (after all deductions)</span>
+        <span class="label">📊 Net Income (after all deductions)</span>
         <span class="value" id="valNetIncome">0.00</span>
       </div>
       <div class="receipt-dots">• • • • • • • • • •</div>
       <div class="invoice-line negative" style="opacity:0.8;">
-        <span class="label"><svg class="bonds-icon bonds-icon--package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> Product Cost (ingredients + packaging)</span>
+        <span class="label">📦 Product Cost (ingredients + packaging)</span>
         <span class="value" id="valProductCost2">−0.00</span>
       </div>
       <div class="receipt-dots">• • • • • • • • • •</div>
       <div class="invoice-line total">
-        <span class="label"><svg class="bonds-icon bonds-icon--banknote" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01"></path><path d="M18 12h.01"></path></svg> Net Profit = Net Income − Product Cost</span>
+        <span class="label">💵 Net Profit = Net Income − Product Cost</span>
         <span class="value" id="valNetProfit">0.00</span>
       </div>
       <div class="invoice-line" style="padding-top:0.3rem;">
@@ -368,28 +368,28 @@
       </div>
     </div>
 
-    <div class="section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Cumulative Profits</div>
+    <div class="section-title">📊 Cumulative Profits</div>
     <div class="summary-grid">
       <div class="summary-card">
-        <div class="icon"><svg class="bonds-icon bonds-icon--receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2V2"></path><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg></div>
+        <div class="icon">🧾</div>
         <div class="num" id="sumInvoice">0.00</div>
         <div class="label">Per Invoice</div>
         <div class="sub" id="sumInvoiceSub">No discount: 0.00</div>
       </div>
       <div class="summary-card">
-        <div class="icon"><svg class="bonds-icon bonds-icon--calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+        <div class="icon">📅</div>
         <div class="num" id="sumDaily">0.00</div>
         <div class="label">Daily</div>
         <div class="sub" id="sumDailySub">0 orders × 0.00</div>
       </div>
       <div class="summary-card">
-        <div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
+        <div class="icon">📆</div>
         <div class="num" id="sumMonthly">0.00</div>
         <div class="label">Monthly</div>
         <div class="sub" id="sumMonthlySub">0 days × 0.00</div>
       </div>
       <div class="summary-card">
-        <div class="icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
+        <div class="icon">🗓️</div>
         <div class="num" id="sumYearly">0.00</div>
         <div class="label">Yearly</div>
         <div class="sub" id="sumYearlySub">12 months × 0.00</div>
@@ -397,7 +397,7 @@
     </div>
 
     <div class="promo-box" id="promoBox">
-      <h3><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Is the Promo Worth It?</h3>
+      <h3>⚠️ Is the Promo Worth It?</h3>
       <div class="promo-row">
         <span class="label">Discount you pay:</span>
         <span class="value" id="promoDiscount" style="color:var(--red);">0.00</span>
@@ -415,28 +415,28 @@
         <span class="value" id="promoProfitWithDiscount">0.00</span>
       </div>
       <div class="promo-row highlight">
-        <span class="label"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Loss per invoice from discount:</span>
+        <span class="label">📉 Loss per invoice from discount:</span>
         <span class="value" id="promoLossPerInvoice">0.00</span>
       </div>
       <div class="promo-row highlight">
-        <span class="label"><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> Extra orders needed / day:</span>
+        <span class="label">📈 Extra orders needed / day:</span>
         <span class="value" id="promoExtraOrders">0</span>
       </div>
       <div class="promo-row highlight">
-        <span class="label"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Required sales increase:</span>
+        <span class="label">🎯 Required sales increase:</span>
         <span class="value" id="promoRequiredIncrease">0%</span>
       </div>
     </div>
 
-    <div class="section-title"><svg class="bonds-icon bonds-icon--scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-8"></path><path d="M12 14l6-3v4a6 6 0 0 1-6 3 6 6 0 0 1-6-3v-4l6 3z"></path><path d="M12 14V7"></path><path d="M9 7h6"></path><circle cx="12" cy="4" r="2"></circle></svg> Comparison: With vs Without Promo</div>
+    <div class="section-title">⚖️ Comparison: With vs Without Promo</div>
     <div class="compare-grid">
       <div class="compare-card" id="cardWithPromo">
-        <h4><svg class="bonds-icon bonds-icon--gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 12 20 22 4 22 4 12"></polyline><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg> With Promo (Current)</h4>
+        <h4>🎁 With Promo (Current)</h4>
         <div class="big" id="compareWith" style="color:var(--red);">0.00</div>
         <div class="desc">Monthly profit with discount</div>
       </div>
       <div class="compare-card winner" id="cardWithoutPromo">
-        <h4><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Without Promo</h4>
+        <h4>✅ Without Promo</h4>
         <div class="big" id="compareWithout" style="color:var(--green);">0.00</div>
         <div class="desc">Monthly profit without discount</div>
       </div>
@@ -444,14 +444,14 @@
 
     <div id="verdictBox" style="text-align:center; padding:1.5rem; border-radius:12px; margin:1rem 0; font-weight:700;"></div>
     <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; margin:1rem 0;">
-      <button class="btn-calc secondary" onclick="exportInvoiceExcel()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Excel</button>
-      <button class="btn-calc secondary" onclick="exportInvoicePDF()"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> PDF</button>
+      <button class="btn-calc secondary" onclick="exportInvoiceExcel()">📊 Excel</button>
+      <button class="btn-calc secondary" onclick="exportInvoicePDF()">📄 PDF</button>
     </div>
   </div>
 
   <!-- Compare All Platforms Section -->
   <div id="compareAllSection">
-    <div class="section-title"><svg class="bonds-icon bonds-icon--scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-8"></path><path d="M12 14l6-3v4a6 6 0 0 1-6 3 6 6 0 0 1-6-3v-4l6 3z"></path><path d="M12 14V7"></path><path d="M9 7h6"></path><circle cx="12" cy="4" r="2"></circle></svg> Compare All Platforms in Country</div>
+    <div class="section-title">⚖️ Compare All Platforms in Country</div>
     <p style="color:#555555; font-size:0.85rem; margin:-0.5rem 0 1rem;">
       Same order (same price + same cost) on every platform in the country
     </p>
@@ -474,28 +474,28 @@
       </table>
     </div>
     <p style="text-align:center; color:#888888; font-size:0.75rem; margin-top:0.5rem;">
-      <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Numbers are estimates. Actual commissions and fees vary based on individual agreements between each restaurant and platform.
+      ⚠️ Numbers are estimates. Actual commissions and fees vary based on individual agreements between each restaurant and platform.
     </p>
   </div>
 
   <!-- Saved Invoices -->
-  <div class="section-title"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Saved Invoices</div>
+  <div class="section-title">💾 Saved Invoices</div>
   <div id="savedInvoicesSection" style="display:none; margin-bottom:1.5rem;">
     <div id="savedInvoicesList" style="display:flex; flex-wrap:wrap; gap:0.5rem;"></div>
   </div>
 
   <!-- Backup / Restore -->
   <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin:1.5rem 0;">
-    <button class="btn-calc secondary" onclick="saveCurrentInvoice()" style="flex:1; min-width:140px;"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Invoice</button>
-    <button class="btn-calc secondary" onclick="exportAllData()" style="flex:1; min-width:140px;"><svg class="bonds-icon bonds-icon--inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg> Export All Data</button>
+    <button class="btn-calc secondary" onclick="saveCurrentInvoice()" style="flex:1; min-width:140px;">💾 Save Invoice</button>
+    <button class="btn-calc secondary" onclick="exportAllData()" style="flex:1; min-width:140px;">📥 Export All Data</button>
     <label style="flex:1; min-width:140px; cursor:pointer;">
       <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importAllData(this)" />
-      <span class="btn-calc secondary" style="display:block; text-align:center;"><svg class="bonds-icon bonds-icon--send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Import Data</span>
+      <span class="btn-calc secondary" style="display:block; text-align:center;">📤 Import Data</span>
     </label>
   </div>
 
   <div id="emptyState" class="empty-state">
-    <div class="icon"><svg class="bonds-icon bonds-icon--receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2V2"></path><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg></div>
+    <div class="icon">🧾</div>
     <p>Select country &amp; platform — or enter manually<br>and click "Calculate &amp; Analyze"</p>
   </div>
 </div>
@@ -523,7 +523,7 @@ function loadDemoData() {
     document.getElementById('itemName').value = 'Shawarma Meal Offer';
     onPlatformChange();
     calculateInvoice();
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Demo loaded — HungerStation, Shawarma SAR 65', 'success');
+    BondsUI.toast('✅ Demo loaded — HungerStation, Shawarma SAR 65', 'success');
   }, 100);
 }
 
@@ -694,9 +694,9 @@ function calculateInvoice() {
 
   document.getElementById('invoiceItemName').textContent = itemName;
   var badge = document.getElementById('invoiceBadge');
-  if (netProfit > 0) { badge.textContent = 'Profit <svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>'; badge.style.cssText = 'background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);padding:0.2rem 0.6rem;border-radius:999px;font-size:0.75rem;font-weight:700;'; }
+  if (netProfit > 0) { badge.textContent = 'Profit ✓'; badge.style.cssText = 'background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);padding:0.2rem 0.6rem;border-radius:999px;font-size:0.75rem;font-weight:700;'; }
   else if (netProfit === 0) { badge.textContent = 'Break-even'; badge.style.cssText = 'background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);padding:0.2rem 0.6rem;border-radius:999px;font-size:0.75rem;font-weight:700;'; }
-  else { badge.textContent = 'Loss <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>'; badge.style.cssText = 'background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);padding:0.2rem 0.6rem;border-radius:999px;font-size:0.75rem;font-weight:700;'; }
+  else { badge.textContent = 'Loss ✗'; badge.style.cssText = 'background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);padding:0.2rem 0.6rem;border-radius:999px;font-size:0.75rem;font-weight:700;'; }
 
   document.getElementById('valSubtotal').textContent = formatMoney(price);
   document.getElementById('valDiscount').textContent = '−' + formatMoney(discount);
@@ -772,21 +772,21 @@ function calculateInvoice() {
   var verdict = document.getElementById('verdictBox');
   if (discount === 0) {
     verdict.style.cssText = 'background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.3);text-align:center;padding:1.5rem;border-radius:12px;margin:1rem 0;font-weight:700;';
-    verdict.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> No discount — your monthly profit is ' + monthlyProfit.toFixed(0) + ' ' + currentSymbol;
+    verdict.textContent = '✅ No discount — your monthly profit is ' + monthlyProfit.toFixed(0) + ' ' + currentSymbol;
   } else if (netProfit < 0) {
     verdict.style.cssText = 'background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);text-align:center;padding:1.5rem;border-radius:12px;margin:1rem 0;font-weight:700;';
     verdict.textContent = '❌ This promo causes a loss! Each order loses ' + Math.abs(netProfit).toFixed(2) + ' ' + currentSymbol;
   } else if (extraOrdersNeeded > 0 && extraOrdersNeeded !== Infinity) {
     verdict.style.cssText = 'background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);text-align:center;padding:1.5rem;border-radius:12px;margin:1rem 0;font-weight:700;';
-    verdict.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> You need ' + extraOrdersNeeded + ' extra orders/day (' + requiredIncreasePct.toFixed(0) + '%) to break even on the discount';
+    verdict.textContent = '⚠️ You need ' + extraOrdersNeeded + ' extra orders/day (' + requiredIncreasePct.toFixed(0) + '%) to break even on the discount';
   } else {
     verdict.style.cssText = 'background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.3);text-align:center;padding:1.5rem;border-radius:12px;margin:1rem 0;font-weight:700;';
-    verdict.textContent = '<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> The promo is profitable even with the discount!';
+    verdict.textContent = '✅ The promo is profitable even with the discount!';
   }
 
   window._lastInvoice = { price, discount, commissionPct, paymentFeePct, serviceFeePct, productCost, deliveryFee, vatRate, dailyOrders, workingDays, itemName, commissionAmount, serviceFeeAmount, paymentFeeAmount, vatCommission, vatServiceFee, vatPayment, vatDelivery, afterDiscount, totalDeductions, netIncome, netProfit, marginPct, profitNoDiscount, lossFromDiscount, dailyProfit, monthlyProfit, yearlyProfit, dailyProfitNoDiscount, monthlyProfitNoDiscount, extraOrdersNeeded, requiredIncreasePct };
 
-  BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Analysis complete', 'success');
+  BondsUI.toast('✅ Analysis complete', 'success');
 }
 
 function compareAllPlatforms() {
@@ -858,7 +858,7 @@ function compareAllPlatforms() {
     var tr = document.createElement('tr');
 
     var nameHtml = '<div class="name-cell">' + p.nameEn;
-    if (p.confidence === 'verified') nameHtml += '<span class="info-tag verified"><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> Verified</span>';
+    if (p.confidence === 'verified') nameHtml += '<span class="info-tag verified">✓ Verified</span>';
     else nameHtml += '<span class="info-tag estimated">Estimated</span>';
     if (p.feeTiers && p.feeTiers.length > 0) nameHtml += '<span class="info-tag tiered">Tiered</span>';
     nameHtml += '</div>';
@@ -883,17 +883,17 @@ function compareAllPlatforms() {
 
   document.getElementById('compareAllSection').style.display = 'block';
   document.getElementById('compareAllSection').scrollIntoView({ behavior: 'smooth' });
-  BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Compared ' + results.length + ' platforms', 'success');
+  BondsUI.toast('✅ Compared ' + results.length + ' platforms', 'success');
 }
 
 async function exportInvoiceExcel() {
   if (!window._lastInvoice) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Calculate results first', 'warning');
+    BondsUI.toast('⚠️ Calculate results first', 'warning');
     return;
   }
   await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
   if (typeof XLSX === 'undefined') {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Failed to load Excel library', 'error');
+    BondsUI.toast('❌ Failed to load Excel library', 'error');
     return;
   }
   var d = window._lastInvoice;
@@ -934,12 +934,12 @@ async function exportInvoiceExcel() {
 
 function exportInvoicePDF() {
   if (!window._lastInvoice) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Calculate results first', 'warning');
+    BondsUI.toast('⚠️ Calculate results first', 'warning');
     return;
   }
   var d = window._lastInvoice;
   var content = `
-    <h2><svg class="bonds-icon bonds-icon--receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2V2"></path><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg> Invoice Details</h2>
+    <h2>🧾 Invoice Details</h2>
     <table>
       <tr><th>Item</th><th>Value</th></tr>
       <tr><td>Product Name</td><td class="num">${d.itemName}</td></tr>
@@ -956,7 +956,7 @@ function exportInvoicePDF() {
       <tr><td>Profit Margin</td><td class="num">${d.marginPct.toFixed(1)}%</td></tr>
     </table>
 
-    <h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Financial Projections</h2>
+    <h2>📊 Financial Projections</h2>
     <div class="metric-grid">
       <div class="metric-item"><div class="label">Daily Profit</div><div class="value">${d.dailyProfit.toFixed(0)} ${currentSymbol}</div></div>
       <div class="metric-item"><div class="label">Monthly Profit</div><div class="value">${d.monthlyProfit.toFixed(0)} ${currentSymbol}</div></div>
@@ -1011,10 +1011,10 @@ function saveCurrentInvoice() {
   if (!data.orderPrice) { BondsUI.toast('Enter order price first', 'warning'); return; }
   var name = data.itemName || ('Invoice ' + new Date().toLocaleDateString('en-GB'));
   BondsDB.save('invoices', { name: name, formData: data }).then(function() {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Invoice saved', 'success');
+    BondsUI.toast('✅ Invoice saved', 'success');
     loadSavedInvoices();
   }).catch(function() {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Save failed', 'error');
+    BondsUI.toast('❌ Save failed', 'error');
   });
 }
 
@@ -1031,7 +1031,7 @@ function loadSavedInvoices() {
       btn.style.cssText = 'background:rgba(212,168,83,0.1);color:var(--gold);border:1px solid rgba(212,168,83,0.3);padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.85rem;transition:all 0.2s;';
       btn.onmouseenter = function() { btn.style.background = 'rgba(212,168,83,0.2)'; };
       btn.onmouseleave = function() { btn.style.background = 'rgba(212,168,83,0.1)'; };
-      btn.onclick = function() { setFormData(inv.formData); BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Invoice loaded', 'success'); };
+      btn.onclick = function() { setFormData(inv.formData); BondsUI.toast('✅ Invoice loaded', 'success'); };
       box.appendChild(btn);
     });
   });
@@ -1041,9 +1041,9 @@ function exportAllData() {
   BondsDB.exportAll().then(function(data) {
     var filename = 'bonds-backup-' + new Date().toISOString().slice(0,10) + '.json';
     BondsDB.downloadJSON(filename, data);
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Data exported', 'success');
+    BondsUI.toast('✅ Data exported', 'success');
   }).catch(function() {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Export failed', 'error');
+    BondsUI.toast('❌ Export failed', 'error');
   });
 }
 
@@ -1053,11 +1053,11 @@ function importAllData(input) {
   BondsDB.readFile(file).then(function(data) {
     return BondsDB.importAll(data);
   }).then(function() {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Data imported', 'success');
+    BondsUI.toast('✅ Data imported', 'success');
     loadSavedInvoices();
     input.value = '';
   }).catch(function() {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Invalid file', 'error');
+    BondsUI.toast('❌ Invalid file', 'error');
     input.value = '';
   });
 }

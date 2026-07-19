@@ -61,7 +61,7 @@
   <div id="site-header"></div>
   <div class="feas-container">
     <div class="feas-header">
-      <div class="feas-badge"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Advanced Investment Analysis</div>
+      <div class="feas-badge">🎯 Advanced Investment Analysis</div>
       <h1>Real Project Analysis</h1>
       <p>Calculate <strong>hidden costs</strong>, <strong>risk reserve</strong>, <strong>break-even revenue</strong>, and <strong>payback period</strong> automatically based on your business activity type.</p>
     </div>
@@ -69,16 +69,16 @@
     <div id="progressContainer"></div>
 
     <div class="bonds-tabs">
-      <div class="bonds-tab active" onclick="showTab('project')"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Project Info</div>
-      <div class="bonds-tab" onclick="showTab('costs')"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Costs</div>
-      <div class="bonds-tab" onclick="showTab('risks')"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Risk Factors</div>
-      <div class="bonds-tab" onclick="showTab('result')"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Result</div>
+      <div class="bonds-tab active" onclick="showTab('project')">📋 Project Info</div>
+      <div class="bonds-tab" onclick="showTab('costs')">💸 Costs</div>
+      <div class="bonds-tab" onclick="showTab('risks')">⚠️ Risk Factors</div>
+      <div class="bonds-tab" onclick="showTab('result')">📊 Result</div>
     </div>
 
     <!-- Tab 1: Project Info -->
     <div id="project" class="bonds-panel active">
       <div class="bonds-card">
-        <p class="calc-text-secondary calc-mb-4 calc-text-center"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Select your activity type and enter revenue & investment</p>
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 Select your activity type and enter revenue & investment</p>
         <div class="bonds-form-row">
           <div class="bonds-form-group">
             <label>Business Activity Type</label>
@@ -99,8 +99,8 @@
               <option value="">Select country</option>
             </select>
           </div>
-          <div class="bonds-form-group"><label>Expected Monthly Revenue <abbr title="Total expected monthly revenue before any costs"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label><input id="revenue" class="bonds-input" type="number" value="50000" placeholder="50000" min="0" /></div>
-          <div class="bonds-form-group"><label>Project Value (Invested Capital) <abbr title="Total initial investment required for the project"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label><input id="projectValue" class="bonds-input" type="number" value="200000" placeholder="200000" min="0" /></div>
+          <div class="bonds-form-group"><label>Expected Monthly Revenue <abbr title="Total expected monthly revenue before any costs">ⓘ</abbr></label><input id="revenue" class="bonds-input" type="number" value="50000" placeholder="50000" min="0" /></div>
+          <div class="bonds-form-group"><label>Project Value (Invested Capital) <abbr title="Total initial investment required for the project">ⓘ</abbr></label><input id="projectValue" class="bonds-input" type="number" value="200000" placeholder="200000" min="0" /></div>
         </div>
         <div class="calc-text-center">
           <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">Next: Costs →</button>
@@ -111,13 +111,13 @@
     <!-- Tab 2: Operating Costs -->
     <div id="costs" class="bonds-panel">
       <div class="bonds-card">
-        <p class="calc-text-secondary calc-mb-4 calc-text-center"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Enter your basic monthly operating costs</p>
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 Enter your basic monthly operating costs</p>
         <div class="bonds-form-row">
-          <div class="bonds-form-group"><label>Direct Costs <abbr title="Costs directly tied to production or sales, e.g. raw materials or product cost"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label><input id="directCosts" class="bonds-input" type="number" value="15000" placeholder="15000" min="0" /></div>
+          <div class="bonds-form-group"><label>Direct Costs <abbr title="Costs directly tied to production or sales, e.g. raw materials or product cost">ⓘ</abbr></label><input id="directCosts" class="bonds-input" type="number" value="15000" placeholder="15000" min="0" /></div>
           <div class="bonds-form-group"><label>Salaries & Wages</label><input id="salaries" class="bonds-input" type="number" value="12000" placeholder="12000" min="0" /></div>
           <div class="bonds-form-group"><label>Rent</label><input id="rent" class="bonds-input" type="number" value="8000" placeholder="8000" min="0" /></div>
           <div class="bonds-form-group"><label>Inventory Cost</label><input id="inventoryCost" class="bonds-input" type="number" value="5000" placeholder="5000" min="0" /></div>
-          <div class="bonds-form-group"><label>Equipment Cost (monthly / depreciation) <abbr title="You can enter the monthly depreciation value of equipment"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label><input id="equipmentCost" class="bonds-input" type="number" value="2000" placeholder="2000" min="0" /></div>
+          <div class="bonds-form-group"><label>Equipment Cost (monthly / depreciation) <abbr title="You can enter the monthly depreciation value of equipment">ⓘ</abbr></label><input id="equipmentCost" class="bonds-input" type="number" value="2000" placeholder="2000" min="0" /></div>
         </div>
         <div class="calc-text-center">
           <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← Previous</button>
@@ -129,7 +129,7 @@
     <!-- Tab 3: Risk Factors -->
     <div id="risks" class="bonds-panel">
       <div class="bonds-card">
-        <p class="calc-text-secondary calc-mb-4 calc-text-center"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> These factors affect the hidden cost and reserve percentages</p>
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">⚠️ These factors affect the hidden cost and reserve percentages</p>
         <div class="bonds-form-row">
           <div class="bonds-form-group" style="min-width:100%;">
             <label class="bonds-checkbox-label"><input id="deliveryEnabled" type="checkbox" class="bonds-checkbox" onchange="toggleDeliveryCost()" /> Delivery / shipping is enabled</label>
@@ -137,7 +137,7 @@
             <label class="bonds-checkbox-label"><input id="seasonalStaff" type="checkbox" class="bonds-checkbox" /> Seasonal staff / operational fluctuations</label>
           </div>
           <div class="bonds-form-group" id="deliveryCostGroup" style="display:none;">
-            <label>Monthly Delivery Cost <abbr title="Total you pay monthly for delivery or shipping"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label>Monthly Delivery Cost <abbr title="Total you pay monthly for delivery or shipping">ⓘ</abbr></label>
             <input id="deliveryCost" class="bonds-input" type="number" value="0" placeholder="0" min="0" />
           </div>
           <div class="bonds-form-group">
@@ -149,13 +149,13 @@
             </select>
           </div>
           <div class="bonds-form-group">
-            <label>Waste &amp; Expected Incidentals (%) <abbr title="Reserve percentage for waste and unexpected incidentals: material waste, production loss, sudden repairs, minor spare parts"><svg class="bonds-icon bonds-icon--info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></abbr></label>
+            <label>Waste &amp; Expected Incidentals (%) <abbr title="Reserve percentage for waste and unexpected incidentals: material waste, production loss, sudden repairs, minor spare parts">ⓘ</abbr></label>
             <input id="wasteAndIncidentalsPct" class="bonds-input" type="number" value="0" placeholder="5" min="0" max="100" />
           </div>
         </div>
         <div class="calc-text-center">
           <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← Previous</button>
-          <button class="bonds-btn bonds-btn-primary" onclick="calculateAll();nextTab();">Calculate Result <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
+          <button class="bonds-btn bonds-btn-primary" onclick="calculateAll();nextTab();">Calculate Result 🚀</button>
         </div>
       </div>
     </div>
@@ -164,7 +164,7 @@
     <div id="result" class="bonds-panel">
       <div id="resultContent">
         <div class="calc-empty-state-box-lg">
-          <div class="calc-empty-icon-lg"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
+          <div class="calc-empty-icon-lg">📊</div>
           <p class="calc-text-lg-semibold">Complete the previous steps to see the result</p>
           <button class="bonds-btn bonds-btn-primary calc-mt-4" onclick="showTab('project')">Start Now</button>
         </div>
@@ -229,7 +229,7 @@ function calculateAll() {
   const revenueRes = BondsUI.validateField('revenue', { required:true, type:'number', min:0, label:'Monthly Revenue' });
   const projectValueRes = BondsUI.validateField('projectValue', { required:true, type:'number', min:0, label:'Project Value' });
   if (!revenueRes.valid || !projectValueRes.valid) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Please review project info', 'warning');
+    BondsUI.toast('⚠️ Please review project info', 'warning');
     showTab('project');
     return;
   }
@@ -258,7 +258,7 @@ function calculateAll() {
   const ratingColor = result.investmentRating === 'A' ? '#22c55e' : result.investmentRating === 'B' ? '#84cc16' : result.investmentRating === 'C' ? '#f59e0b' : '#ef4444';
   const verdictHTML = `
     <div class="verdict-box ${result.investmentRating === 'A' || result.investmentRating === 'B' ? 'profit' : result.investmentRating === 'C' ? 'warning' : 'loss'}">
-      <div class="verdict-icon" style="font-size:2.5rem;">${result.investmentRating === 'A' ? '<svg class="bonds-icon bonds-icon--circle bonds-icon--success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg>' : result.investmentRating === 'B' ? '<svg class="bonds-icon bonds-icon--circle bonds-icon--success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg>' : result.investmentRating === 'C' ? '<svg class="bonds-icon bonds-icon--circle bonds-icon--warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg>' : '<svg class="bonds-icon bonds-icon--circle bonds-icon--danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg>'}</div>
+      <div class="verdict-icon" style="font-size:2.5rem;">${result.investmentRating === 'A' ? '🟢' : result.investmentRating === 'B' ? '🟢' : result.investmentRating === 'C' ? '🟡' : '🔴'}</div>
       <div class="verdict-title" style="color:${ratingColor};">Investment Rating: ${result.investmentRating} — ${result.investmentRatingLabel.en}</div>
       <div class="verdict-text">
         Real monthly cost is <strong>${result.totalRealCost.toLocaleString('en-US')} ${currency}</strong> (including ${result.hiddenCostTotal.toLocaleString('en-US')} ${currency} hidden costs and ${result.riskReserve.toLocaleString('en-US')} ${currency} risk reserve).<br>
@@ -273,7 +273,7 @@ function calculateAll() {
   document.getElementById('resultContent').innerHTML = `
     ${verdictHTML}
 
-    <div class="feas-section-title"><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> Key Results</div>
+    <div class="feas-section-title">📈 Key Results</div>
     <div class="metric-row">
       <div class="metric-box"><div class="label">Hidden Costs</div><div class="value" style="color:#f59e0b">${result.hiddenCostTotal.toLocaleString('en-US')} ${currency}</div></div>
       <div class="metric-box"><div class="label">Risk Reserve</div><div class="value" style="color:#f59e0b">${result.riskReserve.toLocaleString('en-US')} ${currency}</div></div>
@@ -285,7 +285,7 @@ function calculateAll() {
       <div class="metric-box"><div class="label">Hidden Cost Ratio</div><div class="value">${result.hiddenCostPct.toFixed(1)}%</div></div>
     </div>
 
-    <div class="feas-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Hidden-Cost Factor Breakdown</div>
+    <div class="feas-section-title">🧩 Hidden-Cost Factor Breakdown</div>
     <div class="bonds-card" style="text-align:left;">
       <table style="width:100%;border-collapse:collapse;">
         <tr><th style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">Factor</th><th style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">%</th><th style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">Amount</th></tr>
@@ -298,7 +298,7 @@ function calculateAll() {
       </table>
     </div>
 
-    <div class="feas-section-title"><svg class="bonds-icon bonds-icon--dice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><circle cx="15.5" cy="15.5" r="1.5"></circle></svg> Scenarios</div>
+    <div class="feas-section-title">🎲 Scenarios</div>
     <div class="scenario-grid">
       <div class="scenario-card pessimistic">
         <div class="scenario-label" style="color:#ef4444;">Pessimistic</div>
@@ -317,7 +317,7 @@ function calculateAll() {
       </div>
     </div>
 
-    <div class="feas-section-title"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Cost Breakdown</div>
+    <div class="feas-section-title">📋 Cost Breakdown</div>
     <div class="bonds-card" style="text-align:left;">
       <table style="width:100%;border-collapse:collapse;">
         <tr><th style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);">Item</th><th style="text-align:right;padding:0.5rem;border-bottom:1px solid var(--border);">Amount</th></tr>
@@ -334,22 +334,22 @@ function calculateAll() {
     ${contextualLinkHTML}
 
     <div style="text-align:center;margin-top:var(--space-6);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-      <button class="bonds-btn bonds-btn-secondary" onclick="showTab('project'); BondsUI.toast('🔄 Try new numbers', 'info');"><svg class="bonds-icon bonds-icon--refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> Try New Numbers</button>
-      <button class="bonds-btn bonds-btn-primary" onclick="exportExcelRPA()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Excel</button>
-      <button class="bonds-btn bonds-btn-primary" onclick="exportPDFRPA()"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> PDF</button>
-      <button class="bonds-btn bonds-btn-primary" onclick="saveAnalysis()"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Analysis</button>
+      <button class="bonds-btn bonds-btn-secondary" onclick="showTab('project'); BondsUI.toast('🔄 Try new numbers', 'info');">🔄 Try New Numbers</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportExcelRPA()">📊 Excel</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportPDFRPA()">📄 PDF</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="saveAnalysis()">💾 Save Analysis</button>
     </div>
   `;
 }
 
 async function exportExcelRPA() {
   if (!window._rpaResult) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Calculate results first', 'warning');
+    BondsUI.toast('⚠️ Calculate results first', 'warning');
     return;
   }
   await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
   if (typeof XLSX === 'undefined') {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Failed to load Excel library', 'error');
+    BondsUI.toast('❌ Failed to load Excel library', 'error');
     return;
   }
   var d = window._rpaResult;
@@ -406,7 +406,7 @@ async function exportExcelRPA() {
 
 function exportPDFRPA() {
   if (!window._rpaResult) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Calculate results first', 'warning');
+    BondsUI.toast('⚠️ Calculate results first', 'warning');
     return;
   }
   var d = window._rpaResult;
@@ -418,7 +418,7 @@ function exportPDFRPA() {
       <div style="font-size:20px;font-weight:800;color:${ratingColor};">Investment Rating: ${d.investmentRating} — ${d.investmentRatingLabel.en}</div>
     </div>
 
-    <h2><svg class="bonds-icon bonds-icon--trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> Key Results</h2>
+    <h2>📈 Key Results</h2>
     <div class="metric-grid">
       <div class="metric-item"><div class="label">Hidden Costs</div><div class="value">${d.hiddenCostTotal.toLocaleString('en-US')} ${currency}</div></div>
       <div class="metric-item"><div class="label">Risk Reserve</div><div class="value">${d.riskReserve.toLocaleString('en-US')} ${currency}</div></div>
@@ -428,7 +428,7 @@ function exportPDFRPA() {
       <div class="metric-item"><div class="label">Payback Period</div><div class="value">${d.paybackPeriodMonths === Infinity ? '—' : Math.ceil(d.paybackPeriodMonths) + ' months'}</div></div>
     </div>
 
-    <h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Hidden-Cost Factor Breakdown</h2>
+    <h2>🧩 Hidden-Cost Factor Breakdown</h2>
     <table>
       <tr><th>Factor</th><th class="num">%</th><th class="num">Amount</th></tr>
       <tr><td>Base hidden cost</td><td class="num">${(d.hiddenFactorBreakdown.base * 100).toFixed(1)}%</td><td class="num">${(d.operatingCosts * d.hiddenFactorBreakdown.base).toLocaleString('en-US')} ${currency}</td></tr>
@@ -438,14 +438,14 @@ function exportPDFRPA() {
       <tr><td>Regulatory</td><td class="num">${(d.hiddenFactorBreakdown.regulatory * 100).toFixed(1)}%</td><td class="num">${(d.operatingCosts * d.hiddenFactorBreakdown.regulatory).toLocaleString('en-US')} ${currency}</td></tr>
     </table>
 
-    <h2><svg class="bonds-icon bonds-icon--dice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><circle cx="15.5" cy="15.5" r="1.5"></circle></svg> Scenarios</h2>
+    <h2>🎲 Scenarios</h2>
     <div class="scenario-row">
       <div class="scenario-item pess"><div class="label" style="color:#ef4444;">Pessimistic</div><div class="value" style="color:#ef4444;">${d.scenarios.pessimistic.realProfit.toLocaleString('en-US')} ${currency}</div><div class="desc">Margin: ${d.scenarios.pessimistic.profitMargin.toFixed(1)}%</div></div>
       <div class="scenario-item exp"><div class="label" style="color:#b88a3a;">Expected</div><div class="value" style="color:#b88a3a;">${d.scenarios.expected.realProfit.toLocaleString('en-US')} ${currency}</div><div class="desc">Margin: ${d.scenarios.expected.profitMargin.toFixed(1)}%</div></div>
       <div class="scenario-item opt"><div class="label" style="color:#22c55e;">Optimistic</div><div class="value" style="color:#22c55e;">${d.scenarios.optimistic.realProfit.toLocaleString('en-US')} ${currency}</div><div class="desc">Margin: ${d.scenarios.optimistic.profitMargin.toFixed(1)}%</div></div>
     </div>
 
-    <h2><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Cost Breakdown</h2>
+    <h2>📋 Cost Breakdown</h2>
     <table>
       <tr><th>Item</th><th class="num">Amount</th></tr>
       <tr><td>Operating Costs</td><td class="num">${d.operatingCosts.toLocaleString('en-US')} ${currency}</td></tr>
@@ -473,12 +473,12 @@ const ACTIVITY_LABELS_EN = {
 
 async function saveAnalysis() {
   if (!window._rpaResult) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Calculate results first', 'warning');
+    BondsUI.toast('⚠️ Calculate results first', 'warning');
     return;
   }
 
   if (!window.BondsAuth || !window.BondsAuth.getUser) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Auth service unavailable', 'error');
+    BondsUI.toast('❌ Auth service unavailable', 'error');
     return;
   }
 
@@ -490,7 +490,7 @@ async function saveAnalysis() {
 
   const sb = window.BondsAuth.getSupabase();
   if (!sb) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Database connection failed', 'error');
+    BondsUI.toast('❌ Database connection failed', 'error');
     return;
   }
 
@@ -506,9 +506,9 @@ async function saveAnalysis() {
   });
 
   if (error) {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Save failed: ' + error.message, 'error');
+    BondsUI.toast('❌ Save failed: ' + error.message, 'error');
   } else {
-    BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Analysis saved successfully', 'success');
+    BondsUI.toast('✅ Analysis saved successfully', 'success');
   }
 }
 

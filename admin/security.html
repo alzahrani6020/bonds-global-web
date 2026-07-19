@@ -134,7 +134,7 @@
 
       <div class="grid-2">
         <div class="card">
-          <h3><svg class="bonds-icon bonds-icon--user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> حالة المالك</h3>
+          <h3>👤 حالة المالك</h3>
           <div class="card-row">
             <span class="card-label">OWNER_EMAIL</span>
             <span class="card-value" id="ownerEmail">—</span>
@@ -146,7 +146,7 @@
         </div>
 
         <div class="card">
-          <h3><svg class="bonds-icon bonds-icon--lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1"></circle><path d="M12 16v3"></path></svg> فرض MFA على الإداريين</h3>
+          <h3>🔐 فرض MFA على الإداريين</h3>
           <div class="card-row">
             <span class="card-label">حالة MFA لحسابك</span>
             <span class="card-value" id="currentMfaStatus">—</span>
@@ -165,7 +165,7 @@
             <a href="mfa-setup.html" class="btn-sm" style="display:inline-block;text-decoration:none;">إعداد / تحقق MFA</a>
           </div>
           <div class="alert alert--warning" style="margin-bottom:0;margin-top:1rem;">
-            <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا تُفعّل هذا قبل تفعيل MFA لحسابك من الزر أعلاه، وإلا ستُقفل خارج لوحة التحكم.
+            ⚠️ لا تُفعّل هذا قبل تفعيل MFA لحسابك من الزر أعلاه، وإلا ستُقفل خارج لوحة التحكم.
           </div>
         </div>
       </div>
@@ -187,7 +187,7 @@
       </div>
 
       <div class="card">
-        <h3><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> آخر 10 إجراءات في Audit Log</h3>
+        <h3>📋 آخر 10 إجراءات في Audit Log</h3>
         <div class="table-card" style="border:none;margin:0;">
           <table class="data-table">
             <thead>
@@ -246,10 +246,10 @@
     function renderAlerts(warnings) {
       const container = document.getElementById('alerts');
       if (!warnings?.length) {
-        container.innerHTML = '<div class="alert alert--success"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> لا توجد تنبيهات أمنية حرجة.</div>';
+        container.innerHTML = '<div class="alert alert--success">✅ لا توجد تنبيهات أمنية حرجة.</div>';
         return;
       }
-      container.innerHTML = warnings.map(w => `<div class="alert alert--danger"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ${w}</div>`).join('');
+      container.innerHTML = warnings.map(w => `<div class="alert alert--danger">⚠️ ${w}</div>`).join('');
     }
 
     async function load() {

@@ -212,13 +212,13 @@
             <div class="share-bar">
               <input type="text" id="shareLink" readonly placeholder="رابط المشاركة..." />
               <button onclick="copyLink()" class="btn btn-outline hidden-print calc-btn-sm">نسخ الرابط</button>
-              <button onclick="window.print()" class="btn btn-outline hidden-print calc-btn-sm"><svg class="bonds-icon bonds-icon--printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg> طباعة</button>
-              <button onclick="exportExcel()" class="btn btn-outline hidden-print calc-btn-sm"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Excel</button>
+              <button onclick="window.print()" class="btn btn-outline hidden-print calc-btn-sm">🖨️ طباعة</button>
+              <button onclick="exportExcel()" class="btn btn-outline hidden-print calc-btn-sm">📊 Excel</button>
               <select data-universal-dropdown="true" id="pdfLang" class="hidden-print calc-select-sm" aria-label="PDF language">
                 <option value="ar">PDF عربي</option>
                 <option value="en">PDF English</option>
               </select>
-              <button onclick="exportPDF()" class="btn btn-outline hidden-print calc-btn-sm"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> تصدير</button>
+              <button onclick="exportPDF()" class="btn btn-outline hidden-print calc-btn-sm">📄 تصدير</button>
             </div>
           </div>
 
@@ -231,18 +231,18 @@
           <!-- Smart Alert CTA -->
           <div id="smartAlertBox" class="calc-alert">
             <div class="calc-alert__flex">
-              <div class="calc-alert__icon"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
+              <div class="calc-alert__icon">⚠️</div>
               <div>
                 <h4 class="calc-alert__title calc-alert__title--light">تنبيه مالي</h4>
                 <p id="smartAlertText" class="calc-alert__text"></p>
-                <a href="../contact.html" class="btn btn-primary calc-btn-danger"><svg class="bonds-icon bonds-icon--phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> استشارة مجانية (30 دقيقة)</a>
+                <a href="../contact.html" class="btn btn-primary calc-btn-danger">📞 استشارة مجانية (30 دقيقة)</a>
               </div>
             </div>
           </div>
 
           <!-- Lead Capture -->
           <div id="leadCaptureBox" class="calc-lead-box">
-            <h4 class="calc-lead-box__title"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> احفظ نتائجك واحصل على هدية</h4>
+            <h4 class="calc-lead-box__title">💾 احفظ نتائجك واحصل على هدية</h4>
             <p class="calc-lead-box__text">أرسل هذه Results لبريدك + نموذج مقارنة عروض التمويل مجاني.</p>
             <form id="leadCaptureForm" action="https://formspree.io/f/mykvdana" method="POST" class="calc-lead-form">
               <input type="text" name="name" required placeholder="الاسم" class="calc-input-flex" />
@@ -252,7 +252,7 @@
               <input type="hidden" name="calc_data" id="leadCalcData" />
               <button type="submit" class="btn btn-primary calc-no-shrink">أرسل لي Results</button>
             </form>
-            <p id="leadCaptureSuccess" class="calc-success-msg calc-hidden" ><svg class="bonds-icon bonds-icon--check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> تم الإرسال! سنContact معك خلال 24 ساعة.</p>
+            <p id="leadCaptureSuccess" class="calc-success-msg calc-hidden" >✓ تم الإرسال! سنContact معك خلال 24 ساعة.</p>
           </div>
         </div>
       </div>
@@ -311,7 +311,7 @@
       </div>
       <div class="grid-2">
         <div class="card reveal">
-          <h3 class="calc-card-title"><svg class="bonds-icon bonds-icon--ruler" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L2 22h20V2z"></path><path d="M6 22l16-16"></path><path d="M10 22l12-12"></path><path d="M14 22l8-8"></path><path d="M18 22l4-4"></path></svg> المعادلات الرياضية</h3>
+          <h3 class="calc-card-title">📐 المعادلات الرياضية</h3>
           <div class="calc-equations">
             <div class="calc-code-block">
               Installment = P × [r(1+r)^n] / [(1+r)^n − 1]
@@ -348,7 +348,7 @@
       </div>
       <div class="grid-2 calc-mt-8">
         <div class="card reveal">
-          <h3 class="calc-card-title"><svg class="bonds-icon bonds-icon--book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> مصادر علمية موثوقة</h3>
+          <h3 class="calc-card-title">📚 مصادر علمية موثوقة</h3>
           <div class="calc-links-list">
             <a href="https://en.wikipedia.org/wiki/Amortization_calculator" target="_blank" rel="noopener" class="calc-link-item">
               <span class="calc-link-arrow">→</span> Wikipedia — Amortization Calculator
@@ -362,7 +362,7 @@
           </div>
         </div>
         <div class="card reveal reveal-delay-1">
-          <h3 class="calc-card-title"><svg class="bonds-icon bonds-icon--pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg> A note from Bonds</h3>
+          <h3 class="calc-card-title">📌 A note from Bonds</h3>
           <ul class="calc-info-list">
             <li>This calculator gives you a <strong>smart initial financial view</strong> based on your data; it helps you evaluate your loan before deciding. For an accurate financial plan, consult one of our licensed advisors.</li>
             <li><strong>Declining balance</strong> interest is calculated on the remaining principal; <strong>fixed (flat)</strong> interest is calculated on the original loan amount for the entire term.</li>
@@ -1075,7 +1075,7 @@
 
       var printWindow = window.open('', '_blank');
       if (!printWindow) {
-        BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.', 'warning');
+        BondsUI.toast('⚠️ تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.', 'warning');
         return;
       }
 
@@ -1132,7 +1132,7 @@
             ${rows}
           </table>
           <div class="footer" style="background:#f8f5ef;border:1px solid #d4a853;border-radius:16px;padding:20px;margin-top:30px;text-align:center;">
-            <strong style="color:#1a1a1a;font-size:14px;display:block;margin-bottom:12px;"><svg class="bonds-icon bonds-icon--pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg> A note from Bonds</strong>
+            <strong style="color:#1a1a1a;font-size:14px;display:block;margin-bottom:12px;">📌 A note from Bonds</strong>
             <p style="color:#555;font-size:12px;line-height:1.8;margin-bottom:16px;">The figures above are an intelligent estimate based on your data; they give you a strong initial financial view to help you evaluate your project's opportunity before you decide.</p>
             <div style="display:flex;justify-content:center;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
               <div style="text-align:left;direction:ltr;">
@@ -1148,7 +1148,7 @@
                 <p style="font-size:10px;color:#777;margin-top:6px;">Scan to chat on WhatsApp</p>
               </div>
             </div>
-            <a href="https://wa.me/966567566616" target="_blank" rel="noopener" style="display:inline-block;padding:10px 24px;background:#d4a853;color:#1a1a1a;border-radius:24px;text-decoration:none;font-weight:700;font-size:13px;" onclick="if(window.opener && window.opener.trackEvent){window.opener.trackEvent('click_whatsapp_cta',{report_type:'loan'});}else if(typeof trackEvent==='function'){trackEvent('click_whatsapp_cta',{report_type:'loan'});}"><svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Talk to an advisor</a>
+            <a href="https://wa.me/966567566616" target="_blank" rel="noopener" style="display:inline-block;padding:10px 24px;background:#d4a853;color:#1a1a1a;border-radius:24px;text-decoration:none;font-weight:700;font-size:13px;" onclick="if(window.opener && window.opener.trackEvent){window.opener.trackEvent('click_whatsapp_cta',{report_type:'loan'});}else if(typeof trackEvent==='function'){trackEvent('click_whatsapp_cta',{report_type:'loan'});}">📱 Talk to an advisor</a>
             <div style="margin-top:16px;font-size:11px;color:#888;">
               <strong>Bonds Global</strong><br>
               Feasibility Studies | Financial Models | Licensed Financial Advisory<br>
@@ -1158,7 +1158,7 @@
               <p style="font-size:12px;color:#555;font-style:italic;line-height:1.6;margin:0;">"I compared bank offers quickly and chose the loan that best fit my project without overloading my budget."</p>
               <p style="font-size:11px;color:#888;margin:8px 0 0 0;">— Business owner, Jeddah</p>
             </div>
-            <p style="margin-top:12px;font-size:12px;color:#b45309;font-weight:700;"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Your first consultation is free — offer valid until ${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}.</p>
+            <p style="margin-top:12px;font-size:12px;color:#b45309;font-weight:700;">⚡ Your first consultation is free — offer valid until ${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}.</p>
             <p style="margin-top:8px;font-size:11px;color:#666;">Join 500+ entrepreneurs and SMEs who built their financial models with Bonds.</p>
           </div>
           \u003Cscript>window.onload = function() { setTimeout(function() { window.print(); }, 500); };</scr${''}ipt>
@@ -1192,7 +1192,7 @@
         var vTerm = BondsUI.validateField('loanTerm', { type: 'number', required: true, min: 1, label: 'Loan Term' });
         if (!vLoan.valid || !vRate.valid || !vTerm.valid) {
           var errs = [].concat(vLoan.errors, vRate.errors, vTerm.errors);
-          BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + errs.join(', '), 'error');
+          BondsUI.toast('❌ ' + errs.join(', '), 'error');
           return;
         }
         var inputs = getInputs();
@@ -1205,7 +1205,7 @@
           return;
         }
         if (inputs.downPayment >= inputs.loanAmount) {
-          BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Down Payment يجب أن تكون أقل من Loan Amount', 'warning');
+          BondsUI.toast('⚠️ Down Payment يجب أن تكون أقل من Loan Amount', 'warning');
           return;
         }
         var r = calculateLoan(inputs);
@@ -1219,7 +1219,7 @@
         });
       } catch (err) {
         
-        BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> حدث خطأ في الحساب: ' + err.message, 'error');
+        BondsUI.toast('❌ حدث خطأ في الحساب: ' + err.message, 'error');
       }
     }
 
@@ -1298,7 +1298,7 @@
       var input = document.getElementById('shareLink');
       input.select();
       document.execCommand('copy');
-      BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم نسخ الرابط!', 'success');
+      BondsUI.toast('✅ تم نسخ الرابط!', 'success');
     }
 
     // Load from URL params
@@ -1385,13 +1385,13 @@
             form.style.display = 'none';
             document.getElementById('leadCaptureSuccess').style.display = 'block';
           } else {
-            BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> حدث خطأ، حاول مرة أخرى.', 'error');
+            BondsUI.toast('❌ حدث خطأ، حاول مرة أخرى.', 'error');
             btn.textContent = originalText;
             btn.disabled = false;
           }
         })
         .catch(function() {
-          BondsUI.toast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> حدث خطأ، حاول مرة أخرى.', 'error');
+          BondsUI.toast('❌ حدث خطأ، حاول مرة أخرى.', 'error');
           btn.textContent = originalText;
           btn.disabled = false;
         });

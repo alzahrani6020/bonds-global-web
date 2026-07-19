@@ -118,9 +118,9 @@
 
         <button type="submit" class="btn btn-primary" id="saveBtn">
           <span class="spinner"></span>
-          <span class="btn-text"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> حفظ والمتابعة</span>
+          <span class="btn-text">💾 حفظ والمتابعة</span>
         </button>
-        <button type="button" class="btn btn-secondary" id="skipBtn" style="margin-top:0.75rem;width:100%;">⏭ تخطي الآن (إكمال لاحقاً)</button>
+        <button type="button" class="btn btn-secondary" id="skipBtn" style="margin-top:0.75rem;width:100%;">⏭️ تخطي الآن (إكمال لاحقاً)</button>
       </form>
     </div>
   </div>
@@ -239,7 +239,7 @@
           return;
         }
 
-        showSuccess('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> تم الحفظ! جاري التوجيه...');
+        showSuccess('✅ تم الحفظ! جاري التوجيه...');
         const redirect = sessionStorage.getItem('auth_redirect') || '/v3/portfolio';
         sessionStorage.removeItem('auth_redirect');
         setTimeout(() => location.href = redirect, 1000);

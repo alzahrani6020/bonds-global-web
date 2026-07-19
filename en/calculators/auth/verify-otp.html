@@ -44,7 +44,7 @@ h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gol
       <h1>Verify Your Email</h1>
       <p class="subtitle" id="subtitle">Enter the 6-digit code we sent to your email address.</p>
       <p id="emailHint" style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-4);line-height:1.6;">
-        <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> If you don't see a 6-digit code, the email may contain a <strong style="color:var(--gold)">sign-in link</strong> — click it directly to sign in.
+        💡 If you don't see a 6-digit code, the email may contain a <strong style="color:var(--gold)">sign-in link</strong> — click it directly to sign in.
       </p>
 
       <div id="errorMsg" class="error-msg"></div>
@@ -194,7 +194,7 @@ h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gol
             return;
           }
 
-          showSuccess('Email verified <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>');
+          showSuccess('Email verified ✅');
 
           const pendingPassword = sessionStorage.getItem('otp_pending_password');
           if (pendingPassword) {
@@ -243,13 +243,13 @@ h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gol
           const { error: rErr } = await sbResend.auth.signInWithOtp({ phone: phone });
           setLoading('resendBtn', false);
           if (rErr) { showError(rErr.message); return; }
-          showInfo('Code resent to your phone <svg class="bonds-icon bonds-icon--smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>');
+          showInfo('Code resent to your phone 📱');
           return;
         }
         const { error } = await window.BondsAuth.signInWithOTP(email, { shouldCreateUser: false });
         setLoading('resendBtn', false);
         if (error) { showError(error.message); return; }
-        showInfo('Code resent <svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> Check your inbox (and spam folder).');
+        showInfo('Code resent 📧 Check your inbox (and spam folder).');
       });
 
       function hideMessages() { errorMsg.style.display = 'none'; successMsg.style.display = 'none'; infoMsg.style.display = 'none'; }

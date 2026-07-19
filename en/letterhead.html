@@ -399,50 +399,50 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-  <button class="preview-exit" onclick="togglePreview()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Exit Preview</button>
+  <button class="preview-exit" onclick="togglePreview()">❌ Exit Preview</button>
   <input type="file" id="image-upload" accept="image/*" style="display:none" onchange="handleImageUpload(this)" />
   <div id="sig-modal" class="sig-modal">
     <div class="sig-modal-content">
       <h3>Draw your signature</h3>
       <canvas id="sig-canvas" width="600" height="180"></canvas>
       <div class="sig-actions">
-        <button onclick="saveSignature()"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save</button>
-        <button onclick="clearSignature()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Clear</button>
-        <button onclick="closeSignatureModal()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Cancel</button>
+        <button onclick="saveSignature()">💾 Save</button>
+        <button onclick="clearSignature()">🧹 Clear</button>
+        <button onclick="closeSignatureModal()">❌ Cancel</button>
       </div>
     </div>
   </div>
 
     <div class="toolbar" id="letterhead-toolbar" role="toolbar" aria-label="Document tools">
     <div class="toolbar-header">
-      <span class="toolbar-title"><svg class="bonds-icon bonds-icon--printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg> Document Tools</span><span id="save-status" class="save-status"></span><button onclick="showShortcuts()" class="btn-help" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)">?</button>
-      <button class="toolbar-mobile-toggle" onclick="toggleMobileToolbar()" title="☰"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
+      <span class="toolbar-title">🖨️ Document Tools</span><span id="save-status" class="save-status"></span><button onclick="showShortcuts()" class="btn-help" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)">?</button>
+      <button class="toolbar-mobile-toggle" onclick="toggleMobileToolbar()" title="☰">☰</button>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
       <div class="toolbar-group">
         <span class="toolbar-group-label">Document</span>
-        <button onclick="toggleWrite()" id="btn-write" title="✏️ Write"><svg class="bonds-icon bonds-icon--pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg> Write</button>
-        <button onclick="saveDoc()" title="💾 Save"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save</button>
-        <button onclick="undoDoc()" title="↩️ Undo">↩ Undo</button>
-        <button onclick="redoDoc()" title="↪️ Redo">↪ Redo</button>
-        <button onclick="copyText()" title="📋 Copy"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Copy</button>
+        <button onclick="toggleWrite()" id="btn-write" title="✏️ Write">✏️ Write</button>
+        <button onclick="saveDoc()" title="💾 Save">💾 Save</button>
+        <button onclick="undoDoc()" title="↩️ Undo">↩️ Undo</button>
+        <button onclick="redoDoc()" title="↪️ Redo">↪️ Redo</button>
+        <button onclick="copyText()" title="📋 Copy">📋 Copy</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">Insert</span>
         <button onclick="insertDateTime()" title="📅 Date"> Date</button>
-        <button onclick="insertSubject()" title="📌 Subject"><svg class="bonds-icon bonds-icon--pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg> Subject</button>
-        <button onclick="generateRef()" title="🔢 Ref No."><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Ref No.</button>
+        <button onclick="insertSubject()" title="📌 Subject">📌 Subject</button>
+        <button onclick="generateRef()" title="🔢 Ref No.">🔢 Ref No.</button>
         <div class="dropdown-wrap" id="archive-dropdown">
-          <button onclick="toggleDropdown('archive-dropdown')" title="📁 Archive"><svg class="bonds-icon bonds-icon--folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Archive <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
+          <button onclick="toggleDropdown('archive-dropdown')" title="📁 Archive">📁 Archive ▾</button>
           <div class="dropdown-menu" id="archive-menu"><button onclick="loadArchive()" style="font-weight:700;color:var(--navy);" title="↻ Refresh">↻ Refresh</button></div>
         </div>
-        <button onclick="insertTable()" title="▦ Table"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Table</button>
-        <button onclick="insertRuler()" title="📏 Ruler"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Ruler</button>
-        <button onclick="openSignatureModal()" title="✍️ Signature"><svg class="bonds-icon bonds-icon--edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Signature</button>
-        <button onclick="insertStamp()" title="🔴 Stamp"><svg class="bonds-icon bonds-icon--circle bonds-icon--danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg> Stamp</button>
-        <button onclick="document.getElementById('image-upload').click()" title="🖼️ Image"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Image</button>
+        <button onclick="insertTable()" title="▦ Table">▦ Table</button>
+        <button onclick="insertRuler()" title="📏 Ruler">📏 Ruler</button>
+        <button onclick="openSignatureModal()" title="✍️ Signature">✍️ Signature</button>
+        <button onclick="insertStamp()" title="🔴 Stamp">🔴 Stamp</button>
+        <button onclick="document.getElementById('image-upload').click()" title="🖼️ Image">🖼️ Image</button>
         <div class="dropdown-wrap" id="template-dropdown">
-          <button onclick="toggleDropdown('template-dropdown')" title="📄 Template"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> Template <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
+          <button onclick="toggleDropdown('template-dropdown')" title="📄 Template">📄 Template ▾</button>
           <div class="dropdown-menu">
             <button onclick="applyTemplate('formal')" title="Formal Letter">Formal Letter</button>
             <button onclick="applyTemplate('memo')" title="Internal Memo">Internal Memo</button>
@@ -457,11 +457,11 @@
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">Pages</span>
-        <button onclick="addNewPage()" title="➕ Page"><svg class="bonds-icon bonds-icon--plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Page</button>
-        <button onclick="deletePage()" title="🗑️ Delete"><svg class="bonds-icon bonds-icon--trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Delete</button>
-        <button onclick="clearAll()" title="🧹 Clear"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Clear</button>
-        <button onclick="movePageUp()" title="Move up"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
-        <button onclick="movePageDown()" title="Move down"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
+        <button onclick="addNewPage()" title="➕ Page">➕ Page</button>
+        <button onclick="deletePage()" title="🗑️ Delete">🗑️ Delete</button>
+        <button onclick="clearAll()" title="🧹 Clear">🧹 Clear</button>
+        <button onclick="movePageUp()" title="Move up">⬆️</button>
+        <button onclick="movePageDown()" title="Move down">⬇️</button>
       </div>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible">
@@ -475,10 +475,10 @@
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">Align</span>
-        <button onclick="alignText('left')" title="⬅️ Left"><svg class="bonds-icon bonds-icon--arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Left</button>
-        <button onclick="alignText('center')" title="↔️ Center">↔ Center</button>
-        <button onclick="alignText('right')" title="➡️ Right"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Right</button>
-        <button onclick="alignText('justify')" title="☰ Justify"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Justify</button>
+        <button onclick="alignText('left')" title="⬅️ Left">⬅️ Left</button>
+        <button onclick="alignText('center')" title="↔️ Center">↔️ Center</button>
+        <button onclick="alignText('right')" title="➡️ Right">➡️ Right</button>
+        <button onclick="alignText('justify')" title="☰ Justify">☰ Justify</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">List</span>
@@ -493,7 +493,7 @@
         <button onclick="toggleItalic()" title="Italic">Italic</button>
         <button onclick="toggleUnderline()" title="Underline">Underline</button>
         <div class="dropdown-wrap" id="color-dropdown">
-          <button onclick="toggleDropdown('color-dropdown')" title="🎨 Color"><svg class="bonds-icon bonds-icon--palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><circle cx="9" cy="10" r="1"></circle><circle cx="15" cy="10" r="1"></circle><circle cx="12" cy="15" r="1"></circle></svg> Color <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
+          <button onclick="toggleDropdown('color-dropdown')" title="🎨 Color">🎨 Color ▾</button>
           <div class="dropdown-menu">
             <button onclick="setColor('#1a1a1a')"><span class="color-swatch" style="background:#1a1a1a"></span>Black</button>
             <button onclick="setColor('#c0392b')"><span class="color-swatch" style="background:#c0392b"></span>Red</button>
@@ -501,31 +501,31 @@
             <button onclick="setColor('#020f23')"><span class="color-swatch" style="background:#020f23"></span>Navy</button>
           </div>
         </div>
-        <button onclick="findReplaceText()" title="🔍 Find & Replace"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Find & Replace</button>
+        <button onclick="findReplaceText()" title="🔍 Find & Replace">🔍 Find & Replace</button>
       </div>
     </div>
     <div class="toolbar-row toolbar-mobile-collapsible toolbar-actions">
       <div class="toolbar-group">
         <span class="toolbar-group-label">File</span>
-        <button onclick="exportPDF()" class="btn-pdf" title="📄 PDF"><svg class="bonds-icon bonds-icon--file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg> PDF</button>
-        <button onclick="exportWord()" title="📘 Word"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Word</button>
-        <button onclick="window.print()" class="btn-print primary" title="🖨️ Print"><svg class="bonds-icon bonds-icon--printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg> Print</button>
-        <button onclick="toggleInbox()" class="btn-inbox" title="📥 Inbox"><svg class="bonds-icon bonds-icon--inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg> Inbox</button>
-        <button onclick="syncDraftsToCloud()" title="☁️ Sync"><svg class="bonds-icon bonds-icon--cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg> Sync</button>
-        <button onclick="loadDraftsFromCloud()" title="☁️ Load"><svg class="bonds-icon bonds-icon--cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg> Load</button>
-        <button onclick="sendToManager()" class="btn-send" title="📨 Send to Manager"><svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> Send to Manager</button>
+        <button onclick="exportPDF()" class="btn-pdf" title="📄 PDF">📄 PDF</button>
+        <button onclick="exportWord()" title="📘 Word">📘 Word</button>
+        <button onclick="window.print()" class="btn-print primary" title="🖨️ Print">🖨️ Print</button>
+        <button onclick="toggleInbox()" class="btn-inbox" title="📥 Inbox">📥 Inbox</button>
+        <button onclick="syncDraftsToCloud()" title="☁️ Sync">☁️ Sync</button>
+        <button onclick="loadDraftsFromCloud()" title="☁️ Load">☁️ Load</button>
+        <button onclick="sendToManager()" class="btn-send" title="📨 Send to Manager">📨 Send to Manager</button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-group-label">View</span>
-        <button onclick="changeZoom(-0.1)" title="Zoom out"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>-</button>
+        <button onclick="changeZoom(-0.1)" title="Zoom out">🔍-</button>
         <span id="zoom-level" class="zoom-level">100%</span>
-        <button onclick="changeZoom(0.1)" title="Zoom in"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg>+</button>
-        <button onclick="togglePreview()" id="btn-preview" title="👁 Preview"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Preview</button>
-        <button onclick="toggleDarkMode()" id="btn-dark" title="🌙 Dark"><svg class="bonds-icon bonds-icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> Dark</button>
-        <button onclick="translateSelection()" title="🌐 Translate"><svg class="bonds-icon bonds-icon--globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> Translate</button>
-        <button onclick="shareDoc()" title="📤 Share"><svg class="bonds-icon bonds-icon--send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Share</button>
+        <button onclick="changeZoom(0.1)" title="Zoom in">🔍+</button>
+        <button onclick="togglePreview()" id="btn-preview" title="👁 Preview">👁 Preview</button>
+        <button onclick="toggleDarkMode()" id="btn-dark" title="🌙 Dark">🌙 Dark</button>
+        <button onclick="translateSelection()" title="🌐 Translate">🌐 Translate</button>
+        <button onclick="shareDoc()" title="📤 Share">📤 Share</button>
         <div class="dropdown-wrap" id="lang-dropdown">
-          <button onclick="toggleDropdown('lang-dropdown')" title="🌐 Language"><svg class="bonds-icon bonds-icon--globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> Language <svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
+          <button onclick="toggleDropdown('lang-dropdown')" title="🌐 Language">🌐 Language ▾</button>
           <div class="dropdown-menu">
             <button onclick="switchLang('ar')" title="العربية">العربية</button>
             <button onclick="switchLang('en')" title="English">English</button>
@@ -625,13 +625,13 @@
 
   <div class="inbox-panel" id="inbox-panel">
     <div class="inbox-header">
-      <span><svg class="bonds-icon bonds-icon--inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg> Inbox</span>
-      <button onclick="toggleInbox()"><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></button>
+      <span>📥 Inbox</span>
+      <button onclick="toggleInbox()">✕</button>
     </div>
     <div class="inbox-body" id="inbox-body">
       <div class="draft-section-title">Save new draft</div>
       <input type="text" id="draft-name" class="draft-input" placeholder="Draft name" />
-      <button class="draft-btn" onclick="saveDraft()"><svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save draft</button>
+      <button class="draft-btn" onclick="saveDraft()">💾 Save draft</button>
       <div class="draft-section-title">Saved drafts</div>
       <div id="drafts-list"><div class="inbox-empty">No drafts</div></div>
       <div class="draft-section-title">Sent correspondence</div>
@@ -738,11 +738,11 @@
       window.insertDateTime = function() {
         if (!ensureDoc()) return;
         var d = new Date(), dateStr = d.toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
-        insertAtCursor('<div>' + dateStr + '</div><div><br></div>'); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Date inserted');
+        insertAtCursor('<div>' + dateStr + '</div><div><br></div>'); showToast('✅ Date inserted');
       };
       window.insertSubject = function() {
         if (!ensureDoc()) return;
-        insertAtCursor('<div><strong>Subject:</strong> </div><div><br></div>'); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Subject inserted');
+        insertAtCursor('<div><strong>Subject:</strong> </div><div><br></div>'); showToast('✅ Subject inserted');
       };
       window.generateRef = function() {
         var year = new Date().getFullYear();
@@ -757,17 +757,17 @@
         archive.unshift({ ref: ref, date: new Date().toLocaleDateString('en-US'), ts: Date.now() });
         localStorage.setItem(LS_PREFIX + 'refs', JSON.stringify(archive.slice(0, 50)));
         insertAtCursor('<div><strong>Reference No.:</strong> <span style="color:#c0392b;">' + ref + '</span></div><div><br></div>');
-        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Reference: ' + ref);
+        showToast('✅ Reference: ' + ref);
       };
       window.loadArchive = function() {
         var menu = document.getElementById('archive-menu');
         var archive = JSON.parse(localStorage.getItem(LS_PREFIX + 'refs') || '[]');
         menu.innerHTML = '<button onclick="loadArchive()" style="font-weight:700;color:var(--navy);">↻ Refresh</button>';
-        if (!archive.length) { menu.innerHTML += '<button disabled><svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> No archive</button>'; return; }
+        if (!archive.length) { menu.innerHTML += '<button disabled>⚠️ No archive</button>'; return; }
         archive.forEach(function(item){
           var btn = document.createElement('button');
           btn.innerHTML = '<span style="color:#c0392b;font-weight:700;">' + item.ref + '</span> <span style="color:#888;font-size:11px;">— ' + item.date + '</span>';
-          btn.onclick = function(){ insertAtCursor('<div><strong>Reference No.:</strong> <span style="color:#c0392b;">' + item.ref + '</span></div><div><br></div>'); toggleDropdown('archive-dropdown'); showToast('<svg class="bonds-icon bonds-icon--folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Loaded: ' + item.ref); };
+          btn.onclick = function(){ insertAtCursor('<div><strong>Reference No.:</strong> <span style="color:#c0392b;">' + item.ref + '</span></div><div><br></div>'); toggleDropdown('archive-dropdown'); showToast('📁 Loaded: ' + item.ref); };
           menu.appendChild(btn);
         });
       };
@@ -782,11 +782,11 @@
         html += '</tr></thead><tbody>';
         for (var r=0;r<rows;r++){ html += '<tr>'; for(var c=0;c<cols;c++) html += '<td>Cell '+(r+1)+'-'+(c+1)+'</td>'; html += '</tr>'; }
         html += '</tbody></table><div><br></div>';
-        insertAtCursor(html); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Table inserted');
+        insertAtCursor(html); showToast('✅ Table inserted');
       };
       window.insertRuler = function() {
         if (!ensureDoc()) return;
-        insertAtCursor('<hr class="doc-ruler"><div><br></div>'); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Ruler inserted');
+        insertAtCursor('<hr class="doc-ruler"><div><br></div>'); showToast('✅ Ruler inserted');
       };
       window.insertStamp = function() {
         if (!ensureDoc()) return;
@@ -803,7 +803,7 @@
           '<text x="100" y="118" text-anchor="middle" fill="#c0392b" font-size="9" font-weight="700">'+dateStr+'</text>' +
           '</svg>';
         insertAtCursor('<div class="letter-stamp" id="'+id+'" contenteditable="false">' + svg + '</div><span>&nbsp;</span>');
-        showToast('<svg class="bonds-icon bonds-icon--circle bonds-icon--danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg> Stamp inserted');
+        showToast('🔴 Stamp inserted');
       };
       window.addNewPage = function() {
         pageCounter++;
@@ -817,14 +817,14 @@
         bindDoc(clone.querySelector('.doc-content'));
         container.appendChild(clone);
         updatePageNumbers();
-        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Page ' + pageCounter);
+        showToast('✅ Page ' + pageCounter);
         window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
       };
       window.insertSignature = function() {
         if (!ensureDoc()) return;
         var name = prompt('Signer name:', ''), title = prompt('Title:', '');
         var html = '<div class="signature-block" contenteditable="false"><div class="sig-line"></div><div class="sig-name">' + (name || 'Name') + '</div><div class="sig-title">' + (title || 'Title') + '</div></div><div><br></div>';
-        insertAtCursor(html); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Signature inserted');
+        insertAtCursor(html); showToast('✅ Signature inserted');
       };
       window.updatePageNumbers = function() {
         var sheets = document.querySelectorAll('.sheet');
@@ -882,7 +882,7 @@
         var blob = new Blob([html], {type: 'application/msword'});
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a'); a.href = url; a.download = 'bonds-letterhead.doc'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Word exported');
+        showToast('✅ Word exported');
       };
       var sigCanvas, sigCtx, sigDrawing=false, sigLast={'x':0,'y':0};
       window.openSignatureModal = function() {
@@ -907,7 +907,7 @@
         insertAtCursor('<img src="' + data + '" alt="Signature" style="max-width:200px;height:auto;display:block;margin:10px 0;" />');
         closeSignatureModal();
         clearSignature();
-        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Signature saved');
+        showToast('✅ Signature saved');
       };
       window.showShortcuts = function(){ document.getElementById('shortcuts-modal').classList.add('open'); };
       window.closeShortcuts = function(){ document.getElementById('shortcuts-modal').classList.remove('open'); };
@@ -934,44 +934,44 @@
       };
       window.syncDraftsToCloud = async function(){
         var sb = (typeof getSupabase === 'function') ? getSupabase() : null;
-        if (!sb) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Cloud storage not available'); return; }
+        if (!sb) { showToast('⚠️ Cloud storage not available'); return; }
         var userRes = await sb.auth.getUser();
         var user = userRes.data ? userRes.data.user : null;
-        if (!user) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Please log in first'); return; }
+        if (!user) { showToast('⚠️ Please log in first'); return; }
         var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
-        if (!drafts.length) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> No local drafts'); return; }
+        if (!drafts.length) { showToast('⚠️ No local drafts'); return; }
         showToast('⏳ Syncing...');
         try {
           var rows = drafts.map(function(d){ return { user_id: user.id, name: d.name, html: d.html, updated_at: new Date().toISOString() }; });
           var res = await sb.from('letterhead_drafts').upsert(rows, { onConflict: 'user_id,name' });
           if (res.error) throw res.error;
-          showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Drafts synced');
-        } catch(e) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Sync failed: ' + (e.message || e)); }
+          showToast('✅ Drafts synced');
+        } catch(e) { showToast('⚠️ Sync failed: ' + (e.message || e)); }
       };
       window.loadDraftsFromCloud = async function(){
         var sb = (typeof getSupabase === 'function') ? getSupabase() : null;
-        if (!sb) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Cloud storage not available'); return; }
+        if (!sb) { showToast('⚠️ Cloud storage not available'); return; }
         var userRes = await sb.auth.getUser();
         var user = userRes.data ? userRes.data.user : null;
-        if (!user) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Please log in first'); return; }
+        if (!user) { showToast('⚠️ Please log in first'); return; }
         showToast('⏳ Loading...');
         try {
           var res = await sb.from('letterhead_drafts').select('*').eq('user_id', user.id).order('updated_at', { ascending: false });
           if (res.error) throw res.error;
           var rows = res.data || [];
-          if (!rows.length) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> No drafts in cloud'); return; }
+          if (!rows.length) { showToast('⚠️ No drafts in cloud'); return; }
           var drafts = rows.map(function(r){ return { name: r.name, html: r.html, date: new Date(r.updated_at).toLocaleString('en-US') }; });
           localStorage.setItem(LS_PREFIX + 'drafts', JSON.stringify(drafts));
           refreshInbox();
-          showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Drafts loaded');
-        } catch(e) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Load failed: ' + (e.message || e)); }
+          showToast('✅ Drafts loaded');
+        } catch(e) { showToast('⚠️ Load failed: ' + (e.message || e)); }
       };
       window.setColor = function(color) {
         var sel = window.getSelection();
-        if (!sel || sel.toString().trim() === '') { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Select text first'); return; }
+        if (!sel || sel.toString().trim() === '') { showToast('⚠️ Select text first'); return; }
         document.execCommand('foreColor', false, color);
         toggleDropdown('color-dropdown');
-        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Color changed');
+        showToast('✅ Color changed');
       };
       window.applyTemplate = function(name) {
         if (!ensureDoc()) return;
@@ -995,12 +995,12 @@
         }
         insertAtCursor(html);
         toggleDropdown('template-dropdown');
-        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Template applied');
+        showToast('✅ Template applied');
       };
       window.translateSelection = function() {
         var sel = window.getSelection();
         var text = sel ? sel.toString().trim() : '';
-        if (!text) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Select text to translate'); return; }
+        if (!text) { showToast('⚠️ Select text to translate'); return; }
         window.open('https://translate.google.com/?sl=en&tl=ar&text=' + encodeURIComponent(text), '_blank');
       };
       window.shareDoc = function() {
@@ -1010,7 +1010,7 @@
         } else {
           var ta = document.createElement('textarea'); ta.value = url;
           document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-          showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Link copied');
+          showToast('✅ Link copied');
         }
       };
       window.sendToManager = async function() {
@@ -1025,24 +1025,24 @@
         try {
           var r = await fetch('/api/send-letter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to: to, subject: title, html: html, text: allText.slice(0, 1200) }) });
           var data = await r.json();
-          if (!r.ok) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> ' + (data.error || 'Send failed')); return; }
+          if (!r.ok) { showToast('⚠️ ' + (data.error || 'Send failed')); return; }
           var sent = JSON.parse(localStorage.getItem(LS_PREFIX + 'sent') || '[]');
           sent.unshift({ date: new Date().toLocaleString('en-US'), preview: allText.slice(0, 80) + '...' });
           localStorage.setItem(LS_PREFIX + 'sent', JSON.stringify(sent.slice(0, 20)));
-          showToast('<svg class="bonds-icon bonds-icon--mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> Sent to manager');
+          showToast('📨 Sent to manager');
           refreshInbox();
-        } catch(e) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Send failed: ' + e.message); }
+        } catch(e) { showToast('⚠️ Send failed: ' + e.message); }
       };
       window.saveDraft = function() {
         var nameInput = document.getElementById('draft-name');
         var name = nameInput.value.trim();
-        if (!name) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Enter draft name'); return; }
+        if (!name) { showToast('⚠️ Enter draft name'); return; }
         var html = getAllHtml();
         var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
         drafts.unshift({ name: name, html: html, date: new Date().toLocaleString('en-US') });
         localStorage.setItem(LS_PREFIX + 'drafts', JSON.stringify(drafts.slice(0, 30)));
         nameInput.value = '';
-        showToast('<svg class="bonds-icon bonds-icon--save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Draft saved: ' + name);
+        showToast('💾 Draft saved: ' + name);
         refreshInbox();
       };
       window.loadDraft = function(index) {
@@ -1053,7 +1053,7 @@
         setAllHtml(drafts[index].html);
         saveDoc();
         updateDocTitle();
-        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Draft loaded');
+        showToast('✅ Draft loaded');
       };
       window.deleteDraft = function(index) {
         var drafts = JSON.parse(localStorage.getItem(LS_PREFIX + 'drafts') || '[]');
@@ -1065,11 +1065,11 @@
         var sheets = document.querySelectorAll('.sheet');
         if (sheets.length > 1) {
           var last = document.querySelector('.sheet:last-child');
-          if (last) { last.remove(); pageCounter--; updatePageNumbers(); showToast('<svg class="bonds-icon bonds-icon--trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Page deleted'); }
+          if (last) { last.remove(); pageCounter--; updatePageNumbers(); showToast('🗑️ Page deleted'); }
         } else {
           if (confirm('This is the only page. Clear its content?')) {
             var doc = getActiveDoc(); if (doc) doc.innerHTML = '';
-            saveDoc(); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Content cleared');
+            saveDoc(); showToast('🧹 Content cleared');
           }
         }
       };
@@ -1078,23 +1078,23 @@
         setAllHtml(['']);
         saveDoc();
         updateDocTitle();
-        showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Cleared');
+        showToast('🧹 Cleared');
       };
       window.handleImageUpload = function(input) {
         if (!input.files || !input.files[0]) return;
         var file = input.files[0];
-        if (file.size > 2 * 1024 * 1024) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Max size 2 MB'); input.value=''; return; }
+        if (file.size > 2 * 1024 * 1024) { showToast('⚠️ Max size 2 MB'); input.value=''; return; }
         var reader = new FileReader();
         reader.onload = function(e) {
           if (!ensureDoc()) return;
           insertAtCursor('<img src="' + e.target.result + '" style="max-width:100%;height:auto;display:block;margin:10px 0;" />');
-          showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Image inserted');
+          showToast('✅ Image inserted');
         };
         reader.readAsDataURL(file);
         input.value = '';
       };
       window.exportPDF = function() {
-        if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> PDF libraries not loaded'); return; }
+        if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') { showToast('⚠️ PDF libraries not loaded'); return; }
         showToast('⏳ Generating PDF...');
         var sheets = document.querySelectorAll('.sheet');
         var pdf = new window.jspdf.jsPDF('p','mm','a4');
@@ -1104,13 +1104,13 @@
           var originalQR = qr ? qr.src : null;
           if (qr && originalQR && /^https?:/.test(originalQR)) { qr.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; }
           html2canvas(sheet, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' }).then(function(canvas){
-            try { var img = canvas.toDataURL('image/png'); } catch(e) { showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> PDF generation failed'); if(qr && originalQR) qr.src = originalQR; return; }
+            try { var img = canvas.toDataURL('image/png'); } catch(e) { showToast('⚠️ PDF generation failed'); if(qr && originalQR) qr.src = originalQR; return; }
             if (idx > 0) pdf.addPage();
             pdf.addImage(img, 'PNG', 0, 0, 210, 297);
             count++;
             if (qr && originalQR) qr.src = originalQR;
-            if (count === sheets.length) { pdf.save('bonds-letterhead.pdf'); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> PDF downloaded'); }
-          }).catch(function(){ showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> PDF generation failed'); if(qr && originalQR) qr.src = originalQR; });
+            if (count === sheets.length) { pdf.save('bonds-letterhead.pdf'); showToast('✅ PDF downloaded'); }
+          }).catch(function(){ showToast('⚠️ PDF generation failed'); if(qr && originalQR) qr.src = originalQR; });
         });
       };
       window.updateDocTitle = function() {
@@ -1154,11 +1154,11 @@
 
       var undoStack=[], redoStack=[], maxUndo=30, isUndoing=false;
       function pushUndo(){ if(isUndoing) return; var doc=getActiveDoc(); if(!doc) return; undoStack.push(doc.innerHTML); if(undoStack.length>maxUndo) undoStack.shift(); redoStack=[]; }
-      window.undoDoc = function(){ var doc=getActiveDoc(); if(!doc||undoStack.length===0){showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Nothing to undo');return;} isUndoing=true; redoStack.push(doc.innerHTML); doc.innerHTML=undoStack.pop(); showToast('↩ Undone'); setTimeout(function(){isUndoing=false;},100); };
-      window.redoDoc = function(){ var doc=getActiveDoc(); if(!doc||redoStack.length===0){showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Nothing to redo');return;} isUndoing=true; undoStack.push(doc.innerHTML); doc.innerHTML=redoStack.pop(); showToast('↪ Redone'); setTimeout(function(){isUndoing=false;},100); };
-      window.saveDoc = function(){ var html=getAllHtml(); localStorage.setItem(LS_PREFIX+'doc_html', JSON.stringify(html)); updateSaveStatus(); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Saved'); };
+      window.undoDoc = function(){ var doc=getActiveDoc(); if(!doc||undoStack.length===0){showToast('⚠️ Nothing to undo');return;} isUndoing=true; redoStack.push(doc.innerHTML); doc.innerHTML=undoStack.pop(); showToast('↩️ Undone'); setTimeout(function(){isUndoing=false;},100); };
+      window.redoDoc = function(){ var doc=getActiveDoc(); if(!doc||redoStack.length===0){showToast('⚠️ Nothing to redo');return;} isUndoing=true; undoStack.push(doc.innerHTML); doc.innerHTML=redoStack.pop(); showToast('↪️ Redone'); setTimeout(function(){isUndoing=false;},100); };
+      window.saveDoc = function(){ var html=getAllHtml(); localStorage.setItem(LS_PREFIX+'doc_html', JSON.stringify(html)); updateSaveStatus(); showToast('✅ Saved'); };
       window.autoSave = function(){ var html=getAllHtml(); localStorage.setItem(LS_PREFIX+'doc_html', JSON.stringify(html)); updateSaveStatus(); };
-      window.changeFont = function(font){ document.querySelectorAll('.doc-content').forEach(function(d){d.style.fontFamily="'"+font+"', Tahoma, serif";}); localStorage.setItem(LS_PREFIX+'font', font); showToast('<svg class="bonds-icon bonds-icon--emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg> Font: '+font); };
+      window.changeFont = function(font){ document.querySelectorAll('.doc-content').forEach(function(d){d.style.fontFamily="'"+font+"', Tahoma, serif";}); localStorage.setItem(LS_PREFIX+'font', font); showToast('✅ Font: '+font); };
       window.toggleDropdown = function(id){ var wrap=document.getElementById(id); if(!wrap)return; var btn=wrap.querySelector(':scope > button'); var isOpen=wrap.classList.contains('open'); document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open'); var b=el.querySelector(':scope > button'); if(b) b.setAttribute('aria-expanded','false');}); if(!isOpen){ wrap.classList.add('open'); if(btn) btn.setAttribute('aria-expanded','true'); } else { if(btn) btn.setAttribute('aria-expanded','false'); } };
       document.addEventListener('click', function(e){ if(!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-wrap.open').forEach(function(el){el.classList.remove('open'); var b=el.querySelector(':scope > button'); if(b) b.setAttribute('aria-expanded','false');}); });
       document.addEventListener('keydown', function(e){ if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undoDoc();} if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redoDoc();} if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveDoc();} if(e.key==='?'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();showShortcuts();} });
