@@ -568,10 +568,10 @@
         };
 
         try {
-          const res = await fetch('/api/contact', {
+          const res = await fetch('/api/platform', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-            body: JSON.stringify(data)
+            body: JSON.stringify({ ...data, action: 'contact' })
           });
           const result = await res.json().catch(() => ({}));
 

@@ -425,32 +425,55 @@ async function proHandler(req, res) {
 }
 
 // ── Site (contact + usage) ─────────────────────────────────
+const FORMSPREE_CONTACT_FORM_ID = process.env.FORMSPREE_CONTACT_FORM_ID || 'mykvdana';
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase().trim());
+}
+
+function isValidPhone(phone) {
+  return /^(05\d{8}|\+\d{7,15})$/.test(String(phone).trim());
+}
+
 async function siteContactHandler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
     const body = req.body || {};
     const {
-      name, phone, email, city, activity, score, verdict, monthlyProfit, url, source, message
+      name, phone, email, city, activity, sector, service, score, verdict, monthlyProfit, url, source, message, website
     } = body;
+
+    // Honeypot
+    if (website) {
+      return res.status(200).json({ success: true });
+    }
 
     if (!name || !phone) {
       return res.status(400).json({ success: false, error: 'Name and phone are required' });
     }
 
     const phoneStr = String(phone).trim();
-    const isValidPhone = /^(05\d{8}|\+\d{7,15})$/.test(phoneStr);
-    if (!isValidPhone) {
+    if (!isValidPhone(phoneStr)) {
       return res.status(400).json({ success: false, error: 'Invalid phone number' });
     }
+
+    const emailStr = email ? String(email).toLowerCase().trim() : '';
+    if (emailStr && !isValidEmail(emailStr)) {
+      return res.status(400).json({ success: false, error: 'Invalid email address' });
+    }
+
+    const sectorVal = sector || activity || '';
+    const serviceVal = service || source || '';
+    const isContactPage = !!(message && (sectorVal || serviceVal));
 
     const payload = {
       name: String(name).slice(0, 200),
       phone: phoneStr.slice(0, 50),
-      email: email ? String(email).slice(0, 200) : null,
+      email: emailStr ? emailStr.slice(0, 200) : null,
       city: city ? String(city).slice(0, 100) : null,
-      sector: activity ? String(activity).slice(0, 100) : null,
-      service: source ? String(source).slice(0, 100) : null,
+      sector: sectorVal ? String(sectorVal).slice(0, 100) : null,
+      service: serviceVal ? String(serviceVal).slice(0, 100) : null,
       message: message ? String(message).slice(0, 5000) : JSON.stringify({
         calculatorScore: score || 0,
         calculatorVerdict: verdict || '',
@@ -458,7 +481,7 @@ async function siteContactHandler(req, res) {
         pageUrl: url || ''
       }),
       read: false,
-      source: source ? String(source).slice(0, 100) : 'website'
+      source: source ? String(source).slice(0, 100) : (isContactPage ? 'contact-page' : 'website')
     };
 
     let savedId = null;
@@ -496,10 +519,57 @@ async function siteContactHandler(req, res) {
       console.error('[contact] DB error:', dbErr.message);
     }
 
+    // Forward to Formspree for email delivery
+    let formspreeOk = false;
+    try {
+      const formspreeRes = await fetch(`https://formspree.io/f/${FORMSPREE_CONTACT_FORM_ID}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          name: payload.name,
+          phone: payload.phone,
+          email: payload.email,
+          city: payload.city,
+          sector: payload.sector,
+          service: payload.service,
+          message: payload.message,
+          _subject: isContactPage
+            ? `طلب تواصل جديد من ${payload.name} — بوندز`
+            : `طلب دراسة جدوى جديد — ${payload.name}`,
+          _replyto: payload.email || undefined
+        })
+      });
+      formspreeOk = formspreeRes.ok;
+      if (!formspreeOk) {
+        const text = await formspreeRes.text().catch(() => '');
+        console.error('[contact] Formspree failed:', formspreeRes.status, text.slice(0, 200));
+      }
+    } catch (fsErr) {
+      console.error('[contact] Formspree error:', fsErr.message);
+    }
+
     const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(s => s.trim()).filter(Boolean);
     if (adminEmails.length > 0) {
-      const emailSubject = `طلب دراسة جدوى جديد — ${payload.name}`;
-      const emailBody = `
+      const emailSubject = isContactPage
+        ? `طلب تواصل جديد من ${payload.name} — بوندز`
+        : `طلب دراسة جدوى جديد — ${payload.name}`;
+
+      const emailBody = isContactPage
+        ? `
+اسم المرسل: ${payload.name}
+الجوال: ${payload.phone}
+البريد: ${payload.email || 'غير متوفر'}
+المدينة: ${payload.city || 'غير محددة'}
+القطاع: ${payload.sector || 'غير محدد'}
+الخدمة: ${payload.service || 'غير محددة'}
+
+الرسالة:
+${message || '—'}
+
+---
+تم الاستلام عبر: bonds-global.com/contact
+        `.trim()
+        : `
 اسم المرسل: ${payload.name}
 الجوال: ${payload.phone}
 البريد: ${payload.email || 'غير متوفر'}
@@ -514,9 +584,30 @@ ${message ? 'الرسالة:\n' + message : ''}
 
 ---
 تم الاستلام عبر: bonds-global.com
-      `.trim();
+        `.trim();
 
-      const emailHtml = `
+      const emailHtml = isContactPage
+        ? `
+<div dir="rtl" style="font-family:Vazirmatn,system-ui,sans-serif;line-height:1.6;color:#1a1a1a;">
+  <h2 style="color:#b8954e;">طلب تواصل جديد — بوندز</h2>
+  <table style="width:100%;border-collapse:collapse;margin:1rem 0;">
+    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الاسم</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${escapeHtml(payload.name)}</td></tr>
+    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الجوال</td><td style="padding:0.5rem;border-bottom:1px solid #eee;direction:ltr;text-align:right;">${escapeHtml(payload.phone)}</td></tr>
+    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">البريد</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${payload.email ? escapeHtml(payload.email) : '-'}</td></tr>
+    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">المدينة</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${payload.city ? escapeHtml(payload.city) : '-'}</td></tr>
+    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">القطاع</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${payload.sector ? escapeHtml(payload.sector) : '-'}</td></tr>
+    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الخدمة</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${payload.service ? escapeHtml(payload.service) : '-'}</td></tr>
+  </table>
+  <div style="background:#f8f9fa;padding:1rem;border-radius:8px;margin-top:1rem;">
+    <p style="margin:0;font-weight:700;">الرسالة:</p>
+    <p style="margin:0.5rem 0 0;">${message ? escapeHtml(String(message)).replace(/\n/g, '<br>') : '—'}</p>
+  </div>
+  <p style="margin-top:1.5rem;font-size:0.85rem;color:#555555;">
+    <a href="https://bonds-global.com/admin/messages.html" style="color:#b8954e;">فتح لوحة التحكم →</a>
+  </p>
+</div>
+        `
+        : `
 <div dir="rtl" style="font-family:Vazirmatn,system-ui,sans-serif;line-height:1.6;color:#1a1a1a;">
   <h2 style="color:#b8954e;">📩 طلب دراسة جدوى جديد</h2>
   <table style="width:100%;border-collapse:collapse;margin:1rem 0;">
@@ -534,7 +625,7 @@ ${message ? 'الرسالة:\n' + message : ''}
     <a href="https://bonds-global.com/admin/messages.html" style="color:#b8954e;">فتح لوحة التحكم →</a>
   </p>
 </div>
-      `;
+        `;
 
       for (const adminEmail of adminEmails) {
         await sendEmail({ to: adminEmail, subject: emailSubject, text: emailBody, html: emailHtml });
@@ -556,6 +647,10 @@ ${message ? 'الرسالة:\n' + message : ''}
     console.error('[contact] Error:', err.message);
     return res.status(500).json({ success: false, error: 'Server error' });
   }
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 async function sendLetterAction(req, res) {
