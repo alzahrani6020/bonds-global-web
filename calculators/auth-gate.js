@@ -8,6 +8,7 @@
   // Never gate the auth pages themselves
   const path = window.location.pathname;
   const publicAuthPaths = [
+    '/calculators/auth',
     '/calculators/auth/',
     '/calculators/auth/index.html',
     '/calculators/auth/confirmed.html',
@@ -19,6 +20,7 @@
     '/calculators/auth/subscription.html',
     '/calculators/auth/diagnose.html',
     '/calculators/auth/debug.html',
+    '/en/calculators/auth',
     '/en/calculators/auth/',
     '/en/calculators/auth/index.html',
     '/en/calculators/auth/confirmed.html',
