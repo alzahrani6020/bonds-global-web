@@ -205,34 +205,23 @@
   };
 
   async function checkFeatureAccess(feature) {
-    const { data: userData } = await getUser();
-    const user = userData?.user;
-    if (!user) return { allowed: false, reason: 'not_logged_in', tier: 'none' };
-
-    // Admin bypass
-    const { data: adminRole } = await getAdminRole(user.id);
-    if (adminRole?.role) return { allowed: true, tier: 'admin', admin: adminRole.role };
-
-    const [{ data: profile }, { data: sub }] = await Promise.all([
-      getProfile(user.id),
-      getSubscription(user.id)
-    ]);
-
-    let tier = profile?.tier || sub?.tier || 'free';
-    if (profile?.tier_expires_at && new Date(profile.tier_expires_at) < new Date()) {
-      tier = 'free';
-    }
-    let status = sub?.status || 'inactive';
-    if (status === 'active' && sub?.current_period_end && new Date(sub.current_period_end) < new Date()) {
-      status = 'inactive';
-    }
-
-    const limits = tier === 'enterprise' ? { maxScenarios: Infinity, pdfExport: true, healthHistory: true, apiAccess: true, webhooks: true } :
-                   tier === 'pro' ? { maxScenarios: Infinity, pdfExport: true, healthHistory: true, apiAccess: true } :
-                   { maxScenarios: 3, pdfExport: false, healthHistory: false, apiAccess: false };
-
-    const allowed = status === 'active' && (limits[feature] === true || limits[feature] > 0);
-    return { allowed, tier, status, limits, reason: allowed ? null : 'tier_limit' };
+    // Marketing period: all calculator features are free for site introduction.
+    // Cloud save still requires login, but all feature limits (PDF export,
+    // scenario count, country count, API access) are unlocked for everyone.
+    return {
+      allowed: true,
+      tier: 'pro',
+      status: 'active',
+      limits: {
+        maxScenarios: Infinity,
+        maxCountries: 96,
+        pdfExport: true,
+        healthHistory: true,
+        apiAccess: true,
+        webhooks: true
+      },
+      reason: null
+    };
   }
 
   // ── UI: Site header avatar/login ──────────────────────────

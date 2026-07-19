@@ -166,42 +166,24 @@ async function getProfile(userId) {
 }
 
 // ===== Feature Gates =====
+// Marketing period: calculators are free for site introduction.
 async function checkFeatureAccess(feature) {
-  const { data: userData } = await getUser();
-  const user = userData?.user;
-  if (!user) return { allowed: false, reason: 'not_logged_in', tier: 'none' };
-
-  const { data: sub } = await getSubscription(user.id);
-  const tier = sub?.tier || 'free';
-  const status = sub?.status || 'inactive';
-
-  const FREE_LIMITS = {
-    maxScenarios: 3,
-    maxCountries: 5,
-    pdfExport: false,
-    healthHistory: false,
-    apiAccess: false
+  return {
+    allowed: true,
+    tier: 'pro',
+    status: 'active',
+    limits: {
+      maxScenarios: Infinity,
+      maxCountries: 96,
+      pdfExport: true,
+      healthHistory: true,
+      apiAccess: true,
+      webhooks: true,
+      emailParser: true,
+      prioritySupport: true
+    },
+    reason: null
   };
-  const PRO_LIMITS = {
-    maxScenarios: Infinity,
-    maxCountries: 22,
-    pdfExport: true,
-    healthHistory: true,
-    apiAccess: true
-  };
-  const ENTERPRISE_LIMITS = {
-    ...PRO_LIMITS,
-    webhooks: true,
-    emailParser: true,
-    prioritySupport: true
-  };
-
-  const limits = tier === 'enterprise' ? ENTERPRISE_LIMITS :
-                 tier === 'pro' ? PRO_LIMITS : FREE_LIMITS;
-
-  const allowed = status === 'active' && (limits[feature] === true || limits[feature] > 0);
-
-  return { allowed, tier, status, limits, reason: allowed ? null : 'tier_limit' };
 }
 
 // Export for global use

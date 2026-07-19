@@ -656,40 +656,23 @@
     function updateTierUI() {
       var banner = document.getElementById('tierBanner');
       if (!banner) return;
+      // Marketing period: all calculator features are free.
       if (_currentUser) {
-        var tierLabel = _currentTier === 'enterprise' ? 'Enterprise' : (_currentTier === 'pro' ? 'Pro' : 'Free');
-        banner.innerHTML = '<span>Your plan: <strong>' + tierLabel + '</strong></span>' + (_currentTier === 'free' ? '<a href="../../pricing.html" class="upgrade-btn-inline">Upgrade →</a>' : '');
-        banner.style.display = 'flex';
-        if (_currentTier === 'free') {
-          countScenarios().then(function(count) {
-            var pct = Math.min((count / 3) * 100, 100);
-            var barClass = pct < 60 ? 'safe' : (pct < 90 ? 'warn' : 'danger');
-            var quotaHtml = '<div class="tier-quota-wrap">' +
-              '<div class="tier-quota-header">' +
-              '<span>Saved scenarios: <strong>' + count + ' / 3</strong></span>' +
-              (count >= 3 ? '<a class="tier-quota-link" href="../../pricing.html">Limit reached — Upgrade now</a>' : '') +
-              '</div>' +
-              '<div class="quota-bar ' + barClass + '"><div style="width:' + pct + '%;"></div></div>' +
-              '</div>';
-            banner.insertAdjacentHTML('beforeend', quotaHtml);
-          });
-        }
+        banner.innerHTML = '<span>All features are free 🎉</span>';
       } else {
-        banner.innerHTML = '<span>You are using the free version. <a class="tier-banner__link" href="auth/">Sign in</a> to save scenarios to the cloud.</span>' +
-          '<a href="../../pricing.html" class="upgrade-btn-inline">View Plans</a>';
-        banner.style.display = 'flex';
+        banner.innerHTML = '<span>All features are free. <a class="tier-banner__link" href="auth/">Sign in</a> to save scenarios to the cloud.</span>';
       }
+      banner.style.display = 'flex';
     }
 
     function isLoggedIn() { return !!_currentUser; }
-    function isPro() { return _currentTier === 'pro' || _currentTier === 'enterprise'; }
-    function isEnterprise() { return _currentTier === 'enterprise'; }
+    // Marketing period: all calculator features are free.
+    function isPro() { return true; }
+    function isEnterprise() { return true; }
 
     function requirePro(callback) {
-      if (isPro()) { if (callback) callback(); return true; }
-      if (window.showUpgradeModal) window.showUpgradeModal({ tier: _currentTier, reason: 'not_logged_in' });
-      else BondsUI.toast('⚠️ This feature is available on Pro plan — click "View Plans"', 'warning');
-      return false;
+      if (callback) callback();
+      return true;
     }
 
     // ===== Country Management =====

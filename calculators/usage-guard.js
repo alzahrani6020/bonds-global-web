@@ -46,24 +46,27 @@
   }
 
   async function init() {
-    await fetchLimits();
-    const userId = await getUserId();
-    const server = await checkUserTier(userId);
+    // Marketing period: calculators are free; no usage banner is shown.
+    return;
 
-    // Admins and paid users: no banner
-    if (server?.admin || server?.tier === 'pro' || server?.tier === 'enterprise') return;
-
-    // Free users: show remaining uses banner
-    const calc = location.pathname.includes('feasibility') ? 'feasibility' : 'calc';
-    const limit = calc === 'feasibility' ? GLOBAL_LIMITS.feas : GLOBAL_LIMITS.calc;
-    const used = server?.used || 0;
-    const remaining = Math.max(0, limit - used);
-
-    if (remaining === 0) {
-      showBanner('⚠️ لقد استنفدت محاولاتك المجانية.');
-    } else if (remaining <= 2) {
-      showBanner('⚡ تبقت ' + remaining + ' محاول' + (remaining === 1 ? 'ة' : 'ات') + ' مجانية.');
-    }
+    // await fetchLimits();
+    // const userId = await getUserId();
+    // const server = await checkUserTier(userId);
+    //
+    // // Admins and paid users: no banner
+    // if (server?.admin || server?.tier === 'pro' || server?.tier === 'enterprise') return;
+    //
+    // // Free users: show remaining uses banner
+    // const calc = location.pathname.includes('feasibility') ? 'feasibility' : 'calc';
+    // const limit = calc === 'feasibility' ? GLOBAL_LIMITS.feas : GLOBAL_LIMITS.calc;
+    // const used = server?.used || 0;
+    // const remaining = Math.max(0, limit - used);
+    //
+    // if (remaining === 0) {
+    //   showBanner('⚠️ لقد استنفدت محاولاتك المجانية.');
+    // } else if (remaining <= 2) {
+    //   showBanner('⚡ تبقت ' + remaining + ' محاول' + (remaining === 1 ? 'ة' : 'ات') + ' مجانية.');
+    // }
   }
 
   if (document.readyState === 'loading') {
