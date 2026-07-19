@@ -106,7 +106,7 @@
           <div class="fa-empty">
             <h2>لا توجد صلاحية وصول</h2>
             <p>يجب أن تكون مستشاراً أو مديراً للوصول إلى هذه الوحدة.</p>
-            <a href="../calculators/auth/index.html" class="ecc-btn ecc-btn--primary" style="margin-top:1rem;">تسجيل الدخول</a>
+            <a href="/calculators/auth/index.html" class="ecc-btn ecc-btn--primary" style="margin-top:1rem;">تسجيل الدخول</a>
           </div>`;
         return false;
       }
@@ -120,7 +120,7 @@
 
           <h2>يجب تسجيل الدخول</h2>
           <p>${err.message}</p>
-          <a href="../calculators/auth/index.html?redirect=${encodeURIComponent(location.href)}" class="ecc-btn ecc-btn--primary" style="margin-top:1rem;">تسجيل الدخول</a>
+          <a href="/calculators/auth/index.html?redirect=${encodeURIComponent(location.href)}" class="ecc-btn ecc-btn--primary" style="margin-top:1rem;">تسجيل الدخول</a>
         </div>`;
       return false;
     }

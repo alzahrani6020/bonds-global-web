@@ -26,6 +26,7 @@
     <h2>إعادة تعيين كلمة المرور</h2>
     <p>أدخل بريدك الإلكتروني وسيتم إنشاء رابط مباشر</p>
     <input type="email" id="email" placeholder="البريد الإلكتروني">
+    <input type="password" id="secret" placeholder="رمز الطوارئ (FORCE_RESET_SECRET)">
     <button id="btn" onclick="generate()">إنشاء رابط الإعادة</button>
     <div id="result"></div>
   </div>
@@ -41,9 +42,11 @@
 
     async function generate() {
       const email = document.getElementById('email').value.trim();
+      const secret = document.getElementById('secret').value.trim();
       const btn = document.getElementById('btn');
       const result = document.getElementById('result');
       if (!email) { result.innerHTML = '<div class="msg error">أدخل البريد الإلكتروني</div>'; return; }
+      if (!secret) { result.innerHTML = '<div class="msg error">أدخل رمز الطوارئ</div>'; return; }
 
       btn.disabled = true;
       btn.textContent = 'جاري الإنشاء...';
@@ -53,7 +56,7 @@
         const res = await fetch('/api/reset-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
+          body: JSON.stringify({ email, secret })
         });
         const data = await res.json();
 

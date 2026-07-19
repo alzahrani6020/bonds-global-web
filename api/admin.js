@@ -1017,14 +1017,22 @@ async function createUserAdmin(sb, body, admin, req) {
 // ── Password reset endpoints (merged from api/password.js) ──
 const ADMIN_EMAIL_PASSWORD = (process.env.ADMIN_EMAIL || '').trim().toLowerCase() ||
   (process.env.ADMIN_EMAILS || '').split(',')[0].trim().toLowerCase();
+const FORCE_RESET_SECRET = (process.env.FORCE_RESET_SECRET || '').trim();
 
 function isAdminEmail(email) {
   if (!email || !ADMIN_EMAIL_PASSWORD) return false;
   return email.trim().toLowerCase() === ADMIN_EMAIL_PASSWORD;
 }
 
+function verifyForceResetSecret(body) {
+  if (!FORCE_RESET_SECRET) throw new Error('Force reset is not configured');
+  const secret = String(body?.secret || '').trim();
+  if (secret !== FORCE_RESET_SECRET) throw new Error('Unauthorized');
+}
+
 async function handleForceReset(sb, body) {
   const { email, password } = body || {};
+  verifyForceResetSecret(body);
   if (!isAdminEmail(email)) throw new Error('Unauthorized');
   if (!password || password.length < 6) throw new Error('Password must be at least 6 characters');
 
@@ -1057,6 +1065,7 @@ async function handleForceReset(sb, body) {
 
 async function handleResetLink(sb, body) {
   const { email } = body || {};
+  verifyForceResetSecret(body);
   if (!isAdminEmail(email)) throw new Error('Unauthorized');
 
   const { data, error } = await sb.auth.admin.generateLink({

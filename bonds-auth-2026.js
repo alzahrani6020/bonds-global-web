@@ -101,10 +101,12 @@
   function getRedirectUrl() {
     const params = new URLSearchParams(window.location.search);
     const fromParam = params.get('redirect');
-    const fallback = (typeof window !== 'undefined' && window.location ? window.location.origin : '') + '/calculator.html';
+    const origin = (typeof window !== 'undefined' && window.location ? window.location.origin : '');
+    const fallback = origin + '/calculator.html';
     if (fromParam) {
-      try { sessionStorage.setItem('auth_redirect', fromParam); } catch(e) {}
-      return fromParam;
+      const safe = fromParam.startsWith('/') && !fromParam.startsWith('//') ? fromParam : '/calculator.html';
+      try { sessionStorage.setItem('auth_redirect', safe); } catch(e) {}
+      return origin + safe;
     }
     try {
       let stored = sessionStorage.getItem('auth_redirect');

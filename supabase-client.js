@@ -38,10 +38,18 @@ function getSupabase() {
 function getRedirectUrl() {
   const params = new URLSearchParams(window.location.search);
   const fromParam = params.get('redirect');
-  if (fromParam) return decodeURIComponent(fromParam);
+  const origin = (typeof window !== 'undefined' && window.location ? window.location.origin : '');
+  const fallback = '/calculators/restaurant.html';
+  if (fromParam) {
+    const safe = fromParam.startsWith('/') && !fromParam.startsWith('//') ? fromParam : fallback;
+    return origin ? origin + safe : safe;
+  }
   const stored = sessionStorage.getItem('auth_redirect');
-  if (stored) return stored;
-  return '/calculators/restaurant.html';
+  if (stored) {
+    const safe = stored.startsWith('/') && !stored.startsWith('//') ? stored : fallback;
+    return origin ? origin + safe : safe;
+  }
+  return origin ? origin + fallback : fallback;
 }
 
 function clearRedirectUrl() {
