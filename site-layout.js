@@ -107,7 +107,11 @@
       financialAnalysisGroup: isEn ? 'Financial Analysis' : 'التحليل المالي',
     };
 
-    const langHref = langBase + '../index.html';
+    const currentPath = window.location.pathname;
+    const currentSearch = window.location.search || '';
+    const langHref = isEn
+      ? (currentPath.replace(/^\/en\//, '/').replace(/\/$/, '/index.html') || '/index.html') + currentSearch
+      : '/en' + currentPath + currentSearch;
     const homeHref = langBase + 'index.html';
     const aboutHref = langBase + 'about.html';
     const caseStudiesHref = langBase + 'case-studies.html';
