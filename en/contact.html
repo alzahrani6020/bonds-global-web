@@ -17,16 +17,275 @@
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style" />
-  <link rel="preload" href="https://fonts.gstatic.com/s/cairo/v28/SLXVc1nY6HkvangtZmpcWmhzfHNZlDcf8Q.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" href="../assets/bonds-logo-2026.webp?v=2026" as="image" type="image/webp" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script defer src="/_vercel/insights/script.js"></script>
   <link rel="stylesheet" href="../styles.css" />
-<link rel="icon" href="../assets/bonds-mark.svg" type="image/png" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://bonds-global.com/en/contact" />
-
-<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
+  <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "name": "Bonds — Financial Consulting",
+        "url": "https://bonds-global.com",
+        "logo": "https://bonds-global.com/assets/bonds-logo-2026.webp",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+966567566616",
+          "contactType": "customer service",
+          "availableLanguage": ["Arabic", "English"]
+        },
+        "sameAs": ["https://wa.me/966567566616"]
+      },
+      {
+        "@type": "ContactPage",
+        "name": "Contact Us | Bonds",
+        "url": "https://bonds-global.com/en/contact",
+        "description": "Book your free consultation with Bonds. Reach us via WhatsApp or the contact form.",
+        "mainEntity": {
+          "@type": "Organization",
+          "name": "Bonds"
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: var(--space-12);
+      align-items: start;
+    }
+    @media (max-width: 992px) {
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+    .contact-card {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+    }
+    .contact-form__title {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 800;
+      color: var(--navy-950);
+      margin-bottom: var(--space-6);
+    }
+    .contact-form__group {
+      margin-bottom: var(--space-4);
+    }
+    .contact-form__row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+    @media (max-width: 576px) {
+      .contact-form__row { grid-template-columns: 1fr; }
+    }
+    .contact-form__label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-2);
+    }
+    .contact-form__input,
+    .contact-form__select,
+    .contact-form__textarea {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-medium);
+      background: var(--cream-50);
+      font-family: inherit;
+      font-size: var(--text-sm);
+      outline: none;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .contact-form__input:focus,
+    .contact-form__select:focus,
+    .contact-form__textarea:focus {
+      border-color: var(--gold-400);
+      box-shadow: 0 0 0 3px rgba(197,160,40,0.15);
+    }
+    .contact-form__textarea { resize: vertical; }
+    .contact-form__hint {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: var(--space-4);
+      text-align: center;
+    }
+    .contact-form__divider {
+      margin-top: var(--space-4);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: var(--text-xs);
+    }
+    .contact-form__message {
+      display: none;
+      margin-top: var(--space-4);
+      padding: var(--space-4);
+      border-radius: var(--radius);
+      text-align: center;
+      font-weight: 700;
+    }
+    .contact-form__message--success {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: #16a34a;
+    }
+    .contact-form__message--error {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #dc2626;
+    }
+    .contact-info__list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+    .contact-info__item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+    }
+    .contact-info__icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(197,160,40,0.12), rgba(197,160,40,0.04));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .contact-info__icon svg {
+      width: 22px;
+      height: 22px;
+      color: var(--gold-600);
+    }
+    .contact-info__label {
+      font-weight: 700;
+      font-size: var(--text-sm);
+      color: var(--navy-950);
+    }
+    .contact-info__value {
+      color: var(--text-secondary);
+      font-size: var(--text-sm);
+    }
+    .contact-info__value a {
+      color: var(--gold-600);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .contact-hours {
+      background: linear-gradient(135deg, var(--navy-900), var(--navy-700));
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      color: var(--white);
+    }
+    .contact-hours__title {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      font-weight: 800;
+      margin-bottom: var(--space-4);
+    }
+    .contact-hours__list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--cream-200);
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .contact-hours__list li {
+      display: flex;
+      justify-content: space-between;
+    }
+    .contact-hours__tz {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: var(--space-4);
+    }
+    .contact-map {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border-light);
+    }
+    .contact-map iframe {
+      display: block;
+      width: 100%;
+      height: 250px;
+      border: 0;
+    }
+    .contact-whatsapp-btn {
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: var(--white);
+      box-shadow: 0 8px 24px rgba(37,211,102,0.3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+    }
+    .contact-whatsapp-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+    .contact-form__field-error {
+      display: none;
+      color: #dc2626;
+      font-size: var(--text-xs);
+      margin-top: var(--space-1);
+      font-weight: 600;
+    }
+    .contact-form__input--error,
+    .contact-form__select--error,
+    .contact-form__textarea--error,
+    .contact-form__input.contact-form__input--error,
+    .contact-form__select.contact-form__input--error,
+    .contact-form__textarea.contact-form__input--error {
+      border-color: #dc2626 !important;
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.1) !important;
+    }
+    .contact-form__input--error:focus,
+    .contact-form__select--error:focus,
+    .contact-form__textarea--error:focus,
+    .contact-form__input.contact-form__input--error:focus,
+    .contact-form__select.contact-form__input--error:focus,
+    .contact-form__textarea.contact-form__input--error:focus {
+      border-color: #dc2626 !important;
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.15) !important;
+    }
+    .contact-form__btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+    }
+    .contact-form__spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: contact-spin 0.8s linear infinite;
+    }
+    @keyframes contact-spin { to { transform: rotate(360deg); } }
+    /* Honeypot */
+    .contact-form__hp { display: none !important; }
+  </style>
 </head>
 <body style="font-family:'Inter',system-ui,sans-serif">
 
@@ -34,7 +293,7 @@
   <div id="site-header"></div>
 
   <!-- Page Hero -->
-  <section class="hero" style="min-height: 50vh; padding: var(--space-20) 0;">
+  <section class="hero" style="min-height: 45vh; padding: var(--space-20) 0;">
     <div class="hero__orb hero__orb--1" style="width: 300px; height: 300px;"></div>
     <div class="hero__orb hero__orb--2" style="width: 250px; height: 250px;"></div>
     <div class="container hero__content reveal">
@@ -47,114 +306,130 @@
   <!-- Contact Section -->
   <section class="section">
     <div class="container">
-      <div style="display: grid; grid-template-columns: 3fr 2fr; gap: var(--space-12);">
+      <div class="contact-grid">
         <!-- Form -->
         <div class="reveal">
-          <!-- Formspree form: replace YOUR_FORM_ID with your actual Formspree endpoint after signing up at formspree.io -->
-          <form id="contactForm" action="https://formspree.io/f/mykvdana" method="POST" style="background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: var(--space-8);">
-            <h2 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-6);">Send Your Request</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4);">
-              <div>
-                <label style="display: block; font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: var(--space-2);">Name *</label>
-                <input type="text" name="name" required placeholder="Your full name" style="width: 100%; padding: var(--space-3) var(--space-4); border-radius: var(--radius); border: 1px solid var(--border-medium); background: var(--cream-50); font-family: inherit; font-size: var(--text-sm); outline: none; transition: border-color var(--transition-fast), box-shadow var(--transition-fast);" onfocus="this.style.borderColor='var(--gold-400)';this.style.boxShadow='0 0 0 3px rgba(197,160,40,0.15)'" onblur="this.style.borderColor='var(--border-medium)';this.style.boxShadow='none'" />
+          <form id="contactForm" class="contact-card" novalidate>
+            <h2 class="contact-form__title">Send Your Request</h2>
+            <div class="contact-form__row">
+              <div class="contact-form__group">
+                <label class="contact-form__label" for="contactName">Name *</label>
+                <input id="contactName" class="contact-form__input" type="text" name="name" required minlength="2" placeholder="Your full name" autocomplete="name" aria-describedby="nameError" />
+                <div class="contact-form__field-error" id="nameError">Please enter your full name (at least 2 characters).</div>
               </div>
-              <div>
-                <label style="display: block; font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: var(--space-2);">WhatsApp Number *</label>
-                <input type="tel" name="phone" required placeholder="e.g., +966 56 756 6616" style="width: 100%; padding: var(--space-3) var(--space-4); border-radius: var(--radius); border: 1px solid var(--border-medium); background: var(--cream-50); font-family: inherit; font-size: var(--text-sm); outline: none; transition: border-color var(--transition-fast), box-shadow var(--transition-fast);" onfocus="this.style.borderColor='var(--gold-400)';this.style.boxShadow='0 0 0 3px rgba(197,160,40,0.15)'" onblur="this.style.borderColor='var(--border-medium)';this.style.boxShadow='none'" />
+              <div class="contact-form__group">
+                <label class="contact-form__label" for="contactPhone">WhatsApp Number *</label>
+                <input id="contactPhone" class="contact-form__input" type="tel" name="phone" required placeholder="e.g., +966 56 756 6616" autocomplete="tel" inputmode="tel" aria-describedby="phoneError" />
+                <div class="contact-form__field-error" id="phoneError">Please enter a valid WhatsApp number.</div>
               </div>
             </div>
-            <div style="margin-bottom: var(--space-4);">
-              <label style="display: block; font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: var(--space-2);">Email *</label>
-              <input type="email" name="email" required placeholder="your@email.com" style="width: 100%; padding: var(--space-3) var(--space-4); border-radius: var(--radius); border: 1px solid var(--border-medium); background: var(--cream-50); font-family: inherit; font-size: var(--text-sm); outline: none; transition: border-color var(--transition-fast), box-shadow var(--transition-fast);" onfocus="this.style.borderColor='var(--gold-400)';this.style.boxShadow='0 0 0 3px rgba(197,160,40,0.15)'" onblur="this.style.borderColor='var(--border-medium)';this.style.boxShadow='none'" />
+            <div class="contact-form__group">
+              <label class="contact-form__label" for="contactEmail">Email *</label>
+              <input id="contactEmail" class="contact-form__input" type="email" name="email" required placeholder="your@email.com" autocomplete="email" inputmode="email" aria-describedby="emailError" />
+              <div class="contact-form__field-error" id="emailError">Please enter a valid email address.</div>
             </div>
-            <div style="margin-bottom: var(--space-4);">
-              <label id="sectorLabel" style="display: block; font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: var(--space-2);">Your Sector</label>
-              <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="sector" aria-labelledby="sectorLabel" style="width: 100%; padding: var(--space-3) var(--space-4); border-radius: var(--radius); border: 1px solid var(--border-medium); background: var(--cream-50); font-family: inherit; font-size: var(--text-sm); outline: none; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); cursor: pointer;" onfocus="this.style.borderColor='var(--gold-400)';this.style.boxShadow='0 0 0 3px rgba(197,160,40,0.15)'" onblur="this.style.borderColor='var(--border-medium)';this.style.boxShadow='none'">
-                <option value="">Select sector</option>
-                <option value="trade">Trade &amp; Retail</option>
-                <option value="manufacturing">Manufacturing</option>
-                <option value="tourism">Tourism &amp; Hospitality</option>
-                <option value="agriculture">Agriculture &amp; Food</option>
-                <option value="services">Professional Services</option>
-                <option value="real-estate">Real Estate &amp; Construction</option>
-                <option value="technology">Technology &amp; Software</option>
-                <option value="healthcare">Healthcare</option>
-                <option value="other">Other</option>
-              </select>
+            <div class="contact-form__row">
+              <div class="contact-form__group">
+                <label class="contact-form__label" id="sectorLabel" for="contactSector">Your Sector</label>
+                <select id="contactSector" class="contact-form__select" data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="sector" aria-labelledby="sectorLabel">
+                  <option value="">Select sector</option>
+                  <option value="trade">Trade &amp; Retail</option>
+                  <option value="manufacturing">Manufacturing</option>
+                  <option value="tourism">Tourism &amp; Hospitality</option>
+                  <option value="agriculture">Agriculture &amp; Food</option>
+                  <option value="services">Professional Services</option>
+                  <option value="real-estate">Real Estate &amp; Construction</option>
+                  <option value="technology">Technology &amp; Software</option>
+                  <option value="healthcare">Healthcare</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="contact-form__group">
+                <label class="contact-form__label" id="serviceLabel" for="contactService">Service Type</label>
+                <select id="contactService" class="contact-form__select" data-universal-dropdown="true" name="service" aria-labelledby="serviceLabel" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true">
+                  <option value="">Select service</option>
+                  <option value="financial-analysis">Financial Analysis</option>
+                  <option value="cash-flow">Cash Flow Management</option>
+                  <option value="budgeting">Budgeting &amp; Forecasting</option>
+                  <option value="feasibility">Feasibility Studies</option>
+                  <option value="risk">Risk Analysis</option>
+                  <option value="strategy">Financial Strategy</option>
+                  <option value="operational">Operational Consulting</option>
+                  <option value="research">Surveys &amp; Market Research</option>
+                  <option value="other">Other / Not sure</option>
+                </select>
+              </div>
             </div>
-            <div style="margin-bottom: var(--space-4);">
-              <label id="serviceLabel" style="display: block; font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: var(--space-2);">Service Type</label>
-              <select data-universal-dropdown="true" name="service" aria-labelledby="serviceLabel" style="width: 100%; padding: var(--space-3) var(--space-4); border-radius: var(--radius); border: 1px solid var(--border-medium); background: var(--cream-50); font-family: inherit; font-size: var(--text-sm); outline: none; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); cursor: pointer;" onfocus="this.style.borderColor='var(--gold-400)';this.style.boxShadow='0 0 0 3px rgba(197,160,40,0.15)'" onblur="this.style.borderColor='var(--border-medium)';this.style.boxShadow='none'" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true">
-                <option value="">Select service</option>
-                <option value="financial-analysis">Financial Analysis</option>
-                <option value="cash-flow">Cash Flow Management</option>
-                <option value="budgeting">Budgeting &amp; Forecasting</option>
-                <option value="feasibility">Feasibility Studies</option>
-                <option value="risk">Risk Analysis</option>
-                <option value="strategy">Financial Strategy</option>
-                <option value="operational">Operational Consulting</option>
-                <option value="research">Surveys &amp; Market Research</option>
-                <option value="other">Other / Not sure</option>
-              </select>
+            <div class="contact-form__group">
+              <label class="contact-form__label" for="contactMessage">Request Details *</label>
+              <textarea id="contactMessage" class="contact-form__textarea" name="message" rows="5" required minlength="10" maxlength="2000" placeholder="Briefly describe your situation and the service you need..." aria-describedby="messageError messageCount"></textarea>
+              <div class="contact-form__field-error" id="messageError">Please provide request details (at least 10 characters).</div>
             </div>
-            <div style="margin-bottom: var(--space-6);">
-              <label style="display: block; font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: var(--space-2);">Request Details *</label>
-              <textarea name="message" rows="5" required placeholder="Briefly describe your situation and the service you need..." style="width: 100%; padding: var(--space-3) var(--space-4); border-radius: var(--radius); border: 1px solid var(--border-medium); background: var(--cream-50); font-family: inherit; font-size: var(--text-sm); outline: none; resize: vertical; transition: border-color var(--transition-fast), box-shadow var(--transition-fast);" onfocus="this.style.borderColor='var(--gold-400)';this.style.boxShadow='0 0 0 3px rgba(197,160,40,0.15)'" onblur="this.style.borderColor='var(--border-medium)';this.style.boxShadow='none'"></textarea>
+            <!-- Honeypot -->
+            <div class="contact-form__hp" aria-hidden="true">
+              <label for="contactWebsite">Your website</label>
+              <input id="contactWebsite" type="text" name="website" tabindex="-1" autocomplete="off" />
             </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; font-size: var(--text-base);">Send Request</button>
-            <p style="font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-4); text-align: center;">We will send a copy to your email and WhatsApp &mdash; we respond within 2–3 business days.</p>
-            <div style="margin-top: var(--space-4); text-align: center;">
-              <span style="color: var(--text-muted); font-size: var(--text-xs);">&mdash; or &mdash;</span>
-            </div>
-            <a href="https://calendly.com/iiffund-dev/30min" target="_blank" rel="noopener" class="btn btn-outline" style="width: 100%; margin-top: var(--space-4); font-size: var(--text-base);">📅 Book directly on the calendar</a>
+            <button type="submit" class="btn btn-primary contact-form__btn" style="width: 100%; font-size: var(--text-base);"><span class="contact-form__spinner" aria-hidden="true"></span><span class="contact-form__btn-text">Send Request</span></button>
+            <div id="formSuccess" class="contact-form__message contact-form__message--success" role="status" aria-live="polite">Your request has been sent successfully. We will contact you within 2–3 business days.</div>
+            <div id="formError" class="contact-form__message contact-form__message--error" role="alert" aria-live="assertive">An error occurred while sending. Please try again or contact us via WhatsApp.</div>
+            <p class="contact-form__hint">We will send a copy to your email and WhatsApp — we respond within 2–3 business days.</p>
+            <div class="contact-form__divider">— or —</div>
+            <a href="https://calendly.com/iiffund-dev/30min" target="_blank" rel="noopener" class="btn btn-outline" style="width: 100%; margin-top: var(--space-4); font-size: var(--text-base);">Book directly on the calendar</a>
           </form>
         </div>
 
         <!-- Contact Info -->
         <div class="reveal reveal-delay-1" style="display: flex; flex-direction: column; gap: var(--space-4);">
-          <div style="background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: var(--space-8);">
+          <div class="contact-card">
             <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: var(--navy-950); margin-bottom: var(--space-6);">Contact Information</h3>
-            <div style="display: flex; flex-direction: column; gap: var(--space-5);">
-              <div style="display: flex; align-items: flex-start; gap: var(--space-3);">
-                <div style="width: 44px; height: 44px; border-radius: var(--radius); background: linear-gradient(135deg, rgba(197,160,40,0.12), rgba(197,160,40,0.04)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem;">📱</div>
+            <div class="contact-info__list">
+              <div class="contact-info__item">
+                <div class="contact-info__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </div>
                 <div>
-                  <div style="font-weight: 700; font-size: var(--text-sm); color: var(--navy-950);">WhatsApp</div>
-                  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" style="color: var(--gold-600); font-size: var(--text-sm); text-decoration: underline; text-underline-offset: 3px;">+966 56 756 6616</a>
+                  <div class="contact-info__label">WhatsApp</div>
+                  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="contact-info__value">+966 56 756 6616</a>
                 </div>
               </div>
-              <div style="display: flex; align-items: flex-start; gap: var(--space-3);">
-                <div style="width: 44px; height: 44px; border-radius: var(--radius); background: linear-gradient(135deg, rgba(197,160,40,0.12), rgba(197,160,40,0.04)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem;">✉️</div>
+              <div class="contact-info__item">
+                <div class="contact-info__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                </div>
                 <div>
-                  <div style="font-weight: 700; font-size: var(--text-sm); color: var(--navy-950);">Email</div>
-                  <a href="mailto:info@bonds-global.com" style="color: var(--text-secondary); font-size: var(--text-sm);">info@bonds-global.com</a>
+                  <div class="contact-info__label">Email</div>
+                  <a href="mailto:info@bonds-global.com" class="contact-info__value">info@bonds-global.com</a>
                 </div>
               </div>
-              <div style="display: flex; align-items: flex-start; gap: var(--space-3);">
-                <div style="width: 44px; height: 44px; border-radius: var(--radius); background: linear-gradient(135deg, rgba(197,160,40,0.12), rgba(197,160,40,0.04)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem;">📍</div>
+              <div class="contact-info__item">
+                <div class="contact-info__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                </div>
                 <div>
-                  <div style="font-weight: 700; font-size: var(--text-sm); color: var(--navy-950);">Location</div>
-                  <span style="color: var(--text-secondary); font-size: var(--text-sm);">Sheikh Zayed, Giza, Egypt <br>Jeddah, Quraish Street</span>
+                  <div class="contact-info__label">Location</div>
+                  <span class="contact-info__value">Sheikh Zayed, Giza, Egypt <br>Jeddah, Quraish Street</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div style="background: linear-gradient(135deg, var(--navy-900), var(--navy-700)); border-radius: var(--radius-lg); padding: var(--space-8); color: var(--white);">
-            <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; margin-bottom: var(--space-4);">Business Hours</h3>
-            <ul style="display: flex; flex-direction: column; gap: var(--space-2); font-size: var(--text-sm); color: var(--cream-200);">
-              <li style="display: flex; justify-content: space-between;"><span>Sat – Thu</span><span>9:00 – 18:00</span></li>
-              <li style="display: flex; justify-content: space-between;"><span>Fri</span><span>Closed</span></li>
+          <div class="contact-hours">
+            <h3 class="contact-hours__title">Business Hours</h3>
+            <ul class="contact-hours__list">
+              <li><span>Sat – Thu</span><span>9:00 – 18:00</span></li>
+              <li><span>Fri</span><span>Closed</span></li>
             </ul>
-            <p style="font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-4);">Cairo Time (GMT+2)</p>
+            <p class="contact-hours__tz">Cairo Time (GMT+2)</p>
           </div>
 
-          <div style="border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-light);">
-            <iframe title="Bonds office location map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3710.1!2d39.1673!3d21.5997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDM1JzU4LjkiTiAzOcKwMTAnMDIuNCJF!5e0!3m2!1sar!2ssa!4v1716643200000!5m2!1sar!2ssa" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <div class="contact-map">
+            <iframe title="Bonds office location map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3710.1!2d39.1673!3d21.5997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDM1JzU4LjkiTiAzOcKwMTAnMDIuNCJF!5e0!3m2!1sar!2ssa!4v1716643200000!5m2!1sar!2ssa" width="100%" height="250" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           </div>
 
-          <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="btn" style="background: linear-gradient(135deg, #25d366, #128c7e); color: var(--white); box-shadow: 0 8px 24px rgba(37,211,102,0.3);">
+          <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="btn contact-whatsapp-btn">
             <span>Contact us directly on WhatsApp</span>
-            <span>💬</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
           </a>
         </div>
       </div>
@@ -165,7 +440,9 @@
   <div id="site-footer"></div>
 
   <!-- WhatsApp Float -->
-  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp">💬</a>
+  <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp">
+    <svg viewBox="0 0 24 24" aria-hidden="true" style="width:28px;height:28px;fill:currentColor;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+  </a>
 
   <div class="cookie-banner" id="cookieBanner">
     <div class="container cookie-banner__inner">
@@ -183,65 +460,145 @@
   </script>
   <script src="../script.js?v=5" defer></script>
   <script>
-    document.getElementById('contactForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      var btn = this.querySelector('button[type="submit"]');
-      var originalText = btn.textContent;
-      btn.textContent = 'Sending...';
-      btn.disabled = true;
-      // Save values before reset
-      var wName = this.name.value;
-      var wPhone = this.phone.value;
-      var wEmail = this.email.value;
-      var wSector = this.sector.value;
-      var wService = this.service.value;
-      var wMessage = this.message.value;
-      try {
-        var res = await fetch('/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: wName,
-            phone: wPhone,
-            email: wEmail,
-            sector: wSector,
-            service: wService,
-            message: wMessage
-          })
-        });
-        var data = await res.json();
-        if (data.success) {
-          btn.textContent = '✓ Sent successfully';
-          btn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
-          this.reset();
-          setTimeout(function(){ btn.textContent = originalText; btn.style.background = ''; btn.disabled = false; }, 3000);
-        } else {
-          throw new Error(data.error || 'Failed to send');
-        }
-      } catch(err) {
-        btn.textContent = '⚠ ' + err.message;
-        setTimeout(function(){ btn.textContent = originalText; btn.disabled = false; }, 3000);
+    (function () {
+      const form = document.getElementById('contactForm');
+      const successEl = document.getElementById('formSuccess');
+      const errorEl = document.getElementById('formError');
+      const btn = form.querySelector('button[type="submit"]');
+      const btnText = btn.querySelector('.contact-form__btn-text');
+      const spinner = btn.querySelector('.contact-form__spinner');
+      const originalText = btnText.textContent;
+
+      const fields = {
+        name: { el: form.name, error: document.getElementById('nameError'), validate: v => v.trim().length >= 2 },
+        phone: { el: form.phone, error: document.getElementById('phoneError'), validate: v => /^[\d\s\+\-\(\)]{8,}$/.test(v.trim()) },
+        email: { el: form.email, error: document.getElementById('emailError'), validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) },
+        message: { el: form.message, error: document.getElementById('messageError'), validate: v => v.trim().length >= 10 }
+      };
+
+      function setFieldError(key, show) {
+        const f = fields[key];
+        if (!f || !f.error) return;
+        f.error.style.display = show ? 'block' : 'none';
+        f.el.classList.toggle('contact-form__input--error', show);
       }
-      // Also open WhatsApp
-      var name = wName;
-      var phone = wPhone;
-      var email = wEmail;
-      var sector = wSector;
-      var service = wService;
-      var message = wMessage;
-      var text = 'Hello, my name is ' + name + '%0AMy number: ' + phone + '%0AEmail: ' + email + '%0ASector: ' + sector + '%0AService needed: ' + service + '%0AMessage: ' + message;
-      window.open('https://wa.me/966567566616?text=' + text, '_blank');
-    });
+
+      function clearAllFieldErrors() {
+        Object.keys(fields).forEach(key => setFieldError(key, false));
+      }
+
+      function validateAll() {
+        let valid = true;
+        clearAllFieldErrors();
+        Object.keys(fields).forEach(key => {
+          const f = fields[key];
+          if (!f.validate(f.el.value)) {
+            setFieldError(key, true);
+            valid = false;
+          }
+        });
+        return valid;
+      }
+
+      Object.keys(fields).forEach(key => {
+        const f = fields[key];
+        f.el.addEventListener('input', function () {
+          if (f.error.style.display === 'block') {
+            setFieldError(key, !f.validate(f.el.value));
+          }
+        });
+        f.el.addEventListener('blur', function () {
+          setFieldError(key, !f.validate(f.el.value));
+        });
+      });
+
+      function showSuccess() {
+        successEl.style.display = 'block';
+        errorEl.style.display = 'none';
+        successEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function showError(msg) {
+        errorEl.textContent = msg || 'An error occurred while sending. Please try again or contact us via WhatsApp.';
+        errorEl.style.display = 'block';
+        successEl.style.display = 'none';
+        errorEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function resetMessages() {
+        successEl.style.display = 'none';
+        errorEl.style.display = 'none';
+      }
+
+      function setLoading(isLoading) {
+        btn.disabled = isLoading;
+        spinner.style.display = isLoading ? 'block' : 'none';
+        btnText.textContent = isLoading ? 'Sending...' : originalText;
+      }
+
+      function openWhatsApp(data) {
+        const text = 'Hello, my name is ' + data.name +
+          '\nMy number: ' + data.phone +
+          '\nEmail: ' + data.email +
+          '\nSector: ' + (data.sector || '—') +
+          '\nService needed: ' + (data.service || '—') +
+          '\nMessage: ' + data.message;
+        window.open('https://wa.me/966567566616?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer');
+      }
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        if (!validateAll()) {
+          const firstInvalid = Object.values(fields).find(f => f.error.style.display === 'block');
+          if (firstInvalid) firstInvalid.el.focus();
+          return;
+        }
+
+        resetMessages();
+        setLoading(true);
+
+        const data = {
+          name: form.name.value.trim(),
+          phone: form.phone.value.trim(),
+          email: form.email.value.trim(),
+          sector: form.sector.value,
+          service: form.service.value,
+          message: form.message.value.trim(),
+          website: form.website ? form.website.value : ''
+        };
+
+        try {
+          const res = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const result = await res.json().catch(() => ({}));
+
+          if (res.ok && result.success) {
+            form.reset();
+            clearAllFieldErrors();
+            showSuccess();
+            openWhatsApp(data);
+          } else {
+            showError(result.error || 'Failed to send. Please try again later.');
+          }
+        } catch (err) {
+          showError('Could not connect to the server. Please check your internet connection.');
+        } finally {
+          setLoading(false);
+        }
+      });
+    })();
   </script>
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}</script>
-  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);">↑</button>
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" id="backToTop" style="position:fixed;bottom:80px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;z-index:9999;opacity:0;visibility:hidden;transition:all 0.3s;box-shadow:0 4px 12px rgba(212,168,83,0.4);" aria-label="Back to top">↑</button>
   <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
   <script src="../page-tracker-v2.js"></script>
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3"></script>
-<script src="../site-layout.js?v=2.59.0"></script>
-<script src="../components/universal-dropdown.js?v=2.51.8"></script>
-<script src="../components/universal-dropdown-init.js"></script>
+  <script src="../site-layout.js?v=2.59.0"></script>
+  <script src="../components/universal-dropdown.js?v=2.51.8"></script>
+  <script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>
