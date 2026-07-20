@@ -215,7 +215,7 @@
 
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/bonds-auth-2026.js?v=4"></script>
+  <script src="/bonds-auth-2026.js?v=2.99.9"></script>
   <script src="../../components/universal-dropdown.js"></script>
   <script src="../../components/universal-dropdown-init.js"></script>
   <script src="../../assets/data/countries-dial.js"></script>
@@ -577,7 +577,15 @@
         setLoading('otpBtn', true);
         const { error } = await window.BondsAuth.signInWithOTP(email);
         setLoading('otpBtn', false);
-        if (error) { showError(error.message); return; }
+        if (error) {
+          const msg = error.message || '';
+          if (/rate limit|too many requests|request rate limit/i.test(msg)) {
+            showError('تم تجاوز عدد محاولات إرسال البريد. يرجى الانتظار 30–60 دقيقة ثم المحاولة مرة أخرى، أو التواصل معنا عبر واتساب للمساعدة.', '<a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;">📱 واتساب</a>');
+          } else {
+            showError(msg);
+          }
+          return;
+        }
         showSuccess('تم إرسال رابط تسجيل الدخول إلى بريدك! تحقق من صندوق الوارد 📧');
       });
 
@@ -674,6 +682,8 @@
           const msg = error.message || '';
           if (msg.includes('already registered') || msg.includes('User already registered')) {
             showError('هذا البريد مسجل مسبقاً — جرب تسجيل الدخول');
+          } else if (/rate limit|too many requests|request rate limit/i.test(msg)) {
+            showError('تم تجاوز عدد محاولات إرسال البريد. يرجى الانتظار 30–60 دقيقة ثم المحاولة مرة أخرى، أو التواصل معنا عبر واتساب للمساعدة.', '<a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;">📱 واتساب</a>');
           } else {
             showError(msg);
           }
