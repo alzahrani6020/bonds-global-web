@@ -64,10 +64,12 @@ async function getGeo(req) {
   const vercelCountry = req.headers['x-vercel-ip-country'];
   const countryCode = (vercelCountry || cfCountry || '').toString().toUpperCase();
   if (countryCode && countryCode.length === 2) {
+    const rawCity = req.headers['x-vercel-ip-city'] || req.headers['cf-ipcity'] || '';
+    const city = rawCity ? decodeURIComponent(rawCity) : null;
     return {
       country: countryCode,
       countryCode,
-      city: req.headers['x-vercel-ip-city'] || req.headers['cf-ipcity'] || null,
+      city,
       region: req.headers['x-vercel-ip-country-region'] || req.headers['cf-region'] || null
     };
   }

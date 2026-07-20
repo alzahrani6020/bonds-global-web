@@ -685,13 +685,23 @@
         const activitySelect = document.getElementById('activitySelect');
 
         // Show all 22 supported countries even if some have no cities in the DB yet
-        const allCountryCodes = Object.keys(countryNames).sort((a, b) =>
-          countryNames[a].localeCompare(countryNames[b], 'ar')
-        );
+        // Saudi Arabia is the default/first country across the platform.
+        function sortCountries(codes, defaultCode = 'SA') {
+          return codes.slice().sort((a, b) => {
+            if (a === defaultCode) return -1;
+            if (b === defaultCode) return 1;
+            return countryNames[a].localeCompare(countryNames[b], 'ar');
+          });
+        }
+        const allCountryCodes = sortCountries(Object.keys(countryNames));
         const countryOptions = allCountryCodes.map(code => ({ value: code, label: countryNames[code], icon: countryFlags[code] }));
         countrySelect.innerHTML = '<option value="">اختر الدولة</option>' + allCountryCodes.map(code => `<option value="${code}" data-icon="${countryFlags[code]}">${countryNames[code]}</option>`).join('');
+        countrySelect.value = 'SA';
         const countryDd = window.getUniversalDropdown && window.getUniversalDropdown(countrySelect);
-        if (countryDd && countryDd.setOptions) countryDd.setOptions(countryOptions);
+        if (countryDd && countryDd.setOptions) {
+          countryDd.setOptions(countryOptions);
+          if (countryDd.selectByValue) countryDd.selectByValue('SA');
+        }
 
         function populateCities() {
           citySelect.innerHTML = '<option value="">اختر المدينة</option>' + cities.map(c => `<option value="${c.code}" data-icon="${CITY_ICON}">${c.name_ar}</option>`).join('');
@@ -700,7 +710,7 @@
         }
 
         async function loadCities() {
-          const selectedCountry = countrySelect.value;
+          const selectedCountry = countrySelect.value || 'SA';
           const selectedType = cityTypeSelect.value;
           let url = API_URL + '/cities?limit=2000';
           if (selectedCountry) url += '&country=' + encodeURIComponent(selectedCountry);

@@ -137,6 +137,7 @@
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <script src="/bonds-auth-2026.js?v=4"></script>
   <script>BondsAuth.initAdminGuard();</script>
+  <script src="/admin/admin-geo.js"></script>
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
 <script src="/calculators/auth-gate.js?v=2"></script>
   </head>
@@ -470,7 +471,10 @@
     let filteredUsers = [];
     let currentPage = 1;
     let lastFetchError = null;
+    let onlineUserIds = new Set();
+    let onlineRefreshTimer = null;
     const pageSize = 10;
+    const ONLINE_REFRESH_INTERVAL = 30000;
 
     // Receive the admin token from the parent dashboard when loaded inside an iframe
     window.addEventListener('message', (e) => {
@@ -488,6 +492,28 @@
         token = session?.access_token || '';
       }
       return token;
+    }
+
+    async function fetchOnlineUserIds() {
+      try {
+        const token = await getToken();
+        const res = await fetch('/api/admin?action=online-users', {
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const ids = new Set();
+        (data.online || []).forEach(u => { if (u.userId) ids.add(u.userId); });
+        onlineUserIds = ids;
+        renderTable();
+      } catch (e) {
+        console.error('[online check]', e);
+      }
+    }
+
+    function startOnlineRefresh() {
+      if (onlineRefreshTimer) clearInterval(onlineRefreshTimer);
+      onlineRefreshTimer = setInterval(fetchOnlineUserIds, ONLINE_REFRESH_INTERVAL);
     }
 
     async function fetchUsers() {
@@ -533,8 +559,7 @@
     }
 
     function countryLabel(code) {
-      const map = { SA: 'السعودية', AE: 'الإمارات', EG: 'مصر', KW: 'الكويت', QA: 'قطر', BH: 'البحرين', OM: 'عمان', JO: 'الأردن', IQ: 'العراق', LB: 'لبنان', MA: 'المغرب', DZ: 'الجزائر', TN: 'تونس', TR: 'تركيا', US: 'أمريكا', GB: 'بريطانيا', IN: 'الهند', ksa: 'السعودية' };
-      return map[code] || code;
+      return (typeof adminCountryName === 'function') ? adminCountryName(code) : (code || '-');
     }
 
     function formatDate(dateStr) {
@@ -563,6 +588,7 @@
         const name = u.restaurant_name || 'مستخدم جديد';
         const isOwner = window.__ENV?.ADMIN_EMAIL && u.email === window.__ENV.ADMIN_EMAIL;
         const isAdmin = !!u.admin_role;
+        const isOnline = onlineUserIds.has(u.id);
         const protectedTitle = isOwner ? 'حساب المالك' : isAdmin ? 'حساب إداري' : '';
         const disabledBtn = (title) => `<button class="btn-action" style="opacity:0.35;cursor:not-allowed;" title="${title} محمي" disabled>—</button>`;
         return `
@@ -571,7 +597,7 @@
               <div class="user-cell">
                 <div class="user-cell__avatar">${name.charAt(0)}</div>
                 <div>
-                  <div class="user-cell__name">${name}</div>
+                  <div class="user-cell__name">${name}${isOnline ? ' <span title="متصل الآن" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);margin-right:0.35rem;box-shadow:0 0 0 2px rgba(34,197,94,0.2);"></span>' : ''}</div>
                   <div class="user-cell__email">${u.email || '-'}${isOwner ? ' <span style="color:var(--gold);font-size:0.7rem;">(مالك)</span>' : isAdmin ? ' <span style="color:var(--info);font-size:0.7rem;">(' + u.admin_role + ')</span>' : ''}</div>
                 </div>
               </div>
@@ -670,6 +696,7 @@
       document.getElementById('usersTable').innerHTML = '<tr><td colspan="11" class="loading">جارِ التحديث...</td></tr>';
       allUsers = await fetchUsers();
       filterUsers();
+      await fetchOnlineUserIds();
       notifyParentHeight();
     }
 
@@ -1136,6 +1163,8 @@
       lastFetchError = null;
       allUsers = await fetchUsers();
       filterUsers();
+      await fetchOnlineUserIds();
+      startOnlineRefresh();
     });
   </script>
 

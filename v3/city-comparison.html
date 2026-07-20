@@ -313,7 +313,7 @@
           modelSelect.innerHTML += `<option value="${m.code}">${m.name_ar}</option>`;
         });
 
-        populateCountrySelect();
+        populateCountrySelect('SA');
         await updateCityList();
         if (window.initUniversalDropdowns) {
           window.initUniversalDropdowns(activitySelect);
@@ -324,32 +324,57 @@
       }
     }
 
-    function populateCountrySelect() {
+    function sortCountryCodes(codes, defaultCode = 'SA') {
+      return codes.slice().sort((a, b) => {
+        if (a === defaultCode) return -1;
+        if (b === defaultCode) return 1;
+        return countryNames[a].localeCompare(countryNames[b], 'ar');
+      });
+    }
+
+    function populateCountrySelect(preferredCode) {
       const select = document.getElementById('countrySelect');
       if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(select);
-      const codes = [...new Set(cities.map(c => c.country_code))].sort();
+      let codes = [...new Set(cities.map(c => c.country_code))];
+      // Fallback to all supported countries if the API returned no cities yet
+      if (codes.length === 0) {
+        codes = Object.keys(countryNames);
+      }
+      codes = sortCountryCodes(codes);
+      const currentValue = preferredCode || select.value || 'SA';
       select.innerHTML = '<option value="">كل الدول</option>' +
         codes.map(code => `<option value="${code}">${countryNames[code] || code}</option>`).join('');
+      if (codes.includes(currentValue)) select.value = currentValue;
       if (window.initUniversalDropdowns) window.initUniversalDropdowns(select);
     }
 
     async function updateCityList() {
       const activityCode = document.getElementById('activitySelect').value;
+      const countryCode = document.getElementById('countrySelect').value || 'SA';
       selectedCities.clear();
       const chipsEl = document.getElementById('cityChips');
 
-      if (!activityCode) {
-        cities = [];
-        populateCountrySelect();
-        chipsEl.innerHTML = '<div style="color: var(--text-secondary); padding: 1rem 0;">اختر نشاطاً أولاً لعرض المدن ذات البيانات السوقية.</div>';
-        return;
-      }
-
-      chipsEl.innerHTML = '<div class="loading">جاري تحديث المدن...</div>';
+      chipsEl.innerHTML = '<div class="loading">جاري تحميل المدن...</div>';
       try {
-        const data = await fetchJson(`${API_URL}/cities?include=opportunity&activity=${encodeURIComponent(activityCode)}&limit=2000`);
-        cities = (data.cities || []).filter(c => MODERN_CITY_CODE.test(c.code) && c.opportunity != null);
+        let url;
+        let needsActivity = false;
+        if (activityCode) {
+          url = `${API_URL}/cities?include=opportunity&activity=${encodeURIComponent(activityCode)}&limit=2000`;
+          needsActivity = true;
+        } else {
+          url = `${API_URL}/cities?limit=2000`;
+        }
+        const data = await fetchJson(url);
+        cities = (data.cities || []).filter(c => MODERN_CITY_CODE.test(c.code));
+        if (needsActivity) {
+          cities = cities.filter(c => c.opportunity != null);
+        }
+        // If the API returned cities but none for the selected country, keep the fallback list visible
         populateCountrySelect();
+        if (!activityCode && cities.length === 0) {
+          chipsEl.innerHTML = '<div style="color: var(--text-secondary); padding: 1rem 0;">اختر نشاطاً أولاً لعرض بيانات السوق للمدن، أو تأكد من توفر بيانات المدن.</div>';
+          return;
+        }
         filterAndRenderCities();
       } catch (err) {
         chipsEl.innerHTML = `<div class="error">فشل تحميل المدن: ${err.message}</div>`;

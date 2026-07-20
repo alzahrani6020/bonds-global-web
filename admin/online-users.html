@@ -13,6 +13,7 @@
   <script src="/bonds-auth-2026.js?v=4"></script>
   <script>BondsAuth.initAdminGuard();</script>
   <script src="/admin/admin-embed.js"></script>
+  <script src="/admin/admin-geo.js"></script>
   <style>
     :root {
       --bg: #f5f0e8; --bg-secondary: #ffffff; --bg-card: rgba(255,255,255,0.9);
@@ -217,7 +218,7 @@
       const API_URL = '/api/admin';
       let autoRefresh = true;
       let refreshTimer = null;
-      const REFRESH_INTERVAL = 30000;
+      const REFRESH_INTERVAL = 15000;
 
       async function apiGet(action, params) {
         let token = window.__ADMIN_TOKEN || '';
@@ -236,9 +237,13 @@
       }
 
       function countryFlag(countryCode) {
-        if (!countryCode || countryCode.length !== 2) return '🌐';
-        const code = countryCode.toUpperCase();
-        return String.fromCodePoint(...[...code].map(c => 0x1F1A5 + c.charCodeAt(0)));
+        return (typeof adminCountryFlag === 'function') ? adminCountryFlag(countryCode) : '🌐';
+      }
+      function countryName(countryCode, fallback) {
+        return (typeof adminCountryName === 'function') ? adminCountryName(countryCode) : (fallback || countryCode || 'غير معروف');
+      }
+      function decodeCity(city) {
+        return (typeof adminDecodeCity === 'function') ? adminDecodeCity(city) : (city || '');
       }
 
       function sectionLabel(section) {
@@ -304,21 +309,23 @@
         }
 
         tbody.innerHTML = data.online.map(u => {
-          const identity = u.name || u.email || (u.userId ? 'مستخدم مسجل' : 'زائر مجهول');
-          const identityHint = u.email && u.name ? `<div style="font-size:0.7rem;color:var(--text-muted)">${u.email}</div>` : '';
+          const identity = u.name || (u.email ? u.email.split('@')[0] : '') || (u.userId ? 'مستخدم مسجل' : 'زائر مجهول');
+          const identityHint = u.email ? `<div style="font-size:0.7rem;color:var(--text-muted);direction:ltr;text-align:right;">${u.email}</div>` : '';
+          const nameHint = u.name && u.email ? `<div style="font-size:0.7rem;color:var(--text-muted);direction:ltr;text-align:right;">${u.email}</div>` : '';
           return `
           <tr data-session="${u.sessionId}">
             <td>
               <div style="font-weight:700">${identity}</div>
-              ${identityHint}
-              <span class="user-type ${u.userId ? 'user-type--user' : 'user-type--guest'}" style="margin-top:0.25rem">${u.userId ? 'مستخدم' : 'زائر'}</span>
+              ${nameHint || identityHint}
+              <span class="user-type ${u.userId ? 'user-type--user' : 'user-type--guest'}" style="margin-top:0.25rem">${u.userId ? 'مستخدم مسجل' : 'زائر'}</span>
+              ${u.userId ? `<div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem">ID: ${u.userId.slice(0,8)}</div>` : ''}
             </td>
             <td>
               <div class="country-cell">
-                <span class="country-flag">${countryFlag(u.countryCode)}</span>
-                <span>${u.country || 'غير معروف'}</span>
+                <span class="country-flag">${countryFlag(u.countryCode || u.country)}</span>
+                <span>${countryName(u.countryCode || u.country, u.country)}</span>
               </div>
-              ${u.city ? `<div style="font-size:0.75rem;color:var(--text-muted)">${u.city}</div>` : ''}
+              ${decodeCity(u.city) ? `<div style="font-size:0.75rem;color:var(--text-muted)">${decodeCity(u.city)}${u.region ? ' · ' + u.region : ''}</div>` : u.region ? `<div style="font-size:0.75rem;color:var(--text-muted)">${u.region}</div>` : ''}
             </td>
             <td>${parseDevice(u.userAgent)}<br><span style="font-size:0.7rem;color:var(--text-muted)">${u.screen || ''}</span></td>
             <td><a class="page-link" href="${u.url || '#' }" target="_blank" title="${u.page || ''}">${u.section || u.page || '-'}</a></td>
