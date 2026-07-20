@@ -1,12 +1,13 @@
 // ===== Bonds Unified Auth System =====
 // Replaces: supabase-client.js + auth-guard.js + admin-auth-v2.js
-// Usage: <script src="/bonds-auth-2026.js?v=3.0.5"></script> (after /api/env and supabase library)
+// Usage: <script src="/bonds-auth-2026.js?v=3.0.6"></script> (after /api/env and supabase library)
 
 (function() {
   'use strict';
 
   let _supabase = null;
   let _envPromise = null;
+  let _supabaseLibPromise = null;
 
   function getEnv() {
     if (typeof window !== 'undefined' && window.__ENV) {
@@ -27,7 +28,43 @@
     });
   }
 
+  function loadSupabaseLibrary() {
+    return new Promise((resolve, reject) => {
+      if (typeof document === 'undefined') return reject(new Error('No document'));
+      if (typeof supabase !== 'undefined') return resolve();
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+      script.async = true;
+      script.onload = () => {
+        console.log('[BondsAuth] Supabase library loaded dynamically');
+        resolve();
+      };
+      script.onerror = () => reject(new Error('Failed to load Supabase library'));
+      document.head.appendChild(script);
+    });
+  }
+
+  async function ensureSupabaseLibrary(retries = 3) {
+    if (typeof supabase !== 'undefined') return;
+    if (!_supabaseLibPromise) {
+      _supabaseLibPromise = (async () => {
+        for (let i = 0; i < retries; i++) {
+          if (typeof supabase !== 'undefined') return;
+          try {
+            await loadSupabaseLibrary();
+            if (typeof supabase !== 'undefined') return;
+          } catch (e) {
+            console.warn('[BondsAuth] Supabase library load attempt failed:', e.message);
+          }
+          await new Promise(r => setTimeout(r, 300 * (i + 1)));
+        }
+      })();
+    }
+    return _supabaseLibPromise;
+  }
+
   async function ensureEnv(retries = 5) {
+    await ensureSupabaseLibrary();
     const current = getEnv();
     console.log('[BondsAuth] ensureEnv called. Current env:', { url: current.SUPABASE_URL ? 'set' : 'missing', key: current.SUPABASE_ANON_KEY ? 'set' : 'missing' });
     if (current.SUPABASE_URL && current.SUPABASE_ANON_KEY) {
