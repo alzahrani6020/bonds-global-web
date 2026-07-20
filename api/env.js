@@ -14,17 +14,21 @@ async function handler(req, res) {
 
   let adminEnforceMfa = process.env.ADMIN_ENFORCE_MFA === 'true';
   try {
-    const sb = getSupabase();
-    const { data } = await sb.from('site_settings').select('value').eq('key', 'admin_enforce_mfa').single();
-    if (data?.value === 'true') adminEnforceMfa = true;
-    else if (data?.value === 'false') adminEnforceMfa = false;
+    const hasServerSupabase = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL)
+      && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY);
+    if (hasServerSupabase) {
+      const sb = getSupabase();
+      const { data } = await sb.from('site_settings').select('value').eq('key', 'admin_enforce_mfa').single();
+      if (data?.value === 'true') adminEnforceMfa = true;
+      else if (data?.value === 'false') adminEnforceMfa = false;
+    }
   } catch (e) {
     // keep env fallback
   }
 
   const env = {
-    SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+    SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '',
+    SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '',
     STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
     STRIPE_PRICE_PRO: process.env.STRIPE_PRICE_PRO || '',
     STRIPE_PRICE_ENTERPRISE: process.env.STRIPE_PRICE_ENTERPRISE || '',

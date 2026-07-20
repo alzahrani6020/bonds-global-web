@@ -1,6 +1,6 @@
 // ===== Bonds Unified Auth System =====
 // Replaces: supabase-client.js + auth-guard.js + admin-auth-v2.js
-// Usage: <script src="/bonds-auth-2026.js?v=3.0.4"></script> (after /api/env and supabase library)
+// Usage: <script src="/bonds-auth-2026.js?v=3.0.5"></script> (after /api/env and supabase library)
 
 (function() {
   'use strict';
@@ -28,19 +28,25 @@
   }
 
   async function ensureEnv(retries = 5) {
-    if (getEnv().SUPABASE_URL && getEnv().SUPABASE_ANON_KEY) {
-      return getEnv();
+    const current = getEnv();
+    console.log('[BondsAuth] ensureEnv called. Current env:', { url: current.SUPABASE_URL ? 'set' : 'missing', key: current.SUPABASE_ANON_KEY ? 'set' : 'missing' });
+    if (current.SUPABASE_URL && current.SUPABASE_ANON_KEY) {
+      return current;
     }
     if (!_envPromise) {
       _envPromise = (async () => {
         for (let i = 0; i < retries; i++) {
-          if (getEnv().SUPABASE_URL && getEnv().SUPABASE_ANON_KEY) {
-            return getEnv();
+          const loopEnv = getEnv();
+          console.log('[BondsAuth] env retry', i, 'current:', { url: loopEnv.SUPABASE_URL ? 'set' : 'missing', key: loopEnv.SUPABASE_ANON_KEY ? 'set' : 'missing' });
+          if (loopEnv.SUPABASE_URL && loopEnv.SUPABASE_ANON_KEY) {
+            return loopEnv;
           }
           try {
             await loadEnvScript();
-            if (getEnv().SUPABASE_URL && getEnv().SUPABASE_ANON_KEY) {
-              return getEnv();
+            const afterLoad = getEnv();
+            console.log('[BondsAuth] /api/env loaded. After load:', { url: afterLoad.SUPABASE_URL ? 'set' : 'missing', key: afterLoad.SUPABASE_ANON_KEY ? 'set' : 'missing', full: afterLoad });
+            if (afterLoad.SUPABASE_URL && afterLoad.SUPABASE_ANON_KEY) {
+              return afterLoad;
             }
           } catch (e) {
             console.warn('[BondsAuth] env load attempt failed:', e.message);
@@ -55,10 +61,14 @@
 
   function getSupabase() {
     if (_supabase) return _supabase;
-    if (typeof supabase === 'undefined') return null;
+    if (typeof supabase === 'undefined') {
+      console.warn('[BondsAuth] supabase global not available');
+      return null;
+    }
     const env = getEnv();
     if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
       // Env not ready yet; gracefully degrade. Caller should await ensureEnv() first.
+      console.warn('[BondsAuth] getSupabase missing env:', { url: env.SUPABASE_URL ? 'set' : 'missing', key: env.SUPABASE_ANON_KEY ? 'set' : 'missing' });
       return null;
     }
     _supabase = supabase.createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
