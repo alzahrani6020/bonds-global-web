@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v2.99.8';
+const CACHE_VERSION = 'v2.99.9';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -127,7 +127,9 @@ const MAX_IMAGE_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => cache.addAll(CORE_ASSETS))
+    caches.open(STATIC_CACHE).then((cache) =>
+      cache.addAll(CORE_ASSETS.map((url) => new Request(url, { cache: 'no-cache' })))
+    )
   );
   self.skipWaiting();
 });
@@ -144,6 +146,13 @@ self.addEventListener('activate', (event) => {
         )
       )
       .then(() => self.clients.claim())
+  );
+
+  // Notify all clients that a new version is active so they can reload
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then((clients) => {
+      clients.forEach((client) => client.postMessage({ type: 'SW_ACTIVATED', version: CACHE_VERSION }));
+    })
   );
 });
 
@@ -175,20 +184,18 @@ async function networkFirst(request) {
   }
 }
 
-async function cacheFirst(request) {
+async function staleWhileRevalidate(request) {
   const cached = await caches.match(request);
-  if (cached) return cached;
 
-  try {
-    const networkResponse = await fetch(request);
+  const fetchPromise = fetch(request).then(async (networkResponse) => {
     if (networkResponse && networkResponse.status === 200 && isSameOrigin(new URL(request.url))) {
       const cache = await caches.open(STATIC_CACHE);
-      cache.put(request, networkResponse.clone());
+      await cache.put(request, networkResponse.clone());
     }
     return networkResponse;
-  } catch (err) {
-    throw err;
-  }
+  }).catch(() => cached);
+
+  return cached || fetchPromise;
 }
 
 async function imageStrategy(request) {
@@ -235,9 +242,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Core static assets: cache-first for offline speed
+  // Core static assets: stale-while-revalidate so updates appear quickly
   if (isCoreAsset(request) || request.destination === 'style' || request.destination === 'script' || request.destination === 'manifest') {
-    event.respondWith(cacheFirst(request));
+    event.respondWith(staleWhileRevalidate(request));
     return;
   }
 
