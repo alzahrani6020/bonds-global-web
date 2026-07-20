@@ -1574,7 +1574,7 @@ function generatePage(sector, lang) {
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="${isAr ? '../../' : '../../../'}components/universal-dropdown.css" />
   <script src="${isAr ? '../../' : '../../../'}components/universal-dropdown.js"></script>
-  <script src="${isAr ? '../../calculators/' : '../../../calculators/'}shared-geo.js?v=5"></script>
+  <script src="${isAr ? '../../calculators/' : '../../../calculators/'}shared-geo.js?v=6"></script>
   <script src="${isAr ? '../../calculators/' : '../../../calculators/'}shared-platforms.js?v=2"></script>
   <script src="${isAr ? '../../calculators/' : '../../../calculators/'}shared-country-selector.js?v=3"></script>
 </head>

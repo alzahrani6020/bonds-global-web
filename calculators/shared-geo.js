@@ -260,7 +260,7 @@
       const cs = countrySelect();
       const gs = governorateSelect();
       const cits = citySelect();
-      populateSelect(cs, getCountries({ lang }), { placeholder: p.country, selected: config.selectedCountry });
+      populateSelect(cs, getCountries({ lang }), { placeholder: p.country, selected: config.selectedCountry || 'SA' });
       refreshDropdown(cs);
       if (config.selectedCountry && cs) {
         cs.value = config.selectedCountry;
@@ -345,7 +345,7 @@
     function apply() {
       const select = getActiveSelect(_select);
       if (!select) return;
-      populateSelect(select, getCountries({ lang }), { placeholder: placeholder, selected: config.selectedCountry });
+      populateSelect(select, getCountries({ lang }), { placeholder: placeholder, selected: config.selectedCountry || 'SA' });
       refreshDropdown(select);
     }
     const ready = ensureMasterData().then(apply).catch(err => console.warn('BondsGeo.bindCountryOnly:', err));
@@ -377,7 +377,7 @@
     ensureMasterData().then(function() {
       selects.forEach(function(select) {
         const lang = select.dataset.bondsGeoLang || getLang();
-        bindCountryOnly({ selectId: select, lang: lang });
+        bindCountryOnly({ selectId: select, lang: lang, selectedCountry: 'SA' });
       });
     }).catch(function(err) {
       console.warn('BondsGeo.autoInit:', err);
