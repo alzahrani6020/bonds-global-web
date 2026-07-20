@@ -102,9 +102,9 @@
     const params = new URLSearchParams(window.location.search);
     const fromParam = params.get('redirect');
     const origin = (typeof window !== 'undefined' && window.location ? window.location.origin : '');
-    const fallback = origin + '/calculator.html';
+    const fallback = origin + '/index.html';
     if (fromParam) {
-      const safe = fromParam.startsWith('/') && !fromParam.startsWith('//') ? fromParam : '/calculator.html';
+      const safe = fromParam.startsWith('/') && !fromParam.startsWith('//') ? fromParam : '/index.html';
       try { sessionStorage.setItem('auth_redirect', safe); } catch(e) {}
       return origin + safe;
     }
