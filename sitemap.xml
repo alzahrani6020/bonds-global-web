@@ -30,6 +30,8 @@
   <url><loc>https://bonds-global.com/blog/index.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/blog/pricing-strategy.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/blog/tax-zakat-sme.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/reports/index.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://bonds-global.com/en/reports/index.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/auth/account.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/auth/confirmed.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://bonds-global.com/calculators/auth/debug.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>

@@ -98,6 +98,7 @@
       medicalCalc: isEn ? 'Medical Viability' : 'الجدوى الطبية',
       invoiceCalc: isEn ? 'Invoice Analyzer' : 'تحليل الفواتير',
       templateCalc: isEn ? 'Feasibility Template' : 'نموذج دراسة الجدوى',
+      manufacturingFeasibilityCalc: isEn ? 'Manufacturing Feasibility' : 'الجدوى المالية للمصنع',
       valuation: isEn ? 'Valuation' : 'التقييم',
       creditworthinessCalc: isEn ? 'Credit Rating' : 'تقييم الجدارة الائتمانية',
       realProjectAnalysis: isEn ? 'Real Project Analysis' : 'تحليل المشروع الحقيقي',
@@ -167,6 +168,7 @@
         items: [
           { label: labels.pricingCalc, href: calcBase + 'pricing.html' },
           { label: labels.templateCalc, href: calcBase + 'feasibility-template.html' },
+          { label: labels.manufacturingFeasibilityCalc, href: calcBase + 'manufacturing-feasibility.html' },
         ],
       },
     ];
@@ -269,7 +271,8 @@
     const aboutHref = langBase + 'about.html';
     const caseStudiesHref = langBase + 'case-studies.html';
     const projectRescueHref = langBase + 'project-rescue.html';
-    const blogHref = langBase + '../blog/index.html';
+    const blogHref = isEn ? langBase + '../blog/en/index.html' : langBase + '../blog/index.html';
+    const reportsHref = isEn ? langBase + 'reports/index.html' : langBase + '../reports/index.html';
     const faqHref = langBase + 'faq.html';
     const contactHref = langBase + 'contact.html';
     const clientPortalHref = isEn ? '/en/v3/portfolio' : '/v3/portfolio';
@@ -308,7 +311,7 @@
       <div class="footer-title">${labels.knowledgeTitle}</div>
       <div class="footer-links">
         <a href="${blogHref}">${isEn ? 'Articles' : 'المقالات'}</a>
-        <a href="${blogHref}">${isEn ? 'Guides & Reports' : 'الأدلة والتقارير'}</a>
+        <a href="${reportsHref}">${isEn ? 'Guides & Reports' : 'الأدلة والتقارير'}</a>
         <a href="${faqHref}">${isEn ? 'FAQ' : 'الأسئلة الشائعة'}</a>
       </div>
     </div>
