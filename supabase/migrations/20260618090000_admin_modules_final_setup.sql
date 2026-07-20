@@ -693,3 +693,9 @@ CREATE POLICY "recovery_documents_storage_delete" ON storage.objects
     bucket_id = 'recovery-documents' AND
     public.recovery_is_manager_or_admin(auth.uid())
   );
+
+
+
+
+
+

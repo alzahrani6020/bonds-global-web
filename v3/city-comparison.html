@@ -197,7 +197,7 @@
     <div class="controls">
       <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">النشاط</label>
-        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activitySelect"><option value="">اختر النشاط</option></select>
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activitySelect"><option value="">كل الأنشطة</option></select>
       </div>
       <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">السنة</label>
@@ -303,9 +303,8 @@
 
         const activitySelect = document.getElementById('activitySelect');
         if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(activitySelect);
-        activities.forEach(a => {
-          activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar} (${a.code})</option>`;
-        });
+        activitySelect.innerHTML = '<option value="">كل الأنشطة</option>' +
+          activities.map(a => `<option value="${a.code}">${a.name_ar} (${a.code})</option>`).join('');
 
         const modelSelect = document.getElementById('modelSelect');
         if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(modelSelect);
@@ -341,11 +340,23 @@
         codes = Object.keys(countryNames);
       }
       codes = sortCountryCodes(codes);
-      const currentValue = preferredCode || select.value || 'SA';
+      const targetValue = preferredCode || select.value || 'SA';
       select.innerHTML = '<option value="">كل الدول</option>' +
         codes.map(code => `<option value="${code}">${countryNames[code] || code}</option>`).join('');
-      if (codes.includes(currentValue)) select.value = currentValue;
-      if (window.initUniversalDropdowns) window.initUniversalDropdowns(select);
+      const currentValue = codes.includes(targetValue) ? targetValue : (codes.includes('SA') ? 'SA' : '');
+      if (currentValue) {
+        select.value = currentValue;
+      }
+      if (window.initUniversalDropdowns) {
+        window.initUniversalDropdowns(select);
+        const dd = window.getUniversalDropdown && window.getUniversalDropdown(select);
+        if (dd && typeof dd.value !== 'undefined' && currentValue) {
+          try { dd.value = currentValue; } catch (e) {}
+        }
+      }
+      if (currentValue && select.value !== currentValue) {
+        select.value = currentValue;
+      }
     }
 
     async function updateCityList() {
@@ -419,7 +430,6 @@
       const modelCode = document.getElementById('modelSelect').value;
       const btn = document.getElementById('compareBtn');
 
-      if (!activityCode) return alert('اختر النشاط');
       if (selectedCities.size === 0) return alert('اختر مدينة واحدة على الأقل');
 
       btn.disabled = true;
@@ -428,7 +438,8 @@
 
       try {
         const cityCodes = Array.from(selectedCities).join(',');
-        let url = `${API_URL}/compare/cities?activity=${encodeURIComponent(activityCode)}&cities=${encodeURIComponent(cityCodes)}&year=${year}`;
+        let url = `${API_URL}/compare/cities?cities=${encodeURIComponent(cityCodes)}&year=${year}`;
+        if (activityCode) url += `&activity=${encodeURIComponent(activityCode)}`;
         if (modelCode) url += `&model=${encodeURIComponent(modelCode)}`;
         const data = await fetchJson(url);
         renderComparison(data);

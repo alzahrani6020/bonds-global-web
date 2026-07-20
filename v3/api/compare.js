@@ -73,9 +73,6 @@ async function handleCompareCities(req, res) {
   const modelCode = body.modelCode || url.searchParams.get('model');
   const cityCodes = body.cityCodes || (url.searchParams.get('cities') || '').split(',').filter(Boolean);
 
-  if (!activityCode) {
-    return sendJson(res, 400, { error: 'activityCode is required' });
-  }
   if (!cityCodes.length || cityCodes.length > 10) {
     return sendJson(res, 400, { error: 'cityCodes must contain 1 to 10 cities' });
   }
@@ -83,7 +80,7 @@ async function handleCompareCities(req, res) {
   const supabase = getSupabaseClient();
 
   try {
-    const activity = await resolveActivity(supabase, activityCode);
+    const activity = activityCode ? await resolveActivity(supabase, activityCode) : null;
 
     const { data: cities, error: citiesError } = await supabase
       .from('cities')
@@ -96,7 +93,7 @@ async function handleCompareCities(req, res) {
     for (const city of cities || []) {
       const [indicators, market] = await Promise.all([
         getLatestIndicator(supabase, city.id, year),
-        getLatestMarketData(supabase, city.id, activity.id, year)
+        activity ? getLatestMarketData(supabase, city.id, activity.id, year) : Promise.resolve(null)
       ]);
 
       const item = {
