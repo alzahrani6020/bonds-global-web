@@ -1,6 +1,6 @@
 // ===== Bonds Unified Auth System =====
 // Replaces: supabase-client.js + auth-guard.js + admin-auth-v2.js
-// Usage: <script src="/bonds-auth-2026.js"></script> (after /api/env and supabase library)
+// Usage: <script src="/bonds-auth-2026.js?v=3.0.1"></script> (after /api/env and supabase library)
 
 (function() {
   'use strict';
@@ -238,6 +238,7 @@
   }
 
   // ── UI: Site header avatar/login ──────────────────────────
+  let _authHeaderListener = null;
   function initSiteAuth(containerId) {
     const container = document.getElementById(containerId || 'authContainer');
     if (!container) return;
@@ -249,8 +250,7 @@
       });
     }
 
-    getUser().then(({ data: userData }) => {
-      const user = userData?.user;
+    function render(user) {
       if (!user) {
         container.innerHTML = '';
         toggleAuthButtons(true);
@@ -279,6 +279,22 @@
             </div>
           </div>`;
       });
+    }
+
+    // Recover session first, then render
+    recoverSession({ force: true }).then(() => {
+      return getUser();
+    }).then(({ data: userData }) => {
+      render(userData?.user || null);
+
+      // Subscribe to auth state changes so header updates when user logs in/out
+      const sb = getSupabase();
+      if (sb && !_authHeaderListener) {
+        const { data: listener } = sb.auth.onAuthStateChange((event, session) => {
+          render(session?.user || null);
+        });
+        _authHeaderListener = listener;
+      }
     });
 
     document.addEventListener('click', () => {
