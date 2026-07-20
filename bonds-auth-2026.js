@@ -1,6 +1,6 @@
 // ===== Bonds Unified Auth System =====
 // Replaces: supabase-client.js + auth-guard.js + admin-auth-v2.js
-// Usage: <script src="/bonds-auth-2026.js?v=3.0.1"></script> (after /api/env and supabase library)
+// Usage: <script src="/bonds-auth-2026.js?v=3.0.2"></script> (after /api/env and supabase library)
 
 (function() {
   'use strict';
@@ -241,7 +241,10 @@
   let _authHeaderListener = null;
   function initSiteAuth(containerId) {
     const container = document.getElementById(containerId || 'authContainer');
-    if (!container) return;
+    if (!container) {
+      console.warn('[BondsAuth] initSiteAuth: container not found', containerId);
+      return;
+    }
 
     function toggleAuthButtons(showAuthButtons) {
       ['headerLoginBtn', 'headerSignupBtn'].forEach(id => {
@@ -259,7 +262,8 @@
 
       toggleAuthButtons(false);
 
-      getProfile(user.id).then(({ data: profile }) => {
+      getProfile(user.id).then(({ data: profile, error: profileError }) => {
+        if (profileError) console.warn('[BondsAuth] getProfile error:', profileError.message);
         const name = profile?.restaurant_name || user.user_metadata?.restaurant_name || user.email?.split('@')[0] || 'مستخدم';
         const initial = name.charAt(0).toUpperCase();
         const isEn = location.pathname.startsWith('/en/');
@@ -281,26 +285,34 @@
       });
     }
 
-    // Recover session first, then render
-    recoverSession({ force: true }).then(() => {
-      return getUser();
-    }).then(({ data: userData }) => {
-      render(userData?.user || null);
+    getUser()
+      .then(({ data: userData, error: userError }) => {
+        if (userError) console.warn('[BondsAuth] getUser error:', userError.message);
+        render(userData?.user || null);
+      })
+      .catch(err => {
+        console.error('[BondsAuth] initSiteAuth failed:', err);
+        container.innerHTML = '';
+        toggleAuthButtons(true);
+      });
 
-      // Subscribe to auth state changes so header updates when user logs in/out
-      const sb = getSupabase();
-      if (sb && !_authHeaderListener) {
-        const { data: listener } = sb.auth.onAuthStateChange((event, session) => {
-          render(session?.user || null);
-        });
-        _authHeaderListener = listener;
-      }
-    });
+    // Subscribe to auth state changes so header updates when user logs in/out
+    const sb = getSupabase();
+    if (sb && !_authHeaderListener) {
+      const { data: listener } = sb.auth.onAuthStateChange((event, session) => {
+        render(session?.user || null);
+      });
+      _authHeaderListener = listener;
+    }
 
-    document.addEventListener('click', () => {
-      const dd = container.querySelector('.bonds-dropdown');
-      if (dd) dd.style.display = 'none';
-    });
+    // Only add document click listener once
+    if (!container.dataset.clickBound) {
+      container.dataset.clickBound = '1';
+      document.addEventListener('click', () => {
+        const dd = container.querySelector('.bonds-dropdown');
+        if (dd) dd.style.display = 'none';
+      });
+    }
   }
 
   // ── UI: Admin guard ───────────────────────────────────────

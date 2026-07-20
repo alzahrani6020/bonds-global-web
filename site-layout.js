@@ -577,7 +577,7 @@
     }
     // Dynamically load the auth script on pages that don't include it directly
     const authScript = document.createElement('script');
-    authScript.src = '/bonds-auth-2026.js?v=3.0.1';
+    authScript.src = '/bonds-auth-2026.js?v=3.0.2';
     authScript.async = true;
     authScript.onload = function () {
       if (window.BondsAuth && window.BondsAuth.initSiteAuth) {
