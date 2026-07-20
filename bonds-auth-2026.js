@@ -1,23 +1,67 @@
 // ===== Bonds Unified Auth System =====
 // Replaces: supabase-client.js + auth-guard.js + admin-auth-v2.js
-// Usage: <script src="/bonds-auth-2026.js?v=3.0.3"></script> (after /api/env and supabase library)
+// Usage: <script src="/bonds-auth-2026.js?v=3.0.4"></script> (after /api/env and supabase library)
 
 (function() {
   'use strict';
 
-  const SUPABASE_URL = window.__ENV?.SUPABASE_URL || '';
-  const SUPABASE_KEY = window.__ENV?.SUPABASE_ANON_KEY || '';
-  const ADMIN_EMAIL = window.__ENV?.ADMIN_EMAIL || '';
   let _supabase = null;
+  let _envPromise = null;
+
+  function getEnv() {
+    if (typeof window !== 'undefined' && window.__ENV) {
+      return window.__ENV;
+    }
+    return {};
+  }
+
+  function loadEnvScript() {
+    return new Promise((resolve, reject) => {
+      if (typeof document === 'undefined') return reject(new Error('No document'));
+      const script = document.createElement('script');
+      script.src = '/api/env?_=' + Date.now();
+      script.async = true;
+      script.onload = () => resolve(getEnv());
+      script.onerror = () => reject(new Error('Failed to load /api/env'));
+      document.head.appendChild(script);
+    });
+  }
+
+  async function ensureEnv(retries = 5) {
+    if (getEnv().SUPABASE_URL && getEnv().SUPABASE_ANON_KEY) {
+      return getEnv();
+    }
+    if (!_envPromise) {
+      _envPromise = (async () => {
+        for (let i = 0; i < retries; i++) {
+          if (getEnv().SUPABASE_URL && getEnv().SUPABASE_ANON_KEY) {
+            return getEnv();
+          }
+          try {
+            await loadEnvScript();
+            if (getEnv().SUPABASE_URL && getEnv().SUPABASE_ANON_KEY) {
+              return getEnv();
+            }
+          } catch (e) {
+            console.warn('[BondsAuth] env load attempt failed:', e.message);
+          }
+          await new Promise(r => setTimeout(r, 200 * (i + 1)));
+        }
+        return getEnv();
+      })();
+    }
+    return _envPromise;
+  }
 
   function getSupabase() {
     if (_supabase) return _supabase;
     if (typeof supabase === 'undefined') return null;
-    if (!SUPABASE_URL || !SUPABASE_KEY) {
-      // Missing env config (e.g. local dev without .env); gracefully degrade auth features
+    const env = getEnv();
+    if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+      // Env not ready yet; gracefully degrade. Caller should await ensureEnv() first.
       return null;
     }
-    _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    _supabase = supabase.createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
@@ -31,6 +75,7 @@
 
   // ── Auth helpers ──────────────────────────────────────────
   async function getUser() {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb) return { data: { user: null }, error: new Error('Not initialized') };
     // Try to recover session first so a stale access token gets refreshed from localStorage
@@ -46,6 +91,7 @@
   let _lastKnownUser = null;
 
   async function getSession() {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb) return { data: { session: null }, error: new Error('Not initialized') };
     return sb.auth.getSession();
@@ -63,9 +109,10 @@
   }
 
   async function checkAdminMfa(token) {
+    await ensureEnv();
     try {
       const aal = decodeJwtAal(token);
-      const enforceMfa = window.__ENV?.ADMIN_ENFORCE_MFA === 'true';
+      const enforceMfa = getEnv().ADMIN_ENFORCE_MFA === 'true';
       if (enforceMfa && aal !== 'aal2') {
         return { ok: false, aal };
       }
@@ -76,12 +123,14 @@
   }
 
   async function getProfile(userId) {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb || !userId) return { data: null, error: new Error('Not initialized') };
     return sb.from('profiles').select('*').eq('id', userId).single();
   }
 
   async function updateProfile(userId, fields) {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb || !userId) return { data: null, error: new Error('Not initialized') };
     const payload = { ...fields, id: userId, updated_at: new Date().toISOString() };
@@ -89,12 +138,14 @@
   }
 
   async function getSubscription(userId) {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb || !userId) return { data: null, error: new Error('Not initialized') };
     return sb.from('subscriptions').select('*').eq('user_id', userId).single();
   }
 
   async function getAdminRole(userId) {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb || !userId) return { data: null, error: new Error('Not initialized') };
     return sb.from('admin_roles').select('role').eq('user_id', userId).single();
@@ -142,30 +193,35 @@
   }
 
   async function signUp(email, password, metadata) {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
     return sb.auth.signUp({ email, password, options: { data: metadata || {}, emailRedirectTo: 'https://bonds-global.com/calculators/auth/confirmed.html' } });
   }
 
   async function signIn(email, password) {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
     return sb.auth.signInWithPassword({ email, password });
   }
 
   async function signInWithOTP(email, options) {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
     return sb.auth.signInWithOtp({ email, options: options || {} });
   }
 
   async function verifyOTP(email, token, type) {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
     return sb.auth.verifyOtp({ email, token, type: type || 'email' });
   }
 
   async function updateUser(attributes) {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
     return sb.auth.updateUser(attributes || {});
@@ -179,6 +235,7 @@
   }
 
   async function signInWithOAuth(provider, options) {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
     const redirectTo = normalizeUrl(options?.redirectTo) || 'https://bonds-global.com/calculators/auth/confirmed.html';
@@ -186,12 +243,14 @@
   }
 
   async function resendConfirmation(email) {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
     return sb.auth.resend({ email, type: 'signup' });
   }
 
   async function signOut() {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
     localStorage.removeItem('bonds_avatar_url');
@@ -241,13 +300,18 @@
 
   // ── UI: Site header avatar/login ──────────────────────────
   let _authHeaderListener = null;
-  function initSiteAuth(containerId) {
-    const container = document.getElementById(containerId || 'authContainer');
-    if (!container) {
-      console.warn('[BondsAuth] initSiteAuth: container not found', containerId);
-      return;
-    }
-    console.log('[BondsAuth] initSiteAuth running for', containerId);
+  let _initSiteAuthRunning = false;
+  async function initSiteAuth(containerId) {
+    if (_initSiteAuthRunning) return;
+    _initSiteAuthRunning = true;
+    try {
+      await ensureEnv();
+      const container = document.getElementById(containerId || 'authContainer');
+      if (!container) {
+        console.warn('[BondsAuth] initSiteAuth: container not found', containerId);
+        return;
+      }
+      console.log('[BondsAuth] initSiteAuth running for', containerId);
 
     function toggleAuthButtons(showAuthButtons) {
       ['headerLoginBtn', 'headerSignupBtn'].forEach(id => {
@@ -346,6 +410,9 @@
         if (dd) dd.style.display = 'none';
       });
     }
+    } finally {
+      _initSiteAuthRunning = false;
+    }
   }
 
   // ── UI: Admin guard ───────────────────────────────────────
@@ -400,7 +467,7 @@
       // Hardcoded owner fallback (safety net if ADMIN_EMAIL env var is not set)
       const OWNER_EMAIL_FALLBACK = 'hmd.dev@gmail.com';
 
-      if ((ADMIN_EMAIL && user.email === ADMIN_EMAIL) || user.email === OWNER_EMAIL_FALLBACK) {
+      if ((getEnv().ADMIN_EMAIL && user.email === getEnv().ADMIN_EMAIL) || user.email === OWNER_EMAIL_FALLBACK) {
         const mfa = await checkAdminMfa(token);
         if (!mfa.ok) {
           if (isMfaSetupPage) return finishAdminAccess('super_admin');
@@ -427,7 +494,8 @@
 
   // ── Session recovery when user returns to the tab/device ──
   let _recovering = false;
-  function recoverSession({ force = false } = {}) {
+  async function recoverSession({ force = false } = {}) {
+    await ensureEnv();
     const sb = getSupabase();
     if (!sb) return Promise.resolve();
     if (_recovering) return Promise.resolve();
@@ -513,7 +581,7 @@
 
   // ── Exports ───────────────────────────────────────────────
   window.BondsAuth = {
-    getSupabase, getUser, getSession, getProfile, updateProfile, getSubscription, getAdminRole,
+    getSupabase, ensureEnv, getUser, getSession, getProfile, updateProfile, getSubscription, getAdminRole,
     signUp, signIn, signInWithOTP, verifyOTP, updateUser, signInWithOAuth, resendConfirmation, signOut, checkFeatureAccess,
     getRedirectUrl, clearRedirectUrl,
     normalizePhone, isValidPhone,

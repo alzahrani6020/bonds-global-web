@@ -569,21 +569,26 @@
   }
 
   function initAuthHeader() {
+    function runInit() {
+      if (window.BondsAuth && window.BondsAuth.initSiteAuth) {
+        window.BondsAuth.initSiteAuth('authContainer').catch(err => {
+          console.warn('[site-layout] initSiteAuth failed:', err);
+        });
+      }
+    }
     if (window.BondsAuth && window.BondsAuth.initSiteAuth) {
-      window.BondsAuth.initSiteAuth('authContainer');
-      // Retry once after a short delay in case session recovery is still in progress
-      setTimeout(() => window.BondsAuth.initSiteAuth('authContainer'), 1200);
+      runInit();
+      // Retry once after a short delay in case env/session recovery is still in progress
+      setTimeout(runInit, 1200);
       return;
     }
     // Dynamically load the auth script on pages that don't include it directly
     const authScript = document.createElement('script');
-    authScript.src = '/bonds-auth-2026.js?v=3.0.3';
+    authScript.src = '/bonds-auth-2026.js?v=3.0.4';
     authScript.async = true;
     authScript.onload = function () {
-      if (window.BondsAuth && window.BondsAuth.initSiteAuth) {
-        window.BondsAuth.initSiteAuth('authContainer');
-        setTimeout(() => window.BondsAuth.initSiteAuth('authContainer'), 1200);
-      }
+      runInit();
+      setTimeout(runInit, 1200);
     };
     document.head.appendChild(authScript);
   }

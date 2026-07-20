@@ -1,10 +1,11 @@
 // ===== Supabase Client =====
 // Reads from window.__ENV injected by /api/env.js
 // Add this BEFORE this script: <script src="/api/env"></script>
-const SUPABASE_URL = window.__ENV?.SUPABASE_URL || '';
-const SUPABASE_KEY = window.__ENV?.SUPABASE_ANON_KEY || '';
-
 let _supabase = null;
+
+function getEnv() {
+  return (typeof window !== 'undefined' && window.__ENV) || {};
+}
 
 function getSupabase() {
   // Prefer the unified auth client so only one Supabase instance manages
@@ -18,11 +19,12 @@ function getSupabase() {
     console.error('[BondsAuth] Supabase library not loaded');
     return null;
   }
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
+  const env = getEnv();
+  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
     // Missing env config (e.g. local dev without .env); gracefully degrade auth features
     return null;
   }
-  _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  _supabase = supabase.createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
     auth: {
       autoRefreshToken: true,
       persistSession: true,

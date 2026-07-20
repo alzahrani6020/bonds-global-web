@@ -4,7 +4,8 @@
 // Call BEFORE any Bonds scripts in HTML <head>
 // ============================================
 
-const { withRateLimit } = require('../lib/api/rate-limit');
+// NOTE: This endpoint is loaded on every page load before auth, so it must
+// never be blocked by rate limiting. It only serves public browser-safe keys.
 const getSupabase = require('../lib/api/supabase');
 
 async function handler(req, res) {
@@ -38,4 +39,4 @@ async function handler(req, res) {
   res.status(200).end(`window.__ENV = ${JSON.stringify(env)};`);
 }
 
-module.exports = withRateLimit('public', handler);
+module.exports = handler;
